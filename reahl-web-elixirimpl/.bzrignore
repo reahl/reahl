@@ -1,0 +1,12 @@
+*egg-info
+*.spic
+*~
+
+build
+build-stamp
+configure-stamp
+tmp
+debian/python-reahl-web-elixirimpl.*.debhelper
+debian/python-reahl-web-elixirimpl.substvars
+debian/python-reahl-web-elixirimpl
+debian/files

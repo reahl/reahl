@@ -1,0 +1,14 @@
+<project type="egg" >
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    
+    <egg name="reahl-stubble"/>
+  </deps>
+
+  <alias name="unit" command="setup -- -q nosetests"/>  
+  
+</project>

@@ -1,0 +1,31 @@
+<project type="egg" packagedata="included">
+  <configuration locator="reahl.domainuiegg:DomainUiConfig"/>
+  <namespaces>
+    <package name="reahl"/>
+    <package name="reahl.messages"/>
+  </namespaces>
+
+  <translations locator="reahl.messages"/>
+
+  <deps purpose="run">
+    <egg name="reahl-component"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web"/>
+    <egg name="reahl-domain"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+  
+  <export entrypoint="reahl.workflowui.task_widgets" name="TaskWidget" locator="reahl.domainui.workflow:TaskWidget"/>
+
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domainui_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+    
+</project>

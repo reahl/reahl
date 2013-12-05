@@ -1,0 +1,1 @@
+recursive-include reahl/doc/example *.py .reahlproject

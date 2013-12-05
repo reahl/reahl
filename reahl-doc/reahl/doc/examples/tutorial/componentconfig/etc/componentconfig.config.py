@@ -1,0 +1,1 @@
+componentconfig.showheader = True

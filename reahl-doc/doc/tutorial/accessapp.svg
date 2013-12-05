@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0 0 1484.8074 829.98972"
+   stroke-miterlimit="10"
+   id="svg3612"
+   inkscape:version="0.48.3.1 r9886"
+   width="100%"
+   height="100%"
+   sodipodi:docname="accessapp.svg"
+   style="fill:none;stroke:none">
+  <metadata
+     id="metadata3907">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3905">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible">
+      <path
+         id="path5138"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lend"
+       style="overflow:visible">
+      <path
+         id="path5156"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1301"
+     inkscape:window-height="744"
+     id="namedview3903"
+     showgrid="false"
+     inkscape:zoom="0.46952855"
+     inkscape:cx="943.10486"
+     inkscape:cy="657.52827"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g5079"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <clipPath
+     id="p.0">
+    <path
+       d="m 0,0 1759,0 0,726 L 0,726 0,0 z"
+       clip-rule="nonzero"
+       id="path3615"
+       inkscape:connector-curvature="0" />
+  </clipPath>
+  <rect
+     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+     id="rect3909"
+     width="325.29453"
+     height="230.41695"
+     x="22.09341"
+     y="309.71997" />
+  <text
+     xml:space="preserve"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     x="91.719223"
+     y="343.09985"
+     id="text3911"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3913"
+       x="91.719223"
+       y="343.09985"
+       style="font-weight:bold;-inkscape-font-specification:Sans Bold">Address Books</tspan></text>
+  <rect
+     y="20.569275"
+     x="26.611389"
+     height="230.41695"
+     width="325.29453"
+     id="rect3937"
+     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+  <text
+     sodipodi:linespacing="125%"
+     id="text3939"
+     y="53.949097"
+     x="90.213226"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     xml:space="preserve"><tspan
+       style="font-weight:bold;-inkscape-font-specification:Sans Bold"
+       y="53.949097"
+       x="90.213226"
+       id="tspan3941"
+       sodipodi:role="line">Address Books</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     x="34.206261"
+     y="99.128906"
+     id="text3943"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3945"
+       x="34.206261"
+       y="99.128906">Email:</tspan></text>
+  <text
+     sodipodi:linespacing="125%"
+     id="text3947"
+     y="147.24878"
+     x="34.206261"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     xml:space="preserve"><tspan
+       id="tspan3949"
+       y="147.24878"
+       x="34.206261"
+       sodipodi:role="line">Password:</tspan></text>
+  <rect
+     y="77.820984"
+     x="155.56087"
+     height="27.107876"
+     width="174.69521"
+     id="rect3951"
+     style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+  <rect
+     style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+     id="rect3953"
+     width="174.69521"
+     height="27.107876"
+     x="156.05487"
+     y="127.44684" />
+  <rect
+     ry="13.553938"
+     y="198.27649"
+     x="213.33057"
+     height="34.637833"
+     width="115.96148"
+     id="rect3955"
+     style="fill:#ff9955;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+  <text
+     sodipodi:linespacing="125%"
+     id="text3957"
+     y="222.62036"
+     x="238.47937"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     xml:space="preserve"><tspan
+       y="222.62036"
+       x="238.47937"
+       id="tspan3959"
+       sodipodi:role="line">Login</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:16.26220322px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     x="158.5493"
+     y="95.387756"
+     id="text3961"
+     sodipodi:linespacing="125%"><tspan
+       style="font-weight:normal;fill:#000000"
+       sodipodi:role="line"
+       id="tspan3963"
+       x="158.5493"
+       y="95.387756">johndoe@some.org</tspan></text>
+  <path
+     sodipodi:type="arc"
+     style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+     id="path3965"
+     sodipodi:cx="441.25598"
+     sodipodi:cy="-441.14468"
+     sodipodi:rx="7.5299659"
+     sodipodi:ry="7.5299659"
+     d="m 448.78595,-441.14468 a 7.5299659,7.5299659 0 1 1 -15.05993,0 7.5299659,7.5299659 0 1 1 15.05993,0 z"
+     transform="matrix(0.62490671,0,0,0.62490671,-109.05111,416.46403)" />
+  <path
+     d="m 448.78595,-441.14468 a 7.5299659,7.5299659 0 1 1 -15.05993,0 7.5299659,7.5299659 0 1 1 15.05993,0 z"
+     sodipodi:ry="7.5299659"
+     sodipodi:rx="7.5299659"
+     sodipodi:cy="-441.14468"
+     sodipodi:cx="441.25598"
+     id="path3967"
+     style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+     sodipodi:type="arc"
+     transform="matrix(0.62490671,0,0,0.62490671,-94.008409,416.46403)" />
+  <path
+     transform="matrix(0.62490671,0,0,0.62490671,-78.965717,416.46403)"
+     d="m 448.78595,-441.14468 a 7.5299659,7.5299659 0 1 1 -15.05993,0 7.5299659,7.5299659 0 1 1 15.05993,0 z"
+     sodipodi:ry="7.5299659"
+     sodipodi:rx="7.5299659"
+     sodipodi:cy="-441.14468"
+     sodipodi:cx="441.25598"
+     id="path3969"
+     style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+     sodipodi:type="arc" />
+  <path
+     transform="matrix(0.62490671,0,0,0.62490671,-63.923,416.46403)"
+     sodipodi:type="arc"
+     style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+     id="path3971"
+     sodipodi:cx="441.25598"
+     sodipodi:cy="-441.14468"
+     sodipodi:rx="7.5299659"
+     sodipodi:ry="7.5299659"
+     d="m 448.78595,-441.14468 a 7.5299659,7.5299659 0 1 1 -15.05993,0 7.5299659,7.5299659 0 1 1 15.05993,0 z" />
+  <path
+     d="m 448.78595,-441.14468 a 7.5299659,7.5299659 0 1 1 -15.05993,0 7.5299659,7.5299659 0 1 1 15.05993,0 z"
+     sodipodi:ry="7.5299659"
+     sodipodi:rx="7.5299659"
+     sodipodi:cy="-441.14468"
+     sodipodi:cx="441.25598"
+     id="path3973"
+     style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+     sodipodi:type="arc"
+     transform="matrix(0.62490671,0,0,0.62490671,-48.880302,416.46403)" />
+  <g
+     id="g4751"
+     transform="translate(8.226488,573.15747)">
+    <text
+       xml:space="preserve"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="68.664413"
+       y="-174.87787"
+       id="text3915"
+       sodipodi:linespacing="125%"><tspan
+         style="font-weight:normal;fill:#000000"
+         sodipodi:role="line"
+         id="tspan3917"
+         x="68.664413"
+         y="-174.87787">johndoe@some.org</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path3975"
+       d="m 69.258164,-172.35797 211.914696,0"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none"
+       d="m 69.258164,-125.77532 211.914696,0"
+       id="path4745"
+       inkscape:connector-curvature="0" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4747"
+       y="-128.55481"
+       x="68.664413"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="-128.55481"
+         x="68.664413"
+         id="tspan4749"
+         sodipodi:role="line"
+         style="font-weight:normal;fill:#000000">janedoe@some.org</tspan></text>
+  </g>
+  <text
+     sodipodi:linespacing="125%"
+     id="text4759"
+     y="285.87207"
+     x="35.201237"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     xml:space="preserve"><tspan
+       style="font-weight:bold;-inkscape-font-specification:Sans Bold"
+       y="285.87207"
+       x="35.201237"
+       id="tspan4761"
+       sodipodi:role="line">Or</tspan></text>
+  <rect
+     style="fill:none;stroke:#000000;stroke-width:2;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none"
+     id="rect4763"
+     width="376.49829"
+     height="557.21747"
+     x="1.0095053"
+     y="0.99139404"
+     ry="13.553938"
+     rx="0" />
+  <rect
+     y="312.32935"
+     x="456.20914"
+     height="230.41695"
+     width="525.96741"
+     id="rect4765"
+     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.27157223;stroke-opacity:1" />
+  <text
+     sodipodi:linespacing="125%"
+     id="text4767"
+     y="345.70923"
+     x="503.1969"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     xml:space="preserve"><tspan
+       style="font-weight:bold;-inkscape-font-specification:Sans Bold"
+       y="345.70923"
+       x="503.1969"
+       id="tspan4769"
+       sodipodi:role="line">Address Book: johndoe@some.org</tspan></text>
+  <text
+     sodipodi:linespacing="125%"
+     id="text4781"
+     y="472.49448"
+     x="504.98267"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     xml:space="preserve"><tspan
+       y="472.49448"
+       x="504.98267"
+       id="tspan4783"
+       sodipodi:role="line"
+       style="font-weight:normal;fill:#000000">friend@some.org</tspan></text>
+  <g
+     id="g4824"
+     transform="translate(-13.66074,789.61788)">
+    <text
+       sodipodi:linespacing="125%"
+       id="text4773"
+       y="-388.72891"
+       x="524.66736"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="-388.72891"
+         x="524.66736"
+         id="tspan4775"
+         sodipodi:role="line"
+         style="font-weight:normal;fill:#000000">Add Address</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none"
+       d="m 525.2611,-386.209 138.466,0"
+       id="path4777"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="682.04364"
+       y="-388.72891"
+       id="text4791"
+       sodipodi:linespacing="125%"><tspan
+         style="font-weight:normal;fill:#000000"
+         sodipodi:role="line"
+         id="tspan4793"
+         x="682.04364"
+         y="-388.72891">Add Collaborator</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4795"
+       d="m 682.63738,-386.209 187.877,0"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path4797"
+       d="m 673.55874,-406.5805 0,21.83481"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+    <rect
+       y="-417.0488"
+       x="513.54364"
+       height="42.920803"
+       width="373.4863"
+       id="rect4799"
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+  </g>
+  <g
+     id="g4811"
+     transform="translate(-139.31871,782.43809)">
+    <rect
+       ry="13.553938"
+       y="-333.46616"
+       x="860.48584"
+       height="34.637833"
+       width="68.408974"
+       id="rect4801"
+       style="fill:#ff9955;fill-opacity:1;stroke:#000000;stroke-width:0.76806802;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4803"
+       y="-307.7641"
+       x="872.07733"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="-307.7641"
+         x="872.07733"
+         id="tspan4805"
+         sodipodi:role="line">Edit</tspan></text>
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     x="504.98267"
+     y="514.81592"
+     id="text4807"
+     sodipodi:linespacing="125%"><tspan
+       style="font-weight:normal;fill:#000000"
+       sodipodi:role="line"
+       id="tspan4809"
+       x="504.98267"
+       y="514.81592">friend2@some.org</tspan></text>
+  <g
+     transform="translate(-139.31871,824.75952)"
+     id="g4816">
+    <rect
+       style="fill:#ff9955;fill-opacity:1;stroke:#000000;stroke-width:0.76806802;stroke-opacity:1"
+       id="rect4818"
+       width="68.408974"
+       height="34.637833"
+       x="860.48584"
+       y="-333.46616"
+       ry="13.553938" />
+    <text
+       xml:space="preserve"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="872.07733"
+       y="-307.7641"
+       id="text4820"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4822"
+         x="872.07733"
+         y="-307.7641">Edit</tspan></text>
+  </g>
+  <g
+     id="g5061"
+     transform="translate(19.963617,866.95847)">
+    <rect
+       y="-267.95547"
+       x="1039.1353"
+       height="230.41695"
+       width="425.1261"
+       id="rect4834"
+       style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.14319551;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4836"
+       y="-234.57567"
+       x="1046.8728"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold"
+         y="-234.57567"
+         x="1046.8728"
+         id="tspan4838"
+         sodipodi:role="line">Edit Address: friend2@some.org</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="1046.7301"
+       y="-189.39586"
+       id="text4840"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4842"
+         x="1046.7301"
+         y="-189.39586">Name:</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4844"
+       y="-141.27599"
+       x="1046.7301"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         id="tspan4846"
+         y="-141.27599"
+         x="1046.7301"
+         sodipodi:role="line">Email:</tspan></text>
+    <rect
+       y="-210.70378"
+       x="1168.0847"
+       height="27.107876"
+       width="174.69521"
+       id="rect4848"
+       style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+    <rect
+       style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+       id="rect4850"
+       width="174.69521"
+       height="27.107876"
+       x="1168.5787"
+       y="-161.07793" />
+    <rect
+       ry="13.553938"
+       y="-90.248276"
+       x="1225.8545"
+       height="34.637833"
+       width="115.96148"
+       id="rect4852"
+       style="fill:#ff9955;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4854"
+       y="-66.725731"
+       x="1242.7211"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="-66.725731"
+         x="1242.7211"
+         id="tspan4856"
+         sodipodi:role="line">Update</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16.26220322px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="1171.0732"
+       y="-193.13704"
+       id="text4858"
+       sodipodi:linespacing="125%"><tspan
+         style="font-weight:normal;fill:#000000"
+         sodipodi:role="line"
+         id="tspan4860"
+         x="1171.0732"
+         y="-193.13704">sammy</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4872"
+       y="-143.13704"
+       x="1171.0732"
+       style="font-size:16.26220322px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="-143.13704"
+         x="1171.0732"
+         id="tspan4874"
+         sodipodi:role="line"
+         style="font-weight:normal;fill:#000000">sammy@some.org</tspan></text>
+  </g>
+  <g
+     id="g5042"
+     transform="translate(13.688196,853.40455)">
+    <rect
+       style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:0.99680835;stroke-opacity:1"
+       id="rect4876"
+       width="323.22137"
+       height="230.41695"
+       x="1096.363"
+       y="-519.45636" />
+    <text
+       xml:space="preserve"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="1104.1006"
+       y="-486.07654"
+       id="text4878"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4880"
+         x="1104.1006"
+         y="-486.07654"
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold">Add Address</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4882"
+       y="-440.89673"
+       x="1103.9579"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="-440.89673"
+         x="1103.9579"
+         id="tspan4884"
+         sodipodi:role="line">Name:</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="1103.9579"
+       y="-392.77686"
+       id="text4886"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="1103.9579"
+         y="-392.77686"
+         id="tspan4888">Email:</tspan></text>
+    <rect
+       style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-opacity:1"
+       id="rect4890"
+       width="174.69521"
+       height="27.107876"
+       x="1225.3125"
+       y="-462.20465" />
+    <rect
+       y="-412.5788"
+       x="1225.8065"
+       height="27.107876"
+       width="174.69521"
+       id="rect4892"
+       style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+    <g
+       transform="translate(24.681075,0)"
+       id="g4951">
+      <rect
+         ry="13.553938"
+         y="-341.74915"
+         x="1283.0823"
+         height="34.637833"
+         width="92.791107"
+         id="rect4894"
+         style="fill:#ff9955;fill-opacity:1;stroke:#000000;stroke-width:0.89453286;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text4896"
+         y="-317.40527"
+         x="1301.7317"
+         style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           y="-317.40527"
+           x="1301.7317"
+           id="tspan4898"
+           sodipodi:role="line">Save</tspan></text>
+    </g>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4900"
+       y="-442.63791"
+       x="1228.301"
+       style="font-size:16.26220322px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="-442.63791"
+         x="1228.301"
+         id="tspan4902"
+         sodipodi:role="line"
+         style="font-weight:normal;fill:#000000">A Nother</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16.26220322px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="1228.301"
+       y="-394.63791"
+       id="text4904"
+       sodipodi:linespacing="125%"><tspan
+         style="font-weight:normal;fill:#000000"
+         sodipodi:role="line"
+         id="tspan4906"
+         x="1228.301"
+         y="-394.63791">another@some.org</tspan></text>
+  </g>
+  <g
+     id="g5079"
+     transform="translate(-17.937659,851.89854)">
+    <rect
+       y="-783.00519"
+       x="1127.9889"
+       height="230.41695"
+       width="323.22137"
+       id="rect4908"
+       style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:0.99680835;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4910"
+       y="-749.62537"
+       x="1135.7264"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold"
+         y="-749.62537"
+         x="1135.7264"
+         id="tspan4912"
+         sodipodi:role="line">Add Collaborator</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="1135.5837"
+       y="-704.44556"
+       id="text4914"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4916"
+         x="1135.5837"
+         y="-704.44556">Name:</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4918"
+       y="-654.19055"
+       x="1135.5837"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         id="tspan4920"
+         y="-654.19055"
+         x="1135.5837"
+         sodipodi:role="line">Can add:</tspan></text>
+    <rect
+       y="-725.75348"
+       x="1256.9384"
+       height="27.107876"
+       width="174.69521"
+       id="rect4922"
+       style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+    <rect
+       ry="8.5191841"
+       style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-width:0.40424705;stroke-opacity:1"
+       id="rect4924"
+       width="28.547935"
+       height="27.107876"
+       x="1283.1063"
+       y="-676.12762" />
+    <rect
+       ry="13.553938"
+       y="-605.29797"
+       x="1314.7081"
+       height="34.637833"
+       width="115.96148"
+       id="rect4926"
+       style="fill:#ff9955;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4928"
+       y="-580.9541"
+       x="1339.8569"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         y="-580.9541"
+         x="1339.8569"
+         id="tspan4930"
+         sodipodi:role="line">Share</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16.26220322px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="1261.9269"
+       y="-706.18671"
+       id="text4932"
+       sodipodi:linespacing="125%"><tspan
+         style="font-weight:normal;fill:#000000"
+         sodipodi:role="line"
+         id="tspan4934"
+         x="1261.9269"
+         y="-706.18671">janedoe@some.o</tspan></text>
+    <rect
+       style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none"
+       id="rect4940"
+       width="29.113857"
+       height="27.107876"
+       x="1402.5197"
+       y="-725.75348" />
+    <path
+       sodipodi:nodetypes="cccc"
+       inkscape:connector-curvature="0"
+       id="rect4942"
+       d="m 1406.9622,-719.95071 20.5401,0 -9.7061,16.76669 z"
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.85243148;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-size:22.48677254px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="1135.5837"
+       y="-626.55292"
+       id="text4945"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="1135.5837"
+         y="-626.55292"
+         id="tspan4947">Can modify:</tspan></text>
+    <rect
+       y="-646.31049"
+       x="1283.1063"
+       height="27.107876"
+       width="28.547935"
+       id="rect4949"
+       style="fill:#e9c6af;fill-opacity:1;stroke:#000000;stroke-width:0.40424705;stroke-opacity:1"
+       ry="8.5191841" />
+    <g
+       transform="matrix(0.61448168,0,0,0.73013718,325.52596,-213.56178)"
+       id="g4960">
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1.49294329;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none"
+         d="m 1568.5947,-628.55022 26.6225,25.55755"
+         id="path4956"
+         inkscape:connector-curvature="0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4958"
+         d="m 1594.6847,-629.08269 -25.5575,26.6225"
+         style="fill:none;stroke:#000000;stroke-width:1.49294329;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+  </g>
+  <path
+     style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Lend)"
+     d="M 302.92375,387.60481 447.74988,340.7493"
+     id="path5040"
+     inkscape:connector-curvature="0" />
+  <path
+     inkscape:connector-curvature="0"
+     id="path5761"
+     d="m 863.1532,395.13478 c 210.5268,-13.04899 122.50148,-137.57587 173.9336,-294.40434 11.4258,-31.25943 54.4634,-21.91415 73.3,-23.52994"
+     style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Lend)"
+     sodipodi:nodetypes="ccc" />
+  <path
+     sodipodi:nodetypes="csc"
+     style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Lend)"
+     d="m 605.62837,405.67673 c 103.52374,44.22347 313.87697,53.9556 396.68023,-36.27369 27.2285,-29.67034 62.7875,-29.67049 97.5363,-27.14775"
+     id="path5763"
+     inkscape:connector-curvature="0" />
+  <path
+     inkscape:connector-curvature="0"
+     id="path5765"
+     d="M 789.35954,511.09626 C 887.06486,527.9744 955.1026,623.01015 1045.6292,625.382"
+     style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Lend)"
+     sodipodi:nodetypes="cc" />
+</svg>

@@ -1,0 +1,64 @@
+<project type="egg">
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <translations locator="reahl.doc.examples.tutorial.i18nexample.i18nexamplemessages"/>
+  <configuration locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:AddressConfig"/>
+
+  <deps purpose="run">
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-elixirimpl"/>
+    <egg name="reahl-domain"/>
+    <egg name="reahl-domainui"/>
+  </deps>
+
+  <extras name="pillow">
+    <egg name="pillow"/>
+  </extras>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    <thirdpartyegg name="Sphinx"/>    
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+ <persisted>
+    <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
+    <class locator="reahl.doc.fileupload:Comment"/>
+    <class locator="reahl.doc.fileupload:AttachedFile"/>
+    <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
+    <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
+    <class locator="reahl.doc.examples.tutorial.pageflow2.pageflow2:Address"/>
+    <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
+    <class locator="reahl.doc.examples.tutorial.parameterised1.parameterised1:Address"/>
+    <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
+    <class locator="reahl.doc.examples.tutorial.sessionscope.sessionscope:User"/>
+    <class locator="reahl.doc.examples.tutorial.sessionscope.sessionscope:LoginSession"/>
+    <class locator="reahl.doc.examples.tutorial.access1.access1:AddressBook"/>
+    <class locator="reahl.doc.examples.tutorial.access1.access1:Collaborator"/>
+    <class locator="reahl.doc.examples.tutorial.access1.access1:Address"/>
+    <class locator="reahl.doc.examples.tutorial.access2.access2:AddressBook"/>
+    <class locator="reahl.doc.examples.tutorial.access2.access2:Collaborator"/>
+    <class locator="reahl.doc.examples.tutorial.access2.access2:Address"/>
+    <class locator="reahl.doc.examples.tutorial.access.access:AddressBook"/>
+    <class locator="reahl.doc.examples.tutorial.access.access:Collaborator"/>
+    <class locator="reahl.doc.examples.tutorial.access.access:Address"/>
+    <class locator="reahl.doc.examples.tutorial.i18nexample.i18nexample:Address"/>
+    <class locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:Address"/>
+    <class locator="reahl.doc.examples.tutorial.migration.migration:Address"/>
+    <class locator="reahl.doc.examples.tutorial.jobs.jobs:Address"/>
+  </persisted>
+
+  <schedule locator="reahl.doc.examples.tutorial.jobs.jobs:Address.clear_added_flags"/>
+
+  <export entrypoint="reahl.dev.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
+  <export entrypoint="reahl.dev.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
+
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T (reahl/.*_dev/|.*/testbasics) -F reahl.webdev.fixtures:BrowserSetup"/>
+
+</project>

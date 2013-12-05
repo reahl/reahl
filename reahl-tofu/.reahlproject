@@ -1,0 +1,22 @@
+<project type="egg">
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <deps purpose="run">
+    <egg name="reahl-component"/>
+    <thirdpartyegg name="nose"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-stubble"/>
+  </deps>
+
+  <export entrypoint="nose.plugins.0.10" name="run-fixture" locator="reahl.tofu.nosesupport:RunFixturePlugin"/>
+  <export entrypoint="nose.plugins.0.10" name="long-output" locator="reahl.tofu.nosesupport:LongOutputPlugin"/>
+  <export entrypoint="nose.plugins.0.10" name="test-directory" locator="reahl.tofu.nosesupport:TestDirectoryPlugin"/>
+  <export entrypoint="nose.plugins.0.10" name="log-level" locator="reahl.tofu.nosesupport:LogLevelPlugin"/>
+  <export entrypoint="nose.plugins.0.10" name="setup-fixture" locator="reahl.tofu.nosesupport:SetUpFixturePlugin"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/tofu_dev"/>
+</project>
+

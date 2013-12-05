@@ -1,0 +1,20 @@
+<project type="egg">
+  <configuration locator="reahl.mailutil.reusableconfig:MailConfig"/>
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+  
+  <deps purpose="run">
+    <egg name="reahl-component"/>
+    <thirdpartyegg name="docutils" minversion="0.8" maxversion="0.9"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    
+    <egg name="reahl-stubble"/>
+  </deps>
+
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/mailutil_dev"/>
+  
+</project>

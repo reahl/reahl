@@ -1,0 +1,34 @@
+<project type="egg" packagedata="included">
+  <configuration locator="reahl.webelixirimpl:ElixirImplConfig"/>
+
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <deps purpose="run">
+    <egg name="reahl-interfaces"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-domain"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+  <persisted>
+    <class locator="reahl.webelixirimpl:WebUserSession"/>
+    <class locator="reahl.webelixirimpl:SessionData"/>
+    <class locator="reahl.webelixirimpl:UserInput"/>
+    <class locator="reahl.webelixirimpl:PersistedException"/>
+    <class locator="reahl.webelixirimpl:PersistedFile"/>
+  </persisted>
+
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/webelixirimpl_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  
+</project>

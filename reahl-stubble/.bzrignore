@@ -1,0 +1,10 @@
+*egg-info
+debian/python-stubble
+debian/python-stubble.postinst.debhelper
+debian/python-stubble.preinst.debhelper
+debian/python-stubble.prerm.debhelper
+debian/python-stubble.substvars
+debian/files
+build
+build-stamp
+configure-stamp

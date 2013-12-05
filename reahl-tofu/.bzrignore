@@ -1,0 +1,12 @@
+*egg-info
+*.spic
+*~
+
+build
+build-stamp
+configure-stamp
+tmp
+debian/python-tofu.*.debhelper
+debian/python-tofu.substvars
+debian/python-tofu
+debian/files

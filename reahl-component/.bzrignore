@@ -1,0 +1,8 @@
+*egg-info
+debian/python-reahl-component.*.debhelper
+debian/python-reahl-component.substvars
+debian/python-reahl-component
+debian/files
+build-stamp
+configure-stamp
+build

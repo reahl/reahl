@@ -1,0 +1,9 @@
+debian/python-reahl-dev.*.debhelper
+debian/python-reahl-dev.substvars
+debian/python-reahl-dev
+debian/files
+build-stamp
+configure-stamp
+build
+.reahlworkspace
+*~
