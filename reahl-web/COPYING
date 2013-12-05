@@ -1,0 +1,114 @@
+This file is part of Reahl. The following copyright notice applies to 
+all files in the directory containing this file, and all files (recursively)
+in contained directories, except where otherwise indicated (see below).
+
+Copyright 2006-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+
+Reahl is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+
+Several files from other projects are included in this code. See the copyright information 
+of each applicable file below:
+
+reahl-web/reahl/web/static/IE9.js
+=================================
+
+From https://code.google.com/p/ie7-js/
+
+IE7/IE8/IE9.js - copyright 2004-2010, Dean Edwards
+http://code.google.com/p/ie7-js/
+http://www.opensource.org/licenses/mit-license.php
+
+reahl-web/reahl/web/static/html5shiv-printshiv-3.6.3.js
+=======================================================
+
+From https://github.com/aFarkas/html5shiv
+
+Copyright HTML5 Shiv v3.6.2 | @afarkas @jdalton @jon_neal @rem | MIT/GPL2 Licensed,
+see http://opensource.org/licenses/mit-license.php
+or http://opensource.org/licenses/GPL-2.0
+
+reahl-web/reahl/web/static/jquery/jquery-1.8.1.js
+=================================================
+
+Copyright 2012 jQuery Foundation and other contributors
+Released under the MIT license
+http://jquery.org/license
+
+reahl-web/reahl/web/static/jquery/jquery.ba-bbq-1.2.1.js
+========================================================
+
+Copyright (c) 2010 "Cowboy" Ben Alman
+Dual licensed under the MIT and GPL licenses.
+http://benalman.com/about/license/
+
+reahl-web/reahl/web/static/jquery/jquery.blockUI-2.43.js
+========================================================
+
+Copyright (c) 2007-2010 M. Alsup
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+
+reahl-web/reahl/web/static/jquery/jquery.cookie-1.0.js
+======================================================
+
+Copyright (c) 2006 Klaus Hartl (stilbuero.de)
+Dual licensed under the MIT and GPL licenses:
+http://www.opensource.org/licenses/mit-license.php
+http://www.gnu.org/licenses/gpl.html
+
+reahl-web/reahl/web/static/jquery/jquery.form-3.14.js
+=====================================================
+
+Copyright (c) 2012 M. Alsup
+Dual licensed under the MIT and GPL licenses:
+   http://malsup.github.com/mit-license.txt
+   http://malsup.github.com/gpl-license-v2.txt
+
+reahl-web/reahl/web/static/jquery/jquery.metadata-2.1.js
+========================================================
+
+Copyright (c) 2006 John Resig, Yehuda Katz, Jörn Zaefferer, Paul McLanahan
+Dual licensed under the MIT and GPL licenses:
+   http://www.opensource.org/licenses/mit-license.php
+   http://www.gnu.org/licenses/gpl.html
+
+reahl-web/reahl/web/static/jquery/jquery.validate-1.10.0.js
+===========================================================
+
+Copyright (c) 2012 Jörn Zaefferer; Licensed MIT, GPL 
+   http://malsup.github.com/mit-license.txt
+   http://malsup.github.com/gpl-license-v2.txt
+
+reahl-web/reahl/web/static/jqueryui_1_8/
+========================================
+
+All the files in this directory are:
+
+Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
+ Dual licensed under the MIT (MIT-LICENSE.txt)
+ and GPL (GPL-LICENSE.txt) licenses.
+
+   http://malsup.github.com/mit-license.txt
+   http://malsup.github.com/gpl-license-v2.txt
+
+reahl-web/reahl/web/static/reset-fonts-grids.css
+================================================
+
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+

@@ -1,0 +1,12 @@
+*egg-info
+*.spic
+*~
+
+build
+build-stamp
+configure-stamp
+tmp
+debian/python-reahl-sqlitesupport.*.debhelper
+debian/python-reahl-sqlitesupport.substvars
+debian/python-reahl-sqlitesupport
+debian/files

@@ -1,0 +1,13 @@
+.. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+ 
+Module reahl.component.i18n
+---------------------------
+
+.. automodule:: reahl.component.i18n
+
+Translator
+""""""""""
+
+.. autoclass:: Translator
+   :members:
+   

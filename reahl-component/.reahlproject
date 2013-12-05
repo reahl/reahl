@@ -1,0 +1,43 @@
+<project type="egg">
+  <namespaces>
+    <package name="reahl"/>
+    <package name="reahl.messages"/>
+  </namespaces>
+
+  <translations locator="reahl.messages"/>
+
+  <deps purpose="run">
+    <thirdpartyegg name="Babel" minversion="0.9" maxversion="0.10"/> 
+    <thirdpartyegg name="python-dateutil" minversion="1.5" maxversion="1.6"/> 
+    <thirdpartyegg name="decorator" minversion="3.4" maxversion="3.4"/> 
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+  </deps>
+
+  <script name="reahl-control" locator="reahl.component.prodshell:ProductionCommandline.execute_one"/>
+  
+  <export entrypoint="reahl.component.prodcommands" name="CreateDBUser" locator="reahl.component.prodshell:CreateDBUser"/>
+  <export entrypoint="reahl.component.prodcommands" name="DropDBUser" locator="reahl.component.prodshell:DropDBUser"/>
+  <export entrypoint="reahl.component.prodcommands" name="CreateDB" locator="reahl.component.prodshell:CreateDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="DropDB" locator="reahl.component.prodshell:DropDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="BackupDB" locator="reahl.component.prodshell:BackupDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="RestoreDB" locator="reahl.component.prodshell:RestoreDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="BackupAllDB" locator="reahl.component.prodshell:BackupAllDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="RestoreAllDB" locator="reahl.component.prodshell:RestoreAllDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="SizeDB" locator="reahl.component.prodshell:SizeDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="RunJobs" locator="reahl.component.prodshell:RunJobs"/>
+  <export entrypoint="reahl.component.prodcommands" name="CreateDBTables" locator="reahl.component.prodshell:CreateDBTables"/>
+  <export entrypoint="reahl.component.prodcommands" name="DropDBTables" locator="reahl.component.prodshell:DropDBTables"/>
+  <export entrypoint="reahl.component.prodcommands" name="MigrateDB" locator="reahl.component.prodshell:MigrateDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="ListConfig" locator="reahl.component.prodshell:ListConfig"/>
+  <export entrypoint="reahl.component.prodcommands" name="CheckConfig" locator="reahl.component.prodshell:CheckConfig"/>
+  <export entrypoint="reahl.component.prodcommands" name="ListDependencies" locator="reahl.component.prodshell:ListDependencies"/>
+
+  <export entrypoint="reahl.component.databasecontrols" name="NullDatabaseControl" locator="reahl.component.dbutils:NullDatabaseControl"/>
+
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/component_dev -F reahl.component_dev.fixtures:ConfiguredFixture"/>
+
+</project>

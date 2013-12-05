@@ -1,0 +1,12 @@
+*egg-info
+*.spic
+*~
+
+build
+build-stamp
+configure-stamp
+tmp
+debian/python-reahl-partydomain.*.debhelper
+debian/python-reahl-partydomain.substvars
+debian/python-reahl-partydomain
+debian/files

@@ -1,0 +1,12 @@
+<IfModule mod_ssl.c>
+<VirtualHost _default_:443>
+    ServerAdmin webmaster@example.org
+    WSGIScriptAlias / /usr/local/helloapache/helloapache.wsgi
+    ErrorLog ${APACHE_LOG_DIR}/helloapache.error.log
+    CustomLog ${APACHE_LOG_DIR}/helloapache.ssl_access.log combined
+
+    SSLEngine on
+    SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
+    SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+</VirtualHost>
+</IfModule>

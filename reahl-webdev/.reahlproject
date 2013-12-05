@@ -1,0 +1,32 @@
+<project type="egg">
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <deps purpose="run">
+    <egg name="reahl-web"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-tofu"/>
+    
+    <thirdpartyegg name="pyOpenSSL"  minversion="0.13" maxversion="0.14"/>
+    <thirdpartyegg name="lxml" minversion="2.3" maxversion="2.4"/>
+    <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
+    <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
+  </deps>
+
+  <extras name="pillow">
+    <thirdpartyegg name="pillow" minversion="1.7.8" maxversion="1.999"/>
+  </extras>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+  </deps>
+
+  <export entrypoint="reahl.dev.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
+  
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture"/>
+</project>
+
+

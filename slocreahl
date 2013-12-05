@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. reahlvariables
+
+sloccount --personcost 350000 *

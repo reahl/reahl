@@ -1,0 +1,11 @@
+python-reahl (2.0.0a1) unstable; urgency=low
+
+  * Towards version 2.0.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Tue, 08 Feb 2011 12:03:44 +0000
+
+python-reahl (0.8.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Wed, 22 Dec 2010 05:44:11 +0000

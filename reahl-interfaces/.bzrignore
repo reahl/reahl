@@ -1,0 +1,12 @@
+*egg-info
+*.spic
+*~
+
+build
+build-stamp
+configure-stamp
+tmp
+debian/python-reahl-interfaces.*.debhelper
+debian/python-reahl-interfaces.substvars
+debian/python-reahl-interfaces
+debian/files

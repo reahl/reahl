@@ -1,0 +1,150 @@
+Source: python-reahl
+Section: reahl
+Priority: optional
+Maintainer: Reahl Software Services (Pty) Ltd <info@reahl.org>
+Build-Depends: debhelper (>= 7), python-support (>= 1.0), python (>= 2.6), python (<< 3.0)
+Standards-Version: 3.8.3
+
+Package: python-reahl
+Architecture: all
+Depends: python-setuptools, ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Reahl.
+ Reahl.
+
+Package: python-reahl-component
+Architecture: all
+Depends: python-setuptools, ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Reahl-component.
+ Reahl-component.
+
+Package: python-reahl-dev
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Reahl-dev.
+ Reahl-dev.
+
+Package: python-reahl-bzrsupport
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Reahl-bzrsupport.
+ Reahl-bzrsupport.
+
+Package: python-reahl-stubble
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Stub tools for use in unit testing
+ Stubble is a collection of tools for writing stubs in unit tests.
+ .
+ Using stubs allows one to decouple one unit test from real code 
+ unrelated to it - you write a fake class to take the place of 
+ a real one (which this test is not testing).
+ .
+ Stubble ensures, however, that the test will break should the
+ interface of the stub differ from that of the real class it is a stub
+ for.
+
+Package: python-reahl-tofu
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: A testing framework that couples fixtures and tests loosely.
+ Tofu is a testing framework, like unittest, or the {J,Py,S}unit
+ family.
+ .
+ Tofu differs from these test frameworks in that it allows you to have
+ a hierarchy of test fixtures that is *completely* decoupled from your
+ hierarchy of tests or test suites.
+ .
+ Tofu can also be used to run the set_ups of fixtures from the command 
+ line.  This is useful for acceptance tests whose fixtures create data
+ in databases that can be used for demonstration and user testing.
+
+Package: python-reahl-mailutil
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}, python-docutils
+Provides: ${python:Provides}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: python-reahl-doc
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Recommends: python-reahl-web
+Provides: ${python:Provides}
+Description: Documentation and examples for Reahl.
+ Reahl is a website builder aspiring to be a visual
+ web app builder.  This package contains documentation,
+ tutorials and examples.
+
+Package: python-reahl-interfaces
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Python abstract classes for important interfaces.
+ <insert long description, indented with spaces>
+
+Package: python-reahl-postgresqlsupport
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: python-reahl-web
+Architecture: all
+Depends: python-beautifulsoup (>= 3.0.4), ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: The Reahl web framework
+ The Reahl web framework
+
+
+Package: python-reahl-sqlalchemysupport
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: python-reahl-sqlitesupport
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+
+Package: python-reahl-webdev
+Architecture: all
+Depends: openssl (>= 0.9), ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: python-reahl-domain
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: python-reahl-domainui
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+Package: python-reahl-web-elixirimpl
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+
+
+

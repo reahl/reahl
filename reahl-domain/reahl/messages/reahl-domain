@@ -1,0 +1,142 @@
+# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved. 
+#
+# Translations template for reahl-domain.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: reahl-domain 2.0.0a1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2013-05-16 15:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: reahl/systemaccountmodel.py:69
+msgid "Email"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:70
+msgid "New email"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:71
+msgid "Password"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:72
+msgid "Remember me?"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:73
+msgid "Secret key"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:74
+msgid "Re-type password"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:74
+msgid "Please type your password again."
+msgstr ""
+
+#: reahl/systemaccountmodel.py:76
+msgid "Please accept the terms of service"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:77
+msgid "I accept the terms of service"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:81
+msgid "Verify"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:82
+msgid "Register"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:83
+msgid "Investigate"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:84
+msgid "Set new password"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:85
+msgid "Reset password"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:86
+msgid "Log in"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:87
+msgid "Send"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:88
+msgid "Log out"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:139
+msgid "Passwords do not match"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:144
+msgid "Invalid login credentials"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:149
+msgid "The secret key supplied is invalid."
+msgstr ""
+
+#: reahl/systemaccountmodel.py:154
+msgid "The email address supplied is invalid."
+msgstr ""
+
+#: reahl/systemaccountmodel.py:159
+msgid "Could not find an account matching the supplied email address."
+msgstr ""
+
+#: reahl/systemaccountmodel.py:164
+msgid "The email address supplied is not unique."
+msgstr ""
+
+#: reahl/systemaccountmodel.py:362
+msgid "Unknown status"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:369
+msgid "Please verify your account before logging in"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:374
+msgid "Account is locked: too many failed attempts"
+msgstr ""
+
+#: reahl/systemaccountmodel.py:379
+msgid "Account is active"
+msgstr ""
+
+#: reahl/workflowmodel.py:18
+msgid "Take"
+msgstr ""
+
+#: reahl/workflowmodel.py:22
+msgid "Defer"
+msgstr ""
+
+#: reahl/workflowmodel.py:23
+msgid "Go to"
+msgstr ""
+
+#: reahl/workflowmodel.py:27
+msgid "Release"
+msgstr ""
+

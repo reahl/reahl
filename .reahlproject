@@ -1,0 +1,55 @@
+<project type="chicken">
+  <sourcecontrol type="bzr"/>
+  <metadata type="debian"/>
+
+  <extras name="sqlite">
+    <egg name="reahl-component"/>
+    <egg name="reahl-web"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-sqlitesupport"/>
+    <egg name="reahl-domain"/>
+    <egg name="reahl-domainui"/>
+    <egg name="reahl-mailutil"/>
+    <egg name="reahl-web-elixirimpl"/>
+  </extras>  
+
+  <extras name="postgresql">
+    <egg name="reahl-component"/>
+    <egg name="reahl-web"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-postgresqlsupport"/>
+    <egg name="reahl-domain"/>
+    <egg name="reahl-domainui"/>
+    <egg name="reahl-mailutil"/>
+    <egg name="reahl-web-elixirimpl"/>
+  </extras>  
+
+  <extras name="dev">
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-tofu"/>
+  </extras>
+
+  <extras name="doc">
+    <egg name="reahl-doc"/>
+  </extras>
+
+  <extras name="minimal">
+    <egg name="reahl-component"/>
+    <egg name="reahl-web"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-sqlitesupport"/>
+    <egg name="reahl-postgresqlsupport"/>
+    <egg name="reahl-domain"/>
+    <egg name="reahl-domainui"/>
+    <egg name="reahl-mailutil"/>
+    <egg name="reahl-web-elixirimpl"/>
+  </extras>
+
+  <distpackageset type="sdist">
+    <sshdirectory host="localhost" destination="/tmp"/>
+  </distpackageset>
+
+</project>
+

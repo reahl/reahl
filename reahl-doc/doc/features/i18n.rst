@@ -1,0 +1,69 @@
+.. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+ 
+Internationalisation
+====================
+
+.. sidebar:: Behind the scenes
+
+   The Internationalisation infrastructure of Reahl is built using
+   `Babel <http://babel.pocoo.org//>`_.
+
+Internationalisation in Reahl is based on locales. A "locale" defines
+what natural language to use for user messages, and what other customs
+are applicable for users choosing that locale (such as how dates and
+numbers are formatted).
+
+The example presented here contains a simple View containing a user
+message that needs to be translated. At the top of the page, a Menu is
+displayed listing all locales supported by the system.
+
+In order to be able to illustrate how URLs influence the locale used,
+the example does not have a home page. If you run the example locally,
+you will have to open the View by using its URL:
+http://localhost:8000/some_page.  When viewed via
+http://localhost:8000/some_page the example program shows the string
+in British English (the default):
+
+   .. figure:: ../_build/screenshots/i18n1.png
+
+
+When the user clicks on "Afrikaans" in the Menu, the same page is
+displayed in Afrikaans. Notice how the URL of the View has changed: it
+now starts with "af" (the locale string for Afrikaans):
+
+   .. figure:: ../_build/screenshots/i18n2.png
+
+
+Embedding an identifier for the chosen locale in the URL of a View
+means that a different URL will exist for each supported locale for a
+View. This makes it possible for search engines to crawl and index all
+localised versions of a View.
+
+The code below shows how a HMenu is created that allows the user
+to choose between supported locales. Also shown is how strings that
+will be shown to a user are marked for translation by the
+customary method of enclosing them in `_(...)`.  To make a callable `_`
+available, a Translator instance needs to be instantiated (typically
+at the top of each file). Note that the Translator instance is created
+for the `reahl-doc` component -- the component in which the example
+resides.
+
+.. literalinclude:: ../../reahl/doc/examples/features/i18nexample/i18nexample.py
+
+
+Translations of the user messages for a particular component have to
+be prepared by humans (just like source code is) and compiled for use
+in production. The `reahl` commandline tool includes commands that
+help authors extract all the messages that are marked for translation
+from the source code of a component, maintain these and finally
+compile them for use.
+
+A translation is also shipped inside a component -- any given component
+may provide the translation of any number of other components, for any
+number of locales. This makes it possible for anyone to add support
+for a chosen locale to any component, even if the target component was
+developed by someone else without any knowledge of the locale you want
+to add support for.
+
+All other internationalisation in Reahl is done using the facilities
+directly provided by `Babel <http://babel.pocoo.org//>`_.

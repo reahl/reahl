@@ -1,0 +1,386 @@
+# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved. 
+#
+# Translations template for reahl-component.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: reahl-component 2.0.0a1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2013-07-16 13:27+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: reahl/component/config.py:104
+msgid "MISSING!!"
+msgstr ""
+
+#: reahl/component/exceptions.py:21
+#, python-format
+msgid "An error occurred: %s"
+msgstr ""
+
+#: reahl/component/modelinterface.py:231 reahl/component/modelinterface.py:467
+msgid "$label is invalid"
+msgstr ""
+
+#: reahl/component/modelinterface.py:291
+msgid "$label is not valid"
+msgstr ""
+
+#: reahl/component/modelinterface.py:361 reahl/component/modelinterface.py:570
+#: reahl/component/modelinterface.py:987
+msgid "$label is required"
+msgstr ""
+
+#: reahl/component/modelinterface.py:410
+msgid "$label should be equal to $other_label"
+msgstr ""
+
+#: reahl/component/modelinterface.py:419
+msgid "$label should be greater than $other_label"
+msgstr ""
+
+#: reahl/component/modelinterface.py:428
+msgid "$label should be smaller than $other_label"
+msgstr ""
+
+#: reahl/component/modelinterface.py:435
+msgid "$label should be $min_length characters or longer"
+msgstr ""
+
+#: reahl/component/modelinterface.py:451
+msgid "$label should not be longer than $max_length characters"
+msgstr ""
+
+#: reahl/component/modelinterface.py:482
+#, python-format
+msgid "Invalid pattern: %s"
+msgstr ""
+
+#: reahl/component/modelinterface.py:492
+msgid "$label should be one of the following: $allowed"
+msgstr ""
+
+#: reahl/component/modelinterface.py:504
+msgid "$label should be an integer number"
+msgstr ""
+
+#: reahl/component/modelinterface.py:519
+msgid "$label should be $min_value or greater"
+msgstr ""
+
+#: reahl/component/modelinterface.py:531
+msgid "$label should be no greater than $max_value"
+msgstr ""
+
+#: reahl/component/modelinterface.py:550
+msgid "Not allowed"
+msgstr ""
+
+#: reahl/component/modelinterface.py:965
+msgid "$label should be a valid email address"
+msgstr ""
+
+#: reahl/component/modelinterface.py:979 reahl/component/modelinterface.py:1069
+msgid "on"
+msgstr ""
+
+#: reahl/component/modelinterface.py:980
+msgid "off"
+msgstr ""
+
+#: reahl/component/modelinterface.py:989
+#, python-format
+msgid "$label should be either \"%s\" or \"%s\""
+msgstr ""
+
+#: reahl/component/modelinterface.py:1041
+msgid "Mon"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1041
+msgid "Monday"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1042
+msgid "Tue"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1042
+msgid "Tuesday"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1043
+msgid "Wed"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1043
+msgid "Wednesday"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1044
+msgid "Thu"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1044
+msgid "Thursday"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1045
+msgid "Fri"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1045
+msgid "Friday"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1046
+msgid "Sat"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1046
+msgid "Saturday"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1047
+msgid "Sun"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1047
+msgid "Sunday"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1048
+msgid "Jan"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1048
+msgid "January"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1049
+msgid "Feb"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1049
+msgid "February"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1050
+msgid "Mar"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1050
+msgid "March"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1051
+msgid "Apr"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1051
+msgid "April"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1052
+msgid "May"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1053
+msgid "Jun"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1053
+msgid "June"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1054
+msgid "Jul"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1054
+msgid "July"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1055
+msgid "Aug"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1055
+msgid "August"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1056
+msgid "Sep"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1056
+msgid "September"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1057
+msgid "Oct"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1057
+msgid "October"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1058
+msgid "Nov"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1058
+msgid "November"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1059
+msgid "Dec"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1059
+msgid "December"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1061
+msgid "h"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1061
+msgid "hour"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1061
+msgid "hours"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1062
+#: reahl/component/modelinterface.py:1069
+msgid "m"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1062
+msgid "minute"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1062
+msgid "minutes"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1063
+msgid "s"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1063
+msgid "second"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1063
+msgid "seconds"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1064
+msgid "am"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1064
+msgid "a"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1065
+msgid "pm"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1065
+msgid "p"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1066
+msgid "UTC"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1066
+msgid "GMT"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1066
+msgid "Z"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1067
+#: reahl/component/modelinterface.py:1069
+msgid "of"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1069
+msgid "at"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1069
+msgid "and"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1069
+msgid "ad"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1069
+msgid "t"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1070
+msgid "st"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1070
+msgid "nd"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1070
+msgid "rd"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1070
+msgid "th"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1131
+msgid "$label should be a subset of $choice_input_values"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1215
+msgid "$label can only accept a single file"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1242
+msgid "files should be smaller than $human_max_size"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1273
+msgid "files should be of type $human_accepted_types"
+msgstr ""
+
+#: reahl/component/modelinterface.py:1305
+msgid "a maximum of $max_files files may be uploaded"
+msgstr ""
+
+#: reahl/component_dev/i18ntests.py:32 reahl/component_dev/i18ntests.py:33
+#: reahl/component_dev/i18ntests.py:38 reahl/component_dev/i18ntests.py:39
+#: reahl/component_dev/i18ntests.py:77 reahl/component_dev/i18ntests.py:97
+msgid "test string"
+msgstr ""
+
+#: reahl/component_dev/i18ntests.py:34 reahl/component_dev/i18ntests.py:35
+#: reahl/component_dev/i18ntests.py:40 reahl/component_dev/i18ntests.py:41
+#: reahl/component_dev/i18ntests.py:78 reahl/component_dev/i18ntests.py:79
+msgid "thing"
+msgid_plural "things"
+msgstr[0] ""
+msgstr[1] ""
+

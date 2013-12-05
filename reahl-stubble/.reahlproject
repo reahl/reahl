@@ -1,0 +1,12 @@
+<project type="egg">
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <deps purpose="test">
+    <thirdpartyegg name="nose"/>
+  </deps>
+
+  <alias name="unit" command="setup -- -q tofu"/> 
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/stubble_dev"/>
+</project>

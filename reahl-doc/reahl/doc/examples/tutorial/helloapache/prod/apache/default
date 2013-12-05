@@ -1,0 +1,6 @@
+<VirtualHost *:80>
+    ServerAdmin webmaster@example.org
+    WSGIScriptAlias / /usr/local/helloapache/helloapache.wsgi
+    ErrorLog ${APACHE_LOG_DIR}/helloapache.error.log
+    CustomLog ${APACHE_LOG_DIR}/helloapache.access.log combined
+</VirtualHost>

@@ -1,0 +1,227 @@
+# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+#
+#    This file is part of Reahl.
+#
+#    Reahl is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation; version 3 of the License.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+import re
+
+from reahl.stubble import stubclass, exempt
+from nose.tools import istest
+from reahl.tofu import test, Fixture, scenario
+from reahl.tofu import vassert, expected
+
+from reahl.webdev.tools import Browser
+from reahl.web.fw import Region, Widget, RemoteMethod, MethodResult, CheckedRemoteMethod, JsonResult, WidgetResult
+from reahl.component.modelinterface import Field, IntegerField
+from reahl.web_dev.fixtures import  WebFixture
+
+class RemoteMethodFixture(WebFixture):
+    def new_widget_factory(self, remote_method=None):
+        remote_method = remote_method or self.remote_method
+        
+        @stubclass(Widget)
+        class WidgetWithRemoteMethod(Widget):
+            def __init__(self, view):
+                super(WidgetWithRemoteMethod, self).__init__(view)
+                view.add_resource(remote_method)
+                
+        return WidgetWithRemoteMethod.factory()
+
+    def new_webapp(self, remote_method=None):
+        remote_method = remote_method or self.remote_method
+        slot_definitions = {u'main': self.new_widget_factory(remote_method=remote_method)}
+        return super(RemoteMethodFixture, self).new_webapp(view_slots=slot_definitions)
+            
+        
+@istest
+class RemoteMethodTests(object):
+    @test(WebFixture)
+    def remote_methods(self, fixture):
+        """A RemoteMethod is a SubResource representing a method on the server side which can be invoked via POSTing to an URL."""
+
+        def callable_object():
+            return u'value returned from method'
+        remote_method = RemoteMethod(u'amethod', callable_object, MethodResult(content_type='ttext/hhtml', charset='utf-8'))
+    
+        @stubclass(Widget)
+        class WidgetWithRemoteMethod(Widget):
+            def __init__(self, view):
+                super(WidgetWithRemoteMethod, self).__init__(view)
+                view.add_resource(remote_method)
+
+        webapp = fixture.new_webapp(view_slots={u'main': WidgetWithRemoteMethod.factory()})
+        browser = Browser(webapp)
+        
+        # By default you cannot GET, since the method is not immutable
+        browser.open('/_amethod_method', status=405)
+        
+        # POSTing to the URL, returns the result of the method
+        browser.post('/_amethod_method', {})
+        vassert( browser.raw_html == u'value returned from method' )
+        vassert( browser.last_response.charset == 'utf-8' )
+        vassert( browser.last_response.content_type == 'ttext/hhtml' )
+    
+    @test(RemoteMethodFixture)
+    def exception_handling(self, fixture):
+        """The RemoteMethod sends back the unicode() of an exception raised for the specified exception class."""
+        
+        def fail():
+            raise Exception(u'I failed')
+        remote_method = RemoteMethod(u'amethod', fail, MethodResult(catch_exception=Exception))
+
+        webapp = fixture.new_webapp(remote_method=remote_method)
+        browser = Browser(webapp)
+
+        browser.post('/_amethod_method', {})
+        vassert( browser.raw_html == u'I failed' )
+
+    @test(RemoteMethodFixture)
+    def immutable_remote_methods(self, fixture):
+        """A RemoteMethod that is immutable is accessible via GET (instead of POST)."""
+
+        def callable_object():
+            return u'value returned from method'
+        remote_method = RemoteMethod(u'amethod', callable_object, MethodResult(), immutable=True)
+    
+        webapp = fixture.new_webapp(remote_method=remote_method)
+        browser = Browser(webapp)
+        
+        # GET, since the method is immutable
+        browser.open('/_amethod_method')
+        vassert( browser.raw_html == u'value returned from method' )
+        
+        # POSTing to the URL, is not supported
+        browser.post('/_amethod_method', {}, status=405)
+    
+    
+    class ArgumentScenarios(RemoteMethodFixture):
+        @scenario
+        def get(self):
+            self.immutable = True
+        @scenario
+        def post(self):
+            self.immutable = False
+            
+    @test(ArgumentScenarios)
+    def arguments_to_remote_methods(self, fixture):
+        """A RemoteMethod can get arguments from a query string or submitted form values, depending on the scenario."""
+
+        def callable_object(**kwargs):
+            fixture.method_kwargs = kwargs 
+            return u''
+        remote_method = RemoteMethod(u'amethod', callable_object, MethodResult(), immutable=fixture.immutable)
+    
+        webapp = fixture.new_webapp(remote_method=remote_method)
+        browser = Browser(webapp)
+        
+        kwargs_sent = {u'a':u'AAA', u'b':u'BBB'}
+        if fixture.immutable:
+            browser.open('/_amethod_method?a=AAA&b=BBB')
+        else:
+            browser.post('/_amethod_method', kwargs_sent)
+        vassert( fixture.method_kwargs == kwargs_sent )
+
+    @test(ArgumentScenarios)
+    def checked_arguments(self, fixture):
+        """A CheckedRemoteMethod checks and marshalls its parameters using Fields."""
+
+        def callable_object(anint=None, astring=None):
+            fixture.method_kwargs = {u'anint': anint, u'astring': astring}
+            return u''
+        remote_method = CheckedRemoteMethod(u'amethod', callable_object, MethodResult(), 
+                                            immutable=fixture.immutable, 
+                                            anint=IntegerField(),
+                                            astring=Field())
+    
+        webapp = fixture.new_webapp(remote_method=remote_method)
+        browser = Browser(webapp)
+        
+        if fixture.immutable:
+            browser.open('/_amethod_method?anint=5&astring=SupercalifraGilisticexpialidocious')
+        else:
+            browser.post('/_amethod_method', {u'anint':u'5', u'astring':u'SupercalifraGilisticexpialidocious'})
+        vassert( fixture.method_kwargs == {u'anint':5, u'astring':u'SupercalifraGilisticexpialidocious'} )
+
+    class ResultScenarios(RemoteMethodFixture):
+        @scenario
+        def json(self):
+            self.method_result = JsonResult(IntegerField(), catch_exception=Exception)
+            self.value_to_return = 1
+            self.expected_response = u'1'
+            self.exception_response = u'"exception text"'
+            self.expected_charset = 'utf-8'
+            self.expected_content_type = 'application/json'
+
+        @scenario
+        def widget(self):
+            @stubclass(Widget)
+            class WidgetStub(object):
+                css_id = u'someid'
+                def render_contents(self): return u'<the widget contents>'
+                def get_contents_js(self, context=None): return [u'some', u'some', u'javascript']
+
+            self.method_result = WidgetResult(WidgetStub())
+            self.value_to_return = u'ignored in this case'
+            self.expected_response = u'<the widget contents><script type="text/javascript">javascriptsome</script>'
+            self.exception_response = Exception
+            self.expected_charset = 'utf-8'
+            self.expected_content_type = 'text/html'
+            
+    @test(ResultScenarios)
+    def different_kinds_of_result(self, fixture):
+        """Different kinds of MethodResult can be specified for a method."""
+
+        def callable_object():
+            return fixture.value_to_return
+        remote_method = RemoteMethod(u'amethod', callable_object, default_result=fixture.method_result)
+    
+        webapp = fixture.new_webapp(remote_method=remote_method)
+        browser = Browser(webapp)
+        
+        browser.post('/_amethod_method', {})
+        vassert( re.match(fixture.expected_response, browser.raw_html) )
+        vassert( browser.last_response.charset == fixture.expected_charset )
+        vassert( browser.last_response.content_type == fixture.expected_content_type )
+
+    @test(ResultScenarios.json)
+    def exception_handling_for_json(self, fixture):
+        """How exceptions are handled with JsonResult."""
+
+        def fail():
+            raise Exception(u'exception text')
+        remote_method = RemoteMethod(u'amethod', fail, default_result=fixture.method_result)
+    
+        webapp = fixture.new_webapp(remote_method=remote_method)
+        browser = Browser(webapp)
+        
+        browser.post('/_amethod_method', {})
+        vassert( browser.raw_html == fixture.exception_response )
+        vassert( browser.last_response.charset == fixture.expected_charset )
+        vassert( browser.last_response.content_type == fixture.expected_content_type )
+
+    @test(ResultScenarios.widget)
+    def exception_handling_for_widgets(self, fixture):
+        """How exceptions are handled with WidgetResult."""
+
+        def fail():
+            raise Exception(u'exception text')
+        remote_method = RemoteMethod(u'amethod', fail, default_result=fixture.method_result)
+    
+        webapp = fixture.new_webapp(remote_method=remote_method)
+        browser = Browser(webapp)
+
+        with expected(Exception):
+            browser.post('/_amethod_method', {})
+

@@ -1,0 +1,26 @@
+<project type="egg">
+  <deps purpose="run">
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-elixirimpl"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+  <!-- The added configuration -->
+
+  <configuration locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:AddressConfig"/>
+
+  <persisted>
+    <class locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:Address"/>
+  </persisted>
+  
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T componentconfig_dev/ -F reahl.webdev.fixtures:BrowserSetup"/>
+  
+</project>

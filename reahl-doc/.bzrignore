@@ -1,0 +1,13 @@
+*egg-info
+*.spic
+*~
+
+build
+build-stamp
+configure-stamp
+tmp
+debian/python-reahl-doc.*.debhelper
+debian/python-reahl-doc.substvars
+debian/python-reahl-doc
+debian/files
+exampleeggs/*
