@@ -1042,7 +1042,7 @@ class HardcodedMetadata(ProjectMetadata):
         return self.info[u'maintainer_email'].contents
 
     def info_readable(self):
-        return self.info_completed.contents
+        return self.info_completed()
 
     def info_completed(self):
         expected_info = set([u'version', u'description', u'long_description', u'maintainer_name', u'maintainer_email'])
@@ -1117,7 +1117,7 @@ class DebianPackageMetadata(ProjectMetadata):
             current_vars.write()
 
     def info_readable(self):
-        return self.info_completed
+        return self.info_completed()
 
     def info_completed(self):
         return self.changelog is not None

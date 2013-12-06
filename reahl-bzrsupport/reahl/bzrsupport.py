@@ -56,6 +56,17 @@ class Bzr(object):
             return bzr_root
         return None
         
+    def uses_bzr(self, dirname):
+        with TemporaryFile() as err:
+            with TemporaryFile() as out:
+                cmd = 'bzr info %s' % dirname
+                try:
+                    return_code = subprocess.call(cmd.split(), stdout=out, stderr=out)
+                    return return_code == 0
+                except Exception, ex:
+                    logging.error('Error trying to execute "%s": %s' % (cmd, ex))
+                return False
+
     def inventory(self, dirname):
         with TemporaryFile() as err:
             with TemporaryFile() as out:
@@ -72,9 +83,9 @@ class Bzr(object):
                 return ['']
     
 def find_files(dirname):
-    project_bzr = os.path.join(os.getcwd(), dirname, u'.bzr')
-    if os.path.exists(project_bzr):
-        return Bzr().find_files(dirname)
+    bzr = Bzr()
+    if bzr.uses_bzr(dirname):
+        return bzr.find_files(dirname)
     else:
         return []
 
