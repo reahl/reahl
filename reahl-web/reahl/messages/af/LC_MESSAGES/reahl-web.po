@@ -1,12 +1,12 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights
+# reserved.
 #
 # Afrikaans translations for reahl-web.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2013-05-16 15:00+0200\n"
+"POT-Creation-Date: 2013-12-05 16:28+0200\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language-Team: af <info@reahl.org>\n"
@@ -16,61 +16,61 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: reahl/web/djhtml.py:55 reahl/web/fw.py:431
+#: reahl/web/djhtml.py:88 reahl/web/fw.py:553
 msgid "Untitled"
 msgstr "Ongetiteld"
 
-#: reahl/web/fw.py:46
+#: reahl/web/fw.py:67
 msgid "Invalid data supplied"
 msgstr "Ongeldige data verskaf"
 
-#: reahl/web/ui.py:137
+#: reahl/web/ui.py:166
 msgid "An error occurred when contacting the server. Please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:138
+#: reahl/web/ui.py:167
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 "Die bediener het te lank gevat om te antwoord. Probeer asseblief later "
 "weer."
 
-#: reahl/web/ui.py:1573
+#: reahl/web/ui.py:2314
 msgid "Upload"
 msgstr "Laai op"
 
-#: reahl/web/ui.py:1574
+#: reahl/web/ui.py:2315
 msgid "Remove"
 msgstr "Neem weg"
 
-#: reahl/web/ui.py:1599
+#: reahl/web/ui.py:2340
 msgid "an error occurred, please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:1601
+#: reahl/web/ui.py:2342
 msgid "Cancel"
 msgstr "Kanselleer"
 
-#: reahl/web/ui.py:1603
+#: reahl/web/ui.py:2344
 msgid "Please try again when all files have finished uploading."
 msgstr "Probeer asseblief weer nadat alle lêers opgelaai het."
 
-#: reahl/web/ui.py:1617
+#: reahl/web/ui.py:2358
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
-#: reahl/web/ui.py:1686
+#: reahl/web/ui.py:2453
 msgid "Close"
 msgstr "Maak toe"
 
-#: reahl/web_dev/i18ntests.py:48
+#: reahl/web_dev/i18ntests.py:62
 msgid "A View"
 msgstr "'n Oogpunt"
 
-#: reahl/web_dev/widgets/specificwidgets.py:222
+#: reahl/web_dev/widgets/specificwidgets.py:238
 msgid "This is an English sentence."
 msgstr "Hierdie is 'n sin in Afrikaans."
 

@@ -1821,14 +1821,21 @@ class EggProject(Project):
         return os.path.join(self.locale_dirname, self.locale_domain)
         
     def extract_messages(self, args):
-        self.setup([u'extract_messages', 
-                    u'--input-dirs', u'.',
-                    u'--output-file', self.pot_filename])
+        if self.translation_package:
+            self.setup([u'extract_messages', 
+                        u'--input-dirs', u'.',
+                        u'--output-file', self.pot_filename])
+        else:
+            logging.warn(u'No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
 
     @property
     def translated_domains(self):
-        filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
-        return set([os.path.splitext(os.path.basename(i))[0] for i in filenames])
+        if self.translation_package:
+            filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
+            return set([os.path.splitext(os.path.basename(i))[0] for i in filenames])
+        else:
+            logging.warn(u'No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
+            return []
         
     def merge_translations(self):
         for source_dist_spec in self.translated_domains:
