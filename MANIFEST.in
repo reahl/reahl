@@ -1,0 +1,16 @@
+prune reahl-bzrsupport
+prune reahl-component
+prune reahl-dev
+prune reahl-doc
+prune reahl-domain
+prune reahl-domainui
+prune reahl-interfaces
+prune reahl-mailutil
+prune reahl-postgresqlsupport
+prune reahl-sqlalchemysupport
+prune reahl-sqlitesupport
+prune reahl-stubble
+prune reahl-tofu
+prune reahl-web
+prune reahl-webdev
+prune reahl-web-elixirimpl

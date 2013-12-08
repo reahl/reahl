@@ -5,6 +5,7 @@
     <info name="long_description">An example to show how migration works in Reahl</info>
     <info name="maintainer_name">Reahl (Pty) Ltd</info>
     <info name="maintainer_email">info@reahl.org</info>
+    <info name="url">http://www.reahl.org</info>
   </metadata>
 
   <deps purpose="run">
