@@ -1,3 +1,9 @@
+python-reahl (2.0.0a3) unstable; urgency=low
+
+  * Fixed #1258976.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Sun, 09 Dec 2013 00:08:00 +0200
+
 python-reahl (2.0.0a2) unstable; urgency=low
 
   * New version created to upload first version to PyPi.
