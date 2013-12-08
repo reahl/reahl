@@ -1,4 +1,4 @@
-<project type="egg">
+<project type="egg" packagedata="included">
   <namespaces>
     <package name="reahl"/>
   </namespaces>
