@@ -10,7 +10,7 @@ Requirements
 ------------
 
 This version of Reahl requires at least version 2.7 of Python. We're
-exited about Python 3, but changing over to Python 3 is a big job
+excited about Python 3, but changing over to Python 3 is a big job
 which we still have to get to!
 
 Other projects used

@@ -1,6 +1,6 @@
 <project type="chicken">
   <sourcecontrol type="bzr"/>
-  <metadata type="debian"/>
+  <metadata type="debian" url="http://www.reahl.org"/>
 
   <extras name="sqlite">
     <egg name="reahl-component"/>
@@ -47,8 +47,10 @@
     <egg name="reahl-web-elixirimpl"/>
   </extras>
 
+  <excludepackage name="reahl.doc.*"/>
+
   <distpackageset type="sdist">
-    <sshdirectory host="localhost" destination="/tmp"/>
+    <packageindex repository="http://pypi.python.org/pypi"/>
   </distpackageset>
 
 </project>

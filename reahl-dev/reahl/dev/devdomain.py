@@ -352,7 +352,7 @@ class PackageIndex(RemoteRepository):
 
     def transfer(self, package):
         package.project.setup([u'sdist', u'--dist-dir', package.project.distribution_egg_repository.root_directory, u'upload',
-                               u'--repository', self.repository])
+                               u'--repository', self.repository, u'-s'])
 
     
 class SshRepository(RemoteRepository):
@@ -964,6 +964,11 @@ class ProjectMetadata(object):
             return self.project.chicken_project.info_completed()
         return True
 
+    def get_url_for(self, project):
+        if self.project.chicken_project:
+            return self.project.chicken_project.get_url_for(project)
+        return u'No url provided'
+
     def get_description_for(self, project):
         if self.project.chicken_project:
             return self.project.chicken_project.get_description_for(project)
@@ -1032,6 +1037,9 @@ class HardcodedMetadata(ProjectMetadata):
 
     def get_description_for(self, project):
         return self.info[u'description'].contents
+    
+    def get_url_for(self, project):
+        return self.info[u'url'].contents
 
     @property
     def maintainer_name(self):
@@ -1045,13 +1053,17 @@ class HardcodedMetadata(ProjectMetadata):
         return self.info_completed()
 
     def info_completed(self):
-        expected_info = set([u'version', u'description', u'long_description', u'maintainer_name', u'maintainer_email'])
+        expected_info = set([u'url', u'version', u'description', u'long_description', u'maintainer_name', u'maintainer_email'])
         completed_info = set(self.info.keys())
         return expected_info == completed_info
 
 
 
 class DebianPackageMetadata(ProjectMetadata):
+    def __init__(self, parent, url=None):
+        super(DebianPackageMetadata, self).__init__(parent)
+        self.url = url
+
     def __unicode__(self):
         return u'Debian package metadata provider'
 
@@ -1060,7 +1072,8 @@ class DebianPackageMetadata(ProjectMetadata):
         return ('metadata', cls, 'debian')
 
     def inflate_attributes(self, reader, attributes, parent):
-        self.__init__(parent)
+        assert u'url' in attributes.keys(), 'No url specified'
+        self.__init__(parent, attributes[u'url'])
         self.debian_control = DebianControl(os.path.join(self.project.directory, u'debian', u'control'))
 
     @property
@@ -1091,6 +1104,9 @@ class DebianPackageMetadata(ProjectMetadata):
 
     def get_description_for(self, project):
         return self.debian_control.get_short_description_for(u'python-%s' % project.project_name)
+    
+    def get_url_for(self, project):
+        return self.url
 
     @property
     def maintainer_name(self):
@@ -1454,6 +1470,9 @@ class Project(object):
     def version(self):
         return self.metadata.version
 
+    def get_url_for(self, project):
+        return self.metadata.get_url_for(project)
+        
     def get_description_for(self, project):
         return self.metadata.get_description_for(project)
         
@@ -1692,6 +1711,7 @@ class EggProject(Project):
                      version=self.version_for_setup(),
                      description=self.get_description_for(self),
                      long_description=self.get_long_description_for(self),
+                     url=self.get_url_for(self),
                      maintainer=self.maintainer_name,
                      maintainer_email=self.maintainer_email,
                      packages=self.packages_for_setup(),
