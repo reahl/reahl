@@ -1068,7 +1068,7 @@ class DebianPackageMetadata(ProjectMetadata):
         return Version(unicode(self.changelog.version))
 
     def get_long_description_for(self, project):
-        return self.debian_control.get_long_description_for(u'python-%s' % project.project_name)
+        return self.debian_control.get_long_description_for(u'python-%s' % project.project_name).replace(u' . ', u'\n')
 
     def get_description_for(self, project):
         return self.debian_control.get_short_description_for(u'python-%s' % project.project_name)
