@@ -31,7 +31,6 @@
   <export entrypoint="reahl.dev.xmlclasses" name="SshRepository" locator="reahl.dev.devdomain:SshRepository"/>
 
   <export entrypoint="reahl.dev.xmlclasses" name="PythonSourcePackage" locator="reahl.dev.devdomain:PythonSourcePackage"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="PythonSourcePackageSet" locator="reahl.dev.devdomain:PythonSourcePackageSet"/>
   <export entrypoint="reahl.dev.xmlclasses" name="PackageIndex" locator="reahl.dev.devdomain:PackageIndex"/>
 
   <export entrypoint="reahl.dev.xmlclasses" name="Dependency" locator="reahl.dev.devdomain:Dependency"/>
@@ -89,4 +88,9 @@
   <export entrypoint="reahl.dev.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/dev_dev"/>
+  
+  <distpackage type="sdist">
+    <packageindex repository="http://pypi.python.org/pypi"/>
+  </distpackage>
+
 </project>
