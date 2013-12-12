@@ -1702,6 +1702,7 @@ class EggProject(Project):
             setup_file.write(u'    version=%s,\n' % repr(self.version_for_setup()))
             setup_file.write(u'    description=%s,\n' % repr(self.get_description_for(self)))
             setup_file.write(u'    long_description=%s,\n' % repr(self.get_long_description_for(self)))
+            setup_file.write(u'    url=%s,\n' % repr(self.get_url_for(self))),
             setup_file.write(u'    maintainer=%s,\n' % repr(self.maintainer_name))
             setup_file.write(u'    maintainer_email=%s,\n' % repr(self.maintainer_email))
             setup_file.write(u'    packages=%s,\n' % repr(self.packages_for_setup()))
