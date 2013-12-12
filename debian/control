@@ -15,6 +15,16 @@ Description: The Reahl web framework.
  .
  The details of how those abstractions are implemented using several 
  different web technologies are hidden and dealt with for the programmer.
+ .
+ Reahl consists of many different eggs that are not all needed all of the time. 
+ This package does not contain much itself, but is an entry point for installing
+ a set of Reahl eggs:
+ .
+ Install Reahl by installing with pip extras, eg: "pip install reahl[sqlite,dev,doc]"
+ to install everything needed to run Reahl on sqlite, the dev tools and documentation.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-component
 Architecture: all
