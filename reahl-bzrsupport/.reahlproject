@@ -6,4 +6,9 @@
   <export entrypoint="setuptools.file_finders" name="reahl_finder" locator="reahl.bzrsupport:find_files"/> 
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/bzrsupport_dev"/>
+
+  <distpackage type="sdist">
+    <packageindex repository="http://pypi.python.org/pypi"/>
+  </distpackage>
+
 </project>

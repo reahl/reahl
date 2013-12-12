@@ -11,4 +11,8 @@
 
   <alias name="unit" command="setup -- -q nosetests"/>  
   
+  <distpackage type="sdist">
+    <packageindex repository="http://pypi.python.org/pypi"/>
+  </distpackage>
+  
 </project>

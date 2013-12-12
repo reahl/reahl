@@ -1,3 +1,10 @@
+python-reahl (2.0.0) unstable; urgency=low
+
+  * Closes some packaging bugs: #1258976, #1260182, #1260183, #1260184.
+  * Package descriptions updated.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Dec 2013 11:48:00 +0200
+
 python-reahl (2.0.0a3) unstable; urgency=low
 
   * Fixed #1258976.

@@ -10,11 +10,25 @@ Architecture: all
 Depends: python-setuptools, ${python:Depends}, ${reahl:Depends}
 Provides: ${python:Provides}
 Description: The Reahl web framework.
- Reahl is a web application framework that allows a Python programmer to work in 
- terms of useful abstractions - using a single programming language.
+ Reahl is a web application framework for Python programmers.
  .
- The details of how those abstractions are implemented using several 
- different web technologies are hidden and dealt with for the programmer.
+ With Reahl, programming is done purely in Python, using concepts familiar 
+ from GUI programming---like reusable Widgets and Events. There's no need 
+ for a programmer to know several different languages (HTML, JavaScript, 
+ template languages, etc) or to keep up with the tricks of these trades. The 
+ abstractions presented by Reahl relieve the programmer from the burden 
+ of dealing with the annoying problems of the web: security, accessibility, 
+ progressive enhancement (or graceful degradation) and browser quirks.
+ .
+ Reahl consists of many different eggs that are not all needed all of the time. 
+ This package does not contain much itself, but is an entry point for installing
+ a set of Reahl eggs:
+ .
+ Install Reahl by installing with pip extras, eg: "pip install reahl[sqlite,dev,doc]"
+ to install everything needed to run Reahl on sqlite, the dev tools and documentation.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-component
 Architecture: all
@@ -25,6 +39,9 @@ Description: The component framework of Reahl.
  terms of useful abstractions - using a single programming language.
  .
  Reahl-component is the component that contains Reahl's component framework.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-dev
 Architecture: all
@@ -35,6 +52,9 @@ Description: The core Reahl development tools.
  terms of useful abstractions - using a single programming language.
  .
  Reahl-dev is the component containing general Reahl development tools. 
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-bzrsupport
 Architecture: all
@@ -46,6 +66,9 @@ Description: Distutils support for Bazaar when using Reahl development tools.
  .
  Reahl-bzrsupport contains a finder for distutils for the Bazaar
  version control system.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-stubble
 Architecture: all
@@ -56,7 +79,8 @@ Description: Stub tools for use in unit testing
  terms of useful abstractions - using a single programming language.
  .
  Stubble (a part of the Reahl development tools) is a collection of
- tools for writing stubs in unit tests.
+ tools for writing stubs in unit tests. Stubble can be used independently
+ of the Reahl web framework.
  .
  Using stubs allows one to decouple one unit test from real code 
  unrelated to it - you write a fake class to take the place of 
@@ -74,12 +98,14 @@ Description: A testing framework that couples fixtures and tests loosely.
  Reahl is a web application framework that allows a Python programmer to work in 
  terms of useful abstractions - using a single programming language.
  .
- Tofu is a plugin for nosetests, and part of the Reahl development tools.
+ Tofu is part of the Reahl development tools.
+ Tofu can be used independently of the Reahl web framework.
  .
  Tofu allows you to have
  a hierarchy of test fixtures that is *completely* decoupled from your
  hierarchy of tests or test suites. Tofu includes a number of other
- related test utilities.
+ related test utilities. It also includes a plugin for nosetests
+ that makes using it with nose seamless.
  .
  Tofu can also be used to run the set_ups of fixtures from the command 
  line.  This is useful for acceptance tests whose fixtures create data
@@ -95,6 +121,9 @@ Description: Simple utilities for sending email from Reahl.
  .
  Reahl-mailutil is a simple library for sending emails (optionally from ReST 
  sources).
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
  
 
 Package: python-reahl-doc
@@ -107,6 +136,9 @@ Description: Documentation and examples for Reahl.
  terms of useful abstractions - using a single programming language.
  .
  Reahl-doc contains documentation and examples of Reahl.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-interfaces
 Architecture: all
@@ -119,6 +151,9 @@ Description: Python abstract classes for important Reahl interfaces.
  This package contains interfaces for which different implementations
  can be supplied. These implementations are called from the core
  Reahl framework.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-postgresqlsupport
 Architecture: all
@@ -130,6 +165,9 @@ Description: Support for using PostgreSQL with Reahl.
  .
  This package contains infrastructure necessary to
  use Reahl with PostgreSQL.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-web
 Architecture: all
@@ -140,6 +178,9 @@ Description: The core Reahl web framework
  terms of useful abstractions - using a single programming language.
  .
  This package contains the core of the Reahl framework. 
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 
 Package: python-reahl-sqlalchemysupport
@@ -152,6 +193,9 @@ Description: Support for using SqlAlchemy with Reahl.
  .
  This package contains infrastructure necessary to
  use Reahl with SqlAlchemy or Elixir.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-sqlitesupport
 Architecture: all
@@ -163,6 +207,9 @@ Description: Support for using Sqlite with Reahl.
  . 
  This package contains infrastructure necessary to
  use Reahl with Sqlite.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 
 Package: python-reahl-webdev
@@ -174,6 +221,9 @@ Description: Web-specific development tools for Reahl.
  terms of useful abstractions - using a single programming language.
  .
  Reahl development tools for testing and working with web based programs.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-domain
 Architecture: all
@@ -185,6 +235,9 @@ Description: End-user domain functionality for use with Reahl.
  .
  This Reahl component includes functionality modelling user accounts,
  some simple workflow concepts and more.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-domainui
 Architecture: all
@@ -196,6 +249,9 @@ Description: A user interface for reahl-domain.
  .
  This Reahl component contains a user interface for some
  of the domain functionality in reahl-domainui.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 Package: python-reahl-web-elixirimpl
 Architecture: all
@@ -208,6 +264,9 @@ Description: An implementation of Reahl persisted classes using Elixir.
  Some core elements of Reahl can be implemented for use with
  different persistence technologies. This is such an implementation
  based on SqlAlchemy/Elixir.
+ .
+ See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ installation instructions.
 
 
 

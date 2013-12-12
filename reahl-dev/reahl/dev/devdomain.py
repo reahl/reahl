@@ -115,38 +115,6 @@ class PythonSourcePackage(DistributionPackage):
         return self.targz_filename
 
 
-class PythonSourcePackageSet(PythonSourcePackage):
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('distpackageset', cls, 'sdist')
-
-    def __unicode__(self):
-        return u'Sdist set (source egg for each contained).'
-
-    @property
-    def unique_id(self):
-        return self.targz_filename_for(self.project)
-
-    def build(self):
-        for project in self.project.egg_projects+[self.project]:
-            project.generate_setup_py()
-            build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name, project.project_name)
-            project.setup([u'build', '-b', build_directory, u'sdist', u'--dist-dir', self.project.distribution_egg_repository.root_directory])
-
-    @property
-    def is_built(self):
-        built = True
-        for project in self.project.egg_projects:
-            built &= project.is_built()
-        return built
-
-    @property
-    def package_files(self):
-        return [self.targz_filename_for(i) for i in self.project.egg_projects]
-
-
-
-
 class DebianPackage(DistributionPackage):
     def __unicode__(self):
         return u'Debian:\t\t\t%s' % self.deb_filename(self.project)
@@ -318,7 +286,7 @@ class RemoteRepository(object):
         if knocks:
             self.knock(knocks)
         self.transfer(package)
-        self.local_storage.set_uploaded(package)            
+        self.local_storage.set_uploaded(package)
         self.local_storage.write()
 
     @property
@@ -1072,7 +1040,7 @@ class DebianPackageMetadata(ProjectMetadata):
         return ('metadata', cls, 'debian')
 
     def inflate_attributes(self, reader, attributes, parent):
-        assert u'url' in attributes.keys(), 'No url specified'
+        assert u'url' in attributes.keys(), 'No url specified for project in %s' % parent.directory
         self.__init__(parent, attributes[u'url'])
         self.debian_control = DebianControl(os.path.join(self.project.directory, u'debian', u'control'))
 
@@ -1100,7 +1068,7 @@ class DebianPackageMetadata(ProjectMetadata):
         return Version(unicode(self.changelog.version))
 
     def get_long_description_for(self, project):
-        return self.debian_control.get_long_description_for(u'python-%s' % project.project_name)
+        return self.debian_control.get_long_description_for(u'python-%s' % project.project_name).replace(u' . ', u'\n\n')
 
     def get_description_for(self, project):
         return self.debian_control.get_short_description_for(u'python-%s' % project.project_name)
@@ -1734,6 +1702,7 @@ class EggProject(Project):
             setup_file.write(u'    version=%s,\n' % repr(self.version_for_setup()))
             setup_file.write(u'    description=%s,\n' % repr(self.get_description_for(self)))
             setup_file.write(u'    long_description=%s,\n' % repr(self.get_long_description_for(self)))
+            setup_file.write(u'    url=%s,\n' % repr(self.get_url_for(self))),
             setup_file.write(u'    maintainer=%s,\n' % repr(self.maintainer_name))
             setup_file.write(u'    maintainer_email=%s,\n' % repr(self.maintainer_email))
             setup_file.write(u'    packages=%s,\n' % repr(self.packages_for_setup()))
@@ -1900,8 +1869,6 @@ class ChickenProject(EggProject):
 
     def inflate_child(self, reader, child, tag, parent):
         if isinstance(child, DebianPackageSet):
-            self.packages_to_distribute.append(child)
-        elif isinstance(child, PythonSourcePackageSet):
             self.packages_to_distribute.append(child)
         else:
             super(ChickenProject, self).inflate_child(reader, child, tag, parent)

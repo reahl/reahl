@@ -17,5 +17,9 @@
   <export entrypoint="reahl.component.databasecontrols" name="PostgresqlControl" locator="reahl.postgresqlsupport:PostgresqlControl"/>
 
   <alias name="unit" command="setup -- -q nosetests"/>
+  
+  <distpackage type="sdist">
+    <packageindex repository="http://pypi.python.org/pypi"/>
+  </distpackage>
 
 </project>
