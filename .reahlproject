@@ -49,9 +49,9 @@
 
   <excludepackage name="reahl.doc.*"/>
 
-  <distpackageset type="sdist">
+  <distpackage type="sdist">
     <packageindex repository="http://pypi.python.org/pypi"/>
-  </distpackageset>
+  </distpackage>
 
 </project>
 

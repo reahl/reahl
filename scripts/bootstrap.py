@@ -106,12 +106,12 @@ def install_prerequisites(missing):
       print 'Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0]))
       exit(1)
 
-def bootstrap_workspace(core_project_dirs):
+def bootstrap_workspace(workspace_dir, core_project_dirs):
     for d in core_project_dirs:
         pkg_resources.working_set.add_entry(os.path.join(os.getcwd(), d))
     from reahl.dev.devdomain import Project, Workspace
 
-    workspace = Workspace(os.getcwd())
+    workspace = Workspace(workspace_dir)
     core_projects = [Project.from_file(workspace, os.path.join(os.getcwd(), project_dir)) for project_dir in core_project_dirs]
     return workspace, core_projects
 
@@ -185,12 +185,12 @@ missing = find_missing_prerequisites(reahl_dev_requires_file, ['decorator'])
 if missing:
     install_prerequisites(missing)
 
-workspace, core_projects = bootstrap_workspace(core_project_dirs)
+workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
 run_setup(workspace, core_projects)
 workspace.selection = core_projects
 
 # For good measure, we "setup.py develop" all eggs in reahl
-workspace.refresh(False, [])
+workspace.refresh(False, [os.getcwd()])
 workspace.select(all_=True)
 run_setup(workspace, workspace.selection)
 

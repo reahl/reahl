@@ -27,5 +27,9 @@
   <export entrypoint="reahl.workflowui.task_widgets" name="TaskWidget" locator="reahl.domainui.workflow:TaskWidget"/>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domainui_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  
+  <distpackage type="sdist">
+    <packageindex repository="http://pypi.python.org/pypi"/>
+  </distpackage>
     
 </project>
