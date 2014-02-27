@@ -41,7 +41,7 @@
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/component_dev -F reahl.component_dev.fixtures:ContextFixture"/>
   
   <distpackage type="sdist">
-    <packageindex repository="http://pypi.python.org/pypi"/>
+    <packageindex repository="pypi"/>
   </distpackage>
 
 
