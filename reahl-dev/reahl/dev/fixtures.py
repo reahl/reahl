@@ -24,7 +24,13 @@ from reahl.component.dbutils import SystemControl
 from reahl.component.config import StoredConfiguration
 
 
-class ConfiguredFixture(Fixture):
+class CleanDatabase(Fixture):
+    """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
+       correct database schema for the project and sets up any persistent classes for use with that 
+       schema. It also connects to the database. Upon tear down, the Fixture disconnects from the database.
+    """
+    commit = False
+
     def new_reahlsystem(self):
         return self.config.reahlsystem
 
@@ -45,13 +51,6 @@ class ConfiguredFixture(Fixture):
     def new_test_dependencies(self):
         return []
 
-
-class CleanDatabase(ConfiguredFixture):
-    """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
-       correct database schema for the project and sets up any persistent classes for use with that 
-       schema. It also connects to the database. Upon tear down, the Fixture disconnects from the database.
-    """
-    commit = False
     @set_up
     def init_database(self):
         with self.context:
