@@ -17,30 +17,12 @@
 
 from reahl.tofu import Fixture
 
-from reahl.component.context import ExecutionContext
-from reahl.component.dbutils import SystemControl
-from reahl.component.config import StoredConfiguration
 
-class ConfiguredFixture(Fixture):
-    def new_reahlsystem(self):
-        return self.config.reahlsystem
-    
-    def new_config(self):
-        config = StoredConfiguration('etc/')
-        config.configure()
-        return config
-
+class ContextFixture(Fixture):
     def new_context(self, config=None, system_control=None):
         context = ExecutionContext()
-        context.set_config( config or self.config )
-        context.set_system_control(system_control or self.system_control)
         return context
-
-    def new_system_control(self):
-        return SystemControl(self.config)
-
-    def new_test_dependencies(self):
-        return []
+    
     
 
 
