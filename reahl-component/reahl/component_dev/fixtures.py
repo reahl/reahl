@@ -17,13 +17,12 @@
 
 from reahl.tofu import Fixture
 
+from reahl.component.context import ExecutionContext
+
 
 class ContextFixture(Fixture):
-    def new_context(self, config=None, system_control=None):
-        context = ExecutionContext()
-        return context
-    
-    
+    def new_context(self):
+        return ExecutionContext()
 
 
 
