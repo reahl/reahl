@@ -16,7 +16,6 @@
 
 from threading import Thread, Event, Timer
 import threading
-import time
 import select
 from wsgiref import simple_server
 import sys
@@ -24,17 +23,16 @@ import traceback
 import socket
 import ssl
 import tempfile
-import time
 import os.path 
 from contextlib import contextmanager
 import mimetypes
 from datetime import datetime
 import logging
 import functools
+import pkg_resources
 
 from webob import Request, Response
 from webob.exc import HTTPNotFound, HTTPInternalServerError
-from OpenSSL import crypto
 
 from reahl.component.context import ExecutionContext
 from reahl.component.config import StoredConfiguration
@@ -251,8 +249,8 @@ class Handler(object):
 class ReahlWebServer(object):
     """A web server for testing purposes. This web server runs both an HTTP and HTTPS server. It can 
        be configured to handle requests in the same thread as the test itself, but it can also be run in a
-       separate thread. The ReahlWebServer also creates a self-signed certificate for use with HTTPS upon
-       first startup.
+       separate thread. The ReahlWebServer requires a certificate for use with HTTPS upon startup. A self signed
+       certificate has been provided as part of the distribution for convenience.
     
        :param config: The :class:`reahl.component.config.Configuration` instance to use as config for this process.
        :param port: The HTTP port on which the server should be started. The HTTPS port is computed as this number + 363.
@@ -279,37 +277,17 @@ class ReahlWebServer(object):
         self.in_seperate_thread = None
         self.running = False
         self.handlers = {}
-        certfile = os.path.join(os.path.expanduser('~'), u'.reahl_development_cert.pem')
+        certfile = pkg_resources.resource_filename(__name__, u'reahl_development_cert.pem')
         self.reahl_webapp = WrappedApp(ReahlWebApplication(config))
         try:
             https_port = port+363
             self.httpd = ReahlWSGIServer.make_server('', port, self.reahl_webapp)
-
-            if not os.path.isfile(certfile):
-                self.create_self_signed_cert(certfile)
             self.httpsd = SSLCapableWSGIServer.make_server('', https_port, certfile, self.reahl_webapp)
         except socket.error, ex:
             message = (u'Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, port, https_port)) \
                      +u'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html' \
                       
             raise AssertionError(message)
-
-    def create_self_signed_cert(self, filename):
-        k = crypto.PKey()
-        k.generate_key(crypto.TYPE_RSA, 1024)
-
-        cert = crypto.X509()
-        cert.get_subject().CN = socket.gethostname()
-        cert.set_serial_number(int(time.time()))
-        cert.gmtime_adj_notBefore(0)
-        cert.gmtime_adj_notAfter(10*365*24*60*60)
-        cert.set_issuer(cert.get_subject())
-        cert.set_pubkey(k)
-        cert.sign(k, 'sha1')
-
-        with open(filename, 'wt') as outfile:
-            outfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
-            outfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
 
     def main_loop(self):
         while self.running:
