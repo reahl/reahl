@@ -45,5 +45,5 @@ reahl-web/reahl_web.egg-info/
 reahl-web-elixirimpl/reahl_web_elixirimpl.egg-info/
 reahl-webdev/reahl_webdev.egg-info/
 
-reahl.egg-info
-reahl-bzrsupport/reahl_bzrsupport.egg-info
+reahl.egg-info/
+reahl-bzrsupport/reahl_bzrsupport.egg-info/
