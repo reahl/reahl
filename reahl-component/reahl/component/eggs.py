@@ -119,18 +119,19 @@ class ReahlEgg(object):
         default_languages = [u'en_gb']
         if not egg_interfaces:
             return default_languages
-        
+
         domains_in_use = [e.name for e in egg_interfaces]
 
-        packages = [p.load() for p in iter_entry_points(u'reahl.translations')]
-        package_paths = set(chain.from_iterable([package.__path__ for package in packages]))
+        distributions = set([p.dist for p in iter_entry_points(u'reahl.translations')])
+        requirements = [d.as_requirement() for d in distributions]
 
         languages_for_eggs = {}
-        for package_path in package_paths:
-            languages = [d for d in os.listdir(package_path) if os.path.isdir(os.path.join(package_path, d))]
+        for requirement in requirements:
+            languages = [d for d in pkg_resources.resource_listdir(requirement, '/reahl/messages')
+                         if pkg_resources.resource_isdir(requirement, '/reahl/messages/%s' % d)]
             for language in languages:
-                language_path = os.path.join(package_path, language, u'LC_MESSAGES')
-                domains = [d[:-3] for d in os.listdir(language_path) if d.endswith(u'.mo')]
+                language_path = '/reahl/messages/%s/LC_MESSAGES' % language
+                domains = [d[:-3] for d in pkg_resources.resource_listdir(requirement, language_path) if d.endswith(u'.mo')]
                 for domain in domains:
                     if domain in domains_in_use:
                         languages = languages_for_eggs.setdefault(domain, set())
