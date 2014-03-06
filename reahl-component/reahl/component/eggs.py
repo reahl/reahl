@@ -20,7 +20,7 @@ import os
 from itertools import chain
 
 from setuptools import setup
-from pkg_resources import require, working_set, resource_filename, Requirement, Distribution, iter_entry_points
+from pkg_resources import require, working_set, resource_filename, Requirement, Distribution, iter_entry_points, resource_listdir, resource_isdir
 
 from reahl.component.decorators import memoized
 
@@ -127,11 +127,11 @@ class ReahlEgg(object):
 
         languages_for_eggs = {}
         for requirement in requirements:
-            languages = [d for d in pkg_resources.resource_listdir(requirement, '/reahl/messages')
-                         if pkg_resources.resource_isdir(requirement, '/reahl/messages/%s' % d)]
+            languages = [d for d in resource_listdir(requirement, '/reahl/messages')
+                         if resource_isdir(requirement, '/reahl/messages/%s' % d)]
             for language in languages:
                 language_path = '/reahl/messages/%s/LC_MESSAGES' % language
-                domains = [d[:-3] for d in pkg_resources.resource_listdir(requirement, language_path) if d.endswith(u'.mo')]
+                domains = [d[:-3] for d in resource_listdir(requirement, language_path) if d.endswith(u'.mo')]
                 for domain in domains:
                     if domain in domains_in_use:
                         languages = languages_for_eggs.setdefault(domain, set())
