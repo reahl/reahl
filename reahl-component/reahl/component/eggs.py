@@ -127,8 +127,12 @@ class ReahlEgg(object):
 
         languages_for_eggs = {}
         for requirement in requirements:
-            languages = [d for d in resource_listdir(requirement, '/reahl/messages')
-                         if resource_isdir(requirement, '/reahl/messages/%s' % d)]
+            if resource_isdir(requirement, '/reahl/messages'):
+                languages = [d for d in resource_listdir(requirement, '/reahl/messages')
+                             if resource_isdir(requirement, '/reahl/messages/%s' % d)]
+            else:
+                languages = []
+
             for language in languages:
                 language_path = '/reahl/messages/%s/LC_MESSAGES' % language
                 domains = [d[:-3] for d in resource_listdir(requirement, language_path) if d.endswith(u'.mo')]
