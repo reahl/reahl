@@ -17,6 +17,7 @@
 """The reahl.fw module implements the core of the Reahl web framework.
 """
 
+import atexit
 import sys
 import tempfile
 import mimetypes
@@ -2238,8 +2239,23 @@ class ConcatenatedFile(FileOnDisk):
         else:
             return NoOpMinifier()
 
+    def create_temp_file(self, suffix):
+        """Since NamedTemporaryFile does not work on windows, we need to create our own"""
+
+        (file_handle, path) = tempfile.mkstemp(suffix=suffix)
+        os.close(file_handle)
+        open_file = open(path,'w+b')
+        
+        def close_temp_file(open_file):
+            import os
+            open_file.close()
+            os.remove(open_file.name)
+        atexit.register(close_temp_file, open_file)
+
+        return open_file
+
     def concatenate(self, relative_name, contents):
-        temp_file = tempfile.NamedTemporaryFile(suffix=relative_name)
+        temp_file = self.create_temp_file(relative_name)
         for inner_file in contents:
             with open(inner_file.full_path) as opened_inner_file:
                 self.minifier(relative_name).minify(opened_inner_file, temp_file)
