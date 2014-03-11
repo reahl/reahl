@@ -9,7 +9,6 @@
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/>
     
-    <thirdpartyegg name="pyOpenSSL"  minversion="0.13" maxversion="0.14"/>
     <thirdpartyegg name="lxml" minversion="3.0" maxversion="3.0.999"/>
     <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
     <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
