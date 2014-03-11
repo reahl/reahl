@@ -1,4 +1,4 @@
-<project type="egg">
+<project type="egg" packagedata="included">
   <namespaces>
     <package name="reahl"/>
   </namespaces>
@@ -9,7 +9,7 @@
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/>
     
-    <thirdpartyegg name="lxml" minversion="3.0" maxversion="3.0.999"/>
+    <thirdpartyegg name="lxml" minversion="3.2"/>
     <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
     <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
   </deps>

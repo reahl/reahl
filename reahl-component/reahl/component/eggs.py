@@ -18,9 +18,10 @@
 
 import os
 from itertools import chain
+import logging
 
 from setuptools import setup
-from pkg_resources import require, working_set, resource_filename, Requirement, Distribution, iter_entry_points
+from pkg_resources import require, working_set, resource_filename, Requirement, Distribution, iter_entry_points, resource_listdir, resource_isdir
 
 from reahl.component.decorators import memoized
 
@@ -113,24 +114,41 @@ class ReahlEgg(object):
         return self.distribution.get_resource_filename(working_set, u'i18n')
 
     @classmethod
+    def get_egg_internal_path_for(cls, translations_entry_point):
+        module = translations_entry_point.load()
+        dir_or_egg_name = translations_entry_point.dist.location.split(os.sep)[-1]
+        paths = [p for p in module.__path__ if p.find(u'%s/' % dir_or_egg_name) > 0]
+        assert len(paths) <=1, \
+            u'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
+        assert len(paths) >0, \
+            u'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
+        return paths[0].split(u'%s/' % dir_or_egg_name)[-1]
+        
+    @classmethod
     @memoized
-    def get_languages_supported_by_all(self, root_egg):
-        egg_interfaces = self.get_all_relevant_interfaces(root_egg)
+    def get_languages_supported_by_all(cls, root_egg):
+        egg_interfaces = cls.get_all_relevant_interfaces(root_egg)
         default_languages = [u'en_gb']
         if not egg_interfaces:
             return default_languages
-        
+
         domains_in_use = [e.name for e in egg_interfaces]
 
-        packages = [p.load() for p in iter_entry_points(u'reahl.translations')]
-        package_paths = set(chain.from_iterable([package.__path__ for package in packages]))
-
         languages_for_eggs = {}
-        for package_path in package_paths:
-            languages = [d for d in os.listdir(package_path) if os.path.isdir(os.path.join(package_path, d))]
+        for translation_entry_point in iter_entry_points(u'reahl.translations'):
+            requirement = translation_entry_point.dist.as_requirement()
+            egg_internal_path = cls.get_egg_internal_path_for(translation_entry_point)
+
+            if resource_isdir(requirement, egg_internal_path):
+                languages = [d for d in resource_listdir(requirement, egg_internal_path)
+                             if resource_isdir(requirement, '%s/%s' % (egg_internal_path, d))]
+            else:
+                logging.error('Translations of %s not found in %s' % (requirement, egg_internal_path))
+                languages = []
+
             for language in languages:
-                language_path = os.path.join(package_path, language, u'LC_MESSAGES')
-                domains = [d[:-3] for d in os.listdir(language_path) if d.endswith(u'.mo')]
+                language_path = '%s/%s/LC_MESSAGES' % (egg_internal_path, language)
+                domains = [d[:-3] for d in resource_listdir(requirement, language_path) if d.endswith(u'.mo')]
                 for domain in domains:
                     if domain in domains_in_use:
                         languages = languages_for_eggs.setdefault(domain, set())
@@ -143,7 +161,7 @@ class ReahlEgg(object):
         return list(languages)
 
     @classmethod
-    def do_daily_maintenance_for_egg(self, root_egg):
+    def do_daily_maintenance_for_egg(cls, root_egg):
         eggs_in_order = ReahlEgg.get_all_relevant_interfaces(root_egg)
         for egg in eggs_in_order:
             if isinstance(egg, ReahlEgg):
