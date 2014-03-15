@@ -19,6 +19,11 @@ Should a user click on a different tab, different contents are displayed:
       :align: center
       :width: 70%
 
+Here is the complete Reahl web application which produces the TabbedPanel
+in the figure above (notice the MyTabbedPanel class):
+
+.. literalinclude:: ../../reahl/doc/examples/features/tabbedpanel/tabbedpanel.py
+
 Implementing such a tabbed panel is non-trivial. Perhaps you want to
 let its tabs be switched via JavaScript to prevent the entire page
 from being reloaded when switching to a different tab. At the same
@@ -33,13 +38,9 @@ which is one of many you'd have to read to build a nice tabbed panel.
 **The programmer who is building an application for an end-user does
 not want to have to think about these issues.**
 
-It is much more useful to have a reusable TabbedPanel widget available for
-use, to which you can add Tabs, each with its own heading and
-contents.
+It is much more useful to have a reusable TabbedPanel widget available
+for use, to which you can add Tabs, each with its own heading and
+contents -- all of which you can describe in Python, and only
+Python. The implementation details are irrelevant (assuming they're
+done well).
 
-The implementation details are irrelevant (assuming they're done well).
-
-Here is the complete Reahl web application which produces the TabbedPanel
-in the figure above (and which implements everything described above):
-
-.. literalinclude:: ../../reahl/doc/examples/features/tabbedpanel/tabbedpanel.py
