@@ -3,13 +3,8 @@ from reahl.web.fw import Region
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, P, YuiGrid, YuiUnit
 from reahl.component.modelinterface import exposed, Field, EmailField
 
-some_text = u'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'\
-            u' Cras arcu libero, semper rutrum malesuada sit amet, mollis sed dui. '\
-            u'Nulla eleifend mollis elit et luctus. Aliquam sollicitudin suscipit '\
-            u'mattis. Morbi tincidunt enim non felis tempor rutrum. Donec id mi a '\
-            u'neque rutrum dapibus. Nam sed nulla aliquam tellus feugiat mattis '\
-            u'nec sit amet arcu. Ut non velit a risus hendrerit facilisis. Proin '\
-            u'mattis orci sed sapien malesuada in consectetur eros pellentesque.'
+def lots_of(message):
+    return message * 5
 
 class LayoutApp(Region):
     def assemble(self):
@@ -18,12 +13,12 @@ class LayoutApp(Region):
         home = self.define_view(u'/', title=u'Layout demo')
         home.set_slot(u'main', CommentForm.factory())
 
-        home.set_slot(u'secondary', P.factory(text=u'The secondary column sits on'
-                                                   u' the left side of the main column. '+some_text))
-        home.set_slot(u'header', P.factory(text=u'This text is located in the header,'
-                                                u'which is provided for in a TwoColumnPage. '+some_text))
-        home.set_slot(u'footer', P.factory(text=u'The footer spans the bottom of all the '
-                                                u'columns on a TwoColumnPage '+ some_text))
+        home.set_slot(u'secondary', P.factory(text=lots_of(u'The secondary column sits on'
+                                                   u' the left side of the main column. ')))
+        home.set_slot(u'header', P.factory(text=lots_of(u'This text is located in the header,'
+                                                u'which is provided for in a TwoColumnPage. ')))
+        home.set_slot(u'footer', P.factory(text=lots_of(u'The footer spans the bottom of all the '
+                                                u'columns on a TwoColumnPage ')))
 
 
 
