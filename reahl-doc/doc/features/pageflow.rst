@@ -1,7 +1,7 @@
 .. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Dealing with user events
-========================
+Reacting to user events
+=======================
 
 Any web application needs to control what gets executed in response to
 a user action, and also how the user is transitioned between the
@@ -28,6 +28,7 @@ Note in the code below how a Comment @exposes a `submit` Event, which
 will result in the execution of the `submit` method of the Comment
 when triggered. The execution of the `submit` method renders the
 following output on the console:
+
 
 .. literalinclude:: ../_build/screenshots/pageflow2.txt
 
