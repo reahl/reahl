@@ -24,23 +24,19 @@ in the figure above (notice the MyTabbedPanel class):
 
 .. literalinclude:: ../../reahl/doc/examples/features/tabbedpanel/tabbedpanel.py
 
-Implementing such a tabbed panel is non-trivial. Perhaps you want to
-let its tabs be switched via JavaScript to prevent the entire page
-from being reloaded when switching to a different tab. At the same
-time though you'll want users who browse without JavaScript to also be
-able to navigate to different tabs. What about making sure that search
-engines can crawl to different tabs and index them, or allowing a user
-(or a search engine) to bookmark a specific tab. Have a look at `this
-article
-<http://alistapart.com/article/aria-and-progressive-enhancement#section6>`_
-which is one of many you'd have to read to build a nice tabbed panel.
+Using Reahl, this is written entirely in Python, and in terms of user
+interface widgets: You create your own widget class (MyTabbedPanel in
+this case), and populate it with Tabs in its ``__init__`` method. Each
+Tab is given a *factory* it can use to generate its own contents (in
+each case here, just a paragraph with text.
 
-**The programmer who is building an application for an end-user does
-not want to have to think about these issues.**
+What you get for that is tabs that can be switched via JavaScript,
+preventing the entire page to be refreshed when the user switches
+tabs. For users who have JavaScript switched off, the tabs still
+work, they just result in the page being refreshed. Search engines can
+crawl these tabs, and they can be bookmarked by browsers.
 
-It is much more useful to have a reusable TabbedPanel widget available
-for use, to which you can add Tabs, each with its own heading and
-contents -- all of which you can describe in Python, and only
-Python. The implementation details are irrelevant (assuming they're
-done well).
+All these extra considerations you get without having to break a sweat
+-- and you get the better implementation each time we improve it.
+
 
