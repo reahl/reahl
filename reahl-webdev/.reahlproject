@@ -1,4 +1,4 @@
-<project type="egg">
+<project type="egg" packagedata="included">
   <namespaces>
     <package name="reahl"/>
   </namespaces>
@@ -9,8 +9,7 @@
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/>
     
-    <thirdpartyegg name="pyOpenSSL"  minversion="0.13" maxversion="0.14"/>
-    <thirdpartyegg name="lxml" minversion="2.3" maxversion="2.4"/>
+    <thirdpartyegg name="lxml" minversion="3.2"/>
     <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
     <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
   </deps>
@@ -29,7 +28,7 @@
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture"/>
   
   <distpackage type="sdist">
-    <packageindex repository="http://pypi.python.org/pypi"/>
+    <packageindex repository="pypi"/>
   </distpackage>
 
 </project>

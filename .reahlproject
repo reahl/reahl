@@ -50,7 +50,7 @@
   <excludepackage name="reahl.doc.*"/>
 
   <distpackage type="sdist">
-    <packageindex repository="http://pypi.python.org/pypi"/>
+    <packageindex repository="pypi"/>
   </distpackage>
 
 </project>

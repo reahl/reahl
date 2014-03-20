@@ -41,7 +41,7 @@
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domain_dev -F reahl.dev.fixtures:CleanDatabase"/>
   
   <distpackage type="sdist">
-    <packageindex repository="http://pypi.python.org/pypi"/>
+    <packageindex repository="pypi"/>
   </distpackage>
     
 </project>
