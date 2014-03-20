@@ -278,8 +278,6 @@ class ReahlWebServer(object):
         self.running = False
         self.handlers = {}
         certfile = pkg_resources.resource_filename(__name__, u'reahl_development_cert.pem')
-        if not os.path.isfile(certfile):
-            raise AssertionError('The required file does not exist: %s' % certfile)
         self.reahl_webapp = WrappedApp(ReahlWebApplication(config))
         try:
             https_port = port+363
@@ -323,9 +321,22 @@ class ReahlWebServer(object):
         if self.running:
             self.stop_thread()
         self.reahl_webapp.stop()
-        self.httpd.socket.shutdown(socket.SHUT_RDWR)
-        self.httpsd.socket.shutdown(socket.SHUT_RDWR)
-
+        self.shutdown_socket(self.httpd.socket)
+        self.shutdown_socket(self.httpsd.socket)
+    
+    def shutdown_socket(self, socket_to_shutdown):
+        """ On windows, the shutdown of a socket does not work as we expect.
+            http://stackoverflow.com/questions/409783/socket-shutdown-vs-socket-close
+            This method tries the shutdown, and if it cannot, tries to close it.
+        """
+        try:
+            socket_to_shutdown.shutdown(socket.SHUT_RDWR)
+        except socket.error, e:
+            if e.errno == 10057:
+                socket_to_shutdown.close();
+            else:
+                raise
+            
     def requests_waiting(self, timeout):
         return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
 
