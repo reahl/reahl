@@ -88,11 +88,11 @@ def bzr_installed():
             try:
                 return_code = subprocess.call('bzr', stdout=out, stderr=err, shell=True)
                 return return_code == 0
-            except OSError as oe:
-                if e.errno == os.errno.ENOENT:
+            except OSError, ex:
+                if ex.errno == os.errno.ENOENT:
                     return False
                 else:
-                    logging.error('Error trying to execute "%s": %s' % (cmd, oe))
+                    logging.error('Error trying to execute "%s": %s' % (cmd, ex))
             except Exception, ex:
                 logging.error('Error trying to execute "%s": %s' % (cmd, ex))
             return False
