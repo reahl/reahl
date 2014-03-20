@@ -115,7 +115,6 @@ class ReahlEgg(object):
 
     @classmethod
     def get_egg_internal_path_for(cls, translations_entry_point):
-        import pdb; pdb.set_trace()
         module = translations_entry_point.load()
         dir_or_egg_name = translations_entry_point.dist.location.split(os.sep)[-1]
         paths = [p for p in module.__path__ if p.find(u'%s/' % dir_or_egg_name) > 0]
