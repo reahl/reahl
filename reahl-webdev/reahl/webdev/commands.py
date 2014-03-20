@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+import sys
 
 from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand
@@ -40,9 +41,9 @@ class ServeCurrentProject(WorkspaceCommand):
 
             print '\n\nServing http on port %s, https on port %s (config=%s)' % \
                                      (options.port, int(options.port)+363, config_directory)
-            print '\nPress <Enter> to terminate\n\n'
+            print '\nPress ^D to terminate\n\n'
     
-            raw_input()
+            sys.stdin.read()        
             reahl_server.stop()
         return 0
 

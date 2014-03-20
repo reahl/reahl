@@ -1740,8 +1740,8 @@ class EggProject(Project):
         return [dep.as_string_for_egg() for dep in self.test_deps]
 
     def packages_for_setup(self):
-        exclusions = [i.name for i in self.excluded_packages] + [self.test_suite]
-        exclusions += [u'%s.*' % i.name for i in self.excluded_packages] + [u'%s.*' % self.test_suite]
+        exclusions = [i.name for i in self.excluded_packages]
+        exclusions += [u'%s.*' % i.name for i in self.excluded_packages]
         return find_packages(where=self.directory, exclude=exclusions)
 
     def namespace_packages_for_setup(self):
