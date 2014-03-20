@@ -61,7 +61,7 @@ class Bzr(object):
             with TemporaryFile() as out:
                 cmd = 'bzr info %s' % dirname
                 try:
-                    return_code = subprocess.call(cmd.split(), stdout=out, stderr=out)
+                    return_code = subprocess.call(cmd.split(), stdout=out, stderr=err)
                     return return_code == 0
                 except Exception, ex:
                     logging.error('Error trying to execute "%s": %s' % (cmd, ex))
@@ -72,7 +72,7 @@ class Bzr(object):
             with TemporaryFile() as out:
                 cmd = 'bzr inventory %s --kind=file' % dirname
                 try:
-                    return_code = subprocess.call(cmd.split(), stdout=out, stderr=out)
+                    return_code = subprocess.call(cmd.split(), stdout=out, stderr=err)
                     out.seek(0)
                     err.seek(0)
                     if not err.read():
@@ -81,11 +81,28 @@ class Bzr(object):
                 except Exception, ex:
                     logging.error('Error trying to execute "%s": %s' % (cmd, ex))
                 return ['']
-    
+
+def bzr_installed():
+    with TemporaryFile() as err:
+        with TemporaryFile() as out:
+            try:
+                return_code = subprocess.call('bzr', stdout=out, stderr=err, shell=True)
+                return return_code == 0
+            except OSError as oe:
+                if e.errno == os.errno.ENOENT:
+                    return False
+                else:
+                    logging.error('Error trying to execute "%s": %s' % (cmd, oe))
+            except Exception, ex:
+                logging.error('Error trying to execute "%s": %s' % (cmd, ex))
+            return False
+        
 def find_files(dirname):
-    bzr = Bzr()
-    if bzr.uses_bzr(dirname):
-        return bzr.find_files(dirname)
+    if (bzr_installed()):
+        bzr = Bzr()
+        if bzr.uses_bzr(dirname):
+            return bzr.find_files(dirname)
+        else:
+            return []
     else:
         return []
-
