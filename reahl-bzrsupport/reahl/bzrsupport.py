@@ -82,27 +82,24 @@ class Bzr(object):
                     logging.error('Error trying to execute "%s": %s' % (cmd, ex))
                 return ['']
 
-def bzr_installed():
-    with TemporaryFile() as err:
-        with TemporaryFile() as out:
-            try:
-                return_code = subprocess.call('bzr', stdout=out, stderr=err, shell=True)
-                return return_code == 0
-            except OSError, ex:
-                if ex.errno == os.errno.ENOENT:
-                    return False
-                else:
+    def bzr_installed(self):
+        with TemporaryFile() as err:
+            with TemporaryFile() as out:
+                try:
+                    return_code = subprocess.call('bzr', stdout=out, stderr=err, shell=True)
+                    return return_code == 0
+                except OSError, ex:
+                    if ex.errno == os.errno.ENOENT:
+                        return False
+                    else:
+                        logging.error('Error trying to execute "%s": %s' % (cmd, ex))
+                except Exception, ex:
                     logging.error('Error trying to execute "%s": %s' % (cmd, ex))
-            except Exception, ex:
-                logging.error('Error trying to execute "%s": %s' % (cmd, ex))
-            return False
+                return False
         
 def find_files(dirname):
-    if (bzr_installed()):
-        bzr = Bzr()
-        if bzr.uses_bzr(dirname):
-            return bzr.find_files(dirname)
-        else:
-            return []
+    bzr = Bzr()
+    if bzr.bzr_installed() and bzr.uses_bzr(dirname):
+        return bzr.find_files(dirname)
     else:
         return []
