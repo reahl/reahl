@@ -278,8 +278,6 @@ class ReahlWebServer(object):
         self.running = False
         self.handlers = {}
         certfile = pkg_resources.resource_filename(__name__, u'reahl_development_cert.pem')
-        if not os.path.isfile(certfile):
-            raise AssertionError('The required file does not exist: %s' % certfile)
         self.reahl_webapp = WrappedApp(ReahlWebApplication(config))
         try:
             https_port = port+363
@@ -337,7 +335,7 @@ class ReahlWebServer(object):
             if e.errno == 10057:
                 socket_to_shutdown.close();
             else:
-                raise e
+                raise
             
     def requests_waiting(self, timeout):
         return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
