@@ -115,15 +115,17 @@ class ReahlEgg(object):
 
     @classmethod
     def get_egg_internal_path_for(cls, translations_entry_point):
+        import pdb; pdb.set_trace()
         module = translations_entry_point.load()
         dir_or_egg_name = translations_entry_point.dist.location.split(os.sep)[-1]
         paths = [p for p in module.__path__ if p.find(u'%s/' % dir_or_egg_name) > 0]
-        assert len(paths) <=1, \
+        unique_paths = set([p.split(u'%s/' % dir_or_egg_name)[-1] for p in paths])
+        assert len(unique_paths) <=1, \
             u'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
-        assert len(paths) >0, \
+        assert len(unique_paths) >0, \
             u'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
-        return paths[0].split(u'%s/' % dir_or_egg_name)[-1]
-        
+        return unique_paths.pop()
+
     @classmethod
     @memoized
     def get_languages_supported_by_all(cls, root_egg):
