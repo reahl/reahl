@@ -50,7 +50,7 @@
     <class locator="reahl.doc.examples.tutorial.access.access:Address"/>
     <class locator="reahl.doc.examples.tutorial.i18nexample.i18nexample:Address"/>
     <class locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:Address"/>
-    <class locator="reahl.doc.examples.tutorial.migration.migration:Address"/>
+    <class locator="reahl.doc.examples.tutorial.migrationexample.migrationexample:Address"/>
     <class locator="reahl.doc.examples.tutorial.jobs.jobs:Address"/>
   </persisted>
 
