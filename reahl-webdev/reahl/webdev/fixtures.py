@@ -95,7 +95,7 @@ class BrowserSetup(CleanDatabase):
         #--enable-http-pipelining
         #--learning
         #--single-process
-        options.binary_location = '/usr/lib/chromium-browser/chromium-browser'
+        #options.binary_location = '/usr/lib/chromium-browser/chromium-browser'
         try:
             wd = webdriver.Chrome(chrome_options=options)
         except WebDriverException, ex:
