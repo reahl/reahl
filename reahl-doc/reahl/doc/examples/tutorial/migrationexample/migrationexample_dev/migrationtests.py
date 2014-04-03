@@ -6,7 +6,7 @@ from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.migration.migration import AddressBookApp, Address
+from reahl.doc.examples.tutorial.migrationexample.migrationexample import AddressBookApp, Address
 
 
 class MigrateFixture(WebFixture):

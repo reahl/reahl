@@ -20,6 +20,6 @@
     <class locator="reahl.doc.examples.tutorial.i18nexample.i18nexample:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T i18nexample_dev/ -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T i18nexample_dev -F reahl.webdev.fixtures:BrowserSetup"/>
   
 </project>

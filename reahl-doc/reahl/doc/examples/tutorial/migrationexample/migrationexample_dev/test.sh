@@ -2,7 +2,7 @@
 
 function version_is() {
   expected=$1
-  output="$(sqlite3 /tmp/reahl.db 'select version from reahl_schema_version where egg_name="migration" ')"
+  output="$(sqlite3 /tmp/reahl.db 'select version from reahl_schema_version where egg_name="migrationexample" ')"
   if [ "$1" = "$output" ]
   then return 0
   else return 1
@@ -28,8 +28,8 @@ $( ! schema_is_new ) || fail "Old schema expected"
 
 
 sed -i 's|<info name="version">0.0</info>|<info name="version">0.1</info>|g' .reahlproject
-sed -Ei 's|^#( *)added_date|\1added_date|g' migration.py
-sed -Ei 's|^(.*)TODO(.*)|#\1TODO\2|g' migration.py
+sed -Ei 's|^#( *)added_date|\1added_date|g' migrationexample.py
+sed -Ei 's|^(.*)TODO(.*)|#\1TODO\2|g' migrationexample.py
 reahl setup -- develop -N
 reahl-control migratedb etc
 
