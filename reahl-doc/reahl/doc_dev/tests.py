@@ -24,6 +24,7 @@ from reahl.tofu import test, set_up, tear_down, scenario, Fixture
 from reahl.tofu import vassert, expected, temp_file_with
 from reahl.stubble import SystemOutStub
 from reahl.component.config import StoredConfiguration
+from reahl.component.shelltools import Executable
 
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.fixtures import BrowserSetup
@@ -366,7 +367,7 @@ def basichtmlinputs(fixture):
 def model_examples(fixture):
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
     for example in ['modeltests1.py', 'modeltests2.py', 'modeltests3.py']:
-        subprocess.check_call(['nosetests', 'reahl/doc/examples/tutorial/%s' % example ])
+        Executable('nosetests').check_call(['reahl/doc/examples/tutorial/%s' % example ])
 
 @test(ExampleFixture.addressbook1)
 def test_addressbook1(fixture):

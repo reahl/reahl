@@ -19,17 +19,17 @@
 import os
 import os.path
 import filecmp
-import subprocess
 import datetime
 
 from nose.tools import istest
 from reahl.tofu import test, Fixture
-from reahl.tofu import temp_dir, temp_file_with, vassert, expected, assert_recent
+from reahl.tofu import temp_dir, temp_file_with, vassert, expected
 from reahl.stubble import stubclass, exempt, EmptyStub
 
+from reahl.component.shelltools import Executable
 from reahl.dev.devdomain import DebianPackage, SshRepository, LocalAptRepository, RepositoryLocalState, Workspace, \
     Version, Project, ProjectMetadata, EggProject, ChickenProject, Project, SubstvarsFile, \
-    Dependency, ThirdpartyDependency, Bzr, DebianChangelog, DebianControl
+    Dependency, ThirdpartyDependency, DebianChangelog, DebianControl
 from reahl.dev.exceptions import AlreadyUploadedException, NotBuiltException, NotAValidProjectException, \
     InvalidProjectFileException
 
@@ -215,7 +215,7 @@ Description: some wise words
 
 """ % (os.environ['DEBFULLNAME'], os.environ['EMAIL'])
         self.temp_directory.file_with('control', control_file_contents)
-        subprocess.check_call(['equivs-build', '-a', 'i386', '-f','control'], cwd=self.temp_directory.name)
+        Executable('equivs-build').check_call(['-a', 'i386', '-f','control'], cwd=self.temp_directory.name)
 
 class LocalAptRepositoryFixture(Fixture):
     def new_repository_directory(self):
@@ -632,58 +632,6 @@ class DependencyTests(object):
 
         actual = normal_dep.as_string_for_deb()
         vassert( actual == u'python-one (>=1.2), python-one (<<1.3)' )
-
-
-
-class BzrFixture(Fixture):
-    def new_bzr_directory(self, initialised=True):
-        bzr_directory = temp_dir()
-        if initialised:
-            with file(os.devnull, 'w') as DEVNULL:
-                subprocess.check_call('bzr init'.split(' '), cwd=bzr_directory.name, stdout=DEVNULL, stderr=DEVNULL)
-        return bzr_directory
-
-        
-@istest
-class BzrTests(object):
-    @test(BzrFixture)
-    def is_version_controlled(self, fixture):
-        non_initialised_directory = fixture.new_bzr_directory(initialised=False)
-        bzr = Bzr(non_initialised_directory.name)
-        vassert( not bzr.is_version_controlled() )
-
-        bzr = Bzr(fixture.bzr_directory.name)
-        vassert( bzr.is_version_controlled() )
-
-    @test(BzrFixture)
-    def is_checked_in(self, fixture):
-        bzr = Bzr(fixture.bzr_directory.name)
-        vassert( bzr.is_checked_in() )
-
-        file(os.path.join(fixture.bzr_directory.name, u'afile'), 'w').close()
-        vassert( not bzr.is_checked_in() )
-        
-    @test(BzrFixture)
-    def last_commit_time(self, fixture):
-        bzr = Bzr(fixture.bzr_directory.name)
-        bzr.commit(u'testing', unchanged=True)
-
-        assert_recent( bzr.last_commit_time )
-
-    @test(BzrFixture)
-    def tag_related(self, fixture):
-        bzr = Bzr(fixture.bzr_directory.name)
-        bzr.commit(u'testing', unchanged=True)
-
-        vassert( bzr.get_tags() == [] )
-        bzr.tag('mytag')
-        vassert( bzr.get_tags(head_only=True) == ['mytag'] )
-        vassert( bzr.get_tags() == ['mytag'] )
-
-        bzr.commit(u'testing', unchanged=True)
-        bzr.tag('lasttag')
-        vassert( bzr.get_tags(head_only=True) == ['lasttag'] )
-        vassert( bzr.get_tags() == ['lasttag', 'mytag'] )
 
 
 
