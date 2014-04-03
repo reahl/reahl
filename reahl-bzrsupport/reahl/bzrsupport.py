@@ -20,13 +20,54 @@ import logging
 import os
 import os.path
 from tempfile import TemporaryFile
+import datetime
 
 # see http://packages.python.org/distribute/setuptools.html#adding-support-for-other-revision-control-systems
 
+
+class Executable(object):
+    """ Copied reahl.component.shelltools to avoid dependency issues"""
+    
+    def __init__(self, name):
+        self.name = name
+        self.executable_file = self.which(name)
+
+    def which(self, program):
+        def is_exe(fpath):
+            return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+
+        def ext_candidates(fpath):
+            for ext in os.environ.get("PATHEXT", "").split(os.pathsep):
+                yield fpath + ext
+            yield fpath
+
+        fpath, fname = os.path.split(program)
+        if fpath:
+            if is_exe(program):
+                return program
+        else:
+            for path in os.environ["PATH"].split(os.pathsep):
+                exe_file = os.path.join(path, program)
+                for candidate in ext_candidates(exe_file):
+                    if is_exe(candidate):
+                        return candidate
+
+        return None
+
+    def call(self, commandline_arguments, *args, **kwargs):
+        return subprocess.call([self.executable_file]+commandline_arguments, *args, **kwargs)
+    def check_call(self, commandline_arguments, *args, **kwargs):
+        return subprocess.check_call([self.executable_file]+commandline_arguments, *args, **kwargs)
+    def Popen(self, commandline_arguments, *args, **kwargs):
+        return subprocess.Popen([self.executable_file]+commandline_arguments, *args, **kwargs)
+
 class Bzr(object):
-    def find_files(self, dirname):
-        files = self.inventory(dirname)
-        relative_path = self.get_relative_path(dirname)
+    def __init__(self, directory):
+        self.directory = directory
+
+    def find_files(self):
+        files = self.inventory()
+        relative_path = self.get_relative_path()
         if relative_path is None:
             return []
         files_in_inventory = [self.adjusted(relative_path, filename) for filename in files if filename.startswith(relative_path)]
@@ -37,8 +78,8 @@ class Bzr(object):
             return filename
         return filename[len(relative_path):]
         
-    def get_relative_path(self, dirname):
-        bzr_root = self.find_bzr_root(dirname)
+    def get_relative_path(self):
+        bzr_root = self.find_bzr_root()
         cwd = os.getcwd()
 
         if not bzr_root:
@@ -48,58 +89,103 @@ class Bzr(object):
             relative_path = cwd[len(bzr_root)+1:]
         return os.path.join(relative_path, u'')
 
-    def find_bzr_root(self, dirname):
-        bzr_root = os.path.join(os.getcwd(), dirname)
+    def find_bzr_root(self):
+        bzr_root = os.path.join(os.getcwd(), self.directory)
         while bzr_root != '/' and not os.path.exists(os.path.join(bzr_root, u'.bzr')):
             bzr_root = os.path.split(bzr_root)[0]
         if bzr_root != '/':
             return bzr_root
         return None
         
-    def uses_bzr(self, dirname):
+    def uses_bzr(self):
         with TemporaryFile() as err:
             with TemporaryFile() as out:
-                cmd = 'bzr info %s' % dirname
                 try:
-                    return_code = subprocess.call(cmd.split(), stdout=out, stderr=err)
+                    return_code = Executable(u'bzr').call([u'info', self.directory], stdout=out, stderr=err)
                     return return_code == 0
                 except Exception, ex:
-                    logging.error('Error trying to execute "%s": %s' % (cmd, ex))
+                    logging.error('Error trying to execute "bzr info %s": %s' % (self.directory, ex))
                 return False
 
-    def inventory(self, dirname):
+    def inventory(self):
         with TemporaryFile() as err:
             with TemporaryFile() as out:
-                cmd = 'bzr inventory %s --kind=file' % dirname
+                bzr_args = 'inventory %s --kind=file' % self.directory
                 try:
-                    return_code = subprocess.call(cmd.split(), stdout=out, stderr=err)
+                    return_code = Executable(u'bzr').call(bzr_args.split(), stdout=out, stderr=err)
                     out.seek(0)
                     err.seek(0)
                     if not err.read():
                         files = out.read().split('\n')
                         return files
                 except Exception, ex:
-                    logging.error('Error trying to execute "%s": %s' % (cmd, ex))
+                    logging.error('Error trying to execute "bzr %s": %s' % (bzr_args, ex))
                 return ['']
 
     def bzr_installed(self):
         with TemporaryFile() as err:
             with TemporaryFile() as out:
                 try:
-                    return_code = subprocess.call('bzr', stdout=out, stderr=err, shell=True)
+                    return_code = Executable(u'bzr').call([], stdout=out, stderr=err, shell=True)
                     return return_code == 0
                 except OSError, ex:
                     if ex.errno == os.errno.ENOENT:
                         return False
                     else:
-                        logging.error('Error trying to execute "%s": %s' % (cmd, ex))
+                        logging.error('Error trying to execute "bzr": %s' % ex)
                 except Exception, ex:
-                    logging.error('Error trying to execute "%s": %s' % (cmd, ex))
+                    logging.error('Error trying to execute "bzr": %s' % ex)
                 return False
+ 
+    def commit(self, message, unchanged=False):
+        with file(os.devnull, 'w') as DEVNULL:
+            args = '-m %s' % message
+            if unchanged:
+                args += ' --unchanged'
+            return_code = Executable(u'bzr').call(('commit %s' % args).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+        return return_code == 0
+        
+    def is_version_controlled(self):
+        with file(os.devnull, 'w') as DEVNULL:
+            return_code = Executable(u'bzr').call('info'.split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+        return return_code == 0
+
+    def is_checked_in(self):
+        with TemporaryFile() as out:
+            return_code = Executable(u'bzr').call('status'.split(), cwd=self.directory, stdout=out, stderr=out)
+            out.seek(0)
+            return return_code == 0 and not out.read()
+
+    @property
+    def last_commit_time(self):
+        with TemporaryFile() as out:
+            with file(os.devnull, 'w') as DEVNULL:
+                Executable(u'bzr').check_call('log -r -1'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
+                out.seek(0)
+                [timestamp] = [line for line in out if line.startswith('timestamp')]
+        timestamp = u' '.join(timestamp.split()[:-1]) # Cut off timezone
+        return datetime.datetime.strptime(timestamp, u'timestamp: %a %Y-%m-%d %H:%M:%S')
+
+    def tag(self, tag_string):
+        with file(os.devnull, 'w') as DEVNULL:
+            Executable(u'bzr').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+        
+    def get_tags(self, head_only=False):
+        tags = []
+        with TemporaryFile() as out:
+            with file(os.devnull, 'w') as DEVNULL:
+                head_only = ' -r -1 ' if head_only else ''
+                Executable(u'bzr').check_call(('tags'+head_only).split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
+                out.seek(0)
+                tags = [line.split()[0] for line in out if line]
+        return tags 
+ 
+ 
+ 
         
 def find_files(dirname):
-    bzr = Bzr()
-    if bzr.bzr_installed() and bzr.uses_bzr(dirname):
-        return bzr.find_files(dirname)
+    bzr = Bzr(dirname)
+    if bzr.bzr_installed() and bzr.uses_bzr():
+        return bzr.find_files()
     else:
         return []
