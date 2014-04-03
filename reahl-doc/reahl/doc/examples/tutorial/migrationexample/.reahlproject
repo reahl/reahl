@@ -23,13 +23,13 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.doc.examples.tutorial.migration.migration:Address"/>
+    <class locator="reahl.doc.examples.tutorial.migrationexample.migrationexample:Address"/>
   </persisted>
 
   <migrations>
-    <class locator="reahl.doc.examples.tutorial.migration.migration:AddDate"/>
+    <class locator="reahl.doc.examples.tutorial.migrationexample.migrationexample:AddDate"/>
   </migrations>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T migration_dev/ -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T migrationexample_dev -F reahl.webdev.fixtures:BrowserSetup"/>
   
 </project>
