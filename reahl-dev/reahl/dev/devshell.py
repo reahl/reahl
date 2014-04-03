@@ -32,7 +32,7 @@ from optparse import OptionParser
 import shlex
 from optparse import Values
 
-from reahl.component.shelltools import Command, ReahlCommandline
+from reahl.component.shelltools import Command, ReahlCommandline, Executable
 from reahl.component.config import EntryPointClassList, Configuration
 
 from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository
@@ -382,8 +382,9 @@ class Shell(ForAllParsedWorkspaceCommand):
         replaced_command = []
         for i in args:
             if i.startswith('$(') and i.endswith(')'):
-                shellcommand = i[2:-1].split(' ')
-                output = subprocess.Popen(shellcommand, cwd=project.directory, stdout=subprocess.PIPE).communicate()[0]
+                shellcommand = i[2]
+                shell_args = i[3:-1].split(' ')
+                output = Executable(shellcommand).Popen(shell_args, cwd=project.directory, stdout=subprocess.PIPE).communicate()[0]
                 for line in output.splitlines():
                     replaced_command.append(line)
             else:
@@ -391,7 +392,7 @@ class Shell(ForAllParsedWorkspaceCommand):
 
         command = replaced_command
 
-        return subprocess.call(command, cwd=project.directory)
+        return Executable(command[0]).call(command[1:], cwd=project.directory)
 
 
 

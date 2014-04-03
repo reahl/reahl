@@ -38,6 +38,8 @@ from pkg_resources import require, DistributionNotFound, VersionConflict, get_di
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
 
+from reahl.bzrsupport import Bzr
+from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
@@ -125,8 +127,7 @@ class DebianPackage(DistributionPackage):
 
     @property
     def debian_build_architecture(self):
-        shellcommand = ['dpkg-architecture', '-qDEB_BUILD_ARCH']
-        running_command = subprocess.Popen(shellcommand, stdout=subprocess.PIPE)
+        running_command = Executable('dpkg-architecture').Popen(['-qDEB_BUILD_ARCH'], stdout=subprocess.PIPE)
         arch_string = running_command.communicate()[0].strip('\n ')
         if running_command.returncode != 0:
             raise Exception()
@@ -174,8 +175,7 @@ class DebianPackage(DistributionPackage):
 
     def build(self):
         self.generate_install_files()
-        shellcommand = ['dpkg-buildpackage', '-sa', '-rfakeroot', '-Istatic','-I.bzr', '-k%s' % os.environ['EMAIL']]
-        subprocess.check_call(shellcommand, cwd=self.project.directory)
+        Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr', '-k%s' % os.environ['EMAIL']], cwd=self.project.directory)
         self.project.distribution_apt_repository.upload(self, [])
         self.clean_files(self.build_output_files)
         
@@ -267,8 +267,7 @@ class RemoteRepository(object):
         return '127.0.0.1'
         
     def knock(self, knocks):
-        shellcommand = ['knock', self.knock_host]+knocks
-        subprocess.check_call(shellcommand)
+        Executable('knock').check_call([self.knock_host]+knocks)
 
     @property
     def repository_state_directory(self):
@@ -349,8 +348,7 @@ class SshRepository(RemoteRepository):
 
     def transfer(self, package):
         files = package.files_to_distribute
-        shellcommand = ['scp']+files+['%s@%s:%s' % (self.login, self.host, self.destination)]
-        subprocess.check_call(shellcommand)
+        Executable('scp').check_call(files+['%s@%s:%s' % (self.login, self.host, self.destination)])
 
     @property
     def unique_id(self):
@@ -396,13 +394,13 @@ class LocalRepository(object):
 class LocalAptRepository(LocalRepository):
     def build_index_files(self):
         with open( os.path.join(self.root_directory, 'Packages'), 'w' ) as packages_file:
-            subprocess.check_call(['apt-ftparchive', 'packages', '.'], cwd=self.root_directory, stdout=packages_file)
+            Executable('apt-ftparchive').check_call(['packages', '.'], cwd=self.root_directory, stdout=packages_file)
 
         path_name, directory_name = os.path.split(self.root_directory)
         with open( os.path.join(self.root_directory, 'Release'), 'w' ) as release_file:
-            subprocess.check_call(['apt-ftparchive', 'release', directory_name], cwd=path_name, stdout=release_file)
+            Executable('apt-ftparchive').check_call(['release', directory_name], cwd=path_name, stdout=release_file)
 
-        subprocess.check_call(['gpg', '-abs', '--yes', '-o', 'Release.gpg', 'Release'], cwd=self.root_directory)
+        Executable('gpg').check_call(['-abs', '--yes', '-o', 'Release.gpg', 'Release'], cwd=self.root_directory)
 
 
 class EntryPointExport(object):
@@ -1116,11 +1114,11 @@ class DebianPackageMetadata(ProjectMetadata):
             shutil.rmtree(deb_dir)
         os.mkdir(deb_dir)
     
-        shellcommand = ['dh_make --native --defaultless --single --copyright GPL']
+        dh_make_params = ['--native --defaultless --single --copyright GPL']
         if self.project.workspace.dh_make_directory:
-            shellcommand[0] += ' --templates %s' % self.project.workspace.dh_make_directory
+            dh_make_params[0] += ' --templates %s' % self.project.workspace.dh_make_directory
 
-        subprocess.check_call(shellcommand, cwd=deb_dir, shell=True)
+        Executable('dh_make').check_call(dh_make_params.split(' '), cwd=deb_dir, shell=True)
             
         shutil.move(os.path.join(deb_dir, 'debian'), os.path.join(self.project.directory, 'debian'))
         shutil.rmtree(deb_dir)
@@ -1240,54 +1238,6 @@ class SourceControlSystem(object):
     def place_tag(self, tag):
         assert not self.project.chicken_project, 'You cannot tag a subproject'
         return False
-
-
-class Bzr(object):
-    def __init__(self, directory):
-        self.directory = directory
-
-    def commit(self, message, unchanged=False):
-        with file(os.devnull, 'w') as DEVNULL:
-            args = '-m %s' % message
-            if unchanged:
-                args += ' --unchanged'
-            return_code = subprocess.call(('bzr commit %s' % args).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
-        return return_code == 0
-        
-    def is_version_controlled(self):
-        with file(os.devnull, 'w') as DEVNULL:
-            return_code = subprocess.call('bzr info'.split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
-        return return_code == 0
-
-    def is_checked_in(self):
-        with TemporaryFile() as out:
-            return_code = subprocess.call('bzr status'.split(), cwd=self.directory, stdout=out, stderr=out)
-            out.seek(0)
-            return return_code == 0 and not out.read()
-
-    @property
-    def last_commit_time(self):
-        with TemporaryFile() as out:
-            with file(os.devnull, 'w') as DEVNULL:
-                subprocess.check_call('bzr log -r -1'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
-                out.seek(0)
-                [timestamp] = [line for line in out if line.startswith('timestamp')]
-        timestamp = u' '.join(timestamp.split()[:-1]) # Cut off timezone
-        return datetime.datetime.strptime(timestamp, u'timestamp: %a %Y-%m-%d %H:%M:%S')
-
-    def tag(self, tag_string):
-        with file(os.devnull, 'w') as DEVNULL:
-            subprocess.check_call(('bzr tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
-        
-    def get_tags(self, head_only=False):
-        tags = []
-        with TemporaryFile() as out:
-            with file(os.devnull, 'w') as DEVNULL:
-                head_only = ' -r -1 ' if head_only else ''
-                subprocess.check_call(('bzr tags'+head_only).split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
-                out.seek(0)
-                tags = [line.split()[0] for line in out if line]
-        return tags
 
 
 
