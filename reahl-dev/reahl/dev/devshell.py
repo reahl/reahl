@@ -40,8 +40,8 @@ from reahl.dev.exceptions import StatusException, AlreadyUploadedException, NotB
     NotUploadedException, NotVersionedException, NotCheckedInException, \
     MetaInformationNotAvailableException, AlreadyDebianisedException, \
     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \
-    AlreadyMarkedAsReleasedException, NotBuiltAfterLastCommitException, NotBuiltException
-
+    AlreadyMarkedAsReleasedException, NotBuiltAfterLastCommitException, NotBuiltException, \
+    NotAValidProjectException
 
 
 class DevShellConfig(Configuration):
@@ -241,7 +241,10 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             try:
                 current_project = self.workspace.project_in(os.getcwd())
             except ProjectNotFound:
-                current_project = Project.from_file(self.workspace, os.getcwd())
+                try:
+                    current_project = Project.from_file(self.workspace, os.getcwd())
+                except NotAValidProjectException:
+                    current_project = Project(self.workspace, os.getcwd())
             project_list.append(current_project)
 
         pause = options.pause
