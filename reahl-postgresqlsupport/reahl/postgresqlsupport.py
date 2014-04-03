@@ -23,6 +23,7 @@ from contextlib import closing
 import os.path
 
 from reahl.component.dbutils import DatabaseControl
+from reahl.component.shelltools import Executable
 
 class PostgresqlControl(DatabaseControl):
     """A DatabaseControl implementation for PostgreSQL."""
@@ -38,27 +39,25 @@ class PostgresqlControl(DatabaseControl):
         return ['-h', self.host, '-p', str(self.port)]
 
     def create_db_user(self):
-         cmd = ['createuser', '-DSRlP'] + self.login_args + [self.user_name]
-         subprocess.check_call(cmd)
+         Executable('createuser').check_call(['-DSRlP'] + self.login_args + [self.user_name])
          return 0
 
     def drop_db_user(self):
-        cmd = ['dropuser'] + self.login_args + [self.user_name]
-        subprocess.check_call(cmd)
+        Executable('dropuser').check_call(self.login_args + [self.user_name])
         return 0
 
     def drop_database(self, yes=False):
-        cmd = ['dropdb'] + self.login_args
+        cmd_args = self.login_args
         last_part = ['-i', self.database_name]
         if yes:
             last_part = [self.database_name]
 
-        subprocess.check_call(cmd+last_part)
+        Executable('dropdb').check_call(cmd_args+last_part)
         return 0
 
     def create_database(self):
-        cmd = ['createdb', '-Eunicode'] + self.login_args + ['-T', 'template0', '-O', self.user_name,  self.database_name]
-        subprocess.check_call(cmd)
+        cmd_args = ['-Eunicode'] + self.login_args + ['-T', 'template0', '-O', self.user_name,  self.database_name]
+        Executable('createdb').check_call(cmd_args)
         return 0
 
     def backup_database(self, directory):
@@ -66,8 +65,8 @@ class PostgresqlControl(DatabaseControl):
         filename = '%s.psql.%s' % (self.database_name, today.strftime('%A'))
         full_path = os.path.join(directory, filename)
         with open(full_path, 'w') as destination_file:
-            cmd = ['pg_dump', '-Fc', '-o'] + self.login_args + [self.database_name]
-            subprocess.check_call(cmd, stdout=destination_file)
+            cmd_args = ['-Fc', '-o'] + self.login_args + [self.database_name]
+            Executable('pg_dump').check_call(cmd_args, stdout=destination_file)
         return 0
 
     def backup_all_databases(self, directory):
@@ -79,22 +78,20 @@ class PostgresqlControl(DatabaseControl):
         full_path = os.path.join(directory, filename)
 
         with closing(gzip.open(full_path, 'wb')) as zipped_file:
-            cmd = ['pg_dumpall', '-o'] + self.login_args
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            proc = Executable('pg_dumpall').Popen([ '-o'] + self.login_args, stdout=subprocess.PIPE)
             for line in proc.stdout:
                 zipped_file.write(line)
         return 0
 
         
     def restore_database(self, filename):
-        cmd = ['pg_restore', '-C', '-Fc', '-d', 'postgres', filename]
-        subprocess.check_call(cmd)
+        cmd = ['-C', '-Fc', '-d', 'postgres', filename]
+        Executable('pg_restore').check_call(['-C', '-Fc', '-d', 'postgres', filename])
         return 0
 
     def restore_all_databases(self, filename):
         with closing(gzip.open(filename, 'rb')) as zipped_file:
-            cmd = ['psql', '-d', 'template1']
-            proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+            proc = Executable('psql').Popen(['-d', 'template1'], stdin=subprocess.PIPE)
             for line in zipped_file:
                 proc.stdin.write(line)
         return 0

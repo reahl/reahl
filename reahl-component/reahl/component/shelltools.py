@@ -20,9 +20,48 @@ import sys
 import os.path
 import logging
 import re
+import subprocess
+import os
+
 
 from optparse import OptionParser
 import shlex
+
+
+class Executable(object):
+    def __init__(self, name):
+        self.name = name
+        self.executable_file = self.which(name)
+
+    def which(self, program):
+        def is_exe(fpath):
+            return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+
+        def ext_candidates(fpath):
+            for ext in os.environ.get("PATHEXT", "").split(os.pathsep):
+                yield fpath + ext
+            yield fpath
+
+        fpath, fname = os.path.split(program)
+        if fpath:
+            if is_exe(program):
+                return program
+        else:
+            for path in os.environ["PATH"].split(os.pathsep):
+                exe_file = os.path.join(path, program)
+                for candidate in ext_candidates(exe_file):
+                    if is_exe(candidate):
+                        return candidate
+
+        return None
+
+    def call(self, commandline_arguments, *args, **kwargs):
+        return subprocess.call([self.executable_file]+commandline_arguments, *args, **kwargs)
+    def check_call(self, commandline_arguments, *args, **kwargs):
+        return subprocess.check_call([self.executable_file]+commandline_arguments, *args, **kwargs)
+    def Popen(self, commandline_arguments, *args, **kwargs):
+        return subprocess.Popen([self.executable_file]+commandline_arguments, *args, **kwargs)
+
 
 class CommandNotFound(Exception):
     pass
