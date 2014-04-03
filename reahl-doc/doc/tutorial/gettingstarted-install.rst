@@ -26,7 +26,7 @@ Prepare your platform for Reahl Python development
 Before you can install Reahl itself, you need to install several
 pieces of software on your platform (including Python and several
 Python development tools like virtualenv). This differs from platform
-to platform:
+to platform -- please follow the instructions for your platform:
 
 - :doc:`Ubuntu (or other Debian-based Linux distributions) <install-ubuntu>`
 - :doc:`Mac OS/X <install-mac>`
@@ -37,8 +37,9 @@ to platform:
 Create a virtualenv and install Reahl inside it
 -----------------------------------------------
 
-Virtualenv should have been installed with the packages listed above,
-allowing you to create a new virtualenv. 
+If you followed the instructions above, virtualenv should have been
+installed with the packages listed above. You need to now create a
+virtual environment using virtualenv.
 
 On Linux or Mac, do:
 
@@ -46,7 +47,7 @@ On Linux or Mac, do:
 
    virtualenv ./reahl_env
 
-On Windows, do:
+On Windows, do (in a command shell):
 
 .. code-block:: bash
 
