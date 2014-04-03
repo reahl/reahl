@@ -18,6 +18,6 @@
     <class locator="reahl.doc.examples.tutorial.sessionscope.sessionscope:LoginSession"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T sessionscope_dev/ -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T sessionscope_dev -F reahl.webdev.fixtures:BrowserSetup"/>
   
 </project>

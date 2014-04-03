@@ -6,7 +6,7 @@ Developing your own component
 .. sidebar:: Examples in this section
 
    - tutorial.componentconfig
-   - tutorial.migration
+   - tutorial.migrationexample
    - tutorial.jobs
 
    Get a copy of an example by running:
@@ -149,7 +149,7 @@ with a database schema that does not include `added_date` at first. A
 new schema will be needed when the actual `added_date` is uncommented,
 without the need for other code changes:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migration/migration.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexample/migrationexample.py
    :pyobject: Address
 
 As you know, each Reahl component has a version number. When you
@@ -198,7 +198,7 @@ such a cleanup phase.
 
 Here is the :class:`~reahl.component.migration.Migration` for adding our `added_date` column:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migration/migration.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexample/migrationexample.py
    :pyobject: AddDate
 
 The code doing the changes to the schema is written in terms of
@@ -217,14 +217,14 @@ Registering the AddDate class in the `.reahlproject` file is similar
 to registering persistent classes, it just happens in a `<migrations>`
 tag, and the :class:`~reahl.component.migration.Migration`\ s are listed in the correct order:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migration/.reahlproject
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexample/.reahlproject
    :start-after:   <migrations>
    :end-before:   </migrations>
    :prepend:   <migrations>
    :append:   </migrations>
 
 To appreciate the example, you'd have to get your own copy of it (via
-``reahl example tutorial.migration``), and run everything you need to
+``reahl example tutorial.migrationexample``), and run everything you need to
 in order to get its database tables created: ``reahl setup --
 develop -N`` and ``reahl-control createdbtables etc``. Then run the
 application and add a few Addresses. Doing all of this simulates an
