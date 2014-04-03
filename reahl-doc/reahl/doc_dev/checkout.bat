@@ -22,11 +22,11 @@ for /F %%i in %EXAMPLE_LIST% do (
             cd %REAHL_TMP%
         ) else (
             echo ---Example [%%i] is in a file: !EXAMPLE_DIR_OR_FILE!
-            REM nosetests !EXAMPLE_DIR_OR_FILE!            
+            nosetests !EXAMPLE_DIR_OR_FILE!            
         )
     )
 )
-ENDLOCAL
 cd %ORIGINAL_DIR%
 rmdir /S /Q %REAHL_TMP%
+ENDLOCAL
 

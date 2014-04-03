@@ -9,9 +9,8 @@ The language of Reahl
 If you are a developer working on a web based user interface, you do
 not want to spend your brain power thinking and talking about the
 intricacies of the latest HTML/CSS/HTML standard, or how JavaScript is
-dealt with differently on different browsers.
-
-You want to spend your brain power on deciding where to put :class:`~reahl.web.ui.Button`\ s
+dealt with differently on different browsers. You want to spend your
+brain power on deciding where to put :class:`~reahl.web.ui.Button`\ s
 and what should be on a particular window in order to create the most
 effective user interface.
 

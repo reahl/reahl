@@ -11,7 +11,7 @@ install Reahl itself in a virtualenv -- (but that's a one-liner)
 Python and basic development tools
 ----------------------------------
 
-On Windows, you need to instal Python and a number of standard Python
+On Windows, you need to install Python and a number of standard Python
 development tools.
 
 Installing all of this is explained excellently on `The Hitchhiker's guide to Python
@@ -22,7 +22,7 @@ Here is the super-short summary:
 - Download Python 2.7 from `the official website <http://python.org/>`_, and install it.
 - Ensure that your path includes both the directory where the Python executable is located as well as Python's "Scripts" directory.
 - Install setuptools:
-    - download `ez_setup.py <https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py>`_
+    - download `ez_setup.py <https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py>`_ from the setuptools project on bitbucket.
     - run ez_setup.py (right-click, then choose "Open with > Python")
 - Install virtualenv (don't bother with pip, it cannot install binary packages needed for Windows):
     - In a command prompt window, execute:
