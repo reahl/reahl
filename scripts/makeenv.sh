@@ -33,7 +33,8 @@ virtualenv --no-site-packages $SITE_ENV
 
 source $SITE_ENV/bin/activate
 
-pip install $LOCAL_EGGS reahl[sqlite,postgresql]
+#pip install $LOCAL_EGGS reahl[sqlite,postgresql]
+pip install -i http://192.168.1.24:8888/simple "reahl[sqlite]==2.0.1a1"
 
 deactivate
 
