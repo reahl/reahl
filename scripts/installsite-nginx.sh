@@ -14,7 +14,7 @@ ln -s /etc/nginx/sites-available/hellonginx /etc/nginx/sites-enabled/hellonginx
 mkdir  /usr/local/hellonginx
 #cp prod/hellonginx.wsgi /usr/local/hellonginx/
 mkdir -p /etc/reahl.d/hellonginx
-cp -r prod/etc/ /etc/reahl.d/hellonginx
+cp -r prod/etc/* /etc/reahl.d/hellonginx
 mkdir -p /var/local/hellonginx/www
 chown -R www-data:www-data /var/local/hellonginx
 
@@ -26,7 +26,7 @@ pip install --no-index -f file:///home/craig/develop/.reahlworkspace/dist-egg/ h
 
 su - www-data
 . /usr/local/hellonginx/virtualenv/bin/activate
-reahl-control createdbtables /etc/reahl.d/hellonginx/etc
+reahl-control createdbtables /etc/reahl.d/hellonginx
 
 exit
 

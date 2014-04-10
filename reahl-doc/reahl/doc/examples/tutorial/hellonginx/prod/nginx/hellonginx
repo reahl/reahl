@@ -1,6 +1,6 @@
 
 server {
-       listen 127.0.0.1:80;
+       listen 80;
        server_name hellonginx;
        access_log /var/log/nginx/hellonginx.access.log combined;
        error_log /var/log/nginx/hellonginx.error.log; 
@@ -15,7 +15,7 @@ server {
 }
 
 server {
-       listen 127.0.0.1:443;
+       listen 443;
        server_name hellonginx;
        access_log /var/log/nginx/hellonginx.access.log combined;
        error_log /var/log/nginx/hellonginx.error.log; 
