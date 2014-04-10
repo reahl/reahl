@@ -20,6 +20,7 @@ asking the user to leave a comment:
 
    .. figure:: ../_build/screenshots/persistence1.png
       :align: center
+      :alt: A screenshot of a form with input for a user's email.
 
 When the user clicks on submit, the new comment is persisted in
 the database. When the page is refreshed, the form is still rendered,
@@ -27,6 +28,7 @@ but a list of all the comments in the database is shown below it:
 
    .. figure:: ../_build/screenshots/persistence2.png
       :align: center
+      :alt: A screenshot of a form with input for a user's email, and also a list of previously entered email addresses.
 
 
 The example uses a CommentPostPanel widget as the container of

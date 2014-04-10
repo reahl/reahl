@@ -28,6 +28,7 @@ input and a button. Each of these elements are restricted in some way:
 
  .. figure:: ../_build/screenshots/access.png
     :align: center
+    :alt: An screenshot showing a greyed out input and disabled buttons.
 
 Notice in the code below that one specifies an Action for the
 framework to call in order to determine whether a Field is readable or
