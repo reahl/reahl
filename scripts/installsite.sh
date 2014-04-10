@@ -6,7 +6,7 @@ cp prod/apache/default /etc/apache2/sites-available/
 mkdir  /usr/local/helloapache
 cp prod/helloapache.wsgi /usr/local/helloapache/
 mkdir -p /etc/reahl.d/helloapache
-cp -r prod/etc/ /etc/reahl.d/helloapache
+cp -r prod/etc/* /etc/reahl.d/helloapache
 mkdir -p /var/local/helloapache/www
 chown -R www-data:www-data /var/local/helloapache
 
@@ -18,7 +18,7 @@ pip install --no-index -f file:///home/craig/develop/.reahlworkspace/dist-egg/ h
 
 su - www-data
 source /usr/local/helloapache/virtualenv/bin/activate
-reahl-control createdbtables /etc/reahl.d/helloapache/etc
+reahl-control createdbtables /etc/reahl.d/helloapache
 
 exit
 
