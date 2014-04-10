@@ -16,6 +16,7 @@ can be input by a user.
 The application will render a sole text input on its home page:
 
    .. figure:: ../_build/screenshots/validation1.png
+      :alt: Screenshot showing a single input.
 
 
 The user is expected to type a valid email address into the
@@ -24,17 +25,20 @@ example), the typed input is checked and a useful error message is
 shown:
 
    .. figure:: ../_build/screenshots/validation2.png
+      :alt: Screenshot showing a single input with invalid input, coloured red, with an accompanying error message.
 
 
 The error message changes while the user types. For example, if
 the user deletes the invalid email address, the message changes:
 
    .. figure:: ../_build/screenshots/validation3.png
+      :alt: Screenshot showing a single input with invalid input, coloured red with a different accompanying error message.
 
 
 When the input is changed to a valid value, the message disappears:
 
    .. figure:: ../_build/screenshots/validation4.png
+      :alt: Screenshot showing a single input with valid input.
 
 
 The validation shown above is done in a user's browser using

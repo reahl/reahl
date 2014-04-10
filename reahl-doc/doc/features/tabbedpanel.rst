@@ -12,12 +12,14 @@ A simple example is illustrated in the figure below:
    .. figure:: ../_build/screenshots/tabbedpanel1.png
       :align: center
       :width: 70%
+      :alt: A screenshot of a tabbed panel, open at one tab.
       
 Should a user click on a different tab, different contents are displayed:
 
    .. figure:: ../_build/screenshots/tabbedpanel2.png
       :align: center
       :width: 70%
+      :alt: A screenshot of a tabbed panel, open at a different tab.
 
 Here is the complete Reahl web application which produces the TabbedPanel
 in the figure above (notice the MyTabbedPanel class):

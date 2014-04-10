@@ -30,7 +30,7 @@ The main components of Reahl are illustrated in the figure below:
 
 .. figure:: overview.png
    :width:  90%
-
+   :alt: A visual depiction of Reahl components and how they depend on each other.
 
 
 Component framework

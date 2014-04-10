@@ -25,6 +25,7 @@ http://localhost:8000/some_page the example program shows the string
 in British English (the default):
 
    .. figure:: ../_build/screenshots/i18n1.png
+      :alt: A screenshot with the message in English and a menu where the locale can be switched.
 
 
 When the user clicks on "Afrikaans" in the Menu, the same page is
@@ -32,6 +33,7 @@ displayed in Afrikaans. Notice how the URL of the View has changed: it
 now starts with "af" (the locale string for Afrikaans):
 
    .. figure:: ../_build/screenshots/i18n2.png
+      :alt: A screenshot with the message in Afrikaans and a menu where the locale can be switched.
 
 
 Embedding an identifier for the chosen locale in the URL of a View

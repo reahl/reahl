@@ -18,7 +18,7 @@ A visual representation shows this succinctly:
    .. figure:: pageflow.png
       :align: center
       :width: 80%
-
+      :alt: A graph showing each View as a node, with arrows showing how the user would transition between the views.
 
 Remember :doc:`how user input is controlled by means of Fields
 <validation>`? The Actions a user can trigger are similarly controlled
