@@ -168,7 +168,7 @@ class Configuration(object):
                 for i in dir(self)
                 if self.has_config_item(i)]
     
-    def validate_contents(self, filename, composite_key):
+    def validate_contents(self, filename, composite_key, dangerous_defaults_allowed=True):
         unspecifieds = ['%s.%s' % (composite_key, name)
                         for name, config_item in self.config_items()
                         if not config_item.is_valid(self)]
@@ -177,9 +177,12 @@ class Configuration(object):
                                              (filename, ', '.join(unspecifieds)))
 
         for name, config_item in self.config_items():
+            composite_name = '%s.%s' % (composite_key, name)
             if config_item.is_dangerous(self):
-                composite_name = '%s.%s' % (composite_key, name)
-                logging.getLogger(__name__).warning('%s in %s is using a dangerous default setting: %s' % (composite_name, filename, config_item.default))
+                if dangerous_defaults_allowed:
+                    logging.getLogger(__name__).warning('%s in %s is using a dangerous default setting: %s' % (composite_name, filename, config_item.default))
+                else:
+                    raise ConfigurationException('%s in %s is using a dangerous default setting which is not allowed: %s' % (composite_name, filename, config_item.default))
 
     def list_contents(self, filename, composite_key):
         contents = []
@@ -245,8 +248,9 @@ class ConfigAsDict(dict):
 
 
 class StoredConfiguration(Configuration):
-    def __init__(self, config_directory_name):
+    def __init__(self, config_directory_name, dangerous_defaults_allowed=True):
         self.config_directory = config_directory_name
+        self.dangerous_defaults_allowed = dangerous_defaults_allowed
 
     def configure(self, validate=True):
         #http://mail.python.org/pipermail/tutor/2005-August/040993.html
@@ -337,7 +341,7 @@ class StoredConfiguration(Configuration):
         if not isinstance(src_config, configuration_class):
             raise ConfigurationException('%s is not a %s in %s' % (composite_key, configuration_class, full_filename))
 
-        src_config.validate_contents(full_filename, composite_key)
+        src_config.validate_contents(full_filename, composite_key, dangerous_defaults_allowed=self.dangerous_defaults_allowed)
 
     def list_required(self, configuration_class):
         composite_key = configuration_class.config_key
