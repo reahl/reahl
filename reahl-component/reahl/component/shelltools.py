@@ -28,11 +28,20 @@ from optparse import OptionParser
 import shlex
 
 
+class ExecutableNotInstalledException(Exception):
+    def __init__(self, executable_name):
+        self.executable_name = executable_name
+    def __str__(self):
+        return "Executable not found: %s" % self.executable_name
+
+
 class Executable(object):
     def __init__(self, name):
         self.name = name
         self.executable_file = self.which(name)
-
+        if not self.executable_file:
+            raise ExecutableNotInstalledException(self.name)
+        
     def which(self, program):
         def is_exe(fpath):
             return os.path.exists(fpath) and os.access(fpath, os.X_OK)

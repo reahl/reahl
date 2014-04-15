@@ -24,6 +24,12 @@ import datetime
 
 # see http://packages.python.org/distribute/setuptools.html#adding-support-for-other-revision-control-systems
 
+class ExecutableNotInstalledException(Exception):
+    def __init__(self, executable_name):
+        self.executable_name = executable_name
+    def __str__(self):
+        return "Executable not found: %s" % self.executable_name
+
 
 class Executable(object):
     """ Copied reahl.component.shelltools to avoid dependency issues"""
@@ -31,6 +37,8 @@ class Executable(object):
     def __init__(self, name):
         self.name = name
         self.executable_file = self.which(name)
+        if not self.executable_file:
+            raise ExecutableNotInstalledException(self.name)
 
     def which(self, program):
         def is_exe(fpath):
@@ -53,13 +61,14 @@ class Executable(object):
                         return candidate
 
         return None
-
+        
     def call(self, commandline_arguments, *args, **kwargs):
         return subprocess.call([self.executable_file]+commandline_arguments, *args, **kwargs)
     def check_call(self, commandline_arguments, *args, **kwargs):
         return subprocess.check_call([self.executable_file]+commandline_arguments, *args, **kwargs)
     def Popen(self, commandline_arguments, *args, **kwargs):
         return subprocess.Popen([self.executable_file]+commandline_arguments, *args, **kwargs)
+
 
 class Bzr(object):
     def __init__(self, directory):
@@ -133,6 +142,8 @@ class Bzr(object):
                         return False
                     else:
                         logging.error('Error trying to execute "bzr": %s' % ex)
+                except ExecutableNotInstalledException, ex:
+                    pass
                 except Exception, ex:
                     logging.error('Error trying to execute "bzr": %s' % ex)
                 return False
