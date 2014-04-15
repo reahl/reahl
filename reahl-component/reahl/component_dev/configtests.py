@@ -151,6 +151,7 @@ class ConfigWithDangerousDefaultedSetting(Configuration):
     config_key = u'some_key'
     some_setting = ConfigSetting(default=u'default value', dangerous=True)
 
+    
 @istest
 class ConfigTests3(object):
     @test(ConfigWithFiles)
@@ -173,7 +174,16 @@ class ConfigTests3(object):
         # The default value is still used
         vassert( config.some_key.some_setting == u'default value' )
 
+    @test(ConfigWithFiles)
+    def config_dangerous_defaults_not_allowed(self, fixture):
+        """Defaulted config is not allowed for certain environments such as production."""
 
+        fixture.set_config_spec(easter_egg, u'reahl.component_dev.configtests:ConfigWithDangerousDefaultedSetting')
+
+        config = StoredConfiguration(fixture.config_dir.name, dangerous_defaults_allowed=False)
+        with expected(ConfigurationException):
+            config.configure()
+            
 
 class ConfigWithEntryPointClassList(Configuration):
     filename = u'config_file_for_this_egg.py'

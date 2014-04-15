@@ -5,7 +5,7 @@ activate_env="%s/bin/activate_this.py" % virtualenv_dir
 execfile(activate_env, dict(__file__=activate_env))
 
 from reahl.web.fw import ReahlWebApplication
-application = ReahlWebApplication.from_directory('/etc/reahl.d/helloapache')
+application = ReahlWebApplication.from_directory('/etc/reahl.d/helloapache', dangerous_defaults_allowed=False)
 application.start()
 
 
