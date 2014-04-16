@@ -2368,7 +2368,7 @@ class ReahlWebApplication(object):
     @classmethod
     def from_directory(cls, directory):
         """Create a ReahlWebApplication given the `directory` where its configuration is stored."""
-        config = StoredConfiguration(directory)
+        config = StoredConfiguration(directory, strict_validation=True)
         config.configure()
         return cls(config)
 
