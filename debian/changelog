@@ -1,8 +1,11 @@
-python-reahl (2.0.1a1) unstable; urgency=low
+python-reahl (2.0.1) unstable; urgency=low
 
+ * Reahl now runs on Windows and Mac as well.
+ * Closes some nuisance bugs related to running on other platforms.
+ * Documentation includes installation instructions for more platforms.
+ * Closes #1285514, #1285664.
 
-
- -- 
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 4 Apr 2014 21:30:00 +0200
 
 python-reahl (2.0.0) unstable; urgency=low
 
