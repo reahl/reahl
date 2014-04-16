@@ -151,6 +151,7 @@ class ConfigWithDangerousDefaultedSetting(Configuration):
     config_key = u'some_key'
     some_setting = ConfigSetting(default=u'default value', dangerous=True)
 
+    
 @istest
 class ConfigTests3(object):
     @test(ConfigWithFiles)
@@ -173,7 +174,16 @@ class ConfigTests3(object):
         # The default value is still used
         vassert( config.some_key.some_setting == u'default value' )
 
+    @test(ConfigWithFiles)
+    def config_strict_validation(self, fixture):
+        """When strict validation is on, dangerous defaulted config is not allowed."""
 
+        fixture.set_config_spec(easter_egg, u'reahl.component_dev.configtests:ConfigWithDangerousDefaultedSetting')
+
+        config = StoredConfiguration(fixture.config_dir.name, strict_validation=True)
+        with expected(ConfigurationException):
+            config.configure()
+            
 
 class ConfigWithEntryPointClassList(Configuration):
     filename = u'config_file_for_this_egg.py'
