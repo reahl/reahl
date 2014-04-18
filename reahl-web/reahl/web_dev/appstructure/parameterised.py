@@ -144,7 +144,7 @@ class ParameterisedTests(object):
 
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
-                self.define_regex_region(u'/apath/(?P<region_key>[^/]*)',
+                self.define_regex_user_interface(u'/apath/(?P<region_key>[^/]*)',
                                          u'/apath/${region_key}',
                                          RegexRegion,
                                          {u'region-slot': u'main'},
