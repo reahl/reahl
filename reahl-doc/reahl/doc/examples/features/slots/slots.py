@@ -1,6 +1,6 @@
 
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, P, HMenu
 
 
@@ -9,7 +9,7 @@ class MyCustomPage(TwoColumnPage):
         super(MyCustomPage, self).__init__(view, style=u'basic')
         self.header.add_child(HMenu.from_bookmarks(view, bookmarks))
 
-class SlotsApp(Region):
+class SlotsApp(UserInterface):
     def assemble(self):
 
         home = self.define_view(u'/', title=u'Page 1')

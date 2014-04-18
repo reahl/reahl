@@ -4,7 +4,7 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.systemaccountmodel import AccountManagementInterface
@@ -16,7 +16,7 @@ class AddressBookPage(TwoColumnPage):
         self.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
 
 
-class AddressBookApp(Region):
+class AddressBookApp(UserInterface):
     def assemble(self):
 
         addresses = self.define_view(u'/', title=u'Addresses')

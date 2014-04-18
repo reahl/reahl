@@ -939,7 +939,7 @@ class Form(HTMLElement):
           Renders as an HTML <form class="reahl-form"> element.
        
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param unique_name: A name for this form, unique in the Region where it is used.
+       :param unique_name: A name for this form, unique in the UserInterface where it is used.
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, unique_name, rendered_form=None):

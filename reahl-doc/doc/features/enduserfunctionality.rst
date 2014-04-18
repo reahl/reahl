@@ -47,10 +47,10 @@ application:
 Any web application is accessed by means of the URLs it exposes.  The
 URLs of a web application form a hierarchy.
 
-A Region in Reahl is such a hierarchy -- but with a twist: A Region can
-be grafted onto another Region. And that is exactly what happens in
+A UserInterface in Reahl is such a hierarchy -- but with a twist: A UserInterface can
+be grafted onto another UserInterface. And that is exactly what happens in
 the code above: An AccountUI is grafted onto ExampleApp, at the
-URL "/accounts". Of course, ExampleApp is also just a Region
+URL "/accounts". Of course, ExampleApp is also just a UserInterface
 itself. We just chose to use it as the root of our entire application.
 
 AccountUI has an URL "/login" (amongst others). But, from now on,
@@ -59,7 +59,7 @@ onto "/accounts" in our web application.
 
 .. code-block:: python
 
-   class ExampleApp(Region):
+   class ExampleApp(UserInterface):
        def assemble(self):
            # some other Regions added here, and the bookmarks asked from them
 

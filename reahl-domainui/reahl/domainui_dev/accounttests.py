@@ -22,7 +22,7 @@ from reahl.tofu import vassert
 from reahl.stubble import EmptyStub
 
 from reahl.web.ui import TwoColumnPage
-from reahl.web.fw import Url, Region, IdentityDictionary
+from reahl.web.fw import Url, UserInterface, IdentityDictionary
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
@@ -37,7 +37,7 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
     
     def new_MainUI(self):
         fixture = self
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 account_region_factory = self.define_region(u'/aregion',  AccountUI,  {u'main_slot': u'main'}, name=u'testregion', 

@@ -20,7 +20,7 @@ from reahl.tofu import Fixture, test
 from reahl.tofu import vassert
 
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.fw import Region, IdentityDictionary
+from reahl.web.fw import UserInterface, IdentityDictionary
 from reahl.web.ui import TwoColumnPage
 from reahl.webdev.tools import Browser
 from reahl.component.i18n import Translator
@@ -57,11 +57,11 @@ def i18n_urls(fixture):
     path, web.default_url_locale is used."""
     _ = Translator(u'reahl-web')
 
-    class I18nUI(Region):
+    class I18nUI(UserInterface):
         def assemble(self):
             view = self.define_view(u'/aview', title=_(u'A View'))
 
-    class MainUI(Region):
+    class MainUI(UserInterface):
         def assemble(self):
             self.define_main_window(TwoColumnPage)
             self.define_region(u'/aregion',  I18nUI,  IdentityDictionary(), name=u'testregion')

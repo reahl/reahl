@@ -22,7 +22,7 @@ from reahl.tofu import vassert, temp_dir
 from reahl.stubble import stubclass, replaced
 
 from reahl.web.dhtml import DhtmlUI
-from reahl.web.fw import WebExecutionContext, Region
+from reahl.web.fw import WebExecutionContext, UserInterface
 from reahl.web.ui import Slot, TwoColumnPage
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
@@ -56,12 +56,12 @@ class DjhtmlFixture(Fixture, WebBasicsMixin):
 class BasicTests(object):
     @test(DjhtmlFixture)
     def basic_workings(self, fixture):
-        """A DhtmlUI provides a Region which maps to the filesystem where there may be
+        """A DhtmlUI provides a UserInterface which maps to the filesystem where there may be
            a combination of .d.html and other files. When a d.html file is requested from
            it, the contents of the specified div from inside the d.html file is inserted 
            into the specified Slot. When a normal file is requested, the file is sent verbatim."""
         
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
@@ -97,7 +97,7 @@ class BasicTests(object):
             def interface_locale(self):
                 return u'af'
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},

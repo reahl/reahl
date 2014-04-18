@@ -32,7 +32,7 @@ from reahl.component.config import Configuration, ReahlSystemConfig
 from reahl.component.exceptions import IncorrectArgumentError, IsInstance
 from reahl.web.egg import WebConfig, ReahlEgg
 from reahl.webelixirimpl import WebUserSession, PersistedException, UserInput
-from reahl.web.fw import UrlBoundView, Region, WebExecutionContext, Widget
+from reahl.web.fw import UrlBoundView, UserInterface, WebExecutionContext, Widget
 from reahl.web.ui import TwoColumnPage, P, Div, Slot
 from reahl.webdev.tools import WidgetTester, Browser
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
@@ -40,7 +40,7 @@ from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 class WidgetFixture(Fixture, WebBasicsMixin):
     def new_region_factory(self):
-        factory = Region.factory(u'test_region_name')
+        factory = UserInterface.factory(u'test_region_name')
         factory.attach_to(u'/', {})
         return factory
         
@@ -164,7 +164,7 @@ class WidgetBasics(object):
                 self.add_child(Slot(view, u'slot1'))
                 self.add_child(Slot(view, u'slot2'))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(MyMainWindow)
 
@@ -198,7 +198,7 @@ class WidgetBasics(object):
                 self.add_child(Slot(view, u'slot3'))
                 self.add_default_slot(u'slot3', P.factory(text=u'default'))
                
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(MyMainWindow)
                 self.define_view(u'/', title=u'Home')
@@ -232,7 +232,7 @@ class WidgetBasics(object):
                 self.add_child(WidgetWithJavaScript(view, u'js2'))
                 self.add_child(WidgetWithJavaScript(view, u'js1'))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(MyMainWindow)
                 self.define_view(u'/', title=u'Home')

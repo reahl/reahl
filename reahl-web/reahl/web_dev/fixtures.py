@@ -25,7 +25,7 @@ from reahl.stubble import EmptyStub, stubclass
 from nose.tools import istest
 from reahl.tofu import Fixture, set_up
 from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
-                         RegionFactory, IdentityDictionary, FactoryDict, UrlBoundView, Region, \
+                         RegionFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
                          WidgetList, Url, Widget, RegexPath
 from reahl.web.ui import TwoColumnPage, HTML5Page, Div, Slot
 from reahl.component.i18n import Translator
@@ -78,7 +78,7 @@ class WebBasicsMixin(PartyModelZooMixin):
 
     def new_webconfig(self, wsgi_app=None):
         web = WebConfig()
-        web.site_root = Region
+        web.site_root = UserInterface
         web.static_root = os.path.join(os.getcwd(), 'static')
         web.session_class = WebUserSession
         web.persisted_exception_class = PersistedException
@@ -125,7 +125,7 @@ class WebBasicsMixin(PartyModelZooMixin):
             view_slots[u'main'] = child_factory
         config = config or self.config
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_view(u'/', title=u'Home page', slot_definitions=view_slots)
@@ -144,7 +144,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         return view
 
     def new_region(self):
-        return Region(None, u'/', {}, False, u'test_region')
+        return UserInterface(None, u'/', {}, False, u'test_region')
 
 
 class WebFixture(Fixture, WebBasicsMixin):

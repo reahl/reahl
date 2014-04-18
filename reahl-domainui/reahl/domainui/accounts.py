@@ -19,7 +19,7 @@
 
 
 from reahl.component.i18n import Translator
-from reahl.web.fw import Region, Widget, WebExecutionContext, Url
+from reahl.web.fw import UserInterface, Widget, WebExecutionContext, Url
 from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxInput, \
                          TextInput, PasswordInput, H, P, A, Div, CueInput,\
                          CheckCheckboxButton, PopupA, DialogButton, ErrorFeedbackMessage
@@ -337,11 +337,11 @@ class PasswordChangedWidget(TitledWidget):
         self.add_child(P(view, text=_(u'Thank you, your password has been changed successfully.')))
 
 
-class AccountUI(Region):
-    """A user-facing Region for logging in and managing your own login.
+class AccountUI(UserInterface):
+    """A user-facing UserInterface for logging in and managing your own login.
 
        **Slots:**
-         - main_slot: All UI elements are put into this Slot for any View in this Region.
+         - main_slot: All UI elements are put into this Slot for any View in this UserInterface.
          
        **Views**
          Call :meth:`AccountUI.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg

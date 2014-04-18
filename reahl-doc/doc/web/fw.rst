@@ -14,10 +14,10 @@ ReahlWSGIApplication
 .. autoclass:: ReahlWSGIApplication
    :members:
 
-Region
+UserInterface
 """"""
 
-.. autoclass:: Region
+.. autoclass:: UserInterface
    :members:
 
 Widget

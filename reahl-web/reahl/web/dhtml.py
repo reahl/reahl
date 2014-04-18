@@ -29,7 +29,7 @@ from reahl.component.modelinterface import Field
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.web.fw import WebExecutionContext, Bookmark, UrlBoundView, NoView, \
-                         FileOnDisk, Region, FileView, NoMatchingFactoryFound, CannotCreate
+                         FileOnDisk, UserInterface, FileView, NoMatchingFactoryFound, CannotCreate
 from reahl.web.ui import LiteralHTML
 
 _ = Translator(u'reahl-web')
@@ -39,14 +39,14 @@ class DJHTMLWidget(LiteralHTML):
         super(DJHTMLWidget, self).__init__(view, html_content)
 
 
-class DhtmlUI(Region):
-    """A Region which serves content from the static directory configured in `web.staticroot`.
+class DhtmlUI(UserInterface):
+    """A UserInterface which serves content from the static directory configured in `web.staticroot`.
        If a given Url maps directly to a file in this directory, that file is normally served
        as-is. If the filename ends on .d.html, however, the file is parsed, and the div inside it
        with id equal to `static_div_name` is read into the `main_slot` of a View. The
        title of the current View is also taken from the <title> of the static page.
        
-       :param static_div_name: The id of the <div> to insert as `main_slot` of this Region.
+       :param static_div_name: The id of the <div> to insert as `main_slot` of this UserInterface.
     """
     def assemble(self, static_div_name=None):
         self.static_div_name = static_div_name

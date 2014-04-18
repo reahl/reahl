@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.elixirsupport import session_scoped
 
-from reahl.web.fw import Region, UrlBoundView, CannotCreate
+from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage, VMenu, Slot, MenuItem, A, Widget, SelectInput, CheckboxInput
 from reahl.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, UserSession
@@ -315,7 +315,7 @@ class EditAddressView(UrlBoundView):
         self.read_check = address.can_be_edited
 
 
-class AddressBookApp(Region):
+class AddressBookApp(UserInterface):
     def assemble(self):
 
         home = self.define_view(u'/', title=u'Address books')

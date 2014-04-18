@@ -4,7 +4,7 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.config import Configuration, ConfigSetting
@@ -18,7 +18,7 @@ class AddressConfig(Configuration):
     showheader = ConfigSetting(default=False, description=u'Whether the title should be shown as a heading too')
 
 
-class AddressBookApp(Region):
+class AddressBookApp(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')
         find = self.define_view(u'/', title=u'Addresses')

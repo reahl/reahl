@@ -22,7 +22,7 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 
 from reahl.component.modelinterface import Field, IntegerField, exposed, Event
-from reahl.web.fw import ReahlWSGIApplication, Region, UrlBoundView, IdentityDictionary, CannotCreate
+from reahl.web.fw import ReahlWSGIApplication, UserInterface, UrlBoundView, IdentityDictionary, CannotCreate
 from reahl.web.ui import HTML5Page, TwoColumnPage, P, A, Form, Button
 from reahl.webdev.tools import Browser, WidgetTester, XPath
 from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
@@ -84,11 +84,11 @@ class ParameterisedTests(object):
     def views_with_parameters(self, fixture):
         """Views can have arguments that originate from code, or are parsed from the URL."""
 
-        class RegionWithParameterisedViews(Region):
+        class RegionWithParameterisedViews(UserInterface):
             def assemble(self):
                 self.define_view(u'/aview', view_class=fixture.ParameterisedView, some_arg=fixture.argument) 
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
@@ -111,12 +111,12 @@ class ParameterisedTests(object):
             def assemble(self, some_key=None):
                 self.title = u'View for: %s' % some_key
             
-        class RegionWithParameterisedViews(Region):
+        class RegionWithParameterisedViews(UserInterface):
             def assemble(self):
                 self.define_regex_view(u'/someurl_(?P<some_key>.*)', u'/someurl_${some_key}', view_class=ParameterisedView,
                                        some_key=Field(required=True))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'myregion')
@@ -130,10 +130,10 @@ class ParameterisedTests(object):
 
     @test(WebFixture)
     def regions_from_regex(self, fixture):
-        """Sub Regions can be created on the fly on a Region, based on the URL visited. To indicate that a
-           Region does not exist, the creation method should return None."""
+        """Sub Regions can be created on the fly on a UserInterface, based on the URL visited. To indicate that a
+           UserInterface does not exist, the creation method should return None."""
 
-        class RegexRegion(Region):
+        class RegexRegion(UserInterface):
             def assemble(self, region_key=None):
                 if region_key == u'doesnotexist':
                     raise CannotCreate()
@@ -142,7 +142,7 @@ class ParameterisedTests(object):
                 root = self.define_view(u'/', title=u'Simple region %s' % self.name)
                 root.set_slot(u'region-slot', P.factory(text=u'in region slot'))
 
-        class RegionWithParameterisedRegions(Region):
+        class RegionWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_regex_region(u'/apath/(?P<region_key>[^/]*)',
                                          u'/apath/${region_key}',
@@ -150,7 +150,7 @@ class ParameterisedTests(object):
                                          {u'region-slot': u'main'},
                                          region_key=Field())
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
@@ -177,7 +177,7 @@ class ParameterisedTests(object):
     class ParameterisedRegionScenarios(WebFixture):
         @scenario
         def normal_arguments(self):
-            """Arguments can be sent from where the Region is defined."""
+            """Arguments can be sent from where the UserInterface is defined."""
             self.argument = u'some arg'
             self.expected_value = u'some arg'
             self.url = u'/aregion/parameterisedregion/aview'
@@ -193,8 +193,8 @@ class ParameterisedTests(object):
             
         @scenario
         def cannot_create(self):
-            """To indicate that a Region does not exist for the given arguments, the .assemble() 
-               method of the Region should raise CannotCreate()."""
+            """To indicate that a UserInterface does not exist for the given arguments, the .assemble() 
+               method of the UserInterface should raise CannotCreate()."""
             self.argument = u'doesnotexist'
             self.url = u'/aregion/parameterisedregion/aview'
             self.should_exist = False
@@ -203,7 +203,7 @@ class ParameterisedTests(object):
     def parameterised_regions(self, fixture):
         """Sub Regions can also be parameterised by defining arguments in .define_region, and receiving them in .assemble()."""
 
-        class ParameterisedRegion(Region):
+        class ParameterisedRegion(UserInterface):
             def assemble(self, region_arg=None):
                 if region_arg == u'doesnotexist':
                     raise CannotCreate()
@@ -213,13 +213,13 @@ class ParameterisedTests(object):
                 root.set_slot(u'region-slot', P.factory(text=u'in region slot'))
 
 
-        class RegionWithParameterisedRegions(Region):
+        class RegionWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_region(u'/parameterisedregion', ParameterisedRegion, {u'region-slot': u'main'}, 
                                    region_arg=fixture.argument,
                                    name=u'paramregion')
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')

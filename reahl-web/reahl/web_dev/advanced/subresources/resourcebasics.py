@@ -26,7 +26,7 @@ from reahl.tofu import vassert
 
 from reahl.component.modelinterface import Field
 from reahl.webdev.tools import Browser
-from reahl.web.fw import Resource, SubResource, Region, Widget
+from reahl.web.fw import Resource, SubResource, UserInterface, Widget
 from reahl.web_dev.fixtures import  WebFixture
 
 

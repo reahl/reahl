@@ -117,11 +117,11 @@ present on all pages. (Think header, footer, etc.)
 
 Each URL a user can visit is defined by a :class:`~reahl.web.fw.View`,
 and a bunch of related :class:`~reahl.web.fw.View`\ s are organised
-into a :class:`~reahl.web.fw.Region`.
+into a :class:`~reahl.web.fw.UserInterface`.
 
-A basic web application is a single :class:`~reahl.web.fw.Region`. The
-code above shows how this :class:`~reahl.web.fw.Region` is created by
-deriving a new class from :class:`~reahl.web.fw.Region`.  Such a class
+A basic web application is a single :class:`~reahl.web.fw.UserInterface`. The
+code above shows how this :class:`~reahl.web.fw.UserInterface` is created by
+deriving a new class from :class:`~reahl.web.fw.UserInterface`.  Such a class
 should have an `assemble` method inside of which the basic structure
 of the application is defined.
 
@@ -152,7 +152,7 @@ Executing this yields a listing of missing configuration settings and
 states for each setting where it should be set and what it means::
 
   Listing config for ./etc
-  web.site_root       web.config.py    The Region class to be used as the root of the web application
+  web.site_root       web.config.py    The UserInterface class to be used as the root of the web application
 
 Luckily, there's only one missing setting. Hence, we need to add the
 file `web.config.py`, and specify one setting inside it.

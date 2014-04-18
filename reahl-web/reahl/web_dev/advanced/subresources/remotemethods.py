@@ -23,7 +23,7 @@ from reahl.tofu import test, Fixture, scenario
 from reahl.tofu import vassert, expected
 
 from reahl.webdev.tools import Browser
-from reahl.web.fw import Region, Widget, RemoteMethod, MethodResult, CheckedRemoteMethod, JsonResult, WidgetResult
+from reahl.web.fw import UserInterface, Widget, RemoteMethod, MethodResult, CheckedRemoteMethod, JsonResult, WidgetResult
 from reahl.component.modelinterface import Field, IntegerField
 from reahl.web_dev.fixtures import  WebFixture
 

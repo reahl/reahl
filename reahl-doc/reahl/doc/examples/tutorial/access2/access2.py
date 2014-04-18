@@ -4,7 +4,7 @@ import elixir
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, UserSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
-from reahl.web.fw import Region, UrlBoundView, CannotCreate
+from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, A, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage, Slot, Widget, SelectInput, CheckboxInput
 
@@ -289,7 +289,7 @@ class EditAddressView(UrlBoundView):
         self.set_slot(u'main', EditAddressForm.factory(address))
 
 
-class AddressBookApp(Region):
+class AddressBookApp(UserInterface):
     def assemble(self):
 
         home = self.define_view(u'/', title=u'Address books')

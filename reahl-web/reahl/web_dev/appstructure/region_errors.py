@@ -19,7 +19,7 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 
-from reahl.web.fw import ReahlWSGIApplication, Region
+from reahl.web.fw import ReahlWSGIApplication, UserInterface
 from reahl.web.ui import TwoColumnPage, P, A
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
@@ -28,12 +28,12 @@ from reahl.component.exceptions import ProgrammerError
 class RegionErrorScenarios(WebFixture):
     def new_wsgi_app(self):
         fixture = self
-        class SimpleRegion(Region):
+        class SimpleRegion(UserInterface):
             def assemble(self):
                 root = self.define_view(u'/', title=u'View')
                 root.set_slot(u'name', P.factory())
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  SimpleRegion,  {}, name=u'testregion')

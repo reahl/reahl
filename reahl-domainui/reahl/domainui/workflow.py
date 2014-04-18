@@ -20,7 +20,7 @@
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.sqlalchemysupport import PersistedField
-from reahl.web.fw import Region, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
+from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
 from reahl.web.ui import P, Panel, Ul, Li, H, Form, Button
 
 from reahl.workflowmodel import Inbox, Task, WorkflowInterface
@@ -97,12 +97,12 @@ class TaskView(UrlBoundView):
         raise ProgrammerError(u'no Widget found to display %s' % task)
 
 
-class InboxUI(Region):
-    """A user-facing Region for monitoring an :class:`reahl.systemaccountmodel.Inbox`. It allows
+class InboxUI(UserInterface):
+    """A user-facing UserInterface for monitoring an :class:`reahl.systemaccountmodel.Inbox`. It allows
        a user to work on tasks.
 
        **Slots:**
-         - main_slot: All UI elements are put into this Slot for any View in this Region.
+         - main_slot: All UI elements are put into this Slot for any View in this UserInterface.
          
        **Views**
          Call :meth:`AccountUI.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg

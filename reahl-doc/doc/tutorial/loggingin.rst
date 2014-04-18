@@ -109,7 +109,7 @@ Re-using the user interface as well
 -----------------------------------
 
 If you're really lazy, you can write even less code. You can re-use
-the :class:`~reahl.web.fw.Region` shipped with Reahl that contains  :class:`~reahl.web.fw.View`\ s  for logging in and
+the :class:`~reahl.web.fw.UserInterface` shipped with Reahl that contains  :class:`~reahl.web.fw.View`\ s  for logging in and
 other related account management.
 
 Re-using bits of web-based user interface traditionally has been quite
@@ -118,35 +118,35 @@ look and layout. How does one re-use a complete bit of "page flow" in
 different web applications, each application with its own look and
 layout?
 
-The concepts of a :class:`~reahl.web.fw.Region`, of a main window and :class:`~reahl.web.ui.Slot`\ s exist to make
+The concepts of a :class:`~reahl.web.fw.UserInterface`, of a main window and :class:`~reahl.web.ui.Slot`\ s exist to make
 such re-use possible. The basics of these concepts is explained in
 :doc:`buildingblocks`, but there's more to it than is explained
 there. In examples thus far, each web application consisted of a few
-related  :class:`~reahl.web.fw.View`\ s  packaged as a single :class:`~reahl.web.fw.Region`. It is possible, however, to
-compose your web application from multiple :class:`~reahl.web.fw.Region`\ s. Hence, you can use
-a :class:`~reahl.web.fw.Region` that someone else has built beforehand.
+related  :class:`~reahl.web.fw.View`\ s  packaged as a single :class:`~reahl.web.fw.UserInterface`. It is possible, however, to
+compose your web application from multiple :class:`~reahl.web.fw.UserInterface`\ s. Hence, you can use
+a :class:`~reahl.web.fw.UserInterface` that someone else has built beforehand.
 
 In the `reahl-domainui` component, in the `reahl.domainui.accounts`
-module, lives a :class:`~reahl.web.fw.Region` called :class:`~reahl.domainui.accounts.AccountUI`. It contains  :class:`~reahl.web.fw.View`\ s  for
+module, lives a :class:`~reahl.web.fw.UserInterface` called :class:`~reahl.domainui.accounts.AccountUI`. It contains  :class:`~reahl.web.fw.View`\ s  for
 logging in, registering a new account, and more. In order to use it,
 you will need to give it its own URL in your web application -- just
 like you'd define a :class:`~reahl.web.fw.View` on a particular URL. The URLs of the  :class:`~reahl.web.fw.View`\ s  of
 the :class:`~reahl.domainui.accounts.AccountUI` will then be appended to the URL you use for the
-:class:`~reahl.web.fw.Region` itself.
+:class:`~reahl.web.fw.UserInterface` itself.
 
 The main window of your web application defines a number of :class:`~reahl.web.ui.Slot`\ s. The
-writer of :class:`~reahl.domainui.accounts.AccountUI` (or any other :class:`~reahl.web.fw.Region`) does not know what :class:`~reahl.web.ui.Slot`\ s
+writer of :class:`~reahl.domainui.accounts.AccountUI` (or any other :class:`~reahl.web.fw.UserInterface`) does not know what :class:`~reahl.web.ui.Slot`\ s
 **your** application will have for plugging in its bits of user
-interface. Hence, each :class:`~reahl.web.fw.Region` writer chooses a couple of names for
-:class:`~reahl.web.ui.Slot`\ s needed for its  :class:`~reahl.web.fw.View`\ s . When you use such a :class:`~reahl.web.fw.Region`, you need to
-specify which of the :class:`~reahl.web.fw.Region`'s :class:`~reahl.web.ui.Slot`\ s plug into which of your own
+interface. Hence, each :class:`~reahl.web.fw.UserInterface` writer chooses a couple of names for
+:class:`~reahl.web.ui.Slot`\ s needed for its  :class:`~reahl.web.fw.View`\ s . When you use such a :class:`~reahl.web.fw.UserInterface`, you need to
+specify which of the :class:`~reahl.web.fw.UserInterface`'s :class:`~reahl.web.ui.Slot`\ s plug into which of your own
 application's :class:`~reahl.web.ui.Slot`\ s.
 
-A :class:`~reahl.web.fw.Region` and its :class:`~reahl.web.ui.Slot` names are analogous to a method and its
+A :class:`~reahl.web.fw.UserInterface` and its :class:`~reahl.web.ui.Slot` names are analogous to a method and its
 arguments: the method signature contains variable names chosen by the
 programmer who wrote it. You can call that method from many different
 places, passing in different values for those arguments. Specifying
-the :class:`~reahl.web.ui.Slot`\ s when re-using a :class:`~reahl.web.fw.Region` is similar.
+the :class:`~reahl.web.ui.Slot`\ s when re-using a :class:`~reahl.web.fw.UserInterface` is similar.
 
 In this example, we have a :class:`~reahl.web.ui.Slot` named `main` in :class:`~reahl.web.ui.TwoColumnPage`, and the
 :class:`~reahl.domainui.accounts.AccountUI` has a :class:`~reahl.web.ui.Slot` named `main_slot`. Hence, it is necessary to

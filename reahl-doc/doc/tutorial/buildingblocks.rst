@@ -79,11 +79,11 @@ Each URL in a Reahl web application is defined by something called a
 A collection of  :class:`~reahl.web.fw.View`\ s  are usually created to work together with one
 another.  One :class:`~reahl.web.fw.View` may refer to another in order to transition a user
 from the one :class:`~reahl.web.fw.View` to the other, for example. A collection of  :class:`~reahl.web.fw.View`\ s 
-that are designed to work together like this is called a :class:`~reahl.web.fw.Region`.
+that are designed to work together like this is called a :class:`~reahl.web.fw.UserInterface`.
 
 A simple web application is just that: a collection of  :class:`~reahl.web.fw.View`\ s  designed to 
 work together. Complicated web applications may be composed of several
-different :class:`~reahl.web.fw.Region`\ s (as explained much later).
+different :class:`~reahl.web.fw.UserInterface`\ s (as explained much later).
 
 There are common user interface elements present on all the different
 URLs of a web application. It would be cumbersome to have to add these
@@ -115,8 +115,8 @@ particular URL by stating which :class:`~reahl.web.fw.Widget` should go into whi
 the main window for that URL.
 
 The example in the :doc:`gettingstarted` shows how a simple web application
-is created as a single :class:`~reahl.web.fw.Region`. The `web.site_root` configuration setting 
-indicates which :class:`~reahl.web.fw.Region` is to be used as the root of the web application.
+is created as a single :class:`~reahl.web.fw.UserInterface`. The `web.site_root` configuration setting 
+indicates which :class:`~reahl.web.fw.UserInterface` is to be used as the root of the web application.
 
 
 
@@ -217,7 +217,7 @@ application. Look at the following, for example:
 
 .. code-block:: python
 
-   class HelloApp(Region):
+   class HelloApp(UserInterface):
        def assemble(self):
            self.define_main_window(TwoColumnPage)  
            self.define_view(u'/', title=u'Home')
@@ -232,11 +232,11 @@ application. Look at the following, for example:
    Methods starting with `define_` are convenience methods that
    take a number of arguments and create a factory for something
    for you.  These will do something with the factory created (like
-   adding a :class:`~reahl.web.fw.ViewFactory` to the :class:`~reahl.web.fw.Region`), and then return the
+   adding a :class:`~reahl.web.fw.ViewFactory` to the :class:`~reahl.web.fw.UserInterface`), and then return the
    factory in case you need it further.
 
 Note that the specific :class:`~reahl.web.ui.TwoColumnPage` going to be used as main window
-is not instantiated there.  The :class:`~reahl.web.fw.Region` just keeps track of which class
+is not instantiated there.  The :class:`~reahl.web.fw.UserInterface` just keeps track of which class
 to instantiate for obtaining a main window -- for when it needs a main
 window.
 
@@ -249,7 +249,7 @@ often used given the nature of web applications. For example:
 
 .. code-block:: python
 
-   class HelloApp(Region):
+   class HelloApp(UserInterface):
        def assemble(self):
            self.define_main_window(TwoColumnPage)  
            home = self.define_view(u'/', title=u'Home')
@@ -267,12 +267,12 @@ The lifecycle of user interface mechanics
 -----------------------------------------
 
 User interface elements in Reahl are :class:`~reahl.web.fw.Widget`\ s. There are however other 
-related “machinery” as well, such as  :class:`~reahl.web.fw.View`\ s  and :class:`~reahl.web.fw.Region`\ s.
+related “machinery” as well, such as  :class:`~reahl.web.fw.View`\ s  and :class:`~reahl.web.fw.UserInterface`\ s.
 
 All of these things have a very short lifespan:
 
-When an HTTP request comes into the web server, the correct :class:`~reahl.web.fw.Region` is
-first instantiated. The :class:`~reahl.web.fw.Region` is used in turn to find and instantiate
+When an HTTP request comes into the web server, the correct :class:`~reahl.web.fw.UserInterface` is
+first instantiated. The :class:`~reahl.web.fw.UserInterface` is used in turn to find and instantiate
 the applicable :class:`~reahl.web.fw.View`. At this point, the main window is instantiated,
 and the current :class:`~reahl.web.fw.View` is plugged into it. All the :class:`~reahl.web.fw.Widget`\ s needed by the
 current :class:`~reahl.web.fw.View` are instantiated when the :class:`~reahl.web.fw.View` is plugged into the main
@@ -283,7 +283,7 @@ the request. After doing its execution, the main window is rendered to
 HTML, JavaScript and CSS files, which are sent back to the browser
 where they will be executed further.
 
-On the server, the :class:`~reahl.web.fw.Region`, :class:`~reahl.web.fw.View`, main window and all related :class:`~reahl.web.fw.Widget`\ s
+On the server, the :class:`~reahl.web.fw.UserInterface`, :class:`~reahl.web.fw.View`, main window and all related :class:`~reahl.web.fw.Widget`\ s
 are discarded after sending back a response.
 
 You may have wondered why `.factory()` was used in the `.assemble()`
@@ -293,7 +293,7 @@ being constructed. It makes sense that as part of its own construction
 it should also construct all of its children :class:`~reahl.web.fw.Widget`\ s, doesn't it? Why
 wait any longer?
 
-Conversely, when a :class:`~reahl.web.fw.Region` is instantiated, it does not make sense to
+Conversely, when a :class:`~reahl.web.fw.UserInterface` is instantiated, it does not make sense to
 immediately instantiate all of the :class:`~reahl.web.fw.Widget`\ s of all of the  :class:`~reahl.web.fw.View`\ s  it
 contains. After all the current user is only interested in one
 particular :class:`~reahl.web.fw.View` at this point. So the complications are necessary here.

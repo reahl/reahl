@@ -21,7 +21,7 @@ from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub
 
 from reahl.component.modelinterface import Field
-from reahl.web.fw import Factory, FactoryFromUrlRegex, Region, RegexPath, NoMatchingFactoryFound, UrlBoundView
+from reahl.web.fw import Factory, FactoryFromUrlRegex, UserInterface, RegexPath, NoMatchingFactoryFound, UrlBoundView
 from reahl.web_dev.fixtures import WebFixture
 
 @istest
@@ -112,7 +112,7 @@ class FactoryTests(object):
             self.factory = self.region.define_view(u'/', view_class=self.ViewWithArg, my_one_arg=Field())
             self.is_applicable = False
 
-        class RegionWithoutKwarg(Region):
+        class RegionWithoutKwarg(UserInterface):
             pass
 
         @scenario
@@ -134,7 +134,7 @@ class FactoryTests(object):
             self.factory = self.region.define_region(u'/editions', self.RegionWithoutKwarg, {})
             self.is_applicable = True
 
-        class RegionWithKwarg(Region):
+        class RegionWithKwarg(UserInterface):
             def assemble(self, my_one_arg=None):
                 pass
 

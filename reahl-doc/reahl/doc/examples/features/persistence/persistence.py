@@ -3,12 +3,12 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
-class PersistenceApp(Region):
+class PersistenceApp(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')
         home = self.define_view(u'/', title=u'Persistence demo')

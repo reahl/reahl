@@ -22,7 +22,7 @@ from reahl.tofu import Fixture, test
 from reahl.tofu import vassert, expected
 from reahl.stubble import stubclass, EmptyStub
 
-from reahl.web.fw import Region, Widget, FactoryDict, RegionFactory, RegexPath
+from reahl.web.fw import UserInterface, Widget, FactoryDict, RegionFactory, RegexPath
 from reahl.web.ui import TwoColumnPage, P, A, Panel, Slot
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
@@ -32,16 +32,16 @@ from reahl.web_dev.fixtures import WebFixture
 class RegionTests(object):
     @test(WebFixture)
     def basic_region(self, fixture):
-        """A Region is a chunk of web app that can be grafted onto the URL hierarchy of any app.
+        """A UserInterface is a chunk of web app that can be grafted onto the URL hierarchy of any app.
         
-           A Region has its own views. Its Views are relative to the Region itself.
+           A UserInterface has its own views. Its Views are relative to the UserInterface itself.
         """
-        class RegionWithTwoViews(Region):
+        class RegionWithTwoViews(UserInterface):
             def assemble(self):
-                self.define_view(u'/', title=u'Region root view')
-                self.define_view(u'/other', title=u'Region other view')
+                self.define_view(u'/', title=u'UserInterface root view')
+                self.define_view(u'/other', title=u'UserInterface other view')
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithTwoViews,  {}, name=u'myregion')
@@ -50,22 +50,22 @@ class RegionTests(object):
         browser = Browser(wsgi_app)
 
         browser.open('/aregion/')
-        vassert( browser.title == u'Region root view' )
+        vassert( browser.title == u'UserInterface root view' )
 
         browser.open('/aregion/other')
-        vassert( browser.title == u'Region other view' )
+        vassert( browser.title == u'UserInterface other view' )
 
     @test(WebFixture)
     def region_slots_map_to_window(self, fixture):
-        """The Region uses its own names for Slots. When attaching a Region, you have to specify 
-            which of the Region's Slots plug into which of the main window's Slots.
+        """The UserInterface uses its own names for Slots. When attaching a UserInterface, you have to specify 
+            which of the UserInterface's Slots plug into which of the main window's Slots.
         """
-        class RegionWithSlots(Region):
+        class RegionWithSlots(UserInterface):
             def assemble(self):
-                root = self.define_view(u'/', title=u'Region root view')
+                root = self.define_view(u'/', title=u'UserInterface root view')
                 root.set_slot(u'text', P.factory(text=u'in region slot named text'))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithSlots,  {u'text': u'main'}, name='myregion')
@@ -74,23 +74,23 @@ class RegionTests(object):
         browser = Browser(wsgi_app)
 
         browser.open('/aregion/')
-        vassert( browser.title == u'Region root view' )
+        vassert( browser.title == u'UserInterface root view' )
 
-        # The widget in the Region's slot named 'text' end up in the TwoColumnPage slot called main
+        # The widget in the UserInterface's slot named 'text' end up in the TwoColumnPage slot called main
         [p] = browser.lxml_html.xpath('//div[@id="yui-main"]/div/p')
         vassert( p.text == 'in region slot named text' )
 
 
     @test(WebFixture)
     def region_redirect(self, fixture):
-        """When opening an URL without trailing slash that maps to where a Region is attached,
-           the browser is redirected to the Region '/' View."""
+        """When opening an URL without trailing slash that maps to where a UserInterface is attached,
+           the browser is redirected to the UserInterface '/' View."""
            
-        class RegionWithRootView(Region):
+        class RegionWithRootView(UserInterface):
             def assemble(self):
-                self.define_view(u'/', title=u'Region root view')
+                self.define_view(u'/', title=u'UserInterface root view')
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithRootView,  {}, name='myregion')
@@ -99,21 +99,21 @@ class RegionTests(object):
         browser = Browser(wsgi_app)
 
         browser.open('/aregion')
-        vassert( browser.title == u'Region root view' )
+        vassert( browser.title == u'UserInterface root view' )
         vassert( browser.location_path == u'/aregion/' )
 
     @test(WebFixture)
     def region_arguments(self, fixture):
         """Regions can take exta args and kwargs."""
            
-        class RegionWithArguments(Region):
+        class RegionWithArguments(UserInterface):
             def assemble(self, kwarg=None):
                 self.kwarg = kwarg
                 text = self.kwarg
                 root = self.define_view(u'/', title=u'A view')
                 root.set_slot(u'text', P.factory(text=text))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion', RegionWithArguments, {u'text': u'main'},
@@ -128,15 +128,15 @@ class RegionTests(object):
 
     @test(WebFixture)
     def bookmarks(self, fixture):
-        """Bookmarks are pointers to Views. You need them, because Views are relative to a Region and
+        """Bookmarks are pointers to Views. You need them, because Views are relative to a UserInterface and
            a Bookmark can, at run time, turn these into absolute URLs. Bookmarks also contain metadata,
            such as the title of the View it points to.
         """
-        class RegionWithRelativeView(Region):
+        class RegionWithRelativeView(UserInterface):
             def assemble(self):
                 self.define_view(u'/aview', title=u'A View title')
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 region_factory = self.define_region(u'/aregion',  RegionWithRelativeView,  {}, name=u'myregion')
@@ -167,11 +167,11 @@ class RegionTests(object):
 
     @test(LifeCycleFixture)
     def the_lifecycle_of_a_region(self, fixture):
-        """This test illustrates the steps a Region goes through from being specified, to
+        """This test illustrates the steps a UserInterface goes through from being specified, to
            being used. It tests a couple of lower-level implementation issues (see comments)."""
 
-        @stubclass(Region)
-        class RegionStub(Region):
+        @stubclass(UserInterface)
+        class RegionStub(UserInterface):
             assembled = False
             def assemble(self, **region_arguments):
                 self.controller_at_assemble_time = self.controller
@@ -206,7 +206,7 @@ class RegionTests(object):
 
         # - The relative_path is reset if not done for_bookmark
         #   This is done in case a for_bookmark call just
-        #   happened to be done for the same Region in the same request
+        #   happened to be done for the same UserInterface in the same request
         #   before the "real" caal is done
         region = region_factory.create(u'/some/path', for_bookmark=False)
         vassert( region.relative_path == u'/some/path' )
