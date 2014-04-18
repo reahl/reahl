@@ -116,19 +116,19 @@ class FactoryTests(object):
             pass
 
         @scenario
-        def parameterised_region_with_long_relative_path(self):
+        def parameterised_user_interface_with_long_relative_path(self):
             self.matched_path = u'/editions/relative_path'
             self.factory = self.region.define_region(u'/editions', self.UIWithoutKwarg, {})
             self.is_applicable = True
 
         @scenario
-        def parameterised_region_with_short_relative_path(self):
+        def parameterised_user_interface_with_short_relative_path(self):
             self.matched_path = u'/editions/'
             self.factory = self.region.define_region(u'/editions', self.UIWithoutKwarg, {})
             self.is_applicable = True
 
         @scenario
-        def parameterised_region_without_relative_path(self):
+        def parameterised_user_interface_without_relative_path(self):
             """A region matches an url even if the url does not contain a relative path."""
             self.matched_path = u'/editions'
             self.factory = self.region.define_region(u'/editions', self.UIWithoutKwarg, {})
@@ -139,13 +139,13 @@ class FactoryTests(object):
                 pass
 
         @scenario
-        def parameterised_region_with_args_and_path(self):
+        def parameterised_user_interface_with_args_and_path(self):
             self.matched_path = u'/editions/argument1/'
             self.factory = self.region.define_region(u'/editions', self.UIWithKwarg, {}, my_one_arg=Field())
             self.is_applicable = True
 
         @scenario
-        def parameterised_region_with_subresources(self):
+        def parameterised_user_interface_with_subresources(self):
             self.matched_path = u'/editions/argument1/__a_sub_resource'
             self.factory = self.region.define_region(u'/editions', self.UIWithKwarg, {}, my_one_arg=Field())
             self.is_applicable = True

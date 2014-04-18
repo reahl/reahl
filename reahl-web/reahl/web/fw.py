@@ -628,7 +628,7 @@ class UserInterface(object):
             return RedirectView(self, relative_path, bookmark)
         return self.add_view_factory(ViewFactory(RegexPath(relative_path, relative_path, {}), None, {}, factory_method=create_redirect_view))
 
-    def add_region_factory(self, region_factory):
+    def add_user_interface_factory(self, region_factory):
         self.sub_regions.add(region_factory)
         return region_factory
 
@@ -651,7 +651,7 @@ class UserInterface(object):
                             region_class.assemble,  **assemble_args)
 
         region_factory = RegionFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, region_class, name, **passed_kwargs)
-        self.add_region_factory(region_factory)
+        self.add_user_interface_factory(region_factory)
         return region_factory
 
     def define_regex_region(self, path_regex, path_template, region_class, slot_map, name=None, **assemble_args):
@@ -669,14 +669,14 @@ class UserInterface(object):
 
         regex_path = RegexPath(path_regex, path_template, path_argument_fields)
         region_factory = RegionFactory(self, regex_path, slot_map, region_class, name, **passed_kwargs)
-        self.add_region_factory(region_factory)
+        self.add_user_interface_factory(region_factory)
         return region_factory
 
-    def get_region_for_full_path(self, full_path):
+    def get_user_interface_for_full_path(self, full_path):
         relative_path = self.get_relative_path_for(full_path)
         matching_sub_region = self.sub_regions.get(relative_path)
         if matching_sub_region:
-            target_region, factory =  matching_sub_region.get_region_for_full_path(full_path)
+            target_region, factory =  matching_sub_region.get_user_interface_for_full_path(full_path)
             return (target_region, factory or self.main_window_factory)
         return self, self.main_window_factory
 
@@ -687,14 +687,14 @@ class UserInterface(object):
         """
         region_name = u'static_%s' % path
         region_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, region_name, files=DiskDirectory(path))
-        return self.add_region_factory(region_factory)
+        return self.add_user_interface_factory(region_factory)
 
     def define_static_files(self, path, files):
         """Defines an URL which is mapped to serve the list of static files given.
         """
         region_name = u'static_%s' % path
         region_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, region_name, files=FileList(files))
-        return self.add_region_factory(region_factory)
+        return self.add_user_interface_factory(region_factory)
 
     def get_relative_path_for(self, full_path):
         if self.base_path == u'/':
@@ -1329,7 +1329,7 @@ class RegionFactory(FactoryFromUrlRegex):
     def create(self, relative_path, for_bookmark=False, *args):
         region = super(RegionFactory, self).create(relative_path, for_bookmark, *args)
         for predefined_region in self.predefined_regions:
-            region.add_region_factory(predefined_region)
+            region.add_user_interface_factory(predefined_region)
         return region 
 
     def create_from_url_args(self, for_bookmark=False, **url_args):
@@ -2390,7 +2390,7 @@ class ReahlWSGIApplication(object):
         with WebExecutionContext() as context:
             context.set_config(self.config)
             context.set_system_control(self.system_control)
-            self.root_region_factory = RegionFactory(None, RegexPath(u'/', u'/', {}), IdentityDictionary(), self.config.web.site_root, u'site_root')
+            self.root_user_interface_factory = RegionFactory(None, RegexPath(u'/', u'/', {}), IdentityDictionary(), self.config.web.site_root, u'site_root')
             self.add_reahl_static_files()
 
     def find_packaged_files(self, labelled):
@@ -2456,12 +2456,12 @@ class ReahlWSGIApplication(object):
     def define_static_files(self, path, files):
         region_name = u'static_%s' % path
         region_factory = RegionFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, region_name, files=FileList(files))
-        self.root_region_factory.predefine_region(region_factory)
+        self.root_user_interface_factory.predefine_region(region_factory)
         return region_factory
 
     def get_target_region(self, full_path):
-        root_region = self.root_region_factory.create(full_path)
-        target_region, main_window = root_region.get_region_for_full_path(full_path)
+        root_region = self.root_user_interface_factory.create(full_path)
+        target_region, main_window = root_region.get_user_interface_for_full_path(full_path)
         return (target_region, main_window)
 
     def resource_for(self, request):

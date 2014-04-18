@@ -39,8 +39,8 @@ from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 
 class WidgetFixture(Fixture, WebBasicsMixin):
-    def new_region_factory(self):
-        factory = UserInterface.factory(u'test_region_name')
+    def new_user_interface_factory(self):
+        factory = UserInterface.factory(u'test_user_interface_name')
         factory.attach_to(u'/', {})
         return factory
         

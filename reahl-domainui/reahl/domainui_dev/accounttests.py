@@ -33,16 +33,16 @@ from reahl.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, Act
 class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
     def new_login_bookmark(self, request=None):
         self.context.request = request or self.request
-        return self.account_region_factory.get_bookmark(relative_path=u'/login')
+        return self.account_user_interface_factory.get_bookmark(relative_path=u'/login')
     
     def new_MainUI(self):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                account_region_factory = self.define_region(u'/aregion',  AccountUI,  {u'main_slot': u'main'}, name=u'testregion', 
+                account_user_interface_factory = self.define_region(u'/aregion',  AccountUI,  {u'main_slot': u'main'}, name=u'testregion', 
                                                             bookmarks=fixture.bookmarks)
-                fixture.account_region_factory = account_region_factory
+                fixture.account_user_interface_factory = account_user_interface_factory
         return MainUI
     
     def new_wsgi_app(self, enable_js=False):
