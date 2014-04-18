@@ -27,7 +27,7 @@ from reahl.stubble import easter_egg
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.ui import TwoColumnPage, Panel, P
 from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
-from reahl.domainui.workflow import InboxRegion
+from reahl.domainui.workflow import InboxApp
 from reahl.web.fw import Region, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
@@ -56,7 +56,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
                 accounts = self.define_region(u'/accounts', AccountApp, {u'main_slot': u'main'},
                                               name=u'testregion', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
-                self.define_region(u'/inbox',  InboxRegion,  {u'main_slot': u'main'}, 
+                self.define_region(u'/inbox',  InboxApp,  {u'main_slot': u'main'}, 
                                    name=u'testregion', login_bookmark=login_bookmark, get_queues=get_queues)
         return super(WorkflowWebFixture, self).new_wsgi_app(enable_js=enable_js,
                                                          site_root=MainApp)

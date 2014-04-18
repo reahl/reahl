@@ -97,7 +97,7 @@ class TaskView(UrlBoundView):
         raise ProgrammerError(u'no Widget found to display %s' % task)
 
 
-class InboxRegion(Region):
+class InboxApp(Region):
     """A user-facing Region for monitoring an :class:`reahl.systemaccountmodel.Inbox`. It allows
        a user to work on tasks.
 
