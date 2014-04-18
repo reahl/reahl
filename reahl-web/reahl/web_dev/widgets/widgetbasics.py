@@ -164,7 +164,7 @@ class WidgetBasics(object):
                 self.add_child(Slot(view, u'slot1'))
                 self.add_child(Slot(view, u'slot2'))
 
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(MyMainWindow)
 
@@ -175,7 +175,7 @@ class WidgetBasics(object):
                 other = self.define_view(u'/other', title=u'Other')
                 other.set_slot(u'slot1', P.factory(text=u'other'))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
         browser.open('/')
@@ -198,12 +198,12 @@ class WidgetBasics(object):
                 self.add_child(Slot(view, u'slot3'))
                 self.add_default_slot(u'slot3', P.factory(text=u'default'))
                
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(MyMainWindow)
                 self.define_view(u'/', title=u'Home')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
         browser.open('/')
@@ -232,12 +232,12 @@ class WidgetBasics(object):
                 self.add_child(WidgetWithJavaScript(view, u'js2'))
                 self.add_child(WidgetWithJavaScript(view, u'js1'))
 
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(MyMainWindow)
                 self.define_view(u'/', title=u'Home')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
         browser.open('/')

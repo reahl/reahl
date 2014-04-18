@@ -35,11 +35,11 @@ class AppBasicsTests(object):
                     super(SimplePage, self).__init__(view)
                     self.body.add_child(P(view, text=u'Hello world!'))
 
-            class MainApp(Region):
+            class MainUI(Region):
                 def assemble(self):
                     self.define_view(u'/', title=u'Hello', page=SimplePage.factory())
 
-            self.MainApp = MainApp
+            self.MainUI = MainUI
             self.expected_content_length = 685
             self.content_includes_p = True
 
@@ -50,23 +50,23 @@ class AppBasicsTests(object):
                     super(SimplePage, self).__init__(view)
                     self.body.add_child(P(view, text=u'Hello world!'))
 
-            class MainApp(Region):
+            class MainUI(Region):
                 def assemble(self):
                     home = self.define_view(u'/', title=u'Hello')
                     home.set_page(SimplePage.factory())
 
-            self.MainApp = MainApp
+            self.MainUI = MainUI
             self.expected_content_length = 685
             self.content_includes_p = True
 
         @scenario
         def region_with_main_window(self):
-            class MainApp(Region):
+            class MainUI(Region):
                 def assemble(self):
                     self.define_main_window(TwoColumnPage)
                     self.define_view(u'/', title=u'Hello')
 
-            self.MainApp = MainApp
+            self.MainUI = MainUI
             self.expected_content_length = 893
             self.content_includes_p = False
 
@@ -78,7 +78,7 @@ class AppBasicsTests(object):
         the URL of a View, a page is rendered back to the user. How that page is created
         can happen in different ways, as illustrated by each scenario of this test.
         """
-        wsgi_app = fixture.new_wsgi_app(site_root=fixture.MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=fixture.MainUI)
         browser = Browser(wsgi_app)
 
         # GETting the URL results in the HTML for that View
@@ -103,12 +103,12 @@ class AppBasicsTests(object):
     @test(WebFixture)
     def basic_error1(self, fixture):
         """Sending the the wrong kind of thing as widget_class to define_main_window is reported to the programmer."""
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(EmptyStub)
                 self.define_view(u'/', title=u'Hello')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         with expected(IsSubclass):
@@ -117,12 +117,12 @@ class AppBasicsTests(object):
     @test(WebFixture)
     def basic_error2(self, fixture):
         """Sending the the wrong arguments for the specified class to define_main_window is reported to the programmer."""
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage, 1, 2)
                 self.define_view(u'/', title=u'Hello')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
@@ -134,11 +134,11 @@ class AppBasicsTests(object):
     @test(WebFixture)
     def basic_error3(self, fixture):
         """Forgetting to define either a main_window of a page for a View is reported to the programmer."""
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_view(u'/', title=u'Hello')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
@@ -150,29 +150,29 @@ class AppBasicsTests(object):
     class SlotScenarios(WebFixture):
         @scenario
         def main_window_on_region(self):
-            class MainApp(Region):
+            class MainUI(Region):
                 def assemble(self):
                     self.define_main_window(TwoColumnPage)
                     home = self.define_view(u'/', title=u'Hello')
                     home.set_slot(u'main', P.factory(text=u'Hello world'))
                     home.set_slot(u'footer', P.factory(text=u'I am the footer'))
-            self.MainApp = MainApp
+            self.MainUI = MainUI
 
         @scenario
         def main_window_on_view(self):
-            class MainApp(Region):
+            class MainUI(Region):
                 def assemble(self):
                     home = self.define_view(u'/', title=u'Hello')
                     home.set_page(TwoColumnPage.factory())
                     home.set_slot(u'main', P.factory(text=u'Hello world'))
                     home.set_slot(u'footer', P.factory(text=u'I am the footer'))
-            self.MainApp = MainApp
+            self.MainUI = MainUI
 
             
     @test(SlotScenarios)
     def slots(self, fixture):
         """A View modifies the main window by populating named Slots in the main window with Widgets."""
-        wsgi_app = fixture.new_wsgi_app(site_root=fixture.MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=fixture.MainUI)
         browser = Browser(wsgi_app)
         
         browser.open('/')
@@ -184,14 +184,14 @@ class AppBasicsTests(object):
     @test(WebFixture)
     def slot_error(self, fixture):
         """Supplying contents for a slot that does not exist results in s sensible error."""
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Hello')
                 home.set_slot(u'main', P.factory(text=u'Hello world'))
                 home.set_slot(u'nonexistantslotname', P.factory(text=u'I am breaking'))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
@@ -206,13 +206,13 @@ class AppBasicsTests(object):
         """If a View does not specify contents for a Slot, the Slot will be populated by the window's default
            widget for that slot if specified, else it will be left empty.
         """
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 main = self.define_main_window(TwoColumnPage)
                 main.add_default_slot(u'main', P.factory(text=u'defaulted slot contents'))
                 self.define_view(u'/', title=u'Hello')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
         browser.open('/')

@@ -39,7 +39,7 @@ class DJHTMLWidget(LiteralHTML):
         super(DJHTMLWidget, self).__init__(view, html_content)
 
 
-class DjhtmlApp(Region):
+class DhtmlUI(Region):
     """A Region which serves content from the static directory configured in `web.staticroot`.
        If a given Url maps directly to a file in this directory, that file is normally served
        as-is. If the filename ends on .d.html, however, the file is parsed, and the div inside it

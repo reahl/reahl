@@ -299,11 +299,11 @@ class SecurityTests(object):
         """ONLY If a View is readable, it can be GET"""
         def disallowed(): return False
         
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_view(u'/view', u'Title', read_check=disallowed)
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         browser.open(u'/view', status=403)
 
@@ -321,12 +321,12 @@ class SecurityTests(object):
             def events(self, events):
                 events.an_event = Event(label=u'Click me')
 
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/a_view', u'Title', write_check=disallowed)
                 home.set_slot(u'main', MyForm.factory())
-        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         browser.open(u'/a_view')

@@ -127,15 +127,15 @@ compose your web application from multiple :class:`~reahl.web.fw.Region`\ s. Hen
 a :class:`~reahl.web.fw.Region` that someone else has built beforehand.
 
 In the `reahl-domainui` component, in the `reahl.domainui.accounts`
-module, lives a :class:`~reahl.web.fw.Region` called :class:`~reahl.domainui.accounts.AccountApp`. It contains  :class:`~reahl.web.fw.View`\ s  for
+module, lives a :class:`~reahl.web.fw.Region` called :class:`~reahl.domainui.accounts.AccountUI`. It contains  :class:`~reahl.web.fw.View`\ s  for
 logging in, registering a new account, and more. In order to use it,
 you will need to give it its own URL in your web application -- just
 like you'd define a :class:`~reahl.web.fw.View` on a particular URL. The URLs of the  :class:`~reahl.web.fw.View`\ s  of
-the :class:`~reahl.domainui.accounts.AccountApp` will then be appended to the URL you use for the
+the :class:`~reahl.domainui.accounts.AccountUI` will then be appended to the URL you use for the
 :class:`~reahl.web.fw.Region` itself.
 
 The main window of your web application defines a number of :class:`~reahl.web.ui.Slot`\ s. The
-writer of :class:`~reahl.domainui.accounts.AccountApp` (or any other :class:`~reahl.web.fw.Region`) does not know what :class:`~reahl.web.ui.Slot`\ s
+writer of :class:`~reahl.domainui.accounts.AccountUI` (or any other :class:`~reahl.web.fw.Region`) does not know what :class:`~reahl.web.ui.Slot`\ s
 **your** application will have for plugging in its bits of user
 interface. Hence, each :class:`~reahl.web.fw.Region` writer chooses a couple of names for
 :class:`~reahl.web.ui.Slot`\ s needed for its  :class:`~reahl.web.fw.View`\ s . When you use such a :class:`~reahl.web.fw.Region`, you need to
@@ -149,22 +149,22 @@ places, passing in different values for those arguments. Specifying
 the :class:`~reahl.web.ui.Slot`\ s when re-using a :class:`~reahl.web.fw.Region` is similar.
 
 In this example, we have a :class:`~reahl.web.ui.Slot` named `main` in :class:`~reahl.web.ui.TwoColumnPage`, and the
-:class:`~reahl.domainui.accounts.AccountApp` has a :class:`~reahl.web.ui.Slot` named `main_slot`. Hence, it is necessary to
-state that `main_slot` of :class:`~reahl.domainui.accounts.AccountApp` plugs into `main` of
+:class:`~reahl.domainui.accounts.AccountUI` has a :class:`~reahl.web.ui.Slot` named `main_slot`. Hence, it is necessary to
+state that `main_slot` of :class:`~reahl.domainui.accounts.AccountUI` plugs into `main` of
 :class:`~reahl.web.ui.TwoColumnPage`.
 
-:class:`~reahl.domainui.accounts.AccountApp` also has its own requirements: it needs a number of
+:class:`~reahl.domainui.accounts.AccountUI` also has its own requirements: it needs a number of
 bookmarks. Specifically, it expects to be passed an object from which
 it can get a bookmark for: a page listing the terms of service of the
 site, the privacy policy of the site, and a disclaimer.
 
 The code below is our entire little application, rewritten to use the
-:class:`~reahl.domainui.accounts.AccountApp`. (Note that since our application does not have  :class:`~reahl.web.fw.View`\ s 
-for all the legal bookmarks linked to by the :class:`~reahl.domainui.accounts.AccountApp`, the home
+:class:`~reahl.domainui.accounts.AccountUI`. (Note that since our application does not have  :class:`~reahl.web.fw.View`\ s 
+for all the legal bookmarks linked to by the :class:`~reahl.domainui.accounts.AccountUI`, the home
 page of the application has been used for each legal bookmark in this
 example.)
 
-Just to show a few more bits of the :class:`~reahl.domainui.accounts.AccountApp`, the example has
+Just to show a few more bits of the :class:`~reahl.domainui.accounts.AccountUI`, the example has
 been modified to include some more items in its :class:`~reahl.web.ui.Menu`:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/login2/login2.py

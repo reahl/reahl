@@ -27,13 +27,13 @@ from reahl.stubble import easter_egg
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.ui import TwoColumnPage, Panel, P
 from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
-from reahl.domainui.workflow import InboxApp
+from reahl.domainui.workflow import InboxUI
 from reahl.web.fw import Region, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
-from reahl.domainui.accounts import AccountApp
+from reahl.domainui.accounts import AccountUI
 
 class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
     def new_queues(self):
@@ -50,16 +50,16 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         fixture = self
         def get_queues():
             return fixture.queues
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                accounts = self.define_region(u'/accounts', AccountApp, {u'main_slot': u'main'},
+                accounts = self.define_region(u'/accounts', AccountUI, {u'main_slot': u'main'},
                                               name=u'testregion', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
-                self.define_region(u'/inbox',  InboxApp,  {u'main_slot': u'main'}, 
+                self.define_region(u'/inbox',  InboxUI,  {u'main_slot': u'main'}, 
                                    name=u'testregion', login_bookmark=login_bookmark, get_queues=get_queues)
         return super(WorkflowWebFixture, self).new_wsgi_app(enable_js=enable_js,
-                                                         site_root=MainApp)
+                                                         site_root=MainUI)
 
     def new_system_account(self):
         account = super(WorkflowWebFixture, self).new_system_account()
