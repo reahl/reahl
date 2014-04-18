@@ -76,14 +76,14 @@ class DhtmlUI(Region):
 
     def statics(self, relative_path):
         statics = {}
-        with open(self.filesystem_path(relative_path)) as djhtml_file:
+        with open(self.filesystem_path(relative_path)) as dhtml_file:
             def strain(name, attrs):
                 if name == u'title':
                     return True
                 if name == u'div' and dict(attrs).get(u'id', None) == self.static_div_name:
                     return True
                 return False
-            soup = BeautifulSoup(djhtml_file, parseOnlyThese=SoupStrainer(strain))
+            soup = BeautifulSoup(dhtml_file, parseOnlyThese=SoupStrainer(strain))
             html_parser = HTMLParser.HTMLParser()
             statics[u'title'] = html_parser.unescape(soup.title.renderContents()) if soup.title else _(u'Untitled')
             statics[u'div'] = soup.div.renderContents() if soup.div else u''

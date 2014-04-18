@@ -21,7 +21,7 @@ from reahl.tofu import Fixture, test, set_up
 from reahl.tofu import vassert, temp_dir
 from reahl.stubble import stubclass, replaced
 
-from reahl.web.djhtml import DhtmlUI
+from reahl.web.dhtml import DhtmlUI
 from reahl.web.fw import WebExecutionContext, Region
 from reahl.web.ui import Slot, TwoColumnPage
 from reahl.web_dev.fixtures import WebBasicsMixin
@@ -33,12 +33,12 @@ class DjhtmlFixture(Fixture, WebBasicsMixin):
     
     div_internals = u'<p>some stúff</p>'
 
-    def new_djhtml_file(self):
+    def new_dhtml_file(self):
         contents = u'<!DOCTYPE html><meta charset="UTF-8"><html><head><title>â title</title></head>' \
                    u'<body><div id="astatic">%s</div></body></html>' % self.div_internals
         return self.static_dir.file_with(u'correctfile.d.html', contents.encode('utf-8'))
 
-    def new_afrikaans_djhtml_file(self):
+    def new_afrikaans_dhtml_file(self):
         contents = u'<!DOCTYPE html><meta charset="UTF-8"><html><head><title>Afrikaans bo!</title></head><body></body></html>'
         return self.static_dir.file_with(u'correctfile.af.d.html', contents.encode('utf-8'))
 
@@ -47,8 +47,8 @@ class DjhtmlFixture(Fixture, WebBasicsMixin):
 
     @set_up
     def create_files(self):
-        self.djhtml_file
-        self.afrikaans_djhtml_file
+        self.dhtml_file
+        self.afrikaans_dhtml_file
         self.other_file
 
 
@@ -64,7 +64,7 @@ class BasicTests(object):
         class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/djhtml_region', DhtmlUI, {u'main_slot': u'main'},
+                self.define_region(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
                                 name=u'test_region', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
@@ -73,22 +73,22 @@ class BasicTests(object):
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
         browser = Browser(wsgi_app)
 
-        # A djhtml file: TwoColumnPage's main_slot now contains the insides of the div in the djhtml file
-        browser.open(u'/djhtml_region/correctfile.d.html')
+        # A dhtml file: TwoColumnPage's main_slot now contains the insides of the div in the dhtml file
+        browser.open(u'/dhtml_region/correctfile.d.html')
         html = browser.get_html_for(u'//div[@id="bd"]/div/div/*')
         vassert( html == fixture.div_internals )
 
-        # A non-djhtml file is returned verbatim
-        browser.open(u'/djhtml_region/otherfile.txt')
+        # A non-dhtml file is returned verbatim
+        browser.open(u'/dhtml_region/otherfile.txt')
         contents = browser.raw_html
         vassert( contents == u'other' )
 
         # Files that do not exist are reported as such
-        browser.open(u'/djhtml_region/idonotexist.txt', status=404)
-        browser.open(u'/djhtml_region/idonotexist.d.html', status=404)
+        browser.open(u'/dhtml_region/idonotexist.txt', status=404)
+        browser.open(u'/dhtml_region/idonotexist.d.html', status=404)
 
     @test(DjhtmlFixture)
-    def i18n_djhtml(self, fixture):
+    def i18n_dhtml(self, fixture):
         """Djhtml files can have i18nsed versions, which would be served up if applicable."""
 
         @stubclass(WebExecutionContext)
@@ -100,7 +100,7 @@ class BasicTests(object):
         class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/djhtml_region', DhtmlUI, {u'main_slot': u'main'},
+                self.define_region(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
                                    name=u'test_region', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
@@ -114,7 +114,7 @@ class BasicTests(object):
         def stubbed_create_context_for_request():
             return AfrikaansContext()
         with replaced(wsgi_app.create_context_for_request, stubbed_create_context_for_request):
-            browser.open(u'/djhtml_region/correctfile.d.html')
+            browser.open(u'/dhtml_region/correctfile.d.html')
             
         vassert( browser.title == u'Afrikaans bo!' )
 
