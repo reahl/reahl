@@ -113,7 +113,7 @@ first defines each :class:`~reahl.web.fw.View` of the :class:`~reahl.web.fw.User
 :class:`~reahl.web.fw.Transition` between  :class:`~reahl.web.fw.View`\ s . In this example, there is only one :class:`~reahl.web.fw.Transition`:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow2/pageflow2.py
-   :pyobject: AddressBookApp
+   :pyobject: AddressBookUI
 
 In previous examples an :class:`~reahl.web.fw.EventHandler` was defined before a :class:`~reahl.web.ui.Button` is
 placed that needed to trigger an :class:`~reahl.component.modelinterface.Event`. That plan works well for

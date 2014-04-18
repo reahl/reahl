@@ -4,12 +4,12 @@ from reahl.tofu import test, set_up
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.sessionscope.sessionscope import SessionScopeApp, User
+from reahl.doc.examples.tutorial.sessionscope.sessionscope import SessionScopeUI, User
 
 
 class SessionScopeFixture(WebFixture):
     def new_browser(self):
-        return Browser(self.new_wsgi_app(site_root=SessionScopeApp))
+        return Browser(self.new_wsgi_app(site_root=SessionScopeUI))
         
     password = u'bobbejaan'
 

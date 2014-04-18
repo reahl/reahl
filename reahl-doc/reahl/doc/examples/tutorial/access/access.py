@@ -315,7 +315,7 @@ class EditAddressView(UrlBoundView):
         self.read_check = address.can_be_edited
 
 
-class AddressBookApp(UserInterface):
+class AddressBookUI(UserInterface):
     def assemble(self):
 
         home = self.define_view(u'/', title=u'Address books')

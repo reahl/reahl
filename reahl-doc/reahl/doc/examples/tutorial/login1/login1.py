@@ -30,7 +30,7 @@ class LoginForm(Form):
         self.add_child(Button(self, accounts.events.login_event))
 
 
-class LoginApp(UserInterface):
+class LoginUI(UserInterface):
     def assemble(self):
         user_session = UserSession.for_current_session()
         if user_session.account:

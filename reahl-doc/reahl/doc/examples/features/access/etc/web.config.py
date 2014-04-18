@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.features.access.access import AccessApp
+from reahl.doc.examples.features.access.access import AccessUI
 
-web.site_root = AccessApp
+web.site_root = AccessUI

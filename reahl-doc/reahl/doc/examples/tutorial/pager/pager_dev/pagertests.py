@@ -8,7 +8,7 @@
 from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
-from reahl.doc.examples.tutorial.pager.pager import AddressBookApp
+from reahl.doc.examples.tutorial.pager.pager import AddressBookUI
 
 
 class PagingFixture(WebFixture):
@@ -16,7 +16,7 @@ class PagingFixture(WebFixture):
         return self.driver_browser
         
     def new_wsgi_app(self):
-        return super(PagingFixture, self).new_wsgi_app(site_root=AddressBookApp, enable_js=True)
+        return super(PagingFixture, self).new_wsgi_app(site_root=AddressBookUI, enable_js=True)
 
     def is_email_listed(self, email):
         return self.browser.is_element_present(XPath.paragraph_containing(email))

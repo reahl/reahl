@@ -7,12 +7,12 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.sqlalchemysupport import Session
 
-from reahl.doc.examples.tutorial.jobs.jobs import AddressBookApp, Address
+from reahl.doc.examples.tutorial.jobs.jobs import AddressBookUI, Address
 
 
 class JobsFixture(WebFixture):
     def new_wsgi_app(self):
-        return super(JobsFixture, self).new_wsgi_app(site_root=AddressBookApp)
+        return super(JobsFixture, self).new_wsgi_app(site_root=AddressBookUI)
         
     def new_existing_address(self):
         address = Address(name=u'John Doe', email_address=u'johndoe@some.org')

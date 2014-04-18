@@ -17,7 +17,7 @@ class SomeContents(Panel):
         self.add_child(P(view, text=message))
 
 
-class TranslatedApp(UserInterface):
+class TranslatedUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')
         

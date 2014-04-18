@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.tutorial.access.access import AddressBookApp
+from reahl.doc.examples.tutorial.access.access import AddressBookUI
 
-web.site_root = AddressBookApp
+web.site_root = AddressBookUI

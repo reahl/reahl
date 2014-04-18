@@ -15,7 +15,7 @@ ReahlWSGIApplication
    :members:
 
 UserInterface
-""""""
+"""""""""""""
 
 .. autoclass:: UserInterface
    :members:

@@ -6,13 +6,13 @@ from reahl.sqlalchemysupport import Session, metadata
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.access.access import AddressBookApp, AddressBook, Collaborator, Address
+from reahl.doc.examples.tutorial.access.access import AddressBookUI, AddressBook, Collaborator, Address
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
 
 
 class AccessFixture(WebFixture):
     def new_browser(self):
-        return Browser(self.new_wsgi_app(site_root=AddressBookApp))
+        return Browser(self.new_wsgi_app(site_root=AddressBookUI))
         
     password = u'bobbejaan'
 

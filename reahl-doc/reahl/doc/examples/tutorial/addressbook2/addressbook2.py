@@ -9,7 +9,7 @@ from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, But
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
-class AddressBookApp(UserInterface):
+class AddressBookUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')
         find = self.define_view(u'/', title=u'Addresses')

@@ -172,9 +172,9 @@ what is needed in the `web.config.py` for our example project:
 
 .. code-block:: python
 
-   from hello import HelloApp
+   from hello import HelloUI
 
-   web.site_root = HelloApp
+   web.site_root = HelloUI
 
 You can see info about all the configuration settings used by executing::
 

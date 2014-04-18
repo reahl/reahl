@@ -69,14 +69,14 @@ The programmer also needs to supply a custom :class:`~reahl.web.fw.View` class w
 subclasses from :class:`~reahl.web.fw.UrlBoundView` and in which the `.assemble()` method is
 overridden with custom logic that deals with these arguments.
 
-In the AddressBookApp class shown below, a :class:`~reahl.web.fw.View` is added for editing,
+In the AddressBookUI class shown below, a :class:`~reahl.web.fw.View` is added for editing,
 parameterised by the id of an Address:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
    :pyobject: EditView
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
-   :pyobject: AddressBookApp		  
+   :pyobject: AddressBookUI		  
 
 Notice how the arguments of the :class:`~reahl.web.fw.View` are specified. They are passed as
 :class:`~reahl.component.modelinterface.Field`\ s in extra keyword arguments to the `.define_view()` method.
@@ -98,15 +98,15 @@ does not exist in the database. If this should happen, just raise a
 A word about bookmarks
 ----------------------
 
-Since a :class:`~reahl.web.fw.UserInterface` (in this case AddressBookApp) already contains the
+Since a :class:`~reahl.web.fw.UserInterface` (in this case AddressBookUI) already contains the
 knowledge of which  :class:`~reahl.web.fw.View`\ s  it contains, it seems to be good design that
 other elements of the user interface ask it for :class:`~reahl.web.fw.Bookmark`\ s to those
 :class:`~reahl.web.fw.View`\ s  when needed.
 
 For this reason, the `.get_edit_bookmark()` method was added to
-AddressBookApp. You will notice in the code below that AddressBookApp
+AddressBookUI. You will notice in the code below that AddressBookUI
 is sent all the way to each AddressBox just so that
-`AddressBookApp.get_edit_bookmark()` can be called. Notice also that a
+`AddressBookUI.get_edit_bookmark()` can be called. Notice also that a
 :class:`~reahl.web.fw.Bookmark` can never be obtained for 'the edit :class:`~reahl.web.fw.View`', a :class:`~reahl.web.fw.Bookmark` is for
 something like 'the edit :class:`~reahl.web.fw.View` for address X': it includes the
 arguments of the bookmarked :class:`~reahl.web.fw.View`.
@@ -195,9 +195,9 @@ has been changed to a :class:`~reahl.web.ui.Form`, and also how the :class:`~rea
 
 The final change to the application is the addition of a
 transition. This is again done in the `.assemble()` method of the
-AddressBookApp. Note how the structure of our initial schematic design
+AddressBookUI. Note how the structure of our initial schematic design
 is visible in this method -- each :class:`~reahl.web.fw.View` is defined, and then all the
 transitions between the  :class:`~reahl.web.fw.View`\ s :
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2.py
-   :pyobject: AddressBookApp
+   :pyobject: AddressBookUI

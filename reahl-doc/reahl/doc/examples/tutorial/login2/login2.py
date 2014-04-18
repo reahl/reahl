@@ -14,7 +14,7 @@ class MenuPage(TwoColumnPage):
         self.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
 
 
-class LoginApp(UserInterface):
+class LoginUI(UserInterface):
     def assemble(self):
         user_session = WebUserSession.for_current_session()
         if user_session.account:

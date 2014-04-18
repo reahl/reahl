@@ -18,7 +18,7 @@ class AddressConfig(Configuration):
     showheader = ConfigSetting(default=False, description=u'Whether the title should be shown as a heading too')
 
 
-class AddressBookApp(UserInterface):
+class AddressBookUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')
         find = self.define_view(u'/', title=u'Addresses')

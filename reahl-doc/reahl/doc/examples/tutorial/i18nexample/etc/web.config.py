@@ -1,5 +1,5 @@
 
 
-from reahl.doc.examples.tutorial.i18nexample.i18nexample import AddressBookApp
+from reahl.doc.examples.tutorial.i18nexample.i18nexample import AddressBookUI
 
-web.site_root = AddressBookApp
+web.site_root = AddressBookUI

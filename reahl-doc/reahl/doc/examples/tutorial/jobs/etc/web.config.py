@@ -1,5 +1,5 @@
 
 
-from reahl.doc.examples.tutorial.jobs.jobs import AddressBookApp
+from reahl.doc.examples.tutorial.jobs.jobs import AddressBookUI
 
-web.site_root = AddressBookApp
+web.site_root = AddressBookUI

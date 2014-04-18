@@ -24,7 +24,7 @@ from reahl.web.ui import TwoColumnPage, Panel, Form, TextInput, Button, Form, \
 from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
                                            IntegerField, Event, MultiChoiceField, Action, DateField
 
-class BasicHTMLInputsApp(UserInterface):
+class BasicHTMLInputsUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')  
 

@@ -27,7 +27,7 @@ class EditView(UrlBoundView):
         self.set_slot(u'main', EditAddressForm.factory(address))
 
 
-class AddressBookApp(UserInterface):
+class AddressBookUI(UserInterface):
     def assemble(self):
 
         add = self.define_view(u'/add', title=u'Add an address')

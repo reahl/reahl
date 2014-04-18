@@ -39,7 +39,7 @@ from reahl.component.config import StoredConfiguration
 from reahl.web.fw import ReahlWSGIApplication
 
 class WrappedApp(object):
-    """A class in which to wrap a WSGI App and ensure it yields str elements.
+    """A class in which to wrap a WSGI app and ensure it yields str elements.
 
     This is necessary, since Templates sometimes return unicode and
     wsgiref implementation we use in development expects str.

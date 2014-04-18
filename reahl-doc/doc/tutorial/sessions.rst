@@ -147,7 +147,7 @@ whether there is a LoginSession for the current :class:`~reahl.systemaccountmode
 one if necessary. Either way it returns what you expect:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
-   :pyobject: SessionScopeApp
+   :pyobject: SessionScopeUI
 
 
 Dealing with DomainExceptions

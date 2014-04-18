@@ -49,8 +49,8 @@ URLs of a web application form a hierarchy.
 
 A UserInterface in Reahl is such a hierarchy -- but with a twist: A UserInterface can
 be grafted onto another UserInterface. And that is exactly what happens in
-the code above: An AccountUI is grafted onto ExampleApp, at the
-URL "/accounts". Of course, ExampleApp is also just a UserInterface
+the code above: An AccountUI is grafted onto ExampleUI, at the
+URL "/accounts". Of course, ExampleUI is also just a UserInterface
 itself. We just chose to use it as the root of our entire application.
 
 AccountUI has an URL "/login" (amongst others). But, from now on,
@@ -59,7 +59,7 @@ onto "/accounts" in our web application.
 
 .. code-block:: python
 
-   class ExampleApp(UserInterface):
+   class ExampleUI(UserInterface):
        def assemble(self):
            # some other UserInterfaces added here, and the bookmarks asked from them
 

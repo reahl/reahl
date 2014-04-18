@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.features.slots.slots import SlotsApp
+from reahl.doc.examples.features.slots.slots import SlotsUI
 
-web.site_root = SlotsApp
+web.site_root = SlotsUI

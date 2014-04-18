@@ -15,6 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.doc.fileupload import FileUploadApp
+from reahl.doc.fileupload import FileUploadUI
 
-web.site_root = FileUploadApp
+web.site_root = FileUploadUI
