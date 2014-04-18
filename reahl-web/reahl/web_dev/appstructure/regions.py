@@ -22,14 +22,14 @@ from reahl.tofu import Fixture, test
 from reahl.tofu import vassert, expected
 from reahl.stubble import stubclass, EmptyStub
 
-from reahl.web.fw import UserInterface, Widget, FactoryDict, RegionFactory, RegexPath
+from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
 from reahl.web.ui import TwoColumnPage, P, A, Panel, Slot
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
 
 @istest
-class RegionTests(object):
+class UserInterfaceTests(object):
     @test(WebFixture)
     def basic_ui(self, fixture):
         """A UserInterface is a chunk of web app that can be grafted onto the URL hierarchy of any app.
@@ -104,7 +104,7 @@ class RegionTests(object):
 
     @test(WebFixture)
     def ui_arguments(self, fixture):
-        """Regions can take exta args and kwargs."""
+        """UserInterfaces can take exta args and kwargs."""
            
         class UIWithArguments(UserInterface):
             def assemble(self, kwarg=None):
@@ -141,7 +141,7 @@ class RegionTests(object):
                 self.define_main_window(TwoColumnPage)
                 ui_factory = self.define_user_interface(u'/a_ui',  UIWithRelativeView,  {}, name=u'myui')
 
-                # How you could get a bookmark from a RegionFactory
+                # How you could get a bookmark from a UserInterfaceFactory
                 fixture.bookmark = ui_factory.get_bookmark(relative_path=u'/aview')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -171,7 +171,7 @@ class RegionTests(object):
            being used. It tests a couple of lower-level implementation issues (see comments)."""
 
         @stubclass(UserInterface)
-        class RegionStub(UserInterface):
+        class UserInterfaceStub(UserInterface):
             assembled = False
             def assemble(self, **ui_arguments):
                 self.controller_at_assemble_time = self.controller
@@ -183,7 +183,7 @@ class RegionTests(object):
         parent_ui = None
 #        parent_ui = EmptyStub(base_path=u'/')
         slot_map = {u'slotA': u'main_slot'}
-        ui_factory = RegionFactory(parent_ui, RegexPath(u'/', u'/', {}), slot_map, RegionStub, u'test_ui')
+        ui_factory = UserInterfaceFactory(parent_ui, RegexPath(u'/', u'/', {}), slot_map, UserInterfaceStub, u'test_ui')
 
 
         # Phase2: creating a user_interface

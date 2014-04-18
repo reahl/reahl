@@ -25,10 +25,10 @@ from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError
 
-class RegionErrorScenarios(WebFixture):
+class UserInterfaceErrorScenarios(WebFixture):
     def new_wsgi_app(self):
         fixture = self
-        class SimpleRegion(UserInterface):
+        class SimpleUserInterface(UserInterface):
             def assemble(self):
                 root = self.define_view(u'/', title=u'View')
                 root.set_slot(u'name', P.factory())
@@ -36,9 +36,9 @@ class RegionErrorScenarios(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  SimpleRegion,  {}, name=u'test_ui')
+                self.define_user_interface(u'/a_ui',  SimpleUserInterface,  {}, name=u'test_ui')
 
-        return super(RegionErrorScenarios, self).new_wsgi_app(site_root=MainUI)
+        return super(UserInterfaceErrorScenarios, self).new_wsgi_app(site_root=MainUI)
 
     @scenario
     def plug_in_to_nonexistant_name(self):
@@ -50,8 +50,8 @@ class RegionErrorScenarios(WebFixture):
 
         
 @istest
-class RegionErrorTests(object):
-    @test(RegionErrorScenarios)
+class UserInterfaceErrorTests(object):
+    @test(UserInterfaceErrorScenarios)
     def ui_slots_map_error(self, fixture):
         browser = Browser(fixture.wsgi_app)
 

@@ -38,7 +38,7 @@ class FormWithButton(Form):
         self.add_child(Button(self, event))
                 
 @istest
-class ControlledRegionsTests(object):
+class ControlledUserInterfacesTests(object):
     @test(WebFixture)
     def basic_transition(self, fixture):
         """Transitions express how the browser is ferried between Views in reaction to user-initiated Events."""
@@ -451,7 +451,7 @@ class ControlledRegionsTests(object):
         """A View can be marked as the start of a Detour. Where used, a Bookmark for such a View
            will automatically include a returnTo in the its query string. This allows an
            eventual return_transition (or similar) to return to where, eg, a link was clicked from.
-           This mechanism works for returning across Regions."""
+           This mechanism works for returning across UserInterfaces."""
 
         class UIWithLink(UserInterface):
             def assemble(self, bookmark=None):

@@ -57,30 +57,30 @@ class ParameterisedViewErrors(object):
 
 
 
-class ParameterisedRegionErrors(WebFixture):
+class ParameterisedUserInterfaceErrors(WebFixture):
     def new_wsgi_app(self):
         fixture = self
-        class RegexRegion(UserInterface):
+        class RegexUserInterface(UserInterface):
             def assemble(self, ui_key=None):
                 self.name = u'user_interface-%s' % ui_key
 
-        class UIWithParameterisedRegions(UserInterface):
+        class UIWithParameterisedUserInterfaces(UserInterface):
             def assemble(self):
-                self.define_regex_user_interface(u'/(?P<xxx>[^/]*)', u'N/A', RegexRegion,
+                self.define_regex_user_interface(u'/(?P<xxx>[^/]*)', u'N/A', RegexUserInterface,
                                          {u'user_interface-slot': u'main'},
                                          ui_key=Field(required=True))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  {}, name=u'test_ui')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  {}, name=u'test_ui')
 
-        return super(ParameterisedRegionErrors, self).new_wsgi_app(site_root=MainUI)
+        return super(ParameterisedUserInterfaceErrors, self).new_wsgi_app(site_root=MainUI)
        
 
 @istest
 class ParameterisedErrorsTests(object):
-    @test(ParameterisedRegionErrors)
+    @test(ParameterisedUserInterfaceErrors)
     def missing_variable_in_regex(self, fixture):
 
         browser = Browser(fixture.wsgi_app)

@@ -25,7 +25,7 @@ from reahl.stubble import EmptyStub, stubclass
 from nose.tools import istest
 from reahl.tofu import Fixture, set_up
 from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
-                         RegionFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
+                         UserInterfaceFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
                          WidgetList, Url, Widget, RegexPath
 from reahl.web.ui import TwoColumnPage, HTML5Page, Div, Slot
 from reahl.component.i18n import Translator

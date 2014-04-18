@@ -420,12 +420,12 @@ class Controller(object):
 
 class UserInterface(object):
     """A UserInterface holds a collection of :class:`View` instances, each View with its own URL relative to the UserInterface itself.
-       Regions can also contain other Regions. 
+       UserInterfaces can also contain other UserInterfaces. 
        
        Programmers create their own UserInterface class by inheriting from UserInterface, and overriding :meth:`UserInterface.assemble`
        to define the contents of the UserInterface.
 
-       Regions are not instantiated by programmers, a UserInterface is defined as a sub-user_interface of a given parent UserInterface by
+       UserInterfaces are not instantiated by programmers, a UserInterface is defined as a sub-user_interface of a given parent UserInterface by
        calling the :meth:`UserInterface.define_user_interface` from inside the :meth:`UserInterface.assemble` method of its parent UserInterface.
        
        The class of UserInterface to be used as root for the entire web application is configured 
@@ -436,7 +436,7 @@ class UserInterface(object):
         self.parent_ui = parent_ui           #: The UserInterface onto which this UserInterface is grafted
         self.slot_map = slot_map                     #: A dictionary mapping names of Slots as used in this 
                                                      #: UserInterface, to those of its parent UserInterface
-        self.name = name                             #: A name which is unique amongst all Regions in the application
+        self.name = name                             #: A name which is unique amongst all UserInterfaces in the application
         self.relative_path = u''                     #: The path of the current Url, relative to this UserInterface
         self.main_window = None
         self.main_window_factory = None
@@ -477,7 +477,7 @@ class UserInterface(object):
 
     def assemble(self, **ui_arguments):
         """Programmers override this method in order to define the contents of their UserInterface. This mainly
-           means defining Views or other Regions inside the UserInterface being assembled. The default
+           means defining Views or other UserInterfaces inside the UserInterface being assembled. The default
            implementation of `assemble` is empty, so there's no need to call the super implementation
            from an overriding implementation."""
         pass
@@ -650,12 +650,12 @@ class UserInterface(object):
         checkargs_explained(u'.define_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
                             ui_class.assemble,  **assemble_args)
 
-        ui_factory = RegionFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, ui_class, name, **passed_kwargs)
+        ui_factory = UserInterfaceFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
     def define_regex_user_interface(self, path_regex, path_template, ui_class, slot_map, name=None, **assemble_args):
-        """Called from `assemble` to create a :class:`RegionFactory` for a parameterised :class:`UserInterface` that will 
+        """Called from `assemble` to create a :class:`UserInterfaceFactory` for a parameterised :class:`UserInterface` that will 
            be created when an URL is requested that matches `path_regex`. See also `define_regex_view`.
            
            Arguments are similar to that of `define_regex_view`, except for:
@@ -668,7 +668,7 @@ class UserInterface(object):
                             ui_class.assemble,  **assemble_args)
 
         regex_path = RegexPath(path_regex, path_template, path_argument_fields)
-        ui_factory = RegionFactory(self, regex_path, slot_map, ui_class, name, **passed_kwargs)
+        ui_factory = UserInterfaceFactory(self, regex_path, slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
@@ -686,14 +686,14 @@ class UserInterface(object):
            as configured, as configured by the setting `web.static_root`.
         """
         ui_name = u'static_%s' % path
-        ui_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=DiskDirectory(path))
+        ui_factory = UserInterfaceFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=DiskDirectory(path))
         return self.add_user_interface_factory(ui_factory)
 
     def define_static_files(self, path, files):
         """Defines an URL which is mapped to serve the list of static files given.
         """
         ui_name = u'static_%s' % path
-        ui_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
+        ui_factory = UserInterfaceFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
         return self.add_user_interface_factory(ui_factory)
 
     def get_relative_path_for(self, full_path):
@@ -732,7 +732,7 @@ class UserInterface(object):
         if relative_path:
             view = self.view_for(relative_path)
         else:
-            view = RegionRootRedirectView(self)
+            view = UserInterfaceRootRedirectView(self)
         return view
 
     def view_for(self, relative_path, for_bookmark=False):
@@ -1308,10 +1308,10 @@ class FactoryFromUrlRegex(Factory):
         return (relative_path,)+args
 
 
-class RegionFactory(FactoryFromUrlRegex):
+class UserInterfaceFactory(FactoryFromUrlRegex):
     @arg_checks(regex_path=IsInstance(RegexPath), ui_class=IsSubclass(UserInterface))
     def __init__(self, parent_ui, regex_path, slot_map, ui_class, ui_name, **ui_kwargs):
-        super(RegionFactory, self).__init__(regex_path, ui_class, ui_kwargs)
+        super(UserInterfaceFactory, self).__init__(regex_path, ui_class, ui_kwargs)
         self.slot_map = slot_map
         self.parent_ui = parent_ui
         self.ui_name = ui_name
@@ -1327,7 +1327,7 @@ class RegionFactory(FactoryFromUrlRegex):
         return self.regex_path.get_relative_part_in(full_path)
 
     def create(self, relative_path, for_bookmark=False, *args):
-        user_interface = super(RegionFactory, self).create(relative_path, for_bookmark, *args)
+        user_interface = super(UserInterfaceFactory, self).create(relative_path, for_bookmark, *args)
         for predefined_ui in self.predefined_uis:
             user_interface.add_user_interface_factory(predefined_ui)
         return user_interface 
@@ -1698,7 +1698,7 @@ class NoView(PseudoView):
     """A special kind of View to indicate that no View was found."""
     exists = False
 
-class RegionRootRedirectView(PseudoView):
+class UserInterfaceRootRedirectView(PseudoView):
     def as_resource(self, main_window):
         raise HTTPSeeOther(location=str(self.user_interface.get_absolute_url_for(u'/').as_network_absolute()))
     
@@ -2390,7 +2390,7 @@ class ReahlWSGIApplication(object):
         with WebExecutionContext() as context:
             context.set_config(self.config)
             context.set_system_control(self.system_control)
-            self.root_user_interface_factory = RegionFactory(None, RegexPath(u'/', u'/', {}), IdentityDictionary(), self.config.web.site_root, u'site_root')
+            self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath(u'/', u'/', {}), IdentityDictionary(), self.config.web.site_root, u'site_root')
             self.add_reahl_static_files()
 
     def find_packaged_files(self, labelled):
@@ -2455,7 +2455,7 @@ class ReahlWSGIApplication(object):
 
     def define_static_files(self, path, files):
         ui_name = u'static_%s' % path
-        ui_factory = RegionFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
+        ui_factory = UserInterfaceFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
         self.root_user_interface_factory.predefine_user_interface(ui_factory)
         return ui_factory
 
