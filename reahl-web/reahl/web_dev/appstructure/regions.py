@@ -56,7 +56,7 @@ class RegionTests(object):
         vassert( browser.title == u'UserInterface other view' )
 
     @test(WebFixture)
-    def region_slots_map_to_window(self, fixture):
+    def ui_slots_map_to_window(self, fixture):
         """The UserInterface uses its own names for Slots. When attaching a UserInterface, you have to specify 
             which of the UserInterface's Slots plug into which of the main window's Slots.
         """
@@ -82,7 +82,7 @@ class RegionTests(object):
 
 
     @test(WebFixture)
-    def region_redirect(self, fixture):
+    def ui_redirect(self, fixture):
         """When opening an URL without trailing slash that maps to where a UserInterface is attached,
            the browser is redirected to the UserInterface '/' View."""
            
@@ -103,7 +103,7 @@ class RegionTests(object):
         vassert( browser.location_path == u'/a_ui/' )
 
     @test(WebFixture)
-    def region_arguments(self, fixture):
+    def ui_arguments(self, fixture):
         """Regions can take exta args and kwargs."""
            
         class UIWithArguments(UserInterface):
@@ -173,7 +173,7 @@ class RegionTests(object):
         @stubclass(UserInterface)
         class RegionStub(UserInterface):
             assembled = False
-            def assemble(self, **region_arguments):
+            def assemble(self, **ui_arguments):
                 self.controller_at_assemble_time = self.controller
                 root = self.define_view(u'/some/path', title=u'A view')
                 root.set_slot(u'slotA', Panel.factory())

@@ -134,21 +134,21 @@ class ParameterisedTests(object):
            UserInterface does not exist, the creation method should return None."""
 
         class RegexRegion(UserInterface):
-            def assemble(self, region_key=None):
-                if region_key == u'doesnotexist':
+            def assemble(self, ui_key=None):
+                if ui_key == u'doesnotexist':
                     raise CannotCreate()
 
-                self.name = u'region-%s' % region_key
+                self.name = u'region-%s' % ui_key
                 root = self.define_view(u'/', title=u'Simple region %s' % self.name)
                 root.set_slot(u'region-slot', P.factory(text=u'in region slot'))
 
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
-                self.define_regex_user_interface(u'/apath/(?P<region_key>[^/]*)',
-                                         u'/apath/${region_key}',
+                self.define_regex_user_interface(u'/apath/(?P<ui_key>[^/]*)',
+                                         u'/apath/${ui_key}',
                                          RegexRegion,
                                          {u'region-slot': u'main'},
-                                         region_key=Field())
+                                         ui_key=Field())
 
         class MainUI(UserInterface):
             def assemble(self):
@@ -204,11 +204,11 @@ class ParameterisedTests(object):
         """Sub Regions can also be parameterised by defining arguments in .define_user_interface, and receiving them in .assemble()."""
 
         class ParameterisedRegion(UserInterface):
-            def assemble(self, region_arg=None):
-                if region_arg == u'doesnotexist':
+            def assemble(self, ui_arg=None):
+                if ui_arg == u'doesnotexist':
                     raise CannotCreate()
 
-                self.name = u'region-%s' % region_arg
+                self.name = u'region-%s' % ui_arg
                 root = self.define_view(u'/aview', title=u'Simple region %s' % self.name)
                 root.set_slot(u'region-slot', P.factory(text=u'in region slot'))
 
@@ -216,7 +216,7 @@ class ParameterisedTests(object):
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_user_interface(u'/parameterisedregion', ParameterisedRegion, {u'region-slot': u'main'}, 
-                                   region_arg=fixture.argument,
+                                   ui_arg=fixture.argument,
                                    name=u'paramregion')
 
         class MainUI(UserInterface):

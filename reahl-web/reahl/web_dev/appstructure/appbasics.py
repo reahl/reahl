@@ -60,7 +60,7 @@ class AppBasicsTests(object):
             self.content_includes_p = True
 
         @scenario
-        def region_with_main_window(self):
+        def ui_with_main_window(self):
             class MainUI(UserInterface):
                 def assemble(self):
                     self.define_main_window(TwoColumnPage)

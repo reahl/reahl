@@ -126,7 +126,7 @@ class SessionData(Entity):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     
     web_session = ManyToOne('UserSession', ondelete='cascade')
-    region_name = elixir.Field(UnicodeText, required=True)
+    ui_name = elixir.Field(UnicodeText, required=True)
     channel_name = elixir.Field(UnicodeText, required=True)
 
     @classmethod
@@ -137,16 +137,16 @@ class SessionData(Entity):
     @classmethod
     def for_form(cls, form):
         web_session = WebExecutionContext.get_context().session
-        return cls.query.filter_by(web_session=web_session, region_name=form.region.name, channel_name=form.channel_name)
+        return cls.query.filter_by(web_session=web_session, ui_name=form.region.name, channel_name=form.channel_name)
     
     @classmethod
     def new_for_form(cls, form, **kwargs):
         web_session = WebExecutionContext.get_context().session
-        return cls(web_session=web_session, region_name=form.region.name, channel_name=form.channel_name, **kwargs)
+        return cls(web_session=web_session, ui_name=form.region.name, channel_name=form.channel_name, **kwargs)
     
     def __eq__(self, other):
         return self.web_session == other.web_session and \
-               self.region_name == other.region_name and \
+               self.ui_name == other.ui_name and \
                self.channel_name == other.channel_name
 
     def __neq__(self, other):

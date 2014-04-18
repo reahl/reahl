@@ -61,14 +61,14 @@ class ParameterisedRegionErrors(WebFixture):
     def new_wsgi_app(self):
         fixture = self
         class RegexRegion(UserInterface):
-            def assemble(self, region_key=None):
-                self.name = u'region-%s' % region_key
+            def assemble(self, ui_key=None):
+                self.name = u'region-%s' % ui_key
 
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_regex_user_interface(u'/(?P<xxx>[^/]*)', u'N/A', RegexRegion,
                                          {u'region-slot': u'main'},
-                                         region_key=Field(required=True))
+                                         ui_key=Field(required=True))
 
         class MainUI(UserInterface):
             def assemble(self):
