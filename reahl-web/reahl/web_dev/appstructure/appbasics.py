@@ -19,7 +19,7 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test, vassert, expected, NoException, scenario
 from reahl.stubble import EmptyStub
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
@@ -35,7 +35,7 @@ class AppBasicsTests(object):
                     super(SimplePage, self).__init__(view)
                     self.body.add_child(P(view, text=u'Hello world!'))
 
-            class MainUI(Region):
+            class MainUI(UserInterface):
                 def assemble(self):
                     self.define_view(u'/', title=u'Hello', page=SimplePage.factory())
 
@@ -50,7 +50,7 @@ class AppBasicsTests(object):
                     super(SimplePage, self).__init__(view)
                     self.body.add_child(P(view, text=u'Hello world!'))
 
-            class MainUI(Region):
+            class MainUI(UserInterface):
                 def assemble(self):
                     home = self.define_view(u'/', title=u'Hello')
                     home.set_page(SimplePage.factory())
@@ -61,7 +61,7 @@ class AppBasicsTests(object):
 
         @scenario
         def region_with_main_window(self):
-            class MainUI(Region):
+            class MainUI(UserInterface):
                 def assemble(self):
                     self.define_main_window(TwoColumnPage)
                     self.define_view(u'/', title=u'Hello')
@@ -72,9 +72,9 @@ class AppBasicsTests(object):
 
     @test(BasicScenarios)
     def basic_assembly(self, fixture):
-        """An application is built by extending Region, and defining this Region in an .assemble() method.
+        """An application is built by extending UserInterface, and defining this UserInterface in an .assemble() method.
 
-        To define the Region, several Views are defined. Views are mapped to URLs. When a user GETs
+        To define the UserInterface, several Views are defined. Views are mapped to URLs. When a user GETs
         the URL of a View, a page is rendered back to the user. How that page is created
         can happen in different ways, as illustrated by each scenario of this test.
         """
@@ -103,7 +103,7 @@ class AppBasicsTests(object):
     @test(WebFixture)
     def basic_error1(self, fixture):
         """Sending the the wrong kind of thing as widget_class to define_main_window is reported to the programmer."""
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(EmptyStub)
                 self.define_view(u'/', title=u'Hello')
@@ -117,7 +117,7 @@ class AppBasicsTests(object):
     @test(WebFixture)
     def basic_error2(self, fixture):
         """Sending the the wrong arguments for the specified class to define_main_window is reported to the programmer."""
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage, 1, 2)
                 self.define_view(u'/', title=u'Hello')
@@ -134,7 +134,7 @@ class AppBasicsTests(object):
     @test(WebFixture)
     def basic_error3(self, fixture):
         """Forgetting to define either a main_window of a page for a View is reported to the programmer."""
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_view(u'/', title=u'Hello')
 
@@ -150,7 +150,7 @@ class AppBasicsTests(object):
     class SlotScenarios(WebFixture):
         @scenario
         def main_window_on_region(self):
-            class MainUI(Region):
+            class MainUI(UserInterface):
                 def assemble(self):
                     self.define_main_window(TwoColumnPage)
                     home = self.define_view(u'/', title=u'Hello')
@@ -160,7 +160,7 @@ class AppBasicsTests(object):
 
         @scenario
         def main_window_on_view(self):
-            class MainUI(Region):
+            class MainUI(UserInterface):
                 def assemble(self):
                     home = self.define_view(u'/', title=u'Hello')
                     home.set_page(TwoColumnPage.factory())
@@ -184,7 +184,7 @@ class AppBasicsTests(object):
     @test(WebFixture)
     def slot_error(self, fixture):
         """Supplying contents for a slot that does not exist results in s sensible error."""
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Hello')
@@ -206,7 +206,7 @@ class AppBasicsTests(object):
         """If a View does not specify contents for a Slot, the Slot will be populated by the window's default
            widget for that slot if specified, else it will be left empty.
         """
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 main = self.define_main_window(TwoColumnPage)
                 main.add_default_slot(u'main', P.factory(text=u'defaulted slot contents'))

@@ -26,7 +26,7 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected, temp_dir, temp_file_with
 from reahl.stubble import easter_egg, stubclass
 
-from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, Region
+from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, UserInterface
 from reahl.web.ui import TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
@@ -48,7 +48,7 @@ class StaticFileTests(object):
         fixture.config.web.static_root = static_root.name
         
         # How the subdirectory is mounted
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_static_directory(u'/staticfiles')
 
@@ -84,7 +84,7 @@ class StaticFileTests(object):
         files_dir = temp_dir()
         one_file = files_dir.file_with(u'any_name_will_do_here', u'one')
         
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 list_of_files = [FileOnDisk(one_file.name, u'one_file')]
                 self.define_static_files(u'/morestaticfiles', list_of_files)
@@ -113,7 +113,7 @@ class StaticFileTests(object):
     def files_from_database(self, fixture):
         """Files can also be created on the fly such as from data in a database."""
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 content_type = u'text/html'
                 encoding = u'utf-8'
@@ -154,7 +154,7 @@ class StaticFileTests(object):
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
         
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 list_of_files = [PackagedFile(easter_egg.as_requirement_string(), u'packaged_files', u'packaged_file')]
                 self.define_static_files(u'/files', list_of_files)
@@ -203,7 +203,7 @@ class StaticFileTests(object):
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 to_concatenate = [PackagedFile(u'test==1.0', u'packaged_files', u'packaged_file'),
                                   PackagedFile(u'test==1.0', u'packaged_files', u'packaged_file2')]

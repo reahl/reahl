@@ -1,9 +1,9 @@
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput
 from reahl.component.modelinterface import exposed, EmailField
 
-class ValidationApp(Region):
+class ValidationApp(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')  
 

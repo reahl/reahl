@@ -1,7 +1,7 @@
 
 from helloapache import HelloApp
 
-# The Region class acting as the root of the URL hierachy of your application:
+# The UserInterface class acting as the root of the URL hierachy of your application:
 web.site_root = HelloApp       
 
 # HTTP is served on port 80, and HTTPS on 443, except when in development!

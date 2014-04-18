@@ -76,7 +76,7 @@ class NoEventHandlerFound(Exception):
 
 class CannotCreate(NoMatchingFactoryFound):
     """Programmers raise this to indicate that the arguments given via URL to a View
-       or Region that is parameterised were invalid."""
+       or UserInterface that is parameterised were invalid."""
     pass
 
 class Url(object):
@@ -418,26 +418,26 @@ class Controller(object):
         return handler.get_destination_absolute_url(event_ocurrence)
 
 
-class Region(object):
-    """A Region holds a collection of :class:`View` instances, each View with its own URL relative to the Region itself.
+class UserInterface(object):
+    """A UserInterface holds a collection of :class:`View` instances, each View with its own URL relative to the UserInterface itself.
        Regions can also contain other Regions. 
        
-       Programmers create their own Region class by inheriting from Region, and overriding :meth:`Region.assemble`
-       to define the contents of the Region.
+       Programmers create their own UserInterface class by inheriting from UserInterface, and overriding :meth:`UserInterface.assemble`
+       to define the contents of the UserInterface.
 
-       Regions are not instantiated by programmers, a Region is defined as a sub-region of a given parent Region by
-       calling the :meth:`Region.define_region` from inside the :meth:`Region.assemble` method of its parent Region.
+       Regions are not instantiated by programmers, a UserInterface is defined as a sub-region of a given parent UserInterface by
+       calling the :meth:`UserInterface.define_region` from inside the :meth:`UserInterface.assemble` method of its parent UserInterface.
        
-       The class of Region to be used as root for the entire web application is configured 
+       The class of UserInterface to be used as root for the entire web application is configured 
        via the `web.site_root` config setting.
     """
     def __init__(self, parent_region, relative_base_path, slot_map, for_bookmark, name, **region_arguments):
-        self.relative_base_path = relative_base_path #: The path where this Region starts, relative to its parent Region
-        self.parent_region = parent_region           #: The Region onto which this Region is grafted
+        self.relative_base_path = relative_base_path #: The path where this UserInterface starts, relative to its parent UserInterface
+        self.parent_region = parent_region           #: The UserInterface onto which this UserInterface is grafted
         self.slot_map = slot_map                     #: A dictionary mapping names of Slots as used in this 
-                                                     #: Region, to those of its parent Region
+                                                     #: UserInterface, to those of its parent UserInterface
         self.name = name                             #: A name which is unique amongst all Regions in the application
-        self.relative_path = u''                     #: The path of the current Url, relative to this Region
+        self.relative_path = u''                     #: The path of the current Url, relative to this UserInterface
         self.main_window = None
         self.main_window_factory = None
         if not for_bookmark:
@@ -457,8 +457,8 @@ class Region(object):
 
     @property
     def base_path(self):
-        """The path this Region has in the current web application. It is appended to the URLs of all :class:`View` s
-           in this Region."""
+        """The path this UserInterface has in the current web application. It is appended to the URLs of all :class:`View` s
+           in this UserInterface."""
         return self.make_full_path(self.parent_region, self.relative_base_path)
 
     @classmethod 
@@ -476,8 +476,8 @@ class Region(object):
         return self.controller.view_for(self.relative_path)
 
     def assemble(self, **region_arguments):
-        """Programmers override this method in order to define the contents of their Region. This mainly
-           means defining Views or other Regions inside the Region being assembled. The default
+        """Programmers override this method in order to define the contents of their UserInterface. This mainly
+           means defining Views or other Regions inside the UserInterface being assembled. The default
            implementation of `assemble` is empty, so there's no need to call the super implementation
            from an overriding implementation."""
         pass
@@ -502,7 +502,7 @@ class Region(object):
     @arg_checks(widget_class=IsSubclass(u'reahl.web.fw:Widget'))
     def define_main_window(self, widget_class, *args, **kwargs):
         """Called from `assemble` to create the :class:`WidgetFactory` to use when the framework
-           needs to create a Widget for use as the main window for this Region. Pass the class of
+           needs to create a Widget for use as the main window for this UserInterface. Pass the class of
            Widget that will be constructed in `widget_class`.  Next, pass all the arguments that should
            be passed to `widget_class` upon construction, except the first one (its `view`).
         """
@@ -538,7 +538,7 @@ class Region(object):
 
     def define_view(self, relative_path, title=None, page=None, slot_definitions=None, detour=False, view_class=None, read_check=None, write_check=None, cacheable=False, **assemble_args):
         """Called from `assemble` to specify how a :class:`View` will be created when the given URL (`relative_path`)
-           is requested from this Region.
+           is requested from this UserInterface.
         
            :param title: The title to be used for the :class:`View`.
            :param slot_definitions: A dictionary stating which :class:`WidgetFactory` to use for plugging in which :class:`Slot`.
@@ -633,17 +633,17 @@ class Region(object):
         return region_factory
 
     def define_region(self, path, region_class, slot_map, name=None, **assemble_args):
-        """Called from `assemble` to specify how a :class:`Region` will be created when the given path
-           is visited in this :class:`Region`.
+        """Called from `assemble` to specify how a :class:`UserInterface` will be created when the given path
+           is visited in this :class:`UserInterface`.
            
-           :param path: The path for which the :class:`Region` will be constructed.
-           :param region_class: The class of :class:`Region` which will be constructed.
-           :param slot_map: The current :class:`Region` defines contents for some :class:`Slots`. The `region_class` :class:`Region`
-             which is effectively grafted onto the current :class:`Region`, also defined :class:`Slots` using its own names.
-             This dictionary states how the names used in the grafted :class:`Region` map to the names used by the 
-             current :class:`Region`.
-           :param name: A name for the :class:`Region` that is grafted on. The name should be unique in an application.
-           :param assemble_args: Keyword arguments that will be passed to the `assemble` method of the grafted :class:`Region`
+           :param path: The path for which the :class:`UserInterface` will be constructed.
+           :param region_class: The class of :class:`UserInterface` which will be constructed.
+           :param slot_map: The current :class:`UserInterface` defines contents for some :class:`Slots`. The `region_class` :class:`UserInterface`
+             which is effectively grafted onto the current :class:`UserInterface`, also defined :class:`Slots` using its own names.
+             This dictionary states how the names used in the grafted :class:`UserInterface` map to the names used by the 
+             current :class:`UserInterface`.
+           :param name: A name for the :class:`UserInterface` that is grafted on. The name should be unique in an application.
+           :param assemble_args: Keyword arguments that will be passed to the `assemble` method of the grafted :class:`UserInterface`
              after construction.
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
@@ -655,7 +655,7 @@ class Region(object):
         return region_factory
 
     def define_regex_region(self, path_regex, path_template, region_class, slot_map, name=None, **assemble_args):
-        """Called from `assemble` to create a :class:`RegionFactory` for a parameterised :class:`Region` that will 
+        """Called from `assemble` to create a :class:`RegionFactory` for a parameterised :class:`UserInterface` that will 
            be created when an URL is requested that matches `path_regex`. See also `define_regex_view`.
            
            Arguments are similar to that of `define_regex_view`, except for:
@@ -739,7 +739,7 @@ class Region(object):
         return self.controller.view_for(relative_path, for_bookmark=for_bookmark)
         
 
-class StaticUI(Region):
+class StaticUI(UserInterface):
     def create_view(self, relative_path, region, file_path=None):
         return FileView(region, self.files.create(file_path))
 
@@ -756,11 +756,11 @@ class Bookmark(object):
        obtain a Bookmark:
        
        - `View.as_bookmark`
-       - `Region.get_bookmark`
+       - `UserInterface.get_bookmark`
        - `Bookmark.for_widget`
        
-       :param base_path: The entire path of the Region to which the target View belongs.
-       :param relative_path: The path of the target View, relative to its Region.
+       :param base_path: The entire path of the UserInterface to which the target View belongs.
+       :param relative_path: The path of the target View, relative to its UserInterface.
        :param description: The textual description to be used by links to the target View.
        :param query_arguments: A dictionary containing name, value mappings to be put onto the query string of the href of this Bookmark.
        :param ajax: (not for general use).
@@ -1031,7 +1031,7 @@ class Widget(object):
     
     @property
     def region(self):
-        """The current Region."""
+        """The current UserInterface."""
         return self.view.region
 
     @property
@@ -1309,7 +1309,7 @@ class FactoryFromUrlRegex(Factory):
 
 
 class RegionFactory(FactoryFromUrlRegex):
-    @arg_checks(regex_path=IsInstance(RegexPath), region_class=IsSubclass(Region))
+    @arg_checks(regex_path=IsInstance(RegexPath), region_class=IsSubclass(UserInterface))
     def __init__(self, parent_region, regex_path, slot_map, region_class, region_name, **region_kwargs):
         super(RegionFactory, self).__init__(regex_path, region_class, region_kwargs)
         self.slot_map = slot_map
@@ -1359,10 +1359,10 @@ class SubResourceFactory(FactoryFromUrlRegex):
 
 class ViewFactory(FactoryFromUrlRegex):
     """Used to specify to the framework how it should create a :class:`View`, once needed. This class should not be
-       instantiated directly. Programmers should use `Region.define_view` and related methods to specify what Views
-       a Region should have. These methods return the ViewFactory so created.
+       instantiated directly. Programmers should use `UserInterface.define_view` and related methods to specify what Views
+       a UserInterface should have. These methods return the ViewFactory so created.
 
-       In the `.assemble()` of a Region, ViewFactories are passed around to denote Views as the targets of Events
+       In the `.assemble()` of a UserInterface, ViewFactories are passed around to denote Views as the targets of Events
        or the source and target of Transitions.
     """
     def __init__(self, regex_path, title, slot_definitions, main_window_factory=None, detour=False, view_class=None, factory_method=None, read_check=None, write_check=None, cacheable=False, view_kwargs=None):
@@ -1577,7 +1577,7 @@ class UrlBoundView(View):
        A programmer *should* create subclasses of UrlBoundView when creating parameterised Views.
 
        A programmer *should not* construct instances of this class (or its subclasses). Rather use
-       `Region.define_view` and related methods to define ViewFactories which the framework will 
+       `UserInterface.define_view` and related methods to define ViewFactories which the framework will 
        use at the correct time to instantiate an UrlBoundView.
 
        The `.view` of any Widget is an instance of UrlBoundView.
@@ -1771,7 +1771,7 @@ class SubResource(Resource):
     """A Resource that a Widget can register underneath the URL of the View the Widget is present on.
        This can be used to create URLs for whatever purpose the Widget may need server-side URLs for.
 
-       :param unique_name: A name for this subresource which will be unique in the Region where it is used.
+       :param unique_name: A name for this subresource which will be unique in the UserInterface where it is used.
     """
     sub_regex = u'sub_resource'          """The regex used to match incoming URLs against the URL of this SubResource."""
     sub_path_template = u'sub_resource'  """A `PEP-292 <http://www.python.org/dev/peps/pep-0292/>`_ template in a string
@@ -2470,7 +2470,7 @@ class ReahlWSGIApplication(object):
         url.make_locale_relative()
         target_region, main_window_factory = self.get_target_region(url.path)
         # TODO: FEATURE ENVY BELOW:
-        logging.debug('Found Region %s' % target_region)
+        logging.debug('Found UserInterface %s' % target_region)
         current_view = target_region.get_view_for_full_path(url.path)
         logging.debug('Found View %s' % current_view)
         current_view.check_precondition()

@@ -27,7 +27,7 @@ from reahl.dev.fixtures import CleanDatabase
 
 from reahl.webdev.webserver import ReahlWebServer
 from reahl.web.egg import WebConfig
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.webelixirimpl import WebUserSession, PersistedException, PersistedFile, UserInput
 from reahl.systemaccountmodel import SystemAccountConfig
 
@@ -152,7 +152,7 @@ class BrowserSetup(CleanDatabase):
         config = super(BrowserSetup, self).new_config()
         # These are dependencies we inject or that are only test dependencies and therfore not read
         config.web = WebConfig()
-        config.web.site_root = Region
+        config.web.site_root = UserInterface
         config.web.static_root = os.getcwd()
         config.web.session_class = WebUserSession
         config.web.persisted_exception_class = PersistedException

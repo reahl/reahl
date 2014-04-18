@@ -1,5 +1,5 @@
 
-from reahl.web.fw import Region, Url, Region
+from reahl.web.fw import UserInterface, Url, UserInterface
 from reahl.web.ui import TwoColumnPage, P, Panel, HMenu
 from reahl.component.i18n import Translator
 
@@ -17,7 +17,7 @@ class SomeContents(Panel):
         self.add_child(P(view, text=message))
 
 
-class TranslatedApp(Region):
+class TranslatedApp(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')
         

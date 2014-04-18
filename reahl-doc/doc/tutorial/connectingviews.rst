@@ -73,7 +73,7 @@ information necessary for constructing one :class:`~reahl.web.ui.MenuItem` of th
 
 The example below shows the application designed above with its two
 :class:`~reahl.web.fw.View`\ s , and a :class:`~reahl.web.ui.Menu` which is created from :class:`~reahl.web.fw.Bookmark`\ s.  Note how the
-:class:`~reahl.web.fw.Bookmark`\ s are obtained: using the :class:`~reahl.web.fw.View` and the :class:`~reahl.web.fw.Region` of which the
+:class:`~reahl.web.fw.Bookmark`\ s are obtained: using the :class:`~reahl.web.fw.View` and the :class:`~reahl.web.fw.UserInterface` of which the
 :class:`~reahl.web.fw.View` forms part.
 
 The :class:`~reahl.web.ui.Menu` should be on every page. This could be accomplished by adding
@@ -108,8 +108,8 @@ to visualise the different  :class:`~reahl.web.fw.View`\ s  in the application a
 will be *transitioned* between the different  :class:`~reahl.web.fw.View`\ s  in response to user
 actions. One of the aims with Reahl is to have code that clearly maps to such a
 schematic representation of the application. This is the purpose of
-the `.assemble()` method of a :class:`~reahl.web.fw.Region`. In this method, the programmer
-first defines each :class:`~reahl.web.fw.View` of the :class:`~reahl.web.fw.Region`, and then defines each possible
+the `.assemble()` method of a :class:`~reahl.web.fw.UserInterface`. In this method, the programmer
+first defines each :class:`~reahl.web.fw.View` of the :class:`~reahl.web.fw.UserInterface`, and then defines each possible
 :class:`~reahl.web.fw.Transition` between  :class:`~reahl.web.fw.View`\ s . In this example, there is only one :class:`~reahl.web.fw.Transition`:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow2/pageflow2.py
@@ -132,7 +132,7 @@ picture which the code of `.assemble()` tries to make explicit.
 Normally, in order to define a transition, one needs to specify the
 :class:`~reahl.component.modelinterface.Event` which will trigger it. In our example that :class:`~reahl.component.modelinterface.Event` is not
 available, since there is no instance of Address available in the
-`.assemble()` method of the :class:`~reahl.web.fw.Region` to ask for its `.events.save`.
+`.assemble()` method of the :class:`~reahl.web.fw.UserInterface` to ask for its `.events.save`.
 For that reason, `.events.save` can also be called on the Address
 class itself. The call to `.define_transition` (and its ilk) does
 not need the actual event -- it just needs to know how to identify the

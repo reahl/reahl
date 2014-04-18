@@ -23,7 +23,7 @@ from reahl.tofu import vassert, expected
 
 from reahl.component.modelinterface import Field, RequiredConstraint
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.fw import ReahlWSGIApplication, Region, UrlBoundView
+from reahl.web.fw import ReahlWSGIApplication, UserInterface, UrlBoundView
 from reahl.web.ui import TwoColumnPage, P, A
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
@@ -38,11 +38,11 @@ class ParameterisedViewErrors(object):
             def assemble(self, some_key=None):
                 self.title = u'View for: %s' % some_key
 
-        class RegionWithParameterisedViews(Region):
+        class RegionWithParameterisedViews(UserInterface):
             def assemble(self):
                 self.define_regex_view(u'/(?P<incorrect_name_for_key>.*)', u'/${key}', view_class=ParameterisedView, some_key=Field(required=True))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'testregion')
@@ -60,17 +60,17 @@ class ParameterisedViewErrors(object):
 class ParameterisedRegionErrors(WebFixture):
     def new_wsgi_app(self):
         fixture = self
-        class RegexRegion(Region):
+        class RegexRegion(UserInterface):
             def assemble(self, region_key=None):
                 self.name = u'region-%s' % region_key
 
-        class RegionWithParameterisedRegions(Region):
+        class RegionWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_regex_region(u'/(?P<xxx>[^/]*)', u'N/A', RegexRegion,
                                          {u'region-slot': u'main'},
                                          region_key=Field(required=True))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  {}, name=u'testregion')

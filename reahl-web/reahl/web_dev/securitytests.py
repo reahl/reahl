@@ -22,7 +22,7 @@ from reahl.stubble import stubclass, EmptyStub
 
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.fw import Widget, Region
+from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, TextInput, ButtonInput, Button, Panel, P, TwoColumnPage
 from reahl.component.modelinterface import Field, AccessRights, Event, exposed, Allowed, Action
 
@@ -299,7 +299,7 @@ class SecurityTests(object):
         """ONLY If a View is readable, it can be GET"""
         def disallowed(): return False
         
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_view(u'/view', u'Title', read_check=disallowed)
@@ -321,7 +321,7 @@ class SecurityTests(object):
             def events(self, events):
                 events.an_event = Event(label=u'Click me')
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/a_view', u'Title', write_check=disallowed)

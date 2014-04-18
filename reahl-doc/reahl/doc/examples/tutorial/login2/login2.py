@@ -1,7 +1,7 @@
 
 
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, P, HMenu
 from reahl.webelixirimpl import WebUserSession
 from reahl.domainui.accounts import AccountUI
@@ -14,7 +14,7 @@ class MenuPage(TwoColumnPage):
         self.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
 
 
-class LoginApp(Region):
+class LoginApp(UserInterface):
     def assemble(self):
         user_session = WebUserSession.for_current_session()
         if user_session.account:

@@ -24,7 +24,7 @@ from reahl.tofu import Fixture, test, scenario, NoException, vassert, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
 from reahl.web.ui import Form, NestedForm, Button, Input, TextInput, LabelledBlockInput, TwoColumnPage
-from reahl.web.fw import WebExecutionContext, ValidationException, Url, Region
+from reahl.web.fw import WebExecutionContext, ValidationException, Url, UserInterface
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, BooleanField, EmailField, DateField, \
                                     exposed, Field, Event, Action
@@ -64,7 +64,7 @@ class FormTests(object):
                 self.define_event_handler(model_object.events.an_event, target=other_view)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -107,7 +107,7 @@ class FormTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.add_child(Button(self, model_object.events.an_event.with_arguments(one_argument=1, another_argument=u'another')))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -178,7 +178,7 @@ class FormTests(object):
                 self.add_child(Button(self, model_object.events.an_event))
                 self.add_child(TextInput(self, model_object.fields.field_name))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -268,7 +268,7 @@ class FormTests(object):
                 self.add_child(Button(self, model_object.events.an_event))
                 self.add_child(TextInput(self, model_object.fields.field_name))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -321,7 +321,7 @@ class FormTests(object):
     def duplicate_forms(self, fixture):
         """It is an error to add more than one form with the same unique_name to a page."""
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -416,7 +416,7 @@ class FormTests(object):
                 self.add_child(Button(self, model_object.events.an_event))
                 self.add_child(TextInput(self, model_object.fields.field_name))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -548,7 +548,7 @@ class FormTests(object):
                 self.define_event_handler(model_object.events.an_event, target=target)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -589,7 +589,7 @@ class FormTests(object):
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(Button(self, model_object.events.an_event.with_arguments(some_argument=u'f~nnystuff')))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -627,7 +627,7 @@ class FormTests(object):
                 self.define_event_handler(model_object.events.an_event, target=other_view)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')

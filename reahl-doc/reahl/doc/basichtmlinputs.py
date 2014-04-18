@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Panel, Form, TextInput, Button, Form, \
                           LabelOverInput, CueInput, CheckboxInput, TextInput, \
                           PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
@@ -24,7 +24,7 @@ from reahl.web.ui import TwoColumnPage, Panel, Form, TextInput, Button, Form, \
 from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
                                            IntegerField, Event, MultiChoiceField, Action, DateField
 
-class BasicHTMLInputsApp(Region):
+class BasicHTMLInputsApp(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')  
 

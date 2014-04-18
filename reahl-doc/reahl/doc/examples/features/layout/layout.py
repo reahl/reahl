@@ -1,12 +1,12 @@
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, P, YuiGrid, YuiUnit
 from reahl.component.modelinterface import exposed, Field, EmailField
 
 def lots_of(message):
     return message * 5
 
-class LayoutApp(Region):
+class LayoutApp(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')  
 

@@ -28,7 +28,7 @@ from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.ui import TwoColumnPage, Panel, P
 from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.domainui.workflow import InboxUI
-from reahl.web.fw import Region, Url
+from reahl.web.fw import UserInterface, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
@@ -50,7 +50,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         fixture = self
         def get_queues():
             return fixture.queues
-        class MainUI(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 accounts = self.define_region(u'/accounts', AccountUI, {u'main_slot': u'main'},
