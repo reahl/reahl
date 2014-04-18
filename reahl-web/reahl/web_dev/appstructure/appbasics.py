@@ -16,43 +16,89 @@
 
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, vassert, expected, NoException
+from reahl.tofu import Fixture, test, vassert, expected, NoException, scenario
 from reahl.stubble import EmptyStub
 
 from reahl.web.fw import Region
-from reahl.web.ui import TwoColumnPage, P
+from reahl.web.ui import HTML5Page, TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass, IsInstance
 
 @istest
 class AppBasicsTests(object):
-    @test(WebFixture)
-    def basic_assembly(self, fixture):
-        """An application is built by extending ReahlWebApplication and providing an assemble method.
-        
-        The most basic application needs a main window and a view. Views are mapped to Urls.
-        """
-        class MainRegion(Region):
-            def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_view(u'/', title=u'Hello')
+    class BasicScenarios(WebFixture):
+        @scenario
+        def view_with_page(self):
+            class SimplePage(HTML5Page):
+                def __init__(self, view):
+                    super(SimplePage, self).__init__(view)
+                    self.body.add_child(P(view, text=u'Hello world!'))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
+            class MainRegion(Region):
+                def assemble(self):
+                    self.define_view(u'/', title=u'Hello', page=SimplePage.factory())
+
+            self.MainRegion = MainRegion
+            self.expected_content_length = 685
+            self.content_includes_p = True
+
+        @scenario
+        def view_with_set_page(self):
+            class SimplePage(HTML5Page):
+                def __init__(self, view):
+                    super(SimplePage, self).__init__(view)
+                    self.body.add_child(P(view, text=u'Hello world!'))
+
+            class MainRegion(Region):
+                def assemble(self):
+                    home = self.define_view(u'/', title=u'Hello')
+                    home.set_page(SimplePage.factory())
+
+            self.MainRegion = MainRegion
+            self.expected_content_length = 685
+            self.content_includes_p = True
+
+        @scenario
+        def region_with_main_window(self):
+            class MainRegion(Region):
+                def assemble(self):
+                    self.define_main_window(TwoColumnPage)
+                    self.define_view(u'/', title=u'Hello')
+
+            self.MainRegion = MainRegion
+            self.expected_content_length = 893
+            self.content_includes_p = False
+
+    @test(BasicScenarios)
+    def basic_assembly(self, fixture):
+        """An application is built by extending Region, and defining this Region in an .assemble() method.
+
+        To define the Region, several Views are defined. Views are mapped to URLs. When a user GETs
+        the URL of a View, a page is rendered back to the user. How that page is created
+        can happen in different ways, as illustrated by each scenario of this test.
+        """
+        webapp = fixture.new_webapp(site_root=fixture.MainRegion)
         browser = Browser(webapp)
 
         # GETting the URL results in the HTML for that View
         browser.open('/')
         vassert( browser.title == u'Hello' )
 
+        if fixture.content_includes_p:
+            [message] = browser.lxml_html.xpath('//p')
+            vassert( message.text == u'Hello world!' )
+
         # The headers are set correctly
         response = browser.last_response
-        vassert( response.content_length == 893 )
+        vassert( response.content_length == fixture.expected_content_length )
         vassert( response.content_type == 'text/html' )
         vassert( response.charset == 'utf-8' )
 
         # Invalid URLs do not exist
         browser.open('/nonexistantview/', status=404)
+
+
 
     @test(WebFixture)
     def basic_error1(self, fixture):
@@ -87,7 +133,7 @@ class AppBasicsTests(object):
 
     @test(WebFixture)
     def basic_error3(self, fixture):
-        """Forgetting to define a main_window is reported to the programmer."""
+        """Forgetting to define either a main_window of a page for a View is reported to the programmer."""
         class MainRegion(Region):
             def assemble(self):
                 self.define_view(u'/', title=u'Hello')
@@ -100,18 +146,33 @@ class AppBasicsTests(object):
             vassert( msg == 'there is no main_window defined for /' )
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')
+
+    class SlotScenarios(WebFixture):
+        @scenario
+        def main_window_on_region(self):
+            class MainRegion(Region):
+                def assemble(self):
+                    self.define_main_window(TwoColumnPage)
+                    home = self.define_view(u'/', title=u'Hello')
+                    home.set_slot(u'main', P.factory(text=u'Hello world'))
+                    home.set_slot(u'footer', P.factory(text=u'I am the footer'))
+            self.MainRegion = MainRegion
+
+        @scenario
+        def main_window_on_view(self):
+            class MainRegion(Region):
+                def assemble(self):
+                    home = self.define_view(u'/', title=u'Hello')
+                    home.set_page(TwoColumnPage.factory())
+                    home.set_slot(u'main', P.factory(text=u'Hello world'))
+                    home.set_slot(u'footer', P.factory(text=u'I am the footer'))
+            self.MainRegion = MainRegion
+
             
-    @test(WebFixture)
+    @test(SlotScenarios)
     def slots(self, fixture):
         """A View modifies the main window by populating named Slots in the main window with Widgets."""
-        class MainRegion(Region):
-            def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Hello')
-                home.set_slot(u'main', P.factory(text=u'Hello world'))
-                home.set_slot(u'footer', P.factory(text=u'I am the footer'))
-
-        webapp = fixture.new_webapp(site_root=MainRegion)
+        webapp = fixture.new_webapp(site_root=fixture.MainRegion)
         browser = Browser(webapp)
         
         browser.open('/')
