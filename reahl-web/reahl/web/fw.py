@@ -654,7 +654,7 @@ class UserInterface(object):
         self.add_user_interface_factory(region_factory)
         return region_factory
 
-    def define_regex_region(self, path_regex, path_template, region_class, slot_map, name=None, **assemble_args):
+    def define_regex_user_interface(self, path_regex, path_template, region_class, slot_map, name=None, **assemble_args):
         """Called from `assemble` to create a :class:`RegionFactory` for a parameterised :class:`UserInterface` that will 
            be created when an URL is requested that matches `path_regex`. See also `define_regex_view`.
            
@@ -664,7 +664,7 @@ class UserInterface(object):
            :param name: (See `define_user_interface`.)
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
-        checkargs_explained(u'.define_regex_region() was called with incorrect arguments for %s' % region_class.assemble, 
+        checkargs_explained(u'.define_regex_user_interface() was called with incorrect arguments for %s' % region_class.assemble, 
                             region_class.assemble,  **assemble_args)
 
         regex_path = RegexPath(path_regex, path_template, path_argument_fields)

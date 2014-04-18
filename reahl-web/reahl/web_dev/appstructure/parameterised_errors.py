@@ -66,7 +66,7 @@ class ParameterisedRegionErrors(WebFixture):
 
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
-                self.define_regex_region(u'/(?P<xxx>[^/]*)', u'N/A', RegexRegion,
+                self.define_regex_user_interface(u'/(?P<xxx>[^/]*)', u'N/A', RegexRegion,
                                          {u'region-slot': u'main'},
                                          region_key=Field(required=True))
 
