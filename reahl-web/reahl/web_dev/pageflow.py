@@ -476,7 +476,7 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 detour_ui = self.define_user_interface(u'/uiWithDetour',  UIWithDetour,  IdentityDictionary(), name=u'second_ui')
                 bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
-                self.define_user_interface(u'/uiWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
+                self.define_user_interface(u'/uiWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_ui', bookmark=bookmark)
 
                 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

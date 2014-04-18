@@ -144,7 +144,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         return view
 
     def new_region(self):
-        return UserInterface(None, u'/', {}, False, u'test_region')
+        return UserInterface(None, u'/', {}, False, u'test_ui')
 
 
 class WebFixture(Fixture, WebBasicsMixin):

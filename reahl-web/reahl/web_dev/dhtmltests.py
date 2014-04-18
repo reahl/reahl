@@ -65,7 +65,7 @@ class BasicTests(object):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_user_interface(u'/dhtml_ui', DhtmlUI, {u'main_slot': u'main'},
-                                name=u'test_region', static_div_name=u'astatic')
+                                name=u'test_ui', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
         fixture.config.web.static_root = fixture.static_dir.name
@@ -101,7 +101,7 @@ class BasicTests(object):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_user_interface(u'/dhtml_ui', DhtmlUI, {u'main_slot': u'main'},
-                                   name=u'test_region', static_div_name=u'astatic')
+                                   name=u'test_ui', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
         fixture.config.web.static_root = fixture.static_dir.name
