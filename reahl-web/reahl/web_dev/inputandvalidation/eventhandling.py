@@ -66,7 +66,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
@@ -109,7 +109,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform'))
@@ -180,7 +180,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 home.set_slot(u'main', MyForm.factory(u'myform'))
 
@@ -270,7 +270,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
@@ -323,7 +323,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 home.set_slot(u'main', Form.factory(u'myform'))
                 home.set_slot(u'secondary', Form.factory(u'myform'))
@@ -418,7 +418,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
@@ -550,7 +550,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
@@ -591,7 +591,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 home.set_slot(u'main', MyForm.factory(u'myform'))
 
@@ -629,7 +629,7 @@ class FormTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))

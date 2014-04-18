@@ -5,7 +5,7 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, Ac
 
 class PageFlowUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style=u'basic')  
 
         comment = Comment()
 

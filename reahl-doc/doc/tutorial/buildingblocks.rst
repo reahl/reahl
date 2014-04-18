@@ -48,12 +48,17 @@ let's string together two :class:`~reahl.web.ui.P`\ (aragraph)s onto a :class:`~
            self.add_child(P(view, text=u'Reahl is for real.'))
            self.add_child(P(view, text=u'You can use it in the real world.'))
 
-To use an instance of the ReahllyBadPoem :class:`~reahl.web.fw.Widget`, you add it as a
-child of another :class:`~reahl.web.fw.Widget`, like this:
+To use an instance of the ReahllyBadPoem
+:class:`~reahl.web.fw.Widget`, you add it as a child of another
+:class:`~reahl.web.fw.Widget`. For example you can add it to the
+``main`` column of the page used in our "hello" example like this:
 
 .. code-block:: python
 
-   self.add_child(ReahllyBadPoem(view))
+   class HelloPage(TwoColumnPage):
+       def __init__(self, view):
+           super(HelloPage, self).__init__(view)
+           self.main.add_child(ReahllyBadPoem(view))
 
 
 When rendered to a web browser, the resulting HTML would be:
@@ -88,31 +93,31 @@ different :class:`~reahl.web.fw.UserInterface`\ s (as explained much later).
 There are common user interface elements present on all the different
 URLs of a web application. It would be cumbersome to have to add these
 to each :class:`~reahl.web.fw.View` repeatedly. For this reason, each web application has a
-single :class:`~reahl.web.fw.Widget` acting as its *main window*. A main window contains the
+single :class:`~reahl.web.fw.Widget` acting as its *page*. A page contains the
 elements that are present on all URLs of the web application.
 
 Whether the user is visiting the '/some' URL or the '/other' URL, the
-user is always presented with the very same main window, even though
+user is always presented with the very same page, even though
 some of its contents get plugged in on the fly and will differ depending
 on the URL (thus :class:`~reahl.web.fw.View`) visited.
 
-Think of  :class:`~reahl.web.fw.View`\ s  as being different  :class:`~reahl.web.fw.View`\ s  *of the same main window*. The
-main window contains some elements, but it also contains blank areas
+Think of  :class:`~reahl.web.fw.View`\ s  as being different  :class:`~reahl.web.fw.View`\ s  *of the same page*. The
+page contains some elements, but it also contains blank areas
 that are filled in (differently) by different  :class:`~reahl.web.fw.View`\ s .
 
 .. figure:: views.png
    :align: center
    :width: 90%
 
-   A main window with two different views.
+   A page with two different views.
 
 A :class:`~reahl.web.ui.Slot` is a special :class:`~reahl.web.fw.Widget` that represents such a blank area. A
-useful main window should thus contain one or more :class:`~reahl.web.ui.Slot`\ s that
+useful page should thus contain one or more :class:`~reahl.web.ui.Slot`\ s that
 can be filled in by individual  :class:`~reahl.web.fw.View`\ s .
 
-A :class:`~reahl.web.fw.View` defines what the contents of the main window should be for a
+A :class:`~reahl.web.fw.View` defines what the contents of the page should be for a
 particular URL by stating which :class:`~reahl.web.fw.Widget` should go into which :class:`~reahl.web.ui.Slot` of
-the main window for that URL.
+the page for that URL.
 
 The example in the :doc:`gettingstarted` shows how a simple web application
 is created as a single :class:`~reahl.web.fw.UserInterface`. The `web.site_root` configuration setting 
@@ -132,7 +137,7 @@ See it in action
 Below is the source code for an application that demonstrates these
 ideas.
 
-The application has two  :class:`~reahl.web.fw.View`\ s . Its main window (a CustomPage) contains
+The application has two  :class:`~reahl.web.fw.View`\ s . Its page (a CustomPage) contains
 an :class:`~reahl.web.ui.HMenu` (a horisontal menu) which allows one to navigate between the
 two  :class:`~reahl.web.fw.View`\ s  of the application.
 
@@ -142,9 +147,9 @@ The home page looks as follows:
       :align: center
 
 Notice the two bits of text.  Each paragraph was plugged into a
-separate :class:`~reahl.web.ui.Slot` of the main window.
+separate :class:`~reahl.web.ui.Slot` of the page.
 
-In "Page 2", the same main window is displayed, but with different
+In "Page 2", the same page is displayed, but with different
 text in those :class:`~reahl.web.ui.Slot`\ s:
 
    .. figure:: ../_build/screenshots/slots2.png
@@ -160,7 +165,7 @@ whereas "secondary" sits to the left of it, and is narrower.
 
 In this example, a CustomPage is derived from :class:`~reahl.web.ui.TwoColumnPage`. That way
 the CustomPage inherits all the abovementioned niceties from
-:class:`~reahl.web.ui.TwoColumnPage`. To ba a useful main window for this application,
+:class:`~reahl.web.ui.TwoColumnPage`. To ba a useful page for this application,
 CustomPage only needs to add an :class:`~reahl.web.ui.HMenu` to the `.header` of the
 :class:`~reahl.web.ui.TwoColumnPage` on which it is based.
 
@@ -219,7 +224,7 @@ application. Look at the following, for example:
 
    class HelloUI(UserInterface):
        def assemble(self):
-           self.define_main_window(TwoColumnPage)  
+           self.define_page(TwoColumnPage)  
            self.define_view(u'/', title=u'Home')
 
 .. sidebar:: Hint
@@ -235,9 +240,9 @@ application. Look at the following, for example:
    adding a :class:`~reahl.web.fw.ViewFactory` to the :class:`~reahl.web.fw.UserInterface`), and then return the
    factory in case you need it further.
 
-Note that the specific :class:`~reahl.web.ui.TwoColumnPage` going to be used as main window
+Note that the specific :class:`~reahl.web.ui.TwoColumnPage` going to be used as page
 is not instantiated there.  The :class:`~reahl.web.fw.UserInterface` just keeps track of which class
-to instantiate for obtaining a main window -- for when it needs a main
+to instantiate for obtaining a page -- for when it needs a main
 window.
 
 In the next line, `define_view()` creates something called a
@@ -251,7 +256,7 @@ often used given the nature of web applications. For example:
 
    class HelloUI(UserInterface):
        def assemble(self):
-           self.define_main_window(TwoColumnPage)  
+           self.define_page(TwoColumnPage)  
            home = self.define_view(u'/', title=u'Home')
            home.set_slot(u'main', P.factory(text=u'Look ma, no P\'s'))
 
@@ -273,17 +278,17 @@ All of these things have a very short lifespan:
 
 When an HTTP request comes into the web server, the correct :class:`~reahl.web.fw.UserInterface` is
 first instantiated. The :class:`~reahl.web.fw.UserInterface` is used in turn to find and instantiate
-the applicable :class:`~reahl.web.fw.View`. At this point, the main window is instantiated,
+the applicable :class:`~reahl.web.fw.View`. At this point, the page is instantiated,
 and the current :class:`~reahl.web.fw.View` is plugged into it. All the :class:`~reahl.web.fw.Widget`\ s needed by the
 current :class:`~reahl.web.fw.View` are instantiated when the :class:`~reahl.web.fw.View` is plugged into the main
 window.
 
 At this point these elements of the user interface are ready to serve
-the request. After doing its execution, the main window is rendered to
+the request. After doing its execution, the page is rendered to
 HTML, JavaScript and CSS files, which are sent back to the browser
 where they will be executed further.
 
-On the server, the :class:`~reahl.web.fw.UserInterface`, :class:`~reahl.web.fw.View`, main window and all related :class:`~reahl.web.fw.Widget`\ s
+On the server, the :class:`~reahl.web.fw.UserInterface`, :class:`~reahl.web.fw.View`, page and all related :class:`~reahl.web.fw.Widget`\ s
 are discarded after sending back a response.
 
 You may have wondered why `.factory()` was used in the `.assemble()`

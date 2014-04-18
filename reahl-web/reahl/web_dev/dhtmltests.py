@@ -63,7 +63,7 @@ class BasicTests(object):
         
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/dhtml_ui', DhtmlUI, {u'main_slot': u'main'},
                                 name=u'test_ui', static_div_name=u'astatic')
 
@@ -99,7 +99,7 @@ class BasicTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/dhtml_ui', DhtmlUI, {u'main_slot': u'main'},
                                    name=u'test_ui', static_div_name=u'astatic')
 

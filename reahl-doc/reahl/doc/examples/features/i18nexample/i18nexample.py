@@ -19,7 +19,7 @@ class SomeContents(Panel):
 
 class TranslatedUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')
+        self.define_page(TwoColumnPage, style=u'basic')
         
         home = self.define_view(u'/some_page', title=_(u'Translated example'))
         home.set_slot(u'main', SomeContents.factory())

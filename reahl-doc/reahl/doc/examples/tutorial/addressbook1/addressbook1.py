@@ -4,7 +4,7 @@ from reahl.web.ui import TwoColumnPage, Form, Panel, P, H, InputGroup
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')
+        self.define_page(TwoColumnPage, style=u'basic')
         find = self.define_view(u'/', title=u'Addresses')
         find.set_slot(u'main', AddressBookPanel.factory())
 

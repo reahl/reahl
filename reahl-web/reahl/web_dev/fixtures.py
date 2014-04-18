@@ -127,7 +127,7 @@ class WebBasicsMixin(PartyModelZooMixin):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_view(u'/', title=u'Home page', slot_definitions=view_slots)
 
         site_root = site_root or MainUI

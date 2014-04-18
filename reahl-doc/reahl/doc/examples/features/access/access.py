@@ -6,7 +6,7 @@ from reahl.component.modelinterface import exposed, EmailField, secured, Event, 
 
 class AccessUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style=u'basic')  
 
         home = self.define_view(u'/', title=u'Access control demo')
         home.set_slot(u'main', CommentForm.factory())

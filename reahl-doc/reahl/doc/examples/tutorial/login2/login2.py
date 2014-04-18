@@ -37,7 +37,7 @@ class LoginUI(UserInterface):
         account_bookmarks = [accounts.get_bookmark(relative_path=relative_path) 
                              for relative_path in [u'/login', u'/register']]
         bookmarks = [home.as_bookmark(self)]+account_bookmarks
-        self.define_main_window(MenuPage, bookmarks)
+        self.define_page(MenuPage, bookmarks)
 
 
 

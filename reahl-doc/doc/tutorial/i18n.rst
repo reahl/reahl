@@ -55,7 +55,7 @@ A way to switch locales
 The first adaptation to the program is the addition of a :class:`~reahl.web.ui.VMenu` which
 will allow users to choose the locale they prefer for display. Since
 we want the :class:`~reahl.web.ui.VMenu` to be on all pages of the application, the correct
-way to add it is to create a :class:`~reahl.web.fw.Widget` that can be used as main window
+way to add it is to create a :class:`~reahl.web.fw.Widget` that can be used as page
 for the application, derived from :class:`~reahl.web.ui.TwoColumnPage`.
 
 A :class:`~reahl.web.ui.TwoColumnPage` has a `.secondary` attribute to which one can add

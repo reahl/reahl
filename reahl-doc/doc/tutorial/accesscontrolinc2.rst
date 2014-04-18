@@ -47,7 +47,7 @@ The implementation that makes those tests pass is given in the code
 below. There are several things you'd have to understand in this
 solution:
 
-The application uses an AddressAppPage for a main window. This is just
+The application uses an AddressAppPage for a page. This is just
 to make the application a little easier to drive: it displays who is
 logged in currently at the top of the page, and includes a :class:`~reahl.web.ui.Menu` which
 just gives the user a way to always return to the home page.

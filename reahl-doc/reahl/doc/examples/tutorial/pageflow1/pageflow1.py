@@ -26,7 +26,7 @@ class AddressBookUI(UserInterface):
         add.set_slot(u'main', AddAddressForm.factory())
         
         bookmarks = [v.as_bookmark(self) for v in [addresses, add]]
-        self.define_main_window(AddressBookPage, bookmarks)
+        self.define_page(AddressBookPage, bookmarks)
 
 
 class AddressBookPanel(Panel):

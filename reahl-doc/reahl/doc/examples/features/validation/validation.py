@@ -5,7 +5,7 @@ from reahl.component.modelinterface import exposed, EmailField
 
 class ValidationUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style=u'basic')  
 
         home = self.define_view(u'/', title=u'Validation demo')
         home.set_slot(u'main', CommentForm.factory())

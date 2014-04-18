@@ -63,7 +63,7 @@ def i18n_urls(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_main_window(TwoColumnPage)
+            self.define_page(TwoColumnPage)
             self.define_user_interface(u'/a_ui',  I18nUI,  IdentityDictionary(), name=u'test_ui')
             
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

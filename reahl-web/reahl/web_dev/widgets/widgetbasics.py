@@ -155,18 +155,18 @@ class WidgetBasics(object):
 
     @test(WebFixture)
     def basic_working_of_slots(self, fixture):
-        """Slots are special Widgets that can be added to the main window. The contents of a
+        """Slots are special Widgets that can be added to the page. The contents of a
            Slot are then supplied (differently) by different Views."""
 
-        class MyMainWindow(Widget):
+        class MyPage(Widget):
             def __init__(self, view):
-                super(MyMainWindow, self).__init__(view)
+                super(MyPage, self).__init__(view)
                 self.add_child(Slot(view, u'slot1'))
                 self.add_child(Slot(view, u'slot2'))
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(MyMainWindow)
+                self.define_page(MyPage)
 
                 home = self.define_view(u'/', title=u'Home')
                 home.set_slot(u'slot1', P.factory(text=u'a'))
@@ -192,15 +192,15 @@ class WidgetBasics(object):
     def defaults_for_slots(self, fixture):
         """A Widget can have defaults for its slots."""
 
-        class MyMainWindow(Widget):
+        class MyPage(Widget):
             def __init__(self, view):
-                super(MyMainWindow, self).__init__(view)
+                super(MyPage, self).__init__(view)
                 self.add_child(Slot(view, u'slot3'))
                 self.add_default_slot(u'slot3', P.factory(text=u'default'))
                
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(MyMainWindow)
+                self.define_page(MyPage)
                 self.define_view(u'/', title=u'Home')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -224,9 +224,9 @@ class WidgetBasics(object):
             def get_js(self, context=None):
                 return [self.fake_js]
 
-        class MyMainWindow(Widget):
+        class MyPage(Widget):
             def __init__(self, view):
-                super(MyMainWindow, self).__init__(view)
+                super(MyPage, self).__init__(view)
                 self.add_child(Slot(view, u'reahl_header'))
                 self.add_child(WidgetWithJavaScript(view, u'js1'))
                 self.add_child(WidgetWithJavaScript(view, u'js2'))
@@ -234,7 +234,7 @@ class WidgetBasics(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(MyMainWindow)
+                self.define_page(MyPage)
                 self.define_view(u'/', title=u'Home')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
