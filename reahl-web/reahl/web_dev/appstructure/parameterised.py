@@ -91,7 +91,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -119,7 +119,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -129,8 +129,8 @@ class ParameterisedTests(object):
         vassert( browser.title == u'View for: test1' )
 
     @test(WebFixture)
-    def regions_from_regex(self, fixture):
-        """Sub Regions can be created on the fly on a UserInterface, based on the URL visited. To indicate that a
+    def user_interfaces_from_regex(self, fixture):
+        """Sub UserInterfaces can be created on the fly on a UserInterface, based on the URL visited. To indicate that a
            UserInterface does not exist, the creation method should return None."""
 
         class RegexRegion(UserInterface):
@@ -153,7 +153,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -180,7 +180,7 @@ class ParameterisedTests(object):
             """Arguments can be sent from where the UserInterface is defined."""
             self.argument = u'some arg'
             self.expected_value = u'some arg'
-            self.url = u'/a_ui/parameterisedregion/aview'
+            self.url = u'/a_ui/parameterisedui/aview'
             self.should_exist = True
         
         @scenario
@@ -188,7 +188,7 @@ class ParameterisedTests(object):
             """Arguments can be parsed from an URL, iff they are specified to the definition as Fields."""
             self.argument = Field()
             self.expected_value = u'test1'
-            self.url = u'/a_ui/parameterisedregion/test1/aview'
+            self.url = u'/a_ui/parameterisedui/test1/aview'
             self.should_exist = True
             
         @scenario
@@ -196,7 +196,7 @@ class ParameterisedTests(object):
             """To indicate that a UserInterface does not exist for the given arguments, the .assemble() 
                method of the UserInterface should raise CannotCreate()."""
             self.argument = u'doesnotexist'
-            self.url = u'/a_ui/parameterisedregion/aview'
+            self.url = u'/a_ui/parameterisedui/aview'
             self.should_exist = False
 
     @test(ParameterisedRegionScenarios)
@@ -215,14 +215,14 @@ class ParameterisedTests(object):
 
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
-                self.define_user_interface(u'/parameterisedregion', ParameterisedRegion, {u'user_interface-slot': u'main'}, 
+                self.define_user_interface(u'/parameterisedui', ParameterisedRegion, {u'user_interface-slot': u'main'}, 
                                    ui_arg=fixture.argument,
-                                   name=u'paramregion')
+                                   name=u'paramui')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
