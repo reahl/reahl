@@ -431,7 +431,7 @@ class UserInterface(object):
        The class of UserInterface to be used as root for the entire web application is configured 
        via the `web.site_root` config setting.
     """
-    def __init__(self, parent_ui, relative_base_path, slot_map, for_bookmark, name, **region_arguments):
+    def __init__(self, parent_ui, relative_base_path, slot_map, for_bookmark, name, **ui_arguments):
         self.relative_base_path = relative_base_path #: The path where this UserInterface starts, relative to its parent UserInterface
         self.parent_ui = parent_ui           #: The UserInterface onto which this UserInterface is grafted
         self.slot_map = slot_map                     #: A dictionary mapping names of Slots as used in this 
@@ -444,7 +444,7 @@ class UserInterface(object):
             self.update_relative_path()
         self.sub_uis = FactoryDict(set())
         self.controller = Controller(self)
-        self.assemble(**region_arguments)
+        self.assemble(**ui_arguments)
         self.sub_resources = FactoryDict(set())
         if not self.name:
             raise ProgrammerError('No .name set for %s. This should be done in the call to .define_user_interface or in %s.assemble().' % \
@@ -475,7 +475,7 @@ class UserInterface(object):
         """The :class:`View` which is targetted by the URL of the current :class:webob.Request."""
         return self.controller.view_for(self.relative_path)
 
-    def assemble(self, **region_arguments):
+    def assemble(self, **ui_arguments):
         """Programmers override this method in order to define the contents of their UserInterface. This mainly
            means defining Views or other Regions inside the UserInterface being assembled. The default
            implementation of `assemble` is empty, so there's no need to call the super implementation
@@ -632,13 +632,13 @@ class UserInterface(object):
         self.sub_uis.add(ui_factory)
         return ui_factory
 
-    def define_user_interface(self, path, region_class, slot_map, name=None, **assemble_args):
+    def define_user_interface(self, path, ui_class, slot_map, name=None, **assemble_args):
         """Called from `assemble` to specify how a :class:`UserInterface` will be created when the given path
            is visited in this :class:`UserInterface`.
            
            :param path: The path for which the :class:`UserInterface` will be constructed.
-           :param region_class: The class of :class:`UserInterface` which will be constructed.
-           :param slot_map: The current :class:`UserInterface` defines contents for some :class:`Slots`. The `region_class` :class:`UserInterface`
+           :param ui_class: The class of :class:`UserInterface` which will be constructed.
+           :param slot_map: The current :class:`UserInterface` defines contents for some :class:`Slots`. The `ui_class` :class:`UserInterface`
              which is effectively grafted onto the current :class:`UserInterface`, also defined :class:`Slots` using its own names.
              This dictionary states how the names used in the grafted :class:`UserInterface` map to the names used by the 
              current :class:`UserInterface`.
@@ -647,14 +647,14 @@ class UserInterface(object):
              after construction.
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
-        checkargs_explained(u'.define_user_interface() was called with incorrect arguments for %s' % region_class.assemble, 
-                            region_class.assemble,  **assemble_args)
+        checkargs_explained(u'.define_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
+                            ui_class.assemble,  **assemble_args)
 
-        ui_factory = RegionFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, region_class, name, **passed_kwargs)
+        ui_factory = RegionFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    def define_regex_user_interface(self, path_regex, path_template, region_class, slot_map, name=None, **assemble_args):
+    def define_regex_user_interface(self, path_regex, path_template, ui_class, slot_map, name=None, **assemble_args):
         """Called from `assemble` to create a :class:`RegionFactory` for a parameterised :class:`UserInterface` that will 
            be created when an URL is requested that matches `path_regex`. See also `define_regex_view`.
            
@@ -664,11 +664,11 @@ class UserInterface(object):
            :param name: (See `define_user_interface`.)
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
-        checkargs_explained(u'.define_regex_user_interface() was called with incorrect arguments for %s' % region_class.assemble, 
-                            region_class.assemble,  **assemble_args)
+        checkargs_explained(u'.define_regex_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
+                            ui_class.assemble,  **assemble_args)
 
         regex_path = RegexPath(path_regex, path_template, path_argument_fields)
-        ui_factory = RegionFactory(self, regex_path, slot_map, region_class, name, **passed_kwargs)
+        ui_factory = RegionFactory(self, regex_path, slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
@@ -685,15 +685,15 @@ class UserInterface(object):
            The URL is mapped to a similarly named subdirectory of the `static root` of the web application,
            as configured, as configured by the setting `web.static_root`.
         """
-        region_name = u'static_%s' % path
-        ui_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, region_name, files=DiskDirectory(path))
+        ui_name = u'static_%s' % path
+        ui_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=DiskDirectory(path))
         return self.add_user_interface_factory(ui_factory)
 
     def define_static_files(self, path, files):
         """Defines an URL which is mapped to serve the list of static files given.
         """
-        region_name = u'static_%s' % path
-        ui_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, region_name, files=FileList(files))
+        ui_name = u'static_%s' % path
+        ui_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
         return self.add_user_interface_factory(ui_factory)
 
     def get_relative_path_for(self, full_path):
@@ -1309,16 +1309,16 @@ class FactoryFromUrlRegex(Factory):
 
 
 class RegionFactory(FactoryFromUrlRegex):
-    @arg_checks(regex_path=IsInstance(RegexPath), region_class=IsSubclass(UserInterface))
-    def __init__(self, parent_ui, regex_path, slot_map, region_class, region_name, **region_kwargs):
-        super(RegionFactory, self).__init__(regex_path, region_class, region_kwargs)
+    @arg_checks(regex_path=IsInstance(RegexPath), ui_class=IsSubclass(UserInterface))
+    def __init__(self, parent_ui, regex_path, slot_map, ui_class, ui_name, **ui_kwargs):
+        super(RegionFactory, self).__init__(regex_path, ui_class, ui_kwargs)
         self.slot_map = slot_map
         self.parent_ui = parent_ui
-        self.region_name = region_name
+        self.ui_name = ui_name
         self.predefined_uis = []
 
     def __str__(self):
-        return '<Factory for %s named %s>' % (self.factory_method, self.region_name)
+        return '<Factory for %s named %s>' % (self.factory_method, self.ui_name)
 
     def predefine_user_interface(self, ui_factory):
         self.predefined_uis.append(ui_factory)
@@ -1338,11 +1338,11 @@ class RegionFactory(FactoryFromUrlRegex):
 
     def create_args(self, relative_path, *args):
         relative_base_path = self.regex_path.get_base_part_in(relative_path) or u'/'
-        return (self.parent_ui, relative_base_path, self.slot_map)+args+(self.region_name,)
+        return (self.parent_ui, relative_base_path, self.slot_map)+args+(self.ui_name,)
 
-    def get_bookmark(self, *region_args, **bookmark_kwargs):
-        region_relative_path = self.regex_path.get_relative_path_from(region_args)
-        region = self.create(region_relative_path, for_bookmark=True) 
+    def get_bookmark(self, *ui_args, **bookmark_kwargs):
+        ui_relative_path = self.regex_path.get_relative_path_from(ui_args)
+        region = self.create(ui_relative_path, for_bookmark=True) 
         return region.get_bookmark(**bookmark_kwargs)
 
     def is_applicable_for(self, relative_path):
@@ -2454,8 +2454,8 @@ class ReahlWSGIApplication(object):
                 self.system_control.disconnect()
 
     def define_static_files(self, path, files):
-        region_name = u'static_%s' % path
-        ui_factory = RegionFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, region_name, files=FileList(files))
+        ui_name = u'static_%s' % path
+        ui_factory = RegionFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
         self.root_user_interface_factory.predefine_user_interface(ui_factory)
         return ui_factory
 

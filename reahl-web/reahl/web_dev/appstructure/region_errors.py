@@ -52,7 +52,7 @@ class RegionErrorScenarios(WebFixture):
 @istest
 class RegionErrorTests(object):
     @test(RegionErrorScenarios)
-    def region_slots_map_error(self, fixture):
+    def ui_slots_map_error(self, fixture):
         browser = Browser(fixture.wsgi_app)
 
         with expected(ProgrammerError):
