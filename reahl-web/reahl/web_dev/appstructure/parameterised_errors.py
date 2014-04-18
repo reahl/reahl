@@ -45,7 +45,7 @@ class ParameterisedViewErrors(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -73,7 +73,7 @@ class ParameterisedRegionErrors(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  {}, name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  {}, name=u'test_ui')
 
         return super(ParameterisedRegionErrors, self).new_wsgi_app(site_root=MainUI)
        
