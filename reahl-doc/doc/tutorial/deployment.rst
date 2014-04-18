@@ -202,7 +202,7 @@ The strangest thing done by the script relates to the fact that your
 application lives in a virtualenv. The first paragraph in the script
 switches the current Python interpreter to the virtualenv (and, by
 implication all applications and libraries installed there). Only
-after having done that, can you import :class:`~reahl.web.fw.ReahlWebApplication` and create
+after having done that, can you import :class:`~reahl.web.fw.ReahlWSGIApplication` and create
 an instance of it from the configuration directory for your
 application. Lastly, `.start()` the application.
 

@@ -24,7 +24,7 @@ from webob import Request, Response
 from reahl.stubble import EmptyStub, stubclass
 from nose.tools import istest
 from reahl.tofu import Fixture, set_up
-from reahl.web.fw import ComposedPage, ReahlWebApplication, WebExecutionContext, \
+from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
                          RegionFactory, IdentityDictionary, FactoryDict, UrlBoundView, Region, \
                          WidgetList, Url, Widget, RegexPath
 from reahl.web.ui import TwoColumnPage, HTML5Page, Div, Slot
@@ -39,8 +39,8 @@ from reahl.webdev.tools import DriverBrowser
 _ = Translator(u'reahl-webdev')
 
         
-@stubclass(ReahlWebApplication)
-class ReahlWebApplicationStub(ReahlWebApplication):
+@stubclass(ReahlWSGIApplication)
+class ReahlWSGIApplicationStub(ReahlWSGIApplication):
     def add_reahl_static_files(self): # To save time, this is costly...
         pass  
 
@@ -116,9 +116,9 @@ class WebBasicsMixin(PartyModelZooMixin):
 
     def new_webapp(self, site_root=None, enable_js=False, 
                          config=None, view_slots=None, child_factory=None):
-        webapp_class = ReahlWebApplicationStub
+        webapp_class = ReahlWSGIApplicationStub
         if enable_js:
-            webapp_class = ReahlWebApplication
+            webapp_class = ReahlWSGIApplication
         view_slots = view_slots or {}
         child_factory = child_factory or Widget.factory()
         if not view_slots.has_key(u'main'):

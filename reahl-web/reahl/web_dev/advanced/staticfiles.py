@@ -26,7 +26,7 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected, temp_dir, temp_file_with
 from reahl.stubble import easter_egg, stubclass
 
-from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWebApplication, Region
+from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, Region
 from reahl.web.ui import TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
@@ -297,7 +297,7 @@ class StaticFileTests(object):
     @test(WebFixture)
     def standard_reahl_files(self, fixture):
         """The framework creates certain static files by default."""
-        webapp = ReahlWebApplication(fixture.config)
+        webapp = ReahlWSGIApplication(fixture.config)
         browser = Browser(webapp)
 
         browser.open(u'/static/html5shiv-printshiv-3.6.3.js')

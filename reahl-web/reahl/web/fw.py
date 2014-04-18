@@ -2372,13 +2372,13 @@ class IdentityDictionary(object):
     def __getitem__(self, x): return x
 
 
-class ReahlWebApplication(object):
+class ReahlWSGIApplication(object):
     """A web application. This class should only ever be instantiated in a WSGI script, using the `from_directory`
        method."""
 
     @classmethod
     def from_directory(cls, directory):
-        """Create a ReahlWebApplication given the `directory` where its configuration is stored."""
+        """Create a ReahlWSGIApplication given the `directory` where its configuration is stored."""
         config = StoredConfiguration(directory, strict_validation=True)
         config.configure()
         return cls(config)
@@ -2435,7 +2435,7 @@ class ReahlWebApplication(object):
         self.define_static_files(u'/styles', shipped_style_files)
 
     def start(self, connect=True):
-        """Starts the ReahlWebApplication by "connecting" to the database. What "connecting" means may differ
+        """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
            depending on the persistence mechanism in use. It could include enhancing classes for persistence, etc."""
         self.should_disconnect = connect
         with ExecutionContext() as context:
@@ -2445,7 +2445,7 @@ class ReahlWebApplication(object):
                 self.system_control.connect()
         
     def stop(self):
-        """Stops the ReahlWebApplication by "disconnecting" from the database. What "disconnecting" means may differ
+        """Stops the ReahlWSGIApplication by "disconnecting" from the database. What "disconnecting" means may differ
            depending on the persistence mechanism in use."""
         with ExecutionContext() as context:
             context.set_config(self.config)

@@ -19,7 +19,7 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 
-from reahl.web.fw import ReahlWebApplication, Region
+from reahl.web.fw import ReahlWSGIApplication, Region
 from reahl.web.ui import TwoColumnPage, P, A
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
