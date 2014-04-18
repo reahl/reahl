@@ -31,7 +31,7 @@ from reahl.web_dev.fixtures import WebFixture
 @istest
 class RegionTests(object):
     @test(WebFixture)
-    def basic_region(self, fixture):
+    def basic_ui(self, fixture):
         """A UserInterface is a chunk of web app that can be grafted onto the URL hierarchy of any app.
         
            A UserInterface has its own views. Its Views are relative to the UserInterface itself.
@@ -166,7 +166,7 @@ class RegionTests(object):
             return main_window.slot_contents[u'main_slot'].__class__ is Panel
 
     @test(LifeCycleFixture)
-    def the_lifecycle_of_a_region(self, fixture):
+    def the_lifecycle_of_a_ui(self, fixture):
         """This test illustrates the steps a UserInterface goes through from being specified, to
            being used. It tests a couple of lower-level implementation issues (see comments)."""
 
@@ -183,7 +183,7 @@ class RegionTests(object):
         parent_ui = None
 #        parent_ui = EmptyStub(base_path=u'/')
         slot_map = {u'slotA': u'main_slot'}
-        ui_factory = RegionFactory(parent_ui, RegexPath(u'/', u'/', {}), slot_map, RegionStub, u'test_region')
+        ui_factory = RegionFactory(parent_ui, RegexPath(u'/', u'/', {}), slot_map, RegionStub, u'test_ui')
 
 
         # Phase2: creating a region
@@ -194,7 +194,7 @@ class RegionTests(object):
         # - Assembly happened correctly
         vassert( region.parent_ui is parent_ui )
         vassert( region.slot_map is slot_map )
-        vassert( region.name is u'test_region' )
+        vassert( region.name is u'test_ui' )
         vassert( region.relative_base_path == u'/' )
         vassert( region.controller_at_assemble_time is not None)
         vassert( region.controller is not None )

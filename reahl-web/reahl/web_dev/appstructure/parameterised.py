@@ -200,7 +200,7 @@ class ParameterisedTests(object):
             self.should_exist = False
 
     @test(ParameterisedRegionScenarios)
-    def parameterised_regions(self, fixture):
+    def parameterised_uis(self, fixture):
         """Sub Regions can also be parameterised by defining arguments in .define_user_interface, and receiving them in .assemble()."""
 
         class ParameterisedRegion(UserInterface):

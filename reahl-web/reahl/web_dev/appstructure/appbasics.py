@@ -149,7 +149,7 @@ class AppBasicsTests(object):
 
     class SlotScenarios(WebFixture):
         @scenario
-        def main_window_on_region(self):
+        def main_window_on_ui(self):
             class MainUI(UserInterface):
                 def assemble(self):
                     self.define_main_window(TwoColumnPage)
