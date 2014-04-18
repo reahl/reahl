@@ -22,7 +22,7 @@ from reahl.stubble import EmptyStub
 from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, TwoColumnPage, P
 from reahl.webdev.tools import Browser
-from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
+from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass, IsInstance
 
 @istest

@@ -23,7 +23,7 @@ from reahl.tofu import Fixture, test
 from reahl.tofu import vassert, expected, NoException
 from reahl.stubble import EmptyStub
 
-from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
+from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
 from reahl.component.exceptions import ProgrammerError

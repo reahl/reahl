@@ -8,10 +8,10 @@ Module reahl.web.fw
 Basics of defining an application
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-ReahlWebApplication
-"""""""""""""""""""
+ReahlWSGIApplication
+""""""""""""""""""""
 
-.. autoclass:: ReahlWebApplication
+.. autoclass:: ReahlWSGIApplication
    :members:
 
 Region

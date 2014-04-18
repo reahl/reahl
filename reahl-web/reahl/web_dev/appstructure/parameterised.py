@@ -22,10 +22,10 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 
 from reahl.component.modelinterface import Field, IntegerField, exposed, Event
-from reahl.web.fw import ReahlWebApplication, Region, UrlBoundView, IdentityDictionary, CannotCreate
+from reahl.web.fw import ReahlWSGIApplication, Region, UrlBoundView, IdentityDictionary, CannotCreate
 from reahl.web.ui import HTML5Page, TwoColumnPage, P, A, Form, Button
 from reahl.webdev.tools import Browser, WidgetTester, XPath
-from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
+from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 
 
 @istest

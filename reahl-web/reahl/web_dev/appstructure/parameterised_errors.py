@@ -23,7 +23,7 @@ from reahl.tofu import vassert, expected
 
 from reahl.component.modelinterface import Field, RequiredConstraint
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.fw import ReahlWebApplication, Region, UrlBoundView
+from reahl.web.fw import ReahlWSGIApplication, Region, UrlBoundView
 from reahl.web.ui import TwoColumnPage, P, A
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture

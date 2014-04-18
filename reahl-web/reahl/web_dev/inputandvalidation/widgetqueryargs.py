@@ -21,11 +21,11 @@ from reahl.tofu import Fixture, test, vassert, expected
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.webdev.tools import WidgetTester, Browser
-from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin, ReahlWebApplicationStub
+from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin, ReahlWSGIApplicationStub
 
 
 from reahl.component.modelinterface import Field, exposed, IntegerField
-from reahl.web.fw import Widget, Bookmark, ReahlWebApplication
+from reahl.web.fw import Widget, Bookmark, ReahlWSGIApplication
 from reahl.web.ui import A, P, Form, TextInput, Panel
 
 
