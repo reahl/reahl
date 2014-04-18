@@ -159,9 +159,9 @@ of a :class:`~reahl.webdev.fixtures.BrowserSetup` run :class:`~reahl.tofu.Fixtur
 specified to nosetests when run.
 
 The only obvious feature of :class:`~reahl.web_dev.fixtures.WebFixture` used in this little test is the
-creation of a web application. `WebFixture.new_webapp()` can create a
-web application in various different ways. This example shows how to
-create a WebApplication from a supplied :class:`~reahl.web.fw.Region`. By default javascript
+creation of a WSGI application. `WebFixture.new_wsgi_app()` can create a
+WSGI application in various different ways. This example shows how to
+create a ReahlWSGIApplication from a supplied :class:`~reahl.web.fw.Region`. By default javascript
 is not turned on (although, as you will see later, this can be
 specified as well).
 

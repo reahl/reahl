@@ -52,8 +52,8 @@ class StaticFileTests(object):
             def assemble(self):
                 self.define_static_directory(u'/staticfiles')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # How the first file would be accessed
         browser.open('/staticfiles/one_file.xml')
@@ -89,8 +89,8 @@ class StaticFileTests(object):
                 list_of_files = [FileOnDisk(one_file.name, u'one_file')]
                 self.define_static_files(u'/morestaticfiles', list_of_files)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # How the first file would be accessed
         browser.open('/morestaticfiles/one_file')
@@ -125,8 +125,8 @@ class StaticFileTests(object):
                 list_of_files = [FileFromBlob(u'database_file', data_blob, *meta_info)]
                 self.define_static_files(u'/files', list_of_files)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # How the file would be accessed
         browser.open('/files/database_file')
@@ -159,8 +159,8 @@ class StaticFileTests(object):
                 list_of_files = [PackagedFile(easter_egg.as_requirement_string(), u'packaged_files', u'packaged_file')]
                 self.define_static_files(u'/files', list_of_files)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # How the file would be accessed
         browser.open('/files/packaged_file')
@@ -211,8 +211,8 @@ class StaticFileTests(object):
                 self.define_static_files(u'/files', list_of_files)
 
         fixture.config.reahlsystem.debug = False  # To enable minification 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # How the first file would be accessed
         browser.open('/files/%s' % fixture.filename)
@@ -297,8 +297,8 @@ class StaticFileTests(object):
     @test(WebFixture)
     def standard_reahl_files(self, fixture):
         """The framework creates certain static files by default."""
-        webapp = ReahlWSGIApplication(fixture.config)
-        browser = Browser(webapp)
+        wsgi_app = ReahlWSGIApplication(fixture.config)
+        browser = Browser(wsgi_app)
 
         browser.open(u'/static/html5shiv-printshiv-3.6.3.js')
         vassert( browser.last_response.content_length > 0 )

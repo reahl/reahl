@@ -8,7 +8,7 @@ from reahl.doc.examples.tutorial.parameterised2.parameterised2 import AddressBoo
 
 class AddressAppFixture(WebFixture):
     def new_browser(self):
-        return Browser(self.new_webapp(site_root=AddressBookApp))
+        return Browser(self.new_wsgi_app(site_root=AddressBookApp))
         
     def new_existing_address(self):
         address = Address(name=u'John Doe', email_address=u'johndoe@some.org')

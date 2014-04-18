@@ -64,8 +64,8 @@ class SecurityTests(object):
                 if fixture.security_sensitive:
                     widget.set_as_security_sensitive()
 
-        webapp = fixture.new_webapp(child_factory=TestPanel.factory(), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=TestPanel.factory(), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         vassert( fixture.config.web.encrypted_http_scheme == u'https' )
         vassert( fixture.config.web.default_http_scheme == u'http' )
@@ -257,8 +257,8 @@ class SecurityTests(object):
                 form.add_child(TextInput(form, model_object.fields.field_name))
                 fixture.form = form
 
-        webapp = fixture.new_webapp(child_factory=TestPanel.factory())
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=TestPanel.factory())
+        browser = Browser(wsgi_app)
         browser.open(u'/')
 
         browser.post(fixture.form.event_channel.get_url().path, {u'event.an_event?':u'', u'field_name': 'illigitimate value'})
@@ -285,8 +285,8 @@ class SecurityTests(object):
                 form.add_child(Button(form, model_object.events.an_event))
                 fixture.form = form
 
-        webapp = fixture.new_webapp(child_factory=TestPanel.factory())
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=TestPanel.factory())
+        browser = Browser(wsgi_app)
         browser.open(u'/')
 
         browser.post(fixture.form.event_channel.get_url().path, {u'event.an_event?':u''})
@@ -303,8 +303,8 @@ class SecurityTests(object):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_view(u'/view', u'Title', read_check=disallowed)
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
         browser.open(u'/view', status=403)
 
     @test(WebFixture)
@@ -326,8 +326,8 @@ class SecurityTests(object):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/a_view', u'Title', write_check=disallowed)
                 home.set_slot(u'main', MyForm.factory())
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open(u'/a_view')
         browser.click(XPath.button_labelled(u'Click me'), status=403)

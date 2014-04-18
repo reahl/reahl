@@ -10,7 +10,7 @@ from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
 
 class LoginFixture(WebFixture):
     def new_browser(self):
-        return Browser(self.new_webapp(site_root=LoginApp))
+        return Browser(self.new_wsgi_app(site_root=LoginApp))
         
     password = u'bobbejaan'
 

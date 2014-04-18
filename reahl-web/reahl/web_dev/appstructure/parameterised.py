@@ -93,8 +93,8 @@ class ParameterisedTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         if fixture.should_exist:
             browser.open(fixture.url)
@@ -121,8 +121,8 @@ class ParameterisedTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'myregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # Parameterisedally constructing a View from an URL
         browser.open('/aregion/someurl_test1')
@@ -155,8 +155,8 @@ class ParameterisedTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # A sub-region is dynamically created from an URL
         browser.open('/aregion/apath/test1/')
@@ -224,8 +224,8 @@ class ParameterisedTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         if fixture.should_exist:
             browser.open(fixture.url)

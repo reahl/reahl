@@ -9,7 +9,7 @@ from reahl.doc.examples.tutorial.sessionscope.sessionscope import SessionScopeAp
 
 class SessionScopeFixture(WebFixture):
     def new_browser(self):
-        return Browser(self.new_webapp(site_root=SessionScopeApp))
+        return Browser(self.new_wsgi_app(site_root=SessionScopeApp))
         
     password = u'bobbejaan'
 

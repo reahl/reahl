@@ -45,12 +45,12 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
                 fixture.account_region_factory = account_region_factory
         return MainRegion
     
-    def new_webapp(self, enable_js=False):
-        return super(AccountsWebFixture, self).new_webapp(enable_js=enable_js,
+    def new_wsgi_app(self, enable_js=False):
+        return super(AccountsWebFixture, self).new_wsgi_app(enable_js=enable_js,
                                                          site_root=self.MainRegion)
 
     def new_browser(self):
-        return Browser(self.webapp)
+        return Browser(self.wsgi_app)
 
     def new_bookmarks(self):
         class Bookmarks(object):

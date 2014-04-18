@@ -59,8 +59,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithTwoViews,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # The transition works from viewa
         fixture.did_something = False
@@ -100,8 +100,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # The transition with True guard is the one followed
         fixture.guard_value = True
@@ -137,8 +137,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithAView,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # The transition works from viewa
         fixture.did_something = False
@@ -191,8 +191,8 @@ class ControlledRegionsTests(object):
 
                 self.define_transition(model_object.events.an_event, home, other_view)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
         # when the Action is executed, the correct arguments are passed to the View
@@ -233,8 +233,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open('/aregion/static')
         with expected(ProgrammerError):
@@ -258,8 +258,8 @@ class ControlledRegionsTests(object):
                 view.add_precondition(passing_precondition)
                 view.add_precondition(failing_precondition)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         with expected(SomeException):
             browser.open('/')
@@ -280,8 +280,8 @@ class ControlledRegionsTests(object):
                 failing_precondition = passing_precondition.negated(exception=SomeException)
                 view.add_precondition(failing_precondition)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         with expected(SomeException):
             browser.open('/')
@@ -301,8 +301,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithRedirect,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open('/aregion/viewa')
         vassert( browser.location_path == u'/aregion/viewb' )
@@ -333,8 +333,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
         fixture.did_something = False
 
         fixture.make_precondition_pass = False
@@ -374,8 +374,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
         
         browser.open(u'/aregion/viewa')
         vassert( browser.location_path == u'/aregion/detour' )
@@ -408,8 +408,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # Normal operation - when a caller can be determined
         browser.open(u'/aregion/viewa')
@@ -440,8 +440,8 @@ class ControlledRegionsTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithRedirect,  IdentityDictionary(), name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open('/aregion/redirected')
         vassert( browser.location_path == u'/aregion/target' )
@@ -479,8 +479,8 @@ class ControlledRegionsTests(object):
                 self.define_region(u'/regionWithLink',  RegionWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
 
                 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open(u'/regionWithLink/initial')
         browser.click(u'//a')

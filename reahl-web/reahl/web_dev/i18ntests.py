@@ -66,8 +66,8 @@ def i18n_urls(fixture):
             self.define_main_window(TwoColumnPage)
             self.define_region(u'/aregion',  I18nRegion,  IdentityDictionary(), name=u'testregion')
             
-    webapp = fixture.new_webapp(site_root=MainRegion)
-    browser = Browser(webapp)
+    wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+    browser = Browser(wsgi_app)
 
     browser.open(u'/aregion/aview')
     vassert( browser.title == u'A View' )

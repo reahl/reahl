@@ -12,7 +12,7 @@ def adding_an_address(fixture):
        information for the new address and clicks the Save button. Upon successful addition of the
        address, the user is returned to the home page where the new address is now listed."""
 
-    browser = Browser(fixture.new_webapp(site_root=AddressBookApp))
+    browser = Browser(fixture.new_wsgi_app(site_root=AddressBookApp))
 
     browser.open(u'/')
     browser.click(XPath.link_with_text(u'Add an address'))

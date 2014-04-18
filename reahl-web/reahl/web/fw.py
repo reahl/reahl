@@ -237,13 +237,13 @@ class WebExecutionContext(ExecutionContext):
             session_class = self.config.web.session_class
             self.set_session( session_class.get_or_create_session() )
     
-    def handle_wsgi_call(self, webapp, environ, start_response):
+    def handle_wsgi_call(self, wsgi_app, environ, start_response):
         with self:
-            with webapp.concurrency_manager:
+            with wsgi_app.concurrency_manager:
                 with self.system_control.nested_transaction():
                     self.initialise_web_session()
                 try:
-                    resource = webapp.resource_for(self.request)
+                    resource = wsgi_app.resource_for(self.request)
                     response = resource.handle_request(self.request) 
                 except HTTPException, e:
                     response = e
