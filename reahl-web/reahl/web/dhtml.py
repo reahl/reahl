@@ -89,18 +89,18 @@ class DhtmlUI(UserInterface):
             statics[u'div'] = soup.div.renderContents() if soup.div else u''
         return statics
     
-    def create_view(self, relative_path, region, file_path=None):
-        if not region is self:
-            raise ProgrammerError(u'get_file called on %s with %s as region' % (self, region))
+    def create_view(self, relative_path, user_interface, file_path=None):
+        if not user_interface is self:
+            raise ProgrammerError(u'get_file called on %s with %s as user_interface' % (self, user_interface))
         file_url_path = file_path
         filename = self.filesystem_path(file_url_path)
         logging.debug('Finding a static file on filesystem %s' % filename)
         if self.is_dynamic(filename):
             statics = self.statics(file_url_path)
             slot_contents = {u'main_slot': DJHTMLWidget.factory(statics[u'div'])}
-            return UrlBoundView(region, file_url_path, statics[u'title'], slot_contents, cacheable=True)
+            return UrlBoundView(user_interface, file_url_path, statics[u'title'], slot_contents, cacheable=True)
         elif self.is_static(filename):
-            return FileView(region, FileOnDisk(filename, file_url_path))
+            return FileView(user_interface, FileOnDisk(filename, file_url_path))
         raise CannotCreate()
 
 

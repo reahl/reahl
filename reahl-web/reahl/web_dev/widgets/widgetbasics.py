@@ -44,14 +44,14 @@ class WidgetFixture(Fixture, WebBasicsMixin):
         factory.attach_to(u'/', {})
         return factory
         
-    def new_region(self):
+    def new_user_interface(self):
         factory = self.ui_factory
         with self.context:
             return factory.create()
 
-    def new_view(self, region=None, relative_path=u'/', title='A view', slot_definitions={}):
-        region = region or self.region
-        return UrlBoundView(region, relative_path, title, slot_definitions)
+    def new_view(self, user_interface=None, relative_path=u'/', title='A view', slot_definitions={}):
+        user_interface = user_interface or self.user_interface
+        return UrlBoundView(user_interface, relative_path, title, slot_definitions)
 
 
 @istest
