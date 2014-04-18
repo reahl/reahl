@@ -140,10 +140,10 @@ class WebBasicsMixin(PartyModelZooMixin):
 
     def new_view(self):
         current_path = Url(WebExecutionContext.get_context().request.url).path
-        view = UrlBoundView(self.region, current_path, u'A view', {})
+        view = UrlBoundView(self.user_interface, current_path, u'A view', {})
         return view
 
-    def new_region(self):
+    def new_user_interface(self):
         return UserInterface(None, u'/', {}, False, u'test_ui')
 
 

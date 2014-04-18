@@ -63,7 +63,7 @@ class RegionTests(object):
         class UIWithSlots(UserInterface):
             def assemble(self):
                 root = self.define_view(u'/', title=u'UserInterface root view')
-                root.set_slot(u'text', P.factory(text=u'in region slot named text'))
+                root.set_slot(u'text', P.factory(text=u'in user_interface slot named text'))
 
         class MainUI(UserInterface):
             def assemble(self):
@@ -78,7 +78,7 @@ class RegionTests(object):
 
         # The widget in the UserInterface's slot named 'text' end up in the TwoColumnPage slot called main
         [p] = browser.lxml_html.xpath('//div[@id="yui-main"]/div/p')
-        vassert( p.text == 'in region slot named text' )
+        vassert( p.text == 'in user_interface slot named text' )
 
 
     @test(WebFixture)
@@ -179,42 +179,42 @@ class RegionTests(object):
                 root.set_slot(u'slotA', Panel.factory())
                 self.assembled = True
 
-        # Phase1: specifying a region and assembleing it to a site (with kwargs)
+        # Phase1: specifying a user_interface and assembleing it to a site (with kwargs)
         parent_ui = None
 #        parent_ui = EmptyStub(base_path=u'/')
         slot_map = {u'slotA': u'main_slot'}
         ui_factory = RegionFactory(parent_ui, RegexPath(u'/', u'/', {}), slot_map, RegionStub, u'test_ui')
 
 
-        # Phase2: creating a region
+        # Phase2: creating a user_interface
         request = Request.blank(u'/some/path')
         fixture.context.set_request(request)
-        region = ui_factory.create(u'/some/path', for_bookmark=False)
+        user_interface = ui_factory.create(u'/some/path', for_bookmark=False)
 
         # - Assembly happened correctly
-        vassert( region.parent_ui is parent_ui )
-        vassert( region.slot_map is slot_map )
-        vassert( region.name is u'test_ui' )
-        vassert( region.relative_base_path == u'/' )
-        vassert( region.controller_at_assemble_time is not None)
-        vassert( region.controller is not None )
-        vassert( region.assembled )
+        vassert( user_interface.parent_ui is parent_ui )
+        vassert( user_interface.slot_map is slot_map )
+        vassert( user_interface.name is u'test_ui' )
+        vassert( user_interface.relative_base_path == u'/' )
+        vassert( user_interface.controller_at_assemble_time is not None)
+        vassert( user_interface.controller is not None )
+        vassert( user_interface.assembled )
 
         # - Create for_bookmark empties the relative_path
-        region = ui_factory.create(u'/some/path', for_bookmark=True)
-        vassert( region.relative_path == u'' )
+        user_interface = ui_factory.create(u'/some/path', for_bookmark=True)
+        vassert( user_interface.relative_path == u'' )
 
         # - The relative_path is reset if not done for_bookmark
         #   This is done in case a for_bookmark call just
         #   happened to be done for the same UserInterface in the same request
         #   before the "real" caal is done
-        region = ui_factory.create(u'/some/path', for_bookmark=False)
-        vassert( region.relative_path == u'/some/path' )
+        user_interface = ui_factory.create(u'/some/path', for_bookmark=False)
+        vassert( user_interface.relative_path == u'/some/path' )
 
         # Phase5: create the main_window and plug the view into it
-        main_window = Widget.factory().create(region.current_view)
-        main_window.add_child(Slot(region.current_view, 'main_slot'))
+        main_window = Widget.factory().create(user_interface.current_view)
+        main_window.add_child(Slot(user_interface.current_view, 'main_slot'))
 
-        main_window.plug_in(region.current_view)
+        main_window.plug_in(user_interface.current_view)
         vassert( fixture.current_view_is_plugged_in(main_window) )
-        vassert( isinstance(region.sub_resources, FactoryDict) )
+        vassert( isinstance(user_interface.sub_resources, FactoryDict) )

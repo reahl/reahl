@@ -138,16 +138,16 @@ class ParameterisedTests(object):
                 if ui_key == u'doesnotexist':
                     raise CannotCreate()
 
-                self.name = u'region-%s' % ui_key
-                root = self.define_view(u'/', title=u'Simple region %s' % self.name)
-                root.set_slot(u'region-slot', P.factory(text=u'in region slot'))
+                self.name = u'user_interface-%s' % ui_key
+                root = self.define_view(u'/', title=u'Simple user_interface %s' % self.name)
+                root.set_slot(u'user_interface-slot', P.factory(text=u'in user_interface slot'))
 
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_regex_user_interface(u'/apath/(?P<ui_key>[^/]*)',
                                          u'/apath/${ui_key}',
                                          RegexRegion,
-                                         {u'region-slot': u'main'},
+                                         {u'user_interface-slot': u'main'},
                                          ui_key=Field())
 
         class MainUI(UserInterface):
@@ -158,17 +158,17 @@ class ParameterisedTests(object):
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        # A sub-region is dynamically created from an URL
+        # A sub-user_interface is dynamically created from an URL
         browser.open('/a_ui/apath/test1/')
-        vassert( browser.title == u'Simple region region-test1' )
+        vassert( browser.title == u'Simple user_interface user_interface-test1' )
 
-        # The slots of the sub-region is correctly plugged into the main window
+        # The slots of the sub-user_interface is correctly plugged into the main window
         [p] = browser.lxml_html.xpath('//p')
-        vassert( p.text == u'in region slot' )
+        vassert( p.text == u'in user_interface slot' )
 
-        # Another sub-region is dynamically created from an URL
+        # Another sub-user_interface is dynamically created from an URL
         browser.open('/a_ui/apath/another/')
-        vassert( browser.title == u'Simple region region-another' )
+        vassert( browser.title == u'Simple user_interface user_interface-another' )
 
         # When the URL cannot be mapped
         browser.open('/a_ui/apath/doesnotexist/', status=404)
@@ -208,14 +208,14 @@ class ParameterisedTests(object):
                 if ui_arg == u'doesnotexist':
                     raise CannotCreate()
 
-                self.name = u'region-%s' % ui_arg
-                root = self.define_view(u'/aview', title=u'Simple region %s' % self.name)
-                root.set_slot(u'region-slot', P.factory(text=u'in region slot'))
+                self.name = u'user_interface-%s' % ui_arg
+                root = self.define_view(u'/aview', title=u'Simple user_interface %s' % self.name)
+                root.set_slot(u'user_interface-slot', P.factory(text=u'in user_interface slot'))
 
 
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
-                self.define_user_interface(u'/parameterisedregion', ParameterisedRegion, {u'region-slot': u'main'}, 
+                self.define_user_interface(u'/parameterisedregion', ParameterisedRegion, {u'user_interface-slot': u'main'}, 
                                    ui_arg=fixture.argument,
                                    name=u'paramregion')
 
@@ -231,11 +231,11 @@ class ParameterisedTests(object):
             browser.open(fixture.url)
             
             # The correct argument was passed
-            vassert( browser.title == u'Simple region region-%s' % fixture.expected_value )
+            vassert( browser.title == u'Simple user_interface user_interface-%s' % fixture.expected_value )
 
-            # The slots of the sub-region is correctly plugged into the main window
+            # The slots of the sub-user_interface is correctly plugged into the main window
             [p] = browser.lxml_html.xpath('//p')
-            vassert( p.text == u'in region slot' )
+            vassert( p.text == u'in user_interface slot' )
         else:
             # When the URL cannot be mapped
             browser.open(fixture.url, status=404)

@@ -36,8 +36,8 @@ class TaskBox(Li):
         self.task = task
         self.add_child(P(view, text=self.task.title))
         form = self.add_child(Form(view, u'task_%s' % task.id))
-        form.add_child(Button(form, self.region.workflow_interface.events.take_task.with_arguments(task=self.task)))
-        form.add_child(Button(form, self.region.workflow_interface.events.go_to_task.with_arguments(task=self.task)))
+        form.add_child(Button(form, self.user_interface.workflow_interface.events.take_task.with_arguments(task=self.task)))
+        form.add_child(Button(form, self.user_interface.workflow_interface.events.go_to_task.with_arguments(task=self.task)))
 
 
 class InboxWidget(Panel):
@@ -79,8 +79,8 @@ class TaskWidget(Panel):
         self.task = task
         self.add_child(P(view, text=self.task.title))
         form = self.add_child(Form(view, u'task_form'))
-        form.add_child(Button(form, self.region.workflow_interface.events.defer_task))
-        form.add_child(Button(form, self.region.workflow_interface.events.release_task.with_arguments(task=self.task)))
+        form.add_child(Button(form, self.user_interface.workflow_interface.events.defer_task))
+        form.add_child(Button(form, self.user_interface.workflow_interface.events.release_task.with_arguments(task=self.task)))
 
 
 class TaskView(UrlBoundView):

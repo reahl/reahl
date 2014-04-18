@@ -260,8 +260,8 @@ class EventHandler(object):
     """An EventHandler is used to transition the user to the View that matches `target` (a :class:`ViewFactory`),
        but only if the occurring Event matches `event`.
        """
-    def __init__(self, region, event, target):
-        self.region = region
+    def __init__(self, user_interface, event, target):
+        self.user_interface = user_interface
         self.event_name = event.name
         self.target = target
 
@@ -269,11 +269,11 @@ class EventHandler(object):
         return self.event_name == event_ocurrence.name
 
     def get_destination_absolute_url(self, event_ocurrence):
-        if self.target.matches_view(self.region.controller.current_view):
+        if self.target.matches_view(self.user_interface.controller.current_view):
             url = SubResource.get_parent_url()
         else:
             try:
-                url = self.target.get_absolute_url(self.region, **event_ocurrence.arguments)
+                url = self.target.get_absolute_url(self.user_interface, **event_ocurrence.arguments)
             except ValidationConstraint, ex:
                 raise ProgrammerError(u'The arguments of %s are invalid for transition target %s: %s' % \
                     (event_ocurrence, self.target, ex))
@@ -288,7 +288,7 @@ class Transition(EventHandler):
        always the Transition to be used."""
     @arg_checks(source=IsInstance('reahl.web.fw:ViewFactory'), target=IsInstance('reahl.web.fw:ViewFactory'))
     def __init__(self, controller, event, source, target, guard=None):
-        super(Transition, self).__init__(controller.region, event, target)
+        super(Transition, self).__init__(controller.user_interface, event, target)
         self.controller = controller
         self.source = source
         self.guard = guard if guard else Allowed(True)
@@ -330,10 +330,10 @@ class FactoryDict(set):
 
 
 class Controller(object):
-    def __init__(self, region):
-        self.region = region
+    def __init__(self, user_interface):
+        self.user_interface = user_interface
         self.event_handlers = []
-        self.views = FactoryDict(set(), self.region)
+        self.views = FactoryDict(set(), self.user_interface)
         self.clear_cache()
 
     def clear_cache(self):
@@ -345,7 +345,7 @@ class Controller(object):
     
     @property
     def relative_path(self):
-        return self.region.relative_path
+        return self.user_interface.relative_path
     
     @property
     def current_view(self): 
@@ -355,14 +355,14 @@ class Controller(object):
         try:
             view = self.cached_views[relative_path]
         except KeyError:
-            view = self.views.get(relative_path, NoView(self.region))
+            view = self.views.get(relative_path, NoView(self.user_interface))
             if not for_bookmark:
                 self.cached_views[relative_path] = view
         return view
 
     @arg_checks(event=IsInstance(Event), target=IsInstance(u'reahl.web.fw:ViewFactory', allow_none=True))
     def define_event_handler(self, event, target=None):
-        event_handler = EventHandler(self.region, event, target or self.current_view.as_factory())
+        event_handler = EventHandler(self.user_interface, event, target or self.current_view.as_factory())
         self.event_handlers.append(event_handler)
         return event_handler
 
@@ -380,7 +380,7 @@ class Controller(object):
         return transition
 
     def define_return_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.region)).as_view_factory(), guard=guard)
+        transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard)
         self.event_handlers.append(transition)
         return transition
 
@@ -396,7 +396,7 @@ class Controller(object):
         return transition
 
     def define_return_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.region)).as_view_factory(), guard=guard)
+        transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard)
         self.event_handlers.append(transition)
         return transition
 
@@ -425,7 +425,7 @@ class UserInterface(object):
        Programmers create their own UserInterface class by inheriting from UserInterface, and overriding :meth:`UserInterface.assemble`
        to define the contents of the UserInterface.
 
-       Regions are not instantiated by programmers, a UserInterface is defined as a sub-region of a given parent UserInterface by
+       Regions are not instantiated by programmers, a UserInterface is defined as a sub-user_interface of a given parent UserInterface by
        calling the :meth:`UserInterface.define_user_interface` from inside the :meth:`UserInterface.assemble` method of its parent UserInterface.
        
        The class of UserInterface to be used as root for the entire web application is configured 
@@ -740,8 +740,8 @@ class UserInterface(object):
         
 
 class StaticUI(UserInterface):
-    def create_view(self, relative_path, region, file_path=None):
-        return FileView(region, self.files.create(file_path))
+    def create_view(self, relative_path, user_interface, file_path=None):
+        return FileView(user_interface, self.files.create(file_path))
 
     def assemble(self, files=None):
         self.files = files
@@ -1030,9 +1030,9 @@ class Widget(object):
         return self.get_contents_js(context=context)
     
     @property
-    def region(self):
+    def user_interface(self):
         """The current UserInterface."""
-        return self.view.region
+        return self.view.user_interface
 
     @property
     def controller(self):
@@ -1046,7 +1046,7 @@ class Widget(object):
         return self.controller.define_event_handler(event, target=target)
 
     def check_slots(self, view):
-        slots_to_plug_in = set([self.region.main_window_slot_for(view, self, local_slot_name)
+        slots_to_plug_in = set([self.user_interface.main_window_slot_for(view, self, local_slot_name)
                                 for local_slot_name in view.slot_definitions.keys()])
         slots_available = set(self.available_slots)
         if not slots_to_plug_in.issubset(slots_available):
@@ -1058,7 +1058,7 @@ class Widget(object):
             message += u'(expected one of these slot names: %s)\n' % available_slots
             message += u'View %s plugs in the following:\n' % view
             for local_slot_name, factory in view.slot_definitions.items():
-                main_window_slot_name = self.region.main_window_slot_for(view, self, local_slot_name)
+                main_window_slot_name = self.user_interface.main_window_slot_for(view, self, local_slot_name)
                 message += '%s is plugged into slot "%s", which is mapped to slot "%s"' % \
                 (factory, local_slot_name, main_window_slot_name)
 
@@ -1084,7 +1084,7 @@ class Widget(object):
         self.check_slots(view)
         
         for local_slot_name, widget_factory in view.slot_definitions.items():
-            self.slot_contents[self.region.main_window_slot_for(view, self, local_slot_name)] = widget_factory.create(view)
+            self.slot_contents[self.user_interface.main_window_slot_for(view, self, local_slot_name)] = widget_factory.create(view)
         for slot_name, widget_factory in self.default_slot_definitions.items():
             if slot_name not in self.slot_contents.keys():
                 self.slot_contents[slot_name] = widget_factory.create(view)
@@ -1327,10 +1327,10 @@ class RegionFactory(FactoryFromUrlRegex):
         return self.regex_path.get_relative_part_in(full_path)
 
     def create(self, relative_path, for_bookmark=False, *args):
-        region = super(RegionFactory, self).create(relative_path, for_bookmark, *args)
+        user_interface = super(RegionFactory, self).create(relative_path, for_bookmark, *args)
         for predefined_ui in self.predefined_uis:
-            region.add_user_interface_factory(predefined_ui)
-        return region 
+            user_interface.add_user_interface_factory(predefined_ui)
+        return user_interface 
 
     def create_from_url_args(self, for_bookmark=False, **url_args):
         relative_path = self.regex_path.get_relative_path_from(url_args)
@@ -1342,8 +1342,8 @@ class RegionFactory(FactoryFromUrlRegex):
 
     def get_bookmark(self, *ui_args, **bookmark_kwargs):
         ui_relative_path = self.regex_path.get_relative_path_from(ui_args)
-        region = self.create(ui_relative_path, for_bookmark=True) 
-        return region.get_bookmark(**bookmark_kwargs)
+        user_interface = self.create(ui_relative_path, for_bookmark=True) 
+        return user_interface.get_bookmark(**bookmark_kwargs)
 
     def is_applicable_for(self, relative_path):
         return self.regex_path.match_foreign_view(relative_path).rating
@@ -1382,8 +1382,8 @@ class ViewFactory(FactoryFromUrlRegex):
             relative_path = SubResource.get_view_path_for(relative_path)
         return (relative_path,)+args
 
-    def create_view(self, relative_path, region, **view_arguments):
-        return self.view_class(region, relative_path, self.title, self.slot_definitions, main_window_factory=self.main_window_factory, detour=self.detour, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable, **view_arguments)
+    def create_view(self, relative_path, user_interface, **view_arguments):
+        return self.view_class(user_interface, relative_path, self.title, self.slot_definitions, main_window_factory=self.main_window_factory, detour=self.detour, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable, **view_arguments)
 
     def __str__(self):
         return '<ViewFactory for %s>' % self.view_class
@@ -1400,8 +1400,8 @@ class ViewFactory(FactoryFromUrlRegex):
     def matches_view(self, view):
         return self.is_applicable_for(view.relative_path)
 
-    def get_absolute_url(self, region, **arguments):
-        url = region.get_absolute_url_for(self.get_relative_path(**arguments))
+    def get_absolute_url(self, user_interface, **arguments):
+        url = user_interface.get_absolute_url_for(self.get_relative_path(**arguments))
         url.query = self.get_query_string()
         return url
 
@@ -1425,10 +1425,10 @@ class ViewFactory(FactoryFromUrlRegex):
         """Supplies a Factory for the main window to be used when displaying the :class:`View` created by this ViewFactory."""
         self.main_window_factory = main_window_factory
 
-    def as_bookmark(self, region, description=None, query_arguments=None, ajax=False, **url_arguments):
+    def as_bookmark(self, user_interface, description=None, query_arguments=None, ajax=False, **url_arguments):
         """Returns a :class:`Bookmark` to the View this Factory represents.
 
-           :param region: The region where this ViewFactory is defined.
+           :param user_interface: The user_interface where this ViewFactory is defined.
            :param description: A textual description which will be used on links that represent the Bookmark on the user interface.
            :param query_arguments: A dictionary with (name, value) pairs to put on the query string of the Bookmark.
            :param ajax: (not for general use)
@@ -1436,7 +1436,7 @@ class ViewFactory(FactoryFromUrlRegex):
                                  omit these if the target View is not parameterised.)
         """
         relative_path = self.get_relative_path(**url_arguments)
-        view = self.create(relative_path, region)
+        view = self.create(relative_path, user_interface)
         return view.as_bookmark(description=description, query_arguments=query_arguments, ajax=ajax)
 
     def create(self, relative_path, *args, **kwargs):
@@ -1491,7 +1491,7 @@ class ViewPseudoFactory(ViewFactory):
     def matches_view(self, view):
         return False
 
-    def get_absolute_url(self, region, **arguments):
+    def get_absolute_url(self, user_interface, **arguments):
         return self.bookmark.href.as_network_absolute()
 
 
@@ -1527,9 +1527,9 @@ class View(object):
     exists = True
     is_dynamic = False
 
-    def __init__(self, region):
+    def __init__(self, user_interface):
         super(View, self).__init__()
-        self.region = region
+        self.user_interface = user_interface
 
     @property
     def view(self):
@@ -1537,7 +1537,7 @@ class View(object):
 
     @property
     def controller(self):
-        return self.region.controller
+        return self.user_interface.controller
 
     def check_precondition(self):
         pass
@@ -1566,7 +1566,7 @@ class View(object):
         return resource
     
     def add_resource_factory(self, factory):
-        self.region.register_resource_factory(factory)
+        self.user_interface.register_resource_factory(factory)
         return factory
 
 
@@ -1588,10 +1588,10 @@ class UrlBoundView(View):
         regex_path = ParameterisedPath(self.relative_path, {})
         return ViewFactory(regex_path, self.title, self.slot_definitions, main_window_factory=self.main_window_factory, detour=self.detour, view_class=self.__class__, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable)
 
-    def __init__(self, region, relative_path, title, slot_definitions, main_window_factory=None, detour=False, read_check=None, write_check=None, cacheable=False, **view_arguments):
+    def __init__(self, user_interface, relative_path, title, slot_definitions, main_window_factory=None, detour=False, read_check=None, write_check=None, cacheable=False, **view_arguments):
         if re.match(u'/_([^/]*)$', relative_path):
             raise ProgrammerError(u'you cannot create UrlBoundViews with /_ in them - those are reserved URLs for SubResources')
-        super(UrlBoundView, self).__init__(region)
+        super(UrlBoundView, self).__init__(user_interface)
         self.out_of_bound_forms = []
         self.relative_path = relative_path
         self.title = title                          #: The title of this View
@@ -1640,7 +1640,7 @@ class UrlBoundView(View):
 
     def resource_for(self, full_path, main_window):
         if SubResource.is_for_sub_resource(full_path):
-            return self.region.sub_resource_for(full_path)
+            return self.user_interface.sub_resource_for(full_path)
         return super(UrlBoundView, self).resource_for(full_path, main_window)
 
     def as_resource(self, main_window):
@@ -1671,7 +1671,7 @@ class UrlBoundView(View):
            :param query_arguments: A dictionary mapping names to values to be used for query string arguments.
            :param ajax: (not for general use)
         """
-        return Bookmark(self.region.base_path, self.relative_path, 
+        return Bookmark(self.user_interface.base_path, self.relative_path, 
                         description=description or self.title,
                         query_arguments=query_arguments, ajax=ajax, detour=self.detour,
                         read_check=self.read_check, write_check=self.write_check)
@@ -1682,8 +1682,8 @@ class UrlBoundView(View):
 
 
 class RedirectView(UrlBoundView):
-    def __init__(self, region, relative_path, to_bookmark):
-        super(RedirectView, self).__init__(region, relative_path, u'', {})
+    def __init__(self, user_interface, relative_path, to_bookmark):
+        super(RedirectView, self).__init__(user_interface, relative_path, u'', {})
         self.to_bookmark = to_bookmark
 
     def as_resource(self, main_window):
@@ -1700,7 +1700,7 @@ class NoView(PseudoView):
 
 class RegionRootRedirectView(PseudoView):
     def as_resource(self, main_window):
-        raise HTTPSeeOther(location=str(self.region.get_absolute_url_for(u'/').as_network_absolute()))
+        raise HTTPSeeOther(location=str(self.user_interface.get_absolute_url_for(u'/').as_network_absolute()))
     
 
 
@@ -2153,8 +2153,8 @@ class ComposedPage(Resource):
 
 
 class FileView(View):
-    def __init__(self, region, viewable_file):
-        super(FileView, self).__init__(region)
+    def __init__(self, user_interface, viewable_file):
+        super(FileView, self).__init__(user_interface)
         self.viewable_file = viewable_file
 
     def as_resource(self, main_window):
