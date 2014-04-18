@@ -57,16 +57,16 @@ def i18n_urls(fixture):
     path, web.default_url_locale is used."""
     _ = Translator(u'reahl-web')
 
-    class I18nRegion(Region):
+    class I18nUI(Region):
         def assemble(self):
             view = self.define_view(u'/aview', title=_(u'A View'))
 
-    class MainApp(Region):
+    class MainUI(Region):
         def assemble(self):
             self.define_main_window(TwoColumnPage)
-            self.define_region(u'/aregion',  I18nRegion,  IdentityDictionary(), name=u'testregion')
+            self.define_region(u'/aregion',  I18nUI,  IdentityDictionary(), name=u'testregion')
             
-    wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
     browser.open(u'/aregion/aview')

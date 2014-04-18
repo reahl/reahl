@@ -7,9 +7,9 @@ Module reahl.domainui.accounts
 
 
 
-AccountApp
-"""""""""""""
+AccountUI
+"""""""""
 
-.. autoclass:: AccountApp
+.. autoclass:: AccountUI
    :members:
 

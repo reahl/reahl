@@ -27,7 +27,7 @@ from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
 from reahl.domain_dev.fixtures import PartyModelZooMixin
-from reahl.domainui.accounts import AccountApp
+from reahl.domainui.accounts import AccountUI
 from reahl.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
 
 class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
@@ -35,19 +35,19 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
         self.context.request = request or self.request
         return self.account_region_factory.get_bookmark(relative_path=u'/login')
     
-    def new_MainApp(self):
+    def new_MainUI(self):
         fixture = self
-        class MainApp(Region):
+        class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                account_region_factory = self.define_region(u'/aregion',  AccountApp,  {u'main_slot': u'main'}, name=u'testregion', 
+                account_region_factory = self.define_region(u'/aregion',  AccountUI,  {u'main_slot': u'main'}, name=u'testregion', 
                                                             bookmarks=fixture.bookmarks)
                 fixture.account_region_factory = account_region_factory
-        return MainApp
+        return MainUI
     
     def new_wsgi_app(self, enable_js=False):
         return super(AccountsWebFixture, self).new_wsgi_app(enable_js=enable_js,
-                                                         site_root=self.MainApp)
+                                                         site_root=self.MainUI)
 
     def new_browser(self):
         return Browser(self.wsgi_app)

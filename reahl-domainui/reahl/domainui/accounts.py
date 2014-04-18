@@ -337,14 +337,14 @@ class PasswordChangedWidget(TitledWidget):
         self.add_child(P(view, text=_(u'Thank you, your password has been changed successfully.')))
 
 
-class AccountApp(Region):
+class AccountUI(Region):
     """A user-facing Region for logging in and managing your own login.
 
        **Slots:**
          - main_slot: All UI elements are put into this Slot for any View in this Region.
          
        **Views**
-         Call :meth:`AccountApp.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg
+         Call :meth:`AccountUI.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg
          in order to get a Bookmark for the View listed below:
 
          `/register`
@@ -363,7 +363,7 @@ class AccountApp(Region):
            This is the second (password choosing) step of resetting a user password.
     """
     def assemble(self, bookmarks=None):
-        """Assemble this AccountApp.
+        """Assemble this AccountUI.
         
           :param bookmarks: An object with the following attributes, each of which is a Bookmark instance to a View\
               explaining the listed legal document:
