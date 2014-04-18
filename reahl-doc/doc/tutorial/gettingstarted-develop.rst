@@ -105,28 +105,29 @@ The simplest application
 ------------------------
 
 The most basic running Reahl web application one can build is an
-application with an empty home page. Here is an example of just such a
-program -- you can put it in a file `hello.py` inside the `hello`
+application with an empty home page. Here is an example of an application
+with a tiny bit more: it displays "Hello World!" on its page.
+You can put the program in a file `hello.py` inside the `hello`
 directory:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/hello/hello.py
 
-In Reahl, a web application has a single `main window` which contains
-the basic layout of the web site and the elements that would be
-present on all pages. (Think header, footer, etc.)
+This simple application only consists of a
+:class:`~reahl.web.fw.UserInterface`, which contains a single
+:class:`~reahl.web.fw.View`, defined on its ``/`` URL. The contents of
+the :class:`~reahl.web.fw.UserInterface` are defined in its
+``.assemble()`` method.
+
+To give the :class:`~reahl.web.fw.View` itself some contents,
+HelloPage is derived from :class:`~reahl.web.ui.TwoColumnPage` -- a
+handy Widget that represents an :class:`~reahl.web.ui.HTML5Page` which
+already has a header, footer and two columns where you can add more
+Widgets. In this case, we just add a paragraph of text
+(:class:`~reahl.web.ui.P`) to the ``main`` column of the page.
 
 Each URL a user can visit is defined by a :class:`~reahl.web.fw.View`,
 and a bunch of related :class:`~reahl.web.fw.View`\ s are organised
 into a :class:`~reahl.web.fw.UserInterface`.
-
-A basic web application is a single :class:`~reahl.web.fw.UserInterface`. The
-code above shows how this :class:`~reahl.web.fw.UserInterface` is created by
-deriving a new class from :class:`~reahl.web.fw.UserInterface`.  Such a class
-should have an `assemble` method inside of which the basic structure
-of the application is defined.
-
-In this case, a :class:`~reahl.web.ui.TwoColumnPage` is added as the main window. Also, a
-:class:`~reahl.web.fw.View` is specified for the URL "/", and given the title "Home".
 
 
 Configuration
