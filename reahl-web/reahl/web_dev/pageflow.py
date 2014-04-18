@@ -57,21 +57,21 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithTwoViews,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithTwoViews,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # The transition works from viewa
         fixture.did_something = False
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/aregion/viewb' )
+        vassert( browser.location_path == u'/a_ui/viewb' )
         vassert( fixture.did_something )
 
         # The transition does not work from viewb
         fixture.did_something = False
-        browser.open('/aregion/viewb')
+        browser.open('/a_ui/viewb')
         with expected(ProgrammerError):
             browser.click('//input[@value="Click me"]')
         vassert( not fixture.did_something )
@@ -98,20 +98,20 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # The transition with True guard is the one followed
         fixture.guard_value = True
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/aregion/viewc' )
+        vassert( browser.location_path == u'/a_ui/viewc' )
 
         # If there is no Transition with a True guard, fail
         fixture.guard_value = False
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         with expected(ProgrammerError):
             browser.click('//input[@value="Click me"]')
 
@@ -135,21 +135,21 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithAView,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithAView,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # The transition works from viewa
         fixture.did_something = False
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/aregion/viewa' )
+        vassert( browser.location_path == u'/a_ui/viewa' )
         vassert( fixture.did_something )
 
         # But it is also guarded
         fixture.guard_passes = False
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         with expected(ProgrammerError):
             browser.click('//input[@value="Click me"]')
 
@@ -231,12 +231,12 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open('/aregion/static')
+        browser.open('/a_ui/static')
         with expected(ProgrammerError):
             browser.click(XPath.button_labelled(u'Click me'))
 
@@ -299,13 +299,13 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open('/aregion/viewa')
-        vassert( browser.location_path == u'/aregion/viewb' )
+        browser.open('/a_ui/viewa')
+        vassert( browser.location_path == u'/a_ui/viewb' )
 
     @test(WebFixture)
     def detours_and_return_transitions(self, fixture):
@@ -331,22 +331,22 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         fixture.did_something = False
 
         fixture.make_precondition_pass = False
-        browser.open(u'/aregion/viewa')
-        vassert( browser.location_path == u'/aregion/firstStepOfDetour' )
+        browser.open(u'/a_ui/viewa')
+        vassert( browser.location_path == u'/a_ui/firstStepOfDetour' )
         
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/aregion/lastStepOfDetour' )
+        vassert( browser.location_path == u'/a_ui/lastStepOfDetour' )
                 
         fixture.make_precondition_pass = True
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/aregion/viewa' )
+        vassert( browser.location_path == u'/a_ui/viewa' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
@@ -372,16 +372,16 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
-        browser.open(u'/aregion/viewa')
-        vassert( browser.location_path == u'/aregion/detour' )
+        browser.open(u'/a_ui/viewa')
+        vassert( browser.location_path == u'/a_ui/detour' )
         
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/aregion/explicitReturnView' )
+        vassert( browser.location_path == u'/a_ui/explicitReturnView' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
@@ -406,21 +406,21 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # Normal operation - when a caller can be determined
-        browser.open(u'/aregion/viewa')
-        vassert( browser.location_path == u'/aregion/explicitReturnView' )
+        browser.open(u'/a_ui/viewa')
+        vassert( browser.location_path == u'/a_ui/explicitReturnView' )
 
         #  - the query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
         
         # When a caller cannot be determined, the default is used
-        browser.open(u'/aregion/detour')
-        vassert( browser.location_path == u'/aregion/defaultReturnView' )
+        browser.open(u'/a_ui/detour')
+        vassert( browser.location_path == u'/a_ui/defaultReturnView' )
         
         #  - the query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
@@ -438,13 +438,13 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open('/aregion/redirected')
-        vassert( browser.location_path == u'/aregion/target' )
+        browser.open('/a_ui/redirected')
+        vassert( browser.location_path == u'/a_ui/target' )
 
     @test(WebFixture)
     def linking_to_views_marked_as_detour(self, fixture):

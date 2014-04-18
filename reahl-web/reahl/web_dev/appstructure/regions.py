@@ -44,15 +44,15 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithTwoViews,  {}, name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithTwoViews,  {}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open('/aregion/')
+        browser.open('/a_ui/')
         vassert( browser.title == u'UserInterface root view' )
 
-        browser.open('/aregion/other')
+        browser.open('/a_ui/other')
         vassert( browser.title == u'UserInterface other view' )
 
     @test(WebFixture)
@@ -68,12 +68,12 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithSlots,  {u'text': u'main'}, name='myregion')
+                self.define_user_interface(u'/a_ui',  UIWithSlots,  {u'text': u'main'}, name='myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open('/aregion/')
+        browser.open('/a_ui/')
         vassert( browser.title == u'UserInterface root view' )
 
         # The widget in the UserInterface's slot named 'text' end up in the TwoColumnPage slot called main
@@ -93,14 +93,14 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithRootView,  {}, name='myregion')
+                self.define_user_interface(u'/a_ui',  UIWithRootView,  {}, name='myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open('/aregion')
+        browser.open('/a_ui')
         vassert( browser.title == u'UserInterface root view' )
-        vassert( browser.location_path == u'/aregion/' )
+        vassert( browser.location_path == u'/a_ui/' )
 
     @test(WebFixture)
     def region_arguments(self, fixture):
@@ -116,13 +116,13 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion', UIWithArguments, {u'text': u'main'},
+                self.define_user_interface(u'/a_ui', UIWithArguments, {u'text': u'main'},
                                 name='myregion', kwarg=u'the kwarg')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open('/aregion/')
+        browser.open('/a_ui/')
         [p] = browser.lxml_html.xpath('//p')
         vassert( p.text == 'the kwarg' )
 
@@ -139,18 +139,18 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                ui_factory = self.define_user_interface(u'/aregion',  UIWithRelativeView,  {}, name=u'myregion')
+                ui_factory = self.define_user_interface(u'/a_ui',  UIWithRelativeView,  {}, name=u'myregion')
 
                 # How you could get a bookmark from a RegionFactory
                 fixture.bookmark = ui_factory.get_bookmark(relative_path=u'/aview')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        Browser(wsgi_app).open('/aregion/aview') # To execute the above once
+        Browser(wsgi_app).open('/a_ui/aview') # To execute the above once
 
         # What the bookmark knows
-        vassert( fixture.bookmark.href.path == u'/aregion/aview' )
+        vassert( fixture.bookmark.href.path == u'/a_ui/aview' )
         vassert( fixture.bookmark.description == u'A View title' )
-        vassert( fixture.bookmark.base_path == u'/aregion' )
+        vassert( fixture.bookmark.base_path == u'/a_ui' )
         vassert( fixture.bookmark.relative_path == u'/aview' )
 
         # How you would use a bookmark in other views (possibly in other regions)
@@ -158,7 +158,7 @@ class RegionTests(object):
         
         # .. and how the A will be rendered
         a_etree = WidgetTester(a).render_html_tree()        
-        vassert( a_etree.attrib[u'href'] == u'/aregion/aview' )
+        vassert( a_etree.attrib[u'href'] == u'/a_ui/aview' )
         vassert( a_etree.text == u'A View title' )
 
     class LifeCycleFixture(WebFixture):

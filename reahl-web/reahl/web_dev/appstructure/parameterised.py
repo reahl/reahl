@@ -43,7 +43,7 @@ class ParameterisedTests(object):
             """Arguments can be sent from where the View is defined."""
             self.argument = u'some arg'
             self.expected_value = u'some arg'
-            self.url = u'/aregion/aview'
+            self.url = u'/a_ui/aview'
             self.should_exist = True
         
         @scenario
@@ -51,7 +51,7 @@ class ParameterisedTests(object):
             """Arguments can be parsed from an URL, iff they are specified to the definition as Fields."""
             self.argument = Field()
             self.expected_value = u'test1'
-            self.url = u'/aregion/aview/test1'
+            self.url = u'/a_ui/aview/test1'
             self.should_exist = True
             
         @scenario
@@ -77,7 +77,7 @@ class ParameterisedTests(object):
             """To indicate that a view does not exist for the given arguments, the .assemble() 
                method of the View should raise CannotCreate()."""
             self.argument = u'doesnotexist'
-            self.url = u'/aregion/aview'
+            self.url = u'/a_ui/aview'
             self.should_exist = False
 
     @test(ParameterisedScenarios)
@@ -91,7 +91,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -119,13 +119,13 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithParameterisedViews,  {}, name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # Parameterisedally constructing a View from an URL
-        browser.open('/aregion/someurl_test1')
+        browser.open('/a_ui/someurl_test1')
         vassert( browser.title == u'View for: test1' )
 
     @test(WebFixture)
@@ -153,13 +153,13 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # A sub-region is dynamically created from an URL
-        browser.open('/aregion/apath/test1/')
+        browser.open('/a_ui/apath/test1/')
         vassert( browser.title == u'Simple region region-test1' )
 
         # The slots of the sub-region is correctly plugged into the main window
@@ -167,11 +167,11 @@ class ParameterisedTests(object):
         vassert( p.text == u'in region slot' )
 
         # Another sub-region is dynamically created from an URL
-        browser.open('/aregion/apath/another/')
+        browser.open('/a_ui/apath/another/')
         vassert( browser.title == u'Simple region region-another' )
 
         # When the URL cannot be mapped
-        browser.open('/aregion/apath/doesnotexist/', status=404)
+        browser.open('/a_ui/apath/doesnotexist/', status=404)
 
 
     class ParameterisedRegionScenarios(WebFixture):
@@ -180,7 +180,7 @@ class ParameterisedTests(object):
             """Arguments can be sent from where the UserInterface is defined."""
             self.argument = u'some arg'
             self.expected_value = u'some arg'
-            self.url = u'/aregion/parameterisedregion/aview'
+            self.url = u'/a_ui/parameterisedregion/aview'
             self.should_exist = True
         
         @scenario
@@ -188,7 +188,7 @@ class ParameterisedTests(object):
             """Arguments can be parsed from an URL, iff they are specified to the definition as Fields."""
             self.argument = Field()
             self.expected_value = u'test1'
-            self.url = u'/aregion/parameterisedregion/test1/aview'
+            self.url = u'/a_ui/parameterisedregion/test1/aview'
             self.should_exist = True
             
         @scenario
@@ -196,7 +196,7 @@ class ParameterisedTests(object):
             """To indicate that a UserInterface does not exist for the given arguments, the .assemble() 
                method of the UserInterface should raise CannotCreate()."""
             self.argument = u'doesnotexist'
-            self.url = u'/aregion/parameterisedregion/aview'
+            self.url = u'/a_ui/parameterisedregion/aview'
             self.should_exist = False
 
     @test(ParameterisedRegionScenarios)
@@ -222,7 +222,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
