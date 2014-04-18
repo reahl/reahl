@@ -112,42 +112,42 @@ class FactoryTests(object):
             self.factory = self.region.define_view(u'/', view_class=self.ViewWithArg, my_one_arg=Field())
             self.is_applicable = False
 
-        class RegionWithoutKwarg(UserInterface):
+        class UIWithoutKwarg(UserInterface):
             pass
 
         @scenario
         def parameterised_region_with_long_relative_path(self):
             self.matched_path = u'/editions/relative_path'
-            self.factory = self.region.define_region(u'/editions', self.RegionWithoutKwarg, {})
+            self.factory = self.region.define_region(u'/editions', self.UIWithoutKwarg, {})
             self.is_applicable = True
 
         @scenario
         def parameterised_region_with_short_relative_path(self):
             self.matched_path = u'/editions/'
-            self.factory = self.region.define_region(u'/editions', self.RegionWithoutKwarg, {})
+            self.factory = self.region.define_region(u'/editions', self.UIWithoutKwarg, {})
             self.is_applicable = True
 
         @scenario
         def parameterised_region_without_relative_path(self):
             """A region matches an url even if the url does not contain a relative path."""
             self.matched_path = u'/editions'
-            self.factory = self.region.define_region(u'/editions', self.RegionWithoutKwarg, {})
+            self.factory = self.region.define_region(u'/editions', self.UIWithoutKwarg, {})
             self.is_applicable = True
 
-        class RegionWithKwarg(UserInterface):
+        class UIWithKwarg(UserInterface):
             def assemble(self, my_one_arg=None):
                 pass
 
         @scenario
         def parameterised_region_with_args_and_path(self):
             self.matched_path = u'/editions/argument1/'
-            self.factory = self.region.define_region(u'/editions', self.RegionWithKwarg, {}, my_one_arg=Field())
+            self.factory = self.region.define_region(u'/editions', self.UIWithKwarg, {}, my_one_arg=Field())
             self.is_applicable = True
 
         @scenario
         def parameterised_region_with_subresources(self):
             self.matched_path = u'/editions/argument1/__a_sub_resource'
-            self.factory = self.region.define_region(u'/editions', self.RegionWithKwarg, {}, my_one_arg=Field())
+            self.factory = self.region.define_region(u'/editions', self.UIWithKwarg, {}, my_one_arg=Field())
             self.is_applicable = True
 
 

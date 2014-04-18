@@ -38,14 +38,14 @@ class ParameterisedViewErrors(object):
             def assemble(self, some_key=None):
                 self.title = u'View for: %s' % some_key
 
-        class RegionWithParameterisedViews(UserInterface):
+        class UIWithParameterisedViews(UserInterface):
             def assemble(self):
                 self.define_regex_view(u'/(?P<incorrect_name_for_key>.*)', u'/${key}', view_class=ParameterisedView, some_key=Field(required=True))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'testregion')
+                self.define_region(u'/aregion',  UIWithParameterisedViews,  {}, name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -64,7 +64,7 @@ class ParameterisedRegionErrors(WebFixture):
             def assemble(self, region_key=None):
                 self.name = u'region-%s' % region_key
 
-        class RegionWithParameterisedRegions(UserInterface):
+        class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_regex_region(u'/(?P<xxx>[^/]*)', u'N/A', RegexRegion,
                                          {u'region-slot': u'main'},
@@ -73,7 +73,7 @@ class ParameterisedRegionErrors(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedRegions,  {}, name=u'testregion')
+                self.define_region(u'/aregion',  UIWithParameterisedRegions,  {}, name=u'testregion')
 
         return super(ParameterisedRegionErrors, self).new_wsgi_app(site_root=MainUI)
        

@@ -84,14 +84,14 @@ class ParameterisedTests(object):
     def views_with_parameters(self, fixture):
         """Views can have arguments that originate from code, or are parsed from the URL."""
 
-        class RegionWithParameterisedViews(UserInterface):
+        class UIWithParameterisedViews(UserInterface):
             def assemble(self):
                 self.define_view(u'/aview', view_class=fixture.ParameterisedView, some_arg=fixture.argument) 
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
+                self.define_region(u'/aregion',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -111,7 +111,7 @@ class ParameterisedTests(object):
             def assemble(self, some_key=None):
                 self.title = u'View for: %s' % some_key
             
-        class RegionWithParameterisedViews(UserInterface):
+        class UIWithParameterisedViews(UserInterface):
             def assemble(self):
                 self.define_regex_view(u'/someurl_(?P<some_key>.*)', u'/someurl_${some_key}', view_class=ParameterisedView,
                                        some_key=Field(required=True))
@@ -119,7 +119,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'myregion')
+                self.define_region(u'/aregion',  UIWithParameterisedViews,  {}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -142,7 +142,7 @@ class ParameterisedTests(object):
                 root = self.define_view(u'/', title=u'Simple region %s' % self.name)
                 root.set_slot(u'region-slot', P.factory(text=u'in region slot'))
 
-        class RegionWithParameterisedRegions(UserInterface):
+        class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_regex_region(u'/apath/(?P<region_key>[^/]*)',
                                          u'/apath/${region_key}',
@@ -153,7 +153,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
+                self.define_region(u'/aregion',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -213,7 +213,7 @@ class ParameterisedTests(object):
                 root.set_slot(u'region-slot', P.factory(text=u'in region slot'))
 
 
-        class RegionWithParameterisedRegions(UserInterface):
+        class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
                 self.define_region(u'/parameterisedregion', ParameterisedRegion, {u'region-slot': u'main'}, 
                                    region_arg=fixture.argument,
@@ -222,7 +222,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
+                self.define_region(u'/aregion',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)

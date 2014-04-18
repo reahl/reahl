@@ -36,7 +36,7 @@ class RegionTests(object):
         
            A UserInterface has its own views. Its Views are relative to the UserInterface itself.
         """
-        class RegionWithTwoViews(UserInterface):
+        class UIWithTwoViews(UserInterface):
             def assemble(self):
                 self.define_view(u'/', title=u'UserInterface root view')
                 self.define_view(u'/other', title=u'UserInterface other view')
@@ -44,7 +44,7 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithTwoViews,  {}, name=u'myregion')
+                self.define_region(u'/aregion',  UIWithTwoViews,  {}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -60,7 +60,7 @@ class RegionTests(object):
         """The UserInterface uses its own names for Slots. When attaching a UserInterface, you have to specify 
             which of the UserInterface's Slots plug into which of the main window's Slots.
         """
-        class RegionWithSlots(UserInterface):
+        class UIWithSlots(UserInterface):
             def assemble(self):
                 root = self.define_view(u'/', title=u'UserInterface root view')
                 root.set_slot(u'text', P.factory(text=u'in region slot named text'))
@@ -68,7 +68,7 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithSlots,  {u'text': u'main'}, name='myregion')
+                self.define_region(u'/aregion',  UIWithSlots,  {u'text': u'main'}, name='myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -86,14 +86,14 @@ class RegionTests(object):
         """When opening an URL without trailing slash that maps to where a UserInterface is attached,
            the browser is redirected to the UserInterface '/' View."""
            
-        class RegionWithRootView(UserInterface):
+        class UIWithRootView(UserInterface):
             def assemble(self):
                 self.define_view(u'/', title=u'UserInterface root view')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithRootView,  {}, name='myregion')
+                self.define_region(u'/aregion',  UIWithRootView,  {}, name='myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -106,7 +106,7 @@ class RegionTests(object):
     def region_arguments(self, fixture):
         """Regions can take exta args and kwargs."""
            
-        class RegionWithArguments(UserInterface):
+        class UIWithArguments(UserInterface):
             def assemble(self, kwarg=None):
                 self.kwarg = kwarg
                 text = self.kwarg
@@ -116,7 +116,7 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion', RegionWithArguments, {u'text': u'main'},
+                self.define_region(u'/aregion', UIWithArguments, {u'text': u'main'},
                                 name='myregion', kwarg=u'the kwarg')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -132,14 +132,14 @@ class RegionTests(object):
            a Bookmark can, at run time, turn these into absolute URLs. Bookmarks also contain metadata,
            such as the title of the View it points to.
         """
-        class RegionWithRelativeView(UserInterface):
+        class UIWithRelativeView(UserInterface):
             def assemble(self):
                 self.define_view(u'/aview', title=u'A View title')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                region_factory = self.define_region(u'/aregion',  RegionWithRelativeView,  {}, name=u'myregion')
+                region_factory = self.define_region(u'/aregion',  UIWithRelativeView,  {}, name=u'myregion')
 
                 # How you could get a bookmark from a RegionFactory
                 fixture.bookmark = region_factory.get_bookmark(relative_path=u'/aview')
