@@ -23,7 +23,7 @@ from reahl.tofu import vassert, expected
 
 from reahl.component.modelinterface import Field, IntegerField, exposed, Event
 from reahl.web.fw import ReahlWebApplication, Region, UrlBoundView, IdentityDictionary, CannotCreate
-from reahl.web.ui import TwoColumnPage, P, A, Form, Button
+from reahl.web.ui import HTML5Page, TwoColumnPage, P, A, Form, Button
 from reahl.webdev.tools import Browser, WidgetTester, XPath
 from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
 
@@ -31,6 +31,13 @@ from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
 @istest
 class ParameterisedTests(object):
     class ParameterisedScenarios(WebFixture):
+        class ParameterisedView(UrlBoundView):
+            def assemble(self, some_arg=None):
+                if some_arg == u'doesnotexist':
+                    raise CannotCreate()
+                self.title = u'View for: %s' % some_arg
+                self.set_slot(u'main', P.factory(text=u'content for %s' % some_arg))
+
         @scenario
         def normal_arguments(self):
             """Arguments can be sent from where the View is defined."""
@@ -48,6 +55,24 @@ class ParameterisedTests(object):
             self.should_exist = True
             
         @scenario
+        def define_entire_page(self):
+            """The dynamically defined View can also be define its entire page to be rendered, instead of slots"""
+            self.url_arguments() # same setup as this except:
+            class SimplePage(HTML5Page):
+                def __init__(self, view, some_arg):
+                    super(SimplePage, self).__init__(view)
+                    self.body.add_child(P(view, text=u'content for %s' % some_arg))
+
+            class ParameterisedView(UrlBoundView):
+                def assemble(self, some_arg=None):
+                    if some_arg == u'doesnotexist':
+                        raise CannotCreate()
+                    self.title = u'View for: %s' % some_arg
+                    self.set_page(SimplePage.factory(some_arg))
+
+            self.ParameterisedView = ParameterisedView
+            
+        @scenario
         def cannot_create(self):
             """To indicate that a view does not exist for the given arguments, the .assemble() 
                method of the View should raise CannotCreate()."""
@@ -59,16 +84,9 @@ class ParameterisedTests(object):
     def views_with_parameters(self, fixture):
         """Views can have arguments that originate from code, or are parsed from the URL."""
 
-        class ParameterisedView(UrlBoundView):
-            def assemble(self, some_arg=None):
-                if some_arg == u'doesnotexist':
-                    raise CannotCreate()
-                self.title = u'View for: %s' % some_arg
-                self.set_slot(u'main', P.factory(text=u'content for %s' % some_arg))
-
         class RegionWithParameterisedViews(Region):
             def assemble(self):
-                self.define_view(u'/aview', view_class=ParameterisedView, some_arg=fixture.argument) 
+                self.define_view(u'/aview', view_class=fixture.ParameterisedView, some_arg=fixture.argument) 
 
         class MainRegion(Region):
             def assemble(self):
@@ -84,7 +102,6 @@ class ParameterisedTests(object):
             vassert( browser.is_element_present(XPath.paragraph_containing(u'content for %s' % fixture.expected_value)) )
         else:
             browser.open(fixture.url, status=404)
-
 
     @test(WebFixture)
     def views_from_regex(self, fixture):

@@ -536,7 +536,7 @@ class Region(object):
                 hardcoded[name] = value
         return fields, hardcoded
 
-    def define_view(self, relative_path, title=None, slot_definitions=None, detour=False, view_class=None, read_check=None, write_check=None, cacheable=False, **assemble_args):
+    def define_view(self, relative_path, title=None, page=None, slot_definitions=None, detour=False, view_class=None, read_check=None, write_check=None, cacheable=False, **assemble_args):
         """Called from `assemble` to specify how a :class:`View` will be created when the given URL (`relative_path`)
            is requested from this Region.
         
@@ -559,8 +559,9 @@ class Region(object):
         checkargs_explained(u'.define_view() was called with incorrect arguments for %s' % view_class.assemble, 
                             view_class.assemble, **assemble_args)
 
-        factory = ViewFactory(ParameterisedPath(relative_path, path_argument_fields), title, slot_definitions, detour=detour, 
-                              view_class=view_class, read_check=read_check, write_check=write_check, cacheable=cacheable, view_kwargs=passed_kwargs)
+        factory = ViewFactory(ParameterisedPath(relative_path, path_argument_fields), title, slot_definitions, 
+                              main_window_factory=page, detour=detour, view_class=view_class, 
+                              read_check=read_check, write_check=write_check, cacheable=cacheable, view_kwargs=passed_kwargs)
         self.add_view_factory(factory)
         return factory
 
@@ -1364,7 +1365,7 @@ class ViewFactory(FactoryFromUrlRegex):
        In the `.assemble()` of a Region, ViewFactories are passed around to denote Views as the targets of Events
        or the source and target of Transitions.
     """
-    def __init__(self, regex_path, title, slot_definitions, detour=False, view_class=None, factory_method=None, read_check=None, write_check=None, cacheable=False, view_kwargs=None):
+    def __init__(self, regex_path, title, slot_definitions, main_window_factory=None, detour=False, view_class=None, factory_method=None, read_check=None, write_check=None, cacheable=False, view_kwargs=None):
         self.detour = detour
         self.preconditions = []
         self.title = title
@@ -1373,6 +1374,7 @@ class ViewFactory(FactoryFromUrlRegex):
         self.read_check = read_check
         self.write_check = write_check
         self.cacheable = cacheable
+        self.main_window_factory = main_window_factory
         super(ViewFactory, self).__init__(regex_path, factory_method or self.create_view, view_kwargs or {})
 
     def create_args(self, relative_path, *args):
@@ -1381,7 +1383,7 @@ class ViewFactory(FactoryFromUrlRegex):
         return (relative_path,)+args
 
     def create_view(self, relative_path, region, **view_arguments):
-        return self.view_class(region, relative_path, self.title, self.slot_definitions, detour=self.detour, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable, **view_arguments)
+        return self.view_class(region, relative_path, self.title, self.slot_definitions, main_window_factory=self.main_window_factory, detour=self.detour, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable, **view_arguments)
 
     def __str__(self):
         return '<ViewFactory for %s>' % self.view_class
@@ -1418,6 +1420,10 @@ class ViewFactory(FactoryFromUrlRegex):
     def set_slot(self, name, contents):
         """Supplies a Factory (`contents`) for how the contents of the :class:`Slot` named `name` should be created."""
         self.slot_definitions[name] = contents
+
+    def set_page(self, main_window_factory):
+        """Supplies a Factory for the main window to be used when displaying the :class:`View` created by this ViewFactory."""
+        self.main_window_factory = main_window_factory
 
     def as_bookmark(self, region, description=None, query_arguments=None, ajax=False, **url_arguments):
         """Returns a :class:`Bookmark` to the View this Factory represents.
@@ -1580,9 +1586,9 @@ class UrlBoundView(View):
 
     def as_factory(self):
         regex_path = ParameterisedPath(self.relative_path, {})
-        return ViewFactory(regex_path, self.title, self.slot_definitions, detour=self.detour, view_class=self.__class__, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable)
+        return ViewFactory(regex_path, self.title, self.slot_definitions, main_window_factory=self.main_window_factory, detour=self.detour, view_class=self.__class__, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable)
 
-    def __init__(self, region, relative_path, title, slot_definitions, detour=False, read_check=None, write_check=None, cacheable=False, **view_arguments):
+    def __init__(self, region, relative_path, title, slot_definitions, main_window_factory=None, detour=False, read_check=None, write_check=None, cacheable=False, **view_arguments):
         if re.match(u'/_([^/]*)$', relative_path):
             raise ProgrammerError(u'you cannot create UrlBoundViews with /_ in them - those are reserved URLs for SubResources')
         super(UrlBoundView, self).__init__(region)
@@ -1595,6 +1601,7 @@ class UrlBoundView(View):
         self.read_check = read_check or self.allowed
         self.write_check = write_check or self.allowed
         self.cacheable = cacheable
+        self.main_window_factory = main_window_factory
         self.assemble(**view_arguments)
 
     def allowed(self):
@@ -1626,6 +1633,10 @@ class UrlBoundView(View):
     def set_slot(self, name, contents):
         """Supplies a Factory (`contents`) for the framework to use to create the contents of the Slot named `name`."""
         self.slot_definitions[name] = contents
+
+    def set_page(self, main_window_factory):
+        """Supplies a Factory for the main window to be used when displaying this View."""
+        self.main_window_factory = main_window_factory
 
     def resource_for(self, full_path, main_window):
         if SubResource.is_for_sub_resource(full_path):
@@ -2465,6 +2476,7 @@ class ReahlWebApplication(object):
         current_view.check_precondition()
         current_view.check_rights(request.method)
         if current_view.is_dynamic:
+            main_window_factory = current_view.main_window_factory or main_window_factory
             if not main_window_factory:
                 raise ProgrammerError(u'there is no main_window defined for %s' % url.path)
             main_window = main_window_factory.create(current_view)
