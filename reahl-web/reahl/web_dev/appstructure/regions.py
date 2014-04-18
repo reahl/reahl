@@ -139,10 +139,10 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                region_factory = self.define_user_interface(u'/aregion',  UIWithRelativeView,  {}, name=u'myregion')
+                ui_factory = self.define_user_interface(u'/aregion',  UIWithRelativeView,  {}, name=u'myregion')
 
                 # How you could get a bookmark from a RegionFactory
-                fixture.bookmark = region_factory.get_bookmark(relative_path=u'/aview')
+                fixture.bookmark = ui_factory.get_bookmark(relative_path=u'/aview')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         Browser(wsgi_app).open('/aregion/aview') # To execute the above once
@@ -180,19 +180,19 @@ class RegionTests(object):
                 self.assembled = True
 
         # Phase1: specifying a region and assembleing it to a site (with kwargs)
-        parent_region = None
-#        parent_region = EmptyStub(base_path=u'/')
+        parent_ui = None
+#        parent_ui = EmptyStub(base_path=u'/')
         slot_map = {u'slotA': u'main_slot'}
-        region_factory = RegionFactory(parent_region, RegexPath(u'/', u'/', {}), slot_map, RegionStub, u'test_region')
+        ui_factory = RegionFactory(parent_ui, RegexPath(u'/', u'/', {}), slot_map, RegionStub, u'test_region')
 
 
         # Phase2: creating a region
         request = Request.blank(u'/some/path')
         fixture.context.set_request(request)
-        region = region_factory.create(u'/some/path', for_bookmark=False)
+        region = ui_factory.create(u'/some/path', for_bookmark=False)
 
         # - Assembly happened correctly
-        vassert( region.parent_region is parent_region )
+        vassert( region.parent_ui is parent_ui )
         vassert( region.slot_map is slot_map )
         vassert( region.name is u'test_region' )
         vassert( region.relative_base_path == u'/' )
@@ -201,14 +201,14 @@ class RegionTests(object):
         vassert( region.assembled )
 
         # - Create for_bookmark empties the relative_path
-        region = region_factory.create(u'/some/path', for_bookmark=True)
+        region = ui_factory.create(u'/some/path', for_bookmark=True)
         vassert( region.relative_path == u'' )
 
         # - The relative_path is reset if not done for_bookmark
         #   This is done in case a for_bookmark call just
         #   happened to be done for the same UserInterface in the same request
         #   before the "real" caal is done
-        region = region_factory.create(u'/some/path', for_bookmark=False)
+        region = ui_factory.create(u'/some/path', for_bookmark=False)
         vassert( region.relative_path == u'/some/path' )
 
         # Phase5: create the main_window and plug the view into it

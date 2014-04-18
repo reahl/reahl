@@ -45,7 +45,7 @@ class WidgetFixture(Fixture, WebBasicsMixin):
         return factory
         
     def new_region(self):
-        factory = self.region_factory
+        factory = self.ui_factory
         with self.context:
             return factory.create()
 
