@@ -426,7 +426,7 @@ class UserInterface(object):
        to define the contents of the UserInterface.
 
        Regions are not instantiated by programmers, a UserInterface is defined as a sub-region of a given parent UserInterface by
-       calling the :meth:`UserInterface.define_region` from inside the :meth:`UserInterface.assemble` method of its parent UserInterface.
+       calling the :meth:`UserInterface.define_user_interface` from inside the :meth:`UserInterface.assemble` method of its parent UserInterface.
        
        The class of UserInterface to be used as root for the entire web application is configured 
        via the `web.site_root` config setting.
@@ -447,7 +447,7 @@ class UserInterface(object):
         self.assemble(**region_arguments)
         self.sub_resources = FactoryDict(set())
         if not self.name:
-            raise ProgrammerError('No .name set for %s. This should be done in the call to .define_region or in %s.assemble().' % \
+            raise ProgrammerError('No .name set for %s. This should be done in the call to .define_user_interface or in %s.assemble().' % \
                                       (self, self.__class__.__name__))
 
     @property
@@ -632,7 +632,7 @@ class UserInterface(object):
         self.sub_regions.add(region_factory)
         return region_factory
 
-    def define_region(self, path, region_class, slot_map, name=None, **assemble_args):
+    def define_user_interface(self, path, region_class, slot_map, name=None, **assemble_args):
         """Called from `assemble` to specify how a :class:`UserInterface` will be created when the given path
            is visited in this :class:`UserInterface`.
            
@@ -647,7 +647,7 @@ class UserInterface(object):
              after construction.
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
-        checkargs_explained(u'.define_region() was called with incorrect arguments for %s' % region_class.assemble, 
+        checkargs_explained(u'.define_user_interface() was called with incorrect arguments for %s' % region_class.assemble, 
                             region_class.assemble,  **assemble_args)
 
         region_factory = RegionFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, region_class, name, **passed_kwargs)
@@ -660,8 +660,8 @@ class UserInterface(object):
            
            Arguments are similar to that of `define_regex_view`, except for:
            
-           :param slot_map: (See `define_region`.)
-           :param name: (See `define_region`.)
+           :param slot_map: (See `define_user_interface`.)
+           :param name: (See `define_user_interface`.)
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
         checkargs_explained(u'.define_regex_region() was called with incorrect arguments for %s' % region_class.assemble, 
@@ -1320,7 +1320,7 @@ class RegionFactory(FactoryFromUrlRegex):
     def __str__(self):
         return '<Factory for %s named %s>' % (self.factory_method, self.region_name)
 
-    def predefine_region(self, region_factory):
+    def predefine_user_interface(self, region_factory):
         self.predefined_regions.append(region_factory)
         
     def get_relative_part_in(self, full_path):
@@ -2456,7 +2456,7 @@ class ReahlWSGIApplication(object):
     def define_static_files(self, path, files):
         region_name = u'static_%s' % path
         region_factory = RegionFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, region_name, files=FileList(files))
-        self.root_user_interface_factory.predefine_region(region_factory)
+        self.root_user_interface_factory.predefine_user_interface(region_factory)
         return region_factory
 
     def get_target_region(self, full_path):

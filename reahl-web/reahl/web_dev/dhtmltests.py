@@ -64,7 +64,7 @@ class BasicTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
+                self.define_user_interface(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
                                 name=u'test_region', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
@@ -100,7 +100,7 @@ class BasicTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
+                self.define_user_interface(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
                                    name=u'test_region', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root

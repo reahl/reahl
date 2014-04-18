@@ -53,10 +53,10 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                accounts = self.define_region(u'/accounts', AccountUI, {u'main_slot': u'main'},
+                accounts = self.define_user_interface(u'/accounts', AccountUI, {u'main_slot': u'main'},
                                               name=u'testregion', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
-                self.define_region(u'/inbox',  InboxUI,  {u'main_slot': u'main'}, 
+                self.define_user_interface(u'/inbox',  InboxUI,  {u'main_slot': u'main'}, 
                                    name=u'testregion', login_bookmark=login_bookmark, get_queues=get_queues)
         return super(WorkflowWebFixture, self).new_wsgi_app(enable_js=enable_js,
                                                          site_root=MainUI)

@@ -36,7 +36,7 @@ class RegionErrorScenarios(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  SimpleRegion,  {}, name=u'testregion')
+                self.define_user_interface(u'/aregion',  SimpleRegion,  {}, name=u'testregion')
 
         return super(RegionErrorScenarios, self).new_wsgi_app(site_root=MainUI)
 

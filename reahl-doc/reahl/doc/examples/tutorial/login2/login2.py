@@ -30,7 +30,7 @@ class LoginApp(UserInterface):
             privacy_bookmark = home.as_bookmark(self, description=u'Privacy policy')
             disclaimer_bookmark = home.as_bookmark(self, description=u'Disclaimer')
 
-        accounts = self.define_region(u'/accounts', AccountUI,
+        accounts = self.define_user_interface(u'/accounts', AccountUI,
                                       {u'main_slot': u'main'},
                                       name=u'accounts', bookmarks=LegalBookmarks)
 

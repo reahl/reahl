@@ -91,7 +91,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
+                self.define_user_interface(u'/aregion',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -119,7 +119,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithParameterisedViews,  {}, name=u'myregion')
+                self.define_user_interface(u'/aregion',  UIWithParameterisedViews,  {}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -153,7 +153,7 @@ class ParameterisedTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
+                self.define_user_interface(u'/aregion',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -201,7 +201,7 @@ class ParameterisedTests(object):
 
     @test(ParameterisedRegionScenarios)
     def parameterised_regions(self, fixture):
-        """Sub Regions can also be parameterised by defining arguments in .define_region, and receiving them in .assemble()."""
+        """Sub Regions can also be parameterised by defining arguments in .define_user_interface, and receiving them in .assemble()."""
 
         class ParameterisedRegion(UserInterface):
             def assemble(self, region_arg=None):
@@ -215,14 +215,14 @@ class ParameterisedTests(object):
 
         class UIWithParameterisedRegions(UserInterface):
             def assemble(self):
-                self.define_region(u'/parameterisedregion', ParameterisedRegion, {u'region-slot': u'main'}, 
+                self.define_user_interface(u'/parameterisedregion', ParameterisedRegion, {u'region-slot': u'main'}, 
                                    region_arg=fixture.argument,
                                    name=u'paramregion')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
+                self.define_user_interface(u'/aregion',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
