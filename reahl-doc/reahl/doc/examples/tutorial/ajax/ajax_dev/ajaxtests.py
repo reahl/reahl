@@ -8,7 +8,7 @@
 from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
-from reahl.doc.examples.tutorial.ajax.ajax import WidgetRefreshApp
+from reahl.doc.examples.tutorial.ajax.ajax import WidgetRefreshUI
 
 
 class RefreshFixture(WebFixture):
@@ -16,7 +16,7 @@ class RefreshFixture(WebFixture):
         return self.driver_browser
         
     def new_wsgi_app(self):
-        return super(RefreshFixture, self).new_wsgi_app(site_root=WidgetRefreshApp, enable_js=True)
+        return super(RefreshFixture, self).new_wsgi_app(site_root=WidgetRefreshUI, enable_js=True)
 
     def text_shows_selected(self, expected_selected):
         return self.browser.is_element_present(XPath.paragraph_containing(u'You selected link number %s' % expected_selected))

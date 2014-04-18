@@ -9,7 +9,7 @@ class MyCustomPage(TwoColumnPage):
         super(MyCustomPage, self).__init__(view, style=u'basic')
         self.header.add_child(HMenu.from_bookmarks(view, bookmarks))
 
-class SlotsApp(UserInterface):
+class SlotsUI(UserInterface):
     def assemble(self):
 
         home = self.define_view(u'/', title=u'Page 1')

@@ -217,7 +217,7 @@ application. Look at the following, for example:
 
 .. code-block:: python
 
-   class HelloApp(UserInterface):
+   class HelloUI(UserInterface):
        def assemble(self):
            self.define_main_window(TwoColumnPage)  
            self.define_view(u'/', title=u'Home')
@@ -249,7 +249,7 @@ often used given the nature of web applications. For example:
 
 .. code-block:: python
 
-   class HelloApp(UserInterface):
+   class HelloUI(UserInterface):
        def assemble(self):
            self.define_main_window(TwoColumnPage)  
            home = self.define_view(u'/', title=u'Home')
@@ -287,7 +287,7 @@ On the server, the :class:`~reahl.web.fw.UserInterface`, :class:`~reahl.web.fw.V
 are discarded after sending back a response.
 
 You may have wondered why `.factory()` was used in the `.assemble()`
-of the HelloApp (above), but not in the code of ReahllyBadPoem
+of the HelloUI (above), but not in the code of ReahllyBadPoem
 earlier. Well, ReahllyBadPoem is a :class:`~reahl.web.fw.Widget` and in the code shown it is
 being constructed. It makes sense that as part of its own construction
 it should also construct all of its children :class:`~reahl.web.fw.Widget`\ s, doesn't it? Why

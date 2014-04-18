@@ -78,7 +78,7 @@ class LoginForm(Form):
         self.add_child(Button(self, login_session.events.log_in))
 
 
-class SessionScopeApp(UserInterface):
+class SessionScopeUI(UserInterface):
     def assemble(self):
         login_session = LoginSession.for_current_session()
         if login_session.current_user:

@@ -8,7 +8,7 @@ from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, But
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
-class PersistenceApp(UserInterface):
+class PersistenceUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')
         home = self.define_view(u'/', title=u'Persistence demo')

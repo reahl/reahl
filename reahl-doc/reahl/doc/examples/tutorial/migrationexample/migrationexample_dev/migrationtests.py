@@ -6,12 +6,12 @@ from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.migrationexample.migrationexample import AddressBookApp, Address
+from reahl.doc.examples.tutorial.migrationexample.migrationexample import AddressBookUI, Address
 
 
 class MigrateFixture(WebFixture):
     def new_wsgi_app(self):
-        return super(MigrateFixture, self).new_wsgi_app(site_root=AddressBookApp)
+        return super(MigrateFixture, self).new_wsgi_app(site_root=AddressBookUI)
         
     def new_existing_address(self):
         address = Address(name=u'John Doe', email_address=u'johndoe@some.org')

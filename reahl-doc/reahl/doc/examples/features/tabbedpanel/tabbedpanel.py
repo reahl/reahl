@@ -3,7 +3,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, TabbedPanel, Tab, P
 
 
-class TabbedPanelApp(UserInterface):
+class TabbedPanelUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')  
 

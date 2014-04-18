@@ -1,5 +1,5 @@
 
 
-from reahl.doc.examples.tutorial.login1.login1 import LoginApp
+from reahl.doc.examples.tutorial.login1.login1 import LoginUI
 
-web.site_root = LoginApp
+web.site_root = LoginUI

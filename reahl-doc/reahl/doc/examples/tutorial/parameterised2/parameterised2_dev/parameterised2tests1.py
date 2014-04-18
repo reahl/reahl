@@ -3,7 +3,7 @@ from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.parameterised2.parameterised2 import AddressBookApp, Address
+from reahl.doc.examples.tutorial.parameterised2.parameterised2 import AddressBookUI, Address
 
 
 @test(WebFixture)
@@ -12,7 +12,7 @@ def adding_an_address(fixture):
        information for the new address and clicks the Save button. Upon successful addition of the
        address, the user is returned to the home page where the new address is now listed."""
 
-    browser = Browser(fixture.new_wsgi_app(site_root=AddressBookApp))
+    browser = Browser(fixture.new_wsgi_app(site_root=AddressBookUI))
 
     browser.open(u'/')
     browser.click(XPath.link_with_text(u'Add an address'))

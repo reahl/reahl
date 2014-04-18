@@ -16,7 +16,7 @@ class AddressBookPage(TwoColumnPage):
         self.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
 
 
-class AddressBookApp(UserInterface):
+class AddressBookUI(UserInterface):
     def assemble(self):
         addresses = self.define_view(u'/', title=u'Addresses')
         addresses.set_slot(u'main', AddressBookPanel.factory())

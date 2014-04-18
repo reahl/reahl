@@ -4,7 +4,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, Button, LabelledBlockInput
 from reahl.component.modelinterface import exposed, EmailField, secured, Event, Action, PasswordField
 
-class AccessApp(UserInterface):
+class AccessUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')  
 

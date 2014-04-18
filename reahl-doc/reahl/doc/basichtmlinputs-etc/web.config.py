@@ -15,6 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.doc.basichtmlinputs import BasicHTMLInputsApp
+from reahl.doc.basichtmlinputs import BasicHTMLInputsUI
 
-web.site_root = BasicHTMLInputsApp
+web.site_root = BasicHTMLInputsUI

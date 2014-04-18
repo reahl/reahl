@@ -289,7 +289,7 @@ class EditAddressView(UrlBoundView):
         self.set_slot(u'main', EditAddressForm.factory(address))
 
 
-class AddressBookApp(UserInterface):
+class AddressBookUI(UserInterface):
     def assemble(self):
 
         home = self.define_view(u'/', title=u'Address books')

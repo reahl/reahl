@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.features.persistence.persistence import PersistenceApp
+from reahl.doc.examples.features.persistence.persistence import PersistenceUI
 
-web.site_root = PersistenceApp
+web.site_root = PersistenceUI

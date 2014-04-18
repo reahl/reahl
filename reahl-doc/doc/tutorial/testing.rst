@@ -198,7 +198,7 @@ Readable tests
 Often in tests, there are small bits of code which would be more
 readable if it was extracted into properly named methods (as done with
 :class:`~reahl.webdev.tools.XPath` above). If you create a :class:`~reahl.tofu.Fixture` specially for testing the
-AddressBookApp, such a fixture is an ideal home for such methods.  In
+AddressBookUI, such a fixture is an ideal home for such methods.  In
 the expanded version of our test below, AddressAppFixture was
 added. AddressAppFixture now contains the nasty implementation of a
 couple of things we'd like to assert about the application, as well as

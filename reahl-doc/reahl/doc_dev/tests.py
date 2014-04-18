@@ -30,22 +30,22 @@ from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.fixtures import BrowserSetup
 from reahl.webdev.tools import XPath, Browser
 
-from reahl.doc.examples.tutorial.hello.hello import HelloApp
+from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.tutorial.helloapache import helloapache
-from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelApp
-from reahl.doc.examples.features.validation.validation import ValidationApp
-from reahl.doc.examples.features.layout.layout import LayoutApp
-from reahl.doc.examples.features.pageflow.pageflow import PageFlowApp
-from reahl.doc.examples.features.persistence.persistence import PersistenceApp
-from reahl.doc.examples.features.access.access import AccessApp
-from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedApp
+from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
+from reahl.doc.examples.features.validation.validation import ValidationUI
+from reahl.doc.examples.features.layout.layout import LayoutUI
+from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
+from reahl.doc.examples.features.persistence.persistence import PersistenceUI
+from reahl.doc.examples.features.access.access import AccessUI
+from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
 
-from reahl.doc.examples.features.slots.slots import SlotsApp
+from reahl.doc.examples.features.slots.slots import SlotsUI
 
-from reahl.doc.fileupload import FileUploadApp, AttachedFile
+from reahl.doc.fileupload import FileUploadUI, AttachedFile
 
-from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsApp
-from reahl.doc.basichtmlinputs import BasicHTMLInputsApp
+from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsUI
+from reahl.doc.basichtmlinputs import BasicHTMLInputsUI
 
 from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
@@ -91,80 +91,80 @@ class ExampleFixture(Fixture, WebBasicsMixin):
 
     @scenario
     def hello(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=HelloApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=HelloUI)
 
     @scenario
     def hello_apache(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=helloapache.HelloApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=helloapache.HelloUI)
 
     @scenario
     def tabbed_panel(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=TabbedPanelApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=TabbedPanelUI, enable_js=True)
 
     @scenario
     def validation(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=ValidationApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=ValidationUI, enable_js=True)
 
     @scenario
     def layout(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=LayoutApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=LayoutUI, enable_js=True)
 
     @scenario
     def pageflow(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=PageFlowApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=PageFlowUI, enable_js=True)
 
     @scenario
     def persistence(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=PersistenceApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=PersistenceUI, enable_js=True)
 
     @scenario
     def access_control(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=AccessApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=AccessUI, enable_js=True)
 
     @scenario
     def i18n(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=TranslatedApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=TranslatedUI, enable_js=True)
 
     @scenario
     def basichtmlinputs(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=BasicHTMLInputsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=BasicHTMLInputsUI, enable_js=True)
 
     @scenario
     def basichtmlwidgets(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=BasicHTMLWidgetsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=BasicHTMLWidgetsUI, enable_js=True)
 
     @scenario
     def fileupload(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadApp, enable_js=True)
-#        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadApp, enable_js=False)
+        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadUI, enable_js=True)
+#        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadUI, enable_js=False)
 
     @scenario
     def slots(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=SlotsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=SlotsUI, enable_js=True)
 
     @scenario
     def addressbook1(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=addressbook1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=addressbook1.AddressBookUI)
 
     @scenario
     def addressbook2(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=addressbook2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=addressbook2.AddressBookUI)
 
     @scenario
     def pageflow1(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=pageflow1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow1.AddressBookUI)
 
     @scenario
     def pageflow2(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=pageflow2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow2.AddressBookUI)
 
     @scenario
     def parameterised1(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=parameterised1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=parameterised1.AddressBookUI)
 
     @scenario
     def parameterised2(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=parameterised2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=parameterised2.AddressBookUI)
 
 
 @test(ExampleFixture)

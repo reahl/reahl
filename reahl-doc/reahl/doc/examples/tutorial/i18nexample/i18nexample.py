@@ -22,7 +22,7 @@ class AddressBookPage(TwoColumnPage):
         self.secondary.add_child(VMenu.from_languages(view))
 
 
-class AddressBookApp(UserInterface):
+class AddressBookUI(UserInterface):
     def assemble(self):
         self.define_main_window(AddressBookPage)
         find = self.define_view(u'/', title=_(u'Address Book'))

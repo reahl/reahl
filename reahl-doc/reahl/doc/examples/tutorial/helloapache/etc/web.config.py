@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.tutorial.helloapache.helloapache import HelloApp
+from reahl.doc.examples.tutorial.helloapache.helloapache import HelloUI
 
-web.site_root = HelloApp
+web.site_root = HelloUI

@@ -6,7 +6,7 @@ from reahl.component.modelinterface import exposed, Field, EmailField
 def lots_of(message):
     return message * 5
 
-class LayoutApp(UserInterface):
+class LayoutUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')  
 

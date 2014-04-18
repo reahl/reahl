@@ -4,13 +4,13 @@ from reahl.tofu import test, set_up
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.login1.login1 import LoginApp
+from reahl.doc.examples.tutorial.login1.login1 import LoginUI
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
 
 
 class LoginFixture(WebFixture):
     def new_browser(self):
-        return Browser(self.new_wsgi_app(site_root=LoginApp))
+        return Browser(self.new_wsgi_app(site_root=LoginUI))
         
     password = u'bobbejaan'
 

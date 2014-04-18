@@ -19,7 +19,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Panel, P
 
 
-class BasicHTMLWidgetsApp(UserInterface):
+class BasicHTMLWidgetsUI(UserInterface):
     def assemble(self):
         self.define_main_window(TwoColumnPage, style=u'basic')  
 
