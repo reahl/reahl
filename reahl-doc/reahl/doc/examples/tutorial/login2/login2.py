@@ -4,7 +4,7 @@
 from reahl.web.fw import Region
 from reahl.web.ui import TwoColumnPage, P, HMenu
 from reahl.webelixirimpl import WebUserSession
-from reahl.domainui.accounts import AccountRegion
+from reahl.domainui.accounts import AccountApp
 
 
 
@@ -30,7 +30,7 @@ class LoginApp(Region):
             privacy_bookmark = home.as_bookmark(self, description=u'Privacy policy')
             disclaimer_bookmark = home.as_bookmark(self, description=u'Disclaimer')
 
-        accounts = self.define_region(u'/accounts', AccountRegion,
+        accounts = self.define_region(u'/accounts', AccountApp,
                                       {u'main_slot': u'main'},
                                       name=u'accounts', bookmarks=LegalBookmarks)
 

@@ -105,7 +105,7 @@ class InboxRegion(Region):
          - main_slot: All UI elements are put into this Slot for any View in this Region.
          
        **Views**
-         Call :meth:`AccountRegion.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg
+         Call :meth:`AccountApp.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg
          in order to get a Bookmark for the View listed below:
 
          `/`

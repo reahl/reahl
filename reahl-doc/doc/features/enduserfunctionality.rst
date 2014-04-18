@@ -49,12 +49,12 @@ URLs of a web application form a hierarchy.
 
 A Region in Reahl is such a hierarchy -- but with a twist: A Region can
 be grafted onto another Region. And that is exactly what happens in
-the code above: An AccountRegion is grafted onto ExampleApp, at the
+the code above: An AccountApp is grafted onto ExampleApp, at the
 URL "/accounts". Of course, ExampleApp is also just a Region
 itself. We just chose to use it as the root of our entire application.
 
-AccountRegion has an URL "/login" (amongst others). But, from now on,
-"/accounts/login" will refer to "/login" of the AccountRegion grafted
+AccountApp has an URL "/login" (amongst others). But, from now on,
+"/accounts/login" will refer to "/login" of the AccountApp grafted
 onto "/accounts" in our web application.
 
 .. code-block:: python
@@ -63,7 +63,7 @@ onto "/accounts" in our web application.
        def assemble(self):
            # some other Regions added here, and the bookmarks asked from them
 
-           self.define_region(u'/accounts', AccountRegion,
+           self.define_region(u'/accounts', AccountApp,
                            {u'main_slot': u'maincontent'},
                            u'accounts', bookmarks)
   
