@@ -477,12 +477,16 @@ class HTML5Page(HTMLElement):
        
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param title: Text for a template to be used as document Title (See also :class:`Title`).
+       :param style: Pass a string denoting a predifined set of css styles.
        :param css_id: (See :class:`HTMLElement`)
     """
-    def __init__(self, view, title=u'$current_title', css_id=None):
+    def __init__(self, view, title=u'$current_title', style=None, css_id=None):
         super(HTML5Page, self).__init__(view, u'html', children_allowed=True, css_id=css_id)
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
+
+        if style:
+            self.head.add_css(Url(u'/styles/%s.css' % style))
 
     def render(self):
         return u'<!DOCTYPE html>' + super(HTML5Page, self).render()
@@ -511,14 +515,12 @@ class TwoColumnPage(HTML5Page):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param title: Text for a template to be used as document Title (See also :class:`Title`).
-       :param style:
+       :param style: (See :class:`reahl.web.ui.HTML5Page`)
        :param css_id: (See :class:`HTMLElement`)
     """
     @arg_checks(title=IsInstance(basestring))
     def __init__(self, view, title=u'$current_title', style=None, css_id=None):
-        super(TwoColumnPage, self).__init__(view, title=title, css_id=css_id)
-        if style:
-            self.head.add_css(Url(u'/styles/%s.css' % style))
+        super(TwoColumnPage, self).__init__(view, title=title, style=style, css_id=css_id)
             
         self.yui_page = self.body.add_child(YuiDoc(view, u'doc', u'yui-t2'))
         self.main.add_child(Slot(view, u'main'))
