@@ -474,23 +474,23 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                detour_region = self.define_user_interface(u'/regionWithDetour',  UIWithDetour,  IdentityDictionary(), name=u'second_region')
-                bookmark = detour_region.get_bookmark(relative_path='/firstStepOfDetour')
-                self.define_user_interface(u'/regionWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
+                detour_ui = self.define_user_interface(u'/uiWithDetour',  UIWithDetour,  IdentityDictionary(), name=u'second_ui')
+                bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
+                self.define_user_interface(u'/uiWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
 
                 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open(u'/regionWithLink/initial')
+        browser.open(u'/uiWithLink/initial')
         browser.click(u'//a')
-        vassert( browser.location_path == u'/regionWithDetour/firstStepOfDetour' )
+        vassert( browser.location_path == u'/uiWithDetour/firstStepOfDetour' )
                 
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/regionWithDetour/lastStepOfDetour' )
+        vassert( browser.location_path == u'/uiWithDetour/lastStepOfDetour' )
 
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/regionWithLink/initial' )
+        vassert( browser.location_path == u'/uiWithLink/initial' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
