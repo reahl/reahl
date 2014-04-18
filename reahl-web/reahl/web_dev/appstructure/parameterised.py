@@ -88,12 +88,12 @@ class ParameterisedTests(object):
             def assemble(self):
                 self.define_view(u'/aview', view_class=fixture.ParameterisedView, some_arg=fixture.argument) 
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {u'main': u'main'}, name=u'myregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         if fixture.should_exist:
@@ -116,12 +116,12 @@ class ParameterisedTests(object):
                 self.define_regex_view(u'/someurl_(?P<some_key>.*)', u'/someurl_${some_key}', view_class=ParameterisedView,
                                        some_key=Field(required=True))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'myregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # Parameterisedally constructing a View from an URL
@@ -150,12 +150,12 @@ class ParameterisedTests(object):
                                          {u'region-slot': u'main'},
                                          region_key=Field())
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # A sub-region is dynamically created from an URL
@@ -219,12 +219,12 @@ class ParameterisedTests(object):
                                    region_arg=fixture.argument,
                                    name=u'paramregion')
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  IdentityDictionary(), name=u'myregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         if fixture.should_exist:

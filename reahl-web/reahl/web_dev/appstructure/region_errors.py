@@ -33,12 +33,12 @@ class RegionErrorScenarios(WebFixture):
                 root = self.define_view(u'/', title=u'View')
                 root.set_slot(u'name', P.factory())
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  SimpleRegion,  {}, name=u'testregion')
 
-        return super(RegionErrorScenarios, self).new_wsgi_app(site_root=MainRegion)
+        return super(RegionErrorScenarios, self).new_wsgi_app(site_root=MainApp)
 
     @scenario
     def plug_in_to_nonexistant_name(self):

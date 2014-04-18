@@ -64,14 +64,14 @@ class FormTests(object):
                 self.define_event_handler(model_object.events.an_event, target=other_view)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
@@ -107,7 +107,7 @@ class FormTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.add_child(Button(self, model_object.events.an_event.with_arguments(one_argument=1, another_argument=u'another')))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -115,7 +115,7 @@ class FormTests(object):
                 home.set_slot(u'main', MyForm.factory(u'myform'))
                 self.define_transition(model_object.events.an_event, home, other_view)
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
@@ -178,14 +178,14 @@ class FormTests(object):
                 self.add_child(Button(self, model_object.events.an_event))
                 self.add_child(TextInput(self, model_object.fields.field_name))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 home.set_slot(u'main', MyForm.factory(u'myform'))
 
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
@@ -268,14 +268,14 @@ class FormTests(object):
                 self.add_child(Button(self, model_object.events.an_event))
                 self.add_child(TextInput(self, model_object.fields.field_name))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open('/')
@@ -321,14 +321,14 @@ class FormTests(object):
     def duplicate_forms(self, fixture):
         """It is an error to add more than one form with the same unique_name to a page."""
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 home.set_slot(u'main', Form.factory(u'myform'))
                 home.set_slot(u'secondary', Form.factory(u'myform'))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
@@ -416,14 +416,14 @@ class FormTests(object):
                 self.add_child(Button(self, model_object.events.an_event))
                 self.add_child(TextInput(self, model_object.fields.field_name))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion, enable_js=True)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp, enable_js=True)
 
         # Case: form validation fails in JS on the client
         #  - Form submission is blocked
@@ -548,14 +548,14 @@ class FormTests(object):
                 self.define_event_handler(model_object.events.an_event, target=target)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/?%s' % fixture.initial_qs)
 
@@ -589,13 +589,13 @@ class FormTests(object):
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(Button(self, model_object.events.an_event.with_arguments(some_argument=u'f~nnystuff')))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 home.set_slot(u'main', MyForm.factory(u'myform'))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # when the Action is executed, the correct arguments are passed
@@ -627,14 +627,14 @@ class FormTests(object):
                 self.define_event_handler(model_object.events.an_event, target=other_view)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # when POSTing with _noredirect, the Action is executed, but the browser is not redirected to /page2 as usual

@@ -61,12 +61,12 @@ def i18n_urls(fixture):
         def assemble(self):
             view = self.define_view(u'/aview', title=_(u'A View'))
 
-    class MainRegion(Region):
+    class MainApp(Region):
         def assemble(self):
             self.define_main_window(TwoColumnPage)
             self.define_region(u'/aregion',  I18nRegion,  IdentityDictionary(), name=u'testregion')
             
-    wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+    wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
     browser = Browser(wsgi_app)
 
     browser.open(u'/aregion/aview')

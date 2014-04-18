@@ -41,12 +41,12 @@ class RegionTests(object):
                 self.define_view(u'/', title=u'Region root view')
                 self.define_view(u'/other', title=u'Region other view')
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithTwoViews,  {}, name=u'myregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         browser.open('/aregion/')
@@ -65,12 +65,12 @@ class RegionTests(object):
                 root = self.define_view(u'/', title=u'Region root view')
                 root.set_slot(u'text', P.factory(text=u'in region slot named text'))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithSlots,  {u'text': u'main'}, name='myregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         browser.open('/aregion/')
@@ -90,12 +90,12 @@ class RegionTests(object):
             def assemble(self):
                 self.define_view(u'/', title=u'Region root view')
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithRootView,  {}, name='myregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         browser.open('/aregion')
@@ -113,13 +113,13 @@ class RegionTests(object):
                 root = self.define_view(u'/', title=u'A view')
                 root.set_slot(u'text', P.factory(text=text))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion', RegionWithArguments, {u'text': u'main'},
                                 name='myregion', kwarg=u'the kwarg')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         browser.open('/aregion/')
@@ -136,7 +136,7 @@ class RegionTests(object):
             def assemble(self):
                 self.define_view(u'/aview', title=u'A View title')
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 region_factory = self.define_region(u'/aregion',  RegionWithRelativeView,  {}, name=u'myregion')
@@ -144,7 +144,7 @@ class RegionTests(object):
                 # How you could get a bookmark from a RegionFactory
                 fixture.bookmark = region_factory.get_bookmark(relative_path=u'/aview')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         Browser(wsgi_app).open('/aregion/aview') # To execute the above once
 
         # What the bookmark knows

@@ -42,12 +42,12 @@ class ParameterisedViewErrors(object):
             def assemble(self):
                 self.define_regex_view(u'/(?P<incorrect_name_for_key>.*)', u'/${key}', view_class=ParameterisedView, some_key=Field(required=True))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         def check_message(ex):
@@ -70,12 +70,12 @@ class ParameterisedRegionErrors(WebFixture):
                                          {u'region-slot': u'main'},
                                          region_key=Field(required=True))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  {}, name=u'testregion')
 
-        return super(ParameterisedRegionErrors, self).new_wsgi_app(site_root=MainRegion)
+        return super(ParameterisedRegionErrors, self).new_wsgi_app(site_root=MainApp)
        
 
 @istest

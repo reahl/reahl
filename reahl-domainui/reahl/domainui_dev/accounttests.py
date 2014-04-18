@@ -35,19 +35,19 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
         self.context.request = request or self.request
         return self.account_region_factory.get_bookmark(relative_path=u'/login')
     
-    def new_MainRegion(self):
+    def new_MainApp(self):
         fixture = self
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 account_region_factory = self.define_region(u'/aregion',  AccountApp,  {u'main_slot': u'main'}, name=u'testregion', 
                                                             bookmarks=fixture.bookmarks)
                 fixture.account_region_factory = account_region_factory
-        return MainRegion
+        return MainApp
     
     def new_wsgi_app(self, enable_js=False):
         return super(AccountsWebFixture, self).new_wsgi_app(enable_js=enable_js,
-                                                         site_root=self.MainRegion)
+                                                         site_root=self.MainApp)
 
     def new_browser(self):
         return Browser(self.wsgi_app)
