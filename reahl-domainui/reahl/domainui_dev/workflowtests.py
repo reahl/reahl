@@ -33,7 +33,7 @@ from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
-from reahl.domainui.accounts import AccountRegion
+from reahl.domainui.accounts import AccountApp
 
 class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
     def new_queues(self):
@@ -53,7 +53,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         class MainRegion(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                accounts = self.define_region(u'/accounts', AccountRegion, {u'main_slot': u'main'},
+                accounts = self.define_region(u'/accounts', AccountApp, {u'main_slot': u'main'},
                                               name=u'testregion', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
                 self.define_region(u'/inbox',  InboxRegion,  {u'main_slot': u'main'}, 

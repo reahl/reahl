@@ -27,7 +27,7 @@ from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
 from reahl.domain_dev.fixtures import PartyModelZooMixin
-from reahl.domainui.accounts import AccountRegion
+from reahl.domainui.accounts import AccountApp
 from reahl.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
 
 class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
@@ -40,7 +40,7 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
         class MainRegion(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                account_region_factory = self.define_region(u'/aregion',  AccountRegion,  {u'main_slot': u'main'}, name=u'testregion', 
+                account_region_factory = self.define_region(u'/aregion',  AccountApp,  {u'main_slot': u'main'}, name=u'testregion', 
                                                             bookmarks=fixture.bookmarks)
                 fixture.account_region_factory = account_region_factory
         return MainRegion
