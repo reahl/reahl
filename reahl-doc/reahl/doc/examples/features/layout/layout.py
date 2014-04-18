@@ -8,7 +8,7 @@ def lots_of(message):
 
 class LayoutUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style=u'basic')  
 
         home = self.define_view(u'/', title=u'Layout demo')
         home.set_slot(u'main', CommentForm.factory())

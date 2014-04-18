@@ -10,7 +10,7 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, Ac
 
 class PersistenceUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')
+        self.define_page(TwoColumnPage, style=u'basic')
         home = self.define_view(u'/', title=u'Persistence demo')
         home.set_slot(u'main', CommentPostPanel.factory())
 

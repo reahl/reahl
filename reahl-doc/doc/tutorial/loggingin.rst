@@ -118,7 +118,7 @@ look and layout. How does one re-use a complete bit of "page flow" in
 different web applications, each application with its own look and
 layout?
 
-The concepts of a :class:`~reahl.web.fw.UserInterface`, of a main window and :class:`~reahl.web.ui.Slot`\ s exist to make
+The concepts of a :class:`~reahl.web.fw.UserInterface`, of a page and :class:`~reahl.web.ui.Slot`\ s exist to make
 such re-use possible. The basics of these concepts is explained in
 :doc:`buildingblocks`, but there's more to it than is explained
 there. In examples thus far, each web application consisted of a few
@@ -134,7 +134,7 @@ like you'd define a :class:`~reahl.web.fw.View` on a particular URL. The URLs of
 the :class:`~reahl.domainui.accounts.AccountUI` will then be appended to the URL you use for the
 :class:`~reahl.web.fw.UserInterface` itself.
 
-The main window of your web application defines a number of :class:`~reahl.web.ui.Slot`\ s. The
+The page of your web application defines a number of :class:`~reahl.web.ui.Slot`\ s. The
 writer of :class:`~reahl.domainui.accounts.AccountUI` (or any other :class:`~reahl.web.fw.UserInterface`) does not know what :class:`~reahl.web.ui.Slot`\ s
 **your** application will have for plugging in its bits of user
 interface. Hence, each :class:`~reahl.web.fw.UserInterface` writer chooses a couple of names for

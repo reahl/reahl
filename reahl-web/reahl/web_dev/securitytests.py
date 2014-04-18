@@ -54,7 +54,7 @@ class SecurityTests(object):
 
     @test(WebFixture)
     def serving_security_sensitive_widgets(self, fixture):
-        """If the main_window is security sensitive, it will only be served on config.web.encrypted_http_scheme,
+        """If the page is security sensitive, it will only be served on config.web.encrypted_http_scheme,
            else it will only be served on config.web.default_http_scheme."""
         class TestPanel(Panel):
             def __init__(self, view):
@@ -301,7 +301,7 @@ class SecurityTests(object):
         
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_view(u'/view', u'Title', read_check=disallowed)
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -323,7 +323,7 @@ class SecurityTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/a_view', u'Title', write_check=disallowed)
                 home.set_slot(u'main', MyForm.factory())
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

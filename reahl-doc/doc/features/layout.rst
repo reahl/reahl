@@ -19,7 +19,7 @@ The source code given below results in the following visual layout:
       :alt: Screenshot of a page with header, footer, two columns and a few other layout features demonstrated.
 
 The first thing to notice in the code given below is the notion of a
-widget used as the `main window` of your application.  The main window
+widget used as the `page` of your application.  The page
 is the widget which will appear on all pages of your application ---
 but with slightly different contents depending on the particular URL
 visited.

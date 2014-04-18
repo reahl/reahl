@@ -21,4 +21,4 @@ class SlotsUI(UserInterface):
         another.set_slot(u'secondary', P.factory(text=u'Thumbnails will then sit on the side of the big photo.'))
 
         bookmarks = [home.as_bookmark(self), another.as_bookmark(self)]
-        self.define_main_window(MyCustomPage, bookmarks)
+        self.define_page(MyCustomPage, bookmarks)

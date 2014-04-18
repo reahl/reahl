@@ -43,7 +43,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui',  UIWithTwoViews,  {}, name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -58,7 +58,7 @@ class UserInterfaceTests(object):
     @test(WebFixture)
     def ui_slots_map_to_window(self, fixture):
         """The UserInterface uses its own names for Slots. When attaching a UserInterface, you have to specify 
-            which of the UserInterface's Slots plug into which of the main window's Slots.
+            which of the UserInterface's Slots plug into which of the page's Slots.
         """
         class UIWithSlots(UserInterface):
             def assemble(self):
@@ -67,7 +67,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui',  UIWithSlots,  {u'text': u'main'}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -92,7 +92,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui',  UIWithRootView,  {}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -115,7 +115,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui', UIWithArguments, {u'text': u'main'},
                                 name='myui', kwarg=u'the kwarg')
 
@@ -138,7 +138,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 ui_factory = self.define_user_interface(u'/a_ui',  UIWithRelativeView,  {}, name=u'myui')
 
                 # How you could get a bookmark from a UserInterfaceFactory
@@ -162,8 +162,8 @@ class UserInterfaceTests(object):
         vassert( a_etree.text == u'A View title' )
 
     class LifeCycleFixture(WebFixture):
-        def current_view_is_plugged_in(self, main_window):
-            return main_window.slot_contents[u'main_slot'].__class__ is Panel
+        def current_view_is_plugged_in(self, page):
+            return page.slot_contents[u'main_slot'].__class__ is Panel
 
     @test(LifeCycleFixture)
     def the_lifecycle_of_a_ui(self, fixture):
@@ -211,10 +211,10 @@ class UserInterfaceTests(object):
         user_interface = ui_factory.create(u'/some/path', for_bookmark=False)
         vassert( user_interface.relative_path == u'/some/path' )
 
-        # Phase5: create the main_window and plug the view into it
-        main_window = Widget.factory().create(user_interface.current_view)
-        main_window.add_child(Slot(user_interface.current_view, 'main_slot'))
+        # Phase5: create the page and plug the view into it
+        page = Widget.factory().create(user_interface.current_view)
+        page.add_child(Slot(user_interface.current_view, 'main_slot'))
 
-        main_window.plug_in(user_interface.current_view)
-        vassert( fixture.current_view_is_plugged_in(main_window) )
+        page.plug_in(user_interface.current_view)
+        vassert( fixture.current_view_is_plugged_in(page) )
         vassert( isinstance(user_interface.sub_resources, FactoryDict) )

@@ -468,7 +468,7 @@ class Body(HTMLElement):
 
 
 class HTML5Page(HTMLElement):
-    """A web page that may be used as the main window of a web application. It ensures that everything needed by
+    """A web page that may be used as the page of a web application. It ensures that everything needed by
        the framework (linked CSS and JavaScript, etc) is available on such a page.
 
        .. admonition:: Styling

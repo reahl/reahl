@@ -24,7 +24,7 @@ class AddressBookPage(TwoColumnPage):
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_main_window(AddressBookPage)
+        self.define_page(AddressBookPage)
         find = self.define_view(u'/', title=_(u'Address Book'))
         find.set_slot(u'main', AddressBookPanel.factory())
 

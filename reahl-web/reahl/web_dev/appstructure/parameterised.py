@@ -90,7 +90,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -118,7 +118,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -152,7 +152,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -162,7 +162,7 @@ class ParameterisedTests(object):
         browser.open('/a_ui/apath/test1/')
         vassert( browser.title == u'Simple user_interface user_interface-test1' )
 
-        # The slots of the sub-user_interface is correctly plugged into the main window
+        # The slots of the sub-user_interface is correctly plugged into the page
         [p] = browser.lxml_html.xpath('//p')
         vassert( p.text == u'in user_interface slot' )
 
@@ -221,7 +221,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -233,7 +233,7 @@ class ParameterisedTests(object):
             # The correct argument was passed
             vassert( browser.title == u'Simple user_interface user_interface-%s' % fixture.expected_value )
 
-            # The slots of the sub-user_interface is correctly plugged into the main window
+            # The slots of the sub-user_interface is correctly plugged into the page
             [p] = browser.lxml_html.xpath('//p')
             vassert( p.text == u'in user_interface slot' )
         else:

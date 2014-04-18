@@ -78,7 +78,7 @@ The example below shows the application designed above with its two
 
 The :class:`~reahl.web.ui.Menu` should be on every page. This could be accomplished by adding
 a similar :class:`~reahl.web.ui.Menu` to each :class:`~reahl.web.fw.View`. A better solution though, is to create a
-main_window :class:`~reahl.web.fw.Widget` for the application, and make this main window
+page :class:`~reahl.web.fw.Widget` for the application, and make this page
 contain the :class:`~reahl.web.ui.Menu`. In the example, AddressBookPage plays this role. A
 AddressBookPage is literally just a :class:`~reahl.web.ui.TwoColumnPage`, with an :class:`~reahl.web.ui.HMenu` (a
 horisontal menu) added to its `.header`. The :class:`~reahl.web.ui.Menu` uses the textual
@@ -88,9 +88,9 @@ is constructed. Such a description defaults to being the title of the
 
 In order to be able to create the :class:`~reahl.web.ui.HMenu`, AddressBookPage needs a
 :class:`~reahl.web.fw.Bookmark` for each :class:`~reahl.web.fw.View` in the application. This information is
-available where `.define_main_window()` is called, and so can be
+available where `.define_page()` is called, and so can be
 passed in from there as an argument. The arguments passed to
-`.define_main_window()` are sent to `AddressBookPage.__init__()` each
+`.define_page()` are sent to `AddressBookPage.__init__()` each
 time an AddressBookPage is constructed.
  
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py

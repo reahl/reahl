@@ -27,7 +27,7 @@ class AddressBookUI(UserInterface):
         self.define_transition(Address.events.save, add, addresses)
 
         bookmarks = [f.as_bookmark(self) for f in [addresses, add]]
-        self.define_main_window(AddressBookPage, bookmarks)
+        self.define_page(AddressBookPage, bookmarks)
 
 
 class AddressBookPanel(Panel):

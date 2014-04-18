@@ -39,7 +39,7 @@ class AddressBookUI(UserInterface):
         addresses.set_slot(u'main', AddressBookPanel.factory(self))
 
         bookmarks = [f.as_bookmark(self) for f in [addresses, add]]
-        self.define_main_window(AddressBookPage, bookmarks)
+        self.define_page(AddressBookPage, bookmarks)
 
         self.define_transition(Address.events.save, add, addresses)
         self.define_transition(Address.events.update, edit, addresses)

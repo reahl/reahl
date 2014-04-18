@@ -60,10 +60,10 @@ class AppBasicsTests(object):
             self.content_includes_p = True
 
         @scenario
-        def ui_with_main_window(self):
+        def ui_with_page(self):
             class MainUI(UserInterface):
                 def assemble(self):
-                    self.define_main_window(TwoColumnPage)
+                    self.define_page(TwoColumnPage)
                     self.define_view(u'/', title=u'Hello')
 
             self.MainUI = MainUI
@@ -102,10 +102,10 @@ class AppBasicsTests(object):
 
     @test(WebFixture)
     def basic_error1(self, fixture):
-        """Sending the the wrong kind of thing as widget_class to define_main_window is reported to the programmer."""
+        """Sending the the wrong kind of thing as widget_class to define_page is reported to the programmer."""
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(EmptyStub)
+                self.define_page(EmptyStub)
                 self.define_view(u'/', title=u'Hello')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -116,10 +116,10 @@ class AppBasicsTests(object):
 
     @test(WebFixture)
     def basic_error2(self, fixture):
-        """Sending the the wrong arguments for the specified class to define_main_window is reported to the programmer."""
+        """Sending the the wrong arguments for the specified class to define_page is reported to the programmer."""
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage, 1, 2)
+                self.define_page(TwoColumnPage, 1, 2)
                 self.define_view(u'/', title=u'Hello')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -127,13 +127,13 @@ class AppBasicsTests(object):
 
         def check_exc(ex):
             msg = str(ex)
-            vassert( msg.startswith('define_main_window was called with arguments that do not match those expected by') )
+            vassert( msg.startswith('define_page was called with arguments that do not match those expected by') )
         with expected(IncorrectArgumentError, test=check_exc):
             browser.open('/')
 
     @test(WebFixture)
     def basic_error3(self, fixture):
-        """Forgetting to define either a main_window of a page for a View is reported to the programmer."""
+        """Forgetting to define either a page of a page for a View is reported to the programmer."""
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_view(u'/', title=u'Hello')
@@ -143,23 +143,23 @@ class AppBasicsTests(object):
 
         def check_exc(ex):
             msg = str(ex)
-            vassert( msg == 'there is no main_window defined for /' )
+            vassert( msg == 'there is no page defined for /' )
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')
 
     class SlotScenarios(WebFixture):
         @scenario
-        def main_window_on_ui(self):
+        def page_on_ui(self):
             class MainUI(UserInterface):
                 def assemble(self):
-                    self.define_main_window(TwoColumnPage)
+                    self.define_page(TwoColumnPage)
                     home = self.define_view(u'/', title=u'Hello')
                     home.set_slot(u'main', P.factory(text=u'Hello world'))
                     home.set_slot(u'footer', P.factory(text=u'I am the footer'))
             self.MainUI = MainUI
 
         @scenario
-        def main_window_on_view(self):
+        def page_on_view(self):
             class MainUI(UserInterface):
                 def assemble(self):
                     home = self.define_view(u'/', title=u'Hello')
@@ -171,7 +171,7 @@ class AppBasicsTests(object):
             
     @test(SlotScenarios)
     def slots(self, fixture):
-        """A View modifies the main window by populating named Slots in the main window with Widgets."""
+        """A View modifies the page by populating named Slots in the page with Widgets."""
         wsgi_app = fixture.new_wsgi_app(site_root=fixture.MainUI)
         browser = Browser(wsgi_app)
         
@@ -186,7 +186,7 @@ class AppBasicsTests(object):
         """Supplying contents for a slot that does not exist results in s sensible error."""
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Hello')
                 home.set_slot(u'main', P.factory(text=u'Hello world'))
                 home.set_slot(u'nonexistantslotname', P.factory(text=u'I am breaking'))
@@ -208,7 +208,7 @@ class AppBasicsTests(object):
         """
         class MainUI(UserInterface):
             def assemble(self):
-                main = self.define_main_window(TwoColumnPage)
+                main = self.define_page(TwoColumnPage)
                 main.add_default_slot(u'main', P.factory(text=u'defaulted slot contents'))
                 self.define_view(u'/', title=u'Hello')
 

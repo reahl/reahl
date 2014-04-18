@@ -35,7 +35,7 @@ class UserInterfaceErrorScenarios(WebFixture):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_user_interface(u'/a_ui',  SimpleUserInterface,  {}, name=u'test_ui')
 
         return super(UserInterfaceErrorScenarios, self).new_wsgi_app(site_root=MainUI)

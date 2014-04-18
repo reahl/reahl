@@ -21,7 +21,7 @@ from reahl.web.ui import TwoColumnPage, Panel, P
 
 class BasicHTMLWidgetsUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style=u'basic')  
 
         home = self.define_view(u'/', title=u'Basic HTML Widgets demo')
         home.set_slot(u'main', WidgetPanel.factory())

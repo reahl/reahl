@@ -338,7 +338,7 @@ class AddressBookUI(UserInterface):
         self.define_transition(Address.events.update, edit_address_page, self.address_book_page)
         self.define_transition(AddressBook.events.add_collaborator, self.add_collaborator_page, self.address_book_page)
 
-        self.define_main_window(AddressAppPage, home.as_bookmark(self))
+        self.define_page(AddressAppPage, home.as_bookmark(self))
 
     def get_address_book_bookmark(self, address_book, description=None):
         return self.address_book_page.as_bookmark(self, description=description, address_book_id=address_book.id)
