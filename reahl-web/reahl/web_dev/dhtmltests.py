@@ -64,7 +64,7 @@ class BasicTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
+                self.define_user_interface(u'/dhtml_ui', DhtmlUI, {u'main_slot': u'main'},
                                 name=u'test_region', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
@@ -74,18 +74,18 @@ class BasicTests(object):
         browser = Browser(wsgi_app)
 
         # A dhtml file: TwoColumnPage's main_slot now contains the insides of the div in the dhtml file
-        browser.open(u'/dhtml_region/correctfile.d.html')
+        browser.open(u'/dhtml_ui/correctfile.d.html')
         html = browser.get_html_for(u'//div[@id="bd"]/div/div/*')
         vassert( html == fixture.div_internals )
 
         # A non-dhtml file is returned verbatim
-        browser.open(u'/dhtml_region/otherfile.txt')
+        browser.open(u'/dhtml_ui/otherfile.txt')
         contents = browser.raw_html
         vassert( contents == u'other' )
 
         # Files that do not exist are reported as such
-        browser.open(u'/dhtml_region/idonotexist.txt', status=404)
-        browser.open(u'/dhtml_region/idonotexist.d.html', status=404)
+        browser.open(u'/dhtml_ui/idonotexist.txt', status=404)
+        browser.open(u'/dhtml_ui/idonotexist.d.html', status=404)
 
     @test(DjhtmlFixture)
     def i18n_dhtml(self, fixture):
@@ -100,7 +100,7 @@ class BasicTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/dhtml_region', DhtmlUI, {u'main_slot': u'main'},
+                self.define_user_interface(u'/dhtml_ui', DhtmlUI, {u'main_slot': u'main'},
                                    name=u'test_region', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
@@ -114,7 +114,7 @@ class BasicTests(object):
         def stubbed_create_context_for_request():
             return AfrikaansContext()
         with replaced(wsgi_app.create_context_for_request, stubbed_create_context_for_request):
-            browser.open(u'/dhtml_region/correctfile.d.html')
+            browser.open(u'/dhtml_ui/correctfile.d.html')
             
         vassert( browser.title == u'Afrikaans bo!' )
 
