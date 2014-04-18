@@ -57,7 +57,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithTwoViews,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithTwoViews,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -98,7 +98,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -135,7 +135,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithAView,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithAView,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -231,7 +231,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -299,7 +299,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -331,7 +331,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -372,7 +372,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -406,7 +406,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -438,7 +438,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
+                self.define_user_interface(u'/aregion',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -474,9 +474,9 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                detour_region = self.define_region(u'/regionWithDetour',  UIWithDetour,  IdentityDictionary(), name=u'second_region')
+                detour_region = self.define_user_interface(u'/regionWithDetour',  UIWithDetour,  IdentityDictionary(), name=u'second_region')
                 bookmark = detour_region.get_bookmark(relative_path='/firstStepOfDetour')
-                self.define_region(u'/regionWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
+                self.define_user_interface(u'/regionWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
 
                 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

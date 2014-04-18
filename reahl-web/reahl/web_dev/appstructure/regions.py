@@ -44,7 +44,7 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithTwoViews,  {}, name=u'myregion')
+                self.define_user_interface(u'/aregion',  UIWithTwoViews,  {}, name=u'myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -68,7 +68,7 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithSlots,  {u'text': u'main'}, name='myregion')
+                self.define_user_interface(u'/aregion',  UIWithSlots,  {u'text': u'main'}, name='myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -93,7 +93,7 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  UIWithRootView,  {}, name='myregion')
+                self.define_user_interface(u'/aregion',  UIWithRootView,  {}, name='myregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -116,7 +116,7 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion', UIWithArguments, {u'text': u'main'},
+                self.define_user_interface(u'/aregion', UIWithArguments, {u'text': u'main'},
                                 name='myregion', kwarg=u'the kwarg')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -139,7 +139,7 @@ class RegionTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                region_factory = self.define_region(u'/aregion',  UIWithRelativeView,  {}, name=u'myregion')
+                region_factory = self.define_user_interface(u'/aregion',  UIWithRelativeView,  {}, name=u'myregion')
 
                 # How you could get a bookmark from a RegionFactory
                 fixture.bookmark = region_factory.get_bookmark(relative_path=u'/aview')
