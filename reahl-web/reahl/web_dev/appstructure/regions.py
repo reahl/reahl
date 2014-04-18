@@ -46,8 +46,8 @@ class RegionTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithTwoViews,  {}, name=u'myregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open('/aregion/')
         vassert( browser.title == u'Region root view' )
@@ -70,8 +70,8 @@ class RegionTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithSlots,  {u'text': u'main'}, name='myregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open('/aregion/')
         vassert( browser.title == u'Region root view' )
@@ -95,8 +95,8 @@ class RegionTests(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithRootView,  {}, name='myregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open('/aregion')
         vassert( browser.title == u'Region root view' )
@@ -119,8 +119,8 @@ class RegionTests(object):
                 self.define_region(u'/aregion', RegionWithArguments, {u'text': u'main'},
                                 name='myregion', kwarg=u'the kwarg')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         browser.open('/aregion/')
         [p] = browser.lxml_html.xpath('//p')
@@ -144,8 +144,8 @@ class RegionTests(object):
                 # How you could get a bookmark from a RegionFactory
                 fixture.bookmark = region_factory.get_bookmark(relative_path=u'/aview')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        Browser(webapp).open('/aregion/aview') # To execute the above once
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        Browser(wsgi_app).open('/aregion/aview') # To execute the above once
 
         # What the bookmark knows
         vassert( fixture.bookmark.href.path == u'/aregion/aview' )

@@ -47,8 +47,8 @@ class ParameterisedViewErrors(object):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'testregion')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         def check_message(ex):
             return unicode(ex).startswith('The arguments contained in URL')
@@ -58,7 +58,7 @@ class ParameterisedViewErrors(object):
 
 
 class ParameterisedRegionErrors(WebFixture):
-    def new_webapp(self):
+    def new_wsgi_app(self):
         fixture = self
         class RegexRegion(Region):
             def assemble(self, region_key=None):
@@ -75,7 +75,7 @@ class ParameterisedRegionErrors(WebFixture):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedRegions,  {}, name=u'testregion')
 
-        return super(ParameterisedRegionErrors, self).new_webapp(site_root=MainRegion)
+        return super(ParameterisedRegionErrors, self).new_wsgi_app(site_root=MainRegion)
        
 
 @istest
@@ -83,7 +83,7 @@ class ParameterisedErrorsTests(object):
     @test(ParameterisedRegionErrors)
     def missing_variable_in_regex(self, fixture):
 
-        browser = Browser(fixture.webapp)
+        browser = Browser(fixture.wsgi_app)
 
         with expected(RequiredConstraint):
             browser.open('/aregion/test1/')

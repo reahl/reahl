@@ -72,8 +72,8 @@ class WrappedApp(object):
                 to_return += i
         yield to_return
 
-    def set_new_wrapped(self, new_webapp):
-        self.wrapped = new_webapp
+    def set_new_wrapped(self, new_wsgi_app):
+        self.wrapped = new_wsgi_app
 
     def __getattr__(self, name):
         return getattr(self.wrapped, name)
@@ -140,8 +140,8 @@ class SSLWSGIRequestHandler(LoggingRequestHandler):
 
 class ReahlWSGIServer(simple_server.WSGIServer):
     @classmethod
-    def make_server(cls, host, port, reahl_WSGI_app):
-        httpd = simple_server.make_server(host, port, reahl_WSGI_app, server_class=cls, 
+    def make_server(cls, host, port, reahl_wsgi_app):
+        httpd = simple_server.make_server(host, port, reahl_wsgi_app, server_class=cls, 
                                           handler_class=LoggingRequestHandler)
         return httpd
 
@@ -174,9 +174,9 @@ class ReahlWSGIServer(simple_server.WSGIServer):
 
 class SSLCapableWSGIServer(ReahlWSGIServer):
     @classmethod
-    def make_server(cls, host, port, certfile, reahl_WSGI_app):
+    def make_server(cls, host, port, certfile, reahl_wsgi_app):
         cls.certfile = certfile
-        httpd = simple_server.make_server(host, port, reahl_WSGI_app, server_class=cls, 
+        httpd = simple_server.make_server(host, port, reahl_wsgi_app, server_class=cls, 
                                           handler_class=SSLWSGIRequestHandler)
         return httpd
 
@@ -266,9 +266,9 @@ class ReahlWebServer(object):
         config.configure()
         return cls(config, port)
 
-    def set_app(self, new_webapp):
-        """Changes the currently served application to `new_webapp`."""
-        self.reahl_WSGI_app.set_new_wrapped(new_webapp)
+    def set_app(self, new_wsgi_app):
+        """Changes the currently served application to `new_wsgi_app`."""
+        self.reahl_wsgi_app.set_new_wrapped(new_wsgi_app)
 
     def set_noop_app(self):
         self.set_app(NoopApp())
@@ -278,11 +278,11 @@ class ReahlWebServer(object):
         self.running = False
         self.handlers = {}
         certfile = pkg_resources.resource_filename(__name__, u'reahl_development_cert.pem')
-        self.reahl_WSGI_app = WrappedApp(ReahlWSGIApplication(config))
+        self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config))
         try:
             https_port = port+363
-            self.httpd = ReahlWSGIServer.make_server('', port, self.reahl_WSGI_app)
-            self.httpsd = SSLCapableWSGIServer.make_server('', https_port, certfile, self.reahl_WSGI_app)
+            self.httpd = ReahlWSGIServer.make_server('', port, self.reahl_wsgi_app)
+            self.httpsd = SSLCapableWSGIServer.make_server('', https_port, certfile, self.reahl_wsgi_app)
         except socket.error, ex:
             message = (u'Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, port, https_port)) \
                      +u'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html' \
@@ -311,7 +311,7 @@ class ReahlWebServer(object):
            :keyword in_seperate_thread: If False, the server handles requests in the same thread as your tests.
            :keyword connect: If True, also connects to the database.
         """
-        self.reahl_WSGI_app.start(connect=connect)
+        self.reahl_wsgi_app.start(connect=connect)
         if in_seperate_thread:
             self.start_thread()
         self.in_seperate_thread = in_seperate_thread
@@ -320,7 +320,7 @@ class ReahlWebServer(object):
         """Stops the webserver and web application from running."""
         if self.running:
             self.stop_thread()
-        self.reahl_WSGI_app.stop()
+        self.reahl_wsgi_app.stop()
         self.shutdown_socket(self.httpd.socket)
         self.shutdown_socket(self.httpsd.socket)
     
@@ -342,7 +342,7 @@ class ReahlWebServer(object):
 
     def serve_until(self, done):
         count = 0
-        while not (done() or self.reahl_WSGI_app.has_uncaught_exception()):
+        while not (done() or self.reahl_wsgi_app.has_uncaught_exception()):
             self.httpd.serve_async()
             self.httpsd.serve_async()
 

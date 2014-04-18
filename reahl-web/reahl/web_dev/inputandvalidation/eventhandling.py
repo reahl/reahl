@@ -71,8 +71,8 @@ class FormTests(object):
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
         # clicking on the button triggers the action of the event handler
@@ -115,8 +115,8 @@ class FormTests(object):
                 home.set_slot(u'main', MyForm.factory(u'myform'))
                 self.define_transition(model_object.events.an_event, home, other_view)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
         # when the Action is executed, the correct arguments are passed
@@ -185,8 +185,8 @@ class FormTests(object):
                 home.set_slot(u'main', MyForm.factory(u'myform'))
 
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
         # the initial value rendered in the input
@@ -208,8 +208,8 @@ class FormTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.define_event_handler(EmptyStub())
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'form'))
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'form'))
+        browser = Browser(wsgi_app)
         
         with expected(IsInstance):
             browser.open('/')
@@ -229,8 +229,8 @@ class FormTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'form'))
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'form'))
+        browser = Browser(wsgi_app)
 
         def check_exc(exc):
             vassert( str(exc) == u'no Event/Transition available for name an_event' )
@@ -275,8 +275,8 @@ class FormTests(object):
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open('/')
 
@@ -328,8 +328,8 @@ class FormTests(object):
                 home.set_slot(u'main', Form.factory(u'myform'))
                 home.set_slot(u'secondary', Form.factory(u'myform'))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         def check_exc(ex):
             vassert( str(ex).startswith(u'More than one form was added using the same unique_name') )
@@ -379,8 +379,8 @@ class FormTests(object):
                 self.define_event_handler(outer_model_object.events.outer_event)
                 self.add_child(Button(self, outer_model_object.events.outer_event))
 
-        webapp = fixture.new_webapp(child_factory=OuterForm.factory(u'outer_form'))
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=OuterForm.factory(u'outer_form'))
+        fixture.reahl_server.set_app(wsgi_app)
         browser = fixture.driver_browser
         
         browser.open('/')
@@ -423,12 +423,12 @@ class FormTests(object):
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        webapp = fixture.new_webapp(site_root=MainRegion, enable_js=True)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion, enable_js=True)
 
         # Case: form validation fails in JS on the client
         #  - Form submission is blocked
         #  - Error message is displayed
-        fixture.reahl_server.set_app(webapp)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open(u'/')
         fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
         fixture.driver_browser.type(u'//input[@type="text"]', u'not@notvalid')
@@ -442,7 +442,7 @@ class FormTests(object):
 
         # Case: form validation fails on the server (assuming no JS on the client to block submission)
         #  - ValidationException is raised (which is dealt with as any DomainException)
-        browser = Browser(webapp)
+        browser = Browser(wsgi_app)
         browser.open('/')
         browser.type('//input[@type="text"]', u'not@notvalid')
 
@@ -483,7 +483,7 @@ class FormTests(object):
 
     class QueryStringScenarios(FormFixture):
         def new_other_view(self):
-            return self.webapp.define_view(u'/page2', title=u'Page 2')
+            return self.wsgi_app.define_view(u'/page2', title=u'Page 2')
 
         def new_form(self):
             form = Form(self.view, u'some_form')
@@ -555,8 +555,8 @@ class FormTests(object):
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/?%s' % fixture.initial_qs)
 
         vassert( fixture.query_string_on_form_submit == fixture.initial_qs )
@@ -595,8 +595,8 @@ class FormTests(object):
                 home = self.define_view(u'/', title=u'Home page')
                 home.set_slot(u'main', MyForm.factory(u'myform'))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # when the Action is executed, the correct arguments are passed
         browser.post(u'/__myform_method', {u'event.an_event?some_argument=f~nnystuff': ''})
@@ -634,8 +634,8 @@ class FormTests(object):
                 other_view = self.define_view(u'/page2', title=u'Page 2')
                 home.set_slot(u'main', MyForm.factory(u'myform', other_view))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         # when POSTing with _noredirect, the Action is executed, but the browser is not redirected to /page2 as usual
         browser.post(u'/__myform_method', {u'event.an_event?': u'', u'_noredirect': u''})
@@ -670,8 +670,8 @@ class FormTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.add_child(TextInput(self, model_object.fields.a_field))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory('myform'))
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
+        browser = Browser(wsgi_app)
 
         browser.open(u'/_myform_validate_method?a_field=invalid email address')
         vassert( browser.raw_html == u'"a_field should be a valid email address"' )
@@ -697,8 +697,8 @@ class FormTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.add_child(TextInput(self, model_object.fields.a_field))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory('myform'))
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
+        browser = Browser(wsgi_app)
 
         browser.open(u'/_myform_format_method?a_field=13 November 2012')
         vassert( browser.raw_html == u'13 Nov 2012' )

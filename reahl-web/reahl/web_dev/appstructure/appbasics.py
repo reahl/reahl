@@ -78,8 +78,8 @@ class AppBasicsTests(object):
         the URL of a View, a page is rendered back to the user. How that page is created
         can happen in different ways, as illustrated by each scenario of this test.
         """
-        webapp = fixture.new_webapp(site_root=fixture.MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=fixture.MainRegion)
+        browser = Browser(wsgi_app)
 
         # GETting the URL results in the HTML for that View
         browser.open('/')
@@ -108,8 +108,8 @@ class AppBasicsTests(object):
                 self.define_main_window(EmptyStub)
                 self.define_view(u'/', title=u'Hello')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         with expected(IsSubclass):
             browser.open('/')
@@ -122,8 +122,8 @@ class AppBasicsTests(object):
                 self.define_main_window(TwoColumnPage, 1, 2)
                 self.define_view(u'/', title=u'Hello')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         def check_exc(ex):
             msg = str(ex)
@@ -138,8 +138,8 @@ class AppBasicsTests(object):
             def assemble(self):
                 self.define_view(u'/', title=u'Hello')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         def check_exc(ex):
             msg = str(ex)
@@ -172,8 +172,8 @@ class AppBasicsTests(object):
     @test(SlotScenarios)
     def slots(self, fixture):
         """A View modifies the main window by populating named Slots in the main window with Widgets."""
-        webapp = fixture.new_webapp(site_root=fixture.MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=fixture.MainRegion)
+        browser = Browser(wsgi_app)
         
         browser.open('/')
         vassert( browser.title == u'Hello' )
@@ -191,8 +191,8 @@ class AppBasicsTests(object):
                 home.set_slot(u'main', P.factory(text=u'Hello world'))
                 home.set_slot(u'nonexistantslotname', P.factory(text=u'I am breaking'))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
 
         def check_exc(ex):
             vassert( str(ex).startswith(u'An attempt was made to plug Widgets into the following slots that do not exist') )
@@ -212,8 +212,8 @@ class AppBasicsTests(object):
                 main.add_default_slot(u'main', P.factory(text=u'defaulted slot contents'))
                 self.define_view(u'/', title=u'Hello')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
         
         browser.open('/')
 

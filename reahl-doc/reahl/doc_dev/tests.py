@@ -57,7 +57,7 @@ from reahl.doc.examples.tutorial.parameterised2 import parameterised2
 
 class ExampleFixture(Fixture, WebBasicsMixin):
     def start_example_app(self):
-        self.reahl_server.set_app(self.webapp)
+        self.reahl_server.set_app(self.wsgi_app)
 
     def new_screenshot_directory(self):
         relative_path = u'doc/_build/screenshots'
@@ -91,80 +91,80 @@ class ExampleFixture(Fixture, WebBasicsMixin):
 
     @scenario
     def hello(self):
-        self.webapp = self.new_webapp(site_root=HelloApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=HelloApp)
 
     @scenario
     def hello_apache(self):
-        self.webapp = self.new_webapp(site_root=helloapache.HelloApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=helloapache.HelloApp)
 
     @scenario
     def tabbed_panel(self):
-        self.webapp = self.new_webapp(site_root=TabbedPanelApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=TabbedPanelApp, enable_js=True)
 
     @scenario
     def validation(self):
-        self.webapp = self.new_webapp(site_root=ValidationApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=ValidationApp, enable_js=True)
 
     @scenario
     def layout(self):
-        self.webapp = self.new_webapp(site_root=LayoutApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=LayoutApp, enable_js=True)
 
     @scenario
     def pageflow(self):
-        self.webapp = self.new_webapp(site_root=PageFlowApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=PageFlowApp, enable_js=True)
 
     @scenario
     def persistence(self):
-        self.webapp = self.new_webapp(site_root=PersistenceApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=PersistenceApp, enable_js=True)
 
     @scenario
     def access_control(self):
-        self.webapp = self.new_webapp(site_root=AccessApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=AccessApp, enable_js=True)
 
     @scenario
     def i18n(self):
-        self.webapp = self.new_webapp(site_root=TranslatedApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=TranslatedApp, enable_js=True)
 
     @scenario
     def basichtmlinputs(self):
-        self.webapp = self.new_webapp(site_root=BasicHTMLInputsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=BasicHTMLInputsApp, enable_js=True)
 
     @scenario
     def basichtmlwidgets(self):
-        self.webapp = self.new_webapp(site_root=BasicHTMLWidgetsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=BasicHTMLWidgetsApp, enable_js=True)
 
     @scenario
     def fileupload(self):
-        self.webapp = self.new_webapp(site_root=FileUploadApp, enable_js=True)
-#        self.webapp = self.new_webapp(site_root=FileUploadApp, enable_js=False)
+        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadApp, enable_js=True)
+#        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadApp, enable_js=False)
 
     @scenario
     def slots(self):
-        self.webapp = self.new_webapp(site_root=SlotsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=SlotsApp, enable_js=True)
 
     @scenario
     def addressbook1(self):
-        self.webapp = self.new_webapp(site_root=addressbook1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=addressbook1.AddressBookApp)
 
     @scenario
     def addressbook2(self):
-        self.webapp = self.new_webapp(site_root=addressbook2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=addressbook2.AddressBookApp)
 
     @scenario
     def pageflow1(self):
-        self.webapp = self.new_webapp(site_root=pageflow1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow1.AddressBookApp)
 
     @scenario
     def pageflow2(self):
-        self.webapp = self.new_webapp(site_root=pageflow2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow2.AddressBookApp)
 
     @scenario
     def parameterised1(self):
-        self.webapp = self.new_webapp(site_root=parameterised1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=parameterised1.AddressBookApp)
 
     @scenario
     def parameterised2(self):
-        self.webapp = self.new_webapp(site_root=parameterised2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=parameterised2.AddressBookApp)
 
 
 @test(ExampleFixture)
@@ -371,14 +371,14 @@ def model_examples(fixture):
 
 @test(ExampleFixture.addressbook1)
 def test_addressbook1(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
     
     vassert( browser.is_element_present(XPath.inputgroup_labelled(u'Add an address')) ) 
 
 @test(ExampleFixture.addressbook2)
 def test_addressbook2(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
     
     browser.type(XPath.input_labelled(u'Name'), u'John') 
@@ -389,7 +389,7 @@ def test_addressbook2(fixture):
 
 @test(ExampleFixture.pageflow1)
 def test_pageflow1(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
     vassert( browser.is_element_present(u'//ul[contains(@class,"reahl-menu")]') )
@@ -410,7 +410,7 @@ def test_pageflow1(fixture):
 
 @test(ExampleFixture.pageflow2)
 def test_pageflow2(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
     vassert( browser.is_element_present(u'//ul[contains(@class,"reahl-menu")]') )
@@ -428,7 +428,7 @@ def test_pageflow2(fixture):
 
 @test(ExampleFixture.parameterised1)
 def test_parameterised1(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
     browser.click(XPath.link_with_text(u'Add an address'))
@@ -450,7 +450,7 @@ def test_parameterised1(fixture):
 
 @test(ExampleFixture.parameterised2)
 def test_parameterised2(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
     browser.click(XPath.link_with_text(u'Add an address'))

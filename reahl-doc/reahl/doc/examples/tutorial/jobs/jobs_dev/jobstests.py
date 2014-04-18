@@ -11,8 +11,8 @@ from reahl.doc.examples.tutorial.jobs.jobs import AddressBookApp, Address
 
 
 class JobsFixture(WebFixture):
-    def new_webapp(self):
-        return super(JobsFixture, self).new_webapp(site_root=AddressBookApp)
+    def new_wsgi_app(self):
+        return super(JobsFixture, self).new_wsgi_app(site_root=AddressBookApp)
         
     def new_existing_address(self):
         address = Address(name=u'John Doe', email_address=u'johndoe@some.org')
@@ -20,7 +20,7 @@ class JobsFixture(WebFixture):
         return address
 
     def new_browser(self):
-        return Browser(self.webapp)
+        return Browser(self.wsgi_app)
 
     def address_is_listed_as(self, name, email_address, is_new):
         new = u' (new)' if is_new else u''

@@ -175,8 +175,8 @@ class WidgetBasics(object):
                 other = self.define_view(u'/other', title=u'Other')
                 other.set_slot(u'slot1', P.factory(text=u'other'))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
         
         browser.open('/')
         [slot1_p, slot2_p] = browser.lxml_html.xpath('//p')
@@ -203,8 +203,8 @@ class WidgetBasics(object):
                 self.define_main_window(MyMainWindow)
                 self.define_view(u'/', title=u'Home')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
         
         browser.open('/')
         [slot3_p] = browser.lxml_html.xpath('//p')
@@ -237,8 +237,8 @@ class WidgetBasics(object):
                 self.define_main_window(MyMainWindow)
                 self.define_view(u'/', title=u'Home')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        browser = Browser(wsgi_app)
         
         browser.open('/')
         rendered_js = browser.lxml_html.xpath('//script')[1].text
@@ -264,8 +264,8 @@ class WidgetBasics(object):
         """The JavaScript and CSS files listed in the .reahlproject are discovered when the webserver starts up, and put into one file
            for inclusion on each page of a Reahl web application."""
 
-        webapp = fixture.new_webapp(enable_js=True)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(enable_js=True)
+        browser = Browser(wsgi_app)
         browser.open(fixture.static_file)
 
         def broken_but_comparable_minify(some_js):

@@ -76,7 +76,7 @@ class WebBasicsMixin(PartyModelZooMixin):
     def reahl_server(self):
         return self.run_fixture.reahl_server
 
-    def new_webconfig(self, webapp=None):
+    def new_webconfig(self, wsgi_app=None):
         web = WebConfig()
         web.site_root = Region
         web.static_root = os.path.join(os.getcwd(), 'static')
@@ -114,11 +114,11 @@ class WebBasicsMixin(PartyModelZooMixin):
             request.host = u'localhost:8363'
         return Request(request.environ, charset='utf8')
 
-    def new_webapp(self, site_root=None, enable_js=False, 
+    def new_wsgi_app(self, site_root=None, enable_js=False, 
                          config=None, view_slots=None, child_factory=None):
-        webapp_class = ReahlWSGIApplicationStub
+        wsgi_app_class = ReahlWSGIApplicationStub
         if enable_js:
-            webapp_class = ReahlWSGIApplication
+            wsgi_app_class = ReahlWSGIApplication
         view_slots = view_slots or {}
         child_factory = child_factory or Widget.factory()
         if not view_slots.has_key(u'main'):
@@ -132,7 +132,7 @@ class WebBasicsMixin(PartyModelZooMixin):
 
         site_root = site_root or MainRegion
         config.web.site_root = site_root
-        return webapp_class(config)
+        return wsgi_app_class(config)
 
     @property
     def current_location(self):

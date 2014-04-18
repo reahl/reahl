@@ -43,14 +43,14 @@ class RequestHandlingTests(object):
     def wsgi_interface(self, fixture):
         """A ReahlWSGIApplication is a WSGI application."""
 
-        webapp = fixture.webapp
+        wsgi_app = fixture.wsgi_app
 
         environ = Request.blank('/', charset='utf8').environ
         def start_response(status, headers):
             fixture.status = status
             fixture.headers = headers
         
-        wsgi_iterator = webapp(environ, start_response)
+        wsgi_iterator = wsgi_app(environ, start_response)
 
         result = u''.join([i for i in wsgi_iterator])  # To check that it is iterable and get the value
         vassert( fixture.result_is_valid(result) )

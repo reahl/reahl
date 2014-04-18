@@ -26,7 +26,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError
 
 class RegionErrorScenarios(WebFixture):
-    def new_webapp(self):
+    def new_wsgi_app(self):
         fixture = self
         class SimpleRegion(Region):
             def assemble(self):
@@ -38,7 +38,7 @@ class RegionErrorScenarios(WebFixture):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  SimpleRegion,  {}, name=u'testregion')
 
-        return super(RegionErrorScenarios, self).new_webapp(site_root=MainRegion)
+        return super(RegionErrorScenarios, self).new_wsgi_app(site_root=MainRegion)
 
     @scenario
     def plug_in_to_nonexistant_name(self):
@@ -53,7 +53,7 @@ class RegionErrorScenarios(WebFixture):
 class RegionErrorTests(object):
     @test(RegionErrorScenarios)
     def region_slots_map_error(self, fixture):
-        browser = Browser(fixture.webapp)
+        browser = Browser(fixture.wsgi_app)
 
         with expected(ProgrammerError):
             browser.open('/aregion/')

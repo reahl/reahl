@@ -70,8 +70,8 @@ class BasicTests(object):
         # Djhtml files should be located in the web.static_root
         fixture.config.web.static_root = fixture.static_dir.name
 
-        webapp = fixture.new_webapp(site_root=MainRegion, enable_js=True)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion, enable_js=True)
+        browser = Browser(wsgi_app)
 
         # A djhtml file: TwoColumnPage's main_slot now contains the insides of the div in the djhtml file
         browser.open(u'/djhtml_region/correctfile.d.html')
@@ -106,14 +106,14 @@ class BasicTests(object):
         # Djhtml files should be located in the web.static_root
         fixture.config.web.static_root = fixture.static_dir.name
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
             
-        browser = Browser(webapp)
+        browser = Browser(wsgi_app)
 
         # request the file, but get the transalated alternative for the locale
         def stubbed_create_context_for_request():
             return AfrikaansContext()
-        with replaced(webapp.create_context_for_request, stubbed_create_context_for_request):
+        with replaced(wsgi_app.create_context_for_request, stubbed_create_context_for_request):
             browser.open(u'/djhtml_region/correctfile.d.html')
             
         vassert( browser.title == u'Afrikaans bo!' )
