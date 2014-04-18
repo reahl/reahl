@@ -442,7 +442,7 @@ class UserInterface(object):
         self.main_window_factory = None
         if not for_bookmark:
             self.update_relative_path()
-        self.sub_regions = FactoryDict(set())
+        self.sub_uis = FactoryDict(set())
         self.controller = Controller(self)
         self.assemble(**region_arguments)
         self.sub_resources = FactoryDict(set())
@@ -629,7 +629,7 @@ class UserInterface(object):
         return self.add_view_factory(ViewFactory(RegexPath(relative_path, relative_path, {}), None, {}, factory_method=create_redirect_view))
 
     def add_user_interface_factory(self, ui_factory):
-        self.sub_regions.add(ui_factory)
+        self.sub_uis.add(ui_factory)
         return ui_factory
 
     def define_user_interface(self, path, region_class, slot_map, name=None, **assemble_args):
@@ -674,10 +674,10 @@ class UserInterface(object):
 
     def get_user_interface_for_full_path(self, full_path):
         relative_path = self.get_relative_path_for(full_path)
-        matching_sub_region = self.sub_regions.get(relative_path)
-        if matching_sub_region:
-            target_region, factory =  matching_sub_region.get_user_interface_for_full_path(full_path)
-            return (target_region, factory or self.main_window_factory)
+        matching_sub_ui = self.sub_uis.get(relative_path)
+        if matching_sub_ui:
+            target_ui, factory =  matching_sub_ui.get_user_interface_for_full_path(full_path)
+            return (target_ui, factory or self.main_window_factory)
         return self, self.main_window_factory
 
     def define_static_directory(self, path):
@@ -1315,21 +1315,21 @@ class RegionFactory(FactoryFromUrlRegex):
         self.slot_map = slot_map
         self.parent_ui = parent_ui
         self.region_name = region_name
-        self.predefined_regions = []
+        self.predefined_uis = []
 
     def __str__(self):
         return '<Factory for %s named %s>' % (self.factory_method, self.region_name)
 
     def predefine_user_interface(self, ui_factory):
-        self.predefined_regions.append(ui_factory)
+        self.predefined_uis.append(ui_factory)
         
     def get_relative_part_in(self, full_path):
         return self.regex_path.get_relative_part_in(full_path)
 
     def create(self, relative_path, for_bookmark=False, *args):
         region = super(RegionFactory, self).create(relative_path, for_bookmark, *args)
-        for predefined_region in self.predefined_regions:
-            region.add_user_interface_factory(predefined_region)
+        for predefined_ui in self.predefined_uis:
+            region.add_user_interface_factory(predefined_ui)
         return region 
 
     def create_from_url_args(self, for_bookmark=False, **url_args):
@@ -2459,19 +2459,19 @@ class ReahlWSGIApplication(object):
         self.root_user_interface_factory.predefine_user_interface(ui_factory)
         return ui_factory
 
-    def get_target_region(self, full_path):
-        root_region = self.root_user_interface_factory.create(full_path)
-        target_region, main_window = root_region.get_user_interface_for_full_path(full_path)
-        return (target_region, main_window)
+    def get_target_ui(self, full_path):
+        root_ui = self.root_user_interface_factory.create(full_path)
+        target_ui, main_window = root_ui.get_user_interface_for_full_path(full_path)
+        return (target_ui, main_window)
 
     def resource_for(self, request):
         url = Url.get_current_url(request=request)
         logging.debug('Finding Resource for URL: %s' % url.path)
         url.make_locale_relative()
-        target_region, main_window_factory = self.get_target_region(url.path)
+        target_ui, main_window_factory = self.get_target_ui(url.path)
         # TODO: FEATURE ENVY BELOW:
-        logging.debug('Found UserInterface %s' % target_region)
-        current_view = target_region.get_view_for_full_path(url.path)
+        logging.debug('Found UserInterface %s' % target_ui)
+        current_view = target_ui.get_view_for_full_path(url.path)
         logging.debug('Found View %s' % current_view)
         current_view.check_precondition()
         current_view.check_rights(request.method)
