@@ -21,7 +21,7 @@ from reahl.tofu import Fixture, test, set_up
 from reahl.tofu import vassert, temp_dir
 from reahl.stubble import stubclass, replaced
 
-from reahl.web.djhtml import DjhtmlRegion
+from reahl.web.djhtml import DjhtmlApp
 from reahl.web.fw import WebExecutionContext, Region
 from reahl.web.ui import Slot, TwoColumnPage
 from reahl.web_dev.fixtures import WebBasicsMixin
@@ -56,21 +56,21 @@ class DjhtmlFixture(Fixture, WebBasicsMixin):
 class BasicTests(object):
     @test(DjhtmlFixture)
     def basic_workings(self, fixture):
-        """A DjhtmlRegion provides a Region which maps to the filesystem where there may be
+        """A DjhtmlApp provides a Region which maps to the filesystem where there may be
            a combination of .d.html and other files. When a d.html file is requested from
            it, the contents of the specified div from inside the d.html file is inserted 
            into the specified Slot. When a normal file is requested, the file is sent verbatim."""
         
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/djhtml_region', DjhtmlRegion, {u'main_slot': u'main'},
+                self.define_region(u'/djhtml_region', DjhtmlApp, {u'main_slot': u'main'},
                                 name=u'test_region', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
         fixture.config.web.static_root = fixture.static_dir.name
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion, enable_js=True)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp, enable_js=True)
         browser = Browser(wsgi_app)
 
         # A djhtml file: TwoColumnPage's main_slot now contains the insides of the div in the djhtml file
@@ -97,16 +97,16 @@ class BasicTests(object):
             def interface_locale(self):
                 return u'af'
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/djhtml_region', DjhtmlRegion, {u'main_slot': u'main'},
+                self.define_region(u'/djhtml_region', DjhtmlApp, {u'main_slot': u'main'},
                                    name=u'test_region', static_div_name=u'astatic')
 
         # Djhtml files should be located in the web.static_root
         fixture.config.web.static_root = fixture.static_dir.name
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
             
         browser = Browser(wsgi_app)
 

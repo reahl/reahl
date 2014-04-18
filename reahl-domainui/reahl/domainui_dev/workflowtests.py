@@ -50,7 +50,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         fixture = self
         def get_queues():
             return fixture.queues
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 accounts = self.define_region(u'/accounts', AccountApp, {u'main_slot': u'main'},
@@ -59,7 +59,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
                 self.define_region(u'/inbox',  InboxRegion,  {u'main_slot': u'main'}, 
                                    name=u'testregion', login_bookmark=login_bookmark, get_queues=get_queues)
         return super(WorkflowWebFixture, self).new_wsgi_app(enable_js=enable_js,
-                                                         site_root=MainRegion)
+                                                         site_root=MainApp)
 
     def new_system_account(self):
         account = super(WorkflowWebFixture, self).new_system_account()

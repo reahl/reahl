@@ -125,12 +125,12 @@ class WebBasicsMixin(PartyModelZooMixin):
             view_slots[u'main'] = child_factory
         config = config or self.config
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_view(u'/', title=u'Home page', slot_definitions=view_slots)
 
-        site_root = site_root or MainRegion
+        site_root = site_root or MainApp
         config.web.site_root = site_root
         return wsgi_app_class(config)
 

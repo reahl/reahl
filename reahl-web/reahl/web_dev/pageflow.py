@@ -54,12 +54,12 @@ class ControlledRegionsTests(object):
                 viewb = self.define_view(u'/viewb', title=u'View b', slot_definitions=slot_definitions)
                 self.define_transition(event, viewa, viewb)
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithTwoViews,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # The transition works from viewa
@@ -95,12 +95,12 @@ class ControlledRegionsTests(object):
                 self.define_transition(event, viewa, viewb, guard=false_guard)
                 self.define_transition(event, viewa, viewc, guard=adjustable_guard)
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # The transition with True guard is the one followed
@@ -132,12 +132,12 @@ class ControlledRegionsTests(object):
                 viewa = self.define_view(u'/viewa', title=u'View a', slot_definitions=slot_definitions)
                 self.define_local_transition(event, viewa, guard=guard)
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithAView,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # The transition works from viewa
@@ -178,7 +178,7 @@ class ControlledRegionsTests(object):
                 self.title = u'View with event_argument1: %s%s and view_argument: %s%s' \
                             % (event_argument1, type(event_argument1), view_argument, type(view_argument))
                 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
@@ -191,7 +191,7 @@ class ControlledRegionsTests(object):
 
                 self.define_transition(model_object.events.an_event, home, other_view)
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
@@ -228,12 +228,12 @@ class ControlledRegionsTests(object):
                 parameterised_view = self.define_view(u'/dynamic', view_class=ParameterisedView, object_key=Field(required=True))
                 self.define_transition(model_object.events.an_event, normal_view, parameterised_view)
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         browser.open('/aregion/static')
@@ -248,7 +248,7 @@ class ControlledRegionsTests(object):
         class SomeException(Exception):
             pass
             
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 slot_definitions = {u'main': Form.factory(u'the_form')}
@@ -258,7 +258,7 @@ class ControlledRegionsTests(object):
                 view.add_precondition(passing_precondition)
                 view.add_precondition(failing_precondition)
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         with expected(SomeException):
@@ -272,7 +272,7 @@ class ControlledRegionsTests(object):
         class SomeException(Exception):
             pass
             
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 view = self.define_view(u'/', title=u'Hello')
@@ -280,7 +280,7 @@ class ControlledRegionsTests(object):
                 failing_precondition = passing_precondition.negated(exception=SomeException)
                 view.add_precondition(failing_precondition)
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         with expected(SomeException):
@@ -296,12 +296,12 @@ class ControlledRegionsTests(object):
                 failing_precondition = ViewPreCondition(lambda: False, exception=Redirect(viewb.as_bookmark(self)))
                 viewa.add_precondition(failing_precondition)
             
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithRedirect,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         browser.open('/aregion/viewa')
@@ -328,12 +328,12 @@ class ControlledRegionsTests(object):
                 self.define_transition(event, step1, step2)
                 self.define_return_transition(event, step2)
             
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
         fixture.did_something = False
 
@@ -369,12 +369,12 @@ class ControlledRegionsTests(object):
                 viewa.add_precondition(ViewPreCondition(lambda: False, exception=Detour(detour.as_bookmark(self), return_to=explicit_return_view.as_bookmark(self))))
                 self.define_return_transition(event, detour)
             
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
         
         browser.open(u'/aregion/viewa')
@@ -403,12 +403,12 @@ class ControlledRegionsTests(object):
                 detour.add_precondition(ViewPreCondition(lambda: False, exception=Return(default.as_bookmark(self))))
 
             
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # Normal operation - when a caller can be determined
@@ -435,12 +435,12 @@ class ControlledRegionsTests(object):
                 self.define_view(u'/target', title=u'')
                 self.define_redirect(u'/redirected', self.get_bookmark(relative_path=u'/target'))
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 self.define_region(u'/aregion',  RegionWithRedirect,  IdentityDictionary(), name=u'testregion')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         browser.open('/aregion/redirected')
@@ -471,7 +471,7 @@ class ControlledRegionsTests(object):
                 self.define_transition(event, step1, step2)
                 self.define_return_transition(event, step2)
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
                 detour_region = self.define_region(u'/regionWithDetour',  RegionWithDetour,  IdentityDictionary(), name=u'second_region')
@@ -479,7 +479,7 @@ class ControlledRegionsTests(object):
                 self.define_region(u'/regionWithLink',  RegionWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
 
                 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         browser.open(u'/regionWithLink/initial')

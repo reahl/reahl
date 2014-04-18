@@ -48,11 +48,11 @@ class StaticFileTests(object):
         fixture.config.web.static_root = static_root.name
         
         # How the subdirectory is mounted
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 self.define_static_directory(u'/staticfiles')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # How the first file would be accessed
@@ -84,12 +84,12 @@ class StaticFileTests(object):
         files_dir = temp_dir()
         one_file = files_dir.file_with(u'any_name_will_do_here', u'one')
         
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 list_of_files = [FileOnDisk(one_file.name, u'one_file')]
                 self.define_static_files(u'/morestaticfiles', list_of_files)
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # How the first file would be accessed
@@ -113,7 +113,7 @@ class StaticFileTests(object):
     def files_from_database(self, fixture):
         """Files can also be created on the fly such as from data in a database."""
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 content_type = u'text/html'
                 encoding = u'utf-8'
@@ -125,7 +125,7 @@ class StaticFileTests(object):
                 list_of_files = [FileFromBlob(u'database_file', data_blob, *meta_info)]
                 self.define_static_files(u'/files', list_of_files)
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # How the file would be accessed
@@ -154,12 +154,12 @@ class StaticFileTests(object):
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
         
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 list_of_files = [PackagedFile(easter_egg.as_requirement_string(), u'packaged_files', u'packaged_file')]
                 self.define_static_files(u'/files', list_of_files)
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # How the file would be accessed
@@ -203,7 +203,7 @@ class StaticFileTests(object):
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
 
-        class MainRegion(Region):
+        class MainApp(Region):
             def assemble(self):
                 to_concatenate = [PackagedFile(u'test==1.0', u'packaged_files', u'packaged_file'),
                                   PackagedFile(u'test==1.0', u'packaged_files', u'packaged_file2')]
@@ -211,7 +211,7 @@ class StaticFileTests(object):
                 self.define_static_files(u'/files', list_of_files)
 
         fixture.config.reahlsystem.debug = False  # To enable minification 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainRegion)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainApp)
         browser = Browser(wsgi_app)
 
         # How the first file would be accessed

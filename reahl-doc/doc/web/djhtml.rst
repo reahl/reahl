@@ -6,10 +6,10 @@ Module reahl.web.djhtml
 .. automodule:: reahl.web.djhtml
 
 
-DjhtmlRegion
+DjhtmlApp
 """"""""""""
 
-.. autoclass:: DjhtmlRegion
+.. autoclass:: DjhtmlApp
    :members:
 
 

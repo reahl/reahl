@@ -686,14 +686,14 @@ class Region(object):
            as configured, as configured by the setting `web.static_root`.
         """
         region_name = u'static_%s' % path
-        region_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticRegion, region_name, files=DiskDirectory(path))
+        region_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticApp, region_name, files=DiskDirectory(path))
         return self.add_region_factory(region_factory)
 
     def define_static_files(self, path, files):
         """Defines an URL which is mapped to serve the list of static files given.
         """
         region_name = u'static_%s' % path
-        region_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticRegion, region_name, files=FileList(files))
+        region_factory = RegionFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticApp, region_name, files=FileList(files))
         return self.add_region_factory(region_factory)
 
     def get_relative_path_for(self, full_path):
@@ -739,7 +739,7 @@ class Region(object):
         return self.controller.view_for(relative_path, for_bookmark=for_bookmark)
         
 
-class StaticRegion(Region):
+class StaticApp(Region):
     def create_view(self, relative_path, region, file_path=None):
         return FileView(region, self.files.create(file_path))
 
@@ -2455,7 +2455,7 @@ class ReahlWSGIApplication(object):
 
     def define_static_files(self, path, files):
         region_name = u'static_%s' % path
-        region_factory = RegionFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticRegion, region_name, files=FileList(files))
+        region_factory = RegionFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticApp, region_name, files=FileList(files))
         self.root_region_factory.predefine_region(region_factory)
         return region_factory
 
