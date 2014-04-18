@@ -61,7 +61,7 @@ onto "/accounts" in our web application.
 
    class ExampleApp(UserInterface):
        def assemble(self):
-           # some other Regions added here, and the bookmarks asked from them
+           # some other UserInterfaces added here, and the bookmarks asked from them
 
            self.define_user_interface(u'/accounts', AccountUI,
                            {u'main_slot': u'maincontent'},

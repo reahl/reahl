@@ -133,7 +133,7 @@ class ParameterisedTests(object):
         """Sub UserInterfaces can be created on the fly on a UserInterface, based on the URL visited. To indicate that a
            UserInterface does not exist, the creation method should return None."""
 
-        class RegexRegion(UserInterface):
+        class RegexUserInterface(UserInterface):
             def assemble(self, ui_key=None):
                 if ui_key == u'doesnotexist':
                     raise CannotCreate()
@@ -142,18 +142,18 @@ class ParameterisedTests(object):
                 root = self.define_view(u'/', title=u'Simple user_interface %s' % self.name)
                 root.set_slot(u'user_interface-slot', P.factory(text=u'in user_interface slot'))
 
-        class UIWithParameterisedRegions(UserInterface):
+        class UIWithParameterisedUserInterfaces(UserInterface):
             def assemble(self):
                 self.define_regex_user_interface(u'/apath/(?P<ui_key>[^/]*)',
                                          u'/apath/${ui_key}',
-                                         RegexRegion,
+                                         RegexUserInterface,
                                          {u'user_interface-slot': u'main'},
                                          ui_key=Field())
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myui')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -174,7 +174,7 @@ class ParameterisedTests(object):
         browser.open('/a_ui/apath/doesnotexist/', status=404)
 
 
-    class ParameterisedRegionScenarios(WebFixture):
+    class ParameterisedUserInterfaceScenarios(WebFixture):
         @scenario
         def normal_arguments(self):
             """Arguments can be sent from where the UserInterface is defined."""
@@ -199,11 +199,11 @@ class ParameterisedTests(object):
             self.url = u'/a_ui/parameterisedui/aview'
             self.should_exist = False
 
-    @test(ParameterisedRegionScenarios)
+    @test(ParameterisedUserInterfaceScenarios)
     def parameterised_uis(self, fixture):
-        """Sub Regions can also be parameterised by defining arguments in .define_user_interface, and receiving them in .assemble()."""
+        """Sub UserInterfaces can also be parameterised by defining arguments in .define_user_interface, and receiving them in .assemble()."""
 
-        class ParameterisedRegion(UserInterface):
+        class ParameterisedUserInterface(UserInterface):
             def assemble(self, ui_arg=None):
                 if ui_arg == u'doesnotexist':
                     raise CannotCreate()
@@ -213,16 +213,16 @@ class ParameterisedTests(object):
                 root.set_slot(u'user_interface-slot', P.factory(text=u'in user_interface slot'))
 
 
-        class UIWithParameterisedRegions(UserInterface):
+        class UIWithParameterisedUserInterfaces(UserInterface):
             def assemble(self):
-                self.define_user_interface(u'/parameterisedui', ParameterisedRegion, {u'user_interface-slot': u'main'}, 
+                self.define_user_interface(u'/parameterisedui', ParameterisedUserInterface, {u'user_interface-slot': u'main'}, 
                                    ui_arg=fixture.argument,
                                    name=u'paramui')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  IdentityDictionary(), name=u'myui')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name=u'myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
