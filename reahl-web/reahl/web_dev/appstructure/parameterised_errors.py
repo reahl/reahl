@@ -45,7 +45,7 @@ class ParameterisedViewErrors(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithParameterisedViews,  {}, name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -53,7 +53,7 @@ class ParameterisedViewErrors(object):
         def check_message(ex):
             return unicode(ex).startswith('The arguments contained in URL')
         with expected(ProgrammerError, test=check_message):
-            browser.open('/aregion/test1/')
+            browser.open('/a_ui/test1/')
 
 
 
@@ -73,7 +73,7 @@ class ParameterisedRegionErrors(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  UIWithParameterisedRegions,  {}, name=u'testregion')
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedRegions,  {}, name=u'testregion')
 
         return super(ParameterisedRegionErrors, self).new_wsgi_app(site_root=MainUI)
        
@@ -86,4 +86,4 @@ class ParameterisedErrorsTests(object):
         browser = Browser(fixture.wsgi_app)
 
         with expected(RequiredConstraint):
-            browser.open('/aregion/test1/')
+            browser.open('/a_ui/test1/')

@@ -64,20 +64,20 @@ def i18n_urls(fixture):
     class MainUI(UserInterface):
         def assemble(self):
             self.define_main_window(TwoColumnPage)
-            self.define_user_interface(u'/aregion',  I18nUI,  IdentityDictionary(), name=u'testregion')
+            self.define_user_interface(u'/a_ui',  I18nUI,  IdentityDictionary(), name=u'testregion')
             
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    browser.open(u'/aregion/aview')
+    browser.open(u'/a_ui/aview')
     vassert( browser.title == u'A View' )
 
-    browser.open(u'/af/aregion/aview')
+    browser.open(u'/af/a_ui/aview')
     vassert( browser.title == u'\'n Oogpunt' )
 
     fixture.context.config.web.default_url_locale = 'af'
-    browser.open(u'/aregion/aview')
+    browser.open(u'/a_ui/aview')
     vassert( browser.title == u'\'n Oogpunt' )
     
-    browser.open(u'/en_gb/aregion/aview')
+    browser.open(u'/en_gb/a_ui/aview')
     vassert( browser.title == u'A View' )

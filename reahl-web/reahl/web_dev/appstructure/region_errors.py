@@ -36,7 +36,7 @@ class RegionErrorScenarios(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_user_interface(u'/aregion',  SimpleRegion,  {}, name=u'testregion')
+                self.define_user_interface(u'/a_ui',  SimpleRegion,  {}, name=u'testregion')
 
         return super(RegionErrorScenarios, self).new_wsgi_app(site_root=MainUI)
 
@@ -56,6 +56,6 @@ class RegionErrorTests(object):
         browser = Browser(fixture.wsgi_app)
 
         with expected(ProgrammerError):
-            browser.open('/aregion/')
+            browser.open('/a_ui/')
 
 
