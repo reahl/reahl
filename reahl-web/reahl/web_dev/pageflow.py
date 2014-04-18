@@ -45,7 +45,7 @@ class ControlledRegionsTests(object):
         def do_something():
             fixture.did_something = True
 
-        class RegionWithTwoViews(UserInterface):
+        class UIWithTwoViews(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me', action=Action(do_something))
                 event.bind(u'anevent', None)
@@ -57,7 +57,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithTwoViews,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithTwoViews,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -84,7 +84,7 @@ class ControlledRegionsTests(object):
 
         false_guard = Action(lambda:False)
 
-        class RegionWithGuardedTransitions(UserInterface):
+        class UIWithGuardedTransitions(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me')
                 event.bind(u'anevent', None)
@@ -98,7 +98,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -124,7 +124,7 @@ class ControlledRegionsTests(object):
         fixture.guard_passes = True
         guard = Action(lambda:fixture.guard_passes)
         
-        class RegionWithAView(UserInterface):
+        class UIWithAView(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me', action=Action(do_something))
                 event.bind(u'anevent', None)
@@ -135,7 +135,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithAView,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithAView,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -221,7 +221,7 @@ class ControlledRegionsTests(object):
             def assemble(self, object_key=None):
                 self.title = u'View for: %s' % object_key
 
-        class RegionWithParameterisedViews(UserInterface):
+        class UIWithParameterisedViews(UserInterface):
             def assemble(self):
                 slot_definitions = {u'main': FormWithIncorrectButtonToParameterisedView.factory()}
                 normal_view = self.define_view(u'/static', title=u'Static', slot_definitions=slot_definitions)
@@ -231,7 +231,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -289,7 +289,7 @@ class ControlledRegionsTests(object):
     @test(WebFixture)
     def redirect(self, fixture):
         """Redirect is a special exception that will redirect the browser to another View."""
-        class RegionWithRedirect(UserInterface):
+        class UIWithRedirect(UserInterface):
             def assemble(self):
                 viewa = self.define_view(u'/viewa', title=u'A')
                 viewb = self.define_view(u'/viewb', title=u'B')
@@ -299,7 +299,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithRedirect,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -314,7 +314,7 @@ class ControlledRegionsTests(object):
            Detour was thrown."""
         
         fixture.make_precondition_pass = False
-        class RegionWithDetour(UserInterface):
+        class UIWithDetour(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me')
                 event.bind(u'anevent', None)
@@ -331,7 +331,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -356,7 +356,7 @@ class ControlledRegionsTests(object):
     def detours_and_explicit_return_view(self, fixture):
         """A Detour can also explicitly set the View to return to."""
         
-        class RegionWithDetour(UserInterface):
+        class UIWithDetour(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me')
                 event.bind(u'anevent', None)
@@ -372,7 +372,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -392,7 +392,7 @@ class ControlledRegionsTests(object):
         """A Return is an exception used with Preconditoins to return automatically to another View (as set by detour),
            instead of using a return_transition (the latter can only be triggered by a user)."""
         
-        class RegionWithDetour(UserInterface):
+        class UIWithDetour(UserInterface):
             def assemble(self):
                 viewa = self.define_view(u'/viewa', title=u'View a')
                 explicit_return_view = self.define_view(u'/explicitReturnView', title=u'Explicit Return View')
@@ -406,7 +406,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithDetour,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -430,7 +430,7 @@ class ControlledRegionsTests(object):
     def unconditional_redirection(self, fixture):
         """You can force an URL to always redirect to a given Bookmark."""
 
-        class RegionWithRedirect(UserInterface):
+        class UIWithRedirect(UserInterface):
             def assemble(self):
                 self.define_view(u'/target', title=u'')
                 self.define_redirect(u'/redirected', self.get_bookmark(relative_path=u'/target'))
@@ -438,7 +438,7 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithRedirect,  IdentityDictionary(), name=u'testregion')
+                self.define_region(u'/aregion',  UIWithRedirect,  IdentityDictionary(), name=u'testregion')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -453,13 +453,13 @@ class ControlledRegionsTests(object):
            eventual return_transition (or similar) to return to where, eg, a link was clicked from.
            This mechanism works for returning across Regions."""
 
-        class RegionWithLink(UserInterface):
+        class UIWithLink(UserInterface):
             def assemble(self, bookmark=None):
                 self.bookmark = bookmark
                 slot_definitions = {u'main': A.factory_from_bookmark(self.bookmark)}
                 self.define_view(u'/initial', title=u'View a', slot_definitions=slot_definitions)
 
-        class RegionWithDetour(UserInterface):
+        class UIWithDetour(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me')
                 event.bind(u'anevent', None)
@@ -474,9 +474,9 @@ class ControlledRegionsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                detour_region = self.define_region(u'/regionWithDetour',  RegionWithDetour,  IdentityDictionary(), name=u'second_region')
+                detour_region = self.define_region(u'/regionWithDetour',  UIWithDetour,  IdentityDictionary(), name=u'second_region')
                 bookmark = detour_region.get_bookmark(relative_path='/firstStepOfDetour')
-                self.define_region(u'/regionWithLink',  RegionWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
+                self.define_region(u'/regionWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
 
                 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
