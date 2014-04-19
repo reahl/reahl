@@ -27,8 +27,8 @@ and another on which you can add a new address.
 
    The address book application with two  :class:`~reahl.web.fw.View`\ s .
 
-In the schematic representation of this idea a :class:`~reahl.web.ui.Menu` has been added to
-the application. From the :class:`~reahl.web.ui.Menu`, a user can choose to navigate to the
+Notice the :class:`~reahl.web.ui.Menu` that was added to the application. 
+From the :class:`~reahl.web.ui.Menu`, a user can choose to navigate to the
 "Addresses" :class:`~reahl.web.fw.View`, or the "Add Address" :class:`~reahl.web.fw.View`. This is an example of
 navigation provided which is under the control of the user.
 
@@ -38,38 +38,20 @@ transitioned back to the "Addresses" :class:`~reahl.web.fw.View`. In this case, 
 application controls the navigation.
 
 Each of these modes of navigation are dealt with differently:
-navigation that is under the control of the user is enabled using
-:class:`~reahl.web.fw.Bookmark`\ s to possible target  :class:`~reahl.web.fw.View`\ s . Navigation controlled by the
-application in response to user actions is controlled via :class:`~reahl.web.fw.Transition`\ s.
 
-Bookmarks
----------
+Navigation under the user's control: Bookmarks
+----------------------------------------------
 
-One of the lower-level web technology concepts which Reahl cannot
-abstract away entirely from the programmer is that of an URL. Each
-:class:`~reahl.web.fw.View` is defined using a particular URL. After having defined a :class:`~reahl.web.fw.View` though,
-a Reahl programmer should stop thinking in terms of URLs, and not use
-them further in programming.
+To allow a user to navigate, one can provide anchors (:class:`~reahl.web.ui.A`) or :class:`~reahl.web.ui.Menu`\ s
+or something similar to the user. All of these just allow a user to jump directly to another :class:`~reahl.web.fw.View`.
+In order to refer to these :class:`~reahl.web.fw.View`\ s, you need a 
+:class:`~reahl.web.fw.Bookmark` for the :class:`~reahl.web.fw.View`.
 
-Instead, start thinking in terms of :class:`~reahl.web.fw.Bookmark`\ s. A :class:`~reahl.web.fw.Bookmark` is analogous
-to the :class:`~reahl.web.fw.Bookmark`\ s which a browser allows its user to save. The concept
-of a :class:`~reahl.web.fw.Bookmark` is a means by which to refer to a :class:`~reahl.web.fw.View` elsewhere in an
-application. :class:`~reahl.web.fw.Bookmark` is a more abstract concept than that of an URL
+:class:`~reahl.web.fw.Bookmark` is a more abstract concept than that of an URL
 and contains a number of other bits of information about the :class:`~reahl.web.fw.View` it
 refers to, such as the title of that :class:`~reahl.web.fw.View`, or the access rights of the
 current user with regard to the given :class:`~reahl.web.fw.View`. The meta-information in a
 :class:`~reahl.web.fw.Bookmark` is useful for :class:`~reahl.web.fw.Widget`\ s that use :class:`~reahl.web.fw.Bookmark`\ s.
-
-So, forget the idea of an URL, and switch over to that of a
-:class:`~reahl.web.fw.Bookmark`. :class:`~reahl.web.fw.Bookmark`\ s are much smarter. :class:`~reahl.web.fw.Bookmark`\ s are also the means by
-which to define the particular  :class:`~reahl.web.fw.View`\ s  to which a user is allowed to
-nagivate directly.
-
-Given that a :class:`~reahl.web.fw.Bookmark` is our way of referring to a :class:`~reahl.web.fw.View`, you should
-know that :class:`~reahl.web.fw.Bookmark`\ s can be used to create all sorts of stuff. :class:`~reahl.web.ui.Menu`\ s
-can be constructed from :class:`~reahl.web.fw.Bookmark`\ s, for example. A user can then choose
-from the :class:`~reahl.web.ui.Menu` which :class:`~reahl.web.fw.View` to go to. A :class:`~reahl.web.fw.Bookmark` contains all the
-information necessary for constructing one :class:`~reahl.web.ui.MenuItem` of the :class:`~reahl.web.ui.Menu`.
 
 The example below shows the application designed above with its two
 :class:`~reahl.web.fw.View`\ s , and a :class:`~reahl.web.ui.Menu` which is created from :class:`~reahl.web.fw.Bookmark`\ s.  Note how the
@@ -85,7 +67,7 @@ is constructed. Such a description defaults to being the title of the
 :class:`~reahl.web.fw.View`.
 
 In order to be able to create the :class:`~reahl.web.ui.HMenu`, AddressBookPage and its subclasses need a
-:class:`~reahl.web.fw.Bookmark` for each :class:`~reahl.web.fw.View` in the application. This leaves us with 
+:class:`~reahl.web.fw.Bookmark` for every :class:`~reahl.web.fw.View` in the application. This leaves us with 
 a bit of a chicken-and-egg problem: We usually set the page for a particular :class:`~reahl.web.fw.View` when 
 it is defined. However, each page needs all the bookmarks to all :class:`~reahl.web.fw.View`\ s. To get around
 this issue, you can omit setting the page when defining a :class:`~reahl.web.fw.View` and set it later
