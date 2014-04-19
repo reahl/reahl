@@ -14,7 +14,7 @@ Moving between Views
 
       reahl example <examplename>
 
-Most applications consist of several  :class:`~reahl.web.fw.View`\ s  that are designed to work
+Most :class:`~reahl.web.fw.UserInterface`\ s consist of several  :class:`~reahl.web.fw.View`\ s  that are designed to work
 together. It is useful to have a clear picture of which  :class:`~reahl.web.fw.View`\ s  exist in
 a user interface, and how they relate to one another.
 
@@ -76,23 +76,21 @@ The example below shows the application designed above with its two
 :class:`~reahl.web.fw.Bookmark`\ s are obtained: using the :class:`~reahl.web.fw.View` and the :class:`~reahl.web.fw.UserInterface` of which the
 :class:`~reahl.web.fw.View` forms part.
 
-The :class:`~reahl.web.ui.Menu` should be on every page. This could be accomplished by adding
-a similar :class:`~reahl.web.ui.Menu` to each :class:`~reahl.web.fw.View`. A better solution though, is to create a
-page :class:`~reahl.web.fw.Widget` for the application, and make this page
-contain the :class:`~reahl.web.ui.Menu`. In the example, AddressBookPage plays this role. A
+The :class:`~reahl.web.ui.Menu` should be on every page. We accomplish this by creating AddressBookPage, and 
+letting the page for each :class:`~reahl.web.fw.View` inherit from AddressBookPage. An
 AddressBookPage is literally just a :class:`~reahl.web.ui.TwoColumnPage`, with an :class:`~reahl.web.ui.HMenu` (a
 horisontal menu) added to its `.header`. The :class:`~reahl.web.ui.Menu` uses the textual
 description for each :class:`~reahl.web.fw.View` as obtained from the :class:`~reahl.web.fw.Bookmark`\ s from which it
 is constructed. Such a description defaults to being the title of the
 :class:`~reahl.web.fw.View`.
 
-In order to be able to create the :class:`~reahl.web.ui.HMenu`, AddressBookPage needs a
-:class:`~reahl.web.fw.Bookmark` for each :class:`~reahl.web.fw.View` in the application. This information is
-available where `.define_page()` is called, and so can be
-passed in from there as an argument. The arguments passed to
-`.define_page()` are sent to `AddressBookPage.__init__()` each
-time an AddressBookPage is constructed.
- 
+In order to be able to create the :class:`~reahl.web.ui.HMenu`, AddressBookPage and its subclasses need a
+:class:`~reahl.web.fw.Bookmark` for each :class:`~reahl.web.fw.View` in the application. This leaves us with 
+a bit of a chicken-and-egg problem: We usually set the page for a particular :class:`~reahl.web.fw.View` when 
+it is defined. However, each page needs all the bookmarks to all :class:`~reahl.web.fw.View`\ s. To get around
+this issue, you can omit setting the page when defining a :class:`~reahl.web.fw.View` and set it later
+using `.set_page()` as is done here.
+
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
 
 

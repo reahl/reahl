@@ -11,9 +11,13 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, Ac
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style=u'basic')
-        find = self.define_view(u'/', title=u'Addresses')
-        find.set_slot(u'main', AddressBookPanel.factory())
+        self.define_view(u'/', title=u'Addresses', page=AddressBookPage.factory())
+
+
+class AddressBookPage(TwoColumnPage):
+    def __init__(self, view):
+        super(AddressBookPage, self).__init__(view, style=u'basic')
+        self.main.add_child(AddressBookPanel(view))
 
 
 class AddressBookPanel(Panel):

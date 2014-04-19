@@ -90,142 +90,9 @@ A simple web application is just that: a collection of  :class:`~reahl.web.fw.Vi
 work together. Complicated web applications may be composed of several
 different :class:`~reahl.web.fw.UserInterface`\ s (as explained much later).
 
-There are common user interface elements present on all the different
-URLs of a web application. It would be cumbersome to have to add these
-to each :class:`~reahl.web.fw.View` repeatedly. For this reason, each web application has a
-single :class:`~reahl.web.fw.Widget` acting as its *page*. A page contains the
-elements that are present on all URLs of the web application.
-
-Whether the user is visiting the '/some' URL or the '/other' URL, the
-user is always presented with the very same page, even though
-some of its contents get plugged in on the fly and will differ depending
-on the URL (thus :class:`~reahl.web.fw.View`) visited.
-
-Think of  :class:`~reahl.web.fw.View`\ s  as being different  :class:`~reahl.web.fw.View`\ s  *of the same page*. The
-page contains some elements, but it also contains blank areas
-that are filled in (differently) by different  :class:`~reahl.web.fw.View`\ s .
-
-.. figure:: views.png
-   :align: center
-   :width: 90%
-
-   A page with two different views.
-
-A :class:`~reahl.web.ui.Slot` is a special :class:`~reahl.web.fw.Widget` that represents such a blank area. A
-useful page should thus contain one or more :class:`~reahl.web.ui.Slot`\ s that
-can be filled in by individual  :class:`~reahl.web.fw.View`\ s .
-
-A :class:`~reahl.web.fw.View` defines what the contents of the page should be for a
-particular URL by stating which :class:`~reahl.web.fw.Widget` should go into which :class:`~reahl.web.ui.Slot` of
-the page for that URL.
-
-The example in the :doc:`gettingstarted` shows how a simple web application
-is created as a single :class:`~reahl.web.fw.UserInterface`. The `web.site_root` configuration setting 
-indicates which :class:`~reahl.web.fw.UserInterface` is to be used as the root of the web application.
-
-
-
-See it in action
-----------------
-
-.. sidebar:: Get a copy of this example by running
-
-   .. code-block:: bash
-
-      reahl example features.slots
-
-Below is the source code for an application that demonstrates these
-ideas.
-
-The application has two  :class:`~reahl.web.fw.View`\ s . Its page (a CustomPage) contains
-an :class:`~reahl.web.ui.HMenu` (a horisontal menu) which allows one to navigate between the
-two  :class:`~reahl.web.fw.View`\ s  of the application.
-
-The home page looks as follows:
-
-   .. figure:: ../_build/screenshots/slots1.png
-      :align: center
-
-Notice the two bits of text.  Each paragraph was plugged into a
-separate :class:`~reahl.web.ui.Slot` of the page.
-
-In "Page 2", the same page is displayed, but with different
-text in those :class:`~reahl.web.ui.Slot`\ s:
-
-   .. figure:: ../_build/screenshots/slots2.png
-      :align: center
-
-A :class:`~reahl.web.ui.TwoColumnPage` is a handy :class:`~reahl.web.fw.Widget`, since it contains a sensible page
-with all sorts of sub-parts to which one can attach extra :class:`~reahl.web.fw.Widget`\ s.  Of
-interest here are its `.header` element (a :class:`~reahl.web.ui.Panel` positioned well for
-holding things like menu bars), and two of its predefined :class:`~reahl.web.ui.Slot`\ s:
-"main" and "secondary". These two slots represent the two columns of
-the :class:`~reahl.web.ui.TwoColumnPage` :class:`~reahl.web.fw.Widget`: "main" is to the right, and fairly large,
-whereas "secondary" sits to the left of it, and is narrower.
-
-In this example, a CustomPage is derived from :class:`~reahl.web.ui.TwoColumnPage`. That way
-the CustomPage inherits all the abovementioned niceties from
-:class:`~reahl.web.ui.TwoColumnPage`. To ba a useful page for this application,
-CustomPage only needs to add an :class:`~reahl.web.ui.HMenu` to the `.header` of the
-:class:`~reahl.web.ui.TwoColumnPage` on which it is based.
-
-One thing not explained so far is the concept of a :class:`~reahl.web.fw.Bookmark`. For
-purposes of this example you just need to know that a :class:`~reahl.web.fw.Bookmark` is how
-one refers to a :class:`~reahl.web.fw.View`, and that :class:`~reahl.web.ui.Menu`\ s create their :class:`~reahl.web.ui.MenuItem`\ s from such
-:class:`~reahl.web.fw.Bookmark`\ s.
-
-.. literalinclude:: ../../reahl/doc/examples/features/slots/slots.py
-
-
-
 
 Factories
 ---------
-
-The idea of composing a user interface from :class:`~reahl.web.fw.Widget`\ s originated in the
-world of graphical user interfaces. Reahl is an attempt to let you
-program web applications using similar vocabulary. There is a
-fundamental difference between web applications and GUI applications,
-however:
-
-When a user starts a GUI application, a single process is loaded into
-the computer's memory and executed. This process sits there just
-waiting for this single user to interact with it. Inside this process,
-all the user interface elements are created by the program, and held
-onto -- in memory -- until they are not needed anymore, or the program
-is exited.
-
-A web application is not such a simple, single entity. It is used by
-many users simultaneously, and it does not have a single long-running
-process that can hold onto :class:`~reahl.web.fw.Widget`\ s for each user using it. 
-
-Parts of the web application execute on a server, and parts of it in
-the many browsers of its many users. Each time a browser communicates
-with the server, the server quickly loads just enough into the memory
-of the server to be able respond to that specific request of the
-specific user it is serving at that time. Once the server responds,
-everything is removed from its memory again -- to free up the valuable
-space for serving other users.
-
-In a GUI application, one writes code to create a particular Window
-with all its elements and keep the window and elements around in
-memory for the duration of the program's execution.
-
-In a web application, you need to write code that is able to create a
-particular Window as and when needed -- and the same Window could be
-recreated several times for a single user. The same Windows could also
-be created slightly differently for different users (perhaps because
-they have different security rights to the system).
-
-This aspect of a web application is explicitly visible in a Reahl
-application. Look at the following, for example:
-
-.. code-block:: python
-
-   class HelloUI(UserInterface):
-       def assemble(self):
-           self.define_page(TwoColumnPage)  
-           self.define_view(u'/', title=u'Home')
 
 .. sidebar:: Hint
 
@@ -240,56 +107,39 @@ application. Look at the following, for example:
    adding a :class:`~reahl.web.fw.ViewFactory` to the :class:`~reahl.web.fw.UserInterface`), and then return the
    factory in case you need it further.
 
-Note that the specific :class:`~reahl.web.ui.TwoColumnPage` going to be used as page
-is not instantiated there.  The :class:`~reahl.web.fw.UserInterface` just keeps track of which class
-to instantiate for obtaining a page -- for when it needs a main
-window.
+Have you noticed how ``SomeWidget.factory()`` is used sometimes in the
+code so far, instead of just constructing the widget?
 
-In the next line, `define_view()` creates something called a
-:class:`~reahl.web.fw.ViewFactory`.  Which is, simply put, just something that can be used to
-create a :class:`~reahl.web.fw.View` later on.
+Web applications have to be very economical about when it creates
+what. A :class:`~reahl.web.fw.Factory` is merely an object that can be
+used at a later time (if necessary) to create something--while passing
+it the arguments you want.
 
-A Reahl programmer needs to know about factories because they are
-often used given the nature of web applications. For example:
+When creating a :class:`~reahl.web.fw.UserInterface`, for example, it
+does not make sense to create all the
+:class:`~reahl.web.fw.ViewFactory` instances it could possibly
+have. We rather specify how they will be created eventually, if
+needed.
 
-.. code-block:: python
-
-   class HelloUI(UserInterface):
-       def assemble(self):
-           self.define_page(TwoColumnPage)  
-           home = self.define_view(u'/', title=u'Home')
-           home.set_slot(u'main', P.factory(text=u'Look ma, no P\'s'))
-
-Looking at the last line, you can see that it states that the 
-'/' :class:`~reahl.web.fw.View` for any user will have its `main` :class:`~reahl.web.ui.Slot` filled with
-a :class:`~reahl.web.ui.P` made a certain way.
-
-
-
+Understanding the lifecycle of all these mechanics will give you a
+deeper understanding if you're interested. That's explained next--but
+you can skip this bit though if you really want to.
 
 
 The lifecycle of user interface mechanics
 -----------------------------------------
 
-User interface elements in Reahl are :class:`~reahl.web.fw.Widget`\ s. There are however other 
-related “machinery” as well, such as  :class:`~reahl.web.fw.View`\ s  and :class:`~reahl.web.fw.UserInterface`\ s.
 
-All of these things have a very short lifespan:
-
-When an HTTP request comes into the web server, the correct :class:`~reahl.web.fw.UserInterface` is
-first instantiated. The :class:`~reahl.web.fw.UserInterface` is used in turn to find and instantiate
-the applicable :class:`~reahl.web.fw.View`. At this point, the page is instantiated,
-and the current :class:`~reahl.web.fw.View` is plugged into it. All the :class:`~reahl.web.fw.Widget`\ s needed by the
-current :class:`~reahl.web.fw.View` are instantiated when the :class:`~reahl.web.fw.View` is plugged into the main
-window.
-
-At this point these elements of the user interface are ready to serve
-the request. After doing its execution, the page is rendered to
-HTML, JavaScript and CSS files, which are sent back to the browser
-where they will be executed further.
-
-On the server, the :class:`~reahl.web.fw.UserInterface`, :class:`~reahl.web.fw.View`, page and all related :class:`~reahl.web.fw.Widget`\ s
-are discarded after sending back a response.
+The user interface elements of a Reahl application are created each
+time a request is received by the server. First the
+:class:`~reahl.web.fw.UserInterface` is created (and its
+``.assemble()`` called.  The :class:`~reahl.web.fw.UserInterface` then
+devices which of the :class:`~reahl.web.fw.View`\ s defined on it
+should be shown for the URL visited. Finally the
+:class:`~reahl.web.fw.View` is created with its page and all related
+:class:`~reahl.web.fw.Widget`\ s present on that page. The result of
+all this is sent back to the browser in the form of HTML and other
+files, but then all of these objects are thrown away on the web server.
 
 You may have wondered why `.factory()` was used in the `.assemble()`
 of the HelloUI (above), but not in the code of ReahllyBadPoem
