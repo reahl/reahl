@@ -68,13 +68,14 @@ marked areas:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
 
-To have a ":class:`~reahl.web.ui.Panel` to hold everything", AddressBookPanel is created and
-added into the :class:`~reahl.web.ui.Slot` called "main" of the single :class:`~reahl.web.fw.View`, defined on '/'.
+To have a ":class:`~reahl.web.ui.Panel` to hold everything",
+AddressBookPanel is created and added to the "main" column of the page
+used for the single :class:`~reahl.web.fw.View`, defined on '/'.
 Similarly, AddAddressForm is created in the skeleton and AddressBox to
-represent the form and each Address shown, respectively.
-According to the plan above then, an AddressBookPanel should consist
-of a heading, followed by an AddressBox for each Address in the
-database, followed by an AddAddressForm.
+represent the form and each Address shown, respectively.  According to
+the plan above then, an AddressBookPanel should consist of a heading,
+followed by an AddressBox for each Address in the database, followed
+by an AddAddressForm.
 
 You can clearly see in the implementation of AddressBookPanel that
 this is exactly what happens. Each AddressBox is actually implemented

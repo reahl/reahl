@@ -2,11 +2,16 @@
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, Panel, P, H, InputGroup
 
+
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style=u'basic')
-        find = self.define_view(u'/', title=u'Addresses')
-        find.set_slot(u'main', AddressBookPanel.factory())
+        self.define_view(u'/', title=u'Addresses', page=AddressBookPage.factory())
+
+
+class AddressBookPage(TwoColumnPage):
+    def __init__(self, view):
+        super(AddressBookPage, self).__init__(view, style=u'basic')
+        self.main.add_child(AddressBookPanel(view))
 
 
 class AddressBookPanel(Panel):
@@ -26,6 +31,7 @@ class AddAddressForm(Form):
         super(AddAddressForm, self).__init__(view, u'add_form')
         self.add_child(InputGroup(view, label_text=u'Add an address'))
 
+        # More stuff needed here, like inputs and buttons!!
 
 class AddressBox(Panel):
     def __init__(self, view, address):

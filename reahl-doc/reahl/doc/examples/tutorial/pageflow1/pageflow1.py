@@ -16,17 +16,28 @@ class AddressBookPage(TwoColumnPage):
         self.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
 
 
+class HomePage(AddressBookPage):
+    def __init__(self, view, main_bookmarks):
+        super(HomePage, self).__init__(view, main_bookmarks)
+        self.main.add_child(AddressBookPanel(view))
+
+
+class AddPage(AddressBookPage):
+    def __init__(self, view, main_bookmarks):
+        super(AddPage, self).__init__(view, main_bookmarks)
+        self.main.add_child(AddAddressForm(view))
+
+
 class AddressBookUI(UserInterface):
     def assemble(self):
-
         addresses = self.define_view(u'/', title=u'Addresses')
-        addresses.set_slot(u'main', AddressBookPanel.factory())
-
         add = self.define_view(u'/add', title=u'Add an address')
-        add.set_slot(u'main', AddAddressForm.factory())
         
         bookmarks = [v.as_bookmark(self) for v in [addresses, add]]
-        self.define_page(AddressBookPage, bookmarks)
+
+        addresses.set_page(HomePage.factory(bookmarks))
+        add.set_page(AddPage.factory(bookmarks))
+
 
 
 class AddressBookPanel(Panel):
