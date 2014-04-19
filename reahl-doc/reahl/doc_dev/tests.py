@@ -32,6 +32,7 @@ from reahl.webdev.tools import XPath, Browser
 
 from reahl.doc.examples.tutorial.hello.hello import HelloApp
 from reahl.doc.examples.tutorial.helloapache import helloapache
+from reahl.doc.examples.tutorial.hellonginx import hellonginx
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelApp
 from reahl.doc.examples.features.validation.validation import ValidationApp
 from reahl.doc.examples.features.layout.layout import LayoutApp
@@ -96,6 +97,10 @@ class ExampleFixture(Fixture, WebBasicsMixin):
     @scenario
     def hello_apache(self):
         self.webapp = self.new_webapp(site_root=helloapache.HelloApp)
+
+    @scenario
+    def hello_nginx(self):
+        self.webapp = self.new_webapp(site_root=hellonginx.HelloApp)
 
     @scenario
     def tabbed_panel(self):
