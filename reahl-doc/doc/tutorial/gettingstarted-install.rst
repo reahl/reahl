@@ -69,7 +69,7 @@ On Windows:
 
 .. code-block:: bash
 
-   reahl_env\bin\activate.bat
+   reahl_env\Scripts\activate.bat
 
 After activating your new environment, the prompt of the command line
 changes to reflect the environment that is currently active.
