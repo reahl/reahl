@@ -1,3 +1,9 @@
+python-reahl (2.0.2) unstable; urgency=low
+
+ * Closes #1260182, #1260183.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Sat, 19 Apr 2014 10:46:00 +0200
+
 python-reahl (2.0.1) unstable; urgency=low
 
  * Reahl now runs on Windows and Mac as well.
