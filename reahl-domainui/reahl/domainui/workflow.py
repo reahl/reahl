@@ -19,6 +19,7 @@
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
+from reahl.component.decorators import deprecated
 from reahl.sqlalchemysupport import PersistedField
 from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
 from reahl.web.ui import P, Panel, Ul, Li, H, Form, Button
@@ -133,6 +134,9 @@ class InboxUI(UserInterface):
 
 
 
+@deprecated(u'Please use InboxUI instead.')
+class InboxRegion(InboxUI):
+    pass
 
 
 
