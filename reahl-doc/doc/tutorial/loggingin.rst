@@ -120,7 +120,7 @@ layout?
 
 The concepts of a :class:`~reahl.web.fw.UserInterface`, of a page and :class:`~reahl.web.ui.Slot`\ s exist to make
 such re-use possible. The basics of these concepts is explained in
-:doc:`buildingblocks`, but there's more to it than is explained
+:doc:`slots`, but there's more to it than is explained
 there. In examples thus far, each web application consisted of a few
 related  :class:`~reahl.web.fw.View`\ s  packaged as a single :class:`~reahl.web.fw.UserInterface`. It is possible, however, to
 compose your web application from multiple :class:`~reahl.web.fw.UserInterface`\ s. Hence, you can use

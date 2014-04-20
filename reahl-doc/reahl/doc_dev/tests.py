@@ -33,6 +33,7 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
+from reahl.doc.examples.tutorial.slots.slots import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 from reahl.doc.examples.features.validation.validation import ValidationUI
 from reahl.doc.examples.features.layout.layout import LayoutUI
@@ -40,7 +41,6 @@ from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
 from reahl.doc.examples.features.persistence.persistence import PersistenceUI
 from reahl.doc.examples.features.access.access import AccessUI
 from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
-from reahl.doc.examples.features.slots.slots import SlotsUI
 
 from reahl.doc.fileupload import FileUploadUI, AttachedFile
 
@@ -99,7 +99,7 @@ class ExampleFixture(Fixture, WebBasicsMixin):
 
     @scenario
     def hello_nginx(self):
-        self.webapp = self.new_webapp(site_root=hellonginx.HelloUI)
+        self.wsgi_app = self.new_wsgi_app(site_root=hellonginx.HelloUI)
 
     @scenario
     def tabbed_panel(self):

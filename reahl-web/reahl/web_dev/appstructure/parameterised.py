@@ -23,6 +23,7 @@ from reahl.tofu import vassert, expected
 
 from reahl.component.modelinterface import Field, IntegerField, exposed, Event
 from reahl.web.fw import ReahlWSGIApplication, UserInterface, UrlBoundView, IdentityDictionary, CannotCreate
+from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, TwoColumnPage, P, A, Form, Button
 from reahl.webdev.tools import Browser, WidgetTester, XPath
 from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
@@ -172,6 +173,41 @@ class ParameterisedTests(object):
 
         # When the URL cannot be mapped
         browser.open('/a_ui/apath/doesnotexist/', status=404)
+
+
+    @test(WebFixture)
+    def backwards_compatibility(self, fixture):
+        """Parameterised, sub UserInterfaces can also be created with define_regex_region, for backwards compatibility.
+        """
+
+        class RegexUserInterface(Region):
+            def assemble(self, ui_key=None):
+                if ui_key == u'doesnotexist':
+                    raise CannotCreate()
+
+                self.name = u'user_interface-%s' % ui_key
+                root = self.define_view(u'/', title=u'Simple user_interface %s' % self.name)
+                root.set_slot(u'user_interface-slot', P.factory(text=u'in user_interface slot'))
+
+        class UIWithParameterisedUserInterfaces(Region):
+            def assemble(self):
+                self.define_regex_region(u'/apath/(?P<ui_key>[^/]*)',
+                                         u'/apath/${ui_key}',
+                                         RegexUserInterface,
+                                         {u'user_interface-slot': u'main'},
+                                         ui_key=Field())
+
+        class MainUI(Region):
+            def assemble(self):
+                self.define_main_window(TwoColumnPage)
+                self.define_region(u'/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name=u'myui')
+
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
+
+        # A sub-user_interface is dynamically created from an URL
+        browser.open('/a_ui/apath/test1/')
+        vassert( browser.title == u'Simple user_interface user_interface-test1' )
 
 
     class ParameterisedUserInterfaceScenarios(WebFixture):
