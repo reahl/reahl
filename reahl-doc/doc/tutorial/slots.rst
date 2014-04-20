@@ -1,7 +1,7 @@
 .. Copyright 2013,2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-How to make light work of similar-looking pages
-===============================================
+Make light work of similar-looking pages
+========================================
 
 .. sidebar:: Examples in this section
 

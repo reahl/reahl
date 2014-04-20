@@ -6,6 +6,7 @@ Deploying a production site
 .. sidebar:: Examples in this section
 
    - tutorial.helloapache
+   - tutorial.hellonginx
 
    Get a copy of an example by running:
 

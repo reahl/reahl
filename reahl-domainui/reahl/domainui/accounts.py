@@ -25,6 +25,7 @@ from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxI
                          CheckCheckboxButton, PopupA, DialogButton, ErrorFeedbackMessage
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
+from reahl.component.decorators import deprecated
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
      AccountManagementInterface
 
@@ -450,5 +451,8 @@ class AccountUI(UserInterface):
         self.define_transition(self.account_management_interface.events.verify_event, verify, thanks)
 
 
+@deprecated(u'Please use AccountUI instead.')
+class AccountRegion(AccountUI):
+    pass
 
 
