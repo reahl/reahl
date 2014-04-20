@@ -23,6 +23,7 @@ from reahl.tofu import vassert, expected
 from reahl.stubble import stubclass, EmptyStub
 
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
+from reahl.web.fw import Region
 from reahl.web.ui import TwoColumnPage, P, A, Panel, Slot
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
@@ -54,6 +55,29 @@ class UserInterfaceTests(object):
 
         browser.open('/a_ui/other')
         vassert( browser.title == u'UserInterface other view' )
+
+    @test(WebFixture)
+    def backwards_compatibility(self, fixture):
+        """For backwards compatibility, there are aliases for new names:
+             
+             - UserInterface is Region
+             - .define_user_interface() is define_region()
+             - .define_page() is define_main_window()
+        """
+        class UIWithAView(UserInterface):
+            def assemble(self):
+                self.define_view(u'/aview', title=u'UserInterface view')
+
+        class MainUI(Region):
+            def assemble(self):
+                self.define_main_window(TwoColumnPage)
+                self.define_region(u'/a_ui',  UIWithAView,  {}, name=u'myui')
+
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
+
+        browser.open('/a_ui/aview')
+        vassert( browser.title == u'UserInterface view' )
 
     @test(WebFixture)
     def ui_slots_map_to_window(self, fixture):

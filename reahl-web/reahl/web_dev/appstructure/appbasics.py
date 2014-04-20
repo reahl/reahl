@@ -20,6 +20,7 @@ from reahl.tofu import Fixture, test, vassert, expected, NoException, scenario
 from reahl.stubble import EmptyStub
 
 from reahl.web.fw import UserInterface
+from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
@@ -64,6 +65,17 @@ class AppBasicsTests(object):
             class MainUI(UserInterface):
                 def assemble(self):
                     self.define_page(TwoColumnPage)
+                    self.define_view(u'/', title=u'Hello')
+
+            self.MainUI = MainUI
+            self.expected_content_length = 893
+            self.content_includes_p = False
+
+        @scenario
+        def backwards_compatibility(self):
+            class MainUI(Region):
+                def assemble(self):
+                    self.define_main_window(TwoColumnPage)
                     self.define_view(u'/', title=u'Hello')
 
             self.MainUI = MainUI

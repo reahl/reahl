@@ -6,23 +6,23 @@ from reahl.component.i18n import Translator
 _ = Translator(u'reahl-doc')
 
 
-class SomeContents(Panel):
-    def __init__(self, view):
-        super(SomeContents, self).__init__(view)
+class TranslatedUI(UserInterface):
+    def assemble(self):
+        self.define_view(u'/some_page', title=_(u'Translated example'), page=HomePage.factory())
 
-        self.add_child(HMenu.from_languages(view))
+
+class HomePage(TwoColumnPage):
+    def __init__(self, view):
+        super(HomePage, self).__init__(view, style=u'basic')
+
+        self.header.add_child(HMenu.from_languages(view))
 
         current_url = Url.get_current_url()
         message = _(u'This is a translated string. The current URL is "%s".') % current_url.path
-        self.add_child(P(view, text=message))
+        self.main.add_child(P(view, text=message))
 
 
-class TranslatedUI(UserInterface):
-    def assemble(self):
-        self.define_page(TwoColumnPage, style=u'basic')
-        
-        home = self.define_view(u'/some_page', title=_(u'Translated example'))
-        home.set_slot(u'main', SomeContents.factory())
+
 
 
 

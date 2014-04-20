@@ -5,10 +5,13 @@ from reahl.component.modelinterface import exposed, EmailField
 
 class ValidationUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style=u'basic')  
+        self.define_view(u'/', title=u'Validation demo', page=HomePage.factory())
 
-        home = self.define_view(u'/', title=u'Validation demo')
-        home.set_slot(u'main', CommentForm.factory())
+
+class HomePage(TwoColumnPage):
+    def __init__(self, view):
+        super(HomePage, self).__init__(view, style=u'basic')
+        self.main.add_child(CommentForm(view))
 
 
 class Comment(object):

@@ -110,10 +110,10 @@ Factories
 Have you noticed how ``SomeWidget.factory()`` is used sometimes in the
 code so far, instead of just constructing the widget?
 
-Web applications have to be very economical about when it creates
+A web application has to be very economical about when it creates
 what. A :class:`~reahl.web.fw.Factory` is merely an object that can be
-used at a later time (if necessary) to create something--while passing
-it the arguments you want.
+used at a later time (if necessary) to create something--using the
+arguments passed when the :class:`~reahl.web.fw.Factory` was created.
 
 When creating a :class:`~reahl.web.fw.UserInterface`, for example, it
 does not make sense to create all the
@@ -134,7 +134,7 @@ The user interface elements of a Reahl application are created each
 time a request is received by the server. First the
 :class:`~reahl.web.fw.UserInterface` is created (and its
 ``.assemble()`` called.  The :class:`~reahl.web.fw.UserInterface` then
-devices which of the :class:`~reahl.web.fw.View`\ s defined on it
+determines which of the :class:`~reahl.web.fw.View`\ s defined on it
 should be shown for the URL visited. Finally the
 :class:`~reahl.web.fw.View` is created with its page and all related
 :class:`~reahl.web.fw.Widget`\ s present on that page. The result of

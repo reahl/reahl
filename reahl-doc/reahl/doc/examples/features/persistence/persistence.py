@@ -10,9 +10,17 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, Ac
 
 class PersistenceUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style=u'basic')
-        home = self.define_view(u'/', title=u'Persistence demo')
-        home.set_slot(u'main', CommentPostPanel.factory())
+        self.define_view(u'/', title=u'Persistence demo', page=HomePage.factory())
+
+
+class HomePage(TwoColumnPage):
+    def __init__(self, view):
+        super(HomePage, self).__init__(view, style=u'basic')
+
+        self.main.add_child(CommentForm(view))
+
+        for comment in Comment.query.all():
+            self.main.add_child(CommentBox(view, comment))
 
 
 class Comment(elixir.Entity):
@@ -33,16 +41,6 @@ class Comment(elixir.Entity):
 
     def submit(self):
         Session.add(self)
-
-
-class CommentPostPanel(Panel):
-    def __init__(self, view):
-        super(CommentPostPanel, self).__init__(view)
-
-        self.add_child(CommentForm(view))
-
-        for comment in Comment.query.all():
-            self.add_child(CommentBox(view, comment))
 
 
 class CommentForm(Form):

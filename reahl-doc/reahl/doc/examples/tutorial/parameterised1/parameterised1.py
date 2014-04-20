@@ -52,13 +52,13 @@ class AddressBookUI(UserInterface):
 
 
 class AddressBookPanel(Panel):
-    def __init__(self, view, address_book_app):
+    def __init__(self, view, address_book_ui):
         super(AddressBookPanel, self).__init__(view)
 
         self.add_child(H(view, 1, text=u'Addresses'))
         
         for address in Address.query.all():
-            self.add_child(AddressBox(view, address, address_book_app))
+            self.add_child(AddressBox(view, address, address_book_ui))
 
 
 class EditAddressForm(Form):
@@ -85,10 +85,10 @@ class AddAddressForm(Form):
 
 
 class AddressBox(Panel):
-    def __init__(self, view, address, address_book_app):
+    def __init__(self, view, address, address_book_ui):
         super(AddressBox, self).__init__(view)
 
-        bookmark = address_book_app.get_edit_bookmark(address=address, description=u'edit')
+        bookmark = address_book_ui.get_edit_bookmark(address=address, description=u'edit')
         par = self.add_child(P(view, text=u'%s: %s ' % (address.name, address.email_address)))
         par.add_child(A.from_bookmark(view, bookmark))
 
