@@ -1,6 +1,6 @@
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import TwoColumnPage, P
 
 
 class HelloPage(TwoColumnPage):

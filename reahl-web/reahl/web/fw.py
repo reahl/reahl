@@ -438,7 +438,6 @@ class UserInterface(object):
                                                      #: UserInterface, to those of its parent UserInterface
         self.name = name                             #: A name which is unique amongst all UserInterfaces in the application
         self.relative_path = u''                     #: The path of the current Url, relative to this UserInterface
-        self.page = None
         self.page_factory = None
         if not for_bookmark:
             self.update_relative_path()
@@ -544,6 +543,7 @@ class UserInterface(object):
            is requested from this UserInterface.
         
            :param title: The title to be used for the :class:`View`.
+           :param page: A :class:`WidgetFactory` that will be used as the page to be rendered for this :class:`View` (if specified).
            :param slot_definitions: A dictionary stating which :class:`WidgetFactory` to use for plugging in which :class:`Slot`.
            :param detour: Specifies whether this :class:`View` is a :class:`Detour` or not.
            :param view_class: The class of :class:`View` to be constructed (in the case of parameterised :class:`View` s).
@@ -749,9 +749,11 @@ class UserInterface(object):
     def view_for(self, relative_path, for_bookmark=False):
         return self.controller.view_for(relative_path, for_bookmark=for_bookmark)
 
+
 @deprecated(u'Region has been renamed to UserInterface, please use UserInterface instead')
 class Region(UserInterface):
     pass
+
 
 class StaticUI(UserInterface):
     def create_view(self, relative_path, user_interface, file_path=None):
@@ -2541,6 +2543,8 @@ class ReahlWSGIApplication(object):
         return new_context.handle_wsgi_call(self, environ, start_response)
 
 
-
+@deprecated(u'ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead')
+class ReahlWebApplication(ReahlWSGIApplication):
+    pass
 
 

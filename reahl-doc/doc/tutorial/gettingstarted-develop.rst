@@ -112,7 +112,7 @@ directory:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/hello/hello.py
 
-This simple application only consists of a
+This simple application consists of only one
 :class:`~reahl.web.fw.UserInterface`, which contains a single
 :class:`~reahl.web.fw.View`, defined on its ``/`` URL. The contents of
 the :class:`~reahl.web.fw.UserInterface` are defined in its

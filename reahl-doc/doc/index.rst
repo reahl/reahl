@@ -18,6 +18,7 @@ Contents:
    overview
    features/index
    tutorial/gettingstarted
+   whatchanged
    tutorial/index
    component/index
    web/index
