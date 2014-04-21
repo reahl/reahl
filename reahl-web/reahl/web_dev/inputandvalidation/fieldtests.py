@@ -110,8 +110,8 @@ class FieldTests(object):
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open(u'/')
 
@@ -149,8 +149,8 @@ class SpecificConstraintTests(object):
                 field = fixture.model_object.fields.an_attribute
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open(u'/')
 
@@ -175,8 +175,8 @@ class SpecificConstraintTests(object):
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open(u'/')
 
@@ -195,8 +195,8 @@ class SpecificConstraintTests(object):
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open(u'/')
 
@@ -216,8 +216,8 @@ class SpecificConstraintTests(object):
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open(u'/')
 
@@ -241,8 +241,8 @@ class SpecificConstraintTests(object):
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open(u'/')
 
         fixture.driver_browser.type(u'//input[@type="text"]', u'ba')
@@ -271,8 +271,8 @@ class SpecificConstraintTests(object):
                 one_input = self.add_child(TextInput(self, field))
                 one_input.set_id(u'one')
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open(u'/')
 

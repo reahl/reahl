@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.features.pageflow.pageflow import PageFlowApp
+from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
 
-web.site_root = PageFlowApp
+web.site_root = PageFlowUI

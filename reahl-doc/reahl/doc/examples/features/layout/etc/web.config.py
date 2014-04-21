@@ -15,6 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.doc.examples.features.layout.layout import LayoutApp
+from reahl.doc.examples.features.layout.layout import LayoutUI
 
-web.site_root = LayoutApp
+web.site_root = LayoutUI

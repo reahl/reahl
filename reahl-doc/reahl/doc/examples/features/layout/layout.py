@@ -1,14 +1,14 @@
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, P, YuiGrid, YuiUnit
 from reahl.component.modelinterface import exposed, Field, EmailField
 
 def lots_of(message):
     return message * 5
 
-class LayoutApp(Region):
+class LayoutUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style=u'basic')  
 
         home = self.define_view(u'/', title=u'Layout demo')
         home.set_slot(u'main', CommentForm.factory())

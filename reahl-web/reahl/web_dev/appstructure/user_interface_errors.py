@@ -19,26 +19,26 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 
-from reahl.web.fw import ReahlWebApplication, Region
+from reahl.web.fw import ReahlWSGIApplication, UserInterface
 from reahl.web.ui import TwoColumnPage, P, A
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError
 
-class RegionErrorScenarios(WebFixture):
-    def new_webapp(self):
+class UserInterfaceErrorScenarios(WebFixture):
+    def new_wsgi_app(self):
         fixture = self
-        class SimpleRegion(Region):
+        class SimpleUserInterface(UserInterface):
             def assemble(self):
                 root = self.define_view(u'/', title=u'View')
                 root.set_slot(u'name', P.factory())
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  SimpleRegion,  {}, name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  SimpleUserInterface,  {}, name=u'test_ui')
 
-        return super(RegionErrorScenarios, self).new_webapp(site_root=MainRegion)
+        return super(UserInterfaceErrorScenarios, self).new_wsgi_app(site_root=MainUI)
 
     @scenario
     def plug_in_to_nonexistant_name(self):
@@ -50,12 +50,12 @@ class RegionErrorScenarios(WebFixture):
 
         
 @istest
-class RegionErrorTests(object):
-    @test(RegionErrorScenarios)
-    def region_slots_map_error(self, fixture):
-        browser = Browser(fixture.webapp)
+class UserInterfaceErrorTests(object):
+    @test(UserInterfaceErrorScenarios)
+    def ui_slots_map_error(self, fixture):
+        browser = Browser(fixture.wsgi_app)
 
         with expected(ProgrammerError):
-            browser.open('/aregion/')
+            browser.open('/a_ui/')
 
 

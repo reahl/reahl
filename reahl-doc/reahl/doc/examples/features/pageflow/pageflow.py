@@ -1,11 +1,11 @@
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, Not
 
-class PageFlowApp(Region):
+class PageFlowUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style=u'basic')  
 
         comment = Comment()
 

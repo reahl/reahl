@@ -1,5 +1,5 @@
 
 
-from reahl.doc.examples.tutorial.migrationexample.migrationexample import AddressBookApp
+from reahl.doc.examples.tutorial.migrationexample.migrationexample import AddressBookUI
 
-web.site_root = AddressBookApp
+web.site_root = AddressBookUI

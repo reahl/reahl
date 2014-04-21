@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import Region, Url, UrlBoundView, CannotCreate
+from reahl.web.fw import UserInterface, Url, UrlBoundView, CannotCreate
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, A, InputGroup, HMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
 
@@ -27,7 +27,7 @@ class EditView(UrlBoundView):
         self.set_slot(u'main', EditAddressForm.factory(address))
 
 
-class AddressBookApp(Region):
+class AddressBookUI(UserInterface):
     def assemble(self):
 
         add = self.define_view(u'/add', title=u'Add an address')
@@ -39,7 +39,7 @@ class AddressBookApp(Region):
         addresses.set_slot(u'main', AddressBookPanel.factory(self))
 
         bookmarks = [f.as_bookmark(self) for f in [addresses, add]]
-        self.define_main_window(AddressBookPage, bookmarks)
+        self.define_page(AddressBookPage, bookmarks)
 
         self.define_transition(Address.events.save, add, addresses)
         self.define_transition(Address.events.update, edit, addresses)
@@ -52,13 +52,13 @@ class AddressBookApp(Region):
 
 
 class AddressBookPanel(Panel):
-    def __init__(self, view, address_book_app):
+    def __init__(self, view, address_book_ui):
         super(AddressBookPanel, self).__init__(view)
 
         self.add_child(H(view, 1, text=u'Addresses'))
         
         for address in Address.query.all():
-            self.add_child(AddressBox(view, address, address_book_app))
+            self.add_child(AddressBox(view, address, address_book_ui))
 
 
 class EditAddressForm(Form):
@@ -85,10 +85,10 @@ class AddAddressForm(Form):
 
 
 class AddressBox(Panel):
-    def __init__(self, view, address, address_book_app):
+    def __init__(self, view, address, address_book_ui):
         super(AddressBox, self).__init__(view)
 
-        bookmark = address_book_app.get_edit_bookmark(address=address, description=u'edit')
+        bookmark = address_book_ui.get_edit_bookmark(address=address, description=u'edit')
         par = self.add_child(P(view, text=u'%s: %s ' % (address.name, address.email_address)))
         par.add_child(A.from_bookmark(view, bookmark))
 

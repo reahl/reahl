@@ -32,26 +32,26 @@ from reahl.component.config import Configuration, ReahlSystemConfig
 from reahl.component.exceptions import IncorrectArgumentError, IsInstance
 from reahl.web.egg import WebConfig, ReahlEgg
 from reahl.webelixirimpl import WebUserSession, PersistedException, UserInput
-from reahl.web.fw import UrlBoundView, Region, WebExecutionContext, Widget
+from reahl.web.fw import UrlBoundView, UserInterface, WebExecutionContext, Widget
 from reahl.web.ui import TwoColumnPage, P, Div, Slot
 from reahl.webdev.tools import WidgetTester, Browser
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 
 class WidgetFixture(Fixture, WebBasicsMixin):
-    def new_region_factory(self):
-        factory = Region.factory(u'test_region_name')
+    def new_user_interface_factory(self):
+        factory = UserInterface.factory(u'test_user_interface_name')
         factory.attach_to(u'/', {})
         return factory
         
-    def new_region(self):
-        factory = self.region_factory
+    def new_user_interface(self):
+        factory = self.ui_factory
         with self.context:
             return factory.create()
 
-    def new_view(self, region=None, relative_path=u'/', title='A view', slot_definitions={}):
-        region = region or self.region
-        return UrlBoundView(region, relative_path, title, slot_definitions)
+    def new_view(self, user_interface=None, relative_path=u'/', title='A view', slot_definitions={}):
+        user_interface = user_interface or self.user_interface
+        return UrlBoundView(user_interface, relative_path, title, slot_definitions)
 
 
 @istest
@@ -155,18 +155,18 @@ class WidgetBasics(object):
 
     @test(WebFixture)
     def basic_working_of_slots(self, fixture):
-        """Slots are special Widgets that can be added to the main window. The contents of a
+        """Slots are special Widgets that can be added to the page. The contents of a
            Slot are then supplied (differently) by different Views."""
 
-        class MyMainWindow(Widget):
+        class MyPage(Widget):
             def __init__(self, view):
-                super(MyMainWindow, self).__init__(view)
+                super(MyPage, self).__init__(view)
                 self.add_child(Slot(view, u'slot1'))
                 self.add_child(Slot(view, u'slot2'))
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(MyMainWindow)
+                self.define_page(MyPage)
 
                 home = self.define_view(u'/', title=u'Home')
                 home.set_slot(u'slot1', P.factory(text=u'a'))
@@ -175,8 +175,8 @@ class WidgetBasics(object):
                 other = self.define_view(u'/other', title=u'Other')
                 other.set_slot(u'slot1', P.factory(text=u'other'))
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
         
         browser.open('/')
         [slot1_p, slot2_p] = browser.lxml_html.xpath('//p')
@@ -192,19 +192,19 @@ class WidgetBasics(object):
     def defaults_for_slots(self, fixture):
         """A Widget can have defaults for its slots."""
 
-        class MyMainWindow(Widget):
+        class MyPage(Widget):
             def __init__(self, view):
-                super(MyMainWindow, self).__init__(view)
+                super(MyPage, self).__init__(view)
                 self.add_child(Slot(view, u'slot3'))
                 self.add_default_slot(u'slot3', P.factory(text=u'default'))
                
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(MyMainWindow)
+                self.define_page(MyPage)
                 self.define_view(u'/', title=u'Home')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
         
         browser.open('/')
         [slot3_p] = browser.lxml_html.xpath('//p')
@@ -224,21 +224,21 @@ class WidgetBasics(object):
             def get_js(self, context=None):
                 return [self.fake_js]
 
-        class MyMainWindow(Widget):
+        class MyPage(Widget):
             def __init__(self, view):
-                super(MyMainWindow, self).__init__(view)
+                super(MyPage, self).__init__(view)
                 self.add_child(Slot(view, u'reahl_header'))
                 self.add_child(WidgetWithJavaScript(view, u'js1'))
                 self.add_child(WidgetWithJavaScript(view, u'js2'))
                 self.add_child(WidgetWithJavaScript(view, u'js1'))
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(MyMainWindow)
+                self.define_page(MyPage)
                 self.define_view(u'/', title=u'Home')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
         
         browser.open('/')
         rendered_js = browser.lxml_html.xpath('//script')[1].text
@@ -264,8 +264,8 @@ class WidgetBasics(object):
         """The JavaScript and CSS files listed in the .reahlproject are discovered when the webserver starts up, and put into one file
            for inclusion on each page of a Reahl web application."""
 
-        webapp = fixture.new_webapp(enable_js=True)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(enable_js=True)
+        browser = Browser(wsgi_app)
         browser.open(fixture.static_file)
 
         def broken_but_comparable_minify(some_js):

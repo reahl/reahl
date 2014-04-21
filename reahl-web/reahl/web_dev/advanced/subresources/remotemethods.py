@@ -23,7 +23,7 @@ from reahl.tofu import test, Fixture, scenario
 from reahl.tofu import vassert, expected
 
 from reahl.webdev.tools import Browser
-from reahl.web.fw import Region, Widget, RemoteMethod, MethodResult, CheckedRemoteMethod, JsonResult, WidgetResult
+from reahl.web.fw import UserInterface, Widget, RemoteMethod, MethodResult, CheckedRemoteMethod, JsonResult, WidgetResult
 from reahl.component.modelinterface import Field, IntegerField
 from reahl.web_dev.fixtures import  WebFixture
 
@@ -39,10 +39,10 @@ class RemoteMethodFixture(WebFixture):
                 
         return WidgetWithRemoteMethod.factory()
 
-    def new_webapp(self, remote_method=None):
+    def new_wsgi_app(self, remote_method=None):
         remote_method = remote_method or self.remote_method
         slot_definitions = {u'main': self.new_widget_factory(remote_method=remote_method)}
-        return super(RemoteMethodFixture, self).new_webapp(view_slots=slot_definitions)
+        return super(RemoteMethodFixture, self).new_wsgi_app(view_slots=slot_definitions)
             
         
 @istest
@@ -61,8 +61,8 @@ class RemoteMethodTests(object):
                 super(WidgetWithRemoteMethod, self).__init__(view)
                 view.add_resource(remote_method)
 
-        webapp = fixture.new_webapp(view_slots={u'main': WidgetWithRemoteMethod.factory()})
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithRemoteMethod.factory()})
+        browser = Browser(wsgi_app)
         
         # By default you cannot GET, since the method is not immutable
         browser.open('/_amethod_method', status=405)
@@ -81,8 +81,8 @@ class RemoteMethodTests(object):
             raise Exception(u'I failed')
         remote_method = RemoteMethod(u'amethod', fail, MethodResult(catch_exception=Exception))
 
-        webapp = fixture.new_webapp(remote_method=remote_method)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
 
         browser.post('/_amethod_method', {})
         vassert( browser.raw_html == u'I failed' )
@@ -95,8 +95,8 @@ class RemoteMethodTests(object):
             return u'value returned from method'
         remote_method = RemoteMethod(u'amethod', callable_object, MethodResult(), immutable=True)
     
-        webapp = fixture.new_webapp(remote_method=remote_method)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
         
         # GET, since the method is immutable
         browser.open('/_amethod_method')
@@ -123,8 +123,8 @@ class RemoteMethodTests(object):
             return u''
         remote_method = RemoteMethod(u'amethod', callable_object, MethodResult(), immutable=fixture.immutable)
     
-        webapp = fixture.new_webapp(remote_method=remote_method)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
         
         kwargs_sent = {u'a':u'AAA', u'b':u'BBB'}
         if fixture.immutable:
@@ -145,8 +145,8 @@ class RemoteMethodTests(object):
                                             anint=IntegerField(),
                                             astring=Field())
     
-        webapp = fixture.new_webapp(remote_method=remote_method)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
         
         if fixture.immutable:
             browser.open('/_amethod_method?anint=5&astring=SupercalifraGilisticexpialidocious')
@@ -187,8 +187,8 @@ class RemoteMethodTests(object):
             return fixture.value_to_return
         remote_method = RemoteMethod(u'amethod', callable_object, default_result=fixture.method_result)
     
-        webapp = fixture.new_webapp(remote_method=remote_method)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
         
         browser.post('/_amethod_method', {})
         vassert( re.match(fixture.expected_response, browser.raw_html) )
@@ -203,8 +203,8 @@ class RemoteMethodTests(object):
             raise Exception(u'exception text')
         remote_method = RemoteMethod(u'amethod', fail, default_result=fixture.method_result)
     
-        webapp = fixture.new_webapp(remote_method=remote_method)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
         
         browser.post('/_amethod_method', {})
         vassert( browser.raw_html == fixture.exception_response )
@@ -219,8 +219,8 @@ class RemoteMethodTests(object):
             raise Exception(u'exception text')
         remote_method = RemoteMethod(u'amethod', fail, default_result=fixture.method_result)
     
-        webapp = fixture.new_webapp(remote_method=remote_method)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
 
         with expected(Exception):
             browser.post('/_amethod_method', {})

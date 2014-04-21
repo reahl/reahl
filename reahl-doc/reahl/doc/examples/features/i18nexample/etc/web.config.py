@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedApp
+from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
 
-web.site_root = TranslatedApp
+web.site_root = TranslatedUI

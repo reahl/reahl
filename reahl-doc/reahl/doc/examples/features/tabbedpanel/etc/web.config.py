@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelApp
+from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 
-web.site_root = TabbedPanelApp
+web.site_root = TabbedPanelUI

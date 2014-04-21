@@ -24,8 +24,8 @@ from webob import Request, Response
 from reahl.stubble import EmptyStub, stubclass
 from nose.tools import istest
 from reahl.tofu import Fixture, set_up
-from reahl.web.fw import ComposedPage, ReahlWebApplication, WebExecutionContext, \
-                         RegionFactory, IdentityDictionary, FactoryDict, UrlBoundView, Region, \
+from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
+                         UserInterfaceFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
                          WidgetList, Url, Widget, RegexPath
 from reahl.web.ui import TwoColumnPage, HTML5Page, Div, Slot
 from reahl.component.i18n import Translator
@@ -39,8 +39,8 @@ from reahl.webdev.tools import DriverBrowser
 _ = Translator(u'reahl-webdev')
 
         
-@stubclass(ReahlWebApplication)
-class ReahlWebApplicationStub(ReahlWebApplication):
+@stubclass(ReahlWSGIApplication)
+class ReahlWSGIApplicationStub(ReahlWSGIApplication):
     def add_reahl_static_files(self): # To save time, this is costly...
         pass  
 
@@ -76,9 +76,9 @@ class WebBasicsMixin(PartyModelZooMixin):
     def reahl_server(self):
         return self.run_fixture.reahl_server
 
-    def new_webconfig(self, webapp=None):
+    def new_webconfig(self, wsgi_app=None):
         web = WebConfig()
-        web.site_root = Region
+        web.site_root = UserInterface
         web.static_root = os.path.join(os.getcwd(), 'static')
         web.session_class = WebUserSession
         web.persisted_exception_class = PersistedException
@@ -114,25 +114,25 @@ class WebBasicsMixin(PartyModelZooMixin):
             request.host = u'localhost:8363'
         return Request(request.environ, charset='utf8')
 
-    def new_webapp(self, site_root=None, enable_js=False, 
+    def new_wsgi_app(self, site_root=None, enable_js=False, 
                          config=None, view_slots=None, child_factory=None):
-        webapp_class = ReahlWebApplicationStub
+        wsgi_app_class = ReahlWSGIApplicationStub
         if enable_js:
-            webapp_class = ReahlWebApplication
+            wsgi_app_class = ReahlWSGIApplication
         view_slots = view_slots or {}
         child_factory = child_factory or Widget.factory()
         if not view_slots.has_key(u'main'):
             view_slots[u'main'] = child_factory
         config = config or self.config
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_view(u'/', title=u'Home page', slot_definitions=view_slots)
 
-        site_root = site_root or MainRegion
+        site_root = site_root or MainUI
         config.web.site_root = site_root
-        return webapp_class(config)
+        return wsgi_app_class(config)
 
     @property
     def current_location(self):
@@ -140,11 +140,11 @@ class WebBasicsMixin(PartyModelZooMixin):
 
     def new_view(self):
         current_path = Url(WebExecutionContext.get_context().request.url).path
-        view = UrlBoundView(self.region, current_path, u'A view', {})
+        view = UrlBoundView(self.user_interface, current_path, u'A view', {})
         return view
 
-    def new_region(self):
-        return Region(None, u'/', {}, False, u'test_region')
+    def new_user_interface(self):
+        return UserInterface(None, u'/', {}, False, u'test_ui')
 
 
 class WebFixture(Fixture, WebBasicsMixin):

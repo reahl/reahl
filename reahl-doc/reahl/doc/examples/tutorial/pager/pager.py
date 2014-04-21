@@ -1,14 +1,14 @@
 
 
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, P, H, Panel
 from reahl.web.pager import SequentialPageIndex, PageMenu, PagedPanel
 
 
-class AddressBookApp(Region):
+class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')
+        self.define_page(TwoColumnPage, style=u'basic')
         find = self.define_view(u'/', title=u'Addresses')
         find.set_slot(u'main', AddressBookPanel.factory())
 

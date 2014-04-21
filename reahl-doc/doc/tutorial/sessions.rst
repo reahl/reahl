@@ -138,7 +138,7 @@ the login page, we need the LoginSession to be able to link its
 `.fields` and `.events` to :class:`~reahl.web.fw.Widget`\ s on that page.
 
 In this example, we obtain the current LoginSession at the beginning
-of `.assemble()` of the :class:`~reahl.web.fw.Region`, and send it around as argument to the
+of `.assemble()` of the :class:`~reahl.web.fw.UserInterface`, and send it around as argument to the
 login page. Most of that is old hat for you, except the bit about how
 to obtain the LoginSession for the current :class:`~reahl.systemaccountmodel.UserSession`. The
 `@session_scoped` decorator adds a method to the class it decorates
@@ -147,7 +147,7 @@ whether there is a LoginSession for the current :class:`~reahl.systemaccountmode
 one if necessary. Either way it returns what you expect:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
-   :pyobject: SessionScopeApp
+   :pyobject: SessionScopeUI
 
 
 Dealing with DomainExceptions

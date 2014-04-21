@@ -6,7 +6,7 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, VMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.i18n import Translator
@@ -22,9 +22,9 @@ class AddressBookPage(TwoColumnPage):
         self.secondary.add_child(VMenu.from_languages(view))
 
 
-class AddressBookApp(Region):
+class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_main_window(AddressBookPage)
+        self.define_page(AddressBookPage)
         find = self.define_view(u'/', title=_(u'Address Book'))
         find.set_slot(u'main', AddressBookPanel.factory())
 

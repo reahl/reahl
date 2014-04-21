@@ -19,8 +19,9 @@
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
+from reahl.component.decorators import deprecated
 from reahl.sqlalchemysupport import PersistedField
-from reahl.web.fw import Region, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
+from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
 from reahl.web.ui import P, Panel, Ul, Li, H, Form, Button
 
 from reahl.workflowmodel import Inbox, Task, WorkflowInterface
@@ -36,8 +37,8 @@ class TaskBox(Li):
         self.task = task
         self.add_child(P(view, text=self.task.title))
         form = self.add_child(Form(view, u'task_%s' % task.id))
-        form.add_child(Button(form, self.region.workflow_interface.events.take_task.with_arguments(task=self.task)))
-        form.add_child(Button(form, self.region.workflow_interface.events.go_to_task.with_arguments(task=self.task)))
+        form.add_child(Button(form, self.user_interface.workflow_interface.events.take_task.with_arguments(task=self.task)))
+        form.add_child(Button(form, self.user_interface.workflow_interface.events.go_to_task.with_arguments(task=self.task)))
 
 
 class InboxWidget(Panel):
@@ -79,8 +80,8 @@ class TaskWidget(Panel):
         self.task = task
         self.add_child(P(view, text=self.task.title))
         form = self.add_child(Form(view, u'task_form'))
-        form.add_child(Button(form, self.region.workflow_interface.events.defer_task))
-        form.add_child(Button(form, self.region.workflow_interface.events.release_task.with_arguments(task=self.task)))
+        form.add_child(Button(form, self.user_interface.workflow_interface.events.defer_task))
+        form.add_child(Button(form, self.user_interface.workflow_interface.events.release_task.with_arguments(task=self.task)))
 
 
 class TaskView(UrlBoundView):
@@ -97,15 +98,15 @@ class TaskView(UrlBoundView):
         raise ProgrammerError(u'no Widget found to display %s' % task)
 
 
-class InboxRegion(Region):
-    """A user-facing Region for monitoring an :class:`reahl.systemaccountmodel.Inbox`. It allows
+class InboxUI(UserInterface):
+    """A user-facing UserInterface for monitoring an :class:`reahl.systemaccountmodel.Inbox`. It allows
        a user to work on tasks.
 
        **Slots:**
-         - main_slot: All UI elements are put into this Slot for any View in this Region.
+         - main_slot: All UI elements are put into this Slot for any View in this UserInterface.
          
        **Views**
-         Call :meth:`AccountRegion.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg
+         Call :meth:`AccountUI.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg
          in order to get a Bookmark for the View listed below:
 
          `/`
@@ -133,6 +134,9 @@ class InboxRegion(Region):
 
 
 
+@deprecated(u'Please use InboxUI instead.')
+class InboxRegion(InboxUI):
+    pass
 
 
 

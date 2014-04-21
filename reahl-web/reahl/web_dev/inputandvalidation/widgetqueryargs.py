@@ -21,11 +21,11 @@ from reahl.tofu import Fixture, test, vassert, expected
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.webdev.tools import WidgetTester, Browser
-from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin, ReahlWebApplicationStub
+from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin, ReahlWSGIApplicationStub
 
 
 from reahl.component.modelinterface import Field, exposed, IntegerField
-from reahl.web.fw import Widget, Bookmark, ReahlWebApplication
+from reahl.web.fw import Widget, Bookmark, ReahlWSGIApplication
 from reahl.web.ui import A, P, Form, TextInput, Panel
 
 
@@ -53,9 +53,9 @@ class QueryStringFixture(Fixture, WebBasicsMixin):
 
         return MyFancyWidget
 
-    def new_webapp(self, widget_factory=None):
+    def new_wsgi_app(self, widget_factory=None):
         widget_factory = widget_factory or self.FancyWidget.factory()
-        return super(QueryStringFixture, self).new_webapp(enable_js=True, 
+        return super(QueryStringFixture, self).new_wsgi_app(enable_js=True, 
                                                           child_factory=widget_factory)
 
 
@@ -75,8 +75,8 @@ class WidgetQueryArgTests(object):
             def query_fields(self, fields):
                 fields.arg_directly_on_widget = Field()
 
-        webapp = fixture.new_webapp(widget_factory=WidgetWithQueryArguments.factory())
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(widget_factory=WidgetWithQueryArguments.factory())
+        browser = Browser(wsgi_app)
 
         browser.open(u'/?arg_directly_on_widget=supercalafragalisticxpelidocious')
         vassert( browser.lxml_html.xpath(u'//p')[0].text == u'supercalafragalisticxpelidocious' )
@@ -102,8 +102,8 @@ class WidgetQueryArgTests(object):
                 fields.arg_on_other_object = self.model_object.fields.arg_on_other_object
         
 
-        webapp = fixture.new_webapp(widget_factory=FormWithQueryArguments.factory())
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(widget_factory=FormWithQueryArguments.factory())
+        browser = Browser(wsgi_app)
 
         browser.open(u'/?arg_on_other_object=metoo')
         vassert( browser.lxml_html.xpath(u'//input')[0].value == u'metoo' )
@@ -116,7 +116,7 @@ class WidgetQueryArgTests(object):
            depending on a variable in the fragment of the current URL. This makes
            such Widgets bookmarkable by a browser."""
 
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open('/')
 
         # Case: the default
@@ -168,10 +168,10 @@ class WidgetQueryArgTests(object):
         # page-internal bookmarks must be added to normal ones to be useful
         usable_bookmark = normal_bookmark+internal_bookmark
         
-        webapp = fixture.new_webapp(widget_factory=A.factory_from_bookmark(usable_bookmark))
+        wsgi_app = fixture.new_wsgi_app(widget_factory=A.factory_from_bookmark(usable_bookmark))
 
         # Case: when rendered without javascript
-        browser = Browser(webapp)
+        browser = Browser(wsgi_app)
         browser.open(u'/')
 
         a = browser.lxml_html.xpath(u'//a')[0]
@@ -179,7 +179,7 @@ class WidgetQueryArgTests(object):
         vassert( a.text == u'an ajax bookmark' )
 
         # Case: when rendered in a browser with javascript support
-        fixture.reahl_server.set_app(webapp)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
         vassert(     fixture.driver_browser.is_element_present(u"//a[@href='/#fancy_state=2']") )
         vassert( not fixture.driver_browser.is_element_present(u"//a[@href='/?fancy_state=2']") )

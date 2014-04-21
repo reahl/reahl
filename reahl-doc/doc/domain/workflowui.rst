@@ -6,10 +6,10 @@ Module reahl.domainui.workflow
 .. automodule:: reahl.domainui.workflow
 
 
-InboxRegion
-"""""""""""
+InboxUI
+"""""""
 
-.. autoclass:: InboxRegion
+.. autoclass:: InboxUI
    :members:
 
 TaskWidget
