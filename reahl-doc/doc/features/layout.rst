@@ -18,11 +18,12 @@ The source code given below results in the following visual layout:
       :width: 100%
       :alt: Screenshot of a page with header, footer, two columns and a few other layout features demonstrated.
 
-The first thing to notice in the code given below is the notion of a
-widget used as the `main window` of your application.  The main window
-is the widget which will appear on all pages of your application ---
-but with slightly different contents depending on the particular URL
-visited.
+The first thing to notice in the code given below is that the page
+used is not specified per View, but a single `page` is used for the
+entire UserInterface. Each View (there's only one here) just specifies
+some contents for the named Slots provided by that page. (See
+:doc:`../tutorial/slots` for an explanation.)
+
 
 Although you can roll your own, Reahl includes, for example, a
 TwoColumnPage which takes care of the basic layout of pages. In this

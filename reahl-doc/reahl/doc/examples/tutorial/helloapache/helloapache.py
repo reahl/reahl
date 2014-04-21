@@ -1,9 +1,16 @@
 
-from reahl.web.fw import Region
-from reahl.web.ui import TwoColumnPage
+from reahl.web.fw import UserInterface
+from reahl.web.ui import TwoColumnPage, P
 
-class HelloApp(Region):
+
+class HelloPage(TwoColumnPage):
+    def __init__(self, view):
+        super(HelloPage, self).__init__(view)
+        self.main.add_child(P(view, text=u'Hello World!'))
+
+
+class HelloUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage)
-        self.define_view(u'/', title=u'Home')
+        self.define_view(u'/', title=u'Home', page=HelloPage.factory())
+
 

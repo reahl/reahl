@@ -47,7 +47,7 @@ The implementation that makes those tests pass is given in the code
 below. There are several things you'd have to understand in this
 solution:
 
-The application uses an AddressAppPage for a main window. This is just
+The application uses an AddressAppPage for a page. This is just
 to make the application a little easier to drive: it displays who is
 logged in currently at the top of the page, and includes a :class:`~reahl.web.ui.Menu` which
 just gives the user a way to always return to the home page.
@@ -76,7 +76,7 @@ that the correct arguments are specified to `.with_arguments()` where
 We have decided to use `.define_event_handler()` in `LoginForm` and
 `LogoutForm` for allowing `login_event` and `logout_event` to be
 linked to :class:`~reahl.web.ui.Button`\ s in these :class:`~reahl.web.fw.Widget`\ s. All other :class:`~reahl.component.modelinterface.Event`\ s are dealt with
-using :class:`~reahl.web.fw.Transition`\ s defined in `AddressBookApp.assemble()`. When it
+using :class:`~reahl.web.fw.Transition`\ s defined in `AddressBookUI.assemble()`. When it
 comes to being able to clearly visualise all the pathways through the
 application, some :class:`~reahl.component.modelinterface.Event`\ s are just more important to actually show on a
 visual diagram than others. This code mirrors our schematic diagram.

@@ -82,9 +82,9 @@ class FieldValidatorTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.add_child(TextInput(self, model_object.fields.field_name))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(name=u'some_form'))
-        fixture.reahl_server.set_app(webapp)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(name=u'some_form'))
+        fixture.reahl_server.set_app(wsgi_app)
+        browser = Browser(wsgi_app)
 
         browser.open(unicode(fixture.url))
         response = browser.last_response

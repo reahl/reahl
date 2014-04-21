@@ -90,8 +90,8 @@ class FileUploadInputFixture(WebFixture):
 
         return FileUploadForm
 
-    def new_webapp(self, enable_js=False):
-        return super(FileUploadInputFixture, self).new_webapp(child_factory=self.FileUploadForm.factory(), enable_js=enable_js)
+    def new_wsgi_app(self, enable_js=False):
+        return super(FileUploadInputFixture, self).new_wsgi_app(child_factory=self.FileUploadForm.factory(), enable_js=enable_js)
 
     def uploaded_file_is_listed(self, filename):
         return self.driver_browser.is_element_present('//ul/li/span[text()="%s"]' % os.path.basename(filename))
@@ -261,8 +261,8 @@ class FileTests(object):
                 self.add_child(Button(self, domain_object.events.upload))
 
 
-        webapp = fixture.new_webapp(child_factory=FileUploadForm.factory(), enable_js=False)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=FileUploadForm.factory(), enable_js=False)
+        fixture.reahl_server.set_app(wsgi_app)
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -312,8 +312,8 @@ class FileTests(object):
                 self.add_child(Button(self, domain_object.events.upload))
 
 
-        webapp = fixture.new_webapp(child_factory=FileUploadForm.factory(), enable_js=False)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=FileUploadForm.factory(), enable_js=False)
+        fixture.reahl_server.set_app(wsgi_app)
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -335,7 +335,7 @@ class FileTests(object):
            contains the FileUploadInput is submitted.  When the Form is finally submitted
            the FileField of the FileUploadInput receives all the files uploaded as UploadFile objects.
         """
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -379,7 +379,7 @@ class FileTests(object):
     def file_upload_input_list_files(self, fixture):
         """The FileUploadInput displays a list of files that were uploaded so far, but is cleared 
            once the Form is submitted."""
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -416,7 +416,7 @@ class FileTests(object):
     def file_upload_input_remove_files(self, fixture):
         """A user can remove files that were uploaded before the Form which contains the 
            FileUploadInput is submitted."""
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -442,7 +442,7 @@ class FileTests(object):
     def file_upload_input_double_uploads(self, fixture):
         """The user is prevented from uploading more than one file with the same name.
         """
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=False))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=False))
         browser = fixture.driver_browser
         browser.open(u'/')
 
@@ -462,7 +462,7 @@ class FileTests(object):
            allowing the user to be busy with the rest of the form. The user does not need to click on the Upload button,
            uploading starts automatically upon choosing a file. The list of uploaded files is appropriately updated.
         """
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -482,7 +482,7 @@ class FileTests(object):
         """While a large file is being uploaded, a progress bar and a Cancel button are displayed. Clicking on the Cancel
            button stops the upload and clears the file name from the list of uploaded files.
         """
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -506,7 +506,7 @@ class FileTests(object):
     def prevent_duplicate_upload_js(self, fixture):
         """The user is prevented from uploading more than one file with the same name on the client side.
         """
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -528,7 +528,7 @@ class FileTests(object):
     @test(LargeFileUploadInputFixture)
     def prevent_form_submit(self, fixture):
         """The user is prevented from submitting the Form while one or more file uploads are still in progress."""
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -547,7 +547,7 @@ class FileTests(object):
     @test(FileUploadInputFixture)
     def async_remove(self, fixture):
         """With javascript enabled, removing of uploaded files take place via ajax."""
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -580,7 +580,7 @@ class FileTests(object):
     @test(BrokenFileUploadInputFixture)
     def async_upload_error(self, fixture):
         """If an error happens during (ajax) upload, the user is notified."""
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
         fixture.config.reahlsystem.debug = False # So that we don't see the exception output while testing
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -598,7 +598,7 @@ class FileTests(object):
         """When a DomainException happens upon uploading via JavaScript, 
            the form is replaced with a rerendered version from the server."""
         
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
         browser = fixture.driver_browser
         browser.open(u'/')
 
@@ -630,7 +630,7 @@ class FileTests(object):
     def queueing_async_uploads(self, fixture):
         """Asynchronous uploads do not happen concurrently, they are queued one after another.
         """
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -661,7 +661,7 @@ class FileTests(object):
         # Only tested for the FileUploadInput, as it uses the SimpleFileInput
         # in its own implementation, in a NestedForm, and has to pass on the
         # filesize constraint all the way. This way, we test all of that.
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
         browser.open(u'/')
@@ -683,7 +683,7 @@ class FileTests(object):
         # Only tested for the FileUploadInput, as it uses the SimpleFileInput
         # in its own implementation, in a NestedForm, and has to pass on the
         # filesize constraint all the way. This way, we test all of that.
-        fixture.reahl_server.set_app(fixture.new_webapp(enable_js=True))
+        fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
         
         browser = fixture.driver_browser
         browser.open(u'/')

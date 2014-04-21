@@ -24,7 +24,7 @@ Description: The Reahl web framework.
  This package does not contain much itself, but is an entry point for installing
  a set of Reahl eggs:
  .
- Install Reahl by installing with pip extras, eg: "pip install reahl[sqlite,dev,doc]"
+ Install Reahl by installing with extras, eg: easy_install "reahl[sqlite,dev,doc]"
  to install everything needed to run Reahl on sqlite, the dev tools and documentation.
  .
  See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 

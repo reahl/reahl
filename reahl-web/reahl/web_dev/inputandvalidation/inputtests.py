@@ -334,8 +334,8 @@ class BasicInputTests(object):
                 self.add_child(Button(self, model_object.events.an_event))
                 fixture.checkbox = checkbox
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'))
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'))
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
         # Case: checkbox is submitted with form (ie checked)
@@ -373,8 +373,8 @@ class LabelOverInputTests(object):
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         # Case: the field is empty and does not have a default value
         # - render initially with label
@@ -472,8 +472,8 @@ class CueInputTests(object):
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
         # - initially rendered without cue
@@ -540,8 +540,8 @@ class TextInputTests(object):
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        webapp = fixture.new_webapp(child_factory=MyForm.factory(u'myform'), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'myform'), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
         browser = fixture.driver_browser
         browser.open('/')
 

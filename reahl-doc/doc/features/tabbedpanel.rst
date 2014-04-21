@@ -22,15 +22,19 @@ Should a user click on a different tab, different contents are displayed:
       :alt: A screenshot of a tabbed panel, open at a different tab.
 
 Here is the complete Reahl web application which produces the TabbedPanel
-in the figure above (notice the MyTabbedPanel class):
+in the figure above:
 
 .. literalinclude:: ../../reahl/doc/examples/features/tabbedpanel/tabbedpanel.py
 
 Using Reahl, this is written entirely in Python, and in terms of user
-interface widgets: You create your own widget class (MyTabbedPanel in
-this case), and populate it with Tabs in its ``__init__`` method. Each
-Tab is given a *factory* it can use to generate its own contents (in
-each case here, just a paragraph with text.
+interface widgets: You create a page by inheriting from the existing
+TwoColumnPage Widget (which comes with basic two-column layout
+already). In the ``__init__`` of that page, you add a TabbedPanel
+Widget as a child to the main column of this TwoColumnPage, and
+populate the TabbedPanel with Tabs. Each Tab is given a *factory* it
+can use to generate its own contents if and when that becomes
+necessary (in each case here, the contents is just a paragraph with
+text, but it could have been any Widget).
 
 What you get for that is tabs that can be switched via JavaScript,
 preventing the entire page to be refreshed when the user switches

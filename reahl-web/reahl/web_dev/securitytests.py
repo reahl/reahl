@@ -22,7 +22,7 @@ from reahl.stubble import stubclass, EmptyStub
 
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.fw import Widget, Region
+from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, TextInput, ButtonInput, Button, Panel, P, TwoColumnPage
 from reahl.component.modelinterface import Field, AccessRights, Event, exposed, Allowed, Action
 
@@ -54,7 +54,7 @@ class SecurityTests(object):
 
     @test(WebFixture)
     def serving_security_sensitive_widgets(self, fixture):
-        """If the main_window is security sensitive, it will only be served on config.web.encrypted_http_scheme,
+        """If the page is security sensitive, it will only be served on config.web.encrypted_http_scheme,
            else it will only be served on config.web.default_http_scheme."""
         class TestPanel(Panel):
             def __init__(self, view):
@@ -64,8 +64,8 @@ class SecurityTests(object):
                 if fixture.security_sensitive:
                     widget.set_as_security_sensitive()
 
-        webapp = fixture.new_webapp(child_factory=TestPanel.factory(), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=TestPanel.factory(), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         vassert( fixture.config.web.encrypted_http_scheme == u'https' )
         vassert( fixture.config.web.default_http_scheme == u'http' )
@@ -257,8 +257,8 @@ class SecurityTests(object):
                 form.add_child(TextInput(form, model_object.fields.field_name))
                 fixture.form = form
 
-        webapp = fixture.new_webapp(child_factory=TestPanel.factory())
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=TestPanel.factory())
+        browser = Browser(wsgi_app)
         browser.open(u'/')
 
         browser.post(fixture.form.event_channel.get_url().path, {u'event.an_event?':u'', u'field_name': 'illigitimate value'})
@@ -285,8 +285,8 @@ class SecurityTests(object):
                 form.add_child(Button(form, model_object.events.an_event))
                 fixture.form = form
 
-        webapp = fixture.new_webapp(child_factory=TestPanel.factory())
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=TestPanel.factory())
+        browser = Browser(wsgi_app)
         browser.open(u'/')
 
         browser.post(fixture.form.event_channel.get_url().path, {u'event.an_event?':u''})
@@ -299,12 +299,12 @@ class SecurityTests(object):
         """ONLY If a View is readable, it can be GET"""
         def disallowed(): return False
         
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 self.define_view(u'/view', u'Title', read_check=disallowed)
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
         browser.open(u'/view', status=403)
 
     @test(WebFixture)
@@ -321,13 +321,13 @@ class SecurityTests(object):
             def events(self, events):
                 events.an_event = Event(label=u'Click me')
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/a_view', u'Title', write_check=disallowed)
                 home.set_slot(u'main', MyForm.factory())
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         browser.open(u'/a_view')
         browser.click(XPath.button_labelled(u'Click me'), status=403)

@@ -63,3 +63,13 @@ class memoized(object):
             res = cache[key] = self.func(*args, **kw)
         return res
 
+import logging
+
+class deprecated(object):
+    def __init__(self, message):
+        self.message = message
+    def __call__(self, something):
+        logging.warning(u'DEPRECATED: %s. %s' % (something, self.message))
+        return something
+
+

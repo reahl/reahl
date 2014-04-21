@@ -4,7 +4,7 @@ import elixir
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, UserSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
-from reahl.web.fw import Region, UrlBoundView, CannotCreate
+from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, A, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage, Slot, Widget, SelectInput, CheckboxInput
 
@@ -171,24 +171,24 @@ class LogoutForm(Form):
 
 
 class HomePageWidget(Widget):
-    def __init__(self, view, address_book_app):
+    def __init__(self, view, address_book_ui):
         super(HomePageWidget, self).__init__(view)
         accounts = AccountManagementInterface.for_current_session()
         user_session = UserSession.for_current_session()
         if user_session.is_logged_in():
-            self.add_child(AddressBookList(view, address_book_app))
+            self.add_child(AddressBookList(view, address_book_ui))
             self.add_child(LogoutForm(view, accounts))
         else:
             self.add_child(LoginForm(view, accounts))
 
 
 class AddressBookList(Panel):
-    def __init__(self, view, address_book_app):
+    def __init__(self, view, address_book_ui):
         super(AddressBookList, self).__init__(view)
 
         current_account = UserSession.for_current_session().account
         address_books = [book for book in AddressBook.address_books_visible_to(current_account)]
-        bookmarks = [address_book_app.get_address_book_bookmark(address_book, description=address_book.display_name)
+        bookmarks = [address_book_ui.get_address_book_bookmark(address_book, description=address_book.display_name)
                      for address_book in address_books]
 
         for bookmark in bookmarks:
@@ -197,17 +197,17 @@ class AddressBookList(Panel):
         
 
 class AddressBookPanel(Panel):
-    def __init__(self, view, address_book, address_book_app):
+    def __init__(self, view, address_book, address_book_ui):
     	self.address_book = address_book
         super(AddressBookPanel, self).__init__(view)
         
         self.add_child(H(view, 1, text=u'Addresses in %s' % address_book.display_name))
-        self.add_child(HMenu.from_bookmarks(view, self.menu_bookmarks(address_book_app)))
+        self.add_child(HMenu.from_bookmarks(view, self.menu_bookmarks(address_book_ui)))
         self.add_children([AddressBox(view, address) for address in address_book.addresses])
 
-    def menu_bookmarks(self, address_book_app):
-        return [address_book_app.get_add_address_bookmark(self.address_book), 
-                address_book_app.get_add_collaborator_bookmark(self.address_book)]
+    def menu_bookmarks(self, address_book_ui):
+        return [address_book_ui.get_add_address_bookmark(self.address_book), 
+                address_book_ui.get_add_collaborator_bookmark(self.address_book)]
 
 
 class EditAddressForm(Form):
@@ -244,11 +244,11 @@ class AddressBox(Form):
 
 
 class AddressBookView(UrlBoundView):
-    def assemble(self, address_book_id=None, address_book_app=None):
+    def assemble(self, address_book_id=None, address_book_ui=None):
         address_book = AddressBook.by_id(address_book_id, CannotCreate())
 
         self.title = address_book.display_name
-        self.set_slot(u'main', AddressBookPanel.factory(address_book, address_book_app))
+        self.set_slot(u'main', AddressBookPanel.factory(address_book, address_book_ui))
 
 
 class AddAddressView(UrlBoundView):
@@ -289,7 +289,7 @@ class EditAddressView(UrlBoundView):
         self.set_slot(u'main', EditAddressForm.factory(address))
 
 
-class AddressBookApp(Region):
+class AddressBookUI(UserInterface):
     def assemble(self):
 
         home = self.define_view(u'/', title=u'Address books')
@@ -297,7 +297,7 @@ class AddressBookApp(Region):
       
         self.address_book_page = self.define_view(u'/address_book', view_class=AddressBookView, 
                                                   address_book_id=IntegerField(required=True),
-                                                  address_book_app=self)
+                                                  address_book_ui=self)
         self.add_address_page = self.define_view(u'/add_address', view_class=AddAddressView, 
                                                  address_book_id=IntegerField(required=True))
 
@@ -312,7 +312,7 @@ class AddressBookApp(Region):
         self.define_transition(Address.events.update, edit_address_page, self.address_book_page)
         self.define_transition(AddressBook.events.add_collaborator, self.add_collaborator_page, self.address_book_page)
 
-        self.define_main_window(AddressAppPage, home.as_bookmark(self))
+        self.define_page(AddressAppPage, home.as_bookmark(self))
 
     def get_address_book_bookmark(self, address_book, description=None):
         return self.address_book_page.as_bookmark(self, description=description, address_book_id=address_book.id)

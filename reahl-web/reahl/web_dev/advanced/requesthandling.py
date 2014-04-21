@@ -23,9 +23,9 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 from reahl.stubble import stubclass, CallMonitor
 
-from reahl.web.fw import Resource, ReahlWebApplication, WebExecutionContext
+from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext
 from reahl.web.interfaces import WebUserSessionProtocol
-from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
+from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
 
 
@@ -41,16 +41,16 @@ class RequestHandlingTests(object):
 
     @test(WSGIFixture)
     def wsgi_interface(self, fixture):
-        """A ReahlWebApplication is a WSGI application."""
+        """A ReahlWSGIApplication is a WSGI application."""
 
-        webapp = fixture.webapp
+        wsgi_app = fixture.wsgi_app
 
         environ = Request.blank('/', charset='utf8').environ
         def start_response(status, headers):
             fixture.status = status
             fixture.headers = headers
         
-        wsgi_iterator = webapp(environ, start_response)
+        wsgi_iterator = wsgi_app(environ, start_response)
 
         result = u''.join([i for i in wsgi_iterator])  # To check that it is iterable and get the value
         vassert( fixture.result_is_valid(result) )
@@ -114,12 +114,12 @@ class RequestHandlingTests(object):
                     vassert( not WebUserSessionStub.session.key_is_set )
                     return Response()
         
-            @stubclass(ReahlWebApplication)
-            class ReahlWebApplicationStub2(ReahlWebApplicationStub):
+            @stubclass(ReahlWSGIApplication)
+            class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
                 def resource_for(self, request):
                     return ResourceStub()
 
-            browser = Browser(ReahlWebApplicationStub2(fixture.config))
+            browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
 
             # A session is obtained, and the correct params passed to the hook methods
             vassert( not WebUserSessionStub.session )      # Before the request, the session is not yet set
@@ -136,11 +136,11 @@ class RequestHandlingTests(object):
     @test(WebFixture)
     def handling_HTTPError_exceptions(self, fixture):
         """If an HTTPError exception is raised, it is used ad response."""
-        @stubclass(ReahlWebApplication)
-        class ReahlWebApplicationStub2(ReahlWebApplicationStub):
+        @stubclass(ReahlWSGIApplication)
+        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
             def resource_for(self, request):
                 raise HTTPNotFound()
 
-        browser = Browser(ReahlWebApplicationStub2(fixture.config))
+        browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
 
         browser.open(u'/', status=404)

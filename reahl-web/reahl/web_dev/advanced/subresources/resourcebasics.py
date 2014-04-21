@@ -26,7 +26,7 @@ from reahl.tofu import vassert
 
 from reahl.component.modelinterface import Field
 from reahl.webdev.tools import Browser
-from reahl.web.fw import Resource, SubResource, Region, Widget
+from reahl.web.fw import Resource, SubResource, UserInterface, Widget
 from reahl.web_dev.fixtures import  WebFixture
 
 
@@ -83,8 +83,8 @@ class SubResourcesTests(object):
                 super(WidgetWithSubResource, self).__init__(view)
                 view.add_resource(ASimpleSubResource(u'uniquename'))
 
-        webapp = fixture.new_webapp(view_slots={u'main': WidgetWithSubResource.factory()})
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithSubResource.factory()})
+        browser = Browser(wsgi_app)
         browser.open('/_uniquename_simple_resource')
         
     @test(WebFixture)
@@ -117,8 +117,8 @@ class SubResourcesTests(object):
                 view.add_resource_factory(ParameterisedSubResource.factory(u'uniquename', {u'param': Field(required=True)}))
 
 
-        webapp = fixture.new_webapp(view_slots={u'main': WidgetWithSubResource.factory()})
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithSubResource.factory()})
+        browser = Browser(wsgi_app)
         browser.open('/_uniquename_dynamic_one')
         vassert( browser.raw_html == u'one' )
         browser.open('/_uniquename_dynamic_two')
@@ -156,8 +156,8 @@ class SubResourcesTests(object):
                 factory = ParameterisedSubResource.factory(u'uniquename', {u'path_param': Field(required=True)}, u'arg to factory', factory_kwarg=u'kwarg to factory')
                 view.add_resource_factory(factory)
 
-        webapp = fixture.new_webapp(view_slots={u'main': WidgetWithSubResource.factory()})
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithSubResource.factory()})
+        browser = Browser(wsgi_app)
         browser.open('/__uniquename_dynamic_one')
         vassert( browser.raw_html == u'arg to factory|kwarg to factory|one' )
 
@@ -192,8 +192,8 @@ class SubResourcesTests(object):
                 factory2 = ParameterisedSubResource.factory(u'factory2', {})
                 view.add_resource_factory(factory2)
 
-        webapp = fixture.new_webapp(view_slots={u'main': WidgetWithAmbiguousSubResources.factory()})
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithAmbiguousSubResources.factory()})
+        browser = Browser(wsgi_app)
         browser.open('/__factory1_path')
         vassert( browser.raw_html == u'factory1' )
         browser.open('/__factory2_path')

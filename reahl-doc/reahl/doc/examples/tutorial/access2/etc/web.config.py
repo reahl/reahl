@@ -1,4 +1,4 @@
 
-from access2 import AddressBookApp
+from access2 import AddressBookUI
 
-web.site_root=AddressBookApp
+web.site_root=AddressBookUI
