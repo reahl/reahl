@@ -1,10 +1,10 @@
 
 
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, P, HMenu
 from reahl.webelixirimpl import WebUserSession
-from reahl.domainui.accounts import AccountRegion
+from reahl.domainui.accounts import AccountUI
 
 
 
@@ -14,7 +14,7 @@ class MenuPage(TwoColumnPage):
         self.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
 
 
-class LoginApp(Region):
+class LoginUI(UserInterface):
     def assemble(self):
         user_session = WebUserSession.for_current_session()
         if user_session.account:
@@ -30,14 +30,14 @@ class LoginApp(Region):
             privacy_bookmark = home.as_bookmark(self, description=u'Privacy policy')
             disclaimer_bookmark = home.as_bookmark(self, description=u'Disclaimer')
 
-        accounts = self.define_region(u'/accounts', AccountRegion,
+        accounts = self.define_user_interface(u'/accounts', AccountUI,
                                       {u'main_slot': u'main'},
                                       name=u'accounts', bookmarks=LegalBookmarks)
 
         account_bookmarks = [accounts.get_bookmark(relative_path=relative_path) 
                              for relative_path in [u'/login', u'/register']]
         bookmarks = [home.as_bookmark(self)]+account_bookmarks
-        self.define_main_window(MenuPage, bookmarks)
+        self.define_page(MenuPage, bookmarks)
 
 
 

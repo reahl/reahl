@@ -27,13 +27,13 @@ from reahl.stubble import easter_egg
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.ui import TwoColumnPage, Panel, P
 from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
-from reahl.domainui.workflow import InboxRegion
-from reahl.web.fw import Region, Url
+from reahl.domainui.workflow import InboxUI
+from reahl.web.fw import UserInterface, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
-from reahl.domainui.accounts import AccountRegion
+from reahl.domainui.accounts import AccountUI
 
 class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
     def new_queues(self):
@@ -46,20 +46,20 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
             disclaimer_bookmark = BookmarkStub(Url(u'/#disclaimer'), u'Disclaimer')
         return Bookmarks()
 
-    def new_webapp(self, enable_js=False):
+    def new_wsgi_app(self, enable_js=False):
         fixture = self
         def get_queues():
             return fixture.queues
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                accounts = self.define_region(u'/accounts', AccountRegion, {u'main_slot': u'main'},
-                                              name=u'testregion', bookmarks=fixture.account_bookmarks)
+                self.define_page(TwoColumnPage)
+                accounts = self.define_user_interface(u'/accounts', AccountUI, {u'main_slot': u'main'},
+                                              name=u'test_ui', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
-                self.define_region(u'/inbox',  InboxRegion,  {u'main_slot': u'main'}, 
-                                   name=u'testregion', login_bookmark=login_bookmark, get_queues=get_queues)
-        return super(WorkflowWebFixture, self).new_webapp(enable_js=enable_js,
-                                                         site_root=MainRegion)
+                self.define_user_interface(u'/inbox',  InboxUI,  {u'main_slot': u'main'}, 
+                                   name=u'test_ui', login_bookmark=login_bookmark, get_queues=get_queues)
+        return super(WorkflowWebFixture, self).new_wsgi_app(enable_js=enable_js,
+                                                         site_root=MainUI)
 
     def new_system_account(self):
         account = super(WorkflowWebFixture, self).new_system_account()
@@ -84,7 +84,7 @@ class MyTaskWidget(Panel):
 class Tests(object):
     @test(WorkflowWebFixture)
     def detour_to_login(self, fixture):
-        browser = Browser(fixture.webapp)
+        browser = Browser(fixture.wsgi_app)
 
         browser.open(u'/inbox/')
         vassert( browser.location_path == '/accounts/login' )
@@ -97,7 +97,7 @@ class Tests(object):
 
     @test(WorkflowWebFixture)
     def take_and_release_task(self, fixture):
-        browser = Browser(fixture.webapp)
+        browser = Browser(fixture.wsgi_app)
         task = fixture.task
 
         take_task_button = u'//input[@value="Take"]'
@@ -137,7 +137,7 @@ class Tests(object):
                 MyTask.mapper.polymorphic_identity = task.id
                 MyTask.mapper.polymorphic_map[task.id] = MyTask.mapper
 
-                browser = Browser(fixture.webapp)
+                browser = Browser(fixture.wsgi_app)
                 fixture.log_in(browser=browser)
                 browser.open(u'/inbox/task/%s' % task.id )
                 html = browser.get_html_for(u'//div/p')

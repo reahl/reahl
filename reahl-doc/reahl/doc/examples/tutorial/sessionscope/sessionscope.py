@@ -6,7 +6,7 @@ from reahl.sqlalchemysupport import Session, metadata
 from reahl.elixirsupport import session_scoped
 
 from reahl.component.exceptions import DomainException
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, PasswordField
@@ -78,7 +78,7 @@ class LoginForm(Form):
         self.add_child(Button(self, login_session.events.log_in))
 
 
-class SessionScopeApp(Region):
+class SessionScopeUI(UserInterface):
     def assemble(self):
         login_session = LoginSession.for_current_session()
         if login_session.current_user:
@@ -94,7 +94,7 @@ class SessionScopeApp(Region):
         login_page.set_slot(u'main', LoginForm.factory(login_session))
         
         bookmarks = [i.as_bookmark(self) for i in [home, login_page]]
-        self.define_main_window(MenuPage, bookmarks)
+        self.define_page(MenuPage, bookmarks)
 
 
 

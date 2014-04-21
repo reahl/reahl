@@ -237,9 +237,9 @@ class BasicReahlWidgets(object):
                 self.add_child(HMenu.from_languages(view))
                 self.add_child(P(view, text=_(u'This is an English sentence.')))
 
-        webapp = fixture.new_webapp(child_factory=PanelWithMenu.factory())
+        wsgi_app = fixture.new_wsgi_app(child_factory=PanelWithMenu.factory())
         
-        browser = Browser(webapp)
+        browser = Browser(wsgi_app)
         browser.open(u'/')
         
         vassert( browser.is_element_present(XPath.paragraph_containing(u'This is an English sentence.')) )
@@ -322,8 +322,8 @@ class TabbedPanelAjaxFixture(WebFixture):
                 self.add_tab(tab3)
         return PopulatedTabbedPanel
 
-    def new_webapp(self):
-        return super(TabbedPanelAjaxFixture, self).new_webapp(enable_js=True,
+    def new_wsgi_app(self):
+        return super(TabbedPanelAjaxFixture, self).new_wsgi_app(enable_js=True,
                                                    child_factory=self.PopulatedTabbedPanel.factory())
     def tab_is_active(self, tab_name):
         return self.driver_browser.execute_script('return window.jQuery("a:contains(\'%s\')").parent().hasClass("active")' % tab_name)
@@ -465,7 +465,7 @@ class TabbedPanelTests(object):
     @test(TabbedPanelAjaxFixture)
     def switching_panels(self, fixture):
         """The contents registered with the TabbedPanel's active tab are displayed."""
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open(u'/')
 
         # by default, the first tab is active and its contents are displayed
@@ -510,8 +510,8 @@ class SlidingPanelFixture(WebFixture):
 
         return PopulatedSlidingPanel
 
-    def new_webapp(self):
-        return super(SlidingPanelFixture, self).new_webapp(enable_js=True,
+    def new_wsgi_app(self):
+        return super(SlidingPanelFixture, self).new_wsgi_app(enable_js=True,
                                                            child_factory=self.PopulatedSlidingPanel.factory())
     def panel_is_visible(self, index):
         return self.driver_browser.wait_for_element_visible(XPath.paragraph_containing(u'Contents for panel %s' % index))
@@ -523,7 +523,7 @@ class SlidingPanelFixture(WebFixture):
 
 @test(SlidingPanelFixture)
 def opens_on_selected_index(fixture):
-    fixture.reahl_server.set_app(fixture.webapp)
+    fixture.reahl_server.set_app(fixture.wsgi_app)
     browser = fixture.driver_browser
     
     browser.open(u'/?index=1')
@@ -532,7 +532,7 @@ def opens_on_selected_index(fixture):
 
 @test(SlidingPanelFixture)
 def slide_right(fixture):
-    fixture.reahl_server.set_app(fixture.webapp)
+    fixture.reahl_server.set_app(fixture.wsgi_app)
     browser = fixture.driver_browser
 
     browser.open(u'/')
@@ -549,7 +549,7 @@ def slide_right(fixture):
 
 @test(SlidingPanelFixture)
 def slide_left(fixture):
-    fixture.reahl_server.set_app(fixture.webapp)
+    fixture.reahl_server.set_app(fixture.wsgi_app)
     browser = fixture.driver_browser
 
     browser.open(u'/')
@@ -583,8 +583,8 @@ class PopupATests(object):
                 popup_contents = self.add_child(P(view, text=u'this is the content of the popup'))
                 popup_contents.set_id(u'contents')
 
-        webapp = fixture.new_webapp(child_factory=PopupTestPanel.factory(), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=PopupTestPanel.factory(), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
         
         # The A is rendered correctly
@@ -610,8 +610,8 @@ class PopupATests(object):
                 popup_contents = self.add_child(P(view, text=u'this is the content of the popup'))
                 popup_contents.set_id(u'contents')
 
-        webapp = fixture.new_webapp(child_factory=PopupTestPanel.factory(), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=PopupTestPanel.factory(), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         button1_xpath = XPath.button_labelled(u'Butt1')
         button2_xpath = XPath.button_labelled(u'Butt2')
@@ -642,8 +642,8 @@ class PopupATests(object):
 
                 popup_a.add_button(CheckCheckboxButton(u'Checkit', checkbox))
 
-        webapp = fixture.new_webapp(child_factory=PopupTestPanel.factory(), enable_js=True)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(child_factory=PopupTestPanel.factory(), enable_js=True)
+        fixture.reahl_server.set_app(wsgi_app)
 
         button_xpath = XPath.button_labelled(u'Checkit')
         fixture.driver_browser.open('/')

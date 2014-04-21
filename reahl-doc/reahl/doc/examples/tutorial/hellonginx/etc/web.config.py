@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.tutorial.hellonginx.hellonginx import HelloApp
+from reahl.doc.examples.tutorial.hellonginx.hellonginx import HelloUI
 
-web.site_root = HelloApp
+web.site_root = HelloUI

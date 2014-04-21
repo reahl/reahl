@@ -19,15 +19,15 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, \
                          P, H, InputGroup, FileUploadInput, SimpleFileInput
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
 
 
-class FileUploadApp(Region):
+class FileUploadUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')
+        self.define_page(TwoColumnPage, style=u'basic')
         home = self.define_view(u'/', title=u'File upload demo')
         home.set_slot(u'main', CommentPostPanel.factory())
 

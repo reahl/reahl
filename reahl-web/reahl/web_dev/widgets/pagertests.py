@@ -81,8 +81,8 @@ class PageMenuFixture(Fixture, WebBasicsMixin):
     def page_range_links_match(self, link_labels):
         return self.driver_browser.execute_script('return window.jQuery(".reahl-pagemenu a").slice(2,-2).map(function(){return window.jQuery(this).html();}).toArray() == "%s"' % link_labels)
 
-    def new_webapp(self):
-        return super(PageMenuFixture, self).new_webapp(enable_js=True, 
+    def new_wsgi_app(self):
+        return super(PageMenuFixture, self).new_wsgi_app(enable_js=True, 
                                                        child_factory=self.MainWidget.factory())
 
 
@@ -92,7 +92,7 @@ class PageMenuTests(object):
     @test(PageMenuFixture)
     def selecting_a_page(self, fixture):
         """Clicking the link of a page results in the contents of the PageContainer being refreshed."""
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open(u'/')
 
         fixture.driver_browser.wait_for(fixture.container_contents_is, u'contents of page 1')
@@ -104,7 +104,7 @@ class PageMenuTests(object):
         """One can navigate the range of page links displayed by the PageMenu using the special links."""
         fixture.number_of_pages = 30
         fixture.max_page_links = 5
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open(u'/')
 
         # Case: next link
@@ -132,7 +132,7 @@ class PageMenuTests(object):
            and Prev and First are similarly deactive when on the first range of pages."""
         fixture.number_of_pages = 15
         fixture.max_page_links = 5
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open(u'/')
 
         # Case: when you are on the left of the page range        
@@ -202,7 +202,7 @@ class PageMenuTests(object):
     def which_links_display(self, fixture):
         """The menu displayes the correct range of page links, depending on the starting page in the range, the
            total number of pages and the max number of links in a range"""
-        fixture.reahl_server.set_app(fixture.webapp)
+        fixture.reahl_server.set_app(fixture.wsgi_app)
 
         fixture.driver_browser.open(u'/')
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, fixture.visible_page_descriptions) )

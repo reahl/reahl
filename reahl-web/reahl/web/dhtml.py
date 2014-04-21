@@ -29,7 +29,7 @@ from reahl.component.modelinterface import Field
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.web.fw import WebExecutionContext, Bookmark, UrlBoundView, NoView, \
-                         FileOnDisk, Region, FileView, NoMatchingFactoryFound, CannotCreate
+                         FileOnDisk, UserInterface, FileView, NoMatchingFactoryFound, CannotCreate
 from reahl.web.ui import LiteralHTML
 
 _ = Translator(u'reahl-web')
@@ -39,14 +39,14 @@ class DJHTMLWidget(LiteralHTML):
         super(DJHTMLWidget, self).__init__(view, html_content)
 
 
-class DjhtmlRegion(Region):
-    """A Region which serves content from the static directory configured in `web.staticroot`.
+class DhtmlUI(UserInterface):
+    """A UserInterface which serves content from the static directory configured in `web.staticroot`.
        If a given Url maps directly to a file in this directory, that file is normally served
        as-is. If the filename ends on .d.html, however, the file is parsed, and the div inside it
        with id equal to `static_div_name` is read into the `main_slot` of a View. The
        title of the current View is also taken from the <title> of the static page.
        
-       :param static_div_name: The id of the <div> to insert as `main_slot` of this Region.
+       :param static_div_name: The id of the <div> to insert as `main_slot` of this UserInterface.
     """
     def assemble(self, static_div_name=None):
         self.static_div_name = static_div_name
@@ -76,31 +76,31 @@ class DjhtmlRegion(Region):
 
     def statics(self, relative_path):
         statics = {}
-        with open(self.filesystem_path(relative_path)) as djhtml_file:
+        with open(self.filesystem_path(relative_path)) as dhtml_file:
             def strain(name, attrs):
                 if name == u'title':
                     return True
                 if name == u'div' and dict(attrs).get(u'id', None) == self.static_div_name:
                     return True
                 return False
-            soup = BeautifulSoup(djhtml_file, parseOnlyThese=SoupStrainer(strain))
+            soup = BeautifulSoup(dhtml_file, parseOnlyThese=SoupStrainer(strain))
             html_parser = HTMLParser.HTMLParser()
             statics[u'title'] = html_parser.unescape(soup.title.renderContents()) if soup.title else _(u'Untitled')
             statics[u'div'] = soup.div.renderContents() if soup.div else u''
         return statics
     
-    def create_view(self, relative_path, region, file_path=None):
-        if not region is self:
-            raise ProgrammerError(u'get_file called on %s with %s as region' % (self, region))
+    def create_view(self, relative_path, user_interface, file_path=None):
+        if not user_interface is self:
+            raise ProgrammerError(u'get_file called on %s with %s as user_interface' % (self, user_interface))
         file_url_path = file_path
         filename = self.filesystem_path(file_url_path)
         logging.debug('Finding a static file on filesystem %s' % filename)
         if self.is_dynamic(filename):
             statics = self.statics(file_url_path)
             slot_contents = {u'main_slot': DJHTMLWidget.factory(statics[u'div'])}
-            return UrlBoundView(region, file_url_path, statics[u'title'], slot_contents, cacheable=True)
+            return UrlBoundView(user_interface, file_url_path, statics[u'title'], slot_contents, cacheable=True)
         elif self.is_static(filename):
-            return FileView(region, FileOnDisk(filename, file_url_path))
+            return FileView(user_interface, FileOnDisk(filename, file_url_path))
         raise CannotCreate()
 
 

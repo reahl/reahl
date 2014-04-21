@@ -27,9 +27,9 @@ from reahl.tofu import vassert
 from reahl.stubble import stubclass, CallMonitor
 
 from reahl.sqlalchemysupport import metadata, Session
-from reahl.web.fw import Resource, ReahlWebApplication, WebExecutionContext
+from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext
 from reahl.web.interfaces import WebUserSessionProtocol
-from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
+from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
 
 from reahl.webelixirimpl import WebUserSession

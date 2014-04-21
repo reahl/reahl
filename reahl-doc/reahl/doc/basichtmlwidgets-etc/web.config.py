@@ -15,6 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsApp
+from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsUI
 
-web.site_root = BasicHTMLWidgetsApp
+web.site_root = BasicHTMLWidgetsUI

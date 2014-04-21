@@ -19,6 +19,7 @@ Contents:
    models
    uibasics
    connectingviews
+   slots
    parameterised
    testing
    

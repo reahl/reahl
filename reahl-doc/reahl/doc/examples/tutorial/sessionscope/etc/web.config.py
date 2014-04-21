@@ -1,5 +1,5 @@
 
 
-from reahl.doc.examples.tutorial.sessionscope.sessionscope import SessionScopeApp
+from reahl.doc.examples.tutorial.sessionscope.sessionscope import SessionScopeUI
 
-web.site_root = SessionScopeApp
+web.site_root = SessionScopeUI

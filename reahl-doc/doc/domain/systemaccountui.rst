@@ -7,9 +7,9 @@ Module reahl.domainui.accounts
 
 
 
-AccountRegion
-"""""""""""""
+AccountUI
+"""""""""
 
-.. autoclass:: AccountRegion
+.. autoclass:: AccountUI
    :members:
 

@@ -23,12 +23,12 @@ from reahl.tofu import Fixture, test
 from reahl.tofu import vassert, expected, NoException
 from reahl.stubble import EmptyStub
 
-from reahl.web_dev.fixtures import WebFixture, ReahlWebApplicationStub
+from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.ui import Form, TwoColumnPage, Button, A
-from reahl.web.fw import Region, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView
+from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView
 from reahl.component.context import ExecutionContext
 
 
@@ -38,14 +38,14 @@ class FormWithButton(Form):
         self.add_child(Button(self, event))
                 
 @istest
-class ControlledRegionsTests(object):
+class ControlledUserInterfacesTests(object):
     @test(WebFixture)
     def basic_transition(self, fixture):
         """Transitions express how the browser is ferried between Views in reaction to user-initiated Events."""
         def do_something():
             fixture.did_something = True
 
-        class RegionWithTwoViews(Region):
+        class UIWithTwoViews(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me', action=Action(do_something))
                 event.bind(u'anevent', None)
@@ -54,24 +54,24 @@ class ControlledRegionsTests(object):
                 viewb = self.define_view(u'/viewb', title=u'View b', slot_definitions=slot_definitions)
                 self.define_transition(event, viewa, viewb)
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithTwoViews,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithTwoViews,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # The transition works from viewa
         fixture.did_something = False
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/aregion/viewb' )
+        vassert( browser.location_path == u'/a_ui/viewb' )
         vassert( fixture.did_something )
 
         # The transition does not work from viewb
         fixture.did_something = False
-        browser.open('/aregion/viewb')
+        browser.open('/a_ui/viewb')
         with expected(ProgrammerError):
             browser.click('//input[@value="Click me"]')
         vassert( not fixture.did_something )
@@ -84,7 +84,7 @@ class ControlledRegionsTests(object):
 
         false_guard = Action(lambda:False)
 
-        class RegionWithGuardedTransitions(Region):
+        class UIWithGuardedTransitions(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me')
                 event.bind(u'anevent', None)
@@ -95,23 +95,23 @@ class ControlledRegionsTests(object):
                 self.define_transition(event, viewa, viewb, guard=false_guard)
                 self.define_transition(event, viewa, viewc, guard=adjustable_guard)
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithGuardedTransitions,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # The transition with True guard is the one followed
         fixture.guard_value = True
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/aregion/viewc' )
+        vassert( browser.location_path == u'/a_ui/viewc' )
 
         # If there is no Transition with a True guard, fail
         fixture.guard_value = False
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         with expected(ProgrammerError):
             browser.click('//input[@value="Click me"]')
 
@@ -124,7 +124,7 @@ class ControlledRegionsTests(object):
         fixture.guard_passes = True
         guard = Action(lambda:fixture.guard_passes)
         
-        class RegionWithAView(Region):
+        class UIWithAView(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me', action=Action(do_something))
                 event.bind(u'anevent', None)
@@ -132,24 +132,24 @@ class ControlledRegionsTests(object):
                 viewa = self.define_view(u'/viewa', title=u'View a', slot_definitions=slot_definitions)
                 self.define_local_transition(event, viewa, guard=guard)
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithAView,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithAView,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # The transition works from viewa
         fixture.did_something = False
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/aregion/viewa' )
+        vassert( browser.location_path == u'/a_ui/viewa' )
         vassert( fixture.did_something )
 
         # But it is also guarded
         fixture.guard_passes = False
-        browser.open('/aregion/viewa')
+        browser.open('/a_ui/viewa')
         with expected(ProgrammerError):
             browser.click('//input[@value="Click me"]')
 
@@ -178,9 +178,9 @@ class ControlledRegionsTests(object):
                 self.title = u'View with event_argument1: %s%s and view_argument: %s%s' \
                             % (event_argument1, type(event_argument1), view_argument, type(view_argument))
                 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 home = self.define_view(u'/', title=u'Home page')
 
                 other_view = self.define_view(u'/page2', title=u'Page 2', 
@@ -191,8 +191,8 @@ class ControlledRegionsTests(object):
 
                 self.define_transition(model_object.events.an_event, home, other_view)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        fixture.reahl_server.set_app(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
 
         # when the Action is executed, the correct arguments are passed to the View
@@ -221,22 +221,22 @@ class ControlledRegionsTests(object):
             def assemble(self, object_key=None):
                 self.title = u'View for: %s' % object_key
 
-        class RegionWithParameterisedViews(Region):
+        class UIWithParameterisedViews(UserInterface):
             def assemble(self):
                 slot_definitions = {u'main': FormWithIncorrectButtonToParameterisedView.factory()}
                 normal_view = self.define_view(u'/static', title=u'Static', slot_definitions=slot_definitions)
                 parameterised_view = self.define_view(u'/dynamic', view_class=ParameterisedView, object_key=Field(required=True))
                 self.define_transition(model_object.events.an_event, normal_view, parameterised_view)
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedViews,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
-        browser.open('/aregion/static')
+        browser.open('/a_ui/static')
         with expected(ProgrammerError):
             browser.click(XPath.button_labelled(u'Click me'))
 
@@ -248,9 +248,9 @@ class ControlledRegionsTests(object):
         class SomeException(Exception):
             pass
             
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 slot_definitions = {u'main': Form.factory(u'the_form')}
                 view = self.define_view(u'/', title=u'Hello', slot_definitions=slot_definitions)
                 failing_precondition = ViewPreCondition(lambda: False, exception=SomeException)
@@ -258,8 +258,8 @@ class ControlledRegionsTests(object):
                 view.add_precondition(passing_precondition)
                 view.add_precondition(failing_precondition)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         with expected(SomeException):
             browser.open('/')
@@ -272,16 +272,16 @@ class ControlledRegionsTests(object):
         class SomeException(Exception):
             pass
             
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_page(TwoColumnPage)
                 view = self.define_view(u'/', title=u'Hello')
                 passing_precondition = ViewPreCondition(lambda: True)
                 failing_precondition = passing_precondition.negated(exception=SomeException)
                 view.add_precondition(failing_precondition)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         with expected(SomeException):
             browser.open('/')
@@ -289,23 +289,23 @@ class ControlledRegionsTests(object):
     @test(WebFixture)
     def redirect(self, fixture):
         """Redirect is a special exception that will redirect the browser to another View."""
-        class RegionWithRedirect(Region):
+        class UIWithRedirect(UserInterface):
             def assemble(self):
                 viewa = self.define_view(u'/viewa', title=u'A')
                 viewb = self.define_view(u'/viewb', title=u'B')
                 failing_precondition = ViewPreCondition(lambda: False, exception=Redirect(viewb.as_bookmark(self)))
                 viewa.add_precondition(failing_precondition)
             
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithRedirect,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithRedirect,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
-        browser.open('/aregion/viewa')
-        vassert( browser.location_path == u'/aregion/viewb' )
+        browser.open('/a_ui/viewa')
+        vassert( browser.location_path == u'/a_ui/viewb' )
 
     @test(WebFixture)
     def detours_and_return_transitions(self, fixture):
@@ -314,7 +314,7 @@ class ControlledRegionsTests(object):
            Detour was thrown."""
         
         fixture.make_precondition_pass = False
-        class RegionWithDetour(Region):
+        class UIWithDetour(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me')
                 event.bind(u'anevent', None)
@@ -328,25 +328,25 @@ class ControlledRegionsTests(object):
                 self.define_transition(event, step1, step2)
                 self.define_return_transition(event, step2)
             
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
         fixture.did_something = False
 
         fixture.make_precondition_pass = False
-        browser.open(u'/aregion/viewa')
-        vassert( browser.location_path == u'/aregion/firstStepOfDetour' )
+        browser.open(u'/a_ui/viewa')
+        vassert( browser.location_path == u'/a_ui/firstStepOfDetour' )
         
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/aregion/lastStepOfDetour' )
+        vassert( browser.location_path == u'/a_ui/lastStepOfDetour' )
                 
         fixture.make_precondition_pass = True
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/aregion/viewa' )
+        vassert( browser.location_path == u'/a_ui/viewa' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
@@ -356,7 +356,7 @@ class ControlledRegionsTests(object):
     def detours_and_explicit_return_view(self, fixture):
         """A Detour can also explicitly set the View to return to."""
         
-        class RegionWithDetour(Region):
+        class UIWithDetour(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me')
                 event.bind(u'anevent', None)
@@ -369,19 +369,19 @@ class ControlledRegionsTests(object):
                 viewa.add_precondition(ViewPreCondition(lambda: False, exception=Detour(detour.as_bookmark(self), return_to=explicit_return_view.as_bookmark(self))))
                 self.define_return_transition(event, detour)
             
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
         
-        browser.open(u'/aregion/viewa')
-        vassert( browser.location_path == u'/aregion/detour' )
+        browser.open(u'/a_ui/viewa')
+        vassert( browser.location_path == u'/a_ui/detour' )
         
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/aregion/explicitReturnView' )
+        vassert( browser.location_path == u'/a_ui/explicitReturnView' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
@@ -392,7 +392,7 @@ class ControlledRegionsTests(object):
         """A Return is an exception used with Preconditoins to return automatically to another View (as set by detour),
            instead of using a return_transition (the latter can only be triggered by a user)."""
         
-        class RegionWithDetour(Region):
+        class UIWithDetour(UserInterface):
             def assemble(self):
                 viewa = self.define_view(u'/viewa', title=u'View a')
                 explicit_return_view = self.define_view(u'/explicitReturnView', title=u'Explicit Return View')
@@ -403,24 +403,24 @@ class ControlledRegionsTests(object):
                 detour.add_precondition(ViewPreCondition(lambda: False, exception=Return(default.as_bookmark(self))))
 
             
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithDetour,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # Normal operation - when a caller can be determined
-        browser.open(u'/aregion/viewa')
-        vassert( browser.location_path == u'/aregion/explicitReturnView' )
+        browser.open(u'/a_ui/viewa')
+        vassert( browser.location_path == u'/a_ui/explicitReturnView' )
 
         #  - the query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
         
         # When a caller cannot be determined, the default is used
-        browser.open(u'/aregion/detour')
-        vassert( browser.location_path == u'/aregion/defaultReturnView' )
+        browser.open(u'/a_ui/detour')
+        vassert( browser.location_path == u'/a_ui/defaultReturnView' )
         
         #  - the query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )
@@ -430,36 +430,36 @@ class ControlledRegionsTests(object):
     def unconditional_redirection(self, fixture):
         """You can force an URL to always redirect to a given Bookmark."""
 
-        class RegionWithRedirect(Region):
+        class UIWithRedirect(UserInterface):
             def assemble(self):
                 self.define_view(u'/target', title=u'')
                 self.define_redirect(u'/redirected', self.get_bookmark(relative_path=u'/target'))
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithRedirect,  IdentityDictionary(), name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithRedirect,  IdentityDictionary(), name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
-        browser.open('/aregion/redirected')
-        vassert( browser.location_path == u'/aregion/target' )
+        browser.open('/a_ui/redirected')
+        vassert( browser.location_path == u'/a_ui/target' )
 
     @test(WebFixture)
     def linking_to_views_marked_as_detour(self, fixture):
         """A View can be marked as the start of a Detour. Where used, a Bookmark for such a View
            will automatically include a returnTo in the its query string. This allows an
            eventual return_transition (or similar) to return to where, eg, a link was clicked from.
-           This mechanism works for returning across Regions."""
+           This mechanism works for returning across UserInterfaces."""
 
-        class RegionWithLink(Region):
+        class UIWithLink(UserInterface):
             def assemble(self, bookmark=None):
                 self.bookmark = bookmark
                 slot_definitions = {u'main': A.factory_from_bookmark(self.bookmark)}
                 self.define_view(u'/initial', title=u'View a', slot_definitions=slot_definitions)
 
-        class RegionWithDetour(Region):
+        class UIWithDetour(UserInterface):
             def assemble(self):
                 event = Event(label=u'Click me')
                 event.bind(u'anevent', None)
@@ -471,26 +471,26 @@ class ControlledRegionsTests(object):
                 self.define_transition(event, step1, step2)
                 self.define_return_transition(event, step2)
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                detour_region = self.define_region(u'/regionWithDetour',  RegionWithDetour,  IdentityDictionary(), name=u'second_region')
-                bookmark = detour_region.get_bookmark(relative_path='/firstStepOfDetour')
-                self.define_region(u'/regionWithLink',  RegionWithLink,  IdentityDictionary(), name=u'first_region', bookmark=bookmark)
+                self.define_page(TwoColumnPage)
+                detour_ui = self.define_user_interface(u'/uiWithDetour',  UIWithDetour,  IdentityDictionary(), name=u'second_ui')
+                bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
+                self.define_user_interface(u'/uiWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_ui', bookmark=bookmark)
 
                 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
-        browser.open(u'/regionWithLink/initial')
+        browser.open(u'/uiWithLink/initial')
         browser.click(u'//a')
-        vassert( browser.location_path == u'/regionWithDetour/firstStepOfDetour' )
+        vassert( browser.location_path == u'/uiWithDetour/firstStepOfDetour' )
                 
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/regionWithDetour/lastStepOfDetour' )
+        vassert( browser.location_path == u'/uiWithDetour/lastStepOfDetour' )
 
         browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/regionWithLink/initial' )
+        vassert( browser.location_path == u'/uiWithLink/initial' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == u'' )

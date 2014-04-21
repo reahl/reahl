@@ -4,16 +4,20 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
-class AddressBookApp(Region):
+class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')
-        find = self.define_view(u'/', title=u'Addresses')
-        find.set_slot(u'main', AddressBookPanel.factory())
+        self.define_view(u'/', title=u'Addresses', page=AddressBookPage.factory())
+
+
+class AddressBookPage(TwoColumnPage):
+    def __init__(self, view):
+        super(AddressBookPage, self).__init__(view, style=u'basic')
+        self.main.add_child(AddressBookPanel(view))
 
 
 class AddressBookPanel(Panel):

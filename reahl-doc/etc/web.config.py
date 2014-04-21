@@ -14,6 +14,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 
-web.site_root = Region
+web.site_root = UserInterface

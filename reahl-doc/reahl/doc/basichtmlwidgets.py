@@ -15,13 +15,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Panel, P
 
 
-class BasicHTMLWidgetsApp(Region):
+class BasicHTMLWidgetsUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style=u'basic')  
 
         home = self.define_view(u'/', title=u'Basic HTML Widgets demo')
         home.set_slot(u'main', WidgetPanel.factory())

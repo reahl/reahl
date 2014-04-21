@@ -15,7 +15,7 @@ Parameterised  Views
       reahl example <examplename>
 
 Not all  :class:`~reahl.web.fw.View`\ s  can be statically defined in the `.assemble()` method of
-a :class:`~reahl.web.fw.Region`. In our AddressBook example you might want to add an
+a :class:`~reahl.web.fw.UserInterface`. In our AddressBook example you might want to add an
 EditAddress :class:`~reahl.web.fw.View` for each Address in the database as shown in the
 following diagram:
 
@@ -27,7 +27,7 @@ following diagram:
 
 
 This may result in a very large number of  :class:`~reahl.web.fw.View`\ s ---an
-"Edit" :class:`~reahl.web.fw.View` would have to be added to the :class:`~reahl.web.fw.Region` for each Address in
+"Edit" :class:`~reahl.web.fw.View` would have to be added to the :class:`~reahl.web.fw.UserInterface` for each Address in
 the database. That is clearly not an acceptable solution.
 
 In order to solve the problem a :class:`~reahl.web.fw.View` can have arguments -- so that a
@@ -45,7 +45,7 @@ results in a whole set of  :class:`~reahl.web.fw.View`\ s  with URLs such as '/e
 '/edit/2'.  The '/1' and '/2' are the ids for different Addresses in
 this example.
 
-Just like :class:`~reahl.web.fw.Region`\ s, a :class:`~reahl.web.fw.View` can also have an `.assemble()` method in
+Just like :class:`~reahl.web.fw.UserInterface`\ s, a :class:`~reahl.web.fw.View` can also have an `.assemble()` method in
 which the definition of its contents can be finalised, based on the
 arguments of the :class:`~reahl.web.fw.View`. When the framework has to render a :class:`~reahl.web.fw.View`, it
 parses the requested URL to determine which :class:`~reahl.web.fw.View` the URL is referring
@@ -56,7 +56,7 @@ the :class:`~reahl.web.fw.View` as keyword arguments to it.
 
 The definition of a :class:`~reahl.web.fw.View` with an `.assemble()` method is thus partly
 deferred to the time when the :class:`~reahl.web.fw.View` is actually accessed, instead of up
-front when the :class:`~reahl.web.fw.Region` is assembled as was previously shown. 
+front when the :class:`~reahl.web.fw.UserInterface` is assembled as was previously shown. 
 
 
 Parameterising a View
@@ -69,14 +69,14 @@ The programmer also needs to supply a custom :class:`~reahl.web.fw.View` class w
 subclasses from :class:`~reahl.web.fw.UrlBoundView` and in which the `.assemble()` method is
 overridden with custom logic that deals with these arguments.
 
-In the AddressBookApp class shown below, a :class:`~reahl.web.fw.View` is added for editing,
+In the AddressBookUI class shown below, a :class:`~reahl.web.fw.View` is added for editing,
 parameterised by the id of an Address:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
    :pyobject: EditView
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
-   :pyobject: AddressBookApp		  
+   :pyobject: AddressBookUI		  
 
 Notice how the arguments of the :class:`~reahl.web.fw.View` are specified. They are passed as
 :class:`~reahl.component.modelinterface.Field`\ s in extra keyword arguments to the `.define_view()` method.
@@ -98,15 +98,15 @@ does not exist in the database. If this should happen, just raise a
 A word about bookmarks
 ----------------------
 
-Since a :class:`~reahl.web.fw.Region` (in this case AddressBookApp) already contains the
+Since a :class:`~reahl.web.fw.UserInterface` (in this case AddressBookUI) already contains the
 knowledge of which  :class:`~reahl.web.fw.View`\ s  it contains, it seems to be good design that
 other elements of the user interface ask it for :class:`~reahl.web.fw.Bookmark`\ s to those
 :class:`~reahl.web.fw.View`\ s  when needed.
 
 For this reason, the `.get_edit_bookmark()` method was added to
-AddressBookApp. You will notice in the code below that AddressBookApp
+AddressBookUI. You will notice in the code below that AddressBookUI
 is sent all the way to each AddressBox just so that
-`AddressBookApp.get_edit_bookmark()` can be called. Notice also that a
+`AddressBookUI.get_edit_bookmark()` can be called. Notice also that a
 :class:`~reahl.web.fw.Bookmark` can never be obtained for 'the edit :class:`~reahl.web.fw.View`', a :class:`~reahl.web.fw.Bookmark` is for
 something like 'the edit :class:`~reahl.web.fw.View` for address X': it includes the
 arguments of the bookmarked :class:`~reahl.web.fw.View`.
@@ -122,10 +122,10 @@ Programmatic arguments
 Not all the arguments passed to the `.assemble()` method of a :class:`~reahl.web.fw.View`
 need to be parsed from the URL of the :class:`~reahl.web.fw.View`. Sometimes it is useful to
 pass an object that is available in the `.assemble()` of the
-containing :class:`~reahl.web.fw.Region` to the `.assemble()` of one of its  :class:`~reahl.web.fw.View`\ s .
+containing :class:`~reahl.web.fw.UserInterface` to the `.assemble()` of one of its  :class:`~reahl.web.fw.View`\ s .
 
 For example, the `.assemble()` of a particular :class:`~reahl.web.fw.View` may need access to a
-:class:`~reahl.web.fw.Bookmark` which is computed inside the `.assemble()` of its :class:`~reahl.web.fw.Region`.
+:class:`~reahl.web.fw.Bookmark` which is computed inside the `.assemble()` of its :class:`~reahl.web.fw.UserInterface`.
 
 A :class:`~reahl.web.fw.View` can be parameterised by such arguments as well.  Just pass the
 actual value as keyword argument to `.define_view()`. The framework
@@ -195,9 +195,9 @@ has been changed to a :class:`~reahl.web.ui.Form`, and also how the :class:`~rea
 
 The final change to the application is the addition of a
 transition. This is again done in the `.assemble()` method of the
-AddressBookApp. Note how the structure of our initial schematic design
+AddressBookUI. Note how the structure of our initial schematic design
 is visible in this method -- each :class:`~reahl.web.fw.View` is defined, and then all the
 transitions between the  :class:`~reahl.web.fw.View`\ s :
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2.py
-   :pyobject: AddressBookApp
+   :pyobject: AddressBookUI

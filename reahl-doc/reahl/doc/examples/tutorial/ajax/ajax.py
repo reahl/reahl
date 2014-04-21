@@ -1,14 +1,14 @@
 
 
 
-from reahl.web.fw import Region, Bookmark
+from reahl.web.fw import UserInterface, Bookmark
 from reahl.web.ui import TwoColumnPage, P, H, Panel, HMenu
 from reahl.component.modelinterface import exposed, IntegerField
 
 
-class WidgetRefreshApp(Region):
+class WidgetRefreshUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')
+        self.define_page(TwoColumnPage, style=u'basic')
         find = self.define_view(u'/', title=u'Refreshing widget')
         find.set_slot(u'main', HomePanel.factory())
 

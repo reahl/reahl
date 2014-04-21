@@ -30,23 +30,22 @@ from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.fixtures import BrowserSetup
 from reahl.webdev.tools import XPath, Browser
 
-from reahl.doc.examples.tutorial.hello.hello import HelloApp
+from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
-from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelApp
-from reahl.doc.examples.features.validation.validation import ValidationApp
-from reahl.doc.examples.features.layout.layout import LayoutApp
-from reahl.doc.examples.features.pageflow.pageflow import PageFlowApp
-from reahl.doc.examples.features.persistence.persistence import PersistenceApp
-from reahl.doc.examples.features.access.access import AccessApp
-from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedApp
+from reahl.doc.examples.tutorial.slots.slots import SlotsUI
+from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
+from reahl.doc.examples.features.validation.validation import ValidationUI
+from reahl.doc.examples.features.layout.layout import LayoutUI
+from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
+from reahl.doc.examples.features.persistence.persistence import PersistenceUI
+from reahl.doc.examples.features.access.access import AccessUI
+from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
 
-from reahl.doc.examples.features.slots.slots import SlotsApp
+from reahl.doc.fileupload import FileUploadUI, AttachedFile
 
-from reahl.doc.fileupload import FileUploadApp, AttachedFile
-
-from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsApp
-from reahl.doc.basichtmlinputs import BasicHTMLInputsApp
+from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsUI
+from reahl.doc.basichtmlinputs import BasicHTMLInputsUI
 
 from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
@@ -58,7 +57,7 @@ from reahl.doc.examples.tutorial.parameterised2 import parameterised2
 
 class ExampleFixture(Fixture, WebBasicsMixin):
     def start_example_app(self):
-        self.reahl_server.set_app(self.webapp)
+        self.reahl_server.set_app(self.wsgi_app)
 
     def new_screenshot_directory(self):
         relative_path = u'doc/_build/screenshots'
@@ -92,84 +91,84 @@ class ExampleFixture(Fixture, WebBasicsMixin):
 
     @scenario
     def hello(self):
-        self.webapp = self.new_webapp(site_root=HelloApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=HelloUI)
 
     @scenario
     def hello_apache(self):
-        self.webapp = self.new_webapp(site_root=helloapache.HelloApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=helloapache.HelloUI)
 
     @scenario
     def hello_nginx(self):
-        self.webapp = self.new_webapp(site_root=hellonginx.HelloApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=hellonginx.HelloUI)
 
     @scenario
     def tabbed_panel(self):
-        self.webapp = self.new_webapp(site_root=TabbedPanelApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=TabbedPanelUI, enable_js=True)
 
     @scenario
     def validation(self):
-        self.webapp = self.new_webapp(site_root=ValidationApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=ValidationUI, enable_js=True)
 
     @scenario
     def layout(self):
-        self.webapp = self.new_webapp(site_root=LayoutApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=LayoutUI, enable_js=True)
 
     @scenario
     def pageflow(self):
-        self.webapp = self.new_webapp(site_root=PageFlowApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=PageFlowUI, enable_js=True)
 
     @scenario
     def persistence(self):
-        self.webapp = self.new_webapp(site_root=PersistenceApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=PersistenceUI, enable_js=True)
 
     @scenario
     def access_control(self):
-        self.webapp = self.new_webapp(site_root=AccessApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=AccessUI, enable_js=True)
 
     @scenario
     def i18n(self):
-        self.webapp = self.new_webapp(site_root=TranslatedApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=TranslatedUI, enable_js=True)
 
     @scenario
     def basichtmlinputs(self):
-        self.webapp = self.new_webapp(site_root=BasicHTMLInputsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=BasicHTMLInputsUI, enable_js=True)
 
     @scenario
     def basichtmlwidgets(self):
-        self.webapp = self.new_webapp(site_root=BasicHTMLWidgetsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=BasicHTMLWidgetsUI, enable_js=True)
 
     @scenario
     def fileupload(self):
-        self.webapp = self.new_webapp(site_root=FileUploadApp, enable_js=True)
-#        self.webapp = self.new_webapp(site_root=FileUploadApp, enable_js=False)
+        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadUI, enable_js=True)
+#        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadUI, enable_js=False)
 
     @scenario
     def slots(self):
-        self.webapp = self.new_webapp(site_root=SlotsApp, enable_js=True)
+        self.wsgi_app = self.new_wsgi_app(site_root=SlotsUI, enable_js=True)
 
     @scenario
     def addressbook1(self):
-        self.webapp = self.new_webapp(site_root=addressbook1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=addressbook1.AddressBookUI)
 
     @scenario
     def addressbook2(self):
-        self.webapp = self.new_webapp(site_root=addressbook2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=addressbook2.AddressBookUI)
 
     @scenario
     def pageflow1(self):
-        self.webapp = self.new_webapp(site_root=pageflow1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow1.AddressBookUI)
 
     @scenario
     def pageflow2(self):
-        self.webapp = self.new_webapp(site_root=pageflow2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow2.AddressBookUI)
 
     @scenario
     def parameterised1(self):
-        self.webapp = self.new_webapp(site_root=parameterised1.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=parameterised1.AddressBookUI)
 
     @scenario
     def parameterised2(self):
-        self.webapp = self.new_webapp(site_root=parameterised2.AddressBookApp)
+        self.wsgi_app = self.new_wsgi_app(site_root=parameterised2.AddressBookUI)
 
 
 @test(ExampleFixture)
@@ -376,14 +375,14 @@ def model_examples(fixture):
 
 @test(ExampleFixture.addressbook1)
 def test_addressbook1(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
     
     vassert( browser.is_element_present(XPath.inputgroup_labelled(u'Add an address')) ) 
 
 @test(ExampleFixture.addressbook2)
 def test_addressbook2(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
     
     browser.type(XPath.input_labelled(u'Name'), u'John') 
@@ -394,7 +393,7 @@ def test_addressbook2(fixture):
 
 @test(ExampleFixture.pageflow1)
 def test_pageflow1(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
     vassert( browser.is_element_present(u'//ul[contains(@class,"reahl-menu")]') )
@@ -415,7 +414,7 @@ def test_pageflow1(fixture):
 
 @test(ExampleFixture.pageflow2)
 def test_pageflow2(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
     vassert( browser.is_element_present(u'//ul[contains(@class,"reahl-menu")]') )
@@ -433,7 +432,7 @@ def test_pageflow2(fixture):
 
 @test(ExampleFixture.parameterised1)
 def test_parameterised1(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
     browser.click(XPath.link_with_text(u'Add an address'))
@@ -455,7 +454,7 @@ def test_parameterised1(fixture):
 
 @test(ExampleFixture.parameterised2)
 def test_parameterised2(fixture):
-    browser = Browser(fixture.webapp)
+    browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
     browser.click(XPath.link_with_text(u'Add an address'))

@@ -1,4 +1,4 @@
 
-from reahl.doc.examples.features.validation.validation import ValidationApp
+from reahl.doc.examples.features.validation.validation import ValidationUI
 
-web.site_root = ValidationApp
+web.site_root = ValidationUI

@@ -1,7 +1,7 @@
 
 
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage
 from reahl.systemaccountmodel import AccountManagementInterface, UserSession
@@ -30,7 +30,7 @@ class LoginForm(Form):
         self.add_child(Button(self, accounts.events.login_event))
 
 
-class LoginApp(Region):
+class LoginUI(UserInterface):
     def assemble(self):
         user_session = UserSession.for_current_session()
         if user_session.account:
@@ -45,7 +45,7 @@ class LoginApp(Region):
         login_page.set_slot(u'main', LoginForm.factory())
         
         bookmarks = [i.as_bookmark(self) for i in [home, login_page]]
-        self.define_main_window(MenuPage, bookmarks)
+        self.define_page(MenuPage, bookmarks)
 
 
 

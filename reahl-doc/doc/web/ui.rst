@@ -6,7 +6,7 @@ Module reahl.web.ui
 .. automodule:: reahl.web.ui
 
 
-Widgets for constructing a main window
+Widgets for constructing a page
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTML5Page
