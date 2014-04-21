@@ -42,7 +42,7 @@ by adding it to the Head of your :class:`~reahl.web.ui.HTML5Page`:
 
    self.head.add_css(Url(u'/styles/basic.css'))
 
-If you are using the :class:`~reahl.web.ui.TwoColumnPage` as a main window, the same effect
+If you are using the :class:`~reahl.web.ui.TwoColumnPage` as a page, the same effect
 can be accomplished by merely passing ``style='basic'`` to its
 constructor (as can be seen in almost all of our code examples so
 far).
@@ -72,9 +72,9 @@ The YUI 2 Grids CSS framework does the following things:
 - It includes CSS that makes positioning things in a layout grid
   using YuiGrid and YuiUnit container :class:`~reahl.web.fw.Widget`\ s.
 
-To develop your own main window, you need to understand how YUI 2
+To develop your own page, you need to understand how YUI 2
 Grids CSS works. Then use basic Reahl :class:`~reahl.web.fw.Widget`\ s to build your
-own :class:`~reahl.web.ui.HTML5Page`\ -derived main window that will provide the structure
+own :class:`~reahl.web.ui.HTML5Page`\ -derived page that will provide the structure
 you need. The :class:`~reahl.web.ui.TwoColumnPage` :class:`~reahl.web.fw.Widget` is an example of how one can do
 this.
 

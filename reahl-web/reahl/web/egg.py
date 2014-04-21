@@ -26,7 +26,7 @@ class WebConfig(Configuration):
     filename = u'web.config.py'
     config_key = u'web'
 
-    site_root = ConfigSetting(description=u'The Region class to be used as the root of the web application')
+    site_root = ConfigSetting(description=u'The UserInterface class to be used as the root of the web application')
     static_root = ConfigSetting(default=os.getcwd(),
                                 description=u'The directory from which static files will be served',
                                 dangerous=True)

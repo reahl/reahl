@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import Region, Url, UrlBoundView, CannotCreate
+from reahl.web.fw import UserInterface, Url, UrlBoundView, CannotCreate
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, A, InputGroup, HMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
 
@@ -28,7 +28,7 @@ class EditView(UrlBoundView):
         self.set_slot(u'main', EditAddressForm.factory(address))
 
     
-class AddressBookApp(Region):
+class AddressBookUI(UserInterface):
     def assemble(self):
 
         add = self.define_view(u'/add', title=u'Add an address')
@@ -44,7 +44,7 @@ class AddressBookApp(Region):
         self.define_transition(Address.events.edit, addresses, edit)
 
         bookmarks = [f.as_bookmark(self) for f in [addresses, add]]
-        self.define_main_window(AddressBookPage, bookmarks)
+        self.define_page(AddressBookPage, bookmarks)
 
 
 class AddressBookPanel(Panel):

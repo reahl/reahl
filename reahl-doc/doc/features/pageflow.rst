@@ -40,6 +40,13 @@ Defining the entire design depicted visually above is done in one
 place: the `assemble` method. Here each View is defined, as well as a
 number of Transitions between Views.
 
+.. note::
+
+   This example does not set a different page for each View. That would have
+   required us to create a page class for each View. We rather use :doc:`a different
+   technique using Slots and a page defined for the entire UserInterface <../tutorial/slots>`
+   that saves some typing.
+
 
 .. literalinclude:: ../../reahl/doc/examples/features/pageflow/pageflow.py
 

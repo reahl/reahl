@@ -26,7 +26,7 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected, temp_dir, temp_file_with
 from reahl.stubble import easter_egg, stubclass
 
-from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWebApplication, Region
+from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, UserInterface
 from reahl.web.ui import TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
@@ -48,12 +48,12 @@ class StaticFileTests(object):
         fixture.config.web.static_root = static_root.name
         
         # How the subdirectory is mounted
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 self.define_static_directory(u'/staticfiles')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # How the first file would be accessed
         browser.open('/staticfiles/one_file.xml')
@@ -84,13 +84,13 @@ class StaticFileTests(object):
         files_dir = temp_dir()
         one_file = files_dir.file_with(u'any_name_will_do_here', u'one')
         
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 list_of_files = [FileOnDisk(one_file.name, u'one_file')]
                 self.define_static_files(u'/morestaticfiles', list_of_files)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # How the first file would be accessed
         browser.open('/morestaticfiles/one_file')
@@ -113,7 +113,7 @@ class StaticFileTests(object):
     def files_from_database(self, fixture):
         """Files can also be created on the fly such as from data in a database."""
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 content_type = u'text/html'
                 encoding = u'utf-8'
@@ -125,8 +125,8 @@ class StaticFileTests(object):
                 list_of_files = [FileFromBlob(u'database_file', data_blob, *meta_info)]
                 self.define_static_files(u'/files', list_of_files)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # How the file would be accessed
         browser.open('/files/database_file')
@@ -154,13 +154,13 @@ class StaticFileTests(object):
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
         
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 list_of_files = [PackagedFile(easter_egg.as_requirement_string(), u'packaged_files', u'packaged_file')]
                 self.define_static_files(u'/files', list_of_files)
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # How the file would be accessed
         browser.open('/files/packaged_file')
@@ -203,7 +203,7 @@ class StaticFileTests(object):
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
                 to_concatenate = [PackagedFile(u'test==1.0', u'packaged_files', u'packaged_file'),
                                   PackagedFile(u'test==1.0', u'packaged_files', u'packaged_file2')]
@@ -211,8 +211,8 @@ class StaticFileTests(object):
                 self.define_static_files(u'/files', list_of_files)
 
         fixture.config.reahlsystem.debug = False  # To enable minification 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         # How the first file would be accessed
         browser.open('/files/%s' % fixture.filename)
@@ -297,8 +297,8 @@ class StaticFileTests(object):
     @test(WebFixture)
     def standard_reahl_files(self, fixture):
         """The framework creates certain static files by default."""
-        webapp = ReahlWebApplication(fixture.config)
-        browser = Browser(webapp)
+        wsgi_app = ReahlWSGIApplication(fixture.config)
+        browser = Browser(wsgi_app)
 
         browser.open(u'/static/html5shiv-printshiv-3.6.3.js')
         vassert( browser.last_response.content_length > 0 )

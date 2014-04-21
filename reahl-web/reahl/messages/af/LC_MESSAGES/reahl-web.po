@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: reahl/web/djhtml.py:88 reahl/web/fw.py:553
+#: reahl/web/dhtml.py:88 reahl/web/fw.py:553
 msgid "Untitled"
 msgstr "Ongetiteld"
 

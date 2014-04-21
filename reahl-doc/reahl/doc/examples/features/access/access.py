@@ -1,15 +1,20 @@
 
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, Button, LabelledBlockInput
 from reahl.component.modelinterface import exposed, EmailField, secured, Event, Action, PasswordField
 
-class AccessApp(Region):
-    def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
 
-        home = self.define_view(u'/', title=u'Access control demo')
-        home.set_slot(u'main', CommentForm.factory())
+
+class AccessUI(UserInterface):
+    def assemble(self):
+        self.define_view(u'/', title=u'Access control demo', page=HomePage.factory())
+
+
+class HomePage(TwoColumnPage):
+    def __init__(self, view):
+        super(HomePage, self).__init__(view, style=u'basic')
+        self.main.add_child(CommentForm(view))
 
 
 class Comment(object):

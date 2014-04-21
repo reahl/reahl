@@ -1,14 +1,17 @@
 
-from reahl.web.fw import Region
+from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput
 from reahl.component.modelinterface import exposed, EmailField
 
-class ValidationApp(Region):
+class ValidationUI(UserInterface):
     def assemble(self):
-        self.define_main_window(TwoColumnPage, style=u'basic')  
+        self.define_view(u'/', title=u'Validation demo', page=HomePage.factory())
 
-        home = self.define_view(u'/', title=u'Validation demo')
-        home.set_slot(u'main', CommentForm.factory())
+
+class HomePage(TwoColumnPage):
+    def __init__(self, view):
+        super(HomePage, self).__init__(view, style=u'basic')
+        self.main.add_child(CommentForm(view))
 
 
 class Comment(object):

@@ -23,7 +23,7 @@ from reahl.tofu import vassert, expected
 
 from reahl.component.modelinterface import Field, RequiredConstraint
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.fw import ReahlWebApplication, Region, UrlBoundView
+from reahl.web.fw import ReahlWSGIApplication, UserInterface, UrlBoundView
 from reahl.web.ui import TwoColumnPage, P, A
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
@@ -38,52 +38,52 @@ class ParameterisedViewErrors(object):
             def assemble(self, some_key=None):
                 self.title = u'View for: %s' % some_key
 
-        class RegionWithParameterisedViews(Region):
+        class UIWithParameterisedViews(UserInterface):
             def assemble(self):
                 self.define_regex_view(u'/(?P<incorrect_name_for_key>.*)', u'/${key}', view_class=ParameterisedView, some_key=Field(required=True))
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedViews,  {}, name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'test_ui')
 
-        webapp = fixture.new_webapp(site_root=MainRegion)
-        browser = Browser(webapp)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
 
         def check_message(ex):
             return unicode(ex).startswith('The arguments contained in URL')
         with expected(ProgrammerError, test=check_message):
-            browser.open('/aregion/test1/')
+            browser.open('/a_ui/test1/')
 
 
 
-class ParameterisedRegionErrors(WebFixture):
-    def new_webapp(self):
+class ParameterisedUserInterfaceErrors(WebFixture):
+    def new_wsgi_app(self):
         fixture = self
-        class RegexRegion(Region):
-            def assemble(self, region_key=None):
-                self.name = u'region-%s' % region_key
+        class RegexUserInterface(UserInterface):
+            def assemble(self, ui_key=None):
+                self.name = u'user_interface-%s' % ui_key
 
-        class RegionWithParameterisedRegions(Region):
+        class UIWithParameterisedUserInterfaces(UserInterface):
             def assemble(self):
-                self.define_regex_region(u'/(?P<xxx>[^/]*)', u'N/A', RegexRegion,
-                                         {u'region-slot': u'main'},
-                                         region_key=Field(required=True))
+                self.define_regex_user_interface(u'/(?P<xxx>[^/]*)', u'N/A', RegexUserInterface,
+                                         {u'user_interface-slot': u'main'},
+                                         ui_key=Field(required=True))
 
-        class MainRegion(Region):
+        class MainUI(UserInterface):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
-                self.define_region(u'/aregion',  RegionWithParameterisedRegions,  {}, name=u'testregion')
+                self.define_page(TwoColumnPage)
+                self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  {}, name=u'test_ui')
 
-        return super(ParameterisedRegionErrors, self).new_webapp(site_root=MainRegion)
+        return super(ParameterisedUserInterfaceErrors, self).new_wsgi_app(site_root=MainUI)
        
 
 @istest
 class ParameterisedErrorsTests(object):
-    @test(ParameterisedRegionErrors)
+    @test(ParameterisedUserInterfaceErrors)
     def missing_variable_in_regex(self, fixture):
 
-        browser = Browser(fixture.webapp)
+        browser = Browser(fixture.wsgi_app)
 
         with expected(RequiredConstraint):
-            browser.open('/aregion/test1/')
+            browser.open('/a_ui/test1/')

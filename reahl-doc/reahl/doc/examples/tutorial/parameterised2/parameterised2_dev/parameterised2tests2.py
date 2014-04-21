@@ -3,12 +3,12 @@ from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.parameterised2.parameterised2 import AddressBookApp, Address
+from reahl.doc.examples.tutorial.parameterised2.parameterised2 import AddressBookUI, Address
 
 
 class AddressAppFixture(WebFixture):
     def new_browser(self):
-        return Browser(self.new_webapp(site_root=AddressBookApp))
+        return Browser(self.new_wsgi_app(site_root=AddressBookUI))
         
     def new_existing_address(self):
         address = Address(name=u'John Doe', email_address=u'johndoe@some.org')

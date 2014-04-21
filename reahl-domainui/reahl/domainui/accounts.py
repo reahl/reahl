@@ -19,12 +19,13 @@
 
 
 from reahl.component.i18n import Translator
-from reahl.web.fw import Region, Widget, WebExecutionContext, Url
+from reahl.web.fw import UserInterface, Widget, WebExecutionContext, Url
 from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxInput, \
                          TextInput, PasswordInput, H, P, A, Div, CueInput,\
                          CheckCheckboxButton, PopupA, DialogButton, ErrorFeedbackMessage
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
+from reahl.component.decorators import deprecated
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
      AccountManagementInterface
 
@@ -57,7 +58,7 @@ class LoginForm(Form):
         
         password_cue = P(view, _(u'The secret password you supplied upon registration.') )
         password_cue_input = CueInput(PasswordInput(self, self.account_management_interface.fields.password), password_cue)
-        forgot_password_bookmark = self.region.get_bookmark(relative_path=u'/resetPassword',
+        forgot_password_bookmark = self.user_interface.get_bookmark(relative_path=u'/resetPassword',
                                                             description=_(u'Forgot your password?'))
         password_cue_input.input_part.add_child(A.from_bookmark(view, forgot_password_bookmark))
         login_inputs.add_child(password_cue_input)
@@ -197,7 +198,7 @@ class RegistrationDuplicatedWidget(TitledWidget):
                                       u'This means that you (or someone else) must have registered using that email address' \
                                       u' previously.')))
 
-        forgot_password_bookmark = self.region.get_bookmark(relative_path=u'/resetPassword')
+        forgot_password_bookmark = self.user_interface.get_bookmark(relative_path=u'/resetPassword')
         last_p = P(view, text=_(u'You can gain access to this account by following our {procedure}.'))
         self.add_child(last_p.format(procedure=A.from_bookmark(view, forgot_password_bookmark.with_description(_(u' password reset procedure')))))
 
@@ -228,7 +229,7 @@ class RegistrationPendingForm(Form):
             self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
         
         actions = self.add_child(ActionButtonGroup(view, label_text=_(u'Re-send registration email')))
-        actions.add_child(Button(self, self.region.account_management_interface.events.resend_event))
+        actions.add_child(Button(self, self.user_interface.account_management_interface.events.resend_event))
 
 
 class RegistrationNotFoundWidget(TitledWidget):
@@ -238,7 +239,7 @@ class RegistrationNotFoundWidget(TitledWidget):
         self.add_child(P(view, text=_(u'Perhaps you mistyped your email address when registering? The system also removes ' \
                                       u'such a registration request if you take a long time to get around to verifying it.')))
 
-        register_bookmark = self.region.get_bookmark(relative_path=u'/register')
+        register_bookmark = self.user_interface.get_bookmark(relative_path=u'/register')
         last_p = P(view, text=_(u'Whatever the case, please {register} to rectify the problem.'))
         self.add_child(last_p.format(register=A.from_bookmark(view, register_bookmark.with_description(_(u'register again')))))
 
@@ -277,7 +278,7 @@ class ResetPasswordWidget(TitledWidget):
                          u'Then, {choose_password}. But you need that secret key for the last step in order to prove '\
                          u'that you are indeed the owner of the registered email address.'))
         link_text = _(u'you can choose a new password')
-        step2_bookmark = self.region.get_bookmark(relative_path=u'/choosePassword', description=link_text)
+        step2_bookmark = self.user_interface.get_bookmark(relative_path=u'/choosePassword', description=link_text)
         self.add_child(explanation.format(choose_password=A.from_bookmark(view, step2_bookmark)))
         self.add_child(ResetPasswordForm(view, account_management_interface))
 
@@ -302,7 +303,7 @@ class ChoosePasswordWidget(TitledWidget):
         explanation = P(view, text=_(u'Do you have your secret key? You can only choose a new password if you {reset_password}.'))
         
         link_text = _(u'previously requested a secret key to be sent to your registered email address')
-        step1_bookmark = self.region.get_bookmark(relative_path=u'/resetPassword', description=link_text)
+        step1_bookmark = self.user_interface.get_bookmark(relative_path=u'/resetPassword', description=link_text)
 
         self.add_child(explanation.format(reset_password=A.from_bookmark(view, step1_bookmark)))
         self.add_child(ChoosePasswordForm(view, account_management_interface))
@@ -337,14 +338,14 @@ class PasswordChangedWidget(TitledWidget):
         self.add_child(P(view, text=_(u'Thank you, your password has been changed successfully.')))
 
 
-class AccountRegion(Region):
-    """A user-facing Region for logging in and managing your own login.
+class AccountUI(UserInterface):
+    """A user-facing UserInterface for logging in and managing your own login.
 
        **Slots:**
-         - main_slot: All UI elements are put into this Slot for any View in this Region.
+         - main_slot: All UI elements are put into this Slot for any View in this UserInterface.
          
        **Views**
-         Call :meth:`AccountRegion.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg
+         Call :meth:`AccountUI.get_bookmark` passing one of these relative URLs as the `relative_url` kwarg
          in order to get a Bookmark for the View listed below:
 
          `/register`
@@ -363,7 +364,7 @@ class AccountRegion(Region):
            This is the second (password choosing) step of resetting a user password.
     """
     def assemble(self, bookmarks=None):
-        """Assemble this AccountRegion.
+        """Assemble this AccountUI.
         
           :param bookmarks: An object with the following attributes, each of which is a Bookmark instance to a View\
               explaining the listed legal document:
@@ -450,5 +451,8 @@ class AccountRegion(Region):
         self.define_transition(self.account_management_interface.events.verify_event, verify, thanks)
 
 
+@deprecated(u'Please use AccountUI instead.')
+class AccountRegion(AccountUI):
+    pass
 
 

@@ -14,7 +14,7 @@ Moving between Views
 
       reahl example <examplename>
 
-Most applications consist of several  :class:`~reahl.web.fw.View`\ s  that are designed to work
+Most :class:`~reahl.web.fw.UserInterface`\ s consist of several  :class:`~reahl.web.fw.View`\ s  that are designed to work
 together. It is useful to have a clear picture of which  :class:`~reahl.web.fw.View`\ s  exist in
 a user interface, and how they relate to one another.
 
@@ -27,8 +27,8 @@ and another on which you can add a new address.
 
    The address book application with two  :class:`~reahl.web.fw.View`\ s .
 
-In the schematic representation of this idea a :class:`~reahl.web.ui.Menu` has been added to
-the application. From the :class:`~reahl.web.ui.Menu`, a user can choose to navigate to the
+Notice the :class:`~reahl.web.ui.Menu` that was added to the application. 
+From the :class:`~reahl.web.ui.Menu`, a user can choose to navigate to the
 "Addresses" :class:`~reahl.web.fw.View`, or the "Add Address" :class:`~reahl.web.fw.View`. This is an example of
 navigation provided which is under the control of the user.
 
@@ -38,61 +38,41 @@ transitioned back to the "Addresses" :class:`~reahl.web.fw.View`. In this case, 
 application controls the navigation.
 
 Each of these modes of navigation are dealt with differently:
-navigation that is under the control of the user is enabled using
-:class:`~reahl.web.fw.Bookmark`\ s to possible target  :class:`~reahl.web.fw.View`\ s . Navigation controlled by the
-application in response to user actions is controlled via :class:`~reahl.web.fw.Transition`\ s.
 
-Bookmarks
----------
+Navigation under the user's control: Bookmarks
+----------------------------------------------
 
-One of the lower-level web technology concepts which Reahl cannot
-abstract away entirely from the programmer is that of an URL. Each
-:class:`~reahl.web.fw.View` is defined using a particular URL. After having defined a :class:`~reahl.web.fw.View` though,
-a Reahl programmer should stop thinking in terms of URLs, and not use
-them further in programming.
+To allow a user to navigate, one can provide anchors (:class:`~reahl.web.ui.A`) or :class:`~reahl.web.ui.Menu`\ s
+or something similar to the user. All of these just allow a user to jump directly to another :class:`~reahl.web.fw.View`.
+In order to refer to these :class:`~reahl.web.fw.View`\ s, you need a 
+:class:`~reahl.web.fw.Bookmark` for the :class:`~reahl.web.fw.View`.
 
-Instead, start thinking in terms of :class:`~reahl.web.fw.Bookmark`\ s. A :class:`~reahl.web.fw.Bookmark` is analogous
-to the :class:`~reahl.web.fw.Bookmark`\ s which a browser allows its user to save. The concept
-of a :class:`~reahl.web.fw.Bookmark` is a means by which to refer to a :class:`~reahl.web.fw.View` elsewhere in an
-application. :class:`~reahl.web.fw.Bookmark` is a more abstract concept than that of an URL
+:class:`~reahl.web.fw.Bookmark` is a more abstract concept than that of an URL
 and contains a number of other bits of information about the :class:`~reahl.web.fw.View` it
 refers to, such as the title of that :class:`~reahl.web.fw.View`, or the access rights of the
 current user with regard to the given :class:`~reahl.web.fw.View`. The meta-information in a
 :class:`~reahl.web.fw.Bookmark` is useful for :class:`~reahl.web.fw.Widget`\ s that use :class:`~reahl.web.fw.Bookmark`\ s.
 
-So, forget the idea of an URL, and switch over to that of a
-:class:`~reahl.web.fw.Bookmark`. :class:`~reahl.web.fw.Bookmark`\ s are much smarter. :class:`~reahl.web.fw.Bookmark`\ s are also the means by
-which to define the particular  :class:`~reahl.web.fw.View`\ s  to which a user is allowed to
-nagivate directly.
-
-Given that a :class:`~reahl.web.fw.Bookmark` is our way of referring to a :class:`~reahl.web.fw.View`, you should
-know that :class:`~reahl.web.fw.Bookmark`\ s can be used to create all sorts of stuff. :class:`~reahl.web.ui.Menu`\ s
-can be constructed from :class:`~reahl.web.fw.Bookmark`\ s, for example. A user can then choose
-from the :class:`~reahl.web.ui.Menu` which :class:`~reahl.web.fw.View` to go to. A :class:`~reahl.web.fw.Bookmark` contains all the
-information necessary for constructing one :class:`~reahl.web.ui.MenuItem` of the :class:`~reahl.web.ui.Menu`.
-
 The example below shows the application designed above with its two
 :class:`~reahl.web.fw.View`\ s , and a :class:`~reahl.web.ui.Menu` which is created from :class:`~reahl.web.fw.Bookmark`\ s.  Note how the
-:class:`~reahl.web.fw.Bookmark`\ s are obtained: using the :class:`~reahl.web.fw.View` and the :class:`~reahl.web.fw.Region` of which the
+:class:`~reahl.web.fw.Bookmark`\ s are obtained: using the :class:`~reahl.web.fw.View` and the :class:`~reahl.web.fw.UserInterface` of which the
 :class:`~reahl.web.fw.View` forms part.
 
-The :class:`~reahl.web.ui.Menu` should be on every page. This could be accomplished by adding
-a similar :class:`~reahl.web.ui.Menu` to each :class:`~reahl.web.fw.View`. A better solution though, is to create a
-main_window :class:`~reahl.web.fw.Widget` for the application, and make this main window
-contain the :class:`~reahl.web.ui.Menu`. In the example, AddressBookPage plays this role. A
+The :class:`~reahl.web.ui.Menu` should be on every page. We accomplish this by creating AddressBookPage, and 
+letting the page for each :class:`~reahl.web.fw.View` inherit from AddressBookPage. An
 AddressBookPage is literally just a :class:`~reahl.web.ui.TwoColumnPage`, with an :class:`~reahl.web.ui.HMenu` (a
 horisontal menu) added to its `.header`. The :class:`~reahl.web.ui.Menu` uses the textual
 description for each :class:`~reahl.web.fw.View` as obtained from the :class:`~reahl.web.fw.Bookmark`\ s from which it
 is constructed. Such a description defaults to being the title of the
 :class:`~reahl.web.fw.View`.
 
-In order to be able to create the :class:`~reahl.web.ui.HMenu`, AddressBookPage needs a
-:class:`~reahl.web.fw.Bookmark` for each :class:`~reahl.web.fw.View` in the application. This information is
-available where `.define_main_window()` is called, and so can be
-passed in from there as an argument. The arguments passed to
-`.define_main_window()` are sent to `AddressBookPage.__init__()` each
-time an AddressBookPage is constructed.
- 
+In order to be able to create the :class:`~reahl.web.ui.HMenu`, AddressBookPage and its subclasses need a
+:class:`~reahl.web.fw.Bookmark` for every :class:`~reahl.web.fw.View` in the application. This leaves us with 
+a bit of a chicken-and-egg problem: We usually set the page for a particular :class:`~reahl.web.fw.View` when 
+it is defined. However, each page needs all the bookmarks to all :class:`~reahl.web.fw.View`\ s. To get around
+this issue, you can omit setting the page when defining a :class:`~reahl.web.fw.View` and set it later
+using `.set_page()` as is done here.
+
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
 
 
@@ -108,12 +88,12 @@ to visualise the different  :class:`~reahl.web.fw.View`\ s  in the application a
 will be *transitioned* between the different  :class:`~reahl.web.fw.View`\ s  in response to user
 actions. One of the aims with Reahl is to have code that clearly maps to such a
 schematic representation of the application. This is the purpose of
-the `.assemble()` method of a :class:`~reahl.web.fw.Region`. In this method, the programmer
-first defines each :class:`~reahl.web.fw.View` of the :class:`~reahl.web.fw.Region`, and then defines each possible
+the `.assemble()` method of a :class:`~reahl.web.fw.UserInterface`. In this method, the programmer
+first defines each :class:`~reahl.web.fw.View` of the :class:`~reahl.web.fw.UserInterface`, and then defines each possible
 :class:`~reahl.web.fw.Transition` between  :class:`~reahl.web.fw.View`\ s . In this example, there is only one :class:`~reahl.web.fw.Transition`:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow2/pageflow2.py
-   :pyobject: AddressBookApp
+   :pyobject: AddressBookUI
 
 In previous examples an :class:`~reahl.web.fw.EventHandler` was defined before a :class:`~reahl.web.ui.Button` is
 placed that needed to trigger an :class:`~reahl.component.modelinterface.Event`. That plan works well for
@@ -132,7 +112,7 @@ picture which the code of `.assemble()` tries to make explicit.
 Normally, in order to define a transition, one needs to specify the
 :class:`~reahl.component.modelinterface.Event` which will trigger it. In our example that :class:`~reahl.component.modelinterface.Event` is not
 available, since there is no instance of Address available in the
-`.assemble()` method of the :class:`~reahl.web.fw.Region` to ask for its `.events.save`.
+`.assemble()` method of the :class:`~reahl.web.fw.UserInterface` to ask for its `.events.save`.
 For that reason, `.events.save` can also be called on the Address
 class itself. The call to `.define_transition` (and its ilk) does
 not need the actual event -- it just needs to know how to identify the

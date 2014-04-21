@@ -20,7 +20,7 @@ from reahl.tofu import Fixture, test
 from reahl.tofu import vassert
 
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.fw import Region, IdentityDictionary
+from reahl.web.fw import UserInterface, IdentityDictionary
 from reahl.web.ui import TwoColumnPage
 from reahl.webdev.tools import Browser
 from reahl.component.i18n import Translator
@@ -57,27 +57,27 @@ def i18n_urls(fixture):
     path, web.default_url_locale is used."""
     _ = Translator(u'reahl-web')
 
-    class I18nRegion(Region):
+    class I18nUI(UserInterface):
         def assemble(self):
             view = self.define_view(u'/aview', title=_(u'A View'))
 
-    class MainRegion(Region):
+    class MainUI(UserInterface):
         def assemble(self):
-            self.define_main_window(TwoColumnPage)
-            self.define_region(u'/aregion',  I18nRegion,  IdentityDictionary(), name=u'testregion')
+            self.define_page(TwoColumnPage)
+            self.define_user_interface(u'/a_ui',  I18nUI,  IdentityDictionary(), name=u'test_ui')
             
-    webapp = fixture.new_webapp(site_root=MainRegion)
-    browser = Browser(webapp)
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-    browser.open(u'/aregion/aview')
+    browser.open(u'/a_ui/aview')
     vassert( browser.title == u'A View' )
 
-    browser.open(u'/af/aregion/aview')
+    browser.open(u'/af/a_ui/aview')
     vassert( browser.title == u'\'n Oogpunt' )
 
     fixture.context.config.web.default_url_locale = 'af'
-    browser.open(u'/aregion/aview')
+    browser.open(u'/a_ui/aview')
     vassert( browser.title == u'\'n Oogpunt' )
     
-    browser.open(u'/en_gb/aregion/aview')
+    browser.open(u'/en_gb/a_ui/aview')
     vassert( browser.title == u'A View' )
