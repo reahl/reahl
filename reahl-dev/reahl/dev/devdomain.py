@@ -1532,11 +1532,16 @@ class EggProject(Project):
         parent_directory = os.path.dirname(self.directory)
         if not os.path.isfile(os.path.join(parent_directory, u'.reahlproject')):
             return None
-        try:
-            return self.workspace.project_in(parent_directory)
-        except ProjectNotFound:
-            return Project.from_file(self.workspace, parent_directory)
 
+        parent_project = self.get_project_in_directory(parent_directory)
+        return parent_project if parent_project.has_children else None
+
+    def get_project_in_directory(self, directory):
+        try:
+            return self.workspace.project_in(directory)
+        except ProjectNotFound:
+            return Project.from_file(self.workspace, directory)
+        
     @classmethod
     def get_xml_registration_info(cls):
         return ('project', cls, 'egg')

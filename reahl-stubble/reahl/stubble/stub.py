@@ -89,8 +89,8 @@ class StubClass(object):
             if 'self' in stub_arguments.args: stub_arguments.args.remove('self')
         assert orig_arguments == stub_arguments, \
             'signature mismatch: %s%s does not match %s%s' % \
-            (stubbed, inspect.formatargspec(stub_arguments[0]), 
-             orig, inspect.formatargspec(orig_arguments[0]))
+            (stubbed, inspect.formatargspec(*stub_arguments), 
+             orig, inspect.formatargspec(*orig_arguments))
             
         return False
         

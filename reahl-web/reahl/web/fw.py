@@ -2395,7 +2395,7 @@ class ReahlWSGIApplication(object):
     @classmethod
     def from_directory(cls, directory):
         """Create a ReahlWSGIApplication given the `directory` where its configuration is stored."""
-        config = StoredConfiguration(directory, strict_validation=True)
+        config = StoredConfiguration(directory, in_production=True)
         config.configure()
         return cls(config)
 
