@@ -98,17 +98,30 @@ class InterceptTests(object):
                 assert None, u'This should never be reached in this test'
 
 
+        # Case: bound method
         s = SomethingElse()
-        original_method = s.foo.im_func
-
         def replacement(n, y=None):
             return y
+        original_method = s.foo.im_func
 
         with replaced(s.foo, replacement):
             assert s.foo(1, y=u'a') == u'a'
             assert s.foo(2) == None
 
         assert s.foo.im_func is original_method
+
+        # Case: unbound method
+        s = SomethingElse()
+        def replacement(self, n, y=None):
+            return y
+        original_method = SomethingElse.foo.im_func
+
+        with replaced(SomethingElse.foo, replacement):
+            assert s.foo(1, y=u'a') == u'a'
+            assert s.foo(2) == None
+            assert SomethingElse.foo.im_func is not original_method
+
+        assert SomethingElse.foo.im_func is original_method
 
     @istest
     def test_replaced_signature_should_match(self):

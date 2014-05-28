@@ -166,14 +166,14 @@ def replaced(method, replacement):
           assert s.foo(2) == 'yyy'
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
-    obj = method.im_self
+    target = method.im_self or method.im_class
     method_name = method.im_func.func_name
+    saved_method = getattr(target, method_name)
     try:
-        saved_method = getattr(obj, method_name)
-        setattr(obj, method_name, replacement)
+        setattr(target, method_name, replacement)
         yield
     finally:
-        setattr(obj, method_name, saved_method)
+        setattr(target, method_name, saved_method)
 
 
     

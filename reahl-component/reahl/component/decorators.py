@@ -42,6 +42,8 @@
 
  
 from functools import partial, wraps
+import inspect
+import logging
 
 class memoized(object):
     def __init__(self, func):
@@ -63,13 +65,29 @@ class memoized(object):
             res = cache[key] = self.func(*args, **kw)
         return res
 
-import logging
+
 
 class deprecated(object):
     def __init__(self, message):
         self.message = message
+
     def __call__(self, something):
-        logging.warning(u'DEPRECATED: %s. %s' % (something, self.message))
-        return something
+        if inspect.isfunction(something):
+            f = something
+        elif inspect.isclass(something):
+            f = something.__init__
+        else:
+            raise AssertionError(u'@deprecated can only be used for classes, functions or methods')
+
+        @wraps(f)
+        def deprecated_wrapper(*args, **kwds):
+            logging.getLogger(__name__).warn(u'DEPRECATED: %s. %s' % (something, self.message))
+            return f(*args, **kwds)
+
+        if inspect.isfunction(something):
+            return deprecated_wrapper
+        elif inspect.isclass(something):
+            something.__init__ = deprecated_wrapper
+            return something
 
 
