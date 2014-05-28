@@ -1,3 +1,18 @@
+python-reahl (2.1.1) unstable; urgency=low
+
+ * Closes small bugs: #1322652, #1322833, #1322855, #1324018, #1324040.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Wed, 28 May 2014 12:30:00 +0200
+
+python-reahl (2.1.0) unstable; urgency=low
+
+ * Renamed several classes (and methods) to be more accessible to new users.
+ * Changed to allow a page WidgetFactory set on individual Views.
+ * Documentation and examples simplified.
+ * Added hellonginx example.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Mon, 21 Apr 2014 11:30:00 +0200
+
 python-reahl (2.1.0) unstable; urgency=low
 
  * Renamed several classes (and methods) to be more accessible to new users.

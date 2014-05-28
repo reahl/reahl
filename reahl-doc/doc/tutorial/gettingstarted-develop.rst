@@ -64,6 +64,8 @@ application:
      </deps>
    </project>
 
+.. _preparing-for-development:
+
 Preparing for development
 -------------------------
 
@@ -231,6 +233,12 @@ Checking out an example
 You can get a local copy of this example by using the `reahl` script::
 
   reahl example tutorial.hello
+
+.. note:: 
+
+   Remember, :ref:`like with any other project
+   <preparing-for-development>`, you need to run ``reahl setup -- develop
+   -N`` inside the local copy of the example before you try to run it.
 
 You can also see what other examples are available by running::
 
