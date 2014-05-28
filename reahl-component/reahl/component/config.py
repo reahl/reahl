@@ -248,9 +248,9 @@ class ConfigAsDict(dict):
 
 
 class StoredConfiguration(Configuration):
-    def __init__(self, config_directory_name, strict_validation=False):
+    def __init__(self, config_directory_name, in_production=False):
         self.config_directory = config_directory_name
-        self.strict_validation = strict_validation
+        self.in_production = in_production
 
     def configure(self, validate=True):
         #http://mail.python.org/pipermail/tutor/2005-August/040993.html
@@ -267,7 +267,14 @@ class StoredConfiguration(Configuration):
         self.read(ReahlSystemConfig)
         self.validate_required(ReahlSystemConfig)
 
-        require(self.reahlsystem.root_egg)
+        try:
+            require(self.reahlsystem.root_egg)
+        except DistributionNotFound, ex:
+            requirement = ex.args[0]
+            if (requirement.project_name == self.reahlsystem.root_egg.replace(u'_',u'-')) and not self.in_production:
+                ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.message,)
+            raise
+
         self.configure_components()
         if validate:
             self.validate_components()
@@ -341,7 +348,7 @@ class StoredConfiguration(Configuration):
         if not isinstance(src_config, configuration_class):
             raise ConfigurationException('%s is not a %s in %s' % (composite_key, configuration_class, full_filename))
 
-        src_config.validate_contents(full_filename, composite_key, self.strict_validation)
+        src_config.validate_contents(full_filename, composite_key, self.in_production)
 
     def list_required(self, configuration_class):
         composite_key = configuration_class.config_key

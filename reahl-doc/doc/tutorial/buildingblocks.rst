@@ -142,8 +142,7 @@ all this is sent back to the browser in the form of HTML and other
 files, but then all of these objects are thrown away on the web server.
 
 You may have wondered why `.factory()` was used in the `.assemble()`
-of the HelloUI (above), but not in the code of ReahllyBadPoem
-earlier. Well, ReahllyBadPoem is a :class:`~reahl.web.fw.Widget` and in the code shown it is
+of the HelloUI, but not in the code of ReahllyBadPoem. Well, ReahllyBadPoem is a :class:`~reahl.web.fw.Widget` and in the code shown it is
 being constructed. It makes sense that as part of its own construction
 it should also construct all of its children :class:`~reahl.web.fw.Widget`\ s, doesn't it? Why
 wait any longer?

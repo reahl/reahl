@@ -19,10 +19,12 @@ import pkg_resources
 import re
 import logging
 
+from pkg_resources import DistributionNotFound
 from nose.tools import istest
+
 from reahl.tofu import Fixture,  test, scenario, set_up, tear_down
 from reahl.tofu import vassert, temp_dir, expected
-from reahl.stubble import easter_egg, CallMonitor, EasterEgg
+from reahl.stubble import easter_egg, CallMonitor, EasterEgg, replaced
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration, StoredConfiguration, ConfigSetting, \
@@ -37,8 +39,11 @@ class ConfigWithFiles(Fixture):
         contents = """
 reahlsystem.root_egg = '%s'
 reahlsystem.connection_uri = None
-""" % easter_egg.as_requirement_string()
+""" % self.root_egg_name
         return self.new_config_file(filename=u'reahl.config.py', contents=contents)
+
+    def new_root_egg_name(self):
+        return easter_egg.as_requirement_string()
 
     def new_config_file_name(self):
         return u'some_file.py'
@@ -175,15 +180,44 @@ class ConfigTests3(object):
         vassert( config.some_key.some_setting == u'default value' )
 
     @test(ConfigWithFiles)
-    def config_strict_validation(self, fixture):
-        """When strict validation is on, dangerous defaulted config is not allowed."""
+    def config_in_production(self, fixture):
+        """When a Configuration is created as in_production, dangerous defaulted config is not allowed."""
 
         fixture.set_config_spec(easter_egg, u'reahl.component_dev.configtests:ConfigWithDangerousDefaultedSetting')
 
-        config = StoredConfiguration(fixture.config_dir.name, strict_validation=True)
+        config = StoredConfiguration(fixture.config_dir.name, in_production=True)
         with expected(ConfigurationException):
             config.configure()
-            
+
+    class DistributionNotFoundConfig(ConfigWithFiles):
+        def new_root_egg_name(self):
+            return 'missing_root_egg'
+
+    @test(DistributionNotFoundConfig)
+    def hint_on_distribution_not_found(self, fixture):
+        """When a DistributionNotFoundException is raised - in development ONLY - for the current root_egg,
+           its message is augmented with a hint for new users."""
+
+        # Case: development
+        config = StoredConfiguration(fixture.config_dir.name, in_production=False)
+        
+        def check_exception(ex):
+            vassert( unicode(ex) == u'missing-root-egg (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' )
+
+        with expected(DistributionNotFound, test=check_exception):
+            config.configure()
+
+        # Case: production
+        config = StoredConfiguration(fixture.config_dir.name, in_production=True)
+        
+        def check_exception(ex):
+            vassert( unicode(ex) == u'missing-root-egg' )
+
+        with expected(DistributionNotFound, test=check_exception):
+            config.configure()
+
+
+
 
 class ConfigWithEntryPointClassList(Configuration):
     filename = u'config_file_for_this_egg.py'

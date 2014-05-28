@@ -18,7 +18,7 @@ import trace
 import sys
 import re
 
-from nose.tools import istest, assert_raises, assert_true
+from nose.tools import istest, assert_raises, assert_true, assert_equals
 
 from reahl.stubble import stubclass, exempt, EmptyStub
 
@@ -28,7 +28,7 @@ class BasicStubRequirementsTests(object):
     def setUp(self):
         class Stubbed(object):
             attr = 1
-            def method(self, a, b): pass
+            def method(self, a, b, akwarg=None, *args, **kwargs): pass
             @classmethod
             def a_class_method(cls, x, y): pass
             @property
@@ -56,7 +56,9 @@ class BasicStubRequirementsTests(object):
                 def attr(self): pass
         
         #normal case
-        assert_raises(AssertionError, declare_class)
+        with assert_raises(AssertionError) as context:
+            declare_class()
+        assert_equals( unicode(context.exception), u'''attribute mismatch: <class 'reahl.stubble_dev.BasicStubRequirementsTests.Stub'>.<unbound method Stub.attr> is not compatible with the original type <type 'int'> on <class 'reahl.stubble_dev.BasicStubRequirementsTests.Stubbed'>''' )
 
     @istest
     def test_method_signature_mismatch(self):
@@ -64,10 +66,13 @@ class BasicStubRequirementsTests(object):
         def declare_class():
             @stubclass(self.stubbed)
             class Stub(object):
-                def method(self, b): pass
+                def method(self, b, akwarg=None, *args, **kwargs): pass
 
         #normal case
-        assert_raises(AssertionError, declare_class)
+        with assert_raises(AssertionError) as context:
+            declare_class()
+        
+        assert_equals( unicode(context.exception), u'''signature mismatch: <unbound method Stub.method>(self, b, akwarg=None, *args, **kwargs) does not match <unbound method Stubbed.method>(self, a, b, akwarg=None, *args, **kwargs)''' )
 
     @istest
     def test_property_method_missing_on_orig(self):
@@ -146,7 +151,7 @@ class BasicStubRequirementsTests(object):
         def declare_class():
             @stubclass(self.stubbed)
             class Stub(object):
-                def method(self, a, b): pass
+                def method(self, a, b, akwarg=None, *args, **kwargs): pass
 
         #normal case
         declare_class()
