@@ -105,7 +105,7 @@ class BrowserSetup(CleanDatabase):
                 ex.msg += u' "tmpfs /dev/shm tmpfs rw,noexec,nosuid,nodev 0 0" '
                 ex.msg += u' .... and then run sudo mount /dev/shm '
                 ex.msg += u'\n\n ***ALTERNATIVE*** An alternative solution (when using schroot) is'
-                ex.msg += u' to make sure that /etc/schroot/mount.defaults contain a line for /run/shm.'
+                ex.msg += u' to make sure that /etc/schroot/default/fstab contain a line for /run/shm.'
                 ex.msg += u' (usually it is commented out)'
             raise
         self.reahl_server.install_handler(wd)

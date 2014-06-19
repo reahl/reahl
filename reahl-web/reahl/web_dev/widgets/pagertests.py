@@ -125,6 +125,18 @@ class PageMenuTests(object):
         fixture.driver_browser.click(XPath.link_with_text(u'|<'))
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, u'p1,p2,p3,p4,p5') )
 
+    @test(PageMenuFixture)
+    def contents_when_navigating_the_page_numbers(self, fixture):
+        """When navigating the range of page links, the currently displayed contents stay unchanged."""
+        fixture.number_of_pages = 30
+        fixture.max_page_links = 5
+        fixture.reahl_server.set_app(fixture.wsgi_app)
+        fixture.driver_browser.open(u'/')
+
+        fixture.driver_browser.click(XPath.link_with_text(u'p2'))
+        fixture.driver_browser.wait_for(fixture.container_contents_is, u'contents of page 2')
+        fixture.driver_browser.click(XPath.link_with_text(u'>'))
+        fixture.driver_browser.wait_for(fixture.container_contents_is, u'contents of page 2')
 
     @test(PageMenuFixture)
     def active_state_of_next_prev_links(self, fixture):

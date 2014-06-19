@@ -22,7 +22,7 @@ from reahl.tofu import Fixture, set_up, tear_down
 from reahl.component.config import Configuration, ReahlSystemConfig
 from reahl.component.context import ExecutionContext
 
-from reahl.sqlalchemysupport import metadata, Session
+from reahl.sqlalchemysupport import metadata, Session, Base
 
     
 class SqlAlchemyTestMixin(object):
@@ -51,20 +51,39 @@ class SqlAlchemyTestMixin(object):
         finally:
             self.destroy_test_tables(*entities)
 
+    def elixir_classes_in(self, entities):
+        return [e for e in entities if not issubclass(e, Base)]
+
+    def declarative_classes_in(self, entities):
+        return [e for e in entities if issubclass(e, Base)]
+        
     def create_test_tables(self, *entities):
+        try:
+            from elixir import setup_entities
+            self.instrument_elixir_classes(self.elixir_classes_in(entities))
+        except ImportError:
+            pass
+        self.system_control.orm_control.instrument_declarative_classes(self.declarative_classes_in(entities))
+        metadata.create_all(bind=Session.connection())
+
+    def instrument_elixir_classes(self, entities):
         from elixir import setup_entities
         for entity in entities:
             for cls in entity.mro():
                 if '_setup_done' in cls.__dict__:
                     delattr(cls, '_setup_done') 
         setup_entities(entities)
-        metadata.create_all(bind=Session.connection())
 
     def destroy_test_tables(self, *entities):
 #        Session.flush()
         Session.expunge_all()
-        for entity in entities:
+        for entity in self.elixir_classes_in(entities):
             entity.table.metadata.remove(entity.table)
+        for entity in self.declarative_classes_in(entities):
+            entity.__table__.metadata.remove(entity.__table__)
+            for k, v in Base._decl_class_registry.items():
+                if v is entity:
+                    Base._decl_class_registry.pop(k)
 
     def new_reahlsystem(self, root_egg=None, connection_uri=None, orm_control=None):
         reahlsystem = ReahlSystemConfig()
