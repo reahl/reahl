@@ -2469,3 +2469,74 @@ class PopupA(A):
         return [u'$(%s).popupa({showForSelector: "%s", buttons: { %s }  });' % \
               (selector, self.show_for_selector, self.buttons_as_jquery())]
 
+
+class Caption(HTMLElement):
+    def __init__(self, view, text=None, css_id=None):
+        super(Caption, self).__init__(view, u'caption', children_allowed=True, css_id=css_id)
+        if text is not None:
+            self.add_child(TextNode(view, text))
+
+
+class Col(HTMLElement):
+    def __init__(self, view, span=None, css_id=None):
+        super(Col, self).__init__(view, u'col', children_allowed=False, css_id=css_id)
+        if span:
+            self.set_attribute(u'span', span)
+
+
+class Colgroup(HTMLElement):
+    def __init__(self, view, span=None, css_id=None):
+        super(Colgroup, self).__init__(view, u'colgroup', children_allowed=True, css_id=css_id)
+        if span:
+            self.set_attribute(u'span', span)
+
+
+class Thead(HTMLElement):
+    def __init__(self, view, scope=None, css_id=None):
+        super(Thead, self).__init__(view, 'thead', children_allowed=True, css_id=css_id)
+        if scope:
+            self.set_attribute(u'scope', scope)
+
+
+class Tfoot(HTMLElement):
+    def __init__(self, view, css_id=None):
+        super(Tfoot, self).__init__(view, 'tfoot', children_allowed=True, css_id=css_id)
+
+
+class Tbody(HTMLElement):
+    def __init__(self, view, css_id=None):
+        super(Tbody, self).__init__(view, 'tbody', children_allowed=True, css_id=css_id)
+
+
+class Tr(HTMLElement):
+    def __init__(self, view, css_id=None):
+        super(Tr, self).__init__(view, 'tr',children_allowed=True, css_id=css_id)
+
+
+class Cell(HTMLElement):
+    def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None):
+        super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
+        if rowspan:
+            self.set_attribute(u'rowspan', rowspan)
+        if colspan:
+            self.set_attribute(u'colspan', colspan)
+
+
+class Th(Cell):
+    def __init__(self, view,  rowspan=None, colspan=None, css_id=None):
+        super(Th, self).__init__(view, 'th', rowspan=rowspan, colspan=colspan, css_id=css_id)
+
+
+class Td(Cell):
+    def __init__(self, view, rowspan=None, colspan=None, css_id=None):
+        super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
+    
+
+class Table(HTMLElement):
+    def __init__(self, view, caption_text=None, summary=None, css_id=None):
+        super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id)
+        if caption_text:
+            self.add_child(Caption(view, text=caption_text))
+        if summary:
+            self.set_attribute(u'summary', u'%s' % summary)
+

@@ -295,6 +295,61 @@ class BasicHTMLWidgets(object):
         def div(self):
             self.widget = Div(self.view)
             self.expected_html = u'<div></div>'
+
+        @scenario
+        def caption(self):
+            self.widget = Caption(self.view, text='some text')
+            self.expected_html = u'<caption>some text</caption>'
+            
+        @scenario
+        def col(self):
+            self.widget = Col(self.view, span='2')
+            self.expected_html = u'<col span="2">'
+
+        @scenario
+        def colgroup(self):
+            self.widget = Colgroup(self.view, span='2')
+            self.expected_html = u'<colgroup span="2"></colgroup>'
+
+        @scenario
+        def thead(self):
+            self.widget = Thead(self.view)
+            self.expected_html = u'<thead></thead>'
+
+        @scenario
+        def thead_with_scope(self):
+            self.widget = Thead(self.view, scope='col')
+            self.expected_html = u'<thead scope="col"></thead>'
+
+        @scenario
+        def tfoot(self):
+            self.widget = Tfoot(self.view)
+            self.expected_html = u'<tfoot></tfoot>'
+
+        @scenario
+        def tbody(self):
+            self.widget = Tbody(self.view)
+            self.expected_html = u'<tbody></tbody>'
+
+        @scenario
+        def tr(self):
+            self.widget = Tr(self.view)
+            self.expected_html = u'<tr></tr>'
+
+        @scenario
+        def th(self):
+            self.widget = Th(self.view)
+            self.expected_html = u'<th></th>'
+
+        @scenario
+        def td(self):
+            self.widget = Td(self.view)
+            self.expected_html = u'<td></td>'
+
+        @scenario
+        def table(self):
+            self.widget = Table(self.view, caption_text='my caption', summary='my summary')
+            self.expected_html = u'<table summary="my summary"><caption>my caption</caption></table>'
             
         @scenario
         def nav(self):

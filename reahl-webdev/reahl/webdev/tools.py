@@ -381,6 +381,16 @@ class XPath(object):
         return cls('//h%s[text()="%s"]' % (level, text))
 
     @classmethod
+    def caption_with_text(cls, text):
+        """Returns an XPath to find an HTML <caption> matching the text in `text`."""
+        return cls('//caption[text()="%s"]' % (text))
+
+    @classmethod
+    def table_with_summary(cls, text):
+        """Returns an XPath to find an HTML <table summary='...'> matching the text in `text` in its summary attribute value."""
+        return cls('//table[@summary="%s"]' % (text))
+
+    @classmethod
     def link_with_text(cls, text):
         """Returns an XPath to find an HTML <a> containing the text in `text`."""
         return cls('//a[normalize-space(text())=normalize-space("%s")]' % text)

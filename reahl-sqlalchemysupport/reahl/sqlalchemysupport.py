@@ -66,11 +66,22 @@ metadata = Base.metadata  #: a metadata for use with Elixir, shared with declara
 class QueryAsSequence(Sequence):
     """Used to wrap a SqlAlchemy Query so that it looks like a normal Python :class:`Sequence`."""
     def __init__(self, query):
+        self.original_query = query
         self.query = query
     def __len__(self):
         return self.query.count()
     def __getitem__(self, key):
         return self.query[key]
+    def sort(self, key=None, reverse=False):
+        if key:
+            if not reverse:
+                self.query = self.original_query.order_by(key)
+            else:
+                self.query = self.original_query.order_by(key.desc())
+        else:
+            self.query = self.original_query
+
+
 
 
 class SqlAlchemyControl(ORMControl):
