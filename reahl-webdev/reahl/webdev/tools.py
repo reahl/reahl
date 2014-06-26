@@ -446,8 +446,10 @@ class XPath(object):
         """Returns an XPath to find an ErrorLabel containing the text in `text`."""
         return cls(u'//label[@class="error" and contains(text(),"%s")]' % text)
 
+
 class UnexpectedPageLoad(Exception):
     pass
+
 
 class DriverBrowser(BasicBrowser):
     """A Browser implemented by a supplied Selenium WebDriver instance, but with interface matching (or similar to)
