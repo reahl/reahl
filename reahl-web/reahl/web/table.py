@@ -47,19 +47,27 @@ class TablePageIndex(SequentialPageIndex):
         fields.sort_column_number = IntegerField(required=False, default=self.sort_column_number)
         fields.sort_descending = BooleanField(required=False, default=self.sort_descending)
 
-class ColumnScope(object):
-    row='row'
 
-class Column(object):
+class DynamicColumn(object):
+    def __init__(self, heading, make_widget, sort_key=None):
+        self.sort_key = sort_key
+        self.make_widget = make_widget
+        self.heading = heading
+
+    def as_widget(self, view, item):
+        return self.make_widget(view, item)
+
+
+class StaticColumn(DynamicColumn):
     def __init__(self, field, attribute_name, sort_key=None):
+        super(StaticColumn, self).__init__(field.label, self.make_text_node, sort_key=sort_key)
         self.field = field
         self.attribute_name = attribute_name
-        self.sort_key = sort_key
     
-    def as_input(self, item):
+    def make_text_node(self, view, item):
         field = self.field.copy()
         field.bind(self.attribute_name, item)
-        return field.as_input()
+        return TextNode(view, field.as_input())
 
 
 class PagedTable(PagedPanel):
@@ -76,15 +84,16 @@ class PagedTable(PagedPanel):
         header_tr = table_header.add_child(Tr(self.view))
         for column_number, column in enumerate(self.columns):
             column_th = header_tr.add_child(Th(self.view))
-            column_th.add_child(Span(self.view, text=column.field.label))
-            column_th.add_child(self.create_sorter_controls(column_number))
+            column_th.add_child(Span(self.view, text=column.heading))
+            if column.sort_key:
+                column_th.add_child(self.create_sorter_controls(column_number))
 
     def create_rows(self):
         for item in self.current_contents:
             row = self.table.add_child(Tr(self.view))
             for column in self.columns:
                 row_td = row.add_child(Td(self.view))
-                row_td.add_child(TextNode(self.view, column.as_input(item)))
+                row_td.add_child(column.as_widget(self.view, item))
 
     def create_sorter_controls(self, column_number):
         sorting_controls = Span(self.view)
@@ -108,7 +117,7 @@ class PagedTable(PagedPanel):
 
 
 class DataTable(Panel):
-    def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, css_id=None):
+    def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, form=None, css_id=None):
         super(DataTable, self).__init__(view, css_id=css_id)
         self.append_class(u'reahl-datatable')
 
