@@ -15,11 +15,42 @@ Models with makeup
 
       reahl example <examplename>
 
-After having seen `some basic Reahl concepts <../buildingblocks.rst>`_
-you must be itching to see a running user interface.  Before you can
-do that, however, you need to understand the role models play in
-Reahl -- the user interface is merely the last step of a complete
-application.
+After having seen `the basic Reahl concepts <../buildingblocks.rst>`_
+you must be itching to see a running user interface. The first
+application implements a kind of address book: it has a single page
+showing a list of names of people and their associated email
+addresses. It also has a spot where you can add a new email address.
+
+   .. figure:: ../_build/screenshots/addressbook2.png
+      :align: center
+      :width: 80%
+      :alt: Screenshot showing a list of addresses, followed by inputs
+	    for a name and email address, and a button to add the
+	    address from the details in these inputs.
+
+      A screenshot of our first application.
+
+
+This application, simple as it may seem, is not only about showing
+stuff on the web. The application spans a number of development concerns:
+
+ - It has a design, and an object oriented one at that.
+ - It persists objects from its design into a relational database, and thus must 
+   do some form of object relational mapping.
+ - It displays stuff on the screen.
+ - It validates that input received from a user is legal; and
+ - It executes actions on the server in response to user actions.
+
+In this tutorial, this application will be built up, bit by bit from
+the bottom to the top. These are the steps we will work through:
+
+ #. Show what we mean by a model (an OO design), and how we test models.
+ #. Change the model so that it can be persisted in a database (and how such trickier models are tested).
+ #. Augment the model with information that will help us to generate a user interface for it.
+ #. Do some housekeeping to ensure that Reahl creates and maintains the underlying database for our model.
+ #. Design a basic user interface, as different Widgets.
+ #. Add Inputs to allow user interaction via the user interface.
+
 
 Models
 ------

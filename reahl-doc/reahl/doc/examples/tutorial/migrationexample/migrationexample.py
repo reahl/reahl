@@ -67,7 +67,7 @@ class AddressBox(Panel):
 
 
 class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
+    elixir.using_options(session=Session, metadata=metadata, tablename=u'migration_address')
     elixir.using_mapper_options(save_on_init=False)
     
     email_address = elixir.Field(elixir.UnicodeText)

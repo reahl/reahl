@@ -3,28 +3,8 @@
 Basic building blocks
 =====================
 
-The language of Reahl
----------------------
+This chapter introduces a few concepts that are fundamental to Reahl.
 
-If you are a developer working on a web based user interface, you do
-not want to spend your brain power thinking and talking about the
-intricacies of the latest HTML/CSS/HTML standard, or how JavaScript is
-dealt with differently on different browsers. You want to spend your
-brain power on deciding where to put :class:`~reahl.web.ui.Button`\ s
-and what should be on a particular window in order to create the most
-effective user interface.
-
-Reahl lets you write code in terms of high level concepts like :class:`~reahl.web.ui.Button`,
-:class:`~reahl.web.ui.Panel` and :class:`~reahl.component.modelinterface.Event`. You do this in a single programming
-language -- Python. Reahl gives you vocabulary that lets you think
-about and code using the concepts that you care about.
-
-You will have to learn this new language to find out what it is really
-about. That is going to require reading through this tutorial. Reading
-is hard work, I know. But it is worth it, promise!
-
-This chapter of the tutorial contains an explanation of most of what's
-new and fundamental to Reahl.
 
 Widgets
 -------
@@ -107,47 +87,60 @@ Factories
    adding a :class:`~reahl.web.fw.ViewFactory` to the :class:`~reahl.web.fw.UserInterface`), and then return the
    factory in case you need it further.
 
-Have you noticed how ``SomeWidget.factory()`` is used sometimes in the
-code so far, instead of just constructing the widget?
+Have you noticed how ``HelloPage.factory()`` is used :ref:`in the code
+for our Hello World app <the-simplest>`, instead of just constructing
+the widget?
 
 A web application has to be very economical about when it creates
 what. A :class:`~reahl.web.fw.Factory` is merely an object that can be
-used at a later time (if necessary) to create something--using the
+used at a later time (if necessary) to create something -- using the
 arguments passed when the :class:`~reahl.web.fw.Factory` was created.
 
 When creating a :class:`~reahl.web.fw.UserInterface`, for example, it
 does not make sense to create all the
-:class:`~reahl.web.fw.ViewFactory` instances it could possibly
+:class:`~reahl.web.fw.View` instances it could possibly
 have. We rather specify how they will be created eventually, if
 needed.
 
-Understanding the lifecycle of all these mechanics will give you a
-deeper understanding if you're interested. That's explained next--but
-you can skip this bit though if you really want to.
+Understanding the lifecycle of all these mechanics is useful:
 
 
 The lifecycle of user interface mechanics
 -----------------------------------------
 
+.. sidebar:: Test your understanding
 
-The user interface elements of a Reahl application are created each
-time a request is received by the server. First the
-:class:`~reahl.web.fw.UserInterface` is created (and its
-``.assemble()`` called.  The :class:`~reahl.web.fw.UserInterface` then
-determines which of the :class:`~reahl.web.fw.View`\ s defined on it
-should be shown for the URL visited. Finally the
-:class:`~reahl.web.fw.View` is created with its page and all related
-:class:`~reahl.web.fw.Widget`\ s present on that page. The result of
-all this is sent back to the browser in the form of HTML and other
-files, but then all of these objects are thrown away on the web server.
+   You may have wondered why `.factory()` was used in the
+   `.assemble()` of the HelloUI, but not in the code of
+   ReahllyBadPoem. Well, ReahllyBadPoem is a
+   :class:`~reahl.web.fw.Widget` and in the code shown it is being
+   constructed. It makes sense that as part of its own construction it
+   should also construct all of its children
+   :class:`~reahl.web.fw.Widget`\ s, doesn't it? Why wait any longer?
 
-You may have wondered why `.factory()` was used in the `.assemble()`
-of the HelloUI, but not in the code of ReahllyBadPoem. Well, ReahllyBadPoem is a :class:`~reahl.web.fw.Widget` and in the code shown it is
-being constructed. It makes sense that as part of its own construction
-it should also construct all of its children :class:`~reahl.web.fw.Widget`\ s, doesn't it? Why
-wait any longer?
+   Conversely, when a :class:`~reahl.web.fw.UserInterface` is
+   instantiated, it does not make sense to immediately instantiate all
+   of the :class:`~reahl.web.fw.Widget`\ s of all of the
+   :class:`~reahl.web.fw.View`\ s it contains. After all the current
+   user is only interested in one particular
+   :class:`~reahl.web.fw.View` at this point. So the complications are
+   necessary here.
 
-Conversely, when a :class:`~reahl.web.fw.UserInterface` is instantiated, it does not make sense to
-immediately instantiate all of the :class:`~reahl.web.fw.Widget`\ s of all of the  :class:`~reahl.web.fw.View`\ s  it
-contains. After all the current user is only interested in one
-particular :class:`~reahl.web.fw.View` at this point. So the complications are necessary here.
+The user interface elements necessary to fulfil a particular request
+from a client browser are created briefly on the server for just long
+enough to serve the request, and are then destroyed again.
+
+This is what happens on the server to handle a request:
+
+ - First the :class:`~reahl.web.fw.UserInterface` is created (and its
+   ``.assemble()`` called).  
+ - The :class:`~reahl.web.fw.UserInterface` then
+   determines which :class:`~reahl.web.fw.View` (of the many defined on the :class:`~reahl.web.fw.UserInterface`)
+   should be shown for the particular URL of the current request. 
+ - Next, the relevant :class:`~reahl.web.fw.ViewFactory` is used to create the necessary 
+   :class:`~reahl.web.fw.View`, its page and all related
+   :class:`~reahl.web.fw.Widget`\ s present on that page. 
+ - The result of
+   all this is translated to HTML (and other things, such as JavaScript) and sent back to the browser
+ - Lastly, all of these objects are thrown away on the web server.
+
