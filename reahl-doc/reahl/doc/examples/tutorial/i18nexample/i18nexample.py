@@ -6,7 +6,7 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import UserInterface
+from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, VMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.i18n import Translator
@@ -57,7 +57,7 @@ class AddAddressForm(Form):
         grouped_inputs.add_child(Button(self, new_address.events.save))
 
 
-class AddressBox(Panel):
+class AddressBox(Widget):
     def __init__(self, view, address):
         super(AddressBox, self).__init__(view)
         formatted_date = babel.dates.format_date(address.added_date, locale=_.current_locale)

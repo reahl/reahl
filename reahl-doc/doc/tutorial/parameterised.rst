@@ -26,7 +26,7 @@ following diagram:
    Views for editing addresses.
 
 
-This may result in a very large number of  :class:`~reahl.web.fw.View`\ s ---an
+This may result in a very large number of  :class:`~reahl.web.fw.View`\ s -- an
 "Edit" :class:`~reahl.web.fw.View` would have to be added to the :class:`~reahl.web.fw.UserInterface` for each Address in
 the database. That is clearly not an acceptable solution.
 
@@ -62,7 +62,7 @@ front when the :class:`~reahl.web.fw.UserInterface` is assembled as was previous
 Parameterising a View
 ---------------------
 
-In order to specify the arguments to a :class:`~reahl.web.fw.View`, a programmer supplies a
+To specify that a :class:`~reahl.web.fw.View` has arguments, a programmer supplies a
 :class:`~reahl.component.modelinterface.Field` for governing each argument when defining the :class:`~reahl.web.fw.View`.
 
 The programmer also needs to supply a custom :class:`~reahl.web.fw.View` class which

@@ -57,7 +57,8 @@ class CleanDatabase(Fixture):
             orm_control = self.config.reahlsystem.orm_control
             for dependency in self.test_dependencies:
                 orm_control.instrument_classes_for(dependency)
-            self.system_control.initialise_database(yes=True)
+            if not self.system_control.is_in_memory:
+                self.system_control.initialise_database(yes=True)
             self.system_control.connect()
 
     @tear_down

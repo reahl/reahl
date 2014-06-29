@@ -15,9 +15,14 @@ Contents:
    :maxdepth: 1
 
    gettingstarted
-   buildingblocks
+   exampleapp
    models
+   persistence
+   housingmodels
    uibasics
+   inputwidgets
+   buttonwidgets
+
    connectingviews
    slots
    parameterised

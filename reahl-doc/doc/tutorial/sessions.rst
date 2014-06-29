@@ -13,12 +13,12 @@ The web session problem
 
       reahl example <examplename>
 
-In :doc:`buildingblocks`, in the section regarding Factories, the
-oddities underlying a web application are explained. In short -- there
-is no program that stays in memory for the entire time during which a
-user uses a web application. This is troublesome not only for web
-application framework developers, but for programmers writing web
-applications as well.
+:ref:`Earlier on <factories>`, the oddities underlying a web
+application are explained. In short -- there is no program that stays
+in memory for the entire time during which a user uses a web
+application. This is troublesome not only for web application
+framework developers, but for programmers writing web applications as
+well.
 
 One crucial example of this issue is when you want users to be able to
 log into your application. Let's say you have a separate login page on

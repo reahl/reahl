@@ -375,22 +375,26 @@ def model_examples(fixture):
 
 @test(ExampleFixture.addressbook1)
 def test_addressbook1(fixture):
+    john = addressbook1.Address(name=u'John', email_address=u'johndoe@some.org')
+    john.save()
+
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
     
-    vassert( browser.is_element_present(XPath.inputgroup_labelled(u'Add an address')) ) 
+    vassert( browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
+
 
 @test(ExampleFixture.addressbook2)
 def test_addressbook2(fixture):
-    fixture.start_example_app()
-    fixture.driver_browser.open(u'/')
+    browser = Browser(fixture.wsgi_app)
+    browser.open('/')
+    
+    browser.type(XPath.input_labelled(u'Name'), u'John') 
+    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
+    browser.click(XPath.button_labelled(u'Save'))
+    
+    vassert( browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
 
-    fixture.driver_browser.type(XPath.input_labelled(u'Name'), u'John') 
-    fixture.driver_browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    fixture.driver_browser.click(XPath.button_labelled(u'Save'))
-
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'addressbook2.png'))
-    vassert( fixture.driver_browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
 
 @test(ExampleFixture.pageflow1)
 def test_pageflow1(fixture):
