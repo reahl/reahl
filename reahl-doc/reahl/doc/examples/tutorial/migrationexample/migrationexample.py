@@ -8,7 +8,7 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import UserInterface
+from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.migration import Migration
@@ -60,14 +60,14 @@ class AddAddressForm(Form):
         grouped_inputs.add_child(Button(self, new_address.events.save))
 
 
-class AddressBox(Panel):
+class AddressBox(Widget):
     def __init__(self, view, address):
         super(AddressBox, self).__init__(view)
         self.add_child(P(view, text=u'%s: %s (%s)' % (address.name, address.email_address, address.added_date)))
 
 
 class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
+    elixir.using_options(session=Session, metadata=metadata, tablename=u'migration_address')
     elixir.using_mapper_options(save_on_init=False)
     
     email_address = elixir.Field(elixir.UnicodeText)

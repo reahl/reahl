@@ -6,7 +6,6 @@ User interface basics
 .. sidebar:: Examples in this section
 
    - tutorial.addressbook1
-   - tutorial.addressbook2
 
    Get a copy of an example by running:
 
@@ -14,144 +13,191 @@ User interface basics
 
       reahl example <examplename>
 
-Let's recap what you should understand by now:
-
- - You should know what a very basic user interface for a web
-   application looks like, as described in the skeleton application in
-   :doc:`gettingstarted`.
-
- - You should understand that application because the details of how
-   it is put together is explained in :doc:`buildingblocks`.
-
- - Useful applications cannot only have a user interface, they'd have
-   a user interface precisely as a means for users to interact with an
-   underlying model.  As explained in :doc:`models`, Reahl models are
-   augmented to make writing Reahl user interfaces easy.
-
-The next step is to understand how the adornments added to the model
-are used by user interface code.
+It is time to start work on the actual user interface of our
+application. For a start, we'll only build a home page that lists all
+our addresses.
 
 
-Start with a plan
------------------
+Widgets
+-------
 
-Let's stick a user interface onto the model developed in
-:doc:`models`.
+:class:`~reahl.web.fw.Widget`\ s are the basic building blocks of a user interface. A :class:`~reahl.web.fw.Widget`
+displays something to a user, and can be manipulated by the
+user. :class:`~reahl.web.fw.Widget`\ s can have powerful behaviour that execute in a client
+browser and/or on the server itself. A :class:`~reahl.web.fw.Widget` need not have
+complicated behaviour, though. Simple :class:`~reahl.web.fw.Widget`\ s exist for things like
+paragraphs, for example, which merely display something on screen.
 
-The easiest plan would be to give the application one single :class:`~reahl.web.fw.View`, its
-home page '/'.  On this :class:`~reahl.web.fw.View` can be a list of all the Addresses in the
-database, followed by a means to add a new Address to the list.
+A programmer constructs the user interface by stringing together a
+number of existing :class:`~reahl.web.fw.Widget`\ s as children of another :class:`~reahl.web.fw.Widget`. For example,
+let's string together two :class:`~reahl.web.ui.P`\ (aragraph)s onto a :class:`~reahl.web.ui.Panel`\ :
 
-It helps to draw a rough diagram of this idea:
+.. code-block:: python
 
-.. figure:: addressui.png
-   :align: center
-   :width: 90%
+   class ReahllyBadPoem(Panel): 
+       def __init__(self, view):
+           super(ReahllyBadPoem, self).__init__(view)
+           self.add_child(P(view, text=u'Reahl is for real.'))
+           self.add_child(P(view, text=u'You can use it in the real world.'))
 
-   A schematic plan of the :class:`~reahl.web.fw.View`.
+To use an instance of the ReahllyBadPoem
+:class:`~reahl.web.fw.Widget`, you add it as a child of another
+:class:`~reahl.web.fw.Widget`. For example you can add it to the
+``main`` column of the page used in our "hello" example like this:
 
-Note in the diagram above that blocks are drawn around certain areas,
-and annotated. These are the main :class:`~reahl.web.fw.Widget`\ s one would need for such an
-application.
+.. code-block:: python
 
-Designing a user interface in Reahl basically means deciding which
-:class:`~reahl.web.fw.Widget`\ s it would consist of, and how they relate to each other and the
-model.
+   class HelloPage(TwoColumnPage):
+       def __init__(self, view):
+           super(HelloPage, self).__init__(view)
+           self.main.add_child(ReahllyBadPoem(view))
 
 
-A skeleton built from Widgets
------------------------------
+When rendered to a web browser, the resulting HTML would be:
 
-Given the schematic planning above, it is easy to create a skeleton of
-the planned user interface. Just create a :class:`~reahl.web.fw.Widget` for each of the
-marked areas:
+.. code-block:: xml
+
+   <div><p>Reahl is for real.</p><p>You can use it in the real world.</p></div>
+
+:class:`~reahl.web.fw.Widget`\ s with complicated behaviour have a complicated
+implementation. This implementation is, of course, hidden from the
+programmer using such :class:`~reahl.web.fw.Widget`\ s. This makes using a complicated :class:`~reahl.web.fw.Widget`
+just as simple as using the simple :class:`~reahl.web.fw.Widget`\ s in this example. Have a
+look at the :doc:`tabbed panel example <../features/tabbedpanel>` to
+see a more complicated :class:`~reahl.web.fw.Widget` in use.
+
+
+A first-cut UserInterface for the address book application
+----------------------------------------------------------
+
+.. sidebar:: Remember the basics
+
+   The basic elements of a user interface were :ref:`introduced with
+   the Hello World application <the-simplest>`, but if you forgot,
+   here is a quick summary:
+
+   Each URL in a Reahl web application is defined by something called
+   a :class:`~reahl.web.fw.View`. A
+   :class:`~reahl.web.fw.UserInterface` is a collection of such
+   :class:`~reahl.web.fw.View`\ s, as defined in its `.assemble()`
+   method.
+
+We need to create a :class:`~reahl.web.fw.UserInterface` for our
+application, and add a :class:`~reahl.web.fw.View` to it, with a page
+that contains the necessary :class:`~reahl.web.fw.Widget`\ s.
+
+One creates a :class:`~reahl.web.fw.UserInterface` by inheriting from
+:class:`~reahl.web.fw.UserInterface`, and overriding the method
+`assemble()`. Inside this method, each :class:`~reahl.web.fw.View` is
+defined:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
+   :pyobject: AddressBookUI
 
-To have a ":class:`~reahl.web.ui.Panel` to hold everything",
-AddressBookPanel is created and added to the "main" column of the page
-used for the single :class:`~reahl.web.fw.View`, defined on '/'.
-Similarly, AddAddressForm is created in the skeleton and AddressBox to
-represent the form and each Address shown, respectively.  According to
-the plan above then, an AddressBookPanel should consist of a heading,
-followed by an AddressBox for each Address in the database, followed
-by an AddAddressForm.
+AddressBookPage, in turn, is a :class:`~reahl.web.fw.Widget` which inherits from
+:class:`~reahl.web.ui.TwoColumnPage`. This is pure lazyness:
+:class:`~reahl.web.ui.TwoColumnPage` is a page with two columns, a
+header and footer -- all nicely laid out already. We just add our
+content to its `.main` column.
 
-You can clearly see in the implementation of AddressBookPanel that
-this is exactly what happens. Each AddressBox is actually implemented
-as a :class:`~reahl.web.ui.Panel` with a paragraph (:class:`~reahl.web.ui.P`\ ) inside of it that in turn contains
-some text representing a given Address.
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
+   :pyobject: AddressBookPage
 
-The AddAddressForm is where more work is needed, but some preparations
-have been made for that already: An :class:`~reahl.web.ui.InputGroup` is a :class:`~reahl.web.fw.Widget` that groups
-together a number of Inputs, and gives them a nice heading. Such an
-:class:`~reahl.web.ui.InputGroup` is added to the AddAddressForm so long. (The actual Inputs
-and :class:`~reahl.web.ui.Button` are still missing.)
+Our content is in this example encapsulated in its own
+:class:`~reahl.web.fw.Widget`, AddressBookPanel. This is not strictly
+speaking necessary -- you could have made do with
+AddressBookPage. Later on in the tutorial you will see though that
+pages are often re-used with different contents. So, we're just
+sticking to a habit here.
 
-At this point you can actually run the application already (even
-though it won't do much).
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
+   :pyobject: AddressBookPanel
 
-Fleshing out the skeleton 
--------------------------
+Note how AddressBookPanel is composed by adding children :class:`~reahl.web.fw.Widget`\ s to it in its constructor: first the heading, and then an AddressBox for each address in our database. An AddressBox, in turn only contains a :class:`~reahl.web.ui.P` with text gathered from the address it is meant to display:
 
-The skeleton was built first so you can get comfortable with
-structuring an application using :class:`~reahl.web.fw.Widget`\ s. That's not really the
-interesting part though.  The interesting part is letting the user
-interact with the model, and that is quite simple, actually:
-
-The model at work here was set up so that an Address exposes two
-:class:`~reahl.component.modelinterface.Field`\ s for user input or output: `name` and `email_address`. Basic
-Inputs in Reahl are all constructed with (at least) the :class:`~reahl.web.ui.Form` of which
-they form part, and the :class:`~reahl.component.modelinterface.Field` they should be attached to.
-
-Hence, to allow a user to input or output something to/from the model,
-you just create an :class:`~reahl.web.ui.Input` :class:`~reahl.web.fw.Widget`, specifying which :class:`~reahl.component.modelinterface.Field` it should be
-attached to (in this example, a :class:`~reahl.web.ui.TextInput` each time). The same idea
-goes for :class:`~reahl.component.modelinterface.Event`\ s -- :class:`~reahl.web.ui.Button` Inputs are linked to :class:`~reahl.component.modelinterface.Event`\ s on the model:
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
-   :pyobject: AddAddressForm
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
+   :pyobject: AddressBox
 
 
-The updated code above creates a :class:`~reahl.web.ui.TextInput` for each one of the :class:`~reahl.component.modelinterface.Field`\ s
-of the given Address.
+.. _factories:
 
-A :class:`~reahl.web.ui.TextInput` is just a simple box into which you can type.  A
-:class:`~reahl.web.ui.LabelledBlockInput` is a :class:`~reahl.web.fw.Widget` that wraps around another :class:`~reahl.web.ui.Input` (such
-as a :class:`~reahl.web.ui.TextInput`), and provides it with a label. Successive
-:class:`~reahl.web.ui.LabelledBlockInput`\ s will arrange themselves neatly below each other.
+Factories
+---------
 
-It is not necessary to say what should go into each label though,
-because that information can be gleaned from each :class:`~reahl.component.modelinterface.Field` already.  The
-other information carried by the :class:`~reahl.component.modelinterface.Field`\ s is also very useful.  Check
-out the example in :doc:`../features/validation` again for a fuller
-explanation of how such :class:`~reahl.component.modelinterface.Field`\ s would make Inputs behave when a user
-attempts to supply invalid input.
+.. sidebar:: Hint
 
-A :class:`~reahl.web.ui.Button` works pretty much the same as Inputs. Instead of accepting a
-:class:`~reahl.component.modelinterface.Field` as argument upon creation though, a :class:`~reahl.web.ui.Button` takes an :class:`~reahl.component.modelinterface.Event`. This
-:class:`~reahl.component.modelinterface.Event` will be triggered when a user clicks on that :class:`~reahl.web.ui.Button`. 
+   Usually, to obtain a factory for some kind of :class:`~reahl.web.fw.Widget`, you can
+   call `.factory()` on its class. This method always takes the same
+   arguments as the constructor of that class, but omits the first
+   argument which always is the current `view`.
 
-When an :class:`~reahl.component.modelinterface.Event` is received, a few things happen: first the input typed
-by a user is set on the model objects (as governed by the
-:class:`~reahl.component.modelinterface.Field`\ s). Then, the `action` of that :class:`~reahl.component.modelinterface.Event` is executed. Lastly, the
-user is shown a new :class:`~reahl.web.fw.View`.
+   Methods starting with `define_` are convenience methods that
+   take a number of arguments and create a factory for something
+   for you.  These will do something with the factory created (like
+   adding a :class:`~reahl.web.fw.ViewFactory` to the :class:`~reahl.web.fw.UserInterface`), and then return the
+   factory in case you need it further.
 
-An :class:`~reahl.web.fw.EventHandler` specifies which :class:`~reahl.web.fw.View` should be shown to the user in
-response to an :class:`~reahl.component.modelinterface.Event`. In this example the :class:`~reahl.web.fw.EventHandler` does not
-specify a new :class:`~reahl.web.fw.View` to go to, so the user will just be shown the same
-:class:`~reahl.web.fw.View` again (the default). Defining the :class:`~reahl.web.fw.EventHandler` is necessary
-though, else that :class:`~reahl.component.modelinterface.Event` is not allowed to happen at all.
+Have you noticed how ``.factory()`` is used in the example code so
+far, instead of just constructing the widget?
 
+A web application has to be very economical about when it creates
+what. A :class:`~reahl.web.fw.Factory` is merely an object that can be
+used at a later time (if necessary) to create something -- using the
+arguments passed when the :class:`~reahl.web.fw.Factory` was created.
+
+When creating a :class:`~reahl.web.fw.UserInterface`, for example, it
+does not make sense to create all the
+:class:`~reahl.web.fw.View` instances it could possibly
+have. We rather specify how they will be created eventually, if
+needed.
+
+.. sidebar:: Test your understanding
+
+   You may have wondered why `.factory()` was used in the
+   `.assemble()` of the HelloUI, but not in the code of
+   ReahllyBadPoem. Well, ReahllyBadPoem is a
+   :class:`~reahl.web.fw.Widget` and in the code shown it is being
+   constructed. It makes sense that as part of its own construction it
+   should also construct all of its children
+   :class:`~reahl.web.fw.Widget`\ s, doesn't it? Why wait any longer?
+
+   Conversely, when a :class:`~reahl.web.fw.UserInterface` is
+   instantiated, it does not make sense to immediately instantiate all
+   of the :class:`~reahl.web.fw.Widget`\ s of all of the
+   :class:`~reahl.web.fw.View`\ s it contains. After all the current
+   user is only interested in one particular
+   :class:`~reahl.web.fw.View` at this point. So the complications are
+   necessary here.
+
+Understanding the lifecycle of all these mechanics is useful:
+
+The user interface elements necessary to fulfil a particular request
+from a client browser are created briefly on the server for just long
+enough to serve the request, and are then destroyed again.
+
+This is what happens on the server to handle a request:
+
+ - First the :class:`~reahl.web.fw.UserInterface` is created (and its
+   ``.assemble()`` called).  
+ - The :class:`~reahl.web.fw.UserInterface` then
+   determines which :class:`~reahl.web.fw.View` (of the many defined on the :class:`~reahl.web.fw.UserInterface`)
+   should be shown for the particular URL of the current request. 
+ - Next, the relevant :class:`~reahl.web.fw.ViewFactory` is used to create the necessary 
+   :class:`~reahl.web.fw.View`, its page and all related
+   :class:`~reahl.web.fw.Widget`\ s present on that page. 
+ - The result of
+   all this is translated to HTML (and other things, such as JavaScript) and sent back to the browser
+ - Lastly, all of these objects are thrown away on the web server.
+
+
+.. _trying-out:
 
 Try it out
 ----------
 
-With all of the above example code and explanations, you should be
-able to cobble together your own address book example. Go ahead and do
-that so you can play with the live example.
+Finally, we have something we can run and play with in a web browser.
 
-Remember the following gotchas:
+When you try to run this app, remember the following gotchas:
 
  - Your project needs a `.reahlproject` file in its root.
  - Run ``reahl setup -- develop -N`` each time you update
@@ -164,4 +210,9 @@ Remember the following gotchas:
  - If you have more than one version of a project, put them in
    directories of which the names differ! Reahl assumes that your
    component is named for the directory in which it resides.
+ - Your app will not list any addresses at first, because there are none in the database yet!
+
+Here is the complete source so far:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
 
