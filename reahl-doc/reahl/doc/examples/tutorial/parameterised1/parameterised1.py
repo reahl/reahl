@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import UserInterface, Url, UrlBoundView, CannotCreate
+from reahl.web.fw import UserInterface, Url, UrlBoundView, CannotCreate, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, A, InputGroup, HMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
 
@@ -84,7 +84,7 @@ class AddAddressForm(Form):
         grouped_inputs.add_child(Button(self, new_address.events.save))
 
 
-class AddressBox(Panel):
+class AddressBox(Widget):
     def __init__(self, view, address, address_book_ui):
         super(AddressBox, self).__init__(view)
 

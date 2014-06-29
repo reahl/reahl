@@ -375,10 +375,14 @@ def model_examples(fixture):
 
 @test(ExampleFixture.addressbook1)
 def test_addressbook1(fixture):
+    john = addressbook1.Address(name=u'John', email_address=u'johndoe@some.org')
+    john.save()
+
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
     
-    vassert( browser.is_element_present(XPath.inputgroup_labelled(u'Add an address')) ) 
+    vassert( browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
+
 
 @test(ExampleFixture.addressbook2)
 def test_addressbook2(fixture):
@@ -390,6 +394,7 @@ def test_addressbook2(fixture):
     browser.click(XPath.button_labelled(u'Save'))
     
     vassert( browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
+
 
 @test(ExampleFixture.pageflow1)
 def test_pageflow1(fixture):

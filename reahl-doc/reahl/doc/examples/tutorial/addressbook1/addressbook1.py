@@ -1,6 +1,6 @@
 
-from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage, Form, Panel, P, H, InputGroup
+from reahl.web.fw import UserInterface, Widget
+from reahl.web.ui import TwoColumnPage, Panel, P, H
 
 
 class AddressBookUI(UserInterface):
@@ -23,17 +23,8 @@ class AddressBookPanel(Panel):
         for address in Address.query.all():
             self.add_child(AddressBox(view, address))
 
-        self.add_child(AddAddressForm(view))
 
-
-class AddAddressForm(Form):
-    def __init__(self, view):
-        super(AddAddressForm, self).__init__(view, u'add_form')
-        self.add_child(InputGroup(view, label_text=u'Add an address'))
-
-        # More stuff needed here, like inputs and buttons!!
-
-class AddressBox(Panel):
+class AddressBox(Widget):
     def __init__(self, view, address):
         super(AddressBox, self).__init__(view)
         self.add_child(P(view, text=u'%s: %s' % (address.name, address.email_address)))
@@ -54,13 +45,5 @@ class Address(elixir.Entity):
     def save(self):
         Session.add(self)
 
-    @exposed
-    def fields(self, fields):
-        fields.name = Field(label=u'Name', required=True)
-        fields.email_address = EmailField(label=u'Email', required=True)
-
-    @exposed
-    def events(self, events):
-        events.save = Event(label=u'Save', action=Action(self.save))
 
 
