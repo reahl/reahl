@@ -20,6 +20,7 @@ Displaying tabular data in a paged, sortable manner
 """
 
 import functools
+import copy
 
 from reahl.web.fw import Bookmark
 from reahl.web.ui import A, Span, Panel, Table, Thead, Tr, Td, Th, TextNode, Widget
@@ -50,6 +51,66 @@ class TablePageIndex(SequentialPageIndex):
         fields.sort_descending = BooleanField(required=False, default=self.sort_descending)
 
 
+class DynamicColumn(object):
+    def __init__(self, heading, make_widget, sort_key=None):
+        self.sort_key = sort_key
+        self.make_widget = make_widget
+        self.heading = heading
+        def make_span(view):
+            return Span(view, text=self.heading)
+        self.make_heading_widget = make_span
+        
+    def heading_as_widget(self, view):
+        return self.make_heading_widget(view, self.heading)
+
+    def as_widget(self, view, item):
+        return self.make_widget(view, item)
+        
+    def with_overridden_heading_widget(self, make_heading_widget):
+        new_column = copy.copy(self)
+        new_column.make_heading_widget = make_heading_widget
+        return new_column
+
+
+class StaticColumn(DynamicColumn):
+    def __init__(self, field, attribute_name, sort_key=None):
+        super(StaticColumn, self).__init__(field.label, self.make_text_node, sort_key=sort_key)
+        self.field = field
+        self.attribute_name = attribute_name
+    
+    def make_text_node(self, view, item):
+        field = self.field.copy()
+        field.bind(self.attribute_name, item)
+        return TextNode(view, field.as_input())
+
+
+class KoosTableFixMePlease(Table):
+    @classmethod
+    def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
+        table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
+        table.create_header_columns(columns)
+        table.create_rows(columns, items)
+        return table
+
+    def create_header_columns(self, columns):
+        table_header = self.add_child(Thead(self.view))
+        header_tr = table_header.add_child(Tr(self.view))
+        for column_number, column in enumerate(columns):
+            column_th = header_tr.add_child(Th(self.view))
+            column_th.add_child(column.heading_as_widget(self.view))
+            
+    def heading_widget(self, heading_text):
+        return Span(self.view, text=column.heading)
+
+    def create_rows(self, columns, items):
+        for item in items:
+            row = self.add_child(Tr(self.view))
+            for column in columns:
+                row_td = row.add_child(Td(self.view))
+                row_td.add_child(column.as_widget(self.view, item))
+
+
+
 class PagedTable(PagedPanel):
     def __init__(self, view, page_index, columns, caption_text=None, summary=None, css_id=None):
         super(PagedTable, self).__init__(view, page_index, css_id=css_id)  
@@ -63,14 +124,10 @@ class PagedTable(PagedPanel):
             
         columns_with_sort_controls = []
         for i, column in enumerate(columns):
-            make_heading_partial = functools.partial(make_heading, i, column.sort_key)
-            columns_with_sort_controls.append(column.with_overridden_heading_widget(make_heading_partial) )
+            make_headingxxx = functools.partial(make_heading, i, column.sort_key)
+            columns_with_sort_controls.append(column.with_overridden_heading_widget(make_headingxxx) )
         
-        self.add_child(Table.from_columns(view, columns_with_sort_controls, 
-                                                self.current_contents, 
-                                                caption_text=caption_text, 
-                                                summary=summary, 
-                                                css_id=css_id))
+        self.add_child(KoosTableFixMePlease.from_columns(view, columns_with_sort_controls, self.current_contents, caption_text=caption_text, summary=summary, css_id=css_id))
 
 
     def create_sorter_link(self, column_number, descending=False):

@@ -18,6 +18,7 @@
 Basic Widgets and related user interface elements.
 """
 
+import copy
 from string import Template
 import re
 import cgi
@@ -2530,7 +2531,40 @@ class Th(Cell):
 class Td(Cell):
     def __init__(self, view, rowspan=None, colspan=None, css_id=None):
         super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
+
+
+class DynamicColumn(object):
+    def __init__(self, heading, make_widget, sort_key=None):
+        self.sort_key = sort_key
+        self.make_widget = make_widget
+        self.heading = heading
+        def make_span(view, heading):
+            return Span(view, text=heading)
+        self.make_heading_widget = make_span
+        
+    def heading_as_widget(self, view):
+        return self.make_heading_widget(view, self.heading)
+
+    def as_widget(self, view, item):
+        return self.make_widget(view, item)
+        
+    def with_overridden_heading_widget(self, make_heading_widget):
+        new_column = copy.copy(self)
+        new_column.make_heading_widget = make_heading_widget
+        return new_column
+
+
+class StaticColumn(DynamicColumn):
+    def __init__(self, field, attribute_name, sort_key=None):
+        super(StaticColumn, self).__init__(field.label, self.make_text_node, sort_key=sort_key)
+        self.field = field
+        self.attribute_name = attribute_name
     
+    def make_text_node(self, view, item):
+        field = self.field.copy()
+        field.bind(self.attribute_name, item)
+        return TextNode(view, field.as_input())    
+
 
 class Table(HTMLElement):
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
@@ -2540,3 +2574,26 @@ class Table(HTMLElement):
         if summary:
             self.set_attribute(u'summary', u'%s' % summary)
 
+    @classmethod
+    def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
+        table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
+        table.create_header_columns(columns)
+        table.create_rows(columns, items)
+        return table
+
+    def create_header_columns(self, columns):
+        table_header = self.add_child(Thead(self.view))
+        header_tr = table_header.add_child(Tr(self.view))
+        for column_number, column in enumerate(columns):
+            column_th = header_tr.add_child(Th(self.view))
+            column_th.add_child(column.heading_as_widget(self.view))
+            
+    def heading_widget(self, heading_text):
+        return Span(self.view, text=column.heading)
+
+    def create_rows(self, columns, items):
+        for item in items:
+            row = self.add_child(Tr(self.view))
+            for column in columns:
+                row_td = row.add_child(Td(self.view))
+                row_td.add_child(column.as_widget(self.view, item))
