@@ -42,7 +42,7 @@ clean:
 tests:
 	(cd ..; reahl unit)
     
-html:
+html: $(PNGS)
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -134,3 +134,9 @@ doctest: tests
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+
+SVGS:=$(shell find . -name '*svg')
+PNGS =$(SVGS:%.svg=%.png)
+
+$(PNGS): %.png: %.svg
+	ssh localhost "cd $(PWD) && inkscape -z -e $@  $<"

@@ -4,7 +4,7 @@ import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import UserInterface
+from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.systemaccountmodel import AccountManagementInterface
@@ -64,7 +64,7 @@ class AddAddressForm(Form):
         grouped_inputs.add_child(Button(self, new_address.events.save))
 
 
-class AddressBox(Panel):
+class AddressBox(Widget):
     def __init__(self, view, address):
         super(AddressBox, self).__init__(view)
         self.add_child(P(view, text=u'%s: %s' % (address.name, address.email_address)))

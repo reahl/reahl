@@ -13,6 +13,10 @@
     <egg name="reahl-webdev"/>
   </deps>
 
+  <persisted>
+    <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
+  </persisted>
+
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T addressbook1_dev -F reahl.webdev.fixtures:BrowserSetup"/>
   
 </project>
