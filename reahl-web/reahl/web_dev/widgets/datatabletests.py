@@ -25,6 +25,7 @@ from reahl.webdev.tools import XPath, WidgetTester
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView, Bookmark
 from reahl.web.ui import Panel, Span, Form, TwoColumnPage, Button, A, P, LabelledBlockInput, InputGroup, TextInput, Action, StaticColumn, DynamicColumn
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
+from reahl.web_dev.widgets.tabletests import TableFixture
 from reahl.component.context import ExecutionContext
 
 from reahl.web.table import DataTable
@@ -32,9 +33,10 @@ from reahl.component.modelinterface import Event, Field, IntegerField, exposed, 
 
 #TODO/DONE:
 # sort_key not specified, then remove sort links - DONE
-# merge Table & KoosTableFixMePlease (& move columns to ui.py)
+# merge Table & KoosTableFixMePlease (& move columns to ui.py)- DONE
+# move tests around (from columns etc.) - DONE
 # build example from scenarios
-# move tests around (from columns etc.)
+# table.py -> choose another name
 
 
 class DataItem(object):
@@ -51,7 +53,7 @@ class DataItem(object):
         fields.alpha = Field(label=u'Alpha', required=True, default = self.alpha)
 
         
-class TableFixture(Fixture, WebBasicsMixin):
+class DataTableFixture(TableFixture):
 
     items_per_page = 3
         
@@ -85,29 +87,11 @@ class TableFixture(Fixture, WebBasicsMixin):
         return super(TableFixture, self).new_wsgi_app(enable_js=True,
                                                       child_factory=self.MainWidget.factory())
 
-    def table_caption_is(self, expected):
-        return  self.driver_browser.find_element(XPath.caption_with_text(expected))
-        #return self.driver_browser.execute_script('return window.jQuery("table caption").html() == "%s"' % expected)
-
-    def table_summary_is(self, summary):
-        return  self.driver_browser.find_element(XPath.table_with_summary(summary))
-        #return self.driver_browser.web_driver.find_element_by_xpath('//table').get_attribute("summary") == expected
-
     def xpath_for_ascending_link_for_column(self, column_number):
         return '(((//table/thead/tr/th)[%s]/span)[2]/a)[1]' % column_number
 
     def xpath_for_descending_link_for_column(self, column_number):
         return '(((//table/thead/tr/th)[%s]/span)[2]/a)[2]' % column_number
-        
-    def table_column_name_is(self, column_number, expected):
-        #return self.driver_browser.execute_script('return window.jQuery("table thead[%s] span").html() == "%s"' % (column_number, expected))
-        return self.driver_browser.web_driver.find_element_by_xpath('((//table/thead/tr/th)[%s]/span)[1]' % column_number).text == expected
-
-    def get_table_row(self, row_number):
-        row_data = []
-        for column_number in range(1,len(self.columns)+1):
-            row_data.append(self.driver_browser.web_driver.find_element_by_xpath('((//table/tbody/tr)[%s]/td)[%s]' % (row_number, column_number)).text)
-        return row_data
 
     def get_table_header(self):
         header_data = []
@@ -115,9 +99,6 @@ class TableFixture(Fixture, WebBasicsMixin):
             header_data.append(self.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]' % (column_number)).text)
         return header_data
 
-    def table_has_number_rows(self, expected_number):
-        counted_number_of_rows = len(self.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
-        return counted_number_of_rows == expected_number
 
 
 # scenarios vir interressanter content:
@@ -130,7 +111,7 @@ class TableFixture(Fixture, WebBasicsMixin):
 #  - Totale vir numeriese kolomme?
 
 
-@test(TableFixture)
+@test(DataTableFixture)
 def paging_through_data(fixture):
     """DataTable splits its items into different pages (between which a user can navigate), showing only the items of a particular page at a time."""
     fixture.reahl_server.set_app(fixture.wsgi_app)
@@ -140,7 +121,7 @@ def paging_through_data(fixture):
     fixture.driver_browser.click(XPath.link_with_text(u'>|'))
     fixture.driver_browser.click(XPath.link_with_text(u'9'))
     
-    vassert( fixture.table_has_number_rows(2) )
+    vassert( fixture.table_number_rows() == 2 )
     vassert( fixture.get_table_row(1) == ['25' ,'D'] )
     vassert( fixture.get_table_row(2) == ['26' ,'G'] )
 
@@ -148,12 +129,13 @@ def paging_through_data(fixture):
     fixture.driver_browser.click(XPath.link_with_text(u'|<'))
     fixture.driver_browser.click(XPath.link_with_text(u'4'))
     
-    vassert( fixture.table_has_number_rows(3) )
+    vassert( fixture.table_number_rows() == 3 )
     vassert( fixture.get_table_row(1) == ['10' ,'R'] )
     vassert( fixture.get_table_row(2) == ['11' ,'O'] )
     vassert( fixture.get_table_row(3) == ['12' ,'W'] )
 
-@test(TableFixture)
+
+@test(DataTableFixture)
 def sorting(fixture):
     """By clicking on special links in the column header, the table is sorted according to that column - ascending or descending."""
     fixture.reahl_server.set_app(fixture.wsgi_app)
@@ -192,8 +174,9 @@ def sorting(fixture):
     vassert( fixture.get_table_row(2) == ['11' ,'O'] )
     vassert( fixture.get_table_row(3) == ['12' ,'W'] )
 
-@test(TableFixture)
-def which_columns_sort(fixture):
+
+@test(DataTableFixture)
+def which_columns_can_cause_sorting(fixture):
     """Only columns with sort_key specified are sortable"""
 
     fixture.columns.append(StaticColumn(Field(label=u'Not sortable'), u'alpha'))
@@ -203,3 +186,28 @@ def which_columns_sort(fixture):
 
     vassert( fixture.get_table_header() == ['Row Number▲▼', 'Alpha▲▼', 'Not sortable'] )
 
+
+#@test(DataTableFixture)
+def paging_refreshes_updates_formaction(fixture):
+    """A DataTable displays a list of items as defined by a list of Columns"""
+    
+    def make_button_widget(view, address):
+            return Button(self.form, address.events.edit.with_arguments(address_id=address.id))
+    #formaction="http://www.wufoo.com"
+    fixture.columns.append(DynamicColumn(u'Edit', make_button_widget))
+
+    fixture.reahl_server.set_app(fixture.wsgi_app)
+    fixture.driver_browser.open(u'/')
+
+#@test(DataTableFixture)
+def table_basics_play(fixture):
+    """A DataTable displays a list of items as defined by a list of Columns"""
+    fixture.reahl_server.set_app(fixture.wsgi_app)
+    #fixture.driver_browser.open(u'/edit/3')
+
+    fixture.driver_browser.open(u'/')
+    fixture.driver_browser.click(XPath.link_with_text(u'4'))
+    fixture.driver_browser.click(XPath.link_with_text(u'Edit'))
+    
+    import pdb;pdb.set_trace()
+    fixture.reahl_server.start()
