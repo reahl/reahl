@@ -196,283 +196,281 @@ class HTMLWidgetBasics(object):
 
 
 
-@istest
-class BasicHTMLWidgets(object):
-    class Scenarios(WebFixture):
-        @scenario
-        def text_node(self):
-            self.widget = TextNode(self.view, u'text')
-            self.expected_html = u'text'
+class Scenarios(WebFixture):
+    @scenario
+    def text_node(self):
+        self.widget = TextNode(self.view, u'text')
+        self.expected_html = u'text'
 
-        @scenario
-        def a1(self):
-            self.widget = A(self.view, Url(u'/xyz'))
-            self.expected_html = u'<a href="/xyz"></a>'
-            
-        @scenario
-        def a2(self):
-            self.widget = A(self.view, Url(u'/xyz'), description=u'description')
-            self.expected_html = u'<a href="/xyz">description</a>'
+    @scenario
+    def a1(self):
+        self.widget = A(self.view, Url(u'/xyz'))
+        self.expected_html = u'<a href="/xyz"></a>'
+        
+    @scenario
+    def a2(self):
+        self.widget = A(self.view, Url(u'/xyz'), description=u'description')
+        self.expected_html = u'<a href="/xyz">description</a>'
 
-        @scenario
-        def a3(self):
-            def disallowed(): return False
-            self.widget = A(self.view, Url(u'/xyz'), description=u'description', write_check=disallowed)
-            self.expected_html = u'<a>description</a>'
-            
-        @scenario
-        def h(self):
-            self.widget = H(self.view, 2)
-            self.expected_html = u'<h2></h2>'
-            
-        @scenario
-        def p1(self):
-            self.widget = P(self.view)
-            self.expected_html = u'<p></p>'
+    @scenario
+    def a3(self):
+        def disallowed(): return False
+        self.widget = A(self.view, Url(u'/xyz'), description=u'description', write_check=disallowed)
+        self.expected_html = u'<a>description</a>'
+        
+    @scenario
+    def h(self):
+        self.widget = H(self.view, 2)
+        self.expected_html = u'<h2></h2>'
+        
+    @scenario
+    def p1(self):
+        self.widget = P(self.view)
+        self.expected_html = u'<p></p>'
 
-        @scenario
-        def p2(self):
-            self.widget = P(self.view, text=u'text')
-            self.expected_html = u'<p>text</p>'
+    @scenario
+    def p2(self):
+        self.widget = P(self.view, text=u'text')
+        self.expected_html = u'<p>text</p>'
 
-        @scenario
-        def p_with_slots(self):
-            template_p = P(self.view, text=u'the {0} {{brown}} {slot2} jumps')
-            self.widget = template_p.format(Span(self.view, text=u'quick'), slot2=Span(self.view, text=u'fox'))
-            self.expected_html = u'<p>the <span>quick</span> {brown} <span>fox</span> jumps</p>'
-            
-        @scenario
-        def title(self):
-            self.widget = Title(self.view, u'text')
-            self.expected_html = u'<title>text</title>'
-            
-        @scenario
-        def link(self):
-            self.widget = Link(self.view, u'rr', u'hh', u'tt')
-            self.expected_html = u'<link href="hh" rel="rr" type="tt">'
-            
-        @scenario
-        def header(self):
-            self.widget = Header(self.view)
-            self.expected_html = u'<header></header>'
-            
-        @scenario
-        def footer(self):
-            self.widget = Footer(self.view)
-            self.expected_html = u'<footer></footer>'
-            
-        @scenario
-        def li(self):
-            self.widget = Li(self.view)
-            self.expected_html = u'<li></li>'
-            
-        @scenario
-        def ul(self):
-            self.widget = Ul(self.view)
-            self.expected_html = u'<ul></ul>'
-            
-        @scenario
-        def img1(self):
-            self.widget = Img(self.view, u'ss')
-            self.expected_html = u'<img src="ss">'
-            
-        @scenario
-        def img2(self):
-            self.widget = Img(self.view, u'ss', alt=u'aa')
-            self.expected_html = u'<img alt="aa" src="ss">'
-            
-        @scenario
-        def span(self):
+    @scenario
+    def p_with_slots(self):
+        template_p = P(self.view, text=u'the {0} {{brown}} {slot2} jumps')
+        self.widget = template_p.format(Span(self.view, text=u'quick'), slot2=Span(self.view, text=u'fox'))
+        self.expected_html = u'<p>the <span>quick</span> {brown} <span>fox</span> jumps</p>'
+        
+    @scenario
+    def title(self):
+        self.widget = Title(self.view, u'text')
+        self.expected_html = u'<title>text</title>'
+        
+    @scenario
+    def link(self):
+        self.widget = Link(self.view, u'rr', u'hh', u'tt')
+        self.expected_html = u'<link href="hh" rel="rr" type="tt">'
+        
+    @scenario
+    def header(self):
+        self.widget = Header(self.view)
+        self.expected_html = u'<header></header>'
+        
+    @scenario
+    def footer(self):
+        self.widget = Footer(self.view)
+        self.expected_html = u'<footer></footer>'
+        
+    @scenario
+    def li(self):
+        self.widget = Li(self.view)
+        self.expected_html = u'<li></li>'
+        
+    @scenario
+    def ul(self):
+        self.widget = Ul(self.view)
+        self.expected_html = u'<ul></ul>'
+        
+    @scenario
+    def img1(self):
+        self.widget = Img(self.view, u'ss')
+        self.expected_html = u'<img src="ss">'
+        
+    @scenario
+    def img2(self):
+        self.widget = Img(self.view, u'ss', alt=u'aa')
+        self.expected_html = u'<img alt="aa" src="ss">'
+        
+    @scenario
+    def span(self):
             self.widget = Span(self.view)
             self.expected_html = u'<span></span>'
             
-        @scenario
-        def span_with_text(self):
-            self.widget = Span(self.view, text=u'some text')
-            self.expected_html = u'<span>some text</span>'
-            
-        @scenario
-        def div(self):
-            self.widget = Div(self.view)
-            self.expected_html = u'<div></div>'
-
-        @scenario
-        def caption(self):
-            self.widget = Caption(self.view, text='some text')
-            self.expected_html = u'<caption>some text</caption>'
-            
-        @scenario
-        def col(self):
-            self.widget = Col(self.view, span='2')
-            self.expected_html = u'<col span="2">'
-
-        @scenario
-        def colgroup(self):
-            self.widget = Colgroup(self.view, span='2')
-            self.expected_html = u'<colgroup span="2"></colgroup>'
-
-        @scenario
-        def thead(self):
-            self.widget = Thead(self.view)
-            self.expected_html = u'<thead></thead>'
-
-        @scenario
-        def thead_with_scope(self):
-            self.widget = Thead(self.view, scope='col')
-            self.expected_html = u'<thead scope="col"></thead>'
-
-        @scenario
-        def tfoot(self):
-            self.widget = Tfoot(self.view)
-            self.expected_html = u'<tfoot></tfoot>'
-
-        @scenario
-        def tbody(self):
-            self.widget = Tbody(self.view)
-            self.expected_html = u'<tbody></tbody>'
-
-        @scenario
-        def tr(self):
-            self.widget = Tr(self.view)
-            self.expected_html = u'<tr></tr>'
-
-        @scenario
-        def th(self):
-            self.widget = Th(self.view)
-            self.expected_html = u'<th></th>'
-
-        @scenario
-        def td(self):
-            self.widget = Td(self.view)
-            self.expected_html = u'<td></td>'
-
-        @scenario
-        def table(self):
-            self.widget = Table(self.view, caption_text='my caption', summary='my summary')
-            self.expected_html = u'<table summary="my summary"><caption>my caption</caption></table>'
-            
-        @scenario
-        def nav(self):
-            self.widget = Nav(self.view)
-            self.expected_html = u'<nav></nav>'
-            
-        @scenario
-        def article(self):
-            self.widget = Article(self.view)
-            self.expected_html = u'<article></article>'
-            
-        @scenario
-        def label1(self):
-            self.widget = Label(self.view)
-            self.expected_html = u'<label></label>'
-            
-        @scenario
-        def label2(self):
-            self.widget = Label(self.view, text=u'text')
-            self.expected_html = u'<label>text</label>'
-            
-        @scenario
-        def fieldset1(self):
-            self.widget = FieldSet(self.view)
-            self.expected_html = u'<fieldset></fieldset>'
-            
-        @scenario
-        def fieldset2(self):
-            self.widget = FieldSet(self.view, label_text=u'text')
-            self.expected_html = u'<fieldset><label>text</label></fieldset>'
-
-    @test(Scenarios)
-    def basic_html_widgets(self, fixture):
-        """Several basic widgets merely correspond to html elements."""
+    @scenario
+    def span_with_text(self):
+        self.widget = Span(self.view, text=u'some text')
+        self.expected_html = u'<span>some text</span>'
         
-        tester = WidgetTester(fixture.widget)
-        rendered_html = tester.render_html()
-        vassert( rendered_html == fixture.expected_html )
+    @scenario
+    def div(self):
+        self.widget = Div(self.view)
+        self.expected_html = u'<div></div>'
 
-    @test(WebFixture)
-    def view_rights_propagate_to_a(self, fixture):
-        """The access rights specified for a View are propagated to an A, made from a Bookmark to that View."""
-        fixture.view.write_check = EmptyStub()
-        fixture.view.read_check = EmptyStub()
-        a = A.from_bookmark(fixture.view, fixture.view.as_bookmark())
-        vassert( a.read_check is fixture.view.read_check )
-        vassert( a.write_check is fixture.view.write_check )
+    @scenario
+    def caption(self):
+        self.widget = Caption(self.view, text='some text')
+        self.expected_html = u'<caption>some text</caption>'
+        
+    @scenario
+    def col(self):
+        self.widget = Col(self.view, span='2')
+        self.expected_html = u'<col span="2">'
+
+    @scenario
+    def colgroup(self):
+        self.widget = Colgroup(self.view, span='2')
+        self.expected_html = u'<colgroup span="2"></colgroup>'
+
+    @scenario
+    def thead(self):
+        self.widget = Thead(self.view)
+        self.expected_html = u'<thead></thead>'
+
+    @scenario
+    def thead_with_scope(self):
+        self.widget = Thead(self.view, scope='col')
+        self.expected_html = u'<thead scope="col"></thead>'
+
+    @scenario
+    def tfoot(self):
+        self.widget = Tfoot(self.view)
+        self.expected_html = u'<tfoot></tfoot>'
+
+    @scenario
+    def tbody(self):
+        self.widget = Tbody(self.view)
+        self.expected_html = u'<tbody></tbody>'
+
+    @scenario
+    def tr(self):
+        self.widget = Tr(self.view)
+        self.expected_html = u'<tr></tr>'
+
+    @scenario
+    def th(self):
+        self.widget = Th(self.view)
+        self.expected_html = u'<th></th>'
+
+    @scenario
+    def td(self):
+        self.widget = Td(self.view)
+        self.expected_html = u'<td></td>'
+
+    @scenario
+    def table(self):
+        self.widget = Table(self.view, caption_text='my caption', summary='my summary')
+        self.expected_html = u'<table summary="my summary"><caption>my caption</caption></table>'
+        
+    @scenario
+    def nav(self):
+        self.widget = Nav(self.view)
+        self.expected_html = u'<nav></nav>'
+        
+    @scenario
+    def article(self):
+        self.widget = Article(self.view)
+        self.expected_html = u'<article></article>'
+        
+    @scenario
+    def label1(self):
+        self.widget = Label(self.view)
+        self.expected_html = u'<label></label>'
+        
+    @scenario
+    def label2(self):
+        self.widget = Label(self.view, text=u'text')
+        self.expected_html = u'<label>text</label>'
+        
+    @scenario
+    def fieldset1(self):
+        self.widget = FieldSet(self.view)
+        self.expected_html = u'<fieldset></fieldset>'
+        
+    @scenario
+    def fieldset2(self):
+        self.widget = FieldSet(self.view, label_text=u'text')
+        self.expected_html = u'<fieldset><label>text</label></fieldset>'
+
+@test(Scenarios)
+def basic_html_widgets(fixture):
+    """Several basic widgets merely correspond to html elements."""
     
-    @test(WebFixture)
-    def text_node_can_vary(self, fixture):
-        """A TextNode can vary its text if constructed with a getter for the value instead of a hardcoded value."""
-        def getter():
-            return fixture.current_value
-        widget = TextNode(fixture.view, getter)
-        tester = WidgetTester(widget)
-        
-        fixture.current_value = u'stuff'
-        rendered = tester.render_html()
-        vassert( rendered == u'stuff' )
+    tester = WidgetTester(fixture.widget)
+    rendered_html = tester.render_html()
+    vassert( rendered_html == fixture.expected_html )
 
-        fixture.current_value = u'other'
-        rendered = tester.render_html()
-        vassert( rendered == u'other' )
+@test(WebFixture)
+def view_rights_propagate_to_a(fixture):
+    """The access rights specified for a View are propagated to an A, made from a Bookmark to that View."""
+    fixture.view.write_check = EmptyStub()
+    fixture.view.read_check = EmptyStub()
+    a = A.from_bookmark(fixture.view, fixture.view.as_bookmark())
+    vassert( a.read_check is fixture.view.read_check )
+    vassert( a.write_check is fixture.view.write_check )
 
-    @test(WebFixture)
-    def text_node_escapes_html(self, fixture):
-        """The text of a TextNode is html-escaped."""
+@test(WebFixture)
+def text_node_can_vary(fixture):
+    """A TextNode can vary its text if constructed with a getter for the value instead of a hardcoded value."""
+    def getter():
+        return fixture.current_value
+    widget = TextNode(fixture.view, getter)
+    tester = WidgetTester(widget)
+    
+    fixture.current_value = u'stuff'
+    rendered = tester.render_html()
+    vassert( rendered == u'stuff' )
 
-        widget = TextNode(fixture.view, u'<tag>')
-        tester = WidgetTester(widget)
-        
-        rendered = tester.render_html()
-        vassert( rendered == u'&lt;tag&gt;' )
+    fixture.current_value = u'other'
+    rendered = tester.render_html()
+    vassert( rendered == u'other' )
+
+@test(WebFixture)
+def text_node_escapes_html(fixture):
+    """The text of a TextNode is html-escaped."""
+
+    widget = TextNode(fixture.view, u'<tag>')
+    tester = WidgetTester(widget)
+    
+    rendered = tester.render_html()
+    vassert( rendered == u'&lt;tag&gt;' )
 
 
-    @test(WebFixture)
-    def literal_html(self, fixture):
-        """The LiteralHTML Widget just renders a chunk of HTML, but can answer queries about images in that HTML."""
-        
-        contents = u'<img src="_some_images/piet.pdf  "> <img src   = \' _some_images/koos was-^-hoêr.jpg\'>'
-        literal_html = LiteralHTML(fixture.view, contents)
-        tester = WidgetTester(literal_html)
+@test(WebFixture)
+def literal_html(fixture):
+    """The LiteralHTML Widget just renders a chunk of HTML, but can answer queries about images in that HTML."""
+    
+    contents = u'<img src="_some_images/piet.pdf  "> <img src   = \' _some_images/koos was-^-hoêr.jpg\'>'
+    literal_html = LiteralHTML(fixture.view, contents)
+    tester = WidgetTester(literal_html)
 
-        rendered_html = tester.render_html()
-        vassert( rendered_html == contents )
+    rendered_html = tester.render_html()
+    vassert( rendered_html == contents )
 
-        # Case: when the content is transformed
-        def text_transformation(text):
-            return text.replace(u'im', u'IM')
-        literal_html = LiteralHTML(fixture.view, contents, transform=text_transformation)
-        tester = WidgetTester(literal_html)
+    # Case: when the content is transformed
+    def text_transformation(text):
+        return text.replace(u'im', u'IM')
+    literal_html = LiteralHTML(fixture.view, contents, transform=text_transformation)
+    tester = WidgetTester(literal_html)
 
-        rendered_html = tester.render_html()
-        vassert( rendered_html == text_transformation(contents) )
+    rendered_html = tester.render_html()
+    vassert( rendered_html == text_transformation(contents) )
 
-    @test(WebFixture)
-    def head(self, fixture):
-        """Head corresponds with the head HTML element, can have a title and always has a special Slot used by the framework."""
+@test(WebFixture)
+def head(fixture):
+    """Head corresponds with the head HTML element, can have a title and always has a special Slot used by the framework."""
 
-        head = Head(fixture.view, u'a title')
-        tester = WidgetTester(head)
+    head = Head(fixture.view, u'a title')
+    tester = WidgetTester(head)
 
-        reahl_header_slot = head.children[1]
-        vassert( isinstance(reahl_header_slot, Slot) )
-        vassert( reahl_header_slot.name == u'reahl_header' )
+    reahl_header_slot = head.children[1]
+    vassert( isinstance(reahl_header_slot, Slot) )
+    vassert( reahl_header_slot.name == u'reahl_header' )
 
-        rendered_html = tester.render_html()
-        vassert( rendered_html == u'<head><title>a title</title></head>' )
+    rendered_html = tester.render_html()
+    vassert( rendered_html == u'<head><title>a title</title></head>' )
 
-    @test(WebFixture)
-    def body(self, fixture):
-        """Body corresponds with the body HTML element, and always has a special Slot at its end used by the framework."""
-        body = Body(fixture.view)
-        tester = WidgetTester(body)
+@test(WebFixture)
+def body(fixture):
+    """Body corresponds with the body HTML element, and always has a special Slot at its end used by the framework."""
+    body = Body(fixture.view)
+    tester = WidgetTester(body)
 
-        body.add_child(P(fixture.view))
-        
-        reahl_footer_slot = body.children[1]
-        vassert( isinstance(reahl_footer_slot, Slot) )
-        vassert( reahl_footer_slot.name == u'reahl_footer' )
+    body.add_child(P(fixture.view))
+    
+    reahl_footer_slot = body.children[1]
+    vassert( isinstance(reahl_footer_slot, Slot) )
+    vassert( reahl_footer_slot.name == u'reahl_footer' )
 
-        rendered_html = tester.render_html()
-        vassert( rendered_html == u'<body><p></p></body>' )
+    rendered_html = tester.render_html()
+    vassert( rendered_html == u'<body><p></p></body>' )
 
 
 

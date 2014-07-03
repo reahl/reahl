@@ -64,7 +64,7 @@ class PagedTable(PagedPanel):
         columns_with_sort_controls = []
         for i, column in enumerate(columns):
             make_heading_partial = functools.partial(make_heading, i, column.sort_key)
-            columns_with_sort_controls.append(column.with_overridden_heading_widget(make_heading_partial) )
+            columns_with_sort_controls.append(column.with_overridden_heading_widget(make_heading_partial))
         
         self.add_child(Table.from_columns(view, columns_with_sort_controls, 
                                                 self.current_contents, 

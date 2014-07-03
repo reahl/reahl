@@ -1204,11 +1204,11 @@ class Input(Widget):
 
     def add_wrapped_input(self):
         self.wrapped_html_input = self.add_child(self.create_html_input())
-        
+
     def create_html_input(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user."""
         return HTMLElement(self.view, u'input', wrapper_widget=self)
-    
+
     def get_wrapped_html_attributes(self, attributes):
         """Sets the HTML attributes which should be present on the HTMLElement that represents this Input
            in HTML to the user.

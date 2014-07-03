@@ -27,46 +27,15 @@ from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 from reahl.component.modelinterface import Field, BooleanField
 
-#TODO/DONE:
-# sort_key not specified, then remove sort links - DONE
-# merge Table & KoosTableFixMePlease (& move columns to ui.py)
-# build example from scenarios
-# move tests around (from columns etc.)
-
-
 class DataItem(object):
     def __init__(self, row, alpha):
         self.row = row
         self.alpha = alpha
 
-        
+
 class TableFixture(Fixture, WebBasicsMixin):
-
-    def new_columns(self):
-        return [StaticColumn(Field(label=u'Row Number'), u'row'),
-                StaticColumn(Field(label=u'Alpha'), u'alpha')]
-
     def new_data(self):
         return [DataItem(1, 'T'), DataItem(2, 'H'), DataItem(3, 'E')]
-
-    def new_MainWidget(self):
-        fixture = self
-        class MainWidget(Panel):
-            def __init__(self, view):
-                super(MainWidget, self).__init__(view)
-                table = Table.from_columns(view, 
-                                fixture.columns,
-                                fixture.data,
-                                caption_text=u'All my friends',
-                                summary=u'Summary for screen reader',
-                                css_id=u'my_table_data'
-                                )
-                self.add_child(table)
-        return MainWidget
-
-    def new_wsgi_app(self):
-        return super(TableFixture, self).new_wsgi_app(enable_js=True,
-                                                      child_factory=self.MainWidget.factory())
 
     def table_caption_is(self, expected):
         return  self.driver_browser.find_element(XPath.caption_with_text(expected))
@@ -79,19 +48,36 @@ class TableFixture(Fixture, WebBasicsMixin):
 
     def get_table_row(self, row_number):
         row_data = []
-        for column_number in range(1,len(self.columns)+1):
+        for column_number in range(1,self.table_number_columns()+1):
             row_data.append(self.driver_browser.web_driver.find_element_by_xpath('((//table/tbody/tr)[%s]/td)[%s]' % (row_number, column_number)).text)
         return row_data
 
-    def table_has_number_rows(self, expected_number):
-        counted_number_of_rows = len(self.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
-        return counted_number_of_rows == expected_number
+    def table_number_columns(self):
+        return len(self.driver_browser.web_driver.find_elements_by_xpath('//table/thead/tr/th'))
+
+    def table_number_rows(self):
+        return len(self.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
 
 
 @test(TableFixture)
 def table_basics(fixture):
-    """A DataTable displays a list of items as defined by a list of Columns"""
-    fixture.reahl_server.set_app(fixture.wsgi_app)
+    """A Table created .from_columns() displays a list of items as defined by a list of Columns"""
+
+    class MainWidget(Panel):
+        def __init__(self, view):
+            super(MainWidget, self).__init__(view)
+            table = Table.from_columns(view, 
+                            [StaticColumn(Field(label=u'Row Number'), u'row'),
+                             StaticColumn(Field(label=u'Alpha'), u'alpha')],
+                            fixture.data,
+                            caption_text=u'All my friends',
+                            summary=u'Summary for screen reader',
+                            css_id=u'my_table_data'
+                            )
+            self.add_child(table)
+
+    wsgi_app = fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
+    fixture.reahl_server.set_app(wsgi_app)
     fixture.driver_browser.open(u'/')
         
     # The table has a caption and summary
@@ -103,7 +89,7 @@ def table_basics(fixture):
     vassert( fixture.table_column_name_is(2, u'Alpha') )
 
     # A string representation of the value of each Field of a given data item is shown in the appropriate cell
-    vassert( fixture.table_has_number_rows(3))
+    vassert( fixture.table_number_rows() == 3 )
 
     vassert( fixture.get_table_row(1) == ['1' ,'T'] )
     vassert( fixture.get_table_row(2) == ['2' ,'H'] )
@@ -129,6 +115,7 @@ class ColumnFixture(WebFixture):
 
         self.column = DynamicColumn(self.heading, make_span, sort_key=self.sort_key)
         self.expected_html = u'<span>Answer: True</span>' # raw attribute used
+
 
 @test(ColumnFixture)
 def different_kinds_of_columns(fixture):
