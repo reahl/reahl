@@ -16,6 +16,7 @@
 
 """Support for the SQLite database backend."""
 
+
 import os
 import exceptions
 import shutil
@@ -42,7 +43,7 @@ class SQLiteControl(DatabaseControl):
     def get_dbapi_connection_creator(self):
         # See: http://stackoverflow.com/questions/2182591/python-sqlite-3-roll-back-to-save-point-fails
         def connect(*args, **kwargs): 
-            conn = sqlite3.connect(self.database_name) 
+            conn = sqlite3.connect(self.database_name, check_same_thread=False) 
             conn.isolation_level = None
             conn.execute(u'PRAGMA foreign_keys = ON') # http://www.sqlite.org/foreignkeys.html
             return conn
