@@ -111,6 +111,7 @@ class ConstrainedFileUploadInputFixture(FileUploadInputFixture):
 
         return DomainObject()
 
+
 class PerFileConstrainedFileUploadInputFixture(ConstrainedFileUploadInputFixture):
     @scenario
     def size_constrained(self):
@@ -148,6 +149,7 @@ class ToggleableConstraint(ValidationConstraint):
         del pickle_dict['fixture']
         return reduced
 
+
 class ToggleValidationFixture(FileUploadInputFixture):
     make_validation_fail = False
     def new_domain_object(self):
@@ -165,6 +167,8 @@ class ToggleValidationFixture(FileUploadInputFixture):
 
 
 class StubbedFileUploadInputFixture(FileUploadInputFixture):
+    run_hook_before = False
+    run_hook_after = False
     def new_FileUploadForm(self):
         fixture = self
         class FileUploadInputStub(FileUploadInput):
@@ -173,8 +177,11 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
             
         class FileUploadPanelStub(FileUploadPanel):
             def upload_file(self):
+                if fixture.run_hook_before:
+                    fixture.file_upload_hook()
                 super(FileUploadPanelStub, self).upload_file()
-                fixture.file_upload_hook()
+                if fixture.run_hook_after:
+                    fixture.file_upload_hook()
 
         class FileUploadForm(Form):
             def __init__(self, view):
@@ -184,6 +191,7 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
                 self.add_child(Button(self, fixture.domain_object.events.submit))
 
         return FileUploadForm
+
 
 class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
     def file_upload_hook(self):
@@ -204,6 +212,7 @@ class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
 
 
 class BrokenFileUploadInputFixture(StubbedFileUploadInputFixture):
+    run_hook_after = True
     def file_upload_hook(self):
         raise Exception('simulated exception condition')
 
@@ -482,6 +491,7 @@ class FileTests(object):
         """While a large file is being uploaded, a progress bar and a Cancel button are displayed. Clicking on the Cancel
            button stops the upload and clears the file name from the list of uploaded files.
         """
+        fixture.run_hook_before = True
         fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
@@ -528,6 +538,7 @@ class FileTests(object):
     @test(LargeFileUploadInputFixture)
     def prevent_form_submit(self, fixture):
         """The user is prevented from submitting the Form while one or more file uploads are still in progress."""
+        fixture.run_hook_after = True
         fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
@@ -630,6 +641,7 @@ class FileTests(object):
     def queueing_async_uploads(self, fixture):
         """Asynchronous uploads do not happen concurrently, they are queued one after another.
         """
+        fixture.run_hook_after = True
         fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
         browser = fixture.driver_browser
