@@ -344,7 +344,6 @@ class ReahlWebServer(object):
         return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
 
     def serve_until(self, done):
-        count = 0
         while not (done() or self.reahl_wsgi_app.has_uncaught_exception()):
             self.httpd.serve_async()
             self.httpsd.serve_async()
