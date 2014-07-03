@@ -34,6 +34,7 @@ import pkg_resources
 from webob import Request, Response
 from webob.exc import HTTPNotFound, HTTPInternalServerError
 
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
 from reahl.component.config import StoredConfiguration
 from reahl.web.fw import ReahlWSGIApplication
@@ -88,6 +89,7 @@ class WrappedApp(object):
     def clear_exception(self):
         self.exception = None
 
+
 class NoopApp(object):
     def __init__(self, config=None):
         pass
@@ -102,6 +104,7 @@ class NoopApp(object):
         pass
     def clear_exception(self):
         pass
+
 
 class LoggingRequestHandler(simple_server.WSGIRequestHandler):
     def log_message(self, format, *args):
@@ -149,23 +152,16 @@ class ReahlWSGIServer(simple_server.WSGIServer):
         simple_server.WSGIServer.__init__(self, server_address, RequestHandlerClass)
         self.allow_reuse_address = True
         
-    def serve_async(self, threaded=False, context=None):
+    def serve_async(self):
         if self.requests_waiting(0.01):
-            context = context or ExecutionContext.get_context()
-            if threaded:
-                thread = Thread(target=functools.partial(self.handle_waiting_request, context))
-                thread.daemon = True
-                thread.start()
-            else:
-                self.handle_waiting_request(context)
+            self.handle_waiting_request()
 
-    def handle_waiting_request(self, context):
-        with context:
-            self.handle_request()
-            try:
-                self.get_app().report_exception()
-            finally:
-                self.get_app().clear_exception()
+    def handle_waiting_request(self):
+        self.handle_request()
+        try:
+            self.get_app().report_exception()
+        finally:
+            self.get_app().clear_exception()
     
     def requests_waiting(self, timeout):
         i, o, w = select.select([self.socket],[],[],timeout)
@@ -241,7 +237,7 @@ class Handler(object):
             started.wait()
 
             self.reahl_server.serve_until(lambda: not command_thread.is_alive())
-            command_thread.join()
+            command_thread.join(5)
             return results[0]
         self.command_executor.execute = wrapped_execute
 
@@ -290,10 +286,11 @@ class ReahlWebServer(object):
                       
             raise AssertionError(message)
 
-    def main_loop(self, context=None):
-        while self.running:
-            self.httpd.serve_async(threaded=True, context=context)
-            self.httpsd.serve_async(threaded=True, context=context)
+    def main_loop(self, context):
+        with context:
+            while self.running:
+                self.httpd.serve_async()
+                self.httpsd.serve_async()
 
     def start_thread(self):
         assert not self.running
@@ -302,10 +299,12 @@ class ReahlWebServer(object):
         self.httpd_thread.daemon = True
         self.httpd_thread.start()
 
-    def stop_thread(self):
+    def stop_thread(self, join=True):
         self.running = False
-        if self.httpd_thread:
-            self.httpd_thread.join()
+        if self.httpd_thread and join:
+            self.httpd_thread.join(5)
+            if self.httpd_thread.is_alive():
+                raise ProgrammerError(u'Timed out after 5 seconds waiting for httpd serving thread to end')
         self.httpd_thread = None
 
     def start(self, in_seperate_thread=True, connect=False):
@@ -349,7 +348,7 @@ class ReahlWebServer(object):
             self.httpsd.serve_async()
 
     def serve(self, timeout=0.01):
-        """Call this method once, to have the server handle all waiting requests in hte calling thread."""
+        """Call this method once to have the server handle all waiting requests in the calling thread."""
         def done():
             return not self.requests_waiting(timeout)
         self.serve_until(done)
@@ -371,17 +370,19 @@ class ReahlWebServer(object):
             handler.reinstall()
 
     @contextmanager
-    def in_background(self):
+    def in_background(self, wait_till_done_serving=True):
         """Returns a context manager. Within the context of this context manager, the webserver is temporarily run
            in a separate thread. After the context managed by this context manager is exited, the server reverts to 
            handling requests in the current (test) thread.
+
+           :keyword wait_till_done_serving: If True, wait for the server to finish its background job before exiting the context block.
         """
         self.restore_handlers()
         self.start_thread()
         try:
             yield
         finally:
-            self.stop_thread()
+            self.stop_thread(join=wait_till_done_serving)
             self.reinstall_handlers()
 
 
