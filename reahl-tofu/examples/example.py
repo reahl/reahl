@@ -16,6 +16,7 @@
 
 
 
+import six
 from reahl.tofu import test, Fixture
 
 #

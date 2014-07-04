@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from webob.exc import HTTPForbidden
 from nose.tools import istest
 from reahl.tofu import test, Fixture, scenario, expected, vassert

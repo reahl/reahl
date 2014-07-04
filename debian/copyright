@@ -1,3 +1,4 @@
+import six
 This is python-reahl, written and maintained 
 by Reahl Software Services (Pty) Ltd <info@reahl.org>.
 

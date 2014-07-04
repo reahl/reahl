@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import six
 import contextlib
 import urlparse
 import urllib
@@ -367,7 +368,7 @@ class XPath(object):
     def __init__(self, xpath):
         self.xpath = xpath
         
-    def __unicode__(self):
+    def __str__(self):
         return self.xpath
 
     @classmethod

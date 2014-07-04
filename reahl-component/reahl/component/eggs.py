@@ -16,6 +16,7 @@
 
 """Classes that aid in dealing with Eggs and setting them up."""
 
+import six
 import os
 import os.path
 from itertools import chain

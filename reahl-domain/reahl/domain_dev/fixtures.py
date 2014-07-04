@@ -16,6 +16,7 @@
 
 
 
+import six
 from nose.tools import istest
 from reahl.tofu import Fixture
 from reahl.stubble import stubclass, exempt

@@ -16,5 +16,6 @@
 
 # -*- mode: python; mode: font-lock -*-
 
+import six
 __import__('pkg_resources').declare_namespace(__name__)
 

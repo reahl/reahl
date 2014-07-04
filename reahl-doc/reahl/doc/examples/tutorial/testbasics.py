@@ -1,3 +1,4 @@
+import six
 from reahl.tofu import test, Fixture
 
 class SimpleFixture(Fixture):

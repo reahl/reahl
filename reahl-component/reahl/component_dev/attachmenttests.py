@@ -16,6 +16,7 @@
 
 
 
+import six
 from nose.tools import istest
 from reahl.tofu import  test, Fixture, vassert
 from reahl.stubble import easter_egg

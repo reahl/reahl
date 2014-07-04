@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from reahl.sqlalchemysupport import SqlAlchemyControl
 
 reahlsystem.root_egg = 'reahl-component'

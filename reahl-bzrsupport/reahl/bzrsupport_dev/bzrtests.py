@@ -16,6 +16,7 @@
 
 """Tests for the bzrsupport module."""
 
+import six
 import os
 import os.path
 

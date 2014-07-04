@@ -16,6 +16,7 @@
 
 """A simple model for implementing workflow concepts.
 
+import six
    The basics of workflow is the ability for the system to allocate Tasks to users via
    Queues that can be monitored by these users. Via this model a program can also be written
    to schedule a particular task for the system to do some time in the future.

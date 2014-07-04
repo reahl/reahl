@@ -16,6 +16,7 @@
 
 """The Reahl context utilities."""
 
+import six
 import inspect
 
 from reahl.component.dbutils import SystemControl

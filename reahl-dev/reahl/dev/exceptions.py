@@ -16,6 +16,7 @@
 
 """Exceptions used by modules in this package."""
 
+import six
 import inspect
 
 class StatusException(Exception):
@@ -29,25 +30,25 @@ class StatusException(Exception):
 
 class NoException(StatusException):
     legend = '+'
-    def __unicode__(self):
+    def __str__(self):
         return u'New release uploaded - needs to be marked as released'
 
     
 class NotBuiltException(StatusException):
     legend = u'B'
-    def __unicode__(self):
+    def __str__(self):
         return u'Project not built'
 
 
 class NotBuiltAfterLastCommitException(StatusException):
     legend = u'b'
-    def __unicode__(self):
+    def __str__(self):
         return u'Project build is older than the last commit'
 
 
 class NotUploadedException(StatusException):
     legend = u'U'
-    def __unicode__(self):
+    def __str__(self):
         project_name = 'Project'
         if self.args:
             project_name = self.args[0]
@@ -56,67 +57,67 @@ class NotUploadedException(StatusException):
 
 class NotVersionedException(StatusException):
     legend = u'.'
-    def __unicode__(self):
+    def __str__(self):
         return u'Not versioned'
 
 
 class NotCheckedInException(StatusException):
     legend = u'C'
-    def __unicode__(self):
+    def __str__(self):
         return u'Not checked in %s' % (self.args or '')
 
 
 class MetaInformationNotAvailableException(StatusException):
     legend = u'M'
-    def __unicode__(self):
+    def __str__(self):
         return u'Cannot find project meta information'
 
 
 class MetaInformationNotReadableException(StatusException):
     legend = u'm'
-    def __unicode__(self):
+    def __str__(self):
         return u'Cannot reliably read project meta information - perhaps a malformed file?'
 
 
 class UnchangedException(StatusException):
     legend = u'='
-    def __unicode__(self):
+    def __str__(self):
         return u'Unchanged since last release'
 
 
 class NeedsNewVersionException(StatusException):
     legend = u'V'
-    def __unicode__(self):
+    def __str__(self):
         return u'Needs a new version'
 
     
 class AlreadyMarkedAsReleasedException(Exception):
-    def __unicode__(self):
+    def __str__(self):
         return u'Already marked as released'
 
 
 class AlreadyUploadedException(Exception):
-    def __unicode__(self):
+    def __str__(self):
         return u'Already uploaded'
 
 
 class AlreadyDebianisedException(Exception):
-    def __unicode__(self):
+    def __str__(self):
         return u'Already debianised'
         
 
 class NotAValidProjectException(Exception):
-    def __unicode__(self):
+    def __str__(self):
         return u'Not a valid project'
 
 
 class InvalidProjectFileException(Exception):
-    def __unicode__(self):
+    def __str__(self):
         return u'Invalid project file'
 
 
 class NoSuchProjectException(Exception):
-    def __unicode__(self):
+    def __str__(self):
         return u'There is no such project (%s) in the workspace' % self.args[0]
 
 

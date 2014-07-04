@@ -17,6 +17,7 @@
 """Support for the SQLite database backend."""
 
 
+import six
 import os
 import exceptions
 import shutil
