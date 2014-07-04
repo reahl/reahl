@@ -196,7 +196,7 @@ def checkargs(method, *args, **kwargs):
         else:
             call_args = args
         bound_args = inspect.getcallargs(to_check, *call_args, **kwargs)
-    except TypeError, ex:
+    except TypeError as ex:
         ex.args = ((u'%s: ' % method)+ex.args[0],) + ex.args[1:]
         raise
     for arg_name, arg_check in arg_checks.items():
@@ -206,7 +206,7 @@ def checkargs(method, *args, **kwargs):
 def checkargs_explained(explanation, method, *args, **kwargs):
     try:
         checkargs(method, *args, **kwargs)
-    except (TypeError, ArgumentCheck), ex:
+    except (TypeError, ArgumentCheck) as ex:
         _, _, tb = sys.exc_info()
         new_ex = IncorrectArgumentError(explanation, ex)
         raise new_ex.__class__, new_ex, tb

@@ -132,7 +132,7 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
     def finish_response(self):
         try:
             simple_server.WSGIRequestHandler.finish_response()
-        except socket.error, ex:
+        except socket.error as ex:
             import pdb; pdb.set_trace()
 
 
@@ -204,7 +204,7 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
     def finish_request(self, request, client_address):
         try:
             ReahlWSGIServer.finish_request(self, request, client_address)
-        except ssl.SSLError, ex:
+        except ssl.SSLError as ex:
             pass
 
 class Handler(object):
@@ -230,7 +230,7 @@ class Handler(object):
                     started.set()
                     r = self.original_execute(command, params)
                     results.append(r)
-                except Exception, e:
+                except Exception as e:
                     raise
                 finally:
                     results.append(None)
@@ -282,7 +282,7 @@ class ReahlWebServer(object):
             https_port = port+363
             self.httpd = ReahlWSGIServer.make_server('', port, self.reahl_wsgi_app)
             self.httpsd = SSLCapableWSGIServer.make_server('', https_port, certfile, self.reahl_wsgi_app)
-        except socket.error, ex:
+        except socket.error as ex:
             message = (u'Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, port, https_port)) \
                      +u'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html' \
                       
@@ -335,7 +335,7 @@ class ReahlWebServer(object):
         """
         try:
             socket_to_shutdown.shutdown(socket.SHUT_RDWR)
-        except socket.error, e:
+        except socket.error as e:
             if e.errno == 10057:
                 socket_to_shutdown.close();
             else:

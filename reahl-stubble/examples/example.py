@@ -218,7 +218,7 @@ s = Stub()
 try:
     s.aa                      #even though declared as class attributes, these behave
                               # like instance attributes, so its not there if not set
-except AttributeError, e:
+except AttributeError as e:
     pass
 
 s.aa = 123                    #as usual

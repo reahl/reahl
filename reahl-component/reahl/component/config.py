@@ -122,10 +122,10 @@ class EntryPointClassList(ConfigSetting):
         for i in iter_entry_points(self.name):
             try:
                 classes.append(i.load())
-            except ImportError, e:
+            except ImportError as e:
                 print('\nWARNING: Cannot import %s, from %s' % (i, i.dist), file=sys.stderr)
                 print(e, file=sys.stderr)
-            except DistributionNotFound, e:
+            except DistributionNotFound as e:
                 print('\nWARNING: Cannot find %s, required by %s' % (e, i.dist), file=sys.stderr)
                 
         return classes
@@ -271,7 +271,7 @@ class StoredConfiguration(Configuration):
 
         try:
             require(self.reahlsystem.root_egg)
-        except DistributionNotFound, ex:
+        except DistributionNotFound as ex:
             requirement = ex.args[0]
             if (requirement.project_name == self.reahlsystem.root_egg.replace(u'_',u'-')) and not self.in_production:
                 ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.message,)
@@ -340,7 +340,7 @@ class StoredConfiguration(Configuration):
 
         try:
             src_config = self.composite_get_attr(keys)
-        except AttributeError, e:
+        except AttributeError as e:
             # we make sure that exceptions unrelated to our keys are reraised:
             if set(keys) | set(e.args[0].split()):
                 raise ConfigurationException('%s not set in %s' % (composite_key, full_filename))

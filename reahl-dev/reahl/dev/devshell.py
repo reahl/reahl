@@ -208,20 +208,20 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
         with project.paths_set():
             try:
                 retcode = self.function(project, options, args)
-            except SystemExit, ex:
+            except SystemExit as ex:
                 print(u'Script exited: %s' % ex, file=sys.stderr)
                 retcode = ex.code
-            except OSError, ex:
+            except OSError as ex:
                 print(u'Execution failed: %s' % ex, file=sys.stderr)
                 retcode = ex.errno
             except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
                     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
                     NotUploadedException, AlreadyMarkedAsReleasedException,
                     AlreadyUploadedException, NotBuiltException, 
-                    NotBuiltAfterLastCommitException, NotBuiltException), ex:
+                    NotBuiltAfterLastCommitException, NotBuiltException) as ex:
                 print(six.text_type(ex), file=sys.stderr)
                 retcode = None
-            except CalledProcessError, ex:
+            except CalledProcessError as ex:
                 print(six.text_type(ex), file=sys.stderr)
                 retcode = ex.returncode
           

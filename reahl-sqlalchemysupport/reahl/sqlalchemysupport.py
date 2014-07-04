@@ -94,7 +94,7 @@ class SqlAlchemyControl(ORMControl):
         transaction = Session.begin_nested()
         try:
             yield transaction
-        except Exception, ex:
+        except Exception as ex:
             commit = getattr(ex, 'commit', False)
             if commit:
                 self.commit()

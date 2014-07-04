@@ -106,7 +106,7 @@ class Command(object):
         try:
             options, args = self.parse_commandline(line)
             return self.execute(options, args)
-        except SystemExit, ex:
+        except SystemExit as ex:
             return ex.code
 
     def help(self):

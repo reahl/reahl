@@ -116,7 +116,7 @@ class Bzr(object):
                 try:
                     return_code = Executable(u'bzr').call([u'info', self.directory], stdout=out, stderr=err)
                     return return_code == 0
-                except Exception, ex:
+                except Exception as ex:
                     logging.error('Error trying to execute "bzr info %s": %s' % (self.directory, ex))
                 return False
 
@@ -131,7 +131,7 @@ class Bzr(object):
                     if not err.read():
                         files = out.read().split('\n')
                         return files
-                except Exception, ex:
+                except Exception as ex:
                     logging.error('Error trying to execute "bzr %s": %s' % (bzr_args, ex))
                 return ['']
 
@@ -141,14 +141,14 @@ class Bzr(object):
                 try:
                     return_code = Executable(u'bzr').call([], stdout=out, stderr=err, shell=True)
                     return return_code == 0
-                except OSError, ex:
+                except OSError as ex:
                     if ex.errno == os.errno.ENOENT:
                         return False
                     else:
                         logging.error('Error trying to execute "bzr": %s' % ex)
-                except ExecutableNotInstalledException, ex:
+                except ExecutableNotInstalledException as ex:
                     pass
-                except Exception, ex:
+                except Exception as ex:
                     logging.error('Error trying to execute "bzr": %s' % ex)
                 return False
  

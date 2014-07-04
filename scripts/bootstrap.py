@@ -40,7 +40,7 @@ def rm_f(f):
 def read_env_variable(variable, error_message):
     try:
       return os.environ[variable]
-    except KeyError, e:
+    except KeyError as e:
       raise AssertionError(error_message)
 
 def clean_virtual_env(virtual_env):

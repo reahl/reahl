@@ -123,7 +123,7 @@ class Mailer(object):
         if self.connected: 
             try:
                 self.smtp_server.quit()
-            except smtplib.SMTPServerDisconnected, e:
+            except smtplib.SMTPServerDisconnected as e:
                 pass
 
         self.connected = False
