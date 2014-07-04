@@ -36,8 +36,8 @@ class RealClass(object):
 
 
 #----------------------------------------[ straightforward stuff ]
+@six.add_metaclass(stubclass(RealClass))
 class Stub(object):
-    __metaclass__ = stubclass(RealClass)
     def foo(self, a):
         'i am a fake foo'
 
@@ -51,9 +51,8 @@ except:
 
 
 #----------------------------------------[ really being a-kind-of the real class ]
+@six.add_metaclass(stubclass(RealClass))
 class Stub(RealClass):
-    __metaclass__ = stubclass(RealClass)
-
     def foo(self, a):
         print('i am a fake foo')
 
@@ -63,17 +62,16 @@ s.bar()       #calls the real bar (which may even call the fake foo polimorphica
 
 
 #----------------------------------------[ class attributes ]
+@six.add_metaclass(stubclass(RealClass, check_attributes_also=True))
 class Stub(RealClass):
-    __metaclass__ = stubclass(RealClass,
-                                      check_attributes_also=True)
+    pass
 
 #    a = 'asd'    # uncomment this line and it will break
 
 
 #----------------------------------------[ exempt methods ]
+@six.add_metaclass(stubclass(RealClass))
 class Stub(object):
-    __metaclass__ = stubclass(RealClass)
-
     @exempt
     def my_own_method(self):
         print('i am my own method')
@@ -87,8 +85,9 @@ s.my_own_method()
 # (see also acceptance/ImpostoringTests.py)
 
 
+@six.add_metaclass(stubclass(RealClass))
 class Stub(Impostor):
-    __metaclass__ = stubclass(RealClass)
+    pass
 
 assert not issubclass(Stub, RealClass)  #unfortunatly issubclass still catches Impostors out
 s = Stub()
@@ -103,9 +102,8 @@ assert isinstance(s, RealClass)         #but the foolery works well here
 real_instance = RealClass()
 
 
+@six.add_metaclass(stubclass(RealClass))
 class Stub(Delegate):
-    __metaclass__ = stubclass(RealClass)
-
     shadowed = exempt(['foo', 'aa'])
 
     def foo(self, a):
@@ -136,9 +134,8 @@ class AnotherRealClass(object):
 real_instance = AnotherRealClass()
 
 
+@six.add_metaclass(stubclass(AnotherRealClass))
 class Stub(Delegate):
-    __metaclass__ = stubclass(AnotherRealClass)
-
     shadowed = exempt(['aa'])
 
 s = Stub(real_instance)
@@ -195,8 +192,8 @@ class RealClassFollowingConventions(object):
     b = None
 
 
+@six.add_metaclass(stubclass(RealClassFollowingConventions))
 class Stub(object):
-    __metaclass__ = stubclass(RealClassFollowingConventions)
     a = 'asd'
     b = checkedinstance()
 
@@ -209,9 +206,8 @@ class StubbornRealClass(object):
     __slots__ = ('aa')
 
 
+@six.add_metaclass(stubclass(StubbornRealClass))
 class Stub(object):
-    __metaclass__ = stubclass(StubbornRealClass)
-
     aa = slotconstrained()
 
 s = Stub()

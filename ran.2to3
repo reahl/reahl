@@ -16,9 +16,6 @@ getcwdu
 has_key
 idioms
 import
-
-TODO:
-future
 imports
 imports2
 input
@@ -26,9 +23,12 @@ intern
 isinstance
 itertools
 itertools_imports
-long
 map
+long
 metaclass
+
+TODO:
+future
 methodattrs
 ne
 next

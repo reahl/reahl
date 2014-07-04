@@ -36,8 +36,7 @@ from reahl.web.fw import WebExecutionContext, Url
 class InvalidKeyException(Exception):
     pass
     
-class WebUserSession(UserSession, WebUserSessionProtocol):
-    __metaclass__ = UserSession.__metaclass__
+class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, WebUserSessionProtocol)):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     salt = elixir.Field(String(40), required=True)
     secure_salt = elixir.Field(String(40), required=True)
@@ -155,9 +154,8 @@ class SessionData(Entity):
         return not self.__eq__(other)
 
 
-
-class UserInput(SessionData, UserInputProtocol):
-    class __metaclass__(SessionData.__metaclass__, ABCMeta): pass
+class UserInputMeta(SessionData.__metaclass__, ABCMeta): pass
+class UserInput(six.with_metaclass(UserInputMeta, SessionData, UserInputProtocol)):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     
     key = elixir.Field(UnicodeText, required=True)
@@ -182,8 +180,8 @@ class UserInput(SessionData, UserInputProtocol):
         cls.new_for_form(form, key=input_name, value=value)
 
 
-class PersistedException(SessionData, PersistedExceptionProtocol):
-    class __metaclass__(SessionData.__metaclass__, ABCMeta): pass
+class PersistedExceptionMeta(SessionData.__metaclass__, ABCMeta): pass
+class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData, PersistedExceptionProtocol)):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
 
     exception = elixir.Field(PickleType, required=True)
@@ -221,8 +219,8 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
         return None
 
 
-class PersistedFile(SessionData, PersistedFileProtocol):
-    class __metaclass__(SessionData.__metaclass__, ABCMeta): pass
+class PersistedFileMeta(SessionData.__metaclass__, ABCMeta): pass
+class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, PersistedFileProtocol)):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     
     input_name = elixir.Field(UnicodeText, required=True)

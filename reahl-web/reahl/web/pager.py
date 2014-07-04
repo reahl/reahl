@@ -35,8 +35,8 @@ from reahl.web.ui import HMenu, A, Panel
 _ = Translator(u'reahl-web')
 
 
+@six.add_metaclass(ABCMeta)
 class PageIndexProtocol(object):
-    __metaclass__ = ABCMeta
     @abstractproperty
     def pages_in_range(self): pass
     @abstractproperty
@@ -277,10 +277,10 @@ class SequentialPageIndex(PageIndex):
         return ((len(self.items)-1) // (self.items_per_page))+1
 
 
+@six.add_metaclass(ABCMeta)
 class AnnualItemOrganiserProtocol(object):
     """Manages a list of items, each of which is seen to be for a particular year.
     """
-    __metaclass__ = ABCMeta
     @abstractmethod
     def get_years(self): 
         """Returns a list of integers, each representing a year which is applicable to at least one item in a list of items."""
