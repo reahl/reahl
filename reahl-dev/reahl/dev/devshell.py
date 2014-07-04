@@ -44,6 +44,7 @@ from reahl.dev.exceptions import StatusException, AlreadyUploadedException, NotB
     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \
     AlreadyMarkedAsReleasedException, NotBuiltAfterLastCommitException, NotBuiltException, \
     NotAValidProjectException
+from functools import reduce
 
 
 class DevShellConfig(Configuration):

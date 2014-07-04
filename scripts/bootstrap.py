@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 import six
+from six.moves import input
 import sys
 import pkg_resources
 import os
@@ -26,7 +27,7 @@ import re
 def ask(prompt):
     answer = None
     while answer is None:
-        response = raw_input(prompt)
+        response = input(prompt)
         if response.lower() in ('y', 'yes'):
             answer = True
         if response.lower() in ('n', 'no'):

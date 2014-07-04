@@ -33,12 +33,12 @@ nonzero
 operator
 paren
 raise
+raw_input
+reduce
 
 TODO:
 future
 
-raw_input
-reduce
 renames
 repr
 set_literal
