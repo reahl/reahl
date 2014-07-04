@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from reahl.stubble import stubclass
 from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario, set_up

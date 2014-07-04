@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from contextlib import contextmanager
 
 from reahl.tofu import Fixture, set_up, tear_down

@@ -16,6 +16,7 @@
 
 """Support for the PostgreSQL database backend."""
 
+import six
 import subprocess
 import gzip
 from datetime import date

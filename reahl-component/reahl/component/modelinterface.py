@@ -16,6 +16,7 @@
 
 """Facilities to govern user input and output, as well as what access the current user has to model objects."""
 
+import six
 import sys
 import copy
 import re
@@ -333,7 +334,7 @@ class ValidationConstraint(Exception):
         """The current value which failed validation."""
         return self.field.user_input
 
-    def __unicode__(self):
+    def __str__(self):
         return self.message
 
 
@@ -976,7 +977,7 @@ class Event(Field):
         self.action = action or (lambda *args, **kwargs: None)
         self.event_argument_fields = event_argument_fields
 
-    def __unicode__(self):
+    def __str__(self):
         argument_string = (u', %s' % unicode(self.arguments)) if hasattr(self, u'arguments') else u''
         return u'Event(%s%s)' % (self.name, argument_string)
 

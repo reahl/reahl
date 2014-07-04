@@ -17,6 +17,7 @@
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 
+import six
 from reahl.tofu import Fixture, set_up, tear_down
 
 from reahl.component.context import ExecutionContext

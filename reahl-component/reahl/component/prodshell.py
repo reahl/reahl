@@ -16,6 +16,7 @@
 
 """The Reahl production commandline utility."""
 
+import six
 import os
 import re
 import os.path

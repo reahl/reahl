@@ -16,6 +16,7 @@
 
 """A collection of classes to deal with accounts for different parties on a system."""
 
+import six
 from datetime import datetime, timedelta
 import hashlib
 import re

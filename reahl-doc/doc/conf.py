@@ -17,6 +17,7 @@
 # -*- coding: utf-8 -*-
 #
 
+import six
 import sys, os, datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,

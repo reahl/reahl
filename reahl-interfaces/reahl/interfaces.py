@@ -16,6 +16,7 @@
 
 """Interfaces for classes that have pluggable implementations."""
 
+import six
 from abc import ABCMeta, abstractmethod
 
 class UserSessionProtocol(object):

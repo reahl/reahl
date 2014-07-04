@@ -41,6 +41,7 @@
 # THE SOFTWARE.
 
  
+import six
 from functools import partial, wraps
 import inspect
 import logging

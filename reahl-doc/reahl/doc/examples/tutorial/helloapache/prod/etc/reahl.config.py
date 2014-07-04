@@ -1,5 +1,6 @@
 
 # In production this has to be set, to the name of the egg of your application:
+import six
 reahlsystem.root_egg = 'helloapache'   
 
 # If using SQLite:

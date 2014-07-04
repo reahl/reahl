@@ -16,6 +16,7 @@
 
 """Tools for handling ReStructured Text."""
 
+import six
 import docutils.io
 import docutils.core
 

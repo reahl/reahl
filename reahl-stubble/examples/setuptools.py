@@ -19,6 +19,7 @@
 # Please see the README file for more info.
 #
 
+import six
 import pkg_resources
 
 from reahl.stubble import EasterEgg

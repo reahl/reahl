@@ -1,4 +1,5 @@
 
+import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, P, YuiGrid, YuiUnit
 from reahl.component.modelinterface import exposed, Field, EmailField
