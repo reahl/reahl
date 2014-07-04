@@ -16,5 +16,6 @@
 
 """This package consists of the component framework used by Reahl Components.
 
+import six
 It includes all component-related functionality needed in a production environment.
 """

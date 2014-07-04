@@ -16,5 +16,6 @@
 
 """Tools used during development on Reahl projects.
 
+import six
 These tools are not deployed in a production environment, only in a development environment.
 """

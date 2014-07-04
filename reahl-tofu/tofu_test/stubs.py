@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from reahl.component.context import ExecutionContext
 from reahl.tofu import TestSuite, Fixture, test
 from reahl.stubble import stubclass

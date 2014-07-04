@@ -17,6 +17,7 @@
 
 
 
+import six
 from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected

@@ -17,6 +17,7 @@
 
 
 
+import six
 import os.path
 import threading 
 import functools

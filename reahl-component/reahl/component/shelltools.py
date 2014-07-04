@@ -16,6 +16,7 @@
 
 """A basic framework for writing commandline utilities."""
 
+import six
 import sys
 import os.path
 import logging
@@ -32,7 +33,7 @@ class ExecutableNotInstalledException(Exception):
     def __init__(self, executable_name):
         self.executable_name = executable_name
     def __str__(self):
-        return "Executable not found: %s" % self.executable_name
+        return u'Executable not found: %s' % self.executable_name
 
 
 class Executable(object):

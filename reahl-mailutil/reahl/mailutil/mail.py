@@ -17,6 +17,7 @@
 """Utility classes for sending simple email messages.""" 
 
 
+import six
 import re
 import smtplib
 import logging

@@ -1,6 +1,7 @@
 
 
 
+import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, P, HMenu
 from reahl.webelixirimpl import WebUserSession

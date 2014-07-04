@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from nose.tools import istest
 from reahl.tofu import Fixture, test, vassert, expected, NoException, scenario
 from reahl.stubble import EmptyStub

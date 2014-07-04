@@ -16,6 +16,7 @@
 
 
 
+import six
 from nose.tools import istest
 from reahl.tofu import Fixture, test, vassert, expected
 from reahl.component.exceptions import ProgrammerError

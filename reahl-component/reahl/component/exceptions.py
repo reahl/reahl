@@ -16,6 +16,7 @@
 
 """Exceptions used throughout several Reahl components."""
 
+import six
 import inspect
 import sys
 

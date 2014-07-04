@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """This module houses the main classes used to understand and manipulate Reahl projects in development."""
+import six
 import os
 import sys
 import glob
@@ -82,7 +83,7 @@ class PythonSourcePackage(DistributionPackage):
     def get_xml_registration_info(cls):
         return ('distpackage', cls, 'sdist')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'Sdist (source egg).'
 
     def build(self):
@@ -118,7 +119,7 @@ class PythonSourcePackage(DistributionPackage):
 
 
 class DebianPackage(DistributionPackage):
-    def __unicode__(self):
+    def __str__(self):
         return u'Debian:\t\t\t%s' % self.deb_filename(self.project)
 
     @classmethod
@@ -204,7 +205,7 @@ class DebianDotInstallFile(object):
 
 
 class DebianPackageSet(DebianPackage):
-    def __unicode__(self):
+    def __str__(self):
         binaries_files = [self.deb_filename(i) for i in self.project.egg_projects]
         return u'Debian:\t\t\t%s' % ', '.join(binaries_files)
  
@@ -483,7 +484,7 @@ class Version(object):
         self.other = match.group(u'other') 
         self.debian_revision = match.group(u'debian_rev')
 
-    def __unicode__(self):
+    def __str__(self):
         tail_bits = []
         if self.patch:
             tail_bits += [self.patch]
@@ -492,9 +493,6 @@ class Version(object):
 
         tail = [u'-'.join(tail_bits)] if tail_bits else []
         return '.'.join([self.major, (self.minor+(self.other or u''))] + tail)
-
-    def __str__(self):
-        return str(unicode(self))
 
     def truncated(self):
         return Version('.'.join([self.major, self.minor]))
@@ -900,7 +898,7 @@ class ProjectTag(object):
 
 
 class ProjectMetadata(object):
-    def __unicode__(self):
+    def __str__(self):
         return u'Default project metadata provider'
     
     def __init__(self, project):
@@ -980,7 +978,7 @@ class HardcodedMetadata(ProjectMetadata):
         super(HardcodedMetadata, self).__init__(parent)
         self.info = {}
         
-    def __unicode__(self):
+    def __str__(self):
         return u'Metadata read from a .reahlproject file'
 
     @classmethod
@@ -1030,7 +1028,7 @@ class DebianPackageMetadata(ProjectMetadata):
         super(DebianPackageMetadata, self).__init__(parent)
         self.url = url
 
-    def __unicode__(self):
+    def __str__(self):
         return u'Debian package metadata provider'
 
     @classmethod
@@ -1201,7 +1199,7 @@ class DebianControl(object):
 
         
 class SourceControlSystem(object):
-    def __unicode__(self):
+    def __str__(self):
         if self.project.chicken_project:
             return unicode(self.project.chicken_project.source_control)
         return u'No source control system selected'
@@ -1242,7 +1240,7 @@ class SourceControlSystem(object):
 
 
 class BzrSourceControl(SourceControlSystem):
-    def __unicode__(self):
+    def __str__(self):
         return u'Bzr source control'
 
     @classmethod

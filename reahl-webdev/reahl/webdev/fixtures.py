@@ -16,6 +16,7 @@
 
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
+import six
 import os
 
 from selenium import webdriver

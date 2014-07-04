@@ -16,6 +16,7 @@
 
 """Support for database schema migration."""
 
+import six
 from pkg_resources import parse_version
 
 from reahl.component.exceptions import ProgrammerError

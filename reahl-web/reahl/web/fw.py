@@ -17,6 +17,7 @@
 """The reahl.fw module implements the core of the Reahl web framework.
 """
 
+import six
 import atexit
 import sys
 import tempfile
@@ -190,11 +191,8 @@ class Url(object):
         new_url.make_locale_absolute(locale=locale)
         return new_url
         
-    def __unicode__(self):
-        return urlparse.urlunsplit((self.scheme, self.netloc, self.path, self.query, self.fragment))
-
     def __str__(self):
-        return str(unicode(self))
+        return urlparse.urlunsplit((self.scheme, self.netloc, self.path, self.query, self.fragment))
 
     def is_active_on(self, current_url, exact_path=False):
         """Answers whether this Url matches the `current_url`. If exact_path=False this Url

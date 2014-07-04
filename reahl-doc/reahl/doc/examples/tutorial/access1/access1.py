@@ -1,4 +1,5 @@
 
+import six
 import elixir
 from sqlalchemy.orm.exc import NoResultFound
 

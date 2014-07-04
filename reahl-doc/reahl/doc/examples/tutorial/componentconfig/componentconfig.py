@@ -1,5 +1,6 @@
 
 
+import six
 import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
