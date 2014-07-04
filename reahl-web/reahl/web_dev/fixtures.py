@@ -123,7 +123,7 @@ class WebBasicsMixin(PartyModelZooMixin):
             wsgi_app_class = ReahlWSGIApplication
         view_slots = view_slots or {}
         child_factory = child_factory or Widget.factory()
-        if not view_slots.has_key(u'main'):
+        if u'main' not in view_slots:
             view_slots[u'main'] = child_factory
         config = config or self.config
 

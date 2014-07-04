@@ -9,14 +9,14 @@ dict
 except
 exec
 execfile
-
-TODO:
 exitfunc
 filter
 funcattrs
-future
 getcwdu
 has_key
+
+TODO:
+future
 idioms
 import
 imports

@@ -1521,7 +1521,7 @@ class ReturnToCaller(PseudoBookmark):
     @property
     def href(self):
         request = WebExecutionContext.get_context().request
-        if request.GET.has_key('returnTo'):
+        if 'returnTo' in request.GET:
             return Url(request.GET['returnTo'])
         return self.default.href
 

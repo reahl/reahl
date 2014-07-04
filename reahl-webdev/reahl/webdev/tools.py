@@ -352,9 +352,9 @@ class Browser(BasicBrowser):
         xpath = six.text_type(locator)
         [element] = self.xpath(xpath)
         if element.tag == u'a':
-            return element.attrib.has_key(u'href')
+            return u'href' in element.attrib
         if element.tag == u'input':
-            return not element.attrib.has_key(u'disabled')
+            return u'disabled' not in element.attrib
         assert None, 'Not yet implemented'
 
 

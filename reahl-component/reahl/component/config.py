@@ -98,7 +98,7 @@ class ConfigSetting(object):
 
     def is_set(self, obj):
         name = self.name(type(obj))
-        return obj.__dict__.has_key(name)
+        return name in obj.__dict__
 
     def is_valid(self, obj):        return self.automatic or self.defaulted or self.is_set(obj)
 
@@ -235,7 +235,7 @@ class ConfigAsDict(dict):
         self['config'] = config
 
     def __getitem__(self, key):
-        if self.has_key(key):
+        if key in self:
             return dict.__getitem__(self,key)
         if hasattr(self.config, key):
             return getattr(self.config, key)
@@ -372,7 +372,7 @@ class CodedConfiguration(StoredConfiguration, dict):
     def read(self, configuration_class):
         fimename = configuration_class.filename
         new_config = self.create_config(configuration_class)
-        if self.has_key(filename):
+        if filename in self:
             locals_dict = ConfigAsDict(self)
             self[filename](self)
             locals_dict.update_required(new_config.config_key)
