@@ -6,9 +6,9 @@ basestring
 buffer
 callable
 dict 
+except
 
 TODO:
-except
 exec
 execfile
 exitfunc
