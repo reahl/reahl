@@ -255,7 +255,7 @@ class ListDependencies(ProductionCommand):
             for distribution in distributions:
                 deps = ''
                 if options.verbose:
-                    deps = u'[%s]' % (u' | '.join([unicode(i) for i in distribution.requires()]))
+                    deps = u'[%s]' % (u' | '.join([six.text_type(i) for i in distribution.requires()]))
                 print(u'%s %s' % (distribution, deps))
         return 0
 

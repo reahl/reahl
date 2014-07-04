@@ -105,7 +105,7 @@ class SubResourcesTests(object):
                 
             @exempt
             def handle_get(self, request):
-                return Response(unicode_body=unicode(self.param))
+                return Response(unicode_body=six.text_type(self.param))
 
             @exempt
             @classmethod
@@ -144,7 +144,7 @@ class SubResourcesTests(object):
             @exempt
             def handle_get(self, request):
                 args = u'%s|%s|%s' % (self.factory_arg, self.factory_kwarg, self.path_param)
-                return Response(unicode_body=unicode(args))
+                return Response(unicode_body=six.text_type(args))
 
             @exempt
             @classmethod
@@ -178,7 +178,7 @@ class SubResourcesTests(object):
             @exempt
             def handle_get(self, request):
                 # We send back the unique_name of the factory so we can test which factory handled the request
-                return Response(unicode_body=unicode(self.unique_name))
+                return Response(unicode_body=six.text_type(self.unique_name))
 
             @exempt
             @classmethod

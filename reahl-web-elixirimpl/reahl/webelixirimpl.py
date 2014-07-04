@@ -178,7 +178,7 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def save_input_value_for_form(cls, form, input_name, value):
-        assert type(value) == unicode
+        assert type(value) == six.text_type
         cls.new_for_form(form, key=input_name, value=value)
 
 

@@ -53,7 +53,7 @@ class ParameterisedViewErrors(object):
         browser = Browser(wsgi_app)
 
         def check_message(ex):
-            return unicode(ex).startswith('The arguments contained in URL')
+            return six.text_type(ex).startswith('The arguments contained in URL')
         with expected(ProgrammerError, test=check_message):
             browser.open('/a_ui/test1/')
 

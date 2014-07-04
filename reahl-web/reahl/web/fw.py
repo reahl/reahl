@@ -88,7 +88,7 @@ class Url(object):
     def get_current_url(cls, request=None):
         """Returns the Url requested by the current Request."""
         request = request or WebExecutionContext.get_context().request
-        return cls(unicode(request.url))
+        return cls(six.text_type(request.url))
     
     def __init__(self, url_string):
         split_url = urlparse.urlsplit(url_string)
@@ -163,7 +163,7 @@ class Url(object):
 
     def as_network_absolute(self):
         """Returns a new Url equal to this one, except that it does not contain a scheme, hostname or port."""
-        absolute = Url(unicode(self))
+        absolute = Url(six.text_type(self))
         absolute.make_network_absolute()
         return absolute
 
@@ -182,13 +182,13 @@ class Url(object):
 
     def as_locale_relative(self):
         """Returns a new Url equal to this one, except that it does not include the starting path indicating locale."""
-        relative = Url(unicode(self))
+        relative = Url(six.text_type(self))
         relative.make_locale_relative()
         return relative
 
     def with_new_locale(self, locale):
         """Returns a new Url equal to this one, but with a starting path for the locale given."""
-        new_url = Url(unicode(self)).as_locale_relative()
+        new_url = Url(six.text_type(self)).as_locale_relative()
         new_url.make_locale_absolute(locale=locale)
         return new_url
         
@@ -247,7 +247,7 @@ class WebExecutionContext(ExecutionContext):
                 except HTTPException, e:
                     response = e
                 except DisconnectionError, e:
-                    response = HTTPInternalServerError(unicode_body=unicode(e))
+                    response = HTTPInternalServerError(unicode_body=six.text_type(e))
                 self.session.set_session_key(response)
                 for chunk in response(environ, start_response):
                     yield six.binary_type(chunk)
@@ -875,7 +875,7 @@ class Detour(Redirect):
 
     def compute_target_url(self):
         redirect_url = super(Detour, self).compute_target_url()
-        qs = {u'returnTo': unicode(self.return_to.href.as_network_absolute()) }
+        qs = {u'returnTo': six.text_type(self.return_to.href.as_network_absolute()) }
         redirect_url.set_query_from(qs)
         return redirect_url
 
@@ -1915,7 +1915,7 @@ class MethodResult(object):
     def render_exception(self, exception):
         """Instead of overriding `.create_exception_response` to customise how `exception` will be reported, 
            this method can be overridden instead, supplying only the body of a normal 200 Response."""
-        return unicode(exception)
+        return six.text_type(exception)
 
     def get_response(self, return_value):
         response = self.create_response(return_value)
@@ -1968,7 +1968,7 @@ class JsonResult(MethodResult):
         return self.fields.result.as_input()
 
     def render_exception(self, exception):
-        return u'"%s"' % unicode(exception)
+        return u'"%s"' % six.text_type(exception)
 
 
 class WidgetResult(MethodResult):
@@ -2160,7 +2160,7 @@ class ComposedPage(Resource):
         response.charset=self.page.charset
         if self.view.cacheable:
             config = ExecutionContext.get_context().config
-            response.cache_control=u'max-age=%s' % unicode(config.web.cache_max_age)
+            response.cache_control=u'max-age=%s' % six.text_type(config.web.cache_max_age)
         else:
             response.cache_control=u'no-cache'
         return response

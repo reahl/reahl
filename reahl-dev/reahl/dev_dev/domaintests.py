@@ -421,7 +421,7 @@ class ProjectReadingTests(object):
 
         # Default Metadata queries that will com for setup.py:
         vassert( project.project_name == os.path.basename(project_dir.name) )
-        vassert( unicode(project.version) == '0.0' )
+        vassert( six.text_type(project.version) == '0.0' )
 
         @stubclass(ProjectMetadata)
         class MetadataStub(object):
@@ -433,7 +433,7 @@ class ProjectReadingTests(object):
                 return u'test-proj'
             
         project.metadata = MetadataStub()
-        vassert( unicode(project.version_for_setup()) == u'3.1.2a1' )
+        vassert( six.text_type(project.version_for_setup()) == u'3.1.2a1' )
         vassert( project.project_name == 'test-proj' )
 
         vassert( project.packages_for_setup() == ['this','this.pack1'] )

@@ -78,17 +78,17 @@ class Translator(object):
         self.domain = domain
 
     def __call__(self, message):
-        """Returns a unicode literal containing a translation of `message` to the correct language according to the current locale.
+        """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
         """
         return self.gettext(message)
 
     def gettext(self, message):
-        """Returns a unicode literal containing a translation of `message` to the correct language according to the current locale.
+        """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
         """
         return SystemWideTranslator.get_instance().dgettext(self.domain, message)
 
     def ngettext(self, message_singular, message_plural, n):
-        """Returns a unicode literal containing a translation of the given messages in the correct plural (or singular) 
+        """Returns a six.text_type literal containing a translation of the given messages in the correct plural (or singular) 
            form of the target language for `n` items.
         """
         return SystemWideTranslator.get_instance().dngettext(self.domain, message_singular, message_plural, n)
