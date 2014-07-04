@@ -7,10 +7,10 @@ buffer
 callable
 dict 
 except
-
-TODO:
 exec
 execfile
+
+TODO:
 exitfunc
 filter
 funcattrs
