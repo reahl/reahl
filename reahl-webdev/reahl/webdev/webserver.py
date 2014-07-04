@@ -382,8 +382,10 @@ class ReahlWebServer(object):
         try:
             yield
         finally:
-            self.stop_thread(join=wait_till_done_serving)
-            self.reinstall_handlers()
+            try:
+                self.stop_thread(join=wait_till_done_serving)
+            finally:
+                self.reinstall_handlers()
 
 
 
