@@ -91,7 +91,7 @@ class CallMonitor(object):
     """
     def __init__(self, method):
         self.obj = method.__self__
-        self.method_name = method.__func__.func_name
+        self.method_name = method.__func__.__name__
         self.calls = []  #: A list of :class:`MonitoredCalls` made, one for each call made, in the order they were made
         self.original_method = None
 
@@ -169,7 +169,7 @@ def replaced(method, replacement):
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
     target = method.im_self or method.im_class
-    method_name = method.im_func.func_name
+    method_name = method.im_func.__name__
     saved_method = getattr(target, method_name)
     try:
         setattr(target, method_name, replacement)
