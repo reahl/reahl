@@ -96,7 +96,7 @@ class BasicReahlWidgets(object):
         head = u'<head><title>It: %s</title></head>' % fixture.view.title
         vassert( rendered_html == u'<!DOCTYPE html><html>%s<body></body></html>' % head)
         
-        vassert( widget.default_slot_definitions.keys() == [u'slot1'] )
+        vassert( list(widget.default_slot_definitions.keys()) == [u'slot1'] )
 
     @test(WebFixture)
     def rendering_a_menu_item(self, fixture):
@@ -296,7 +296,7 @@ class BasicReahlWidgets(object):
         expected = u'<!DOCTYPE html><html><head><title>It: A view</title></head><body><div id="doc" class="yui-t2"><div id="hd" class="yui-g"><header></header></div><div id="bd" role="main"><div id="yui-main"><div class="yui-b"></div></div><div class="yui-b"></div></div><div id="ft"><footer></footer></div></div></body></html>'
         vassert( rendered_html == expected )
         
-        vassert( widget.default_slot_definitions.keys() == [u'slot1'] )
+        vassert( list(widget.default_slot_definitions.keys()) == [u'slot1'] )
         
         vassert( isinstance(widget.yui_page, YuiDoc) )
         vassert( widget.footer is widget.yui_page.footer )

@@ -4,9 +4,10 @@ sys_exc
 apply
 basestring
 buffer
+callable
+dict 
 
 TODO:
-dict
 except
 exec
 execfile

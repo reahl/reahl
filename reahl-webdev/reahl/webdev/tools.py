@@ -48,7 +48,7 @@ def patch(cls):
 
 def patch_Field():
     patch(Form.FieldClass)
-    for k, v in Field.classes.items():
+    for k, v in list(Field.classes.items()):
         patch(v)
 
 
@@ -300,7 +300,7 @@ class Browser(BasicBrowser):
         
         for option in select.findall(u'option'):
             if option.text == label_to_choose:
-                form[select.attrib[u'name']] = option.values()[0]
+                form[select.attrib[u'name']] = list(option.values())[0]
                 return
         raise AssertionError(u'Option %s not found' % label_to_choose)
    
