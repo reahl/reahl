@@ -1072,10 +1072,10 @@ class SecuredMethod(object):
             return True
 
     def read_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.read_check, self.to_be_called.im_self, *args, **kwargs)
+        return self.check_right(self.secured_declaration.read_check, six.get_method_self(self.to_be_called), *args, **kwargs)
     
     def write_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.write_check, self.to_be_called.im_self, *args, **kwargs)
+        return self.check_right(self.secured_declaration.write_check, six.get_method_self(self.to_be_called), *args, **kwargs)
 
 
 

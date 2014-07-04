@@ -26,10 +26,10 @@ itertools_imports
 map
 long
 metaclass
+methodattrs (not for stubble)
 
 TODO:
 future
-methodattrs
 ne
 next
 nonzero
