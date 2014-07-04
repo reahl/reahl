@@ -58,7 +58,7 @@ class ProductionCommand(Command):
     def create_context(self, config_directory):
         try:
             self.context = ExecutionContext.for_config_directory(config_directory)
-        except DistributionNotFound, ex:
+        except DistributionNotFound as ex:
             ex.args = (u'%s (In development? Did you forget to do a "reahl setup -- develop -N"?)' % ex.args[0],)
             raise
         with self.context:

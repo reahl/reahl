@@ -99,7 +99,7 @@ class BrowserSetup(CleanDatabase):
         #--single-process
         try:
             wd = webdriver.Chrome(chrome_options=options)
-        except WebDriverException, ex:
+        except WebDriverException as ex:
             if ex.msg.startswith(u'Unable to either launch or connect to Chrome'):
                 ex.msg += u'  *****NOTE****: On linux, chrome needs write access to /dev/shm.'
                 ex.msg += u' This is often not the case when you are running inside a *chroot*.'

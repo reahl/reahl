@@ -1090,7 +1090,7 @@ class Form(HTMLElement):
         for input_widget in self.inputs.values():
             try:
                 input_widget.accept_input(input_values)
-            except ValidationConstraint, ex:
+            except ValidationConstraint as ex:
                 exception = ex
             events.add(input_widget.get_ocurred_event())
         if exception:
@@ -1564,7 +1564,7 @@ class ButtonInput(Input):
             raise ProgrammerError(u'no Event/Transition available for name %s' % event.name)
         try:
             event.validate_default()
-        except ValidationConstraint, ex:
+        except ValidationConstraint as ex:
             message = u'Arguments for %s are not valid: %s' % (event, ex)
             message += u'\n(did you forget to call .with_arguments() on an Event sent to a ButtonInput?)'
             raise ProgrammerError(message)

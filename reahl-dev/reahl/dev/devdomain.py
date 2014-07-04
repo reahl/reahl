@@ -1294,7 +1294,7 @@ class Project(object):
         try:
             reader = XMLReader()
             project = reader.read_file(input_file, (workspace, directory))
-        except (TagNotRegisteredException, ExpatError, InvalidXMLException), ex:
+        except (TagNotRegisteredException, ExpatError, InvalidXMLException) as ex:
             raise InvalidProjectFileException(project_filename, ex)
         finally:
             input_file.close()
@@ -1429,7 +1429,7 @@ class Project(object):
         try:
             self.do_release_checks()
             self.check_uploaded()
-        except StatusException, ex:
+        except StatusException as ex:
             return ex.legend
 
         return NoException.legend

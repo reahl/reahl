@@ -244,9 +244,9 @@ class WebExecutionContext(ExecutionContext):
                 try:
                     resource = wsgi_app.resource_for(self.request)
                     response = resource.handle_request(self.request) 
-                except HTTPException, e:
+                except HTTPException as e:
                     response = e
-                except DisconnectionError, e:
+                except DisconnectionError as e:
                     response = HTTPInternalServerError(unicode_body=six.text_type(e))
                 self.session.set_session_key(response)
                 for chunk in response(environ, start_response):
@@ -273,7 +273,7 @@ class EventHandler(object):
         else:
             try:
                 url = self.target.get_absolute_url(self.user_interface, **event_ocurrence.arguments)
-            except ValidationConstraint, ex:
+            except ValidationConstraint as ex:
                 raise ProgrammerError(u'The arguments of %s are invalid for transition target %s: %s' % \
                     (event_ocurrence, self.target, ex))
         return url
@@ -1303,7 +1303,7 @@ class FactoryFromUrlRegex(Factory):
             create_kwargs = self.create_kwargs(relative_path, **kwargs)
             create_args = self.create_args(relative_path, *args)
             return super(FactoryFromUrlRegex, self).create(*create_args, **create_kwargs)
-        except TypeError, ex:
+        except TypeError as ex:
             if len(inspect.trace()) == 1:
                 # Note: we modify the args, and then just raise, because we want the original stack trace
                 ex.args = (ex.args[0]+u' (from regex "%s")' % self.regex_path.regex,)
@@ -1457,7 +1457,7 @@ class ViewFactory(FactoryFromUrlRegex):
     def create(self, relative_path, *args, **kwargs):
         try:
             instance = super(ViewFactory, self).create(relative_path, *args, **kwargs)
-        except ValidationConstraint, ex:
+        except ValidationConstraint as ex:
             message = u'The arguments contained in URL "%s" are not valid for %s: %s' % (relative_path, self, ex)
             raise ProgrammerError(message)
         for condition in self.preconditions:
@@ -2068,7 +2068,7 @@ class RemoteMethod(SubResource):
             with context.system_control.nested_transaction():
                 return_value = self.call_with_input(input_values)
                 response = result.get_response(return_value)
-        except result.catch_exception, ex:
+        except result.catch_exception as ex:
             context.initialise_web_session()  # Because the rollback above nuked it
             self.cleanup_after_exception(input_values, ex)
             response = result.get_exception_response(ex)
@@ -2104,7 +2104,7 @@ class CheckedRemoteMethod(RemoteMethod):
         for name, field in self.parameters.items():
             try:
                 field.from_input(input_values.get(name, u''))
-            except ValidationConstraint, ex:
+            except ValidationConstraint as ex:
                 exception = ex
         if exception:
             raise ValidationException()

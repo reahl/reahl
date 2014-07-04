@@ -577,7 +577,7 @@ class PatternConstraint(ValidationConstraint):
             match = regex.match(unparsed_input)
         except TypeError:
             match = None
-        except sre_constants.error, ex:
+        except sre_constants.error as ex:
             raise ProgrammerError(_('Invalid pattern: %s' % repr(ex)))
         if not match:
             raise self
@@ -786,7 +786,7 @@ class Field(object):
                 self.parsed_input = self.parse_input(input_value)
                 self.validate_parsed(self.parsed_input)
                 self.input_status = u'validly_entered'
-            except ValidationConstraint, ex:
+            except ValidationConstraint as ex:
                 self.validation_error = ex
                 if not ignore_validation:
                     raise

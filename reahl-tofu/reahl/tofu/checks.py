@@ -77,7 +77,7 @@ def expected(exception, test=None):
 
     try:
         yield
-    except exception, ex:
+    except exception as ex:
         if test:
             test(ex)
     else:
