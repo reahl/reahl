@@ -209,7 +209,8 @@ def checkargs_explained(explanation, method, *args, **kwargs):
     except (TypeError, ArgumentCheck) as ex:
         _, _, tb = sys.exc_info()
         new_ex = IncorrectArgumentError(explanation, ex)
-        raise new_ex.__class__, new_ex, tb
+        six.reraise(new_ex.__class__, new_ex, tb)
+
 
 class arg_checks(object):
     def __init__(self, **arg_checks):
