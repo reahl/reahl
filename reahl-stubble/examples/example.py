@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import six
 from reahl.stubble import Delegate, stubclass, exempt, Impostor, slotconstrained, checkedinstance
 
@@ -24,10 +25,10 @@ class RealClass(object):
     b = 123
 
     def foo(self, a):
-        print 'i am the real foo'
+        print('i am the real foo')
 
     def bar(self):
-        print 'i am the real bar'
+        print('i am the real bar')
 
 
 #==================================================[ BasicStubRequirements ]
@@ -54,7 +55,7 @@ class Stub(RealClass):
     __metaclass__ = stubclass(RealClass)
 
     def foo(self, a):
-        print 'i am a fake foo'
+        print('i am a fake foo')
 
 s = Stub()
 s.foo(1)      #calls the fake foo, naturally
@@ -75,7 +76,7 @@ class Stub(object):
 
     @exempt
     def my_own_method(self):
-        print 'i am my own method'
+        print('i am my own method')
 
 
 s = Stub()
@@ -108,7 +109,7 @@ class Stub(Delegate):
     shadowed = exempt(['foo', 'aa'])
 
     def foo(self, a):
-        print 'i am a fake foo'
+        print('i am a fake foo')
 
 
 s = Stub(real_instance)

@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import six
 import new
 import types
@@ -135,15 +136,15 @@ class StubEx1(Stub):
 
     @stubmethod
     def ma(self, b):
-        print 'stub called with %s' % b
+        print(u'stub called with %s' % b)
 
     @stubmethod
     def donkey(self):
-        print 'donkey'
+        print(u'donkey')
 
     @stubmethod
     def mb(self, b, c):
-        print 'stub called with %s %s' % (b, c)
+        print(u'stub called with %s %s' % (b, c))
 
 
 class StubEx2(RealClass, Stub):
@@ -153,15 +154,15 @@ class StubEx2(RealClass, Stub):
 
     @stubmethod
     def ma(self, d):
-        print 'stub called with %s' % b
+        print(u'stub called with %s' % b)
 
     @stubmethod
     def donkey(self):
-        print 'donkey'
+        print(u'donkey')
 
     @stubmethod
     def mb(self, b, c):
-        print 'stub called with %s %s' % (b, c)
+        print(u'stub called with %s %s' % (b, c))
 
 s1 = StubEx1()
 s2 = StubEx2(1, 2)

@@ -16,6 +16,7 @@
 
 
 
+from __future__ import print_function
 import six
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed

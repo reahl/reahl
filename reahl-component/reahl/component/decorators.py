@@ -41,6 +41,7 @@
 # THE SOFTWARE.
 
  
+from __future__ import print_function
 import six
 from functools import partial, wraps
 import inspect

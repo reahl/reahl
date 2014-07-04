@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import six
 from nose.tools import istest, assert_raises
 import tempfile
@@ -150,8 +151,8 @@ class InterceptTests(object):
         """A SystemOutStub can be used to capture console output. Such output can be captured as a "textual screenshot"."""
 
         def print_something():
-            print u'something'
-            print u'printed'
+            print(u'something')
+            print(u'printed')
             
         with SystemOutStub() as output:
             print_something()

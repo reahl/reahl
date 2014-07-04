@@ -16,6 +16,7 @@
 
 """Various bits of support for SQLAlchemy (and declarative/Elixir)."""
 
+from __future__ import print_function
 import six
 import weakref
 from contextlib import contextmanager, nested, closing

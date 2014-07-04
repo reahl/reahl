@@ -16,6 +16,7 @@
 
 """Support for database schema migration."""
 
+from __future__ import print_function
 import six
 from pkg_resources import parse_version
 

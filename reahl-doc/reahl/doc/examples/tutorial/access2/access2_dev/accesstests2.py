@@ -7,6 +7,7 @@
 
 
 
+from __future__ import print_function
 import six
 from reahl.tofu import test, set_up
 from reahl.web_dev.fixtures import WebFixture

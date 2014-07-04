@@ -3,6 +3,7 @@
 # nosetests -F reahl.webdev.fixtures:BrowserSetup -s --nologcapture reahl/doc_dev/tutorialtests/accesstests1.py
 
 
+from __future__ import print_function
 import six
 from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture

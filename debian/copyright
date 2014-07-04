@@ -1,3 +1,4 @@
+from __future__ import print_function
 import six
 This is python-reahl, written and maintained 
 by Reahl Software Services (Pty) Ltd <info@reahl.org>.

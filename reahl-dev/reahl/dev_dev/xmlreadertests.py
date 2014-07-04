@@ -17,6 +17,7 @@
 # -*- mode: python; mode: font-lock -*-
 # Copyright 2005 Iwan Vosloo
 
+from __future__ import print_function
 import six
 import time
 

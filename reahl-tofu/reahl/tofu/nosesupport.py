@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import print_function
 import six
 import re
 import os
@@ -128,10 +129,10 @@ class LongOutputPlugin(Plugin):
         self.output = stream
 
     def startTest(self, test):
-        print >> self.output, '%s [' % test,
+        print(u'%s [' % test, file=self.output)
 
     def stopTest(self, test):
-        print >> self.output, '] done.'
+        print(u'] done.', file=self.output)
 
 
 class TestDirectoryPlugin(Plugin):
@@ -229,7 +230,7 @@ class SetUpFixturePlugin(Plugin):
         return False
 
     def report(self, stream):
-        print >> stream, 'Finished running %s' % self.setup_fixture
+        print('Finished running %s' % self.setup_fixture, file=self.output)
         return True
         
         

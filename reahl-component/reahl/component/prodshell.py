@@ -16,6 +16,7 @@
 
 """The Reahl production commandline utility."""
 
+from __future__ import print_function
 import six
 import os
 import re
@@ -88,7 +89,7 @@ class ListConfig(ProductionCommand):
     def execute(self, options, args):
         super(ListConfig, self).execute(options, args)
         with self.context:
-            print 'Listing config for %s' % self.directory
+            print('Listing config for %s' % self.directory)
             config = StoredConfiguration(self.directory)
             config.configure(validate=False)
             for config_file, key, value, setting in config.list_all():
@@ -113,7 +114,7 @@ class ListConfig(ProductionCommand):
                 if options.print_missing_only and not isinstance(value, MissingValue):
                     pass
                 else:
-                    print to_print
+                    print(to_print)
 
 
 class CheckConfig(ProductionCommand):
@@ -121,10 +122,10 @@ class CheckConfig(ProductionCommand):
     keyword = 'checkconfig'
     def execute(self, options, args):
         super(CheckConfig, self).execute(options, args)
-        print 'Checking config in %s' % self.directory
+        print('Checking config in %s' % self.directory)
         config = StoredConfiguration(self.directory)
         config.configure(validate=True)
-        print 'Config parses OK'
+        print('Config parses OK')
 
 
 class CreateDBUser(ProductionCommand):
@@ -208,7 +209,7 @@ class SizeDB(ProductionCommand):
         super(SizeDB, self).execute(options, args)
         with self.context:
             with self.sys_control.auto_connected():
-                print 'Database size: %s' % self.sys_control.size_database()
+                print('Database size: %s' % self.sys_control.size_database())
         return 0
 
 
@@ -255,7 +256,7 @@ class ListDependencies(ProductionCommand):
                 deps = ''
                 if options.verbose:
                     deps = u'[%s]' % (u' | '.join([unicode(i) for i in distribution.requires()]))
-                print u'%s %s' % (distribution, deps)
+                print(u'%s %s' % (distribution, deps))
         return 0
 
 

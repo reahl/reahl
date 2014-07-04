@@ -1,5 +1,6 @@
 
 
+from __future__ import print_function
 import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, Button, LabelledBlockInput

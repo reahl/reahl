@@ -17,6 +17,7 @@
 """Utility classes for sending simple email messages.""" 
 
 
+from __future__ import print_function
 import six
 import re
 import smtplib

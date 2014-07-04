@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """This module houses the main classes used to understand and manipulate Reahl projects in development."""
+from __future__ import print_function
 import six
 import os
 import sys
@@ -548,7 +549,7 @@ class Dependency(object):
         try:
             return [project_list.project_named(self.name)]
         except ProjectNotFound:
-            print >> sys.stderr, 'WARNING: Could not find a project in the workspace for dependency named %s (ignoring)' % self.name
+            print('WARNING: Could not find a project in the workspace for dependency named %s (ignoring)' % self.name, file=sys.stderr)
             return []
 
     @property
@@ -1056,7 +1057,7 @@ class DebianPackageMetadata(ProjectMetadata):
             return deb_name[len('python-'):]
         else:
             logging.warn('Project not debianised, using directory name for project name')
-            print ':::%s' % self.directory
+            print(':::%s' % self.directory)
             return os.path.basename(self.directory)
         
     @property

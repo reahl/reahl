@@ -17,6 +17,7 @@
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 
+from __future__ import print_function
 import six
 from reahl.tofu import Fixture, set_up, tear_down
 

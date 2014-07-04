@@ -17,6 +17,7 @@
 """Support for the SQLite database backend."""
 
 
+from __future__ import print_function
 import six
 import os
 import exceptions

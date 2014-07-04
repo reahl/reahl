@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import print_function
 import six
 import os
 import shutil
@@ -104,7 +105,7 @@ class Example(object):
 
     def sed_file_to(self, source_filename, dest_filename):
         full_module_name = u'reahl.doc.examples.%s' % self.name
-        print dest_filename
+        print(dest_filename)
         with codecs.open(source_filename, 'r', 'utf-8') as source_file:
             with codecs.open(dest_filename, 'w', 'utf-8') as dest_file:
                 for source_line in source_file:
@@ -139,7 +140,7 @@ class ListExamples(WorkspaceCommand):
     keyword = 'listexamples'
     def execute(self, options, args):
         for example in Example.get_all():
-            print example.name
+            print(example.name)
 
 
 class GetExample(WorkspaceCommand):
@@ -160,10 +161,10 @@ class GetExample(WorkspaceCommand):
 
         if example.is_checked_out:
             if options.force:
-                print 'Deleting %s, it is in the way' % os.path.abspath(example.checkout_dest)
+                print('Deleting %s, it is in the way' % os.path.abspath(example.checkout_dest))
                 example.delete()
             else:
-                print 'First remove %s, it is in the way' % os.path.abspath(example.checkout_dest)
+                print('First remove %s, it is in the way' % os.path.abspath(example.checkout_dest))
                 return 3
-        print 'Checking out to %s' % os.path.abspath(example.checkout_dest)
+        print('Checking out to %s' % os.path.abspath(example.checkout_dest))
         example.check_out()

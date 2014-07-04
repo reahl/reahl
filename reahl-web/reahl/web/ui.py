@@ -15,9 +15,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-import six
 Basic Widgets and related user interface elements.
 """
+
+from __future__ import print_function
+
 
 from string import Template
 import re

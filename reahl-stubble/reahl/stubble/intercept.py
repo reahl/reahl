@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import print_function
 import six
 import sys
 from contextlib import contextmanager
@@ -32,7 +33,7 @@ class SystemOutStub(object):
        .. code-block:: python
 
           with SystemOutStub() as monitor:
-              print 'hello'
+              print('hello')
 
           assert monitor.captured_output == 'hello\\n'
 

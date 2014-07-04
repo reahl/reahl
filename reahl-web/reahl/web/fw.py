@@ -17,6 +17,7 @@
 """The reahl.fw module implements the core of the Reahl web framework.
 """
 
+from __future__ import print_function
 import six
 import atexit
 import sys
