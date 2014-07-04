@@ -521,7 +521,7 @@ class TwoColumnPage(HTML5Page):
        :param style: (See :class:`reahl.web.ui.HTML5Page`)
        :param css_id: (See :class:`HTMLElement`)
     """
-    @arg_checks(title=IsInstance(basestring))
+    @arg_checks(title=IsInstance(six.string_types))
     def __init__(self, view, title=u'$current_title', style=None, css_id=None):
         super(TwoColumnPage, self).__init__(view, title=title, style=style, css_id=css_id)
             

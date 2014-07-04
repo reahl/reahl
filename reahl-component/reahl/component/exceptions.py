@@ -95,7 +95,7 @@ class DeferredImport(object):
             raise ProgrammerError(u'Could not find %s in %s (from %s)' % (class_name, module_name, string_spec))
 
     def coerce_to_type(self, type_or_string):
-        if isinstance(type_or_string, basestring):
+        if isinstance(type_or_string, six.string_types):
             return self.import_string_spec(type_or_string)
         else:
             return type_or_string
@@ -133,16 +133,19 @@ class TypeBasedArgumentCheck(ArgumentCheck):
         super(TypeBasedArgumentCheck, self).__init__(allow_none=allow_none)
         self.type_ = DeferredImport(type_or_string)
 
+    def is_marked_with_attribute(self, value):
+        return hasattr(self.type_.value, '__name__') and hasattr(value, u'is_%s' % self.type_.value.__name__)
+
 class IsInstance(TypeBasedArgumentCheck):
     def is_valid(self, value):
-        return isinstance(value, self.type_.value) or hasattr(value, u'is_%s' % self.type_.value.__name__)
+        return isinstance(value, self.type_.value) or self.is_marked_with_attribute(value)
 
     def __str__(self):
         return u'%s: %s should be an instance of %s (got %s instead)' % (self.func, self.arg_name, self.type_.value, self.value)
         
 class IsSubclass(TypeBasedArgumentCheck):
     def is_valid(self, value):
-        return inspect.isclass(value) and (issubclass(value, self.type_.value) or hasattr(value, u'is_%s' % self.type_.value.__name__))
+        return inspect.isclass(value) and (issubclass(value, self.type_.value) or self.is_marked_with_attribute(value))
 
     def __str__(self):
         return u'%s: %s should be %s or subclass of it (got %s instead)' % (self.func, self.arg_name, self.type_.value, self.value)
