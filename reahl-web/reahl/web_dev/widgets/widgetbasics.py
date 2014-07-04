@@ -132,7 +132,7 @@ class WidgetBasics(object):
                 self.saved_kwarg = kwarg
 
         def check_exc(ex):
-            vassert( str(ex).startswith("An attempt was made to create a WidgetFactory for <class 'reahl.web_dev.widgets.widgetbasics.WidgetWithArgs'> with arguments that do not match what is expected for <class 'reahl.web_dev.widgets.widgetbasics.WidgetWithArgs'>") )
+            vassert( unicode(ex).startswith("An attempt was made to create a WidgetFactory for <class 'reahl.web_dev.widgets.widgetbasics.WidgetWithArgs'> with arguments that do not match what is expected for <class 'reahl.web_dev.widgets.widgetbasics.WidgetWithArgs'>") )
         with expected(IncorrectArgumentError, test=check_exc):
             factory = WidgetWithArgs.factory('a', 'b', 'c')
 

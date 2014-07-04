@@ -245,10 +245,10 @@ class StaticFileTests(object):
         mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(server_file.name)))
         vassert( response.last_modified.replace(tzinfo=None) == mtime )
         tag_mtime, tag_size, tag_hash = response.etag.split('-')
-        mtime = str(os.path.getmtime(server_file.name))
+        mtime = unicode(os.path.getmtime(server_file.name))
         vassert( tag_mtime == mtime )
-        vassert( tag_size == str(len(file_content)) )
-        vassert( tag_hash == str(abs(hash(server_file.name))) )
+        vassert( tag_size == unicode(len(file_content)) )
+        vassert( tag_hash == unicode(abs(hash(server_file.name))) )
         
         # Case: conditional response is supported
         vassert( response.conditional_response )

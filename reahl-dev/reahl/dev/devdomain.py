@@ -303,7 +303,7 @@ class PackageIndex(RemoteRepository):
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent.project.workspace,
-                      str(attributes['repository']))
+                      unicode(attributes['repository']))
 
     def __init__(self, workspace, repository):
         super(PackageIndex, self).__init__()
@@ -333,9 +333,9 @@ class SshRepository(RemoteRepository):
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent.project.workspace,
-                      str(attributes['host']), 
-                      str(attributes.get('login', os.environ['USER'])) or None,
-                      str(attributes['destination']) or None)
+                      unicode(attributes['host']), 
+                      unicode(attributes.get('login', os.environ['USER'])) or None,
+                      unicode(attributes['destination']) or None)
 
     def __init__(self, workspace, host, login, destination):
         super(SshRepository, self).__init__()
@@ -1699,7 +1699,7 @@ class EggProject(Project):
         return find_packages(where=self.directory, exclude=exclusions)
 
     def namespace_packages_for_setup(self):
-        return [str(i.name) for i in self.namespaces]  # Note: this has to return non-unicode strings for setuptools!
+        return [six.binary_type(i.name) for i in self.namespaces]  # Note: this has to return non-unicode strings for setuptools!
 
     def py_modules_for_setup(self):
         return list(set(['setup']+[i[1] for i in pkgutil.iter_modules('.') if not i[2]]))

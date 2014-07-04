@@ -168,7 +168,7 @@ class Browser(BasicBrowser):
            Other keyword arguments are passed directly on to 
            `WebTest.post <http://webtest.readthedocs.org/en/latest/api.html#webtest.app.TestApp.post>`_.
         """
-        self.last_response = self.testapp.post(str(url_string), form_values, **kwargs)
+        self.last_response = self.testapp.post(six.binary_type(url_string), form_values, **kwargs)
 
     def relative(self, url_string):
         url_bits = urlparse.urlparse(url_string)
@@ -272,7 +272,7 @@ class Browser(BasicBrowser):
         if button.tag == u'input' and button.attrib[u'type'] == u'submit':
             button_name = self.xpath(xpath)[0].name
             form = self.get_form_for(xpath)
-            form.action = str(self.relative(form.action))
+            form.action = six.binary_type(self.relative(form.action))
             self.last_response = form.submit(button_name, **kwargs)
             self.follow_response()
         elif button.tag == u'a':

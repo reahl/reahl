@@ -227,7 +227,7 @@ class ReahlEgg(object):
 
     @classmethod 
     def get_eggs_for(cls, main_egg):
-        distributions = require(str(main_egg))
+        distributions = require(main_egg)
         return list(set(distributions)) # To get rid of duplicates
 
     @classmethod
