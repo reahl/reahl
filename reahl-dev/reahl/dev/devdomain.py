@@ -23,7 +23,6 @@ import glob
 import re
 import glob
 import os.path
-import StringIO
 import shutil
 import subprocess
 import shlex

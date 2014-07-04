@@ -22,7 +22,7 @@ Static pages that are included on the fly inside Views.
 
 import os.path
 import re
-import HTMLParser
+from six.moves import html_parser
 import logging
 
 from BeautifulSoup import BeautifulSoup, SoupStrainer
@@ -86,8 +86,8 @@ class DhtmlUI(UserInterface):
                     return True
                 return False
             soup = BeautifulSoup(dhtml_file, parseOnlyThese=SoupStrainer(strain))
-            html_parser = HTMLParser.HTMLParser()
-            statics[u'title'] = html_parser.unescape(soup.title.renderContents()) if soup.title else _(u'Untitled')
+            parser = html_parser.HTMLParser()
+            statics[u'title'] = parser.unescape(soup.title.renderContents()) if soup.title else _(u'Untitled')
             statics[u'div'] = soup.div.renderContents() if soup.div else u''
         return statics
     
