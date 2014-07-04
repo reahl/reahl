@@ -33,7 +33,7 @@ class ArgumentCheckTests(object):
            via checkargs or checkargs_explained."""
         
         class ModelObject(object):
-            @arg_checks(y=IsInstance(int), title=IsInstance(basestring))
+            @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
             def do_something(self, x, y, title=u'a title', style=None):
                 pass
                 
@@ -80,7 +80,7 @@ class ArgumentCheckTests(object):
         """When checking arguments before a method call, the checks for some arguments may be ignored by passing NotYetAvailable
            instances for them. The name of NotYetAvailable arguments should match the name of the argument it replaces."""
         class ModelObject(object):
-            @arg_checks(y=IsInstance(int), title=IsInstance(basestring))
+            @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
             def do_something(self, x, y, title=u'a title', style=None):
                 pass
                 

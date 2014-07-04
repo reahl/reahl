@@ -149,7 +149,7 @@ class ExposedDecorator(object):
     def __init__(self, *args):
         self.property = None
         self.expected_event_names = []
-        if isinstance(args[0], basestring):
+        if isinstance(args[0], six.string_types):
             self.add_fake_events(args)
         else:
             self.set_property(args[0])
@@ -432,7 +432,7 @@ class RequiredConstraint(ValidationConstraint):
         return self.selector_expression
 
     def validate_input(self, unparsed_input):
-        if isinstance(unparsed_input, basestring) and self.empty_regex.match(unparsed_input):
+        if isinstance(unparsed_input, six.string_types) and self.empty_regex.match(unparsed_input):
             raise self
         if not unparsed_input:
             raise self
