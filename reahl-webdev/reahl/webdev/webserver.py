@@ -60,15 +60,15 @@ class WrappedApp(object):
         self.exception = None
         self.traceback = None
         try:
-            to_return = ''
+            to_return = six.binary_type('')
             for i in app(environ, start_response):
-                to_return += str(i)
+                to_return += six.binary_type(i)
         except socket.error:
-            to_return = ''
+            to_return = six.binary_type('')
             for i in HTTPInternalServerError()(environ, start_response):
                 to_return += i
         except:
-            to_return = ''
+            to_return = six.binary_type('')
             (_, self.exception, self.traceback) = sys.exc_info()
             traceback_html = traceback.format_exc(self.traceback)
             for i in HTTPInternalServerError(content_type='text/plain', charset=None, body=traceback_html)(environ, start_response):

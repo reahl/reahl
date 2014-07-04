@@ -130,8 +130,8 @@ class BasicTests(object):
         # Case: session cookie set in Request
         fixture.context.set_session(None)
         web_session = WebUserSession()
-        fixture.request.headers['Cookie'] = 'reahl=%s' % web_session.as_key()
-         
+        fixture.request.headers['Cookie'] = six.binary_type('reahl=%s' % web_session.as_key())
+
         fixture.context.initialise_web_session()
         
         vassert( fixture.context.session is web_session )

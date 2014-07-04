@@ -326,7 +326,7 @@ class FieldTests(object):
                 fields.event2 = Event()
 
         def check_exc(exc):
-            vassert( str(exc).startswith(u'You promised to instantiate') )
+            vassert( unicode(exc).startswith(u'You promised to instantiate') )
         with expected(ProgrammerError, test=check_exc):
             ModelObject().events
 
@@ -393,7 +393,7 @@ class FieldTests(object):
             Event(action=EmptyStub())
 
         def check_exc(expected_message, ex):
-            message = str(ex).split(u':')[1][1:]
+            message = unicode(ex).split(u':')[1][1:]
             vassert( message.startswith(expected_message) )
 
         # readable/writable are callable

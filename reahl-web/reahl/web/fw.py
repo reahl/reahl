@@ -163,7 +163,7 @@ class Url(object):
 
     def as_network_absolute(self):
         """Returns a new Url equal to this one, except that it does not contain a scheme, hostname or port."""
-        absolute = Url(str(self))
+        absolute = Url(unicode(self))
         absolute.make_network_absolute()
         return absolute
 
@@ -182,13 +182,13 @@ class Url(object):
 
     def as_locale_relative(self):
         """Returns a new Url equal to this one, except that it does not include the starting path indicating locale."""
-        relative = Url(str(self))
+        relative = Url(unicode(self))
         relative.make_locale_relative()
         return relative
 
     def with_new_locale(self, locale):
         """Returns a new Url equal to this one, but with a starting path for the locale given."""
-        new_url = Url(str(self)).as_locale_relative()
+        new_url = Url(unicode(self)).as_locale_relative()
         new_url.make_locale_absolute(locale=locale)
         return new_url
         
@@ -247,10 +247,10 @@ class WebExecutionContext(ExecutionContext):
                 except HTTPException, e:
                     response = e
                 except DisconnectionError, e:
-                    response = HTTPInternalServerError(body=unicode(e))
+                    response = HTTPInternalServerError(unicode_body=unicode(e))
                 self.session.set_session_key(response)
                 for chunk in response(environ, start_response):
-                    yield str(chunk)
+                    yield six.binary_type(chunk)
                 self.session.set_last_activity_time()
                 self.system_control.finalise_session()
 
@@ -842,7 +842,7 @@ class Bookmark(object):
 class RedirectToScheme(HTTPSeeOther):
     def __init__(self, scheme):
         self.scheme = scheme
-        super(RedirectToScheme, self).__init__(location=str(self.compute_target_url()))
+        super(RedirectToScheme, self).__init__(location=six.binary_type(self.compute_target_url()))
 
     def compute_target_url(self):
         context = WebExecutionContext.get_context()
@@ -857,7 +857,7 @@ class Redirect(HTTPSeeOther):
     """
     def __init__(self, target):
         self.target = target
-        super(Redirect, self).__init__(location=str(self.compute_target_url()))
+        super(Redirect, self).__init__(location=six.binary_type(self.compute_target_url()))
      
     def compute_target_url(self):
         return self.target.href.as_network_absolute()
@@ -875,7 +875,7 @@ class Detour(Redirect):
 
     def compute_target_url(self):
         redirect_url = super(Detour, self).compute_target_url()
-        qs = {'returnTo': str(self.return_to.href.as_network_absolute()) }
+        qs = {u'returnTo': unicode(self.return_to.href.as_network_absolute()) }
         redirect_url.set_query_from(qs)
         return redirect_url
 
@@ -1237,7 +1237,7 @@ class RegexPath(object):
             return {}
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
-        raw_input_values = dict([(str(key), urllib.unquote(value or u''))
+        raw_input_values = dict([(six.binary_type(key), urllib.unquote(value or u''))
                                      for key, value in matched_arguments.items()])
         fields.accept_input(raw_input_values)
         return fields.as_kwargs()
@@ -1702,7 +1702,7 @@ class RedirectView(UrlBoundView):
         self.to_bookmark = to_bookmark
 
     def as_resource(self, page):
-        raise HTTPSeeOther(location=str(self.to_bookmark.href.as_network_absolute()))
+        raise HTTPSeeOther(location=six.binary_type(self.to_bookmark.href.as_network_absolute()))
 
 
 class PseudoView(View):
@@ -1715,7 +1715,7 @@ class NoView(PseudoView):
 
 class UserInterfaceRootRedirectView(PseudoView):
     def as_resource(self, page):
-        raise HTTPSeeOther(location=str(self.user_interface.get_absolute_url_for(u'/').as_network_absolute()))
+        raise HTTPSeeOther(location=six.binary_type(self.user_interface.get_absolute_url_for(u'/').as_network_absolute()))
     
 
 
@@ -1943,11 +1943,11 @@ class RedirectAfterPost(MethodResult):
 
     def create_response(self, return_value):
         next_url = return_value
-        return HTTPSeeOther(location=str(next_url))
+        return HTTPSeeOther(location=six.binary_type(next_url))
     
     def create_exception_response(self, exception):
         next_url = SubResource.get_parent_url()
-        return HTTPSeeOther(location=str(next_url))
+        return HTTPSeeOther(location=six.binary_type(next_url))
 
 
 class JsonResult(MethodResult):
@@ -2329,9 +2329,9 @@ class FileDownload(Response):
     def __init__(self, a_file):
         self.file = a_file
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
-        self.content_type = (str(self.file.content_type) if self.file.content_type else None)
-        self.content_encoding = (str(self.file.encoding) if self.file.encoding else None)
-        self.content_length = (str(self.file.size) if (self.file.size is not None) else None)
+        self.content_type = (six.binary_type(self.file.content_type) if self.file.content_type else None)
+        self.content_encoding = (six.binary_type(self.file.encoding) if self.file.encoding else None)
+        self.content_length = (six.binary_type(self.file.size) if (self.file.size is not None) else None)
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = '%s-%s-%s' % (self.file.mtime,
                                   self.file.size, 

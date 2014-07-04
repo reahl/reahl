@@ -697,7 +697,7 @@ class P(HTMLElement):
             filled_p.add_child(child)
 
         for i in range(0,len(args)):
-            filled_p.set_slot(str(i), args[i])
+            filled_p.set_slot(unicode(i), args[i])
         for slot_name, widget in kwargs.items():
             filled_p.set_slot(slot_name, widget)
         return filled_p

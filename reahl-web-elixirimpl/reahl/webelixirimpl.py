@@ -55,7 +55,7 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
 
     def as_key(self):
         Session.flush() # To make sure .id is populated
-        return '%s:%s' % (str(self.id), self.salt)
+        return '%s:%s' % (six.binary_type(self.id), self.salt)
 
     def is_secure(self):
         context = WebExecutionContext.get_context()
