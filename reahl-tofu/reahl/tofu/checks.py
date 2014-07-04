@@ -171,8 +171,8 @@ class vassert(object):
                     elements = name.split('.')
                     if 'vassert' not in elements:
                         first_element = elements[0]
-                        if calling_frame.f_locals.has_key(first_element) \
-                               or calling_frame.f_globals.has_key(first_element):
+                        if first_element in calling_frame.f_locals \
+                               or first_element in calling_frame.f_globals:
                             value = 'could not determine'
                             try:
                                 value = eval(name, calling_frame.f_locals, calling_frame.f_globals)

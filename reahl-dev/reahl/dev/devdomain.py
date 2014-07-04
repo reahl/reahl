@@ -1169,7 +1169,7 @@ class DebianControl(object):
 
     @property
     def source_stanza(self):
-        [source] = [stanza for stanza in self.stanzas if stanza.has_key('Source')]
+        [source] = [stanza for stanza in self.stanzas if 'Source' in stanza]
         return source
 
     def get_package_stanza(self, package_name):

@@ -242,7 +242,7 @@ class HTMLElement(Widget):
 
     def has_attribute(self, name):
         """Answers whether this HTMLElement has an attribute named `name`."""
-        return self.attributes.has_key(name)
+        return name in self.attributes
             
     @property
     def attributes(self):
