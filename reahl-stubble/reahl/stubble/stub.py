@@ -64,7 +64,7 @@ class StubClass(object):
             orig_attribute = getattr(self.orig, attribute_name)
         except AttributeError:
             if not self.check_attributes_also:
-                if not isinstance(attribute, collections.Callable) and type(attribute) is not property: 
+                if not isinstance(attribute, collections.Callable) and not isinstance(attribute, property): 
                     return 
 
             message = 'attribute mismatch: %s.%s does not exist on %s' % \
