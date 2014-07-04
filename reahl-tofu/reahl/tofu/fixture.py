@@ -150,7 +150,7 @@ class Fixture(object):
         try:
             instance = factory()
         except AttributeError as ex:
-            raise AttributeErrorInFactoryMethod(ex), None, sys.exc_info()[2]
+            six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
         setattr(self, name, instance)
         self.attributes_set.append(name)
         return instance

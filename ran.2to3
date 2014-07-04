@@ -27,16 +27,16 @@ map
 long
 metaclass
 methodattrs (not for stubble)
-
-TODO:
-future
 ne
 next
 nonzero
-numliterals
 operator
 paren
 raise
+
+TODO:
+future
+
 raw_input
 reduce
 renames
