@@ -163,11 +163,11 @@ def added_sys_path(path):
 
 @contextmanager
 def preserved_sys_modules():
-    saved_modules = sys.modules.keys()[:]
+    saved_modules = list(sys.modules.keys())[:]
     try:
         yield
     finally:
-        final_modules = sys.modules.keys()[:]
+        final_modules = list(sys.modules.keys())[:]
         added_modules = set(final_modules)-set(saved_modules)
         for i in added_modules:
             del sys.modules[i]

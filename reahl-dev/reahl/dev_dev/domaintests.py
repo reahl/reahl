@@ -526,8 +526,8 @@ class SubstvarTests(object):
         substvars.read()
 
         vassert( len(substvars) == 2 )
-        vassert( substvars.items()[0] == ('python:Version', 'python stuff') )
-        vassert( substvars.items()[1] == ('reahl:Depends', 'lots of depends') )
+        vassert( list(substvars.items())[0] == ('python:Version', 'python stuff') )
+        vassert( list(substvars.items())[1] == ('reahl:Depends', 'lots of depends') )
 
     @test(Fixture)
     def dict_interface(self, fixture):
@@ -544,9 +544,9 @@ class SubstvarTests(object):
         vassert( substvars['reahl:Goods'] == 'more goods' )
 
         vassert( len(substvars) == 3 )
-        vassert( substvars.items()[0] == ('python:Version', 'other stuff') )
-        vassert( substvars.items()[1] == ('reahl:Depends', 'lots of depends') )
-        vassert( substvars.items()[2] == ('reahl:Goods', 'more goods') )
+        vassert( list(substvars.items())[0] == ('python:Version', 'other stuff') )
+        vassert( list(substvars.items())[1] == ('reahl:Depends', 'lots of depends') )
+        vassert( list(substvars.items())[2] == ('reahl:Goods', 'more goods') )
 
 
 @istest
