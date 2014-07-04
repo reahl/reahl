@@ -17,7 +17,7 @@
 
 from __future__ import print_function
 import six
-from Cookie import SimpleCookie
+from six.moves import http_cookies
 import urllib
 
 from webob import Request, Response
@@ -81,7 +81,7 @@ class BasicTests(object):
             class ResponseStub(Response):
                 @property
                 def cookies(self):
-                    cookies = SimpleCookie()
+                    cookies = http_cookies.SimpleCookie()
                     for header, value in self.headerlist:
                         if header == 'Set-Cookie':
                             cookies.load(value)

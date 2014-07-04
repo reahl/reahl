@@ -17,8 +17,7 @@
 from __future__ import print_function
 import six
 import contextlib
-import urlparse
-import urllib
+from six.moves.urllib import parse as urllib_parse
 import string
 import logging
 
@@ -171,8 +170,8 @@ class Browser(BasicBrowser):
         self.last_response = self.testapp.post(six.binary_type(url_string), form_values, **kwargs)
 
     def relative(self, url_string):
-        url_bits = urlparse.urlparse(url_string)
-        return urlparse.urlunparse(('', '', url_bits.path, url_bits.params, url_bits.query, url_bits.fragment))
+        url_bits = urllib_parse.urlparse(url_string)
+        return urllib_parse.urlunparse(('', '', url_bits.path, url_bits.params, url_bits.query, url_bits.fragment))
             
     def xpath(self, xpath):
         """Returns the `lmxl Element <http://lxml.de/>`_ found by the given `xpath`."""
@@ -316,7 +315,7 @@ class Browser(BasicBrowser):
         return form.fields[inputs[0].name][0].value
          
     def get_full_path(self, relative_path):
-        return urlparse.urljoin(self.location_path, relative_path)
+        return urllib_parse.urljoin(self.location_path, relative_path)
 
     def is_image_shown(self, locator):
         """Answers whether the located image is available from the server (ie, whether the src attribute 
@@ -426,7 +425,7 @@ class XPath(object):
         """
         arguments = arguments or {}
         if arguments:
-            encoded_arguments = u'?'+urllib.urlencode(arguments)
+            encoded_arguments = u'?'+urllib_parse.urlencode(arguments)
             argument_selector = u'[substring(@name, string-length(@name)-string-length("%s")+1) = "%s"]' % (encoded_arguments, encoded_arguments)
         else:
             argument_selector = u''
@@ -703,7 +702,7 @@ class DriverBrowser(BasicBrowser):
             return False
         src = self.get_attribute(locator,u'src')
         location = self.current_url
-        location.path = urlparse.urljoin(location.path, src)
+        location.path = urllib_parse.urljoin(location.path, src)
         self.open(six.text_type(location))
         self.go_back()
         return True

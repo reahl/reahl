@@ -19,7 +19,7 @@ from __future__ import print_function
 import six
 import re
 import os
-from Cookie import BaseCookie
+from six.moves import http_cookies 
 
 from webob import Request, Response
 
@@ -55,7 +55,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         self.session.set_session_key(response)
-        cookies = BaseCookie(', '.join(response.headers.getall('set-cookie')))
+        cookies = http_cookies.BaseCookie(', '.join(response.headers.getall('set-cookie')))
         for name, morsel in cookies.items():
             cookie = {'name':name, 'value':morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))

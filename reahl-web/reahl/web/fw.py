@@ -36,11 +36,10 @@ import glob
 import json
 import string
 import threading
-import urllib
-import urlparse
+from six.moves.urllib import parse as urllib_parse
 import functools
 import itertools
-import StringIO
+from six.moves import cStringIO
 import logging
 from contextlib import contextmanager
 from pkg_resources import Requirement
@@ -91,7 +90,7 @@ class Url(object):
         return cls(six.text_type(request.url))
     
     def __init__(self, url_string):
-        split_url = urlparse.urlsplit(url_string)
+        split_url = urllib_parse.urlsplit(url_string)
         self.scheme = split_url.scheme     #:
         self.username = split_url.username #:
         self.password = split_url.password #:
@@ -114,7 +113,7 @@ class Url(object):
 
     def set_query_from(self, value_dict):
         """Sets the query string of this Url from a dictionary."""
-        self.query = urllib.urlencode(value_dict)
+        self.query = urllib_parse.urlencode(value_dict)
 
     @property
     def netloc(self):
@@ -193,7 +192,7 @@ class Url(object):
         return new_url
         
     def __str__(self):
-        return urlparse.urlunsplit((self.scheme, self.netloc, self.path, self.query, self.fragment))
+        return urllib_parse.urlunsplit((self.scheme, self.netloc, self.path, self.query, self.fragment))
 
     def is_active_on(self, current_url, exact_path=False):
         """Answers whether this Url matches the `current_url`. If exact_path=False this Url
@@ -217,8 +216,8 @@ class Url(object):
     def query_is_subset(self, other_url):
         """Answers whether name=value pairs present in this Url's query string is a subset
            of those present in `other_url`."""
-        other_args = urlparse.parse_qs(other_url.query)
-        self_args = urlparse.parse_qs(self.query)
+        other_args = urllib_parse.parse_qs(other_url.query)
+        self_args = urllib_parse.parse_qs(self.query)
 
         if not set(self_args).issubset(set(other_args)):
             return False
@@ -1237,7 +1236,7 @@ class RegexPath(object):
             return {}
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
-        raw_input_values = dict([(six.binary_type(key), urllib.unquote(value or u''))
+        raw_input_values = dict([(six.binary_type(key), urllib_parse.unquote(value or u''))
                                      for key, value in matched_arguments.items()])
         fields.accept_input(raw_input_values)
         return fields.as_kwargs()
@@ -1424,7 +1423,7 @@ class ViewFactory(FactoryFromUrlRegex):
         request = ExecutionContext.get_context().request
         return_to = request.GET.get(u'returnTo')
         if return_to:
-            return urllib.urlencode({u'returnTo': return_to})
+            return urllib_parse.urlencode({u'returnTo': return_to})
         return u''
 
     def add_precondition(self, precondition):
@@ -2242,14 +2241,14 @@ class ConcatenatedFile(FileOnDisk):
         
         class JSMinifier(object):
             def minify(self, input_stream, output_stream):
-                text = StringIO.StringIO()
+                text = cStringIO()
                 for line in input_stream:
                     text.write(line)
                 output_stream.write(slimit.minify(text.getvalue(), mangle=True, mangle_toplevel=True))
 
         class CSSMinifier(object):
             def minify(self, input_stream, output_stream):
-                text = StringIO.StringIO()
+                text = cStringIO()
                 for line in input_stream:
                     text.write(line)
                 output_stream.write(cssmin.cssmin(text.getvalue()))

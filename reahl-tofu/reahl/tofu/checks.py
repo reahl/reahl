@@ -138,10 +138,10 @@ class vassert(object):
           i: 123 (<type 'int'>)       
     """
     def find_names(self, source):
-        import StringIO
+        from six.moves import cStringIO
                 
         tokens = [ (t[0], t[1])
-                   for t in tokenize.generate_tokens(StringIO.StringIO(source).readline)
+                   for t in tokenize.generate_tokens(cStringIO(source).readline)
                    if t[0] == token.NAME or t[1] == '.']
         names = []
         concat = False

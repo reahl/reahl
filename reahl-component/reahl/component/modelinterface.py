@@ -24,11 +24,10 @@ import re
 import fnmatch
 import json
 import sre_constants
-import urlparse
+from six.moves.urllib import parse as urllib_parse
 from string import Template
 import new
 import inspect
-import urllib
 from contextlib import contextmanager
 import functools
 
@@ -1030,7 +1029,7 @@ class Event(Field):
     def parse_input(self, unparsed_input):
         if unparsed_input:
             arguments_query_string = unparsed_input[1:]
-            raw_input_values = dict([(k,v[0]) for k, v in urlparse.parse_qs(arguments_query_string).items()])
+            raw_input_values = dict([(k,v[0]) for k, v in urllib_parse.parse_qs(arguments_query_string).items()])
             fields = StandaloneFieldIndex()
             fields.update_copies(self.event_argument_fields)
             fields.accept_input(raw_input_values)
@@ -1047,7 +1046,7 @@ class Event(Field):
             fields.update_copies(self.event_argument_fields)
             
             arguments.update(fields.as_input_kwargs())
-            input_string=u'?%s' % urllib.urlencode(arguments)
+            input_string=u'?%s' % urllib_parse.urlencode(arguments)
             return six.text_type(input_string)
         else:
             return u'?'

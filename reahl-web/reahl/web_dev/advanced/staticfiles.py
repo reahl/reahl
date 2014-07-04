@@ -17,7 +17,7 @@
 
 from __future__ import print_function
 import six
-import StringIO
+from six.moves import cStringIO
 import datetime
 import os.path
 
@@ -122,7 +122,7 @@ class StaticFileTests(object):
                 size = 10
                 mtime = 123
                 meta_info = content_type, encoding, size, mtime
-                data_blob = StringIO.StringIO(u'x'*size)
+                data_blob = cStringIO(u'x'*size)
 
                 list_of_files = [FileFromBlob(u'database_file', data_blob, *meta_info)]
                 self.define_static_files(u'/files', list_of_files)
