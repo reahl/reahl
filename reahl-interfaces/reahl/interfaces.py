@@ -20,9 +20,9 @@ from __future__ import print_function
 import six
 from abc import ABCMeta, abstractmethod
 
+@six.add_metaclass(ABCMeta)
 class UserSessionProtocol(object):
     """A UserSession represents a potentially lengthy interaction of a particular the user with the system."""
-    __metaclass__ = ABCMeta
 
     @classmethod
     @abstractmethod

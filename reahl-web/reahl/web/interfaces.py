@@ -15,11 +15,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-from __future__ import print_function
-import six
 The interfaces for persisted classes that are needed by the core Reahl framework. Different
 implementations of the framework can be provided by implementing these.
 """
+from __future__ import print_function
+import six
 
 from abc import ABCMeta, abstractmethod
 
@@ -43,11 +43,11 @@ class WebUserSessionProtocol(UserSessionProtocol):
         pass
 
 
+@six.add_metaclass(ABCMeta)
 class UserInputProtocol(object):
     """User input, typed as strings on a form is persisted using this class, for the current user's session
        for use in a subsequent request. Used via `web.persisted_userinput_class`.
     """
-    __metaclass__ = ABCMeta
 
     @classmethod
     @abstractmethod
@@ -106,11 +106,11 @@ class PersistedExceptionProtocol(UserInputProtocol):
         pass
 
       
+@six.add_metaclass(ABCMeta)
 class PersistedFileProtocol(object):
     """When a file is uploaded, file is persisted using this class, for the current user's session 
        for use in a subsequent request. Used via `web.persisted_file_class`.
     """
-    __metaclass__ = ABCMeta
     @property
     @abstractmethod
     def file_obj(self): 
