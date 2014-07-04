@@ -61,7 +61,7 @@ class StubMethod(object):
         assert issubclass(owner, Stub), 'stubbed methods belong in Stub classes...'
         assert instance, 'implemented for instance methods only'
         real_method = getattr(owner.stubbed, self.stub.__name__)
-        assert type(real_method.im_func) == types.FunctionType, 'stubbed methods are for methods...'
+        assert isinstance(real_method.im_func, types.FunctionType), 'stubbed methods are for methods...'
         real_args = inspect.getargspec(real_method.im_func)
         stub_args = inspect.getargspec(self.stub)
         assert real_args == stub_args, 'argument specification mismatch'
