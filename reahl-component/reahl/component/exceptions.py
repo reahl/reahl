@@ -24,6 +24,7 @@ import sys
 from decorator import decorator
 
 from reahl.component.i18n import Translator
+import collections
 
 _ = Translator(u'reahl-component')
 
@@ -173,7 +174,7 @@ class IsCallable(ArgumentCheck):
         return u'(%s)' % (u','.join(formatted_all))
 
     def is_valid(self, value):
-        return callable(value)
+        return isinstance(value, collections.Callable)
 
     def __str__(self):
         return u'%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
@@ -185,7 +186,7 @@ def checkargs(method, *args, **kwargs):
             to_check = method
         elif inspect.isclass(method):
             to_check = method.__init__
-        elif callable(method):
+        elif isinstance(method, collections.Callable):
             to_check = method.__call__
         else:
             raise ProgrammerError('%s was expected to be a callable object' % method)

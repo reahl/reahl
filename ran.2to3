@@ -3,10 +3,9 @@ print
 sys_exc
 apply
 basestring
+buffer
 
 TODO:
-buffer
-callable
 dict
 except
 exec
