@@ -33,10 +33,10 @@ temporary files, etc. All this functionality is now also part of Tofu.
 """
 
 from reahl.tofu.fixture import Fixture
-from nosesupport import test
+from .nosesupport import test
 from reahl.tofu.fixture import Scenario as scenario
 from reahl.tofu.fixture import SetUp as set_up
 from reahl.tofu.fixture import TearDown as tear_down
 
-from checks import *
-from files import *
+from .checks import *
+from .files import *
