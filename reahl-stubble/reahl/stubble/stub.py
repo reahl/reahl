@@ -26,6 +26,7 @@ import trace
 import pdb
 
 from inspect import ismethod, isdatadescriptor
+import collections
 
 class StubClass(object):
     def __init__(self, orig, check_attributes_also=False):
@@ -63,7 +64,7 @@ class StubClass(object):
             orig_attribute = getattr(self.orig, attribute_name)
         except AttributeError:
             if not self.check_attributes_also:
-                if not callable(attribute) and type(attribute) is not property: 
+                if not isinstance(attribute, collections.Callable) and type(attribute) is not property: 
                     return 
 
             message = 'attribute mismatch: %s.%s does not exist on %s' % \
@@ -78,7 +79,7 @@ class StubClass(object):
             self.signatures_match(orig_attribute, attribute)
 
     def types_match(self, stub, orig, stubbed):
-        assert callable(orig) == callable(stubbed), \
+        assert isinstance(orig, collections.Callable) == isinstance(stubbed, collections.Callable), \
             'attribute mismatch: %s.%s is not compatible with the original type %s on %s' % \
             (stub, stubbed, type(orig), self.orig)
 

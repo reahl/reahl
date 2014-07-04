@@ -40,6 +40,7 @@ from reahl.component.i18n import Translator
 from reahl.component.decorators import memoized
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
+import collections
 
 _ = Translator(u'reahl-component')
 
@@ -1107,12 +1108,12 @@ class SecuredDeclaration(object):
         
         if isinstance(self.read_check, AdaptedMethod):
             self.read_check.set_full_arg_names(arg_names)
-        elif callable(self.read_check):
+        elif isinstance(self.read_check, collections.Callable):
             self.check_method_signature(self.read_check, self.func)
         
         if isinstance(self.write_check, AdaptedMethod):
             self.write_check.set_full_arg_names(arg_names)
-        elif callable(self.write_check):
+        elif isinstance(self.write_check, collections.Callable):
             self.check_method_signature(self.write_check, self.func)
         return self
 

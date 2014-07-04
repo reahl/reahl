@@ -37,6 +37,7 @@ from reahl.component.modelinterface import ValidationConstraintList, ValidationC
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
                                      Event, Action, FileField, UploadedFile, InputParseException
+import collections
                                      
 
 _ = Translator(u'reahl-web')
@@ -335,7 +336,7 @@ class TextNode(Widget):
     def __init__(self, view, value_or_getter, html_escape=True):
         super(TextNode, self).__init__(view)
         self.html_escape = html_escape
-        if callable(value_or_getter):
+        if isinstance(value_or_getter, collections.Callable):
             self.value_getter = value_or_getter
         else:
             def get_value():
