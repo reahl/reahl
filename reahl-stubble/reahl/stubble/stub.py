@@ -27,6 +27,7 @@ import pdb
 
 from inspect import ismethod, isdatadescriptor
 import collections
+from functools import reduce
 
 class StubClass(object):
     def __init__(self, orig, check_attributes_also=False):

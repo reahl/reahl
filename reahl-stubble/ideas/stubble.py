@@ -19,6 +19,7 @@ import six
 import new
 import types
 import inspect
+from functools import reduce
 
 #
 # class XStub(Stub):

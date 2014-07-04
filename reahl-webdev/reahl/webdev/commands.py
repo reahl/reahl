@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 import six
+from six.moves import input
 import os.path
 
 from reahl.dev.devdomain import Project
@@ -44,7 +45,7 @@ class ServeCurrentProject(WorkspaceCommand):
                                      (options.port, int(options.port)+363, config_directory))
             print('\nPress <Enter> to terminate\n\n')
     
-            raw_input()        
+            input()        
             reahl_server.stop()
         return 0
 
