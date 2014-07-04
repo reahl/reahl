@@ -235,7 +235,7 @@ class FormTests(object):
         browser = Browser(wsgi_app)
 
         def check_exc(exc):
-            vassert( unicode(exc) == u'no Event/Transition available for name an_event' )
+            vassert( six.text_type(exc) == u'no Event/Transition available for name an_event' )
 
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')
@@ -334,7 +334,7 @@ class FormTests(object):
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
-            vassert( unicode(ex).startswith(u'More than one form was added using the same unique_name') )
+            vassert( six.text_type(ex).startswith(u'More than one form was added using the same unique_name') )
         
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')

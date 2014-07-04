@@ -140,7 +140,7 @@ class AppBasicsTests(object):
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
-            msg = unicode(ex)
+            msg = six.text_type(ex)
             vassert( msg.startswith('define_page was called with arguments that do not match those expected by') )
         with expected(IncorrectArgumentError, test=check_exc):
             browser.open('/')
@@ -156,7 +156,7 @@ class AppBasicsTests(object):
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
-            msg = unicode(ex)
+            msg = six.text_type(ex)
             vassert( msg == 'there is no page defined for /' )
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')
@@ -209,7 +209,7 @@ class AppBasicsTests(object):
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
-            vassert( unicode(ex).startswith(u'An attempt was made to plug Widgets into the following slots that do not exist') )
+            vassert( six.text_type(ex).startswith(u'An attempt was made to plug Widgets into the following slots that do not exist') )
 
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')

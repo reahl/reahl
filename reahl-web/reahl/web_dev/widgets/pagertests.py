@@ -265,7 +265,7 @@ class PageMenuTests(object):
         
         vassert( fixture.page_index.total_number_of_pages == fixture.expected_pages )
         page = fixture.page_index.get_page_number(fixture.expected_pages)
-        vassert( page.description == unicode(fixture.expected_pages) )
+        vassert( page.description == six.text_type(fixture.expected_pages) )
         vassert( page.contents == fixture.last_page_contents )        
         vassert( fixture.page_index.max_page_links == 12 )
 

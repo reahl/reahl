@@ -85,7 +85,7 @@ class StubAttribute(object):
     def instance_attributes(self, cls):
         def all_slots(l, cls):
             s = cls.__slots__
-            if isinstance(s, str):
+            if isinstance(s, six.string_types):
                 s = [s]
             l.extend(s)
             return l

@@ -132,7 +132,7 @@ class PageIndex(PageIndexProtocol):
         pass
     
     def get_description_for_page(self, page_number):
-        return unicode(page_number)
+        return six.text_type(page_number)
     
     @property
     @memoized
@@ -313,7 +313,7 @@ class AnnualPageIndex(PageIndex):
         return self.annual_item_organiser.get_items_for_year(year)
 
     def get_description_for_page(self, page_number):
-        return unicode(self.years[page_number-1])
+        return six.text_type(self.years[page_number-1])
 
     @property
     def years(self):

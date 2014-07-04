@@ -77,7 +77,7 @@ class FieldIndex(object):
         if isinstance(value, Field):
             self.fields[name] = value
             if not value.is_bound:
-                value.bind(unicode(name), self.storage_object)
+                value.bind(six.text_type(name), self.storage_object)
         super(FieldIndex, self).__setattr__(name, value)
 
     def set(self, name, value):
@@ -296,7 +296,7 @@ class ValidationConstraint(Exception):
     
     def validate_input(self, unparsed_input):
         """Override this method to provide the custom logic of how this ValidationConstraint should check
-           the given unicode string for validity. If validation fails, this method should raise self.
+           the given string for validity. If validation fails, this method should raise self.
         """
         pass
     
@@ -525,7 +525,7 @@ class MinLengthConstraint(ValidationConstraint):
     
     @property
     def parameters(self):
-        return unicode(self.min_length)
+        return six.text_type(self.min_length)
 
     def validate_input(self, unparsed_input):
         if len(unparsed_input) <  self.min_length:
@@ -547,7 +547,7 @@ class MaxLengthConstraint(ValidationConstraint):
 
     @property
     def parameters(self):
-        return unicode(self.max_length)
+        return six.text_type(self.max_length)
 
     def validate_input(self, unparsed_input):
         if len(unparsed_input) > self.max_length:
@@ -840,13 +840,13 @@ class Field(object):
         
     def parse_input(self, unparsed_input):
         """Override this method on a subclass to specify how that subclass transforms the `unparsed_input`
-           (a unicode string) into a representative Python object."""
+           (a string) into a representative Python object."""
         return unparsed_input
 
     def unparse_input(self, parsed_value):
         """Override this method on a subclass to specify how that subclass transforms a given Python
-           object (`parsed_value`) to a unicode string that represents it to a user."""
-        return unicode(parsed_value or u'')
+           object (`parsed_value`) to a string that represents it to a user."""
+        return six.text_type(parsed_value or u'')
 
     def from_input(self, unparsed_input):
         """Sets the value of this Field from the given `unparsed_input`."""
@@ -855,7 +855,7 @@ class Field(object):
             self.set_model_value()
         
     def as_input(self):
-        """Returns the value of this Field as a unicode string."""
+        """Returns the value of this Field as a string."""
         if self.can_read():
             return self.unparse_input(self.get_model_value())
         return u''
@@ -979,7 +979,7 @@ class Event(Field):
         self.event_argument_fields = event_argument_fields
 
     def __str__(self):
-        argument_string = (u', %s' % unicode(self.arguments)) if hasattr(self, u'arguments') else u''
+        argument_string = (u', %s' % six.text_type(self.arguments)) if hasattr(self, u'arguments') else u''
         return u'Event(%s%s)' % (self.name, argument_string)
 
     def from_input(self, unparsed_input):
@@ -1047,7 +1047,7 @@ class Event(Field):
             
             arguments.update(fields.as_input_kwargs())
             input_string=u'?%s' % urllib.urlencode(arguments)
-            return unicode(input_string)
+            return six.text_type(input_string)
         else:
             return u'?'
     
@@ -1158,7 +1158,7 @@ class CurrentUser(Field):
 
 
 class EmailField(Field):
-    """A Field representing a valid email address. Its parsed value is the given unicode string."""
+    """A Field representing a valid email address. Its parsed value is the given string."""
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         label = label or u''
         super(EmailField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
@@ -1167,7 +1167,7 @@ class EmailField(Field):
 
 
 class PasswordField(Field):
-    """A Field representing a password. Its parsed value is the given unicode string, but the user is not
+    """A Field representing a password. Its parsed value is the given string, but the user is not
        allowed to see its current value."""
     def __init__(self, default=None, required=False, required_message=None, label=None, writable=None):
         label = label or u''
@@ -1502,7 +1502,7 @@ class FileSizeConstraint(ValidationConstraint):
 
     @property
     def parameters(self):
-        return unicode(self.max_size_bytes)
+        return six.text_type(self.max_size_bytes)
 
     def validate_input(self, unparsed_input):
         files_list = unparsed_input
@@ -1556,7 +1556,7 @@ class MaxFilesConstraint(ValidationConstraint):
 
     @property
     def parameters(self):
-        return unicode(self.max_files)
+        return six.text_type(self.max_files)
 
     def validate_input(self, unparsed_input):
         files_list = unparsed_input

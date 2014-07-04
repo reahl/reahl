@@ -303,7 +303,7 @@ class PackageIndex(RemoteRepository):
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent.project.workspace,
-                      unicode(attributes['repository']))
+                      six.text_type(attributes['repository']))
 
     def __init__(self, workspace, repository):
         super(PackageIndex, self).__init__()
@@ -333,9 +333,9 @@ class SshRepository(RemoteRepository):
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent.project.workspace,
-                      unicode(attributes['host']), 
-                      unicode(attributes.get('login', os.environ['USER'])) or None,
-                      unicode(attributes['destination']) or None)
+                      six.text_type(attributes['host']), 
+                      six.text_type(attributes.get('login', os.environ['USER'])) or None,
+                      six.text_type(attributes['destination']) or None)
 
     def __init__(self, workspace, host, login, destination):
         super(SshRepository, self).__init__()
@@ -504,7 +504,7 @@ class Version(object):
         return not re.match(u'^\d+$', self.patch)
 
     def upper_version(self):
-        return Version('.'.join([self.major, unicode(int(self.minor)+1)]))
+        return Version('.'.join([self.major, six.text_type(int(self.minor)+1)]))
             
     def lower_deb_version(self):
         return self.truncated()  
@@ -694,7 +694,7 @@ class OrderedPersistedClass(object):
 
     @property
     def name(self):
-        return unicode(self.order)
+        return six.text_type(self.order)
     
     @classmethod
     def get_xml_registration_info(cls):
@@ -1062,7 +1062,7 @@ class DebianPackageMetadata(ProjectMetadata):
         
     @property
     def version(self):
-        return Version(unicode(self.changelog.version))
+        return Version(six.text_type(self.changelog.version))
 
     def get_long_description_for(self, project):
         return self.debian_control.get_long_description_for(u'python-%s' % project.project_name).replace(u' . ', u'\n\n')
@@ -1202,7 +1202,7 @@ class DebianControl(object):
 class SourceControlSystem(object):
     def __str__(self):
         if self.project.chicken_project:
-            return unicode(self.project.chicken_project.source_control)
+            return six.text_type(self.project.chicken_project.source_control)
         return u'No source control system selected'
 
     def __init__(self, project):
@@ -1260,11 +1260,11 @@ class BzrSourceControl(SourceControlSystem):
         return self.bzr.last_commit_time
     
     def is_unchanged(self):
-        tag = unicode(self.project.version)
+        tag = six.text_type(self.project.version)
         return tag in self.bzr.get_tags(head_only=True)
 
     def needs_new_version(self):
-        tag = unicode(self.project.version)
+        tag = six.text_type(self.project.version)
         return tag in self.bzr.get_tags()
 
     def is_version_controlled(self):
@@ -1480,7 +1480,7 @@ class Project(object):
     def mark_as_released(self):
         self.do_release_checks()
         self.check_uploaded()
-        self.source_control.place_tag(unicode(self.version))
+        self.source_control.place_tag(six.text_type(self.version))
 
 
 class EggProject(Project):
@@ -1682,7 +1682,7 @@ class EggProject(Project):
             setup_file.write(u')\n')
 
     def version_for_setup(self):
-        return unicode(self.version.as_upstream())
+        return six.text_type(self.version.as_upstream())
         
     def run_deps_for_setup(self):
         return [dep.as_string_for_egg() for dep in self.run_deps]
@@ -1699,7 +1699,7 @@ class EggProject(Project):
         return find_packages(where=self.directory, exclude=exclusions)
 
     def namespace_packages_for_setup(self):
-        return [six.binary_type(i.name) for i in self.namespaces]  # Note: this has to return non-unicode strings for setuptools!
+        return [six.binary_type(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!
 
     def py_modules_for_setup(self):
         return list(set(['setup']+[i[1] for i in pkgutil.iter_modules('.') if not i[2]]))

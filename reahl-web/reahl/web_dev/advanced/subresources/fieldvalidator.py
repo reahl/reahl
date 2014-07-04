@@ -88,7 +88,7 @@ class FieldValidatorTests(object):
         fixture.reahl_server.set_app(wsgi_app)
         browser = Browser(wsgi_app)
 
-        browser.open(unicode(fixture.url))
+        browser.open(six.text_type(fixture.url))
         response = browser.last_response
 
         vassert( response.body == fixture.expected_body )

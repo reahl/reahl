@@ -77,7 +77,7 @@ class RemoteMethodTests(object):
     
     @test(RemoteMethodFixture)
     def exception_handling(self, fixture):
-        """The RemoteMethod sends back the unicode() of an exception raised for the specified exception class."""
+        """The RemoteMethod sends back the six.text_type() of an exception raised for the specified exception class."""
         
         def fail():
             raise Exception(u'I failed')

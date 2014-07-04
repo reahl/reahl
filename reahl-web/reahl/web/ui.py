@@ -19,7 +19,7 @@ Basic Widgets and related user interface elements.
 """
 
 from __future__ import print_function
-
+import six
 
 from string import Template
 import re
@@ -391,7 +391,7 @@ class Link(HTMLElement):
     def __init__(self, view, rel, href, _type, css_id=None):
         super(Link, self).__init__(view, u'link', css_id=css_id)
         self.set_attribute(u'rel', rel)
-        self.set_attribute(u'href', unicode(href))
+        self.set_attribute(u'href', six.text_type(href))
         self.set_attribute(u'type', _type)
 
 
@@ -595,7 +595,7 @@ class A(HTMLElement):
     def attributes(self):
         attributes = super(A, self).attributes
         if self.active and (not self.disabled) and self.href is not None:
-            attributes.set_to(u'href', unicode(self.href))
+            attributes.set_to(u'href', six.text_type(self.href))
         return attributes
 
     def get_js(self, context=None):
@@ -697,7 +697,7 @@ class P(HTMLElement):
             filled_p.add_child(child)
 
         for i in range(0,len(args)):
-            filled_p.set_slot(unicode(i), args[i])
+            filled_p.set_slot(six.text_type(i), args[i])
         for slot_name, widget in kwargs.items():
             filled_p.set_slot(slot_name, widget)
         return filled_p
@@ -835,7 +835,7 @@ class Img(HTMLElement):
     """
     def __init__(self, view, src, alt=None, css_id=None):
         super(Img, self).__init__(view, u'img', css_id=css_id)
-        self.set_attribute(u'src', unicode(src))
+        self.set_attribute(u'src', six.text_type(src))
         if alt:
             self.set_attribute(u'alt', alt)
 
@@ -956,7 +956,7 @@ class Form(HTMLElement):
         self.rendered_form = rendered_form or self
         assert unique_name == self.event_channel.name
         super(Form, self).__init__(view, u'form', children_allowed=True, css_id=unique_name)
-        self.set_attribute(u'data-formatter', unicode(self.input_formatter.get_url()))
+        self.set_attribute(u'data-formatter', six.text_type(self.input_formatter.get_url()))
 
     def set_up_event_channel(self, event_channel_name):
         self.event_channel = EventChannel(self, self.controller, event_channel_name)
@@ -1028,7 +1028,7 @@ class Form(HTMLElement):
         action = self.event_channel.get_url()
         action.query = request.query_string
         action.make_network_relative()
-        return unicode(action)
+        return six.text_type(action)
     
     def register_input(self, input_widget):
         self.inputs[input_widget.name] = input_widget
@@ -1277,7 +1277,7 @@ class Input(Widget):
         html5_validations = [u'pattern', u'required', u'maxlength', u'minlength', u'accept', u'minvalue', u'maxvalue', u'remote']
         for validation_constraint in validation_constraints:
             if validation_constraint.is_remote:
-                attributes.set_to(validation_constraint.name, unicode(self.form.field_validator.get_url()))
+                attributes.set_to(validation_constraint.name, six.text_type(self.form.field_validator.get_url()))
             elif validation_constraint.name in html5_validations:
                 attributes.set_to(validation_constraint.name, validation_constraint.parameters)
             elif validation_constraint.name != u'':
@@ -1374,9 +1374,9 @@ class TextArea(Input):
     def get_wrapped_html_attributes(self, attributes):
         attributes = super(TextArea, self).get_wrapped_html_attributes(attributes)
         if self.rows:
-            attributes.set_to(u'rows', unicode(self.rows))
+            attributes.set_to(u'rows', six.text_type(self.rows))
         if self.columns:
-            attributes.set_to(u'cols', unicode(self.columns))
+            attributes.set_to(u'cols', six.text_type(self.columns))
         return attributes
 
 
@@ -2236,7 +2236,7 @@ class SimpleFileInput(Input):
             size = field_storage.file.tell()
             field_storage.file.seek(0)
             return size
-        return [UploadedFile(unicode(field_storage.filename), field_storage.file, unicode(field_storage.type), file_size(field_storage)) 
+        return [UploadedFile(six.text_type(field_storage.filename), field_storage.file, six.text_type(field_storage.type), file_size(field_storage)) 
                  for field_storage in field_storages
                  if field_storage != u'']
 
@@ -2329,7 +2329,7 @@ class FileUploadPanel(Panel):
 
     def attach_jq_widget(self, selector, widget_name, **options):
         def js_repr(value):
-            if type(value) in [str, unicode]:
+            if isinstance(value, six.string_types):
                 return u'"%s"' % value
             return value
         option_args = u','.join([u'%s: %s' % (name, js_repr(value)) for name, value in options.items()])

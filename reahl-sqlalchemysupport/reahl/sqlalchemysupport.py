@@ -266,7 +266,7 @@ class PersistedField(Field):
     def unparse_input(self, parsed_value):
         instance = parsed_value
         if instance:
-            return unicode(instance.id)
+            return six.text_type(instance.id)
         return u''
 
 
