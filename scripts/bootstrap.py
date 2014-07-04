@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import six
 import sys
 import pkg_resources
@@ -88,23 +89,23 @@ def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
     return missing
 
 def install_prerequisites(missing):
-  print '----------------------------------------------------------------------------------'
-  print 'reahl-dev depends on eggs that are not part of reahl.'
-  print 'You need these in order to run this script.'
-  print 'Some of these are not installed on your system.'
-  print 'The missing eggs are:'
-  print
-  print '  '+(' '.join(missing))
-  print
-  print 'Can I go ahead and "pip install" the eggs listed above?'
-  print '  (the alternative is for you to answer "no", which will abort this script and '
-  print '   thus allow you to first install the missing eggs yourself by other means)'
-  print
+  print('----------------------------------------------------------------------------------')
+  print('reahl-dev depends on eggs that are not part of reahl.')
+  print('You need these in order to run this script.')
+  print('Some of these are not installed on your system.')
+  print('The missing eggs are:')
+  print('')
+  print('  '+(' '.join(missing)))
+  print('')
+  print('Can I go ahead and "pip install" the eggs listed above?')
+  print('  (the alternative is for you to answer "no", which will abort this script and ')
+  print('   thus allow you to first install the missing eggs yourself by other means)')
+  print('')
   if ask('Enter "yes" or "no"   : '):
       import pip
       pip.main(['install']+missing)
   else:
-      print 'Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0]))
+      print('Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0])))
       exit(1)
 
 def bootstrap_workspace(workspace_dir, core_project_dirs):
@@ -131,41 +132,41 @@ def find_missing_dependencies(workspace):
     return list(missing)
 
 def print_final_message(missing_dependencies):
-    print
-    print
-    print '-- ALL DONE --------------------------------------------------------------------------'
+    print('')
+    print('')
+    print('-- ALL DONE --------------------------------------------------------------------------')
     if missing_dependencies:
-      print 'The following eggs are not available on your system, but are needed '
-      print 'to be able to develop and run reahl:'
-      print
-      print '  '+' '.join(missing_dependencies)
-      print
-      print 'You have a choice here:'
-      print ' 1) You can install packages that provide these eggs via the package manager of your distribution'
-      print ' 2) You can install the eggs directly using "pip install" using the following command:'
-      print '    pip install ' + (' '.join(['"%s"' % d for d in missing_dependencies])) 
-      print
-      print 'NOTE: You are running inside a virtualenv'
-      print '      To be able to do (1), your virtualenv should have been created using the '
-      print '      --system-site-packages option to virtualenv.'
-      print
-      print 'NOTE: Choosing (2) will require that you have some non-python packages installed'
-      print '      on your system. What these are called may differ depending on your distribution/OS,'
-      print '      As a hint, on ubuntu these are called:'
-      print
-      print '  python-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 postgresql-server-dev-9.1 zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms1-dev'
-      print
-      print 'NB:  You will have to run this script again after satisfying these dependencies'
-      print
+      print('The following eggs are not available on your system, but are needed ')
+      print('to be able to develop and run reahl:')
+      print('')
+      print('  '+' '.join(missing_dependencies))
+      print('')
+      print('You have a choice here:')
+      print(' 1) You can install packages that provide these eggs via the package manager of your distribution')
+      print(' 2) You can install the eggs directly using "pip install" using the following command:')
+      print('    pip install ' + (' '.join(['"%s"' % d for d in missing_dependencies])) )
+      print('')
+      print('NOTE: You are running inside a virtualenv')
+      print('      To be able to do (1), your virtualenv should have been created using the ')
+      print('      --system-site-packages option to virtualenv.')
+      print('')
+      print('NOTE: Choosing (2) will require that you have some non-python packages installed')
+      print('      on your system. What these are called may differ depending on your distribution/OS,')
+      print('      As a hint, on ubuntu these are called:')
+      print('')
+      print('  python-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 postgresql-server-dev-9.1 zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms1-dev')
+      print('')
+      print('NB:  You will have to run this script again after satisfying these dependencies')
+      print('')
     else:
-      print 'Done. All python dependencies satisfied.'
-      print
-      print 'In order to develop on Reahl, you will need other (non-python) packages as well.'
-      print 'What these are called may differ depending on your distribution/OS.'
-      print 'As a hint, on ubuntu systems these are:'
-      print
-      print ' equivs openssh-client dpkg-dev '
-      print
+      print('Done. All python dependencies satisfied.')
+      print('')
+      print('In order to develop on Reahl, you will need other (non-python) packages as well.')
+      print('What these are called may differ depending on your distribution/OS.')
+      print('As a hint, on ubuntu systems these are:')
+      print('')
+      print(' equivs openssh-client dpkg-dev ')
+      print('')
 
 
 

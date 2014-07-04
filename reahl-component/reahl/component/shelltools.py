@@ -16,6 +16,7 @@
 
 """A basic framework for writing commandline utilities."""
 
+from __future__ import print_function
 import six
 import sys
 import os.path
@@ -141,13 +142,13 @@ class ReahlCommandline(object):
         raise CommandNotFound(name)
 
     def print_usage(self, parser):
-        print >> sys.stderr, parser.format_help()
-        print >> sys.stderr, '\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(sys.argv[0])
+        print(parser.format_help(), file=sys.stderr)
+        print(u'\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(sys.argv[0]), file=sys.stderr)
         max_len = max([len(command.keyword) for command in self.commands])
         format_template = '{0: <%s}\t{1}' % max_len
         for command in self.commands:
-            print >> sys.stderr, format_template.format(command.keyword, command.__doc__)
-        print >> sys.stderr, ''
+            print(format_template.format(command.keyword, command.__doc__), file=sys.stderr)
+        print('', file=sys.stderr)
 
     @classmethod
     def execute_one(cls):

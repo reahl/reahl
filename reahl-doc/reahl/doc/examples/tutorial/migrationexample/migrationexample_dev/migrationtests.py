@@ -1,6 +1,7 @@
 
 
 
+from __future__ import print_function
 import six
 from reahl.tofu import test
 

@@ -16,6 +16,7 @@
 
 """Exceptions used by modules in this package."""
 
+from __future__ import print_function
 import six
 import inspect
 

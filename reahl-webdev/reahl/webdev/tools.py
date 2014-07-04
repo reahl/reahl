@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import six
 import contextlib
 import urlparse
@@ -59,7 +60,7 @@ class BasicBrowser(object):
 
     def view_source(self):
         for line in html.tostring(self.lxml_html, pretty_print=True).split('\n'): 
-            print line
+            print(line)
             
     def save_source(self, filename):
         with open(filename, 'w') as html_file:

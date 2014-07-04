@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Utilities for use with reahl
+from __future__ import print_function
 import six
 ============================
 

@@ -16,6 +16,7 @@
 
 # -*- mode: python; mode: font-lock -*-
 
+from __future__ import print_function
 import six
 __import__('pkg_resources').declare_namespace(__name__)
 

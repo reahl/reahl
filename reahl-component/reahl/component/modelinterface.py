@@ -16,6 +16,7 @@
 
 """Facilities to govern user input and output, as well as what access the current user has to model objects."""
 
+from __future__ import print_function
 import six
 import sys
 import copy

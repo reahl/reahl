@@ -16,6 +16,7 @@
 
 """Classes that aid in dealing with Eggs and setting them up."""
 
+from __future__ import print_function
 import six
 import os
 import os.path

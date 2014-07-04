@@ -16,6 +16,7 @@
 
 """Tools for handling ReStructured Text."""
 
+from __future__ import print_function
 import six
 import docutils.io
 import docutils.core

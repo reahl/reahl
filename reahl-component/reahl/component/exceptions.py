@@ -16,6 +16,7 @@
 
 """Exceptions used throughout several Reahl components."""
 
+from __future__ import print_function
 import six
 import inspect
 import sys

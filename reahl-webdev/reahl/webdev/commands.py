@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import six
 import os.path
 
@@ -34,14 +35,14 @@ class ServeCurrentProject(WorkspaceCommand):
         if args:
             config_directory = args[0]
 
-        print '\nUsing config from %s\n' % config_directory
+        print('\nUsing config from %s\n' % config_directory)
             
         with project.paths_set():
             reahl_server = self.start_server(options, config_directory)
 
-            print '\n\nServing http on port %s, https on port %s (config=%s)' % \
-                                     (options.port, int(options.port)+363, config_directory)
-            print '\nPress <Enter> to terminate\n\n'
+            print('\n\nServing http on port %s, https on port %s (config=%s)' % \
+                                     (options.port, int(options.port)+363, config_directory))
+            print('\nPress <Enter> to terminate\n\n')
     
             raw_input()        
             reahl_server.stop()

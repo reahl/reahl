@@ -1,4 +1,5 @@
 
+from __future__ import print_function
 import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P
@@ -34,8 +35,8 @@ class Comment(object):
         events.submit = Event(label=u'Submit', action=Action(self.submit))
 
     def submit(self):
-        print '%s submitted a comment:' % self.email_address
-        print self.text
+        print('%s submitted a comment:' % self.email_address)
+        print(self.text)
 
     def contains_text(self):
         return self.text and self.text.strip() != u''

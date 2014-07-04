@@ -16,6 +16,7 @@
 
 """The Reahl configuration utilities."""
 
+from __future__ import print_function
 import six
 import sys
 import os.path
@@ -122,10 +123,10 @@ class EntryPointClassList(ConfigSetting):
             try:
                 classes.append(i.load())
             except ImportError, e:
-                print >> sys.stderr, '\nWARNING: Cannot import %s, from %s' % (i, i.dist)
-                print >> sys.stderr, e
+                print('\nWARNING: Cannot import %s, from %s' % (i, i.dist), file=sys.stderr)
+                print(e, file=sys.stderr)
             except DistributionNotFound, e:
-                print >> sys.stderr, '\nWARNING: Cannot find %s, required by %s' % (e, i.dist)
+                print('\nWARNING: Cannot find %s, required by %s' % (e, i.dist), file=sys.stderr)
                 
         return classes
 

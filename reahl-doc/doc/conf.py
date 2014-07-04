@@ -17,6 +17,7 @@
 # -*- coding: utf-8 -*-
 #
 
+from __future__ import print_function
 import six
 import sys, os, datetime
 

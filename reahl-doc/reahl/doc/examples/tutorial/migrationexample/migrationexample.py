@@ -1,5 +1,6 @@
 
 
+from __future__ import print_function
 import six
 from datetime import datetime
 
@@ -20,11 +21,11 @@ from alembic import op
 class AddDate(Migration):
     version = u'0.1'
     def upgrade(self):
-        print 'executing AddDate (upgrade)'
+        print(u'executing AddDate (upgrade)')
         op.add_column(u'migration_address', Column('added_date', DateTime))
             
     def upgrade_cleanup(self):
-        print 'executing AddDate (upgrade_cleanup)'
+        print(u'executing AddDate (upgrade_cleanup)')
 
 
 

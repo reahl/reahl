@@ -16,9 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-import six
 Tools for breaking long lists into shorter lists that can be paged.
 """
+
+from __future__ import print_function
+import six
+
 
 from abc import ABCMeta, abstractmethod, abstractproperty
 from functools import partial

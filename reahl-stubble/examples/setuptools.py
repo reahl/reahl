@@ -19,6 +19,7 @@
 # Please see the README file for more info.
 #
 
+from __future__ import print_function
 import six
 import pkg_resources
 
@@ -48,5 +49,5 @@ stub_egg.add_entry_point(group_name, 'test2', StubClass2)
 #now, the actual code (which is presumably being tested)
 #  (we just print out each class it finds...)
 for i in pkg_resources.iter_entry_points(group_name):
-    print i.load()
+    print(i.load())
 
