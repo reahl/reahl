@@ -1,4 +1,5 @@
 
+import six
 from reahl.tofu import test, set_up, scenario
 
 from reahl.sqlalchemysupport import Session, metadata

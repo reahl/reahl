@@ -16,6 +16,7 @@
 
 """A generic factory that can construct Python classes from XML.
 
+import six
 This package provides infrastructure that will read an XML file with
 clean, human readable XML and provide you with a bunch of classes that
 have been constructed and initialised according to the information in

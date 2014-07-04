@@ -16,6 +16,7 @@
 
 
 """
+import six
 Tofu started out its life as a complete test framework. Tofu has since
 been rewritten as independently usable test utilities, some of which
 are integrated to work as a plugin with `nosetests

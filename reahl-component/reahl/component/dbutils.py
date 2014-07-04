@@ -16,6 +16,7 @@
 
 """Utilities to manipulate underlying databases - sometimes via an ORM tool."""
 
+import six
 import subprocess
 import gzip
 import re

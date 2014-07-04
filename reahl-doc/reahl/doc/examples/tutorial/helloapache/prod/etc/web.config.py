@@ -1,4 +1,5 @@
 
+import six
 from helloapache import HelloUI
 
 # The UserInterface class acting as the root of the URL hierachy of your application:

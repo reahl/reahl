@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from tempfile import NamedTemporaryFile
 import os
 import pkg_resources

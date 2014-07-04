@@ -1,4 +1,5 @@
 
+import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, Not

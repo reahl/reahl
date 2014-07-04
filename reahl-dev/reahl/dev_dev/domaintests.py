@@ -16,6 +16,7 @@
 
 """Tests for the devdomain module."""
 
+import six
 import os
 import os.path
 import filecmp

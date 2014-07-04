@@ -16,6 +16,7 @@
 
 """The Reahl configuration utilities."""
 
+import six
 import sys
 import os.path
 import logging

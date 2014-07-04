@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+import six
 Tools for breaking long lists into shorter lists that can be paged.
 """
 

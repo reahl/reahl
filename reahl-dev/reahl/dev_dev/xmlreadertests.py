@@ -17,6 +17,7 @@
 # -*- mode: python; mode: font-lock -*-
 # Copyright 2005 Iwan Vosloo
 
+import six
 import time
 
 from reahl.stubble import easter_egg, stubclass, EmptyStub

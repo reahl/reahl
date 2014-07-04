@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+import six
 Static pages that are included on the fly inside Views.
 """
 

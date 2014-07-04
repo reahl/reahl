@@ -16,6 +16,7 @@
 
 
 
+import six
 from reahl.tofu import Fixture, test, vassert
 
 from reahl.sqlalchemysupport import SqlAlchemyControl

@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 class EventTester(object):
     def __init__(self, event, **arguments):
         self.occurring_event = event.with_arguments(**arguments)

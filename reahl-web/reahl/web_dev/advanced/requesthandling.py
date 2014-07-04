@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from webob import Request, Response
 from webob.exc import HTTPNotFound
 

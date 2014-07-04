@@ -18,6 +18,7 @@
 """A user interface for logging in, registering, etc using :class:`~reahl.systemaccountmodel.EmailAndPasswordSystemAccount`."""
 
 
+import six
 from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface, Widget, WebExecutionContext, Url
 from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxInput, \

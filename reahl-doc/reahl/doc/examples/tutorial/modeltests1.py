@@ -1,3 +1,4 @@
+import six
 from nose.tools import istest
 
 class Address(object):

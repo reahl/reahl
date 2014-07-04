@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsUI
 
 web.site_root = BasicHTMLWidgetsUI

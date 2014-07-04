@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from reahl.tofu import Fixture
 
 from reahl.component.context import ExecutionContext

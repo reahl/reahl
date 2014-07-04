@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Panel, P
 
