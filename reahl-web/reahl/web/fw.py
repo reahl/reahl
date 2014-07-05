@@ -17,6 +17,7 @@
 """The reahl.fw module implements the core of the Reahl web framework.
 """
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import atexit
@@ -61,12 +62,12 @@ from reahl.component.config import StoredConfiguration
 from reahl.component.decorators import memoized, deprecated
 from reahl.component.eggs import ReahlEgg
 
-_ = Translator(u'reahl-web')
+_ = Translator('reahl-web')
 
 class ValidationException(DomainException):
     """Indicates that one or more Fields received invalid data."""
     def as_user_message(self):
-        return _(u'Invalid data supplied')
+        return _('Invalid data supplied')
 
 
 class NoMatchingFactoryFound(Exception):
@@ -119,17 +120,17 @@ class Url(object):
     def netloc(self):
         """Returns the `authority part of the URl as per RFC3968 <http://tools.ietf.org/html/rfc3986#section-3.2>`_, 
            also sometimes referred to as the netloc part in Python docs."""
-        netloc = u''
+        netloc = ''
         if self.username: netloc += self.username
-        if self.password: netloc += u':%s' % self.password
-        if netloc:        netloc += u'@'
+        if self.password: netloc += ':%s' % self.password
+        if netloc:        netloc += '@'
         if self.hostname: netloc += self.hostname
-        if self.port:     netloc += u':%s' % self.port
+        if self.port:     netloc += ':%s' % self.port
         return netloc
 
     def get_locale_split_path(self, locale=None):
-        locale = locale or u'[^/]+'
-        match = re.match(u'/(?P<locale>%s)(?P<url>/.*|$)' % locale, self.path)
+        locale = locale or '[^/]+'
+        match = re.match('/(?P<locale>%s)(?P<url>/.*|$)' % locale, self.path)
         if match:
             return match.groups()
         return (None, self.path)
@@ -156,9 +157,9 @@ class Url(object):
 
     def make_network_relative(self):
         """Removes the scheme, hostname and port from this URL."""
-        self.scheme = u''
-        self.hostname = u''
-        self.port = u''
+        self.scheme = ''
+        self.hostname = ''
+        self.port = ''
 
     def as_network_absolute(self):
         """Returns a new Url equal to this one, except that it does not contain a scheme, hostname or port."""
@@ -171,7 +172,7 @@ class Url(object):
         context = ExecutionContext.get_context()
         locale = locale or context.interface_locale
         if locale != context.config.web.default_url_locale:
-            self.path = u'/%s%s' % (locale, self.path)
+            self.path = '/%s%s' % (locale, self.path)
         
     def make_locale_relative(self):
         """Ensures that this URL does not include a starting path indicating locale."""
@@ -273,7 +274,7 @@ class EventHandler(object):
             try:
                 url = self.target.get_absolute_url(self.user_interface, **event_ocurrence.arguments)
             except ValidationConstraint as ex:
-                raise ProgrammerError(u'The arguments of %s are invalid for transition target %s: %s' % \
+                raise ProgrammerError('The arguments of %s are invalid for transition target %s: %s' % \
                     (event_ocurrence, self.target, ex))
         return url
 
@@ -358,7 +359,7 @@ class Controller(object):
                 self.cached_views[relative_path] = view
         return view
 
-    @arg_checks(event=IsInstance(Event), target=IsInstance(u'reahl.web.fw:ViewFactory', allow_none=True))
+    @arg_checks(event=IsInstance(Event), target=IsInstance('reahl.web.fw:ViewFactory', allow_none=True))
     def define_event_handler(self, event, target=None):
         event_handler = EventHandler(self.user_interface, event, target or self.current_view.as_factory())
         self.event_handlers.append(event_handler)
@@ -435,7 +436,7 @@ class UserInterface(object):
         self.slot_map = slot_map                     #: A dictionary mapping names of Slots as used in this 
                                                      #: UserInterface, to those of its parent UserInterface
         self.name = name                             #: A name which is unique amongst all UserInterfaces in the application
-        self.relative_path = u''                     #: The path of the current Url, relative to this UserInterface
+        self.relative_path = ''                     #: The path of the current Url, relative to this UserInterface
         self.page_factory = None
         if not for_bookmark:
             self.update_relative_path()
@@ -462,7 +463,7 @@ class UserInterface(object):
     def make_full_path(cls, parent_ui, relative_path):
         if parent_ui:
             path = parent_ui.base_path + relative_path
-            if path.startswith(u'//'):
+            if path.startswith('//'):
                 return path[1:]
             return path
         return relative_path
@@ -496,20 +497,20 @@ class UserInterface(object):
         except NoMatchingFactoryFound:
             raise HTTPNotFound()
 
-    @arg_checks(widget_class=IsSubclass(u'reahl.web.fw:Widget'))
+    @arg_checks(widget_class=IsSubclass('reahl.web.fw:Widget'))
     def define_page(self, widget_class, *args, **kwargs):
         """Called from `assemble` to create the :class:`WidgetFactory` to use when the framework
            needs to create a Widget for use as the page for this UserInterface. Pass the class of
            Widget that will be constructed in `widget_class`.  Next, pass all the arguments that should
            be passed to `widget_class` upon construction, except the first one (its `view`).
         """
-        checkargs_explained(u'define_page was called with arguments that do not match those expected by %s' % widget_class, 
-                            widget_class.__init__, NotYetAvailable(u'view'), *args, **kwargs)
+        checkargs_explained('define_page was called with arguments that do not match those expected by %s' % widget_class, 
+                            widget_class.__init__, NotYetAvailable('view'), *args, **kwargs)
 
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
 
-    @deprecated(u'Please use .define_page() instead.')
+    @deprecated('Please use .define_page() instead.')
     def define_main_window(self, *args, **kwargs):
         return self.define_page(*args, **kwargs)
 
@@ -519,7 +520,7 @@ class UserInterface(object):
         try:
             name = self.slot_map[local_slot_name]
         except KeyError:
-            message = u'When trying to plug %s into %s: slot "%s" of %s is not mapped. Mapped slots: %s' % \
+            message = 'When trying to plug %s into %s: slot "%s" of %s is not mapped. Mapped slots: %s' % \
                 (view, page, local_slot_name, self, self.slot_map.keys())
             raise ProgrammerError(message)
         if not self.parent_ui:
@@ -552,12 +553,12 @@ class UserInterface(object):
              user is allowed to perform any actions linked to this :class:`View` or not.
            :param assemble_args: keyword arguments that will be passed to the `assemble` of this :class:`View` upon creation
         """
-        title = title or _(u'Untitled')
+        title = title or _('Untitled')
         slot_definitions = slot_definitions or {}
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
 
         view_class = view_class or UrlBoundView
-        checkargs_explained(u'.define_view() was called with incorrect arguments for %s' % view_class.assemble, 
+        checkargs_explained('.define_view() was called with incorrect arguments for %s' % view_class.assemble, 
                             view_class.assemble, **assemble_args)
 
         factory = ViewFactory(ParameterisedPath(relative_path, path_argument_fields), title, slot_definitions, 
@@ -592,7 +593,7 @@ class UserInterface(object):
 
         if not factory_method:
             view_class = view_class or UrlBoundView
-            checkargs_explained(u'.define_regex_view() was called with incorrect arguments for %s' % \
+            checkargs_explained('.define_regex_view() was called with incorrect arguments for %s' % \
                             view_class.assemble, view_class.assemble, **assemble_args)
 
         factory = ViewFactory(RegexPath(path_regex, path_template, path_argument_fields), None, {}, 
@@ -648,14 +649,14 @@ class UserInterface(object):
              after construction.
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
-        checkargs_explained(u'.define_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
+        checkargs_explained('.define_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
                             ui_class.assemble,  **assemble_args)
 
         ui_factory = UserInterfaceFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    @deprecated(u'Please use .define_user_interface() instead')
+    @deprecated('Please use .define_user_interface() instead')
     def define_region(self, *args, **kwargs):
         return self.define_user_interface(*args, **kwargs)
 
@@ -669,7 +670,7 @@ class UserInterface(object):
            :param name: (See `define_user_interface`.)
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
-        checkargs_explained(u'.define_regex_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
+        checkargs_explained('.define_regex_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
                             ui_class.assemble,  **assemble_args)
 
         regex_path = RegexPath(path_regex, path_template, path_argument_fields)
@@ -677,7 +678,7 @@ class UserInterface(object):
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    @deprecated(u'Please use .define_regex_user_interface() instead')
+    @deprecated('Please use .define_regex_user_interface() instead')
     def define_regex_region(self, *args, **kwargs):
         return self.define_regex_user_interface(*args, **kwargs)
 
@@ -694,24 +695,24 @@ class UserInterface(object):
            The URL is mapped to a similarly named subdirectory of the `static root` of the web application,
            as configured, as configured by the setting `web.static_root`.
         """
-        ui_name = u'static_%s' % path
+        ui_name = 'static_%s' % path
         ui_factory = UserInterfaceFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=DiskDirectory(path))
         return self.add_user_interface_factory(ui_factory)
 
     def define_static_files(self, path, files):
         """Defines an URL which is mapped to serve the list of static files given.
         """
-        ui_name = u'static_%s' % path
+        ui_name = 'static_%s' % path
         ui_factory = UserInterfaceFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
         return self.add_user_interface_factory(ui_factory)
 
     def get_relative_path_for(self, full_path):
-        if self.base_path == u'/':
+        if self.base_path == '/':
             return full_path
         return full_path[len(self.base_path):]
     
     def get_absolute_url_for(self, relative_path):
-        if self.base_path == u'/':
+        if self.base_path == '/':
             new_path = relative_path
         else:
             new_path = self.base_path+relative_path
@@ -733,7 +734,7 @@ class UserInterface(object):
         """
         view = self.view_for(relative_path)
         if not view.exists:
-            raise ProgrammerError(u'no such bookmark (%s)' % relative_path)
+            raise ProgrammerError('no such bookmark (%s)' % relative_path)
         return view.as_bookmark(description=description, query_arguments=query_arguments, ajax=ajax)
 
     def get_view_for_full_path(self, full_path):
@@ -748,7 +749,7 @@ class UserInterface(object):
         return self.controller.view_for(relative_path, for_bookmark=for_bookmark)
 
 
-@deprecated(u'Region has been renamed to UserInterface, please use UserInterface instead')
+@deprecated('Region has been renamed to UserInterface, please use UserInterface instead')
 class Region(UserInterface):
     pass
 
@@ -759,7 +760,7 @@ class StaticUI(UserInterface):
 
     def assemble(self, files=None):
         self.files = files
-        self.define_regex_view(u'(?P<file_path>.*)', u'${file_path}', factory_method=self.create_view, file_path=Field())
+        self.define_regex_view('(?P<file_path>.*)', '${file_path}', factory_method=self.create_view, file_path=Field())
 
 
 class Bookmark(object):
@@ -792,7 +793,7 @@ class Bookmark(object):
                                    follows a link.
            :param bookmark_kwargs: Keyword arguments sent as-is to the constructor of Bookmark.
         """
-        return Bookmark(u'', u'', description, query_arguments=query_arguments, ajax=True, **bookmark_kwargs)
+        return Bookmark('', '', description, query_arguments=query_arguments, ajax=True, **bookmark_kwargs)
 
     def __init__(self, base_path, relative_path, description, query_arguments=None, ajax=False, detour=False, exact=True, read_check=None, write_check=None):
         self.base_path = base_path
@@ -816,7 +817,7 @@ class Bookmark(object):
         if self.detour:
             request = WebExecutionContext.get_context().request
             query_arguments['returnTo'] = request.url
-        path = (self.base_path + self.relative_path).replace(u'//',u'/')
+        path = (self.base_path + self.relative_path).replace('//','/')
         url = Url(path)
         url.make_locale_absolute()
         url.set_query_from(query_arguments)
@@ -830,7 +831,7 @@ class Bookmark(object):
     def __add__(self, other):
         """You can add a page-internal Bookmark to the Bookmark for a View."""
         if not other.is_page_internal:
-            raise ProgrammerError(u'only page-internal Bookmarks can be added to other bookmarks')
+            raise ProgrammerError('only page-internal Bookmarks can be added to other bookmarks')
         query_arguments = {}
         query_arguments.update(self.query_arguments)
         query_arguments.update(other.query_arguments)
@@ -874,7 +875,7 @@ class Detour(Redirect):
 
     def compute_target_url(self):
         redirect_url = super(Detour, self).compute_target_url()
-        qs = {u'returnTo': six.text_type(self.return_to.href.as_network_absolute()) }
+        qs = {'returnTo': six.text_type(self.return_to.href.as_network_absolute()) }
         redirect_url.set_query_from(qs)
         return redirect_url
 
@@ -889,7 +890,7 @@ class Return(Redirect):
 
 class WidgetList(list):
     def render(self):
-        return u''.join([child.render() for child in self])
+        return ''.join([child.render() for child in self])
 
     def get_js(self, context=None):
         js = []
@@ -926,7 +927,7 @@ class Widget(object):
         """
         return WidgetFactory(cls, *widget_args, **widget_kwargs)
 
-    @arg_checks(view=IsInstance(u'reahl.web.fw:View'))
+    @arg_checks(view=IsInstance('reahl.web.fw:View'))
     def __init__(self, view, read_check=None, write_check=None):
         self.children = WidgetList()         #: All the Widgets that have been added as children of this Widget,
                                              #: in order of being added.
@@ -980,21 +981,21 @@ class Widget(object):
 
     @property
     def read_check_is_specified(self):
-        return self.read_check and hasattr(self.read_check, u'is_specified') and self.read_check.is_specified
+        return self.read_check and hasattr(self.read_check, 'is_specified') and self.read_check.is_specified
 
     def set_priority(self, secondary=None, primary=None):
         if primary: 
-            self.priority = u'primary'
+            self.priority = 'primary'
         elif secondary:
-            self.priority = u'secondary'
+            self.priority = 'secondary'
 
-    @arg_checks(child=IsInstance(u'reahl.web.fw:Widget'))
+    @arg_checks(child=IsInstance('reahl.web.fw:Widget'))
     def add_child(self, child):
         """Adds another Widget (`child`) as a child Widget of this one."""
         self.children.append(child)
         return child
         
-    @arg_checks(child=IsInstance(u'reahl.web.fw:Widget'))
+    @arg_checks(child=IsInstance('reahl.web.fw:Widget'))
     def insert_child(self, index, child):
         """Adds another Widget (`child`) as a child Widget of this one, at `index` position amongst existing children."""
         self.children.insert(index, child)
@@ -1017,7 +1018,7 @@ class Widget(object):
         if self.visible:
             return self.render_contents()
         else:
-            return u''
+            return ''
 
     def can_read(self):
         return (not self.read_check) or self.read_check()
@@ -1065,12 +1066,12 @@ class Widget(object):
         slots_available = set(self.available_slots)
         if not slots_to_plug_in.issubset(slots_available):
             invalid_slots = slots_to_plug_in - slots_available
-            invalid_slots = u','.join(invalid_slots)
-            available_slots = u','.join(slots_available)
+            invalid_slots = ','.join(invalid_slots)
+            available_slots = ','.join(slots_available)
 
-            message = u'An attempt was made to plug Widgets into the following slots that do not exist on page %s: %s\n' % (self, invalid_slots)
-            message += u'(expected one of these slot names: %s)\n' % available_slots
-            message += u'View %s plugs in the following:\n' % view
+            message = 'An attempt was made to plug Widgets into the following slots that do not exist on page %s: %s\n' % (self, invalid_slots)
+            message += '(expected one of these slot names: %s)\n' % available_slots
+            message += 'View %s plugs in the following:\n' % view
             for local_slot_name, factory in view.slot_definitions.items():
                 page_slot_name = self.user_interface.page_slot_for(view, self, local_slot_name)
                 message += '%s is plugged into slot "%s", which is mapped to slot "%s"' % \
@@ -1091,7 +1092,7 @@ class Widget(object):
                 checked_forms[form.css_id] = form
             else:
                 existing_form = checked_forms[form.css_id]
-                message = u'More than one form was added using the same unique_name: %s and %s' % (form, existing_form)
+                message = 'More than one form was added using the same unique_name: %s and %s' % (form, existing_form)
                 raise ProgrammerError(message)
 
     def plug_in(self, view):
@@ -1102,8 +1103,8 @@ class Widget(object):
         for slot_name, widget_factory in self.default_slot_definitions.items():
             if slot_name not in self.slot_contents.keys():
                 self.slot_contents[slot_name] = widget_factory.create(view)
-        self.slot_contents[u'reahl_header'] = HeaderContent(self)
-        self.slot_contents[u'reahl_footer'] = FooterContent(self)
+        self.slot_contents['reahl_header'] = HeaderContent(self)
+        self.slot_contents['reahl_footer'] = FooterContent(self)
         self.fill_slots(self.slot_contents)
         self.attach_out_of_bound_forms(view.out_of_bound_forms)
         self.check_forms()
@@ -1149,7 +1150,7 @@ class ViewPreCondition(object):
     def check(self, *args, **kwargs):
         if not self.is_true(*args, **kwargs):
             request = WebExecutionContext.get_context().request
-            if request.method.lower() not in [u'get', u'head']:
+            if request.method.lower() not in ['get', 'head']:
                 raise HTTPNotFound()
             raise self.exception
 
@@ -1192,14 +1193,14 @@ class RegexPath(object):
         return self.parse_arguments_from_fields(self.argument_fields, relative_path)
 
     def get_base_part_in(self, relative_path):
-        return self.match_foreign_view(relative_path).match.group(u'base_path')
+        return self.match_foreign_view(relative_path).match.group('base_path')
 
     def get_relative_part_in(self, relative_path):
-        return self.match_foreign_view(relative_path).match.group(u'relative_path')
+        return self.match_foreign_view(relative_path).match.group('relative_path')
 
     def has_relative_part_in(self, relative_path):
         matched = self.match_foreign_view(relative_path).match
-        return (matched and matched.group(u'relative_path')) is not None
+        return (matched and matched.group('relative_path')) is not None
 
     def get_relative_path_from(self, arguments):
         arguments_as_input = self.get_arguments_as_input(arguments)
@@ -1211,18 +1212,18 @@ class RegexPath(object):
         return RatedMatch(match, rating)
 
     def match_view(self, relative_path):
-        view_regex = u'(?P<view_path>^%s)(/?_.*)?(\?.*)?$' % self.regex  # Note: if the path_regex ends in / the / in the last bit should not be
+        view_regex = '(?P<view_path>^%s)(/?_.*)?(\?.*)?$' % self.regex  # Note: if the path_regex ends in / the / in the last bit should not be
                                                    #       there, else it should. I don't know how to make this more precise.
         match = re.match(view_regex, relative_path)
-        rating = len(match.group(u'view_path')) if match else 0
+        rating = len(match.group('view_path')) if match else 0
         return RatedMatch(match, rating)
 
     def match_foreign_view(self, relative_path):
-        own_path = u'' if self.regex == u'/' else self.regex
-        foreign_view_regex = u'^(?P<base_path>%s)(?P<relative_path>/.*(/?_.*)?(\?.*)?)?$' % own_path  # Note: if the path_regex ends in / the / in the last bit should not be
+        own_path = '' if self.regex == '/' else self.regex
+        foreign_view_regex = '^(?P<base_path>%s)(?P<relative_path>/.*(/?_.*)?(\?.*)?)?$' % own_path  # Note: if the path_regex ends in / the / in the last bit should not be
                                                    #       there, else it should. I don't know how to make this more precise.
         match = re.match(foreign_view_regex, relative_path)
-        rating = len(match.group(u'base_path'))+1 if match else 0
+        rating = len(match.group('base_path'))+1 if match else 0
         return RatedMatch(match, rating)
 
     def get_temp_url_argument_field_index(self, for_fields, data_dict=None):
@@ -1236,7 +1237,7 @@ class RegexPath(object):
             return {}
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
-        raw_input_values = dict([(six.binary_type(key), urllib_parse.unquote(value or u''))
+        raw_input_values = dict([(six.binary_type(key), urllib_parse.unquote(value or ''))
                                      for key, value in matched_arguments.items()])
         fields.accept_input(raw_input_values)
         return fields.as_kwargs()
@@ -1264,20 +1265,20 @@ class ParameterisedPath(RegexPath):
         super(ParameterisedPath, self).__init__(regex, template, argument_fields)
 
     def make_regex(self, discriminator, argument_fields):
-        arguments_part = u''
+        arguments_part = ''
         for argument_name in argument_fields.keys():
-            arguments_part += u'(/(?P<%s>[^/]*))' % argument_name
+            arguments_part += '(/(?P<%s>[^/]*))' % argument_name
 
-        if discriminator.endswith(u'/') and arguments_part.startswith(u'(/'):
+        if discriminator.endswith('/') and arguments_part.startswith('(/'):
             arguments_part = arguments_part[:1]+arguments_part[2:]
         return discriminator+arguments_part
 
     def make_template(self, discriminator, argument_fields):
-        arguments_part = u''
+        arguments_part = ''
         for argument_name in argument_fields.keys():
-            arguments_part += u'/${%s}' % argument_name
+            arguments_part += '/${%s}' % argument_name
 
-        if discriminator.endswith(u'/') and arguments_part.startswith(u'(/'):
+        if discriminator.endswith('/') and arguments_part.startswith('(/'):
             arguments_part = arguments_part[:1]+arguments_part[2:]
         return discriminator+arguments_part
 
@@ -1305,7 +1306,7 @@ class FactoryFromUrlRegex(Factory):
         except TypeError as ex:
             if len(inspect.trace()) == 1:
                 # Note: we modify the args, and then just raise, because we want the original stack trace
-                ex.args = (ex.args[0]+u' (from regex "%s")' % self.regex_path.regex,)
+                ex.args = (ex.args[0]+' (from regex "%s")' % self.regex_path.regex,)
             raise
 
     def is_applicable_for(self, relative_path):
@@ -1351,7 +1352,7 @@ class UserInterfaceFactory(FactoryFromUrlRegex):
         return self.create(relative_path, for_bookmark=for_bookmark)
 
     def create_args(self, relative_path, *args):
-        relative_base_path = self.regex_path.get_base_part_in(relative_path) or u'/'
+        relative_base_path = self.regex_path.get_base_part_in(relative_path) or '/'
         return (self.parent_ui, relative_base_path, self.slot_map)+args+(self.ui_name,)
 
     def get_bookmark(self, *ui_args, **bookmark_kwargs):
@@ -1421,10 +1422,10 @@ class ViewFactory(FactoryFromUrlRegex):
 
     def get_query_string(self):
         request = ExecutionContext.get_context().request
-        return_to = request.GET.get(u'returnTo')
+        return_to = request.GET.get('returnTo')
         if return_to:
-            return urllib_parse.urlencode({u'returnTo': return_to})
-        return u''
+            return urllib_parse.urlencode({'returnTo': return_to})
+        return ''
 
     def add_precondition(self, precondition):
         """Adds the given precondition to the View that will be created by this ViewFactory. (See :class:`ViewPreCondition`.)"""
@@ -1457,7 +1458,7 @@ class ViewFactory(FactoryFromUrlRegex):
         try:
             instance = super(ViewFactory, self).create(relative_path, *args, **kwargs)
         except ValidationConstraint as ex:
-            message = u'The arguments contained in URL "%s" are not valid for %s: %s' % (relative_path, self, ex)
+            message = 'The arguments contained in URL "%s" are not valid for %s: %s' % (relative_path, self, ex)
             raise ProgrammerError(message)
         for condition in self.preconditions:
             instance.add_precondition(condition)
@@ -1472,7 +1473,7 @@ class WidgetFactory(Factory):
        :param widget_kwargs: All the keyword arguments of `widget_class`.
     """
     def __init__(self, widget_class, *widget_args, **widget_kwargs):
-        checkargs_explained(u'An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class), widget_class.__init__, NotYetAvailable(u'view'), *widget_args, **widget_kwargs)
+        checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class), widget_class.__init__, NotYetAvailable('view'), *widget_args, **widget_kwargs)
 
         super(WidgetFactory, self).__init__(self.create_widget)
         self.widget_class = widget_class
@@ -1499,7 +1500,7 @@ class WidgetFactory(Factory):
 
 class ViewPseudoFactory(ViewFactory):
     def __init__(self, bookmark):
-        super(ViewPseudoFactory, self).__init__(RegexPath(u'/', u'/', {}), u'', {})
+        super(ViewPseudoFactory, self).__init__(RegexPath('/', '/', {}), '', {})
         self.bookmark = bookmark
 
     def matches_view(self, view):
@@ -1603,8 +1604,8 @@ class UrlBoundView(View):
         return ViewFactory(regex_path, self.title, self.slot_definitions, page_factory=self.page_factory, detour=self.detour, view_class=self.__class__, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable)
 
     def __init__(self, user_interface, relative_path, title, slot_definitions, page_factory=None, detour=False, read_check=None, write_check=None, cacheable=False, **view_arguments):
-        if re.match(u'/_([^/]*)$', relative_path):
-            raise ProgrammerError(u'you cannot create UrlBoundViews with /_ in them - those are reserved URLs for SubResources')
+        if re.match('/_([^/]*)$', relative_path):
+            raise ProgrammerError('you cannot create UrlBoundViews with /_ in them - those are reserved URLs for SubResources')
         super(UrlBoundView, self).__init__(user_interface)
         self.out_of_bound_forms = []
         self.relative_path = relative_path
@@ -1639,7 +1640,7 @@ class UrlBoundView(View):
         pass
 
     def __str__(self):
-        return u'<UrlBoundView "%s" on "%s">' % (self.title, self.relative_path)
+        return '<UrlBoundView "%s" on "%s">' % (self.title, self.relative_path)
 
     def plug_into(self, page):
         page.plug_in(self)  # Will create all Widgets specified by the View, and thus their SubResources if any
@@ -1671,7 +1672,7 @@ class UrlBoundView(View):
             precondition.check()
 
     def check_rights(self, request_method):
-        if request_method.upper() in [u'GET',u'HEAD']:
+        if request_method.upper() in ['GET','HEAD']:
             allowed = self.read_check()
         else:
             allowed = self.write_check()
@@ -1697,7 +1698,7 @@ class UrlBoundView(View):
 
 class RedirectView(UrlBoundView):
     def __init__(self, user_interface, relative_path, to_bookmark):
-        super(RedirectView, self).__init__(user_interface, relative_path, u'', {})
+        super(RedirectView, self).__init__(user_interface, relative_path, '', {})
         self.to_bookmark = to_bookmark
 
     def as_resource(self, page):
@@ -1705,7 +1706,7 @@ class RedirectView(UrlBoundView):
 
 
 class PseudoView(View):
-    relative_path = u'/'
+    relative_path = '/'
 
 
 class NoView(PseudoView):
@@ -1714,7 +1715,7 @@ class NoView(PseudoView):
 
 class UserInterfaceRootRedirectView(PseudoView):
     def as_resource(self, page):
-        raise HTTPSeeOther(location=six.binary_type(self.user_interface.get_absolute_url_for(u'/').as_network_absolute()))
+        raise HTTPSeeOther(location=six.binary_type(self.user_interface.get_absolute_url_for('/').as_network_absolute()))
     
 
 
@@ -1725,30 +1726,30 @@ class HeaderContent(Widget):
         self.page = page
 
     def header_only_material(self):
-        result = u''
+        result = ''
         # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
-        result += u'\n<!--[if lt IE 9]>'
-        result += u'<script src="/static/html5shiv-printshiv-3.6.3.js" type="text/javascript"></script>'
-        result += u'<![endif]-->'
+        result += '\n<!--[if lt IE 9]>'
+        result += '<script src="/static/html5shiv-printshiv-3.6.3.js" type="text/javascript"></script>'
+        result += '<![endif]-->'
         # From: http://code.google.com/p/ie7-js/ 
         # Not sure if this does not perhaps interfere with YUI reset stuff? 
-        result += u'\n<!--[if lte IE 9]>'  
-        result += u'<script src="/static/IE9.js" type="text/javascript"></script>'
-        result += u'<![endif]-->'  
-        result += u'\n<script type="text/javascript" src="/static/reahl.js"></script>'
-        result += u'\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
+        result += '\n<!--[if lte IE 9]>'  
+        result += '<script src="/static/IE9.js" type="text/javascript"></script>'
+        result += '<![endif]-->'  
+        result += '\n<script type="text/javascript" src="/static/reahl.js"></script>'
+        result += '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
         return result
 
     def render_document_ready_material(self):
-        result = u'\n<script type="text/javascript">\n'
-        result += u'jQuery(document).ready(function($){\n'
-        result += u'$(\'body\').addClass(\'enhanced\');\n'
+        result = '\n<script type="text/javascript">\n'
+        result += 'jQuery(document).ready(function($){\n'
+        result += '$(\'body\').addClass(\'enhanced\');\n'
         js = set()
         js.update(self.page.get_js())
         for item in js:
-            result += item+u'\n'
-        result += u'\n});'
-        result += u'\n</script>\n'
+            result += item+'\n'
+        result += '\n});'
+        result += '\n</script>\n'
         return result
         
     def render(self):
@@ -1759,7 +1760,7 @@ class HeaderContent(Widget):
 class FooterContent(HeaderContent):
     def render(self):
         #from http://ryanpricemedia.com/2008/03/19/jquery-broken-in-internet-explorer-put-your-documentready-at-the-bottom/
-        return u'<!--[if IE 6]>' + self.render_document_ready_material() +  u'<![endif]-->'
+        return '<!--[if IE 6]>' + self.render_document_ready_material() +  '<![endif]-->'
 
 
 class Resource(object):
@@ -1777,7 +1778,7 @@ class Resource(object):
         if request.method.lower() not in self.http_methods:
             return HTTPMethodNotAllowed(headers={'allow': ', '.join(self.http_methods)})
 
-        method_handler = getattr(self, u'handle_%s' % request.method.lower())
+        method_handler = getattr(self, 'handle_%s' % request.method.lower())
         return method_handler(request)
 
 
@@ -1787,8 +1788,8 @@ class SubResource(Resource):
 
        :param unique_name: A name for this subresource which will be unique in the UserInterface where it is used.
     """
-    sub_regex = u'sub_resource'          """The regex used to match incoming URLs against the URL of this SubResource."""
-    sub_path_template = u'sub_resource'  """A `PEP-292 <http://www.python.org/dev/peps/pep-0292/>`_ template in a string
+    sub_regex = 'sub_resource'          """The regex used to match incoming URLs against the URL of this SubResource."""
+    sub_path_template = 'sub_resource'  """A `PEP-292 <http://www.python.org/dev/peps/pep-0292/>`_ template in a string
                                             used to create an URL for this resource."""
 
     def __init__(self, unique_name):
@@ -1812,23 +1813,23 @@ class SubResource(Resource):
         return SubResourceFactory(regex_path, functools.partial(cls.create_resource, unique_name, *args, **kwargs))
 
     @classmethod
-    def is_for_sub_resource(cls, path, for_exact_sub_path=u'.*'):
-        return re.match(u'.*/_{1,2}%s$' % for_exact_sub_path, path)
+    def is_for_sub_resource(cls, path, for_exact_sub_path='.*'):
+        return re.match('.*/_{1,2}%s$' % for_exact_sub_path, path)
 
     @classmethod
     def get_full_path_for(cls, current_path, sub_path):
         if cls.is_for_sub_resource(current_path, for_exact_sub_path=sub_path):
             full_path = current_path
         else:
-            delimiter = u'/_'
-            if current_path.endswith(u'/'):
-                delimiter = u'__'
-            full_path = u'%s%s%s' % (current_path, delimiter, sub_path)
+            delimiter = '/_'
+            if current_path.endswith('/'):
+                delimiter = '__'
+            full_path = '%s%s%s' % (current_path, delimiter, sub_path)
         return full_path
 
     @classmethod
     def get_path_template(cls, unique_name):
-        return u'%s_%s' % (unique_name, cls.sub_path_template)
+        return '%s_%s' % (unique_name, cls.sub_path_template)
 
     @classmethod
     def get_url_for(cls, unique_name, **kwargs):
@@ -1844,26 +1845,26 @@ class SubResource(Resource):
     def get_regex(cls, unique_name):
         context = WebExecutionContext.get_context()
         current_path = Url.get_current_url().as_locale_relative().path
-        match = re.match(u'(?P<current_view_path>.*)(?P<delimiter>/_{1,2})%s_%s$' % (unique_name, cls.sub_regex), current_path)
+        match = re.match('(?P<current_view_path>.*)(?P<delimiter>/_{1,2})%s_%s$' % (unique_name, cls.sub_regex), current_path)
         if match:
-            current_view_path = match.group(u'current_view_path')
-            delimiter = match.group(u'delimiter')
-            return u'%s%s%s_%s' % (current_view_path, delimiter, unique_name, cls.sub_regex)
-        delimiter = u'/_'
-        if current_path.endswith(u'/'):
-            delimiter = u'__'
-        return u'%s%s%s_%s' % (current_path, delimiter, unique_name, cls.sub_regex)
+            current_view_path = match.group('current_view_path')
+            delimiter = match.group('delimiter')
+            return '%s%s%s_%s' % (current_view_path, delimiter, unique_name, cls.sub_regex)
+        delimiter = '/_'
+        if current_path.endswith('/'):
+            delimiter = '__'
+        return '%s%s%s_%s' % (current_path, delimiter, unique_name, cls.sub_regex)
 
     @classmethod
     def parent_url_should_end_on_slash(cls, current_path):
-        last_path_segment = current_path.split(u'/')[-1]
-        return last_path_segment.startswith(u'__')
+        last_path_segment = current_path.split('/')[-1]
+        return last_path_segment.startswith('__')
 
     @classmethod
     def get_view_path_for(cls, subresource_path):
-        new_path = u'/'.join(subresource_path.split(u'/')[:-1])
+        new_path = '/'.join(subresource_path.split('/')[:-1])
         if cls.parent_url_should_end_on_slash(subresource_path):
-            new_path += u'/'
+            new_path += '/'
         return new_path
 
     @classmethod
@@ -1918,14 +1919,14 @@ class MethodResult(object):
 
     def get_response(self, return_value):
         response = self.create_response(return_value)
-        response.content_type = self.content_type
-        response.charset = self.charset
+        response.content_type = six.binary_type(self.content_type)
+        response.charset = six.binary_type(self.charset)
         return response
 
     def get_exception_response(self, exception):
         response = self.create_exception_response(exception)
-        response.content_type = self.content_type
-        response.charset = self.charset
+        response.content_type = six.binary_type(self.content_type)
+        response.charset = six.binary_type(self.charset)
         return response
 
     
@@ -1967,7 +1968,7 @@ class JsonResult(MethodResult):
         return self.fields.result.as_input()
 
     def render_exception(self, exception):
-        return u'"%s"' % six.text_type(exception)
+        return '"%s"' % six.text_type(exception)
 
 
 class WidgetResult(MethodResult):
@@ -1986,10 +1987,10 @@ class WidgetResult(MethodResult):
 
     def render(self, return_value):
         result = self.result_widget.render_contents()
-        js = set(self.result_widget.get_contents_js(context=u'#%s' % self.result_widget.css_id))
-        result += u'<script type="text/javascript">' 
-        result += u''.join(js)
-        result += u'</script>'
+        js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
+        result += '<script type="text/javascript">' 
+        result += ''.join(js)
+        result += '</script>'
         return result
 
 
@@ -1997,7 +1998,7 @@ class NoRedirectAfterPost(WidgetResult):
     def render_as_json(self, exception):
         rendered_widget = super(NoRedirectAfterPost, self).render(None)
         success = exception is None
-        return json.dumps({ u'success': success, u'widget': rendered_widget })
+        return json.dumps({ 'success': success, 'widget': rendered_widget })
     
     def render(self, return_value):
         return self.render_as_json(None)
@@ -2018,8 +2019,8 @@ class RemoteMethod(SubResource):
                          once, or not. Immutable methods are accessible via GET method, non-immutable methods
                          via POST.
     """
-    sub_regex = u'method'
-    sub_path_template = u'method'
+    sub_regex = 'method'
+    sub_path_template = 'method'
 
     def __init__(self, name, callable_object, default_result, immutable=False):
         super(RemoteMethod, self).__init__(name)
@@ -2102,7 +2103,7 @@ class CheckedRemoteMethod(RemoteMethod):
         exception = None
         for name, field in self.parameters.items():
             try:
-                field.from_input(input_values.get(name, u''))
+                field.from_input(input_values.get(name, ''))
             except ValidationConstraint as ex:
                 exception = ex
         if exception:
@@ -2121,7 +2122,7 @@ class EventChannel(RemoteMethod):
         self.form = form
 
     def make_result(self, input_values):
-        if u'_noredirect' in input_values.keys():
+        if '_noredirect' in input_values.keys():
             return NoRedirectAfterPost(self.form.rendered_form)
         else:
             return RedirectAfterPost()
@@ -2130,7 +2131,7 @@ class EventChannel(RemoteMethod):
         try:
             return self.controller.handle_event(event)
         except NoEventHandlerFound:
-            raise ProgrammerError(u'No suitable handler found for event %s on %s' % (event.name, self.form.view))
+            raise ProgrammerError('No suitable handler found for event %s on %s' % (event.name, self.form.view))
 
     def parse_arguments(self, input_values):
         event = self.form.handle_form_input(input_values)
@@ -2155,13 +2156,13 @@ class ComposedPage(Resource):
         
     def render(self):
         response = Response(body=self.page.render())
-        response.content_type=self.page.content_type
-        response.charset=self.page.charset
+        response.content_type=six.binary_type(self.page.content_type)
+        response.charset=six.binary_type(self.page.charset)
         if self.view.cacheable:
             config = ExecutionContext.get_context().config
-            response.cache_control=u'max-age=%s' % six.text_type(config.web.cache_max_age)
+            response.cache_control=six.binary_type('max-age=%s' % config.web.cache_max_age)
         else:
-            response.cache_control=u'no-cache'
+            response.cache_control=six.binary_type('no-cache')
         return response
 
 
@@ -2172,7 +2173,7 @@ class FileView(View):
         self.viewable_file = viewable_file
 
     def as_resource(self, page):
-        return StaticFileResource(u'static', self.viewable_file)
+        return StaticFileResource('static', self.viewable_file)
 
     @property
     def title(self):
@@ -2223,7 +2224,7 @@ class FileFromBlob(ViewableFile):
 
 class PackagedFile(FileOnDisk):
     def __init__(self, egg, directory_name, relative_name):
-        egg_relative_name = u'/'.join([directory_name, relative_name])
+        egg_relative_name = '/'.join([directory_name, relative_name])
         full_path = pkg_resources.resource_filename(Requirement.parse(egg), egg_relative_name)
         super(PackagedFile, self).__init__(full_path, relative_name)
 
@@ -2257,9 +2258,9 @@ class ConcatenatedFile(FileOnDisk):
         if context.config.reahlsystem.debug:
             return NoOpMinifier()
 
-        if relative_name.endswith(u'.css'):
+        if relative_name.endswith('.css'):
             return CSSMinifier()
-        elif relative_name.endswith(u'.js'):
+        elif relative_name.endswith('.js'):
             return JSMinifier()
         else:
             return NoOpMinifier()
@@ -2366,8 +2367,8 @@ class FileDownload(Response):
 
 
 class StaticFileResource(SubResource):
-    sub_regex = u'(?P<filename>[^/]+)'
-    sub_path_template = u'%(filename)s'
+    sub_regex = '(?P<filename>[^/]+)'
+    sub_path_template = '%(filename)s'
 
     def get_url(self):
         return self.get_url_for(self.unique_name, filename=self.file.name)
@@ -2404,7 +2405,7 @@ class ReahlWSGIApplication(object):
         with WebExecutionContext() as context:
             context.set_config(self.config)
             context.set_system_control(self.system_control)
-            self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath(u'/', u'/', {}), IdentityDictionary(), self.config.web.site_root, u'site_root')
+            self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
             self.add_reahl_static_files()
 
     def find_packaged_files(self, labelled):
@@ -2418,35 +2419,35 @@ class ReahlWSGIApplication(object):
 
     def add_reahl_static_files(self):
         misc = [] 
-        jquery = [PackagedFile(u'reahl-web', u'reahl/web/static', u'jquery/jquery-1.8.1.js')]
-        jquery_plugins = [PackagedFile(u'reahl-web', u'reahl/web/static', i) for i in
-                          [u'jquery/jquery.cookie-1.0.js', 
-                          u'jquery/jquery.metadata-2.1.js',
-                          u'jquery/jquery.validate-1.10.0.modified.js',
-                          u'jquery/jquery.ba-bbq-1.2.1.js',
-                          u'jquery/jquery.blockUI-2.43.js',
-                          u'jquery/jquery.form-3.14.js'
+        jquery = [PackagedFile('reahl-web', 'reahl/web/static', 'jquery/jquery-1.8.1.js')]
+        jquery_plugins = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
+                          ['jquery/jquery.cookie-1.0.js', 
+                          'jquery/jquery.metadata-2.1.js',
+                          'jquery/jquery.validate-1.10.0.modified.js',
+                          'jquery/jquery.ba-bbq-1.2.1.js',
+                          'jquery/jquery.blockUI-2.43.js',
+                          'jquery/jquery.form-3.14.js'
                           ]]
-        jquery_ui = [PackagedFile(u'reahl-web', u'reahl/web/static', 'jquery-ui-1.10.3.custom.js')]
-        css_files = [PackagedFile(u'reahl-web', u'reahl/web/static', i) for i in
-                     [u'reset-fonts-grids.css', u'reahl.css']] 
-        css_files += self.find_packaged_files(u'css')
-        js_files = self.find_packaged_files(u'js')
-        reahl_jquery_ui_plugins = [PackagedFile(u'reahl-web', u'reahl/web/static', i) for i in
+        jquery_ui = [PackagedFile('reahl-web', 'reahl/web/static', 'jquery-ui-1.10.3.custom.js')]
+        css_files = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
+                     ['reset-fonts-grids.css', 'reahl.css']] 
+        css_files += self.find_packaged_files('css')
+        js_files = self.find_packaged_files('js')
+        reahl_jquery_ui_plugins = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
                                    [
-                                   u'reahl.validate.js',
-                                   u'reahl.modaldialog.js',
+                                   'reahl.validate.js',
+                                   'reahl.modaldialog.js',
                                    ]]
 
-        static_files = [PackagedFile(u'reahl-web', u'reahl/web/static', u'html5shiv-printshiv-3.6.3.js'),
-                        PackagedFile(u'reahl-web', u'reahl/web/static', u'IE9.js'),
-                        ConcatenatedFile(u'reahl.js', misc+jquery+jquery_plugins+jquery_ui+reahl_jquery_ui_plugins+js_files),
-                        ConcatenatedFile(u'reahl.css', css_files)]
-        static_files += self.find_packaged_files(u'any')
-        self.define_static_files(u'/static', static_files)
+        static_files = [PackagedFile('reahl-web', 'reahl/web/static', 'html5shiv-printshiv-3.6.3.js'),
+                        PackagedFile('reahl-web', 'reahl/web/static', 'IE9.js'),
+                        ConcatenatedFile('reahl.js', misc+jquery+jquery_plugins+jquery_ui+reahl_jquery_ui_plugins+js_files),
+                        ConcatenatedFile('reahl.css', css_files)]
+        static_files += self.find_packaged_files('any')
+        self.define_static_files('/static', static_files)
 
-        shipped_style_files = [PackagedFile(u'reahl-web', u'reahl/web/static/css', u'basic.css')]
-        self.define_static_files(u'/styles', shipped_style_files)
+        shipped_style_files = [PackagedFile('reahl-web', 'reahl/web/static/css', 'basic.css')]
+        self.define_static_files('/styles', shipped_style_files)
 
     def start(self, connect=True):
         """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
@@ -2468,7 +2469,7 @@ class ReahlWSGIApplication(object):
                 self.system_control.disconnect()
 
     def define_static_files(self, path, files):
-        ui_name = u'static_%s' % path
+        ui_name = 'static_%s' % path
         ui_factory = UserInterfaceFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
         self.root_user_interface_factory.predefine_user_interface(ui_factory)
         return ui_factory
@@ -2492,7 +2493,7 @@ class ReahlWSGIApplication(object):
         if current_view.is_dynamic:
             page_factory = current_view.page_factory or page_factory
             if not page_factory:
-                raise ProgrammerError(u'there is no page defined for %s' % url.path)
+                raise ProgrammerError('there is no page defined for %s' % url.path)
             page = page_factory.create(current_view)
             current_view.plug_into(page)
             self.check_scheme(page.is_security_sensitive)
@@ -2541,7 +2542,7 @@ class ReahlWSGIApplication(object):
         return new_context.handle_wsgi_call(self, environ, start_response)
 
 
-@deprecated(u'ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead')
+@deprecated('ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead')
 class ReahlWebApplication(ReahlWSGIApplication):
     pass
 

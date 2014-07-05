@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import tempfile
@@ -24,7 +25,7 @@ from contextlib import contextmanager
 
 __all__ = ['temp_file_name', 'temp_file_with', 'temp_file_with', 'file_with', 
            'temp_dir', 'EmptyDirectory', 'AutomaticallyDeletedDirectory',
-           'temp_dir', 'added_sys_path', u'preserved_sys_modules']
+           'temp_dir', 'added_sys_path', 'preserved_sys_modules']
 
 
 class AutomaticallyDeletedFile(file):

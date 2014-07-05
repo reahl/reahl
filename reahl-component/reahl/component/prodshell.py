@@ -16,6 +16,7 @@
 
 """The Reahl production commandline utility."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import os
@@ -39,7 +40,7 @@ from reahl.component.decorators import memoized
 
 
 class ProdShellConfig(Configuration):
-    commands = EntryPointClassList(u'reahl.component.prodcommands', description=u'The commands (classes) available to the production commandline shell')
+    commands = EntryPointClassList('reahl.component.prodcommands', description='The commands (classes) available to the production commandline shell')
 
 
 class ProductionCommand(Command):
@@ -53,13 +54,13 @@ class ProductionCommand(Command):
 
     def verify_commandline(self, options, args):
         if not len(args) >= 1:
-            self.parser.error(u'No config directory given')
+            self.parser.error('No config directory given')
 
     def create_context(self, config_directory):
         try:
             self.context = ExecutionContext.for_config_directory(config_directory)
         except DistributionNotFound as ex:
-            ex.args = (u'%s (In development? Did you forget to do a "reahl setup -- develop -N"?)' % ex.args[0],)
+            ex.args = ('%s (In development? Did you forget to do a "reahl setup -- develop -N"?)' % ex.args[0],)
             raise
         with self.context:
             self.context.system_control = SystemControl(self.context.config)
@@ -102,11 +103,11 @@ class ListConfig(ProductionCommand):
                     if setting.defaulted:
                         message = setting.default
                         if setting.dangerous:
-                            message += u' (DANGEROUS DEFAULT)'
+                            message += ' (DANGEROUS DEFAULT)'
                     elif setting.automatic:
-                        message = u'AUTOMATIC'
+                        message = 'AUTOMATIC'
                     else:
-                        message = u'NO DEFAULT'
+                        message = 'NO DEFAULT'
                     to_print += '\t%s' % message
                 if options.print_description:
                     to_print += '\t%s' % setting.description
@@ -255,8 +256,8 @@ class ListDependencies(ProductionCommand):
             for distribution in distributions:
                 deps = ''
                 if options.verbose:
-                    deps = u'[%s]' % (u' | '.join([six.text_type(i) for i in distribution.requires()]))
-                print(u'%s %s' % (distribution, deps))
+                    deps = '[%s]' % (' | '.join([six.text_type(i) for i in distribution.requires()]))
+                print('%s %s' % (distribution, deps))
         return 0
 
 

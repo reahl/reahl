@@ -16,6 +16,7 @@
 
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from webob import Response
@@ -46,7 +47,7 @@ class SubResourcesTests(object):
             @exempt
             def handle_something(self, request):
                 self.called = True
-                return u'something'
+                return 'something'
             @exempt
             def handle_anotherthing(self, request):
                 pass
@@ -64,7 +65,7 @@ class SubResourcesTests(object):
         fixture.request.method = 'SOMEthing'
         response = resource.handle_request(fixture.request)
         vassert( resource.called )
-        vassert( response == u'something' )
+        vassert( response == 'something' )
 
     @test(WebFixture)
     def simple_sub_resources(self, fixture):
@@ -73,8 +74,8 @@ class SubResourcesTests(object):
     
         @stubclass(SubResource)
         class ASimpleSubResource(SubResource):
-            sub_regex = u'simple_resource'
-            sub_path_template = u'simple_resource'
+            sub_regex = 'simple_resource'
+            sub_path_template = 'simple_resource'
             @exempt
             def handle_get(self, request):
                 return Response()
@@ -83,9 +84,9 @@ class SubResourcesTests(object):
         class WidgetWithSubResource(Widget):
             def __init__(self, view):
                 super(WidgetWithSubResource, self).__init__(view)
-                view.add_resource(ASimpleSubResource(u'uniquename'))
+                view.add_resource(ASimpleSubResource('uniquename'))
 
-        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithSubResource.factory()})
+        wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
         browser = Browser(wsgi_app)
         browser.open('/_uniquename_simple_resource')
         
@@ -96,8 +97,8 @@ class SubResourcesTests(object):
            on demand, based on a regex which may contain parameters."""
         @stubclass(SubResource)
         class ParameterisedSubResource(SubResource):
-            sub_regex = u'dynamic_(?P<param>[^/]+)'
-            sub_path_template = u'dynamic_%(param)s'
+            sub_regex = 'dynamic_(?P<param>[^/]+)'
+            sub_path_template = 'dynamic_%(param)s'
 
             def __init__(self, unique_name, param):
                 super(ParameterisedSubResource, self).__init__(unique_name)
@@ -116,15 +117,15 @@ class SubResourcesTests(object):
         class WidgetWithSubResource(Widget):
             def __init__(self, view):
                 super(WidgetWithSubResource, self).__init__(view)
-                view.add_resource_factory(ParameterisedSubResource.factory(u'uniquename', {u'param': Field(required=True)}))
+                view.add_resource_factory(ParameterisedSubResource.factory('uniquename', {'param': Field(required=True)}))
 
 
-        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithSubResource.factory()})
+        wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
         browser = Browser(wsgi_app)
         browser.open('/_uniquename_dynamic_one')
-        vassert( browser.raw_html == u'one' )
+        vassert( browser.raw_html == 'one' )
         browser.open('/_uniquename_dynamic_two')
-        vassert( browser.raw_html == u'two' )
+        vassert( browser.raw_html == 'two' )
 
     @test(WebFixture)
     def dynamic_sub_resources_factory_args(self, fixture):
@@ -132,8 +133,8 @@ class SubResourcesTests(object):
            only from the path)."""
         @stubclass(SubResource)
         class ParameterisedSubResource(SubResource):
-            sub_regex = u'dynamic_(?P<path_param>[^/]+)'
-            sub_path_template = u'dynamic_%(path_param)s'
+            sub_regex = 'dynamic_(?P<path_param>[^/]+)'
+            sub_path_template = 'dynamic_%(path_param)s'
 
             def __init__(self, unique_name, factory_arg, factory_kwarg, path_param):
                 super(ParameterisedSubResource, self).__init__(unique_name)
@@ -143,7 +144,7 @@ class SubResourcesTests(object):
                 
             @exempt
             def handle_get(self, request):
-                args = u'%s|%s|%s' % (self.factory_arg, self.factory_kwarg, self.path_param)
+                args = '%s|%s|%s' % (self.factory_arg, self.factory_kwarg, self.path_param)
                 return Response(unicode_body=six.text_type(args))
 
             @exempt
@@ -155,13 +156,13 @@ class SubResourcesTests(object):
         class WidgetWithSubResource(Widget):
             def __init__(self, view):
                 super(WidgetWithSubResource, self).__init__(view)
-                factory = ParameterisedSubResource.factory(u'uniquename', {u'path_param': Field(required=True)}, u'arg to factory', factory_kwarg=u'kwarg to factory')
+                factory = ParameterisedSubResource.factory('uniquename', {'path_param': Field(required=True)}, 'arg to factory', factory_kwarg='kwarg to factory')
                 view.add_resource_factory(factory)
 
-        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithSubResource.factory()})
+        wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
         browser = Browser(wsgi_app)
         browser.open('/__uniquename_dynamic_one')
-        vassert( browser.raw_html == u'arg to factory|kwarg to factory|one' )
+        vassert( browser.raw_html == 'arg to factory|kwarg to factory|one' )
 
 
     @test(WebFixture)
@@ -172,8 +173,8 @@ class SubResourcesTests(object):
            to disambiguate."""
         @stubclass(SubResource)
         class ParameterisedSubResource(SubResource):
-            sub_regex = u'path'
-            sub_path_template = u'path'
+            sub_regex = 'path'
+            sub_path_template = 'path'
 
             @exempt
             def handle_get(self, request):
@@ -189,17 +190,17 @@ class SubResourcesTests(object):
         class WidgetWithAmbiguousSubResources(Widget):
             def __init__(self, view):
                 super(WidgetWithAmbiguousSubResources, self).__init__(view)
-                factory1 = ParameterisedSubResource.factory(u'factory1', {})
+                factory1 = ParameterisedSubResource.factory('factory1', {})
                 view.add_resource_factory(factory1)
-                factory2 = ParameterisedSubResource.factory(u'factory2', {})
+                factory2 = ParameterisedSubResource.factory('factory2', {})
                 view.add_resource_factory(factory2)
 
-        wsgi_app = fixture.new_wsgi_app(view_slots={u'main': WidgetWithAmbiguousSubResources.factory()})
+        wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithAmbiguousSubResources.factory()})
         browser = Browser(wsgi_app)
         browser.open('/__factory1_path')
-        vassert( browser.raw_html == u'factory1' )
+        vassert( browser.raw_html == 'factory1' )
         browser.open('/__factory2_path')
-        vassert( browser.raw_html == u'factory2' )
+        vassert( browser.raw_html == 'factory2' )
 
 
     class UrlScenarios(WebFixture):
@@ -222,10 +223,10 @@ class SubResourcesTests(object):
            A SubResource can unambiguously determine the URL of its parent View."""
         @stubclass(SubResource)
         class ASimpleSubResource(SubResource):
-            sub_regex = u'sub_path'
-            sub_path_template = u'sub_path'
+            sub_regex = 'sub_path'
+            sub_path_template = 'sub_path'
 
-        sub_resource = ASimpleSubResource(u'uniquename')
+        sub_resource = ASimpleSubResource('uniquename')
 
         # Calculating the sub_resource's URL from the context of the View
         fixture.request.environ['PATH_INFO'] = fixture.view_path

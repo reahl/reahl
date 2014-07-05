@@ -15,10 +15,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-from __future__ import print_function
-import six
+
 Static pages that are included on the fly inside Views.
 """
+from __future__ import unicode_literals
+from __future__ import print_function
 
 import os.path
 import re
@@ -34,7 +35,7 @@ from reahl.web.fw import WebExecutionContext, Bookmark, UrlBoundView, NoView, \
                          FileOnDisk, UserInterface, FileView, NoMatchingFactoryFound, CannotCreate
 from reahl.web.ui import LiteralHTML
 
-_ = Translator(u'reahl-web')
+_ = Translator('reahl-web')
 
 class DJHTMLWidget(LiteralHTML):
     def __init__(self, view, html_content):
@@ -52,26 +53,26 @@ class DhtmlUI(UserInterface):
     """
     def assemble(self, static_div_name=None):
         self.static_div_name = static_div_name
-        self.define_regex_view(u'(?P<file_path>.*)', '${file_path}', factory_method=self.create_view, file_path=Field())
+        self.define_regex_view('(?P<file_path>.*)', '${file_path}', factory_method=self.create_view, file_path=Field())
 
     def is_dynamic(self, filename):
-        return filename.endswith(u'.d.html') and os.path.exists(filename)
+        return filename.endswith('.d.html') and os.path.exists(filename)
 
     def is_static(self, filename):
-        return os.path.isfile(filename) and not filename.endswith(u'.d.html')
+        return os.path.isfile(filename) and not filename.endswith('.d.html')
 
     def filesystem_path(self, relative_path):
         context = WebExecutionContext.get_context()
         static_root = context.config.web.static_root
         if relative_path.endswith('/'):
-           relative_path += u'index.d.html'
+           relative_path += 'index.d.html'
         return self.i18nise_filename(os.path.join(static_root, *relative_path.split('/')))
 
     def i18nise_filename(self, for_default_locale):
         current_locale = WebExecutionContext.get_context().interface_locale
         head, tail = os.path.splitext(for_default_locale)
         head, d = os.path.splitext(head)
-        for_current_locale = head+u'.%s' % current_locale+d+tail
+        for_current_locale = head+'.%s' % current_locale+d+tail
         if os.path.isfile(for_current_locale):
             return for_current_locale
         return for_default_locale
@@ -80,27 +81,27 @@ class DhtmlUI(UserInterface):
         statics = {}
         with open(self.filesystem_path(relative_path)) as dhtml_file:
             def strain(name, attrs):
-                if name == u'title':
+                if name == 'title':
                     return True
-                if name == u'div' and dict(attrs).get(u'id', None) == self.static_div_name:
+                if name == 'div' and dict(attrs).get('id', None) == self.static_div_name:
                     return True
                 return False
             soup = BeautifulSoup(dhtml_file, parseOnlyThese=SoupStrainer(strain))
             parser = html_parser.HTMLParser()
-            statics[u'title'] = parser.unescape(soup.title.renderContents()) if soup.title else _(u'Untitled')
-            statics[u'div'] = soup.div.renderContents() if soup.div else u''
+            statics['title'] = parser.unescape(soup.title.renderContents()) if soup.title else _('Untitled')
+            statics['div'] = soup.div.renderContents() if soup.div else ''
         return statics
     
     def create_view(self, relative_path, user_interface, file_path=None):
         if not user_interface is self:
-            raise ProgrammerError(u'get_file called on %s with %s as user_interface' % (self, user_interface))
+            raise ProgrammerError('get_file called on %s with %s as user_interface' % (self, user_interface))
         file_url_path = file_path
         filename = self.filesystem_path(file_url_path)
         logging.debug('Finding a static file on filesystem %s' % filename)
         if self.is_dynamic(filename):
             statics = self.statics(file_url_path)
-            slot_contents = {u'main_slot': DJHTMLWidget.factory(statics[u'div'])}
-            return UrlBoundView(user_interface, file_url_path, statics[u'title'], slot_contents, cacheable=True)
+            slot_contents = {'main_slot': DJHTMLWidget.factory(statics['div'])}
+            return UrlBoundView(user_interface, file_url_path, statics['title'], slot_contents, cacheable=True)
         elif self.is_static(filename):
             return FileView(user_interface, FileOnDisk(filename, file_url_path))
         raise CannotCreate()

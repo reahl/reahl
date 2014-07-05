@@ -41,6 +41,7 @@
 # THE SOFTWARE.
 
  
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from functools import partial, wraps
@@ -79,11 +80,11 @@ class deprecated(object):
         elif inspect.isclass(something):
             f = something.__init__
         else:
-            raise AssertionError(u'@deprecated can only be used for classes, functions or methods')
+            raise AssertionError('@deprecated can only be used for classes, functions or methods')
 
         @wraps(f)
         def deprecated_wrapper(*args, **kwds):
-            logging.getLogger(__name__).warn(u'DEPRECATED: %s. %s' % (something, self.message))
+            logging.getLogger(__name__).warn('DEPRECATED: %s. %s' % (something, self.message))
             return f(*args, **kwds)
 
         if inspect.isfunction(something):

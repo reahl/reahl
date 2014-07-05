@@ -16,6 +16,7 @@
 
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -33,14 +34,14 @@ class AttachmentTests(object):
 
         # The attachments are published via the reahl.attachments.<label> entry point, with their order specified
         line = '3:Asome/file/path = reahl'
-        easter_egg.add_entry_point_from_line(u'reahl.attachments.js', line)
+        easter_egg.add_entry_point_from_line('reahl.attachments.js', line)
         line = '0:Bsome/first/path = reahl'
-        easter_egg.add_entry_point_from_line(u'reahl.attachments.js', line)
+        easter_egg.add_entry_point_from_line('reahl.attachments.js', line)
 
         # The attachments are found in the correct order
-        found_attachments = ReahlEgg(easter_egg).find_attachments(u'js')
+        found_attachments = ReahlEgg(easter_egg).find_attachments('js')
         filenames = [i.filename for i in found_attachments]
-        vassert( filenames == [u'Bsome/first/path', u'Asome/file/path'] )
+        vassert( filenames == ['Bsome/first/path', 'Asome/file/path'] )
 
 
 

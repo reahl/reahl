@@ -17,6 +17,7 @@
 
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -38,16 +39,16 @@ class ParameterisedViewErrors(object):
 
         class ParameterisedView(UrlBoundView):
             def assemble(self, some_key=None):
-                self.title = u'View for: %s' % some_key
+                self.title = 'View for: %s' % some_key
 
         class UIWithParameterisedViews(UserInterface):
             def assemble(self):
-                self.define_regex_view(u'/(?P<incorrect_name_for_key>.*)', u'/${key}', view_class=ParameterisedView, some_key=Field(required=True))
+                self.define_regex_view('/(?P<incorrect_name_for_key>.*)', '/${key}', view_class=ParameterisedView, some_key=Field(required=True))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -64,18 +65,18 @@ class ParameterisedUserInterfaceErrors(WebFixture):
         fixture = self
         class RegexUserInterface(UserInterface):
             def assemble(self, ui_key=None):
-                self.name = u'user_interface-%s' % ui_key
+                self.name = 'user_interface-%s' % ui_key
 
         class UIWithParameterisedUserInterfaces(UserInterface):
             def assemble(self):
-                self.define_regex_user_interface(u'/(?P<xxx>[^/]*)', u'N/A', RegexUserInterface,
-                                         {u'user_interface-slot': u'main'},
+                self.define_regex_user_interface('/(?P<xxx>[^/]*)', 'N/A', RegexUserInterface,
+                                         {'user_interface-slot': 'main'},
                                          ui_key=Field(required=True))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  {}, name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  {}, name='test_ui')
 
         return super(ParameterisedUserInterfaceErrors, self).new_wsgi_app(site_root=MainUI)
        

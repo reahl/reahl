@@ -16,6 +16,7 @@
 
 """The Reahl context utilities."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import inspect
@@ -28,7 +29,7 @@ class NoContextFound(Exception):
 
 class NoContext(object):
     def __getattr__(self, name):
-        raise NoContextFound(u'An attempt was made to access %s on the context, but not context was present in the call stack' % name)
+        raise NoContextFound('An attempt was made to access %s on the context, but not context was present in the call stack' % name)
 
     def __enter__(self):
         return self
@@ -107,7 +108,7 @@ class ExecutionContext(object):
     @property
     def interface_locale(self):
         """Returns a string identifying the current locale."""
-        session = getattr(self, u'session', None)
+        session = getattr(self, 'session', None)
         if not session:
-            return u'en_gb'
+            return 'en_gb'
         return self.session.get_interface_locale()

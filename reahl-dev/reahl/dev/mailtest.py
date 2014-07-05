@@ -15,13 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Classes for faking sending and receiving of mail
-from __future__ import print_function
-import six
 ================================================
 
 Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 
 import asyncore
 import logging
@@ -52,7 +53,7 @@ class EchoSMTPServer(DebuggingServer):
         print((self.message_as_text(message)))
 
     def message_as_text(self, message):
-        text = u"Processing Message: %s\n" % self.current_id
+        text = "Processing Message: %s\n" % self.current_id
         text += "   From:%s \n" % message['From']
         text += "   To:%s \n" % message['To']
         text += "   Subject:%s \n" % message['Subject']

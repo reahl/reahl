@@ -16,6 +16,7 @@
 
 """Interfaces for classes that have pluggable implementations."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from abc import ABCMeta, abstractmethod

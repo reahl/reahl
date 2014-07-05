@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """This module houses the main classes used to understand and manipulate Reahl projects in development."""
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import os
@@ -84,12 +85,12 @@ class PythonSourcePackage(DistributionPackage):
         return ('distpackage', cls, 'sdist')
 
     def __str__(self):
-        return u'Sdist (source egg).'
+        return 'Sdist (source egg).'
 
     def build(self):
         self.project.generate_setup_py()
         build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
-        self.project.setup([u'build', '-b', build_directory, u'sdist', u'--dist-dir', self.project.distribution_egg_repository.root_directory])
+        self.project.setup(['build', '-b', build_directory, 'sdist', '--dist-dir', self.project.distribution_egg_repository.root_directory])
 
     @property
     def is_built(self):
@@ -120,7 +121,7 @@ class PythonSourcePackage(DistributionPackage):
 
 class DebianPackage(DistributionPackage):
     def __str__(self):
-        return u'Debian:\t\t\t%s' % self.deb_filename(self.project)
+        return 'Debian:\t\t\t%s' % self.deb_filename(self.project)
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -196,18 +197,18 @@ class DebianDotInstallFile(object):
 
     @property
     def filename(self):
-        return os.path.join('debian', u'python-%s.install' % self.egg_project.project_name)
+        return os.path.join('debian', 'python-%s.install' % self.egg_project.project_name)
 
     def generate(self):
         with open(self.filename, 'w') as out_file:
-            out_file.write(os.path.join(u'debian', self.package_set.deb_base_name, self.egg_project.project_name, u'usr'))
-            out_file.write(u'  /\n') 
+            out_file.write(os.path.join('debian', self.package_set.deb_base_name, self.egg_project.project_name, 'usr'))
+            out_file.write('  /\n') 
 
 
 class DebianPackageSet(DebianPackage):
     def __str__(self):
         binaries_files = [self.deb_filename(i) for i in self.project.egg_projects]
-        return u'Debian:\t\t\t%s' % ', '.join(binaries_files)
+        return 'Debian:\t\t\t%s' % ', '.join(binaries_files)
  
     @classmethod
     def get_xml_registration_info(cls):
@@ -221,7 +222,7 @@ class DebianPackageSet(DebianPackage):
         
     @property
     def deb_base_name(self):
-        return u'python-%s' % self.project.project_name
+        return 'python-%s' % self.project.project_name
     
     def generate_install_files(self):
         for egg in self.project.egg_projects:
@@ -291,7 +292,7 @@ class RemoteRepository(object):
 
     @property
     def unique_id(self):
-        assert None, u'Not implemented'
+        assert None, 'Not implemented'
 
 
 class PackageIndex(RemoteRepository):
@@ -315,12 +316,12 @@ class PackageIndex(RemoteRepository):
 
     @property
     def unique_id(self):
-        file_unsafe_id = '_'.join([u'pypi', self.repository])
+        file_unsafe_id = '_'.join(['pypi', self.repository])
         return file_unsafe_id.replace(os.sep, '-')
 
     def transfer(self, package):
-        package.project.setup([u'sdist', u'--dist-dir', package.project.distribution_egg_repository.root_directory, u'upload',
-                               u'--repository', self.repository, u'-s'])
+        package.project.setup(['sdist', '--dist-dir', package.project.distribution_egg_repository.root_directory, 'upload',
+                               '--repository', self.repository, '-s'])
 
     
 class SshRepository(RemoteRepository):
@@ -477,12 +478,12 @@ class ExcludedPackage(object):
 
 class Version(object):
     def __init__(self, version_string):
-        match = re.match(u'^(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<patch>[0-9a-zA-Z]+)((?P<other>[^-]+)?)(-(?P<debian_rev>.*))?)?$', version_string)
-        self.major = match.group(u'major')
-        self.minor = match.group(u'minor')
-        self.patch = match.group(u'patch')
-        self.other = match.group(u'other') 
-        self.debian_revision = match.group(u'debian_rev')
+        match = re.match('^(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<patch>[0-9a-zA-Z]+)((?P<other>[^-]+)?)(-(?P<debian_rev>.*))?)?$', version_string)
+        self.major = match.group('major')
+        self.minor = match.group('minor')
+        self.patch = match.group('patch')
+        self.other = match.group('other') 
+        self.debian_revision = match.group('debian_rev')
 
     def __str__(self):
         tail_bits = []
@@ -491,8 +492,8 @@ class Version(object):
         if self.debian_revision:
             tail_bits += [self.debian_revision]
 
-        tail = [u'-'.join(tail_bits)] if tail_bits else []
-        return '.'.join([self.major, (self.minor+(self.other or u''))] + tail)
+        tail = ['-'.join(tail_bits)] if tail_bits else []
+        return '.'.join([self.major, (self.minor+(self.other or ''))] + tail)
 
     def truncated(self):
         return Version('.'.join([self.major, self.minor]))
@@ -500,7 +501,7 @@ class Version(object):
     def is_alpha_version(self):
         if not self.patch:
             return True
-        return not re.match(u'^\d+$', self.patch)
+        return not re.match('^\d+$', self.patch)
 
     def upper_version(self):
         return Version('.'.join([self.major, six.text_type(int(self.minor)+1)]))
@@ -660,7 +661,7 @@ class ExtrasList(list):
 
 class ConfigurationSpec(EntryPointExport):
     def __init__(self, locator_string):
-        super(ConfigurationSpec, self).__init__(u'reahl.configspec', u'config', locator_string)
+        super(ConfigurationSpec, self).__init__('reahl.configspec', 'config', locator_string)
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -673,7 +674,7 @@ class ConfigurationSpec(EntryPointExport):
 
 class ScheduledJobSpec(EntryPointExport):
     def __init__(self, locator_string):
-        super(ScheduledJobSpec, self).__init__(u'reahl.scheduled_jobs', None, locator_string)
+        super(ScheduledJobSpec, self).__init__('reahl.scheduled_jobs', None, locator_string)
         self.name = self.locator.class_name
 
     @classmethod
@@ -707,7 +708,7 @@ class OrderedPersistedClass(object):
 class OrderedClassesList(list):
     @property
     def entry_point(self):
-        raise ProgrammerError(u'subclasses must provide this')
+        raise ProgrammerError('subclasses must provide this')
     
     def inflate_child(self, reader, child, tag, parent):
         assert isinstance(child, OrderedPersistedClass), 'Got %s, expected a class' % child
@@ -718,7 +719,7 @@ class PersistedClassesList(OrderedClassesList):
     "Purely for reading a list of persisted classes XML."""
     @property
     def entry_point(self):
-        return u'reahl.persistlist'
+        return 'reahl.persistlist'
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -729,7 +730,7 @@ class MigrationList(OrderedClassesList):
     "Purely for reading a list of migration classes XML."""
     @property
     def entry_point(self):
-        return u'reahl.migratelist'
+        return 'reahl.migratelist'
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -739,7 +740,7 @@ class MigrationList(OrderedClassesList):
 class FileList(list):
     @property
     def entry_point(self):
-        return u'reahl.attachments.any'
+        return 'reahl.attachments.any'
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -761,7 +762,7 @@ class AttachmentList(list):
 
     @property
     def entry_point(self):
-        return u'reahl.attachments.%s' % self.file_type
+        return 'reahl.attachments.%s' % self.file_type
     
     def inflate_attributes(self, reader, attributes, parent):
         assert 'filetype' in attributes, 'No filetype specified'
@@ -782,7 +783,7 @@ class ShippedFile(object):
 
     @property
     def name(self):
-        return u'%s:%s' % (self.order, self.path)
+        return '%s:%s' % (self.order, self.path)
         
     @property
     def locator(self):
@@ -802,13 +803,13 @@ class EntryPointLocator(object):
         self.string_spec = string_spec
     @property
     def package_name(self):
-        return self.string_spec.split(u':')[0]
+        return self.string_spec.split(':')[0]
     @property
     def package_path(self):
-        return self.package_name.replace(u'.', os.path.sep)
+        return self.package_name.replace('.', os.path.sep)
     @property
     def class_name(self):
-        return self.string_spec.split(u':')[-1]
+        return self.string_spec.split(':')[-1]
 
 
 
@@ -899,7 +900,7 @@ class ProjectTag(object):
 
 class ProjectMetadata(object):
     def __str__(self):
-        return u'Default project metadata provider'
+        return 'Default project metadata provider'
     
     def __init__(self, project):
         self.project = project
@@ -931,29 +932,29 @@ class ProjectMetadata(object):
     def get_url_for(self, project):
         if self.project.chicken_project:
             return self.project.chicken_project.get_url_for(project)
-        return u'No url provided'
+        return 'No url provided'
 
     def get_description_for(self, project):
         if self.project.chicken_project:
             return self.project.chicken_project.get_description_for(project)
-        return u'No description provided'
+        return 'No description provided'
         
     def get_long_description_for(self, project):
         if self.project.chicken_project:
             return self.project.chicken_project.get_long_description_for(project)
-        return u'No description provided'
+        return 'No description provided'
 
     @property
     def maintainer_name(self):
         if self.project.chicken_project:
             return self.project.chicken_project.maintainer_name
-        return u'No maintainer provided'
+        return 'No maintainer provided'
 
     @property
     def maintainer_email(self):
         if self.project.chicken_project:
             return self.project.chicken_project.maintainer_email
-        return u'No maintainer provided'
+        return 'No maintainer provided'
 
 
 
@@ -979,7 +980,7 @@ class HardcodedMetadata(ProjectMetadata):
         self.info = {}
         
     def __str__(self):
-        return u'Metadata read from a .reahlproject file'
+        return 'Metadata read from a .reahlproject file'
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -994,30 +995,30 @@ class HardcodedMetadata(ProjectMetadata):
             
     @property
     def version(self):
-        return Version(self.info[u'version'].contents)
+        return Version(self.info['version'].contents)
 
     def get_long_description_for(self, project):
-        return self.info[u'long_description'].contents
+        return self.info['long_description'].contents
 
     def get_description_for(self, project):
-        return self.info[u'description'].contents
+        return self.info['description'].contents
     
     def get_url_for(self, project):
-        return self.info[u'url'].contents
+        return self.info['url'].contents
 
     @property
     def maintainer_name(self):
-        return self.info[u'maintainer_name'].contents
+        return self.info['maintainer_name'].contents
 
     @property
     def maintainer_email(self):
-        return self.info[u'maintainer_email'].contents
+        return self.info['maintainer_email'].contents
 
     def info_readable(self):
         return self.info_completed()
 
     def info_completed(self):
-        expected_info = {u'url', u'version', u'description', u'long_description', u'maintainer_name', u'maintainer_email'}
+        expected_info = {'url', 'version', 'description', 'long_description', 'maintainer_name', 'maintainer_email'}
         completed_info = set(self.info.keys())
         return expected_info == completed_info
 
@@ -1029,16 +1030,16 @@ class DebianPackageMetadata(ProjectMetadata):
         self.url = url
 
     def __str__(self):
-        return u'Debian package metadata provider'
+        return 'Debian package metadata provider'
 
     @classmethod
     def get_xml_registration_info(cls):
         return ('metadata', cls, 'debian')
 
     def inflate_attributes(self, reader, attributes, parent):
-        assert u'url' in attributes.keys(), 'No url specified for project in %s' % parent.directory
-        self.__init__(parent, attributes[u'url'])
-        self.debian_control = DebianControl(os.path.join(self.project.directory, u'debian', u'control'))
+        assert 'url' in attributes.keys(), 'No url specified for project in %s' % parent.directory
+        self.__init__(parent, attributes['url'])
+        self.debian_control = DebianControl(os.path.join(self.project.directory, 'debian', 'control'))
 
     @property
     def changelog(self):
@@ -1064,10 +1065,10 @@ class DebianPackageMetadata(ProjectMetadata):
         return Version(six.text_type(self.changelog.version))
 
     def get_long_description_for(self, project):
-        return self.debian_control.get_long_description_for(u'python-%s' % project.project_name).replace(u' . ', u'\n\n')
+        return self.debian_control.get_long_description_for('python-%s' % project.project_name).replace(' . ', '\n\n')
 
     def get_description_for(self, project):
-        return self.debian_control.get_short_description_for(u'python-%s' % project.project_name)
+        return self.debian_control.get_short_description_for('python-%s' % project.project_name)
     
     def get_url_for(self, project):
         return self.url
@@ -1124,9 +1125,9 @@ class DebianPackageMetadata(ProjectMetadata):
 
 
 class DebianChangelog(object):
-    package_name_regex = u'(?P<package_name>[a-z][a-z0-9\-]*)'
-    version_regex = u'\((?P<version>[a-zA-Z\.0-9\-]+)\)'
-    heading_regex = u'^%s\s+%s.*$' % (package_name_regex, version_regex)
+    package_name_regex = '(?P<package_name>[a-z][a-z0-9\-]*)'
+    version_regex = '\((?P<version>[a-zA-Z\.0-9\-]+)\)'
+    heading_regex = '^%s\s+%s.*$' % (package_name_regex, version_regex)
 
     def __init__(self, filename):
         self.filename = filename
@@ -1136,7 +1137,7 @@ class DebianChangelog(object):
             for line in changelog_file:
                 if line.strip():
                     match = re.match(self.heading_regex, line)
-                    assert match, u'Cannot parse changelog file: %s' % self.filename
+                    assert match, 'Cannot parse changelog file: %s' % self.filename
                     return match.group(element)
         
     @property
@@ -1177,7 +1178,7 @@ class DebianControl(object):
                         if stanza.get('Package', None) == package_name]
             return stanza
         except ValueError:
-            raise AssertionError(u'Could not find a stanza for a package named %s in debian control file %s' % \
+            raise AssertionError('Could not find a stanza for a package named %s in debian control file %s' % \
                                  (package_name, self.filename))
     
     @property
@@ -1190,7 +1191,7 @@ class DebianControl(object):
         
     def get_long_description_for(self, package_name):
         description_field = self.get_package_stanza(package_name)['Description']
-        return u''.join([line.strip()+u' ' for line in description_field.split('\n')[1:]])
+        return ''.join([line.strip()+' ' for line in description_field.split('\n')[1:]])
 
     def get_short_description_for(self, package_name):
         description_field = self.get_package_stanza(package_name)['Description']
@@ -1202,7 +1203,7 @@ class SourceControlSystem(object):
     def __str__(self):
         if self.project.chicken_project:
             return six.text_type(self.project.chicken_project.source_control)
-        return u'No source control system selected'
+        return 'No source control system selected'
 
     def __init__(self, project):
         self.project = project
@@ -1241,7 +1242,7 @@ class SourceControlSystem(object):
 
 class BzrSourceControl(SourceControlSystem):
     def __str__(self):
-        return u'Bzr source control'
+        return 'Bzr source control'
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -1454,7 +1455,7 @@ class Project(object):
         return is_up_to_date
         
     def build(self):
-        assert self.packages_to_distribute, u'For %s: No <package>... listed in .reahlproject, nothing to do.' % self.project_name
+        assert self.packages_to_distribute, 'For %s: No <package>... listed in .reahlproject, nothing to do.' % self.project_name
         for i in self.packages_to_distribute:
             i.build()
 
@@ -1508,7 +1509,7 @@ class EggProject(Project):
 
     @property
     def entry_points(self):
-        added_entry_points = [ReahlEggExport(u'reahl.component.eggs:ReahlEgg')]
+        added_entry_points = [ReahlEggExport('reahl.component.eggs:ReahlEgg')]
         return self.migration_list + \
                self.persist_list + \
                self.static_files + \
@@ -1528,7 +1529,7 @@ class EggProject(Project):
     @property
     def chicken_project(self):
         parent_directory = os.path.dirname(self.directory)
-        if not os.path.isfile(os.path.join(parent_directory, u'.reahlproject')):
+        if not os.path.isfile(os.path.join(parent_directory, '.reahlproject')):
             return None
 
         parent_project = self.get_project_in_directory(parent_directory)
@@ -1572,7 +1573,7 @@ class EggProject(Project):
         elif isinstance(child, MigrationList):
             self.migration_list = child
         elif isinstance(child, AttachmentList):
-            if child.file_type == u'js':
+            if child.file_type == 'js':
                 self.js_attach_list = child
             else:
                 self.css_attach_list = child
@@ -1606,7 +1607,7 @@ class EggProject(Project):
         self.setup(['egg_info'])
 
         sources = []
-        sources_filename = os.path.join(self.egg_info_directory, u'SOURCES.txt')
+        sources_filename = os.path.join(self.egg_info_directory, 'SOURCES.txt')
 
         with open(sources_filename) as in_file:
             for line in in_file:
@@ -1615,7 +1616,7 @@ class EggProject(Project):
                 
     @property
     def egg_info_directory(self):
-        return os.path.join(self.directory, u'%s.egg-info' % self.project_name_pythonised)
+        return os.path.join(self.directory, '%s.egg-info' % self.project_name_pythonised)
 
     def list_missing_dependencies(self, for_development=False):
         deps = self.run_deps
@@ -1623,7 +1624,7 @@ class EggProject(Project):
             deps = self.run_deps + self.build_deps + self.test_deps
         dependencies = [ i for i in deps
                          if (not i.is_in_development) and (not i.is_installed) ]
-        return [i.as_string_for_egg().replace(u' ', u'') for i in dependencies]
+        return [i.as_string_for_egg().replace(' ', '') for i in dependencies]
 
     def setup(self, setup_command):
         with self.paths_set():
@@ -1648,37 +1649,37 @@ class EggProject(Project):
                      extras_require=self.extras_require_for_setup() )
 
     def generate_setup_py(self):
-        with open(os.path.join(self.directory, u'setup.py'), 'w') as setup_file:
-            setup_file.write(u'from setuptools import setup\n')
-            setup_file.write(u'setup(\n')
-            setup_file.write(u'    name=%s,\n' % repr(self.project_name))
-            setup_file.write(u'    version=%s,\n' % repr(self.version_for_setup()))
-            setup_file.write(u'    description=%s,\n' % repr(self.get_description_for(self)))
-            setup_file.write(u'    long_description=%s,\n' % repr(self.get_long_description_for(self)))
-            setup_file.write(u'    url=%s,\n' % repr(self.get_url_for(self))),
-            setup_file.write(u'    maintainer=%s,\n' % repr(self.maintainer_name))
-            setup_file.write(u'    maintainer_email=%s,\n' % repr(self.maintainer_email))
-            setup_file.write(u'    packages=%s,\n' % repr(self.packages_for_setup()))
-            setup_file.write(u'    py_modules=%s,\n' % repr(self.py_modules_for_setup()))
-            setup_file.write(u'    include_package_data=%s,\n' % repr(self.include_package_data))
-            setup_file.write(u'    package_data=%s,\n' % repr(self.package_data_for_setup()))
-            setup_file.write(u'    namespace_packages=%s,\n' % repr(self.namespace_packages_for_setup()))
-            setup_file.write(u'    install_requires=%s,\n' % repr(self.run_deps_for_setup()))
-            setup_file.write(u'    setup_requires=%s,\n' % repr(self.build_deps_for_setup()))
-            setup_file.write(u'    tests_require=%s,\n' % repr(self.test_deps_for_setup()))
-            setup_file.write(u'    test_suite=%s,\n' % repr(self.test_suite_for_setup()))
+        with open(os.path.join(self.directory, 'setup.py'), 'w') as setup_file:
+            setup_file.write('from setuptools import setup\n')
+            setup_file.write('setup(\n')
+            setup_file.write('    name=%s,\n' % repr(self.project_name))
+            setup_file.write('    version=%s,\n' % repr(self.version_for_setup()))
+            setup_file.write('    description=%s,\n' % repr(self.get_description_for(self)))
+            setup_file.write('    long_description=%s,\n' % repr(self.get_long_description_for(self)))
+            setup_file.write('    url=%s,\n' % repr(self.get_url_for(self))),
+            setup_file.write('    maintainer=%s,\n' % repr(self.maintainer_name))
+            setup_file.write('    maintainer_email=%s,\n' % repr(self.maintainer_email))
+            setup_file.write('    packages=%s,\n' % repr(self.packages_for_setup()))
+            setup_file.write('    py_modules=%s,\n' % repr(self.py_modules_for_setup()))
+            setup_file.write('    include_package_data=%s,\n' % repr(self.include_package_data))
+            setup_file.write('    package_data=%s,\n' % repr(self.package_data_for_setup()))
+            setup_file.write('    namespace_packages=%s,\n' % repr(self.namespace_packages_for_setup()))
+            setup_file.write('    install_requires=%s,\n' % repr(self.run_deps_for_setup()))
+            setup_file.write('    setup_requires=%s,\n' % repr(self.build_deps_for_setup()))
+            setup_file.write('    tests_require=%s,\n' % repr(self.test_deps_for_setup()))
+            setup_file.write('    test_suite=%s,\n' % repr(self.test_suite_for_setup()))
 
-            setup_file.write(u'    entry_points={\n')
+            setup_file.write('    entry_points={\n')
             entry_points = self.entry_points_for_setup()
             for name, values in entry_points.items():
-                setup_file.write(u'        %s: [\n            ' % repr(name))
+                setup_file.write('        %s: [\n            ' % repr(name))
                 value_string = ',\n            '.join([repr(value) for value in values])
                 setup_file.write(value_string)
-                setup_file.write(u'    ],\n')
-            setup_file.write(u'                 },\n')
+                setup_file.write('    ],\n')
+            setup_file.write('                 },\n')
 
-            setup_file.write(u'    extras_require=%s\n' % repr(self.extras_require_for_setup()) )
-            setup_file.write(u')\n')
+            setup_file.write('    extras_require=%s\n' % repr(self.extras_require_for_setup()) )
+            setup_file.write(')\n')
 
     def version_for_setup(self):
         return six.text_type(self.version.as_upstream())
@@ -1694,7 +1695,7 @@ class EggProject(Project):
 
     def packages_for_setup(self):
         exclusions = [i.name for i in self.excluded_packages]
-        exclusions += [u'%s.*' % i.name for i in self.excluded_packages]
+        exclusions += ['%s.*' % i.name for i in self.excluded_packages]
         return find_packages(where=self.directory, exclude=exclusions)
 
     def namespace_packages_for_setup(self):
@@ -1704,7 +1705,7 @@ class EggProject(Project):
         return list(set(['setup']+[i[1] for i in pkgutil.iter_modules('.') if not i[2]]))
 
     def package_data_for_setup(self):
-        return {'': [u'*/LC_MESSAGES/*.mo']}
+        return {b'': [b'*/LC_MESSAGES/*.mo']}
 
     @property
     def test_suite(self):
@@ -1734,24 +1735,24 @@ class EggProject(Project):
                        for name, dependencies in self.extras_required.items()] )
 
     def debinstall(self, args):
-        root = os.path.join(self.directory, u'debian', 'python-%s' % self.project_name)
+        root = os.path.join(self.directory, 'debian', 'python-%s' % self.project_name)
         executable = '/usr/bin/python'
         build_directory = os.path.join(self.workspace.build_directory, self.project_name)
         self.setup(['build', '-b', build_directory, 'build_scripts', '-e', executable, 'install', '--single-version-externally-managed', '--root=%s' % root, '--prefix=/usr'])
 
     def distributed_python_files(self):
-        package_dirs = [i.replace(u'.', os.sep) for i in self.packages_for_setup()]
+        package_dirs = [i.replace('.', os.sep) for i in self.packages_for_setup()]
         py_files = set()
         for package_dir in package_dirs:
             for dirname, dirnames, filenames in os.walk(package_dir):
                 for filename in filenames:
-                    if filename.endswith(u'.py'):
+                    if filename.endswith('.py'):
                         py_files.add(os.path.join(dirname, filename))
         return list(py_files)
 
     @property
     def locale_dirname(self):
-        assert self.translation_package, u'No <translations.../> tag specified for project: "%s"' % (self.project_name)
+        assert self.translation_package, 'No <translations.../> tag specified for project: "%s"' % (self.project_name)
         return os.path.join(self.directory, self.translation_package.path)
 
     @property
@@ -1764,11 +1765,11 @@ class EggProject(Project):
         
     def extract_messages(self, args):
         if self.translation_package:
-            self.setup([u'extract_messages', 
-                        u'--input-dirs', u'.',
-                        u'--output-file', self.pot_filename])
+            self.setup(['extract_messages', 
+                        '--input-dirs', '.',
+                        '--output-file', self.pot_filename])
         else:
-            logging.warn(u'No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
+            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
 
     @property
     def translated_domains(self):
@@ -1776,7 +1777,7 @@ class EggProject(Project):
             filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
             return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
         else:
-            logging.warn(u'No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
+            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
             return []
         
     def merge_translations(self):
@@ -1787,16 +1788,16 @@ class EggProject(Project):
                 raise EggNotFound(source_dist_spec)
             if not os.path.isdir(self.locale_dirname):
                 os.mkdir(self.locale_dirname)
-            self.setup([u'update_catalog', 
-                        u'--input-file', source_egg.translation_pot_filename,
-                        u'--domain', source_egg.name, 
-                        u'-d', self.locale_dirname])
+            self.setup(['update_catalog', 
+                        '--input-file', source_egg.translation_pot_filename,
+                        '--domain', source_egg.name, 
+                        '-d', self.locale_dirname])
 
     def compile_translations(self):
         for domain in self.translated_domains:
-            self.setup([u'compile_catalog', 
-                        u'--domain', domain, 
-                        u'-d', self.locale_dirname])
+            self.setup(['compile_catalog', 
+                        '--domain', domain, 
+                        '-d', self.locale_dirname])
 
     def add_locale(self, locale, source_dist_spec):
         try:
@@ -1807,11 +1808,11 @@ class EggProject(Project):
             source_egg = ReahlEgg(get_distribution(source_dist_spec)) 
         except DistributionNotFound:
             raise EggNotFound(source_dist_spec)
-        self.setup([u'init_catalog', 
-                    u'--input-file', source_egg.translation_pot_filename, 
-                    u'--domain', source_egg.name, 
-                    u'-d', self.locale_dirname, 
-                    u'--locale', locale])
+        self.setup(['init_catalog', 
+                    '--input-file', source_egg.translation_pot_filename, 
+                    '--domain', source_egg.name, 
+                    '-d', self.locale_dirname, 
+                    '--locale', locale])
 
 
 class ChickenProject(EggProject):
@@ -1829,7 +1830,7 @@ class ChickenProject(EggProject):
     @property
     def egg_project_names(self):
         return [os.path.basename(os.path.dirname(i)) 
-                for i in glob.glob(os.path.join(self.directory, u'*', u'.reahlproject'))]
+                for i in glob.glob(os.path.join(self.directory, '*', '.reahlproject'))]
 
     @property
     def egg_projects(self):
@@ -1837,7 +1838,7 @@ class ChickenProject(EggProject):
 
     def debinstall(self, args):
         for egg in self.egg_projects:
-            root = os.path.join(self.directory,u'debian', 'python-%s' % self.project_name, egg.project_name)
+            root = os.path.join(self.directory,'debian', 'python-%s' % self.project_name, egg.project_name)
             executable = '/usr/bin/python'
             build_directory = os.path.join(self.workspace.build_directory, self.project_name, egg.project_name)
             egg.setup(['build', '-b', build_directory, 'build_scripts', '-e', executable, 'install', '--single-version-externally-managed', '--root=%s' % root, '--prefix=/usr'])

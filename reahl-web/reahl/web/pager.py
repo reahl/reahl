@@ -20,6 +20,7 @@ Tools for breaking long lists into shorter lists that can be paged.
 """
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import six
 
 
@@ -32,7 +33,7 @@ from reahl.component.modelinterface import IntegerField, exposed
 from reahl.web.fw import WidgetResult, Bookmark
 from reahl.web.ui import HMenu, A, Panel
 
-_ = Translator(u'reahl-web')
+_ = Translator('reahl-web')
 
 
 @six.add_metaclass(ABCMeta)
@@ -77,8 +78,8 @@ class PagedPanel(Panel):
     
     @classmethod
     def get_bookmark(cls, description=None, page_number=1):
-        return Bookmark(u'', u'', description=description or u'%s' % page_number,
-                        query_arguments={u'current_page_number': page_number}, ajax=True)
+        return Bookmark('', '', description=description or '%s' % page_number,
+                        query_arguments={'current_page_number': page_number}, ajax=True)
 
     @exposed
     def query_fields(self, fields):
@@ -208,7 +209,7 @@ class PageMenu(HMenu):
     def __init__(self, view, css_id, page_index, paged_panel):
         self.page_index = page_index
         super(PageMenu, self).__init__(view, [], css_id=css_id)
-        self.append_class(u'reahl-pagemenu')
+        self.append_class('reahl-pagemenu')
 
         self.paged_panel = paged_panel
         self.add_items()
@@ -217,11 +218,11 @@ class PageMenu(HMenu):
     def add_items(self):
         links = []
 
-        first = A.from_bookmark(self.view, self.get_bookmark(start_page_number=1, description=u'|<'))
-        first.append_class(u'first')
+        first = A.from_bookmark(self.view, self.get_bookmark(start_page_number=1, description='|<'))
+        first.append_class('first')
         first.set_active(self.page_index.has_previous_page)
-        previous = A.from_bookmark(self.view, self.get_bookmark(start_page_number=self.page_index.previous_page.number, description=u'<'))
-        previous.append_class(u'prev')
+        previous = A.from_bookmark(self.view, self.get_bookmark(start_page_number=self.page_index.previous_page.number, description='<'))
+        previous.append_class('prev')
         previous.set_active(self.page_index.has_previous_page)
         links.extend([first, previous])
 
@@ -229,11 +230,11 @@ class PageMenu(HMenu):
             link = A.from_bookmark(self.view, self.paged_panel.get_bookmark(page_number=page.number, description=page.description))
             links.append(link)
 
-        next = A.from_bookmark(self.view, self.get_bookmark(start_page_number=self.page_index.next_page.number, description=u'>'))
-        next.append_class(u'next')
+        next = A.from_bookmark(self.view, self.get_bookmark(start_page_number=self.page_index.next_page.number, description='>'))
+        next.append_class('next')
         next.set_active(self.page_index.has_next_page)
-        last = A.from_bookmark(self.view, self.get_bookmark(start_page_number=self.page_index.last_page.number, description=u'>|'))
-        last.append_class(u'last')
+        last = A.from_bookmark(self.view, self.get_bookmark(start_page_number=self.page_index.last_page.number, description='>|'))
+        last.append_class('last')
         last.set_active(self.page_index.has_next_page)
         links.extend([next, last])
 
@@ -241,8 +242,8 @@ class PageMenu(HMenu):
 
     @classmethod
     def get_bookmark(self, description=None, start_page_number=1):
-        return Bookmark.for_widget(description=description or u'%s' % start_page_number,
-                                   query_arguments={u'start_page_number': start_page_number})
+        return Bookmark.for_widget(description=description or '%s' % start_page_number,
+                                   query_arguments={'start_page_number': start_page_number})
 
     @exposed
     def query_fields(self, fields):

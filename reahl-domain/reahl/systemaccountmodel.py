@@ -16,6 +16,7 @@
 
 """A collection of classes to deal with accounts for different parties on a system."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from datetime import datetime, timedelta
@@ -42,33 +43,33 @@ from reahl.component.context import ExecutionContext
 from reahl.workflowmodel import DeferredAction, Requirement
 from reahl.partymodel import Party
 
-_ = Translator(u'reahl-domain')
+_ = Translator('reahl-domain')
                              
 class SystemAccountConfig(Configuration):
-    filename = u'systemaccountmodel.config.py'
-    config_key = u'accounts'
+    filename = 'systemaccountmodel.config.py'
+    config_key = 'accounts'
 
     """Configuration containing general system information"""
-    admin_email = ConfigSetting(default=u'admin@example.com', description=u'The email address from which automated emails are sent', dangerous=True)
-    request_verification_timeout = ConfigSetting(default=10, description=u'The time an unvalidated request is kept alive')
-    activation_subject = ConfigSetting(default=u'''Your registration for $email''', description=u'Subject used for activation emails')
-    activation_email = ConfigSetting(default=u'''You, or someone on your behalf requested to be registered using $email.\n\n'''\
+    admin_email = ConfigSetting(default='admin@example.com', description='The email address from which automated emails are sent', dangerous=True)
+    request_verification_timeout = ConfigSetting(default=10, description='The time an unvalidated request is kept alive')
+    activation_subject = ConfigSetting(default='''Your registration for $email''', description='Subject used for activation emails')
+    activation_email = ConfigSetting(default='''You, or someone on your behalf requested to be registered using $email.\n\n'''\
         '''If you have received this message in error, please ignore it.\n\n'''\
-        '''Your secret key is: $secret_key\n\n''', description=u'Body of an activation email')
-    new_password_subject = ConfigSetting(default=u'''Your password for $email''', description=u'Subject used for password reset emails')
-    new_password_email = ConfigSetting(default=u'''You, or someone on your behalf requested to pick a new password for $email.\n\n'''\
+        '''Your secret key is: $secret_key\n\n''', description='Body of an activation email')
+    new_password_subject = ConfigSetting(default='''Your password for $email''', description='Subject used for password reset emails')
+    new_password_email = ConfigSetting(default='''You, or someone on your behalf requested to pick a new password for $email.\n\n'''\
         '''If you have received this message in error, please ignore it.\n\n'''\
-        '''Your secret key is: $secret_key\n\n''', description=u'Body of a password reset email')
-    email_change_subject = ConfigSetting(default=u'''Your new email $email''', description=u'Subject used for email address change emails')
-    email_change_email = ConfigSetting(default=u'''You, or someone on your behalf requested to change your email to $email.\n\n'''\
+        '''Your secret key is: $secret_key\n\n''', description='Body of a password reset email')
+    email_change_subject = ConfigSetting(default='''Your new email $email''', description='Subject used for email address change emails')
+    email_change_email = ConfigSetting(default='''You, or someone on your behalf requested to change your email to $email.\n\n'''\
         '''If you have received this message in error, please ignore it.\n\n'''\
         '''You need to accept this change before it will take effect.\n\n'''\
-        '''Your secret key is: $secret_key\n\n''', description=u'Body of an email address changed email')
-    session_lifetime = ConfigSetting(default=60*60*24*7*2, description=u'The time in seconds a user session will be kept after last use')
-    idle_lifetime = ConfigSetting(default=60*60*2, description=u'The time in seconds after which a user session will be considered idle - normal setting')
-    idle_lifetime_max = ConfigSetting(default=60*60*24*7*2, description=u'The time in seconds after which a user session will be considered idle - "forever" setting')
-    idle_secure_lifetime = ConfigSetting(default=60*60, description=u'The time in seconds after which a secure session will be considered expired')
-    mailer_class = ConfigSetting(default=Mailer, description=u'The class to instantiate for sending email')
+        '''Your secret key is: $secret_key\n\n''', description='Body of an email address changed email')
+    session_lifetime = ConfigSetting(default=60*60*24*7*2, description='The time in seconds a user session will be kept after last use')
+    idle_lifetime = ConfigSetting(default=60*60*2, description='The time in seconds after which a user session will be considered idle - normal setting')
+    idle_lifetime_max = ConfigSetting(default=60*60*24*7*2, description='The time in seconds after which a user session will be considered idle - "forever" setting')
+    idle_secure_lifetime = ConfigSetting(default=60*60, description='The time in seconds after which a secure session will be considered expired')
+    mailer_class = ConfigSetting(default=Mailer, description='The class to instantiate for sending email')
 
 
 @session_scoped
@@ -100,7 +101,7 @@ class AccountManagementInterface(Entity):
         - resend_event = Resends a secret of an outstanding request (to fields.email).
         - log_out_event = Logs out the current account.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     email = elixir.Field(UnicodeText, required=False, default=None, index=True)
 
     stay_logged_in = False
@@ -108,27 +109,27 @@ class AccountManagementInterface(Entity):
     @exposed
     def fields(self, fields):
         """See class docstring"""
-        fields.email = EmailField(required=True, label=_(u'Email'))
-        fields.new_email = EmailField(required=True, label=_(u'New email'))
-        fields.password = PasswordField(required=True, label=_(u'Password'))
-        fields.stay_logged_in = BooleanField(default=False, label=_(u'Remember me?'))
-        fields.secret = Field(required=True, label=_(u'Secret key'))
-        fields.repeat_password = RepeatPasswordField(fields.password, required=True, label=_(u'Re-type password'), required_message=_('Please type your password again.'))
+        fields.email = EmailField(required=True, label=_('Email'))
+        fields.new_email = EmailField(required=True, label=_('New email'))
+        fields.password = PasswordField(required=True, label=_('Password'))
+        fields.stay_logged_in = BooleanField(default=False, label=_('Remember me?'))
+        fields.secret = Field(required=True, label=_('Secret key'))
+        fields.repeat_password = RepeatPasswordField(fields.password, required=True, label=_('Re-type password'), required_message=_('Please type your password again.'))
         fields.accept_terms = BooleanField(required=True,
-                                          required_message=_(u'Please accept the terms of service'),
-                                          default=False, label=_(u'I accept the terms of service'))
+                                          required_message=_('Please accept the terms of service'),
+                                          default=False, label=_('I accept the terms of service'))
     
     @exposed
     def events(self, events):
-        events.verify_event = Event(label=_(u'Verify'), action=Action(self.verify_email))
-        events.register_event = Event(label=_(u'Register'), action=Action(self.register))
-        events.change_email_event = Event(label=_(u'Change email address'), action=Action(self.request_email_change))
-        events.investigate_event = Event(label=_(u'Investigate'))
-        events.choose_password_event = Event(label=_(u'Set new password'), action=Action(self.choose_new_password))
-        events.reset_password_event = Event(label=_(u'Reset password'), action=Action(self.request_password_reset))
-        events.login_event = Event(label=_(u'Log in'), action=Action(self.log_in))
-        events.resend_event = Event(label=_(u'Send'), action=Action(self.send_activation_notification))
-        events.log_out_event = Event(label=_(u'Log out'), action=Action(self.log_out))
+        events.verify_event = Event(label=_('Verify'), action=Action(self.verify_email))
+        events.register_event = Event(label=_('Register'), action=Action(self.register))
+        events.change_email_event = Event(label=_('Change email address'), action=Action(self.request_email_change))
+        events.investigate_event = Event(label=_('Investigate'))
+        events.choose_password_event = Event(label=_('Set new password'), action=Action(self.choose_new_password))
+        events.reset_password_event = Event(label=_('Reset password'), action=Action(self.request_password_reset))
+        events.login_event = Event(label=_('Log in'), action=Action(self.log_in))
+        events.resend_event = Event(label=_('Send'), action=Action(self.send_activation_notification))
+        events.log_out_event = Event(label=_('Log out'), action=Action(self.log_out))
     
     def log_in(self):
         EmailAndPasswordSystemAccount.log_in(self.email, self.password, self.stay_logged_in)
@@ -172,7 +173,7 @@ class AccountManagementInterface(Entity):
 
 class RepeatPasswordField(PasswordField):
     def __init__(self, other_field, default=None, required=False, required_message=None, label=None):
-        label = label or _(u'')
+        label = label or _('')
         super(RepeatPasswordField, self).__init__(default, required, required_message, label)
         self.add_validation_constraint(EqualToConstraint(other_field))
         
@@ -182,38 +183,38 @@ class PasswordException(DomainException):
        to guard against typing errors. PasswordException is raised to indicate that the 
        two PasswordFields do not match."""
     def as_user_message(self):
-        return _(u'Passwords do not match')
+        return _('Passwords do not match')
 
 
 class InvalidPasswordException(DomainException):
     """Raised to indicate that a user supplied incorrect password or username."""
     def as_user_message(self):
-        return _(u'Invalid login credentials')
+        return _('Invalid login credentials')
 
 
 class KeyException(DomainException):
     """Raised to indicate that the secret key given is not valid."""
     def as_user_message(self):
-        return _(u'The secret key supplied is invalid.')
+        return _('The secret key supplied is invalid.')
 
 
 class InvalidEmailException(DomainException):
     """Raised to indicate that the given email address is not valid."""
     def as_user_message(self):
-        return _(u'The email address supplied is invalid.')
+        return _('The email address supplied is invalid.')
 
 
 class NoSuchAccountException(DomainException):
     """Raised to indicate that the account relating to a supplied email address does not exist."""
     def as_user_message(self):
-        return _(u'Could not find an account matching the supplied email address.')
+        return _('Could not find an account matching the supplied email address.')
 
 
 class NotUniqueException(DomainException):
     """Raised to indicate that an email address supplied for a new registration already is in
        use on the system."""
     def as_user_message(self):
-        return _(u'The email address supplied is not unique.')
+        return _('The email address supplied is not unique.')
 
 
 class AccountNotActiveException(DomainException):
@@ -245,7 +246,7 @@ class VerificationRequest(Requirement):
     the "accounts.request_verification_timeout" configuration setting are regarded as stale.
     """
 
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
 
     salt = elixir.Field(String(10), required=True)
     mailer = None
@@ -284,8 +285,8 @@ class VerificationRequest(Requirement):
         pass
 
     def get_data_for_substitution(self):
-        return {u'email': self.email,
-                u'secret_key': self.as_secret_key() }
+        return {'email': self.email,
+                'secret_key': self.as_secret_key() }
 
     def as_secret_key(self):
         Session.flush()
@@ -294,10 +295,10 @@ class VerificationRequest(Requirement):
 
 class NewPasswordRequest(VerificationRequest):
     """A request to pick a new passowrd for a SystemAccount."""
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
 
     system_account = ManyToOne('SystemAccount', primary_key=True,
-                               constraint_kwargs={u'deferrable':True, u'initially':u'deferred'})
+                               constraint_kwargs={'deferrable':True, 'initially':'deferred'})
 
     @property
     def email(self):
@@ -313,7 +314,7 @@ class NewPasswordRequest(VerificationRequest):
 
 class VerifyEmailRequest(VerificationRequest):
     """A request to activate the account for a newly created SystemAccount."""
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
 
     email = elixir.Field(UnicodeText, required=True, unique=True, index=True)
     subject_config = elixir.Field(UnicodeText, required=True)
@@ -330,8 +331,8 @@ class VerifyEmailRequest(VerificationRequest):
 
 
 class ActivateAccount(DeferredAction):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
-    system_account = ManyToOne(u'SystemAccount', constraint_kwargs={u'deferrable':True, u'initially':u'deferred'})
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+    system_account = ManyToOne('SystemAccount', constraint_kwargs={'deferrable':True, 'initially':'deferred'})
 
     def __init__(self, **kwargs):
         config = ExecutionContext.get_context().config
@@ -346,13 +347,13 @@ class ActivateAccount(DeferredAction):
 
 
 class ChangeAccountEmail(DeferredAction):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
-    system_account = ManyToOne(u'SystemAccount', constraint_kwargs={u'deferrable':True, u'initially':u'deferred'})
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+    system_account = ManyToOne('SystemAccount', constraint_kwargs={'deferrable':True, 'initially':'deferred'})
 
     def __init__(self, system_account, new_email):
         requirements = [VerifyEmailRequest(email=new_email,
-                                           subject_config=u'accounts.email_change_subject',
-                                           email_config=u'accounts.email_change_email')]
+                                           subject_config='accounts.email_change_subject',
+                                           email_config='accounts.email_change_email')]
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
         super(ChangeAccountEmail, self).__init__(system_account=system_account,
@@ -373,9 +374,9 @@ class ChangeAccountEmail(DeferredAction):
 class UserSession(Entity, UserSessionProtocol):
     """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
     class __metaclass__(EntityMeta, ABCMeta): pass
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
 
-    account = ManyToOne(u'SystemAccount')
+    account = ManyToOne('SystemAccount')
     idle_lifetime = elixir.Field(Integer(), required=True, default=0)
     last_activity = elixir.Field(DateTime(), required=True, default=datetime.now)
 
@@ -416,29 +417,29 @@ class UserSession(Entity, UserSessionProtocol):
         self.last_activity = datetime.now()
 
     def get_interface_locale(self):
-        return u'en_gb'
+        return 'en_gb'
 
 
 class SystemAccountStatus(object):
     def as_user_message(self):
-        return _(u'Unknown status')
+        return _('Unknown status')
     def is_active(self):
         return False
         
         
 class AccountNotActivated(SystemAccountStatus):
     def as_user_message(self):
-        return _(u'Please verify your account before logging in')
+        return _('Please verify your account before logging in')
     
     
 class AccountDisabled(SystemAccountStatus):
     def as_user_message(self):
-        return _(u'Account is locked: too many failed attempts')
+        return _('Account is locked: too many failed attempts')
     
     
 class AccountActive(SystemAccountStatus):
     def as_user_message(self):
-        return _(u'Account is active')
+        return _('Account is active')
     def is_active(self):
         return True
 
@@ -446,7 +447,7 @@ class AccountActive(SystemAccountStatus):
 class SystemAccount(Entity):
     """The credentials for someone to be able to log into the system."""
 
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
 
     party = OneToOne('Party', inverse='system_account') #: The party tho whom this account belongs.
 
@@ -477,7 +478,7 @@ class SystemAccount(Entity):
 
     def cancel_reservation(self):
         if self.account_enabled:
-            raise ProgrammerError(u'attempted to cancel a reserved account which is already active')
+            raise ProgrammerError('attempted to cancel a reserved account which is already active')
         self.delete()
 
     def enable(self):
@@ -491,7 +492,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     """An EmailAndPasswordSystemAccount used an email address to identify the account uniquely,
        and uses a password to authenticate login attempts.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     
     password_md5 = elixir.Field(String(32), required=True)
     email = elixir.Field(UnicodeText, required=True, unique=True, index=True)
@@ -549,8 +550,8 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         system_account.set_new_password(email, password)
 
         verification_request = VerifyEmailRequest(email=email,
-                                                  subject_config=u'accounts.activation_subject',
-                                                  email_config=u'accounts.activation_email')
+                                                  subject_config='accounts.activation_subject',
+                                                  email_config='accounts.activation_email')
         Session.flush()
         deferred_activation = ActivateAccount(system_account=system_account, 
                                               requirements=[verification_request])

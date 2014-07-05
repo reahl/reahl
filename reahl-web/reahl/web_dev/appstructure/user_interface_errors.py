@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -32,19 +33,19 @@ class UserInterfaceErrorScenarios(WebFixture):
         fixture = self
         class SimpleUserInterface(UserInterface):
             def assemble(self):
-                root = self.define_view(u'/', title=u'View')
-                root.set_slot(u'name', P.factory())
+                root = self.define_view('/', title='View')
+                root.set_slot('name', P.factory())
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  SimpleUserInterface,  {}, name=u'test_ui')
+                self.define_user_interface('/a_ui',  SimpleUserInterface,  {}, name='test_ui')
 
         return super(UserInterfaceErrorScenarios, self).new_wsgi_app(site_root=MainUI)
 
     @scenario
     def plug_in_to_nonexistant_name(self):
-        self.slot_map = {u'name': u'nonexistent'}
+        self.slot_map = {'name': 'nonexistent'}
 
     @scenario
     def view_name_not_mapped(self):

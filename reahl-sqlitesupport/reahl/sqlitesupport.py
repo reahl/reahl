@@ -17,6 +17,7 @@
 """Support for the SQLite database backend."""
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import os
@@ -40,20 +41,20 @@ class SQLiteControl(DatabaseControl):
         super(SQLiteControl, self).__init__(url, config)
         if not config.reahlsystem.serialise_parallel_requests:
             config.reahlsystem.serialise_parallel_requests = True
-            logging.getLogger(__name__).warning(u'Overriding config setting[reahlsystem.serialise_parallel_requests] to True. Sqlite cannot handle concurrency.')
+            logging.getLogger(__name__).warning('Overriding config setting[reahlsystem.serialise_parallel_requests] to True. Sqlite cannot handle concurrency.')
     
     def get_dbapi_connection_creator(self):
         # See: http://stackoverflow.com/questions/2182591/python-sqlite-3-roll-back-to-save-point-fails
         def connect(*args, **kwargs): 
             conn = sqlite3.connect(self.database_name, check_same_thread=False) 
             conn.isolation_level = None
-            conn.execute(u'PRAGMA foreign_keys = ON') # http://www.sqlite.org/foreignkeys.html
+            conn.execute('PRAGMA foreign_keys = ON') # http://www.sqlite.org/foreignkeys.html
             return conn
         return connect
 
     @property    
     def is_in_memory(self):
-        return (self.database_name == ':memory:') or (self.database_name == u'')
+        return (self.database_name == ':memory:') or (self.database_name == '')
         
     @property
     def login_args(self):

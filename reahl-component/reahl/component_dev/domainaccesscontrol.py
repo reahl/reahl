@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -165,8 +166,8 @@ class AccessControlTests(object):
                 self.saved_kwarg_in_write_check = also_a_kwarg
                 return True
             
-            @secured( read_check=AdaptedMethod(read_check, [u'self', u'arg'], dict(a_kwarg=u'kwarg')),
-                      write_check=AdaptedMethod(write_check, [u'self', u'arg'], dict(also_a_kwarg=u'kwarg')) )
+            @secured( read_check=AdaptedMethod(read_check, ['self', 'arg'], dict(a_kwarg='kwarg')),
+                      write_check=AdaptedMethod(write_check, ['self', 'arg'], dict(also_a_kwarg='kwarg')) )
             def do_something_with_arguments(self, arg, ignored_arg, kwarg=None, ignored_kwarg=None):
                 self.saved_arg = arg
                 self.saved_kwarg = kwarg
@@ -175,8 +176,8 @@ class AccessControlTests(object):
         model_object = ModelObject()
 
         # Case where arguments match
-        model_object.do_something_with_arguments(expected_arg, u'ignored_arg',
-                                                  kwarg=expected_kwarg, ignored_kwarg=u'ignored_kwarg')
+        model_object.do_something_with_arguments(expected_arg, 'ignored_arg',
+                                                  kwarg=expected_kwarg, ignored_kwarg='ignored_kwarg')
         vassert( model_object.saved_arg_in_read_check is expected_arg )
         vassert( model_object.saved_kwarg_in_read_check is expected_kwarg )
         vassert( model_object.saved_arg_in_write_check is expected_arg )

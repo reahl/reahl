@@ -16,6 +16,7 @@
 
 """A simple model for implementing workflow concepts.
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
    The basics of workflow is the ability for the system to allocate Tasks to users via
@@ -32,7 +33,7 @@ from reahl.sqlalchemysupport import metadata, Session, PersistedField
 from reahl.component.modelinterface import exposed, secured, Event, Field, CurrentUser, Action
 from reahl.component.context import ExecutionContext
 
-_ = Translator(u'reahl-domain')
+_ = Translator('reahl-domain')
 
 class WorkflowInterface(object):
     """An object that @exposes a number of Events that user interface 
@@ -49,17 +50,17 @@ class WorkflowInterface(object):
     """
     @exposed
     def events(self, events):
-        events.take_task = Event(label=_(u'Take'), 
-                                 action=Action(Task.reserve_for, [u'task', u'party']),
+        events.take_task = Event(label=_('Take'), 
+                                 action=Action(Task.reserve_for, ['task', 'party']),
                                  task=PersistedField(Task, required=True),
                                  party=CurrentUser())
-        events.defer_task = Event(label=_(u'Defer'))
-        events.go_to_task = Event(label=_(u'Go to'),
+        events.defer_task = Event(label=_('Defer'))
+        events.go_to_task = Event(label=_('Go to'),
                                   task=PersistedField(Task, required=True),
                                   party=CurrentUser(),
-                                  readable=Action(Task.is_reserved_for, [u'task', u'party']))
-        events.release_task = Event(label=_(u'Release'),
-                                    action=Action(Task.release, [u'task']),
+                                  readable=Action(Task.is_reserved_for, ['task', 'party']))
+        events.release_task = Event(label=_('Release'),
+                                    action=Action(Task.release, ['task']),
                                     task=PersistedField(Task, required=True),
                                     party=CurrentUser())
 
@@ -75,9 +76,9 @@ class DeferredAction(Entity):
        :keyword requirements: A list of :class:`Requirement` instances to be satisfied before `.success_action` can be executed.
        :keyword deadline: The DateTime by which `deadline_action` will be executed if all `requirements` are not fulfulled by that time.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
 
-    requirements = ManyToMany(u'Requirement', lazy=u'dynamic')
+    requirements = ManyToMany('Requirement', lazy='dynamic')
     deadline = elixir.Field(DateTime(), required=True)
     
     def success_action(self):
@@ -116,8 +117,8 @@ class Requirement(Entity):
        are required to create subclasses of Requirement that call `self.set_fulfulled()` somewhere in a
        method of the subclass in order to indicate that the Requirement is fulfilled.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
-    deferred_actions = ManyToMany('DeferredAction', lazy=u'dynamic')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+    deferred_actions = ManyToMany('DeferredAction', lazy='dynamic')
     fulfilled = elixir.Field(Boolean, required=True, default=False)
     
     def set_fulfilled(self):
@@ -133,7 +134,7 @@ class Requirement(Entity):
 
 class Queue(Entity):
     """A first-in, first-out queue that is monitored by users for Tasks that the system indicated need to be done."""
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     tasks = OneToMany('Task')
     name = elixir.Field(UnicodeText, required=True, unique=True, index=True)
 
@@ -145,10 +146,10 @@ class Task(Entity):
        :keyword queue: The :class:`Queue` to which this Task is allocated.
        :keyword title: A title for this task.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     queue = ManyToOne(Queue)
     title = elixir.Field(UnicodeText, required=True)
-    reserved_by = ManyToOne(u'Party')
+    reserved_by = ManyToOne('Party')
 
     def is_available(self):
         return self.reserved_by is None

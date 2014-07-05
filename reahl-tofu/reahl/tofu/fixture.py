@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import sys
@@ -183,7 +184,7 @@ class Fixture(object):
             factory_method_name = '%s_%s' % (self.factory_method_prefix, name)
             return getattr(self, factory_method_name)
         except AttributeError:
-            if name == u'context':
+            if name == 'context':
                 return self.create_default_context
             raise
 

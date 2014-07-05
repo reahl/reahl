@@ -15,13 +15,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """A heading for this module
-from __future__ import print_function
-import six
 =========================
 
 Copyright (C) 2009 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 """
+from __future__ import unicode_literals
+from __future__ import print_function
 
 from sqlalchemy.exc import InvalidRequestError
 import elixir
@@ -30,12 +30,12 @@ from elixir import using_options, Entity, ManyToOne
 from reahl.sqlalchemysupport import metadata, Session
 from reahl.component.i18n import Translator
 
-_ = Translator(u'reahl-domain')
+_ = Translator('reahl-domain')
 
 
 class Party(Entity):
     """A Party is any legal entity which the system may keep track of."""
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     system_account = ManyToOne('SystemAccount')
 
 

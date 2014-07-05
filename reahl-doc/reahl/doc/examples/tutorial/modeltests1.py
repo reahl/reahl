@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -24,15 +25,15 @@ class AddressBook(object):
 @istest
 def test_model():
     contacts = AddressBook()
-    Address(u'John', u'john@world.com').save(contacts)
-    Address(u'Jane', u'jane@world.com').save(contacts)
+    Address('John', 'john@world.com').save(contacts)
+    Address('Jane', 'jane@world.com').save(contacts)
 
-    assert contacts.addresses[0].name == u'John'
-    assert contacts.addresses[0].email_address == u'john@world.com'
+    assert contacts.addresses[0].name == 'John'
+    assert contacts.addresses[0].email_address == 'john@world.com'
 
     #import pdb; pdb.set_trace()
-    assert contacts.addresses[1].name == u'Jane'
-    assert contacts.addresses[1].email_address == u'jane@world.com'
+    assert contacts.addresses[1].name == 'Jane'
+    assert contacts.addresses[1].email_address == 'jane@world.com'
 
 
 

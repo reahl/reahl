@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from reahl.tofu import test
@@ -13,21 +14,21 @@ class AddressAppFixture(WebFixture):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
         
     def new_existing_address(self):
-        address = Address(name=u'John Doe', email_address=u'johndoe@some.org')
+        address = Address(name='John Doe', email_address='johndoe@some.org')
         address.save()
         return address
 
     def is_on_home_page(self):
-        return self.browser.title == u'Addresses'
+        return self.browser.title == 'Addresses'
         
     def is_on_add_page(self):
-        return self.browser.title == u'Add an address'
+        return self.browser.title == 'Add an address'
 
     def is_on_edit_page_for(self, address):
-        return self.browser.title == u'Edit %s' % address.name
+        return self.browser.title == 'Edit %s' % address.name
 
     def address_is_listed_as(self, name, email_address):
-        return self.browser.is_element_present(XPath.paragraph_containing(u'%s: %s' % (name, email_address)))
+        return self.browser.is_element_present(XPath.paragraph_containing('%s: %s' % (name, email_address)))
 
 
 @test(AddressAppFixture)
@@ -38,16 +39,16 @@ def adding_an_address(fixture):
 
     browser = fixture.browser
 
-    browser.open(u'/')
-    browser.click(XPath.link_with_text(u'Add an address'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Add an address'))
 
     assert fixture.is_on_add_page()
-    browser.type(XPath.input_labelled(u'Name'), u'John Doe')
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.click(XPath.button_labelled(u'Save'))
+    browser.type(XPath.input_labelled('Name'), 'John Doe')
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
     
     assert fixture.is_on_home_page()
-    assert fixture.address_is_listed_as(u'John Doe', u'johndoe@some.org') 
+    assert fixture.address_is_listed_as('John Doe', 'johndoe@some.org') 
 
 @test(AddressAppFixture)
 def editing_an_address(fixture):
@@ -59,15 +60,15 @@ def editing_an_address(fixture):
     browser = fixture.browser
     existing_address = fixture.existing_address
     
-    browser.open(u'/')
-    browser.click(XPath.button_labelled(u'Edit'))
+    browser.open('/')
+    browser.click(XPath.button_labelled('Edit'))
 
     assert fixture.is_on_edit_page_for(existing_address)
-    browser.type(XPath.input_labelled(u'Name'), u'John Doe-changed')
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.changed.org')
-    browser.click(XPath.button_labelled(u'Update'))
+    browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.changed.org')
+    browser.click(XPath.button_labelled('Update'))
     
     assert fixture.is_on_home_page()
-    assert fixture.address_is_listed_as(u'John Doe-changed', u'johndoe@some.changed.org') 
+    assert fixture.address_is_listed_as('John Doe-changed', 'johndoe@some.changed.org') 
                 
 

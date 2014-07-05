@@ -19,6 +19,7 @@ The interfaces for persisted classes that are needed by the core Reahl framework
 implementations of the framework can be provided by implementing these.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 import six
 
 from abc import ABCMeta, abstractmethod

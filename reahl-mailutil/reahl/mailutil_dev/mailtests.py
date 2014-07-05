@@ -15,14 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Tests for the reahl.dev.mailtest module
-from __future__ import print_function
-import six
 ===========================================
 
 Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 """ 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 
 from nose.tools import istest
 from reahl.tofu import Fixture, test

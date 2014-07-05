@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from webob.exc import HTTPNotFound
@@ -36,7 +37,7 @@ from reahl.component.context import ExecutionContext
 
 class FormWithButton(Form):
     def __init__(self, view, event):
-        super(FormWithButton, self).__init__(view, u'test_events')
+        super(FormWithButton, self).__init__(view, 'test_events')
         self.add_child(Button(self, event))
                 
 @istest
@@ -49,17 +50,17 @@ class ControlledUserInterfacesTests(object):
 
         class UIWithTwoViews(UserInterface):
             def assemble(self):
-                event = Event(label=u'Click me', action=Action(do_something))
-                event.bind(u'anevent', None)
-                slot_definitions = {u'main': FormWithButton.factory(event)}
-                viewa = self.define_view(u'/viewa', title=u'View a', slot_definitions=slot_definitions)
-                viewb = self.define_view(u'/viewb', title=u'View b', slot_definitions=slot_definitions)
+                event = Event(label='Click me', action=Action(do_something))
+                event.bind('anevent', None)
+                slot_definitions = {'main': FormWithButton.factory(event)}
+                viewa = self.define_view('/viewa', title='View a', slot_definitions=slot_definitions)
+                viewb = self.define_view('/viewb', title='View b', slot_definitions=slot_definitions)
                 self.define_transition(event, viewa, viewb)
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithTwoViews,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithTwoViews,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -68,7 +69,7 @@ class ControlledUserInterfacesTests(object):
         fixture.did_something = False
         browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/a_ui/viewb' )
+        vassert( browser.location_path == '/a_ui/viewb' )
         vassert( fixture.did_something )
 
         # The transition does not work from viewb
@@ -88,19 +89,19 @@ class ControlledUserInterfacesTests(object):
 
         class UIWithGuardedTransitions(UserInterface):
             def assemble(self):
-                event = Event(label=u'Click me')
-                event.bind(u'anevent', None)
-                slot_definitions = {u'main': FormWithButton.factory(event)}
-                viewa = self.define_view(u'/viewa', title=u'View a', slot_definitions=slot_definitions)
-                viewb = self.define_view(u'/viewb', title=u'View b')
-                viewc = self.define_view(u'/viewc', title=u'View c')
+                event = Event(label='Click me')
+                event.bind('anevent', None)
+                slot_definitions = {'main': FormWithButton.factory(event)}
+                viewa = self.define_view('/viewa', title='View a', slot_definitions=slot_definitions)
+                viewb = self.define_view('/viewb', title='View b')
+                viewc = self.define_view('/viewc', title='View c')
                 self.define_transition(event, viewa, viewb, guard=false_guard)
                 self.define_transition(event, viewa, viewc, guard=adjustable_guard)
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -109,7 +110,7 @@ class ControlledUserInterfacesTests(object):
         fixture.guard_value = True
         browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/a_ui/viewc' )
+        vassert( browser.location_path == '/a_ui/viewc' )
 
         # If there is no Transition with a True guard, fail
         fixture.guard_value = False
@@ -128,16 +129,16 @@ class ControlledUserInterfacesTests(object):
         
         class UIWithAView(UserInterface):
             def assemble(self):
-                event = Event(label=u'Click me', action=Action(do_something))
-                event.bind(u'anevent', None)
-                slot_definitions = {u'main': FormWithButton.factory(event)}
-                viewa = self.define_view(u'/viewa', title=u'View a', slot_definitions=slot_definitions)
+                event = Event(label='Click me', action=Action(do_something))
+                event.bind('anevent', None)
+                slot_definitions = {'main': FormWithButton.factory(event)}
+                viewa = self.define_view('/viewa', title='View a', slot_definitions=slot_definitions)
                 self.define_local_transition(event, viewa, guard=guard)
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithAView,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithAView,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -146,7 +147,7 @@ class ControlledUserInterfacesTests(object):
         fixture.did_something = False
         browser.open('/a_ui/viewa')
         browser.click('//input[@value="Click me"]')
-        vassert( browser.location_path == u'/a_ui/viewa' )
+        vassert( browser.location_path == '/a_ui/viewa' )
         vassert( fixture.did_something )
 
         # But it is also guarded
@@ -164,7 +165,7 @@ class ControlledUserInterfacesTests(object):
         class ModelObject(object):
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me', event_argument1=IntegerField(), 
+                events.an_event = Event(label='click me', event_argument1=IntegerField(), 
                                         event_argument2=IntegerField())
 
         model_object = ModelObject()
@@ -177,19 +178,19 @@ class ControlledUserInterfacesTests(object):
 
         class ParameterisedView(UrlBoundView):
             def assemble(self, event_argument1=None, view_argument=None):
-                self.title = u'View with event_argument1: %s%s and view_argument: %s%s' \
+                self.title = 'View with event_argument1: %s%s and view_argument: %s%s' \
                             % (event_argument1, type(event_argument1), view_argument, type(view_argument))
                 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
+                home = self.define_view('/', title='Home page')
 
-                other_view = self.define_view(u'/page2', title=u'Page 2', 
+                other_view = self.define_view('/page2', title='Page 2', 
                                               view_class=ParameterisedView, 
                                               event_argument1=IntegerField(required=True),
                                               view_argument=IntegerField(required=True))
-                home.set_slot(u'main', MyForm.factory(u'myform'))
+                home.set_slot('main', MyForm.factory('myform'))
 
                 self.define_transition(model_object.events.an_event, home, other_view)
 
@@ -198,8 +199,8 @@ class ControlledUserInterfacesTests(object):
         fixture.driver_browser.open('/')
 
         # when the Action is executed, the correct arguments are passed to the View
-        fixture.driver_browser.click(u"//input[@value='click me']")
-        vassert( fixture.driver_browser.title == u'View with event_argument1: 1<type \'int\'> and view_argument: 3<type \'int\'>' )
+        fixture.driver_browser.click("//input[@value='click me']")
+        vassert( fixture.driver_browser.title == 'View with event_argument1: 1<type \'int\'> and view_argument: 3<type \'int\'>' )
 
 
     @test(WebFixture)
@@ -210,37 +211,37 @@ class ControlledUserInterfacesTests(object):
         class ModelObject(object):
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'Click me')
+                events.an_event = Event(label='Click me')
 
         model_object = ModelObject()
 
         class FormWithIncorrectButtonToParameterisedView(Form):
             def __init__(self, view):
-                super(FormWithIncorrectButtonToParameterisedView, self).__init__(view, u'test_events')
+                super(FormWithIncorrectButtonToParameterisedView, self).__init__(view, 'test_events')
                 self.add_child(Button(self, model_object.events.an_event.with_arguments(arg1='1', arg2='2')))
 
         class ParameterisedView(UrlBoundView):
             def assemble(self, object_key=None):
-                self.title = u'View for: %s' % object_key
+                self.title = 'View for: %s' % object_key
 
         class UIWithParameterisedViews(UserInterface):
             def assemble(self):
-                slot_definitions = {u'main': FormWithIncorrectButtonToParameterisedView.factory()}
-                normal_view = self.define_view(u'/static', title=u'Static', slot_definitions=slot_definitions)
-                parameterised_view = self.define_view(u'/dynamic', view_class=ParameterisedView, object_key=Field(required=True))
+                slot_definitions = {'main': FormWithIncorrectButtonToParameterisedView.factory()}
+                normal_view = self.define_view('/static', title='Static', slot_definitions=slot_definitions)
+                parameterised_view = self.define_view('/dynamic', view_class=ParameterisedView, object_key=Field(required=True))
                 self.define_transition(model_object.events.an_event, normal_view, parameterised_view)
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         browser.open('/a_ui/static')
         with expected(ProgrammerError):
-            browser.click(XPath.button_labelled(u'Click me'))
+            browser.click(XPath.button_labelled('Click me'))
 
 
     @test(WebFixture)
@@ -253,8 +254,8 @@ class ControlledUserInterfacesTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                slot_definitions = {u'main': Form.factory(u'the_form')}
-                view = self.define_view(u'/', title=u'Hello', slot_definitions=slot_definitions)
+                slot_definitions = {'main': Form.factory('the_form')}
+                view = self.define_view('/', title='Hello', slot_definitions=slot_definitions)
                 failing_precondition = ViewPreCondition(lambda: False, exception=SomeException)
                 passing_precondition = ViewPreCondition(lambda: True)
                 view.add_precondition(passing_precondition)
@@ -277,7 +278,7 @@ class ControlledUserInterfacesTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                view = self.define_view(u'/', title=u'Hello')
+                view = self.define_view('/', title='Hello')
                 passing_precondition = ViewPreCondition(lambda: True)
                 failing_precondition = passing_precondition.negated(exception=SomeException)
                 view.add_precondition(failing_precondition)
@@ -293,21 +294,21 @@ class ControlledUserInterfacesTests(object):
         """Redirect is a special exception that will redirect the browser to another View."""
         class UIWithRedirect(UserInterface):
             def assemble(self):
-                viewa = self.define_view(u'/viewa', title=u'A')
-                viewb = self.define_view(u'/viewb', title=u'B')
+                viewa = self.define_view('/viewa', title='A')
+                viewb = self.define_view('/viewb', title='B')
                 failing_precondition = ViewPreCondition(lambda: False, exception=Redirect(viewb.as_bookmark(self)))
                 viewa.add_precondition(failing_precondition)
             
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithRedirect,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithRedirect,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         browser.open('/a_ui/viewa')
-        vassert( browser.location_path == u'/a_ui/viewb' )
+        vassert( browser.location_path == '/a_ui/viewb' )
 
     @test(WebFixture)
     def detours_and_return_transitions(self, fixture):
@@ -318,13 +319,13 @@ class ControlledUserInterfacesTests(object):
         fixture.make_precondition_pass = False
         class UIWithDetour(UserInterface):
             def assemble(self):
-                event = Event(label=u'Click me')
-                event.bind(u'anevent', None)
-                viewa = self.define_view(u'/viewa', title=u'View a')
-                slot_with_button = {u'main': FormWithButton.factory(event)}
+                event = Event(label='Click me')
+                event.bind('anevent', None)
+                viewa = self.define_view('/viewa', title='View a')
+                slot_with_button = {'main': FormWithButton.factory(event)}
                 
-                step1 = self.define_view(u'/firstStepOfDetour', title=u'Step 1', slot_definitions=slot_with_button)
-                step2 = self.define_view(u'/lastStepOfDetour', title=u'Step 2', slot_definitions=slot_with_button)
+                step1 = self.define_view('/firstStepOfDetour', title='Step 1', slot_definitions=slot_with_button)
+                step2 = self.define_view('/lastStepOfDetour', title='Step 2', slot_definitions=slot_with_button)
 
                 viewa.add_precondition(ViewPreCondition(lambda: fixture.make_precondition_pass, exception=Detour(step1.as_bookmark(self))))
                 self.define_transition(event, step1, step2)
@@ -333,25 +334,25 @@ class ControlledUserInterfacesTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         fixture.did_something = False
 
         fixture.make_precondition_pass = False
-        browser.open(u'/a_ui/viewa')
-        vassert( browser.location_path == u'/a_ui/firstStepOfDetour' )
+        browser.open('/a_ui/viewa')
+        vassert( browser.location_path == '/a_ui/firstStepOfDetour' )
         
-        browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/a_ui/lastStepOfDetour' )
+        browser.click('//input[@type="submit"]')
+        vassert( browser.location_path == '/a_ui/lastStepOfDetour' )
                 
         fixture.make_precondition_pass = True
-        browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/a_ui/viewa' )
+        browser.click('//input[@type="submit"]')
+        vassert( browser.location_path == '/a_ui/viewa' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
-        vassert( browser.location_query_string == u'' )
+        vassert( browser.location_query_string == '' )
         
         
     @test(WebFixture)
@@ -360,13 +361,13 @@ class ControlledUserInterfacesTests(object):
         
         class UIWithDetour(UserInterface):
             def assemble(self):
-                event = Event(label=u'Click me')
-                event.bind(u'anevent', None)
-                viewa = self.define_view(u'/viewa', title=u'View a')
-                explicit_return_view = self.define_view(u'/explicitReturnView', title=u'Explicit Return View')
+                event = Event(label='Click me')
+                event.bind('anevent', None)
+                viewa = self.define_view('/viewa', title='View a')
+                explicit_return_view = self.define_view('/explicitReturnView', title='Explicit Return View')
 
-                slot_with_button = {u'main': FormWithButton.factory(event)}
-                detour = self.define_view(u'/detour', title=u'Detour', slot_definitions=slot_with_button)
+                slot_with_button = {'main': FormWithButton.factory(event)}
+                detour = self.define_view('/detour', title='Detour', slot_definitions=slot_with_button)
 
                 viewa.add_precondition(ViewPreCondition(lambda: False, exception=Detour(detour.as_bookmark(self), return_to=explicit_return_view.as_bookmark(self))))
                 self.define_return_transition(event, detour)
@@ -374,19 +375,19 @@ class ControlledUserInterfacesTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
-        browser.open(u'/a_ui/viewa')
-        vassert( browser.location_path == u'/a_ui/detour' )
+        browser.open('/a_ui/viewa')
+        vassert( browser.location_path == '/a_ui/detour' )
         
-        browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/a_ui/explicitReturnView' )
+        browser.click('//input[@type="submit"]')
+        vassert( browser.location_path == '/a_ui/explicitReturnView' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
-        vassert( browser.location_query_string == u'' )
+        vassert( browser.location_query_string == '' )
                 
         
     @test(WebFixture)
@@ -396,10 +397,10 @@ class ControlledUserInterfacesTests(object):
         
         class UIWithDetour(UserInterface):
             def assemble(self):
-                viewa = self.define_view(u'/viewa', title=u'View a')
-                explicit_return_view = self.define_view(u'/explicitReturnView', title=u'Explicit Return View')
-                default = self.define_view(u'/defaultReturnView', title=u'Default view to return to')
-                detour = self.define_view(u'/detour', title=u'Detour')
+                viewa = self.define_view('/viewa', title='View a')
+                explicit_return_view = self.define_view('/explicitReturnView', title='Explicit Return View')
+                default = self.define_view('/defaultReturnView', title='Default view to return to')
+                detour = self.define_view('/detour', title='Detour')
 
                 viewa.add_precondition(ViewPreCondition(lambda: False, exception=Detour(detour.as_bookmark(self), return_to=explicit_return_view.as_bookmark(self))))
                 detour.add_precondition(ViewPreCondition(lambda: False, exception=Return(default.as_bookmark(self))))
@@ -408,24 +409,24 @@ class ControlledUserInterfacesTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithDetour,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # Normal operation - when a caller can be determined
-        browser.open(u'/a_ui/viewa')
-        vassert( browser.location_path == u'/a_ui/explicitReturnView' )
+        browser.open('/a_ui/viewa')
+        vassert( browser.location_path == '/a_ui/explicitReturnView' )
 
         #  - the query string is cleared after such a return (it is used to remember where to return to)
-        vassert( browser.location_query_string == u'' )
+        vassert( browser.location_query_string == '' )
         
         # When a caller cannot be determined, the default is used
-        browser.open(u'/a_ui/detour')
-        vassert( browser.location_path == u'/a_ui/defaultReturnView' )
+        browser.open('/a_ui/detour')
+        vassert( browser.location_path == '/a_ui/defaultReturnView' )
         
         #  - the query string is cleared after such a return (it is used to remember where to return to)
-        vassert( browser.location_query_string == u'' )
+        vassert( browser.location_query_string == '' )
 
 
     @test(WebFixture)
@@ -434,19 +435,19 @@ class ControlledUserInterfacesTests(object):
 
         class UIWithRedirect(UserInterface):
             def assemble(self):
-                self.define_view(u'/target', title=u'')
-                self.define_redirect(u'/redirected', self.get_bookmark(relative_path=u'/target'))
+                self.define_view('/target', title='')
+                self.define_redirect('/redirected', self.get_bookmark(relative_path='/target'))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithRedirect,  IdentityDictionary(), name=u'test_ui')
+                self.define_user_interface('/a_ui',  UIWithRedirect,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         browser.open('/a_ui/redirected')
-        vassert( browser.location_path == u'/a_ui/target' )
+        vassert( browser.location_path == '/a_ui/target' )
 
     @test(WebFixture)
     def linking_to_views_marked_as_detour(self, fixture):
@@ -458,17 +459,17 @@ class ControlledUserInterfacesTests(object):
         class UIWithLink(UserInterface):
             def assemble(self, bookmark=None):
                 self.bookmark = bookmark
-                slot_definitions = {u'main': A.factory_from_bookmark(self.bookmark)}
-                self.define_view(u'/initial', title=u'View a', slot_definitions=slot_definitions)
+                slot_definitions = {'main': A.factory_from_bookmark(self.bookmark)}
+                self.define_view('/initial', title='View a', slot_definitions=slot_definitions)
 
         class UIWithDetour(UserInterface):
             def assemble(self):
-                event = Event(label=u'Click me')
-                event.bind(u'anevent', None)
-                slot_with_button = {u'main': FormWithButton.factory(event)}
+                event = Event(label='Click me')
+                event.bind('anevent', None)
+                slot_with_button = {'main': FormWithButton.factory(event)}
 
-                step1 = self.define_view(u'/firstStepOfDetour', title=u'Step 1', slot_definitions=slot_with_button, detour=True)
-                step2 = self.define_view(u'/lastStepOfDetour', title=u'Step 2', slot_definitions=slot_with_button)
+                step1 = self.define_view('/firstStepOfDetour', title='Step 1', slot_definitions=slot_with_button, detour=True)
+                step2 = self.define_view('/lastStepOfDetour', title='Step 2', slot_definitions=slot_with_button)
 
                 self.define_transition(event, step1, step2)
                 self.define_return_transition(event, step2)
@@ -476,23 +477,23 @@ class ControlledUserInterfacesTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                detour_ui = self.define_user_interface(u'/uiWithDetour',  UIWithDetour,  IdentityDictionary(), name=u'second_ui')
+                detour_ui = self.define_user_interface('/uiWithDetour',  UIWithDetour,  IdentityDictionary(), name='second_ui')
                 bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
-                self.define_user_interface(u'/uiWithLink',  UIWithLink,  IdentityDictionary(), name=u'first_ui', bookmark=bookmark)
+                self.define_user_interface('/uiWithLink',  UIWithLink,  IdentityDictionary(), name='first_ui', bookmark=bookmark)
 
                 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open(u'/uiWithLink/initial')
-        browser.click(u'//a')
-        vassert( browser.location_path == u'/uiWithDetour/firstStepOfDetour' )
+        browser.open('/uiWithLink/initial')
+        browser.click('//a')
+        vassert( browser.location_path == '/uiWithDetour/firstStepOfDetour' )
                 
-        browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/uiWithDetour/lastStepOfDetour' )
+        browser.click('//input[@type="submit"]')
+        vassert( browser.location_path == '/uiWithDetour/lastStepOfDetour' )
 
-        browser.click(u'//input[@type="submit"]')
-        vassert( browser.location_path == u'/uiWithLink/initial' )
+        browser.click('//input[@type="submit"]')
+        vassert( browser.location_path == '/uiWithLink/initial' )
 
         # The query string is cleared after such a return (it is used to remember where to return to)
-        vassert( browser.location_query_string == u'' )
+        vassert( browser.location_query_string == '' )

@@ -1,5 +1,6 @@
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from reahl.web.fw import UserInterface
@@ -10,12 +11,12 @@ from reahl.component.modelinterface import exposed, EmailField, secured, Event, 
 
 class AccessUI(UserInterface):
     def assemble(self):
-        self.define_view(u'/', title=u'Access control demo', page=HomePage.factory())
+        self.define_view('/', title='Access control demo', page=HomePage.factory())
 
 
 class HomePage(TwoColumnPage):
     def __init__(self, view):
-        super(HomePage, self).__init__(view, style=u'basic')
+        super(HomePage, self).__init__(view, style='basic')
         self.main.add_child(CommentForm(view))
 
 
@@ -28,14 +29,14 @@ class Comment(object):
 
     @exposed
     def fields(self, fields):
-        fields.greyed_out_field = EmailField(label=u'Greyed out',
-                                             default=u'some default value',
+        fields.greyed_out_field = EmailField(label='Greyed out',
+                                             default='some default value',
                                              readable=Action(self.always_allowed),
                                              writable=Action(self.never_allowed))
 
     @exposed
     def events(self, events):
-        events.greyed_out_event = Event(label=u'Greyed out button', action=Action(self.do_something))
+        events.greyed_out_event = Event(label='Greyed out button', action=Action(self.do_something))
 
     @secured(read_check=always_allowed, write_check=never_allowed)
     def do_something(self): 
@@ -44,7 +45,7 @@ class Comment(object):
 
 class CommentForm(Form):
     def __init__(self, view):
-        super(CommentForm, self).__init__(view, u'myform')
+        super(CommentForm, self).__init__(view, 'myform')
 
         comment = Comment()
         self.add_child( LabelledBlockInput(TextInput(self, comment.fields.greyed_out_field)) )

@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import os
@@ -42,8 +43,8 @@ from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 class WidgetFixture(Fixture, WebBasicsMixin):
     def new_user_interface_factory(self):
-        factory = UserInterface.factory(u'test_user_interface_name')
-        factory.attach_to(u'/', {})
+        factory = UserInterface.factory('test_user_interface_name')
+        factory.attach_to('/', {})
         return factory
         
     def new_user_interface(self):
@@ -51,7 +52,7 @@ class WidgetFixture(Fixture, WebBasicsMixin):
         with self.context:
             return factory.create()
 
-    def new_view(self, user_interface=None, relative_path=u'/', title='A view', slot_definitions={}):
+    def new_view(self, user_interface=None, relative_path='/', title='A view', slot_definitions={}):
         user_interface = user_interface or self.user_interface
         return UrlBoundView(user_interface, relative_path, title, slot_definitions)
 
@@ -65,15 +66,15 @@ class WidgetBasics(object):
         class MyMessage(Div):
             def __init__(self, view):
                 super(MyMessage, self).__init__(view)
-                self.add_child(P(view, text=u'Hello World!'))
-                self.add_children([P(view, text=u'a'), P(view, text=u'b')])
+                self.add_child(P(view, text='Hello World!'))
+                self.add_children([P(view, text='a'), P(view, text='b')])
 
         message = MyMessage(fixture.view)
         
         widget_tester = WidgetTester(message)
         actual = widget_tester.render_html()
         
-        vassert( actual == u'<div><p>Hello World!</p><p>a</p><p>b</p></div>' )
+        vassert( actual == '<div><p>Hello World!</p><p>a</p><p>b</p></div>' )
 
     @test(WebFixture)
     def visibility(self, fixture):
@@ -83,7 +84,7 @@ class WidgetBasics(object):
             is_visible = True
             def __init__(self, view):
                 super(MyMessage, self).__init__(view)
-                self.add_child(P(view, text=u'你好世界!'))
+                self.add_child(P(view, text='你好世界!'))
                 
             @property
             def visible(self):
@@ -96,12 +97,12 @@ class WidgetBasics(object):
         # Case: when visible
         message.is_visible = True
         actual = widget_tester.render_html()
-        vassert( actual == u'<p>你好世界!</p>' )
+        vassert( actual == '<p>你好世界!</p>' )
 
         # Case: when not visible
         message.is_visible = False
         actual = widget_tester.render_html()
-        vassert( actual == u'' )
+        vassert( actual == '' )
 
     @test(WebFixture)
     def widget_factories_and_args(self, fixture):
@@ -163,31 +164,31 @@ class WidgetBasics(object):
         class MyPage(Widget):
             def __init__(self, view):
                 super(MyPage, self).__init__(view)
-                self.add_child(Slot(view, u'slot1'))
-                self.add_child(Slot(view, u'slot2'))
+                self.add_child(Slot(view, 'slot1'))
+                self.add_child(Slot(view, 'slot2'))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(MyPage)
 
-                home = self.define_view(u'/', title=u'Home')
-                home.set_slot(u'slot1', P.factory(text=u'a'))
-                home.set_slot(u'slot2', P.factory(text=u'b'))
+                home = self.define_view('/', title='Home')
+                home.set_slot('slot1', P.factory(text='a'))
+                home.set_slot('slot2', P.factory(text='b'))
 
-                other = self.define_view(u'/other', title=u'Other')
-                other.set_slot(u'slot1', P.factory(text=u'other'))
+                other = self.define_view('/other', title='Other')
+                other.set_slot('slot1', P.factory(text='other'))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
         browser.open('/')
         [slot1_p, slot2_p] = browser.lxml_html.xpath('//p')
-        vassert( slot1_p.text == u'a' )
-        vassert( slot2_p.text == u'b' )
+        vassert( slot1_p.text == 'a' )
+        vassert( slot2_p.text == 'b' )
 
         browser.open('/other')
         [slot1_p] = browser.lxml_html.xpath('//p')
-        vassert( slot1_p.text == u'other' )
+        vassert( slot1_p.text == 'other' )
 
 
     @test(WebFixture)
@@ -197,20 +198,20 @@ class WidgetBasics(object):
         class MyPage(Widget):
             def __init__(self, view):
                 super(MyPage, self).__init__(view)
-                self.add_child(Slot(view, u'slot3'))
-                self.add_default_slot(u'slot3', P.factory(text=u'default'))
+                self.add_child(Slot(view, 'slot3'))
+                self.add_default_slot('slot3', P.factory(text='default'))
                
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(MyPage)
-                self.define_view(u'/', title=u'Home')
+                self.define_view('/', title='Home')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
         browser.open('/')
         [slot3_p] = browser.lxml_html.xpath('//p')
-        vassert( slot3_p.text == u'default' )
+        vassert( slot3_p.text == 'default' )
 
 
     @test(WebFixture)
@@ -229,22 +230,22 @@ class WidgetBasics(object):
         class MyPage(Widget):
             def __init__(self, view):
                 super(MyPage, self).__init__(view)
-                self.add_child(Slot(view, u'reahl_header'))
-                self.add_child(WidgetWithJavaScript(view, u'js1'))
-                self.add_child(WidgetWithJavaScript(view, u'js2'))
-                self.add_child(WidgetWithJavaScript(view, u'js1'))
+                self.add_child(Slot(view, 'reahl_header'))
+                self.add_child(WidgetWithJavaScript(view, 'js1'))
+                self.add_child(WidgetWithJavaScript(view, 'js2'))
+                self.add_child(WidgetWithJavaScript(view, 'js1'))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(MyPage)
-                self.define_view(u'/', title=u'Home')
+                self.define_view('/', title='Home')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
         
         browser.open('/')
         rendered_js = browser.lxml_html.xpath('//script')[1].text
-        vassert( rendered_js == u'\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n' )
+        vassert( rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n' )
         
         number_of_duplicates = rendered_js.count('js1') - 1
         vassert( number_of_duplicates == 0 )
@@ -253,13 +254,13 @@ class WidgetBasics(object):
     class AttachmentScenarios(WebFixture):
         @scenario
         def javascript(self):
-            self.static_file = u'/static/reahl.js'
-            self.attachment_label = u'js'
+            self.static_file = '/static/reahl.js'
+            self.attachment_label = 'js'
 
         @scenario
         def css(self):
-            self.static_file = u'/static/reahl.css'
-            self.attachment_label = u'css'
+            self.static_file = '/static/reahl.css'
+            self.attachment_label = 'css'
 
     @test(AttachmentScenarios)
     def shipping_attachments(self, fixture):
@@ -271,11 +272,11 @@ class WidgetBasics(object):
         browser.open(fixture.static_file)
 
         def broken_but_comparable_minify(some_js):
-            minified = re.sub(u'/\*.*\*/', u'', some_js)
-            minified = re.sub(u'//.*\n', u'', minified)
-            minified = re.sub(u'\n', u'', minified)
-            minified = re.sub(u'\t', u'', minified)
-            minified = re.sub(u' ', u'', minified)
+            minified = re.sub('/\*.*\*/', '', some_js)
+            minified = re.sub('//.*\n', '', minified)
+            minified = re.sub('\n', '', minified)
+            minified = re.sub('\t', '', minified)
+            minified = re.sub(' ', '', minified)
             return minified
 
         import reahl.web
@@ -283,7 +284,7 @@ class WidgetBasics(object):
         attachments = reahl_egg.find_attachments(fixture.attachment_label)
 
         # Only the js/css of one widget is checked to check the mechanism...
-        with open(attachments[0].filename, u'r') as snippet_file:
+        with open(attachments[0].filename, 'r') as snippet_file:
             snippet = broken_but_comparable_minify(snippet_file.read())
 
         served_statics = broken_but_comparable_minify(browser.raw_html)
