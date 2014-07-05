@@ -32,7 +32,7 @@ from reahl.sqlalchemysupport import SqlAlchemyControl
 
 eggName = os.path.basename(os.getcwd())
 reahlsystem.root_egg = eggName
-reahlsystem.connection_uri = 'postgres://rhug:rhug@localhost/rhug'
+reahlsystem.connection_uri = 'postgresql://rhug:rhug@localhost/rhug'
 #reahlsystem.connection_uri = 'sqlite:////tmp/test.db'
 reahlsystem.orm_control = SqlAlchemyControl(echo=False)
 
