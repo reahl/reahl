@@ -121,7 +121,7 @@ class ReahlEgg(object):
         module = translations_entry_point.load()
         dir_or_egg_name = translations_entry_point.dist.location.split(os.sep)[-1]
         paths = [p for p in module.__path__ if p.find(u'%s%s' % (dir_or_egg_name, os.path.sep)) > 0]
-        unique_paths = set([p.split(u'%s/' % dir_or_egg_name)[-1] for p in paths])
+        unique_paths = {p.split(u'%s/' % dir_or_egg_name)[-1] for p in paths}
         assert len(unique_paths) <=1, \
             u'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
         assert len(unique_paths) >0, \

@@ -1017,7 +1017,7 @@ class HardcodedMetadata(ProjectMetadata):
         return self.info_completed()
 
     def info_completed(self):
-        expected_info = set([u'url', u'version', u'description', u'long_description', u'maintainer_name', u'maintainer_email'])
+        expected_info = {u'url', u'version', u'description', u'long_description', u'maintainer_name', u'maintainer_email'}
         completed_info = set(self.info.keys())
         return expected_info == completed_info
 
@@ -1774,7 +1774,7 @@ class EggProject(Project):
     def translated_domains(self):
         if self.translation_package:
             filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
-            return set([os.path.splitext(os.path.basename(i))[0] for i in filenames])
+            return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
         else:
             logging.warn(u'No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
             return []

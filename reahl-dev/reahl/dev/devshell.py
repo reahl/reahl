@@ -274,7 +274,7 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
 
         self.perform_post_command_duties()
 
-        if set(results.values()) == set([0]):
+        if set(results.values()) == {0}:
             return 0
         return -1
 

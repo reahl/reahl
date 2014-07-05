@@ -1095,7 +1095,7 @@ class Form(HTMLElement):
             events.add(input_widget.get_ocurred_event())
         if exception:
             raise ValidationException()
-        events -= set([None])
+        events -= {None}
         if not len(events) == 1:
                 raise ProgrammerError(u'there should always be one and only one event per form submission. Inputs submitted: %s Events detected: %s' % (input_values.keys(), events))
         return events.pop()

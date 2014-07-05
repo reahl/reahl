@@ -35,13 +35,13 @@ paren
 raise
 raw_input
 reduce
+renames
+repr
+set_literal
 
 TODO:
 future
 
-renames
-repr
-set_literal
 standarderror
 throw
 tuple_params
