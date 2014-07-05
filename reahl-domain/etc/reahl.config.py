@@ -28,7 +28,7 @@ description of the package.
 from reahl.sqlalchemysupport import SqlAlchemyControl
 
 reahlsystem.root_egg = 'reahl-domain'
-reahlsystem.connection_uri = 'postgres://rhug:rhug@localhost/rhug'
+reahlsystem.connection_uri = 'postgresql://rhug:rhug@localhost/rhug'
 #reahlsystem.connection_uri = 'sqlite:////tmp/test.db'
 
 reahlsystem.orm_control = SqlAlchemyControl(echo=False)

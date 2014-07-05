@@ -14,6 +14,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import warnings
+import itertools
+import six
 
 from nose.tools import istest
 from reahl.tofu import Fixture, test, vassert, expected, NoException, scenario
@@ -29,6 +32,7 @@ from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, 
 @istest
 class AppBasicsTests(object):
     class BasicScenarios(WebFixture):
+        expected_warnings = []
         @scenario
         def view_with_page(self):
             class SimplePage(HTML5Page):
@@ -81,6 +85,8 @@ class AppBasicsTests(object):
             self.MainUI = MainUI
             self.expected_content_length = 893
             self.content_includes_p = False
+            self.expected_warnings = ['Region has been renamed to UserInterface, please use UserInterface instead', 
+                                      'Please use .define_page() instead']
 
     @test(BasicScenarios)
     def basic_assembly(self, fixture):
@@ -94,8 +100,14 @@ class AppBasicsTests(object):
         browser = Browser(wsgi_app)
 
         # GETting the URL results in the HTML for that View
-        browser.open('/')
-        vassert( browser.title == u'Hello' )
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            browser.open('/')
+            vassert( browser.title == u'Hello' )
+
+        warning_messages = [six.text_type(i.message) for i in caught_warnings]
+        vassert( len(warning_messages) == len(fixture.expected_warnings) )
+        for caught, expected_message in itertools.izip_longest(warning_messages, fixture.expected_warnings):
+            vassert( expected_message in caught )
 
         if fixture.content_includes_p:
             [message] = browser.lxml_html.xpath('//p')

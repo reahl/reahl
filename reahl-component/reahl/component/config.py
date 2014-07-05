@@ -272,7 +272,7 @@ class StoredConfiguration(Configuration):
         except DistributionNotFound, ex:
             requirement = ex.args[0]
             if (requirement.project_name == self.reahlsystem.root_egg.replace(u'_',u'-')) and not self.in_production:
-                ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.message,)
+                ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.args[0],)
             raise
 
         self.configure_components()
@@ -286,6 +286,7 @@ class StoredConfiguration(Configuration):
             config.fileConfig(logging_config_file)
         else:
             logging.basicConfig()
+            logging.captureWarnings(True)
 
     def configure_components(self):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
