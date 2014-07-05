@@ -18,7 +18,7 @@
 from __future__ import print_function
 import six
 from six.moves import http_cookies
-import urllib
+from six.moves.urllib import parse as urllib_parse
 
 from webob import Request, Response
 from elixir import using_options
@@ -94,7 +94,7 @@ class BasicTests(object):
             web_session.set_session_key(response)
 
             session_cookie = response.cookies[fixture.config.web.session_key_name]
-            vassert( session_cookie.value == urllib.quote(web_session.as_key()) )
+            vassert( session_cookie.value == urllib_parse.quote(web_session.as_key()) )
             vassert( session_cookie['path'] == '/' )
             vassert( not session_cookie['max-age'] )
             #vassert( 'httponly' in session_cookie )

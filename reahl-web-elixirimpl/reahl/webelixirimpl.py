@@ -19,7 +19,7 @@ from __future__ import print_function
 import six
 import random
 from abc import ABCMeta
-import urllib
+from six.moves.urllib import parse as urllib_parse
 
 
 import elixir
@@ -90,16 +90,16 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
         context = WebExecutionContext.get_context()
         try:
             raw_cookie = context.request.cookies[context.config.web.session_key_name]
-            return urllib.unquote(raw_cookie)
+            return urllib_parse.unquote(raw_cookie)
         except KeyError:
             return None
 
     def set_session_key(self, response):
         context = WebExecutionContext.get_context()
         session_cookie = self.as_key()
-        response.set_cookie(context.config.web.session_key_name, urllib.quote(session_cookie), path='/')
+        response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
         if self.is_secure():
-            response.set_cookie(context.config.web.secure_key_name, urllib.quote(self.secure_salt), secure=True, path='/',
+            response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
                                 max_age=context.config.accounts.idle_secure_lifetime)
 
     def __init__(self, **kwargs):
