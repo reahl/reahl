@@ -44,6 +44,7 @@
 from functools import partial, wraps
 import inspect
 import logging
+import warnings
 
 class memoized(object):
     def __init__(self, func):
@@ -81,7 +82,7 @@ class deprecated(object):
 
         @wraps(f)
         def deprecated_wrapper(*args, **kwds):
-            logging.getLogger(__name__).warn(u'DEPRECATED: %s. %s' % (something, self.message))
+            warnings.warn(u'DEPRECATED: %s. %s' % (something, self.message), DeprecationWarning, stacklevel=2)
             return f(*args, **kwds)
 
         if inspect.isfunction(something):
