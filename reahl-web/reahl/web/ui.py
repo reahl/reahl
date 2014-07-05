@@ -24,7 +24,6 @@ import six
 from string import Template
 import re
 import cgi
-import urllib
 import itertools
 
 from babel import Locale, UnknownLocaleError

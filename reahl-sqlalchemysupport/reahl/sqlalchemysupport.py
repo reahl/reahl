@@ -22,7 +22,6 @@ import weakref
 from contextlib import contextmanager, nested, closing
 import logging
 from collections import Sequence
-import urllib
 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session
