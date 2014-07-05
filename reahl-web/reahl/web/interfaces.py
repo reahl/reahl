@@ -69,7 +69,8 @@ class UserInputProtocol(object):
         """Persists `value` as the value of the user input associated with the given :class:`reahl.web.ui.Form`,
            using `input_name` as name."""
         pass
-        
+
+    __hash__ = None
     @abstractmethod
     def __eq__(self, other): 
         """Is required to be implemented."""
@@ -126,6 +127,7 @@ class PersistedFileProtocol(object):
         """Removes all files previously saved for the given :class:`reahl.web.ui.Form`."""
         pass
 
+    __hash__ = None
     @abstractmethod
     def __eq__(self, other): 
         """Is required to be implemented."""

@@ -25,6 +25,7 @@ import logging
 import tempfile
 from logging import config
 from contextlib import contextmanager
+import imp
 
 from pkg_resources import require, iter_entry_points, DistributionNotFound
 
@@ -257,7 +258,7 @@ class StoredConfiguration(Configuration):
 
     def configure(self, validate=True):
         #http://mail.python.org/pipermail/tutor/2005-August/040993.html
-        reload(sys); #read setdefaultencoding python docs - it "enables" the method again
+        imp.reload(sys); #read setdefaultencoding python docs - it "enables" the method again
         sys.setdefaultencoding('utf-8')
         
         self.configure_logging()
@@ -275,7 +276,7 @@ class StoredConfiguration(Configuration):
         except DistributionNotFound as ex:
             requirement = ex.args[0]
             if (requirement.project_name == self.reahlsystem.root_egg.replace('_','-')) and not self.in_production:
-                ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.message,)
+                ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.args[0],)
             raise
 
         self.configure_components()

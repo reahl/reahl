@@ -107,7 +107,7 @@ class HTMLAttributeDict(dict):
             id_value = self['id']
             sorted_values.append(id_value)
             values.remove(id_value)
-        sorted_values += sorted(values, lambda a, b: cmp(a.name, b.name))            
+        sorted_values += sorted(values, key=lambda a: a.name)            
         if 'class' in self:
             class_value = self['class']
             sorted_values.remove(class_value)
