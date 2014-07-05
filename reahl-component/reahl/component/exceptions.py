@@ -40,6 +40,7 @@ class DomainException(Exception):
     def __init__(self, commit=False):
         self.commit = commit
 
+    __hash__ = None
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.commit == other.commit
     

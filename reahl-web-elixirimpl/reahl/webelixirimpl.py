@@ -145,7 +145,8 @@ class SessionData(Entity):
     def new_for_form(cls, form, **kwargs):
         web_session = WebExecutionContext.get_context().session
         return cls(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name, **kwargs)
-    
+
+    __hash__ = None
     def __eq__(self, other):
         return self.web_session == other.web_session and \
                self.ui_name == other.ui_name and \

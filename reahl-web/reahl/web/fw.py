@@ -25,7 +25,6 @@ import sys
 import tempfile
 import mimetypes
 import inspect
-import new
 from datetime import datetime, timedelta
 import pkg_resources
 import os
@@ -2340,7 +2339,7 @@ class FileDownload(Response):
     def __iter__(self):
         return self.app_iter_range(start=0)
             
-    def app_iter_range(self, start=None, end=None):
+    def app_iter_range(self, start=0, end=None):
         length_of_file = self.file.size
         if not end or end >= length_of_file:
             end = length_of_file - 1

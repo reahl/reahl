@@ -27,7 +27,7 @@ import json
 import sre_constants
 from six.moves.urllib import parse as urllib_parse
 from string import Template
-import new
+import types
 import inspect
 from contextlib import contextmanager
 import functools
@@ -1133,7 +1133,7 @@ class SecuredDeclaration(object):
         return arg_spec.args[:positional_args_end]
 
     def __get__(self, instance, owner):
-        method = new.instancemethod(self.func, instance, owner)
+        method = types.MethodType(self.func, instance, owner)
         return SecuredMethod(method, self)
 
 
