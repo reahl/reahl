@@ -233,7 +233,7 @@ class PageMenuTests(object):
 
     class SequentialScenarios(Fixture):
         def new_items(self):
-            return range(0, self.number_of_items)
+            return list(range(0, self.number_of_items))
 
         def new_page_index(self):
             return SequentialPageIndex(self.items, items_per_page=self.items_per_page, max_page_links=12)
