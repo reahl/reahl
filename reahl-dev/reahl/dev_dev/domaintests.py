@@ -137,14 +137,14 @@ class RepositoryTests(object):
 
         # Case: on write, creates file
         vassert( not os.path.exists(expected_repository_state_file) )
-        local_state.uploaded_project_ids = set(['someid1', 'someid2'])
+        local_state.uploaded_project_ids = {'someid1', 'someid2'}
         local_state.write()
         vassert( os.path.isfile(expected_repository_state_file) )
 
         # Case: read existing stuff correctly
         local_state.uploaded_project_ids = set([])
         local_state.read()
-        vassert( local_state.uploaded_project_ids == set(['someid1', 'someid2']) )
+        vassert( local_state.uploaded_project_ids == {'someid1', 'someid2'} )
 
     @test(Fixture)
     def queries(self, fixture):

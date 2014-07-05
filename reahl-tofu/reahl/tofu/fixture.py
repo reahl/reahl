@@ -165,7 +165,7 @@ class Fixture(object):
         return [value for name, value in cls.__dict__.items() if isinstance(value, marker)]
 
     def run_marked_methods(self, marker_type, order=lambda x: x ):
-        done = set([None])
+        done = {None}
         for cls in order(self.__class__.mro()):
             for marked in self.get_marked_methods(cls, marker_type):
                 if marked.name not in done:

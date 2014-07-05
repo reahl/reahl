@@ -82,7 +82,7 @@ def collaborators(fixture):
 
     # Getting a list of visible AddressBooks (for populating the screen)
     books = AddressBook.address_books_visible_to(account)
-    assert set(books) == set([address_book, other_address_book])
+    assert set(books) == {address_book, other_address_book}
 
 
 @test(AccessFixture)

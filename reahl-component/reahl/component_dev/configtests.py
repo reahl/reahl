@@ -254,7 +254,7 @@ class ConfigTests4(object):
         config.configure()
 
         # The classes are found from the entry point
-        vassert( set(config.some_key.some_setting) == set([ListedClass1, ListedClass2]) )
+        vassert( set(config.some_key.some_setting) == {ListedClass1, ListedClass2} )
 
 
 

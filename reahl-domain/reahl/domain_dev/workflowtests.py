@@ -138,10 +138,10 @@ class DeferredActionTests(object):
 
             # The requirements are linked back to the correct DeferredActions
             for requirement in requirements2:
-                vassert( set(requirement.deferred_actions) == set([deferred_action1, deferred_action2]) )
+                vassert( set(requirement.deferred_actions) == {deferred_action1, deferred_action2} )
 
             for requirement in requirements1:
-                vassert( set(requirement.deferred_actions) == set([deferred_action2]) )
+                vassert( set(requirement.deferred_actions) == {deferred_action2} )
 
             # If all of one DeferredAction's Requirements are fulfilled, ones also linked to another DeferrredAction
             # are not deleted just yet
@@ -151,7 +151,7 @@ class DeferredActionTests(object):
             vassert( not fixture.another_object.done_flag )
 
             for requirement in requirements1+requirements2:
-                vassert( set(requirement.deferred_actions) == set([deferred_action2]) )
+                vassert( set(requirement.deferred_actions) == {deferred_action2} )
             vassert( Requirement.query.count() == 3 )
             vassert( DeferredAction.query.count() == 1 )
 
@@ -191,7 +191,7 @@ class DeferredActionTests(object):
             vassert( DeferredAction.query.count() == 1 )
 
             for requirement in requirements1+requirements2:
-                vassert( set(requirement.deferred_actions) == set([deferred_action2]) )
+                vassert( set(requirement.deferred_actions) == {deferred_action2} )
 
             # When no more DeferredActions are held onto by Requirements, those Requirements are deleted
             deferred_action2.deadline=fixture.past_time

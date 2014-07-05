@@ -1060,8 +1060,8 @@ class Widget(object):
         return self.controller.define_event_handler(event, target=target)
 
     def check_slots(self, view):
-        slots_to_plug_in = set([self.user_interface.page_slot_for(view, self, local_slot_name)
-                                for local_slot_name in view.slot_definitions.keys()])
+        slots_to_plug_in = {self.user_interface.page_slot_for(view, self, local_slot_name)
+                                for local_slot_name in view.slot_definitions.keys()}
         slots_available = set(self.available_slots)
         if not slots_to_plug_in.issubset(slots_available):
             invalid_slots = slots_to_plug_in - slots_available
