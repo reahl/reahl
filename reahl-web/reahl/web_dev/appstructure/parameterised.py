@@ -14,7 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import six
+import warnings
 
 
 from __future__ import unicode_literals
@@ -209,8 +210,11 @@ class ParameterisedTests(object):
         browser = Browser(wsgi_app)
 
         # A sub-user_interface is dynamically created from an URL
-        browser.open('/a_ui/apath/test1/')
-        vassert( browser.title == 'Simple user_interface user_interface-test1' )
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            browser.open('/a_ui/apath/test1/')
+            vassert( browser.title == 'Simple user_interface user_interface-test1' )
+
+        vassert( caught_warnings )
 
 
     class ParameterisedUserInterfaceScenarios(WebFixture):

@@ -30,7 +30,7 @@ from reahl.component.shelltools import Executable
 
 class PostgresqlControl(DatabaseControl):
     """A DatabaseControl implementation for PostgreSQL."""
-    uri_regex_string = r'postgres://' + \
+    uri_regex_string = r'postgres(ql)?://' + \
         r'(?P<user>\w+)(:(?P<password>\w+))?' + \
         r'@(?P<host>\w+)(:(?P<port>\d+))?' + \
         r'/(?P<database>\w+)$'

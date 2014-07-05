@@ -14,9 +14,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import warnings
 
 from __future__ import unicode_literals
 from __future__ import print_function
+
 import six
 from webob import Request
 
@@ -79,8 +81,11 @@ class UserInterfaceTests(object):
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
-        browser.open('/a_ui/aview')
-        vassert( browser.title == 'UserInterface view' )
+        with warnings.catch_warnings(record=True) as caught_warnings:
+            browser.open('/a_ui/aview')
+            vassert( browser.title == 'UserInterface view' )
+
+        vassert( caught_warnings )
 
     @test(WebFixture)
     def ui_slots_map_to_window(self, fixture):
