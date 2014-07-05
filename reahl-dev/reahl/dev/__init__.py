@@ -16,6 +16,7 @@
 
 """Tools used during development on Reahl projects.
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 These tools are not deployed in a production environment, only in a development environment.

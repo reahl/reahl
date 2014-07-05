@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -36,7 +37,7 @@ from reahl.webdev.tools import WidgetTester
 class XXFixture(Fixture, WebBasicsMixin):
     def new_view(self):
         current_path = Url(ExecutionContext.get_context().request.url).path
-        view = UrlBoundView(None, current_path, u'Harness view', {})
+        view = UrlBoundView(None, current_path, 'Harness view', {})
         return view
 
 @istest
@@ -48,7 +49,7 @@ class XXTests(object):
         p = P(fixture.view)
         tester = WidgetTester(p)
         rendered_html = tester.render_html()
-        vassert( rendered_html == u'<p></p>' )
+        vassert( rendered_html == '<p></p>' )
 
 
         
@@ -57,29 +58,29 @@ class XXTests(object):
 def i18n_urls(fixture):
     """The current locale is determined by reading the first segment of the path. If the locale is not present in the
     path, web.default_url_locale is used."""
-    _ = Translator(u'reahl-web')
+    _ = Translator('reahl-web')
 
     class I18nUI(UserInterface):
         def assemble(self):
-            view = self.define_view(u'/aview', title=_(u'A View'))
+            view = self.define_view('/aview', title=_('A View'))
 
     class MainUI(UserInterface):
         def assemble(self):
             self.define_page(TwoColumnPage)
-            self.define_user_interface(u'/a_ui',  I18nUI,  IdentityDictionary(), name=u'test_ui')
+            self.define_user_interface('/a_ui',  I18nUI,  IdentityDictionary(), name='test_ui')
             
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    browser.open(u'/a_ui/aview')
-    vassert( browser.title == u'A View' )
+    browser.open('/a_ui/aview')
+    vassert( browser.title == 'A View' )
 
-    browser.open(u'/af/a_ui/aview')
-    vassert( browser.title == u'\'n Oogpunt' )
+    browser.open('/af/a_ui/aview')
+    vassert( browser.title == '\'n Oogpunt' )
 
     fixture.context.config.web.default_url_locale = 'af'
-    browser.open(u'/a_ui/aview')
-    vassert( browser.title == u'\'n Oogpunt' )
+    browser.open('/a_ui/aview')
+    vassert( browser.title == '\'n Oogpunt' )
     
-    browser.open(u'/en_gb/a_ui/aview')
-    vassert( browser.title == u'A View' )
+    browser.open('/en_gb/a_ui/aview')
+    vassert( browser.title == 'A View' )

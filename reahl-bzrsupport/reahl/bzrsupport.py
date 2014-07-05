@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import subprocess
@@ -31,7 +32,7 @@ class ExecutableNotInstalledException(Exception):
     def __init__(self, executable_name):
         self.executable_name = executable_name
     def __str__(self):
-        return u'Executable not found: %s' % self.executable_name
+        return 'Executable not found: %s' % self.executable_name
 
 
 class Executable(object):
@@ -97,14 +98,14 @@ class Bzr(object):
 
         if not bzr_root:
             return None
-        relative_path = u''
+        relative_path = ''
         if len(cwd) > len(bzr_root):
             relative_path = cwd[len(bzr_root)+1:]
-        return os.path.join(relative_path, u'')
+        return os.path.join(relative_path, '')
 
     def find_bzr_root(self):
         bzr_root = os.path.join(os.getcwd(), self.directory)
-        while bzr_root != '/' and not os.path.exists(os.path.join(bzr_root, u'.bzr')):
+        while bzr_root != '/' and not os.path.exists(os.path.join(bzr_root, '.bzr')):
             bzr_root = os.path.split(bzr_root)[0]
         if bzr_root != '/':
             return bzr_root
@@ -114,7 +115,7 @@ class Bzr(object):
         with TemporaryFile() as err:
             with TemporaryFile() as out:
                 try:
-                    return_code = Executable(u'bzr').call([u'info', self.directory], stdout=out, stderr=err)
+                    return_code = Executable('bzr').call(['info', self.directory], stdout=out, stderr=err)
                     return return_code == 0
                 except Exception as ex:
                     logging.error('Error trying to execute "bzr info %s": %s' % (self.directory, ex))
@@ -125,7 +126,7 @@ class Bzr(object):
             with TemporaryFile() as out:
                 bzr_args = 'inventory %s --kind=file' % self.directory
                 try:
-                    return_code = Executable(u'bzr').call(bzr_args.split(), stdout=out, stderr=err)
+                    return_code = Executable('bzr').call(bzr_args.split(), stdout=out, stderr=err)
                     out.seek(0)
                     err.seek(0)
                     if not err.read():
@@ -139,7 +140,7 @@ class Bzr(object):
         with TemporaryFile() as err:
             with TemporaryFile() as out:
                 try:
-                    return_code = Executable(u'bzr').call([], stdout=out, stderr=err, shell=True)
+                    return_code = Executable('bzr').call([], stdout=out, stderr=err, shell=True)
                     return return_code == 0
                 except OSError as ex:
                     if ex.errno == os.errno.ENOENT:
@@ -157,17 +158,17 @@ class Bzr(object):
             args = '-m %s' % message
             if unchanged:
                 args += ' --unchanged'
-            return_code = Executable(u'bzr').call(('commit %s' % args).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+            return_code = Executable('bzr').call(('commit %s' % args).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
         return return_code == 0
         
     def is_version_controlled(self):
         with file(os.devnull, 'w') as DEVNULL:
-            return_code = Executable(u'bzr').call('info'.split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+            return_code = Executable('bzr').call('info'.split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
         return return_code == 0
 
     def is_checked_in(self):
         with TemporaryFile() as out:
-            return_code = Executable(u'bzr').call('status'.split(), cwd=self.directory, stdout=out, stderr=out)
+            return_code = Executable('bzr').call('status'.split(), cwd=self.directory, stdout=out, stderr=out)
             out.seek(0)
             return return_code == 0 and not out.read()
 
@@ -175,22 +176,22 @@ class Bzr(object):
     def last_commit_time(self):
         with TemporaryFile() as out:
             with file(os.devnull, 'w') as DEVNULL:
-                Executable(u'bzr').check_call('log -r -1'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
+                Executable('bzr').check_call('log -r -1'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
                 out.seek(0)
                 [timestamp] = [line for line in out if line.startswith('timestamp')]
-        timestamp = u' '.join(timestamp.split()[:-1]) # Cut off timezone
-        return datetime.datetime.strptime(timestamp, u'timestamp: %a %Y-%m-%d %H:%M:%S')
+        timestamp = ' '.join(timestamp.split()[:-1]) # Cut off timezone
+        return datetime.datetime.strptime(timestamp, 'timestamp: %a %Y-%m-%d %H:%M:%S')
 
     def tag(self, tag_string):
         with file(os.devnull, 'w') as DEVNULL:
-            Executable(u'bzr').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+            Executable('bzr').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
         
     def get_tags(self, head_only=False):
         tags = []
         with TemporaryFile() as out:
             with file(os.devnull, 'w') as DEVNULL:
                 head_only = ' -r -1 ' if head_only else ''
-                Executable(u'bzr').check_call(('tags'+head_only).split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
+                Executable('bzr').check_call(('tags'+head_only).split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
                 out.seek(0)
                 tags = [line.split()[0] for line in out if line]
         return tags 

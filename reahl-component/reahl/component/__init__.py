@@ -16,6 +16,7 @@
 
 """This package consists of the component framework used by Reahl Components.
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 It includes all component-related functionality needed in a production environment.

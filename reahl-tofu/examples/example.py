@@ -16,6 +16,7 @@
 
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from reahl.tofu import test, Fixture
@@ -26,18 +27,18 @@ from reahl.tofu import test, Fixture
 #
 class Fixture(Fixture):
     def set_up(self):
-        print(u'setting up default fixture for this suite')
+        print('setting up default fixture for this suite')
         self.stuff = 'this was set up in the fixture'
     def tear_down(self):
-        print(u'tearing down default fixture for this suite')
+        print('tearing down default fixture for this suite')
 
 
 class Other(Fixture):
     def set_up(self):
-        print(u'other setup')
+        print('other setup')
         self.something = 'this was set up in the Other fixture'
     def tear_down(self):
-        print(u'other tear_down')
+        print('other tear_down')
 
 #
 # Our main example TestSuite class
@@ -45,7 +46,7 @@ class Other(Fixture):
 class SomeTests(TestSuite):
     @test(Fixture)
     def one(self, fixture):
-        print(u'test one: %s' % fixture.stuff)
+        print('test one: %s' % fixture.stuff)
 
     @test(Fixture)
     def two(self, fixture):
@@ -58,10 +59,10 @@ class SomeTests(TestSuite):
 
     @test(Other)
     def four(self, fixture):
-        print(u'test four - using the other fixture: %s' % fixture)
+        print('test four - using the other fixture: %s' % fixture)
 
     def iamnotatest(self):
-        print(u'i am not a test method, and should not run with the tests')
+        print('i am not a test method, and should not run with the tests')
 
 
 

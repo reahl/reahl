@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import sys
@@ -39,7 +40,7 @@ class SystemOutStub(object):
 
     """
     def __init__(self):
-        self.captured_output = u'' #: The output captured during the time the SystemOutStub was active.
+        self.captured_output = '' #: The output captured during the time the SystemOutStub was active.
 
     def write(self, output):
         self.captured_output += output
@@ -136,13 +137,13 @@ class InitMonitor(CallMonitor):
     
     def __enter__(self):
         super(InitMonitor, self).__enter__()
-        self.original_new = getattr(self.obj, u'__new__')
-        setattr(self.obj, u'__new__', self.modified_new)
+        self.original_new = getattr(self.obj, '__new__')
+        setattr(self.obj, '__new__', self.modified_new)
         return self
 
     def __exit__(self, exception_type, value, traceback):
         super(InitMonitor, self).__exit__(exception_type, value, traceback)
-        setattr(self.obj, u'__new__', self.original_new)
+        setattr(self.obj, '__new__', self.original_new)
 
 
 @contextmanager

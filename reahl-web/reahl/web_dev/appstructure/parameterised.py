@@ -17,6 +17,7 @@
 
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -36,25 +37,25 @@ class ParameterisedTests(object):
     class ParameterisedScenarios(WebFixture):
         class ParameterisedView(UrlBoundView):
             def assemble(self, some_arg=None):
-                if some_arg == u'doesnotexist':
+                if some_arg == 'doesnotexist':
                     raise CannotCreate()
-                self.title = u'View for: %s' % some_arg
-                self.set_slot(u'main', P.factory(text=u'content for %s' % some_arg))
+                self.title = 'View for: %s' % some_arg
+                self.set_slot('main', P.factory(text='content for %s' % some_arg))
 
         @scenario
         def normal_arguments(self):
             """Arguments can be sent from where the View is defined."""
-            self.argument = u'some arg'
-            self.expected_value = u'some arg'
-            self.url = u'/a_ui/aview'
+            self.argument = 'some arg'
+            self.expected_value = 'some arg'
+            self.url = '/a_ui/aview'
             self.should_exist = True
         
         @scenario
         def url_arguments(self):
             """Arguments can be parsed from an URL, iff they are specified to the definition as Fields."""
             self.argument = Field()
-            self.expected_value = u'test1'
-            self.url = u'/a_ui/aview/test1'
+            self.expected_value = 'test1'
+            self.url = '/a_ui/aview/test1'
             self.should_exist = True
             
         @scenario
@@ -64,13 +65,13 @@ class ParameterisedTests(object):
             class SimplePage(HTML5Page):
                 def __init__(self, view, some_arg):
                     super(SimplePage, self).__init__(view)
-                    self.body.add_child(P(view, text=u'content for %s' % some_arg))
+                    self.body.add_child(P(view, text='content for %s' % some_arg))
 
             class ParameterisedView(UrlBoundView):
                 def assemble(self, some_arg=None):
-                    if some_arg == u'doesnotexist':
+                    if some_arg == 'doesnotexist':
                         raise CannotCreate()
-                    self.title = u'View for: %s' % some_arg
+                    self.title = 'View for: %s' % some_arg
                     self.set_page(SimplePage.factory(some_arg))
 
             self.ParameterisedView = ParameterisedView
@@ -79,8 +80,8 @@ class ParameterisedTests(object):
         def cannot_create(self):
             """To indicate that a view does not exist for the given arguments, the .assemble() 
                method of the View should raise CannotCreate()."""
-            self.argument = u'doesnotexist'
-            self.url = u'/a_ui/aview'
+            self.argument = 'doesnotexist'
+            self.url = '/a_ui/aview'
             self.should_exist = False
 
     @test(ParameterisedScenarios)
@@ -89,20 +90,20 @@ class ParameterisedTests(object):
 
         class UIWithParameterisedViews(UserInterface):
             def assemble(self):
-                self.define_view(u'/aview', view_class=fixture.ParameterisedView, some_arg=fixture.argument) 
+                self.define_view('/aview', view_class=fixture.ParameterisedView, some_arg=fixture.argument) 
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {u'main': u'main'}, name=u'myui')
+                self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {'main': 'main'}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         if fixture.should_exist:
             browser.open(fixture.url)
-            vassert( browser.title == u'View for: %s' % fixture.expected_value )
-            vassert( browser.is_element_present(XPath.paragraph_containing(u'content for %s' % fixture.expected_value)) )
+            vassert( browser.title == 'View for: %s' % fixture.expected_value )
+            vassert( browser.is_element_present(XPath.paragraph_containing('content for %s' % fixture.expected_value)) )
         else:
             browser.open(fixture.url, status=404)
 
@@ -112,24 +113,24 @@ class ParameterisedTests(object):
 
         class ParameterisedView(UrlBoundView):
             def assemble(self, some_key=None):
-                self.title = u'View for: %s' % some_key
+                self.title = 'View for: %s' % some_key
             
         class UIWithParameterisedViews(UserInterface):
             def assemble(self):
-                self.define_regex_view(u'/someurl_(?P<some_key>.*)', u'/someurl_${some_key}', view_class=ParameterisedView,
+                self.define_regex_view('/someurl_(?P<some_key>.*)', '/someurl_${some_key}', view_class=ParameterisedView,
                                        some_key=Field(required=True))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedViews,  {}, name=u'myui')
+                self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # Parameterisedally constructing a View from an URL
         browser.open('/a_ui/someurl_test1')
-        vassert( browser.title == u'View for: test1' )
+        vassert( browser.title == 'View for: test1' )
 
     @test(WebFixture)
     def user_interfaces_from_regex(self, fixture):
@@ -138,40 +139,40 @@ class ParameterisedTests(object):
 
         class RegexUserInterface(UserInterface):
             def assemble(self, ui_key=None):
-                if ui_key == u'doesnotexist':
+                if ui_key == 'doesnotexist':
                     raise CannotCreate()
 
-                self.name = u'user_interface-%s' % ui_key
-                root = self.define_view(u'/', title=u'Simple user_interface %s' % self.name)
-                root.set_slot(u'user_interface-slot', P.factory(text=u'in user_interface slot'))
+                self.name = 'user_interface-%s' % ui_key
+                root = self.define_view('/', title='Simple user_interface %s' % self.name)
+                root.set_slot('user_interface-slot', P.factory(text='in user_interface slot'))
 
         class UIWithParameterisedUserInterfaces(UserInterface):
             def assemble(self):
-                self.define_regex_user_interface(u'/apath/(?P<ui_key>[^/]*)',
-                                         u'/apath/${ui_key}',
+                self.define_regex_user_interface('/apath/(?P<ui_key>[^/]*)',
+                                         '/apath/${ui_key}',
                                          RegexUserInterface,
-                                         {u'user_interface-slot': u'main'},
+                                         {'user_interface-slot': 'main'},
                                          ui_key=Field())
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name=u'myui')
+                self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # A sub-user_interface is dynamically created from an URL
         browser.open('/a_ui/apath/test1/')
-        vassert( browser.title == u'Simple user_interface user_interface-test1' )
+        vassert( browser.title == 'Simple user_interface user_interface-test1' )
 
         # The slots of the sub-user_interface is correctly plugged into the page
         [p] = browser.lxml_html.xpath('//p')
-        vassert( p.text == u'in user_interface slot' )
+        vassert( p.text == 'in user_interface slot' )
 
         # Another sub-user_interface is dynamically created from an URL
         browser.open('/a_ui/apath/another/')
-        vassert( browser.title == u'Simple user_interface user_interface-another' )
+        vassert( browser.title == 'Simple user_interface user_interface-another' )
 
         # When the URL cannot be mapped
         browser.open('/a_ui/apath/doesnotexist/', status=404)
@@ -184,57 +185,57 @@ class ParameterisedTests(object):
 
         class RegexUserInterface(Region):
             def assemble(self, ui_key=None):
-                if ui_key == u'doesnotexist':
+                if ui_key == 'doesnotexist':
                     raise CannotCreate()
 
-                self.name = u'user_interface-%s' % ui_key
-                root = self.define_view(u'/', title=u'Simple user_interface %s' % self.name)
-                root.set_slot(u'user_interface-slot', P.factory(text=u'in user_interface slot'))
+                self.name = 'user_interface-%s' % ui_key
+                root = self.define_view('/', title='Simple user_interface %s' % self.name)
+                root.set_slot('user_interface-slot', P.factory(text='in user_interface slot'))
 
         class UIWithParameterisedUserInterfaces(Region):
             def assemble(self):
-                self.define_regex_region(u'/apath/(?P<ui_key>[^/]*)',
-                                         u'/apath/${ui_key}',
+                self.define_regex_region('/apath/(?P<ui_key>[^/]*)',
+                                         '/apath/${ui_key}',
                                          RegexUserInterface,
-                                         {u'user_interface-slot': u'main'},
+                                         {'user_interface-slot': 'main'},
                                          ui_key=Field())
 
         class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name=u'myui')
+                self.define_region('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # A sub-user_interface is dynamically created from an URL
         browser.open('/a_ui/apath/test1/')
-        vassert( browser.title == u'Simple user_interface user_interface-test1' )
+        vassert( browser.title == 'Simple user_interface user_interface-test1' )
 
 
     class ParameterisedUserInterfaceScenarios(WebFixture):
         @scenario
         def normal_arguments(self):
             """Arguments can be sent from where the UserInterface is defined."""
-            self.argument = u'some arg'
-            self.expected_value = u'some arg'
-            self.url = u'/a_ui/parameterisedui/aview'
+            self.argument = 'some arg'
+            self.expected_value = 'some arg'
+            self.url = '/a_ui/parameterisedui/aview'
             self.should_exist = True
         
         @scenario
         def url_arguments(self):
             """Arguments can be parsed from an URL, iff they are specified to the definition as Fields."""
             self.argument = Field()
-            self.expected_value = u'test1'
-            self.url = u'/a_ui/parameterisedui/test1/aview'
+            self.expected_value = 'test1'
+            self.url = '/a_ui/parameterisedui/test1/aview'
             self.should_exist = True
             
         @scenario
         def cannot_create(self):
             """To indicate that a UserInterface does not exist for the given arguments, the .assemble() 
                method of the UserInterface should raise CannotCreate()."""
-            self.argument = u'doesnotexist'
-            self.url = u'/a_ui/parameterisedui/aview'
+            self.argument = 'doesnotexist'
+            self.url = '/a_ui/parameterisedui/aview'
             self.should_exist = False
 
     @test(ParameterisedUserInterfaceScenarios)
@@ -243,24 +244,24 @@ class ParameterisedTests(object):
 
         class ParameterisedUserInterface(UserInterface):
             def assemble(self, ui_arg=None):
-                if ui_arg == u'doesnotexist':
+                if ui_arg == 'doesnotexist':
                     raise CannotCreate()
 
-                self.name = u'user_interface-%s' % ui_arg
-                root = self.define_view(u'/aview', title=u'Simple user_interface %s' % self.name)
-                root.set_slot(u'user_interface-slot', P.factory(text=u'in user_interface slot'))
+                self.name = 'user_interface-%s' % ui_arg
+                root = self.define_view('/aview', title='Simple user_interface %s' % self.name)
+                root.set_slot('user_interface-slot', P.factory(text='in user_interface slot'))
 
 
         class UIWithParameterisedUserInterfaces(UserInterface):
             def assemble(self):
-                self.define_user_interface(u'/parameterisedui', ParameterisedUserInterface, {u'user_interface-slot': u'main'}, 
+                self.define_user_interface('/parameterisedui', ParameterisedUserInterface, {'user_interface-slot': 'main'}, 
                                    ui_arg=fixture.argument,
-                                   name=u'paramui')
+                                   name='paramui')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name=u'myui')
+                self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -269,11 +270,11 @@ class ParameterisedTests(object):
             browser.open(fixture.url)
             
             # The correct argument was passed
-            vassert( browser.title == u'Simple user_interface user_interface-%s' % fixture.expected_value )
+            vassert( browser.title == 'Simple user_interface user_interface-%s' % fixture.expected_value )
 
             # The slots of the sub-user_interface is correctly plugged into the page
             [p] = browser.lxml_html.xpath('//p')
-            vassert( p.text == u'in user_interface slot' )
+            vassert( p.text == 'in user_interface slot' )
         else:
             # When the URL cannot be mapped
             browser.open(fixture.url, status=404)

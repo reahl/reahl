@@ -17,6 +17,7 @@
 """Utility classes for sending simple email messages.""" 
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import re
@@ -44,7 +45,7 @@ class MailMessage(object):
        :param charset: The charset of `rst_message`
     """
     EMAIL_RE = re.compile("^[^\s]+@[^\s]+\.[^\s]{2,4}$")
-    def __init__(self, from_address, to_addresses, subject, rst_message, charset=u'utf-8'):
+    def __init__(self, from_address, to_addresses, subject, rst_message, charset='utf-8'):
             self.validate_email_addresses(to_addresses+[from_address])
             self.from_address = from_address
             self.to_addresses = to_addresses

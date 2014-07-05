@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from contextlib import contextmanager
@@ -74,31 +75,31 @@ def upgrading(fixture):
     fixture.ran = []
     class TestMigration(Migration):
         def upgrade(self):
-            fixture.ran.append((self.__class__, u'upgrade'))
+            fixture.ran.append((self.__class__, 'upgrade'))
         def upgrade_cleanup(self):
-            fixture.ran.append((self.__class__, u'cleanup'))
+            fixture.ran.append((self.__class__, 'cleanup'))
     
     class MigrateOneA(TestMigration):
-        version = u'0.1'
+        version = '0.1'
     class MigrateOneB(TestMigration):
-        version = u'0.1'
+        version = '0.1'
     class MigrateTwoA(TestMigration):
-        version = u'0.1'
+        version = '0.1'
     class MigrateTwoB(TestMigration):
-        version = u'0.1'
+        version = '0.1'
     
-    eggs = [ReahlEggStub(u'one', u'0.0', [MigrateOneA, MigrateOneB]), 
-            ReahlEggStub(u'two', u'0.0', [MigrateTwoA, MigrateTwoB])]
+    eggs = [ReahlEggStub('one', '0.0', [MigrateOneA, MigrateOneB]), 
+            ReahlEggStub('two', '0.0', [MigrateTwoA, MigrateTwoB])]
     for egg in eggs:
         fixture.orm_control.initialise_schema_version_for(egg)
     for egg in eggs:
-        egg._version = u'0.1'
+        egg._version = '0.1'
     fixture.orm_control.migrate_db(eggs)
 
-    expected_migrations = [(MigrateTwoA, u'upgrade'), (MigrateTwoB, u'upgrade'), 
-                           (MigrateOneA, u'upgrade'), (MigrateOneB, u'upgrade'), 
-                           (MigrateOneA, u'cleanup'), (MigrateOneB, u'cleanup'), 
-                           (MigrateTwoA, u'cleanup'), (MigrateTwoB, u'cleanup')]
+    expected_migrations = [(MigrateTwoA, 'upgrade'), (MigrateTwoB, 'upgrade'), 
+                           (MigrateOneA, 'upgrade'), (MigrateOneB, 'upgrade'), 
+                           (MigrateOneA, 'cleanup'), (MigrateOneB, 'cleanup'), 
+                           (MigrateTwoA, 'cleanup'), (MigrateTwoB, 'cleanup')]
     vassert ( fixture.ran == expected_migrations )
 
     #case: running it again does not trigger running the upgrade again if the version did not change

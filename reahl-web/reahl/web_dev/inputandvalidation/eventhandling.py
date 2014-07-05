@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import json
@@ -38,7 +39,7 @@ from reahl.webdev.tools import WidgetTester, XPath, Browser
 
 class FormFixture(Fixture, WebBasicsMixin):
     def new_error_xpath(self):
-        return u'//form[contains(@class, "reahl-form")]/label[contains(@class, "error")]'
+        return '//form[contains(@class, "reahl-form")]/label[contains(@class, "error")]'
 
 
 @istest
@@ -56,7 +57,7 @@ class FormTests(object):
 
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me', action=Action(self.handle_event))
+                events.an_event = Event(label='click me', action=Action(self.handle_event))
 
         model_object = ModelObject()
 
@@ -69,9 +70,9 @@ class FormTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                other_view = self.define_view(u'/page2', title=u'Page 2')
-                home.set_slot(u'main', MyForm.factory(u'myform', other_view))
+                home = self.define_view('/', title='Home page')
+                other_view = self.define_view('/page2', title='Page 2')
+                home.set_slot('main', MyForm.factory('myform', other_view))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         fixture.reahl_server.set_app(wsgi_app)
@@ -79,11 +80,11 @@ class FormTests(object):
 
         # clicking on the button triggers the action of the event handler
         vassert( not model_object.handled_event )
-        fixture.driver_browser.click(u"//input[@value='click me']")
+        fixture.driver_browser.click("//input[@value='click me']")
         vassert( model_object.handled_event )
 
         # browser has been transitioned to target view
-        vassert( fixture.driver_browser.current_url.path == u'/page2' )
+        vassert( fixture.driver_browser.current_url.path == '/page2' )
 
     @test(FormFixture)
     def arguments_to_actions(self, fixture):
@@ -97,8 +98,8 @@ class FormTests(object):
 
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me',
-                                        action=Action(self.handle_event, [u'one_argument', u'another_argument']),
+                events.an_event = Event(label='click me',
+                                        action=Action(self.handle_event, ['one_argument', 'another_argument']),
                                         one_argument=IntegerField(),
                                         another_argument=Field())
 
@@ -107,14 +108,14 @@ class FormTests(object):
         class MyForm(Form):
             def __init__(self, view, name):
                 super(MyForm, self).__init__(view, name)
-                self.add_child(Button(self, model_object.events.an_event.with_arguments(one_argument=1, another_argument=u'another')))
+                self.add_child(Button(self, model_object.events.an_event.with_arguments(one_argument=1, another_argument='another')))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                other_view = self.define_view(u'/page2', title=u'Page 2')
-                home.set_slot(u'main', MyForm.factory(u'myform'))
+                home = self.define_view('/', title='Home page')
+                other_view = self.define_view('/page2', title='Page 2')
+                home.set_slot('main', MyForm.factory('myform'))
                 self.define_transition(model_object.events.an_event, home, other_view)
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -122,8 +123,8 @@ class FormTests(object):
         fixture.driver_browser.open('/')
 
         # when the Action is executed, the correct arguments are passed
-        fixture.driver_browser.click(u"//input[@value='click me']")
-        vassert( model_object.args == (1, u'another') )
+        fixture.driver_browser.click("//input[@value='click me']")
+        vassert( model_object.args == (1, 'another') )
 
 
     @test(FormFixture)
@@ -133,18 +134,18 @@ class FormTests(object):
         class ModelObject(object):
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'Click me', argument=Field(required=True))
+                events.an_event = Event(label='Click me', argument=Field(required=True))
 
         model_object = ModelObject()
         
-        form = Form(fixture.view, u'test')
+        form = Form(fixture.view, 'test')
         form.define_event_handler(model_object.events.an_event)
         
         with expected(ProgrammerError):
             Button(form, model_object.events.an_event)
             
         with expected(NoException):
-            Button(form, model_object.events.an_event.with_arguments(argument=u'something'))
+            Button(form, model_object.events.an_event.with_arguments(argument='something'))
 
 
       
@@ -165,7 +166,7 @@ class FormTests(object):
 
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me', action=Action(self.handle_event))
+                events.an_event = Event(label='click me', action=Action(self.handle_event))
 
             @exposed
             def fields(self, fields):
@@ -183,8 +184,8 @@ class FormTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                home.set_slot(u'main', MyForm.factory(u'myform'))
+                home = self.define_view('/', title='Home page')
+                home.set_slot('main', MyForm.factory('myform'))
 
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -192,13 +193,13 @@ class FormTests(object):
         fixture.driver_browser.open('/')
 
         # the initial value rendered in the input
-        vassert( not hasattr(model_object, u'field_name') )
-        initial_value = fixture.driver_browser.get_value(u"//input[@type='text']")
-        vassert( initial_value == u'3' )
+        vassert( not hasattr(model_object, 'field_name') )
+        initial_value = fixture.driver_browser.get_value("//input[@type='text']")
+        vassert( initial_value == '3' )
 
         # the user supplied value is marshalled and set on the model object when an event happens
-        fixture.driver_browser.type(u"//input[@type='text']", u'5')
-        fixture.driver_browser.click(u"//input[@value='click me']")
+        fixture.driver_browser.type("//input[@type='text']", '5')
+        fixture.driver_browser.click("//input[@value='click me']")
         vassert( model_object.field_name == 5 )
 
     @test(FormFixture)
@@ -210,7 +211,7 @@ class FormTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.define_event_handler(EmptyStub())
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'form'))
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
         browser = Browser(wsgi_app)
         
         with expected(IsInstance):
@@ -231,11 +232,11 @@ class FormTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.add_child(Button(self, model_object.events.an_event))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(u'form'))
+        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
         browser = Browser(wsgi_app)
 
         def check_exc(exc):
-            vassert( six.text_type(exc) == u'no Event/Transition available for name an_event' )
+            vassert( six.text_type(exc) == 'no Event/Transition available for name an_event' )
 
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')
@@ -256,7 +257,7 @@ class FormTests(object):
                 raise DomainException()
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me', action=Action(self.handle_event))
+                events.an_event = Event(label='click me', action=Action(self.handle_event))
             @exposed
             def fields(self, fields):
                 fields.field_name = IntegerField(default=3)
@@ -273,51 +274,51 @@ class FormTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                other_view = self.define_view(u'/page2', title=u'Page 2')
-                home.set_slot(u'main', MyForm.factory(u'myform', other_view))
+                home = self.define_view('/', title='Home page')
+                other_view = self.define_view('/page2', title='Page 2')
+                home.set_slot('main', MyForm.factory('myform', other_view))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         fixture.reahl_server.set_app(wsgi_app)
 
         fixture.driver_browser.open('/')
 
-        vassert( not hasattr(model_object, u'field_name') )
-        fixture.driver_browser.type(u"//input[@type='text']", u'5')
+        vassert( not hasattr(model_object, 'field_name') )
+        fixture.driver_browser.type("//input[@type='text']", '5')
 
         # any database stuff that happened when the form was submitted was rolled back
         with CallMonitor(fixture.system_control.orm_control.rollback) as monitor:
-            fixture.driver_browser.click(u"//input[@value='click me']")
+            fixture.driver_browser.click("//input[@value='click me']")
         vassert( monitor.times_called == 1 )
 
         # the value input by the user is still displayed on the form, NOT the actual value on the model object        
         vassert( model_object.field_name == 1 )
-        retained_value = fixture.driver_browser.get_value(u"//input[@type='text']")
-        vassert( retained_value == u'5' )
+        retained_value = fixture.driver_browser.get_value("//input[@type='text']")
+        vassert( retained_value == '5' )
 
         # the browser is still on the page with the form which triggered the exception
-        vassert( fixture.driver_browser.current_url.path == u'/' )
+        vassert( fixture.driver_browser.current_url.path == '/' )
 
     @test(FormFixture)
     def rendering_of_form(self, fixture):
         """A Form is always set up to POST to its EventChannel url.  The current page's query string is
            propagated with the POST url if any.  The Form has an id and class to help style it etc."""
 
-        form = Form(fixture.view, u'test_channel')
+        form = Form(fixture.view, 'test_channel')
         tester = WidgetTester(form)
         
-        fixture.context.set_request(Request.blank(u'/a/b?x=y', charset='utf8'))
+        fixture.context.set_request(Request.blank('/a/b?x=y', charset='utf8'))
         actual = tester.render_html()
 
-        expected = u'<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form"></form>'
+        expected = '<form id="test_channel" action="/a/b/_test_channel_method?x=y" data-formatter="/__test_channel_format_method" method="POST" class="reahl-form"></form>'
         vassert( actual == expected )
         
         # Case: without querystring
-        fixture.context.set_request(Request.blank(u'/a/b', charset='utf8'))
+        fixture.context.set_request(Request.blank('/a/b', charset='utf8'))
         actual = tester.render_html_tree()
 
-        action = actual.xpath(u'//form')[0].attrib[u'action']
-        vassert( action == u'/a/b/_test_channel_method' )
+        action = actual.xpath('//form')[0].attrib['action']
+        vassert( action == '/a/b/_test_channel_method' )
         
     @test(FormFixture)
     def duplicate_forms(self, fixture):
@@ -326,15 +327,15 @@ class FormTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                home.set_slot(u'main', Form.factory(u'myform'))
-                home.set_slot(u'secondary', Form.factory(u'myform'))
+                home = self.define_view('/', title='Home page')
+                home.set_slot('main', Form.factory('myform'))
+                home.set_slot('secondary', Form.factory('myform'))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
-            vassert( six.text_type(ex).startswith(u'More than one form was added using the same unique_name') )
+            vassert( six.text_type(ex).startswith('More than one form was added using the same unique_name') )
         
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')
@@ -353,10 +354,10 @@ class FormTests(object):
                 self.handled_event = True
             @exposed
             def events(self, events):
-                events.nested_event = Event(label=u'click nested', action=Action(self.handle_event))
+                events.nested_event = Event(label='click nested', action=Action(self.handle_event))
             @exposed
             def fields(self, fields):
-                fields.nested_field = Field(label=u'input nested')
+                fields.nested_field = Field(label='input nested')
 
         nested_model_object = NestedModelObject()
         class MyNestedForm(NestedForm):
@@ -372,28 +373,28 @@ class FormTests(object):
                 self.handled_event = True
             @exposed
             def events(self, events):
-                events.outer_event = Event(label=u'click outer', action=Action(self.handle_event))
+                events.outer_event = Event(label='click outer', action=Action(self.handle_event))
         outer_model_object = OuterModelObject()
         class OuterForm(Form):
             def __init__(self, view, name):
                 super(OuterForm, self).__init__(view, name)
-                self.add_child(MyNestedForm(view, u'my_nested_form'))
+                self.add_child(MyNestedForm(view, 'my_nested_form'))
                 self.define_event_handler(outer_model_object.events.outer_event)
                 self.add_child(Button(self, outer_model_object.events.outer_event))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=OuterForm.factory(u'outer_form'))
+        wsgi_app = fixture.new_wsgi_app(child_factory=OuterForm.factory('outer_form'))
         fixture.reahl_server.set_app(wsgi_app)
         browser = fixture.driver_browser
         
         browser.open('/')
-        browser.type(XPath.input_labelled(u'input nested'), u'some nested input')
+        browser.type(XPath.input_labelled('input nested'), 'some nested input')
         
-        browser.click(XPath.button_labelled(u'click nested'))
+        browser.click(XPath.button_labelled('click nested'))
         
         vassert( nested_model_object.handled_event )
         vassert( not outer_model_object.handled_event )
         
-        vassert( nested_model_object.nested_field == u'some nested input' )
+        vassert( nested_model_object.nested_field == 'some nested input' )
         
 
     @test(FormFixture)
@@ -404,7 +405,7 @@ class FormTests(object):
                 pass
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me', action=Action(self.handle_event))
+                events.an_event = Event(label='click me', action=Action(self.handle_event))
             @exposed
             def fields(self, fields):
                 fields.field_name = EmailField()
@@ -421,9 +422,9 @@ class FormTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                other_view = self.define_view(u'/page2', title=u'Page 2')
-                home.set_slot(u'main', MyForm.factory(u'myform', other_view))
+                home = self.define_view('/', title='Home page')
+                other_view = self.define_view('/page2', title='Page 2')
+                home.set_slot('main', MyForm.factory('myform', other_view))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
 
@@ -431,29 +432,29 @@ class FormTests(object):
         #  - Form submission is blocked
         #  - Error message is displayed
         fixture.reahl_server.set_app(wsgi_app)
-        fixture.driver_browser.open(u'/')
+        fixture.driver_browser.open('/')
         fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
-        fixture.driver_browser.type(u'//input[@type="text"]', u'not@notvalid')
+        fixture.driver_browser.type('//input[@type="text"]', 'not@notvalid')
         fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
         with fixture.driver_browser.no_page_load_expected():
-            fixture.driver_browser.click(u"//input[@value='click me']")
+            fixture.driver_browser.click("//input[@value='click me']")
 
         error_text = fixture.driver_browser.get_text(fixture.error_xpath)
-        vassert( error_text == u'field_name should be a valid email address' )
+        vassert( error_text == 'field_name should be a valid email address' )
 
         # Case: form validation fails on the server (assuming no JS on the client to block submission)
         #  - ValidationException is raised (which is dealt with as any DomainException)
         browser = Browser(wsgi_app)
         browser.open('/')
-        browser.type('//input[@type="text"]', u'not@notvalid')
+        browser.type('//input[@type="text"]', 'not@notvalid')
 
         browser.click('//input[@type="submit"]')
         vassert( not hasattr(model_object, 'field_name') )        
         label = browser.get_html_for('//label')
-        vassert( label == u'<label for="field_name" class="error">field_name should be a valid email address</label>' )
+        vassert( label == '<label for="field_name" class="error">field_name should be a valid email address</label>' )
 
-        vassert( UserInput.query.filter_by(key=u'field_name').count() == 1 ) # The invalid input was persisted
+        vassert( UserInput.query.filter_by(key='field_name').count() == 1 ) # The invalid input was persisted
         exception = PersistedException.query.one().exception
         vassert( isinstance(exception, ValidationException) ) # Is was persisted
         vassert( not exception.commit )
@@ -462,65 +463,65 @@ class FormTests(object):
         #  - no ValidationException
         #  - all input is translated to python and set as values on the model objects
         #  - any saved input on the form is cleared
-        browser.type(u'//input[@type="text"]', u'valid@home.org')
-        browser.click(u"//input[@value='click me']")
-        vassert( model_object.field_name == u'valid@home.org' )
+        browser.type('//input[@type="text"]', 'valid@home.org')
+        browser.click("//input[@value='click me']")
+        vassert( model_object.field_name == 'valid@home.org' )
 
-        vassert( UserInput.query.filter_by(key=u'field_name').count() == 0 ) # The invalid input was removed
+        vassert( UserInput.query.filter_by(key='field_name').count() == 0 ) # The invalid input was removed
         vassert( PersistedException.query.count() == 0 ) # The exception was removed
 
-        vassert( browser.location_path == u'/page2' )
+        vassert( browser.location_path == '/page2' )
 
         # Case: form validation passes (js)
         #  - no ValidationException
         #  - all input is translated to python and set as values on the model objects
-        fixture.driver_browser.type(u'//input[@type="text"]', u'valid@home.org')
+        fixture.driver_browser.type('//input[@type="text"]', 'valid@home.org')
         fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
-        fixture.driver_browser.click(u"//input[@value='click me']")
-        vassert( model_object.field_name == u'valid@home.org' )
+        fixture.driver_browser.click("//input[@value='click me']")
+        vassert( model_object.field_name == 'valid@home.org' )
 
-        vassert( fixture.driver_browser.current_url.path == u'/page2' )
+        vassert( fixture.driver_browser.current_url.path == '/page2' )
 
 
 
     class QueryStringScenarios(FormFixture):
         def new_other_view(self):
-            return self.wsgi_app.define_view(u'/page2', title=u'Page 2')
+            return self.wsgi_app.define_view('/page2', title='Page 2')
 
         def new_form(self):
-            form = Form(self.view, u'some_form')
-            event = Event(label=u'click me', action=Action(self.action))
-            event.bind(u'an_event', None)
+            form = Form(self.view, 'some_form')
+            event = Event(label='click me', action=Action(self.action))
+            event.bind('an_event', None)
             form.define_event_handler(event, target=self.target)
             form.add_child(Button(form, event))
             return form
 
         @property
         def query_string_on_form_submit(self):
-            form_action = self.driver_browser.get_attribute(u'//form', u'action')
+            form_action = self.driver_browser.get_attribute('//form', 'action')
             return Url(form_action).query
 
         @scenario
         def different_target(self):
             self.break_on_submit = False
             self.target_is_other_view = True
-            self.initial_qs = u'a=b'
-            self.final_qs = u''
+            self.initial_qs = 'a=b'
+            self.final_qs = ''
 
         @scenario
         def same_target_by_intent(self):
             self.break_on_submit = False
             self.target_is_other_view = False
             self.target = self.view.as_factory()
-            self.initial_qs = u'a=b'
-            self.final_qs = u'a=b'
+            self.initial_qs = 'a=b'
+            self.final_qs = 'a=b'
 
         @scenario
         def same_target_by_exception(self):
             self.break_on_submit = True
             self.target_is_other_view = True
-            self.initial_qs = u'a=b'
-            self.final_qs = u'a=b'
+            self.initial_qs = 'a=b'
+            self.final_qs = 'a=b'
 
 
     @test(QueryStringScenarios)
@@ -536,7 +537,7 @@ class FormTests(object):
                     raise DomainException()
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me', action=Action(self.handle_event))
+                events.an_event = Event(label='click me', action=Action(self.handle_event))
 
         model_object = ModelObject()
 
@@ -553,16 +554,16 @@ class FormTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                other_view = self.define_view(u'/page2', title=u'Page 2')
-                home.set_slot(u'main', MyForm.factory(u'myform', other_view))
+                home = self.define_view('/', title='Home page')
+                other_view = self.define_view('/page2', title='Page 2')
+                home.set_slot('main', MyForm.factory('myform', other_view))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/?%s' % fixture.initial_qs)
 
         vassert( fixture.query_string_on_form_submit == fixture.initial_qs )
-        fixture.driver_browser.click(u"//input[@value='click me']")
+        fixture.driver_browser.click("//input[@value='click me']")
         vassert( fixture.driver_browser.current_url.query == fixture.final_qs )
 
 
@@ -579,9 +580,9 @@ class FormTests(object):
 
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me',
-                                        action=Action(self.handle_event, [u'some_argument']),
-                                        some_argument=Field(default=u'default value'))
+                events.an_event = Event(label='click me',
+                                        action=Action(self.handle_event, ['some_argument']),
+                                        some_argument=Field(default='default value'))
 
         model_object = ModelObject()
 
@@ -589,20 +590,20 @@ class FormTests(object):
             def __init__(self, view, name):
                 super(MyForm, self).__init__(view, name)
                 self.define_event_handler(model_object.events.an_event)
-                self.add_child(Button(self, model_object.events.an_event.with_arguments(some_argument=u'f~nnystuff')))
+                self.add_child(Button(self, model_object.events.an_event.with_arguments(some_argument='f~nnystuff')))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                home.set_slot(u'main', MyForm.factory(u'myform'))
+                home = self.define_view('/', title='Home page')
+                home.set_slot('main', MyForm.factory('myform'))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # when the Action is executed, the correct arguments are passed
-        browser.post(u'/__myform_method', {u'event.an_event?some_argument=f~nnystuff': ''})
-        vassert( model_object.received_argument == u'f~nnystuff' )
+        browser.post('/__myform_method', {'event.an_event?some_argument=f~nnystuff': ''})
+        vassert( model_object.received_argument == 'f~nnystuff' )
         
     @test(FormFixture)
     def alternative_event_trigerring(self, fixture):
@@ -617,7 +618,7 @@ class FormTests(object):
 
             @exposed
             def events(self, events):
-                events.an_event = Event(label=u'click me',
+                events.an_event = Event(label='click me',
                                         action=Action(self.handle_event))
 
 
@@ -632,15 +633,15 @@ class FormTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Home page')
-                other_view = self.define_view(u'/page2', title=u'Page 2')
-                home.set_slot(u'main', MyForm.factory(u'myform', other_view))
+                home = self.define_view('/', title='Home page')
+                other_view = self.define_view('/page2', title='Page 2')
+                home.set_slot('main', MyForm.factory('myform', other_view))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # when POSTing with _noredirect, the Action is executed, but the browser is not redirected to /page2 as usual
-        browser.post(u'/__myform_method', {u'event.an_event?': u'', u'_noredirect': u''})
+        browser.post('/__myform_method', {'event.an_event?': '', '_noredirect': ''})
         browser.follow_response()  # Needed to make the test break should a HTTPTemporaryRedirect response be sent
         vassert( model_object.handled_event )
         vassert( browser.location_path != '/page2' )  
@@ -648,11 +649,11 @@ class FormTests(object):
         
         # the response is a json object reporting the success of the event and a new rendition of the form
         json_dict = json.loads(browser.raw_html)
-        vassert( json_dict[u'success'] )
+        vassert( json_dict['success'] )
 
         browser.open('/')
-        expected_html = browser.get_inner_html_for(u'//form[1]')
-        vassert( json_dict[u'widget'].startswith(expected_html+u'<script') )
+        expected_html = browser.get_inner_html_for('//form[1]')
+        vassert( json_dict['widget'].startswith(expected_html+'<script') )
 
 
     @test(FormFixture)
@@ -675,11 +676,11 @@ class FormTests(object):
         wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
         browser = Browser(wsgi_app)
 
-        browser.open(u'/_myform_validate_method?a_field=invalid email address')
-        vassert( browser.raw_html == u'"a_field should be a valid email address"' )
+        browser.open('/_myform_validate_method?a_field=invalid email address')
+        vassert( browser.raw_html == '"a_field should be a valid email address"' )
 
-        browser.open(u'/_myform_validate_method?a_field=valid@email.org')
-        vassert( browser.raw_html == u'true' )
+        browser.open('/_myform_validate_method?a_field=valid@email.org')
+        vassert( browser.raw_html == 'true' )
         
 
     @test(FormFixture)
@@ -702,11 +703,11 @@ class FormTests(object):
         wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
         browser = Browser(wsgi_app)
 
-        browser.open(u'/_myform_format_method?a_field=13 November 2012')
-        vassert( browser.raw_html == u'13 Nov 2012' )
+        browser.open('/_myform_format_method?a_field=13 November 2012')
+        vassert( browser.raw_html == '13 Nov 2012' )
 
-        browser.open(u'/_myform_format_method?a_field=invaliddate')
-        vassert( browser.raw_html == u'' )
+        browser.open('/_myform_format_method?a_field=invaliddate')
+        vassert( browser.raw_html == '' )
 
 
 

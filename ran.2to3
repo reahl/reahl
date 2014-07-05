@@ -44,12 +44,12 @@ tuple_params
 types
 urllib
 xrange
+xreadlines
+zip
 
-
-TODO:
+NOT DOING:
 future
 ws_comma
 
 
-xreadlines
-zip
+

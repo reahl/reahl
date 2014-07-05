@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from webob import Request, Response
@@ -37,7 +38,7 @@ class RequestHandlingTests(object):
         status = None
         headers = None
         def result_is_valid(self, result):
-            return result.startswith(u'<!DOCTYPE html><html>') and result.endswith(u'</html>')
+            return result.startswith('<!DOCTYPE html><html>') and result.endswith('</html>')
         def some_headers_are_set(self, headers):
             return dict(headers)['Content-Type'] == 'text/html; charset=utf-8'
 
@@ -54,9 +55,9 @@ class RequestHandlingTests(object):
         
         wsgi_iterator = wsgi_app(environ, start_response)
 
-        result = u''.join([i for i in wsgi_iterator])  # To check that it is iterable and get the value
+        result = ''.join([i for i in wsgi_iterator])  # To check that it is iterable and get the value
         vassert( fixture.result_is_valid(result) )
-        vassert( fixture.status == u'200 OK' )
+        vassert( fixture.status == '200 OK' )
         vassert( fixture.some_headers_are_set(fixture.headers) )
 
     @test(WebFixture)
@@ -100,7 +101,7 @@ class RequestHandlingTests(object):
                 self.last_activity_time_set = True
 
             def get_interface_locale(self):
-                return u'en_gb'
+                return 'en_gb'
 
         # Setting the implementation in config
         fixture.config.web.session_class = WebUserSessionStub
@@ -126,7 +127,7 @@ class RequestHandlingTests(object):
             # A session is obtained, and the correct params passed to the hook methods
             vassert( not WebUserSessionStub.session )      # Before the request, the session is not yet set
             vassert( monitor.times_called == 0 )           # ... and the database is not yet committed
-            browser.open(u'/')
+            browser.open('/')
             
             vassert( monitor.times_called == 1 )           # The database is committed after user code executed
             vassert( WebUserSessionStub.session )          # The session was set
@@ -145,4 +146,4 @@ class RequestHandlingTests(object):
 
         browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
 
-        browser.open(u'/', status=404)
+        browser.open('/', status=404)

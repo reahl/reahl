@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from six.moves import input
@@ -61,9 +62,9 @@ def clean_egg_info_dirs():
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
-    with open(requires_file, u'r') as input_file:
+    with open(requires_file, 'r') as input_file:
         lines = input_file.readlines()
-    with open(requires_file, u'w') as output_file:
+    with open(requires_file, 'w') as output_file:
         for line in lines:
             version_stripped_line = re.match('([\w-]+)', line).group(0)
             output_file.write(version_stripped_line)
@@ -78,7 +79,7 @@ def fake_distributions_into_existence(project_dirs):
 
 def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
     non_reahl_requirements = hard_coded_core_dependencies[:]
-    for line in open(requires_file, u'r'):
+    for line in open(requires_file, 'r'):
         if not line.startswith('reahl-'):
             non_reahl_requirements.append(line)
     missing = []
@@ -176,7 +177,7 @@ reahl_workspace = read_env_variable('REAHLWORKSPACE',
                     'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
                           % (os.getcwd()))
 reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
-core_project_dirs = [u'reahl-component', 'reahl-bzrsupport', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
+core_project_dirs = ['reahl-component', 'reahl-bzrsupport', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
 
 clean_virtual_env(virtual_env)
 clean_workspace(reahl_workspace)

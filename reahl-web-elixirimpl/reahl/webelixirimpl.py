@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import random
@@ -54,12 +55,12 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
 
     def as_key(self):
         Session.flush() # To make sure .id is populated
-        return '%s:%s' % (six.binary_type(self.id), self.salt)
+        return '%s:%s' % (six.text_type(self.id), self.salt)
 
     def is_secure(self):
         context = WebExecutionContext.get_context()
         return super(WebUserSession, self).is_secure() \
-               and context.request.scheme == u'https' \
+               and context.request.scheme == 'https' \
                and self.secure_cookie_is_valid()
 
     def secure_cookie_is_valid(self):
@@ -96,7 +97,7 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
 
     def set_session_key(self, response):
         context = WebExecutionContext.get_context()
-        session_cookie = self.as_key()
+        session_cookie = six.binary_type(self.as_key())
         response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
         if self.is_secure():
             response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
@@ -274,8 +275,8 @@ class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, Persisted
     
 
 class ElixirImplConfig(Configuration):
-    filename = u'web.elixirimpl.config.py'
-    config_key = u'web.elixirimpl'
+    filename = 'web.elixirimpl.config.py'
+    config_key = 'web.elixirimpl'
 
     def do_injections(self, config):
         config.web.session_class = WebUserSession

@@ -16,6 +16,7 @@
 
 """Classes that aid in dealing with Eggs and setting them up."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import os
@@ -49,8 +50,8 @@ class ReahlEgg(object):
 
     @property
     def configuration_spec(self):
-        entry_point_dict = self.distribution.get_entry_map().get(u'reahl.configspec', {})
-        entry_point = entry_point_dict.get(u'config', None)
+        entry_point_dict = self.distribution.get_entry_map().get('reahl.configspec', {})
+        entry_point = entry_point_dict.get('config', None)
         return entry_point.load() if entry_point else None
 
     def read_config(self, config):
@@ -95,9 +96,9 @@ class ReahlEgg(object):
 
     @property
     def translation_pot_filename(self):
-        entry_point_dict = self.distribution.get_entry_map().get(u'reahl.translations')
+        entry_point_dict = self.distribution.get_entry_map().get('reahl.translations')
         translations_package_name = entry_point_dict[self.name].module_name
-        translations_file_path = translations_package_name.replace(u'.', u'/')
+        translations_file_path = translations_package_name.replace('.', '/')
         return self.distribution.get_resource_filename(self.distribution, '%s/%s' % (translations_file_path, self.name))
 
     @property
@@ -114,32 +115,32 @@ class ReahlEgg(object):
 
     @property
     def locale_dirname(self):
-        return self.distribution.get_resource_filename(working_set, u'i18n')
+        return self.distribution.get_resource_filename(working_set, 'i18n')
 
     @classmethod
     def get_egg_internal_path_for(cls, translations_entry_point):
         module = translations_entry_point.load()
         dir_or_egg_name = translations_entry_point.dist.location.split(os.sep)[-1]
-        paths = [p for p in module.__path__ if p.find(u'%s%s' % (dir_or_egg_name, os.path.sep)) > 0]
-        unique_paths = {p.split(u'%s/' % dir_or_egg_name)[-1] for p in paths}
+        paths = [p for p in module.__path__ if p.find('%s%s' % (dir_or_egg_name, os.path.sep)) > 0]
+        unique_paths = {p.split('%s/' % dir_or_egg_name)[-1] for p in paths}
         assert len(unique_paths) <=1, \
-            u'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
+            'Only one translations package per component is allowed, found %s for %s' % (paths, translations_entry_point.dist)
         assert len(unique_paths) >0, \
-            u'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
+            'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
         return unique_paths.pop()
 
     @classmethod
     @memoized
     def get_languages_supported_by_all(cls, root_egg):
         egg_interfaces = cls.get_all_relevant_interfaces(root_egg)
-        default_languages = [u'en_gb']
+        default_languages = ['en_gb']
         if not egg_interfaces:
             return default_languages
 
         domains_in_use = [e.name for e in egg_interfaces]
 
         languages_for_eggs = {}
-        for translation_entry_point in iter_entry_points(u'reahl.translations'):
+        for translation_entry_point in iter_entry_points('reahl.translations'):
             requirement = translation_entry_point.dist.as_requirement()
             egg_internal_path = cls.get_egg_internal_path_for(translation_entry_point)
 
@@ -152,7 +153,7 @@ class ReahlEgg(object):
 
             for language in languages:
                 language_path = '%s/%s/LC_MESSAGES' % (egg_internal_path, language)
-                domains = [d[:-3] for d in resource_listdir(requirement, language_path) if d.endswith(u'.mo')]
+                domains = [d[:-3] for d in resource_listdir(requirement, language_path) if d.endswith('.mo')]
                 for domain in domains:
                     if domain in domains_in_use:
                         languages = languages_for_eggs.setdefault(domain, set())
@@ -239,10 +240,10 @@ class ReahlEgg(object):
         interfaces = []
 
         for i in cls.compute_ordered_dependent_distributions(main_egg):
-            entry_map = i.get_entry_map(u'reahl.eggs')
+            entry_map = i.get_entry_map('reahl.eggs')
             if entry_map:
                 classes = entry_map.values()
-                assert len(classes) == 1, u'Only one eggdeb class per egg allowed'
+                assert len(classes) == 1, 'Only one eggdeb class per egg allowed'
                 interfaces.append(classes[0].load()(i))
 
 

@@ -16,6 +16,7 @@
 
 """A basic framework for writing commandline utilities."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import sys
@@ -34,7 +35,7 @@ class ExecutableNotInstalledException(Exception):
     def __init__(self, executable_name):
         self.executable_name = executable_name
     def __str__(self):
-        return u'Executable not found: %s' % self.executable_name
+        return 'Executable not found: %s' % self.executable_name
 
 
 class Executable(object):
@@ -88,12 +89,12 @@ class Command(object):
 
     options = []
     keyword = 'not implemented'
-    usage_args = u''
+    usage_args = ''
 
     def __init__(self, commandline):
         self.commandline = commandline
         self.parser = OptionParser()
-        self.parser.set_usage(u'%s %s' % (os.path.basename(sys.argv[0]), u'%s [options] %s' % (self.keyword, self.usage_args)))
+        self.parser.set_usage('%s %s' % (os.path.basename(sys.argv[0]), '%s [options] %s' % (self.keyword, self.usage_args)))
         for (short_version, long_version, kwargs) in self.options:
             self.parser.add_option(short_version, long_version, **kwargs)
 
@@ -143,7 +144,7 @@ class ReahlCommandline(object):
 
     def print_usage(self, parser):
         print(parser.format_help(), file=sys.stderr)
-        print(u'\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(sys.argv[0]), file=sys.stderr)
+        print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(sys.argv[0]), file=sys.stderr)
         max_len = max([len(command.keyword) for command in self.commands])
         format_template = '{0: <%s}\t{1}' % max_len
         for command in self.commands:
@@ -168,7 +169,7 @@ class ReahlCommandline(object):
 
     def set_log_level(self, log_level):
         loglevel = getattr(logging, log_level)
-        logging.getLogger(u'').setLevel(log_level)
+        logging.getLogger('').setLevel(log_level)
         
     def execute_command(self, command, line, options, parser):
         self.set_log_level(options.loglevel)

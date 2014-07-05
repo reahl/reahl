@@ -16,6 +16,7 @@
 
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -61,7 +62,7 @@ class MailerStub(object):
 class BasicModelZooMixin(SqlAlchemyTestMixin):
     def new_accounts(self):
         accounts = SystemAccountConfig()
-        accounts.admin_email = u'pietiskoning@home.org'
+        accounts.admin_email = 'pietiskoning@home.org'
         accounts.mailer_class = MailerStub
         return accounts
     
@@ -75,8 +76,8 @@ class BasicModelZooMixin(SqlAlchemyTestMixin):
 
     
 class PartyModelZooMixin(BasicModelZooMixin):
-    def new_system_account(self, party=None, email=u'johndoe@home.org', activated=True):
-        password = u'bobbejaan'
+    def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
+        password = 'bobbejaan'
         system_account = EmailAndPasswordSystemAccount(party=party, email=email)
         system_account.set_new_password(email, password)
         system_account.password = password # The unencrypted version for use in tests

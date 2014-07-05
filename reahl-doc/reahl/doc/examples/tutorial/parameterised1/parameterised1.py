@@ -1,5 +1,6 @@
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import elixir
@@ -14,7 +15,7 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, In
 
 class AddressBookPage(TwoColumnPage):
     def __init__(self, view, main_bookmarks):
-        super(AddressBookPage, self).__init__(view, style=u'basic')
+        super(AddressBookPage, self).__init__(view, style='basic')
         self.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
 
 
@@ -25,20 +26,20 @@ class EditView(UrlBoundView):
         except NoResultFound:
             raise CannotCreate()
 
-        self.title = u'Edit %s' % address.name
-        self.set_slot(u'main', EditAddressForm.factory(address))
+        self.title = 'Edit %s' % address.name
+        self.set_slot('main', EditAddressForm.factory(address))
 
 
 class AddressBookUI(UserInterface):
     def assemble(self):
 
-        add = self.define_view(u'/add', title=u'Add an address')
-        add.set_slot(u'main', AddAddressForm.factory())
+        add = self.define_view('/add', title='Add an address')
+        add.set_slot('main', AddAddressForm.factory())
 
-        edit = self.define_view(u'/edit', view_class=EditView, address_id=IntegerField())
+        edit = self.define_view('/edit', view_class=EditView, address_id=IntegerField())
 
-        addresses = self.define_view(u'/', title=u'Addresses')
-        addresses.set_slot(u'main', AddressBookPanel.factory(self))
+        addresses = self.define_view('/', title='Addresses')
+        addresses.set_slot('main', AddressBookPanel.factory(self))
 
         bookmarks = [f.as_bookmark(self) for f in [addresses, add]]
         self.define_page(AddressBookPage, bookmarks)
@@ -57,7 +58,7 @@ class AddressBookPanel(Panel):
     def __init__(self, view, address_book_ui):
         super(AddressBookPanel, self).__init__(view)
 
-        self.add_child(H(view, 1, text=u'Addresses'))
+        self.add_child(H(view, 1, text='Addresses'))
         
         for address in Address.query.all():
             self.add_child(AddressBox(view, address, address_book_ui))
@@ -65,9 +66,9 @@ class AddressBookPanel(Panel):
 
 class EditAddressForm(Form):
     def __init__(self, view, address):
-        super(EditAddressForm, self).__init__(view, u'edit_form')
+        super(EditAddressForm, self).__init__(view, 'edit_form')
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text=u'Edit address'))
+        grouped_inputs = self.add_child(InputGroup(view, label_text='Edit address'))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.name)))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.email_address)))
 
@@ -76,10 +77,10 @@ class EditAddressForm(Form):
 
 class AddAddressForm(Form):
     def __init__(self, view):
-        super(AddAddressForm, self).__init__(view, u'add_form')
+        super(AddAddressForm, self).__init__(view, 'add_form')
 
         new_address = Address()
-        grouped_inputs = self.add_child(InputGroup(view, label_text=u'Add an address'))
+        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.name)))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.email_address)))
 
@@ -90,13 +91,13 @@ class AddressBox(Widget):
     def __init__(self, view, address, address_book_ui):
         super(AddressBox, self).__init__(view)
 
-        bookmark = address_book_ui.get_edit_bookmark(address=address, description=u'edit')
-        par = self.add_child(P(view, text=u'%s: %s ' % (address.name, address.email_address)))
+        bookmark = address_book_ui.get_edit_bookmark(address=address, description='edit')
+        par = self.add_child(P(view, text='%s: %s ' % (address.name, address.email_address)))
         par.add_child(A.from_bookmark(view, bookmark))
 
 
 class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata, tablename=u'tutorial_parameterised1_address')
+    elixir.using_options(session=Session, metadata=metadata, tablename='tutorial_parameterised1_address')
     elixir.using_mapper_options(save_on_init=False)
     
     email_address = elixir.Field(elixir.UnicodeText)
@@ -104,13 +105,13 @@ class Address(elixir.Entity):
 
     @exposed
     def fields(self, fields):
-        fields.name = Field(label=u'Name', required=True)
-        fields.email_address = EmailField(label=u'Email', required=True)
+        fields.name = Field(label='Name', required=True)
+        fields.email_address = EmailField(label='Email', required=True)
 
     @exposed('save', 'update')
     def events(self, events):
-        events.save = Event(label=u'Save', action=Action(self.save))
-        events.update = Event(label=u'Update')
+        events.save = Event(label='Save', action=Action(self.save))
+        events.update = Event(label='Update')
 
     def save(self):
         Session.add(self)

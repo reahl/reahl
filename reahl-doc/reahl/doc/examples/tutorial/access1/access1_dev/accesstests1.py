@@ -3,6 +3,7 @@
 # nosetests -F reahl.webdev.fixtures:BrowserSetup -s --nologcapture reahl/doc_dev/tutorialtests/accesstests1.py
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from reahl.tofu import test
@@ -13,9 +14,9 @@ from reahl.doc.examples.tutorial.access1.access1 import AddressBook, Address
 
 
 class AccessFixture(WebFixture):
-    password = u'bobbejaan'
+    password = 'bobbejaan'
 
-    def new_account(self, email=u'johndoe@some.org'):
+    def new_account(self, email='johndoe@some.org'):
         account = EmailAndPasswordSystemAccount(email=email)
         account.set_new_password(account.email, self.password)
         account.activate()
@@ -26,7 +27,7 @@ class AccessFixture(WebFixture):
         return AddressBook(owner=owner)
 
     def new_other_account(self):
-        return self.new_account(email=u'other@some.org')
+        return self.new_account(email='other@some.org')
         
     def new_other_address_book(self):
         return self.new_address_book(owner=self.other_account)
@@ -49,10 +50,10 @@ def separate_address_books(fixture):
     assert address_book.addresses == []
     assert other_address_book.addresses == []
 
-    address1 = Address(address_book=address_book, email_address=u'friend1@some.org', name=u'Friend1')
-    address2 = Address(address_book=address_book, email_address=u'friend2@some.org', name=u'Friend2')
+    address1 = Address(address_book=address_book, email_address='friend1@some.org', name='Friend1')
+    address2 = Address(address_book=address_book, email_address='friend2@some.org', name='Friend2')
 
-    address3 = Address(address_book=other_address_book, email_address=u'friend3@some.org', name=u'Friend3')
+    address3 = Address(address_book=other_address_book, email_address='friend3@some.org', name='Friend3')
 
     for address in [address1, address2, address3]:
         address.save()
@@ -70,7 +71,7 @@ def collaborators(fixture):
     address_book = fixture.address_book
     other_address_book = fixture.other_address_book
 
-    unrelated_account = fixture.new_account(email=u'unrelated@some.org')
+    unrelated_account = fixture.new_account(email='unrelated@some.org')
     unrelated_address_book = fixture.new_address_book(owner=unrelated_account)
     
     other_address_book.allow(account)

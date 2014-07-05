@@ -1,5 +1,6 @@
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from datetime import datetime
@@ -17,16 +18,16 @@ from reahl.component.migration import Migration
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style=u'basic')
-        find = self.define_view(u'/', title=u'Addresses')
-        find.set_slot(u'main', AddressBookPanel.factory())
+        self.define_page(TwoColumnPage, style='basic')
+        find = self.define_view('/', title='Addresses')
+        find.set_slot('main', AddressBookPanel.factory())
 
 
 class AddressBookPanel(Panel):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 
-        self.add_child(H(view, 1, text=u'Addresses'))
+        self.add_child(H(view, 1, text='Addresses'))
         
         for address in Address.query.all():
             self.add_child(AddressBox(view, address))
@@ -36,11 +37,11 @@ class AddressBookPanel(Panel):
 
 class AddAddressForm(Form):
     def __init__(self, view):
-        super(AddAddressForm, self).__init__(view, u'add_form')
+        super(AddAddressForm, self).__init__(view, 'add_form')
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text=u'Add an address'))
+        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.email_address)) )
 
@@ -51,8 +52,8 @@ class AddAddressForm(Form):
 class AddressBox(Widget):
     def __init__(self, view, address):
         super(AddressBox, self).__init__(view)
-        new = u' (new)' if address.added_today else u''
-        self.add_child(P(view, text=u'%s: %s%s' % (address.name, address.email_address, new)))
+        new = ' (new)' if address.added_today else ''
+        self.add_child(P(view, text='%s: %s%s' % (address.name, address.email_address, new)))
 
 
 class Address(elixir.Entity):
@@ -70,12 +71,12 @@ class Address(elixir.Entity):
 
     @exposed
     def fields(self, fields):
-        fields.name = Field(label=u'Name', required=True)
-        fields.email_address = EmailField(label=u'Email', required=True)
+        fields.name = Field(label='Name', required=True)
+        fields.email_address = EmailField(label='Email', required=True)
 
     @exposed
     def events(self, events):
-        events.save = Event(label=u'Save', action=Action(self.save))
+        events.save = Event(label='Save', action=Action(self.save))
 
     def save(self):
         Session.add(self)

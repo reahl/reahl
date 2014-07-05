@@ -15,21 +15,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """A heading for this module
-from __future__ import print_function
-import six
 =========================
 
 Copyright (C) 2008 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 """
+from __future__ import unicode_literals
+from __future__ import print_function
 
 from reahl.component.config import Configuration, EntryPointClassList
 
 
 class DomainUiConfig(Configuration):
-    filename = u'domainui.config.py'
-    config_key = u'workflowui'
-    task_widgets = EntryPointClassList(u'reahl.workflowui.task_widgets', description=u'All available Widgets for displaying workflow tasks')
+    filename = 'domainui.config.py'
+    config_key = 'workflowui'
+    task_widgets = EntryPointClassList('reahl.workflowui.task_widgets', description='All available Widgets for displaying workflow tasks')
 
 
 

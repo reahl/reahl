@@ -16,6 +16,7 @@
 
 """A generic factory that can construct Python classes from XML.
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 This package provides infrastructure that will read an XML file with
@@ -102,7 +103,7 @@ from reahl.component.config import Configuration, EntryPointClassList
 
 
 class XMLReaderConfig(Configuration):
-    xmlclasses = EntryPointClassList(u'reahl.dev.xmlclasses', description=u'All classes that can be read by the xmlreader')
+    xmlclasses = EntryPointClassList('reahl.dev.xmlclasses', description='All classes that can be read by the xmlreader')
 
 #--------------------------------------------------[ XMLReaderException ]
 class XMLReaderException(Exception):

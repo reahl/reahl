@@ -1,4 +1,5 @@
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import elixir
@@ -12,7 +13,7 @@ class Address(elixir.Entity):
     elixir.using_options(session=Session, metadata=metadata)
     elixir.using_mapper_options(save_on_init=False)
     
-    address_book  = elixir.ManyToOne(u'reahl.doc.examples.tutorial.access1.access1.AddressBook')
+    address_book  = elixir.ManyToOne('reahl.doc.examples.tutorial.access1.access1.AddressBook')
     email_address = elixir.Field(elixir.UnicodeText)
     name          = elixir.Field(elixir.UnicodeText)
 
@@ -43,7 +44,7 @@ class AddressBook(elixir.Entity):
     def addresses(self):
         return Address.query.filter_by(address_book=self).all()
 
-    collaborators = elixir.OneToMany(u'reahl.doc.examples.tutorial.access1.access1.Collaborator', lazy=u'dynamic')
+    collaborators = elixir.OneToMany('reahl.doc.examples.tutorial.access1.access1.Collaborator', lazy='dynamic')
 
     def allow(self, account, can_add_addresses=False, can_edit_addresses=False):
         Collaborator.query.filter_by(address_book=self, account=account).delete()

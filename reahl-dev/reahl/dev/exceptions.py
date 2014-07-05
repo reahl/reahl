@@ -16,6 +16,7 @@
 
 """Exceptions used by modules in this package."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import inspect
@@ -32,23 +33,23 @@ class StatusException(Exception):
 class NoException(StatusException):
     legend = '+'
     def __str__(self):
-        return u'New release uploaded - needs to be marked as released'
+        return 'New release uploaded - needs to be marked as released'
 
     
 class NotBuiltException(StatusException):
-    legend = u'B'
+    legend = 'B'
     def __str__(self):
-        return u'Project not built'
+        return 'Project not built'
 
 
 class NotBuiltAfterLastCommitException(StatusException):
-    legend = u'b'
+    legend = 'b'
     def __str__(self):
-        return u'Project build is older than the last commit'
+        return 'Project build is older than the last commit'
 
 
 class NotUploadedException(StatusException):
-    legend = u'U'
+    legend = 'U'
     def __str__(self):
         project_name = 'Project'
         if self.args:
@@ -57,69 +58,69 @@ class NotUploadedException(StatusException):
 
 
 class NotVersionedException(StatusException):
-    legend = u'.'
+    legend = '.'
     def __str__(self):
-        return u'Not versioned'
+        return 'Not versioned'
 
 
 class NotCheckedInException(StatusException):
-    legend = u'C'
+    legend = 'C'
     def __str__(self):
-        return u'Not checked in %s' % (self.args or '')
+        return 'Not checked in %s' % (self.args or '')
 
 
 class MetaInformationNotAvailableException(StatusException):
-    legend = u'M'
+    legend = 'M'
     def __str__(self):
-        return u'Cannot find project meta information'
+        return 'Cannot find project meta information'
 
 
 class MetaInformationNotReadableException(StatusException):
-    legend = u'm'
+    legend = 'm'
     def __str__(self):
-        return u'Cannot reliably read project meta information - perhaps a malformed file?'
+        return 'Cannot reliably read project meta information - perhaps a malformed file?'
 
 
 class UnchangedException(StatusException):
-    legend = u'='
+    legend = '='
     def __str__(self):
-        return u'Unchanged since last release'
+        return 'Unchanged since last release'
 
 
 class NeedsNewVersionException(StatusException):
-    legend = u'V'
+    legend = 'V'
     def __str__(self):
-        return u'Needs a new version'
+        return 'Needs a new version'
 
     
 class AlreadyMarkedAsReleasedException(Exception):
     def __str__(self):
-        return u'Already marked as released'
+        return 'Already marked as released'
 
 
 class AlreadyUploadedException(Exception):
     def __str__(self):
-        return u'Already uploaded'
+        return 'Already uploaded'
 
 
 class AlreadyDebianisedException(Exception):
     def __str__(self):
-        return u'Already debianised'
+        return 'Already debianised'
         
 
 class NotAValidProjectException(Exception):
     def __str__(self):
-        return u'Not a valid project'
+        return 'Not a valid project'
 
 
 class InvalidProjectFileException(Exception):
     def __str__(self):
-        return u'Invalid project file'
+        return 'Invalid project file'
 
 
 class NoSuchProjectException(Exception):
     def __str__(self):
-        return u'There is no such project (%s) in the workspace' % self.args[0]
+        return 'There is no such project (%s) in the workspace' % self.args[0]
 
 
     

@@ -16,6 +16,7 @@
 
 """Tests for the devdomain module."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import os
@@ -430,37 +431,37 @@ class ProjectReadingTests(object):
                 return Version('3.1.2a1-ubuntu1')
             @property
             def project_name(self):
-                return u'test-proj'
+                return 'test-proj'
             
         project.metadata = MetadataStub()
-        vassert( six.text_type(project.version_for_setup()) == u'3.1.2a1' )
+        vassert( six.text_type(project.version_for_setup()) == '3.1.2a1' )
         vassert( project.project_name == 'test-proj' )
 
         vassert( project.packages_for_setup() == ['this','this.pack1'] )
-        vassert( project.py_modules_for_setup() == [u'setup'] )
+        vassert( project.py_modules_for_setup() == ['setup'] )
         vassert( project.include_package_data == True )
         vassert( project.namespace_packages_for_setup() == ['this'] )
 
-        expected_value = [u'reahl-xmlreader-run>=1.2,<1.3']
+        expected_value = ['reahl-xmlreader-run>=1.2,<1.3']
         actual = project.run_deps_for_setup()
         vassert( actual ==  expected_value )
 
-        expected_value = [u'reahl-xmlreader-test>=1.2,<1.3']
+        expected_value = ['reahl-xmlreader-test>=1.2,<1.3']
         actual = project.test_deps_for_setup() 
         vassert( actual ==  expected_value )
 
-        expected_value = [u'reahl-xmlreader-build>=1.2,<1.3']
+        expected_value = ['reahl-xmlreader-build>=1.2,<1.3']
         actual = project.build_deps_for_setup() 
         vassert( actual ==  expected_value )
 
         vassert( project.test_suite_for_setup() == 'this.proj_dev' )
 
-        expected_value = {u'console_scripts':   [u'script1 = some script', u'script2 = some other script'],
-                    u'entrypoint name 2': [u'name2 = locator2'],
-                    u'reahl.eggs':        [u'Egg = reahl.component.eggs:ReahlEgg'], 
-                    u'entrypoint name 1': [u'name1 = locator1'],
-                    u'reahl.attachments.js': [u'0:file/one.js = reahl', u'1:file/two.js = reahl'],
-                    u'reahl.attachments.css': [u'0:file/one.css = reahl', u'1:file/two.css = reahl']
+        expected_value = {'console_scripts':   ['script1 = some script', 'script2 = some other script'],
+                    'entrypoint name 2': ['name2 = locator2'],
+                    'reahl.eggs':        ['Egg = reahl.component.eggs:ReahlEgg'], 
+                    'entrypoint name 1': ['name1 = locator1'],
+                    'reahl.attachments.js': ['0:file/one.js = reahl', '1:file/two.js = reahl'],
+                    'reahl.attachments.css': ['0:file/one.css = reahl', '1:file/two.css = reahl']
                     }
 
         vassert( project.entry_points_for_setup() == expected_value )
@@ -598,16 +599,16 @@ class DependencyTests(object):
 
         # Case: for debs
         actual = internal_dep.as_string_for_deb()
-        vassert( actual == u'python-one (>=1.1), python-one (<<1.2)' )
+        vassert( actual == 'python-one (>=1.1), python-one (<<1.2)' )
 
         actual = external_dep.as_string_for_deb()
-        vassert( actual == u'python-one (>=2.1), python-one (<<2.2)' )
+        vassert( actual == 'python-one (>=2.1), python-one (<<2.2)' )
 
         actual = external_dep_in_workspace.as_string_for_deb()
-        vassert( actual == u'python-one (>=2.1), python-one (<<2.2)' )
+        vassert( actual == 'python-one (>=2.1), python-one (<<2.2)' )
 
         actual = thirdparty_dep.as_string_for_deb()
-        vassert( actual == u'' )
+        vassert( actual == '' )
 
     @test(Fixture)
     def types_of_versions(self, fixture):
@@ -630,10 +631,10 @@ class DependencyTests(object):
 
         # Case: for debs
         actual = alpha_dep.as_string_for_deb()
-        vassert( actual == u'python-one (>=1.2), python-one (<<1.3)' )
+        vassert( actual == 'python-one (>=1.2), python-one (<<1.3)' )
 
         actual = normal_dep.as_string_for_deb()
-        vassert( actual == u'python-one (>=1.2), python-one (<<1.3)' )
+        vassert( actual == 'python-one (>=1.2), python-one (<<1.3)' )
 
 
 
@@ -660,12 +661,12 @@ class ChangelogTests(object):
     @test(ChangelogFixture)
     def parsing_name(self, fixture):
         changelog = DebianChangelog(fixture.changelog_file.name)
-        vassert( changelog.package_name == u'python-reahl' )
+        vassert( changelog.package_name == 'python-reahl' )
 
     @test(ChangelogFixture)
     def parsing_version(self, fixture):
         changelog = DebianChangelog(fixture.changelog_file.name)
-        vassert( changelog.version == u'2.0.0a1' )
+        vassert( changelog.version == '2.0.0a1' )
 
 
 class DebianControlFixture(Fixture):
@@ -703,17 +704,17 @@ class DebianControlTests(object):
     def descriptions(self, fixture):
         control = DebianControl(fixture.control_file.name)
 
-        vassert( control.get_short_description_for('python-reahl-stubble') == u'Stub tools for use in unit testing' )
-        expected_long = u'one line of description another line of description '
+        vassert( control.get_short_description_for('python-reahl-stubble') == 'Stub tools for use in unit testing' )
+        expected_long = 'one line of description another line of description '
         vassert( control.get_long_description_for('python-reahl-stubble') == expected_long )
 
-        vassert( control.get_short_description_for('python-reahl-component') == u'Reahl-component.' )
+        vassert( control.get_short_description_for('python-reahl-component') == 'Reahl-component.' )
 
     @test(DebianControlFixture)
     def maintainer_info(self, fixture):
         control = DebianControl(fixture.control_file.name)
 
-        vassert( control.maintainer_name == u'Reahl Software Services' )
-        vassert( control.maintainer_email == u'info@reahl.org' )
+        vassert( control.maintainer_name == 'Reahl Software Services' )
+        vassert( control.maintainer_email == 'info@reahl.org' )
 
 

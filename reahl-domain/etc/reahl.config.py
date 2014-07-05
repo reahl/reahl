@@ -15,8 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """A heading for this module
-from __future__ import print_function
-import six
 =========================
 
 Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
@@ -26,6 +24,8 @@ If this file is the __init__.py of some package, it should be a
 description of the package.
 
 """ 
+from __future__ import unicode_literals
+from __future__ import print_function
 
 from reahl.sqlalchemysupport import SqlAlchemyControl
 

@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """The module contains code to implement commands that can be issued from a commandline to manipulate Reahl projects."""
+from __future__ import unicode_literals
 from __future__ import with_statement
 
 from __future__ import print_function
@@ -48,7 +49,7 @@ from functools import reduce
 
 
 class DevShellConfig(Configuration):
-    commands = EntryPointClassList(u'reahl.dev.commands', description=u'All commands (classes) that can be handled by the development shell')
+    commands = EntryPointClassList('reahl.dev.commands', description='All commands (classes) that can be handled by the development shell')
 
     
 class WorkspaceCommand(Command):
@@ -210,10 +211,10 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             try:
                 retcode = self.function(project, options, args)
             except SystemExit as ex:
-                print(u'Script exited: %s' % ex, file=sys.stderr)
+                print('Script exited: %s' % ex, file=sys.stderr)
                 retcode = ex.code
             except OSError as ex:
-                print(u'Execution failed: %s' % ex, file=sys.stderr)
+                print('Execution failed: %s' % ex, file=sys.stderr)
                 retcode = ex.errno
             except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
                     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
@@ -227,10 +228,12 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
                 retcode = ex.returncode
           
         if retcode != None:
-            if retcode < 0:
-                print(u'Child was terminated by signal %s' % -retcode, file=sys.stderr)
+            if isinstance(retcode, six.string_types):
+                print('Child was terminated with error message: %s' % retcode, file=sys.stderr)
+            elif retcode < 0:
+                print('Child was terminated by signal %s' % -retcode, file=sys.stderr)
             elif retcode > 0:
-                print(u'Child returned %s' % -retcode, file=sys.stderr)
+                print('Child returned %s' % -retcode, file=sys.stderr)
 
         return retcode
 
@@ -425,7 +428,7 @@ class ListMissingDependencies(ForAllWorkspaceCommand):
         try:
             dependencies = project.list_missing_dependencies(for_development=options.for_development)
             if dependencies:
-                print(u' '.join(dependencies))
+                print(' '.join(dependencies))
         except:
             traceback.print_exc()
             return_code = -1

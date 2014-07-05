@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from reahl.web.fw import UserInterface
@@ -28,10 +29,10 @@ from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceF
 
 class BasicHTMLInputsUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style='basic')  
 
-        home = self.define_view(u'/', title=u'Basic HTML Inputs demo')
-        home.set_slot(u'main', ExampleForm.factory(u'myform'))
+        home = self.define_view('/', title='Basic HTML Inputs demo')
+        home.set_slot('main', ExampleForm.factory('myform'))
 
 
 class ModelObject(object):
@@ -39,33 +40,33 @@ class ModelObject(object):
     choice_field = 2
     @exposed
     def fields(self, fields):
-        fields.text_input_field = Field(label=u'A TextInput')
-        fields.password_field = Field(label=u'A PasswordInput')
-        fields.text_area_field = Field(label=u'A TextArea')
-        fields.label_over_field = Field(label=u'A TextInput in a LabelOverInput')
-        fields.labelled_inline_field = Field(label=u'A TextInput in a LabelledInlineInput')
-        fields.cue_field = Field(label=u'A TextInput in a CueInput')
-        fields.choice_field = ChoiceField([Choice(False, BooleanField(label=u'None selected')),
-                                           ChoiceGroup(u'Numbers', [Choice(1, IntegerField(label=u'One')), 
-                                                                    Choice(2, IntegerField(label=u'Two')), 
-                                                                    Choice(3, IntegerField(label=u'Three'))]),
-                                           ChoiceGroup(u'Colours', [Choice(u'r', Field(label=u'Red')),
-                                                                    Choice(u'g', Field(label=u'Green'))])
-                                          ], label=u'A SelectInput')
-        fields.multi_choice_field = MultiChoiceField([Choice(1, IntegerField(label=u'One')), 
-                                                      Choice(2, IntegerField(label=u'Two')), 
-                                                      Choice(3, IntegerField(label=u'Three'))], 
-                                                      label=u'A SelectInput allowing multiple choices')
-        fields.boolean_field = BooleanField(label=u'A CheckboxInput')
-        fields.radio_choice_field = ChoiceField([Choice(1, IntegerField(label=u'One')), 
-                                                 Choice(2, IntegerField(label=u'Two')), 
-                                                 Choice(3, IntegerField(label=u'Three'))],
-                                                label=u'A RadioButtonInput')
-        fields.fuzzy_date_field = DateField(label=u'A fuzzy TextInput for a Date')
+        fields.text_input_field = Field(label='A TextInput')
+        fields.password_field = Field(label='A PasswordInput')
+        fields.text_area_field = Field(label='A TextArea')
+        fields.label_over_field = Field(label='A TextInput in a LabelOverInput')
+        fields.labelled_inline_field = Field(label='A TextInput in a LabelledInlineInput')
+        fields.cue_field = Field(label='A TextInput in a CueInput')
+        fields.choice_field = ChoiceField([Choice(False, BooleanField(label='None selected')),
+                                           ChoiceGroup('Numbers', [Choice(1, IntegerField(label='One')), 
+                                                                    Choice(2, IntegerField(label='Two')), 
+                                                                    Choice(3, IntegerField(label='Three'))]),
+                                           ChoiceGroup('Colours', [Choice('r', Field(label='Red')),
+                                                                    Choice('g', Field(label='Green'))])
+                                          ], label='A SelectInput')
+        fields.multi_choice_field = MultiChoiceField([Choice(1, IntegerField(label='One')), 
+                                                      Choice(2, IntegerField(label='Two')), 
+                                                      Choice(3, IntegerField(label='Three'))], 
+                                                      label='A SelectInput allowing multiple choices')
+        fields.boolean_field = BooleanField(label='A CheckboxInput')
+        fields.radio_choice_field = ChoiceField([Choice(1, IntegerField(label='One')), 
+                                                 Choice(2, IntegerField(label='Two')), 
+                                                 Choice(3, IntegerField(label='Three'))],
+                                                label='A RadioButtonInput')
+        fields.fuzzy_date_field = DateField(label='A fuzzy TextInput for a Date')
         
     @exposed
     def events(self, events):
-        events.do_something = Event(label=u'A Button')
+        events.do_something = Event(label='A Button')
     
 
 class ExampleForm(Form):
@@ -84,7 +85,7 @@ class ExampleForm(Form):
 
         self.add_child(LabelOverInput(TextInput(self, model_object.fields.label_over_field)))
         self.add_child(LabelledInlineInput(TextInput(self, model_object.fields.labelled_inline_field)))
-        self.add_child(CueInput(TextInput(self, model_object.fields.cue_field), P(view, text=u'This is a cue')))
+        self.add_child(CueInput(TextInput(self, model_object.fields.cue_field), P(view, text='This is a cue')))
 
 
         self.define_event_handler(model_object.events.do_something)

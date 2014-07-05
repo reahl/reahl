@@ -16,6 +16,7 @@
 
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
@@ -37,15 +38,15 @@ class QueryStringFixture(Fixture, WebBasicsMixin):
         return self.driver_browser.execute_script('return (window.jQuery("p").html() == "My state is now %s")' % state)
 
     def change_fragment(self, fragment):
-        self.driver_browser.execute_script(u'return (window.location.hash="%s")' % fragment)
+        self.driver_browser.execute_script('return (window.location.hash="%s")' % fragment)
 
     def new_FancyWidget(self):
         fixture = self
         class MyFancyWidget(Panel):
             def __init__(self, view):
-                super(MyFancyWidget, self).__init__(view, css_id=u'sedrick')
+                super(MyFancyWidget, self).__init__(view, css_id='sedrick')
                 self.enable_refresh()
-                self.add_child(P(self.view, text=u'My state is now %s' % self.fancy_state))
+                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
                 fixture.widget = self
 
             @exposed
@@ -80,8 +81,8 @@ class WidgetQueryArgTests(object):
         wsgi_app = fixture.new_wsgi_app(widget_factory=WidgetWithQueryArguments.factory())
         browser = Browser(wsgi_app)
 
-        browser.open(u'/?arg_directly_on_widget=supercalafragalisticxpelidocious')
-        vassert( browser.lxml_html.xpath(u'//p')[0].text == u'supercalafragalisticxpelidocious' )
+        browser.open('/?arg_directly_on_widget=supercalafragalisticxpelidocious')
+        vassert( browser.lxml_html.xpath('//p')[0].text == 'supercalafragalisticxpelidocious' )
 
 
     @test(QueryStringFixture)
@@ -96,7 +97,7 @@ class WidgetQueryArgTests(object):
         class FormWithQueryArguments(Form):
             def __init__(self, view):
                 self.model_object = ModelObject()
-                super(FormWithQueryArguments, self).__init__(view, u'name')
+                super(FormWithQueryArguments, self).__init__(view, 'name')
                 self.add_child(TextInput(self, self.model_object.fields.arg_on_other_object))
 
             @exposed
@@ -107,8 +108,8 @@ class WidgetQueryArgTests(object):
         wsgi_app = fixture.new_wsgi_app(widget_factory=FormWithQueryArguments.factory())
         browser = Browser(wsgi_app)
 
-        browser.open(u'/?arg_on_other_object=metoo')
-        vassert( browser.lxml_html.xpath(u'//input')[0].value == u'metoo' )
+        browser.open('/?arg_on_other_object=metoo')
+        vassert( browser.lxml_html.xpath('//input')[0].value == 'metoo' )
 
 
     @test(QueryStringFixture)
@@ -126,13 +127,13 @@ class WidgetQueryArgTests(object):
         vassert( fixture.widget.fancy_state == 1 )
 
         # Case: change without page load
-        fixture.change_fragment(u'#fancy_state=2')
+        fixture.change_fragment('#fancy_state=2')
         vassert( fixture.driver_browser.wait_for(fixture.is_state_now, 2) )
         vassert( fixture.widget.fancy_state == 2 )
 
         # Case: unrelated fragment changes do not trigger a reload of the widget
         previous_widget = fixture.widget
-        fixture.change_fragment(u'#fancy_state=2&other_var=other_value')
+        fixture.change_fragment('#fancy_state=2&other_var=other_value')
         vassert( fixture.driver_browser.wait_for(fixture.is_state_now, 2) )
         vassert( fixture.widget is previous_widget )
 
@@ -159,9 +160,9 @@ class WidgetQueryArgTests(object):
            url on which the argument has been removed from the querystring and changed on the hash.
         """
 
-        internal_bookmark = Bookmark(u'', u'', u'an ajax bookmark', query_arguments={u'fancy_state':2}, ajax=True)
+        internal_bookmark = Bookmark('', '', 'an ajax bookmark', query_arguments={'fancy_state':2}, ajax=True)
 #        internal_bookmark = fixture.MyFancyWidget.get_bookmark(fancy_state=2)
-        normal_bookmark = Bookmark(u'/', u'', u'a normal bookmark')
+        normal_bookmark = Bookmark('/', '', 'a normal bookmark')
 
         # You can query whether a bookmark is page_internal or not
         vassert( internal_bookmark.is_page_internal )
@@ -174,20 +175,20 @@ class WidgetQueryArgTests(object):
 
         # Case: when rendered without javascript
         browser = Browser(wsgi_app)
-        browser.open(u'/')
+        browser.open('/')
 
-        a = browser.lxml_html.xpath(u'//a')[0]
-        vassert( a.attrib[u'href'] == u'/?fancy_state=2' )
-        vassert( a.text == u'an ajax bookmark' )
+        a = browser.lxml_html.xpath('//a')[0]
+        vassert( a.attrib['href'] == '/?fancy_state=2' )
+        vassert( a.text == 'an ajax bookmark' )
 
         # Case: when rendered in a browser with javascript support
         fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
-        vassert(     fixture.driver_browser.is_element_present(u"//a[@href='/#fancy_state=2']") )
-        vassert( not fixture.driver_browser.is_element_present(u"//a[@href='/?fancy_state=2']") )
+        vassert(     fixture.driver_browser.is_element_present("//a[@href='/#fancy_state=2']") )
+        vassert( not fixture.driver_browser.is_element_present("//a[@href='/?fancy_state=2']") )
 
         # Case: when the argument was given on the query string of the current page
         fixture.driver_browser.open('/?fancy_state=4')
-        vassert(     fixture.driver_browser.is_element_present(u"//a[@href='/#fancy_state=2']") )
+        vassert(     fixture.driver_browser.is_element_present("//a[@href='/#fancy_state=2']") )
 
 

@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import trace
@@ -60,7 +61,7 @@ class BasicStubRequirementsTests(object):
         #normal case
         with assert_raises(AssertionError) as context:
             declare_class()
-        assert_equals( six.text_type(context.exception), u'''attribute mismatch: <class 'reahl.stubble_dev.BasicStubRequirementsTests.Stub'>.<unbound method Stub.attr> is not compatible with the original type <type 'int'> on <class 'reahl.stubble_dev.BasicStubRequirementsTests.Stubbed'>''' )
+        assert_equals( six.text_type(context.exception), '''attribute mismatch: <class 'reahl.stubble_dev.BasicStubRequirementsTests.Stub'>.<unbound method Stub.attr> is not compatible with the original type <type 'int'> on <class 'reahl.stubble_dev.BasicStubRequirementsTests.Stubbed'>''' )
 
     @istest
     def test_method_signature_mismatch(self):
@@ -74,7 +75,7 @@ class BasicStubRequirementsTests(object):
         with assert_raises(AssertionError) as context:
             declare_class()
         
-        assert_equals( six.text_type(context.exception), u'''signature mismatch: <unbound method Stub.method>(self, b, akwarg=None, *args, **kwargs) does not match <unbound method Stubbed.method>(self, a, b, akwarg=None, *args, **kwargs)''' )
+        assert_equals( six.text_type(context.exception), '''signature mismatch: <unbound method Stub.method>(self, b, akwarg=None, *args, **kwargs) does not match <unbound method Stubbed.method>(self, a, b, akwarg=None, *args, **kwargs)''' )
 
     @istest
     def test_property_method_missing_on_orig(self):

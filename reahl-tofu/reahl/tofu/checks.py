@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import sys
@@ -30,7 +31,7 @@ class NoExceptionRaised(Exception):
     def __init__(self, expected):
         self.expected = expected
     def __str__(self):
-        return u'%s was expected' % self.expected
+        return '%s was expected' % self.expected
 
 class NoException(Exception):
     """A special exception class used with :func:`expected` to indicate that no exception is

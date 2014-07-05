@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import pkg_resources
@@ -34,12 +35,12 @@ class ComponentTests(object):
         """A Reahl application consists of a root egg and all its egg dependencies - with all such components
            often regarded in flattened order of dependence."""
         easter_egg.clear()
-        easter_egg.add_dependency(u'reahl-component')
+        easter_egg.add_dependency('reahl-component')
         
         # All eggs for a root egg can be found in dependency order
         components_in_order = ReahlEgg.compute_ordered_dependent_distributions(easter_egg.as_requirement_string())
         component_names_in_order = [i.project_name for i in components_in_order]
-        vassert( component_names_in_order == [easter_egg.project_name, u'reahl-component', u'decorator', u'python-dateutil', u'Babel', u'six'] )
+        vassert( component_names_in_order == [easter_egg.project_name, 'reahl-component', 'decorator', 'python-dateutil', 'Babel', 'six'] )
 
     @test(Fixture)
     def interface_with_meta_info(self, fixture):
@@ -47,11 +48,11 @@ class ComponentTests(object):
            Such interfaces with extra information are also often used from a flattened list in dependency order."""
         
         easter_egg.clear()
-        easter_egg.add_dependency(u'reahl-component')
+        easter_egg.add_dependency('reahl-component')
         
         # The interface for a component is published via the reahl.eggs entry point
         line = 'Egg = reahl.component.eggs:ReahlEgg'
-        easter_egg.add_entry_point_from_line(u'reahl.eggs', line)
+        easter_egg.add_entry_point_from_line('reahl.eggs', line)
         
         # Interfaces can be queried in dependency order too
         interfaces_in_order = ReahlEgg.compute_all_relevant_interfaces(easter_egg.as_requirement_string())

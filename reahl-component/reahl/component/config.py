@@ -16,6 +16,7 @@
 
 """The Reahl configuration utilities."""
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import sys
@@ -47,7 +48,7 @@ class ConfigSetting(object):
        :param automatic: Set this to True for a ConfigSetting which is meant to be used for dependency injection.
     """
     _name = None
-    def __init__(self, default=ExplicitSettingRequired, description=u'No description supplied', dangerous=False, automatic=False):
+    def __init__(self, default=ExplicitSettingRequired, description='No description supplied', dangerous=False, automatic=False):
         self.description = description
         self.default = default
         self.dangerous = dangerous
@@ -60,7 +61,7 @@ class ConfigSetting(object):
     def is_localised(self, obj):
         name = self.name(type(obj))
         for key in dir(obj):
-            if key.startswith(u'%s_' % name):
+            if key.startswith('%s_' % name):
                 return True
         return False
         
@@ -68,9 +69,9 @@ class ConfigSetting(object):
         setting_name = self.name(type(obj))
         if self.is_localised(obj):
             context = ExecutionContext.get_context()
-            locale = context.interface_locale if context else u''
+            locale = context.interface_locale if context else ''
             try:
-                return obj.__dict__[u'%s_%s' % (setting_name, locale)]
+                return obj.__dict__['%s_%s' % (setting_name, locale)]
             except KeyError:
                 pass
 
@@ -113,7 +114,7 @@ class EntryPointClassList(ConfigSetting):
        :param name: The name of the entry point to read.
        :param description: (See :class:`ConfigSetting`)
     """
-    def __init__(self, name, description=u'Description not supplied'):
+    def __init__(self, name, description='Description not supplied'):
         super(EntryPointClassList, self).__init__(default=[], description=description)
         self.name = name
         
@@ -133,7 +134,7 @@ class EntryPointClassList(ConfigSetting):
 
 class MissingValue(object):
     def __repr__(self):
-        return _(u'MISSING!!')
+        return _('MISSING!!')
 
     
 class Configuration(object):
@@ -218,15 +219,15 @@ class NullORMControl(object):
 
 
 class ReahlSystemConfig(Configuration):
-    filename = u'reahl.config.py'
-    config_key = u'reahlsystem'
-    root_egg = ConfigSetting(description=u'The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
-    connection_uri = ConfigSetting(description=u'The database connection URI', default=u'sqlite:///%s' % os.path.join(tempfile.gettempdir(), u'reahl.db'), dangerous=True)
-    orm_control = ConfigSetting(default=NullORMControl(), description=u'The ORM control object to be used', automatic=True)
-    debug = ConfigSetting(default=False, description=u'Enables more verbose logging')
-    databasecontrols = EntryPointClassList(u'reahl.component.databasecontrols', description=u'All available DatabaseControl classes')
-    translation_packages = EntryPointClassList(u'reahl.translations', description=u'All available packages containing translation messages')
-    serialise_parallel_requests = ConfigSetting(default=False, description=u'Whether concurrent requests to the web application should be forcibly serialised')
+    filename = 'reahl.config.py'
+    config_key = 'reahlsystem'
+    root_egg = ConfigSetting(description='The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
+    connection_uri = ConfigSetting(description='The database connection URI', default='sqlite:///%s' % os.path.join(tempfile.gettempdir(), 'reahl.db'), dangerous=True)
+    orm_control = ConfigSetting(default=NullORMControl(), description='The ORM control object to be used', automatic=True)
+    debug = ConfigSetting(default=False, description='Enables more verbose logging')
+    databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
+    translation_packages = EntryPointClassList('reahl.translations', description='All available packages containing translation messages')
+    serialise_parallel_requests = ConfigSetting(default=False, description='Whether concurrent requests to the web application should be forcibly serialised')
 
 
 class ConfigAsDict(dict):
@@ -273,7 +274,7 @@ class StoredConfiguration(Configuration):
             require(self.reahlsystem.root_egg)
         except DistributionNotFound as ex:
             requirement = ex.args[0]
-            if (requirement.project_name == self.reahlsystem.root_egg.replace(u'_',u'-')) and not self.in_production:
+            if (requirement.project_name == self.reahlsystem.root_egg.replace('_','-')) and not self.in_production:
                 ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.message,)
             raise
 

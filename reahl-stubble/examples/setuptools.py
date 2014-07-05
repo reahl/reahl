@@ -19,6 +19,7 @@
 # Please see the README file for more info.
 #
 
+from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import pkg_resources
