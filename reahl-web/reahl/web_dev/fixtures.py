@@ -53,7 +53,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         self.session.set_session_key(response)
-        cookies = http_cookies.BaseCookie(six.binary_type(', '.join(response.headers.getall('set-cookie'))))
+        cookies = http_cookies.BaseCookie((', '.join(response.headers.getall('set-cookie'))).encode('utf-8'))
         for name, morsel in cookies.items():
             cookie = {'name':name, 'value':morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))

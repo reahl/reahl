@@ -59,10 +59,10 @@ class WrappedApp(object):
         try:
             to_return = b''
             for i in app(environ, start_response):
-                to_return += six.binary_type(i)
+                to_return += i.encode('utf-8')
         except socket.error:
             to_return = b''
-            for i in HTTPInternalServerError()(environ, start_response):
+            for i in HTTPInternalServerError(charset='utf-8')(environ, start_response):
                 to_return += i
         except:
             to_return = b''

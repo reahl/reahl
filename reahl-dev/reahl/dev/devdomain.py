@@ -861,11 +861,11 @@ class CommandAlias(object):
     
     @property
     def arg_list(self):
-        return shlex.split(self.full_command.encode())[1:]
+        return shlex.split(self.full_command)[1:]
 
     @property
     def command(self):
-        return shlex.split(self.full_command.encode())[0]
+        return shlex.split(self.full_command)[0]
 
 
 class ExtraPath(object):
@@ -1288,7 +1288,7 @@ class Project(object):
         project_filename = os.path.join(directory, '.reahlproject')
         if not os.path.isfile(project_filename):
             raise NotAValidProjectException(project_filename)
-        input_file = file(project_filename, 'r')
+        input_file = open(project_filename, 'r')
         try:
             reader = XMLReader()
             project = reader.read_file(input_file, (workspace, directory))

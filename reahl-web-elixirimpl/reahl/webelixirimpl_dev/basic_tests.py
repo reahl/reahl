@@ -128,7 +128,7 @@ class BasicTests(object):
         # Case: session cookie set in Request
         fixture.context.set_session(None)
         web_session = WebUserSession()
-        fixture.request.headers['Cookie'] = six.binary_type('reahl=%s' % web_session.as_key())
+        fixture.request.headers['Cookie'] = ('reahl=%s' % web_session.as_key()).encode('utf-8')
 
         fixture.context.initialise_web_session()
         
@@ -142,8 +142,8 @@ class BasicTests(object):
         web_session = WebUserSession()
         web_session.set_as_logged_in(account, False)
 
-        fixture.request.headers['Cookie'] = six.binary_type(b'reahl=%s , reahl_secure=%s' % \
-                                            (web_session.as_key(), web_session.secure_salt))
+        fixture.request.headers['Cookie'] = ('reahl=%s , reahl_secure=%s' % \
+                                            (web_session.as_key(), web_session.secure_salt)).encode('utf-8')
         fixture.context.initialise_web_session()
 
         vassert( fixture.context.session is web_session )
@@ -156,8 +156,8 @@ class BasicTests(object):
         fixture.context.set_session(None)
         web_session = WebUserSession()
         web_session.set_as_logged_in(account, False)
-        fixture.request.headers['Cookie'] = six.binary_type('reahl=%s , reahl_secure=%s' % \
-                                            (web_session.as_key(), web_session.secure_salt))
+        fixture.request.headers['Cookie'] = ('reahl=%s , reahl_secure=%s' % \
+                                            (web_session.as_key(), web_session.secure_salt)).encode('utf-8')
          
         fixture.context.initialise_web_session()
 

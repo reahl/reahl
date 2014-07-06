@@ -254,7 +254,7 @@ class WebExecutionContext(ExecutionContext):
                     response = HTTPInternalServerError(unicode_body=six.text_type(e))
                 self.session.set_session_key(response)
                 for chunk in response(environ, start_response):
-                    yield six.binary_type(chunk)
+                    yield chunk
                 self.session.set_last_activity_time()
                 self.system_control.finalise_session()
 
@@ -845,7 +845,7 @@ class Bookmark(object):
 class RedirectToScheme(HTTPSeeOther):
     def __init__(self, scheme):
         self.scheme = scheme
-        super(RedirectToScheme, self).__init__(location=six.binary_type(self.compute_target_url()))
+        super(RedirectToScheme, self).__init__(location=six.text_type(self.compute_target_url()).encode('utf-8'))
 
     def compute_target_url(self):
         context = WebExecutionContext.get_context()
@@ -860,7 +860,7 @@ class Redirect(HTTPSeeOther):
     """
     def __init__(self, target):
         self.target = target
-        super(Redirect, self).__init__(location=six.binary_type(self.compute_target_url()))
+        super(Redirect, self).__init__(location=six.text_type(self.compute_target_url()).encode('utf-8'))
      
     def compute_target_url(self):
         return self.target.href.as_network_absolute()
@@ -1239,7 +1239,7 @@ class RegexPath(object):
             return {}
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
-        raw_input_values = dict([(six.binary_type(key), urllib_parse.unquote(value or ''))
+        raw_input_values = dict([(key.encode('utf-8'), urllib_parse.unquote(value or ''))
                                      for key, value in matched_arguments.items()])
         fields.accept_input(raw_input_values)
         return fields.as_kwargs()
@@ -1703,7 +1703,7 @@ class RedirectView(UrlBoundView):
         self.to_bookmark = to_bookmark
 
     def as_resource(self, page):
-        raise HTTPSeeOther(location=six.binary_type(self.to_bookmark.href.as_network_absolute()))
+        raise HTTPSeeOther(location=six.text_type(self.to_bookmark.href.as_network_absolute()).encode('utf-8'))
 
 
 class PseudoView(View):
@@ -1716,7 +1716,7 @@ class NoView(PseudoView):
 
 class UserInterfaceRootRedirectView(PseudoView):
     def as_resource(self, page):
-        raise HTTPSeeOther(location=six.binary_type(self.user_interface.get_absolute_url_for('/').as_network_absolute()))
+        raise HTTPSeeOther(location=six.text_type(self.user_interface.get_absolute_url_for('/').as_network_absolute()).encode('utf-8'))
     
 
 
@@ -1920,14 +1920,14 @@ class MethodResult(object):
 
     def get_response(self, return_value):
         response = self.create_response(return_value)
-        response.content_type = six.binary_type(self.content_type)
-        response.charset = six.binary_type(self.charset)
+        response.content_type = self.content_type.encode('utf-8')
+        response.charset = self.charset.encode('utf-8')
         return response
 
     def get_exception_response(self, exception):
         response = self.create_exception_response(exception)
-        response.content_type = six.binary_type(self.content_type)
-        response.charset = six.binary_type(self.charset)
+        response.content_type = self.content_type.encode('utf-8')
+        response.charset = self.charset.encode('utf-8')
         return response
 
     
@@ -1944,11 +1944,11 @@ class RedirectAfterPost(MethodResult):
 
     def create_response(self, return_value):
         next_url = return_value
-        return HTTPSeeOther(location=six.binary_type(next_url))
+        return HTTPSeeOther(location=six.text_type(next_url).encode('utf-8'))
     
     def create_exception_response(self, exception):
         next_url = SubResource.get_parent_url()
-        return HTTPSeeOther(location=six.binary_type(next_url))
+        return HTTPSeeOther(location=six.text_type(next_url).encode('utf-8'))
 
 
 class JsonResult(MethodResult):
@@ -2155,13 +2155,13 @@ class ComposedPage(Resource):
         
     def render(self):
         response = Response(body=self.page.render())
-        response.content_type=six.binary_type(self.page.content_type)
-        response.charset=six.binary_type(self.page.charset)
+        response.content_type=self.page.content_type.encode('utf-8')
+        response.charset=self.page.charset.encode('utf-8')
         if self.view.cacheable:
             config = ExecutionContext.get_context().config
-            response.cache_control=six.binary_type('max-age=%s' % config.web.cache_max_age)
+            response.cache_control=('max-age=%s' % config.web.cache_max_age).encode('utf-8')
         else:
-            response.cache_control=six.binary_type('no-cache')
+            response.cache_control='no-cache'.encode('utf-8')
         return response
 
 
@@ -2328,13 +2328,13 @@ class FileDownload(Response):
     def __init__(self, a_file):
         self.file = a_file
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
-        self.content_type = (six.binary_type(self.file.content_type) if self.file.content_type else None)
-        self.content_encoding = (six.binary_type(self.file.encoding) if self.file.encoding else None)
-        self.content_length = (six.binary_type(self.file.size) if (self.file.size is not None) else None)
+        self.content_type = ((self.file.content_type.encode('utf-8')) if self.file.content_type else None)
+        self.content_encoding = ((self.file.encoding.encode('utf-8')) if self.file.encoding else None)
+        self.content_length = (six.text_type(self.file.size).encode('utf-8') if (self.file.size is not None) else None)
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
-        self.etag = '%s-%s-%s' % (self.file.mtime,
+        self.etag = ('%s-%s-%s' % (self.file.mtime,
                                   self.file.size, 
-                                  abs(hash(self.file.name)))
+                                  abs(hash(self.file.name)))).encode('utf-8')
 
     def __iter__(self):
         return self.app_iter_range(start=0)

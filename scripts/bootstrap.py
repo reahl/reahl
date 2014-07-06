@@ -16,7 +16,10 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-from six.moves import input
+try:
+    from six.moves import input
+except:
+    input = raw_input
 import sys
 import pkg_resources
 import os
