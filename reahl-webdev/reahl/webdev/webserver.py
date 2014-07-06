@@ -149,9 +149,9 @@ class ReahlWSGIServer(simple_server.WSGIServer):
         simple_server.WSGIServer.__init__(self, server_address, RequestHandlerClass)
         self.allow_reuse_address = True
         
-    def serve_async(self, threaded=False):
+    def serve_async(self, threaded=False, context=None):
         if self.requests_waiting(0.01):
-            context = ExecutionContext.get_context()
+            context = context or ExecutionContext.get_context()
             if threaded:
                 thread = Thread(target=functools.partial(self.handle_waiting_request, context))
                 thread.daemon = True
@@ -277,6 +277,7 @@ class ReahlWebServer(object):
         self.in_seperate_thread = None
         self.running = False
         self.handlers = {}
+        self.httpd_thread = None
         certfile = pkg_resources.resource_filename(__name__, u'reahl_development_cert.pem')
         self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config))
         try:
@@ -289,21 +290,23 @@ class ReahlWebServer(object):
                       
             raise AssertionError(message)
 
-    def main_loop(self):
+    def main_loop(self, context=None):
         while self.running:
-            self.httpd.serve_async(threaded=True)
-            self.httpsd.serve_async(threaded=True)
+            self.httpd.serve_async(threaded=True, context=context)
+            self.httpsd.serve_async(threaded=True, context=context)
 
     def start_thread(self):
         assert not self.running
         self.running = True
-        self.httpd_thread = Thread(target=self.main_loop)
+        self.httpd_thread = Thread(target=functools.partial(self.main_loop, ExecutionContext.get_context()))
         self.httpd_thread.daemon = True
         self.httpd_thread.start()
 
     def stop_thread(self):
         self.running = False
-        self.httpd_thread.join()
+        if self.httpd_thread:
+            self.httpd_thread.join()
+        self.httpd_thread = None
 
     def start(self, in_seperate_thread=True, connect=False):
         """Starts the webserver and web application.
@@ -341,7 +344,6 @@ class ReahlWebServer(object):
         return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
 
     def serve_until(self, done):
-        count = 0
         while not (done() or self.reahl_wsgi_app.has_uncaught_exception()):
             self.httpd.serve_async()
             self.httpsd.serve_async()

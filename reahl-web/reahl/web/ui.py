@@ -223,6 +223,9 @@ class HTMLElement(Widget):
             raise ProgrammerError(u'%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
         self.add_hash_change_handler()
         
+    def is_refresh_enabled(self):
+        return len(self.ajax_handlers) > 0
+
     def add_child(self, child):
         assert self.children_allowed, u'You cannot add children to a %s' % type(self)
         return super(HTMLElement, self).add_child(child)
@@ -972,6 +975,12 @@ class Form(HTMLElement):
     def get_forms(self):
         return [self]
 
+    def get_refreshable_forms(self, parent_refreshes):#xxx
+        if self.is_refresh_enabled() or parent_refreshes:
+            return [self]
+        else:
+            return []
+
     def validate_single_input(self, **input_values):
         try:
             name = input_values.keys()[0]
@@ -1174,6 +1183,12 @@ class Input(Widget):
 
     def set_wrapped_widget(self, wrapped_widget):
         self.wrapped_widget = wrapped_widget
+
+    def get_refreshable_inputs(self, parent_refreshes):#xxx
+        if self.is_refresh_enabled() or parent_refreshes:
+            return [self]
+        else:
+            return []
         
     def append_class(self, css_class):
         """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Input in HTML to the user."""
