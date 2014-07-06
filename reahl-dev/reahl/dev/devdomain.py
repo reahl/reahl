@@ -43,6 +43,7 @@ from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
+from reahl.component.py3compat import old_str
 
 from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotBuiltException, NotAValidProjectException, \
     InvalidProjectFileException, NotUploadedException, NotVersionedException, NotCheckedInException, \
@@ -1697,13 +1698,13 @@ class EggProject(Project):
         return find_packages(where=self.directory, exclude=exclusions)
 
     def namespace_packages_for_setup(self):
-        return [six.binary_type(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!
+        return [old_str(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!
 
     def py_modules_for_setup(self):
         return list(set(['setup']+[i[1] for i in pkgutil.iter_modules('.') if not i[2]]))
 
     def package_data_for_setup(self):
-        return {b'': [b'*/LC_MESSAGES/*.mo']}
+        return {old_str(''): [old_str('*/LC_MESSAGES/*.mo')]}
 
     @property
     def test_suite(self):
