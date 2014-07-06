@@ -18,17 +18,18 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from nose.tools import istest
 from reahl.tofu import Fixture, test, vassert, expected
 from reahl.component.exceptions import ProgrammerError
 
-from reahl.webdev.tools import WidgetTester, Browser
-from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin, ReahlWSGIApplicationStub
+from reahl.webdev.tools import Browser
+from reahl.web_dev.fixtures import WebBasicsMixin
+from reahl.web_dev.fixtures import WebFixture
 
 
 from reahl.component.modelinterface import Field, exposed, IntegerField
-from reahl.web.fw import Widget, Bookmark, ReahlWSGIApplication
+from reahl.web.fw import Bookmark
+from reahl.web.fw import Widget
 from reahl.web.ui import A, P, Form, TextInput, Panel
 
 

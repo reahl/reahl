@@ -25,9 +25,13 @@ import logging
 from pkg_resources import DistributionNotFound
 from nose.tools import istest
 
-from reahl.tofu import Fixture,  test, scenario, set_up, tear_down
+from reahl.tofu import test
+from reahl.tofu import Fixture
+from reahl.tofu import set_up
 from reahl.tofu import vassert, temp_dir, expected
-from reahl.stubble import easter_egg, CallMonitor, EasterEgg, replaced
+from reahl.stubble import CallMonitor
+from reahl.stubble import EasterEgg
+from reahl.stubble import easter_egg
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration, StoredConfiguration, ConfigSetting, \

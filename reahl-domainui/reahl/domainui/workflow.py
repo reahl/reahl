@@ -19,7 +19,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.component.decorators import deprecated

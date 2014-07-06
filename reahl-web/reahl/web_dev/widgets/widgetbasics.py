@@ -19,24 +19,23 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import six
-import os
 import re
-import contextlib
 import pkg_resources
 
-from webob import Request, Response
 
 from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub, stubclass
 
-from reahl.component.config import Configuration, ReahlSystemConfig
 from reahl.component.exceptions import IncorrectArgumentError, IsInstance
-from reahl.web.egg import WebConfig, ReahlEgg
-from reahl.webelixirimpl import WebUserSession, PersistedException, UserInput
-from reahl.web.fw import UrlBoundView, UserInterface, WebExecutionContext, Widget
-from reahl.web.ui import TwoColumnPage, P, Div, Slot
+from reahl.component.eggs import ReahlEgg
+from reahl.web.fw import UrlBoundView
+from reahl.web.fw import UserInterface
+from reahl.web.fw import Widget
+from reahl.web.ui import Div
+from reahl.web.ui import P
+from reahl.web.ui import Slot
 from reahl.webdev.tools import WidgetTester, Browser
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
@@ -279,7 +278,6 @@ class WidgetBasics(object):
             minified = re.sub(' ', '', minified)
             return minified
 
-        import reahl.web
         reahl_egg = ReahlEgg(pkg_resources.require('reahl-web')[0])
         attachments = reahl_egg.find_attachments(fixture.attachment_label)
 

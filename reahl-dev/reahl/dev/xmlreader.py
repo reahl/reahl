@@ -108,19 +108,16 @@ class XMLReaderConfig(Configuration):
 #--------------------------------------------------[ XMLReaderException ]
 class XMLReaderException(Exception):
     """All exceptions of this module are derived from this one."""
-    pass
 
 
 #--------------------------------------------------[ DoubleRegistrationException ]
 class DoubleRegistrationException(XMLReaderException):
     """Raised when an attempt is made to register the same tag more than once."""
-    pass
 
 
 #--------------------------------------------------[ TagNotRegisteredException ]
 class TagNotRegisteredException(XMLReaderException):
     """Raised when a tag was encountered during XML parsing for which no class is registered."""
-    pass
 
 
 #--------------------------------------------------[ TagTypeTuple ]

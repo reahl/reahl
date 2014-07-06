@@ -21,7 +21,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import pkg_resources
 
 from reahl.stubble import EasterEgg

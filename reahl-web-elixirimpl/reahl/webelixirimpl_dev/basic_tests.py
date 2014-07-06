@@ -21,20 +21,16 @@ import six
 from six.moves import http_cookies
 from six.moves.urllib import parse as urllib_parse
 
-from webob import Request, Response
+from webob import Response
 from elixir import using_options
 
 from nose.tools import istest
 from reahl.tofu import test
 from reahl.tofu import vassert
-from reahl.stubble import stubclass, CallMonitor
-from reahl.component.py3compat import old_str
+from reahl.stubble import stubclass
 
 from reahl.sqlalchemysupport import metadata, Session
-from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext
-from reahl.web.interfaces import WebUserSessionProtocol
-from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
-from reahl.webdev.tools import Browser
+from reahl.web_dev.fixtures import WebFixture
 
 from reahl.webelixirimpl import WebUserSession
 

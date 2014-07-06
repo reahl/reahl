@@ -17,22 +17,18 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
-from webob.exc import HTTPNotFound
-from webob import Request
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test
-from reahl.tofu import vassert, expected, NoException
-from reahl.stubble import EmptyStub
+from reahl.tofu import test
+from reahl.tofu import expected
+from reahl.tofu import vassert
 
-from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
+from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.ui import Form, TwoColumnPage, Button, A
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView
-from reahl.component.context import ExecutionContext
 
 
 class FormWithButton(Form):

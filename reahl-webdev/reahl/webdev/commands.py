@@ -16,9 +16,7 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from six.moves import input
-import os.path
 
 from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand

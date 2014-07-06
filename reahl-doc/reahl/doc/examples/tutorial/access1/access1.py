@@ -1,9 +1,7 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import elixir
-from sqlalchemy.orm.exc import NoResultFound
 
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount

@@ -16,7 +16,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.web.fw import UserInterface
 
 web.site_root = UserInterface

@@ -19,12 +19,10 @@ from __future__ import print_function
 import six
 import contextlib
 from six.moves.urllib import parse as urllib_parse
-import string
 import logging
 
-from webob import Request
 from webtest import TestApp
-from lxml import html, etree
+from lxml import html
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -33,7 +31,6 @@ from reahl.web.fw import Url
 
 
 # See: https://bitbucket.org/ianb/webtest/issue/45/html5-form-associated-inputs-break-webtest
-import webtest.app 
 from webtest.app import Field, Form
 def patch(cls):
     if hasattr(cls, '__orig__init__'):

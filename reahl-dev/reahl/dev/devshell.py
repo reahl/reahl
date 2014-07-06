@@ -25,15 +25,10 @@ import os
 import os.path
 import subprocess
 from subprocess import CalledProcessError
-import re
 import traceback
-import datetime
-import logging
-from optparse import OptionParser
 
 
 import shlex
-from optparse import Values
 
 from reahl.component.shelltools import Command, ReahlCommandline, Executable
 from reahl.component.config import EntryPointClassList, Configuration

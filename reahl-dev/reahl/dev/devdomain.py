@@ -29,9 +29,7 @@ import subprocess
 import shlex
 import logging
 import email.utils
-import time
 from contextlib import contextmanager
-from tempfile import TemporaryFile, NamedTemporaryFile
 import datetime
 import pkgutil
 

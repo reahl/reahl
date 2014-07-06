@@ -17,9 +17,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import six
-import trace
-import sys
-import re
 
 from nose.tools import istest, assert_raises, assert_true, assert_equals
 

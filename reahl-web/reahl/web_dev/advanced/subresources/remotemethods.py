@@ -17,16 +17,21 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import re
 
-from reahl.stubble import stubclass, exempt
+from reahl.stubble import stubclass
 from nose.tools import istest
-from reahl.tofu import test, Fixture, scenario
+from reahl.tofu import scenario
+from reahl.tofu import test
 from reahl.tofu import vassert, expected
 
 from reahl.webdev.tools import Browser
-from reahl.web.fw import UserInterface, Widget, RemoteMethod, MethodResult, CheckedRemoteMethod, JsonResult, WidgetResult
+from reahl.web.fw import CheckedRemoteMethod
+from reahl.web.fw import JsonResult
+from reahl.web.fw import MethodResult
+from reahl.web.fw import RemoteMethod
+from reahl.web.fw import Widget
+from reahl.web.fw import WidgetResult
 from reahl.component.modelinterface import Field, IntegerField
 from reahl.web_dev.fixtures import  WebFixture
 

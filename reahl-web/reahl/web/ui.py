@@ -25,11 +25,12 @@ import six
 from string import Template
 import re
 import cgi
-import itertools
 
 from babel import Locale, UnknownLocaleError
 from reahl.component.eggs import ReahlEgg
-from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, arg_checks, IsInstance
+from reahl.component.exceptions import IsInstance
+from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, Url, Bookmark, WidgetList
@@ -848,7 +849,6 @@ class Panel(Div):
        
           Renders as an HTML <div> element.
     """
-    pass
 
 
 class YuiDoc(Div):
@@ -1153,7 +1153,6 @@ class InputGroup(FieldSet):
        :param label_text: If given, the FieldSet will have a label containing this text.
        :param css_id: (See :class:`HTMLElement`)
     """
-    pass
 
 
 

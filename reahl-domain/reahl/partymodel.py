@@ -23,8 +23,6 @@ Copyright (C) 2009 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from sqlalchemy.exc import InvalidRequestError
-import elixir
 from elixir import using_options, Entity, ManyToOne
 
 from reahl.sqlalchemysupport import metadata, Session

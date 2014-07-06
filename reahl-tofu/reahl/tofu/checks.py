@@ -16,7 +16,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import sys
 import inspect
 import token
@@ -48,7 +47,6 @@ class NoException(Exception):
               raise AssertionError()
               #.....
     """
-    pass
 
 @contextlib.contextmanager
 def expected(exception, test=None):

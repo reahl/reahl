@@ -22,7 +22,6 @@ Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 """
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 
 import asyncore
 import logging

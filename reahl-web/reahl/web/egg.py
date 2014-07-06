@@ -22,7 +22,6 @@ from __future__ import print_function
 
 import os
 
-from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration, ConfigSetting
 
 class WebConfig(Configuration):

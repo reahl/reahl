@@ -1,12 +1,9 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import elixir
-from sqlalchemy.orm.exc import NoResultFound
 
 from reahl.sqlalchemysupport import Session, metadata
-from reahl.elixirsupport import session_scoped
 
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\

@@ -17,25 +17,21 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import six
-from threading import Thread, Event, Timer
-import threading
+from threading import Event
+from threading import Thread
 import select
 from wsgiref import simple_server
 import sys
 import traceback
 import socket
 import ssl
-import tempfile
-import os.path 
 from contextlib import contextmanager
-import mimetypes
-from datetime import datetime
 import logging
 import functools
 import pkg_resources
 
-from webob import Request, Response
-from webob.exc import HTTPNotFound, HTTPInternalServerError
+from webob import Request
+from webob.exc import HTTPInternalServerError
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext

@@ -18,18 +18,15 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
-from webob import Request
 from nose.tools import istest
-from reahl.tofu import Fixture, scenario, test
+from reahl.tofu import scenario
+from reahl.tofu import test
 from reahl.tofu import vassert, expected
-from reahl.stubble import stubclass, EmptyStub
 
 from reahl.web.ui import *
-from reahl.component.modelinterface import Field, BooleanField
+from reahl.component.modelinterface import BooleanField
 from reahl.web.fw import Bookmark, Url
 from reahl.webdev.tools import WidgetTester, XPath, Browser
-from reahl.web_dev.widgets.widgetbasics import WidgetFixture
 from reahl.web_dev.fixtures import WebFixture
 
 _ = Translator('reahl-web')

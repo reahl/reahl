@@ -18,7 +18,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from pkg_resources import parse_version
 
 from reahl.component.exceptions import ProgrammerError
@@ -52,12 +51,10 @@ class Migration(object):
            method will be called for each of the applicable Migrations listed for all components, in reverse order of 
            dependency of components (less dependent components first).
         """
-        pass
     def upgrade_cleanup(self):
         """Override this method in a subclass in order to supply custom logic that needs to run after the `.upgrade` method
            has been run for all Migrations of all components in an application. This
            method will be called for each of the applicable Migrations listed for all components, in normal order of 
            dependency of components (most dependent components first).
         """
-        pass
 

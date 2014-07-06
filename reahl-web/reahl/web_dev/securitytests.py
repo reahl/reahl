@@ -17,17 +17,22 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
-from webob.exc import HTTPForbidden
 from nose.tools import istest
-from reahl.tofu import test, Fixture, scenario, expected, vassert
-from reahl.stubble import stubclass, EmptyStub
+from reahl.tofu import Fixture
+from reahl.tofu import scenario
+from reahl.tofu import test
+from reahl.tofu import vassert
+from reahl.stubble import EmptyStub
 
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, TextInput, ButtonInput, Button, Panel, P, TwoColumnPage
-from reahl.component.modelinterface import Field, AccessRights, Event, exposed, Allowed, Action
+from reahl.component.modelinterface import Action
+from reahl.component.modelinterface import Allowed
+from reahl.component.modelinterface import Event
+from reahl.component.modelinterface import Field
+from reahl.component.modelinterface import exposed
 
 
     

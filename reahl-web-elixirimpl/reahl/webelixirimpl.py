@@ -24,9 +24,17 @@ from six.moves.urllib import parse as urllib_parse
 
 
 import elixir
-from elixir import EntityMeta, ManyToOne, Entity, using_options, UnicodeText, PickleType, String, LargeBinary, BigInteger
+from elixir import BigInteger
+from elixir import Entity
+from elixir import LargeBinary
+from elixir import ManyToOne
+from elixir import PickleType
+from elixir import String
+from elixir import UnicodeText
+from elixir import using_options
 
-from reahl.sqlalchemysupport import metadata, Session, SqlAlchemyControl
+from reahl.sqlalchemysupport import Session
+from reahl.sqlalchemysupport import metadata
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol

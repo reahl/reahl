@@ -30,7 +30,11 @@ from elixir import *
 
 from reahl.component.i18n import Translator
 from reahl.sqlalchemysupport import metadata, Session, PersistedField
-from reahl.component.modelinterface import exposed, secured, Event, Field, CurrentUser, Action
+from reahl.component.modelinterface import Action
+from reahl.component.modelinterface import CurrentUser
+from reahl.component.modelinterface import Event
+from reahl.component.modelinterface import exposed
+from reahl.component.modelinterface import secured
 from reahl.component.context import ExecutionContext
 
 _ = Translator('reahl-domain')
@@ -83,12 +87,10 @@ class DeferredAction(Entity):
     
     def success_action(self):
         """Override this method to supply the code that needs to execute upon all instances of :class:`Requirement` are fulfilled."""
-        pass
 
     def deadline_action(self):
         """Override this method to supply the code that needs to execute once the DateTime limit has been reached, and 
            not all :class:`Requirement` have been fulfilled"""
-        pass
         
     def requirement_fulfilled(self):
         unfulfilled_requirements = self.requirements.filter_by(fulfilled=False)

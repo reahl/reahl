@@ -1,13 +1,19 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
+from reahl.web.ui import Button
+from reahl.web.ui import Form
+from reahl.web.ui import InputGroup
+from reahl.web.ui import LabelledBlockInput
+from reahl.web.ui import P
+from reahl.web.ui import Panel
+from reahl.web.ui import TextInput
+from reahl.web.ui import TwoColumnPage
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 

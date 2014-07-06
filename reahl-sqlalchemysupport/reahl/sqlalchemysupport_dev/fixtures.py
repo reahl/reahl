@@ -17,12 +17,12 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from contextlib import contextmanager
 
-from reahl.tofu import Fixture, set_up, tear_down
+from reahl.tofu import set_up
+from reahl.tofu import tear_down
 
-from reahl.component.config import Configuration, ReahlSystemConfig
+from reahl.component.config import ReahlSystemConfig
 from reahl.component.context import ExecutionContext
 
 from reahl.sqlalchemysupport import metadata, Session

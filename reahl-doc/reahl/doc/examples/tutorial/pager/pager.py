@@ -3,7 +3,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, P, H, Panel
 from reahl.web.pager import SequentialPageIndex, PageMenu, PagedPanel

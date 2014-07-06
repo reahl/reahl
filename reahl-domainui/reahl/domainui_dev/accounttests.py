@@ -16,16 +16,15 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
-from webob import Request
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
+from reahl.tofu import Fixture
+from reahl.tofu import test
 from reahl.tofu import vassert
-from reahl.stubble import EmptyStub
 
 from reahl.web.ui import TwoColumnPage
-from reahl.web.fw import Url, UserInterface, IdentityDictionary
+from reahl.web.fw import Url
+from reahl.web.fw import UserInterface
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub

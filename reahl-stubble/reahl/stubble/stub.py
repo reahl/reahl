@@ -22,11 +22,7 @@ import os.path
 import pkg_resources
 import inspect
 import new
-import warnings
-import trace
-import pdb
 
-from inspect import ismethod, isdatadescriptor
 import collections
 from functools import reduce
 

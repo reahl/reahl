@@ -17,7 +17,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from webob import Request, Response
 from webob.exc import HTTPNotFound
 

@@ -31,28 +31,23 @@ class UserSessionProtocol(object):
         """Returns a UserSession instance for the current user. If no UserSession is present for the current
            interaction yet this method should create one. If a UserSession does exist for the current interaction,
            this method returns the correct UserSession."""
-        pass
 
     @abstractmethod
     def is_secure(self): 
         """Answers whether the interaction is currently done via a secure channel where applicable."""
-        pass
         
     @abstractmethod
     def is_logged_in(self): 
         """Answers whether the current user has been authenticated."""
-        pass
 
     @abstractmethod
     def set_last_activity_time(self): 
         """Sets a timestamp on the UserSession to indicate when the last activity was detected 
            relating to this interaction. UserSessions typically expore automatically if no activity is
            detected after some time."""
-        pass
 
     @abstractmethod
     def get_interface_locale(self): 
         """Answers a string identifying the currently selected locale."""
-        pass
 
     

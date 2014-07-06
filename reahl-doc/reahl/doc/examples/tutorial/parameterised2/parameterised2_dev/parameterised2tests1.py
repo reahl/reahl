@@ -1,12 +1,11 @@
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.tofu import test
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.parameterised2.parameterised2 import AddressBookUI, Address
+from reahl.doc.examples.tutorial.parameterised2.parameterised2 import AddressBookUI
 
 
 @test(WebFixture)

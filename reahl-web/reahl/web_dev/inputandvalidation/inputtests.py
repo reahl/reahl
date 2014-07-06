@@ -17,31 +17,28 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
-from webob import Request
-from webob.exc import HTTPSeeOther
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
+from reahl.tofu import scenario
+from reahl.tofu import test
 from reahl.tofu import vassert, expected
-from reahl.stubble import stubclass, EmptyStub, exempt
+from reahl.stubble import EmptyStub
 
 from reahl.web.ui import Input, TextInput, Button, Form, ValidationException, \
                           LabelOverInput, CueInput, CheckboxInput, TextInput, InputLabel, ButtonInput,\
                           PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
                           TextArea, SelectInput, RadioButtonInput
 
-from reahl.web.fw import WebExecutionContext
 from reahl.component.modelinterface import Field, EmailField, BooleanField,\
                              RequiredConstraint, MinLengthConstraint, PatternConstraint, RemoteConstraint,\
                              Event, Allowed, exposed, Action, Choice, ChoiceGroup, ChoiceField, IntegerField,\
                              MultiChoiceField, DateField
 from reahl.component.exceptions import IsInstance
 from reahl.web_dev.fixtures import WebFixture
-from reahl.webdev.tools import WidgetTester, Browser, XPath
+from reahl.webdev.tools import WidgetTester
+from reahl.webdev.tools import XPath
 from reahl.component_dev.fieldtests import FieldMixin
 
-from reahl.partymodel import Party
 
 class InputMixin(FieldMixin):
     def new_form(self):

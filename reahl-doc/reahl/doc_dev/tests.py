@@ -17,20 +17,17 @@
     
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import os
 import os.path
-import subprocess
 
-from nose.tools import istest
-from reahl.tofu import test, set_up, tear_down, scenario, Fixture
+from reahl.tofu import Fixture
+from reahl.tofu import scenario
+from reahl.tofu import test
 from reahl.tofu import vassert, expected, temp_file_with
 from reahl.stubble import SystemOutStub
-from reahl.component.config import StoredConfiguration
 from reahl.component.shelltools import Executable
 
 from reahl.web_dev.fixtures import WebBasicsMixin
-from reahl.webdev.fixtures import BrowserSetup
 from reahl.webdev.tools import XPath, Browser
 
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
