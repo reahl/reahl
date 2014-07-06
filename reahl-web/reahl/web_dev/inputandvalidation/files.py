@@ -500,7 +500,7 @@ class FileTests(object):
         vassert( not fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
         vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
 
-        with fixture.reahl_server.in_background():
+        with fixture.reahl_server.in_background(wait_till_done_serving=False):
             browser.type(XPath.input_of_type(u'file'), fixture.file_to_upload1.name) # Upload will block, see fixture
 
         vassert( browser.is_element_present(u'//ul/li/progress') )
@@ -544,8 +544,8 @@ class FileTests(object):
         browser = fixture.driver_browser
         browser.open(u'/')
 
-        with fixture.reahl_server.in_background():
-            browser.type(XPath.input_of_type(u'file'), fixture.file_to_upload1.name)
+        with fixture.reahl_server.in_background(wait_till_done_serving=False):
+            browser.type(XPath.input_of_type(u'file'), fixture.file_to_upload1.name) # Upload will block, see fixture
 
         with browser.no_page_load_expected():
             browser.click( XPath.button_labelled(u'Submit'), wait=False )
@@ -650,7 +650,7 @@ class FileTests(object):
         vassert( not fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
         vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
 
-        with fixture.reahl_server.in_background():
+        with fixture.reahl_server.in_background(wait_till_done_serving=False):
             browser.type(XPath.input_of_type(u'file'), fixture.file_to_upload1.name) # Upload will block, see fixture
             browser.type(XPath.input_of_type(u'file'), fixture.file_to_upload2.name) # Upload will block, see fixture
 
