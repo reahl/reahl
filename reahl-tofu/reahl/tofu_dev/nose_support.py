@@ -17,12 +17,9 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from unittest import TestResult
 
 from nose.tools import istest
-from nose.case import MethodTestCase
-from nose.pyversion import unbound_method
 from nose.loader import TestLoader
 
 from reahl.tofu import test, Fixture, scenario

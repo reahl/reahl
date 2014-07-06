@@ -18,15 +18,7 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
-import os
-import re
-import os.path
-import sys
-from optparse import Values, OptionParser
-import shlex
-from functools import wraps
-import logging
+
 
 from pkg_resources import DistributionNotFound
 
@@ -35,7 +27,7 @@ from reahl.component.shelltools import Command, ReahlCommandline
 from reahl.component.context import ExecutionContext
 from reahl.component.config import EntryPointClassList, Configuration, StoredConfiguration, MissingValue
 from reahl.component.eggs import ReahlEgg
-from reahl.component.decorators import memoized
+
 
 
 

@@ -14,23 +14,28 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import warnings
-import itertools
-import six
-
 from __future__ import unicode_literals
 from __future__ import print_function
+
+import warnings
+import itertools
+
 import six
 from nose.tools import istest
-from reahl.tofu import Fixture, test, vassert, expected, NoException, scenario
+from reahl.tofu import expected
+from reahl.tofu import scenario
+from reahl.tofu import test
+from reahl.tofu import vassert
 from reahl.stubble import EmptyStub
 
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, TwoColumnPage, P
 from reahl.webdev.tools import Browser
-from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
-from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass, IsInstance
+from reahl.web_dev.fixtures import WebFixture
+from reahl.component.exceptions import IncorrectArgumentError
+from reahl.component.exceptions import IsSubclass
+from reahl.component.exceptions import ProgrammerError
 
 @istest
 class AppBasicsTests(object):
@@ -124,7 +129,8 @@ class AppBasicsTests(object):
         vassert( response.charset == 'utf-8' )
 
         # Invalid URLs do not exist
-        browser.open('/nonexistantview/', status=404)
+        with warnings.catch_warnings(record=True):
+            browser.open('/nonexistantview/', status=404)
 
 
 

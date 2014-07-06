@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import hashlib
 
 import elixir
@@ -12,7 +11,11 @@ from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, PasswordField
+from reahl.component.modelinterface import Action
+from reahl.component.modelinterface import EmailField
+from reahl.component.modelinterface import Event
+from reahl.component.modelinterface import PasswordField
+from reahl.component.modelinterface import exposed
 
 
 

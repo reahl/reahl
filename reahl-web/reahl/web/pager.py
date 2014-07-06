@@ -30,7 +30,7 @@ from functools import partial
 from reahl.component.i18n import Translator
 from reahl.component.decorators import memoized
 from reahl.component.modelinterface import IntegerField, exposed
-from reahl.web.fw import WidgetResult, Bookmark
+from reahl.web.fw import Bookmark
 from reahl.web.ui import HMenu, A, Panel
 
 _ = Translator('reahl-web')
@@ -125,12 +125,10 @@ class PageIndex(PageIndexProtocol):
     @abstractmethod
     def get_contents_for_page(self, page_number): 
         """Override this method in subclasses to obtain the correct list of items for the given `page_number`."""
-        pass
 
     @abstractproperty
     def total_number_of_pages(self): 
         """Override this @property in subclasses to state what the total number of pages is."""    
-        pass
     
     def get_description_for_page(self, page_number):
         return six.text_type(page_number)
@@ -285,12 +283,10 @@ class AnnualItemOrganiserProtocol(object):
     @abstractmethod
     def get_years(self): 
         """Returns a list of integers, each representing a year which is applicable to at least one item in a list of items."""
-        pass
 
     @abstractmethod
     def get_items_for_year(self, year): 
         """Returns a list if items to which `year` (an integer) is applicable."""
-        pass
 
 
 class AnnualPageIndex(PageIndex):

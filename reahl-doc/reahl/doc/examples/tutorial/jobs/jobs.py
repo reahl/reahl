@@ -2,8 +2,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
-from datetime import datetime
 
 import elixir
 
@@ -13,7 +11,6 @@ from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
-from reahl.component.migration import Migration
 
 
 class AddressBookUI(UserInterface):

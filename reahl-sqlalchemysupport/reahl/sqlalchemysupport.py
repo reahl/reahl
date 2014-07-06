@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import weakref
-from contextlib import contextmanager, nested, closing
+from contextlib import contextmanager
 import logging
 from collections import Sequence
 

@@ -14,18 +14,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import warnings
-
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import six
+import warnings
+
 from webob import Request
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test
-from reahl.tofu import vassert, expected
-from reahl.stubble import stubclass, EmptyStub
+from reahl.tofu import test
+from reahl.tofu import vassert
+from reahl.stubble import stubclass
 
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
 from reahl.web.fw import Region

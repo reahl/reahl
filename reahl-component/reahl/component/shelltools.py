@@ -18,7 +18,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import sys
 import os.path
 import logging
@@ -172,6 +171,7 @@ class ReahlCommandline(object):
         logging.getLogger('').setLevel(log_level)
         if getattr(logging, log_level, 0) <= logging.WARN:
             warnings.resetwarnings()
+        logging.captureWarnings(True)
         
     def execute_command(self, command, line, options, parser):
         self.set_log_level(options.loglevel)

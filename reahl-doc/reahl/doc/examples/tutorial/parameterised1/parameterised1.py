@@ -2,13 +2,15 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import elixir
 from sqlalchemy.orm.exc import NoResultFound
 
 from reahl.sqlalchemysupport import Session, metadata
 
-from reahl.web.fw import UserInterface, Url, UrlBoundView, CannotCreate, Widget
+from reahl.web.fw import CannotCreate
+from reahl.web.fw import UrlBoundView
+from reahl.web.fw import UserInterface
+from reahl.web.fw import Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, A, InputGroup, HMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
 

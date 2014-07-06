@@ -18,7 +18,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import sys
 import os.path
 import logging
@@ -290,7 +289,7 @@ class StoredConfiguration(Configuration):
             config.fileConfig(logging_config_file)
         else:
             logging.basicConfig()
-            logging.captureWarnings(True)
+        logging.captureWarnings(True)
 
     def configure_components(self):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)

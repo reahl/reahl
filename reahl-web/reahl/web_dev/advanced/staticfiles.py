@@ -25,12 +25,14 @@ import os.path
 import pkg_resources
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
-from reahl.tofu import vassert, expected, temp_dir, temp_file_with
+from reahl.tofu import scenario
+from reahl.tofu import test
+from reahl.tofu import temp_dir
+from reahl.tofu import temp_file_with
+from reahl.tofu import vassert
 from reahl.stubble import easter_egg, stubclass
 
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, UserInterface
-from reahl.web.ui import TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 

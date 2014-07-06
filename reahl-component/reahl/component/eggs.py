@@ -18,14 +18,16 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import os
 import os.path
-from itertools import chain
 import logging
 
-from setuptools import setup
-from pkg_resources import require, working_set, resource_filename, Requirement, Distribution, iter_entry_points, resource_listdir, resource_isdir
+from pkg_resources import Requirement
+from pkg_resources import iter_entry_points
+from pkg_resources import require
+from pkg_resources import resource_isdir
+from pkg_resources import resource_listdir
+from pkg_resources import working_set
 
 from reahl.component.decorators import memoized
 
@@ -206,7 +208,7 @@ class ReahlEgg(object):
         
         count = { }
         for node in graph:
-              count[node] = 0
+            count[node] = 0
         for node in graph:
             for successor in graph[node]:
                 count[successor] += 1

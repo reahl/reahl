@@ -1,9 +1,10 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.web.fw import UserInterface, Url, UserInterface
-from reahl.web.ui import TwoColumnPage, P, Panel, HMenu
+from reahl.web.ui import HMenu
+from reahl.web.ui import P
+from reahl.web.ui import TwoColumnPage
 from reahl.component.i18n import Translator
 
 _ = Translator('reahl-doc')

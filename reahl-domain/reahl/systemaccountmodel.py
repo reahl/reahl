@@ -18,7 +18,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from datetime import datetime, timedelta
 import hashlib
 import re
@@ -41,7 +40,6 @@ from reahl.component.modelinterface import EmailField, PasswordField, BooleanFie
                                    RemoteConstraint, Field, Event, exposed, exposed, Action
 from reahl.component.context import ExecutionContext
 from reahl.workflowmodel import DeferredAction, Requirement
-from reahl.partymodel import Party
 
 _ = Translator('reahl-domain')
                              

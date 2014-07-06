@@ -19,7 +19,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
-from reahl.tofu import  Fixture, test, scenario
+from reahl.tofu import Fixture
+from reahl.tofu import test
 from reahl.tofu import expected, NoException, vassert
 
 from reahl.component.exceptions import IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, checkargs, checkargs_explained, NotYetAvailable

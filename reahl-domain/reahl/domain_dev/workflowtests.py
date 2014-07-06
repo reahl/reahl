@@ -17,11 +17,11 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import datetime
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, set_up
+from reahl.tofu import Fixture
+from reahl.tofu import test
 from reahl.tofu import vassert
 
 import elixir
@@ -29,11 +29,8 @@ from elixir import using_options, Entity, Boolean, UnicodeText
 
 from reahl.dev.tools import EventTester
 from reahl.sqlalchemysupport import metadata, Session
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
 from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.component.eggs import ReahlEgg
-from reahl.systemaccountmodel import UserSession
-from reahl.partymodel import Party
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 
  

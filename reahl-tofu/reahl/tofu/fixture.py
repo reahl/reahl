@@ -19,10 +19,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import sys
-import pdb
-import inspect
 import new
-import functools
 
 #--------------------------------------------------[ MarkingDecorator ]
 class MarkingDecorator(object):
@@ -84,13 +81,11 @@ class DefaultScenario(Scenario):
 #--------------------------------------------------[ SetUp ]
 class SetUp(MarkingDecorator):
     """Methods on a Fixture marked as @set_up are run when the Fixture is set up."""
-    pass
 
 
 #--------------------------------------------------[ TearDown ]
 class TearDown(MarkingDecorator):
     """Methods on a Fixture marked as @tear_down are run when the Fixture is torn down."""
-    pass
 
 
 #--------------------------------------------------[ Fixture ]

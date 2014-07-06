@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from nose.tools import istest
 from reahl.tofu import expected, NoException
 

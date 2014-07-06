@@ -39,7 +39,6 @@ from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, expos
                              AccessRightsConstraint, Choice, ChoiceGroup, ChoiceField, MultiChoiceConstraint, MultiChoiceField,\
                              FileField, SingleFileConstraint, UploadedFile, FileSizeConstraint, \
                              MimeTypeConstraint, MaxFilesConstraint, SmallerThanConstraint, GreaterThanConstraint
-from reahl.component.exceptions import AccessRestricted
 
 class FieldMixin(object):
     def new_model_object(self):

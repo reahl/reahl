@@ -19,9 +19,9 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
+from reahl.tofu import scenario
+from reahl.tofu import test
 from reahl.tofu import vassert
-from reahl.stubble import EmptyStub
 
 from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput

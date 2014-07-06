@@ -18,13 +18,13 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import os
 
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
-from reahl.tofu import Fixture, set_up, tear_down
+from reahl.tofu import set_up
+from reahl.tofu import tear_down
 
 from reahl.dev.fixtures import CleanDatabase
 

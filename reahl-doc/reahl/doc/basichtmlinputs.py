@@ -17,7 +17,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Panel, Form, TextInput, Button, Form, \
                           LabelOverInput, CueInput, CheckboxInput, TextInput, \

@@ -17,14 +17,15 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
-from reahl.tofu import vassert, expected
+from reahl.tofu import scenario
+from reahl.tofu import test
+from reahl.tofu import expected
 
-from reahl.web.fw import ReahlWSGIApplication, UserInterface
-from reahl.web.ui import TwoColumnPage, P, A
-from reahl.webdev.tools import Browser, WidgetTester
+from reahl.web.fw import UserInterface
+from reahl.web.ui import P
+from reahl.web.ui import TwoColumnPage
+from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError
 

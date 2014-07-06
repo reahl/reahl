@@ -20,9 +20,10 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.component.i18n import Translator
-from reahl.web.fw import UserInterface, Widget, WebExecutionContext, Url
+from reahl.web.fw import UserInterface
+from reahl.web.fw import WebExecutionContext
+from reahl.web.fw import Widget
 from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxInput, \
                          TextInput, PasswordInput, H, P, A, Div, CueInput,\
                          CheckCheckboxButton, PopupA, DialogButton, ErrorFeedbackMessage

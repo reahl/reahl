@@ -24,12 +24,15 @@ from webob.exc import HTTPMethodNotAllowed
 
 from reahl.stubble import stubclass, exempt
 from nose.tools import istest
-from reahl.tofu import test, Fixture, scenario
+from reahl.tofu import scenario
+from reahl.tofu import test
 from reahl.tofu import vassert
 
 from reahl.component.modelinterface import Field
 from reahl.webdev.tools import Browser
-from reahl.web.fw import Resource, SubResource, UserInterface, Widget
+from reahl.web.fw import Resource
+from reahl.web.fw import SubResource
+from reahl.web.fw import Widget
 from reahl.web_dev.fixtures import  WebFixture
 
 

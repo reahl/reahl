@@ -2,10 +2,13 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, Button, LabelledBlockInput
-from reahl.component.modelinterface import exposed, EmailField, secured, Event, Action, PasswordField
+from reahl.component.modelinterface import Action
+from reahl.component.modelinterface import EmailField
+from reahl.component.modelinterface import Event
+from reahl.component.modelinterface import exposed
+from reahl.component.modelinterface import secured
 
 
 

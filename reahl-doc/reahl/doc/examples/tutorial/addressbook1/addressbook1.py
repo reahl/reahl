@@ -1,7 +1,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Panel, P, H
 
@@ -36,7 +35,6 @@ class AddressBox(Widget):
 # The model from before:
 import elixir
 from reahl.sqlalchemysupport import Session, metadata
-from reahl.component.modelinterface import Field, Event, EmailField, Action, exposed
 
 class Address(elixir.Entity):
     elixir.using_options(session=Session, metadata=metadata)

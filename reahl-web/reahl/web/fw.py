@@ -21,44 +21,50 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import atexit
-import sys
 import tempfile
 import mimetypes
 import inspect
-from datetime import datetime, timedelta
+from datetime import datetime
 import pkg_resources
 import os
 import os.path
 import re
-import random
-import copy
-import glob
 import json
 import string
 import threading
 from six.moves.urllib import parse as urllib_parse
 import functools
-import itertools
 from six.moves import cStringIO
 import logging
 from contextlib import contextmanager
 from pkg_resources import Requirement
 
 from webob import Request, Response
-from webob.exc import HTTPException, HTTPNotFound, HTTPMethodNotAllowed, HTTPSeeOther, HTTPInternalServerError, HTTPBadRequest, HTTPForbidden
+from webob.exc import HTTPException
+from webob.exc import HTTPForbidden
+from webob.exc import HTTPInternalServerError
+from webob.exc import HTTPMethodNotAllowed
+from webob.exc import HTTPNotFound
+from webob.exc import HTTPSeeOther
 from webob.request import DisconnectionError
 
 import slimit
 import cssmin
 
-from reahl.component.exceptions import DomainException, ProgrammerError, IncorrectArgumentError, checkargs_explained, IsInstance, IsSubclass, arg_checks, NotYetAvailable
+from reahl.component.exceptions import DomainException
+from reahl.component.exceptions import IsInstance
+from reahl.component.exceptions import IsSubclass
+from reahl.component.exceptions import NotYetAvailable
+from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import arg_checks
+from reahl.component.exceptions import checkargs_explained
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
                                              Allowed, exposed, UploadedFile, Event
 from reahl.component.config import StoredConfiguration                                             
-from reahl.component.decorators import memoized, deprecated
+from reahl.component.decorators import deprecated
 from reahl.component.eggs import ReahlEgg
 
 _ = Translator('reahl-web')
@@ -78,7 +84,6 @@ class NoEventHandlerFound(Exception):
 class CannotCreate(NoMatchingFactoryFound):
     """Programmers raise this to indicate that the arguments given via URL to a View
        or UserInterface that is parameterised were invalid."""
-    pass
 
 class Url(object):
     """An Url represents an URL, and is used to modify URLs, or manipulate them in other ways. Construct it
@@ -477,7 +482,6 @@ class UserInterface(object):
            means defining Views or other UserInterfaces inside the UserInterface being assembled. The default
            implementation of `assemble` is empty, so there's no need to call the super implementation
            from an overriding implementation."""
-        pass
 
     def update_relative_path(self):
         current_path = Url.get_current_url().as_locale_relative().path
@@ -952,7 +956,6 @@ class Widget(object):
            
            The `@exposed query_fields` of a Widget is exactly like the `@exposed fields` used for input to a model object.
         """
-        pass
         
     def set_arguments_from_query_string(self):
         request = WebExecutionContext.get_context().request
@@ -1636,7 +1639,6 @@ class UrlBoundView(View):
            turns out not to exist), raise a :class:`CannotCreate` exception to indicate that. Doing that will
            result in the browser receiving an HTTP 404 error.
         """
-        pass
 
     def __str__(self):
         return '<UrlBoundView "%s" on "%s">' % (self.title, self.relative_path)
@@ -2043,12 +2045,10 @@ class RemoteMethod(SubResource):
     def cleanup_after_exception(self, input_values, ex):
         """Override this method in a subclass to trigger custom behaviour after the method
            triggered a :class:`DomainException`."""
-        pass
         
     def cleanup_after_success(self):
         """Override this method in a subclass to trigger custom behaviour after the method
            completed successfully."""
-        pass
 
     def call_with_input(self, input_values):
         return self.callable_object(**self.parse_arguments(input_values))

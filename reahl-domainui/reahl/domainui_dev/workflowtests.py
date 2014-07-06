@@ -16,20 +16,20 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import pkg_resources
 
-from elixir import using_options, Entity, Boolean, UnicodeText
+from elixir import using_options
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, set_up
+from reahl.tofu import Fixture
+from reahl.tofu import test
 from reahl.tofu import vassert
 from reahl.stubble import easter_egg
 
 
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.ui import TwoColumnPage, Panel, P
-from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
+from reahl.workflowmodel import Task
 from reahl.domainui.workflow import InboxUI
 from reahl.web.fw import UserInterface, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin

@@ -53,11 +53,9 @@ class DomainException(Exception):
 
 class AccessRestricted(Exception):
     """Raised to prevent the current user to perform some function which is not allowed."""
-    pass
 
 class ProgrammerError(Exception):
     """Raised to indicate an error in the program."""
-    pass
 
 class IncorrectArgumentError(ProgrammerError):
     """Raised to indicate an attempt to pass an incorrect argument to a Python callable."""

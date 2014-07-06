@@ -14,23 +14,28 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import six
-import warnings
-
-
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
-from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
-from reahl.tofu import vassert, expected
 
-from reahl.component.modelinterface import Field, IntegerField, exposed, Event
-from reahl.web.fw import ReahlWSGIApplication, UserInterface, UrlBoundView, IdentityDictionary, CannotCreate
+import warnings
+
+from nose.tools import istest
+from reahl.tofu import scenario
+from reahl.tofu import test
+from reahl.tofu import vassert
+
+from reahl.component.modelinterface import Field
+from reahl.web.fw import CannotCreate
+from reahl.web.fw import IdentityDictionary
+from reahl.web.fw import UrlBoundView
+from reahl.web.fw import UserInterface
 from reahl.web.fw import Region
-from reahl.web.ui import HTML5Page, TwoColumnPage, P, A, Form, Button
-from reahl.webdev.tools import Browser, WidgetTester, XPath
-from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
+from reahl.web.ui import HTML5Page
+from reahl.web.ui import P
+from reahl.web.ui import TwoColumnPage
+from reahl.webdev.tools import Browser
+from reahl.webdev.tools import XPath
+from reahl.web_dev.fixtures import WebFixture
 
 
 @istest

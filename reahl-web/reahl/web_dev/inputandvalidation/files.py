@@ -19,24 +19,22 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import os.path
 import threading 
-import functools
-import socket
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
-from reahl.stubble import EmptyStub, stubclass
-from reahl.tofu import vassert, expected, NoException, temp_file_with
+from reahl.tofu import scenario
+from reahl.tofu import test
+from reahl.tofu import expected
+from reahl.tofu import temp_file_with
+from reahl.tofu import vassert
 
-from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import DomainException
 from reahl.component.modelinterface import FileField, exposed, Event, Action, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, FileUploadInput, FileUploadPanel, Button, Form
 from reahl.web.fw import UploadedFile
 from reahl.web_dev.fixtures import WebFixture
-from reahl.webdev.tools import Browser, XPath
+from reahl.webdev.tools import XPath
 from reahl.webelixirimpl import PersistedFile
 
 

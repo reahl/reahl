@@ -22,12 +22,12 @@ import six
 import os
 import os.path
 import filecmp
-import datetime
 
 from nose.tools import istest
 from reahl.tofu import test, Fixture
 from reahl.tofu import temp_dir, temp_file_with, vassert, expected
-from reahl.stubble import stubclass, exempt, EmptyStub
+from reahl.stubble import exempt
+from reahl.stubble import stubclass
 
 from reahl.component.shelltools import Executable
 from reahl.dev.devdomain import DebianPackage, SshRepository, LocalAptRepository, RepositoryLocalState, Workspace, \

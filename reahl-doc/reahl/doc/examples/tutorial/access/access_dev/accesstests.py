@@ -1,15 +1,16 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from reahl.tofu import test, set_up, scenario
 
-from reahl.sqlalchemysupport import Session, metadata
+from reahl.sqlalchemysupport import Session
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.access.access import AddressBookUI, AddressBook, Collaborator, Address
+from reahl.doc.examples.tutorial.access.access import Address
+from reahl.doc.examples.tutorial.access.access import AddressBook
+from reahl.doc.examples.tutorial.access.access import AddressBookUI
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
 
 

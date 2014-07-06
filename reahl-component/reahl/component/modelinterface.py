@@ -19,7 +19,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import six
-import sys
 import copy
 import re
 import fnmatch
@@ -299,14 +298,12 @@ class ValidationConstraint(Exception):
         """Override this method to provide the custom logic of how this ValidationConstraint should check
            the given string for validity. If validation fails, this method should raise self.
         """
-        pass
     
     def validate_parsed_value(self, parsed_value):
         """Override this method to provide the custom logic of how this ValidationConstraint should check
            the given Python object after it was created from initial input in string form. If validation 
            fails, this method should raise self.
         """
-        pass
 
     def __getitem__(self, name):
         try:

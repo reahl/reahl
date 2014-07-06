@@ -18,7 +18,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 from nose.tools import istest
 from reahl.tofu import Fixture, test, set_up
 from reahl.tofu import vassert, temp_dir
@@ -26,7 +25,7 @@ from reahl.stubble import stubclass, replaced
 
 from reahl.web.dhtml import DhtmlUI
 from reahl.web.fw import WebExecutionContext, UserInterface
-from reahl.web.ui import Slot, TwoColumnPage
+from reahl.web.ui import TwoColumnPage
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 

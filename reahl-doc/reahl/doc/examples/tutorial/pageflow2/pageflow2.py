@@ -2,7 +2,6 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import elixir
 
 from reahl.sqlalchemysupport import Session, metadata
@@ -10,7 +9,6 @@ from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
-from reahl.systemaccountmodel import AccountManagementInterface
 
 
 class AddressBookPage(TwoColumnPage):
