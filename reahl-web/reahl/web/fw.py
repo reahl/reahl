@@ -947,6 +947,21 @@ class Widget(object):
     def set_creating_factory(self, factory):
         self.created_by = factory
 
+    def is_refresh_enabled(self):
+        return False
+    
+    def get_refreshable_forms(self, parent_refreshes):#xxx
+        forms = []
+        for i in self.children:
+            forms += i.get_refreshable_forms(parent_refreshes or self.is_refresh_enabled())
+        return forms
+        
+    def get_refreshable_inputs(self, parent_refreshes):#xxx
+        inputs = []
+        for i in self.children:
+            inputs += i.get_refreshable_inputs(parent_refreshes or self.is_refresh_enabled())
+        return inputs
+
     @exposed
     def query_fields(self, fields):
         """Override this method to parameterise this this Widget. The Widget will find its arguments from the current
@@ -2153,7 +2168,14 @@ class ComposedPage(Resource):
         self.page = page
         
     def handle_get(self, request):
+        self.validate_widget_tree() #xxx
         return self.render()
+
+    def validate_widget_tree(self):
+        forms = self.page.get_refreshable_forms(False)
+        inputs = self.page.get_refreshable_inputs(False)
+        stuffed_inputs = [i for i in inputs if i.form not in forms]
+        assert not stuffed_inputs, 'the following inputs are stufffed: %s' % stuffed_inputs
         
     def render(self):
         response = Response(body=self.page.render())
