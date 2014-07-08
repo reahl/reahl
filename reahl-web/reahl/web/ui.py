@@ -30,7 +30,8 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, arg_checks, IsInstance
 from reahl.component.i18n import Translator
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
-                          CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, Url, Bookmark, WidgetList
+                          CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
+                          Url, Bookmark, WidgetList, FormABC, InputABC
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
@@ -1116,6 +1117,7 @@ class Form(HTMLElement):
     def jquery_selector(self):
         return u'"form[id=%s]"' % self.css_id
 
+FormABC.register(Form)
 
 class NestedForm(Div):
     """Forms may not be children of other Forms. A NestedForm may be the child of another Form, which
@@ -1139,6 +1141,8 @@ class NestedForm(Div):
     @property
     def form(self):
         return self.out_of_bound_form
+
+FormABC.register(NestedForm)
 
     
 class FieldSet(HTMLElement):
@@ -1357,6 +1361,8 @@ class Input(Widget):
 
     def enter_value(self, input_value):
         self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
+
+InputABC.register(Input)
 
 
 class TextArea(Input):
