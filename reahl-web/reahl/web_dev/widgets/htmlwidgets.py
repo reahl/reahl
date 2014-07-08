@@ -390,7 +390,7 @@ def basic_html_widgets(fixture):
 @test(WebFixture)
 def view_rights_propagate_to_a(fixture):
     """The access rights specified for a View are propagated to an A, made from a Bookmark to that View."""
-    fixture.view.write_check = EmptyStub(
+    fixture.view.write_check = EmptyStub()
     fixture.view.read_check = EmptyStub()
     a = A.from_bookmark(fixture.view, fixture.view.as_bookmark())
     vassert( a.read_check is fixture.view.read_check )
