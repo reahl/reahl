@@ -17,6 +17,7 @@
 """The reahl.fw module implements the core of the Reahl web framework.
 """
 
+from abc import ABCMeta
 import atexit
 import sys
 import tempfile
@@ -907,6 +908,11 @@ class WidgetList(list):
         return False
 
 
+class FormABC:
+    __metaclass__ = ABCMeta    
+class InputABC:
+    __metaclass__ = ABCMeta    
+
 class Widget(object):
     """Any user interface element in Reahl is a Widget. A direct instance of this class will not display anything
        when rendered. A User interface is composed of Widgets by adding other Widgets to a Widget such as this one,
@@ -950,17 +956,39 @@ class Widget(object):
     def is_refresh_enabled(self):
         return False
     
-    def get_refreshable_forms(self, parent_refreshes):#xxx
-        forms = []
-        for i in self.children:
-            forms += i.get_refreshable_forms(parent_refreshes or self.is_refresh_enabled())
-        return forms
-        
-    def get_refreshable_inputs(self, parent_refreshes):#xxx
+    def children_refresh_set(self, own_refresh_set):
+        if self.is_refresh_enabled():
+            return own_refresh_set.union(set([self]))
+        else:
+            return own_refresh_set
+
+    def refresh_set_widget_pairs(self, own_refresh_set):
+        yield self, own_refresh_set
+        children_refresh_set = self.children_refresh_set(own_refresh_set)
+        for child in self.children:
+            for widget, refresh_set in child.refresh_set_widget_pairs(children_refresh_set):
+                yield widget, refresh_set    
+
+    def check_input_placement(self):
         inputs = []
-        for i in self.children:
-            inputs += i.get_refreshable_inputs(parent_refreshes or self.is_refresh_enabled())
-        return inputs
+        forms = {}
+
+        for widget, refresh_set in self.refresh_set_widget_pairs(self.children_refresh_set(set())):
+            if isinstance(widget, FormABC):
+                forms[widget] = refresh_set
+            elif isinstance(widget, InputABC):
+                inputs.append((widget, refresh_set))
+
+        inputs_in_error = []
+        for i, i_refresh_set in inputs:
+            if not (i_refresh_set.issubset(forms[i.form])):
+                inputs_in_error.append((i, i_refresh_set))
+
+        if inputs_in_error:
+            message = 'Some inputs were incorrectly placed:\n'
+            for i, refresh_set in inputs_in_error:
+                message += '\t%s(for form with css_id %s): %s\n' % (str(i), i.form.css_id, ','.join([str(i) for i in refresh_set]))
+            raise ProgrammerError(message)
 
     @exposed
     def query_fields(self, fields):
@@ -2160,7 +2188,6 @@ class EventChannel(RemoteMethod):
         self.form.cleanup_after_success()
 
 
-
 class ComposedPage(Resource):
     def __init__(self, view, page):
         super(ComposedPage, self).__init__()
@@ -2168,14 +2195,8 @@ class ComposedPage(Resource):
         self.page = page
         
     def handle_get(self, request):
-        self.validate_widget_tree() #xxx
+        self.page.check_input_placement()
         return self.render()
-
-    def validate_widget_tree(self):
-        forms = self.page.get_refreshable_forms(False)
-        inputs = self.page.get_refreshable_inputs(False)
-        stuffed_inputs = [i for i in inputs if i.form not in forms]
-        assert not stuffed_inputs, 'the following inputs are stufffed: %s' % stuffed_inputs
         
     def render(self):
         response = Response(body=self.page.render())
