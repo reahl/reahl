@@ -16,11 +16,13 @@
 
 """Various bits of support for SQLAlchemy (and declarative/Elixir)."""
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import weakref
-from contextlib import contextmanager, nested, closing
+from contextlib import contextmanager
 import logging
 from collections import Sequence
-import urllib
 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -37,12 +39,12 @@ from reahl.component.modelinterface import Field, IntegerConstraint
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.config import Configuration
 
-_ = Translator(u'reahl-sqlalchemysupport')
+_ = Translator('reahl-sqlalchemysupport')
 
 
 class SqlAlchemyConfig(Configuration):
-    filename = u'sqlalchemy.config.py'
-    config_key = u'sqlalchemy'
+    filename = 'sqlalchemy.config.py'
+    config_key = 'sqlalchemy'
 
     def do_injections(self, config):
         if not isinstance(config.reahlsystem.orm_control, SqlAlchemyControl):
@@ -53,10 +55,10 @@ def reahl_scope():
     try:
         return ExecutionContext.get_context_id()
     except NoContextFound:
-        message = u'Database code can normally only be executed by code executed as part of handling a Request.'
-        message += u' Such code is then executed within the context of, for example, a database transaction.'
-        message += u' Looks like you attempted to execute database code from the wrong place, since no such context'
-        message += u' could be found.'
+        message = 'Database code can normally only be executed by code executed as part of handling a Request.'
+        message += ' Such code is then executed within the context of, for example, a database transaction.'
+        message += ' Looks like you attempted to execute database code from the wrong place, since no such context'
+        message += ' could be found.'
         raise ProgrammerError(message)
 
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
@@ -92,7 +94,7 @@ class SqlAlchemyControl(ORMControl):
         transaction = Session.begin_nested()
         try:
             yield transaction
-        except Exception, ex:
+        except Exception as ex:
             commit = getattr(ex, 'commit', False)
             if commit:
                 self.commit()
@@ -124,7 +126,7 @@ class SqlAlchemyControl(ORMControl):
 
         create_args = {}
         if db_api_connection_creator:
-            create_args[u'creator']=db_api_connection_creator
+            create_args['creator']=db_api_connection_creator
 
         self.engine = create_engine(config.reahlsystem.connection_uri, **create_args)
         self.engine.echo = self.echo
@@ -143,7 +145,7 @@ class SqlAlchemyControl(ORMControl):
             from elixir import setup_all
             setup_all()
         except ImportError:
-            logging.info(u'skipping setup of elixir classes, elixir could not be imported')
+            logging.info('skipping setup of elixir classes, elixir could not be imported')
 
         declarative_classes = [i for i in all_classes if not getattr(i, 'mapper', None)]
         self.instrument_declarative_classes(declarative_classes)
@@ -156,7 +158,7 @@ class SqlAlchemyControl(ORMControl):
 #                if '_decl_class_registry' not in cls.__dict__:
 #                if not hasattr(cls, u'__table__'):
 #                if getattr(cls, u'__table__', None) not in metadata.sorted_tables:
-                if not hasattr(cls, u'__mapper__'):
+                if not hasattr(cls, '__mapper__'):
                     instrument_declarative(cls, registry, metadata)
             except InvalidRequestError:
                 logging.info('skipping declarative instrumentation of %s' % cls)
@@ -227,13 +229,13 @@ class SqlAlchemyControl(ORMControl):
     def initialise_schema_version_for(self, egg):
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
         already_created = existing_versions.count() > 0
-        assert not already_created, u'The schema for the "%s" egg has already been created previously at version %s' % \
+        assert not already_created, 'The schema for the "%s" egg has already been created previously at version %s' % \
             (egg.name, existing_versions.one().version)
         Session.add(SchemaVersion(version=egg.version, egg_name=egg.name))
 
     def schema_version_for(self, egg):
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
-        assert existing_versions.count(), u'No existing schema version found for egg %s' % egg.name
+        assert existing_versions.count(), 'No existing schema version found for egg %s' % egg.name
         return existing_versions.one().version
 
     def update_schema_version_for(self, egg):
@@ -252,7 +254,7 @@ class PersistedField(Field):
        (See :class:`reahl.component.modelinterface.Field` for other arguments.)
     """
     def __init__(self, class_to_query, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
-        label = label or _(u'')
+        label = label or _('')
         super(PersistedField, self).__init__(default=default, required=required, required_message=required_message, label=label, readable=readable, writable=writable)
         self.class_to_query = class_to_query
         self.add_validation_constraint(IntegerConstraint())
@@ -264,8 +266,8 @@ class PersistedField(Field):
     def unparse_input(self, parsed_value):
         instance = parsed_value
         if instance:
-            return unicode(instance.id)
-        return u''
+            return six.text_type(instance.id)
+        return ''
 
 
 class SchemaVersion(Base):

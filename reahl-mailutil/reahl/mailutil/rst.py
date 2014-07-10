@@ -16,6 +16,8 @@
 
 """Tools for handling ReStructured Text."""
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import docutils.io
 import docutils.core
 
@@ -23,7 +25,7 @@ import docutils.core
 class RestructuredText(object):
     """A chunk of ReStructured Text.
     
-       :param rst_text: A unicode string containing the actual restructured text represented by this instance.
+       :param rst_text: A string containing the actual restructured text represented by this instance.
     """
     def __init__(self, rst_text):
         self.rst_text = rst_text

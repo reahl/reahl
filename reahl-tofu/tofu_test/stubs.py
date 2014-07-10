@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.component.context import ExecutionContext
 from reahl.tofu import TestSuite, Fixture, test
 from reahl.stubble import stubclass

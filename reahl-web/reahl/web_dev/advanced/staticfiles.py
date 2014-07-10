@@ -15,19 +15,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import StringIO
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
+from six.moves import cStringIO
 import datetime
 import os.path
 
 import pkg_resources
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
-from reahl.tofu import vassert, expected, temp_dir, temp_file_with
+from reahl.tofu import scenario
+from reahl.tofu import test
+from reahl.tofu import temp_dir
+from reahl.tofu import temp_file_with
+from reahl.tofu import vassert
 from reahl.stubble import easter_egg, stubclass
 
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, UserInterface
-from reahl.web.ui import TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 
@@ -39,10 +44,10 @@ class StaticFileTests(object):
            named after it on the WebApplication.
         """
         static_root = temp_dir()
-        files_dir = static_root.sub_dir(u'staticfiles')
-        sub_dir = files_dir.sub_dir(u'subdir')
-        one_file = files_dir.file_with(u'one_file.xml', u'one')
-        nested_file = sub_dir.file_with(u'nested_file', u'other')
+        files_dir = static_root.sub_dir('staticfiles')
+        sub_dir = files_dir.sub_dir('subdir')
+        one_file = files_dir.file_with('one_file.xml', 'one')
+        nested_file = sub_dir.file_with('nested_file', 'other')
 
         # How the config is set
         fixture.config.web.static_root = static_root.name
@@ -50,28 +55,28 @@ class StaticFileTests(object):
         # How the subdirectory is mounted
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_static_directory(u'/staticfiles')
+                self.define_static_directory('/staticfiles')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # How the first file would be accessed
         browser.open('/staticfiles/one_file.xml')
-        vassert( browser.raw_html == u'one' )
+        vassert( browser.raw_html == 'one' )
         
         # The meta-info of the file
         response = browser.last_response
-        vassert( response.content_type == u'application/xml' )
+        vassert( response.content_type == 'application/xml' )
         vassert( response.content_encoding is None )
         vassert( response.content_length == 3 )
         expected_mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(one_file.name)))
         vassert( response.last_modified.replace(tzinfo=None) == expected_mtime )
-        expected_tag = u'%s-%s-%s' % (os.path.getmtime(one_file.name), 3, abs(hash(one_file.name)))
+        expected_tag = '%s-%s-%s' % (os.path.getmtime(one_file.name), 3, abs(hash(one_file.name)))
         vassert( response.etag == expected_tag )
 
         # How the file in the subdirectory would be accessed
         browser.open('/staticfiles/subdir/nested_file')
-        vassert( browser.raw_html == u'other' )
+        vassert( browser.raw_html == 'other' )
         
         # When a file does not exist
         browser.open('/staticfiles/one_that_does_not_exist', status=404)
@@ -82,28 +87,28 @@ class StaticFileTests(object):
            directory.
         """
         files_dir = temp_dir()
-        one_file = files_dir.file_with(u'any_name_will_do_here', u'one')
+        one_file = files_dir.file_with('any_name_will_do_here', 'one')
         
         class MainUI(UserInterface):
             def assemble(self):
-                list_of_files = [FileOnDisk(one_file.name, u'one_file')]
-                self.define_static_files(u'/morestaticfiles', list_of_files)
+                list_of_files = [FileOnDisk(one_file.name, 'one_file')]
+                self.define_static_files('/morestaticfiles', list_of_files)
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # How the first file would be accessed
         browser.open('/morestaticfiles/one_file')
-        vassert( browser.raw_html == u'one' )
+        vassert( browser.raw_html == 'one' )
         
         # The meta-info of the file
         response = browser.last_response
-        vassert( response.content_type == u'application/octet-stream' )
+        vassert( response.content_type == 'application/octet-stream' )
         vassert( response.content_encoding is None )
         vassert( response.content_length == 3 )
         expected_mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(one_file.name)))
         vassert( response.last_modified.replace(tzinfo=None) == expected_mtime )
-        expected_tag = u'%s-%s-%s' % (os.path.getmtime(one_file.name), 3, abs(hash(one_file.name)))
+        expected_tag = '%s-%s-%s' % (os.path.getmtime(one_file.name), 3, abs(hash(one_file.name)))
         vassert( response.etag == expected_tag )
 
         # When a file does not exist
@@ -115,30 +120,30 @@ class StaticFileTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                content_type = u'text/html'
-                encoding = u'utf-8'
+                content_type = 'text/html'
+                encoding = 'utf-8'
                 size = 10
                 mtime = 123
                 meta_info = content_type, encoding, size, mtime
-                data_blob = StringIO.StringIO(u'x'*size)
+                data_blob = cStringIO('x'*size)
 
-                list_of_files = [FileFromBlob(u'database_file', data_blob, *meta_info)]
-                self.define_static_files(u'/files', list_of_files)
+                list_of_files = [FileFromBlob('database_file', data_blob, *meta_info)]
+                self.define_static_files('/files', list_of_files)
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # How the file would be accessed
         browser.open('/files/database_file')
-        vassert( browser.raw_html == u'xxxxxxxxxx' )
+        vassert( browser.raw_html == 'xxxxxxxxxx' )
         response = browser.last_response
 
         # The meta-info of the file
-        vassert( response.content_type == u'text/html' )
-        vassert( response.content_encoding == u'utf-8' )
+        vassert( response.content_type == 'text/html' )
+        vassert( response.content_encoding == 'utf-8' )
         vassert( response.content_length == 10 )
         vassert( response.last_modified.replace(tzinfo=None) == datetime.datetime.fromtimestamp(123) )
-        expected_etag = '123-10-%s' % abs(hash(u'database_file'))
+        expected_etag = '123-10-%s' % abs(hash('database_file'))
         vassert( response.etag == expected_etag )
 
     @test(WebFixture)
@@ -147,46 +152,46 @@ class StaticFileTests(object):
 
         # Create an egg with package packaged_files, containing the file packaged_file
         egg_dir = temp_dir()
-        package_dir = egg_dir.sub_dir(u'packaged_files')
-        init_file = package_dir.file_with(u'__init__.py', u'')
-        afile = package_dir.file_with(u'packaged_file', u'contents')
+        package_dir = egg_dir.sub_dir('packaged_files')
+        init_file = package_dir.file_with('__init__.py', '')
+        afile = package_dir.file_with('packaged_file', 'contents')
 
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
         
         class MainUI(UserInterface):
             def assemble(self):
-                list_of_files = [PackagedFile(easter_egg.as_requirement_string(), u'packaged_files', u'packaged_file')]
-                self.define_static_files(u'/files', list_of_files)
+                list_of_files = [PackagedFile(easter_egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
+                self.define_static_files('/files', list_of_files)
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         # How the file would be accessed
         browser.open('/files/packaged_file')
-        vassert( browser.raw_html == u'contents' )
+        vassert( browser.raw_html == 'contents' )
 
     class ConcatenateScenarios(WebFixture):
         @scenario
         def normal_files(self):
-            self.file1_contents = u'contents1'
-            self.file2_contents = u'contents2'
-            self.filename = u'concatenated'
-            self.expected_result = u'contents1contents2'
+            self.file1_contents = 'contents1'
+            self.file2_contents = 'contents2'
+            self.filename = 'concatenated'
+            self.expected_result = 'contents1contents2'
 
         @scenario
         def javascript_files(self):
-            self.file1_contents = u'acall1(); //some comment'
-            self.file2_contents = u'acall2(); //some comment'
-            self.filename = u'concatenated.js'
-            self.expected_result = u'acall1();acall2();'
+            self.file1_contents = 'acall1(); //some comment'
+            self.file2_contents = 'acall2(); //some comment'
+            self.filename = 'concatenated.js'
+            self.expected_result = 'acall1();acall2();'
 
         @scenario
         def css_files(self):
-            self.file1_contents = u'.cool {}/* a comment */ '
-            self.file2_contents = u'a, p { } '
-            self.filename = u'concatenated.css'
-            self.expected_result = u'.cool{}a,p{}'
+            self.file1_contents = '.cool {}/* a comment */ '
+            self.file2_contents = 'a, p { } '
+            self.filename = 'concatenated.css'
+            self.expected_result = '.cool{}a,p{}'
             
     @test(ConcatenateScenarios)
     def concatenated_files(self, fixture):
@@ -195,20 +200,20 @@ class StaticFileTests(object):
 
         # Make an egg with a package called packaged_files, and two files in there.
         egg_dir = temp_dir()
-        package_dir = egg_dir.sub_dir(u'packaged_files')
-        init_file = package_dir.file_with(u'__init__.py', u'')
-        afile = package_dir.file_with(u'packaged_file', fixture.file1_contents)
-        another_file = package_dir.file_with(u'packaged_file2', fixture.file2_contents)
+        package_dir = egg_dir.sub_dir('packaged_files')
+        init_file = package_dir.file_with('__init__.py', '')
+        afile = package_dir.file_with('packaged_file', fixture.file1_contents)
+        another_file = package_dir.file_with('packaged_file2', fixture.file2_contents)
 
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
 
         class MainUI(UserInterface):
             def assemble(self):
-                to_concatenate = [PackagedFile(u'test==1.0', u'packaged_files', u'packaged_file'),
-                                  PackagedFile(u'test==1.0', u'packaged_files', u'packaged_file2')]
+                to_concatenate = [PackagedFile('test==1.0', 'packaged_files', 'packaged_file'),
+                                  PackagedFile('test==1.0', 'packaged_files', 'packaged_file2')]
                 list_of_files = [ConcatenatedFile(fixture.filename, to_concatenate)]
-                self.define_static_files(u'/files', list_of_files)
+                self.define_static_files('/files', list_of_files)
 
         fixture.config.reahlsystem.debug = False  # To enable minification 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -228,7 +233,7 @@ class StaticFileTests(object):
         @stubclass(FileDownload)
         class FileDownloadStub(FileDownload):
             chunk_size = 1
-        response = FileDownloadStub(FileOnDisk(server_file.name, u'/path/for/the/file'))
+        response = FileDownloadStub(FileOnDisk(server_file.name, '/path/for/the/file'))
         
         # Case: The whole content is sent, in chunk_size bits
         read = [i for i in response.app_iter]
@@ -243,10 +248,10 @@ class StaticFileTests(object):
         mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(server_file.name)))
         vassert( response.last_modified.replace(tzinfo=None) == mtime )
         tag_mtime, tag_size, tag_hash = response.etag.split('-')
-        mtime = str(os.path.getmtime(server_file.name))
+        mtime = six.text_type(os.path.getmtime(server_file.name))
         vassert( tag_mtime == mtime )
-        vassert( tag_size == str(len(file_content)) )
-        vassert( tag_hash == str(abs(hash(server_file.name))) )
+        vassert( tag_size == six.text_type(len(file_content)) )
+        vassert( tag_hash == six.text_type(abs(hash(server_file.name))) )
         
         # Case: conditional response is supported
         vassert( response.conditional_response )
@@ -300,19 +305,19 @@ class StaticFileTests(object):
         wsgi_app = ReahlWSGIApplication(fixture.config)
         browser = Browser(wsgi_app)
 
-        browser.open(u'/static/html5shiv-printshiv-3.6.3.js')
+        browser.open('/static/html5shiv-printshiv-3.6.3.js')
         vassert( browser.last_response.content_length > 0 )
 
-        browser.open(u'/static/IE9.js')
+        browser.open('/static/IE9.js')
         vassert( browser.last_response.content_length > 0 )
 
-        browser.open(u'/static/reahl.js')
+        browser.open('/static/reahl.js')
         vassert( browser.last_response.content_length > 0 )
 
-        browser.open(u'/static/reahl.css')
+        browser.open('/static/reahl.css')
         vassert( browser.last_response.content_length > 0 )
 
-        browser.open(u'/static/runningon.png')
+        browser.open('/static/runningon.png')
         vassert( browser.last_response.content_length > 0 )
 
 

@@ -20,6 +20,8 @@
 Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 """
+from __future__ import unicode_literals
+from __future__ import print_function
 
 import asyncore
 import logging
@@ -47,10 +49,10 @@ class EchoSMTPServer(DebuggingServer):
         self.process_simple_message(m)
 
     def process_simple_message(self, message):
-        print self.message_as_text(message)
+        print((self.message_as_text(message)))
 
     def message_as_text(self, message):
-        text = u"Processing Message: %s\n" % self.current_id
+        text = "Processing Message: %s\n" % self.current_id
         text += "   From:%s \n" % message['From']
         text += "   To:%s \n" % message['To']
         text += "   Subject:%s \n" % message['Subject']
@@ -68,7 +70,7 @@ class ServeSMTP(WorkspaceCommand):
     keyword = 'servesmtp'
     def execute(self, options, args):
         server = EchoSMTPServer()
-        print "Running Echo SMTP Server on port 8025, type [ctrl-c] to exit."
+        print("Running Echo SMTP Server on port 8025, type [ctrl-c] to exit.")
         try:
             asyncore.loop()
         except KeyboardInterrupt:

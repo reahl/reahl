@@ -16,6 +16,8 @@
 
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.tofu import Fixture, test, vassert
 
 from reahl.sqlalchemysupport import SqlAlchemyControl

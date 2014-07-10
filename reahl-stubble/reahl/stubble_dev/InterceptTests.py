@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from nose.tools import istest, assert_raises
 import tempfile
 
@@ -34,15 +36,15 @@ class InterceptTests(object):
         original_method = s.foo.im_func
 
         with CallMonitor(s.foo) as monitor:
-            assert s.foo(1, y=u'a') == u'a'
+            assert s.foo(1, y='a') == 'a'
             assert s.foo(2) == None
 
         assert s.foo.im_func is original_method
         assert s.n == 2
         assert monitor.times_called == 2
         assert monitor.calls[0].args == (1,)
-        assert monitor.calls[0].kwargs == {u'y':u'a'}
-        assert monitor.calls[0].return_value == u'a'
+        assert monitor.calls[0].kwargs == {'y':'a'}
+        assert monitor.calls[0].return_value == 'a'
 
         assert monitor.calls[1].args == (2,)
         assert monitor.calls[1].kwargs == {}
@@ -95,7 +97,7 @@ class InterceptTests(object):
         
         class SomethingElse(object):
             def foo(self, n, y=None):
-                assert None, u'This should never be reached in this test'
+                assert None, 'This should never be reached in this test'
 
 
         # Case: bound method
@@ -105,7 +107,7 @@ class InterceptTests(object):
         original_method = s.foo.im_func
 
         with replaced(s.foo, replacement):
-            assert s.foo(1, y=u'a') == u'a'
+            assert s.foo(1, y='a') == 'a'
             assert s.foo(2) == None
 
         assert s.foo.im_func is original_method
@@ -117,7 +119,7 @@ class InterceptTests(object):
         original_method = SomethingElse.foo.im_func
 
         with replaced(SomethingElse.foo, replacement):
-            assert s.foo(1, y=u'a') == u'a'
+            assert s.foo(1, y='a') == 'a'
             assert s.foo(2) == None
             assert SomethingElse.foo.im_func is not original_method
 
@@ -129,7 +131,7 @@ class InterceptTests(object):
         
         class SomethingElse(object):
             def foo(self, n, y=None):
-                assert None, u'This should never be reached in this test'
+                assert None, 'This should never be reached in this test'
 
 
         s = SomethingElse()
@@ -149,13 +151,13 @@ class InterceptTests(object):
         """A SystemOutStub can be used to capture console output. Such output can be captured as a "textual screenshot"."""
 
         def print_something():
-            print u'something'
-            print u'printed'
+            print('something')
+            print('printed')
             
         with SystemOutStub() as output:
             print_something()
 
-        assert output.captured_output == u'something\nprinted\n'
+        assert output.captured_output == 'something\nprinted\n'
 
         screenshot_filename = tempfile.mktemp()
         output.capture_console_screenshot(screenshot_filename)

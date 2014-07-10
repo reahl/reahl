@@ -17,6 +17,8 @@
 """A User interface that allows a user to monitor tasks allocated to the user's queues and to complete those tasks.
 """
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.component.decorators import deprecated
@@ -27,7 +29,7 @@ from reahl.web.ui import P, Panel, Ul, Li, H, Form, Button
 from reahl.workflowmodel import Inbox, Task, WorkflowInterface
 
 
-_ = Translator(u'reahl-domainui')
+_ = Translator('reahl-domainui')
 
 
 
@@ -36,7 +38,7 @@ class TaskBox(Li):
         super(TaskBox, self).__init__(view)
         self.task = task
         self.add_child(P(view, text=self.task.title))
-        form = self.add_child(Form(view, u'task_%s' % task.id))
+        form = self.add_child(Form(view, 'task_%s' % task.id))
         form.add_child(Button(form, self.user_interface.workflow_interface.events.take_task.with_arguments(task=self.task)))
         form.add_child(Button(form, self.user_interface.workflow_interface.events.go_to_task.with_arguments(task=self.task)))
 
@@ -44,7 +46,7 @@ class TaskBox(Li):
 class InboxWidget(Panel):
     def __init__(self, view, inbox):
         super(InboxWidget, self).__init__(view)
-        self.add_child(H(view, 1, text=_(u'Inbox')))
+        self.add_child(H(view, 1, text=_('Inbox')))
         self.list = self.add_child(Ul(view))
 
         for task in inbox.get_tasks():
@@ -79,7 +81,7 @@ class TaskWidget(Panel):
         super(TaskWidget, self).__init__(view)
         self.task = task
         self.add_child(P(view, text=self.task.title))
-        form = self.add_child(Form(view, u'task_form'))
+        form = self.add_child(Form(view, 'task_form'))
         form.add_child(Button(form, self.user_interface.workflow_interface.events.defer_task))
         form.add_child(Button(form, self.user_interface.workflow_interface.events.release_task.with_arguments(task=self.task)))
 
@@ -87,15 +89,15 @@ class TaskWidget(Panel):
 class TaskView(UrlBoundView):
     def assemble(self, task=None):
         widget_class = self.get_widget_class_for(task)
-        self.set_slot(u'main_slot', widget_class.factory(task))
-        self.title = u'Task %s' % (task.id)
+        self.set_slot('main_slot', widget_class.factory(task))
+        self.title = 'Task %s' % (task.id)
 
     def get_widget_class_for(self, task):
         config = WebExecutionContext.get_context().config
         for widget_class in config.workflowui.task_widgets:
             if widget_class.displays(task):
                 return widget_class
-        raise ProgrammerError(u'no Widget found to display %s' % task)
+        raise ProgrammerError('no Widget found to display %s' % task)
 
 
 class InboxUI(UserInterface):
@@ -120,10 +122,10 @@ class InboxUI(UserInterface):
         self.workflow_interface = WorkflowInterface()
         self.inbox = Inbox(self.get_queues())
         
-        inbox_view_factory = self.define_view(u'/', title=_(u'Inbox'))
-        inbox_view_factory.set_slot(u'main_slot', InboxWidget.factory(self.inbox))
+        inbox_view_factory = self.define_view('/', title=_('Inbox'))
+        inbox_view_factory.set_slot('main_slot', InboxWidget.factory(self.inbox))
         
-        task_view_factory = self.define_view(u'/task', view_class=TaskView, task=PersistedField(Task, required=True))
+        task_view_factory = self.define_view('/task', view_class=TaskView, task=PersistedField(Task, required=True))
         task_view_factory.add_precondition(self.first_log_in)
         inbox_view_factory.add_precondition(self.first_log_in)
         
@@ -134,7 +136,7 @@ class InboxUI(UserInterface):
 
 
 
-@deprecated(u'Please use InboxUI instead.')
+@deprecated('Please use InboxUI instead.')
 class InboxRegion(InboxUI):
     pass
 

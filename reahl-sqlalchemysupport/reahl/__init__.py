@@ -21,6 +21,9 @@ Copyright (C) 2009 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 
 """ 
 
+from __future__ import unicode_literals
+from __future__ import print_function
+
 
 __import__('pkg_resources').declare_namespace(__name__)
 

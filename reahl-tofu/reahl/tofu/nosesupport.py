@@ -15,12 +15,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import re
 import os
 import logging
 
 from nose.tools import make_decorator
 from nose.plugins import Plugin
+
+from reahl.component.py3compat import old_str
 
 run_fixture = None
 
@@ -77,7 +81,7 @@ def import_string_spec(string_spec):
     current = module
     for attr in attr_names:
         if not hasattr(current, attr):
-            raise AssertionError(u'The locator "%s" is not valid: cannot find %s in %s' % (string_spec, attr, current))
+            raise AssertionError('The locator "%s" is not valid: cannot find %s in %s' % (string_spec, attr, current))
         current = getattr(current, attr)
     return current
 
@@ -90,10 +94,10 @@ class RunFixturePlugin(Plugin):
        Python package where the class is defined, followed by a colon and then the name of the class.
        For example: "reahl.webdev.fixtures:WebFixture"
     """
-    name = 'run-fixture'
+    name = old_str('run-fixture')
 
     def options(self, parser, env=os.environ):
-        parser.add_option("-F", "--with-run-fixture",
+        parser.add_option(old_str("-F"), old_str("--with-run-fixture"),
                           action="store", dest="run_fixture", default=None,
                           help="the run fixture to use")
 
@@ -122,15 +126,15 @@ class LongOutputPlugin(Plugin):
     """A plugin for nose which lets nose output the name of each test before it starts running it.
        Enable this plugin by passing ``--with-long-output`` to nosetests on the commandline.
     """
-    name = 'long-output'
+    name = old_str('long-output')
     def setOutputStream(self, stream):
         self.output = stream
 
     def startTest(self, test):
-        print >> self.output, '%s [' % test,
+        print('%s [' % test, file=self.output)
 
     def stopTest(self, test):
-        print >> self.output, '] done.'
+        print('] done.', file=self.output)
 
 
 class TestDirectoryPlugin(Plugin):
@@ -140,9 +144,9 @@ class TestDirectoryPlugin(Plugin):
 
        Enable this plugin by passing ``--with-test-directory=<directory path relative to current dir>`` to nosetests on the commandline.
     """
-    name = 'test-directory'
+    name = old_str('test-directory')
     def options(self, parser, env=os.environ):
-        parser.add_option("-T", "--with-test-directory",
+        parser.add_option(old_str("-T"), old_str("--with-test-directory"),
                           action="store", dest="test_directory", default="",
                           help="the directories (relative to the current directory) to search for tests (can be a regex)")
 
@@ -159,7 +163,7 @@ class TestDirectoryPlugin(Plugin):
 
     def wantFile(self, file_):
         rel_file = os.path.relpath(file_)
-        return re.match(u'%s.*\.py$' % self.test_directory_regex, rel_file) is not None
+        return re.match('%s.*\.py$' % self.test_directory_regex, rel_file) is not None
 
     def wantModule(self, module):
         module_directory = os.path.dirname(module.__file__)
@@ -180,9 +184,9 @@ class LogLevelPlugin(Plugin):
 
        Enable this plugin by passing ``--with-log-level=(ERROR|WARNING|INFO|DEBUG)`` to nosetests on the commandline.
     """
-    name = 'log-level'
+    name = old_str('log-level')
     def options(self, parser, env=os.environ):
-        parser.add_option("-L", "--with-log-level",
+        parser.add_option(old_str("-L"), old_str("--with-log-level"),
                           action="store", dest="log_level", default='WARNING',
                           help="the log level at which to emit log statements")
 
@@ -202,10 +206,10 @@ class SetUpFixturePlugin(Plugin):
        Python package where the class is defined, followed by a colon and then the name of the class.
        For example: "reahl.webdev.fixtures:WebFixture"
     """
-    name = 'setup-fixture'
+    name = old_str('setup-fixture')
 
     def options(self, parser, env=os.environ):
-        parser.add_option("--with-setup-fixture",
+        parser.add_option(old_str("--with-setup-fixture"),
                           action="store", dest="setup_fixture", default=None,
                           help="just run the set_up and tear_down of this fixture")
 
@@ -228,7 +232,7 @@ class SetUpFixturePlugin(Plugin):
         return False
 
     def report(self, stream):
-        print >> stream, 'Finished running %s' % self.setup_fixture
+        print('Finished running %s' % self.setup_fixture, file=self.output)
         return True
         
         

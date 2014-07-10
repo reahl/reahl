@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 class EventTester(object):
     def __init__(self, event, **arguments):
         self.occurring_event = event.with_arguments(**arguments)
