@@ -16,17 +16,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 from reahl.stubble import stubclass
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario, set_up
+from reahl.tofu import Fixture
+from reahl.tofu import scenario
+from reahl.tofu import test
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath
-from reahl.web.fw import Bookmark
-from reahl.web.ui import P, Div, HTML5Page, Panel
-from reahl.web.pager import Page, PageIndex, PageMenu, PagedPanel
+from reahl.web.ui import P
+from reahl.web.ui import Panel
+from reahl.web.pager import PageIndex
+from reahl.web.pager import PageMenu
+from reahl.web.pager import PagedPanel
 from reahl.web_dev.fixtures import WebBasicsMixin
-from reahl.component.context import ExecutionContext
 
 from reahl.web.pager import SequentialPageIndex, AnnualPageIndex, AnnualItemOrganiserProtocol
 
@@ -50,17 +56,17 @@ class PageMenuFixture(Fixture, WebBasicsMixin):
                 return self.number_of_pages
             
             def get_contents_for_page(self, page_number):
-                return u'contents of page %s' % page_number
+                return 'contents of page %s' % page_number
 
             def get_description_for_page(self, page_number):
-                return u'p%s' % page_number
+                return 'p%s' % page_number
 
         return PageIndexStub
         
     def new_PageContainer(self):
         class PageContainer(PagedPanel):
             def __init__(self, parent, page_index):
-                super(PageContainer, self).__init__(parent, page_index, u'container')
+                super(PageContainer, self).__init__(parent, page_index, 'container')
                 self.add_child(P(self.view, text=self.current_contents))
 
         return PageContainer
@@ -72,7 +78,7 @@ class PageMenuFixture(Fixture, WebBasicsMixin):
                 super(MainWidget, self).__init__(view)
                 page_index = fixture.PageIndexStub(fixture.max_page_links, fixture.number_of_pages)
                 page_container = self.add_child(fixture.PageContainer(self.view, page_index))
-                self.add_child(PageMenu(self.view, u'page_menu_widget', page_index, page_container))
+                self.add_child(PageMenu(self.view, 'page_menu_widget', page_index, page_container))
         return MainWidget
         
     def container_contents_is(self, expected):
@@ -93,11 +99,11 @@ class PageMenuTests(object):
     def selecting_a_page(self, fixture):
         """Clicking the link of a page results in the contents of the PageContainer being refreshed."""
         fixture.reahl_server.set_app(fixture.wsgi_app)
-        fixture.driver_browser.open(u'/')
+        fixture.driver_browser.open('/')
 
-        fixture.driver_browser.wait_for(fixture.container_contents_is, u'contents of page 1')
-        fixture.driver_browser.click(XPath.link_with_text(u'p2'))
-        fixture.driver_browser.wait_for(fixture.container_contents_is, u'contents of page 2')
+        fixture.driver_browser.wait_for(fixture.container_contents_is, 'contents of page 1')
+        fixture.driver_browser.click(XPath.link_with_text('p2'))
+        fixture.driver_browser.wait_for(fixture.container_contents_is, 'contents of page 2')
 
     @test(PageMenuFixture)
     def navigating_the_page_numbers(self, fixture):
@@ -105,25 +111,25 @@ class PageMenuTests(object):
         fixture.number_of_pages = 30
         fixture.max_page_links = 5
         fixture.reahl_server.set_app(fixture.wsgi_app)
-        fixture.driver_browser.open(u'/')
+        fixture.driver_browser.open('/')
 
         # Case: next link
-        fixture.driver_browser.click(XPath.link_with_text(u'>'))
-        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, u'p6,p7,p8,p9,p10') )
-        fixture.driver_browser.click(XPath.link_with_text(u'>'))
-        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, u'p11,p12,p13,p14,p15') )
+        fixture.driver_browser.click(XPath.link_with_text('>'))
+        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10') )
+        fixture.driver_browser.click(XPath.link_with_text('>'))
+        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p11,p12,p13,p14,p15') )
 
         # Case: prev link
-        fixture.driver_browser.click(XPath.link_with_text(u'<'))
-        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, u'p6,p7,p8,p9,p10') )
+        fixture.driver_browser.click(XPath.link_with_text('<'))
+        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10') )
 
         # Case: last link
-        fixture.driver_browser.click(XPath.link_with_text(u'>|'))
-        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, u'p26,p27,p28,p29,p30') )
+        fixture.driver_browser.click(XPath.link_with_text('>|'))
+        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p26,p27,p28,p29,p30') )
 
         # Case: first link
-        fixture.driver_browser.click(XPath.link_with_text(u'|<'))
-        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, u'p1,p2,p3,p4,p5') )
+        fixture.driver_browser.click(XPath.link_with_text('|<'))
+        vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p1,p2,p3,p4,p5') )
 
     @test(PageMenuFixture)
     def contents_when_navigating_the_page_numbers(self, fixture):
@@ -145,29 +151,29 @@ class PageMenuTests(object):
         fixture.number_of_pages = 15
         fixture.max_page_links = 5
         fixture.reahl_server.set_app(fixture.wsgi_app)
-        fixture.driver_browser.open(u'/')
+        fixture.driver_browser.open('/')
 
         # Case: when you are on the left of the page range        
-        vassert( not fixture.driver_browser.is_active(XPath.link_with_text(u'|<')) )
-        vassert( not fixture.driver_browser.is_active(XPath.link_with_text(u'<')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text(u'>')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text(u'>|')) )
+        vassert( not fixture.driver_browser.is_active(XPath.link_with_text('|<')) )
+        vassert( not fixture.driver_browser.is_active(XPath.link_with_text('<')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_with_text('>')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_with_text('>|')) )
 
         # Case: when you are in the middle of the page range        
-        fixture.driver_browser.click(XPath.link_with_text(u'>'))
-        fixture.driver_browser.wait_for_element_present(XPath.link_with_text(u'p6'))
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text(u'|<')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text(u'<')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text(u'>')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text(u'>|')) )
+        fixture.driver_browser.click(XPath.link_with_text('>'))
+        fixture.driver_browser.wait_for_element_present(XPath.link_with_text('p6'))
+        vassert( fixture.driver_browser.is_active(XPath.link_with_text('|<')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_with_text('<')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_with_text('>')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_with_text('>|')) )
         
         # Case: when you are at the end of the page range        
-        fixture.driver_browser.click(XPath.link_with_text(u'>'))
-        fixture.driver_browser.wait_for_element_present(XPath.link_with_text(u'p11'))
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text(u'|<')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text(u'<')) )
-        vassert( not fixture.driver_browser.is_active(XPath.link_with_text(u'>')) )
-        vassert( not fixture.driver_browser.is_active(XPath.link_with_text(u'>|')) )
+        fixture.driver_browser.click(XPath.link_with_text('>'))
+        fixture.driver_browser.wait_for_element_present(XPath.link_with_text('p11'))
+        vassert( fixture.driver_browser.is_active(XPath.link_with_text('|<')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_with_text('<')) )
+        vassert( not fixture.driver_browser.is_active(XPath.link_with_text('>')) )
+        vassert( not fixture.driver_browser.is_active(XPath.link_with_text('>|')) )
 
     class LinkScenarios(PageMenuFixture):
         @scenario
@@ -175,7 +181,7 @@ class PageMenuTests(object):
             self.number_of_pages = 1
             self.max_page_links = 5
             self.goto_last_range = False
-            self.visible_page_descriptions = u'p1'
+            self.visible_page_descriptions = 'p1'
             self.visible_last_page_descriptions = self.visible_page_descriptions
 
         @scenario
@@ -183,7 +189,7 @@ class PageMenuTests(object):
             self.number_of_pages = 2
             self.max_page_links = 5
             self.goto_last_range = False
-            self.visible_page_descriptions = u'p1,p2'
+            self.visible_page_descriptions = 'p1,p2'
             self.visible_last_page_descriptions = self.visible_page_descriptions
 
         @scenario
@@ -191,23 +197,23 @@ class PageMenuTests(object):
             self.number_of_pages = 10
             self.max_page_links = 5
             self.goto_last_range = True
-            self.visible_page_descriptions = u'p1,p2,p3,p4,p5'
-            self.visible_last_page_descriptions = u'p6,p7,p8,p9,p10'
+            self.visible_page_descriptions = 'p1,p2,p3,p4,p5'
+            self.visible_last_page_descriptions = 'p6,p7,p8,p9,p10'
 
         @scenario
         def more_than_one_range_last_range_not_complete(self):
             self.number_of_pages = 7
             self.max_page_links = 5
             self.goto_last_range = True
-            self.visible_page_descriptions = u'p1,p2,p3,p4,p5'
-            self.visible_last_page_descriptions = u'p3,p4,p5,p6,p7'
+            self.visible_page_descriptions = 'p1,p2,p3,p4,p5'
+            self.visible_last_page_descriptions = 'p3,p4,p5,p6,p7'
 
         @scenario
         def changing_number_of_links(self):
             self.number_of_pages = 10
             self.max_page_links = 3
             self.goto_last_range = False
-            self.visible_page_descriptions = u'p1,p2,p3'
+            self.visible_page_descriptions = 'p1,p2,p3'
             self.visible_last_page_descriptions = self.visible_page_descriptions
 
     @test(LinkScenarios)
@@ -216,11 +222,11 @@ class PageMenuTests(object):
            total number of pages and the max number of links in a range"""
         fixture.reahl_server.set_app(fixture.wsgi_app)
 
-        fixture.driver_browser.open(u'/')
+        fixture.driver_browser.open('/')
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, fixture.visible_page_descriptions) )
 
         if fixture.goto_last_range:
-            fixture.driver_browser.click(XPath.link_with_text(u'>|'))
+            fixture.driver_browser.click(XPath.link_with_text('>|'))
 
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, fixture.visible_last_page_descriptions) )
 
@@ -236,14 +242,14 @@ class PageMenuTests(object):
         page_index = AnnualPageIndex(ItemOrganiser())
 
         vassert( page_index.get_contents_for_page(2) == [2001, 2001, 2001] )
-        vassert( page_index.get_description_for_page(1) == u'2000' )
+        vassert( page_index.get_description_for_page(1) == '2000' )
         vassert( page_index.years == [2000, 2001] )
         vassert( page_index.total_number_of_pages == 2 )
 
 
     class SequentialScenarios(Fixture):
         def new_items(self):
-            return range(0, self.number_of_items)
+            return list(range(0, self.number_of_items))
 
         def new_page_index(self):
             return SequentialPageIndex(self.items, items_per_page=self.items_per_page, max_page_links=12)
@@ -275,7 +281,7 @@ class PageMenuTests(object):
         
         vassert( fixture.page_index.total_number_of_pages == fixture.expected_pages )
         page = fixture.page_index.get_page_number(fixture.expected_pages)
-        vassert( page.description == unicode(fixture.expected_pages) )
+        vassert( page.description == six.text_type(fixture.expected_pages) )
         vassert( page.contents == fixture.last_page_contents )        
         vassert( fixture.page_index.max_page_links == 12 )
 

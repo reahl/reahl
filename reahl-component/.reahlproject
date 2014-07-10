@@ -7,6 +7,7 @@
   <translations locator="reahl.messages"/>
 
   <deps purpose="run">
+    <thirdpartyegg name="six"/> 
     <thirdpartyegg name="Babel" minversion="0.9" maxversion="0.10"/> 
     <thirdpartyegg name="python-dateutil" minversion="1.5" maxversion="1.6"/> 
     <thirdpartyegg name="decorator" minversion="3.4" maxversion="3.4"/> 

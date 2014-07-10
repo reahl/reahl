@@ -17,6 +17,9 @@
 # -*- mode: python; mode: font-lock -*-
 # Copyright 2005 Iwan Vosloo
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import time
 
 from reahl.stubble import easter_egg, stubclass, EmptyStub
@@ -42,7 +45,7 @@ class BasicObjectSetup(Fixture):
         class TestClass(object):
             def inflate_attributes(self, reader, attributes, parent):
                 self.attr2 = int(attributes['attr2'])
-                self.attr1 = str(attributes['attr1'])
+                self.attr1 = six.text_type(attributes['attr1'])
                 self.parent = parent
         return TestClass
 
@@ -70,9 +73,9 @@ class ConfiguredReader(BasicObjectSetup):
             return ('2', cls, 'asd')
 
     def new_reader(self):
-        easter_egg.add_entry_point_from_line(u'reahl.dev.xmlclasses',
+        easter_egg.add_entry_point_from_line('reahl.dev.xmlclasses',
                                      'test1 = reahl.dev_dev.xmlreadertests:ConfiguredReader.TestClass1')
-        easter_egg.add_entry_point_from_line(u'reahl.dev.xmlclasses',
+        easter_egg.add_entry_point_from_line('reahl.dev.xmlclasses',
                                      'test2 = reahl.dev_dev.xmlreadertests:ConfiguredReader.TestClass2')
 
         @stubclass(XMLReader)

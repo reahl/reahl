@@ -24,6 +24,8 @@ If this file is the __init__.py of some package, it should be a
 description of the package.
 
 """ 
+from __future__ import unicode_literals
+from __future__ import print_function
 
 from reahl.sqlalchemysupport import SqlAlchemyControl
 

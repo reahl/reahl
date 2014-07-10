@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from __future__ import print_function
 from nose.tools import istest
 
 import elixir
@@ -23,14 +25,14 @@ def test_model():
 
     with ExecutionContext():
 
-        Address(name=u'John', email_address=u'john@world.com').save()
-        Address(name=u'Jane', email_address=u'jane@world.com').save()
+        Address(name='John', email_address='john@world.com').save()
+        Address(name='Jane', email_address='jane@world.com').save()
 
         addresses = Address.query.all()
 
-        assert addresses[0].name == u'John'
-        assert addresses[0].email_address == u'john@world.com'
+        assert addresses[0].name == 'John'
+        assert addresses[0].email_address == 'john@world.com'
 
-        assert addresses[1].name == u'Jane'
-        assert addresses[1].email_address == u'jane@world.com'
+        assert addresses[1].name == 'Jane'
+        assert addresses[1].email_address == 'jane@world.com'
 

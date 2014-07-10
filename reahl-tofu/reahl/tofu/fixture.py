@@ -15,11 +15,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import sys
-import pdb
-import inspect
 import new
-import functools
 
 #--------------------------------------------------[ MarkingDecorator ]
 class MarkingDecorator(object):
@@ -81,13 +81,11 @@ class DefaultScenario(Scenario):
 #--------------------------------------------------[ SetUp ]
 class SetUp(MarkingDecorator):
     """Methods on a Fixture marked as @set_up are run when the Fixture is set up."""
-    pass
 
 
 #--------------------------------------------------[ TearDown ]
 class TearDown(MarkingDecorator):
     """Methods on a Fixture marked as @tear_down are run when the Fixture is torn down."""
-    pass
 
 
 #--------------------------------------------------[ Fixture ]
@@ -147,8 +145,8 @@ class Fixture(object):
         
         try:
             instance = factory()
-        except AttributeError, ex:
-            raise AttributeErrorInFactoryMethod(ex), None, sys.exc_info()[2]
+        except AttributeError as ex:
+            six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
         setattr(self, name, instance)
         self.attributes_set.append(name)
         return instance
@@ -163,7 +161,7 @@ class Fixture(object):
         return [value for name, value in cls.__dict__.items() if isinstance(value, marker)]
 
     def run_marked_methods(self, marker_type, order=lambda x: x ):
-        done = set([None])
+        done = {None}
         for cls in order(self.__class__.mro()):
             for marked in self.get_marked_methods(cls, marker_type):
                 if marked.name not in done:
@@ -181,7 +179,7 @@ class Fixture(object):
             factory_method_name = '%s_%s' % (self.factory_method_prefix, name)
             return getattr(self, factory_method_name)
         except AttributeError:
-            if name == u'context':
+            if name == 'context':
                 return self.create_default_context
             raise
 

@@ -15,22 +15,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from Cookie import SimpleCookie
-import urllib
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
+from six.moves import http_cookies
+from six.moves.urllib import parse as urllib_parse
 
-from webob import Request, Response
+from webob import Response
 from elixir import using_options
 
 from nose.tools import istest
 from reahl.tofu import test
 from reahl.tofu import vassert
-from reahl.stubble import stubclass, CallMonitor
+from reahl.stubble import stubclass
 
 from reahl.sqlalchemysupport import metadata, Session
-from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext
-from reahl.web.interfaces import WebUserSessionProtocol
-from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
-from reahl.webdev.tools import Browser
+from reahl.web_dev.fixtures import WebFixture
 
 from reahl.webelixirimpl import WebUserSession
 
@@ -48,7 +48,7 @@ class BasicTests(object):
         vassert( config.accounts.idle_lifetime < config.accounts.idle_lifetime_max )
 
         # Case: user logs in over http
-        fixture.request.scheme = u'http'
+        fixture.request.scheme = 'http'
         web_session.last_activity = None
         web_session.set_as_logged_in(account, False)
         context.request.cookies[context.config.web.secure_key_name] = web_session.secure_salt
@@ -56,7 +56,7 @@ class BasicTests(object):
         vassert( not web_session.is_secure() )
 
         # Case: user logs in over https
-        fixture.request.scheme = u'https'
+        fixture.request.scheme = 'https'
         web_session.last_activity = None
         web_session.set_as_logged_in(account, False)
         context.request.cookies[context.config.web.secure_key_name] = web_session.secure_salt
@@ -79,7 +79,7 @@ class BasicTests(object):
             class ResponseStub(Response):
                 @property
                 def cookies(self):
-                    cookies = SimpleCookie()
+                    cookies = http_cookies.SimpleCookie()
                     for header, value in self.headerlist:
                         if header == 'Set-Cookie':
                             cookies.load(value)
@@ -92,7 +92,7 @@ class BasicTests(object):
             web_session.set_session_key(response)
 
             session_cookie = response.cookies[fixture.config.web.session_key_name]
-            vassert( session_cookie.value == urllib.quote(web_session.as_key()) )
+            vassert( session_cookie.value == urllib_parse.quote(web_session.as_key()) )
             vassert( session_cookie['path'] == '/' )
             vassert( not session_cookie['max-age'] )
             #vassert( 'httponly' in session_cookie )
@@ -128,8 +128,8 @@ class BasicTests(object):
         # Case: session cookie set in Request
         fixture.context.set_session(None)
         web_session = WebUserSession()
-        fixture.request.headers['Cookie'] = 'reahl=%s' % web_session.as_key()
-         
+        fixture.request.headers['Cookie'] = ('reahl=%s' % web_session.as_key()).encode('utf-8')
+
         fixture.context.initialise_web_session()
         
         vassert( fixture.context.session is web_session )
@@ -137,13 +137,13 @@ class BasicTests(object):
         vassert( not fixture.context.session.is_secure() )
 
         # Case: session cookie set, secure cookie also set in Request, https
-        fixture.request.scheme = u'https'
+        fixture.request.scheme = 'https'
         fixture.context.set_session(None)
         web_session = WebUserSession()
         web_session.set_as_logged_in(account, False)
-        fixture.request.headers['Cookie'] = 'reahl=%s , reahl_secure=%s' % \
-                                            (web_session.as_key(), web_session.secure_salt)
-         
+
+        fixture.request.headers['Cookie'] = ('reahl=%s , reahl_secure=%s' % \
+                                            (web_session.as_key(), web_session.secure_salt)).encode('utf-8')
         fixture.context.initialise_web_session()
 
         vassert( fixture.context.session is web_session )
@@ -152,12 +152,12 @@ class BasicTests(object):
         vassert( fixture.context.session.is_secure() )
 
         # Case: session cookie set, secure cookie also set in Request, http
-        fixture.request.scheme = u'http'
+        fixture.request.scheme = 'http'
         fixture.context.set_session(None)
         web_session = WebUserSession()
         web_session.set_as_logged_in(account, False)
-        fixture.request.headers['Cookie'] = 'reahl=%s , reahl_secure=%s' % \
-                                            (web_session.as_key(), web_session.secure_salt)
+        fixture.request.headers['Cookie'] = ('reahl=%s , reahl_secure=%s' % \
+                                            (web_session.as_key(), web_session.secure_salt)).encode('utf-8')
          
         fixture.context.initialise_web_session()
 

@@ -15,10 +15,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import datetime
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, set_up
+from reahl.tofu import Fixture
+from reahl.tofu import test
 from reahl.tofu import vassert
 
 import elixir
@@ -26,11 +29,8 @@ from elixir import using_options, Entity, Boolean, UnicodeText
 
 from reahl.dev.tools import EventTester
 from reahl.sqlalchemysupport import metadata, Session
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
 from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.component.eggs import ReahlEgg
-from reahl.systemaccountmodel import UserSession
-from reahl.partymodel import Party
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 
  
@@ -52,7 +52,7 @@ class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_MyDeferredAction(self):
         fixture = self
         class MyDeferredAction(DeferredAction):
-            using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+            using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
             some_object_key = elixir.Field(UnicodeText, required=True)
         
             def __init__(self, some_object, **kwargs):
@@ -73,10 +73,10 @@ class DeferredActionFixture(Fixture, BasicModelZooMixin):
         return self.current_time - datetime.timedelta(days=1)
 
     def new_one_object(self):
-        return self.SomeObject(name=u'one')
+        return self.SomeObject(name='one')
 
     def new_another_object(self):
-        return self.SomeObject(name=u'another')
+        return self.SomeObject(name='another')
   
     
 @istest
@@ -104,7 +104,7 @@ class DeferredActionTests(object):
             deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
 
             vassert( deferred_action.deadline == fixture.future_time )
-            ReahlEgg.do_daily_maintenance_for_egg(u'reahl-domain')
+            ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
             vassert( not fixture.one_object.deadline_flag )
             vassert( not fixture.another_object.deadline_flag )
 
@@ -112,7 +112,7 @@ class DeferredActionTests(object):
             vassert( DeferredAction.query.count() == 1 )
 
             deferred_action.deadline = fixture.past_time
-            ReahlEgg.do_daily_maintenance_for_egg(u'reahl-domain')
+            ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
             vassert( fixture.one_object.deadline_flag )
             vassert( not fixture.another_object.deadline_flag )
 
@@ -136,10 +136,10 @@ class DeferredActionTests(object):
 
             # The requirements are linked back to the correct DeferredActions
             for requirement in requirements2:
-                vassert( set(requirement.deferred_actions) == set([deferred_action1, deferred_action2]) )
+                vassert( set(requirement.deferred_actions) == {deferred_action1, deferred_action2} )
 
             for requirement in requirements1:
-                vassert( set(requirement.deferred_actions) == set([deferred_action2]) )
+                vassert( set(requirement.deferred_actions) == {deferred_action2} )
 
             # If all of one DeferredAction's Requirements are fulfilled, ones also linked to another DeferrredAction
             # are not deleted just yet
@@ -149,7 +149,7 @@ class DeferredActionTests(object):
             vassert( not fixture.another_object.done_flag )
 
             for requirement in requirements1+requirements2:
-                vassert( set(requirement.deferred_actions) == set([deferred_action2]) )
+                vassert( set(requirement.deferred_actions) == {deferred_action2} )
             vassert( Requirement.query.count() == 3 )
             vassert( DeferredAction.query.count() == 1 )
 
@@ -181,7 +181,7 @@ class DeferredActionTests(object):
             # If one DeferredAction times out, the remaining one and its Requirements are left intact
             deferred_action1.deadline=fixture.past_time
 
-            ReahlEgg.do_daily_maintenance_for_egg(u'reahl-domain')
+            ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
             vassert( fixture.one_object.deadline_flag )
             vassert( not fixture.another_object.deadline_flag )
 
@@ -189,11 +189,11 @@ class DeferredActionTests(object):
             vassert( DeferredAction.query.count() == 1 )
 
             for requirement in requirements1+requirements2:
-                vassert( set(requirement.deferred_actions) == set([deferred_action2]) )
+                vassert( set(requirement.deferred_actions) == {deferred_action2} )
 
             # When no more DeferredActions are held onto by Requirements, those Requirements are deleted
             deferred_action2.deadline=fixture.past_time
-            ReahlEgg.do_daily_maintenance_for_egg(u'reahl-domain')
+            ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
 
             vassert( fixture.one_object.deadline_flag )
             vassert( fixture.another_object.deadline_flag )
@@ -213,11 +213,11 @@ class TaskQueueZooMixin(PartyModelZooMixin):
         return WorkflowInterface()
 
     def new_queue(self, name=None):
-        name = name or u'A queue'
+        name = name or 'A queue'
         return Queue(name=name)
 
     def new_task(self, title=None, queue=None):
-        title = title or u'A task'
+        title = title or 'A task'
         queue = queue or self.queue
         task = Task(title=title, queue=queue)
         Session.flush()
@@ -248,9 +248,9 @@ class TaskQueueTests(object):
     @test(TaskQueueFixture)
     def inbox(self, fixture):
         """An Inbox is a collection of tasks in a collection of queues."""
-        queue1 = fixture.new_queue(name=u'q1')
-        queue2 = fixture.new_queue(name=u'q2')
-        queue3 = fixture.new_queue(name=u'q3')
+        queue1 = fixture.new_queue(name='q1')
+        queue2 = fixture.new_queue(name='q2')
+        queue3 = fixture.new_queue(name='q3')
         inbox = Inbox([queue1, queue2])
         task1 = fixture.new_task(queue=queue1)
         task2 = fixture.new_task(queue=queue2)

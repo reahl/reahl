@@ -16,12 +16,15 @@
 
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import os
 
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
-from reahl.tofu import Fixture, set_up, tear_down
+from reahl.tofu import set_up
+from reahl.tofu import tear_down
 
 from reahl.dev.fixtures import CleanDatabase
 
@@ -97,16 +100,16 @@ class BrowserSetup(CleanDatabase):
         #--single-process
         try:
             wd = webdriver.Chrome(chrome_options=options)
-        except WebDriverException, ex:
-            if ex.msg.startswith(u'Unable to either launch or connect to Chrome'):
-                ex.msg += u'  *****NOTE****: On linux, chrome needs write access to /dev/shm.'
-                ex.msg += u' This is often not the case when you are running inside a *chroot*.'
-                ex.msg += u' To fix, add the following line in the chroot\'s /etc/fstab: '
-                ex.msg += u' "tmpfs /dev/shm tmpfs rw,noexec,nosuid,nodev 0 0" '
-                ex.msg += u' .... and then run sudo mount /dev/shm '
-                ex.msg += u'\n\n ***ALTERNATIVE*** An alternative solution (when using schroot) is'
-                ex.msg += u' to make sure that /etc/schroot/default/fstab contain a line for /run/shm.'
-                ex.msg += u' (usually it is commented out)'
+        except WebDriverException as ex:
+            if ex.msg.startswith('Unable to either launch or connect to Chrome'):
+                ex.msg += '  *****NOTE****: On linux, chrome needs write access to /dev/shm.'
+                ex.msg += ' This is often not the case when you are running inside a *chroot*.'
+                ex.msg += ' To fix, add the following line in the chroot\'s /etc/fstab: '
+                ex.msg += ' "tmpfs /dev/shm tmpfs rw,noexec,nosuid,nodev 0 0" '
+                ex.msg += ' .... and then run sudo mount /dev/shm '
+                ex.msg += '\n\n ***ALTERNATIVE*** An alternative solution (when using schroot) is'
+                ex.msg += ' to make sure that /etc/schroot/mount.defaults contain a line for /run/shm.'
+                ex.msg += ' (usually it is commented out)'
             raise
         self.reahl_server.install_handler(wd)
         return wd
@@ -133,16 +136,16 @@ class BrowserSetup(CleanDatabase):
 
     @tear_down
     def stop_servers(self):
-        if u'reahl_server' in self.__dict__:
+        if 'reahl_server' in self.__dict__:
             self.reahl_server.set_noop_app() # selenium.stop() hits the application its opened on again.
             self.reahl_server.restore_handlers()
-        if u'firefox_driver' in self.__dict__:
+        if 'firefox_driver' in self.__dict__:
 #            self.firefox_driver.close()
             self.firefox_driver.quit()
-        if u'chrome_driver' in self.__dict__:
+        if 'chrome_driver' in self.__dict__:
 #            self.chrome_driver.close()
             self.chrome_driver.quit()
-        if u'reahl_server' in self.__dict__:
+        if 'reahl_server' in self.__dict__:
             self.reahl_server.stop()
 
     def new_test_dependencies(self):
@@ -160,6 +163,6 @@ class BrowserSetup(CleanDatabase):
         config.web.persisted_file_class = PersistedFile
 
         config.accounts = SystemAccountConfig()
-        config.accounts.admin_email = u'admin@example.org'
+        config.accounts.admin_email = 'admin@example.org'
         
         return config

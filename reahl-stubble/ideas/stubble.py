@@ -14,9 +14,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import new
 import types
 import inspect
+from functools import reduce
 
 #
 # class XStub(Stub):
@@ -59,7 +63,7 @@ class StubMethod(object):
         assert issubclass(owner, Stub), 'stubbed methods belong in Stub classes...'
         assert instance, 'implemented for instance methods only'
         real_method = getattr(owner.stubbed, self.stub.__name__)
-        assert type(real_method.im_func) == types.FunctionType, 'stubbed methods are for methods...'
+        assert isinstance(real_method.im_func, types.FunctionType), 'stubbed methods are for methods...'
         real_args = inspect.getargspec(real_method.im_func)
         stub_args = inspect.getargspec(self.stub)
         assert real_args == stub_args, 'argument specification mismatch'
@@ -83,7 +87,7 @@ class StubAttribute(object):
     def instance_attributes(self, cls):
         def all_slots(l, cls):
             s = cls.__slots__
-            if isinstance(s, str):
+            if isinstance(s, six.string_types):
                 s = [s]
             l.extend(s)
             return l
@@ -134,15 +138,15 @@ class StubEx1(Stub):
 
     @stubmethod
     def ma(self, b):
-        print 'stub called with %s' % b
+        print('stub called with %s' % b)
 
     @stubmethod
     def donkey(self):
-        print 'donkey'
+        print('donkey')
 
     @stubmethod
     def mb(self, b, c):
-        print 'stub called with %s %s' % (b, c)
+        print('stub called with %s %s' % (b, c))
 
 
 class StubEx2(RealClass, Stub):
@@ -152,15 +156,15 @@ class StubEx2(RealClass, Stub):
 
     @stubmethod
     def ma(self, d):
-        print 'stub called with %s' % b
+        print('stub called with %s' % b)
 
     @stubmethod
     def donkey(self):
-        print 'donkey'
+        print('donkey')
 
     @stubmethod
     def mb(self, b, c):
-        print 'stub called with %s %s' % (b, c)
+        print('stub called with %s %s' % (b, c))
 
 s1 = StubEx1()
 s2 = StubEx2(1, 2)

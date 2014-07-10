@@ -16,6 +16,9 @@
 
 """Tests for the bzrsupport module."""
 
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import os
 import os.path
 
@@ -31,7 +34,7 @@ class BzrFixture(Fixture):
         bzr_directory = temp_dir()
         if initialised:
             with file(os.devnull, 'w') as DEVNULL:
-                Executable('bzr').check_call([u'init'], cwd=bzr_directory.name, stdout=DEVNULL, stderr=DEVNULL)
+                Executable('bzr').check_call(['init'], cwd=bzr_directory.name, stdout=DEVNULL, stderr=DEVNULL)
         return bzr_directory
 
         
@@ -51,27 +54,27 @@ class BzrTests(object):
         bzr = Bzr(fixture.bzr_directory.name)
         vassert( bzr.is_checked_in() )
 
-        file(os.path.join(fixture.bzr_directory.name, u'afile'), 'w').close()
+        file(os.path.join(fixture.bzr_directory.name, 'afile'), 'w').close()
         vassert( not bzr.is_checked_in() )
         
     @test(BzrFixture)
     def last_commit_time(self, fixture):
         bzr = Bzr(fixture.bzr_directory.name)
-        bzr.commit(u'testing', unchanged=True)
+        bzr.commit('testing', unchanged=True)
 
         assert_recent( bzr.last_commit_time )
 
     @test(BzrFixture)
     def tag_related(self, fixture):
         bzr = Bzr(fixture.bzr_directory.name)
-        bzr.commit(u'testing', unchanged=True)
+        bzr.commit('testing', unchanged=True)
 
         vassert( bzr.get_tags() == [] )
         bzr.tag('mytag')
         vassert( bzr.get_tags(head_only=True) == ['mytag'] )
         vassert( bzr.get_tags() == ['mytag'] )
 
-        bzr.commit(u'testing', unchanged=True)
+        bzr.commit('testing', unchanged=True)
         bzr.tag('lasttag')
         vassert( bzr.get_tags(head_only=True) == ['lasttag'] )
         vassert( bzr.get_tags() == ['lasttag', 'mytag'] )

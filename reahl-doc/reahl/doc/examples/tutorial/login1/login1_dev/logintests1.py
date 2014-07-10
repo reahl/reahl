@@ -1,4 +1,6 @@
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.tofu import test, set_up
 
 from reahl.web_dev.fixtures import WebFixture
@@ -12,10 +14,10 @@ class LoginFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=LoginUI))
         
-    password = u'bobbejaan'
+    password = 'bobbejaan'
 
     def new_account(self):
-        account = EmailAndPasswordSystemAccount(email=u'johndoe@some.org')
+        account = EmailAndPasswordSystemAccount(email='johndoe@some.org')
         account.set_new_password(account.email, self.password)
         account.activate()
         return account
@@ -36,15 +38,15 @@ def logging_in(fixture):
     browser = fixture.browser
     account = fixture.account
 
-    browser.open(u'/')
-    browser.click(XPath.link_with_text(u'Log in'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Log in'))
 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.type(XPath.input_labelled(u'Password'), u'bobbejaan')
-    browser.click(XPath.button_labelled(u'Log in'))
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Password'), 'bobbejaan')
+    browser.click(XPath.button_labelled('Log in'))
 
-    browser.click(XPath.link_with_text(u'Home'))
-    assert browser.is_element_present(XPath.paragraph_containing(u'Welcome johndoe@some.org'))
+    browser.click(XPath.link_with_text('Home'))
+    assert browser.is_element_present(XPath.paragraph_containing('Welcome johndoe@some.org'))
         
 
 @test(LoginFixture)
@@ -54,11 +56,11 @@ def domain_exception(fixture):
     browser = fixture.browser
     account = fixture.account
 
-    browser.open(u'/')
-    browser.click(XPath.link_with_text(u'Log in'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Log in'))
 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.type(XPath.input_labelled(u'Password'), u'wrong password')
-    browser.click(XPath.button_labelled(u'Log in'))
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Password'), 'wrong password')
+    browser.click(XPath.button_labelled('Log in'))
 
-    assert browser.is_element_present(XPath.paragraph_containing(u'Invalid login credentials'))
+    assert browser.is_element_present(XPath.paragraph_containing('Invalid login credentials'))
