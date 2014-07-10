@@ -16,14 +16,9 @@
 
 """The Reahl production commandline utility."""
 
-import os
-import re
-import os.path
-import sys
-from optparse import Values, OptionParser
-import shlex
-from functools import wraps
-import logging
+from __future__ import unicode_literals
+from __future__ import print_function
+
 
 from pkg_resources import DistributionNotFound
 
@@ -32,12 +27,12 @@ from reahl.component.shelltools import Command, ReahlCommandline
 from reahl.component.context import ExecutionContext
 from reahl.component.config import EntryPointClassList, Configuration, StoredConfiguration, MissingValue
 from reahl.component.eggs import ReahlEgg
-from reahl.component.decorators import memoized
+
 
 
 
 class ProdShellConfig(Configuration):
-    commands = EntryPointClassList(u'reahl.component.prodcommands', description=u'The commands (classes) available to the production commandline shell')
+    commands = EntryPointClassList('reahl.component.prodcommands', description='The commands (classes) available to the production commandline shell')
 
 
 class ProductionCommand(Command):
@@ -51,13 +46,13 @@ class ProductionCommand(Command):
 
     def verify_commandline(self, options, args):
         if not len(args) >= 1:
-            self.parser.error(u'No config directory given')
+            self.parser.error('No config directory given')
 
     def create_context(self, config_directory):
         try:
             self.context = ExecutionContext.for_config_directory(config_directory)
-        except DistributionNotFound, ex:
-            ex.args = (u'%s (In development? Did you forget to do a "reahl setup -- develop -N"?)' % ex.args[0],)
+        except DistributionNotFound as ex:
+            ex.args = ('%s (In development? Did you forget to do a "reahl setup -- develop -N"?)' % ex.args[0],)
             raise
         with self.context:
             self.context.system_control = SystemControl(self.context.config)
@@ -87,7 +82,7 @@ class ListConfig(ProductionCommand):
     def execute(self, options, args):
         super(ListConfig, self).execute(options, args)
         with self.context:
-            print 'Listing config for %s' % self.directory
+            print('Listing config for %s' % self.directory)
             config = StoredConfiguration(self.directory)
             config.configure(validate=False)
             for config_file, key, value, setting in config.list_all():
@@ -100,11 +95,11 @@ class ListConfig(ProductionCommand):
                     if setting.defaulted:
                         message = setting.default
                         if setting.dangerous:
-                            message += u' (DANGEROUS DEFAULT)'
+                            message += ' (DANGEROUS DEFAULT)'
                     elif setting.automatic:
-                        message = u'AUTOMATIC'
+                        message = 'AUTOMATIC'
                     else:
-                        message = u'NO DEFAULT'
+                        message = 'NO DEFAULT'
                     to_print += '\t%s' % message
                 if options.print_description:
                     to_print += '\t%s' % setting.description
@@ -112,7 +107,7 @@ class ListConfig(ProductionCommand):
                 if options.print_missing_only and not isinstance(value, MissingValue):
                     pass
                 else:
-                    print to_print
+                    print(to_print)
 
 
 class CheckConfig(ProductionCommand):
@@ -120,10 +115,10 @@ class CheckConfig(ProductionCommand):
     keyword = 'checkconfig'
     def execute(self, options, args):
         super(CheckConfig, self).execute(options, args)
-        print 'Checking config in %s' % self.directory
+        print('Checking config in %s' % self.directory)
         config = StoredConfiguration(self.directory)
         config.configure(validate=True)
-        print 'Config parses OK'
+        print('Config parses OK')
 
 
 class CreateDBUser(ProductionCommand):
@@ -207,7 +202,7 @@ class SizeDB(ProductionCommand):
         super(SizeDB, self).execute(options, args)
         with self.context:
             with self.sys_control.auto_connected():
-                print 'Database size: %s' % self.sys_control.size_database()
+                print('Database size: %s' % self.sys_control.size_database())
         return 0
 
 
@@ -253,8 +248,8 @@ class ListDependencies(ProductionCommand):
             for distribution in distributions:
                 deps = ''
                 if options.verbose:
-                    deps = u'[%s]' % (u' | '.join([unicode(i) for i in distribution.requires()]))
-                print u'%s %s' % (distribution, deps)
+                    deps = '[%s]' % (' | '.join([six.text_type(i) for i in distribution.requires()]))
+                print('%s %s' % (distribution, deps))
         return 0
 
 

@@ -16,12 +16,15 @@
 
 """The Reahl configuration utilities."""
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import sys
 import os.path
 import logging
 import tempfile
 from logging import config
 from contextlib import contextmanager
+import imp
 
 from pkg_resources import require, iter_entry_points, DistributionNotFound
 
@@ -45,7 +48,7 @@ class ConfigSetting(object):
        :param automatic: Set this to True for a ConfigSetting which is meant to be used for dependency injection.
     """
     _name = None
-    def __init__(self, default=ExplicitSettingRequired, description=u'No description supplied', dangerous=False, automatic=False):
+    def __init__(self, default=ExplicitSettingRequired, description='No description supplied', dangerous=False, automatic=False):
         self.description = description
         self.default = default
         self.dangerous = dangerous
@@ -58,7 +61,7 @@ class ConfigSetting(object):
     def is_localised(self, obj):
         name = self.name(type(obj))
         for key in dir(obj):
-            if key.startswith(u'%s_' % name):
+            if key.startswith('%s_' % name):
                 return True
         return False
         
@@ -66,9 +69,9 @@ class ConfigSetting(object):
         setting_name = self.name(type(obj))
         if self.is_localised(obj):
             context = ExecutionContext.get_context()
-            locale = context.interface_locale if context else u''
+            locale = context.interface_locale if context else ''
             try:
-                return obj.__dict__[u'%s_%s' % (setting_name, locale)]
+                return obj.__dict__['%s_%s' % (setting_name, locale)]
             except KeyError:
                 pass
 
@@ -96,7 +99,7 @@ class ConfigSetting(object):
 
     def is_set(self, obj):
         name = self.name(type(obj))
-        return obj.__dict__.has_key(name)
+        return name in obj.__dict__
 
     def is_valid(self, obj):        return self.automatic or self.defaulted or self.is_set(obj)
 
@@ -111,7 +114,7 @@ class EntryPointClassList(ConfigSetting):
        :param name: The name of the entry point to read.
        :param description: (See :class:`ConfigSetting`)
     """
-    def __init__(self, name, description=u'Description not supplied'):
+    def __init__(self, name, description='Description not supplied'):
         super(EntryPointClassList, self).__init__(default=[], description=description)
         self.name = name
         
@@ -120,18 +123,18 @@ class EntryPointClassList(ConfigSetting):
         for i in iter_entry_points(self.name):
             try:
                 classes.append(i.load())
-            except ImportError, e:
-                print >> sys.stderr, '\nWARNING: Cannot import %s, from %s' % (i, i.dist)
-                print >> sys.stderr, e
-            except DistributionNotFound, e:
-                print >> sys.stderr, '\nWARNING: Cannot find %s, required by %s' % (e, i.dist)
+            except ImportError as e:
+                print('\nWARNING: Cannot import %s, from %s' % (i, i.dist), file=sys.stderr)
+                print(e, file=sys.stderr)
+            except DistributionNotFound as e:
+                print('\nWARNING: Cannot find %s, required by %s' % (e, i.dist), file=sys.stderr)
                 
         return classes
 
 
 class MissingValue(object):
     def __repr__(self):
-        return _(u'MISSING!!')
+        return _('MISSING!!')
 
     
 class Configuration(object):
@@ -216,15 +219,15 @@ class NullORMControl(object):
 
 
 class ReahlSystemConfig(Configuration):
-    filename = u'reahl.config.py'
-    config_key = u'reahlsystem'
-    root_egg = ConfigSetting(description=u'The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
-    connection_uri = ConfigSetting(description=u'The database connection URI', default=u'sqlite:///%s' % os.path.join(tempfile.gettempdir(), u'reahl.db'), dangerous=True)
-    orm_control = ConfigSetting(default=NullORMControl(), description=u'The ORM control object to be used', automatic=True)
-    debug = ConfigSetting(default=False, description=u'Enables more verbose logging')
-    databasecontrols = EntryPointClassList(u'reahl.component.databasecontrols', description=u'All available DatabaseControl classes')
-    translation_packages = EntryPointClassList(u'reahl.translations', description=u'All available packages containing translation messages')
-    serialise_parallel_requests = ConfigSetting(default=False, description=u'Whether concurrent requests to the web application should be forcibly serialised')
+    filename = 'reahl.config.py'
+    config_key = 'reahlsystem'
+    root_egg = ConfigSetting(description='The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
+    connection_uri = ConfigSetting(description='The database connection URI', default='sqlite:///%s' % os.path.join(tempfile.gettempdir(), 'reahl.db'), dangerous=True)
+    orm_control = ConfigSetting(default=NullORMControl(), description='The ORM control object to be used', automatic=True)
+    debug = ConfigSetting(default=False, description='Enables more verbose logging')
+    databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
+    translation_packages = EntryPointClassList('reahl.translations', description='All available packages containing translation messages')
+    serialise_parallel_requests = ConfigSetting(default=False, description='Whether concurrent requests to the web application should be forcibly serialised')
 
 
 class ConfigAsDict(dict):
@@ -233,7 +236,7 @@ class ConfigAsDict(dict):
         self['config'] = config
 
     def __getitem__(self, key):
-        if self.has_key(key):
+        if key in self:
             return dict.__getitem__(self,key)
         if hasattr(self.config, key):
             return getattr(self.config, key)
@@ -254,7 +257,7 @@ class StoredConfiguration(Configuration):
 
     def configure(self, validate=True):
         #http://mail.python.org/pipermail/tutor/2005-August/040993.html
-        reload(sys); #read setdefaultencoding python docs - it "enables" the method again
+        imp.reload(sys); #read setdefaultencoding python docs - it "enables" the method again
         sys.setdefaultencoding('utf-8')
         
         self.configure_logging()
@@ -269,9 +272,9 @@ class StoredConfiguration(Configuration):
 
         try:
             require(self.reahlsystem.root_egg)
-        except DistributionNotFound, ex:
+        except DistributionNotFound as ex:
             requirement = ex.args[0]
-            if (requirement.project_name == self.reahlsystem.root_egg.replace(u'_',u'-')) and not self.in_production:
+            if (requirement.project_name == self.reahlsystem.root_egg.replace('_','-')) and not self.in_production:
                 ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.args[0],)
             raise
 
@@ -286,7 +289,7 @@ class StoredConfiguration(Configuration):
             config.fileConfig(logging_config_file)
         else:
             logging.basicConfig()
-            logging.captureWarnings(True)
+        logging.captureWarnings(True)
 
     def configure_components(self):
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
@@ -313,7 +316,7 @@ class StoredConfiguration(Configuration):
         file_path = os.path.join(self.config_directory, new_config.filename)
         if os.path.isfile(file_path):
             locals_dict = ConfigAsDict(self)
-            execfile(file_path, globals(), locals_dict)
+            exec(compile(open(file_path).read(), file_path, 'exec'), globals(), locals_dict)
             locals_dict.update_required(new_config.config_key)
         else:
             message = 'file "%s" not found, using defaults' % file_path
@@ -339,7 +342,7 @@ class StoredConfiguration(Configuration):
 
         try:
             src_config = self.composite_get_attr(keys)
-        except AttributeError, e:
+        except AttributeError as e:
             # we make sure that exceptions unrelated to our keys are reraised:
             if set(keys) | set(e.args[0].split()):
                 raise ConfigurationException('%s not set in %s' % (composite_key, full_filename))
@@ -371,7 +374,7 @@ class CodedConfiguration(StoredConfiguration, dict):
     def read(self, configuration_class):
         fimename = configuration_class.filename
         new_config = self.create_config(configuration_class)
-        if self.has_key(filename):
+        if filename in self:
             locals_dict = ConfigAsDict(self)
             self[filename](self)
             locals_dict.update_required(new_config.config_key)

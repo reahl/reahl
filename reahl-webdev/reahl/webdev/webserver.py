@@ -14,25 +14,24 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from threading import Thread, Event, Timer
-import threading
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
+from threading import Event
+from threading import Thread
 import select
 from wsgiref import simple_server
 import sys
 import traceback
 import socket
 import ssl
-import tempfile
-import os.path 
 from contextlib import contextmanager
-import mimetypes
-from datetime import datetime
 import logging
 import functools
 import pkg_resources
 
-from webob import Request, Response
-from webob.exc import HTTPNotFound, HTTPInternalServerError
+from webob import Request
+from webob.exc import HTTPInternalServerError
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
@@ -53,23 +52,23 @@ class WrappedApp(object):
     def __call__(self, environ, start_response):
         app = self.wrapped
         
-        request = Request(environ)
+        request = Request(environ, charset='utf-8')
         
         self.exception = None
         self.traceback = None
         try:
-            to_return = ''
+            to_return = b''
             for i in app(environ, start_response):
-                to_return += str(i)
+                to_return += i.encode('utf-8')
         except socket.error:
-            to_return = ''
-            for i in HTTPInternalServerError()(environ, start_response):
+            to_return = b''
+            for i in HTTPInternalServerError(charset='utf-8')(environ, start_response):
                 to_return += i
         except:
-            to_return = ''
+            to_return = b''
             (_, self.exception, self.traceback) = sys.exc_info()
-            traceback_html = traceback.format_exc(self.traceback)
-            for i in HTTPInternalServerError(content_type='text/plain', charset=None, body=traceback_html)(environ, start_response):
+            traceback_html = six.text_type(traceback.format_exc(self.traceback))
+            for i in HTTPInternalServerError(content_type=b'text/plain', charset=b'utf-8', unicode_body=traceback_html)(environ, start_response):
                 to_return += i
         yield to_return
 
@@ -84,7 +83,7 @@ class WrappedApp(object):
 
     def report_exception(self):
         if self.exception:
-            raise self.exception, None, self.traceback
+            six.reraise(self.exception.__class__, self.exception, self.traceback)
             
     def clear_exception(self):
         self.exception = None
@@ -124,13 +123,13 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
         try:
             simple_server.WSGIRequestHandler.handle(self)
         except socket.timeout:
-            message = u'Server socket timed out waiting to receive the request. This may happen if the server mistakenly deduced that there were requests waiting for it when there were not. Such as when chrome prefetches things, etc.'
+            message = 'Server socket timed out waiting to receive the request. This may happen if the server mistakenly deduced that there were requests waiting for it when there were not. Such as when chrome prefetches things, etc.'
             logging.getLogger(__name__).warn(message)
 
     def finish_response(self):
         try:
             simple_server.WSGIRequestHandler.finish_response()
-        except socket.error, ex:
+        except socket.error as ex:
             import pdb; pdb.set_trace()
 
 
@@ -202,7 +201,7 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
     def finish_request(self, request, client_address):
         try:
             ReahlWSGIServer.finish_request(self, request, client_address)
-        except ssl.SSLError, ex:
+        except ssl.SSLError as ex:
             pass
 
 class Handler(object):
@@ -228,7 +227,7 @@ class Handler(object):
                     started.set()
                     r = self.original_execute(command, params)
                     results.append(r)
-                except Exception, e:
+                except Exception as e:
                     raise
                 finally:
                     results.append(None)
@@ -274,15 +273,15 @@ class ReahlWebServer(object):
         self.running = False
         self.handlers = {}
         self.httpd_thread = None
-        certfile = pkg_resources.resource_filename(__name__, u'reahl_development_cert.pem')
+        certfile = pkg_resources.resource_filename(__name__, 'reahl_development_cert.pem')
         self.reahl_wsgi_app = WrappedApp(ReahlWSGIApplication(config))
         try:
             https_port = port+363
             self.httpd = ReahlWSGIServer.make_server('', port, self.reahl_wsgi_app)
             self.httpsd = SSLCapableWSGIServer.make_server('', https_port, certfile, self.reahl_wsgi_app)
-        except socket.error, ex:
-            message = (u'Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, port, https_port)) \
-                     +u'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html' \
+        except socket.error as ex:
+            message = ('Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, port, https_port)) \
+                     +'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html' \
                       
             raise AssertionError(message)
 
@@ -304,7 +303,7 @@ class ReahlWebServer(object):
         if self.httpd_thread and join:
             self.httpd_thread.join(5)
             if self.httpd_thread.is_alive():
-                raise ProgrammerError(u'Timed out after 5 seconds waiting for httpd serving thread to end')
+                raise ProgrammerError('Timed out after 5 seconds waiting for httpd serving thread to end')
         self.httpd_thread = None
 
     def start(self, in_seperate_thread=True, connect=False):
@@ -333,7 +332,7 @@ class ReahlWebServer(object):
         """
         try:
             socket_to_shutdown.shutdown(socket.SHUT_RDWR)
-        except socket.error, e:
+        except socket.error as e:
             if e.errno == 10057:
                 socket_to_shutdown.close();
             else:

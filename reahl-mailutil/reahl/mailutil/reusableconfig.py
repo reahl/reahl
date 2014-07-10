@@ -15,12 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.component.config import Configuration, ConfigSetting
 
 
 class MailConfig(Configuration):
-    filename = u'mailutil.config.py'
-    config_key = u'mail'
-    smtp_host = ConfigSetting(default='localhost', description=u'The hostname used for sending SMTP email')
-    smtp_port = ConfigSetting(default=25, description=u'The port used for sending SMTP email')
+    filename = 'mailutil.config.py'
+    config_key = 'mail'
+    smtp_host = ConfigSetting(default='localhost', description='The hostname used for sending SMTP email')
+    smtp_port = ConfigSetting(default=25, description='The port used for sending SMTP email')
 

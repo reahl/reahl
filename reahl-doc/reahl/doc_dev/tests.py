@@ -15,19 +15,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     
+from __future__ import unicode_literals
+from __future__ import print_function
 import os
 import os.path
-import subprocess
 
-from nose.tools import istest
-from reahl.tofu import test, set_up, tear_down, scenario, Fixture
+from reahl.tofu import Fixture
+from reahl.tofu import scenario
+from reahl.tofu import test
 from reahl.tofu import vassert, expected, temp_file_with
 from reahl.stubble import SystemOutStub
-from reahl.component.config import StoredConfiguration
 from reahl.component.shelltools import Executable
 
 from reahl.web_dev.fixtures import WebBasicsMixin
-from reahl.webdev.fixtures import BrowserSetup
 from reahl.webdev.tools import XPath, Browser
 
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
@@ -60,12 +60,12 @@ class ExampleFixture(Fixture, WebBasicsMixin):
         self.reahl_server.set_app(self.wsgi_app)
 
     def new_screenshot_directory(self):
-        relative_path = u'doc/_build/screenshots'
+        relative_path = 'doc/_build/screenshots'
         if not os.path.isdir(relative_path):
             os.makedirs(relative_path)
         return relative_path
 
-    def new_screenshot_path(self, filename=u'screenshot.png'):
+    def new_screenshot_path(self, filename='screenshot.png'):
         return os.path.join(os.getcwd(), self.screenshot_directory, filename)
     
     def tab_is_active(self, tab_name):
@@ -78,7 +78,7 @@ class ExampleFixture(Fixture, WebBasicsMixin):
         return self.driver_browser.execute_script('return window.jQuery(".reahl-form label.error").is(":visible")')
 
     def is_error_text(self, text):
-        return text == self.driver_browser.get_text(u"//form/label[@class='error']")
+        return text == self.driver_browser.get_text("//form/label[@class='error']")
 
     def get_main_slot_contents(self):
         return self.driver_browser.get_text('//div[@id="yui-main"]//p')
@@ -174,77 +174,77 @@ class ExampleFixture(Fixture, WebBasicsMixin):
 @test(ExampleFixture)
 def hit_home_page(fixture):
     fixture.start_example_app()
-    fixture.driver_browser.open(u'/')
+    fixture.driver_browser.open('/')
 
 @test(ExampleFixture.tabbed_panel)
 def widgets(fixture):
     fixture.start_example_app()
-    fixture.driver_browser.open(u'/')
-    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, u'Tab 1') )
-    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, u'A paragraph to give content to the first tab.') )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'tabbedpanel1.png'))
+    fixture.driver_browser.open('/')
+    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 1') )
+    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'A paragraph to give content to the first tab.') )
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel1.png'))
 
-    fixture.driver_browser.click(XPath.link_with_text(u'Tab 2'))
-    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, u'Tab 2') )
-    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, u'And another ...  to give content to the second tab.') )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'tabbedpanel2.png'))
+    fixture.driver_browser.click(XPath.link_with_text('Tab 2'))
+    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 2') )
+    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'And another ...  to give content to the second tab.') )
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
 
 @test(ExampleFixture.validation)
 def validation(fixture):
     fixture.start_example_app()
-    fixture.driver_browser.open(u'/')
+    fixture.driver_browser.open('/')
     vassert( fixture.driver_browser.wait_for_not(fixture.error_is_visible) )
-    vassert( fixture.driver_browser.is_element_present(u'//input') )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'validation1.png'))
+    vassert( fixture.driver_browser.is_element_present('//input') )
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation1.png'))
     
-    fixture.driver_browser.type(u'//input', u'johndoe')
-    fixture.driver_browser.press_tab(u'//input')
+    fixture.driver_browser.type('//input', 'johndoe')
+    fixture.driver_browser.press_tab('//input')
     vassert( fixture.driver_browser.wait_for(fixture.error_is_visible) )
-    vassert( fixture.is_error_text(u'Email address should be a valid email address') )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'validation2.png'))
+    vassert( fixture.is_error_text('Email address should be a valid email address') )
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation2.png'))
 
-    fixture.driver_browser.type(u'//input', u'')
-    fixture.driver_browser.press_tab(u'//input')
+    fixture.driver_browser.type('//input', '')
+    fixture.driver_browser.press_tab('//input')
     vassert( fixture.driver_browser.wait_for(fixture.error_is_visible) )
-    vassert( fixture.is_error_text(u'Email address is required') )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'validation3.png'))
+    vassert( fixture.is_error_text('Email address is required') )
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation3.png'))
 
-    fixture.driver_browser.type(u'//input', u'johndoe@some.org')
-    fixture.driver_browser.press_tab(u'//input')
+    fixture.driver_browser.type('//input', 'johndoe@some.org')
+    fixture.driver_browser.press_tab('//input')
     vassert( fixture.driver_browser.wait_for_not(fixture.error_is_visible) )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'validation4.png'))
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation4.png'))
 
 @test(ExampleFixture.layout)
 def layout(fixture):
     fixture.start_example_app()
-    fixture.driver_browser.open(u'/')
-    fixture.driver_browser.type(XPath.input_labelled(u'Email address'), u'johndoe')
-    fixture.driver_browser.press_tab(u'//input')
+    fixture.driver_browser.open('/')
+    fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe')
+    fixture.driver_browser.press_tab('//input')
     vassert( fixture.driver_browser.wait_for(fixture.error_is_visible) )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'layout.png'))
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('layout.png'))
 
 @test(ExampleFixture.pageflow)
 def pageflow(fixture):
     fixture.start_example_app()
-    fixture.driver_browser.open(u'/')
-    fixture.driver_browser.type(XPath.input_labelled(u'Email address'), u'johndoe@some.org')
-    fixture.driver_browser.type(XPath.input_labelled(u'Comment'), u'')
+    fixture.driver_browser.open('/')
+    fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
+    fixture.driver_browser.type(XPath.input_labelled('Comment'), '')
     with SystemOutStub() as output:
-        fixture.driver_browser.click(XPath.button_labelled(u'Submit'))
+        fixture.driver_browser.click(XPath.button_labelled('Submit'))
         
-        vassert( output.captured_output == u'johndoe@some.org submitted a comment:\nNone\n' )
-        vassert( fixture.driver_browser.current_url.path == u'/none' )
-        output.capture_console_screenshot(fixture.new_screenshot_path(u'pageflow1.txt'))
+        vassert( output.captured_output == 'johndoe@some.org submitted a comment:\nNone\n' )
+        vassert( fixture.driver_browser.current_url.path == '/none' )
+        output.capture_console_screenshot(fixture.new_screenshot_path('pageflow1.txt'))
 
-        fixture.driver_browser.open(u'/')
-        fixture.driver_browser.type(XPath.input_labelled(u'Email address'), u'johndoe@some.org')
-        fixture.driver_browser.type(XPath.input_labelled(u'Comment'), u'some comment text')
+        fixture.driver_browser.open('/')
+        fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
+        fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
         with SystemOutStub() as output:
-            fixture.driver_browser.click(XPath.button_labelled(u'Submit'))
+            fixture.driver_browser.click(XPath.button_labelled('Submit'))
 
-        vassert( output.captured_output == u'johndoe@some.org submitted a comment:\nsome comment text\n' )
-        vassert( fixture.driver_browser.current_url.path == u'/thanks' )
-        output.capture_console_screenshot(fixture.new_screenshot_path(u'pageflow2.txt'))
+        vassert( output.captured_output == 'johndoe@some.org submitted a comment:\nsome comment text\n' )
+        vassert( fixture.driver_browser.current_url.path == '/thanks' )
+        output.capture_console_screenshot(fixture.new_screenshot_path('pageflow2.txt'))
 
 
 @test(ExampleFixture.persistence)
@@ -255,18 +255,18 @@ def persistence(fixture):
     vassert( not fixture.driver_browser.is_element_present('//h1') )
     vassert( fixture.driver_browser.is_element_present('//form') )
 
-    fixture.driver_browser.type(XPath.input_labelled(u'Email address'), u'johndoe@some.org')
-    fixture.driver_browser.type(XPath.input_labelled(u'Comment'), u'some comment text')
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'persistence1.png'))
+    fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
+    fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('persistence1.png'))
 
-    fixture.driver_browser.click(XPath.button_labelled(u'Submit'))
+    fixture.driver_browser.click(XPath.button_labelled('Submit'))
 
     vassert( fixture.driver_browser.is_element_present('//form') )
     vassert( fixture.driver_browser.is_element_present('//form/following-sibling::div/p') )
     comment_text = fixture.driver_browser.get_text('//form/following-sibling::div/p')
-    vassert( comment_text == u'By johndoe@some.org: some comment text' )
+    vassert( comment_text == 'By johndoe@some.org: some comment text' )
 
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'persistence2.png'))
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('persistence2.png'))
 
 @test(ExampleFixture.access_control)
 def access(fixture):
@@ -276,7 +276,7 @@ def access(fixture):
     vassert( not fixture.driver_browser.is_editable(XPath.input_labelled('Greyed out')) )
     vassert( fixture.driver_browser.is_element_present(XPath.button_labelled('Greyed out button')) )
     vassert( not fixture.driver_browser.is_editable(XPath.button_labelled('Greyed out button')) )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'access.png'))
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('access.png'))
 
     from reahl.doc.examples.features.access.access import Comment
     from reahl.component.exceptions import AccessRestricted
@@ -288,14 +288,14 @@ def access(fixture):
 def i18n(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/some_page')
-    vassert( fixture.get_main_slot_contents() == u'This is a translated string. The current URL is "/some_page".' )
-    vassert( fixture.driver_browser.title == u'Translated example' )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'i18n1.png'))
+    vassert( fixture.get_main_slot_contents() == 'This is a translated string. The current URL is "/some_page".' )
+    vassert( fixture.driver_browser.title == 'Translated example' )
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n1.png'))
 
-    fixture.driver_browser.click(XPath.link_with_text(u'Afrikaans'))
-    vassert( fixture.get_main_slot_contents() == u'Hierdie is \'n vertaalde string. Die huidige URL is "/af/some_page".' )
-    vassert( fixture.driver_browser.title == u'Vertaalde voorbeeld' )
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'i18n2.png'))
+    fixture.driver_browser.click(XPath.link_with_text('Afrikaans'))
+    vassert( fixture.get_main_slot_contents() == 'Hierdie is \'n vertaalde string. Die huidige URL is "/af/some_page".' )
+    vassert( fixture.driver_browser.title == 'Vertaalde voorbeeld' )
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n2.png'))
 
 @test(ExampleFixture.basichtmlwidgets)
 def basichtmlwidgets(fixture):
@@ -307,60 +307,60 @@ def fileupload(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/')
 
-    file1 = temp_file_with(u'some content in a file', u'file1.txt')
-    file2 = temp_file_with(u'different content', u'file2.txt')
-    file3 = temp_file_with(u'even more content', u'file3.txt')
+    file1 = temp_file_with('some content in a file', 'file1.txt')
+    file2 = temp_file_with('different content', 'file2.txt')
+    file3 = temp_file_with('even more content', 'file3.txt')
 
     # Upload a file
-    fixture.driver_browser.type(u'//input[@type="file"]', file1.name)
+    fixture.driver_browser.type('//input[@type="file"]', file1.name)
     vassert( fixture.uploaded_file_is_listed(file1.name) )
 
     # Upload a file
-    fixture.driver_browser.type(u'//input[@type="file"]', file2.name)
+    fixture.driver_browser.type('//input[@type="file"]', file2.name)
     vassert( fixture.uploaded_file_is_listed(file2.name) )
 
     # Upload a file
-    fixture.driver_browser.type(u'//input[@type="file"]', file3.name)
+    fixture.driver_browser.type('//input[@type="file"]', file3.name)
     vassert( fixture.uploaded_file_is_listed(file3.name) )
 
     # Delete file2 from uploaded files
-    fixture.driver_browser.click(XPath.button_labelled(u'Remove', filename=os.path.basename(file2.name)))
+    fixture.driver_browser.click(XPath.button_labelled('Remove', filename=os.path.basename(file2.name)))
     vassert( not fixture.uploaded_file_is_listed(file2.name) )
 
     # Submit the form
-    fixture.driver_browser.type(XPath.input_labelled(u'Email address'), u'johndoe@some.org')
-    fixture.driver_browser.type(XPath.input_labelled(u'Comment'), u'some comment text')
-    fixture.driver_browser.click(XPath.button_labelled(u'Submit'))
+    fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
+    fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
+    fixture.driver_browser.click(XPath.button_labelled('Submit'))
 
     attached_file1 = AttachedFile.query.filter_by(filename=os.path.basename(file1.name)).one()
     attached_file3 = AttachedFile.query.filter_by(filename=os.path.basename(file3.name)).one()
     vassert( AttachedFile.query.count() == 2 )
-    vassert( attached_file1.contents == u'some content in a file' )
-    vassert( attached_file3.contents == u'even more content' )
+    vassert( attached_file1.contents == 'some content in a file' )
+    vassert( attached_file3.contents == 'even more content' )
 
 @test(ExampleFixture.slots)
 def slots(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/')
 
-    expected_main_contents = u'In this slot will be some main content for the view on /'
-    expected_secondary_contents = u'Some secondary content related to /'
+    expected_main_contents = 'In this slot will be some main content for the view on /'
+    expected_secondary_contents = 'Some secondary content related to /'
     main_contents = fixture.get_main_slot_contents()
     vassert( main_contents == expected_main_contents )
     secondary_contents = fixture.get_secondary_slot_contents()
     vassert( secondary_contents == expected_secondary_contents )
     
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'slots1.png'))
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('slots1.png'))
 
-    fixture.driver_browser.click(XPath.link_with_text(u'Page 2'))
-    expected_main_contents = u'This could, for example, be where a photo gallery shows a large photo.'
-    expected_secondary_contents = u'Thumbnails will then sit on the side of the big photo.'
+    fixture.driver_browser.click(XPath.link_with_text('Page 2'))
+    expected_main_contents = 'This could, for example, be where a photo gallery shows a large photo.'
+    expected_secondary_contents = 'Thumbnails will then sit on the side of the big photo.'
     main_contents = fixture.get_main_slot_contents()
     vassert( main_contents == expected_main_contents )
     secondary_contents = fixture.get_secondary_slot_contents()
     vassert( secondary_contents == expected_secondary_contents )
 
-    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path(u'slots2.png'))
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('slots2.png'))
 
 @test(ExampleFixture.basichtmlinputs)
 def basichtmlinputs(fixture):
@@ -375,13 +375,13 @@ def model_examples(fixture):
 
 @test(ExampleFixture.addressbook1)
 def test_addressbook1(fixture):
-    john = addressbook1.Address(name=u'John', email_address=u'johndoe@some.org')
+    john = addressbook1.Address(name='John', email_address='johndoe@some.org')
     john.save()
 
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
     
-    vassert( browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
+    vassert( browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) )
 
 
 @test(ExampleFixture.addressbook2)
@@ -389,11 +389,11 @@ def test_addressbook2(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
     
-    browser.type(XPath.input_labelled(u'Name'), u'John') 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.click(XPath.button_labelled(u'Save'))
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
     
-    vassert( browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
+    vassert( browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) )
 
 
 @test(ExampleFixture.pageflow1)
@@ -401,20 +401,20 @@ def test_pageflow1(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
-    vassert( browser.is_element_present(u'//ul[contains(@class,"reahl-menu")]') )
+    vassert( browser.is_element_present('//ul[contains(@class,"reahl-menu")]') )
 
-    browser.click(XPath.link_with_text(u'Add an address'))
-    vassert( browser.location_path == u'/add' )
+    browser.click(XPath.link_with_text('Add an address'))
+    vassert( browser.location_path == '/add' )
     
-    browser.type(XPath.input_labelled(u'Name'), u'John') 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.click(XPath.button_labelled(u'Save'))
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
     
-    vassert( browser.location_path == u'/add' )
+    vassert( browser.location_path == '/add' )
 
-    browser.click(XPath.link_with_text(u'Addresses'))
-    vassert( browser.location_path == u'/' )
-    vassert( browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
+    browser.click(XPath.link_with_text('Addresses'))
+    vassert( browser.location_path == '/' )
+    vassert( browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) )
 
 
 @test(ExampleFixture.pageflow2)
@@ -422,17 +422,17 @@ def test_pageflow2(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
-    vassert( browser.is_element_present(u'//ul[contains(@class,"reahl-menu")]') )
+    vassert( browser.is_element_present('//ul[contains(@class,"reahl-menu")]') )
 
-    browser.click(XPath.link_with_text(u'Add an address'))
-    vassert( browser.location_path == u'/add' )
+    browser.click(XPath.link_with_text('Add an address'))
+    vassert( browser.location_path == '/add' )
     
-    browser.type(XPath.input_labelled(u'Name'), u'John') 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.click(XPath.button_labelled(u'Save'))
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
     
-    vassert( browser.location_path == u'/' )
-    vassert( browser.is_element_present(XPath.paragraph_containing(u'John: johndoe@some.org')) )
+    vassert( browser.location_path == '/' )
+    vassert( browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) )
 
 
 @test(ExampleFixture.parameterised1)
@@ -440,43 +440,43 @@ def test_parameterised1(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
-    browser.click(XPath.link_with_text(u'Add an address'))
-    browser.type(XPath.input_labelled(u'Name'), u'John') 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.click(XPath.button_labelled(u'Save'))
+    browser.click(XPath.link_with_text('Add an address'))
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
     
-    vassert( browser.location_path == u'/' )
-    browser.click(XPath.link_with_text(u'edit'))
+    vassert( browser.location_path == '/' )
+    browser.click(XPath.link_with_text('edit'))
 
     john = parameterised1.Address.query.one()
-    vassert( browser.location_path == u'/edit/%s' % john.id )
-    browser.type(XPath.input_labelled(u'Name'), u'Johnny') 
-    browser.type(XPath.input_labelled(u'Email'), u'johnny@walker.org')
-    browser.click(XPath.button_labelled(u'Update'))
+    vassert( browser.location_path == '/edit/%s' % john.id )
+    browser.type(XPath.input_labelled('Name'), 'Johnny') 
+    browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
+    browser.click(XPath.button_labelled('Update'))
     
-    vassert( browser.location_path == u'/' )
-    vassert( browser.is_element_present(XPath.paragraph_containing(u'Johnny: johnny@walker.org')) )
+    vassert( browser.location_path == '/' )
+    vassert( browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) )
 
 @test(ExampleFixture.parameterised2)
 def test_parameterised2(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
-    browser.click(XPath.link_with_text(u'Add an address'))
-    browser.type(XPath.input_labelled(u'Name'), u'John') 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.click(XPath.button_labelled(u'Save'))
+    browser.click(XPath.link_with_text('Add an address'))
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
     
-    vassert( browser.location_path == u'/' )
-    browser.click(XPath.button_labelled(u'Edit'))
+    vassert( browser.location_path == '/' )
+    browser.click(XPath.button_labelled('Edit'))
 
     john = parameterised2.Address.query.one()
-    vassert( browser.location_path == u'/edit/%s' % john.id )
-    browser.type(XPath.input_labelled(u'Name'), u'Johnny') 
-    browser.type(XPath.input_labelled(u'Email'), u'johnny@walker.org')
-    browser.click(XPath.button_labelled(u'Update'))
+    vassert( browser.location_path == '/edit/%s' % john.id )
+    browser.type(XPath.input_labelled('Name'), 'Johnny') 
+    browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
+    browser.click(XPath.button_labelled('Update'))
     
-    vassert( browser.location_path == u'/' )
-    vassert( browser.is_element_present(XPath.paragraph_containing(u'Johnny: johnny@walker.org')) )
+    vassert( browser.location_path == '/' )
+    vassert( browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) )
 
 

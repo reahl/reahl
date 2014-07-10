@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.doc.examples.features.layout.layout import LayoutUI
 
 web.site_root = LayoutUI

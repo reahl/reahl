@@ -5,6 +5,8 @@
 
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
@@ -29,16 +31,16 @@ def paging(fixture):
     fixture.reahl_server.set_app(fixture.wsgi_app)
     browser = fixture.browser
 
-    browser.open(u'/')
+    browser.open('/')
     
-    assert fixture.is_email_listed(u'friend0@some.org')
-    assert not fixture.is_email_listed(u'friend9@some.org')
+    assert fixture.is_email_listed('friend0@some.org')
+    assert not fixture.is_email_listed('friend9@some.org')
 
     with browser.no_page_load_expected():
-        browser.click(XPath.link_with_text(u'2'))
+        browser.click(XPath.link_with_text('2'))
 
-    assert not fixture.is_email_listed(u'friend0@some.org')
-    assert fixture.is_email_listed(u'friend9@some.org')
+    assert not fixture.is_email_listed('friend0@some.org')
+    assert fixture.is_email_listed('friend9@some.org')
 
 
 

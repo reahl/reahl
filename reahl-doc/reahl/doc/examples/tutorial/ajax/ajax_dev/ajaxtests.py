@@ -5,6 +5,8 @@
 
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
@@ -19,7 +21,7 @@ class RefreshFixture(WebFixture):
         return super(RefreshFixture, self).new_wsgi_app(site_root=WidgetRefreshUI, enable_js=True)
 
     def text_shows_selected(self, expected_selected):
-        return self.browser.is_element_present(XPath.paragraph_containing(u'You selected link number %s' % expected_selected))
+        return self.browser.is_element_present(XPath.paragraph_containing('You selected link number %s' % expected_selected))
 
 #------ Tests
 
@@ -31,13 +33,13 @@ def refreshing_widget(fixture):
     fixture.reahl_server.set_app(fixture.wsgi_app)
     browser = fixture.browser
 
-    browser.open(u'/')
+    browser.open('/')
 
     assert fixture.text_shows_selected(1)    
     assert not fixture.text_shows_selected(3)
 
     with browser.no_page_load_expected():
-        browser.click(XPath.link_with_text(u'Select 3'))
+        browser.click(XPath.link_with_text('Select 3'))
 
     assert not fixture.text_shows_selected(1)    
     assert fixture.text_shows_selected(3)    

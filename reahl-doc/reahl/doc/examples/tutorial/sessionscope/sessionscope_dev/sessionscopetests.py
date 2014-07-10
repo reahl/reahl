@@ -1,4 +1,6 @@
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.tofu import test, set_up
 
 from reahl.web_dev.fixtures import WebFixture
@@ -11,10 +13,10 @@ class SessionScopeFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=SessionScopeUI))
         
-    password = u'bobbejaan'
+    password = 'bobbejaan'
 
     def new_user(self):
-        user = User(name=u'John Doe', email_address=u'johndoe@some.org')
+        user = User(name='John Doe', email_address='johndoe@some.org')
         user.set_password(self.password)
         return user
 
@@ -34,15 +36,15 @@ def logging_in(fixture):
     browser = fixture.browser
     user = fixture.user
 
-    browser.open(u'/')
-    browser.click(XPath.link_with_text(u'Log in'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Log in'))
 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.type(XPath.input_labelled(u'Password'), u'bobbejaan')
-    browser.click(XPath.button_labelled(u'Log in'))
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Password'), 'bobbejaan')
+    browser.click(XPath.button_labelled('Log in'))
 
-    browser.click(XPath.link_with_text(u'Home'))
-    assert browser.is_element_present(XPath.paragraph_containing(u'Welcome John Doe'))
+    browser.click(XPath.link_with_text('Home'))
+    assert browser.is_element_present(XPath.paragraph_containing('Welcome John Doe'))
     
 @test(SessionScopeFixture)
 def email_retained(fixture):
@@ -51,20 +53,20 @@ def email_retained(fixture):
     browser = fixture.browser
     user = fixture.user
 
-    browser.open(u'/')
-    browser.click(XPath.link_with_text(u'Log in'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Log in'))
 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.type(XPath.input_labelled(u'Password'), u'bobbejaan')
-    browser.click(XPath.button_labelled(u'Log in'))
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Password'), 'bobbejaan')
+    browser.click(XPath.button_labelled('Log in'))
 
     # Go away from the page, then back
-    browser.click(XPath.link_with_text(u'Home'))
-    browser.click(XPath.link_with_text(u'Log in'))
+    browser.click(XPath.link_with_text('Home'))
+    browser.click(XPath.link_with_text('Log in'))
 
     # .. then the email is still pre-populated
-    typed_value = browser.get_value(XPath.input_labelled(u'Email'))
-    assert typed_value == u'johndoe@some.org'
+    typed_value = browser.get_value(XPath.input_labelled('Email'))
+    assert typed_value == 'johndoe@some.org'
     
 
 @test(SessionScopeFixture)
@@ -74,11 +76,11 @@ def domain_exception(fixture):
     browser = fixture.browser
     user = fixture.user
 
-    browser.open(u'/')
-    browser.click(XPath.link_with_text(u'Log in'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Log in'))
 
-    browser.type(XPath.input_labelled(u'Email'), u'johndoe@some.org')
-    browser.type(XPath.input_labelled(u'Password'), u'wrong password')
-    browser.click(XPath.button_labelled(u'Log in'))
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Password'), 'wrong password')
+    browser.click(XPath.button_labelled('Log in'))
 
-    assert browser.is_element_present(XPath.paragraph_containing(u'The email/password given do not match'))
+    assert browser.is_element_present(XPath.paragraph_containing('The email/password given do not match'))
