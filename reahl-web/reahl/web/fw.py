@@ -17,7 +17,6 @@
 """The reahl.fw module implements the core of the Reahl web framework.
 """
 
-from abc import ABCMeta
 import atexit
 import sys
 import tempfile
@@ -908,11 +907,6 @@ class WidgetList(list):
         return False
 
 
-class FormABC:
-    __metaclass__ = ABCMeta    
-class InputABC:
-    __metaclass__ = ABCMeta    
-
 class Widget(object):
     """Any user interface element in Reahl is a Widget. A direct instance of this class will not display anything
        when rendered. A User interface is composed of Widgets by adding other Widgets to a Widget such as this one,
@@ -961,34 +955,6 @@ class Widget(object):
             return own_refresh_set.union(set([self]))
         else:
             return own_refresh_set
-
-    def refresh_set_widget_pairs(self, own_refresh_set):
-        yield self, own_refresh_set
-        children_refresh_set = self.children_refresh_set(own_refresh_set)
-        for child in self.children:
-            for widget, refresh_set in child.refresh_set_widget_pairs(children_refresh_set):
-                yield widget, refresh_set    
-
-    def check_input_placement(self):
-        inputs = []
-        forms = {}
-
-        for widget, refresh_set in self.refresh_set_widget_pairs(self.children_refresh_set(set())):
-            if isinstance(widget, FormABC):
-                forms[widget] = refresh_set
-            elif isinstance(widget, InputABC):
-                inputs.append((widget, refresh_set))
-
-        inputs_in_error = []
-        for i, i_refresh_set in inputs:
-            if not (i_refresh_set.issubset(forms[i.form])):
-                inputs_in_error.append((i, i_refresh_set))
-
-        if inputs_in_error:
-            message = 'Some inputs were incorrectly placed:\n'
-            for i, refresh_set in inputs_in_error:
-                message += '\t%s(for form with css_id %s): %s\n' % (str(i), i.form.css_id, ','.join([str(i) for i in refresh_set]))
-            raise ProgrammerError(message)
 
     @exposed
     def query_fields(self, fields):
@@ -1123,15 +1089,43 @@ class Widget(object):
 
             raise ProgrammerError(message)
 
-    def get_forms(self):
-        forms = []
+    def refresh_set_widget_pairs(self, own_refresh_set):
+        yield self, own_refresh_set
+        children_refresh_set = self.children_refresh_set(own_refresh_set)
         for child in self.children:
-            forms.extend(child.get_forms())
-        return forms
+            for widget, refresh_set in child.refresh_set_widget_pairs(children_refresh_set):
+                yield widget, refresh_set    
 
-    def check_forms(self):
+    is_Form = False
+    is_Input = False
+    def check_form_related_programmer_errors(self):
+        inputs = []
+        forms = {}
+
+        for widget, refresh_set in self.refresh_set_widget_pairs(self.children_refresh_set(set())):
+            if widget.is_Form:
+                forms[widget] = refresh_set
+            elif widget.is_Input:
+                inputs.append((widget, refresh_set))
+
+        self.check_forms_unique(forms.keys())
+        self.check_input_placement(forms, inputs)
+        
+    def check_input_placement(self, forms_with_refresh_sets, inputs_with_refresh_sets):
+        inputs_in_error = []
+        for i, i_refresh_set in inputs_with_refresh_sets:
+            if not (i_refresh_set.issubset(forms_with_refresh_sets[i.form])):
+                inputs_in_error.append((i, i_refresh_set))
+
+        if inputs_in_error:
+            message = 'Some inputs were incorrectly placed:\n'
+            for i, refresh_set in inputs_in_error:
+                message += '\t%s(for form with css_id %s): %s\n' % (str(i), i.form.css_id, ','.join([str(i) for i in refresh_set]))
+            raise ProgrammerError(message)
+
+    def check_forms_unique(self, forms):
         checked_forms = {}
-        for form in self.get_forms():
+        for form in forms:
             if form.css_id not in checked_forms.keys():
                 checked_forms[form.css_id] = form
             else:
@@ -1151,7 +1145,7 @@ class Widget(object):
         self.slot_contents[u'reahl_footer'] = FooterContent(self)
         self.fill_slots(self.slot_contents)
         self.attach_out_of_bound_forms(view.out_of_bound_forms)
-        self.check_forms()
+        self.check_form_related_programmer_errors()
 
     @property
     def available_slots(self):
@@ -2195,7 +2189,6 @@ class ComposedPage(Resource):
         self.page = page
         
     def handle_get(self, request):
-        self.page.check_input_placement()
         return self.render()
         
     def render(self):

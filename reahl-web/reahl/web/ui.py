@@ -31,7 +31,7 @@ from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, 
 from reahl.component.i18n import Translator
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
-                          Url, Bookmark, WidgetList, FormABC, InputABC
+                          Url, Bookmark, WidgetList
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
@@ -949,6 +949,7 @@ class Form(HTMLElement):
        :param unique_name: A name for this form, unique in the UserInterface where it is used.
        :param css_id: (See :class:`HTMLElement`)
     """
+    is_Form = True
     def __init__(self, view, unique_name, rendered_form=None):
         self.view = view
         self.inputs = {}
@@ -972,9 +973,6 @@ class Form(HTMLElement):
                                           json_result,
                                           immutable=True)
         self.view.add_resource(self.field_validator)
-
-    def get_forms(self):
-        return [self]
 
     def get_refreshable_forms(self, parent_refreshes):#xxx
         if self.is_refresh_enabled() or parent_refreshes:
@@ -1116,8 +1114,7 @@ class Form(HTMLElement):
     @property
     def jquery_selector(self):
         return u'"form[id=%s]"' % self.css_id
-
-FormABC.register(Form)
+        
 
 class NestedForm(Div):
     """Forms may not be children of other Forms. A NestedForm may be the child of another Form, which
@@ -1142,8 +1139,6 @@ class NestedForm(Div):
     def form(self):
         return self.out_of_bound_form
 
-FormABC.register(NestedForm)
-
     
 class FieldSet(HTMLElement):
     def __init__(self, view, label_text=None, css_id=None):
@@ -1166,7 +1161,6 @@ class InputGroup(FieldSet):
     pass
 
 
-
 class Input(Widget):
     """A Widget that proxies data between a user and the web application.
     
@@ -1176,7 +1170,7 @@ class Input(Widget):
     """
     input_type = None
     is_for_file = False
-    
+    is_Input = True
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field):
         self.form = form
@@ -1361,8 +1355,6 @@ class Input(Widget):
 
     def enter_value(self, input_value):
         self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
-
-InputABC.register(Input)
 
 
 class TextArea(Input):
