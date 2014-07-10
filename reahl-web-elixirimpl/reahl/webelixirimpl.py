@@ -15,15 +15,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import random
 from abc import ABCMeta
-import urllib
+from six.moves.urllib import parse as urllib_parse
 
 
 import elixir
-from elixir import EntityMeta, ManyToOne, Entity, using_options, UnicodeText, PickleType, String, LargeBinary, BigInteger
+from elixir import BigInteger
+from elixir import Entity
+from elixir import LargeBinary
+from elixir import ManyToOne
+from elixir import PickleType
+from elixir import String
+from elixir import UnicodeText
+from elixir import using_options
 
-from reahl.sqlalchemysupport import metadata, Session, SqlAlchemyControl
+from reahl.sqlalchemysupport import Session
+from reahl.sqlalchemysupport import metadata
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
@@ -34,8 +45,7 @@ from reahl.web.fw import WebExecutionContext, Url
 class InvalidKeyException(Exception):
     pass
     
-class WebUserSession(UserSession, WebUserSessionProtocol):
-    __metaclass__ = UserSession.__metaclass__
+class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, WebUserSessionProtocol)):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     salt = elixir.Field(String(40), required=True)
     secure_salt = elixir.Field(String(40), required=True)
@@ -53,12 +63,12 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
 
     def as_key(self):
         Session.flush() # To make sure .id is populated
-        return '%s:%s' % (str(self.id), self.salt)
+        return '%s:%s' % (six.text_type(self.id), self.salt)
 
     def is_secure(self):
         context = WebExecutionContext.get_context()
         return super(WebUserSession, self).is_secure() \
-               and context.request.scheme == u'https' \
+               and context.request.scheme == 'https' \
                and self.secure_cookie_is_valid()
 
     def secure_cookie_is_valid(self):
@@ -89,16 +99,16 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
         context = WebExecutionContext.get_context()
         try:
             raw_cookie = context.request.cookies[context.config.web.session_key_name]
-            return urllib.unquote(raw_cookie)
+            return urllib_parse.unquote(raw_cookie)
         except KeyError:
             return None
 
     def set_session_key(self, response):
         context = WebExecutionContext.get_context()
-        session_cookie = self.as_key()
-        response.set_cookie(context.config.web.session_key_name, urllib.quote(session_cookie), path='/')
+        session_cookie = self.as_key().encode('utf-8')
+        response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
         if self.is_secure():
-            response.set_cookie(context.config.web.secure_key_name, urllib.quote(self.secure_salt), secure=True, path='/',
+            response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
                                 max_age=context.config.accounts.idle_secure_lifetime)
 
     def __init__(self, **kwargs):
@@ -107,8 +117,8 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
-        self.salt = ''.join([random.choice(alphabet) for x in xrange(40)])
-        self.secure_salt = ''.join([random.choice(alphabet) for x in xrange(40)])        
+        self.salt = ''.join([random.choice(alphabet) for x in range(40)])
+        self.secure_salt = ''.join([random.choice(alphabet) for x in range(40)])        
 
     def get_interface_locale(self):
         context = WebExecutionContext.get_context()
@@ -143,7 +153,8 @@ class SessionData(Entity):
     def new_for_form(cls, form, **kwargs):
         web_session = WebExecutionContext.get_context().session
         return cls(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name, **kwargs)
-    
+
+    __hash__ = None
     def __eq__(self, other):
         return self.web_session == other.web_session and \
                self.ui_name == other.ui_name and \
@@ -153,9 +164,8 @@ class SessionData(Entity):
         return not self.__eq__(other)
 
 
-
-class UserInput(SessionData, UserInputProtocol):
-    class __metaclass__(SessionData.__metaclass__, ABCMeta): pass
+class UserInputMeta(SessionData.__metaclass__, ABCMeta): pass
+class UserInput(six.with_metaclass(UserInputMeta, SessionData, UserInputProtocol)):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     
     key = elixir.Field(UnicodeText, required=True)
@@ -176,12 +186,12 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def save_input_value_for_form(cls, form, input_name, value):
-        assert type(value) == unicode
+        assert isinstance(value, six.text_type)
         cls.new_for_form(form, key=input_name, value=value)
 
 
-class PersistedException(SessionData, PersistedExceptionProtocol):
-    class __metaclass__(SessionData.__metaclass__, ABCMeta): pass
+class PersistedExceptionMeta(SessionData.__metaclass__, ABCMeta): pass
+class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData, PersistedExceptionProtocol)):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
 
     exception = elixir.Field(PickleType, required=True)
@@ -219,8 +229,8 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
         return None
 
 
-class PersistedFile(SessionData, PersistedFileProtocol):
-    class __metaclass__(SessionData.__metaclass__, ABCMeta): pass
+class PersistedFileMeta(SessionData.__metaclass__, ABCMeta): pass
+class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, PersistedFileProtocol)):
     using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
     
     input_name = elixir.Field(UnicodeText, required=True)
@@ -274,8 +284,8 @@ class PersistedFile(SessionData, PersistedFileProtocol):
     
 
 class ElixirImplConfig(Configuration):
-    filename = u'web.elixirimpl.config.py'
-    config_key = u'web.elixirimpl'
+    filename = 'web.elixirimpl.config.py'
+    config_key = 'web.elixirimpl'
 
     def do_injections(self, config):
         config.web.session_class = WebUserSession

@@ -18,15 +18,19 @@
 Basic Widgets and related user interface elements.
 """
 
+from __future__ import print_function
+from __future__ import unicode_literals
+import six
+
 from string import Template
 import re
 import cgi
-import urllib
-import itertools
 
 from babel import Locale, UnknownLocaleError
 from reahl.component.eggs import ReahlEgg
-from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, arg_checks, IsInstance
+from reahl.component.exceptions import IsInstance
+from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, Url, Bookmark, WidgetList
@@ -34,9 +38,10 @@ from reahl.component.modelinterface import ValidationConstraintList, ValidationC
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
                                      Event, Action, FileField, UploadedFile, InputParseException
+import collections
                                      
 
-_ = Translator(u'reahl-web')
+_ = Translator('reahl-web')
 
 
 class LiteralHTML(Widget):
@@ -62,12 +67,12 @@ class HTMLAttribute(object):
 
     def as_html_snippet(self):
         if not self.value:
-            return u''
+            return ''
 #        return u'''%s='%s\'''' % (self.name, self.as_html_value())
-        return u'%s="%s"' % (self.name, cgi.escape(self.as_html_value(), True))
+        return '%s="%s"' % (self.name, cgi.escape(self.as_html_value(), True))
         
     def as_html_value(self):
-        return u' '.join(sorted(self.value))
+        return ' '.join(sorted(self.value))
     
     def remove_values(self, values):
         self.value -= set(values)
@@ -95,27 +100,27 @@ class HTMLAttributeDict(dict):
     def sorted_values(self):
         values = self.values()
         sorted_values = []
-        if u'name' in self:
-            name_value = self[u'name']
+        if 'name' in self:
+            name_value = self['name']
             sorted_values.append(name_value)
             values.remove(name_value)
-        if u'id' in self:
-            id_value = self[u'id']
+        if 'id' in self:
+            id_value = self['id']
             sorted_values.append(id_value)
             values.remove(id_value)
-        sorted_values += sorted(values, lambda a, b: cmp(a.name, b.name))            
-        if u'class' in self:
-            class_value = self[u'class']
+        sorted_values += sorted(values, key=lambda a: a.name)            
+        if 'class' in self:
+            class_value = self['class']
             sorted_values.remove(class_value)
             sorted_values.append(class_value)
 
         return sorted_values
 
     def as_html_snippet(self):
-        html_snippet = u' '.join([attribute.as_html_snippet() for attribute in self.sorted_values()
+        html_snippet = ' '.join([attribute.as_html_snippet() for attribute in self.sorted_values()
                                   if attribute.as_html_snippet()])
-        if not html_snippet: return u''
-        return u' '+html_snippet
+        if not html_snippet: return ''
+        return ' '+html_snippet
 
     def add_to(self, name, values):
         attribute = self.setdefault(name, HTMLAttribute(name, []))
@@ -144,7 +149,7 @@ class PriorityGroup(object):
 
     def add(self, widget):
         """Adds `widget`, with no priority set."""
-        assert widget not in self.widgets, u'%s is already added to %s' % (widget, self)
+        assert widget not in self.widgets, '%s is already added to %s' % (widget, self)
         self.widgets.add(widget)
 
     def add_secondary(self, widget):
@@ -154,7 +159,7 @@ class PriorityGroup(object):
         
     def add_primary(self, widget):
         """Adds `widget`, with primary priority."""
-        assert not self.has_primary, u'Cannot add more than one widget as primary to %s' % self
+        assert not self.has_primary, 'Cannot add more than one widget as primary to %s' % self
         self.add(widget)
         widget.set_priority(primary=True)
         self.has_primary = True
@@ -163,11 +168,11 @@ class PriorityGroup(object):
 # Uses: reahl/web/reahl.hashchange.js
 class HashChangeHandler(object):
     def __init__(self, widget):
-        self.error_message = _(u'An error occurred when contacting the server. Please try again later.')
-        self.timeout_message = _(u'The server took too long to respond. Please try again later.')
+        self.error_message = _('An error occurred when contacting the server. Please try again later.')
+        self.timeout_message = _('The server took too long to respond. Please try again later.')
         self.widget = widget
         result = WidgetResult(widget)
-        method_name = u'refresh_%s' % widget.css_id
+        method_name = 'refresh_%s' % widget.css_id
         callable_object = lambda *args, **kwargs: None
         self.remote_method = RemoteMethod(method_name, callable_object, result, immutable=True)
         widget.view.add_resource(self.remote_method)
@@ -175,12 +180,12 @@ class HashChangeHandler(object):
     @property
     def argument_defaults(self):
         field_defaults = self.widget.query_fields.as_kwargs()
-        argument_defaults = [u'%s: "%s"' % (name, default_value or u'') \
+        argument_defaults = ['%s: "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
-        return u'{%s}' % u','.join(argument_defaults)
+        return '{%s}' % ','.join(argument_defaults)
 
     def as_jquery_parameter(self):
-        return u'{url:"%s", errorMessage: "%s", timeoutMessage: "%s", params: %s}' % \
+        return '{url:"%s", errorMessage: "%s", timeoutMessage: "%s", params: %s}' % \
                (self.remote_method.get_url(), self.error_message, self.timeout_message, self.argument_defaults)
 
 
@@ -204,7 +209,7 @@ class HTMLElement(Widget):
         self.wrapper_widget = wrapper_widget
         if wrapper_widget:
             if not isinstance(wrapper_widget, Input):
-                raise ProgrammerError(u'Only Inputs can be wrappers, got a %s instead' % wrapper_widget)
+                raise ProgrammerError('Only Inputs can be wrappers, got a %s instead' % wrapper_widget)
             wrapper_widget.set_wrapped_widget(self)
 
         self.children_allowed = children_allowed
@@ -219,11 +224,11 @@ class HTMLElement(Widget):
            one of its `query_fields` have changed.
         """
         if not self.css_id_is_set:
-            raise ProgrammerError(u'%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
+            raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
         self.add_hash_change_handler()
         
     def add_child(self, child):
-        assert self.children_allowed, u'You cannot add children to a %s' % type(self)
+        assert self.children_allowed, 'You cannot add children to a %s' % type(self)
         return super(HTMLElement, self).add_child(child)
 
     def add_to_attribute(self, name, values):
@@ -238,17 +243,17 @@ class HTMLElement(Widget):
 
     def has_attribute(self, name):
         """Answers whether this HTMLElement has an attribute named `name`."""
-        return self.attributes.has_key(name)
+        return name in self.attributes
             
     @property
     def attributes(self):
         """Override this method if you want to change the attributes of this HTMLElement on the fly, based on the state
            of the HTMLElement at the point in time when it is rendered."""
         attributes = HTMLAttributeDict(self.constant_attributes)
-        if self.priority == u'secondary':
-            attributes.add_to(u'class', [u'reahl-priority-secondary'])
-        elif self.priority == u'primary':
-            attributes.add_to(u'class', [u'reahl-priority-primary'])
+        if self.priority == 'secondary':
+            attributes.add_to('class', ['reahl-priority-secondary'])
+        elif self.priority == 'primary':
+            attributes.add_to('class', ['reahl-priority-primary'])
         if self.wrapper_widget:
             attributes = self.wrapper_widget.get_wrapped_html_attributes(attributes)
         return attributes
@@ -259,29 +264,29 @@ class HTMLElement(Widget):
         
     def render(self):
         if self.visible:
-            rendered = u'<%s%s>' % (self.tag_name, self.attributes.as_html_snippet())
+            rendered = '<%s%s>' % (self.tag_name, self.attributes.as_html_snippet())
             if self.children_allowed:
-                rendered += self.render_contents() + (u'</%s>' % self.tag_name)
+                rendered += self.render_contents() + ('</%s>' % self.tag_name)
             return rendered
         else:
-            return u''
+            return ''
 
     @property
     def css_id_is_set(self):
-        return getattr(self, u'_css_id', None) is not None
+        return getattr(self, '_css_id', None) is not None
     def get_css_id(self):
         if not self.css_id_is_set:
             raise ProgrammerError('%s needs a css_id to be set!' % self)
         return self._css_id
     def set_css_id(self, value):
         self._css_id = value
-        self.set_attribute(u'id', value)
+        self.set_attribute('id', value)
     css_id = property(get_css_id, set_css_id)
      
     def contextualise_selector(self, selector, context):
         """Returns a JQuery selector for finding `selector` within the elements matched by `context` (another selector)."""
-        context_str = u', "%s"' % context if context else u''
-        return u'%s%s' % (selector, context_str)
+        context_str = ', "%s"' % context if context else ''
+        return '%s%s' % (selector, context_str)
 
     @property
     def jquery_selector(self):
@@ -291,22 +296,22 @@ class HTMLElement(Widget):
         
            :raises ProgrammerError: Raised when accessing `jquery_selector` if the css_id of this HTMLElement is not set.
         """
-        return u'"#%s"' % (self.css_id)
+        return '"#%s"' % (self.css_id)
 
     def handlers_as_jquery(self):
-        return u'[%s]' % (u','.join(handler.as_jquery_parameter() for handler in self.ajax_handlers))
+        return '[%s]' % (','.join(handler.as_jquery_parameter() for handler in self.ajax_handlers))
 
     def get_js(self, context=None):
         js = []
         if self.ajax_handlers:
-            js = [u'$(%s).hashchange({hashChangeHandlers: %s});' % \
+            js = ['$(%s).hashchange({hashChangeHandlers: %s});' % \
                   (self.contextualise_selector(self.jquery_selector, context),
                    self.handlers_as_jquery())]
         return super(HTMLElement, self).get_js(context=context) + js
 
     def set_title(self, title):
         """A convenience method to set the "title" attribute of this HTMLElement."""
-        self.set_attribute(u'title', title)
+        self.set_attribute('title', title)
 
     def set_id(self, css_id):
         """A convenience method to set the "id" attribute of this HTMLElement."""
@@ -314,7 +319,7 @@ class HTMLElement(Widget):
 
     def append_class(self, css_class):
         """A convenience method to add the word in `css_class` to the "class" attribute of thie HTMLElement."""
-        self.add_to_attribute(u'class', [css_class])
+        self.add_to_attribute('class', [css_class])
 
 
 class TextNode(Widget):
@@ -332,7 +337,7 @@ class TextNode(Widget):
     def __init__(self, view, value_or_getter, html_escape=True):
         super(TextNode, self).__init__(view)
         self.html_escape = html_escape
-        if callable(value_or_getter):
+        if isinstance(value_or_getter, collections.Callable):
             self.value_getter = value_or_getter
         else:
             def get_value():
@@ -364,7 +369,7 @@ class Title(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, text, css_id=None):
-        super(Title, self).__init__(view, u'title', children_allowed=True, css_id=css_id)
+        super(Title, self).__init__(view, 'title', children_allowed=True, css_id=css_id)
         self.text = Template(text)
         self.add_child(TextNode(view, self.get_current_title))
 
@@ -386,10 +391,10 @@ class Link(HTMLElement):
        :param css_id:  (See :class:`HTMLElement`)
     """
     def __init__(self, view, rel, href, _type, css_id=None):
-        super(Link, self).__init__(view, u'link', css_id=css_id)
-        self.set_attribute(u'rel', rel)
-        self.set_attribute(u'href', unicode(href))
-        self.set_attribute(u'type', _type)
+        super(Link, self).__init__(view, 'link', css_id=css_id)
+        self.set_attribute('rel', rel)
+        self.set_attribute('href', six.text_type(href))
+        self.set_attribute('type', _type)
 
 
 class Slot(Widget):
@@ -409,9 +414,9 @@ class Slot(Widget):
 
 class Meta(HTMLElement):
     def __init__(self, view, name, content):
-        super(Meta, self).__init__(view, u'meta', children_allowed=False)
-        self.set_attribute(u'name', name)
-        self.set_attribute(u'content', content)
+        super(Meta, self).__init__(view, 'meta', children_allowed=False)
+        self.set_attribute('name', name)
+        self.set_attribute('content', content)
 
 
 class Head(HTMLElement):
@@ -426,12 +431,12 @@ class Head(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, title, css_id=None):
-        super(Head, self).__init__(view, u'head', children_allowed=True, css_id=css_id)
+        super(Head, self).__init__(view, 'head', children_allowed=True, css_id=css_id)
         self.title = self.add_child(Title(view, title))
-        self.add_child(Slot(view, name=u'reahl_header'))
+        self.add_child(Slot(view, name='reahl_header'))
 
     def add_css(self, href):
-        self.add_child(Link(self.view, u'stylesheet', href, u'text/css'))
+        self.add_child(Link(self.view, 'stylesheet', href, 'text/css'))
 
 
 class Body(HTMLElement):
@@ -446,12 +451,12 @@ class Body(HTMLElement):
     """
     def __init__(self, view, css_id=None):
         super(Body, self).__init__(view, 'body', children_allowed=True, css_id=css_id)
-        self.add_child(Slot(self.view, name=u'reahl_footer'))
+        self.add_child(Slot(self.view, name='reahl_footer'))
 
     def footer_already_added(self):        
         if len(self.children) > 0:
             last_child = self.children[-1]
-            return isinstance(last_child, Slot) and last_child.name == u'reahl_footer'
+            return isinstance(last_child, Slot) and last_child.name == 'reahl_footer'
         return False
 
     def add_child(self, child):
@@ -480,16 +485,16 @@ class HTML5Page(HTMLElement):
        :param style: Pass a string denoting a predifined set of css styles.
        :param css_id: (See :class:`HTMLElement`)
     """
-    def __init__(self, view, title=u'$current_title', style=None, css_id=None):
-        super(HTML5Page, self).__init__(view, u'html', children_allowed=True, css_id=css_id)
+    def __init__(self, view, title='$current_title', style=None, css_id=None):
+        super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 
         if style:
-            self.head.add_css(Url(u'/styles/%s.css' % style))
+            self.head.add_css(Url('/styles/%s.css' % style))
 
     def render(self):
-        return u'<!DOCTYPE html>' + super(HTML5Page, self).render()
+        return '<!DOCTYPE html>' + super(HTML5Page, self).render()
 
 
 class TwoColumnPage(HTML5Page):
@@ -518,15 +523,15 @@ class TwoColumnPage(HTML5Page):
        :param style: (See :class:`reahl.web.ui.HTML5Page`)
        :param css_id: (See :class:`HTMLElement`)
     """
-    @arg_checks(title=IsInstance(basestring))
-    def __init__(self, view, title=u'$current_title', style=None, css_id=None):
+    @arg_checks(title=IsInstance(six.string_types))
+    def __init__(self, view, title='$current_title', style=None, css_id=None):
         super(TwoColumnPage, self).__init__(view, title=title, style=style, css_id=css_id)
             
-        self.yui_page = self.body.add_child(YuiDoc(view, u'doc', u'yui-t2'))
-        self.main.add_child(Slot(view, u'main'))
-        self.secondary.add_child(Slot(view, u'secondary'))
-        self.header.add_child(Slot(view, u'header'))
-        self.footer.add_child(Slot(view, u'footer'))
+        self.yui_page = self.body.add_child(YuiDoc(view, 'doc', 'yui-t2'))
+        self.main.add_child(Slot(view, 'main'))
+        self.secondary.add_child(Slot(view, 'secondary'))
+        self.header.add_child(Slot(view, 'header'))
+        self.footer.add_child(Slot(view, 'footer'))
         
     @property
     def footer(self):
@@ -581,22 +586,22 @@ class A(HTMLElement):
     def __init__(self, view, href, description=None, ajax=False, read_check=None, write_check=None, css_id=None):
         self.href = href
         self.ajax = ajax
-        super(A, self).__init__(view, u'a', children_allowed=True, read_check=read_check, write_check=write_check, css_id=css_id)
+        super(A, self).__init__(view, 'a', children_allowed=True, read_check=read_check, write_check=write_check, css_id=css_id)
         if description:
             self.add_child(TextNode(self.view, description))
         if self.ajax:
-            self.append_class(u'reahl-ajaxlink')
+            self.append_class('reahl-ajaxlink')
         self.active = True
 
     @property
     def attributes(self):
         attributes = super(A, self).attributes
         if self.active and (not self.disabled) and self.href is not None:
-            attributes.set_to(u'href', unicode(self.href))
+            attributes.set_to('href', six.text_type(self.href))
         return attributes
 
     def get_js(self, context=None):
-        return [u'$(%s).ajaxlink();' % self.contextualise_selector(u'".reahl-ajaxlink"', context)]
+        return ['$(%s).ajaxlink();' % self.contextualise_selector('".reahl-ajaxlink"', context)]
 
     def set_active(self, active):
         """Explicitly sets whether this hyperlink is "active" or not. An active hyperlink cannot be clicked on,
@@ -619,9 +624,9 @@ class RunningOnBadge(A):
        :param view: (See :class:`reahl.web.fw.Widget`)
     """
     def __init__(self, view):
-        super(RunningOnBadge, self).__init__(view, Url(u'http://www.reahl.org'))
-        self.append_class(u'runningon')
-        self.add_child(Img(view, Url(u'/static/runningon.png'), alt=u'Running on Reahl'))
+        super(RunningOnBadge, self).__init__(view, Url('http://www.reahl.org'))
+        self.append_class('runningon')
+        self.add_child(Img(view, Url('/static/runningon.png'), alt='Running on Reahl'))
 
 
 class H(HTMLElement):
@@ -637,13 +642,13 @@ class H(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, priority, text=None, css_id=None):
-        super(H, self).__init__(view, u'h%s' % priority, children_allowed=True, css_id=css_id)
+        super(H, self).__init__(view, 'h%s' % priority, children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text))
 
 class Br(HTMLElement):
     def __init__(self, view):
-        super(Br, self).__init__(view, u'br', children_allowed=False)
+        super(Br, self).__init__(view, 'br', children_allowed=False)
 
 class P(HTMLElement):
     """A paragraph of text.
@@ -658,25 +663,25 @@ class P(HTMLElement):
        :keyword html_escape: If `text` is given, by default such text is HTML-escaped. Pass False in here to prevent this from happening.
     """
     def __init__(self, view, text=None, css_id=None, html_escape=True):
-        super(P, self).__init__(view, u'p', children_allowed=True, css_id=css_id)
+        super(P, self).__init__(view, 'p', children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text, html_escape=html_escape))
 
     @property
     def text(self):
-        text = u''
+        text = ''
         for child in self.children:
             if isinstance(child, TextNode):
                 text += child.value
         return text
     
     def parse_children(self, text):
-        pattern = u'(?<![{])[{]([0-9]+|%s)[}](?![}])' % Template.idpattern
+        pattern = '(?<![{])[{]([0-9]+|%s)[}](?![}])' % Template.idpattern
         last = 0
         for i in re.finditer(pattern, text):
             head = text[last:i.start()]
             last = i.end()
-            yield TextNode(self.view, head.replace(u'{{', u'{').replace(u'}}',u'}'))
+            yield TextNode(self.view, head.replace('{{', '{').replace('}}','}'))
             yield Slot(self.view, i.groups()[0])
         yield TextNode(self.view, text[last:])
 
@@ -694,7 +699,7 @@ class P(HTMLElement):
             filled_p.add_child(child)
 
         for i in range(0,len(args)):
-            filled_p.set_slot(str(i), args[i])
+            filled_p.set_slot(six.text_type(i), args[i])
         for slot_name, widget in kwargs.items():
             filled_p.set_slot(slot_name, widget)
         return filled_p
@@ -713,7 +718,7 @@ class ErrorFeedbackMessage(P):
     @property
     def attributes(self):
         attributes = super(ErrorFeedbackMessage, self).attributes
-        attributes.add_to(u'class', [u'error', u'feedback'])
+        attributes.add_to('class', ['error', 'feedback'])
         return attributes    
 
 
@@ -728,7 +733,7 @@ class Div(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, css_id=None):
-        super(Div, self).__init__(view, u'div', children_allowed=True, css_id=css_id)
+        super(Div, self).__init__(view, 'div', children_allowed=True, css_id=css_id)
 
 
 
@@ -743,7 +748,7 @@ class Nav(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, css_id=None):
-        super(Nav, self).__init__(view, u'nav', children_allowed=True, css_id=css_id)
+        super(Nav, self).__init__(view, 'nav', children_allowed=True, css_id=css_id)
 
 
 class Article(HTMLElement):
@@ -757,7 +762,7 @@ class Article(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, css_id=None):
-        super(Article, self).__init__(view, u'article', children_allowed=True, css_id=css_id)
+        super(Article, self).__init__(view, 'article', children_allowed=True, css_id=css_id)
 
 
 class Header(HTMLElement):
@@ -771,7 +776,7 @@ class Header(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, css_id=None):
-        super(Header, self).__init__(view, u'header', children_allowed=True, css_id=css_id)
+        super(Header, self).__init__(view, 'header', children_allowed=True, css_id=css_id)
 
 
 class Footer(HTMLElement):
@@ -785,7 +790,7 @@ class Footer(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, css_id=None):
-        super(Footer, self).__init__(view, u'footer', children_allowed=True, css_id=css_id)
+        super(Footer, self).__init__(view, 'footer', children_allowed=True, css_id=css_id)
 
 
 class Li(HTMLElement):
@@ -799,7 +804,7 @@ class Li(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, css_id=None):
-        super(Li, self).__init__(view, u'li', children_allowed=True, css_id=css_id)
+        super(Li, self).__init__(view, 'li', children_allowed=True, css_id=css_id)
         
     
 class Ul(HTMLElement):
@@ -813,7 +818,7 @@ class Ul(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, css_id=None):
-        super(Ul, self).__init__(view, u'ul', children_allowed=True, css_id=css_id)
+        super(Ul, self).__init__(view, 'ul', children_allowed=True, css_id=css_id)
 
 
     
@@ -831,10 +836,10 @@ class Img(HTMLElement):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, src, alt=None, css_id=None):
-        super(Img, self).__init__(view, u'img', css_id=css_id)
-        self.set_attribute(u'src', unicode(src))
+        super(Img, self).__init__(view, 'img', css_id=css_id)
+        self.set_attribute('src', six.text_type(src))
         if alt:
-            self.set_attribute(u'alt', alt)
+            self.set_attribute('alt', alt)
 
 
 class Panel(Div):
@@ -844,7 +849,6 @@ class Panel(Div):
        
           Renders as an HTML <div> element.
     """
-    pass
 
 
 class YuiDoc(Div):
@@ -854,19 +858,19 @@ class YuiDoc(Div):
         self.set_id(doc_id)
         self.append_class(doc_class)
         self.hd = YuiGrid(view)   #:
-        self.hd.set_id(u'hd')
+        self.hd.set_id('hd')
         self.header = self.hd.add_child(Header(view))
 
         self.bd = Div(view)    #:
-        self.bd.set_id(u'bd')
-        self.bd.set_attribute(u'role', u'main')
+        self.bd.set_id('bd')
+        self.bd.set_attribute('role', 'main')
         yui_main_wrapper  = self.bd.add_child(Div(view))
         self.secondary_block = self.bd.add_child(YuiBlock(view))    #: the secondary div (see Yui 2 template presents)
-        yui_main_wrapper.set_id(u'yui-main')
+        yui_main_wrapper.set_id('yui-main')
         self.main_block = yui_main_wrapper.add_child(YuiBlock(view)) #: the #yui-main div (see Yui 2 template presents)
 
         self.ft = Div(view)    #:
-        self.ft.set_id(u'ft')
+        self.ft.set_id('ft')
         self.footer = self.ft.add_child(Footer(view))
 
         self.add_children([self.hd, self.bd, self.ft])
@@ -878,18 +882,18 @@ class YuiElement(Panel):
     @property
     def attributes(self):
         attributes = super(YuiElement, self).attributes
-        attributes.add_to(u'class', [self.yui_class])
+        attributes.add_to('class', [self.yui_class])
         return attributes
 
 
 class YuiBlock(YuiElement):
     """A Yui 2 block: see http://developer.yahoo.com/yui/grids/#start """
-    yui_class = u'yui-b'
+    yui_class = 'yui-b'
 
 
 class YuiGrid(YuiElement):
     """A Yui 2 grid: see http://developer.yahoo.com/yui/grids/#start """
-    yui_class = u'yui-g'
+    yui_class = 'yui-g'
 
 
 class YuiUnit(YuiElement):
@@ -898,7 +902,7 @@ class YuiUnit(YuiElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param first: Pass True for the first YuiUnit in a YuiGrid
     """
-    yui_class = u'yui-u'
+    yui_class = 'yui-u'
     def __init__(self, view, first=False):
         super(YuiUnit, self).__init__(view)
         self.first = first
@@ -907,7 +911,7 @@ class YuiUnit(YuiElement):
     def attributes(self):
         attributes = super(YuiUnit, self).attributes
         if self.first:
-            attributes.add_to(u'class', [u'first'])
+            attributes.add_to('class', ['first'])
         return attributes
 
 
@@ -924,7 +928,7 @@ class Span(HTMLElement):
     """
 
     def __init__(self, view, text=None, css_id=None):
-        super(Span, self).__init__(view, u'span', children_allowed=True, css_id=css_id)
+        super(Span, self).__init__(view, 'span', children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text))
 
@@ -948,19 +952,19 @@ class Form(HTMLElement):
         self.view = view
         self.inputs = {}
         self.set_up_event_channel(unique_name)
-        self.set_up_field_validator(u'%s_validate' % unique_name)
-        self.set_up_input_formatter(u'%s_format' % unique_name)
+        self.set_up_field_validator('%s_validate' % unique_name)
+        self.set_up_input_formatter('%s_format' % unique_name)
         self.rendered_form = rendered_form or self
         assert unique_name == self.event_channel.name
-        super(Form, self).__init__(view, u'form', children_allowed=True, css_id=unique_name)
-        self.set_attribute(u'data-formatter', unicode(self.input_formatter.get_url()))
+        super(Form, self).__init__(view, 'form', children_allowed=True, css_id=unique_name)
+        self.set_attribute('data-formatter', six.text_type(self.input_formatter.get_url()))
 
     def set_up_event_channel(self, event_channel_name):
         self.event_channel = EventChannel(self, self.controller, event_channel_name)
         self.view.add_resource(self.event_channel)
 
     def set_up_field_validator(self, field_validator_name):
-        json_result = JsonResult(BooleanField(true_value=u'true', false_value=u'false'),
+        json_result = JsonResult(BooleanField(true_value='true', false_value='false'),
                                  catch_exception=ValidationConstraint)
         self.field_validator = RemoteMethod(field_validator_name, 
                                           self.validate_single_input,
@@ -994,9 +998,9 @@ class Form(HTMLElement):
             name = input_values.keys()[0]
             return self.inputs[name].format_input(input_values)
         except (KeyError, IndexError):
-            return u''
+            return ''
         except ValidationException:
-            return u''
+            return ''
 
     @property
     def controller(self):
@@ -1011,12 +1015,12 @@ class Form(HTMLElement):
     @property
     def attributes(self):
         attributes = super(Form, self).attributes
-        attributes.add_to(u'class', [u'reahl-form'])
-        attributes.set_to(u'action', self.action)
-        attributes.set_to(u'method', u'POST')
-        attributes.set_to(u'id', self.css_id)
+        attributes.add_to('class', ['reahl-form'])
+        attributes.set_to('action', self.action)
+        attributes.set_to('method', 'POST')
+        attributes.set_to('id', self.css_id)
         if self.contains_file_upload_input():
-            attributes.set_to(u'enctype', u'multipart/form-data')
+            attributes.set_to('enctype', 'multipart/form-data')
         return attributes
 
     @property
@@ -1025,7 +1029,7 @@ class Form(HTMLElement):
         action = self.event_channel.get_url()
         action.query = request.query_string
         action.make_network_relative()
-        return unicode(action)
+        return six.text_type(action)
     
     def register_input(self, input_widget):
         self.inputs[input_widget.name] = input_widget
@@ -1086,25 +1090,25 @@ class Form(HTMLElement):
         for input_widget in self.inputs.values():
             try:
                 input_widget.accept_input(input_values)
-            except ValidationConstraint, ex:
+            except ValidationConstraint as ex:
                 exception = ex
             events.add(input_widget.get_ocurred_event())
         if exception:
             raise ValidationException()
-        events -= set([None])
+        events -= {None}
         if not len(events) == 1:
-                raise ProgrammerError(u'there should always be one and only one event per form submission. Inputs submitted: %s Events detected: %s' % (input_values.keys(), events))
+                raise ProgrammerError('there should always be one and only one event per form submission. Inputs submitted: %s Events detected: %s' % (input_values.keys(), events))
         return events.pop()
        
     def get_js(self, context=None):
-        js = [u'$(%s).form();' % self.jquery_selector]
+        js = ['$(%s).form();' % self.jquery_selector]
 #        js = [u'$(%s).validate({meta: "validate"});' % self.jquery_selector]
 #        js = [u'$("#%s").validate();' % self.event_channel.name]
         return super(Form, self).get_js(context=context) + js 
 
     @property
     def jquery_selector(self):
-        return u'"form[id=%s]"' % self.css_id
+        return '"form[id=%s]"' % self.css_id
 
 
 class NestedForm(Div):
@@ -1121,8 +1125,8 @@ class NestedForm(Div):
     """
     def __init__(self, view, unique_name, css_id=None):
         self.out_of_bound_form = Form(view, unique_name, rendered_form=self)
-        super(NestedForm, self).__init__(view, css_id=u'%s_nested' % self.out_of_bound_form.css_id)
-        self.add_to_attribute(u'class', [u'reahl-nested-form'])
+        super(NestedForm, self).__init__(view, css_id='%s_nested' % self.out_of_bound_form.css_id)
+        self.add_to_attribute('class', ['reahl-nested-form'])
         self.set_id(self.css_id)
         view.add_out_of_bound_form(self.out_of_bound_form)
 
@@ -1133,7 +1137,7 @@ class NestedForm(Div):
     
 class FieldSet(HTMLElement):
     def __init__(self, view, label_text=None, css_id=None):
-        super(FieldSet, self).__init__(view, u'fieldset', children_allowed=True, css_id=css_id)
+        super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
         if label_text:
             self.label = self.add_child(Label(view, text=label_text))
     
@@ -1149,7 +1153,6 @@ class InputGroup(FieldSet):
        :param label_text: If given, the FieldSet will have a label containing this text.
        :param css_id: (See :class:`HTMLElement`)
     """
-    pass
 
 
 
@@ -1206,26 +1209,26 @@ class Input(Widget):
         
     def create_html_input(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user."""
-        return HTMLElement(self.view, u'input', wrapper_widget=self)
+        return HTMLElement(self.view, 'input', wrapper_widget=self)
     
     def get_wrapped_html_attributes(self, attributes):
         """Sets the HTML attributes which should be present on the HTMLElement that represents this Input
            in HTML to the user.
         """
-        if self.wrapped_html_input.tag_name == u'input':
-            attributes.set_to(u'type', self.input_type)
-            attributes.set_to(u'value', self.value)
-            attributes.set_to(u'form', self.form.css_id)
+        if self.wrapped_html_input.tag_name == 'input':
+            attributes.set_to('type', self.input_type)
+            attributes.set_to('value', self.value)
+            attributes.set_to('form', self.form.css_id)
             self.add_validation_constraints_to_attributes(attributes, self.bound_field.validation_constraints)
 
-        if self.wrapped_html_input.tag_name == u'select':
-            attributes.set_to(u'form', self.form.css_id)
+        if self.wrapped_html_input.tag_name == 'select':
+            attributes.set_to('form', self.form.css_id)
 
-        attributes.set_to(u'name', self.name)
-        if self.get_input_status() == u'invalidly_entered':
-            attributes.add_to(u'class', [u'error'])
+        attributes.set_to('name', self.name)
+        if self.get_input_status() == 'invalidly_entered':
+            attributes.add_to('class', ['error'])
         if self.disabled:
-            attributes.set_to(u'disabled', u'disabled')
+            attributes.set_to('disabled', 'disabled')
         return attributes
         
     def register(self, form):
@@ -1234,8 +1237,8 @@ class Input(Widget):
     def render(self):
         self.prepare_input()
         normal_output = super(Input, self).render()
-        error_output = u''
-        if self.get_input_status() == u'invalidly_entered':
+        error_output = ''
+        if self.get_input_status() == 'invalidly_entered':
             validation_error = self.bound_field.validation_error
             error_label = ErrorLabel(self, validation_error.message)
             error_output = error_label.render()
@@ -1255,7 +1258,7 @@ class Input(Widget):
     
     @property
     def value(self):
-        if self.get_input_status() == u'defaulted' or self.disabled:
+        if self.get_input_status() == 'defaulted' or self.disabled:
             return self.bound_field.as_input()
         return self.bound_field.user_input
     
@@ -1265,31 +1268,31 @@ class Input(Widget):
 
     @property
     def jquery_selector(self):
-        return u'''$('input[name=%s][form="%s"]')''' % (self.name, self.form.css_id)
+        return '''$('input[name=%s][form="%s"]')''' % (self.name, self.form.css_id)
 
     def get_input_status(self):
         return self.bound_field.input_status
         
     def add_validation_constraints_to_attributes(self, attributes, validation_constraints):
-        html5_validations = [u'pattern', u'required', u'maxlength', u'minlength', u'accept', u'minvalue', u'maxvalue', u'remote']
+        html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue', 'remote']
         for validation_constraint in validation_constraints:
             if validation_constraint.is_remote:
-                attributes.set_to(validation_constraint.name, unicode(self.form.field_validator.get_url()))
+                attributes.set_to(validation_constraint.name, six.text_type(self.form.field_validator.get_url()))
             elif validation_constraint.name in html5_validations:
                 attributes.set_to(validation_constraint.name, validation_constraint.parameters)
-            elif validation_constraint.name != u'':
-                attributes.set_to(u'data-%s' % validation_constraint.name, validation_constraint.parameters)
+            elif validation_constraint.name != '':
+                attributes.set_to('data-%s' % validation_constraint.name, validation_constraint.parameters)
         def map_name(name):
             if name in html5_validations:
                 return name
             else:
-                return u'data-%s' % name
-        error_messages = validation_constraints.as_json_messages(map_name, [u'', RemoteConstraint.name])
+                return 'data-%s' % name
+        error_messages = validation_constraints.as_json_messages(map_name, ['', RemoteConstraint.name])
         if error_messages:
-            attributes.add_to(u'class', [error_messages])
+            attributes.add_to('class', [error_messages])
         try:
-            title = validation_constraints.get_constraint_named(u'pattern').message
-            attributes.set_to(u'title', validation_constraints.get_constraint_named(u'pattern').message)
+            title = validation_constraints.get_constraint_named('pattern').message
+            attributes.set_to('title', validation_constraints.get_constraint_named('pattern').message)
         except ConstraintNotFound:
             pass
 
@@ -1302,7 +1305,7 @@ class Input(Widget):
         try:
             return self.bound_field.format_input(value)
         except InputParseException:
-            return u''
+            return ''
 
     def accept_input(self, input_values):
         value = self.get_value_from_input(input_values)
@@ -1320,8 +1323,8 @@ class Input(Widget):
             return input_values[self.name]
         except KeyError:
             if self.disabled:
-                return u''
-            raise ProgrammerError(u'Could not find a value for expected input %s (named %s) on form %s' % \
+                return ''
+            raise ProgrammerError('Could not find a value for expected input %s (named %s) on form %s' % \
                                   (self, self.name, self.form))
 
     @property
@@ -1361,7 +1364,7 @@ class TextArea(Input):
         super(TextArea, self).__init__(form, bound_field)
 
     def create_html_input(self):
-        html_text_area = HTMLElement(self.view, u'textarea', children_allowed=True, wrapper_widget=self)
+        html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True, wrapper_widget=self)
         self.text = html_text_area.add_child(TextNode(self.view, self.get_value))
         return html_text_area
 
@@ -1371,25 +1374,25 @@ class TextArea(Input):
     def get_wrapped_html_attributes(self, attributes):
         attributes = super(TextArea, self).get_wrapped_html_attributes(attributes)
         if self.rows:
-            attributes.set_to(u'rows', unicode(self.rows))
+            attributes.set_to('rows', six.text_type(self.rows))
         if self.columns:
-            attributes.set_to(u'cols', unicode(self.columns))
+            attributes.set_to('cols', six.text_type(self.columns))
         return attributes
 
 
 class Option(HTMLElement):
     def __init__(self, view, value, label, selected=False, css_id=None):
-        super(Option, self).__init__(view, u'option', children_allowed=True, css_id=css_id)
+        super(Option, self).__init__(view, 'option', children_allowed=True, css_id=css_id)
         self.add_child(TextNode(view, label))
-        self.set_attribute(u'value', value)
+        self.set_attribute('value', value)
         if selected:
-            self.set_attribute(u'selected', u'selected')
+            self.set_attribute('selected', 'selected')
 
 
 class OptGroup(HTMLElement):
     def __init__(self, view, label, options, css_id=None):
-        super(OptGroup, self).__init__(view, u'optgroup', children_allowed=True, css_id=css_id)
-        self.set_attribute(u'label', label)
+        super(OptGroup, self).__init__(view, 'optgroup', children_allowed=True, css_id=css_id)
+        self.set_attribute('label', label)
         for option in options:
             self.add_child(option)
     
@@ -1406,7 +1409,7 @@ class SelectInput(Input):
        :param bound_field: (See :class:`Input`)
     """
     def create_html_input(self):
-        html_select = HTMLElement(self.view, u'select', children_allowed=True, wrapper_widget=self)
+        html_select = HTMLElement(self.view, 'select', children_allowed=True, wrapper_widget=self)
         for choice_or_group in self.bound_field.grouped_choices:
             options = [self.make_option(choice) for choice in choice_or_group.choices]
             if isinstance(choice_or_group, Choice):
@@ -1422,12 +1425,12 @@ class SelectInput(Input):
     def get_wrapped_html_attributes(self, attributes):
         attributes = super(SelectInput, self).get_wrapped_html_attributes(attributes)
         if self.bound_field.allows_multiple_selections:
-            attributes.set_to(u'multiple', u'multiple')
+            attributes.set_to('multiple', 'multiple')
         return attributes
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
-            return input_values.get(self.name, u'')
+            return input_values.get(self.name, '')
         else:
             return super(SelectInput, self).get_value_from_input(input_values)
 
@@ -1436,13 +1439,13 @@ class SingleRadioButton(Span):
     def __init__(self, form, value, label, checked=False, wrapper_widget=None, css_id=None):
         super(SingleRadioButton, self).__init__(form.view, css_id=css_id)
         self.form = form
-        self.set_attribute(u'class', u'reahl-radio-button')
-        button = self.add_child(HTMLElement(self.view, u'input', wrapper_widget=wrapper_widget))
-        button.set_attribute(u'type', u'radio')
-        button.set_attribute(u'value', value)
-        button.set_attribute(u'form', form.css_id)
+        self.set_attribute('class', 'reahl-radio-button')
+        button = self.add_child(HTMLElement(self.view, 'input', wrapper_widget=wrapper_widget))
+        button.set_attribute('type', 'radio')
+        button.set_attribute('value', value)
+        button.set_attribute('form', form.css_id)
         if checked:
-            button.set_attribute(u'checked', u'checked')
+            button.set_attribute('checked', 'checked')
         self.add_child(TextNode(self.view, label))
 
 
@@ -1461,7 +1464,7 @@ class RadioButtonInput(Input):
     """
     def create_html_input(self):
         outer_div = Panel(self.view)
-        outer_div.set_attribute(u'class', u'reahl-radio-button-input')
+        outer_div.set_attribute('class', 'reahl-radio-button-input')
         for choice in self.bound_field.flattened_choices:
             button = SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), wrapper_widget=self)
             outer_div.add_child(button)
@@ -1469,7 +1472,7 @@ class RadioButtonInput(Input):
         return outer_div
 
     def get_value_from_input(self, input_values):
-        return input_values.get(self.name, u'')
+        return input_values.get(self.name, '')
 
     
 # Uses: reahl/web/reahl.textinput.js
@@ -1489,16 +1492,16 @@ class TextInput(Input):
                      the system's interpretation of what the user originally typed as soon as the TextInput
                      looses focus.
     """
-    input_type = u'text'
+    input_type = 'text'
     def __init__(self, form, bound_field, fuzzy=False):
         super(TextInput, self).__init__(form, bound_field)
-        self.append_class(u'reahl-textinput')
+        self.append_class('reahl-textinput')
         
         if fuzzy:
-            self.append_class(u'fuzzy')
+            self.append_class('fuzzy')
 
     def get_js(self, context=None):
-        js = [u'$(%s).textinput();' % self.wrapped_widget.contextualise_selector(u'".reahl-textinput"', context)]
+        js = ['$(%s).textinput();' % self.wrapped_widget.contextualise_selector('".reahl-textinput"', context)]
         return super(TextInput, self).get_js(context=context) + js
 
 
@@ -1512,11 +1515,11 @@ class PasswordInput(Input):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
-    input_type = u'password'
+    input_type = 'password'
 
     def get_wrapped_html_attributes(self, attributes):
         attributes = super(PasswordInput, self).get_wrapped_html_attributes(attributes)
-        attributes.clear(u'value')
+        attributes.clear('value')
         return attributes
 
     
@@ -1530,20 +1533,20 @@ class CheckboxInput(Input):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
-    input_type = u'checkbox'
+    input_type = 'checkbox'
 
     def add_validation_constraints_to_attributes(self, attributes, validation_constraints):
         applicable_constraints = ValidationConstraintList()
         if self.required:
-            validation_constraint = validation_constraints.get_constraint_named(u'required')
+            validation_constraint = validation_constraints.get_constraint_named('required')
             applicable_constraints.append(validation_constraint)
         super(CheckboxInput, self).add_validation_constraints_to_attributes(attributes, applicable_constraints)
                                                    
     def get_wrapped_html_attributes(self, attributes):
         attributes = super(CheckboxInput, self).get_wrapped_html_attributes(attributes)
-        attributes.clear(u'value')
+        attributes.clear('value')
         if self.value == self.bound_field.true_value:
-            attributes.set_to(u'checked', u'checked')
+            attributes.set_to('checked', 'checked')
         return attributes
 
     def get_value_from_input(self, input_values):
@@ -1553,16 +1556,16 @@ class CheckboxInput(Input):
 
 
 class ButtonInput(Input):
-    input_type = u'submit'
+    input_type = 'submit'
     def __init__(self, form, event):
         super(ButtonInput, self).__init__(form, event)
         if not self.controller.has_event_named(event.name):
-            raise ProgrammerError(u'no Event/Transition available for name %s' % event.name)
+            raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
             event.validate_default()
-        except ValidationConstraint, ex:
-            message = u'Arguments for %s are not valid: %s' % (event, ex)
-            message += u'\n(did you forget to call .with_arguments() on an Event sent to a ButtonInput?)'
+        except ValidationConstraint as ex:
+            message = 'Arguments for %s are not valid: %s' % (event, ex)
+            message += '\n(did you forget to call .with_arguments() on an Event sent to a ButtonInput?)'
             raise ProgrammerError(message)
 
     def is_event(self, input_name):
@@ -1570,10 +1573,10 @@ class ButtonInput(Input):
     
     def canonicalise_input(self, input_name):
         [name_part, query_part] = input_name.split('?')
-        if self.name.startswith(u'%s?' % name_part):
-            incoming_arguments = u'?%s' % query_part
+        if self.name.startswith('%s?' % name_part):
+            incoming_arguments = '?%s' % query_part
             canonical_input = self.bound_field.unparse_input(self.bound_field.parse_input(incoming_arguments))
-            return u'%s%s' % (name_part, canonical_input)
+            return '%s%s' % (name_part, canonical_input)
         return None
  
     def get_value_from_input(self, input_values):
@@ -1583,15 +1586,15 @@ class ButtonInput(Input):
         if self.name in canonicalised_inputs:
             return self.query_encoded_arguments
         else:
-            return u''
+            return ''
 
     @property
     def query_encoded_arguments(self):
-        return self.bound_field.as_input() or u'?'
+        return self.bound_field.as_input() or '?'
 
     @property
     def name(self):
-        return u'event.%s%s' % (self.bound_field.name, self.query_encoded_arguments)
+        return 'event.%s%s' % (self.bound_field.name, self.query_encoded_arguments)
 
     @property
     def label(self):
@@ -1625,13 +1628,13 @@ class Button(Span):
     @property
     def attributes(self):
         attributes = super(Button, self).attributes
-        attributes.add_to(u'class', [u'reahl-button'])
+        attributes.add_to('class', ['reahl-button'])
         return attributes
 
 
 class Label(HTMLElement):
     def __init__(self, view, text=None, css_id=None):
-        super(Label, self).__init__(view, u'label', children_allowed=True, css_id=css_id)
+        super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
         if text:
             self.text_node = self.add_child(TextNode(view, text))
 
@@ -1659,7 +1662,7 @@ class InputLabel(Label):
     @property
     def attributes(self):
         attributes = super(InputLabel, self).attributes
-        attributes.set_to(u'for', self.html_input.name)
+        attributes.set_to('for', self.html_input.name)
         return attributes
 
 
@@ -1678,7 +1681,7 @@ class ErrorLabel(InputLabel):
     @property
     def attributes(self):
         attributes = super(ErrorLabel, self).attributes
-        attributes.add_to(u'class', [u'error'])
+        attributes.add_to('class', ['error'])
         return attributes
 
 
@@ -1710,9 +1713,9 @@ class LabelledInlineInput(Span):
     @property
     def attributes(self):
         attributes = super(LabelledInlineInput, self).attributes
-        attributes.add_to(u'class', [u'reahl-labelledinput'])
-        if self.html_input.get_input_status() == u'invalidly_entered':
-            attributes.add_to(u'class', [u'reahl-state-error'])
+        attributes.add_to('class', ['reahl-labelledinput'])
+        if self.html_input.get_input_status() == 'invalidly_entered':
+            attributes.add_to('class', ['reahl-state-error'])
         return attributes
 
 # Uses: reahl/web/reahl.labelledinput.css
@@ -1747,9 +1750,9 @@ class LabelledBlockInput(YuiGrid):
     @property
     def attributes(self):
         attributes = super(LabelledBlockInput, self).attributes
-        attributes.add_to(u'class', [u'reahl-labelledinput'])
-        if self.html_input.get_input_status() == u'invalidly_entered':
-            attributes.add_to(u'class', [u'reahl-state-error'])
+        attributes.add_to('class', ['reahl-labelledinput'])
+        if self.html_input.get_input_status() == 'invalidly_entered':
+            attributes.add_to('class', ['reahl-state-error'])
         return attributes
 
 
@@ -1785,9 +1788,9 @@ class CueInput(YuiGrid):
         self.input_part.add_child(self.html_input)
 
         self.cue_part = self.input_wrapper.add_child(YuiUnit(view))
-        self.cue_part.append_class(u'reahl-cue')
+        self.cue_part.append_class('reahl-cue')
         self.cue_part.add_child(cue_widget)
-        cue_widget.set_attribute(u'hidden', u'true')
+        cue_widget.set_attribute('hidden', 'true')
         
     
     @property
@@ -1797,13 +1800,13 @@ class CueInput(YuiGrid):
     @property
     def attributes(self):
         attributes = super(CueInput, self).attributes
-        attributes.add_to(u'class', [u'reahl-cueinput', u'reahl-labelledinput'])
-        if self.html_input.get_input_status() == u'invalidly_entered':
-            attributes.add_to(u'class', [u'reahl-state-error'])
+        attributes.add_to('class', ['reahl-cueinput', 'reahl-labelledinput'])
+        if self.html_input.get_input_status() == 'invalidly_entered':
+            attributes.add_to('class', ['reahl-state-error'])
         return attributes
 
     def get_js(self, context=None):
-        js = [u'$(%s).cueinput();' % self.contextualise_selector(u'".reahl-cueinput"', context)]
+        js = ['$(%s).cueinput();' % self.contextualise_selector('".reahl-cueinput"', context)]
         return super(CueInput, self).get_js(context=context) + js
 
 
@@ -1811,8 +1814,8 @@ class AutoHideLabel(InputLabel):
     @property
     def attributes(self):
         attributes = super(AutoHideLabel, self).attributes
-        if self.html_input.value != u'':
-            attributes.set_to(u'hidden', u'true')
+        if self.html_input.value != '':
+            attributes.set_to('hidden', 'true')
         return attributes
 
 
@@ -1834,11 +1837,11 @@ class LabelOverInput(LabelledInlineInput):
     @property
     def attributes(self):
         attributes = super(LabelOverInput, self).attributes
-        attributes.add_to(u'class', [u'reahl-labeloverinput'])
+        attributes.add_to('class', ['reahl-labeloverinput'])
         return attributes
         
     def get_js(self, context=None):
-        js = [u'$(%s).labeloverinput();' % self.contextualise_selector(u'".reahl-labeloverinput"', context)]
+        js = ['$(%s).labeloverinput();' % self.contextualise_selector('".reahl-labeloverinput"', context)]
         return super(LabelOverInput, self).get_js(context=context) + js
 
 
@@ -1886,7 +1889,7 @@ class MenuItem(Li):
     def attributes(self):
         attributes = super(MenuItem, self).attributes
         if self.is_active:
-            attributes.add_to(u'class', [u'active'])
+            attributes.add_to('class', ['active'])
         return attributes
 
 
@@ -1950,7 +1953,7 @@ class Menu(Ul):
 
     def __init__(self, view, a_list, css_id=None):
         super(Menu, self).__init__(view, css_id=css_id)
-        self.append_class(u'reahl-menu')
+        self.append_class('reahl-menu')
         self.set_items_from(a_list)
 
     def set_items_from(self, a_list):
@@ -1978,7 +1981,7 @@ class HMenu(Menu):
     @property
     def attributes(self):
         attributes = super(HMenu, self).attributes
-        attributes.add_to(u'class', [u'reahl-horizontal'])
+        attributes.add_to('class', ['reahl-horizontal'])
         return attributes
 
 
@@ -1996,7 +1999,7 @@ class VMenu(Menu):
     @property
     def attributes(self):
         attributes = super(VMenu, self).attributes
-        attributes.add_to(u'class', [u'reahl-vertical'])
+        attributes.add_to('class', ['reahl-vertical'])
         return attributes
 
 
@@ -2023,7 +2026,7 @@ class Tab(MenuItem):
         
     def get_bookmark(self):
         query_arguments={'tab': self.tab_key}
-        return Bookmark(u'', u'', description=self.title, query_arguments=query_arguments, ajax=True)
+        return Bookmark('', '', description=self.title, query_arguments=query_arguments, ajax=True)
 
     @property
     def is_active(self):
@@ -2053,9 +2056,9 @@ class MultiTab(Tab):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
         super(MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
-        self.add_child(TextNode(view, u'&nbsp;', html_escape=False))
-        dropdown_handle = self.add_child(A(view, None, description=u'▼'))
-        dropdown_handle.append_class(u'dropdown-handle')
+        self.add_child(TextNode(view, '&nbsp;', html_escape=False))
+        dropdown_handle = self.add_child(A(view, None, description='▼'))
+        dropdown_handle.append_class('dropdown-handle')
         self.menu = self.add_child(VMenu(view, []))
     
     def add_tab(self, tab):
@@ -2102,7 +2105,7 @@ class TabbedPanel(Panel):
     """
     def __init__(self, view, css_id):
         super(TabbedPanel, self).__init__(view, css_id=css_id)
-        self.append_class(u'reahl-tabbedpanel')
+        self.append_class('reahl-tabbedpanel')
         self.tabs = self.add_child(HMenu(view, []))
         self.content_panel = self.add_child(Panel(view))
         self.enable_refresh()
@@ -2152,21 +2155,21 @@ class SlidingPanel(Panel):
        :keyword next: Text to put in the link clicked to slide to the next panel.
        :keyword prev: Text to put in the link clicked to slide to the previous panel.
     """
-    def __init__(self, view, css_id=None, next=u'>', prev=u'<'):
+    def __init__(self, view, css_id=None, next='>', prev='<'):
         super(SlidingPanel, self).__init__(view, css_id=css_id)
-        self.append_class(u'reahl-slidingpanel')
+        self.append_class('reahl-slidingpanel')
         self.container = Panel(view)
-        self.container.append_class(u'viewport')
+        self.container.append_class('viewport')
         self.prev = self.add_child(A.from_bookmark(view, self.get_bookmark(index=self.previous_index, description=prev)))
         self.add_child(self.container)
         self.next = self.add_child(A.from_bookmark(view, self.get_bookmark(index=self.next_index, description=next)))
 
     def add_panel(self, panel):
         """Adds `panel` to the list of :class:`Panel` instances that share the same visual space."""
-        panel.append_class(u'contained')
+        panel.append_class('contained')
         self.container.add_child(panel)
         if self.max_panel_index != self.index:
-            panel.add_to_attribute(u'style', [u'display: none;'])
+            panel.add_to_attribute('style', ['display: none;'])
         self.prev.href = self.get_bookmark(index=self.previous_index).href
         self.next.href = self.get_bookmark(index=self.next_index).href
 
@@ -2189,8 +2192,8 @@ class SlidingPanel(Panel):
         return self.index+1
         
     def get_bookmark(self, index=None, description=None):
-        description = (u'%s' % index) if description is None else description
-        return Bookmark.for_widget(description, query_arguments={u'index': index})
+        description = ('%s' % index) if description is None else description
+        return Bookmark.for_widget(description, query_arguments={'index': index})
         
     @exposed
     def query_fields(self, fields):
@@ -2198,11 +2201,11 @@ class SlidingPanel(Panel):
 
     def get_js(self, context=None):
         selector = self.contextualise_selector(self.jquery_selector, context)
-        return [u'$(%s).slidingpanel();' % selector]
+        return ['$(%s).slidingpanel();' % selector]
 
     @property
     def jquery_selector(self):
-        return u'".reahl-slidingpanel"'
+        return '".reahl-slidingpanel"'
 
 
 class SimpleFileInput(Input):
@@ -2217,12 +2220,12 @@ class SimpleFileInput(Input):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`, must be of type :class:`reahl.component.modelinterface.FileField`
     """
-    input_type = u'file'
+    input_type = 'file'
     is_for_file = True
     def create_html_input(self):
-        add_file = HTMLElement(self.view, u'input', wrapper_widget=self)
+        add_file = HTMLElement(self.view, 'input', wrapper_widget=self)
         if self.bound_field.allow_multiple:
-            add_file.set_attribute(u'multiple', u'multiple')
+            add_file.set_attribute('multiple', 'multiple')
         return add_file
 
     def get_value_from_input(self, input_values):
@@ -2233,13 +2236,13 @@ class SimpleFileInput(Input):
             size = field_storage.file.tell()
             field_storage.file.seek(0)
             return size
-        return [UploadedFile(unicode(field_storage.filename), field_storage.file, unicode(field_storage.type), file_size(field_storage)) 
+        return [UploadedFile(six.text_type(field_storage.filename), field_storage.file, six.text_type(field_storage.type), file_size(field_storage)) 
                  for field_storage in field_storages
-                 if field_storage != u'']
+                 if field_storage != '']
 
     @property
     def value(self):
-        return u''
+        return ''
 
     @property
     def persisted_exception_class(self):
@@ -2249,10 +2252,10 @@ class SimpleFileInput(Input):
         previous_exception = self.persisted_exception_class.get_exception_for_input(self.form, self.name)
         if previous_exception is not None:
             self.bound_field.validation_error = previous_exception
-            self.bound_field.input_status = u'invalidly_entered'
+            self.bound_field.input_status = 'invalidly_entered'
 
     def persist_input(self, input_values):
-        if self.get_input_status() == u'invalidly_entered':
+        if self.get_input_status() == 'invalidly_entered':
             self.persisted_exception_class.new_for_form(self.form, input_name=self.name, exception=self.bound_field.validation_error)
 
 
@@ -2260,20 +2263,20 @@ class SimpleFileInput(Input):
 class FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
         super(FileUploadLi, self).__init__(form.view, css_id=css_id)
-        self.set_attribute(u'class', u'reahl-file-upload-li')
+        self.set_attribute('class', 'reahl-file-upload-li')
         self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
         self.add_child(Span(self.view, persisted_file.filename))
 
 
     def get_js(self, context=None):
-        return [u'$(".reahl-file-upload-li").fileuploadli();']
+        return ['$(".reahl-file-upload-li").fileuploadli();']
 
 
 # Uses: reahl/web/reahl.fileuploadpanel.js
 class FileUploadPanel(Panel):
     def __init__(self, file_upload_input, css_id=None):
         super(FileUploadPanel, self).__init__(file_upload_input.view, css_id=css_id)
-        self.set_attribute(u'class', u'reahl-file-upload-panel')
+        self.set_attribute('class', 'reahl-file-upload-panel')
         self.file_upload_input = file_upload_input
 
         self.add_nested_form()
@@ -2281,7 +2284,7 @@ class FileUploadPanel(Panel):
         self.add_upload_controls()
 
     def add_nested_form(self):
-        self.upload_form = self.add_child(NestedForm(self.view, u'%s-%s-upload' % (self.input_form.css_id, self.bound_field.name)))
+        self.upload_form = self.add_child(NestedForm(self.view, '%s-%s-upload' % (self.input_form.css_id, self.bound_field.name)))
         self.upload_form.define_event_handler(self.events.upload_file)
         self.upload_form.define_event_handler(self.events.remove_file)
 
@@ -2315,7 +2318,7 @@ class FileUploadPanel(Panel):
     def events(self, events):
         events.upload_file = Event(label=_('Upload'), action=Action(self.upload_file))
         events.remove_file = Event(label=_('Remove'), 
-                                   action=Action(self.remove_file, [u'filename']),
+                                   action=Action(self.remove_file, ['filename']),
                                    filename=Field(required=True))
             
     @exposed
@@ -2326,24 +2329,24 @@ class FileUploadPanel(Panel):
 
     def attach_jq_widget(self, selector, widget_name, **options):
         def js_repr(value):
-            if type(value) in [str, unicode]:
-                return u'"%s"' % value
+            if isinstance(value, six.string_types):
+                return '"%s"' % value
             return value
-        option_args = u','.join([u'%s: %s' % (name, js_repr(value)) for name, value in options.items()])
-        return u'$(%s).%s({%s});' % (selector, widget_name, option_args)
+        option_args = ','.join(['%s: %s' % (name, js_repr(value)) for name, value in options.items()])
+        return '$(%s).%s({%s});' % (selector, widget_name, option_args)
 
     def get_js(self, context=None):
-        selector = self.contextualise_selector(u'"#%s .reahl-file-upload-panel"' % self.input_form.css_id, context)
+        selector = self.contextualise_selector('"#%s .reahl-file-upload-panel"' % self.input_form.css_id, context)
         unique_names_constraint = self.fields.uploaded_file.get_validation_constraint_of_class(UniqueFilesConstraint)
-        js = self.attach_jq_widget(selector, u'fileuploadpanel', 
+        js = self.attach_jq_widget(selector, 'fileuploadpanel', 
                     form_id=self.upload_form.form.css_id, 
                     nested_form_id=self.upload_form.css_id,
                     input_form_id=self.input_form.css_id,
-                    errorMessage=_(u'an error occurred, please try again later.'),
+                    errorMessage=_('an error occurred, please try again later.'),
                     removeLabel=self.events.remove_file.label,
-                    cancelLabel=_(u'Cancel'),
+                    cancelLabel=_('Cancel'),
                     duplicateValidationErrorMessage=unique_names_constraint.message,
-                    waitForUploadsMessage=_(u'Please try again when all files have finished uploading.'))
+                    waitForUploadsMessage=_('Please try again when all files have finished uploading.'))
         return super(FileUploadPanel, self).get_js(context=context) + [js]
 
     def remove_file(self, filename):
@@ -2357,7 +2360,7 @@ class FileUploadPanel(Panel):
 class UniqueFilesConstraint(ValidationConstraint):
     name = 'uniquefiles'
     def __init__(self, form=None, input_name=None, error_message=None):
-        error_message = error_message or _(u'uploaded files should all have different names')
+        error_message = error_message or _('uploaded files should all have different names')
         super(UniqueFilesConstraint, self).__init__(error_message=error_message)
         self.form = form
         self.input_name = input_name
@@ -2425,10 +2428,10 @@ class DialogButton(object):
         self.label = label
 
     def callback_js(self):
-        return u''
+        return ''
         
     def as_jquery(self):
-        return u'"%s": function() { %s }' % (self.label, self.callback_js())
+        return '"%s": function() { %s }' % (self.label, self.callback_js())
 
 
 class CheckCheckboxButton(DialogButton):
@@ -2437,7 +2440,7 @@ class CheckCheckboxButton(DialogButton):
         self.checkbox_to_check = checkbox
         
     def callback_js(self):
-        return u'''$(%s).attr("checked", true);''' %  self.checkbox_to_check.jquery_selector
+        return '''$(%s).attr("checked", true);''' %  self.checkbox_to_check.jquery_selector
 
         
 # Uses: reahl/web/reahl.popupa.js
@@ -2448,24 +2451,24 @@ class PopupA(A):
     def __init__(self, view, target_bookmark, show_for_selector, close_button=True, css_id=None):
         super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
         self.set_title(target_bookmark.description)
-        self.append_class(u'reahl-popupa')
+        self.append_class('reahl-popupa')
         self.show_for_selector = show_for_selector
         self.buttons = []
         if close_button:
-            self.add_button(DialogButton(_(u'Close')))
+            self.add_button(DialogButton(_('Close')))
         
     def add_button(self, button):
         self.buttons.append(button)
 
     def buttons_as_jquery(self):
-        return u', '.join([button.as_jquery() for button in self.buttons])
+        return ', '.join([button.as_jquery() for button in self.buttons])
 
     @property
     def jquery_selector(self):
-        return u'"a.reahl-popupa[href=\'%s\']"' % self.href
+        return '"a.reahl-popupa[href=\'%s\']"' % self.href
 
     def get_js(self, context=None):
         selector = self.contextualise_selector(self.jquery_selector, context)
-        return [u'$(%s).popupa({showForSelector: "%s", buttons: { %s }  });' % \
+        return ['$(%s).popupa({showForSelector: "%s", buttons: { %s }  });' % \
               (selector, self.show_for_selector, self.buttons_as_jquery())]
 

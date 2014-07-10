@@ -41,12 +41,14 @@
 # THE SOFTWARE.
 
  
+from __future__ import unicode_literals
+from __future__ import print_function
+
 from functools import partial, wraps
 import inspect
-import logging
 import warnings
 
-class memoized(object):
+class Memoized(object):
     def __init__(self, func):
         self.func = func
     def __get__(self, obj, objtype=None):
@@ -66,24 +68,25 @@ class memoized(object):
             res = cache[key] = self.func(*args, **kw)
         return res
 
+memoized=Memoized
 
 
-class deprecated(object):
+class Deprecated(object):
     def __init__(self, message):
         self.message = message
 
     def __call__(self, something):
         if inspect.isfunction(something):
-            f = something
+            func = something
         elif inspect.isclass(something):
-            f = something.__init__
+            func = something.__init__
         else:
-            raise AssertionError(u'@deprecated can only be used for classes, functions or methods')
+            raise AssertionError('@deprecated can only be used for classes, functions or methods')
 
-        @wraps(f)
+        @wraps(func)
         def deprecated_wrapper(*args, **kwds):
-            warnings.warn(u'DEPRECATED: %s. %s' % (something, self.message), DeprecationWarning, stacklevel=2)
-            return f(*args, **kwds)
+            warnings.warn('DEPRECATED: %s. %s' % (something, self.message), DeprecationWarning, stacklevel=2)
+            return func(*args, **kwds)
 
         if inspect.isfunction(something):
             return deprecated_wrapper
@@ -91,4 +94,4 @@ class deprecated(object):
             something.__init__ = deprecated_wrapper
             return something
 
-
+deprecated=Deprecated

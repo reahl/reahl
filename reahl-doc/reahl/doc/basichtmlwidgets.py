@@ -15,20 +15,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Panel, P
 
 
 class BasicHTMLWidgetsUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style=u'basic')  
+        self.define_page(TwoColumnPage, style='basic')  
 
-        home = self.define_view(u'/', title=u'Basic HTML Widgets demo')
-        home.set_slot(u'main', WidgetPanel.factory())
+        home = self.define_view('/', title='Basic HTML Widgets demo')
+        home.set_slot('main', WidgetPanel.factory())
 
 
 class WidgetPanel(Panel):
     def __init__(self, view):
         super(WidgetPanel, self).__init__(view)
-        self.add_child(P(view, text=u'A paragraph'))
+        self.add_child(P(view, text='A paragraph'))
 

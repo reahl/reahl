@@ -16,11 +16,10 @@
 
 """Utilities to manipulate underlying databases - sometimes via an ORM tool."""
 
-import subprocess
-import gzip
+from __future__ import unicode_literals
+from __future__ import print_function
 import re
-from datetime import date
-from contextlib import closing, contextmanager
+from contextlib import contextmanager
 import logging
 
 from reahl.component.eggs import ReahlEgg

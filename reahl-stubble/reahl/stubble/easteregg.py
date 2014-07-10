@@ -14,6 +14,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import pkg_resources
 from reahl.stubble.stub import FileSystemResourceProvider
 
@@ -28,7 +31,7 @@ class EasterEgg(pkg_resources.Distribution):
         self.entry_points = {}
 
     def as_requirement_string(self):
-        return unicode(self.as_requirement())
+        return six.text_type(self.as_requirement())
 
     def add_dependency(self, spec):
         requirement = pkg_resources.Requirement.parse(spec)
