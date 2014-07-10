@@ -16,17 +16,18 @@
 
 """Facilities to govern user input and output, as well as what access the current user has to model objects."""
 
-import sys
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import copy
 import re
 import fnmatch
 import json
 import sre_constants
-import urlparse
+from six.moves.urllib import parse as urllib_parse
 from string import Template
-import new
+import types
 import inspect
-import urllib
 from contextlib import contextmanager
 import functools
 
@@ -38,8 +39,9 @@ from reahl.component.i18n import Translator
 from reahl.component.decorators import memoized
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
+import collections
 
-_ = Translator(u'reahl-component')
+_ = Translator('reahl-component')
 
 class ConstraintNotFound(Exception):
     pass
@@ -75,7 +77,7 @@ class FieldIndex(object):
         if isinstance(value, Field):
             self.fields[name] = value
             if not value.is_bound:
-                value.bind(unicode(name), self.storage_object)
+                value.bind(six.text_type(name), self.storage_object)
         super(FieldIndex, self).__setattr__(name, value)
 
     def set(self, name, value):
@@ -147,7 +149,7 @@ class ExposedDecorator(object):
     def __init__(self, *args):
         self.property = None
         self.expected_event_names = []
-        if isinstance(args[0], basestring):
+        if isinstance(args[0], six.string_types):
             self.add_fake_events(args)
         else:
             self.set_property(args[0])
@@ -174,7 +176,7 @@ class ExposedDecorator(object):
                 expected_fields = set(exposed_decorator.expected_event_names)
                 missing_fields = expected_fields - declared_fields
                 if missing_fields:
-                    raise ProgrammerError(u'You promised to instantiate "%s" in %s of %s but did not do so' % \
+                    raise ProgrammerError('You promised to instantiate "%s" in %s of %s but did not do so' % \
                                               (','.join(missing_fields), func, model_object))
             return fields
         self.property = property(memoized(call_with_field_index))
@@ -188,7 +190,7 @@ class ExposedDecorator(object):
         return self.property.__set__(instance, owner, value)
         
     def __getattr__(self, name):
-        raise AttributeError(u'%s has no attribute \'%s\' - did you perhaps write @exposed instead of @exposed(\'%s\')?' % \
+        raise AttributeError('%s has no attribute \'%s\' - did you perhaps write @exposed instead of @exposed(\'%s\')?' % \
                             (self, name, name))
 
 
@@ -205,7 +207,7 @@ class ReahlFields(object):
         for name in dir(cls):
             if getattr(cls, name) is self:
                 return name
-        raise ProgrammerError(u'This should never happen')
+        raise ProgrammerError('This should never happen')
     def __get__(self, instance, cls):
         if not instance:
             return self
@@ -267,9 +269,9 @@ class ValidationConstraint(Exception):
                              references of this template string.
     """
     is_remote = False
-    name = u'' #: A unique name for this type of constraint. Only one Constraint with a given name is allowed per Field.
+    name = '' #: A unique name for this type of constraint. Only one Constraint with a given name is allowed per Field.
     def __init__(self, error_message=None):
-        error_message = error_message or _(u'$label is invalid')
+        error_message = error_message or _('$label is invalid')
         Exception.__init__(self)
         self.error_message = Template(error_message)
         self.field = None
@@ -294,16 +296,14 @@ class ValidationConstraint(Exception):
     
     def validate_input(self, unparsed_input):
         """Override this method to provide the custom logic of how this ValidationConstraint should check
-           the given unicode string for validity. If validation fails, this method should raise self.
+           the given string for validity. If validation fails, this method should raise self.
         """
-        pass
     
     def validate_parsed_value(self, parsed_value):
         """Override this method to provide the custom logic of how this ValidationConstraint should check
            the given Python object after it was created from initial input in string form. If validation 
            fails, this method should raise self.
         """
-        pass
 
     def __getitem__(self, name):
         try:
@@ -316,7 +316,7 @@ class ValidationConstraint(Exception):
         """Override this property to supply parameters for this ValidationConstraint. Parameters are used
            by user interface mechanics outside the scope of this module for implementation reasons.
         """
-        return u''
+        return ''
         
     @property
     def message(self):
@@ -333,7 +333,7 @@ class ValidationConstraint(Exception):
         """The current value which failed validation."""
         return self.field.user_input
 
-    def __unicode__(self):
+    def __str__(self):
         return self.message
 
 
@@ -345,9 +345,9 @@ class RemoteConstraint(ValidationConstraint):
        :param error_message: (See :class:`ValidationConstraint`)
     """
     is_remote = True
-    name = u'remote'
+    name = 'remote'
     def __init__(self, error_message=None):
-        error_message = error_message or _(u'$label is not valid')
+        error_message = error_message or _('$label is not valid')
         super(RemoteConstraint, self).__init__(error_message)
 
 
@@ -367,7 +367,7 @@ class ValidationConstraintList(list):
 
     def append(self, constraint):
         if constraint.name and self.has_constraint_named(constraint.name):
-            message = u'You have already added %s, and are trying to add %s, both of which are named "%s". At present, you can only add one constraint per constraint name.'
+            message = 'You have already added %s, and are trying to add %s, both of which are named "%s". At present, you can only add one constraint per constraint name.'
             message = message % (repr(self.get_constraint_named(constraint.name)), repr(constraint), constraint.name)
             raise ProgrammerError(message)
         super(ValidationConstraintList, self).append(constraint)
@@ -409,8 +409,8 @@ class ValidationConstraintList(list):
                               for validation_constraint in self
                               if (not validation_constraint.name in ignore_names) ])
         if messages_dict:
-            return json.dumps({u'validate':{u'messages':messages_dict}})
-        return u''
+            return json.dumps({'validate':{'messages':messages_dict}})
+        return ''
 
 
 class RequiredConstraint(ValidationConstraint):
@@ -418,10 +418,10 @@ class RequiredConstraint(ValidationConstraint):
     
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'required'
+    name = 'required'
     empty_regex = re.compile('^ +$')
-    def __init__(self, selector_expression=u'*', error_message=None):
-        error_message = error_message or _(u'$label is required')
+    def __init__(self, selector_expression='*', error_message=None):
+        error_message = error_message or _('$label is required')
         super(RequiredConstraint, self).__init__(error_message)
         self.selector_expression = selector_expression
 
@@ -430,7 +430,7 @@ class RequiredConstraint(ValidationConstraint):
         return self.selector_expression
 
     def validate_input(self, unparsed_input):
-        if isinstance(unparsed_input, basestring) and self.empty_regex.match(unparsed_input):
+        if isinstance(unparsed_input, six.string_types) and self.empty_regex.match(unparsed_input):
             raise self
         if not unparsed_input:
             raise self
@@ -471,10 +471,10 @@ class EqualToConstraint(ComparingConstraint):
        :param other_field: The Field whose value must be equal to the Field to which this ValidationConstraint is attached.
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'equalTo2'
+    name = 'equalTo2'
     def __init__(self, other_field, error_message=None):
         def equal_to(one, other): return one == other
-        equals = Comparison(equal_to, error_message or _(u'$label should be equal to $other_label'))
+        equals = Comparison(equal_to, error_message or _('$label should be equal to $other_label'))
         super(EqualToConstraint, self).__init__(other_field, equals)
         
 
@@ -485,11 +485,11 @@ class GreaterThanConstraint(ComparingConstraint):
        :param other_field: The Field whose value is compared.
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'greaterThan'
+    name = 'greaterThan'
 
     def __init__(self, other_field, error_message=None):
         def greater_than(one, other): return one > other
-        greater = Comparison(greater_than, error_message or _(u'$label should be greater than $other_label'))
+        greater = Comparison(greater_than, error_message or _('$label should be greater than $other_label'))
         super(GreaterThanConstraint, self).__init__(other_field, greater)
 
 
@@ -500,11 +500,11 @@ class SmallerThanConstraint(ComparingConstraint):
        :param other_field: The Field whose value is compared.
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'smallerThan'
+    name = 'smallerThan'
 
     def __init__(self, other_field, error_message=None):
         def smaller_than(one, other): return one < other
-        smaller = Comparison(smaller_than, error_message or _(u'$label should be smaller than $other_label'))
+        smaller = Comparison(smaller_than, error_message or _('$label should be smaller than $other_label'))
         super(SmallerThanConstraint, self).__init__(other_field, smaller)
 
 
@@ -515,15 +515,15 @@ class MinLengthConstraint(ValidationConstraint):
        :param min_length: The minimum allowed length of the input.
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'minlength'
+    name = 'minlength'
     def __init__(self, min_length, error_message=None):
-        error_message = error_message or _(u'$label should be $min_length characters or longer')
+        error_message = error_message or _('$label should be $min_length characters or longer')
         super(MinLengthConstraint, self).__init__(error_message)
         self.min_length = min_length
     
     @property
     def parameters(self):
-        return unicode(self.min_length)
+        return six.text_type(self.min_length)
 
     def validate_input(self, unparsed_input):
         if len(unparsed_input) <  self.min_length:
@@ -537,15 +537,15 @@ class MaxLengthConstraint(ValidationConstraint):
        :param max_length: The maximum allowed length of the input.
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'maxlength'
+    name = 'maxlength'
     def __init__(self, max_length, error_message=None):
-        error_message = error_message or _(u'$label should not be longer than $max_length characters')
+        error_message = error_message or _('$label should not be longer than $max_length characters')
         super(MaxLengthConstraint, self).__init__(error_message)
         self.max_length = max_length
 
     @property
     def parameters(self):
-        return unicode(self.max_length)
+        return six.text_type(self.max_length)
 
     def validate_input(self, unparsed_input):
         if len(unparsed_input) > self.max_length:
@@ -558,9 +558,9 @@ class PatternConstraint(ValidationConstraint):
        :param pattern: The regex to match input against.
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'pattern'
+    name = 'pattern'
     def __init__(self, pattern, error_message=None):
-        error_message = error_message or _(u'$label is invalid')
+        error_message = error_message or _('$label is invalid')
         super(PatternConstraint, self).__init__(error_message)
         self.pattern = pattern
 
@@ -570,11 +570,11 @@ class PatternConstraint(ValidationConstraint):
 
     def validate_input(self, unparsed_input):
         try:
-            regex = re.compile(u'^%s$' % self.pattern)
+            regex = re.compile('^%s$' % self.pattern)
             match = regex.match(unparsed_input)
         except TypeError:
             match = None
-        except sre_constants.error, ex:
+        except sre_constants.error as ex:
             raise ProgrammerError(_('Invalid pattern: %s' % repr(ex)))
         if not match:
             raise self
@@ -590,14 +590,14 @@ class AllowedValuesConstraint(PatternConstraint):
         return self.__class__(self.allowed_values, error_message=self.error_message)
 
     def __init__(self, allowed_values, error_message=None):
-        error_message = error_message or _(u'$label should be one of the following: $allowed')
+        error_message = error_message or _('$label should be one of the following: $allowed')
         self.allowed_values = allowed_values
-        allowed_regex = u'(%s)' % (u'|'.join(self.allowed_values))
+        allowed_regex = '(%s)' % ('|'.join(self.allowed_values))
         super(AllowedValuesConstraint, self).__init__(allowed_regex, error_message)
         
     @property
     def allowed(self):
-        return u'|'.join(self.allowed_values)
+        return '|'.join(self.allowed_values)
 
 
 class IntegerConstraint(PatternConstraint):
@@ -606,8 +606,8 @@ class IntegerConstraint(PatternConstraint):
        :param error_message: (See :class:`ValidationConstraint`)
     """
     def __init__(self, error_message=None):
-        error_message = error_message or _(u'$label should be an integer number')
-        super(IntegerConstraint, self).__init__(u'[-0123456789]+', error_message)
+        error_message = error_message or _('$label should be an integer number')
+        super(IntegerConstraint, self).__init__('[-0123456789]+', error_message)
 
     def validate_input(self, unparsed_input):
         super(IntegerConstraint, self).validate_input(unparsed_input)
@@ -625,9 +625,9 @@ class MinValueConstraint(ValidationConstraint):
        :param min_value: The minimum value allowed.
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'minvalue'
+    name = 'minvalue'
     def __init__(self, min_value, error_message=None):
-        error_message = error_message or _(u'$label should be $min_value or greater')
+        error_message = error_message or _('$label should be $min_value or greater')
         super(MinValueConstraint, self).__init__(error_message=error_message)
         self.min_value = min_value
 
@@ -643,9 +643,9 @@ class MaxValueConstraint(ValidationConstraint):
        :param max_value: The maximum value allowed.
        :param error_message: (See :class:`ValidationConstraint`)
     """
-    name = u'maxvalue'
+    name = 'maxvalue'
     def __init__(self, max_value, error_message=None):
-        error_message = error_message or _(u'$label should be no greater than $max_value')
+        error_message = error_message or _('$label should be no greater than $max_value')
         super(MaxValueConstraint, self).__init__(error_message=error_message)
         self.max_value = max_value
 
@@ -685,14 +685,14 @@ class Field(object):
                         to this Field when it is not writable for that user. (See `error_message` of
                         :class:`ValidationConstraint`.)
     """
-    @arg_checks(readable=IsCallable(allow_none=True, args=(NotYetAvailable(u'field'),)), writable=IsCallable(allow_none=True, args=(NotYetAvailable(u'field'),)))
+    @arg_checks(readable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)), writable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)))
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, disallowed_message=None):
         self.name = None
         self.storage_object = None
         self.default = default
-        self.label = label or u''
+        self.label = label or ''
         self.validation_constraints = ValidationConstraintList()
-        self.add_validation_constraint(AccessRightsConstraint(disallowed_message or _(u'Not allowed')))
+        self.add_validation_constraint(AccessRightsConstraint(disallowed_message or _('Not allowed')))
         self.access_rights = AccessRights(readable=readable, writable=writable)
         if required:
             self.make_required(required_message)
@@ -712,7 +712,7 @@ class Field(object):
 
     def make_required(self, required_message):
         """Forces this Field to be required, using `required_message` as an error message."""
-        message = required_message or _(u'$label is required')
+        message = required_message or _('$label is required')
         self.add_validation_constraint(RequiredConstraint(error_message=message))
 
     def as_required(self, required_message=None):
@@ -764,7 +764,7 @@ class Field(object):
         return new_version
 
     def clear_user_input(self):
-        self.input_status = u'defaulted'
+        self.input_status = 'defaulted'
         self.validation_error = None
         self.user_input = None
         self.parsed_input = self.default
@@ -774,16 +774,16 @@ class Field(object):
 
         self.user_input = input_value
 
-        if not self.required and input_value == u'':
-            self.input_status = u'validly_entered'
+        if not self.required and input_value == '':
+            self.input_status = 'validly_entered'
         else:
             try:
-                self.input_status = u'invalidly_entered'
+                self.input_status = 'invalidly_entered'
                 self.validate_input(input_value)
                 self.parsed_input = self.parse_input(input_value)
                 self.validate_parsed(self.parsed_input)
-                self.input_status = u'validly_entered'
-            except ValidationConstraint, ex:
+                self.input_status = 'validly_entered'
+            except ValidationConstraint as ex:
                 self.validation_error = ex
                 if not ignore_validation:
                     raise
@@ -818,7 +818,7 @@ class Field(object):
     @property
     def variable_name(self):
         if not self.name:
-            raise AssertionError(u'field %s with label "%s" is not yet bound' % (self, self.label))
+            raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
         return self.name
         
     def get_model_value(self):
@@ -838,13 +838,13 @@ class Field(object):
         
     def parse_input(self, unparsed_input):
         """Override this method on a subclass to specify how that subclass transforms the `unparsed_input`
-           (a unicode string) into a representative Python object."""
+           (a string) into a representative Python object."""
         return unparsed_input
 
     def unparse_input(self, parsed_value):
         """Override this method on a subclass to specify how that subclass transforms a given Python
-           object (`parsed_value`) to a unicode string that represents it to a user."""
-        return unicode(parsed_value or u'')
+           object (`parsed_value`) to a string that represents it to a user."""
+        return six.text_type(parsed_value or '')
 
     def from_input(self, unparsed_input):
         """Sets the value of this Field from the given `unparsed_input`."""
@@ -853,10 +853,10 @@ class Field(object):
             self.set_model_value()
         
     def as_input(self):
-        """Returns the value of this Field as a unicode string."""
+        """Returns the value of this Field as a string."""
         if self.can_read():
             return self.unparse_input(self.get_model_value())
-        return u''
+        return ''
 
     def add_validation_constraint(self, validation_constraint):
         """Adds the given `validation_constraint` to this Field. All ValidationConstraints added to the
@@ -963,12 +963,12 @@ class Event(Field):
                         governing input to that Event argument.
     """
     @arg_checks(action=IsInstance(Action, allow_none=True), 
-                readable=IsCallable(allow_none=True, args=(NotYetAvailable(u'self'),)), 
-                writable=IsCallable(allow_none=True, args=(NotYetAvailable(u'self'),)))
+                readable=IsCallable(allow_none=True, args=(NotYetAvailable('self'),)), 
+                writable=IsCallable(allow_none=True, args=(NotYetAvailable('self'),)))
     def __init__(self, label=None, action=None, readable=None, writable=None, disallowed_message=None, **event_argument_fields):
-        label = label or u''
+        label = label or ''
         if action and (readable or writable):
-            raise ProgrammerError(u'either specify an action or readable/writable but not both')
+            raise ProgrammerError('either specify an action or readable/writable but not both')
         readable = action.readable if action else readable
         writable = action.writable if action else writable
 
@@ -976,9 +976,9 @@ class Event(Field):
         self.action = action or (lambda *args, **kwargs: None)
         self.event_argument_fields = event_argument_fields
 
-    def __unicode__(self):
-        argument_string = (u', %s' % unicode(self.arguments)) if hasattr(self, u'arguments') else u''
-        return u'Event(%s%s)' % (self.name, argument_string)
+    def __str__(self):
+        argument_string = (', %s' % six.text_type(self.arguments)) if hasattr(self, 'arguments') else ''
+        return 'Event(%s%s)' % (self.name, argument_string)
 
     def from_input(self, unparsed_input):
         # Note: this needs to happen for Events whether you are allowed to write the Event or not,
@@ -990,7 +990,7 @@ class Event(Field):
     @property
     def occurred(self):
         if self.user_input:
-            return self.user_input.startswith(u'?') and self.can_write()
+            return self.user_input.startswith('?') and self.can_write()
         return False
 
     def can_write(self):
@@ -998,7 +998,7 @@ class Event(Field):
 
     def fire(self):
         if not self.occurred:
-            raise ProgrammerError(u'attempted to fire Event that has not occurred: %s' % self)
+            raise ProgrammerError('attempted to fire Event that has not occurred: %s' % self)
         return self.action(self)
 
     def bind(self, name, storage_object):
@@ -1022,12 +1022,12 @@ class Event(Field):
 
     @property
     def variable_name(self):
-        return u'arguments'
+        return 'arguments'
    
     def parse_input(self, unparsed_input):
         if unparsed_input:
             arguments_query_string = unparsed_input[1:]
-            raw_input_values = dict([(k,v[0]) for k, v in urlparse.parse_qs(arguments_query_string).items()])
+            raw_input_values = dict([(k,v[0]) for k, v in urllib_parse.parse_qs(arguments_query_string).items()])
             fields = StandaloneFieldIndex()
             fields.update_copies(self.event_argument_fields)
             fields.accept_input(raw_input_values)
@@ -1044,10 +1044,10 @@ class Event(Field):
             fields.update_copies(self.event_argument_fields)
             
             arguments.update(fields.as_input_kwargs())
-            input_string=u'?%s' % urllib.urlencode(arguments)
-            return unicode(input_string)
+            input_string='?%s' % urllib_parse.urlencode(arguments)
+            return six.text_type(input_string)
         else:
-            return u'?'
+            return '?'
     
     
 class SecuredMethod(object):
@@ -1070,10 +1070,10 @@ class SecuredMethod(object):
             return True
 
     def read_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.read_check, self.to_be_called.im_self, *args, **kwargs)
+        return self.check_right(self.secured_declaration.read_check, six.get_method_self(self.to_be_called), *args, **kwargs)
     
     def write_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.write_check, self.to_be_called.im_self, *args, **kwargs)
+        return self.check_right(self.secured_declaration.write_check, six.get_method_self(self.to_be_called), *args, **kwargs)
 
 
 
@@ -1105,12 +1105,12 @@ class SecuredDeclaration(object):
         
         if isinstance(self.read_check, AdaptedMethod):
             self.read_check.set_full_arg_names(arg_names)
-        elif callable(self.read_check):
+        elif isinstance(self.read_check, collections.Callable):
             self.check_method_signature(self.read_check, self.func)
         
         if isinstance(self.write_check, AdaptedMethod):
             self.write_check.set_full_arg_names(arg_names)
-        elif callable(self.write_check):
+        elif isinstance(self.write_check, collections.Callable):
             self.check_method_signature(self.write_check, self.func)
         return self
 
@@ -1121,7 +1121,7 @@ class SecuredDeclaration(object):
             messages = [repr(method) + inspect.formatargspec(*signature)
                         for signature, method in [(check_signature, check_method),
                                                   (expected_signature, original_method)]]
-            raise ProgrammerError(u'signature of %s does not match expected signature of %s' % \
+            raise ProgrammerError('signature of %s does not match expected signature of %s' % \
                                   tuple(messages))
 
     def get_declared_argument_names(self, func):
@@ -1130,7 +1130,7 @@ class SecuredDeclaration(object):
         return arg_spec.args[:positional_args_end]
 
     def __get__(self, instance, owner):
-        method = new.instancemethod(self.func, instance, owner)
+        method = types.MethodType(self.func, instance, owner)
         return SecuredMethod(method, self)
 
 
@@ -1146,29 +1146,29 @@ class CurrentUser(Field):
         else:
             party = None
         super(CurrentUser, self).__init__(required=True, default=party)
-        self.bind(u'current_account', self)
+        self.bind('current_account', self)
         
     def parse_input(self, unparsed_input):
         return self.default
 
     def unparse_input(self, parsed_value):
-        return u'The current account'
+        return 'The current account'
 
 
 class EmailField(Field):
-    """A Field representing a valid email address. Its parsed value is the given unicode string."""
+    """A Field representing a valid email address. Its parsed value is the given string."""
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
-        label = label or u''
+        label = label or ''
         super(EmailField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
-        error_message=_(u'$label should be a valid email address')
-        self.add_validation_constraint(PatternConstraint(u'[^\s]+@[^\s]+\.[^\s]{2,4}', error_message))
+        error_message=_('$label should be a valid email address')
+        self.add_validation_constraint(PatternConstraint('[^\s]+@[^\s]+\.[^\s]{2,4}', error_message))
 
 
 class PasswordField(Field):
-    """A Field representing a password. Its parsed value is the given unicode string, but the user is not
+    """A Field representing a password. Its parsed value is the given string, but the user is not
        allowed to see its current value."""
     def __init__(self, default=None, required=False, required_message=None, label=None, writable=None):
-        label = label or u''
+        label = label or ''
         super(PasswordField, self).__init__(default, required, required_message, label, readable=Allowed(False), writable=writable)
         self.add_validation_constraint(MinLengthConstraint(6))
         self.add_validation_constraint(MaxLengthConstraint(20))
@@ -1180,17 +1180,17 @@ class BooleanField(Field):
        to 'on' and 'off' initially.)
     """
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, true_value=None, false_value=None):
-        true_value = true_value or _(u'on')
-        false_value = false_value or _(u'off')
-        label = label or u''
+        true_value = true_value or _('on')
+        false_value = false_value or _('off')
+        label = label or ''
         super(BooleanField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
         self.true_value = true_value
         self.false_value = false_value
         allowed_values = [self.true_value]
         if required:
-            error_message = required_message or _(u'$label is required')
+            error_message = required_message or _('$label is required')
         else:
-            error_message = _(u'$label should be either "%s" or "%s"') % (self.true_value, self.false_value)
+            error_message = _('$label should be either "%s" or "%s"') % (self.true_value, self.false_value)
             allowed_values.append(self.false_value)
         self.add_validation_constraint(AllowedValuesConstraint(allowed_values, error_message=error_message))
 
@@ -1213,7 +1213,7 @@ class IntegerField(Field):
        (For other arguments, see :class:`Field`.)
     """
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, min_value=None, max_value=None):
-        label = label or u''
+        label = label or ''
         super(IntegerField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
         self.add_validation_constraint(IntegerConstraint())
         if min_value:
@@ -1247,7 +1247,7 @@ class DateField(Field):
        (For other arguments, see :class:`Field`.)
     """
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, min_value=None, max_value=None):
-        label = label or u''
+        label = label or ''
         super(DateField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
         self.add_validation_constraint(DateConstraint())
         if min_value:
@@ -1297,7 +1297,7 @@ class DateField(Field):
             raise InputParseException()
 
     def unparse_input(self, parsed_value):
-        return babel.dates.format_date(parsed_value, format=u'medium', locale=_.current_locale)
+        return babel.dates.format_date(parsed_value, format='medium', locale=_.current_locale)
 
 
 class Choice(object):
@@ -1312,7 +1312,7 @@ class Choice(object):
         self._value = value
         self._value_as_set = None
         self.field = field
-        self.field.bind(u'value', self)
+        self.field.bind('value', self)
     
     def get_value(self):
         return self._value
@@ -1361,7 +1361,7 @@ class ChoiceGroup(object):
 
 class MultiChoiceConstraint(ValidationConstraint):
     def __init__(self, choices, error_message=None):
-        error_message = error_message or _(u'$label should be a subset of $choice_input_values')
+        error_message = error_message or _('$label should be a subset of $choice_input_values')
         super(MultiChoiceConstraint, self).__init__(error_message=error_message)
         self.choices = choices
 
@@ -1422,7 +1422,7 @@ class ChoiceField(Field):
         for choice in self.flattened_choices:
             if choice.matches_input(unparsed_input):
                 return choice.value
-        raise ProgrammerError(u'The AllowedValuesConstraint added to a ChoiceField should have prevented this line from being reached.')
+        raise ProgrammerError('The AllowedValuesConstraint added to a ChoiceField should have prevented this line from being reached.')
 
 
 class MultiChoiceField(ChoiceField):
@@ -1453,7 +1453,7 @@ class MultiChoiceField(ChoiceField):
 
 class SingleFileConstraint(ValidationConstraint):
     def __init__(self, error_message=None):
-        error_message = error_message or _(u'$label can only accept a single file')
+        error_message = error_message or _('$label can only accept a single file')
         super(SingleFileConstraint, self).__init__(error_message=error_message)
 
     def validate_input(self, unparsed_input):
@@ -1479,9 +1479,9 @@ class UploadedFile(object):
 
 
 class FileSizeConstraint(ValidationConstraint):
-    name = u'filesize'
+    name = 'filesize'
     def __init__(self, max_size_bytes, error_message=None):
-        error_message = error_message or _(u'files should be smaller than $human_max_size')
+        error_message = error_message or _('files should be smaller than $human_max_size')
         super(FileSizeConstraint, self).__init__(error_message)
         self.max_size_bytes = max_size_bytes
     
@@ -1496,11 +1496,11 @@ class FileSizeConstraint(ValidationConstraint):
             if num < 1000.0 and num > -1000.0:
                 return "%3.1f%s" % (num, x)
             num /= 1000.0
-        return u'%3.1f%s' % (num, 'TB')
+        return '%3.1f%s' % (num, 'TB')
 
     @property
     def parameters(self):
-        return unicode(self.max_size_bytes)
+        return six.text_type(self.max_size_bytes)
 
     def validate_input(self, unparsed_input):
         files_list = unparsed_input
@@ -1510,9 +1510,9 @@ class FileSizeConstraint(ValidationConstraint):
 
 
 class MimeTypeConstraint(ValidationConstraint):
-    name = u'accept'
+    name = 'accept'
     def __init__(self, accept, error_message=None):
-        error_message = error_message or _(u'files should be of type $human_accepted_types')
+        error_message = error_message or _('files should be of type $human_accepted_types')
         super(MimeTypeConstraint, self).__init__(error_message)
         self.accept = accept
     
@@ -1526,7 +1526,7 @@ class MimeTypeConstraint(ValidationConstraint):
 
     @property
     def parameters(self):
-        return u','.join(self.accept)
+        return ','.join(self.accept)
 
     def validate_input(self, unparsed_input):
         def matches(actual_type, accepted_types):
@@ -1542,9 +1542,9 @@ class MimeTypeConstraint(ValidationConstraint):
 
 
 class MaxFilesConstraint(ValidationConstraint):
-    name = u'maxfiles'
+    name = 'maxfiles'
     def __init__(self, max_files, error_message=None):
-        error_message = error_message or _(u'a maximum of $max_files files may be uploaded')
+        error_message = error_message or _('a maximum of $max_files files may be uploaded')
         super(MaxFilesConstraint, self).__init__(error_message)
         self.max_files = max_files
     
@@ -1554,7 +1554,7 @@ class MaxFilesConstraint(ValidationConstraint):
 
     @property
     def parameters(self):
-        return unicode(self.max_files)
+        return six.text_type(self.max_files)
 
     def validate_input(self, unparsed_input):
         files_list = unparsed_input
@@ -1598,7 +1598,7 @@ class FileField(Field):
             return files[0] if files else None
 
     def unparse_input(self, parsed_value):
-        return u''
+        return ''
 
 
 

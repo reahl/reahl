@@ -14,20 +14,28 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import warnings
 import itertools
-import six
 
+import six
 from nose.tools import istest
-from reahl.tofu import Fixture, test, vassert, expected, NoException, scenario
+from reahl.tofu import expected
+from reahl.tofu import scenario
+from reahl.tofu import test
+from reahl.tofu import vassert
 from reahl.stubble import EmptyStub
 
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, TwoColumnPage, P
 from reahl.webdev.tools import Browser
-from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
-from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass, IsInstance
+from reahl.web_dev.fixtures import WebFixture
+from reahl.component.exceptions import IncorrectArgumentError
+from reahl.component.exceptions import IsSubclass
+from reahl.component.exceptions import ProgrammerError
 
 @istest
 class AppBasicsTests(object):
@@ -38,11 +46,11 @@ class AppBasicsTests(object):
             class SimplePage(HTML5Page):
                 def __init__(self, view):
                     super(SimplePage, self).__init__(view)
-                    self.body.add_child(P(view, text=u'Hello world!'))
+                    self.body.add_child(P(view, text='Hello world!'))
 
             class MainUI(UserInterface):
                 def assemble(self):
-                    self.define_view(u'/', title=u'Hello', page=SimplePage.factory())
+                    self.define_view('/', title='Hello', page=SimplePage.factory())
 
             self.MainUI = MainUI
             self.expected_content_length = 685
@@ -53,11 +61,11 @@ class AppBasicsTests(object):
             class SimplePage(HTML5Page):
                 def __init__(self, view):
                     super(SimplePage, self).__init__(view)
-                    self.body.add_child(P(view, text=u'Hello world!'))
+                    self.body.add_child(P(view, text='Hello world!'))
 
             class MainUI(UserInterface):
                 def assemble(self):
-                    home = self.define_view(u'/', title=u'Hello')
+                    home = self.define_view('/', title='Hello')
                     home.set_page(SimplePage.factory())
 
             self.MainUI = MainUI
@@ -69,7 +77,7 @@ class AppBasicsTests(object):
             class MainUI(UserInterface):
                 def assemble(self):
                     self.define_page(TwoColumnPage)
-                    self.define_view(u'/', title=u'Hello')
+                    self.define_view('/', title='Hello')
 
             self.MainUI = MainUI
             self.expected_content_length = 893
@@ -80,7 +88,7 @@ class AppBasicsTests(object):
             class MainUI(Region):
                 def assemble(self):
                     self.define_main_window(TwoColumnPage)
-                    self.define_view(u'/', title=u'Hello')
+                    self.define_view('/', title='Hello')
 
             self.MainUI = MainUI
             self.expected_content_length = 893
@@ -101,8 +109,9 @@ class AppBasicsTests(object):
 
         # GETting the URL results in the HTML for that View
         with warnings.catch_warnings(record=True) as caught_warnings:
+            warnings.simplefilter('always')
             browser.open('/')
-            vassert( browser.title == u'Hello' )
+            vassert( browser.title == 'Hello' )
 
         warning_messages = [six.text_type(i.message) for i in caught_warnings]
         vassert( len(warning_messages) == len(fixture.expected_warnings) )
@@ -111,7 +120,7 @@ class AppBasicsTests(object):
 
         if fixture.content_includes_p:
             [message] = browser.lxml_html.xpath('//p')
-            vassert( message.text == u'Hello world!' )
+            vassert( message.text == 'Hello world!' )
 
         # The headers are set correctly
         response = browser.last_response
@@ -120,7 +129,8 @@ class AppBasicsTests(object):
         vassert( response.charset == 'utf-8' )
 
         # Invalid URLs do not exist
-        browser.open('/nonexistantview/', status=404)
+        with warnings.catch_warnings(record=True):
+            browser.open('/nonexistantview/', status=404)
 
 
 
@@ -130,7 +140,7 @@ class AppBasicsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(EmptyStub)
-                self.define_view(u'/', title=u'Hello')
+                self.define_view('/', title='Hello')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -144,13 +154,13 @@ class AppBasicsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage, 1, 2)
-                self.define_view(u'/', title=u'Hello')
+                self.define_view('/', title='Hello')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
-            msg = str(ex)
+            msg = six.text_type(ex)
             vassert( msg.startswith('define_page was called with arguments that do not match those expected by') )
         with expected(IncorrectArgumentError, test=check_exc):
             browser.open('/')
@@ -160,13 +170,13 @@ class AppBasicsTests(object):
         """Forgetting to define either a page of a page for a View is reported to the programmer."""
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_view(u'/', title=u'Hello')
+                self.define_view('/', title='Hello')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
-            msg = str(ex)
+            msg = six.text_type(ex)
             vassert( msg == 'there is no page defined for /' )
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')
@@ -177,19 +187,19 @@ class AppBasicsTests(object):
             class MainUI(UserInterface):
                 def assemble(self):
                     self.define_page(TwoColumnPage)
-                    home = self.define_view(u'/', title=u'Hello')
-                    home.set_slot(u'main', P.factory(text=u'Hello world'))
-                    home.set_slot(u'footer', P.factory(text=u'I am the footer'))
+                    home = self.define_view('/', title='Hello')
+                    home.set_slot('main', P.factory(text='Hello world'))
+                    home.set_slot('footer', P.factory(text='I am the footer'))
             self.MainUI = MainUI
 
         @scenario
         def page_on_view(self):
             class MainUI(UserInterface):
                 def assemble(self):
-                    home = self.define_view(u'/', title=u'Hello')
+                    home = self.define_view('/', title='Hello')
                     home.set_page(TwoColumnPage.factory())
-                    home.set_slot(u'main', P.factory(text=u'Hello world'))
-                    home.set_slot(u'footer', P.factory(text=u'I am the footer'))
+                    home.set_slot('main', P.factory(text='Hello world'))
+                    home.set_slot('footer', P.factory(text='I am the footer'))
             self.MainUI = MainUI
 
             
@@ -200,10 +210,10 @@ class AppBasicsTests(object):
         browser = Browser(wsgi_app)
         
         browser.open('/')
-        vassert( browser.title == u'Hello' )
+        vassert( browser.title == 'Hello' )
         [main_p, footer_p] = browser.lxml_html.xpath('//p')
-        vassert( main_p.text == u'Hello world' )
-        vassert( footer_p.text == u'I am the footer' )
+        vassert( main_p.text == 'Hello world' )
+        vassert( footer_p.text == 'I am the footer' )
 
     @test(WebFixture)
     def slot_error(self, fixture):
@@ -211,15 +221,15 @@ class AppBasicsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                home = self.define_view(u'/', title=u'Hello')
-                home.set_slot(u'main', P.factory(text=u'Hello world'))
-                home.set_slot(u'nonexistantslotname', P.factory(text=u'I am breaking'))
+                home = self.define_view('/', title='Hello')
+                home.set_slot('main', P.factory(text='Hello world'))
+                home.set_slot('nonexistantslotname', P.factory(text='I am breaking'))
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         def check_exc(ex):
-            vassert( str(ex).startswith(u'An attempt was made to plug Widgets into the following slots that do not exist') )
+            vassert( six.text_type(ex).startswith('An attempt was made to plug Widgets into the following slots that do not exist') )
 
         with expected(ProgrammerError, test=check_exc):
             browser.open('/')
@@ -233,8 +243,8 @@ class AppBasicsTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 main = self.define_page(TwoColumnPage)
-                main.add_default_slot(u'main', P.factory(text=u'defaulted slot contents'))
-                self.define_view(u'/', title=u'Hello')
+                main.add_default_slot('main', P.factory(text='defaulted slot contents'))
+                self.define_view('/', title='Hello')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)

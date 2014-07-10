@@ -14,18 +14,15 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import gettext
-import logging
 import threading
 
-import pkg_resources
 
-from babel.dates import format_date
-from babel import Locale
 from babel.support import Translations
 
 from reahl.component.context import ExecutionContext
-from reahl.component.eggs import ReahlEgg
 from reahl.component.config import ReahlSystemConfig
 
 
@@ -76,17 +73,17 @@ class Translator(object):
         self.domain = domain
 
     def __call__(self, message):
-        """Returns a unicode literal containing a translation of `message` to the correct language according to the current locale.
+        """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
         """
         return self.gettext(message)
 
     def gettext(self, message):
-        """Returns a unicode literal containing a translation of `message` to the correct language according to the current locale.
+        """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
         """
         return SystemWideTranslator.get_instance().dgettext(self.domain, message)
 
     def ngettext(self, message_singular, message_plural, n):
-        """Returns a unicode literal containing a translation of the given messages in the correct plural (or singular) 
+        """Returns a six.text_type literal containing a translation of the given messages in the correct plural (or singular) 
            form of the target language for `n` items.
         """
         return SystemWideTranslator.get_instance().dngettext(self.domain, message_singular, message_plural, n)

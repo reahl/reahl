@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from threading import Timer
 import datetime
 
@@ -30,7 +32,7 @@ from reahl.component.config import Configuration, ConfigSetting
 
 @stubclass(ExecutionContext)
 class LocaleContextStub(ExecutionContext):
-    test_locale = u'af'
+    test_locale = 'af'
     @property
     def interface_locale(self):
         return self.test_locale
@@ -43,40 +45,40 @@ class I18nTests(object):
            the interface_locale on its current ExecutionContext."""
         
             
-        _ = Translator(u'reahl-component')  # Will find its translations in the compiled messages of reahl-component
+        _ = Translator('reahl-component')  # Will find its translations in the compiled messages of reahl-component
 
         with LocaleContextStub() as context:
-            context.test_locale = u'en_gb'
-            vassert( _(u'test string') == u'test string' )
-            vassert( _.gettext(u'test string') == u'test string' )
-            vassert( _.ngettext(u'thing', u'things', 1) == u'thing' )
-            vassert( _.ngettext(u'thing', u'things', 3) == u'things' )
+            context.test_locale = 'en_gb'
+            vassert( _('test string') == 'test string' )
+            vassert( _.gettext('test string') == 'test string' )
+            vassert( _.ngettext('thing', 'things', 1) == 'thing' )
+            vassert( _.ngettext('thing', 'things', 3) == 'things' )
 
-            context.test_locale = u'af'
-            vassert( _(u'test string') == u'toets string' )
-            vassert( _.gettext(u'test string') == u'toets string' )
-            vassert( _.ngettext(u'thing', u'things', 1) == u'ding' )
-            vassert( _.ngettext(u'thing', u'things', 3) == u'goeters' )
+            context.test_locale = 'af'
+            vassert( _('test string') == 'toets string' )
+            vassert( _.gettext('test string') == 'toets string' )
+            vassert( _.ngettext('thing', 'things', 1) == 'ding' )
+            vassert( _.ngettext('thing', 'things', 3) == 'goeters' )
 
     @test(Fixture)
     def formatting(self, fixture):
         """A Translator can be used to easily obtain the current locale for use
            by other i18n tools."""
             
-        _ = Translator(u'reahl-component') 
+        _ = Translator('reahl-component') 
 
         date = datetime.date(2012, 1, 10)
 
         with LocaleContextStub() as context:
-            context.test_locale = u'en_gb'
-            vassert( _.current_locale == u'en_gb' )
-            actual = babel.dates.format_date(date, format=u'long', locale=_.current_locale)
-            vassert( actual == u'10 January 2012' )
+            context.test_locale = 'en_gb'
+            vassert( _.current_locale == 'en_gb' )
+            actual = babel.dates.format_date(date, format='long', locale=_.current_locale)
+            vassert( actual == '10 January 2012' )
 
-            context.test_locale = u'af'
-            vassert( _.current_locale == u'af' )
-            actual = babel.dates.format_date(date, format=u'long', locale=_.current_locale)
-            vassert( actual == u'10 Januarie 2012' )
+            context.test_locale = 'af'
+            vassert( _.current_locale == 'af' )
+            actual = babel.dates.format_date(date, format='long', locale=_.current_locale)
+            vassert( actual == '10 Januarie 2012' )
 
 
     @test(Fixture)
@@ -86,14 +88,14 @@ class I18nTests(object):
         SystemWideTranslator.instance = None  # To "reset" the singleton, else its __init__ will NEVER be called in this test
 
         with InitMonitor(SystemWideTranslator) as monitor:
-            _ = Translator(u'reahl-component')
-            _2 = Translator(u'reahl-component')
+            _ = Translator('reahl-component')
+            _2 = Translator('reahl-component')
             
-            _(u'test string')
-            _.ngettext(u'thing', u'things', 1) 
-            _.ngettext(u'thing', u'things', 2) 
+            _('test string')
+            _.ngettext('thing', 'things', 1) 
+            _.ngettext('thing', 'things', 2) 
 
-            _2(u'test string')
+            _2('test string')
             
         vassert( monitor.times_called == 1 )
 
@@ -108,8 +110,8 @@ class I18nTests(object):
             self.lock_released = True
         timer = Timer(.1, release_lock)
         timer.start()
-        _ = Translator(u'reahl-component')
-        _.gettext(u'test string')
+        _ = Translator('reahl-component')
+        _.gettext('test string')
         timer.cancel()
         vassert( self.lock_released )
 
@@ -118,16 +120,16 @@ class I18nTests(object):
         """Configuration can be translated by adding a duplicate setting for each additional locale."""
 
         class MyConfig(Configuration):
-            setting = ConfigSetting(default=u'the default')
+            setting = ConfigSetting(default='the default')
             
         config = MyConfig()
         
         with LocaleContextStub() as context:
-            context.test_locale = u'en_gb'
-            vassert( config.setting == u'the default' )
+            context.test_locale = 'en_gb'
+            vassert( config.setting == 'the default' )
 
-            context.test_locale = u'af'
-            vassert( config.setting == u'the default' )
+            context.test_locale = 'af'
+            vassert( config.setting == 'the default' )
 
-            config.setting_af = u'die verstek'
-            vassert( config.setting == u'die verstek' )
+            config.setting_af = 'die verstek'
+            vassert( config.setting == 'die verstek' )

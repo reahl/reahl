@@ -20,6 +20,8 @@
 Copyright (C) 2009 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 """
+from __future__ import unicode_literals
+from __future__ import print_function
 
 import hashlib
 from string import Template
@@ -55,7 +57,7 @@ class PartyModelFixture(Fixture, PartyModelZooMixin):
 class RegistrationTests(object):
     @test(PartyModelFixture)
     def create_account(self,fixture):
-        login_email = u'piet@home.org'
+        login_email = 'piet@home.org'
         mailer_stub = fixture.mailer
 #        EmailAndPasswordSystemAccount.mailer = mailer_stub
         account_management_interface = fixture.account_management_interface
@@ -64,7 +66,7 @@ class RegistrationTests(object):
         # Case where the email does not exist as system_account, but as pending new email
         mailer_stub.reset()
         other_system_account = fixture.system_account
-        new_email = u'koos@home.org'
+        new_email = 'koos@home.org'
         ChangeAccountEmail(other_system_account, new_email)
 
         with expected(NotUniqueException):
@@ -108,27 +110,27 @@ class RegistrationTests(object):
         vassert( account_management_interface.is_login_active() )
 
         # Case: there is already an active account with pending_new_email the same as the new email
-        fixture.account_management_interface.new_email = u'new_email@home.org'
+        fixture.account_management_interface.new_email = 'new_email@home.org'
         fixture.account_management_interface.request_email_change()
 
         fixture.account_management_interface.email = fixture.account_management_interface.new_email
         vassert( account_management_interface.is_login_active() )
 
         # Case: there is no account by this email at all
-        fixture.account_management_interface.email = u'non-existant@email.com'
+        fixture.account_management_interface.email = 'non-existant@email.com'
         vassert( account_management_interface.is_login_available() )
 
         # Case: there is a pending registration 
-        fixture.account_management_interface.email = u'new_account@home.org'
+        fixture.account_management_interface.email = 'new_account@home.org'
         fixture.account_management_interface.register()
         vassert( account_management_interface.is_login_pending() )
 
     @test(PartyModelFixture)
     def send_activation_mail(self,fixture):
-        system_account = fixture.new_system_account(email=u'someone@home.org', activated=False)
+        system_account = fixture.new_system_account(email='someone@home.org', activated=False)
         activation_request = VerifyEmailRequest(email=system_account.email,
-                                                subject_config=u'accounts.activation_subject',
-                                                email_config=u'accounts.activation_email')
+                                                subject_config='accounts.activation_subject',
+                                                email_config='accounts.activation_email')
         activation_action = ActivateAccount(system_account=system_account, requirements=[activation_request])
         mailer_stub = fixture.mailer
         fixture.account_management_interface.email = system_account.email
@@ -153,7 +155,7 @@ class RegistrationTests(object):
 
         @stubclass(VerificationRequest)
         class VerificationRequestStub(VerificationRequest):
-            using_options(metadata=metadata, session=Session, shortnames=True, inheritance=u'multi')
+            using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
             def generate_salt(self):
                 self.salt = 'not unique'
 
@@ -166,15 +168,15 @@ class RegistrationTests(object):
 
     @test(PartyModelFixture)
     def activate_via_key(self,fixture):
-        system_account = fixture.new_system_account(email=u'someone@home.org', activated=False)
+        system_account = fixture.new_system_account(email='someone@home.org', activated=False)
         activation_request = VerifyEmailRequest(email=system_account.email,
-                                                subject_config=u'accounts.activation_subject',
-                                                email_config=u'accounts.activation_email')
+                                                subject_config='accounts.activation_subject',
+                                                email_config='accounts.activation_email')
         deferred_activation = ActivateAccount(system_account=system_account, requirements=[activation_request])
         account_management_interface = fixture.account_management_interface
         
         # Case where there is an email mismatch
-        account_management_interface.email = u'bad@email.com'
+        account_management_interface.email = 'bad@email.com'
         account_management_interface.secret = activation_request.as_secret_key()
         with expected(InvalidEmailException, test=lambda e: vassert(e.commit)):
             account_management_interface.verify_email()
@@ -182,7 +184,7 @@ class RegistrationTests(object):
 
         # Case where there is a key mismatch
         account_management_interface.email = system_account.email
-        account_management_interface.secret = u'a key that is invalid'
+        account_management_interface.secret = 'a key that is invalid'
         with expected(KeyException):
             account_management_interface.verify_email()
         vassert( not system_account.registration_activated )
@@ -201,9 +203,9 @@ class RegistrationTests(object):
 
     @test(PartyModelFixture)
     def expire_stale_requests(self,fixture):
-        old_email = u'old@home.org'
-        recent_email = u'recent@home.org'
-        password = u'pw'
+        old_email = 'old@home.org'
+        recent_email = 'recent@home.org'
+        password = 'pw'
         mailer_stub = fixture.mailer
         EmailAndPasswordSystemAccount.mailer = mailer_stub
         longago = datetime.now() - timedelta(fixture.config.accounts.request_verification_timeout)
@@ -222,7 +224,7 @@ class RegistrationTests(object):
         new_account_management_interface.register()
         recent_system_account = EmailAndPasswordSystemAccount.by_email(recent_email)
 
-        ReahlEgg.do_daily_maintenance_for_egg(u'reahl-domain')
+        ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
         vassert( EmailAndPasswordSystemAccount.query.filter_by(id=old_system_account.id).count() == 0 )
         vassert( EmailAndPasswordSystemAccount.query.filter_by(id=recent_system_account.id).count() == 1 )
 
@@ -233,7 +235,7 @@ class RegistrationTests(object):
         mailer_stub = fixture.mailer
 
         # Case where an password reset is requested for an email that does not exist
-        account_management_interface.email = u'another.%s' % system_account.email
+        account_management_interface.email = 'another.%s' % system_account.email
         with expected(NoSuchAccountException):
             account_management_interface.request_password_reset()
 
@@ -303,7 +305,7 @@ class RegistrationTests(object):
             account_management_interface.choose_new_password()
 
         # Case: the email is invalid
-        invalid_email = u'i am not a valid email'
+        invalid_email = 'i am not a valid email'
         account_management_interface.email = invalid_email
         account_management_interface.secret = new_password_request.as_secret_key()
         account_management_interface.password = new_password
@@ -321,7 +323,7 @@ class RegistrationTests(object):
     def request_email_change(self,fixture):
         system_account = fixture.new_system_account(activated=False)
         mailer_stub = fixture.mailer
-        new_email = u'new@home.org'
+        new_email = 'new@home.org'
         account_management_interface = fixture.new_account_management_interface(system_account=system_account)
 
         # Case where the user account has not been activated
@@ -341,7 +343,7 @@ class RegistrationTests(object):
         system_account.enable()
         # Case where the user account is active and enabled, but a clashing email name is requested
         other_party = Party()
-        clashing_new_email = u'piet@home.org'
+        clashing_new_email = 'piet@home.org'
         clashing_system_account = fixture.new_system_account(party=other_party, email=clashing_new_email, activated=True)
 
         account_management_interface.new_email = clashing_new_email
@@ -372,14 +374,14 @@ class RegistrationTests(object):
     @test(PartyModelFixture)
     def verify_email_change(self,fixture):
         system_account = fixture.system_account
-        new_email = u'new@home.org'
+        new_email = 'new@home.org'
         change_email_action = ChangeAccountEmail(system_account, new_email)
         request = change_email_action.verify_email_request
         account_management_interface = fixture.account_management_interface
 
         # Case where there is a password mismatch
         account_management_interface.email = new_email
-        account_management_interface.password = u'bad password'
+        account_management_interface.password = 'bad password'
         account_management_interface.secret = request.as_secret_key()
         with expected(InvalidPasswordException, test=lambda e: vassert(e.commit)):
             account_management_interface.verify_email()
@@ -388,7 +390,7 @@ class RegistrationTests(object):
         # Case where there is a key mismatch
         account_management_interface.email = new_email
         account_management_interface.password = system_account.password
-        account_management_interface.secret = u'invalid key'
+        account_management_interface.secret = 'invalid key'
         with expected(KeyException):
             account_management_interface.verify_email()        
         vassert( system_account.email != new_email )
@@ -419,7 +421,7 @@ class RegistrationTests(object):
         vassert( system_account.account_enabled )
 
         account_management_interface.email = system_account.email
-        account_management_interface.password = u'gobbledegook'
+        account_management_interface.password = 'gobbledegook'
         for i in range(3):
             with expected(InvalidPasswordException, test=lambda e: vassert(e.commit)):
                 account_management_interface.log_in()
@@ -437,7 +439,7 @@ class RegistrationTests(object):
 
         # Case: Account is not activated yet
         session.account = None
-        system_account = fixture.new_system_account(email=u'other@email.com', activated=False)
+        system_account = fixture.new_system_account(email='other@email.com', activated=False)
 
         vassert( isinstance(system_account.status, AccountNotActivated) )
         with expected(AccountNotActiveException):
@@ -445,8 +447,8 @@ class RegistrationTests(object):
         vassert( session.account is None )
 
         # Case: Login for nonexistant email name
-        account_management_interface.email = u'i@do not exist'
-        account_management_interface.password = u'gobbledegook'
+        account_management_interface.email = 'i@do not exist'
+        account_management_interface.password = 'gobbledegook'
         with expected(InvalidPasswordException, test=lambda e: vassert(not e.commit)):
             account_management_interface.log_in()
         vassert( session.account is None )

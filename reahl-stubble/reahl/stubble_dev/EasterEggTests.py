@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from tempfile import NamedTemporaryFile
 import os
 import pkg_resources
@@ -53,9 +55,9 @@ class EasterEggTests(object):
 
         epmap = self.stub_egg.get_entry_map()
 
-        assert epmap.keys() == [self.group_name]
-        name_to_entry_point = epmap.values()[0]
-        assert len(name_to_entry_point.keys()) == 2
+        assert list(epmap.keys()) == [self.group_name]
+        name_to_entry_point = list(epmap.values())[0]
+        assert len(list(name_to_entry_point.keys())) == 2
 
         assert isinstance(name_to_entry_point['test1'], pkg_resources.EntryPoint)
         assert name_to_entry_point['test1'].load() is EasterEggTests.TestClass1

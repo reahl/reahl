@@ -17,6 +17,8 @@
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.tofu import Fixture, set_up, tear_down
 
 from reahl.component.context import ExecutionContext

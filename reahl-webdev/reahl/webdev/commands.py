@@ -14,7 +14,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os.path
+from __future__ import unicode_literals
+from __future__ import print_function
+from six.moves import input
 
 from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand
@@ -33,16 +35,16 @@ class ServeCurrentProject(WorkspaceCommand):
         if args:
             config_directory = args[0]
 
-        print '\nUsing config from %s\n' % config_directory
+        print('\nUsing config from %s\n' % config_directory)
             
         with project.paths_set():
             reahl_server = self.start_server(options, config_directory)
 
-            print '\n\nServing http on port %s, https on port %s (config=%s)' % \
-                                     (options.port, int(options.port)+363, config_directory)
-            print '\nPress <Enter> to terminate\n\n'
+            print('\n\nServing http on port %s, https on port %s (config=%s)' % \
+                                     (options.port, int(options.port)+363, config_directory))
+            print('\nPress <Enter> to terminate\n\n')
     
-            raw_input()        
+            input()        
             reahl_server.stop()
         return 0
 
