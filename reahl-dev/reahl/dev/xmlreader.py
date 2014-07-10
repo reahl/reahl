@@ -16,6 +16,9 @@
 
 """A generic factory that can construct Python classes from XML.
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 This package provides infrastructure that will read an XML file with
 clean, human readable XML and provide you with a bunch of classes that
 have been constructed and initialised according to the information in
@@ -100,24 +103,21 @@ from reahl.component.config import Configuration, EntryPointClassList
 
 
 class XMLReaderConfig(Configuration):
-    xmlclasses = EntryPointClassList(u'reahl.dev.xmlclasses', description=u'All classes that can be read by the xmlreader')
+    xmlclasses = EntryPointClassList('reahl.dev.xmlclasses', description='All classes that can be read by the xmlreader')
 
 #--------------------------------------------------[ XMLReaderException ]
 class XMLReaderException(Exception):
     """All exceptions of this module are derived from this one."""
-    pass
 
 
 #--------------------------------------------------[ DoubleRegistrationException ]
 class DoubleRegistrationException(XMLReaderException):
     """Raised when an attempt is made to register the same tag more than once."""
-    pass
 
 
 #--------------------------------------------------[ TagNotRegisteredException ]
 class TagNotRegisteredException(XMLReaderException):
     """Raised when a tag was encountered during XML parsing for which no class is registered."""
-    pass
 
 
 #--------------------------------------------------[ TagTypeTuple ]

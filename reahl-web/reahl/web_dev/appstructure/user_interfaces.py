@@ -14,15 +14,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import warnings
 
-import six
 from webob import Request
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test
-from reahl.tofu import vassert, expected
-from reahl.stubble import stubclass, EmptyStub
+from reahl.tofu import test
+from reahl.tofu import vassert
+from reahl.stubble import stubclass
 
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
 from reahl.web.fw import Region
@@ -41,22 +43,22 @@ class UserInterfaceTests(object):
         """
         class UIWithTwoViews(UserInterface):
             def assemble(self):
-                self.define_view(u'/', title=u'UserInterface root view')
-                self.define_view(u'/other', title=u'UserInterface other view')
+                self.define_view('/', title='UserInterface root view')
+                self.define_view('/other', title='UserInterface other view')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithTwoViews,  {}, name=u'myui')
+                self.define_user_interface('/a_ui',  UIWithTwoViews,  {}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         browser.open('/a_ui/')
-        vassert( browser.title == u'UserInterface root view' )
+        vassert( browser.title == 'UserInterface root view' )
 
         browser.open('/a_ui/other')
-        vassert( browser.title == u'UserInterface other view' )
+        vassert( browser.title == 'UserInterface other view' )
 
     @test(WebFixture)
     def backwards_compatibility(self, fixture):
@@ -68,19 +70,20 @@ class UserInterfaceTests(object):
         """
         class UIWithAView(UserInterface):
             def assemble(self):
-                self.define_view(u'/aview', title=u'UserInterface view')
+                self.define_view('/aview', title='UserInterface view')
 
         class MainUI(Region):
             def assemble(self):
                 self.define_main_window(TwoColumnPage)
-                self.define_region(u'/a_ui',  UIWithAView,  {}, name=u'myui')
+                self.define_region('/a_ui',  UIWithAView,  {}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         with warnings.catch_warnings(record=True) as caught_warnings:
             browser.open('/a_ui/aview')
-            vassert( browser.title == u'UserInterface view' )
+            vassert( browser.title == 'UserInterface view' )
+
         vassert( caught_warnings )
 
     @test(WebFixture)
@@ -90,19 +93,19 @@ class UserInterfaceTests(object):
         """
         class UIWithSlots(UserInterface):
             def assemble(self):
-                root = self.define_view(u'/', title=u'UserInterface root view')
-                root.set_slot(u'text', P.factory(text=u'in user_interface slot named text'))
+                root = self.define_view('/', title='UserInterface root view')
+                root.set_slot('text', P.factory(text='in user_interface slot named text'))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithSlots,  {u'text': u'main'}, name='myui')
+                self.define_user_interface('/a_ui',  UIWithSlots,  {'text': 'main'}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         browser.open('/a_ui/')
-        vassert( browser.title == u'UserInterface root view' )
+        vassert( browser.title == 'UserInterface root view' )
 
         # The widget in the UserInterface's slot named 'text' end up in the TwoColumnPage slot called main
         [p] = browser.lxml_html.xpath('//div[@id="yui-main"]/div/p')
@@ -116,19 +119,19 @@ class UserInterfaceTests(object):
            
         class UIWithRootView(UserInterface):
             def assemble(self):
-                self.define_view(u'/', title=u'UserInterface root view')
+                self.define_view('/', title='UserInterface root view')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui',  UIWithRootView,  {}, name='myui')
+                self.define_user_interface('/a_ui',  UIWithRootView,  {}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
         browser.open('/a_ui')
-        vassert( browser.title == u'UserInterface root view' )
-        vassert( browser.location_path == u'/a_ui/' )
+        vassert( browser.title == 'UserInterface root view' )
+        vassert( browser.location_path == '/a_ui/' )
 
     @test(WebFixture)
     def ui_arguments(self, fixture):
@@ -138,14 +141,14 @@ class UserInterfaceTests(object):
             def assemble(self, kwarg=None):
                 self.kwarg = kwarg
                 text = self.kwarg
-                root = self.define_view(u'/', title=u'A view')
-                root.set_slot(u'text', P.factory(text=text))
+                root = self.define_view('/', title='A view')
+                root.set_slot('text', P.factory(text=text))
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_user_interface(u'/a_ui', UIWithArguments, {u'text': u'main'},
-                                name='myui', kwarg=u'the kwarg')
+                self.define_user_interface('/a_ui', UIWithArguments, {'text': 'main'},
+                                name='myui', kwarg='the kwarg')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -162,36 +165,36 @@ class UserInterfaceTests(object):
         """
         class UIWithRelativeView(UserInterface):
             def assemble(self):
-                self.define_view(u'/aview', title=u'A View title')
+                self.define_view('/aview', title='A View title')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                ui_factory = self.define_user_interface(u'/a_ui',  UIWithRelativeView,  {}, name=u'myui')
+                ui_factory = self.define_user_interface('/a_ui',  UIWithRelativeView,  {}, name='myui')
 
                 # How you could get a bookmark from a UserInterfaceFactory
-                fixture.bookmark = ui_factory.get_bookmark(relative_path=u'/aview')
+                fixture.bookmark = ui_factory.get_bookmark(relative_path='/aview')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         Browser(wsgi_app).open('/a_ui/aview') # To execute the above once
 
         # What the bookmark knows
-        vassert( fixture.bookmark.href.path == u'/a_ui/aview' )
-        vassert( fixture.bookmark.description == u'A View title' )
-        vassert( fixture.bookmark.base_path == u'/a_ui' )
-        vassert( fixture.bookmark.relative_path == u'/aview' )
+        vassert( fixture.bookmark.href.path == '/a_ui/aview' )
+        vassert( fixture.bookmark.description == 'A View title' )
+        vassert( fixture.bookmark.base_path == '/a_ui' )
+        vassert( fixture.bookmark.relative_path == '/aview' )
 
         # How you would use a bookmark in other views (possibly in other UserInterfaces)
         a = A.from_bookmark(fixture.view, fixture.bookmark)
         
         # .. and how the A will be rendered
         a_etree = WidgetTester(a).render_html_tree()        
-        vassert( a_etree.attrib[u'href'] == u'/a_ui/aview' )
-        vassert( a_etree.text == u'A View title' )
+        vassert( a_etree.attrib['href'] == '/a_ui/aview' )
+        vassert( a_etree.text == 'A View title' )
 
     class LifeCycleFixture(WebFixture):
         def current_view_is_plugged_in(self, page):
-            return page.slot_contents[u'main_slot'].__class__ is Panel
+            return page.slot_contents['main_slot'].__class__ is Panel
 
     @test(LifeCycleFixture)
     def the_lifecycle_of_a_ui(self, fixture):
@@ -203,41 +206,41 @@ class UserInterfaceTests(object):
             assembled = False
             def assemble(self, **ui_arguments):
                 self.controller_at_assemble_time = self.controller
-                root = self.define_view(u'/some/path', title=u'A view')
-                root.set_slot(u'slotA', Panel.factory())
+                root = self.define_view('/some/path', title='A view')
+                root.set_slot('slotA', Panel.factory())
                 self.assembled = True
 
         # Phase1: specifying a user_interface and assembleing it to a site (with kwargs)
         parent_ui = None
 #        parent_ui = EmptyStub(base_path=u'/')
-        slot_map = {u'slotA': u'main_slot'}
-        ui_factory = UserInterfaceFactory(parent_ui, RegexPath(u'/', u'/', {}), slot_map, UserInterfaceStub, u'test_ui')
+        slot_map = {'slotA': 'main_slot'}
+        ui_factory = UserInterfaceFactory(parent_ui, RegexPath('/', '/', {}), slot_map, UserInterfaceStub, 'test_ui')
 
 
         # Phase2: creating a user_interface
-        request = Request.blank(u'/some/path')
+        request = Request.blank('/some/path')
         fixture.context.set_request(request)
-        user_interface = ui_factory.create(u'/some/path', for_bookmark=False)
+        user_interface = ui_factory.create('/some/path', for_bookmark=False)
 
         # - Assembly happened correctly
         vassert( user_interface.parent_ui is parent_ui )
         vassert( user_interface.slot_map is slot_map )
-        vassert( user_interface.name is u'test_ui' )
-        vassert( user_interface.relative_base_path == u'/' )
+        vassert( user_interface.name is 'test_ui' )
+        vassert( user_interface.relative_base_path == '/' )
         vassert( user_interface.controller_at_assemble_time is not None)
         vassert( user_interface.controller is not None )
         vassert( user_interface.assembled )
 
         # - Create for_bookmark empties the relative_path
-        user_interface = ui_factory.create(u'/some/path', for_bookmark=True)
-        vassert( user_interface.relative_path == u'' )
+        user_interface = ui_factory.create('/some/path', for_bookmark=True)
+        vassert( user_interface.relative_path == '' )
 
         # - The relative_path is reset if not done for_bookmark
         #   This is done in case a for_bookmark call just
         #   happened to be done for the same UserInterface in the same request
         #   before the "real" caal is done
-        user_interface = ui_factory.create(u'/some/path', for_bookmark=False)
-        vassert( user_interface.relative_path == u'/some/path' )
+        user_interface = ui_factory.create('/some/path', for_bookmark=False)
+        vassert( user_interface.relative_path == '/some/path' )
 
         # Phase5: create the page and plug the view into it
         page = Widget.factory().create(user_interface.current_view)

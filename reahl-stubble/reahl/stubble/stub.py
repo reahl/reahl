@@ -14,16 +14,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import os
 import os.path
 import pkg_resources
 import inspect
 import new
-import warnings
-import trace
-import pdb
 
-from inspect import ismethod, isdatadescriptor
+import collections
+from functools import reduce
 
 class StubClass(object):
     def __init__(self, orig, check_attributes_also=False):
@@ -61,7 +62,7 @@ class StubClass(object):
             orig_attribute = getattr(self.orig, attribute_name)
         except AttributeError:
             if not self.check_attributes_also:
-                if not callable(attribute) and type(attribute) is not property: 
+                if not isinstance(attribute, collections.Callable) and not isinstance(attribute, property): 
                     return 
 
             message = 'attribute mismatch: %s.%s does not exist on %s' % \
@@ -76,7 +77,7 @@ class StubClass(object):
             self.signatures_match(orig_attribute, attribute)
 
     def types_match(self, stub, orig, stubbed):
-        assert callable(orig) == callable(stubbed), \
+        assert isinstance(orig, collections.Callable) == isinstance(stubbed, collections.Callable), \
             'attribute mismatch: %s.%s is not compatible with the original type %s on %s' % \
             (stub, stubbed, type(orig), self.orig)
 
@@ -181,7 +182,7 @@ class SlotConstrained(StubbleDescriptor):
     def available_slots(self, cls):
         def flatten_slots(l, cls):
             s = cls.__slots__
-            if isinstance(s, str):
+            if isinstance(s, six.string_types):
                 s = [s]
             l.extend(s)
             return l

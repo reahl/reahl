@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
@@ -70,12 +72,12 @@ class FactoryTests(object):
             instance.extra_kwarg = extra_kwarg
             return instance
 
-        argument_fields = {u'path_arg': Field()}
-        factory = FactoryFromUrlRegex(RegexPath(u'some(?P<path_arg>.+)path', u'some${path_arg}path', argument_fields), create_method, 
-                                      dict(extra_kwarg=u'42'))
-        instance = factory.create(u'somecoolpath')
-        vassert( instance.path_arg == u'cool' )
-        vassert( instance.extra_kwarg == u'42' )
+        argument_fields = {'path_arg': Field()}
+        factory = FactoryFromUrlRegex(RegexPath('some(?P<path_arg>.+)path', 'some${path_arg}path', argument_fields), create_method, 
+                                      dict(extra_kwarg='42'))
+        instance = factory.create('somecoolpath')
+        vassert( instance.path_arg == 'cool' )
+        vassert( instance.extra_kwarg == '42' )
 
 
     class MatchingScenarios(WebFixture):
@@ -84,32 +86,32 @@ class FactoryTests(object):
 
         @scenario
         def slash(self):
-            self.matched_path = u'/editions'
-            self.factory = self.user_interface.define_view(u'/', title=u'the view')
+            self.matched_path = '/editions'
+            self.factory = self.user_interface.define_view('/', title='the view')
             self.is_applicable = False
 
         @scenario
         def slash_with_subresource(self):
-            self.matched_path = u'/__a_sub_resource_url'
-            self.factory = self.user_interface.define_view(u'/', title=u'the view')
+            self.matched_path = '/__a_sub_resource_url'
+            self.factory = self.user_interface.define_view('/', title='the view')
             self.is_applicable = True
 
         @scenario
         def shorter_match_than_discriminator(self):
-            self.matched_path = u'/editions'
-            self.factory = self.user_interface.define_view(u'/edit', title=u'the view')
+            self.matched_path = '/editions'
+            self.factory = self.user_interface.define_view('/edit', title='the view')
             self.is_applicable = False
 
         @scenario
         def dynamic_slash_with_args(self):
-            self.matched_path = u'/editions'
-            self.factory = self.user_interface.define_view(u'/', view_class=self.ViewWithArg, my_one_arg=Field())
+            self.matched_path = '/editions'
+            self.factory = self.user_interface.define_view('/', view_class=self.ViewWithArg, my_one_arg=Field())
             self.is_applicable = True
 
         @scenario
         def dynamic_slash_with_args_not_enough(self):
-            self.matched_path = u'/editions/'
-            self.factory = self.user_interface.define_view(u'/', view_class=self.ViewWithArg, my_one_arg=Field())
+            self.matched_path = '/editions/'
+            self.factory = self.user_interface.define_view('/', view_class=self.ViewWithArg, my_one_arg=Field())
             self.is_applicable = False
 
         class UIWithoutKwarg(UserInterface):
@@ -117,21 +119,21 @@ class FactoryTests(object):
 
         @scenario
         def parameterised_user_interface_with_long_relative_path(self):
-            self.matched_path = u'/editions/relative_path'
-            self.factory = self.user_interface.define_user_interface(u'/editions', self.UIWithoutKwarg, {})
+            self.matched_path = '/editions/relative_path'
+            self.factory = self.user_interface.define_user_interface('/editions', self.UIWithoutKwarg, {})
             self.is_applicable = True
 
         @scenario
         def parameterised_user_interface_with_short_relative_path(self):
-            self.matched_path = u'/editions/'
-            self.factory = self.user_interface.define_user_interface(u'/editions', self.UIWithoutKwarg, {})
+            self.matched_path = '/editions/'
+            self.factory = self.user_interface.define_user_interface('/editions', self.UIWithoutKwarg, {})
             self.is_applicable = True
 
         @scenario
         def parameterised_user_interface_without_relative_path(self):
             """A user_interface matches an url even if the url does not contain a relative path."""
-            self.matched_path = u'/editions'
-            self.factory = self.user_interface.define_user_interface(u'/editions', self.UIWithoutKwarg, {})
+            self.matched_path = '/editions'
+            self.factory = self.user_interface.define_user_interface('/editions', self.UIWithoutKwarg, {})
             self.is_applicable = True
 
         class UIWithKwarg(UserInterface):
@@ -140,14 +142,14 @@ class FactoryTests(object):
 
         @scenario
         def parameterised_user_interface_with_args_and_path(self):
-            self.matched_path = u'/editions/argument1/'
-            self.factory = self.user_interface.define_user_interface(u'/editions', self.UIWithKwarg, {}, my_one_arg=Field())
+            self.matched_path = '/editions/argument1/'
+            self.factory = self.user_interface.define_user_interface('/editions', self.UIWithKwarg, {}, my_one_arg=Field())
             self.is_applicable = True
 
         @scenario
         def parameterised_user_interface_with_subresources(self):
-            self.matched_path = u'/editions/argument1/__a_sub_resource'
-            self.factory = self.user_interface.define_user_interface(u'/editions', self.UIWithKwarg, {}, my_one_arg=Field())
+            self.matched_path = '/editions/argument1/__a_sub_resource'
+            self.factory = self.user_interface.define_user_interface('/editions', self.UIWithKwarg, {}, my_one_arg=Field())
             self.is_applicable = True
 
 

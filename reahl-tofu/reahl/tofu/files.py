@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import tempfile
 import os
 import sys
@@ -22,7 +24,7 @@ from contextlib import contextmanager
 
 __all__ = ['temp_file_name', 'temp_file_with', 'temp_file_with', 'file_with', 
            'temp_dir', 'EmptyDirectory', 'AutomaticallyDeletedDirectory',
-           'temp_dir', 'added_sys_path', u'preserved_sys_modules']
+           'temp_dir', 'added_sys_path', 'preserved_sys_modules']
 
 
 class AutomaticallyDeletedFile(file):
@@ -161,11 +163,11 @@ def added_sys_path(path):
 
 @contextmanager
 def preserved_sys_modules():
-    saved_modules = sys.modules.keys()[:]
+    saved_modules = list(sys.modules.keys())[:]
     try:
         yield
     finally:
-        final_modules = sys.modules.keys()[:]
+        final_modules = list(sys.modules.keys())[:]
         added_modules = set(final_modules)-set(saved_modules)
         for i in added_modules:
             del sys.modules[i]

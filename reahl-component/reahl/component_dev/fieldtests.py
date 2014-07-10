@@ -16,6 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import datetime
 import functools
 
@@ -36,15 +39,14 @@ from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, expos
                              AccessRightsConstraint, Choice, ChoiceGroup, ChoiceField, MultiChoiceConstraint, MultiChoiceField,\
                              FileField, SingleFileConstraint, UploadedFile, FileSizeConstraint, \
                              MimeTypeConstraint, MaxFilesConstraint, SmallerThanConstraint, GreaterThanConstraint
-from reahl.component.exceptions import AccessRestricted
 
 class FieldMixin(object):
     def new_model_object(self):
         obj = EmptyStub()
-        obj.an_attribute = u'field value'
+        obj.an_attribute = 'field value'
         return obj
     
-    def new_field(self, cls=Field, name=u'an_attribute', label=u'the label'):
+    def new_field(self, cls=Field, name='an_attribute', label='the label'):
         field = cls(label=label)
         field.bind(name, self.model_object)
         return field
@@ -63,22 +65,22 @@ class FieldTests(object):
         # How the marshalling is programmed
         class MyField(Field):
             def parse_input(self, unparsed_input):
-                if unparsed_input == u'one': return 1
+                if unparsed_input == 'one': return 1
                 return 0
         
             def as_input(self):
-                if self.get_model_value() == 1: return u'one'
-                return u'zero'
+                if self.get_model_value() == 1: return 'one'
+                return 'zero'
 
         field = fixture.new_field(cls=MyField)
 
         # From string to python object
-        field.from_input(u'one')
+        field.from_input('one')
         vassert( fixture.model_object.an_attribute == 1 )
 
         # From python object back to string
         fixture.model_object.an_attribute = 0
-        vassert( field.as_input() == u'zero' )
+        vassert( field.as_input() == 'zero' )
 
 
     @test(FieldFixture)
@@ -96,47 +98,47 @@ class FieldTests(object):
 
         # How a validation_constraint is coded that checks the raw string input
         class StringLevelConstraint(ValidationConstraint):
-            name = u'stringlevel'
+            name = 'stringlevel'
             def validate_input(self, unparsed_input):
-                if unparsed_input not in (u'1', u'2'):
+                if unparsed_input not in ('1', '2'):
                     raise self
     
         # How a validation_constraint is coded that checks the final python object
         class PythonLevelConstraint(ValidationConstraint):
-            name = u'pythonlevel'
+            name = 'pythonlevel'
             def validate_parsed_value(self, parsed_value):
                 if parsed_value > 1:
                     raise self
         
         # How constraints are added to the field
-        field.add_validation_constraint(StringLevelConstraint(u''))
-        field.add_validation_constraint(PythonLevelConstraint(u''))
+        field.add_validation_constraint(StringLevelConstraint(''))
+        field.add_validation_constraint(PythonLevelConstraint(''))
         
         # Input passing both constraints work as expected
         with expected(NoException):
-            field.from_input(u'1')
+            field.from_input('1')
             vassert( fixture.model_object.an_attribute == 1 )
 
         # Input failing either validation_constraint result in the appropriate validation_constraint being raised
         with expected(StringLevelConstraint):
-            field.from_input(u'unparsable string')
+            field.from_input('unparsable string')
         with expected(PythonLevelConstraint):
-            field.from_input(u'2')
+            field.from_input('2')
 
         # If multiple constraints fail, the first one (in order added to the field) is the one reported
         field.add_validation_constraint(AllowedValuesConstraint([]))
         with expected(StringLevelConstraint):
-            field.from_input(u'unparsable string')
+            field.from_input('unparsable string')
 
     @test(FieldFixture)
     def field_metadata(self, fixture):
         """Fields provide metadata about their contents"""
         field = Field(default=2, required=True, label='A field')
-        field.bind(u'fieldname', fixture.model_object)
+        field.bind('fieldname', fixture.model_object)
         
-        vassert( field.label == u'A field' )
+        vassert( field.label == 'A field' )
         vassert( field.required )
-        vassert( field.variable_name == u'fieldname' )  
+        vassert( field.variable_name == 'fieldname' )  
         vassert( field.get_model_value() == 2 )
 
     @test(FieldFixture)
@@ -145,19 +147,19 @@ class FieldTests(object):
            the Field it is added to, or any other attribute of the ValidationConstraint itself."""
            
         class MyConstraint(ValidationConstraint):
-            name = u'myconstraint'
-            one_attr = u'boerpampoene'
+            name = 'myconstraint'
+            one_attr = 'boerpampoene'
             another_attr = 20091124
         
         # The message template is given when constructed
-        validation_constraint = MyConstraint(u'Bob âte $missing_attr $one_attr on $another_attr $label')
+        validation_constraint = MyConstraint('Bob âte $missing_attr $one_attr on $another_attr $label')
         fixture.field.add_validation_constraint(validation_constraint)
 
         # The validation_constraint gets its label from its field
         vassert( validation_constraint.label == fixture.field.label )
 
         # How the template is filled with attributes (and missing ones)
-        expected = u'Bob âte $missing_attr boerpampoene on 20091124 the label'
+        expected = 'Bob âte $missing_attr boerpampoene on 20091124 the label'
         vassert( validation_constraint.message == expected )
 
     @test(Fixture)
@@ -177,8 +179,8 @@ class FieldTests(object):
     def getting_modified_copy(self, fixture):
         """It is possible to get a modified copy of an existing field if you want to link it with 
            different constraints on a different input"""
-        other_constraint = ValidationConstraint(u'Other error')
-        other_constraint.name = u'other'
+        other_constraint = ValidationConstraint('Other error')
+        other_constraint.name = 'other'
         field = Field()
         field.add_validation_constraint(other_constraint)
 
@@ -203,13 +205,13 @@ class FieldTests(object):
 
         # Getting a required copy
         vassert( not field.required )
-        required_field = field.as_required(required_message=u'new required message')
+        required_field = field.as_required(required_message='new required message')
         vassert( required_field.required )
         required = required_field.get_validation_constraint_named(RequiredConstraint.name)
-        vassert( required.error_message.template == u'new required message' )
+        vassert( required.error_message.template == 'new required message' )
 
         # Getting copy that's not required
-        field.make_required(u'')
+        field.make_required('')
         vassert( field.required )
         optional_field = field.as_optional()
         vassert( not optional_field.required )
@@ -274,13 +276,13 @@ class FieldTests(object):
         model_object1 = EmptyStub()
         model_object2 = EmptyStub()
         bound_field = Field()
-        bound_field.bind(u'bound_field', model_object2)
+        bound_field.bind('bound_field', model_object2)
 
         vassert( bound_field.is_bound )
         vassert( bound_field.bound_to is model_object2 )
         index = FieldIndex(model_object1)
         index.new_name_for_bound_field = bound_field
-        vassert( index.new_name_for_bound_field.name is u'bound_field' )
+        vassert( index.new_name_for_bound_field.name is 'bound_field' )
         vassert( bound_field.bound_to is model_object2 )
 
     @test(Fixture)
@@ -298,18 +300,18 @@ class FieldTests(object):
         vassert( model_object.events.event1.bound_to is model_object.events.event1 )
         vassert( model_object.events.event2.bound_to is model_object.events.event2 )
 
-        vassert( model_object.events.event1.name == u'event1' )
+        vassert( model_object.events.event1.name == 'event1' )
 
     @test(Fixture)
     def helpers_for_events2(self, fixture):
         """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
         class ModelObject(object):
-            @exposed(u'event1')
+            @exposed('event1')
             def events(self, fields):
                 fields.event1 = Event()
                 fields.event2 = Event()
 
-        vassert( ModelObject.events.event1.name == u'event1' )
+        vassert( ModelObject.events.event1.name == 'event1' )
 
         with expected(AttributeError):
             ModelObject.events.nonevent
@@ -318,13 +320,13 @@ class FieldTests(object):
     def helpers_for_events3(self, fixture):
         """An Event has to be created for each of the names listed to the @exposed decorator, else an error is raised."""
         class ModelObject(object):
-            @exposed(u'event1', u'forgotten')
+            @exposed('event1', 'forgotten')
             def events(self, fields):
                 fields.event1 = Event()
                 fields.event2 = Event()
 
         def check_exc(exc):
-            vassert( str(exc).startswith(u'You promised to instantiate') )
+            vassert( six.text_type(exc).startswith('You promised to instantiate') )
         with expected(ProgrammerError, test=check_exc):
             ModelObject().events
 
@@ -337,7 +339,7 @@ class FieldTests(object):
         class ModelObject(object):
             @exposed
             def events(self, events):
-                events.an_event = Event(action=Action(self.do_something), label=u'human readable label')
+                events.an_event = Event(action=Action(self.do_something), label='human readable label')
                 
             def do_something(self):
                 self.something_done = True
@@ -348,7 +350,7 @@ class FieldTests(object):
         event.fire()
 
         vassert( model_object.something_done )
-        vassert( model_object.events.an_event.label == u'human readable label' )
+        vassert( model_object.events.an_event.label == 'human readable label' )
 
     @test(Fixture)
     def arguments_to_actions(self, fixture):
@@ -365,8 +367,8 @@ class FieldTests(object):
                                         another_argument=IntegerField(),
                                         unused_argument=IntegerField(),
                                         action=Action(self.do_something,
-                                                      [u'one_argument'],
-                                                      dict(a_kwarg=u'another_argument')))
+                                                      ['one_argument'],
+                                                      dict(a_kwarg='another_argument')))
                 
             def do_something(self, an_arg, a_kwarg=None):
                 self.passed_an_arg = an_arg
@@ -391,13 +393,13 @@ class FieldTests(object):
             Event(action=EmptyStub())
 
         def check_exc(expected_message, ex):
-            message = str(ex).split(u':')[1][1:]
+            message = six.text_type(ex).split(':')[1][1:]
             vassert( message.startswith(expected_message) )
 
         # readable/writable are callable
-        with expected(IsCallable, test=functools.partial(check_exc, u'readable should be a callable object')):
+        with expected(IsCallable, test=functools.partial(check_exc, 'readable should be a callable object')):
             Event(readable=EmptyStub())
-        with expected(IsCallable, test=functools.partial(check_exc, u'writable should be a callable object')):
+        with expected(IsCallable, test=functools.partial(check_exc, 'writable should be a callable object')):
             Event(writable=EmptyStub())
 
         # readable/writable have correct signature
@@ -503,14 +505,14 @@ class FieldTests(object):
         model_object = ModelObject()
         event = model_object.events.an_event.with_arguments(an_argument=123)
         
-        vassert( event.default == {u'an_argument': 123} )
-        vassert( not hasattr(event, u'arguments') )
+        vassert( event.default == {'an_argument': 123} )
+        vassert( not hasattr(event, 'arguments') )
         vassert( not event.occurred )
         with expected(ProgrammerError):
             event.fire()
         
-        event.from_input(u'?an_argument=123')
-        vassert( event.arguments == {u'an_argument': 123} )
+        event.from_input('?an_argument=123')
+        vassert( event.arguments == {'an_argument': 123} )
         vassert( event.occurred )
         with expected(NoException):
             event.fire()
@@ -560,7 +562,7 @@ class FieldTests(object):
         
         vassert( not event.occurred )
         with expected(fixture.expected_exception):
-            event.from_input(u'?')
+            event.from_input('?')
         vassert( event.occurred is fixture.expected_occurred )
 
 
@@ -577,11 +579,11 @@ class SpecificConstraintTests(object):
         
         #case: no input 
         with expected(RequiredConstraint):
-            required_constraint.validate_input(u'')
+            required_constraint.validate_input('')
         with expected(RequiredConstraint):
             required_constraint.validate_input(None)
         #just spaces
-        space=u' '                              
+        space=' '                              
         with expected(RequiredConstraint):
             required_constraint.validate_input(space)
         with expected(RequiredConstraint):
@@ -589,11 +591,11 @@ class SpecificConstraintTests(object):
         
         #case: input 
         with expected(NoException):
-            required_constraint.validate_input(u' something valid    ')
+            required_constraint.validate_input(' something valid    ')
         with expected(NoException):
-            required_constraint.validate_input(u'sômething else that_is_valid')
+            required_constraint.validate_input('sômething else that_is_valid')
         with expected(NoException):
-            required_constraint.validate_input(u'.')
+            required_constraint.validate_input('.')
 
     @test(Fixture)
     def min_length_constraint(self, fixture):
@@ -601,23 +603,23 @@ class SpecificConstraintTests(object):
         min_length_constraint = MinLengthConstraint(min_length=min_required_length)
         
         #min length is returned as parameter
-        vassert( min_length_constraint.parameters == u'%s' % min_required_length )
+        vassert( min_length_constraint.parameters == '%s' % min_required_length )
         
         #case: just enough characters, exact number of
         with expected(NoException):
-            min_length_constraint.validate_input(u'⁵'*min_required_length)
+            min_length_constraint.validate_input('⁵'*min_required_length)
         
         #case: more than enough
         with expected(NoException):
-            min_length_constraint.validate_input(u'ê'*(min_required_length+1))
+            min_length_constraint.validate_input('ê'*(min_required_length+1))
             
         #case: just not enough characters
         with expected(MinLengthConstraint):
-            min_length_constraint.validate_input(u'ś'*(min_required_length-1))
+            min_length_constraint.validate_input('ś'*(min_required_length-1))
         
         #case: empty string
         with expected(MinLengthConstraint):
-            min_length_constraint.validate_input(u'')
+            min_length_constraint.validate_input('')
                         
 
     @test(Fixture)
@@ -626,28 +628,28 @@ class SpecificConstraintTests(object):
         max_length_constraint = MaxLengthConstraint(max_length=max_allowed_length)
         
         #max length is returned as parameter
-        vassert( max_length_constraint.parameters == u'%s' % max_allowed_length )
+        vassert( max_length_constraint.parameters == '%s' % max_allowed_length )
         
         #case: just enough characters, exact number of
         with expected(NoException):
-            max_length_constraint.validate_input(u'⁵'*max_allowed_length)
+            max_length_constraint.validate_input('⁵'*max_allowed_length)
         
         #case: less than max
         with expected(NoException):
-            max_length_constraint.validate_input(u'⁵'*(max_allowed_length-1))
+            max_length_constraint.validate_input('⁵'*(max_allowed_length-1))
             
         #case: nothing
         with expected(NoException):
-            max_length_constraint.validate_input(u'')
+            max_length_constraint.validate_input('')
 
         #case: just too much
         with expected(MaxLengthConstraint):
-            max_length_constraint.validate_input(u'ś'*(max_allowed_length+1))
+            max_length_constraint.validate_input('ś'*(max_allowed_length+1))
 
 
     @test(Fixture)
     def pattern_constraint(self, fixture):
-        allow_pattern = u'(ab)+'
+        allow_pattern = '(ab)+'
         pattern_constraint = PatternConstraint(pattern=allow_pattern)
         
         #pattern is returned as parameter
@@ -660,7 +662,7 @@ class SpecificConstraintTests(object):
         
         #case invalid
         with expected(PatternConstraint):
-            pattern_constraint.validate_input(u'aba')
+            pattern_constraint.validate_input('aba')
         
         #case: faulty pattern
         faulty_pattern_constraint = PatternConstraint(pattern='??????')
@@ -670,7 +672,7 @@ class SpecificConstraintTests(object):
         
     @test(Fixture)
     def allowed_values_constraint(self, fixture):
-        allowed_values=[u'a',u'b']
+        allowed_values=['a','b']
         allowed_values_constraint = AllowedValuesConstraint(allowed_values=allowed_values)
 
         #case: valid input
@@ -686,23 +688,23 @@ class SpecificConstraintTests(object):
 
     @test(Fixture)
     def equal_to_constraint(self, fixture):
-        other_field = Field(label=u'other')
-        equal_to_constraint = EqualToConstraint(other_field, u'$label, $other_label')
-        other_field.set_user_input(u'should be equal to this string', ignore_validation=True)
+        other_field = Field(label='other')
+        equal_to_constraint = EqualToConstraint(other_field, '$label, $other_label')
+        other_field.set_user_input('should be equal to this string', ignore_validation=True)
 
         #case: valid input
         with expected(NoException):
-            equal_to_constraint.validate_parsed_value(u'should be equal to this string' )
+            equal_to_constraint.validate_parsed_value('should be equal to this string' )
 
         #case: invalid input
         with expected(EqualToConstraint):
-            equal_to_constraint.validate_parsed_value(u'this is not equal')
+            equal_to_constraint.validate_parsed_value('this is not equal')
 
     @test(Fixture)
     def smaller_than_constraint(self, fixture):
-        other_field = IntegerField(label=u'other')
-        smaller_than_constraint = SmallerThanConstraint(other_field, u'$label, $other_label')
-        other_field.set_user_input(u'5', ignore_validation=True)
+        other_field = IntegerField(label='other')
+        smaller_than_constraint = SmallerThanConstraint(other_field, '$label, $other_label')
+        other_field.set_user_input('5', ignore_validation=True)
 
         #case: valid input
         with expected(NoException):
@@ -714,9 +716,9 @@ class SpecificConstraintTests(object):
 
     @test(Fixture)
     def greater_than_constraint(self, fixture):
-        other_field = IntegerField(label=u'other')
-        greater_than_constraint = GreaterThanConstraint(other_field, u'$label, $other_label')
-        other_field.set_user_input(u'5', ignore_validation=True)
+        other_field = IntegerField(label='other')
+        greater_than_constraint = GreaterThanConstraint(other_field, '$label, $other_label')
+        other_field.set_user_input('5', ignore_validation=True)
 
         #case: valid input
         with expected(NoException):
@@ -739,7 +741,7 @@ class SpecificFieldsTests(object):
         for address in invalid_addresses:
             with expected(PatternConstraint):
                 field.set_user_input(address)
-            vassert( field.validation_error is field.get_validation_constraint_named(u'pattern') )
+            vassert( field.validation_error is field.get_validation_constraint_named('pattern') )
 
         # Case: valid
         valid_addresses = ['someone@home.co.za', 'something@somewhere.com', 'j@j.ca']
@@ -754,15 +756,15 @@ class SpecificFieldsTests(object):
         
         # Case: invalid
         with expected(MinLengthConstraint):
-            field.set_user_input(u'123')
-        vassert( field.validation_error is field.get_validation_constraint_named(u'minlength') )
+            field.set_user_input('123')
+        vassert( field.validation_error is field.get_validation_constraint_named('minlength') )
         with expected(MaxLengthConstraint):
-            field.set_user_input(u'1'*21)
-        vassert( field.validation_error is field.get_validation_constraint_named(u'maxlength') )
+            field.set_user_input('1'*21)
+        vassert( field.validation_error is field.get_validation_constraint_named('maxlength') )
 
         # Case: valid
         with expected(NoException):
-            field.set_user_input(u'my passwôrd')
+            field.set_user_input('my passwôrd')
         vassert( not field.validation_error )
 
     @test(Fixture)
@@ -770,7 +772,7 @@ class SpecificFieldsTests(object):
         """A PasswordField is world writable, but not readable by anyone."""
 
         field = PasswordField()
-        field.bind(u'password_field', fixture)
+        field.bind('password_field', fixture)
         vassert( not field.can_read() )
         vassert( field.can_write() )
 
@@ -781,28 +783,28 @@ class SpecificFieldsTests(object):
         field.bind('boolean_attribute', obj)
         
         # Case: invalid
-        invalid_boolean_name = [u'negative', u'affirmative', u'+', u'-', None]
+        invalid_boolean_name = ['negative', 'affirmative', '+', '-', None]
         for boolean_candidate in invalid_boolean_name:
             with expected(AllowedValuesConstraint):
                 field.set_user_input(boolean_candidate)
-            vassert( field.validation_error is field.get_validation_constraint_named(u'pattern') )
+            vassert( field.validation_error is field.get_validation_constraint_named('pattern') )
 
         # Case: valid
-        field.from_input(u'on')
+        field.from_input('on')
         vassert( obj.boolean_attribute is True )
-        vassert( field.as_input() == u'on' )
-        field.from_input(u'off')
+        vassert( field.as_input() == 'on' )
+        field.from_input('off')
         vassert( obj.boolean_attribute is False )
-        vassert( field.as_input() == u'off' )
+        vassert( field.as_input() == 'off' )
 
         # Case: required means True for BooleanField
         field = BooleanField(required=True)
         field.bind('boolean_attribute', obj)
         with expected(AllowedValuesConstraint):
-            field.set_user_input(u'off')        
-        vassert( field.validation_error is field.get_validation_constraint_named(u'pattern') )
+            field.set_user_input('off')        
+        vassert( field.validation_error is field.get_validation_constraint_named('pattern') )
         with expected(NoException):
-            field.from_input(u'on')
+            field.from_input('on')
 
     @test(Fixture)
     def boolean_i18n(self, fixture):
@@ -810,7 +812,7 @@ class SpecificFieldsTests(object):
         class AfrikaansContext(ExecutionContext):
             @property
             def interface_locale(self):
-                return u'af'
+                return 'af'
             
         with AfrikaansContext():
             #cs context.force_interface_locale = u'af'
@@ -819,12 +821,12 @@ class SpecificFieldsTests(object):
             field.bind('boolean_attribute', obj)
 
             # Case: valid
-            field.from_input(u'aan')
+            field.from_input('aan')
             vassert( obj.boolean_attribute is True )
-            vassert( field.as_input() == u'aan' )
-            field.from_input(u'af')
+            vassert( field.as_input() == 'aan' )
+            field.from_input('af')
             vassert( obj.boolean_attribute is False )
-            vassert( field.as_input() == u'af' )
+            vassert( field.as_input() == 'af' )
 
 
     @test(Fixture)
@@ -833,21 +835,21 @@ class SpecificFieldsTests(object):
 
         # Case invalid
         with expected(IntegerConstraint):
-            field.set_user_input(u'sdfdf')
+            field.set_user_input('sdfdf')
 
         # Case valid
         with expected(NoException):
-            field.set_user_input(u'3')
+            field.set_user_input('3')
 
         # Case Max
         field = IntegerField(max_value=4)
         with expected(MaxValueConstraint):
-            field.set_user_input(u'5')
+            field.set_user_input('5')
 
         # Case Min
         field = IntegerField(min_value=4)
         with expected(MinValueConstraint):
-            field.set_user_input(u'3')
+            field.set_user_input('3')
 
 
     @test(Fixture)
@@ -857,12 +859,12 @@ class SpecificFieldsTests(object):
         field.bind('integer_value', obj)
 
         # From input
-        field.from_input(u'5')
+        field.from_input('5')
         vassert( obj.integer_value is 5 )
 
         # As input
         obj.integer_value = 6
-        vassert( field.as_input() == u'6' )
+        vassert( field.as_input() == '6' )
 
 
     class ChoiceFixture(Fixture):
@@ -877,35 +879,35 @@ class SpecificFieldsTests(object):
             
         @scenario
         def plain_choices(self):
-            self.all_choices = [Choice(1, IntegerField(label=u'One')), 
-                                Choice(u'2', Field(label=u'Two'))]
+            self.all_choices = [Choice(1, IntegerField(label='One')), 
+                                Choice('2', Field(label='Two'))]
             self.choices = self.all_choices
             self.groups = []
-            self.valid_inputs = [u'1', u'2']
-            self.input_to_value_map = {u'1': 1, u'2': u'2'}
+            self.valid_inputs = ['1', '2']
+            self.input_to_value_map = {'1': 1, '2': '2'}
             self.expected_validation_constraint = AllowedValuesConstraint
 
         @scenario
         def grouped_choices(self):
-            self.all_choices = [Choice(1, IntegerField(label=u'One')), 
-                                Choice(u'2', Field(label=u'Two'))]
-            self.groups = [ChoiceGroup(u'', self.all_choices)]
+            self.all_choices = [Choice(1, IntegerField(label='One')), 
+                                Choice('2', Field(label='Two'))]
+            self.groups = [ChoiceGroup('', self.all_choices)]
             self.choices = self.groups
-            self.valid_inputs = [u'1', u'2']
-            self.input_to_value_map = {u'1': 1, u'2': u'2'}
+            self.valid_inputs = ['1', '2']
+            self.input_to_value_map = {'1': 1, '2': '2'}
             self.expected_validation_constraint = AllowedValuesConstraint
 
         @scenario
         def multi_choices(self):
-            self.all_choices = [Choice(1, IntegerField(label=u'One')), 
-                                Choice(2, IntegerField(label=u'Two')),
-                                Choice(3, IntegerField(label=u'Three'))]
+            self.all_choices = [Choice(1, IntegerField(label='One')), 
+                                Choice(2, IntegerField(label='Two')),
+                                Choice(3, IntegerField(label='Three'))]
             self.groups = []
             self.choices = self.all_choices
             self.field = self.new_field(MultiChoiceField)
 
-            self.valid_inputs = [(u'1',), [u'1', u'2']]
-            self.input_to_value_map = {(u'1',): [1], (u'1', u'2'): [1,2]}
+            self.valid_inputs = [('1',), ['1', '2']]
+            self.input_to_value_map = {('1',): [1], ('1', '2'): [1,2]}
             self.expected_validation_constraint = MultiChoiceConstraint
 
     @test(ChoiceFixture)
@@ -924,7 +926,7 @@ class SpecificFieldsTests(object):
 
         # Case invalid
         with expected(fixture.expected_validation_constraint):
-            field.set_user_input(u'sdfdf')
+            field.set_user_input('sdfdf')
 
         # Case valid
         for i in fixture.valid_inputs:
@@ -969,7 +971,7 @@ class SpecificFieldsTests(object):
         vassert( obj.file_value == files[0] )
 
         obj.file_value = files[0]
-        vassert( field.as_input() == u'' )
+        vassert( field.as_input() == '' )
 
         # Multiple files
         field = FileField(allow_multiple=True)
@@ -979,7 +981,7 @@ class SpecificFieldsTests(object):
         vassert( obj.file_value == files )
 
         obj.file_value = files
-        vassert( field.as_input() == u'' )
+        vassert( field.as_input() == '' )
 
     @test(FieldFixture)
     def file_validation(self, fixture):
@@ -1026,11 +1028,11 @@ class SpecificFieldsTests(object):
         obj = fixture.model_object
         field.bind('file_value', obj)
 
-        files = [UploadedFile(u'file1', EmptyStub(), u'', 100), UploadedFile(u'file2', EmptyStub(), u'', 50)]
+        files = [UploadedFile('file1', EmptyStub(), '', 100), UploadedFile('file2', EmptyStub(), '', 50)]
         with expected(NoException):
             field.set_user_input(files)
 
-        files = [UploadedFile(u'file1', EmptyStub(), u'', 100), UploadedFile(u'file2', EmptyStub(), u'', 200)]
+        files = [UploadedFile('file1', EmptyStub(), '', 100), UploadedFile('file2', EmptyStub(), '', 200)]
         with expected(FileSizeConstraint):
             field.set_user_input(files)
 
@@ -1043,11 +1045,11 @@ class SpecificFieldsTests(object):
         obj = fixture.model_object
         field.bind('file_value', obj)
 
-        files = [UploadedFile(u'file1', EmptyStub(), u'text/html', 100), UploadedFile(u'file2', EmptyStub(), u'text/xml', 50)]
+        files = [UploadedFile('file1', EmptyStub(), 'text/html', 100), UploadedFile('file2', EmptyStub(), 'text/xml', 50)]
         with expected(NoException):
             field.set_user_input(files)
 
-        files = [UploadedFile(u'file1', EmptyStub(), u'text/html', 100), UploadedFile(u'file2', EmptyStub(), u'application/java', 200)]
+        files = [UploadedFile('file1', EmptyStub(), 'text/html', 100), UploadedFile('file2', EmptyStub(), 'application/java', 200)]
         with expected(MimeTypeConstraint):
             field.set_user_input(files)
 
@@ -1060,11 +1062,11 @@ class SpecificFieldsTests(object):
         obj = fixture.model_object
         field.bind('file_value', obj)
 
-        files = [UploadedFile(u'file1', EmptyStub(), u'', 100)]
+        files = [UploadedFile('file1', EmptyStub(), '', 100)]
         with expected(NoException):
             field.set_user_input(files)
 
-        files = [UploadedFile(u'file1', EmptyStub(), u'', 100), UploadedFile(u'file2', EmptyStub(), u'', 200)]
+        files = [UploadedFile('file1', EmptyStub(), '', 100), UploadedFile('file2', EmptyStub(), '', 200)]
         with expected(MaxFilesConstraint):
             field.set_user_input(files)
 
@@ -1078,17 +1080,17 @@ class SpecificFieldsTests(object):
         field = DateField()
         obj = fixture.model_object
         
-        field.bind(u'date_value', obj)
+        field.bind('date_value', obj)
         
         # From input
-        for input_string in [u'10 November 2012', u'10/11/2012']:
+        for input_string in ['10 November 2012', '10/11/2012']:
             field.from_input(input_string)
             vassert( obj.date_value == datetime.date(2012, 11, 10) )
 
         # As input
         obj.date_value = datetime.date(2010, 11, 10)
         actual_output = field.as_input()
-        vassert( actual_output == u'10 Nov 2010' )
+        vassert( actual_output == '10 Nov 2010' )
 
     @test(FieldFixture)
     def date_validation(self, fixture):
@@ -1097,19 +1099,19 @@ class SpecificFieldsTests(object):
         field = DateField()
         obj = fixture.model_object
         
-        field.bind(u'date_value', obj)
+        field.bind('date_value', obj)
 
         # Case invalid
         with expected(DateConstraint):
-            field.set_user_input(u'sdfdf')
+            field.set_user_input('sdfdf')
 
         # Case valid
         with expected(NoException):
-            field.set_user_input(u'13 Dec')
+            field.set_user_input('13 Dec')
 
         limit_date = datetime.date(2012, 11, 13)
-        before_limit = u'12 Nov 2012'
-        after_limit = u'14 Nov 2012'
+        before_limit = '12 Nov 2012'
+        after_limit = '14 Nov 2012'
 
         # Case Max
         field = DateField(max_value=limit_date)

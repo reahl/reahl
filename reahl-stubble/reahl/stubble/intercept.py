@@ -15,9 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import sys
 from contextlib import contextmanager
-import inspect
 
 from reahl.stubble.stub import StubClass
 
@@ -31,13 +32,13 @@ class SystemOutStub(object):
        .. code-block:: python
 
           with SystemOutStub() as monitor:
-              print 'hello'
+              print('hello')
 
           assert monitor.captured_output == 'hello\\n'
 
     """
     def __init__(self):
-        self.captured_output = u'' #: The output captured during the time the SystemOutStub was active.
+        self.captured_output = '' #: The output captured during the time the SystemOutStub was active.
 
     def write(self, output):
         self.captured_output += output
@@ -89,7 +90,7 @@ class CallMonitor(object):
     """
     def __init__(self, method):
         self.obj = method.__self__
-        self.method_name = method.__func__.func_name
+        self.method_name = method.__func__.__name__
         self.calls = []  #: A list of :class:`MonitoredCalls` made, one for each call made, in the order they were made
         self.original_method = None
 
@@ -134,13 +135,13 @@ class InitMonitor(CallMonitor):
     
     def __enter__(self):
         super(InitMonitor, self).__enter__()
-        self.original_new = getattr(self.obj, u'__new__')
-        setattr(self.obj, u'__new__', self.modified_new)
+        self.original_new = getattr(self.obj, '__new__')
+        setattr(self.obj, '__new__', self.modified_new)
         return self
 
     def __exit__(self, exception_type, value, traceback):
         super(InitMonitor, self).__exit__(exception_type, value, traceback)
-        setattr(self.obj, u'__new__', self.original_new)
+        setattr(self.obj, '__new__', self.original_new)
 
 
 @contextmanager
@@ -167,7 +168,7 @@ def replaced(method, replacement):
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
     target = method.im_self or method.im_class
-    method_name = method.im_func.func_name
+    method_name = method.im_func.__name__
     saved_method = getattr(target, method_name)
     try:
         setattr(target, method_name, replacement)

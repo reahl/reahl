@@ -15,22 +15,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """The module contains code to implement commands that can be issued from a commandline to manipulate Reahl projects."""
+from __future__ import unicode_literals
 from __future__ import with_statement
 
+from __future__ import print_function
+import six
 import sys
 import os
 import os.path
 import subprocess
 from subprocess import CalledProcessError
-import re
 import traceback
-import datetime
-import logging
-from optparse import OptionParser
 
 
 import shlex
-from optparse import Values
 
 from reahl.component.shelltools import Command, ReahlCommandline, Executable
 from reahl.component.config import EntryPointClassList, Configuration
@@ -42,10 +40,11 @@ from reahl.dev.exceptions import StatusException, AlreadyUploadedException, NotB
     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \
     AlreadyMarkedAsReleasedException, NotBuiltAfterLastCommitException, NotBuiltException, \
     NotAValidProjectException
+from functools import reduce
 
 
 class DevShellConfig(Configuration):
-    commands = EntryPointClassList(u'reahl.dev.commands', description=u'All commands (classes) that can be handled by the development shell')
+    commands = EntryPointClassList('reahl.dev.commands', description='All commands (classes) that can be handled by the development shell')
 
     
 class WorkspaceCommand(Command):
@@ -60,7 +59,7 @@ class WorkspaceCommand(Command):
             workspace_dir = os.environ['REAHLWORKSPACE']
         else:
             workspace_dir = os.path.expanduser('~')
-            print >> sys.stderr, 'REAHLWORKSPACE environment variable not set, defaulting to %s' % workspace_dir
+            print('REAHLWORKSPACE environment variable not set, defaulting to %s' % workspace_dir, file=sys.stderr)
 
         work_directory = os.path.abspath(os.path.expanduser(workspace_dir))
         self.workspace = Workspace(workspace_dir)
@@ -82,7 +81,7 @@ class ExplainLegend(WorkspaceCommand):
     keyword = 'explainlegend'
     def execute(self, options, args):
         for status in StatusException.get_statusses():
-            print '%s\t%s' % (status.legend, unicode(status()))
+            print('%s\t%s' % (status.legend, six.text_type(status())))
 
 
 class Select(WorkspaceCommand):
@@ -116,7 +115,7 @@ class ListSelections(WorkspaceCommand):
     keyword = 'selections'
     def execute(self, options, args):
         for i in self.workspace.get_saved_selections():
-            print i
+            print(i)
 
 
 class List(WorkspaceCommand):
@@ -143,7 +142,7 @@ class List(WorkspaceCommand):
                 ident_string = i.relative_directory
             else:
                 ident_string = i.project_name
-            print '%s%s' % (status_string, ident_string)
+            print('%s%s' % (status_string, ident_string))
 
 
 class Save(WorkspaceCommand):
@@ -206,28 +205,30 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
         with project.paths_set():
             try:
                 retcode = self.function(project, options, args)
-            except SystemExit, ex:
-                print >> sys.stderr, "Script exited:", ex
+            except SystemExit as ex:
+                print('Script exited: %s' % ex, file=sys.stderr)
                 retcode = ex.code
-            except OSError, ex:
-                print >> sys.stderr, "Execution failed:", ex
+            except OSError as ex:
+                print('Execution failed: %s' % ex, file=sys.stderr)
                 retcode = ex.errno
             except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
                     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
                     NotUploadedException, AlreadyMarkedAsReleasedException,
                     AlreadyUploadedException, NotBuiltException, 
-                    NotBuiltAfterLastCommitException, NotBuiltException), ex:
-                print >> sys.stderr, unicode(ex)
+                    NotBuiltAfterLastCommitException, NotBuiltException) as ex:
+                print(six.text_type(ex), file=sys.stderr)
                 retcode = None
-            except CalledProcessError, ex:
-                print >> sys.stderr, unicode(ex)
+            except CalledProcessError as ex:
+                print(six.text_type(ex), file=sys.stderr)
                 retcode = ex.returncode
           
         if retcode != None:
-            if retcode < 0:
-                print >> sys.stderr, "Child was terminated by signal", -retcode
+            if isinstance(retcode, six.string_types):
+                print('Child was terminated with error message: %s' % retcode, file=sys.stderr)
+            elif retcode < 0:
+                print('Child was terminated by signal %s' % -retcode, file=sys.stderr)
             elif retcode > 0:
-                print >> sys.stderr, "Child returned", retcode
+                print('Child returned %s' % -retcode, file=sys.stderr)
 
         return retcode
 
@@ -254,24 +255,24 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
         results = {}
         for i in project_list:
             if delimit_output:
-                print '\n--- START %s %s ---' % (i.relative_directory, ' '.join(args))
+                print('\n--- START %s %s ---' % (i.relative_directory, ' '.join(args)))
             results[i] = self.execute_one(i, options, args)
             if pause:
-                print '--- PAUSED, hit <enter> to continue, ^D to stop ---'
+                print('--- PAUSED, hit <enter> to continue, ^D to stop ---')
                 if not sys.stdin.readline():
-                    print '\n^D pressed, halting immediately'
+                    print('\n^D pressed, halting immediately')
                     break
             if delimit_output:
-                print '--- END %s %s ---' % (i.relative_directory, ' '.join(args))
+                print('--- END %s %s ---' % (i.relative_directory, ' '.join(args)))
 
         if summary:
-            print '\n--- SUMMARY ---'
+            print('\n--- SUMMARY ---')
             for i in project_list:
-                print >> sys.stdout, '%s %s' % (results[i], i.relative_directory)
+                print('%s %s' % (results[i], i.relative_directory), file=sys.stdout)
 
         self.perform_post_command_duties()
 
-        if set(results.values()) == set([0]):
+        if set(results.values()) == {0}:
             return 0
         return -1
 
@@ -309,9 +310,9 @@ class Info(ForAllWorkspaceCommand):
     """Prints information about a project."""
     keyword = 'info'
     def print_heading(self, heading):
-        print ''
-        print heading
-        print '\t'+('-'*(len(heading)+6))
+        print('')
+        print(heading)
+        print('\t'+('-'*(len(heading)+6)))
 
     def function(self, main_project, options, args):
         projects = [main_project]
@@ -320,26 +321,16 @@ class Info(ForAllWorkspaceCommand):
 
         for project in projects:
             self.print_heading('\tProject:\t%s' % project.directory)
-            self.print_heading('\tMetadata source:\t%s' % unicode(project.metadata))
-            print '\tName:\t\t\t%s' % project.project_name
-            print '\tVersion:\t\t%s' % project.version
-            print '\tInfo completed:\t\t%s' % project.info_completed()
-            print '\tMaintainer name:\t%s' % project.maintainer_name
-            print '\tMaintainer email:\t%s' % project.maintainer_email
-            print '\tDescription:\t\t%s' % project.get_description_for(project)
-            print '\tLong description:\t%s' % project.get_long_description_for(project)
-
-            self.print_heading('\tSource control:\t\t%s' % unicode(project.source_control))
-            print '\tIs version controlled?:\t%s' % project.is_version_controlled()
-            print '\tLast commit:\t\t%s' % project.source_control.last_commit_time
-            print '\tUnchanged?:\t\t%s' % project.is_unchanged()
-            print '\tNeeds new version?:\t%s' % project.needs_new_version()
-            print '\tIs checked in?:\t\t%s' % project.is_checked_in()
+            print('\tIs version controlled?:\t%s' % project.is_version_controlled())
+            print('\tLast commit:\t\t%s' % project.source_control.last_commit_time)
+            print('\tUnchanged?:\t\t%s' % project.is_unchanged())
+            print('\tNeeds new version?:\t%s' % project.needs_new_version())
+            print('\tIs checked in?:\t\t%s' % project.is_checked_in())
 
         self.print_heading('\tProject:\t%s' % main_project.directory)
         self.print_heading('\tPackages to distribute:')
         for package in main_project.packages_to_distribute:
-            print '\t%s' % unicode(package)
+            print('\t%s' % six.text_type(package))
 
 
 class ForAllParsedWorkspaceCommand(ForAllWorkspaceCommand):
@@ -377,7 +368,7 @@ class Shell(ForAllParsedWorkspaceCommand):
     usage_args = '-- <shell_command> [shell_command_options]'
     def function(self, project, options, args):
         if not args:
-            print >> sys.stderr, 'No shell command specified to run'
+            print('No shell command specified to run', file=sys.stderr)
             return 1
         replaced_command = []
         for i in args:
@@ -412,7 +403,7 @@ class Build(ForAllWorkspaceCommand):
         try:
             return_code = project.build()
         except:
-            print >> sys.stderr
+            print('', file=sys.stderr)
             traceback.print_exc()
             return_code = -1
 
@@ -432,7 +423,7 @@ class ListMissingDependencies(ForAllWorkspaceCommand):
         try:
             dependencies = project.list_missing_dependencies(for_development=options.for_development)
             if dependencies:
-                print u' '.join(dependencies)
+                print(' '.join(dependencies))
         except:
             traceback.print_exc()
             return_code = -1
@@ -548,8 +539,8 @@ class WorkspaceCommandline(ReahlCommandline):
         alias_command = AliasWorkspaceCommand(self, command)
         retcode = alias_command.do(line)
         if alias_command.failures:
-            print >> sys.stderr, '\nThere is no command named %s\nAlso, no aliases found for it in project(s):\n' % command
-            print >> sys.stderr, ', '.join([i.project_name for i in alias_command.failures])
+            print('\nThere is no command named %s\nAlso, no aliases found for it in project(s):\n' % command, file=sys.stderr)
+            print(', '.join([i.project_name for i in alias_command.failures]), file=sys.stderr)
             self.print_usage(parser)
             retcode = -1
         return retcode

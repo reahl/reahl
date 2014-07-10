@@ -16,16 +16,18 @@
 
 
 
-from nose.tools import istest
+from __future__ import unicode_literals
+from __future__ import print_function
 from reahl.tofu import Fixture
 from reahl.stubble import stubclass, exempt
 from reahl.mailutil.mail import Mailer
-import reahl.mailutil.mail
 
 from reahl.sqlalchemysupport import Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
 from reahl.partymodel import Party
-from reahl.systemaccountmodel import SystemAccountConfig, UserSession, EmailAndPasswordSystemAccount, AccountManagementInterface
+from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.systemaccountmodel import SystemAccountConfig
+from reahl.systemaccountmodel import UserSession
 
 @stubclass(Mailer)
 class MailerStub(object):
@@ -59,7 +61,7 @@ class MailerStub(object):
 class BasicModelZooMixin(SqlAlchemyTestMixin):
     def new_accounts(self):
         accounts = SystemAccountConfig()
-        accounts.admin_email = u'pietiskoning@home.org'
+        accounts.admin_email = 'pietiskoning@home.org'
         accounts.mailer_class = MailerStub
         return accounts
     
@@ -73,8 +75,8 @@ class BasicModelZooMixin(SqlAlchemyTestMixin):
 
     
 class PartyModelZooMixin(BasicModelZooMixin):
-    def new_system_account(self, party=None, email=u'johndoe@home.org', activated=True):
-        password = u'bobbejaan'
+    def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
+        password = 'bobbejaan'
         system_account = EmailAndPasswordSystemAccount(party=party, email=email)
         system_account.set_new_password(email, password)
         system_account.password = password # The unencrypted version for use in tests

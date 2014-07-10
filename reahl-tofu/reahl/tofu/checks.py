@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import sys
 import inspect
 import token
@@ -28,7 +30,7 @@ class NoExceptionRaised(Exception):
     def __init__(self, expected):
         self.expected = expected
     def __str__(self):
-        return u'%s was expected' % self.expected
+        return '%s was expected' % self.expected
 
 class NoException(Exception):
     """A special exception class used with :func:`expected` to indicate that no exception is
@@ -45,7 +47,6 @@ class NoException(Exception):
               raise AssertionError()
               #.....
     """
-    pass
 
 @contextlib.contextmanager
 def expected(exception, test=None):
@@ -75,7 +76,7 @@ def expected(exception, test=None):
 
     try:
         yield
-    except exception, ex:
+    except exception as ex:
         if test:
             test(ex)
     else:
@@ -136,10 +137,10 @@ class vassert(object):
           i: 123 (<type 'int'>)       
     """
     def find_names(self, source):
-        import StringIO
+        from six.moves import cStringIO
                 
         tokens = [ (t[0], t[1])
-                   for t in tokenize.generate_tokens(StringIO.StringIO(source).readline)
+                   for t in tokenize.generate_tokens(cStringIO(source).readline)
                    if t[0] == token.NAME or t[1] == '.']
         names = []
         concat = False
@@ -169,8 +170,8 @@ class vassert(object):
                     elements = name.split('.')
                     if 'vassert' not in elements:
                         first_element = elements[0]
-                        if calling_frame.f_locals.has_key(first_element) \
-                               or calling_frame.f_globals.has_key(first_element):
+                        if first_element in calling_frame.f_locals \
+                               or first_element in calling_frame.f_globals:
                             value = 'could not determine'
                             try:
                                 value = eval(name, calling_frame.f_locals, calling_frame.f_globals)

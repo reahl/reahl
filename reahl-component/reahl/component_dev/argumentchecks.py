@@ -15,8 +15,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 from nose.tools import istest
-from reahl.tofu import  Fixture, test, scenario
+from reahl.tofu import Fixture
+from reahl.tofu import test
 from reahl.tofu import expected, NoException, vassert
 
 from reahl.component.exceptions import IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, checkargs, checkargs_explained, NotYetAvailable
@@ -31,13 +35,13 @@ class ArgumentCheckTests(object):
            via checkargs or checkargs_explained."""
         
         class ModelObject(object):
-            @arg_checks(y=IsInstance(int), title=IsInstance(basestring))
-            def do_something(self, x, y, title=u'a title', style=None):
+            @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+            def do_something(self, x, y, title='a title', style=None):
                 pass
                 
         model_object = ModelObject()
         with expected(IsInstance):
-            model_object.do_something(1, '2', title=u'some title', style='style')
+            model_object.do_something(1, '2', title='some title', style='style')
         with expected(IsInstance):
             model_object.do_something(1, 2, title=3, style='style')
         with expected(IsInstance):
@@ -54,7 +58,7 @@ class ArgumentCheckTests(object):
             checkargs(model_object.do_something, 1, 2, 3, 4, 5, 6, 7)
 
         with expected(IncorrectArgumentError):
-            checkargs_explained('explanation', model_object.do_something, 1, '2', title=u'some title', style='style')
+            checkargs_explained('explanation', model_object.do_something, 1, '2', title='some title', style='style')
 
 
     @test(Fixture)
@@ -78,17 +82,17 @@ class ArgumentCheckTests(object):
         """When checking arguments before a method call, the checks for some arguments may be ignored by passing NotYetAvailable
            instances for them. The name of NotYetAvailable arguments should match the name of the argument it replaces."""
         class ModelObject(object):
-            @arg_checks(y=IsInstance(int), title=IsInstance(basestring))
-            def do_something(self, x, y, title=u'a title', style=None):
+            @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+            def do_something(self, x, y, title='a title', style=None):
                 pass
                 
         model_object = ModelObject()
         with expected(NoException):
-            checkargs(model_object.do_something, 'x', NotYetAvailable('y'), u'a title')
+            checkargs(model_object.do_something, 'x', NotYetAvailable('y'), 'a title')
         with expected(IsInstance):
             checkargs(model_object.do_something, 'x', NotYetAvailable('y'), 123)
 
         with expected(IncorrectArgumentError):
-            checkargs(model_object.do_something, 'x', NotYetAvailable('x'), u'a valid title')
+            checkargs(model_object.do_something, 'x', NotYetAvailable('x'), 'a valid title')
 
 

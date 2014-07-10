@@ -14,6 +14,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import pkg_resources
 
 from reahl.stubble.stub import StubClass as stubclass
@@ -25,7 +28,7 @@ from reahl.stubble.stub import Exempt as exempt
 from reahl.stubble.stub import SlotConstrained as slotconstrained
 from reahl.stubble.stub import CheckedInstance as checkedinstance
 
-from easteregg import EasterEgg
+from .easteregg import EasterEgg
 
 easter_egg = EasterEgg()
 easter_egg.add_to_working_set()  #TODO: why does this not always work anymore??

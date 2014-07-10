@@ -15,28 +15,28 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import os
-from Cookie import BaseCookie
+from six.moves import http_cookies 
 
 from webob import Request, Response
 
-from reahl.stubble import EmptyStub, stubclass
-from nose.tools import istest
-from reahl.tofu import Fixture, set_up
+from reahl.stubble import stubclass
+from reahl.tofu import Fixture
 from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
                          UserInterfaceFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
                          WidgetList, Url, Widget, RegexPath
-from reahl.web.ui import TwoColumnPage, HTML5Page, Div, Slot
+from reahl.web.ui import TwoColumnPage
 from reahl.component.i18n import Translator
-from reahl.component.config import Configuration, ReahlSystemConfig
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.web.egg import WebConfig
 from reahl.webelixirimpl import WebUserSession, PersistedException, PersistedFile, UserInput
 from reahl.webdev.tools import DriverBrowser
 
 
-_ = Translator(u'reahl-webdev')
+_ = Translator('reahl-webdev')
 
         
 @stubclass(ReahlWSGIApplication)
@@ -53,7 +53,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         self.session.set_session_key(response)
-        cookies = BaseCookie(', '.join(response.headers.getall('set-cookie')))
+        cookies = http_cookies.BaseCookie((', '.join(response.headers.getall('set-cookie'))).encode('utf-8'))
         for name, morsel in cookies.items():
             cookie = {'name':name, 'value':morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
@@ -104,14 +104,14 @@ class WebBasicsMixin(PartyModelZooMixin):
         return WebUserSession(account=system_account)
 
     def new_request(self, path=None, url_scheme=None):
-        request = Request.blank(path or u'/', charset='utf8')
+        request = Request.blank(path or '/', charset='utf8')
         request.environ['wsgi.url_scheme'] = url_scheme or 'http'
-        if request.scheme == u'http':
-            request.environ['SERVER_PORT'] = u'8000'
-            request.host = u'localhost:8000'
+        if request.scheme == 'http':
+            request.environ['SERVER_PORT'] = '8000'
+            request.host = 'localhost:8000'
         else:
-            request.environ['SERVER_PORT'] = u'8363'
-            request.host = u'localhost:8363'
+            request.environ['SERVER_PORT'] = '8363'
+            request.host = 'localhost:8363'
         return Request(request.environ, charset='utf8')
 
     def new_wsgi_app(self, site_root=None, enable_js=False, 
@@ -121,14 +121,14 @@ class WebBasicsMixin(PartyModelZooMixin):
             wsgi_app_class = ReahlWSGIApplication
         view_slots = view_slots or {}
         child_factory = child_factory or Widget.factory()
-        if not view_slots.has_key(u'main'):
-            view_slots[u'main'] = child_factory
+        if 'main' not in view_slots:
+            view_slots['main'] = child_factory
         config = config or self.config
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(TwoColumnPage)
-                self.define_view(u'/', title=u'Home page', slot_definitions=view_slots)
+                self.define_view('/', title='Home page', slot_definitions=view_slots)
 
         site_root = site_root or MainUI
         config.web.site_root = site_root
@@ -140,11 +140,11 @@ class WebBasicsMixin(PartyModelZooMixin):
 
     def new_view(self):
         current_path = Url(WebExecutionContext.get_context().request.url).path
-        view = UrlBoundView(self.user_interface, current_path, u'A view', {})
+        view = UrlBoundView(self.user_interface, current_path, 'A view', {})
         return view
 
     def new_user_interface(self):
-        return UserInterface(None, u'/', {}, False, u'test_ui')
+        return UserInterface(None, '/', {}, False, 'test_ui')
 
 
 class WebFixture(Fixture, WebBasicsMixin):

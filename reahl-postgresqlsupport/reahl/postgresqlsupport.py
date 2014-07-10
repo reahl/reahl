@@ -16,6 +16,9 @@
 
 """Support for the PostgreSQL database backend."""
 
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
 import subprocess
 import gzip
 from datetime import date
@@ -36,7 +39,7 @@ class PostgresqlControl(DatabaseControl):
     def login_args(self):
 	if self.host == 'localhost' and self.port == 5432:
             return []
-        return ['-h', self.host, '-p', str(self.port)]
+        return ['-h', self.host, '-p', six.text_type(self.port)]
 
     def create_db_user(self):
          Executable('createuser').check_call(['-DSRlP'] + self.login_args + [self.user_name])
