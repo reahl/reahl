@@ -24,11 +24,12 @@ from reahl.stubble import EmptyStub
 
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Region
-from reahl.web.ui import HTML5Page, TwoColumnPage, P, Panel, Form, TextInput
+from reahl.web.ui import HTML5Page, TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass, IsInstance
-from reahl.component.modelinterface import Field, exposed
+from reahl.component.modelinterface import Field
+
 
 class BasicScenarios(WebFixture):
     expected_warnings = []
@@ -87,6 +88,7 @@ class BasicScenarios(WebFixture):
         self.expected_warnings = ['Region has been renamed to UserInterface, please use UserInterface instead', 
                                   'Please use .define_page() instead']
 
+
 @test(BasicScenarios)
 def basic_assembly(fixture):
     """An application is built by extending UserInterface, and defining this UserInterface in an .assemble() method.
@@ -121,6 +123,7 @@ def basic_assembly(fixture):
     # Invalid URLs do not exist
     browser.open('/nonexistantview/', status=404)
 
+
 @test(WebFixture)
 def basic_error1(fixture):
     """Sending the the wrong kind of thing as widget_class to define_page is reported to the programmer."""
@@ -134,6 +137,7 @@ def basic_error1(fixture):
 
     with expected(IsSubclass):
         browser.open('/')
+
 
 @test(WebFixture)
 def basic_error2(fixture):
@@ -152,6 +156,7 @@ def basic_error2(fixture):
     with expected(IncorrectArgumentError, test=check_exc):
         browser.open('/')
 
+
 @test(WebFixture)
 def basic_error3(fixture):
     """Forgetting to define either a page of a page for a View is reported to the programmer."""
@@ -167,6 +172,7 @@ def basic_error3(fixture):
         vassert( msg == 'there is no page defined for /' )
     with expected(ProgrammerError, test=check_exc):
         browser.open('/')
+
 
 class SlotScenarios(WebFixture):
     @scenario
@@ -189,7 +195,7 @@ class SlotScenarios(WebFixture):
                 home.set_slot(u'footer', P.factory(text=u'I am the footer'))
         self.MainUI = MainUI
 
-        
+
 @test(SlotScenarios)
 def slots(fixture):
     """A View modifies the page by populating named Slots in the page with Widgets."""
@@ -201,6 +207,7 @@ def slots(fixture):
     [main_p, footer_p] = browser.lxml_html.xpath('//p')
     vassert( main_p.text == u'Hello world' )
     vassert( footer_p.text == u'I am the footer' )
+
 
 @test(WebFixture)
 def slot_error(fixture):
@@ -247,39 +254,3 @@ def slot_defaults(fixture):
     vassert( not header_contents )
 
 
-@test(WebFixture)
-def check_input_placement(fixture):
-    """When a web request is handled, the framework throws an exception if an input might be seperated conceptually from the form they are bound to."""
-    
-    class ModelObject(object):
-        @exposed
-        def fields(self, fields):
-            fields.name = Field()
-
-    class MainUI(UserInterface):
-        def assemble(self):
-            page = self.define_page(TwoColumnPage)
-            home = self.define_view(u'/', title=u'Home page')
-            home.set_slot(u'main', FormPanel.factory())
-
-    class FormPanel(Panel):
-        def __init__(self, view):
-            super(FormPanel, self).__init__(view)
-            form = self.add_child(Form(view,'my_form'))
-            self.add_child(RerenderableInputPanel(view, form))
-            
-    class RerenderableInputPanel(Panel):
-        def __init__(self, view, form):
-            super(RerenderableInputPanel, self).__init__(view, css_id='my_refresh_id')
-            self.enable_refresh()
-            model_object = ModelObject()
-            self.add_child(TextInput(form, model_object.fields.name))
-
-    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)            
-    browser = Browser(wsgi_app)
-    
-    def check_exc(ex):
-        vassert( str(ex).startswith(u'Some inputs were incorrectly placed') )
-    
-    with expected(ProgrammerError, test=check_exc):
-        browser.open('/')
