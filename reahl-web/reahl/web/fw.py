@@ -69,6 +69,7 @@ from reahl.component.eggs import ReahlEgg
 
 _ = Translator('reahl-web')
 
+
 class ValidationException(DomainException):
     """Indicates that one or more Fields received invalid data."""
     def as_user_message(self):
@@ -78,12 +79,15 @@ class ValidationException(DomainException):
 class NoMatchingFactoryFound(Exception):
     pass
 
+
 class NoEventHandlerFound(Exception):
     pass
+
 
 class CannotCreate(NoMatchingFactoryFound):
     """Programmers raise this to indicate that the arguments given via URL to a View
        or UserInterface that is parameterised were invalid."""
+
 
 class Url(object):
     """An Url represents an URL, and is used to modify URLs, or manipulate them in other ways. Construct it
@@ -268,18 +272,18 @@ class EventHandler(object):
         self.event_name = event.name
         self.target = target
 
-    def should_handle(self, event_ocurrence):
-        return self.event_name == event_ocurrence.name
+    def should_handle(self, event_occurrence):
+        return self.event_name == event_occurrence.name
 
-    def get_destination_absolute_url(self, event_ocurrence):
+    def get_destination_absolute_url(self, event_occurrence):
         if self.target.matches_view(self.user_interface.controller.current_view):
             url = SubResource.get_parent_url()
         else:
             try:
-                url = self.target.get_absolute_url(self.user_interface, **event_ocurrence.arguments)
+                url = self.target.get_absolute_url(self.user_interface, **event_occurrence.arguments)
             except ValidationConstraint as ex:
                 raise ProgrammerError('The arguments of %s are invalid for transition target %s: %s' % \
-                    (event_ocurrence, self.target, ex))
+                    (event_occurrence, self.target, ex))
         return url
 
 
@@ -296,10 +300,10 @@ class Transition(EventHandler):
         self.source = source
         self.guard = guard if guard else Allowed(True)
     
-    def should_handle(self, event_ocurrence):
+    def should_handle(self, event_occurrence):
         return (self.source.matches_view(self.controller.current_view)) and \
-               super(Transition, self).should_handle(event_ocurrence) and \
-               self.guard(event_ocurrence)
+               super(Transition, self).should_handle(event_occurrence) and \
+               self.guard(event_occurrence)
 
 
 class FactoryDict(set):
@@ -369,7 +373,6 @@ class Controller(object):
         self.event_handlers.append(event_handler)
         return event_handler
 
-
     def add_transition(self, transition):
         self.event_handlers.append(transition)
         return transition
@@ -386,7 +389,6 @@ class Controller(object):
         transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard)
         self.event_handlers.append(transition)
         return transition
-
 
     def define_transition(self, event, source, target, guard=None):
         transition = Transition(self, event, source, target, guard=guard)
@@ -1115,9 +1117,11 @@ class Widget(object):
     def check_input_placement(self, forms_with_refresh_sets, inputs_with_refresh_sets):
         inputs_in_error = []
         for i, i_refresh_set in inputs_with_refresh_sets:
-            if not (i_refresh_set.issubset(forms_with_refresh_sets[i.form])):
-                inputs_in_error.append((i, i_refresh_set))
-
+            try:
+                if not (i_refresh_set.issubset(forms_with_refresh_sets[i.form])):
+                    inputs_in_error.append((i, i_refresh_set))
+            except KeyError as e:
+                raise ProgrammerError("Could not find form, did you add it as a child?")#xxx
         if inputs_in_error:
             message = 'Some inputs were incorrectly placed:\n'
             for i, refresh_set in inputs_in_error:
