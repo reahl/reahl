@@ -978,12 +978,6 @@ class Form(HTMLElement):
                                           immutable=True)
         self.view.add_resource(self.field_validator)
 
-    def get_refreshable_forms(self, parent_refreshes):#xxx
-        if self.is_refresh_enabled() or parent_refreshes:
-            return [self]
-        else:
-            return []
-
     def validate_single_input(self, **input_values):
         try:
             name = input_values.keys()[0]
@@ -1184,12 +1178,6 @@ class Input(Widget):
 
     def set_wrapped_widget(self, wrapped_widget):
         self.wrapped_widget = wrapped_widget
-
-    def get_refreshable_inputs(self, parent_refreshes):#xxx
-        if self.is_refresh_enabled() or parent_refreshes:
-            return [self]
-        else:
-            return []
         
     def append_class(self, css_class):
         """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Input in HTML to the user."""
@@ -1625,7 +1613,7 @@ class ButtonInput(Input):
         return None
    
 
-class Button(Span):    
+class Button(Span):
     """A button. 
 
        .. admonition:: Styling
