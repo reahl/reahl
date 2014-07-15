@@ -649,7 +649,8 @@ def event_names_are_canonicalised(fixture):
     # when the Action is executed, the correct arguments are passed
     browser.post('/__myform_method', {'event.an_event?some_argument=f~nnystuff': ''})
     vassert( model_object.received_argument == 'f~nnystuff' )
-    
+
+
 @test(FormFixture)
 def alternative_event_trigerring(fixture):
     """Events can also be triggered by submitting a Form via Ajax. In such cases the normal redirect-after-submit
