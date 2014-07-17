@@ -1848,9 +1848,6 @@ class LabelOverInput(LabelledInlineInput):
         return super(LabelOverInput, self).get_js(context=context) + js
 
 
-    
-
-
 class MenuItem(Li):
     """One item in a Menu.
     
@@ -2577,7 +2574,7 @@ class Table(HTMLElement):
         if caption_text:
             self.add_child(Caption(view, text=caption_text))
         if summary:
-            self.set_attribute(u'summary', u'%s' % summary)
+            self.set_attribute('summary', '%s' % summary)
 
     @classmethod
     def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):

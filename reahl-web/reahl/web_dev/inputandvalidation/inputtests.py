@@ -408,7 +408,7 @@ def label_behaviour(fixture):
 
 
 @test(LabelOverInputFixture)
-def basic_rendering(fixture):
+def basic_rendering_label_over(fixture):
     """What the html for a LabelOverInput looks like."""
 
     fixture.field.bind('an_attribute', fixture.model_object)
@@ -487,7 +487,7 @@ def cue_behaviour(fixture):
 
 
 @test(CueInputFixture)
-def basic_rendering(fixture):
+def basic_rendering_cue_input(fixture):
     """What the html for a CueInput looks like."""
     fixture.field.bind('an_attribute', fixture.model_object)
     cue = fixture.cue
