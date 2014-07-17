@@ -380,7 +380,35 @@ def check_input_placement(fixture):
     browser = Browser(wsgi_app)
     
     def check_exc(ex):
-        vassert( str(ex).startswith(u'Some inputs were incorrectly placed') )
+        vassert( 'Some inputs were incorrectly placed' in str(ex))
+    
+    with expected(ProgrammerError, test=check_exc):
+        browser.open('/')
+            
+
+@test(FormFixture)
+def check_missing_form(fixture):
+    """All forms referred to by inputs on a page have to be present on that page."""
+    
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.name = Field()
+           
+    class MyPanel(Panel):
+        def __init__(self, view):
+            super(MyPanel, self).__init__(view)
+            model_object = ModelObject()
+            forgotten_form = Form(view, 'myform')
+            self.add_child(TextInput(forgotten_form, model_object.fields.name))
+
+    wsgi_app = fixture.new_wsgi_app(child_factory=MyPanel.factory())            
+    browser = Browser(wsgi_app)
+    
+    def check_exc(ex):
+        expected_message = 'Could not find form for <TextInput name=name>. '\
+                           'Its form, <Form form id=myform> is not present on the current page'
+        vassert( str(ex) == expected_message )
     
     with expected(ProgrammerError, test=check_exc):
         browser.open('/')
