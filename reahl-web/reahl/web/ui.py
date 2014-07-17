@@ -963,6 +963,7 @@ class Form(HTMLElement):
     def __init__(self, view, unique_name, rendered_form=None):
         self.view = view
         self.inputs = {}
+        self.registered_input_names = {}
         self.set_up_event_channel(unique_name)
         self.set_up_field_validator('%s_validate' % unique_name)
         self.set_up_input_formatter('%s_format' % unique_name)
@@ -1041,7 +1042,15 @@ class Form(HTMLElement):
         return six.text_type(action)
     
     def register_input(self, input_widget):
-        self.inputs[input_widget.name] = input_widget
+        assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' #xxx
+        proposed_name = input_widget.make_name('')
+        name = proposed_name
+        clashing_names_count = self.registered_input_names.setdefault(proposed_name, 0)
+        if clashing_names_count > 0:
+            name = input_widget.make_name(six.text_type(clashing_names_count))
+        self.registered_input_names[proposed_name] += 1
+        self.inputs[name] = input_widget
+        return name
 
     @property
     def channel_name(self):
@@ -1178,14 +1187,15 @@ class Input(Widget):
     def __init__(self, form, bound_field):
         self.form = form
         self.bound_field = bound_field
-        self.register(form) # bound_field must be set for this registration to work
+        self.name = form.register_input(self) # bound_field must be set for this registration to work
+
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
         self.add_wrapped_input()
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
 
-    def set_wrapped_widget(self, wrapped_widget):
+    def set_wrapped_widget(self, wrapped_widget): #xxx should perhaps return the input???
         self.wrapped_widget = wrapped_widget
         
     def append_class(self, css_class):
@@ -1242,10 +1252,7 @@ class Input(Widget):
         if self.disabled:
             attributes.set_to('disabled', 'disabled')
         return attributes
-        
-    def register(self, form):
-        form.register_input(self)
-        
+                
     def render(self):
         self.prepare_input()
         normal_output = super(Input, self).render()
@@ -1256,9 +1263,8 @@ class Input(Widget):
             error_output = error_label.render()
         return normal_output + error_output
 
-    @property
-    def name(self):
-        return self.bound_field.variable_name
+    def make_name(self, discriminator):
+        return '%s%s' % (self.bound_field.variable_name, discriminator)
 
     @property
     def label(self):
@@ -1604,9 +1610,8 @@ class ButtonInput(Input):
     def query_encoded_arguments(self):
         return self.bound_field.as_input() or '?'
 
-    @property
-    def name(self):
-        return 'event.%s%s' % (self.bound_field.name, self.query_encoded_arguments)
+    def make_name(self, discriminator):
+        return 'event.%s%s%s' % (self.bound_field.name, discriminator, self.query_encoded_arguments)
 
     @property
     def label(self):
