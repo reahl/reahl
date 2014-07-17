@@ -1112,20 +1112,25 @@ class Widget(object):
                 inputs.append((widget, refresh_set))
 
         self.check_forms_unique(forms.keys())
+        self.check_all_inputs_forms_exist(forms.keys(), [i for i, refresh_set in inputs])
         self.check_input_placement(forms, inputs)
+
+    def check_all_inputs_forms_exist(self, forms_found_on_page, inputs_on_page):
+        for i in inputs_on_page:
+            if i.form not in forms_found_on_page:
+                message = 'Could not find form for %s. Its form, %s is not present on the current page' \
+                          % (six.text_type(i), six.text_type(i.form))
+                raise ProgrammerError(message)
         
     def check_input_placement(self, forms_with_refresh_sets, inputs_with_refresh_sets):
         inputs_in_error = []
         for i, i_refresh_set in inputs_with_refresh_sets:
-            try:
-                if not (i_refresh_set.issubset(forms_with_refresh_sets[i.form])):
-                    inputs_in_error.append((i, i_refresh_set))
-            except KeyError as e:
-                raise ProgrammerError("Could not find form, did you add it as a child?")#xxx
+            if not (i_refresh_set.issubset(forms_with_refresh_sets[i.form])):
+                inputs_in_error.append((i, i_refresh_set))
         if inputs_in_error:
             message = 'Some inputs were incorrectly placed:\n'
             for i, refresh_set in inputs_in_error:
-                message += '\t%s(for form with css_id %s): %s\n' % (str(i), i.form.css_id, ','.join([str(i) for i in refresh_set]))
+                message += '\t%s(for %s): %s\n' % (six.text_type(i), six.text_type(i), ','.join([six.text_type(i) for i in refresh_set]))
             raise ProgrammerError(message)
 
     def check_forms_unique(self, forms):

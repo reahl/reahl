@@ -221,6 +221,12 @@ class HTMLElement(Widget):
         if css_id:
             self.set_id(css_id)
 
+    def __str__(self):
+        css_id_part = '(not set)'
+        if self.css_id_is_set:
+            css_id_part = self.css_id
+        return '<%s %s %s>' % (self.__class__.__name__, self.tag_name, 'id=%s' % css_id_part)
+
     def enable_refresh(self):
         """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that 
            one of its `query_fields` have changed.
@@ -1175,6 +1181,9 @@ class Input(Widget):
         self.register(form) # bound_field must be set for this registration to work
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
         self.add_wrapped_input()
+
+    def __str__(self):
+        return '<%s name=%s>' % (self.__class__.__name__, self.name)
 
     def set_wrapped_widget(self, wrapped_widget):
         self.wrapped_widget = wrapped_widget
