@@ -232,7 +232,7 @@ class SetUpFixturePlugin(Plugin):
         return False
 
     def report(self, stream):
-        print('Finished running %s' % self.setup_fixture, file=self.output)
+        print('Finished running %s' % self.setup_fixture, file=stream)
         return True
         
         
