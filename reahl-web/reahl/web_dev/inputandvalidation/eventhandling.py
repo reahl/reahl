@@ -206,6 +206,45 @@ def basic_field_linkup(fixture):
     fixture.driver_browser.click("//input[@value='click me']")
     vassert( model_object.field_name == 5 )
 
+
+@test(FormFixture)
+def distinguishing_identical_field_names(fixture):
+    """A programmer can add different Inputs on the same Form even if their respective Fields are bound
+       to identically named attributes of different objects."""
+
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.field_name = IntegerField()
+            
+    model_object1 = ModelObject()
+    model_object2 = ModelObject()
+
+    class MyForm(Form):
+        @exposed
+        def events(self, events):
+            events.an_event = Event(label='click me')
+
+        def __init__(self, view, name):
+            super(MyForm, self).__init__(view, name)
+            self.define_event_handler(self.events.an_event)
+            self.add_child(Button(self, self.events.an_event))
+            
+            self.add_child(TextInput(self, model_object1.fields.field_name))
+            self.add_child(TextInput(self, model_object2.fields.field_name))
+
+    wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
+    fixture.reahl_server.set_app(wsgi_app)
+    fixture.driver_browser.open('/')
+
+    # the correct input value gets to the correct object despite referencing identically named attributes
+    fixture.driver_browser.type('//input[@type="text"][1]', '0')
+    fixture.driver_browser.type('//input[@type="text"][2]', '1')
+    fixture.driver_browser.click(XPath.button_labelled('click me'))
+    vassert( model_object1.field_name == 0 )
+    vassert( model_object2.field_name == 1 )
+
+
 @test(FormFixture)
 def wrong_arguments_to_define_event_handler(fixture):
     """Passing anything other than an Event to define_event_handler is an error."""
