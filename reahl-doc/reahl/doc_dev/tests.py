@@ -27,6 +27,7 @@ from reahl.tofu import vassert, expected, temp_file_with
 from reahl.stubble import SystemOutStub
 from reahl.component.shelltools import Executable
 
+from reahl.sqlalchemysupport import Session
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import XPath, Browser
 
@@ -332,9 +333,9 @@ def fileupload(fixture):
     fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
     fixture.driver_browser.click(XPath.button_labelled('Submit'))
 
-    attached_file1 = AttachedFile.query.filter_by(filename=os.path.basename(file1.name)).one()
-    attached_file3 = AttachedFile.query.filter_by(filename=os.path.basename(file3.name)).one()
-    vassert( AttachedFile.query.count() == 2 )
+    attached_file1 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file1.name)).one()
+    attached_file3 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file3.name)).one()
+    vassert( Session.query(AttachedFile).count() == 2 )
     vassert( attached_file1.contents == 'some content in a file' )
     vassert( attached_file3.contents == 'even more content' )
 
@@ -448,7 +449,7 @@ def test_parameterised1(fixture):
     vassert( browser.location_path == '/' )
     browser.click(XPath.link_with_text('edit'))
 
-    john = parameterised1.Address.query.one()
+    john = Session.query(parameterised1.Address).one()
     vassert( browser.location_path == '/edit/%s' % john.id )
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
@@ -470,7 +471,7 @@ def test_parameterised2(fixture):
     vassert( browser.location_path == '/' )
     browser.click(XPath.button_labelled('Edit'))
 
-    john = parameterised2.Address.query.one()
+    john = Session.query(parameterised2.Address).one()
     vassert( browser.location_path == '/edit/%s' % john.id )
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')

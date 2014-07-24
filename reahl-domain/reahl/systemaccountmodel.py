@@ -25,12 +25,16 @@ import random
 from string import Template
 from abc import ABCMeta
 
-import elixir
-from elixir import using_options, Entity, EntityMeta, \
-            Unicode, String, UnicodeText, Boolean, DateTime, Integer, OneToOne, ManyToOne, OneToMany
+from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
-from reahl.sqlalchemysupport import metadata, Session
-from reahl.elixirsupport import session_scoped
+#import elixir
+#from elixir import using_options, Entity, EntityMeta, \
+#            Unicode, String, UnicodeText, Boolean, DateTime, Integer, OneToOne, ManyToOne, OneToMany
+
+from reahl.sqlalchemysupport import Base, Session, session_scoped
+
 from reahl.component.exceptions import DomainException, ProgrammerError
 from reahl.interfaces import UserSessionProtocol
 from reahl.mailutil.mail import Mailer, MailMessage
@@ -70,8 +74,9 @@ class SystemAccountConfig(Configuration):
     mailer_class = ConfigSetting(default=Mailer, description='The class to instantiate for sending email')
 
 
+    
 @session_scoped
-class AccountManagementInterface(Entity):
+class AccountManagementInterface(Base):
     """A session scoped object that @exposes a number of Fields and Events that user interface 
        Widgets can use to access the functionality of this module.
        
@@ -99,8 +104,9 @@ class AccountManagementInterface(Entity):
         - resend_event = Resends a secret of an outstanding request (to fields.email).
         - log_out_event = Logs out the current account.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    email = elixir.Field(UnicodeText, required=False, default=None, index=True)
+    __tablename__ = 'account_management_interface'
+    id = Column(Integer, primary_key=True)
+    email = Column(UnicodeText, default=None, index=True)
 
     stay_logged_in = False
 
@@ -244,9 +250,11 @@ class VerificationRequest(Requirement):
     the "accounts.request_verification_timeout" configuration setting are regarded as stale.
     """
 
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-
-    salt = elixir.Field(String(10), required=True)
+    __tablename__ = 'verification_request'
+    __mapper_args__ = {'polymorphic_identity': 'verification_request'}
+    id = Column(Integer, ForeignKey('requirement.id'), primary_key=True)
+    email = Column(UnicodeText, default=None, index=True)
+    salt = Column(String(10), nullable=False)
     mailer = None
 
     @classmethod
@@ -256,14 +264,14 @@ class VerificationRequest(Requirement):
         except:
             raise KeyException()
 
-        requests = cls.query.filter_by(id=request_id)
+        requests = Session.query(cls).filter_by(id=request_id)
         if requests.count() == 1 and requests.one().salt == salt:
             return requests.one()
         raise KeyException()
 
-    def __init__(self, system_account=None, **kwargs):
+    def __init__(self, **kwargs):
         self.generate_salt()
-        super(VerificationRequest, self).__init__(system_account=system_account, **kwargs)
+        super(VerificationRequest, self).__init__(**kwargs)
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
@@ -293,10 +301,13 @@ class VerificationRequest(Requirement):
 
 class NewPasswordRequest(VerificationRequest):
     """A request to pick a new passowrd for a SystemAccount."""
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+    __tablename__ = 'new_password_request'
+    __mapper_args__ = {'polymorphic_identity': 'new_password_request'}
+    id = Column(Integer, ForeignKey('verification_request.id'), primary_key=True)
 
-    system_account = ManyToOne('SystemAccount', primary_key=True,
-                               constraint_kwargs={'deferrable':True, 'initially':'deferred'})
+    system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
+    system_account = relationship('SystemAccount')
+
 
     @property
     def email(self):
@@ -307,16 +318,19 @@ class NewPasswordRequest(VerificationRequest):
 
     def set_new_password(self, email, password):
         self.system_account.set_new_password(email, password)
-        self.delete()
+        Session.delete(self)
 
 
 class VerifyEmailRequest(VerificationRequest):
     """A request to activate the account for a newly created SystemAccount."""
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+    __tablename__ = 'verify_email_request'
+    __mapper_args__ = {'polymorphic_identity': 'verify_email_request'}
 
-    email = elixir.Field(UnicodeText, required=True, unique=True, index=True)
-    subject_config = elixir.Field(UnicodeText, required=True)
-    email_config = elixir.Field(UnicodeText, required=True)
+    id = Column(Integer, ForeignKey('verification_request.id'), primary_key=True)
+
+    email = Column(UnicodeText, nullable=False, unique=True, index=True)
+    subject_config = Column(UnicodeText, nullable=False)
+    email_config = Column(UnicodeText, nullable=False)
 
     def verify(self, email, password):
         if not self.email == email:
@@ -329,12 +343,18 @@ class VerifyEmailRequest(VerificationRequest):
 
 
 class ActivateAccount(DeferredAction):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    system_account = ManyToOne('SystemAccount', constraint_kwargs={'deferrable':True, 'initially':'deferred'})
+    __tablename__ = 'activate_account'
+    __mapper_args__ = {'polymorphic_identity': 'activate_account'}
 
-    def __init__(self, **kwargs):
+    id = Column(Integer, ForeignKey('deferred_action.id'), primary_key=True)
+
+    system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
+    system_account = relationship('SystemAccount')
+
+    def __init__(self, system_account=None, **kwargs):
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
+        self.system_account = system_account
         super(ActivateAccount, self).__init__(deadline=deadline, **kwargs)
 
     def success_action(self):
@@ -345,8 +365,13 @@ class ActivateAccount(DeferredAction):
 
 
 class ChangeAccountEmail(DeferredAction):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    system_account = ManyToOne('SystemAccount', constraint_kwargs={'deferrable':True, 'initially':'deferred'})
+    __tablename__ = 'change_account_email'
+    __mapper_args__ = {'polymorphic_identity': 'change_account_email'}
+
+    id = Column(Integer, ForeignKey('deferred_action.id'), primary_key=True)
+
+    system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
+    system_account = relationship('SystemAccount')
 
     def __init__(self, system_account, new_email):
         requirements = [VerifyEmailRequest(email=new_email,
@@ -354,8 +379,8 @@ class ChangeAccountEmail(DeferredAction):
                                            email_config='accounts.email_change_email')]
         config = ExecutionContext.get_context().config
         deadline = datetime.now() + timedelta(days=config.accounts.request_verification_timeout)
-        super(ChangeAccountEmail, self).__init__(system_account=system_account,
-                                                 requirements=requirements,
+        self.system_account = system_account
+        super(ChangeAccountEmail, self).__init__(requirements=requirements,
                                                  deadline=deadline)
 
     @property
@@ -369,14 +394,21 @@ class ChangeAccountEmail(DeferredAction):
         self.verify_email_request.send_notification()
 
 
-class UserSession(Entity, UserSessionProtocol):
+class UserSession(Base, UserSessionProtocol):
     """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
-    class __metaclass__(EntityMeta, ABCMeta): pass
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+    class __metaclass__(DeclarativeMeta, ABCMeta): pass
 
-    account = ManyToOne('SystemAccount')
-    idle_lifetime = elixir.Field(Integer(), required=True, default=0)
-    last_activity = elixir.Field(DateTime(), required=True, default=datetime.now)
+    __tablename__ = 'user_session'
+
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('type', String(50))
+    __mapper_args__ = {'polymorphic_on': discriminator}
+
+    account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
+    account = relationship('SystemAccount')
+
+    idle_lifetime = Column(Integer(), nullable=False, default=0)
+    last_activity = Column(DateTime(), nullable=False, default=datetime.now)
 
     @classmethod
     def remove_dead_sessions(cls, now=None):
@@ -384,7 +416,7 @@ class UserSession(Entity, UserSessionProtocol):
         if now.minute > 0 and now.minute < 5:
             config = ExecutionContext.get_context().config
             cutoff = now - timedelta(seconds=config.accounts.session_lifetime)
-            cls.query.filter(cls.last_activity <= cutoff).delete()
+            Session.query(cls).filter(cls.last_activity <= cutoff).delete()
 
     @classmethod
     def for_current_session(cls):
@@ -442,17 +474,21 @@ class AccountActive(SystemAccountStatus):
         return True
 
 
-class SystemAccount(Entity):
+class SystemAccount(Base):
     """The credentials for someone to be able to log into the system."""
+    __tablename__ = 'system_account'
 
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('type', String(50))
+    __mapper_args__ = {'polymorphic_on': discriminator}
 
-    party = OneToOne('Party', inverse='system_account') #: The party tho whom this account belongs.
+    party_id = Column(Integer, ForeignKey('party.id'), nullable=True)
+    party = relationship('Party') #: The party tho whom this account belongs.
 
-    registration_date = elixir.Field(DateTime)  #: The date when this account was first registered.
-    account_enabled = elixir.Field(Boolean, required=True, default=False) #: Whether this account is enabled or not
+    registration_date = Column(DateTime)  #: The date when this account was first registered.
+    account_enabled = Column(Boolean, nullable=False, default=False) #: Whether this account is enabled or not
 
-    failed_logins = elixir.Field(Integer, required=True, default=0) #: The number of failed loin attempts using this account.
+    failed_logins = Column(Integer, nullable=False, default=0) #: The number of failed loin attempts using this account.
 
     @property
     def registration_activated(self):
@@ -477,7 +513,7 @@ class SystemAccount(Entity):
     def cancel_reservation(self):
         if self.account_enabled:
             raise ProgrammerError('attempted to cancel a reserved account which is already active')
-        self.delete()
+        Session.delete(self)
 
     def enable(self):
         self.account_enabled = True
@@ -490,28 +526,30 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     """An EmailAndPasswordSystemAccount used an email address to identify the account uniquely,
        and uses a password to authenticate login attempts.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    
-    password_md5 = elixir.Field(String(32), required=True)
-    email = elixir.Field(UnicodeText, required=True, unique=True, index=True)
-    apache_digest = elixir.Field(String(32), required=True)
+    __tablename__ = 'email_and_password_system_account'
+    __mapper_args__ = {'polymorphic_identity': 'email_and_password_system_account'}
+    id = Column(Integer, ForeignKey('system_account.id'), primary_key=True)
+
+    password_md5 = Column(String(32), nullable=False)
+    email = Column(UnicodeText, nullable=False, unique=True, index=True)
+    apache_digest = Column(String(32), nullable=False)
     
     @classmethod
     def by_email(cls, email):
-        matches = cls.query.filter_by(email=email)
+        matches = Session.query(cls).filter_by(email=email)
         if matches.count() == 0:
             raise NoSuchAccountException()
         return matches.one()
     
     @classmethod
     def email_changes_are_pending_for(cls, email):
-        all_pending_requests = VerifyEmailRequest.query.join(VerifyEmailRequest.deferred_actions, ChangeAccountEmail)
+        all_pending_requests = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ChangeAccountEmail)
         clashing_requests = all_pending_requests.filter(VerifyEmailRequest.email==email)
         return clashing_requests.count() > 0
     
     @classmethod
     def assert_email_unique(cls, email):
-        not_unique = cls.query.filter_by(email=email).count() > 0
+        not_unique = Session.query(cls).filter_by(email=email).count() > 0
         not_unique = not_unique or cls.email_changes_are_pending_for(email)
         if not_unique:
             raise NotUniqueException()
@@ -545,14 +583,16 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     def reserve(cls, email, password, party):
         cls.assert_email_unique(email)
         system_account = cls(party=party, email=email)
+        Session.add(system_account)
         system_account.set_new_password(email, password)
-
         verification_request = VerifyEmailRequest(email=email,
                                                   subject_config='accounts.activation_subject',
                                                   email_config='accounts.activation_email')
+        Session.add(verification_request)
         Session.flush()
         deferred_activation = ActivateAccount(system_account=system_account, 
                                               requirements=[verification_request])
+        Session.add(deferred_activation)
         system_account.send_activation_notification()
 
         return system_account
@@ -578,19 +618,19 @@ class EmailAndPasswordSystemAccount(SystemAccount):
             raise InvalidPasswordException(commit=True)
 
     def send_activation_notification(self):
-        verification_request = VerifyEmailRequest.query.join(VerifyEmailRequest.deferred_actions, ActivateAccount)\
+        verification_request = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ActivateAccount)\
                                .filter(ActivateAccount.system_account==self).one()
         verification_request.send_notification()
 
     def request_new_password(self):
         self.assert_account_live()
-        existing_requests = NewPasswordRequest.query.filter_by(system_account=self)
+        existing_requests = Session.query(NewPasswordRequest).filter_by(system_account=self)
         if existing_requests.count() == 0:
-            NewPasswordRequest(system_account=self)
+            Session.add(NewPasswordRequest(system_account=self))
         self.send_new_password_mail()
 
     def send_new_password_mail(self):
-        request = NewPasswordRequest.query.filter_by(system_account=self).one()
+        request = Session.query(NewPasswordRequest).filter_by(system_account=self).one()
         request.send_notification()
 
     def set_new_password(self, email, password):
@@ -604,11 +644,11 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         self.assert_account_live()
         self.assert_email_unique(new_email)
 
-        ChangeAccountEmail(self, new_email)
+        Session.add(ChangeAccountEmail(self, new_email))
         self.send_email_change_mail()
 
     def send_email_change_mail(self):
-        change_email_action = ChangeAccountEmail.query.filter_by(system_account=self).one()
+        change_email_action = Session.query(ChangeAccountEmail).filter_by(system_account=self).one()
         change_email_action.send_notification()
 
     def set_new_email(self, new_login, password):

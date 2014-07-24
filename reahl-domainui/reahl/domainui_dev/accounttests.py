@@ -22,6 +22,7 @@ from reahl.tofu import Fixture
 from reahl.tofu import test
 from reahl.tofu import vassert
 
+from reahl.sqlalchemysupport import Session
 from reahl.web.ui import TwoColumnPage
 from reahl.web.fw import Url
 from reahl.web.fw import UserInterface
@@ -84,7 +85,7 @@ class Tests(object):
 
     @test(AccountsWebFixture)
     def register(self, fixture):
-        verification_requests = VerifyEmailRequest.query
+        verification_requests = Session.query(VerifyEmailRequest)
         fixture.browser.open('/a_ui/register')
 
         fixture.browser.type('//form[@id="register"]//*[@name="email"]', 'a@b.org')
@@ -124,12 +125,14 @@ class Tests(object):
 
     @test(AccountsWebFixture)
     def register_help_pending(self, fixture):
-        verification_requests = VerifyEmailRequest.query
+        verification_requests = Session.query(VerifyEmailRequest)
         unactivated_account = fixture.new_system_account(email='unactivated_johndoe@home.org', activated=False)
         activation_request = VerifyEmailRequest(email=unactivated_account.email,
                                                 subject_config='accounts.activation_subject',
                                                 email_config='accounts.activation_email')
+        Session.add(activation_request)
         deferred_activation = ActivateAccount(system_account=unactivated_account, requirements=[activation_request])
+        Session.add(deferred_activation)
 
         fixture.browser.open('/a_ui/registerHelp')
         fixture.browser.type('//input[@name="email"]', unactivated_account.email)
@@ -150,7 +153,9 @@ class Tests(object):
         activation_request = VerifyEmailRequest(email=account.email,
                                                 subject_config='accounts.activation_subject',
                                                 email_config='accounts.activation_email')
+        Session.add(activation_request)
         deferred_activation = ActivateAccount(system_account=account, requirements=[activation_request])
+        Session.add(deferred_activation)
         secret_key = activation_request.as_secret_key()
 
         vassert( not account.status.is_active() )
@@ -175,7 +180,7 @@ class Tests(object):
         fixture.browser.click('//input[@value="Reset password"]')
         vassert( fixture.browser.location_path == '/a_ui/choosePassword' )
 
-        reset_request = NewPasswordRequest.query.filter_by(system_account=fixture.system_account).one()
+        reset_request = Session.query(NewPasswordRequest).filter_by(system_account=fixture.system_account).one()
         fixture.browser.open('/a_ui/choosePassword')
         fixture.browser.type('//input[@name="email"]', account.email )
         fixture.browser.type('//input[@name="secret"]', reset_request.as_secret_key() )
@@ -190,6 +195,7 @@ class Tests(object):
     def reset_password_from_url(self, fixture):
         account = fixture.system_account
         new_password_request = NewPasswordRequest(system_account=account)
+        Session.add(new_password_request)
 
         fixture.browser.open('/a_ui/choosePassword?email=%s&secret=%s' % \
                              (account.email, new_password_request.as_secret_key()))

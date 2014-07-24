@@ -77,16 +77,20 @@ class BasicModelZooMixin(SqlAlchemyTestMixin):
 class PartyModelZooMixin(BasicModelZooMixin):
     def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
         password = 'bobbejaan'
-        system_account = EmailAndPasswordSystemAccount(party=party, email=email)
+        system_account = EmailAndPasswordSystemAccount(party=party or self.party, email=email)
         system_account.set_new_password(email, password)
         system_account.password = password # The unencrypted version for use in tests
         if activated:
             system_account.activate()
+        Session.add(system_account)
         Session.flush()
         return system_account
 
     def new_party(self):
-        return Party()
+        party = Party()
+        Session.add(party)
+        Session.flush()
+        return party
 
     def new_mailer(self):
         return MailerStub.from_context()

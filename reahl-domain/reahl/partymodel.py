@@ -14,27 +14,25 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A heading for this module
-=========================
 
-Copyright (C) 2009 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
-
-"""
 from __future__ import unicode_literals
 from __future__ import print_function
 
-from elixir import using_options, Entity, ManyToOne
+from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
-from reahl.sqlalchemysupport import metadata, Session
+from reahl.sqlalchemysupport import Base
 from reahl.component.i18n import Translator
 
 _ = Translator('reahl-domain')
 
 
-class Party(Entity):
+class Party(Base):
     """A Party is any legal entity which the system may keep track of."""
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    system_account = ManyToOne('SystemAccount')
+    __tablename__ = 'party'
+    id = Column(Integer, primary_key=True)
+#    system_account_id = Column(Integer, ForeignKey('system_account.id'))
+#    system_account = relationship('SystemAccount')
 
 
 

@@ -6,6 +6,7 @@ from reahl.tofu import test, set_up
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
+from reahl.sqlalchemysupport import Session
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.doc.examples.tutorial.login2.login2 import LoginUI
@@ -19,6 +20,7 @@ class LoginFixture(WebFixture):
 
     def new_account(self):
         account = EmailAndPasswordSystemAccount(email='johndoe@some.org')
+        Session.add(account)
         account.set_new_password(account.email, self.password)
         account.activate()
         return account

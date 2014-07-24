@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Panel, P, H
+from reahl.sqlalchemysupport import Session
 
 
 class AddressBookUI(UserInterface):
@@ -22,7 +23,7 @@ class AddressBookPanel(Panel):
 
         self.add_child(H(view, 1, text='Addresses'))
 
-        for address in Address.query.all():
+        for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address))
 
 
@@ -33,15 +34,15 @@ class AddressBox(Widget):
 
 
 # The model from before:
-import elixir
-from reahl.sqlalchemysupport import Session, metadata
+from sqlalchemy import Column, Integer, UnicodeText
+from reahl.sqlalchemysupport import Session, Base
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    elixir.using_mapper_options(save_on_init=False)
+class Address(Base):
+    __tablename__ = 'addressbook1_address'
 
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
 
     def save(self):
         Session.add(self)

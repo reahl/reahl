@@ -21,6 +21,7 @@ from __future__ import print_function
 import os
 import os.path
 import logging
+import copy
 
 from pkg_resources import Requirement
 from pkg_resources import iter_entry_points
@@ -90,6 +91,13 @@ class ReahlEgg(object):
 
     def get_ordered_classes_exported_on(self, entry_point):
         entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
+        eps = copy.copy(entry_point_dict.values())
+        found_eps = set()
+        for ep in entry_point_dict.values():
+            if ep in found_eps:
+                raise AssertionError('%s is listed twice' % ep)
+            found_eps.add(ep)
+#        import pdb; pdb.set_trace()
         return [entry.load() for order, entry in sorted([(int(order), e) for order, e in entry_point_dict.items()])]
 
     def get_classes_exported_on(self, entry_point):

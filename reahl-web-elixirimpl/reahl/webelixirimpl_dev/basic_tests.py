@@ -21,8 +21,8 @@ import six
 from six.moves import http_cookies
 from six.moves.urllib import parse as urllib_parse
 
+from sqlalchemy import Column, ForeignKey, Integer
 from webob import Response
-from elixir import using_options
 
 from nose.tools import istest
 from reahl.tofu import test
@@ -68,7 +68,10 @@ class BasicTests(object):
         """How WebExecutionContext sets session and secure cookies in the response."""
         @stubclass(WebUserSession)
         class WebUserSessionStub(WebUserSession):
-            using_options(metadata=metadata, session=Session, shortnames=True)
+            __tablename__ = 'web_user_session_stub'
+            __mapper_args__ = {'polymorphic_identity': 'web_user_session_stub'}
+            id = Column(Integer, ForeignKey('web_user_session.id'), primary_key=True)
+
             secured = False
             def is_secure(self):
                 return self.secured
@@ -128,6 +131,8 @@ class BasicTests(object):
         # Case: session cookie set in Request
         fixture.context.set_session(None)
         web_session = WebUserSession()
+        Session.add(web_session)
+
         fixture.request.headers['Cookie'] = ('reahl=%s' % web_session.as_key()).encode('utf-8')
 
         fixture.context.initialise_web_session()
@@ -140,6 +145,7 @@ class BasicTests(object):
         fixture.request.scheme = 'https'
         fixture.context.set_session(None)
         web_session = WebUserSession()
+        Session.add(web_session)
         web_session.set_as_logged_in(account, False)
 
         fixture.request.headers['Cookie'] = ('reahl=%s , reahl_secure=%s' % \
@@ -155,6 +161,7 @@ class BasicTests(object):
         fixture.request.scheme = 'http'
         fixture.context.set_session(None)
         web_session = WebUserSession()
+        Session.add(web_session)
         web_session.set_as_logged_in(account, False)
         fixture.request.headers['Cookie'] = ('reahl=%s , reahl_secure=%s' % \
                                             (web_session.as_key(), web_session.secure_salt)).encode('utf-8')

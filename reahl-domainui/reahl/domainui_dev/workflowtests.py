@@ -18,14 +18,13 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import pkg_resources
 
-from elixir import using_options
 
 from nose.tools import istest
 from reahl.tofu import Fixture
 from reahl.tofu import test
 from reahl.tofu import vassert
 from reahl.stubble import easter_egg
-
+from sqlalchemy import Column, Integer, ForeignKey
 
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.ui import TwoColumnPage, Panel, P
@@ -70,7 +69,9 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         return account
 
 class MyTask(Task):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='single')
+    __tablename__ = 'my_task'
+    __mapper_args__ = {'polymorphic_identity': 'my_task'}
+    id = Column(Integer, ForeignKey('task.id'), primary_key=True)
 
 
 class MyTaskWidget(Panel):
@@ -133,19 +134,9 @@ class Tests(object):
         with fixture.persistent_test_classes(MyTask):
             task = MyTask(queue=fixture.queue, title='a task')
 
-            try:
-                Task.mapper.polymorphic_on = Task.table.columns['id']
-                Session.flush()
+            browser = Browser(fixture.wsgi_app)
+            fixture.log_in(browser=browser)
+            browser.open('/inbox/task/%s' % task.id )
+            html = browser.get_html_for('//div/p')
+            vassert( html == '<p>my task widget</p>' )
 
-                MyTask.mapper.polymorphic_identity = task.id
-                MyTask.mapper.polymorphic_map[task.id] = MyTask.mapper
-
-                browser = Browser(fixture.wsgi_app)
-                fixture.log_in(browser=browser)
-                browser.open('/inbox/task/%s' % task.id )
-                html = browser.get_html_for('//div/p')
-                vassert( html == '<p>my task widget</p>' )
-            finally:
-                Task.mapper.polymorphic_on = None
-                del MyTask.mapper.polymorphic_map[task.id] 
-        assert None, 'This is ugly, but the only way I could get this elixir test stub to work'

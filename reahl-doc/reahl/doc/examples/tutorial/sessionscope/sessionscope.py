@@ -2,10 +2,10 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import hashlib
 
-import elixir
+from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, String
+from sqlalchemy.orm import relationship
 
-from reahl.sqlalchemysupport import Session, metadata
-from reahl.elixirsupport import session_scoped
+from reahl.sqlalchemysupport import Session, Base, session_scoped
 
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
@@ -19,12 +19,13 @@ from reahl.component.modelinterface import exposed
 
 
 
-class User(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
+class User(Base):
+    __tablename__ = 'sessionscope_user'
     
-    email_address = elixir.Field(elixir.UnicodeText, required=True)
-    name          = elixir.Field(elixir.UnicodeText, required=True)
-    password_md5  = elixir.Field(elixir.String, required=True)
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText, nullable=False) 
+    name          = Column(UnicodeText, nullable=False)
+    password_md5  = Column(String, nullable=False)
 
     def set_password(self, password):
         self.password_md5 = hashlib.md5(password).hexdigest()
@@ -34,11 +35,13 @@ class User(elixir.Entity):
 
 
 @session_scoped
-class LoginSession(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata, tablename='tutorial_loginsession')
+class LoginSession(Base):
+    __tablename__ = 'tutorial_loginsession'
 
-    current_user = elixir.ManyToOne(User)
-    email_address = elixir.Field(elixir.UnicodeText)
+    id              = Column(Integer, primary_key=True)
+    current_user_id = Column(Integer, ForeignKey('sessionscope_user.id'))
+    current_user    = relationship(User)
+    email_address   = Column(UnicodeText)
 
     @exposed
     def fields(self, fields):
@@ -50,7 +53,7 @@ class LoginSession(elixir.Entity):
         events.log_in = Event(label='Log in', action=Action(self.log_in))
 
     def log_in(self):
-        user = User.query.filter_by(email_address=self.email_address).one()
+        user = Session.query(User).filter_by(email_address=self.email_address).one()
         if user.matches_password(self.password):
             self.current_user = user
         else:

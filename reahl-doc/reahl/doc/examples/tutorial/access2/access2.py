@@ -1,9 +1,11 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import elixir
 
-from reahl.sqlalchemysupport import Session, metadata
+from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, Boolean
+from sqlalchemy.orm import relationship
+
+from reahl.sqlalchemysupport import Session, Base
 from reahl.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, UserSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
@@ -11,18 +13,18 @@ from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, But
                          PasswordInput, ErrorFeedbackMessage, Slot, Widget, SelectInput, CheckboxInput
 
 
+class Address(Base):
+    __tablename__ = 'access2_address'
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    elixir.using_mapper_options(save_on_init=False)
-    
-    address_book  = elixir.ManyToOne('reahl.doc.examples.tutorial.access2.access2.AddressBook')
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
+    id              = Column(Integer, primary_key=True)    
+    address_book_id = Column(Integer, ForeignKey('access2_address_book.id'))
+    address_book    = relationship('reahl.doc.examples.tutorial.access2.access2.AddressBook')
+    email_address   = Column(UnicodeText)
+    name            = Column(UnicodeText)
 
     @classmethod
     def by_id(cls, address_id, exception_to_raise):
-        addresses = Address.query.filter_by(id=address_id)
+        addresses = Session.query(cls).filter_by(id=address_id)
         if addresses.count() != 1:
             raise exception_to_raise
         return addresses.one()
@@ -42,31 +44,36 @@ class Address(elixir.Entity):
         Session.add(self)
 
 
-class AddressBook(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
+class AddressBook(Base):
+    __tablename__ = 'access2_address_book'
 
-    owner      = elixir.ManyToOne(EmailAndPasswordSystemAccount, required=True)
+    id              = Column(Integer, primary_key=True)
+
+    owner_id   = Column(Integer, ForeignKey('email_and_password_system_account.id'), nullable=False)
+    owner      = relationship(EmailAndPasswordSystemAccount)
+    collaborators = relationship('reahl.doc.examples.tutorial.access2.access2.Collaborator', lazy='dynamic',
+                                 backref='address_book')
 
     @classmethod
     def by_id(cls, address_book_id, exception_to_raise):
-        address_books = AddressBook.query.filter_by(id=address_book_id)
+        address_books = Session.query(cls).filter_by(id=address_book_id)
         if address_books.count() != 1:
             raise exception_to_raise
         return address_books.one()
     
     @classmethod
     def owned_by(cls, account):
-        return cls.query.filter_by(owner=account)
+        return Session.query(cls).filter_by(owner=account)
         
     @classmethod
     def address_books_visible_to(cls, account):
-        visible_books = cls.query.join(Collaborator).filter(Collaborator.account == account).all()
+        visible_books = Session.query(cls).join(Collaborator).filter(Collaborator.account == account).all()
         visible_books.extend(cls.owned_by(account))
         return visible_books
 
     @exposed
     def fields(self, fields):
-        collaborators = [Choice(i.id, IntegerField(label=i.email)) for i in EmailAndPasswordSystemAccount.query.all()]
+        collaborators = [Choice(i.id, IntegerField(label=i.email)) for i in Session.query(EmailAndPasswordSystemAccount).all()]
         fields.chosen_collaborator = ChoiceField(collaborators, label='Choose collaborator')
         fields.may_edit_address = BooleanField(label='May edit existing addresses')
         fields.may_add_address = BooleanField(label='May add new addresses')
@@ -76,23 +83,21 @@ class AddressBook(elixir.Entity):
         events.add_collaborator = Event(label='Share', action=Action(self.add_collaborator))
 
     def add_collaborator(self):
-        chosen_account = EmailAndPasswordSystemAccount.query.filter_by(id=self.chosen_collaborator).one()
+        chosen_account = Session.query(EmailAndPasswordSystemAccount).filter_by(id=self.chosen_collaborator).one()
         self.allow(chosen_account, can_add_addresses=self.may_add_address, can_edit_addresses=self.may_edit_address)
 
     # See https://groups.google.com/forum/?fromgroups=#!topic/sqlelixir/ZlR9Kvcor6Q
     #    addresses  = elixir.OneToMany(Address)
     @property
     def addresses(self):
-        return Address.query.filter_by(address_book=self).all()
-
-    collaborators = elixir.OneToMany('reahl.doc.examples.tutorial.access2.access2.Collaborator', lazy='dynamic')
+        return Session.query(Address).filter_by(address_book=self).all()
 
     @property
     def display_name(self):
         return 'Address book of %s' % self.owner.email
 
     def allow(self, account, can_add_addresses=False, can_edit_addresses=False):
-        Collaborator.query.filter_by(address_book=self, account=account).delete()
+        Session.query(Collaborator).filter_by(address_book=self, account=account).delete()
         Collaborator(address_book=self, account=account,
             can_add_addresses=can_add_addresses,
             can_edit_addresses=can_edit_addresses)
@@ -127,14 +132,17 @@ class AddressBook(elixir.Entity):
         return None
 
 
-class Collaborator(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
+class Collaborator(Base):
+    __tablename__ = 'access2_collaborator'
+    id      = Column(Integer, primary_key=True)
 
-    account = elixir.ManyToOne(EmailAndPasswordSystemAccount)
-    can_add_addresses = elixir.Field(elixir.Boolean, default=False)
-    can_edit_addresses = elixir.Field(elixir.Boolean, default=False)
+    address_book_id = Column(Integer, ForeignKey(AddressBook.id))
 
-    address_book = elixir.ManyToOne(AddressBook)
+    account_id = Column(Integer, ForeignKey(EmailAndPasswordSystemAccount.id), nullable=False)
+    account = relationship(EmailAndPasswordSystemAccount)
+    
+    can_add_addresses = Column(Boolean, default=False)
+    can_edit_addresses = Column(Boolean, default=False)
 
 
 class AddressAppPage(TwoColumnPage):

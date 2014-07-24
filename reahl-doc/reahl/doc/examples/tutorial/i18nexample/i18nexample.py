@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import datetime
 
-import elixir
+from sqlalchemy import Column, Integer, UnicodeText, Date
 
-from reahl.sqlalchemysupport import Session, metadata
+from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, VMenu
@@ -66,13 +66,12 @@ class AddressBox(Widget):
         self.add_child(P(view, text='%s: %s (%s)' % (address.name, address.email_address, formatted_date)))
 
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    elixir.using_mapper_options(save_on_init=False)
-    
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
-    added_date    = elixir.Field(elixir.Date)
+class Address(Base):
+    __tablename__ = 'i18nexample_address'
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
+    added_date    = Column(Date)
 
     @exposed
     def fields(self, fields):

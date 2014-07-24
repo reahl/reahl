@@ -26,6 +26,7 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario, NoException, vassert, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
+from reahl.sqlalchemysupport import Session
 from reahl.web.ui import Button
 from reahl.web.ui import Form
 from reahl.web.ui import LabelledBlockInput
@@ -458,8 +459,8 @@ def form_input_validation(fixture):
     label = browser.get_html_for('//label')
     vassert( label == '<label for="field_name" class="error">field_name should be a valid email address</label>' )
 
-    vassert( UserInput.query.filter_by(key='field_name').count() == 1 ) # The invalid input was persisted
-    exception = PersistedException.query.one().exception
+    vassert( Session.query(UserInput).filter_by(key='field_name').count() == 1 ) # The invalid input was persisted
+    exception = Session.query(PersistedException).one().exception
     vassert( isinstance(exception, ValidationException) ) # Is was persisted
     vassert( not exception.commit )
 
@@ -471,8 +472,8 @@ def form_input_validation(fixture):
     browser.click("//input[@value='click me']")
     vassert( model_object.field_name == 'valid@home.org' )
 
-    vassert( UserInput.query.filter_by(key='field_name').count() == 0 ) # The invalid input was removed
-    vassert( PersistedException.query.count() == 0 ) # The exception was removed
+    vassert( Session.query(UserInput).filter_by(key='field_name').count() == 0 ) # The invalid input was removed
+    vassert( Session.query(PersistedException).count() == 0 ) # The exception was removed
 
     vassert( browser.location_path == '/page2' )
 

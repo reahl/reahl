@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from reahl.tofu import test, set_up
 
+from reahl.sqlalchemysupport import Session
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
@@ -18,6 +19,7 @@ class SessionScopeFixture(WebFixture):
     def new_user(self):
         user = User(name='John Doe', email_address='johndoe@some.org')
         user.set_password(self.password)
+        Session.add(user)
         return user
 
 

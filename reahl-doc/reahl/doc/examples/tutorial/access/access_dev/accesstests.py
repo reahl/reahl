@@ -22,13 +22,16 @@ class AccessFixture(WebFixture):
 
     def new_account(self, email='johndoe@some.org'):
         account = EmailAndPasswordSystemAccount(email=email)
+        Session.add(account)
         account.set_new_password(account.email, self.password)
         account.activate()
         return account
 
     def new_address_book(self, owner=None):
         owner = owner or self.account
-        return AddressBook(owner=owner)
+        address_book = AddressBook(owner=owner)
+        Session.add(address_book)
+        return address_book
 
     def new_other_account(self):
         return self.new_account(email='other@some.org')
@@ -78,8 +81,6 @@ class DemoFixture(AccessFixture):
         Address(address_book=someone_else_book, email_address='friend24@some.org', name='Friend24').save()
         Session.flush()
         Session.commit()
-
-
 
 
 @test(AccessFixture)

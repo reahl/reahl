@@ -1097,7 +1097,7 @@ class Form(HTMLElement):
             raise ValidationException()
         events -= {None}
         if not len(events) == 1:
-                raise ProgrammerError('there should always be one and only one event per form submission. Inputs submitted: %s Events detected: %s' % (input_values.keys(), events))
+            raise ProgrammerError('there should always be one and only one event per form submission. Inputs submitted: %s Events detected: %s' % (input_values.keys(), events))
         return events.pop()
        
     def get_js(self, context=None):
