@@ -14,12 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A heading for this module
-=========================
 
-Copyright (C) 2009 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
-
-"""
 from __future__ import unicode_literals
 from __future__ import print_function
 
@@ -27,7 +22,7 @@ import hashlib
 from string import Template
 from datetime import datetime, timedelta
 
-from elixir import using_options
+from sqlalchemy import Column, ForeignKey, Integer
 
 from reahl.sqlalchemysupport import metadata, Session
 from nose.tools import istest
@@ -50,6 +45,8 @@ class PartyModelFixture(Fixture, PartyModelZooMixin):
         account_management_interface = AccountManagementInterface()
         account_management_interface.password = system_account.password
         account_management_interface.email = system_account.email
+        Session.add(account_management_interface)
+        Session.flush()
         return account_management_interface
 
 
@@ -67,7 +64,7 @@ class RegistrationTests(object):
         mailer_stub.reset()
         other_system_account = fixture.system_account
         new_email = 'koos@home.org'
-        ChangeAccountEmail(other_system_account, new_email)
+        Session.add(ChangeAccountEmail(other_system_account, new_email))
 
         with expected(NotUniqueException):
             account_management_interface.email = new_email
@@ -77,10 +74,10 @@ class RegistrationTests(object):
         fixture.system_control.rollback()
 
         # Case where it all works
-        vassert( ActivateAccount.query.count() == 0 )
+        vassert( Session.query(ActivateAccount).count() == 0 )
         account_management_interface.email = login_email
         system_account = account_management_interface.register()
-        [activation_action] = ActivateAccount.query.filter_by(system_account=system_account).all()
+        [activation_action] = Session.query(ActivateAccount).filter_by(system_account=system_account).all()
         activation_request = activation_action.requirements[0]
 
         vassert( mailer_stub.mail_sent )
@@ -131,7 +128,9 @@ class RegistrationTests(object):
         activation_request = VerifyEmailRequest(email=system_account.email,
                                                 subject_config='accounts.activation_subject',
                                                 email_config='accounts.activation_email')
+        Session.add(activation_request)
         activation_action = ActivateAccount(system_account=system_account, requirements=[activation_request])
+        Session.add(activation_action)
         mailer_stub = fixture.mailer
         fixture.account_management_interface.email = system_account.email
         fixture.account_management_interface.password = system_account.password
@@ -155,14 +154,20 @@ class RegistrationTests(object):
 
         @stubclass(VerificationRequest)
         class VerificationRequestStub(VerificationRequest):
-            using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+            __tablename__ = 'verification_request_stub'
+            __mapper_args__ = {'polymorphic_identity': 'verification_request_stub'}
+            id = Column(Integer, ForeignKey('verification_request.id'), primary_key=True)
+
             def generate_salt(self):
                 self.salt = 'not unique'
 
         with fixture.persistent_test_classes(VerificationRequestStub):
-            request1 = VerificationRequestStub(system_account=system_account)
-            request2 = VerificationRequestStub(system_account=system_account)
-            clashing_request = VerificationRequestStub(system_account=system_account)
+            request1 = VerificationRequestStub()
+            Session.add(request1)
+            request2 = VerificationRequestStub()
+            Session.add(request2)
+            clashing_request = VerificationRequestStub()
+            Session.add(clashing_request)
             vassert( request1.as_secret_key() != clashing_request.as_secret_key() )
             vassert( request2.as_secret_key() != clashing_request.as_secret_key() )
 
@@ -172,7 +177,9 @@ class RegistrationTests(object):
         activation_request = VerifyEmailRequest(email=system_account.email,
                                                 subject_config='accounts.activation_subject',
                                                 email_config='accounts.activation_email')
+        Session.add(activation_request)
         deferred_activation = ActivateAccount(system_account=system_account, requirements=[activation_request])
+        Session.add(deferred_activation)
         account_management_interface = fixture.account_management_interface
         
         # Case where there is an email mismatch
@@ -199,7 +206,7 @@ class RegistrationTests(object):
         vassert( system_account.registration_activated )
         vassert( system_account.account_enabled )
         assert_recent( system_account.registration_date )
-        vassert( activation_request.query.filter_by(id=activation_request.id).count() == 0 )
+        vassert( Session.query(VerifyEmailRequest).filter_by(id=activation_request.id).count() == 0 )
 
     @test(PartyModelFixture)
     def expire_stale_requests(self,fixture):
@@ -215,7 +222,7 @@ class RegistrationTests(object):
         old_account_management_interface.password = password        
         old_account_management_interface.register()
         old_system_account = EmailAndPasswordSystemAccount.by_email(old_email)
-        old_activation_request = VerifyEmailRequest.query.one()
+        old_activation_request = Session.query(VerifyEmailRequest).one()
         old_activation_request.deferred_actions[0].deadline = longago
 
         new_account_management_interface = AccountManagementInterface()
@@ -225,8 +232,8 @@ class RegistrationTests(object):
         recent_system_account = EmailAndPasswordSystemAccount.by_email(recent_email)
 
         ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
-        vassert( EmailAndPasswordSystemAccount.query.filter_by(id=old_system_account.id).count() == 0 )
-        vassert( EmailAndPasswordSystemAccount.query.filter_by(id=recent_system_account.id).count() == 1 )
+        vassert( Session.query(EmailAndPasswordSystemAccount).filter_by(id=old_system_account.id).count() == 0 )
+        vassert( Session.query(EmailAndPasswordSystemAccount).filter_by(id=recent_system_account.id).count() == 1 )
 
     @test(PartyModelFixture)
     def request_new_password(self,fixture):
@@ -256,10 +263,10 @@ class RegistrationTests(object):
         system_account.enable()
         # Case where the user account is active and enabled
         vassert( isinstance(system_account.status, AccountActive) )
-        vassert( NewPasswordRequest.query.count() == 0 )
+        vassert( Session.query(NewPasswordRequest).count() == 0 )
         account_management_interface.email = system_account.email
         account_management_interface.request_password_reset()
-        [new_password_request] = NewPasswordRequest.query.filter_by(system_account=system_account).all()
+        [new_password_request] = Session.query(NewPasswordRequest).filter_by(system_account=system_account).all()
 
         vassert( mailer_stub.mail_recipients == [system_account.email] )
         vassert( mailer_stub.mail_sender == fixture.config.accounts.admin_email )
@@ -273,11 +280,11 @@ class RegistrationTests(object):
 
         # Case where a new password is requested multiple times
         vassert( isinstance(system_account.status, AccountActive) )
-        vassert( NewPasswordRequest.query.count() == 1 )
+        vassert( Session.query(NewPasswordRequest).count() == 1 )
         mailer_stub.reset()
         account_management_interface.request_password_reset()
-        vassert( NewPasswordRequest.query.count() == 1 )
-        [new_password_request] = NewPasswordRequest.query.filter_by(system_account=system_account).all()
+        vassert( Session.query(NewPasswordRequest).count() == 1 )
+        [new_password_request] = Session.query(NewPasswordRequest).filter_by(system_account=system_account).all()
 
         vassert( mailer_stub.mail_recipients == [system_account.email] )
         vassert( mailer_stub.mail_sender == fixture.config.accounts.admin_email )
@@ -293,8 +300,10 @@ class RegistrationTests(object):
     def set_new_password(self,fixture):
         system_account = fixture.system_account
         new_password_request = NewPasswordRequest(system_account=system_account)
+        Session.add(new_password_request)
         new_password = system_account.password*2
         account_management_interface = AccountManagementInterface()
+        Session.add(account_management_interface)
 
         # Case: the key is invalid
         invalid_key = 'in va lid key which is also too long and contains spaces'
@@ -351,10 +360,10 @@ class RegistrationTests(object):
             account_management_interface.request_email_change()
 
         # Case where the user account is active and enabled, and a new unique email name is requested
-        vassert( ChangeAccountEmail.query.count() == 0 )
+        vassert( Session.query(ChangeAccountEmail).count() == 0 )
         account_management_interface.new_email = new_email
         account_management_interface.request_email_change()
-        new_email_request = ChangeAccountEmail.query.filter_by(system_account=system_account).one().verify_email_request
+        new_email_request = Session.query(ChangeAccountEmail).filter_by(system_account=system_account).one().verify_email_request
 
         vassert( mailer_stub.mail_recipients == [new_email] )
         vassert( mailer_stub.mail_sender == fixture.config.accounts.admin_email )
@@ -376,6 +385,7 @@ class RegistrationTests(object):
         system_account = fixture.system_account
         new_email = 'new@home.org'
         change_email_action = ChangeAccountEmail(system_account, new_email)
+        Session.add(change_email_action)
         request = change_email_action.verify_email_request
         account_management_interface = fixture.account_management_interface
 
@@ -401,7 +411,7 @@ class RegistrationTests(object):
         account_management_interface.password = system_account.password
         account_management_interface.secret = request.as_secret_key()
         account_management_interface.verify_email()        
-        vassert( VerifyEmailRequest.query.filter_by(id=request.id).count() == 0 )
+        vassert( Session.query(VerifyEmailRequest).filter_by(id=request.id).count() == 0 )
         vassert( system_account.email == new_email )
 
     @test(PartyModelFixture)

@@ -55,19 +55,15 @@ class SqlAlchemyTestMixin(object):
             self.destroy_test_tables(*entities)
 
     def create_test_tables(self, *entities):
-        from elixir import setup_entities
-        for entity in entities:
-            for cls in entity.mro():
-                if '_setup_done' in cls.__dict__:
-                    delattr(cls, '_setup_done') 
-        setup_entities(entities)
         metadata.create_all(bind=Session.connection())
 
     def destroy_test_tables(self, *entities):
 #        Session.flush()
         Session.expunge_all()
         for entity in entities:
-            entity.table.metadata.remove(entity.table)
+            if hasattr(entity, '__table__'):
+                entity.__table__.metadata.remove(entity.__table__)
+                del entity._decl_class_registry[entity.__name__]
 
     def new_reahlsystem(self, root_egg=None, connection_uri=None, orm_control=None):
         reahlsystem = ReahlSystemConfig()

@@ -2,10 +2,11 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import elixir
+
+from sqlalchemy import Column, Integer, UnicodeText
 from sqlalchemy.orm.exc import NoResultFound
 
-from reahl.sqlalchemysupport import Session, metadata
+from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate
 from reahl.web.fw import UrlBoundView
@@ -24,7 +25,7 @@ class AddressBookPage(TwoColumnPage):
 class EditView(UrlBoundView):
     def assemble(self, address_id=None):
         try:
-            address = Address.query.filter_by(id=address_id).one()
+            address = Session.query(Address).filter_by(id=address_id).one()
         except NoResultFound:
             raise CannotCreate()
 
@@ -62,7 +63,7 @@ class AddressBookPanel(Panel):
 
         self.add_child(H(view, 1, text='Addresses'))
         
-        for address in Address.query.all():
+        for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address, address_book_ui))
 
 
@@ -98,12 +99,12 @@ class AddressBox(Widget):
         par.add_child(A.from_bookmark(view, bookmark))
 
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata, tablename='tutorial_parameterised1_address')
-    elixir.using_mapper_options(save_on_init=False)
+class Address(Base):
+    __tablename__ = 'tutorial_parameterised1_address'
     
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
 
     @exposed
     def fields(self, fields):

@@ -16,20 +16,21 @@
 
 """A simple model for implementing workflow concepts.
 
-from __future__ import unicode_literals
-from __future__ import print_function
-import six
    The basics of workflow is the ability for the system to allocate Tasks to users via
    Queues that can be monitored by these users. Via this model a program can also be written
    to schedule a particular task for the system to do some time in the future.
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+import six
+
 import datetime
 
-import elixir
-from elixir import *
+from sqlalchemy import Column, Table, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
+from sqlalchemy.orm import relationship, backref
 
 from reahl.component.i18n import Translator
-from reahl.sqlalchemysupport import metadata, Session, PersistedField
+from reahl.sqlalchemysupport import metadata, Session, PersistedField, Base
 from reahl.component.modelinterface import Action
 from reahl.component.modelinterface import CurrentUser
 from reahl.component.modelinterface import Event
@@ -70,7 +71,7 @@ class WorkflowInterface(object):
 
 
 
-class DeferredAction(Entity):
+class DeferredAction(Base):
     """A DeferredAction implements something the system should do some time in the future. A DeferredAction 
        will be done once a number of Requirements are fulfilled. The `success_action` method of a
        DeferredAction contains the code that needs to be executed when all Requirements are fulfilled. If
@@ -80,11 +81,20 @@ class DeferredAction(Entity):
        :keyword requirements: A list of :class:`Requirement` instances to be satisfied before `.success_action` can be executed.
        :keyword deadline: The DateTime by which `deadline_action` will be executed if all `requirements` are not fulfulled by that time.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+    __tablename__ = 'deferred_action'
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('type', String(50))
+    __mapper_args__ = {'polymorphic_on': discriminator}
 
-    requirements = ManyToMany('Requirement', lazy='dynamic')
-    deadline = elixir.Field(DateTime(), required=True)
-    
+    requirements = relationship('Requirement', secondary=Table('association', Base.metadata,
+                                                               Column('left_id', Integer, ForeignKey('deferred_action.id')),
+                                                               Column('right_id', Integer, ForeignKey('requirement.id'))
+                                                               ),
+                                lazy='dynamic',
+                                backref=backref('deferred_actions', lazy='dynamic'))
+
+    deadline = Column(DateTime(), nullable=False)
+
     def success_action(self):
         """Override this method to supply the code that needs to execute upon all instances of :class:`Requirement` are fulfilled."""
 
@@ -101,27 +111,32 @@ class DeferredAction(Entity):
     @classmethod
     def check_deadline(cls):
         now = datetime.datetime.now()
-        for expired_deferred_action in cls.query.filter(cls.deadline < now):
+        for expired_deferred_action in Session.query(cls).filter(cls.deadline < now):
             expired_deferred_action.deadline_expired()
             
     def expire(self):
         for requirement in self.requirements.all():
             requirement.deferred_action_expired(self)
-        self.delete()
+        Session.delete(self)
         
     def deadline_expired(self):
         self.deadline_action()
         self.expire()
 
 
-class Requirement(Entity):
+class Requirement(Base):
     """Something that needs to be fulfilled before a :class:`DeferrredAction` can be completed. Programmers
        are required to create subclasses of Requirement that call `self.set_fulfulled()` somewhere in a
        method of the subclass in order to indicate that the Requirement is fulfilled.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    deferred_actions = ManyToMany('DeferredAction', lazy='dynamic')
-    fulfilled = elixir.Field(Boolean, required=True, default=False)
+    __tablename__ = 'requirement'
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('type', String(50))
+    __mapper_args__ = {'polymorphic_on': discriminator}
+
+    #deferred_actions (would like to declare it here)
+
+    fulfilled = Column(Boolean, nullable=False, default=False)
     
     def set_fulfilled(self):
         self.fulfilled = True
@@ -131,27 +146,37 @@ class Requirement(Entity):
     def deferred_action_expired(self, deferred_action):
         self.deferred_actions.remove(deferred_action)
         if self.deferred_actions.count() == 0:
-            self.delete()
+            Session.delete(self)
 
 
-class Queue(Entity):
+class Queue(Base):
     """A first-in, first-out queue that is monitored by users for Tasks that the system indicated need to be done."""
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    tasks = OneToMany('Task')
-    name = elixir.Field(UnicodeText, required=True, unique=True, index=True)
+    __tablename__ = 'queue'
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('type', String(50))
+    __mapper_args__ = {'polymorphic_on': discriminator}
+
+    tasks = relationship('Task', backref='queue')
+    name = Column(UnicodeText, nullable=False, unique=True, index=True)
 
 
-class Task(Entity):
+class Task(Base):
     """A Task that the system needs a user to do. Programmers should create subclasses of Task
        implementing specific Tasks in a given problem domain.
        
        :keyword queue: The :class:`Queue` to which this Task is allocated.
        :keyword title: A title for this task.
     """
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    queue = ManyToOne(Queue)
-    title = elixir.Field(UnicodeText, required=True)
-    reserved_by = ManyToOne('Party')
+    __tablename__ = 'task'
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('type', String(50))
+    __mapper_args__ = {'polymorphic_on': discriminator}
+
+    queue_id = Column(Integer, ForeignKey('queue.id'), nullable=False)
+#    queue  (would like to declare it here)
+    title = Column(UnicodeText, nullable=False)
+    party_id = Column(Integer, ForeignKey('party.id'))
+    reserved_by = relationship('Party')
 
     def is_available(self):
         return self.reserved_by is None
@@ -181,7 +206,7 @@ class Inbox(object):
         self.queues = queues
 
     def get_tasks(self):
-        return Task.query.join(Queue).filter(Queue.id.in_([q.id for q in self.queues])).all()
+        return Session.query(Task).join(Queue).filter(Queue.id.in_([q.id for q in self.queues])).all()
         
         
 

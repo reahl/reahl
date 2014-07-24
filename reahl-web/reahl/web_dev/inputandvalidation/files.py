@@ -29,6 +29,7 @@ from reahl.tofu import expected
 from reahl.tofu import temp_file_with
 from reahl.tofu import vassert
 
+from reahl.sqlalchemysupport import Session
 from reahl.component.exceptions import DomainException
 from reahl.component.modelinterface import FileField, exposed, Event, Action, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, FileUploadInput, FileUploadPanel, Button, Form
@@ -40,7 +41,7 @@ from reahl.webelixirimpl import PersistedFile
 
 class FileUploadInputFixture(WebFixture):
     def file_was_uploaded(self, filename):
-        return PersistedFile.query.filter_by(filename=os.path.basename(filename)).count() == 1
+        return Session.query(PersistedFile).filter_by(filename=os.path.basename(filename)).count() == 1
 
     file_to_upload1_name = 'file1.html'
     file_to_upload2_name = 'file2.gif'

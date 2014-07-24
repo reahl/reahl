@@ -17,9 +17,10 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import elixir
 
-from reahl.sqlalchemysupport import Session, metadata
+from sqlalchemy import Column, ForeignKey, UnicodeText, Integer, LargeBinary
+from sqlalchemy.orm import relationship
+from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, \
@@ -34,13 +35,13 @@ class FileUploadUI(UserInterface):
         home.set_slot('main', CommentPostPanel.factory())
 
 
-class Comment(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    elixir.using_mapper_options(save_on_init=False)
-    
-    email_address  = elixir.Field(elixir.UnicodeText)
-    text           = elixir.Field(elixir.UnicodeText)
-    attached_files = elixir.OneToMany('AttachedFile')
+class Comment(Base):
+    __tablename__ = 'fileupload_comment'
+
+    id = Column(Integer, primary_key=True)
+    email_address  = Column(UnicodeText)
+    text           = Column(UnicodeText)
+    attached_files = relationship('AttachedFile', backref='comment')
     
     @exposed
     def fields(self, fields):
@@ -61,12 +62,14 @@ class Comment(elixir.Entity):
         Session.add(self)
 
 
-class AttachedFile(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    
-    filename = elixir.Field(elixir.UnicodeText)
-    contents = elixir.Field(elixir.LargeBinary)
-    comment  = elixir.ManyToOne(Comment)
+class AttachedFile(Base):
+    __tablename__ = 'fileupload_attached_file'
+
+    id = Column(Integer, primary_key=True)
+    filename = Column(UnicodeText)
+    contents = Column(LargeBinary)
+    comment_id = Column(Integer, ForeignKey('fileupload_comment.id'))
+
 
 class CommentPostPanel(Panel):
     def __init__(self, view):
@@ -74,7 +77,7 @@ class CommentPostPanel(Panel):
 
         self.add_child(CommentForm(view))
 
-        for comment in Comment.query.all():
+        for comment in Session.query(Comment).all():
             self.add_child(CommentBox(view, comment))
 
 

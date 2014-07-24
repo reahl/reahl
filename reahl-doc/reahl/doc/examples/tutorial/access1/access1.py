@@ -1,38 +1,44 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import elixir
 
-from reahl.sqlalchemysupport import Session, metadata
+from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, Boolean
+from sqlalchemy.orm import relationship, backref
+
+from reahl.sqlalchemysupport import Session, Base
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
 
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    elixir.using_mapper_options(save_on_init=False)
-    
-    address_book  = elixir.ManyToOne('reahl.doc.examples.tutorial.access1.access1.AddressBook')
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
+class Address(Base):
+    __tablename__ = 'access1_address'
+
+    id              = Column(Integer, primary_key=True)    
+    address_book_id = Column(Integer, ForeignKey('access1_address_book.id'))
+    address_book    = relationship('reahl.doc.examples.tutorial.access1.access1.AddressBook')
+    email_address   = Column(UnicodeText)
+    name            = Column(UnicodeText)
 
     def save(self):
         Session.add(self)
 
-        
 
+class AddressBook(Base):
+    __tablename__ = 'access1_address_book'
 
-class AddressBook(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
+    id              = Column(Integer, primary_key=True)
 
-    owner      = elixir.ManyToOne(EmailAndPasswordSystemAccount, required=True)
+    owner_id   = Column(Integer, ForeignKey('email_and_password_system_account.id'), nullable=False)
+    owner      = relationship(EmailAndPasswordSystemAccount)
+    collaborators = relationship('reahl.doc.examples.tutorial.access1.access1.Collaborator', lazy='dynamic',
+                                 backref='address_book')
 
     @classmethod
     def owned_by(cls, account):
-        return cls.query.filter_by(owner=account)
+        return Session.query(cls).filter_by(owner=account)
         
     @classmethod
     def address_books_visible_to(cls, account):
-        visible_books = cls.query.join(Collaborator).filter(Collaborator.account == account).all()
+        visible_books = Session.query(cls).join(Collaborator).filter(Collaborator.account == account).all()
         visible_books.extend(cls.owned_by(account))
         return visible_books
 
@@ -40,12 +46,10 @@ class AddressBook(elixir.Entity):
     #    addresses  = elixir.OneToMany(Address)
     @property
     def addresses(self):
-        return Address.query.filter_by(address_book=self).all()
-
-    collaborators = elixir.OneToMany('reahl.doc.examples.tutorial.access1.access1.Collaborator', lazy='dynamic')
+        return Session.query(Address).filter_by(address_book=self).all()
 
     def allow(self, account, can_add_addresses=False, can_edit_addresses=False):
-        Collaborator.query.filter_by(address_book=self, account=account).delete()
+        Session.query(Collaborator).filter_by(address_book=self, account=account).delete()
         Collaborator(address_book=self, account=account,
             can_add_addresses=can_add_addresses,
             can_edit_addresses=can_edit_addresses)
@@ -80,13 +84,18 @@ class AddressBook(elixir.Entity):
         return None
 
 
-class Collaborator(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
+class Collaborator(Base):
+    __tablename__ = 'access1_collaborator'
+    id      = Column(Integer, primary_key=True)
 
-    account = elixir.ManyToOne(EmailAndPasswordSystemAccount)
-    can_add_addresses = elixir.Field(elixir.Boolean, default=False)
-    can_edit_addresses = elixir.Field(elixir.Boolean, default=False)
+    address_book_id = Column(Integer, ForeignKey(AddressBook.id))
 
-    address_book = elixir.ManyToOne(AddressBook)
+    account_id = Column(Integer, ForeignKey(EmailAndPasswordSystemAccount.id), nullable=False)
+    account = relationship(EmailAndPasswordSystemAccount)
+    
+    can_add_addresses = Column(Boolean, default=False)
+    can_edit_addresses = Column(Boolean, default=False)
+
+
 
 

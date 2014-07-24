@@ -25,6 +25,8 @@ from webob import Request, Response
 
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture
+from reahl.sqlalchemysupport import Session
+
 from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
                          UserInterfaceFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
                          WidgetList, Url, Widget, RegexPath
@@ -101,7 +103,9 @@ class WebBasicsMixin(PartyModelZooMixin):
         return context
         
     def new_session(self, system_account=None):
-        return WebUserSession(account=system_account)
+        web_user_session = WebUserSession(account=system_account)
+        Session.add(web_user_session)
+        return web_user_session
 
     def new_request(self, path=None, url_scheme=None):
         request = Request.blank(path or '/', charset='utf8')

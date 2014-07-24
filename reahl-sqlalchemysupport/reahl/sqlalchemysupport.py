@@ -25,9 +25,10 @@ import logging
 from collections import Sequence
 
 from sqlalchemy import *
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from sqlalchemy.ext.declarative import instrument_declarative, declarative_base 
 from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy import Column, Integer, ForeignKey
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
@@ -73,6 +74,24 @@ class QueryAsSequence(Sequence):
         return self.query.count()
     def __getitem__(self, key):
         return self.query[key]
+
+
+def session_scoped(cls):
+    cls.user_session_id = Column(Integer, ForeignKey('user_session.id'))
+    cls.user_session = relationship('UserSession', cascade='save-update, merge, delete')
+
+    @classmethod
+    def for_current_session(cls, **kwargs):
+        user_session = ExecutionContext.get_context().session
+        found = Session.query(cls).filter_by(user_session=user_session)
+        if found.count() >= 1:
+            return found.one()
+        instance = cls(user_session=user_session, **kwargs)
+        Session.add(instance)
+        return instance
+    cls.for_current_session = for_current_session
+
+    return cls
 
 
 class SqlAlchemyControl(ORMControl):

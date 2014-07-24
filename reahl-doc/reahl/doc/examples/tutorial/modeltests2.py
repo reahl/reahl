@@ -2,16 +2,17 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from nose.tools import istest
 
-import elixir
-from reahl.sqlalchemysupport import Session, metadata
+from sqlalchemy import Column, Integer, UnicodeText
+
+from reahl.sqlalchemysupport import Session, Base, metadata
 from reahl.component.context import ExecutionContext
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    elixir.using_mapper_options(save_on_init=False)
+class Address(Base):
+    __tablename__ = 'modeltests2_address'
 
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
 
     def save(self):
         Session.add(self)
@@ -20,15 +21,14 @@ class Address(elixir.Entity):
 @istest
 def test_model():
     metadata.bind = 'sqlite:///:memory:'
-    elixir.setup_all()
-    elixir.create_all()
+    metadata.create_all()
 
     with ExecutionContext():
 
         Address(name='John', email_address='john@world.com').save()
         Address(name='Jane', email_address='jane@world.com').save()
 
-        addresses = Address.query.all()
+        addresses = Session.query(Address).all()
 
         assert addresses[0].name == 'John'
         assert addresses[0].email_address == 'john@world.com'
