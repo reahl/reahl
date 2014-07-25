@@ -78,7 +78,7 @@ class QueryAsSequence(Sequence):
 
 def session_scoped(cls):
     cls.user_session_id = Column(Integer, ForeignKey('user_session.id'))
-    cls.user_session = relationship('UserSession', cascade='save-update, merge, delete')
+    cls.user_session = relationship('UserSession', cascade='all, delete')
 
     @classmethod
     def for_current_session(cls, **kwargs):
