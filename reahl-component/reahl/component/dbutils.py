@@ -175,8 +175,6 @@ class NullDatabaseControl(DatabaseControl):
 
 
 class ORMControl(object):
-    is_elixir = False
-
     def migrate_db(self, eggs_in_order):
         with self.managed_transaction():
             migrations = [(egg, egg.compute_migrations(self.schema_version_for(egg))) 

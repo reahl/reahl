@@ -13,7 +13,6 @@
     <egg name="reahl-mailutil"/>
     <egg name="reahl-interfaces"/>
     <egg name="reahl-sqlalchemysupport"/>
-    <thirdpartyegg name="elixir" minversion="0.7" maxversion="0.8"/>
   </deps>
 
   <deps purpose="test">
