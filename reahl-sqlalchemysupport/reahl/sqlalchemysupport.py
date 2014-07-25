@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Various bits of support for SQLAlchemy (and declarative/Elixir)."""
+"""Various bits of support for SQLAlchemy and declarative."""
 
 from __future__ import unicode_literals
 from __future__ import print_function
@@ -64,7 +64,7 @@ def reahl_scope():
 
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 Base = declarative_base(class_registry=weakref.WeakValueDictionary())    #: A Base for using with declarative
-metadata = Base.metadata  #: a metadata for use with Elixir, shared with declarative classes using Base 
+metadata = Base.metadata  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base 
 
 class QueryAsSequence(Sequence):
     """Used to wrap a SqlAlchemy Query so that it looks like a normal Python :class:`Sequence`."""

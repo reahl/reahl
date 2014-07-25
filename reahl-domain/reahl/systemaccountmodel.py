@@ -29,10 +29,6 @@ from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTim
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
-#import elixir
-#from elixir import using_options, Entity, EntityMeta, \
-#            Unicode, String, UnicodeText, Boolean, DateTime, Integer, OneToOne, ManyToOne, OneToMany
-
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
 from reahl.component.exceptions import DomainException, ProgrammerError

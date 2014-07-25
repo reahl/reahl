@@ -34,7 +34,7 @@ from reahl.web.ui import TwoColumnPage
 from reahl.component.i18n import Translator
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.web.egg import WebConfig
-from reahl.webwebdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
 from reahl.webdev.tools import DriverBrowser
 
 

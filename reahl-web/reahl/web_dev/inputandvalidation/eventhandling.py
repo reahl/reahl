@@ -39,7 +39,7 @@ from reahl.web.fw import ValidationException
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, BooleanField, EmailField, DateField, \
                                     exposed, Field, Event, Action
-from reahl.webwebdeclarative import PersistedException, UserInput
+from reahl.webdeclarative import PersistedException, UserInput
 
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import WidgetTester, XPath, Browser
