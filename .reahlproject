@@ -10,7 +10,7 @@
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
     <egg name="reahl-mailutil"/>
-    <egg name="reahl-web-elixirimpl"/>
+    <egg name="reahl-web-declarative"/>
   </extras>  
 
   <extras name="postgresql">
@@ -21,7 +21,7 @@
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
     <egg name="reahl-mailutil"/>
-    <egg name="reahl-web-elixirimpl"/>
+    <egg name="reahl-web-declarative"/>
   </extras>  
 
   <extras name="dev">
@@ -44,7 +44,7 @@
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
     <egg name="reahl-mailutil"/>
-    <egg name="reahl-web-elixirimpl"/>
+    <egg name="reahl-web-declarative"/>
   </extras>
 
   <excludepackage name="reahl.doc.*"/>

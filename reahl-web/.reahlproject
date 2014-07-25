@@ -23,7 +23,7 @@
     
     <egg name="reahl-stubble"/>
     <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-elixirimpl"/>
+    <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>

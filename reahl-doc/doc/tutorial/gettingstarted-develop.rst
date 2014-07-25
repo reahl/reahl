@@ -72,7 +72,7 @@ To do that, create a directory (for example called
    reahl-web
      The Reahl web framework itself.
 
-   reahl-web-elixirimpl
+   reahl-web-declarative
      An implementation of technology-dependent bits of Reahl, using
      using `SqlAlchemy <http://sqlalchemy.org>`_ and `Elixir <http://elixir.ematia.de/>`_.  
 
@@ -95,7 +95,7 @@ application (go ahead and copy this into your `.reahlproject`):
        <egg name="reahl-component"/>
        <egg name="reahl-web"/>
        <egg name="reahl-sqlalchemysupport"/>
-       <egg name="reahl-web-elixirimpl"/>
+       <egg name="reahl-web-declarative"/>
      </deps>
    </project>
 
