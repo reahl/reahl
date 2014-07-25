@@ -149,7 +149,7 @@ class BrowserSetup(CleanDatabase):
             self.reahl_server.stop()
 
     def new_test_dependencies(self):
-        return ['reahl-web-elixirimpl']
+        return ['reahl-web-declarative']
 
     def new_config(self):
         config = super(BrowserSetup, self).new_config()
