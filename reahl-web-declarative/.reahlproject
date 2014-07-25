@@ -1,5 +1,5 @@
 <project type="egg" packagedata="included">
-  <configuration locator="reahl.webelixirimpl:ElixirImplConfig"/>
+  <configuration locator="reahl.webwebdeclarative:WebDeclarativeConfig"/>
 
   <namespaces>
     <package name="reahl"/>
@@ -22,14 +22,14 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.webelixirimpl:WebUserSession"/>
-    <class locator="reahl.webelixirimpl:SessionData"/>
-    <class locator="reahl.webelixirimpl:UserInput"/>
-    <class locator="reahl.webelixirimpl:PersistedException"/>
-    <class locator="reahl.webelixirimpl:PersistedFile"/>
+    <class locator="reahl.webwebdeclarative:WebUserSession"/>
+    <class locator="reahl.webwebdeclarative:SessionData"/>
+    <class locator="reahl.webwebdeclarative:UserInput"/>
+    <class locator="reahl.webwebdeclarative:PersistedException"/>
+    <class locator="reahl.webwebdeclarative:PersistedFile"/>
   </persisted>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/webelixirimpl_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/webwebdeclarative_dev -F reahl.webdev.fixtures:BrowserSetup"/>
   
   <distpackage type="sdist">
     <packageindex repository="pypi"/>

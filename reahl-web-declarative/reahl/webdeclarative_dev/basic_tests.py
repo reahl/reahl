@@ -32,7 +32,7 @@ from reahl.stubble import stubclass
 from reahl.sqlalchemysupport import metadata, Session
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.webelixirimpl import WebUserSession
+from reahl.webwebdeclarative import WebUserSession
 
 
 @istest
