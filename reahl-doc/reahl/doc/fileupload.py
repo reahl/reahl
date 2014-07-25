@@ -68,7 +68,7 @@ class AttachedFile(Base):
     id = Column(Integer, primary_key=True)
     filename = Column(UnicodeText)
     contents = Column(LargeBinary)
-    comment_id = Column(Integer, ForeignKey('fileupload_comment.id'))
+    comment_id = Column(Integer, ForeignKey(Comment.id))
 
 
 class CommentPostPanel(Panel):

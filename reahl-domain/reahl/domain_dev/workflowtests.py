@@ -54,7 +54,7 @@ class DeferredActionFixture(Fixture, BasicModelZooMixin):
         class MyDeferredAction(DeferredAction):
             __tablename__ = 'my_deferred_action'
             __mapper_args__ = {'polymorphic_identity': 'my_deferred_action'}
-            id = Column(Integer, ForeignKey('deferred_action.id'), primary_key=True)
+            id = Column(Integer, ForeignKey(DeferredAction.id), primary_key=True)
             some_object_key = Column(UnicodeText, nullable=False)
         
             def __init__(self, some_object, **kwargs):

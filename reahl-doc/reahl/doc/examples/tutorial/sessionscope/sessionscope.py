@@ -36,10 +36,10 @@ class User(Base):
 
 @session_scoped
 class LoginSession(Base):
-    __tablename__ = 'tutorial_loginsession'
+    __tablename__ = 'sessionscope_loginsession'
 
     id              = Column(Integer, primary_key=True)
-    current_user_id = Column(Integer, ForeignKey('sessionscope_user.id'))
+    current_user_id = Column(Integer, ForeignKey(User.id))
     current_user    = relationship(User)
     email_address   = Column(UnicodeText)
 

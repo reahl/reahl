@@ -39,6 +39,7 @@ from reahl.component.i18n import Translator
 from reahl.component.modelinterface import EmailField, PasswordField, BooleanField, EqualToConstraint, \
                                    RemoteConstraint, Field, Event, exposed, exposed, Action
 from reahl.component.context import ExecutionContext
+from reahl.partymodel import Party
 from reahl.workflowmodel import DeferredAction, Requirement
 
 _ = Translator('reahl-domain')
@@ -248,7 +249,7 @@ class VerificationRequest(Requirement):
 
     __tablename__ = 'verification_request'
     __mapper_args__ = {'polymorphic_identity': 'verification_request'}
-    id = Column(Integer, ForeignKey('requirement.id'), primary_key=True)
+    id = Column(Integer, ForeignKey(Requirement.id), primary_key=True)
     email = Column(UnicodeText, default=None, index=True)
     salt = Column(String(10), nullable=False)
     mailer = None
@@ -299,7 +300,7 @@ class NewPasswordRequest(VerificationRequest):
     """A request to pick a new passowrd for a SystemAccount."""
     __tablename__ = 'new_password_request'
     __mapper_args__ = {'polymorphic_identity': 'new_password_request'}
-    id = Column(Integer, ForeignKey('verification_request.id'), primary_key=True)
+    id = Column(Integer, ForeignKey(VerificationRequest.id), primary_key=True)
 
     system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
     system_account = relationship('SystemAccount')
@@ -322,7 +323,7 @@ class VerifyEmailRequest(VerificationRequest):
     __tablename__ = 'verify_email_request'
     __mapper_args__ = {'polymorphic_identity': 'verify_email_request'}
 
-    id = Column(Integer, ForeignKey('verification_request.id'), primary_key=True)
+    id = Column(Integer, ForeignKey(VerificationRequest.id), primary_key=True)
 
     email = Column(UnicodeText, nullable=False, unique=True, index=True)
     subject_config = Column(UnicodeText, nullable=False)
@@ -342,7 +343,7 @@ class ActivateAccount(DeferredAction):
     __tablename__ = 'activate_account'
     __mapper_args__ = {'polymorphic_identity': 'activate_account'}
 
-    id = Column(Integer, ForeignKey('deferred_action.id'), primary_key=True)
+    id = Column(Integer, ForeignKey(DeferredAction.id), primary_key=True)
 
     system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
     system_account = relationship('SystemAccount')
@@ -364,7 +365,7 @@ class ChangeAccountEmail(DeferredAction):
     __tablename__ = 'change_account_email'
     __mapper_args__ = {'polymorphic_identity': 'change_account_email'}
 
-    id = Column(Integer, ForeignKey('deferred_action.id'), primary_key=True)
+    id = Column(Integer, ForeignKey(DeferredAction.id), primary_key=True)
 
     system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
     system_account = relationship('SystemAccount')
@@ -478,8 +479,8 @@ class SystemAccount(Base):
     discriminator = Column('type', String(50))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    party_id = Column(Integer, ForeignKey('party.id'), nullable=True)
-    party = relationship('Party') #: The party tho whom this account belongs.
+    party_id = Column(Integer, ForeignKey(Party.id), nullable=True)
+    party = relationship(Party) #: The party tho whom this account belongs.
 
     registration_date = Column(DateTime)  #: The date when this account was first registered.
     account_enabled = Column(Boolean, nullable=False, default=False) #: Whether this account is enabled or not
@@ -524,7 +525,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     """
     __tablename__ = 'email_and_password_system_account'
     __mapper_args__ = {'polymorphic_identity': 'email_and_password_system_account'}
-    id = Column(Integer, ForeignKey('system_account.id'), primary_key=True)
+    id = Column(Integer, ForeignKey(SystemAccount.id), primary_key=True)
 
     password_md5 = Column(String(32), nullable=False)
     email = Column(UnicodeText, nullable=False, unique=True, index=True)

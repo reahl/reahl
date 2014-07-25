@@ -27,7 +27,7 @@ class AddressBook(Base):
 
     id              = Column(Integer, primary_key=True)
 
-    owner_id   = Column(Integer, ForeignKey('email_and_password_system_account.id'), nullable=False)
+    owner_id   = Column(Integer, ForeignKey(EmailAndPasswordSystemAccount.id), nullable=False)
     owner      = relationship(EmailAndPasswordSystemAccount)
     collaborators = relationship('reahl.doc.examples.tutorial.access1.access1.Collaborator', lazy='dynamic',
                                  backref='address_book')

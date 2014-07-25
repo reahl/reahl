@@ -37,6 +37,7 @@ from reahl.component.modelinterface import Event
 from reahl.component.modelinterface import exposed
 from reahl.component.modelinterface import secured
 from reahl.component.context import ExecutionContext
+from reahl.partymodel import Party
 
 _ = Translator('reahl-domain')
 
@@ -172,11 +173,11 @@ class Task(Base):
     discriminator = Column('type', String(50))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    queue_id = Column(Integer, ForeignKey('queue.id'), nullable=False)
+    queue_id = Column(Integer, ForeignKey(Queue.id), nullable=False)
 #    queue  (would like to declare it here)
     title = Column(UnicodeText, nullable=False)
-    party_id = Column(Integer, ForeignKey('party.id'))
-    reserved_by = relationship('Party')
+    party_id = Column(Integer, ForeignKey(Party.id))
+    reserved_by = relationship(Party)
 
     def is_available(self):
         return self.reserved_by is None
