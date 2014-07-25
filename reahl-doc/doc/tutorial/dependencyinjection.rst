@@ -97,7 +97,7 @@ the `reahl-domain` component. Diagramatically this is the scenario:
 
 Normally, `reahl-web` would merely import the classes it needs from
 `reahl-web-declarative`, but that would make `reahl-web` dependent on
-`reahl-web-elixir` without any possibility to swap
+`reahl-web-declarative` without any possibility to swap
 `reahl-web-declarative` out for a different implementation. So,
 instead, the `reahl-web` component discovers the actual classes it
 should use during run-time, when an application starts up. The
