@@ -31,8 +31,6 @@ class Party(Base):
     """A Party is any legal entity which the system may keep track of."""
     __tablename__ = 'party'
     id = Column(Integer, primary_key=True)
-#    system_account_id = Column(Integer, ForeignKey('system_account.id'))
-#    system_account = relationship('SystemAccount')
 
 
 

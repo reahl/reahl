@@ -156,7 +156,7 @@ class RegistrationTests(object):
         class VerificationRequestStub(VerificationRequest):
             __tablename__ = 'verification_request_stub'
             __mapper_args__ = {'polymorphic_identity': 'verification_request_stub'}
-            id = Column(Integer, ForeignKey('verification_request.id'), primary_key=True)
+            id = Column(Integer, ForeignKey(VerificationRequest.id), primary_key=True)
 
             def generate_salt(self):
                 self.salt = 'not unique'
