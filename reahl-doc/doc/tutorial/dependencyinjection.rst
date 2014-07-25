@@ -4,10 +4,10 @@ Using a different persistence mechanism
 =======================================
 
 The Reahl framework itself contains a few classes that need to be
-persisted to a database. For example, the :class:`~reahl.webelixirimpl.WebUserSession` is an object
+persisted to a database. For example, the :class:`~reahl.webwebdeclarative.WebUserSession` is an object
 that represents the :class:`~reahl.systemaccountmodel.UserSession`, and is needed for all the :class:`~reahl.systemaccountmodel.UserSession`\ -related
 features explained in :doc:`sessions`. There is a handful of other
-classes that work in concert with the :class:`~reahl.webelixirimpl.WebUserSession`.
+classes that work in concert with the :class:`~reahl.webwebdeclarative.WebUserSession`.
 
 These persisted classes are written using a specific object
 persistence technology. The technology used throughout this tutorial
@@ -140,8 +140,8 @@ its `.reahlproject` file (an **inverted dependency**).
 Here is the :class:`~reahl.component.config.Configuration` of the
 `reahl-web-declarative` component:
 
-.. literalinclude:: ../../../reahl-web-declarative/reahl/webelixirimpl.py
-   :pyobject: ElixirImplConfig
+.. literalinclude:: ../../../reahl-web-declarative/reahl/webwebdeclarative.py
+   :pyobject: WebDeclarativeConfig
 
 (The classes assigned here are defined higher up in the same file.)
 

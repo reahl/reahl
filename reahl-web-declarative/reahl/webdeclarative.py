@@ -295,9 +295,9 @@ class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, Persisted
         return PersistedFile.for_form(form).filter_by(input_name=input_name).filter_by(filename=filename).count() == 1
     
 
-class ElixirImplConfig(Configuration):
-    filename = 'web.elixirimpl.config.py'
-    config_key = 'web.elixirimpl'
+class WebDeclarativeConfig(Configuration):
+    filename = 'web.webdeclarative.config.py'
+    config_key = 'web.webdeclarative'
 
     def do_injections(self, config):
         config.web.session_class = WebUserSession

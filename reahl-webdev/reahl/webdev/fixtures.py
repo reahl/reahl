@@ -31,7 +31,7 @@ from reahl.dev.fixtures import CleanDatabase
 from reahl.webdev.webserver import ReahlWebServer
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
-from reahl.webelixirimpl import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.webwebdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
 from reahl.systemaccountmodel import SystemAccountConfig
 
 

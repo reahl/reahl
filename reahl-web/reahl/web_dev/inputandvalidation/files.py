@@ -36,7 +36,7 @@ from reahl.web.ui import SimpleFileInput, FileUploadInput, FileUploadPanel, Butt
 from reahl.web.fw import UploadedFile
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
-from reahl.webelixirimpl import PersistedFile
+from reahl.webwebdeclarative import PersistedFile
 
 
 class FileUploadInputFixture(WebFixture):
