@@ -121,7 +121,7 @@ class StaticFileTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 content_type = 'text/html'
-                encoding = 'utf-8'
+                encoding = None # This is not character-encoding... it's content-encoding (zip, etc)
                 size = 10
                 mtime = 123
                 meta_info = content_type, encoding, size, mtime
@@ -140,7 +140,7 @@ class StaticFileTests(object):
 
         # The meta-info of the file
         vassert( response.content_type == 'text/html' )
-        vassert( response.content_encoding == 'utf-8' )
+        vassert( not response.content_encoding )
         vassert( response.content_length == 10 )
         vassert( response.last_modified.replace(tzinfo=None) == datetime.datetime.fromtimestamp(123) )
         expected_etag = '123-10-%s' % abs(hash('database_file'))

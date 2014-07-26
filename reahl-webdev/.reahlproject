@@ -10,7 +10,7 @@
     <egg name="reahl-tofu"/>
     
     <thirdpartyegg name="lxml" minversion="3.3" maxversion="3.3.999"/>
-    <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
+    <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
     <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.42.999"/>
   </deps>
 
