@@ -1,3 +1,9 @@
+python-reahl (3.0) unstable; urgency=low
+
+ * xxx.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Wed, 28 May 2014 12:30:00 +0200
+
 python-reahl (2.1.1) unstable; urgency=low
 
  * Closes small bugs: #1322652, #1322833, #1322855, #1324018, #1324040.
