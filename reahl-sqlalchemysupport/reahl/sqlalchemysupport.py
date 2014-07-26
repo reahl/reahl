@@ -158,25 +158,15 @@ class SqlAlchemyControl(ORMControl):
     def instrument_classes_for(self, root_egg):
         all_classes = []
         for i in ReahlEgg.get_all_relevant_interfaces(root_egg):
-            all_classes.extend(i.get_persisted_classes_in_order(self)) # So that they get imported  
+            all_classes.extend(i.get_persisted_classes_in_order(self)) # So that they get imported
         
-        try:
-            from elixir import setup_all
-            setup_all()
-        except ImportError:
-            logging.info('skipping setup of elixir classes, elixir could not be imported')
-
-        declarative_classes = [i for i in all_classes if not getattr(i, 'mapper', None)]
+        declarative_classes = [i for i in all_classes if issubclass(i, Base)]
         self.instrument_declarative_classes(declarative_classes)
 
     def instrument_declarative_classes(self, all_classes):
         registry = {}
         for cls in all_classes:
             try:
-#                if not hasattr(cls, u'metadata'):
-#                if '_decl_class_registry' not in cls.__dict__:
-#                if not hasattr(cls, u'__table__'):
-#                if getattr(cls, u'__table__', None) not in metadata.sorted_tables:
                 if not hasattr(cls, '__mapper__'):
                     instrument_declarative(cls, registry, metadata)
             except InvalidRequestError:
@@ -221,13 +211,11 @@ class SqlAlchemyControl(ORMControl):
     def commit(self):
         """Commits the current transaction. Programmers should not need to deal with such transaction
            management explicitly, since the framework already manages transactions itself."""
-        # Called on elixir.session (via import in persist), since it knows about the current session fro the current context
         Session.commit()
         
     def rollback(self):
         """Rolls back the current transaction. Programmers should not need to deal with such transaction
            management explicitly, since the framework already manages transactions itself."""
-        # Called on elixir.session (via import in persist), since it knows about the current session fro the current context
         Session.rollback()
 
     def create_db_tables(self, transaction, eggs_in_order):
