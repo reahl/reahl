@@ -580,6 +580,7 @@ class DependencyTests(object):
                 return ChickenProjectStub() if self.in_same_chicken else None
 
         internal_dep = Dependency(ProjectStub('test-proj', '1.1', in_same_chicken=True), 'one')
+        nonversioned_dep = Dependency(ProjectStub('test-proj', '1.1'), 'one', ignore_version=True)
         external_dep = Dependency(ProjectStub('test-proj', '1.1'), 'one')
         external_dep_in_workspace = Dependency(ProjectStub('test-proj', '1.1', also_in_workspace=True), 'one')
         thirdparty_dep = ThirdpartyDependency(ProjectStub('test-proj', '1.1'), 'one')
@@ -587,6 +588,9 @@ class DependencyTests(object):
         # Case: for eggs
         actual = internal_dep.as_string_for_egg()
         vassert( actual == 'one>=1.1,<1.2' )
+
+        actual = nonversioned_dep.as_string_for_egg()
+        vassert( actual == 'one' )
 
         actual = external_dep.as_string_for_egg()
         vassert( actual == 'one>=2.1,<2.2' )
@@ -600,6 +604,9 @@ class DependencyTests(object):
         # Case: for debs
         actual = internal_dep.as_string_for_deb()
         vassert( actual == 'python-one (>=1.1), python-one (<<1.2)' )
+
+        actual = nonversioned_dep.as_string_for_deb()
+        vassert( actual == 'python-one' )
 
         actual = external_dep.as_string_for_deb()
         vassert( actual == 'python-one (>=2.1), python-one (<<2.2)' )

@@ -114,7 +114,7 @@ class NotAValidProjectException(Exception):
 
 class InvalidProjectFileException(Exception):
     def __str__(self):
-        return 'Invalid project file'
+        return 'Invalid project file: %s' % self.args[0]
 
 
 class NoSuchProjectException(Exception):
