@@ -9,9 +9,9 @@
   <translations locator="reahl.messages"/>
 
   <deps purpose="run">
-    <egg name="reahl-component"/>
-    <egg name="reahl-mailutil"/>
-    <egg name="reahl-interfaces"/>
+    <egg name="reahl-component" ignoreversion="True"/>
+    <egg name="reahl-mailutil" ignoreversion="True"/>
+    <egg name="reahl-interfaces" ignoreversion="True"/>
     <egg name="reahl-sqlalchemysupport"/>
   </deps>
 
