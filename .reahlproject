@@ -2,25 +2,41 @@
   <sourcecontrol type="bzr"/>
   <metadata type="debian" url="http://www.reahl.org"/>
 
-  <extras name="sqlite">
+  <extras name="all">
     <egg name="reahl-component"/>
     <egg name="reahl-web"/>
+    <egg name="reahl-mailutil"/>
     <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-sqlitesupport"/>
+    <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
+    <egg name="reahl-postgresqlsupport"/>
+    <egg name="reahl-sqlitesupport"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-doc"/>
+  </extras>  
+
+  <extras name="web">
+    <egg name="reahl-component"/>
+    <egg name="reahl-web"/>
     <egg name="reahl-mailutil"/>
-    <egg name="reahl-web-elixirimpl"/>
+  </extras>  
+
+  <extras name="sqlite">
+    <egg name="reahl-sqlitesupport"/>
   </extras>  
 
   <extras name="postgresql">
-    <egg name="reahl-component"/>
-    <egg name="reahl-web"/>
-    <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-postgresqlsupport"/>
+  </extras>  
+
+  <extras name="elixir">
+    <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
-    <egg name="reahl-mailutil"/>
     <egg name="reahl-web-elixirimpl"/>
   </extras>  
 
@@ -33,18 +49,6 @@
 
   <extras name="doc">
     <egg name="reahl-doc"/>
-  </extras>
-
-  <extras name="minimal">
-    <egg name="reahl-component"/>
-    <egg name="reahl-web"/>
-    <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-sqlitesupport"/>
-    <egg name="reahl-postgresqlsupport"/>
-    <egg name="reahl-domain"/>
-    <egg name="reahl-domainui"/>
-    <egg name="reahl-mailutil"/>
-    <egg name="reahl-web-elixirimpl"/>
   </extras>
 
   <excludepackage name="reahl.doc.*"/>
