@@ -7,8 +7,8 @@
 
   <deps purpose="run">
     <egg name="reahl-component"/>
-    <thirdpartyegg name="sqlalchemy" minversion="0.8" maxversion="0.8.999"/>
-    <thirdpartyegg name="alembic" minversion="0.5" maxversion="0.5.999"/>
+    <thirdpartyegg name="sqlalchemy" minversion="0.9" maxversion="0.9.999"/>
+    <thirdpartyegg name="alembic" minversion="0.6" maxversion="0.6.999"/>
   </deps>
 
   <deps purpose="test">
