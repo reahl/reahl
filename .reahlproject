@@ -45,6 +45,7 @@
     <egg name="reahl-domain" version="2.1"/>
     <egg name="reahl-domainui" version="2.1"/>
     <egg name="reahl-web-elixirimpl" version="2.1"/>
+    <egg name="reahl-web-elixirimpl"/>
   </extras>  
 
   <extras name="dev">

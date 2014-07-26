@@ -518,9 +518,10 @@ class Version(object):
         
 
 class Dependency(object):
-    def __init__(self, project, name, version=None):
+    def __init__(self, project, name, version=None, ignore_version=False):
         self.project = project
         self.name = name
+        self.ignore_version = ignore_version
         self.version = Version(version) if version else None
         
     @classmethod
@@ -529,16 +530,17 @@ class Dependency(object):
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
-        self.__init__(parent.project, attributes['name'], attributes.get('version', None))
+        ignore_version = attributes.get('ignoreversion', False) == 'True'
+        self.__init__(parent.project, attributes['name'], attributes.get('version', None), ignore_version=ignore_version)
 
     def as_string_for_egg(self):
-        if self.version_is_available():
+        if not self.ignore_version and self.version_is_available():
             version = self.exact_version()
             return '%s>=%s,<%s' % (self.name, version.lower_egg_version(), version.upper_version())
         return self.name
 
     def as_string_for_deb(self):
-        if self.version_is_available():
+        if not self.ignore_version and self.version_is_available():
             version = self.exact_version()
             return 'python-%s (>=%s), python-%s (<<%s)' % (self.name, version.lower_deb_version(), 
                                                            self.name, version.upper_version())
@@ -572,6 +574,7 @@ class Dependency(object):
 
     def exact_version(self):
         assert self.version_is_available(), 'No version can be determined for dependency %s' % self.name
+        assert not self.ignore_version, 'Versions are ignored on dependency %s' % self.name
         if self.is_internal:
             return self.project.version
 
