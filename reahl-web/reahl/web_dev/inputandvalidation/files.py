@@ -552,7 +552,7 @@ class FileTests(object):
         with browser.no_page_load_expected():
             browser.click( XPath.button_labelled('Submit'), wait=False )
 
-            alert = fixture.web_driver.switch_to_alert()
+            alert = fixture.web_driver.switch_to.alert
             vassert( alert.text == 'Please try again when all files have finished uploading.' )
             alert.accept()
         
