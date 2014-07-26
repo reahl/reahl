@@ -20,6 +20,7 @@ import six
 import contextlib
 from six.moves.urllib import parse as urllib_parse
 import logging
+import cookielib
 
 from webtest import TestApp
 from lxml import html
@@ -31,7 +32,7 @@ from reahl.web.fw import Url
 
 
 # See: https://bitbucket.org/ianb/webtest/issue/45/html5-form-associated-inputs-break-webtest
-from webtest.app import Field, Form
+from webtest.forms import Field, Form
 def patch(cls):
     if hasattr(cls, '__orig__init__'):
         return
@@ -335,10 +336,19 @@ class Browser(BasicBrowser):
 
            :param cookie_dict: A dictionary with two keys: 'name' and 'value'. The values of these\
                                keys are the name of the cookie and its value, respectively.
-        """
+                               The keys  'path', 'domain', 'secure', 'expiry' can also be set to values.\
+                               These have the respective meanings as defined in `RFC6265 <http://tools.ietf.org/html/rfc6265#section-5.2>        """
         name = cookie_dict['name'].encode('utf-8')
         value = cookie_dict['value'].encode('utf-8')
-        self.testapp.cookies[name] = value #'%s;%s' % (value, options)
+        path = cookie_dict.get('path', '').encode('utf-8')
+        path_set = path != ''
+        domain = cookie_dict.get('domain', '').encode('utf-8')
+        domain_set = domain != ''
+        secure = cookie_dict.get('secure', False)
+        expires = cookie_dict.get('expiry', None)
+        cookie = cookielib.Cookie(None, name, value, None, False, domain, domain_set, None, path, path_set, 
+                                  secure, expires, None, None, None, None)
+        self.testapp.cookiejar.set_cookie(cookie)
 
     def is_element_enabled(self, locator):
         """Answers whether the located element is reactive to user commands or not. For <a> elements,
