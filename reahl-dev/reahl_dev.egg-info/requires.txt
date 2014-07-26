@@ -1,4 +1,4 @@
-reahl-component>=2.1,<2.2
-reahl-tofu>=2.1,<2.2
-reahl-bzrsupport>=2.1,<2.2
+reahl-component>=3.0,<3.1
+reahl-tofu>=3.0,<3.1
+reahl-bzrsupport>=3.0,<3.1
 Babel>=0.9,<0.10

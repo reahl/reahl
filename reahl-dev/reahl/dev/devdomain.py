@@ -522,7 +522,7 @@ class Dependency(object):
         self.project = project
         self.name = name
         self.version = Version(version) if version else None
-
+        
     @classmethod
     def get_xml_registration_info(cls):
         return ('egg', cls, None)
