@@ -154,8 +154,8 @@ class RegistrationTests(object):
 
         @stubclass(VerificationRequest)
         class VerificationRequestStub(VerificationRequest):
-            __tablename__ = 'verification_request_stub'
-            __mapper_args__ = {'polymorphic_identity': 'verification_request_stub'}
+            __tablename__ = 'verificationrequeststub'
+            __mapper_args__ = {'polymorphic_identity': 'verificationrequeststub'}
             id = Column(Integer, ForeignKey(VerificationRequest.id), primary_key=True)
 
             def generate_salt(self):

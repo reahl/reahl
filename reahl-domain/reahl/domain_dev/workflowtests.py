@@ -37,7 +37,7 @@ from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_SomeObject(self):
         class SomeObject(Base):
-            __tablename__ = 'some_object'
+            __tablename__ = 'someobject'
             id = Column(Integer, primary_key=True)
             done_flag = Column(Boolean, nullable=False, default=False)
             name = Column(UnicodeText, nullable=False)
@@ -52,8 +52,8 @@ class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_MyDeferredAction(self):
         fixture = self
         class MyDeferredAction(DeferredAction):
-            __tablename__ = 'my_deferred_action'
-            __mapper_args__ = {'polymorphic_identity': 'my_deferred_action'}
+            __tablename__ = 'mydeferredaction'
+            __mapper_args__ = {'polymorphic_identity': 'mydeferredaction'}
             id = Column(Integer, ForeignKey(DeferredAction.id), primary_key=True)
             some_object_key = Column(UnicodeText, nullable=False)
         

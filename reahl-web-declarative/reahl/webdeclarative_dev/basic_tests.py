@@ -68,9 +68,9 @@ class BasicTests(object):
         """How WebExecutionContext sets session and secure cookies in the response."""
         @stubclass(WebUserSession)
         class WebUserSessionStub(WebUserSession):
-            __tablename__ = 'web_user_session_stub'
-            __mapper_args__ = {'polymorphic_identity': 'web_user_session_stub'}
-            id = Column(Integer, ForeignKey('web_user_session.id'), primary_key=True)
+            __tablename__ = 'webusersessionstub'
+            __mapper_args__ = {'polymorphic_identity': 'webusersessionstub'}
+            id = Column(Integer, ForeignKey('webusersession.id'), primary_key=True)
 
             secured = False
             def is_secure(self):

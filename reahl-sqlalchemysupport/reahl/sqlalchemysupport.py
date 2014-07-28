@@ -77,7 +77,7 @@ class QueryAsSequence(Sequence):
 
 
 def session_scoped(cls):
-    cls.user_session_id = Column(Integer, ForeignKey('user_session.id'))
+    cls.user_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'))
     cls.user_session = relationship('UserSession', cascade='all, delete')
 
     @classmethod
@@ -278,7 +278,7 @@ class PersistedField(Field):
 
 
 class SchemaVersion(Base):
-    __tablename__ = 'reahl_schema_version'
+    __tablename__ = 'reahlschemaversion'
     id = Column(Integer, primary_key=True)
     version =  Column(String(50))
     egg_name = Column(String)
