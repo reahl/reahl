@@ -39,9 +39,9 @@ class InvalidKeyException(Exception):
     pass
     
 class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, WebUserSessionProtocol)):
-    __tablename__ = 'web_user_session'
-    __mapper_args__ = {'polymorphic_identity': 'web_user_session'}
-    id = Column(Integer, ForeignKey('user_session.id'), primary_key=True)
+    __tablename__ = 'webusersession'
+    __mapper_args__ = {'polymorphic_identity': 'webusersession'}
+    id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), primary_key=True)
 
     salt = Column(String(40), nullable=False)
     secure_salt = Column(String(40), nullable=False)
@@ -130,13 +130,13 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
 
 
 class SessionData(Base):
-    __tablename__ = 'session_data'
+    __tablename__ = 'sessiondata'
 
     id = Column(Integer, primary_key=True)
-    discriminator = Column('type', String(50))
+    discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
     
-    web_session_id = Column(Integer, ForeignKey('web_user_session.id'))
+    web_session_id = Column(Integer, ForeignKey('webusersession.id'))
     web_session = relationship(WebUserSession, backref=backref('session_datas', cascade='all,delete-orphan'))
 
     ui_name = Column(UnicodeText, nullable=False)
@@ -171,12 +171,12 @@ class SessionData(Base):
 
 class UserInputMeta(DeclarativeMeta, ABCMeta): pass
 class UserInput(six.with_metaclass(UserInputMeta, SessionData, UserInputProtocol)):
-    __tablename__ = 'user_input'
-    __mapper_args__ = {'polymorphic_identity': 'user_input'}
-    id = Column(Integer, ForeignKey('session_data.id'), primary_key=True)
+    __tablename__ = 'userinput'
+    __mapper_args__ = {'polymorphic_identity': 'userinput'}
+    id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
 
-    key = Column(UnicodeText, nullable=True)
-    value = Column(UnicodeText, nullable=True)
+    key = Column(UnicodeText, nullable=False)
+    value = Column(UnicodeText, nullable=False)
 
     __hash__ = None
     def __eq__(self, other):
@@ -200,9 +200,9 @@ class UserInput(six.with_metaclass(UserInputMeta, SessionData, UserInputProtocol
 
 class PersistedExceptionMeta(DeclarativeMeta, ABCMeta): pass
 class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData, PersistedExceptionProtocol)):
-    __tablename__ = 'persisted_exception'
-    __mapper_args__ = {'polymorphic_identity': 'persisted_exception'}
-    id = Column(Integer, ForeignKey('session_data.id'), primary_key=True)
+    __tablename__ = 'persistedexception'
+    __mapper_args__ = {'polymorphic_identity': 'persistedexception'}
+    id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
 
     exception = Column(PickleType, nullable=False)
     input_name = Column(UnicodeText)
@@ -241,9 +241,9 @@ class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData,
 
 class PersistedFileMeta(DeclarativeMeta, ABCMeta): pass
 class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, PersistedFileProtocol)):
-    __tablename__ = 'persisted_file'
-    __mapper_args__ = {'polymorphic_identity': 'persisted_file'}
-    id = Column(Integer, ForeignKey('session_data.id'), primary_key=True)
+    __tablename__ = 'persistedfile'
+    __mapper_args__ = {'polymorphic_identity': 'persistedfile'}
+    id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
 
     input_name = Column(UnicodeText, nullable=False)
     filename = Column(UnicodeText, nullable=False)

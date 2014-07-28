@@ -69,8 +69,8 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         return account
 
 class MyTask(Task):
-    __tablename__ = 'my_task'
-    __mapper_args__ = {'polymorphic_identity': 'my_task'}
+    __tablename__ = 'mytask'
+    __mapper_args__ = {'polymorphic_identity': 'mytask'}
     id = Column(Integer, ForeignKey('task.id'), primary_key=True)
 
 

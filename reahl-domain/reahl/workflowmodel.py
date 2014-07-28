@@ -82,13 +82,13 @@ class DeferredAction(Base):
        :keyword requirements: A list of :class:`Requirement` instances to be satisfied before `.success_action` can be executed.
        :keyword deadline: The DateTime by which `deadline_action` will be executed if all `requirements` are not fulfulled by that time.
     """
-    __tablename__ = 'deferred_action'
+    __tablename__ = 'deferredaction'
     id = Column(Integer, primary_key=True)
-    discriminator = Column('type', String(50))
+    discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     requirements = relationship('Requirement', secondary=Table('association', Base.metadata,
-                                                               Column('left_id', Integer, ForeignKey('deferred_action.id')),
+                                                               Column('left_id', Integer, ForeignKey('deferredaction.id')),
                                                                Column('right_id', Integer, ForeignKey('requirement.id'))
                                                                ),
                                 lazy='dynamic',
@@ -132,7 +132,7 @@ class Requirement(Base):
     """
     __tablename__ = 'requirement'
     id = Column(Integer, primary_key=True)
-    discriminator = Column('type', String(50))
+    discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     #deferred_actions (would like to declare it here)
@@ -154,8 +154,6 @@ class Queue(Base):
     """A first-in, first-out queue that is monitored by users for Tasks that the system indicated need to be done."""
     __tablename__ = 'queue'
     id = Column(Integer, primary_key=True)
-    discriminator = Column('type', String(50))
-    __mapper_args__ = {'polymorphic_on': discriminator}
 
     tasks = relationship('Task', backref='queue')
     name = Column(UnicodeText, nullable=False, unique=True, index=True)
@@ -170,7 +168,7 @@ class Task(Base):
     """
     __tablename__ = 'task'
     id = Column(Integer, primary_key=True)
-    discriminator = Column('type', String(50))
+    discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     queue_id = Column(Integer, ForeignKey(Queue.id), nullable=False)

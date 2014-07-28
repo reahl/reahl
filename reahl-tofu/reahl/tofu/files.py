@@ -18,6 +18,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import tempfile
 import os
+import io
 import sys
 import os.path
 from contextlib import contextmanager
@@ -27,7 +28,7 @@ __all__ = ['temp_file_name', 'temp_file_with', 'temp_file_with', 'file_with',
            'temp_dir', 'added_sys_path', 'preserved_sys_modules']
 
 
-class AutomaticallyDeletedFile(file):
+class AutomaticallyDeletedFile(io.FileIO):
     def __init__(self, name, contents=''):
         super(AutomaticallyDeletedFile, self).__init__(name, 'w+b')
         self.write(contents)

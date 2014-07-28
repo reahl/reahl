@@ -101,7 +101,7 @@ class AccountManagementInterface(Base):
         - resend_event = Resends a secret of an outstanding request (to fields.email).
         - log_out_event = Logs out the current account.
     """
-    __tablename__ = 'account_management_interface'
+    __tablename__ = 'accountmanagementinterface'
     id = Column(Integer, primary_key=True)
     email = Column(UnicodeText, default=None, index=True)
 
@@ -247,10 +247,10 @@ class VerificationRequest(Requirement):
     the "accounts.request_verification_timeout" configuration setting are regarded as stale.
     """
 
-    __tablename__ = 'verification_request'
-    __mapper_args__ = {'polymorphic_identity': 'verification_request'}
-    id = Column(Integer, ForeignKey(Requirement.id), primary_key=True)
-    email = Column(UnicodeText, default=None, index=True)
+    __tablename__ = 'verificationrequest'
+    __mapper_args__ = {'polymorphic_identity': 'verificationrequest'}
+    id = Column(Integer, ForeignKey(Requirement.id, ondelete='CASCADE'), primary_key=True)
+
     salt = Column(String(10), nullable=False)
     mailer = None
 
@@ -298,11 +298,12 @@ class VerificationRequest(Requirement):
 
 class NewPasswordRequest(VerificationRequest):
     """A request to pick a new passowrd for a SystemAccount."""
-    __tablename__ = 'new_password_request'
-    __mapper_args__ = {'polymorphic_identity': 'new_password_request'}
-    id = Column(Integer, ForeignKey(VerificationRequest.id), primary_key=True)
+    __tablename__ = 'newpasswordrequest'
+    __mapper_args__ = {'polymorphic_identity': 'newpasswordrequest'}
+    id = Column(Integer, ForeignKey(VerificationRequest.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'))
+#xxxx                               nullable=False, primary_key=True)
     system_account = relationship('SystemAccount')
 
 
@@ -320,10 +321,10 @@ class NewPasswordRequest(VerificationRequest):
 
 class VerifyEmailRequest(VerificationRequest):
     """A request to activate the account for a newly created SystemAccount."""
-    __tablename__ = 'verify_email_request'
-    __mapper_args__ = {'polymorphic_identity': 'verify_email_request'}
+    __tablename__ = 'verifyemailrequest'
+    __mapper_args__ = {'polymorphic_identity': 'verifyemailrequest'}
 
-    id = Column(Integer, ForeignKey(VerificationRequest.id), primary_key=True)
+    id = Column(Integer, ForeignKey(VerificationRequest.id, ondelete='CASCADE'), primary_key=True)
 
     email = Column(UnicodeText, nullable=False, unique=True, index=True)
     subject_config = Column(UnicodeText, nullable=False)
@@ -340,12 +341,12 @@ class VerifyEmailRequest(VerificationRequest):
 
 
 class ActivateAccount(DeferredAction):
-    __tablename__ = 'activate_account'
-    __mapper_args__ = {'polymorphic_identity': 'activate_account'}
+    __tablename__ = 'activateaccount'
+    __mapper_args__ = {'polymorphic_identity': 'activateaccount'}
 
-    id = Column(Integer, ForeignKey(DeferredAction.id), primary_key=True)
+    id = Column(Integer, ForeignKey(DeferredAction.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'))
     system_account = relationship('SystemAccount')
 
     def __init__(self, system_account=None, **kwargs):
@@ -362,12 +363,12 @@ class ActivateAccount(DeferredAction):
 
 
 class ChangeAccountEmail(DeferredAction):
-    __tablename__ = 'change_account_email'
-    __mapper_args__ = {'polymorphic_identity': 'change_account_email'}
+    __tablename__ = 'changeaccountemail'
+    __mapper_args__ = {'polymorphic_identity': 'changeaccountemail'}
 
-    id = Column(Integer, ForeignKey(DeferredAction.id), primary_key=True)
+    id = Column(Integer, ForeignKey(DeferredAction.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'))
     system_account = relationship('SystemAccount')
 
     def __init__(self, system_account, new_email):
@@ -395,13 +396,13 @@ class UserSession(Base, UserSessionProtocol):
     """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
     class __metaclass__(DeclarativeMeta, ABCMeta): pass
 
-    __tablename__ = 'user_session'
+    __tablename__ = 'usersession'
 
     id = Column(Integer, primary_key=True)
-    discriminator = Column('type', String(50))
+    discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    account_id = Column(Integer, ForeignKey('system_account.id', deferrable=True, initially='deferred'))
+    account_id = Column(Integer, ForeignKey('systemaccount.id'))#, deferrable=True, initially='deferred'))
     account = relationship('SystemAccount')
 
     idle_lifetime = Column(Integer(), nullable=False, default=0)
@@ -473,10 +474,10 @@ class AccountActive(SystemAccountStatus):
 
 class SystemAccount(Base):
     """The credentials for someone to be able to log into the system."""
-    __tablename__ = 'system_account'
+    __tablename__ = 'systemaccount'
 
     id = Column(Integer, primary_key=True)
-    discriminator = Column('type', String(50))
+    discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     party_id = Column(Integer, ForeignKey(Party.id), nullable=True)
@@ -523,9 +524,9 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     """An EmailAndPasswordSystemAccount used an email address to identify the account uniquely,
        and uses a password to authenticate login attempts.
     """
-    __tablename__ = 'email_and_password_system_account'
-    __mapper_args__ = {'polymorphic_identity': 'email_and_password_system_account'}
-    id = Column(Integer, ForeignKey(SystemAccount.id), primary_key=True)
+    __tablename__ = 'emailandpasswordsystemaccount'
+    __mapper_args__ = {'polymorphic_identity': 'emailandpasswordsystemaccount'}
+    id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
 
     password_md5 = Column(String(32), nullable=False)
     email = Column(UnicodeText, nullable=False, unique=True, index=True)
