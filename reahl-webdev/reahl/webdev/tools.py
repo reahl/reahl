@@ -390,9 +390,19 @@ class XPath(object):
         return cls('//table[@summary="%s"]' % (text))
 
     @classmethod
-    def link_with_text(cls, text):
+    def table_cell_with_text(cls, text):
+        """Returns an XPath to find an HTML <tr> that contains a <td> / cell with text matching the text in `text`"""
+        return cls('//tr/td[normalize-space(text())="%s"]' % (text))
+
+    @classmethod
+    def checkbox_in_table_row(cls, nth):
+        """Returns an XPath to find an HTML <tr> that contains a <td> / cell with text matching the text in `text`"""
+        return cls('(//tr/td/input[@type="checkbox"])[%s]' % nth)
+
+    @classmethod
+    def link_with_text(cls, text, nth=1):
         """Returns an XPath to find an HTML <a> containing the text in `text`."""
-        return cls('//a[normalize-space(text())=normalize-space("%s")]' % text)
+        return cls('(//a[normalize-space(text())=normalize-space("%s")])[%s]' % (text, nth))
 
     @classmethod
     def link_starting_with_text(cls, text):

@@ -1,0 +1,24 @@
+<project type="egg">
+  <deps purpose="run">
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-elixirimpl"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+  <persisted>
+    <class locator="table:Address"/>
+  </persisted>
+  
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T table_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:CleanDatabase
+                                   --with-setup-fixture  table_dev.tabletests:DemoSetup" />
+
+</project>
