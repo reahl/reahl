@@ -6,7 +6,7 @@
   <configuration locator="reahl.sqlalchemysupport:SqlAlchemyConfig"/>
 
   <deps purpose="run">
-    <egg name="reahl-component"/>
+    <egg name="reahl-component" ignoreversion="True"/>
     <thirdpartyegg name="sqlalchemy" minversion="0.7" maxversion="0.7.999"/>
     <thirdpartyegg name="alembic" minversion="0.5" maxversion="0.5.999"/>
   </deps>
