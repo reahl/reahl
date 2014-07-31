@@ -6,7 +6,7 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.webdev.tools import Browser, XPath
 
-from table import AddressBookUI, Address
+from reahl.doc.examples.tutorial.table.table import AddressBookUI, Address
 
 
 class TableExampleFixture(WebFixture):
@@ -67,7 +67,7 @@ def editing_an_address(fixture):
 def deleting_several_address(fixture):
     """To delete several address, a user "checks" the box next to each of the Addresses
        on the "Addresses" page she wants to delete. Upon clicking the "Delete Selected" Button, the page
-       refreshes, and the remaining unchecked addresses appear."""
+       refreshes, and the remaining addresses appear."""
 
     fixture.addresses    #create some data to play with
 

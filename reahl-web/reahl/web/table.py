@@ -54,24 +54,23 @@ class PagedTable(PagedPanel):
     def __init__(self, view, page_index, columns, caption_text=None, summary=None, css_id=None):
         super(PagedTable, self).__init__(view, page_index, css_id=css_id)  
 
-        def make_heading(column_number, sort_key, view, heading_text):   
+        def make_heading_with_sort_controls(column_number, sort_key, old_make_heading_widget, view):   
             heading_widget = Widget(view)
-            heading_widget.add_child(Span(view, text=heading_text))
+            heading_widget.add_child(old_make_heading_widget(view))
             if sort_key:
                 heading_widget.add_child(self.create_sorter_controls(column_number))
             return heading_widget
-            
+
         columns_with_sort_controls = []
         for i, column in enumerate(columns):
-            make_heading_partial = functools.partial(make_heading, i, column.sort_key)
+            make_heading_partial = functools.partial(make_heading_with_sort_controls, i, column.sort_key, column.make_heading_widget)
             columns_with_sort_controls.append(column.with_overridden_heading_widget(make_heading_partial))
-        
+
         self.add_child(Table.from_columns(view, columns_with_sort_controls, 
                                                 self.current_contents, 
                                                 caption_text=caption_text, 
                                                 summary=summary, 
                                                 css_id=css_id))
-
 
     def create_sorter_link(self, column_number, descending=False):
         description = u'▼' if descending else u'▲'

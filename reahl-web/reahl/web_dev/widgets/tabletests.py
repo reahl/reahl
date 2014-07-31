@@ -22,10 +22,11 @@ from reahl.tofu import Fixture, test, scenario, set_up
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath, WidgetTester
-from reahl.web.ui import StaticColumn, DynamicColumn, Table, Span, Panel
+from reahl.web.ui import StaticColumn, DynamicColumn, Table, Span, Panel, P
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 from reahl.component.modelinterface import Field, BooleanField
+
 
 class DataItem(object):
     def __init__(self, row, alpha):
@@ -105,28 +106,50 @@ class ColumnFixture(WebFixture):
     def static_column(self):
         """StaticColumn represents an attribute of the item in a row, using a Field to translate the value of that attribute into a string and to specify a column header."""
         self.column = StaticColumn(BooleanField(label=self.heading), u'some_attribute', sort_key=self.sort_key)
-        self.expected_html = u'on' # as translated by BooleanField
+        self.expected_cell_html = u'on' # as translated by BooleanField
+        self.expected_heading_html = u'<span>A heading</span>'
 
     @scenario
     def dynamic_column(self):
-        """DynamicColumn uses a function to create a Widget on the fly for each cell."""
+        """DynamicColumn uses a function to create a Widget on the fly for each cell and uses the specified heading."""
         def make_span(view, data_item):
             return Span(view, text='Answer: %s' % (data_item.some_attribute))
 
         self.column = DynamicColumn(self.heading, make_span, sort_key=self.sort_key)
-        self.expected_html = u'<span>Answer: True</span>' # raw attribute used
+        self.expected_cell_html = u'<span>Answer: True</span>' # raw attribute used
+        self.expected_heading_html = u'<span>A heading</span>'
+
+    @scenario
+    def dynamic_column_static_heading(self):
+        """A DynamicColumn can also use a function to create its heading on the fly."""
+        def make_span(view, data_item):
+            return Span(view, text='Answer: %s' % (data_item.some_attribute))
+
+        def make_heading(view):
+            return P(view, text=self.heading)
+
+        self.column = DynamicColumn(make_heading, make_span, sort_key=self.sort_key)
+        self.expected_cell_html = u'<span>Answer: True</span>' # raw attribute used
+        self.expected_heading_html = u'<p>A heading</p>'
 
 
 @test(ColumnFixture)
 def different_kinds_of_columns(fixture):
     """There are different kinds of Columns, allowing different levels of flexibility for defining a Table"""
 
-    vassert( fixture.column.heading == fixture.heading )
     vassert( fixture.column.sort_key is fixture.sort_key )
 
+    # The heading
+    widget_for_heading = fixture.column.heading_as_widget(fixture.view)
+    actual = WidgetTester(widget_for_heading).render_html()
+
+    vassert( actual == fixture.expected_heading_html )
+
+    # A cell
     widget_for_cell = fixture.column.as_widget(fixture.view, fixture.row_item)
     actual = WidgetTester(widget_for_cell).render_html()
 
-    vassert( actual == fixture.expected_html )
+    vassert( actual == fixture.expected_cell_html )
+
 
     
