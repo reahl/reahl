@@ -30,7 +30,7 @@ class EditView(UrlBoundView):
         self.title = 'Edit %s' % address.name
         self.set_slot('main', EditAddressForm.factory(address))
 
-    
+
 class AddressBookUI(UserInterface):
     def assemble(self):
 
@@ -68,6 +68,7 @@ class Row(object):
 class AddressBookPanel(Panel):
     def __init__(self, view, address_book_ui):
         super(AddressBookPanel, self).__init__(view)
+        self.rows = self.initialise_rows()
 
         self.add_child(H(view, 1, text='Addresses'))
         
@@ -78,18 +79,15 @@ class AddressBookPanel(Panel):
             return A.from_bookmark(view, address_book_ui.get_edit_bookmark(row.address, description='Edit'))
 
         def make_checkbox_widget(view, row):
-                return CheckboxInput(form, row.fields.selected_by_user)
+            return CheckboxInput(form, row.fields.selected_by_user)
 
-        def make_delete_selected_button(view, heading_text):
+        def make_delete_selected_button(view):
             return Button(form, self.events.delete_selected)
-
-        self.rows = self.rows_linked_to_addresses()
 
         columns = [StaticColumn(Field(label='Name'), 'name'),
                    StaticColumn(EmailField(label='Email'), 'email_address'),
-                   StaticColumn(IntegerField(label='Zip'), 'zip_code'),
-                   DynamicColumn('Edit', make_link_widget),
-                   DynamicColumn('', make_checkbox_widget).with_overridden_heading_widget(make_delete_selected_button)]
+                   DynamicColumn('', make_link_widget),
+                   DynamicColumn(make_delete_selected_button, make_checkbox_widget)]
 
         table = Table.from_columns(view,
                                 columns,
@@ -100,7 +98,7 @@ class AddressBookPanel(Panel):
 
         form.add_child(table)
 
-    def rows_linked_to_addresses(self):
+    def initialise_rows(self):
         return [Row(address) for address in Address.query.all()]
 
     @exposed
@@ -120,7 +118,6 @@ class EditAddressForm(Form):
         grouped_inputs = InputGroup(view, label_text='Edit address')
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, address.fields.email_address)) )
-        grouped_inputs.add_child( LabelledBlockInput(TextInput(self, address.fields.zip_code)) )
         self.add_child(grouped_inputs)
 
         grouped_inputs.add_child(Button(self, address.events.update))
@@ -134,7 +131,6 @@ class AddAddressForm(Form):
         grouped_inputs = InputGroup(view, label_text='Add an address')
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.email_address)) )
-        grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.zip_code)) )
         self.add_child(grouped_inputs)
 
         grouped_inputs.add_child(Button(self, new_address.events.save))
@@ -155,13 +151,11 @@ class Address(elixir.Entity):
     
     email_address = elixir.Field(elixir.UnicodeText)
     name          = elixir.Field(elixir.UnicodeText)
-    zip_code      = elixir.Field(elixir.Integer)
 
     @exposed
     def fields(self, fields):
         fields.name = Field(label='Name', required=True)
         fields.email_address = EmailField(label='Email', required=True)
-        fields.zip_code = IntegerField(label='Zipcode', required=True)
 
     @exposed('save', 'update')
     def events(self, events):

@@ -52,7 +52,6 @@ from reahl.doc.examples.tutorial.addressbook2 import addressbook2
 from reahl.doc.examples.tutorial.pageflow1 import pageflow1
 from reahl.doc.examples.tutorial.pageflow2 import pageflow2
 from reahl.doc.examples.tutorial.parameterised1 import parameterised1
-from reahl.doc.examples.tutorial.parameterised2 import parameterised2
 
 
 class ExampleFixture(Fixture, WebBasicsMixin):
@@ -165,10 +164,6 @@ class ExampleFixture(Fixture, WebBasicsMixin):
     @scenario
     def parameterised1(self):
         self.wsgi_app = self.new_wsgi_app(site_root=parameterised1.AddressBookUI)
-
-    @scenario
-    def parameterised2(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=parameterised2.AddressBookUI)
 
 
 @test(ExampleFixture)
@@ -449,28 +444,6 @@ def test_parameterised1(fixture):
     browser.click(XPath.link_with_text('edit'))
 
     john = parameterised1.Address.query.one()
-    vassert( browser.location_path == '/edit/%s' % john.id )
-    browser.type(XPath.input_labelled('Name'), 'Johnny') 
-    browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
-    browser.click(XPath.button_labelled('Update'))
-    
-    vassert( browser.location_path == '/' )
-    vassert( browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) )
-
-@test(ExampleFixture.parameterised2)
-def test_parameterised2(fixture):
-    browser = Browser(fixture.wsgi_app)
-    browser.open('/')
-
-    browser.click(XPath.link_with_text('Add an address'))
-    browser.type(XPath.input_labelled('Name'), 'John') 
-    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-    browser.click(XPath.button_labelled('Save'))
-    
-    vassert( browser.location_path == '/' )
-    browser.click(XPath.button_labelled('Edit'))
-
-    john = parameterised2.Address.query.one()
     vassert( browser.location_path == '/edit/%s' % john.id )
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')

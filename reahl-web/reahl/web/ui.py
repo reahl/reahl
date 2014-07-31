@@ -2550,16 +2550,19 @@ class Td(Cell):
 
 
 class DynamicColumn(object):
-    def __init__(self, heading, make_widget, sort_key=None):
-        self.sort_key = sort_key
+    def __init__(self, make_heading_or_string, make_widget, sort_key=None):
+        if isinstance(make_heading_or_string, six.string_types):
+            def make_span(view):
+                return Span(view, text=make_heading_or_string)
+            self.make_heading_widget = make_span
+        else:
+            self.make_heading_widget = make_heading_or_string
+
         self.make_widget = make_widget
-        self.heading = heading
-        def make_span(view, heading):
-            return Span(view, text=heading)
-        self.make_heading_widget = make_span
-        
+        self.sort_key = sort_key
+
     def heading_as_widget(self, view):
-        return self.make_heading_widget(view, self.heading)
+        return self.make_heading_widget(view)
 
     def as_widget(self, view, item):
         return self.make_widget(view, item)
