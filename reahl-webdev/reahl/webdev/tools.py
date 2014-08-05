@@ -1,4 +1,5 @@
 # Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -388,6 +389,11 @@ class XPath(object):
     def table_with_summary(cls, text):
         """Returns an XPath to find an HTML <table summary='...'> matching the text in `text` in its summary attribute value."""
         return cls('//table[@summary="%s"]' % (text))
+
+    @classmethod
+    def sort_descending_link_for_column(cls, column_name):
+        """Returns an XPath to find an column with name `column_name`, and then its descending sort link."""
+        return cls('//table/thead/tr/th/span[1][text()="%s"]/../span[2]/a[2]' % column_name)
 
     @classmethod
     def table_cell_with_text(cls, text):
