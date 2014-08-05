@@ -53,6 +53,7 @@
     <class locator="reahl.doc.examples.tutorial.migrationexample.migrationexample:Address"/>
     <class locator="reahl.doc.examples.tutorial.jobs.jobs:Address"/>
     <class locator="reahl.doc.examples.tutorial.table.table:Address"/>
+    <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
   </persisted>
 
   <schedule locator="reahl.doc.examples.tutorial.jobs.jobs:Address.clear_added_flags"/>
