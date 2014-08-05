@@ -22,7 +22,7 @@ Displaying tabular data in a paged, sortable manner
 import functools
 
 from reahl.web.fw import Bookmark
-from reahl.web.ui import A, Span, Panel, Table, Thead, Tr, Td, Th, TextNode, Widget
+from reahl.web.ui import A, Span, Panel, Table, Widget, Form
 from reahl.web.pager import SequentialPageIndex, PagedPanel, PageMenu
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 
@@ -51,12 +51,12 @@ class TablePageIndex(SequentialPageIndex):
 
 
 class PagedTable(PagedPanel):
-    def __init__(self, view, page_index, columns, caption_text=None, summary=None, css_id=None):
+    def __init__(self, view, page_index, columns, caption_text=None, summary=None, form_id=None, css_id=None):
         super(PagedTable, self).__init__(view, page_index, css_id=css_id)  
 
-        def make_heading_with_sort_controls(column_number, sort_key, old_make_heading_widget, view):   
+        def make_heading_with_sort_controls(column_number, sort_key, old_make_heading_widget, view, form=None):
             heading_widget = Widget(view)
-            heading_widget.add_child(old_make_heading_widget(view))
+            heading_widget.add_child(old_make_heading_widget(view, form=form))
             if sort_key:
                 heading_widget.add_child(self.create_sorter_controls(column_number))
             return heading_widget
@@ -66,11 +66,22 @@ class PagedTable(PagedPanel):
             make_heading_partial = functools.partial(make_heading_with_sort_controls, i, column.sort_key, column.make_heading_widget)
             columns_with_sort_controls.append(column.with_overridden_heading_widget(make_heading_partial))
 
-        self.add_child(Table.from_columns(view, columns_with_sort_controls, 
-                                                self.current_contents, 
-                                                caption_text=caption_text, 
-                                                summary=summary, 
-                                                css_id=css_id))
+        form = None
+        if form_id:
+            form = Form(view, form_id)
+
+        table = Table.from_columns(view, columns_with_sort_controls,
+                                                self.current_contents,
+                                                caption_text=caption_text,
+                                                summary=summary,
+                                                form=form,
+                                                css_id=css_id)
+
+        if form:
+            form.add_child(table)
+            self.add_child(form)
+        else:
+            self.add_child(table)
 
     def create_sorter_link(self, column_number, descending=False):
         description = u'▼' if descending else u'▲'
@@ -91,18 +102,17 @@ class PagedTable(PagedPanel):
         fields.update_copies(super(PagedTable, self).query_fields)
         fields.sort_column_number = self.page_index.fields.sort_column_number
         fields.sort_descending = self.page_index.fields.sort_descending
-        
 
 
 class DataTable(Panel):
-    def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, css_id=None):
+    def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, form_id=None, css_id=None):
         super(DataTable, self).__init__(view, css_id=css_id)
         self.append_class(u'reahl-datatable')
 
         self.page_index = TablePageIndex(columns, items, items_per_page=items_per_page)
 
         paged_css_id = u'%s_paged' % css_id
-        self.paged_contents = PagedTable(view, self.page_index, columns, caption_text=caption_text, summary=summary, css_id=paged_css_id)
+        self.paged_contents = PagedTable(view, self.page_index, columns, caption_text=caption_text, summary=summary, form_id=form_id, css_id=paged_css_id)
         self.page_menu = PageMenu(view, u'page_menu', self.page_index, self.paged_contents)
         self.add_children([self.page_menu, self.paged_contents])
 
