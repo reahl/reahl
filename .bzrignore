@@ -5,6 +5,7 @@ debian/*.install
 debian/*.debhelper
 debian/*.substvars
 debian/files
+__pycache__
 *.old
 build
 _build

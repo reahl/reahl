@@ -1142,7 +1142,7 @@ class CurrentUser(Field):
     def __init__(self):
         account = ExecutionContext.get_context().session.account
         if account:
-            party = account.party
+            party = account.owner
         else:
             party = None
         super(CurrentUser, self).__init__(required=True, default=party)

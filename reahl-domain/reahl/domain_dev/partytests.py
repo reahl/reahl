@@ -91,7 +91,7 @@ class RegistrationTests(object):
         vassert( not system_account.registration_date )
                  
         vassert( isinstance(system_account, EmailAndPasswordSystemAccount) )
-        vassert( system_account.party is None ) 
+        vassert( system_account.owner is None ) 
         vassert( system_account.id )
 
         # Case where the email name exists

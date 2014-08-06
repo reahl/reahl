@@ -87,9 +87,9 @@ class DeferredAction(Base):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    requirements = relationship('Requirement', secondary=Table('association', Base.metadata,
-                                                               Column('left_id', Integer, ForeignKey('deferredaction.id')),
-                                                               Column('right_id', Integer, ForeignKey('requirement.id'))
+    requirements = relationship('Requirement', secondary=Table('requirement_deferred_actions__deferredaction_requirements', Base.metadata,
+                                                               Column('deferredaction_id', Integer, ForeignKey('deferredaction.id'), primary_key=True),
+                                                               Column('requirement_id', Integer, ForeignKey('requirement.id'), primary_key=True)
                                                                ),
                                 lazy='dynamic',
                                 backref=backref('deferred_actions', lazy='dynamic'))
@@ -174,7 +174,7 @@ class Task(Base):
     queue_id = Column(Integer, ForeignKey(Queue.id), nullable=False)
 #    queue  (would like to declare it here)
     title = Column(UnicodeText, nullable=False)
-    party_id = Column(Integer, ForeignKey(Party.id))
+    reserved_by_party_id = Column(Integer, ForeignKey(Party.id))
     reserved_by = relationship(Party)
 
     def is_available(self):
@@ -185,7 +185,7 @@ class Task(Base):
 
     def is_reserved_for_current_party(self):
         current_account = ExecutionContext.get_context().session.account
-        return current_account and self.is_reserved_for(current_account.party)
+        return current_account and self.is_reserved_for(current_account.owner)
         
     @secured( write_check=is_reserved_for_current_party )
     def release(self):
