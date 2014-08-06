@@ -33,6 +33,10 @@
     <class locator="reahl.systemaccountmodel:NewPasswordRequest"/>
     <class locator="reahl.systemaccountmodel:ActivateAccount"/>
     <class locator="reahl.systemaccountmodel:ChangeAccountEmail"/>
+    <class locator="reahl.workflowmodel:DeferredAction"/>
+    <class locator="reahl.workflowmodel:Requirement"/>
+    <class locator="reahl.workflowmodel:Queue"/>
+    <class locator="reahl.workflowmodel:Task"/>
   </persisted>
 
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
