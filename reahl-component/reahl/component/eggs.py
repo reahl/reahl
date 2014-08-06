@@ -156,7 +156,7 @@ class ReahlEgg(object):
 
             if resource_isdir(requirement, egg_internal_path):
                 languages = [d for d in resource_listdir(requirement, egg_internal_path)
-                             if resource_isdir(requirement, '%s/%s' % (egg_internal_path, d))]
+                             if (resource_isdir(requirement, '%s/%s' % (egg_internal_path, d)) and not d.startswith('__'))]
             else:
                 logging.error('Translations of %s not found in %s' % (requirement, egg_internal_path))
                 languages = []

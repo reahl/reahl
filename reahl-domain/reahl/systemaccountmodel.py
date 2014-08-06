@@ -71,6 +71,187 @@ class SystemAccountConfig(Configuration):
     mailer_class = ConfigSetting(default=Mailer, description='The class to instantiate for sending email')
 
 
+class SystemAccount(Base):
+    """The credentials for someone to be able to log into the system."""
+    __tablename__ = 'systemaccount'
+
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('row_type', String(40))
+    __mapper_args__ = {'polymorphic_on': discriminator}
+
+    owner_party_id = Column(Integer, ForeignKey(Party.id))
+    owner = relationship(Party) #: The party to whom this account belongs.
+
+    registration_date = Column(DateTime)  #: The date when this account was first registered.
+    account_enabled = Column(Boolean, nullable=False, default=False) #: Whether this account is enabled or not
+
+    failed_logins = Column(Integer, nullable=False, default=0) #: The number of failed loin attempts using this account.
+
+    @property
+    def registration_activated(self):
+        return self.registration_date is not None
+
+    @property
+    def status(self):
+        if not self.registration_activated:
+            return AccountNotActivated()
+        if not self.account_enabled:
+            return AccountDisabled()
+        return AccountActive()
+
+    def assert_account_live(self):
+        if not self.status.is_active(): 
+            raise AccountNotActiveException(self.status)
+        
+    def activate(self):
+        self.registration_date = datetime.now()
+        self.enable()
+
+    def cancel_reservation(self):
+        if self.account_enabled:
+            raise ProgrammerError('attempted to cancel a reserved account which is already active')
+        Session.delete(self)
+
+    def enable(self):
+        self.account_enabled = True
+
+    def disable(self):
+        self.account_enabled = False
+
+
+class EmailAndPasswordSystemAccount(SystemAccount):
+    """An EmailAndPasswordSystemAccount used an email address to identify the account uniquely,
+       and uses a password to authenticate login attempts.
+    """
+    __tablename__ = 'emailandpasswordsystemaccount'
+    __mapper_args__ = {'polymorphic_identity': 'emailandpasswordsystemaccount'}
+    id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
+
+    password_md5 = Column(String(32), nullable=False)
+    email = Column(UnicodeText, nullable=False, unique=True, index=True)
+    apache_digest = Column(String(32), nullable=False)
+    
+    @classmethod
+    def by_email(cls, email):
+        matches = Session.query(cls).filter_by(email=email)
+        if matches.count() == 0:
+            raise NoSuchAccountException()
+        return matches.one()
+    
+    @classmethod
+    def email_changes_are_pending_for(cls, email):
+        all_pending_requests = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ChangeAccountEmail)
+        clashing_requests = all_pending_requests.filter(VerifyEmailRequest.email==email)
+        return clashing_requests.count() > 0
+    
+    @classmethod
+    def assert_email_unique(cls, email):
+        not_unique = Session.query(cls).filter_by(email=email).count() > 0
+        not_unique = not_unique or cls.email_changes_are_pending_for(email)
+        if not_unique:
+            raise NotUniqueException()
+
+    @classmethod
+    def is_login_active(cls, email):
+        try:
+            target_account = cls.by_email(email)
+            return target_account.registration_activated
+        except NoSuchAccountException:
+            pass
+        return cls.email_changes_are_pending_for(email)
+
+    @classmethod
+    def is_login_pending(cls, email):
+        try:
+            target_account = cls.by_email(email)
+            return not target_account.registration_activated
+        except NoSuchAccountException:
+            return False
+    
+    @classmethod
+    def is_login_available(cls, email):
+        return not (cls.is_login_active(email) or cls.is_login_pending(email))
+
+    @classmethod
+    def register(cls, email, password):
+        return EmailAndPasswordSystemAccount.reserve(email, password, None)
+
+    @classmethod
+    def reserve(cls, email, password, party):
+        cls.assert_email_unique(email)
+        system_account = cls(owner=party, email=email)
+        Session.add(system_account)
+        system_account.set_new_password(email, password)
+        verification_request = VerifyEmailRequest(email=email,
+                                                  subject_config='accounts.activation_subject',
+                                                  email_config='accounts.activation_email')
+        Session.add(verification_request)
+        Session.flush()
+        deferred_activation = ActivateAccount(system_account=system_account, 
+                                              requirements=[verification_request])
+        Session.add(deferred_activation)
+        system_account.send_activation_notification()
+
+        return system_account
+        
+    @classmethod
+    def log_in(cls, email, password, stay_logged_in):
+        try:
+            target_account = EmailAndPasswordSystemAccount.by_email(email)
+        except NoSuchAccountException:
+            raise InvalidPasswordException()
+        target_account.authenticate(password)
+        session = ExecutionContext.get_context().session
+        session.set_as_logged_in(target_account, stay_logged_in)
+
+    def authenticate(self, password):
+        self.assert_account_live()
+
+        password_md5 = hashlib.md5(password).hexdigest()
+        if self.password_md5 != password_md5:
+            self.failed_logins += 1
+            if self.failed_logins >= 3:
+                self.disable()
+            raise InvalidPasswordException(commit=True)
+
+    def send_activation_notification(self):
+        verification_request = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ActivateAccount)\
+                               .filter(ActivateAccount.system_account==self).one()
+        verification_request.send_notification()
+
+    def request_new_password(self):
+        self.assert_account_live()
+        existing_requests = Session.query(NewPasswordRequest).filter_by(system_account=self)
+        if existing_requests.count() == 0:
+            Session.add(NewPasswordRequest(system_account=self))
+        self.send_new_password_mail()
+
+    def send_new_password_mail(self):
+        request = Session.query(NewPasswordRequest).filter_by(system_account=self).one()
+        request.send_notification()
+
+    def set_new_password(self, email, password):
+        if self.email != email:
+            raise InvalidEmailException()
+        new_password = password
+        self.password_md5 = hashlib.md5(new_password).hexdigest()
+        self.apache_digest = hashlib.md5('%s:%s:%s' % (self.email,'',new_password)).hexdigest()
+
+    def request_email_change(self, new_email):
+        self.assert_account_live()
+        self.assert_email_unique(new_email)
+
+        Session.add(ChangeAccountEmail(self, new_email))
+        self.send_email_change_mail()
+
+    def send_email_change_mail(self):
+        change_email_action = Session.query(ChangeAccountEmail).filter_by(system_account=self).one()
+        change_email_action.send_notification()
+
+    def set_new_email(self, new_login, password):
+        self.authenticate(password)
+        self.email = new_login
+
     
 @session_scoped
 class AccountManagementInterface(Base):
@@ -302,9 +483,9 @@ class NewPasswordRequest(VerificationRequest):
     __mapper_args__ = {'polymorphic_identity': 'newpasswordrequest'}
     id = Column(Integer, ForeignKey(VerificationRequest.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'))
-#xxxx                               nullable=False, primary_key=True)
-    system_account = relationship('SystemAccount')
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'),
+                               nullable=False, primary_key=True)
+    system_account = relationship(SystemAccount)
 
 
     @property
@@ -347,7 +528,7 @@ class ActivateAccount(DeferredAction):
     id = Column(Integer, ForeignKey(DeferredAction.id, ondelete='CASCADE'), primary_key=True)
 
     system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'))
-    system_account = relationship('SystemAccount')
+    system_account = relationship(SystemAccount)
 
     def __init__(self, system_account=None, **kwargs):
         config = ExecutionContext.get_context().config
@@ -369,7 +550,7 @@ class ChangeAccountEmail(DeferredAction):
     id = Column(Integer, ForeignKey(DeferredAction.id, ondelete='CASCADE'), primary_key=True)
 
     system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'))
-    system_account = relationship('SystemAccount')
+    system_account = relationship(SystemAccount)
 
     def __init__(self, system_account, new_email):
         requirements = [VerifyEmailRequest(email=new_email,
@@ -403,7 +584,7 @@ class UserSession(Base, UserSessionProtocol):
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     account_id = Column(Integer, ForeignKey('systemaccount.id'))#, deferrable=True, initially='deferred'))
-    account = relationship('SystemAccount')
+    account = relationship(SystemAccount)
 
     idle_lifetime = Column(Integer(), nullable=False, default=0)
     last_activity = Column(DateTime(), nullable=False, default=datetime.now)
@@ -472,183 +653,3 @@ class AccountActive(SystemAccountStatus):
         return True
 
 
-class SystemAccount(Base):
-    """The credentials for someone to be able to log into the system."""
-    __tablename__ = 'systemaccount'
-
-    id = Column(Integer, primary_key=True)
-    discriminator = Column('row_type', String(40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
-
-    party_id = Column(Integer, ForeignKey(Party.id), nullable=True)
-    party = relationship(Party) #: The party tho whom this account belongs.
-
-    registration_date = Column(DateTime)  #: The date when this account was first registered.
-    account_enabled = Column(Boolean, nullable=False, default=False) #: Whether this account is enabled or not
-
-    failed_logins = Column(Integer, nullable=False, default=0) #: The number of failed loin attempts using this account.
-
-    @property
-    def registration_activated(self):
-        return self.registration_date is not None
-
-    @property
-    def status(self):
-        if not self.registration_activated:
-            return AccountNotActivated()
-        if not self.account_enabled:
-            return AccountDisabled()
-        return AccountActive()
-
-    def assert_account_live(self):
-        if not self.status.is_active(): 
-            raise AccountNotActiveException(self.status)
-        
-    def activate(self):
-        self.registration_date = datetime.now()
-        self.enable()
-
-    def cancel_reservation(self):
-        if self.account_enabled:
-            raise ProgrammerError('attempted to cancel a reserved account which is already active')
-        Session.delete(self)
-
-    def enable(self):
-        self.account_enabled = True
-
-    def disable(self):
-        self.account_enabled = False
-
-
-class EmailAndPasswordSystemAccount(SystemAccount):
-    """An EmailAndPasswordSystemAccount used an email address to identify the account uniquely,
-       and uses a password to authenticate login attempts.
-    """
-    __tablename__ = 'emailandpasswordsystemaccount'
-    __mapper_args__ = {'polymorphic_identity': 'emailandpasswordsystemaccount'}
-    id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
-
-    password_md5 = Column(String(32), nullable=False)
-    email = Column(UnicodeText, nullable=False, unique=True, index=True)
-    apache_digest = Column(String(32), nullable=False)
-    
-    @classmethod
-    def by_email(cls, email):
-        matches = Session.query(cls).filter_by(email=email)
-        if matches.count() == 0:
-            raise NoSuchAccountException()
-        return matches.one()
-    
-    @classmethod
-    def email_changes_are_pending_for(cls, email):
-        all_pending_requests = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ChangeAccountEmail)
-        clashing_requests = all_pending_requests.filter(VerifyEmailRequest.email==email)
-        return clashing_requests.count() > 0
-    
-    @classmethod
-    def assert_email_unique(cls, email):
-        not_unique = Session.query(cls).filter_by(email=email).count() > 0
-        not_unique = not_unique or cls.email_changes_are_pending_for(email)
-        if not_unique:
-            raise NotUniqueException()
-
-    @classmethod
-    def is_login_active(cls, email):
-        try:
-            target_account = cls.by_email(email)
-            return target_account.registration_activated
-        except NoSuchAccountException:
-            pass
-        return cls.email_changes_are_pending_for(email)
-
-    @classmethod
-    def is_login_pending(cls, email):
-        try:
-            target_account = cls.by_email(email)
-            return not target_account.registration_activated
-        except NoSuchAccountException:
-            return False
-    
-    @classmethod
-    def is_login_available(cls, email):
-        return not (cls.is_login_active(email) or cls.is_login_pending(email))
-
-    @classmethod
-    def register(cls, email, password):
-        return EmailAndPasswordSystemAccount.reserve(email, password, None)
-
-    @classmethod
-    def reserve(cls, email, password, party):
-        cls.assert_email_unique(email)
-        system_account = cls(party=party, email=email)
-        Session.add(system_account)
-        system_account.set_new_password(email, password)
-        verification_request = VerifyEmailRequest(email=email,
-                                                  subject_config='accounts.activation_subject',
-                                                  email_config='accounts.activation_email')
-        Session.add(verification_request)
-        Session.flush()
-        deferred_activation = ActivateAccount(system_account=system_account, 
-                                              requirements=[verification_request])
-        Session.add(deferred_activation)
-        system_account.send_activation_notification()
-
-        return system_account
-        
-    @classmethod
-    def log_in(cls, email, password, stay_logged_in):
-        try:
-            target_account = EmailAndPasswordSystemAccount.by_email(email)
-        except NoSuchAccountException:
-            raise InvalidPasswordException()
-        target_account.authenticate(password)
-        session = ExecutionContext.get_context().session
-        session.set_as_logged_in(target_account, stay_logged_in)
-
-    def authenticate(self, password):
-        self.assert_account_live()
-
-        password_md5 = hashlib.md5(password).hexdigest()
-        if self.password_md5 != password_md5:
-            self.failed_logins += 1
-            if self.failed_logins >= 3:
-                self.disable()
-            raise InvalidPasswordException(commit=True)
-
-    def send_activation_notification(self):
-        verification_request = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ActivateAccount)\
-                               .filter(ActivateAccount.system_account==self).one()
-        verification_request.send_notification()
-
-    def request_new_password(self):
-        self.assert_account_live()
-        existing_requests = Session.query(NewPasswordRequest).filter_by(system_account=self)
-        if existing_requests.count() == 0:
-            Session.add(NewPasswordRequest(system_account=self))
-        self.send_new_password_mail()
-
-    def send_new_password_mail(self):
-        request = Session.query(NewPasswordRequest).filter_by(system_account=self).one()
-        request.send_notification()
-
-    def set_new_password(self, email, password):
-        if self.email != email:
-            raise InvalidEmailException()
-        new_password = password
-        self.password_md5 = hashlib.md5(new_password).hexdigest()
-        self.apache_digest = hashlib.md5('%s:%s:%s' % (self.email,'',new_password)).hexdigest()
-
-    def request_email_change(self, new_email):
-        self.assert_account_live()
-        self.assert_email_unique(new_email)
-
-        Session.add(ChangeAccountEmail(self, new_email))
-        self.send_email_change_mail()
-
-    def send_email_change_mail(self):
-        change_email_action = Session.query(ChangeAccountEmail).filter_by(system_account=self).one()
-        change_email_action.send_notification()
-
-    def set_new_email(self, new_login, password):
-        self.authenticate(password)
-        self.email = new_login

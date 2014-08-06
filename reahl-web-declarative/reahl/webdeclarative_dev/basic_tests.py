@@ -21,7 +21,7 @@ import six
 from six.moves import http_cookies
 from six.moves.urllib import parse as urllib_parse
 
-from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy import Column, ForeignKey, Integer, inspect
 from webob import Response
 
 from nose.tools import istest
@@ -32,7 +32,7 @@ from reahl.stubble import stubclass
 from reahl.sqlalchemysupport import metadata, Session
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.webdeclarative import WebUserSession
+from reahl.webdeclarative import WebUserSession, SessionData
 
 
 @istest
@@ -172,3 +172,41 @@ class BasicTests(object):
         vassert( fixture.context.session.account is account )
         vassert( fixture.context.session.is_logged_in() )
         vassert( not fixture.context.session.is_secure() )
+
+    @test(WebFixture)
+    def session_data_disappears_when_session_does(self, fixture):
+        """When a UserSession is deleted, all associated SessionData disappears as well."""
+
+        fixture.context.initialise_web_session()
+        web_session = fixture.context.session 
+        ui_name = 'user_interface'
+        channel_name = 'channel'
+
+        session_data = SessionData(web_session=web_session, ui_name=ui_name, channel_name=channel_name)
+        Session.add(session_data)
+        Session.flush()
+
+        Session.delete(web_session)
+
+        vassert( Session.query(SessionData).filter_by(id=session_data.id).count() == 0 )
+        vassert( Session.query(WebUserSession).filter_by(id=web_session.id).count() == 0 )
+
+    @test(WebFixture)
+    def session_keeps_living(self, fixture):
+        """When SessionData is deleted, the associated UserSession is not affected."""
+
+        fixture.context.initialise_web_session()
+        web_session = fixture.context.session 
+        ui_name = 'user_interface'
+        channel_name = 'channel'
+
+        session_data = SessionData(web_session=web_session, ui_name=ui_name, channel_name=channel_name)
+        Session.add(session_data)
+        Session.flush()
+
+        Session.delete(session_data)
+
+        vassert( Session.query(SessionData).filter_by(id=session_data.id).count() == 0 )
+        vassert( Session.query(WebUserSession).filter_by(id=web_session.id).one() is web_session )
+
+
