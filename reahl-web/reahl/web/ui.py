@@ -2552,7 +2552,7 @@ class Td(Cell):
 class DynamicColumn(object):
     def __init__(self, make_heading_or_string, make_widget, sort_key=None):
         if isinstance(make_heading_or_string, six.string_types):
-            def make_span(view, form=None):
+            def make_span(view):
                 return Span(view, text=make_heading_or_string)
             self.make_heading_widget = make_span
         else:
@@ -2561,11 +2561,11 @@ class DynamicColumn(object):
         self.make_widget = make_widget
         self.sort_key = sort_key
 
-    def heading_as_widget(self, view, form=None):
-        return self.make_heading_widget(view, form=form)
+    def heading_as_widget(self, view):
+        return self.make_heading_widget(view)
 
-    def as_widget(self, view, item, form=None):
-        return self.make_widget(view, item, form=form)
+    def as_widget(self, view, item):
+        return self.make_widget(view, item)
         
     def with_overridden_heading_widget(self, make_heading_widget):
         new_column = copy.copy(self)
@@ -2579,24 +2579,23 @@ class StaticColumn(DynamicColumn):
         self.field = field
         self.attribute_name = attribute_name
     
-    def make_text_node(self, view, item, form=None):
+    def make_text_node(self, view, item):
         field = self.field.copy()
         field.bind(self.attribute_name, item)
         return TextNode(view, field.as_input())    
 
 
 class Table(HTMLElement):
-    def __init__(self, view, caption_text=None, summary=None, form=None, css_id=None):
+    def __init__(self, view, caption_text=None, summary=None, css_id=None):
         super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id)
-        self.form = form
         if caption_text:
             self.add_child(Caption(view, text=caption_text))
         if summary:
             self.set_attribute('summary', '%s' % summary)
 
     @classmethod
-    def from_columns(cls, view, columns, items, caption_text=None, summary=None, form=None, css_id=None):
-        table = cls(view, caption_text=caption_text, summary=summary, form=form, css_id=css_id)
+    def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
+        table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
         table.create_header_columns(columns)
         table.create_rows(columns, items)
         return table
@@ -2606,7 +2605,7 @@ class Table(HTMLElement):
         header_tr = table_header.add_child(Tr(self.view))
         for column_number, column in enumerate(columns):
             column_th = header_tr.add_child(Th(self.view))
-            column_th.add_child(column.heading_as_widget(self.view, form=self.form))
+            column_th.add_child(column.heading_as_widget(self.view))
             
     def heading_widget(self, heading_text):
         return Span(self.view, text=column.heading)
@@ -2616,4 +2615,4 @@ class Table(HTMLElement):
             row = self.add_child(Tr(self.view))
             for column in columns:
                 row_td = row.add_child(Td(self.view))
-                row_td.add_child(column.as_widget(self.view, item, form=self.form))
+                row_td.add_child(column.as_widget(self.view, item))

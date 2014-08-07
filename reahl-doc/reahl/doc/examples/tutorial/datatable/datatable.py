@@ -65,10 +65,6 @@ class Row(object):
     def __getattr__(self, name):
         return getattr(self.address, name)
 
-class ColumnCS(object):
-
-    def __init__(self, columns):
-        self.columns = columns
 
 class AddressBookPanel(Panel):
     def __init__(self, view, address_book_ui):
@@ -77,33 +73,23 @@ class AddressBookPanel(Panel):
 
         self.add_child(H(view, 1, text='Addresses'))
         
-        #form = self.add_child(Form(view, 'address_datatable_form'))
         self.define_event_handler(self.events.delete_selected)
 
-        def make_link_widget(view, row, form=None):
+        def make_link_widget(view, row):
             return A.from_bookmark(view, address_book_ui.get_edit_bookmark(row.address, description='Edit'))
-
-        def make_checkbox_widget(view, row, form=None):
-            return CheckboxInput(form, row.fields.selected_by_user)
-
-        def make_delete_selected_button(view, form=None):
-            return Button(form, self.events.delete_selected)
 
         columns = [StaticColumn(Field(label='Name'), 'name', sort_key=lambda x: x.address.name),
                    StaticColumn(EmailField(label='Email'), 'email_address', sort_key=lambda x: x.address.email_address),
                    StaticColumn(IntegerField(label='Zip'), 'zip_code', sort_key=lambda x: x.address.zip_code),
-                   DynamicColumn('', make_link_widget),
-                   DynamicColumn(make_delete_selected_button, make_checkbox_widget)]
+                   DynamicColumn('', make_link_widget)]
 
         data_table = DataTable(view,
                                 columns,
                                 self.rows,
                                 caption_text='All my friends',
                                 summary='Summary for screen reader',
-                                form_id='address_datatable_form',
                                 css_id='address_data')
         self.add_child(data_table)
-        #form.add_child(data_table)
 
     def initialise_rows(self):
         return [Row(address) for address in Address.query.all()]
