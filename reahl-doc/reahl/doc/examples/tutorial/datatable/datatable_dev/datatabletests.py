@@ -12,7 +12,7 @@ from datatable import AddressBookUI, Address
 class DataTableExampleFixture(WebFixture):
 
     def new_browser(self):
-        return Browser(self.new_wsgi_app(site_root=AddressBookUI, enable_js=False))
+        return Browser(self.new_wsgi_app(site_root=AddressBookUI))
 
     def new_addresses(self):
         addresses = [Address(name=u'friend %s' % i, email_address=u'friend%s@some.org' % i, zip_code=i) for i in range(1,201)]
@@ -60,50 +60,10 @@ def editing_an_address(fixture):
 
 
 @test(DataTableExampleFixture)
-def deleting_several_address(fixture):
-    """To delete several address, a user "checks" the box next to each of the Addresses
-       on the "Addresses" page she wants to delete. Upon clicking the "Delete Selected" Button, the page
-       refreshes, and the remaining addresses appear."""
-
-    fixture.addresses    #create some data to play with
-
-    fixture.browser.open('/?current_page_number=2')
-
-    # import pdb;pdb.set_trace()
-    # fixture.browser.click(XPath.link_with_text('2'))#go to second page
-
-    name_of_address_108 = 'friend 108'
-    name_of_address_11  = 'friend 11'
-    name_of_address_116 = 'friend 116'
-
-    assert fixture.address_is_listed_as(name_of_address_108)
-    assert fixture.address_is_listed_as(name_of_address_11)
-    assert fixture.address_is_listed_as(name_of_address_116)
-
-    fixture.browser.click(XPath.checkbox_in_table_row(1))
-    fixture.browser.click(XPath.checkbox_in_table_row(3))
-    fixture.browser.click(XPath.checkbox_in_table_row(10))
-    fixture.browser.click(XPath.button_labelled('Delete Selected'))
-
-    assert not fixture.address_is_listed_as(name_of_address_108)
-    assert not fixture.address_is_listed_as(name_of_address_11)
-    assert not fixture.address_is_listed_as(name_of_address_116)
-
-    assert fixture.address_is_listed_as('friend 109')
-    assert fixture.address_is_listed_as('friend 110')
-    assert fixture.address_is_listed_as('friend 111')
-    assert fixture.address_is_listed_as('friend 112')
-    assert fixture.address_is_listed_as('friend 113')
-    assert fixture.address_is_listed_as('friend 114')
-    assert fixture.address_is_listed_as('friend 115')
-    assert fixture.address_is_listed_as('friend 117')
-    assert fixture.address_is_listed_as('friend 118')
-    assert fixture.address_is_listed_as('friend 119')
-
-
-@test(DataTableExampleFixture)
 def sorting_by_column(fixture):
-    """..."""
+    """If a column has defined a sort key, two arrows (links) will be added next to each column name. The one pointing downward or flat side on top,
+    signifies ascending sorting, and the other descending sorting. Clicking on either causes a refresh with the user remaining on the same page,
+    but with the dataset sorted in the selected direction for that column."""
 
     fixture.addresses    #create some data to play with
 
