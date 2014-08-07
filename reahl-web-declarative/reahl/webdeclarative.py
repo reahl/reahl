@@ -136,8 +136,8 @@ class SessionData(Base):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
     
-    web_session_id = Column(Integer, ForeignKey('webusersession.id'))
-    web_session = relationship(WebUserSession, backref=backref('session_datas', cascade='all,delete-orphan'))
+    web_session_id = Column(Integer, ForeignKey('webusersession.id', ondelete='CASCADE'))
+    web_session = relationship(WebUserSession)
 
     ui_name = Column(UnicodeText, nullable=False)
     channel_name = Column(UnicodeText, nullable=False)
