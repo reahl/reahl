@@ -1126,11 +1126,12 @@ class Widget(object):
         inputs_in_error = []
         for i, i_refresh_set in inputs_with_refresh_sets:
             if not (i_refresh_set.issubset(forms_with_refresh_sets[i.form])):
-                inputs_in_error.append((i, i_refresh_set))
+                inputs_in_error.append((i, i_refresh_set - forms_with_refresh_sets[i.form]))
         if inputs_in_error:
-            message = 'Some inputs were incorrectly placed:\n'
+            message = 'Inputs are not allowed where they can be refreshed separately from their forms. '
+            message += 'Some inputs were incorrectly placed:\n'
             for i, refresh_set in inputs_in_error:
-                message += '\t%s(for %s): %s\n' % (six.text_type(i), six.text_type(i), ','.join([six.text_type(i) for i in refresh_set]))
+                message += '\t%s(in %s) is refreshed by %s\n' % (six.text_type(i), six.text_type(i.form), ','.join([six.text_type(r) for r in refresh_set]))
             raise ProgrammerError(message)
 
     def check_forms_unique(self, forms):
