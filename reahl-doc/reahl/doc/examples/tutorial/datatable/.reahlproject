@@ -14,11 +14,11 @@
   </deps>
 
   <persisted>
-    <class locator="datatable:Address"/>
+    <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
   </persisted>
   
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T datatable_dev -F reahl.webdev.fixtures:BrowserSetup"/>
   <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:CleanDatabase
-                                   --with-setup-fixture  datatable_dev.datatabletests:DemoSetup" />
+                                   --with-setup-fixture  reahl.doc.examples.tutorial.datatable.datatable_dev.datatabletests:DemoSetup" />
 
 </project>
