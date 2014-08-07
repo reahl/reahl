@@ -6,7 +6,7 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.webdev.tools import Browser, XPath
 
-from datatable import AddressBookUI, Address
+from reahl.doc.examples.tutorial.datatable.datatable import AddressBookUI, Address
 
 
 class DataTableExampleFixture(WebFixture):
@@ -80,8 +80,7 @@ def sorting_by_column(fixture):
     assert fixture.address_is_listed_as('friend 106')
     assert fixture.address_is_listed_as('friend 107')
 
-    #fixture.browser.click(XPath.sort_descending_link_for_column('Zip'))
-    fixture.browser.open('/?sort_descending=on&sort_column_number=2')
+    fixture.browser.click(XPath.sort_descending_link_for_column('Zip'))
 
     assert fixture.address_is_listed_as('friend 200')
     assert fixture.address_is_listed_as('friend 199')

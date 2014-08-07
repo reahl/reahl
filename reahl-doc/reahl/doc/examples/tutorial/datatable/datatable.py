@@ -73,8 +73,6 @@ class AddressBookPanel(Panel):
 
         self.add_child(H(view, 1, text='Addresses'))
         
-        self.define_event_handler(self.events.delete_selected)
-
         def make_link_widget(view, row):
             return A.from_bookmark(view, address_book_ui.get_edit_bookmark(row.address, description='Edit'))
 
@@ -93,15 +91,6 @@ class AddressBookPanel(Panel):
 
     def initialise_rows(self):
         return [Row(address) for address in Address.query.all()]
-
-    @exposed
-    def events(self, events):
-        events.delete_selected = Event(label='Delete Selected', action=Action(self.delete_selected))
-
-    def delete_selected(self):
-        for row in self.rows:
-            if row.selected_by_user:
-                row.address.delete()
 
 
 class EditAddressForm(Form):
