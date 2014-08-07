@@ -175,7 +175,7 @@ class BasicTests(object):
 
     @test(WebFixture)
     def session_data_disappears_when_session_does(self, fixture):
-        """When a UserSession is deleted, all associated SessionData disappears as well."""
+        """When a UserSession is deleted, all associated SessionData disappear as well."""
 
         fixture.context.initialise_web_session()
         web_session = fixture.context.session 
