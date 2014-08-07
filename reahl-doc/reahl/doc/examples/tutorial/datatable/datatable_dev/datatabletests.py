@@ -26,6 +26,12 @@ class DataTableExampleFixture(WebFixture):
     def address_is_listed_as(self, name):
         return self.browser.is_element_present(XPath.table_cell_with_text(name))
 
+    def number_of_rows_in_table(self):
+        return len(self.browser.xpath('//table/tbody/tr'))
+
+    def sort_descending_link_for_column(self, column_heading):
+        return '//table/thead/tr/th/span[1][text()="%s"]/../span[2]/a[2]' % column_heading
+
 
 class DemoSetup(DataTableExampleFixture):
     commit = True
@@ -60,10 +66,29 @@ def editing_an_address(fixture):
 
 
 @test(DataTableExampleFixture)
+def pageable_table(fixture):
+    """If there is a large dataset, the user can page through it, receiving only a managable number of items
+       at a time."""
+
+    fixture.addresses    #create some data to play with
+
+    fixture.browser.open('/')
+
+    assert fixture.number_of_rows_in_table() == 10
+    assert fixture.address_is_listed_as('friend 1')
+    assert not fixture.address_is_listed_as('friend 108')
+
+    fixture.browser.click(XPath.link_with_text('2'))
+
+    assert fixture.number_of_rows_in_table() == 10
+    assert fixture.address_is_listed_as('friend 108')
+    assert not fixture.address_is_listed_as('friend 118')
+
+
+@test(DataTableExampleFixture)
 def sorting_by_column(fixture):
-    """If a column has defined a sort key, two arrows (links) will be added next to each column name. The one pointing downward or flat side on top,
-    signifies ascending sorting, and the other descending sorting. Clicking on either causes a refresh with the user remaining on the same page,
-    but with the dataset sorted in the selected direction for that column."""
+    """The user can sort the table differently, by clicking on links in the heading of a sortable
+       column."""
 
     fixture.addresses    #create some data to play with
 
@@ -80,7 +105,7 @@ def sorting_by_column(fixture):
     assert fixture.address_is_listed_as('friend 106')
     assert fixture.address_is_listed_as('friend 107')
 
-    fixture.browser.click(XPath.sort_descending_link_for_column('Zip'))
+    fixture.browser.click(fixture.sort_descending_link_for_column('Zip'))
 
     assert fixture.address_is_listed_as('friend 200')
     assert fixture.address_is_listed_as('friend 199')
@@ -92,3 +117,5 @@ def sorting_by_column(fixture):
     assert fixture.address_is_listed_as('friend 193')
     assert fixture.address_is_listed_as('friend 192')
     assert fixture.address_is_listed_as('friend 191')
+    
+

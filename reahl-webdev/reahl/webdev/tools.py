@@ -392,11 +392,6 @@ class XPath(object):
         return cls('//table[@summary="%s"]' % (text))
 
     @classmethod
-    def sort_descending_link_for_column(cls, column_name):
-        """Returns an XPath to find an column with name `column_name`, and then its descending sort link."""
-        return cls('//table/thead/tr/th/span[1][text()="%s"]/../span[2]/a[2]' % column_name)
-
-    @classmethod
     def table_cell_with_text(cls, text):
         """Returns an XPath to find an HTML <tr> that contains a <td> / cell with text matching the text in `text`"""
         return cls('//tr/td[normalize-space(text())="%s"]' % (text))
