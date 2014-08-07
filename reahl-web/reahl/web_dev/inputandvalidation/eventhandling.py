@@ -419,7 +419,7 @@ def check_input_placement(fixture):
     browser = Browser(wsgi_app)
     
     def check_exc(ex):
-        vassert( 'Some inputs were incorrectly placed' in str(ex))
+        vassert( 'Inputs are not allowed where they can be refreshed separately from their forms.' in str(ex))
     
     with expected(ProgrammerError, test=check_exc):
         browser.open('/')
