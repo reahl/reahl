@@ -31,12 +31,6 @@ from reahl.component.context import ExecutionContext
 from reahl.web.table import DataTable
 from reahl.component.modelinterface import Event, Field, IntegerField, exposed, BooleanField
 
-#TODO/DONE:
-# sort_key not specified, then remove sort links - DONE
-# merge Table & KoosTableFixMePlease (& move columns to ui.py)- DONE
-# move tests around (from columns etc.) - DONE
-# build example from scenarios
-# table.py -> choose another name
 
 
 class DataItem(object):
@@ -98,17 +92,6 @@ class DataTableFixture(TableFixture):
         for column_number in range(1,len(self.columns)+1):
             header_data.append(self.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]' % (column_number)).text)
         return header_data
-
-
-
-# scenarios vir interressanter content:
-#  - ek list 'n aantal persons, met naam, ID, roles in die kolomme (maak data item 'n link)
-#    wil hê naam moet 'n link wees na /persons/edit?id=123 
-#    die 123 is afgelei van elke persoon individualy, en obviously die link text (latter van die .name attribute)
-#  - ek wil die mense in die lys sien, klomp select, en dan een delete knoppie onderaan die table click om al die selected persons te delete
-#    ek select hulle deurdat daar 'n "select" kolom is met checkbokse in ...
-#  - add 'n kolom met een of meer buttons...
-#  - Totale vir numeriese kolomme?
 
 
 @test(DataTableFixture)

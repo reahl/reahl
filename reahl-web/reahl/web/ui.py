@@ -2611,8 +2611,9 @@ class Table(HTMLElement):
         return Span(self.view, text=column.heading)
 
     def create_rows(self, columns, items):
+        body = self.add_child(Tbody(self.view))
         for item in items:
-            row = self.add_child(Tr(self.view))
+            row = body.add_child(Tr(self.view))
             for column in columns:
                 row_td = row.add_child(Td(self.view))
                 row_td.add_child(column.as_widget(self.view, item))
