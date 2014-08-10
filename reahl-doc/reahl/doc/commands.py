@@ -118,15 +118,18 @@ class Example(object):
                            'reahl-doc':    'i18nexample'}
         for dirpath, dirnames, filenames in os.walk(source):
             relative_dirpath = dirpath[len(source)+1:]
-            dest_dirname = os.path.join(dest, relative_dirpath)
-            os.mkdir(dest_dirname)
-            for filename in [f for f in filenames if not re.match('.*(.pyc|~|.mo)$', f)]:
-                source_filename = os.path.join(dirpath, filename)
-                dest_filename = os.path.join(dest_dirname, filename)
-                if self.is_i18n_example and filename in files_to_rename:
-                    dest_filename = os.path.join(dest_dirname, files_to_rename[filename])
-                if source_filename != os.path.join(source, '__init__.py'):
-                    self.sed_file_to(source_filename, dest_filename)
+            if re.match('.idea$', relative_dirpath):
+                dirnames[:] = []
+            else:
+                dest_dirname = os.path.join(dest, relative_dirpath)
+                os.mkdir(dest_dirname)
+                for filename in [f for f in filenames if not re.match('.*(.pyc|~|.mo|.noseids)$', f)]:
+                    source_filename = os.path.join(dirpath, filename)
+                    dest_filename = os.path.join(dest_dirname, filename)
+                    if self.is_i18n_example and filename in files_to_rename:
+                        dest_filename = os.path.join(dest_dirname, files_to_rename[filename])
+                    if source_filename != os.path.join(source, '__init__.py'):
+                        self.sed_file_to(source_filename, dest_filename)
                         
     def delete(self):
         if os.path.isdir(self.checkout_dest):

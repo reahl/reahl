@@ -51,7 +51,7 @@ class ExecutionContext(object):
 
     @classmethod
     def for_config_directory(cls, config_directory):
-        from reahl.component.config import StoredConfiguration # Here, to avoid circualr dependency
+        from reahl.component.config import StoredConfiguration # Here, to avoid circular dependency
         
         config = StoredConfiguration(config_directory)
         config.configure()

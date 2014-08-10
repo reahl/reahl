@@ -253,10 +253,10 @@ class SequentialPageIndex(PageIndex):
        into sections that have a maximum number of items per page.
        
        :param items: The long list of items.
-       :param items_per_page: The maximum number of items to allow on a page.
-       :param current_page_number: (See :class:`PageIndex`)
-       :param start_page_number: (See :class:`PageIndex`)
-       :param max_page_links: (See :class:`PageIndex`)
+       :keyword items_per_page: The maximum number of items to allow on a page.
+       :keyword current_page_number: (See :class:`PageIndex`)
+       :keyword start_page_number: (See :class:`PageIndex`)
+       :keyword max_page_links: (See :class:`PageIndex`)
     """
     def __init__(self, items, items_per_page=5, current_page_number=1, start_page_number=1, max_page_links=4):
         super(SequentialPageIndex, self).__init__(current_page_number=current_page_number,
