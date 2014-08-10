@@ -46,7 +46,7 @@
 </node>
 </node>
 <node CREATED="1295002540057" ID="ID_383074039" MODIFIED="1348580746548" POSITION="right" TEXT="input &amp; validation">
-<node CREATED="1302363589270" FOLDED="true" ID="ID_638132540" LINK="inputandvalidation/eventhandling.py" MODIFIED="1353587213455" TEXT="event handling">
+<node CREATED="1302363589270" ID="ID_638132540" LINK="inputandvalidation/eventhandling.py" MODIFIED="1405599152920" TEXT="event handling">
 <node CREATED="1295002566110" ID="ID_76489977" MODIFIED="1302345629491" TEXT="events &amp; buttons &amp; basic event handlers">
 <font NAME="SansSerif" SIZE="12"/>
 </node>
@@ -55,8 +55,9 @@
 <node CREATED="1302611537053" ID="ID_755790437" MODIFIED="1302611543027" TEXT="forms"/>
 <node CREATED="1295003756999" ID="ID_74640266" MODIFIED="1302617532686" TEXT="javascript vs server-side validation"/>
 <node CREATED="1353587162538" ID="ID_466943296" MODIFIED="1353587180023" TEXT="alternative (ajax) submission &amp; _noredirect"/>
+<node CREATED="1405599170381" ID="ID_747142614" MODIFIED="1405599211285" TEXT="xxx similarly named inputs per page"/>
 </node>
-<node CREATED="1302611721859" FOLDED="true" ID="ID_442079343" LINK="inputandvalidation/inputtests.py" MODIFIED="1348580761504" TEXT="inputs">
+<node CREATED="1302611721859" ID="ID_442079343" LINK="inputandvalidation/inputtests.py" MODIFIED="1405599129923" TEXT="inputs">
 <node CREATED="1295003629605" ID="ID_215992522" MODIFIED="1302772487887" TEXT="input states and values"/>
 <node CREATED="1302611736331" ID="ID_698468882" MODIFIED="1302611740675" TEXT="specific inputs"/>
 </node>
