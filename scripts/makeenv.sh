@@ -27,6 +27,7 @@ sudo apt-get install postgresql-server-dev-9.1   # Header files for compiling ps
 sudo apt-get install zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms1-dev   # Headers for compiling PIL
 # END non-python packages for PILLOW
 
+sudo apt-get install zlib1g-dev   # Headers for compiling lxml
 
 virtualenv --no-site-packages $SITE_ENV
 

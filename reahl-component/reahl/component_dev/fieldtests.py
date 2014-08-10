@@ -853,6 +853,24 @@ class SpecificFieldsTests(object):
 
 
     @test(Fixture)
+    def basic_marshalling(self, fixture):
+        field = Field()
+        obj = EmptyStub()
+        field.bind('value', obj)
+
+        # From input
+        field.from_input(u'abc')
+        vassert( obj.value == u'abc' )
+
+        # As input
+        obj.value = u'def'
+        vassert( field.as_input() == u'def' )
+
+        # As input - corner case
+        obj.value = u''
+        vassert( field.as_input() == u'' )
+
+    @test(Fixture)
     def integer_marshalling(self, fixture):
         field = IntegerField()
         obj = EmptyStub()
@@ -866,6 +884,9 @@ class SpecificFieldsTests(object):
         obj.integer_value = 6
         vassert( field.as_input() == '6' )
 
+        # As input - corner case
+        obj.integer_value = 0
+        vassert( field.as_input() == u'0' )
 
     class ChoiceFixture(Fixture):
         def new_field(self, field_class=None):

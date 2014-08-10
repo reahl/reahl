@@ -33,9 +33,8 @@ from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, TwoColumnPage, P
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
-from reahl.component.exceptions import IncorrectArgumentError
-from reahl.component.exceptions import IsSubclass
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
+
 
 class BasicScenarios(WebFixture):
     expected_warnings = []
@@ -131,7 +130,6 @@ def basic_assembly(fixture):
         browser.open('/nonexistantview/', status=404)
 
 
-
 @test(WebFixture)
 def basic_error1(fixture):
     """Sending the the wrong kind of thing as widget_class to define_page is reported to the programmer."""
@@ -163,6 +161,7 @@ def basic_error2(fixture):
     with expected(IncorrectArgumentError, test=check_exc):
         browser.open('/')
 
+
 @test(WebFixture)
 def basic_error3(fixture):
     """Forgetting to define either a page of a page for a View is reported to the programmer."""
@@ -178,6 +177,7 @@ def basic_error3(fixture):
         vassert( msg == 'there is no page defined for /' )
     with expected(ProgrammerError, test=check_exc):
         browser.open('/')
+
 
 class SlotScenarios(WebFixture):
     @scenario
@@ -200,7 +200,7 @@ class SlotScenarios(WebFixture):
                 home.set_slot('footer', P.factory(text='I am the footer'))
         self.MainUI = MainUI
 
-        
+
 @test(SlotScenarios)
 def slots(fixture):
     """A View modifies the page by populating named Slots in the page with Widgets."""
@@ -256,3 +256,4 @@ def slot_defaults(fixture):
     # The header slot has no default, and is thus left empty
     header_contents = browser.lxml_html.xpath('//header/*')
     vassert( not header_contents )
+
