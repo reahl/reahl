@@ -1,4 +1,5 @@
 # Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+#-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -115,7 +116,7 @@ class Browser(BasicBrowser):
         self.last_response = None
         self.history = []
 
-    def open(self, url_string, follow_redirects=True, relative=False, **kwargs):
+    def open(self, url_string, follow_redirects=True, **kwargs):
         """GETs the URL in `url_string`.
     
            :param url_string: A string containing the URL to be opened.
@@ -128,6 +129,7 @@ class Browser(BasicBrowser):
         """
         if self.last_response:
             self.history.append(self.last_response.request.url)
+        relative = not url_string.startswith('/')
         if relative:
             url_string = self.get_full_path(url_string)
         self.last_response = self.testapp.get(url_string, **kwargs)
@@ -324,7 +326,7 @@ class Browser(BasicBrowser):
         xpath = six.text_type(locator)
         try:
             img_src = self.lxml_html.xpath(xpath)[0].attrib['src']
-            self.open(img_src, relative=True)
+            self.open(img_src)
             self.go_back()
         except:
             return False
@@ -380,9 +382,29 @@ class XPath(object):
         return cls('//h%s[text()="%s"]' % (level, text))
 
     @classmethod
-    def link_with_text(cls, text):
+    def caption_with_text(cls, text):
+        """Returns an XPath to find an HTML <caption> matching the text in `text`."""
+        return cls('//caption[text()="%s"]' % (text))
+
+    @classmethod
+    def table_with_summary(cls, text):
+        """Returns an XPath to find an HTML <table summary='...'> matching the text in `text` in its summary attribute value."""
+        return cls('//table[@summary="%s"]' % (text))
+
+    @classmethod
+    def table_cell_with_text(cls, text):
+        """Returns an XPath to find an HTML <tr> that contains a <td> / cell with text matching the text in `text`"""
+        return cls('//tr/td[normalize-space(text())="%s"]' % (text))
+
+    @classmethod
+    def checkbox_in_table_row(cls, nth):
+        """Returns an XPath to find an HTML <tr> that contains a <td> / cell with text matching the text in `text`"""
+        return cls('(//tr/td/input[@type="checkbox"])[%s]' % nth)
+
+    @classmethod
+    def link_with_text(cls, text, nth=1):
         """Returns an XPath to find an HTML <a> containing the text in `text`."""
-        return cls('//a[normalize-space(text())=normalize-space("%s")]' % text)
+        return cls('(//a[normalize-space(text())=normalize-space("%s")])[%s]' % (text, nth))
 
     @classmethod
     def link_starting_with_text(cls, text):
@@ -435,8 +457,10 @@ class XPath(object):
         """Returns an XPath to find an ErrorLabel containing the text in `text`."""
         return cls('//label[@class="error" and contains(text(),"%s")]' % text)
 
+
 class UnexpectedPageLoad(Exception):
     pass
+
 
 class DriverBrowser(BasicBrowser):
     """A Browser implemented by a supplied Selenium WebDriver instance, but with interface matching (or similar to)

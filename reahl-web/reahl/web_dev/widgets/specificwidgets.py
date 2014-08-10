@@ -626,7 +626,7 @@ class PopupATests(object):
     @test(PopupAFixture)
     def workings_of_check_checkbox_button(self, fixture):
         """A CheckCheckBoxButton checks the checkbox on the original page when clicked."""
-        
+
         class PopupTestPanel(Panel):
             @exposed
             def fields(self, fields):
