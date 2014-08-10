@@ -39,10 +39,7 @@ from reahl.component.config import StoredConfiguration
 from reahl.web.fw import ReahlWSGIApplication
 
 class WrappedApp(object):
-    """A class in which to wrap a WSGI app and ensure it yields str elements.
-
-    This is necessary, since Templates sometimes return unicode and
-    wsgiref implementation we use in development expects str.
+    """A class in which to wrap a WSGI app, allowing catching of exceptions in the wrapped app.
     """
     def __init__(self, wrapped):
         self.wrapped = wrapped
@@ -59,7 +56,7 @@ class WrappedApp(object):
         try:
             to_return = b''
             for i in app(environ, start_response):
-                to_return += i.encode('utf-8')
+                to_return += i 
         except socket.error:
             to_return = b''
             for i in HTTPInternalServerError(charset='utf-8')(environ, start_response):

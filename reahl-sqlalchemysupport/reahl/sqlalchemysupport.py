@@ -160,6 +160,8 @@ class SqlAlchemyControl(ORMControl):
 #                if getattr(cls, u'__table__', None) not in metadata.sorted_tables:
                 if not hasattr(cls, '__mapper__'):
                     instrument_declarative(cls, registry, metadata)
+                    logging.getLogger(__file__).info( 'Instrumented %s: __tablename__=%s [polymorphic_identity=%s]' % \
+                                                          (cls, cls.table, cls.mapper.polymorphic_identity) )
             except InvalidRequestError:
                 logging.info('skipping declarative instrumentation of %s' % cls)
 
