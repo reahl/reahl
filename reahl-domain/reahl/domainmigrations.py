@@ -10,20 +10,32 @@ from reahl.component.migration import Migration
 
 class ElixirToDeclarativeChanges(Migration):
     version = '3.0'
+
     def upgrade(self):
-        for table_name, inheriting_table_name in [('webusersession', 'usersession_id', 'usersession'),
+        for table_name, old_id_column_name, inheriting_table_name in [
+                                                  ('webusersession', 'usersession_id', 'usersession'),
                                                   ('userinput', 'sessiondata_id', 'sessiondata'),
                                                   ('persistedexception', 'sessiondata_id', 'sessiondata'),
                                                   ('persistedfile', 'sessiondata_id', 'sessiondata'),
                                                   ('emailandpasswordsystemaccount', 'systemaccount_id', 'systemaccount'),
                                                   ('verificationrequest', 'requirement_id', 'request'),
                                                   ('verifyemailrequest', 'verificationrequest_requirement_id', 'verificationrequest'),
-#!!!                                                  ('newpasswordrequest', 'verificationrequest_requirement_id', 'verificationrequest'),
                                                   ('activateaccount', 'deferredaction_id', 'deferredaction'),
                                                   ('changeaccountemail', 'deferredaction_id', 'deferredaction')
                                                   ]:
-            self.change_inheriting_table(table_name, inheriting_table_name)
+            self.change_inheriting_table(table_name, old_id_column_name, inheriting_table_name)
 
+        # NewPasswordRequest inherits, but also has a composite primary key
+        op.drop_constraint('newpasswordrequest_verificationrequest_requirement_id_fkey', 'newpasswordrequest')
+        op.drop_constraint('newpasswordrequest_pkey', 'newpasswordrequest')
+        op.alter_column('newpasswordrequest', 'system_account_id', new_column_name='id')
+        op.create_primary_key('newpasswordrequest_pkey', table_name, ['id', 'system_account_id'])
+        op.create_foreign_key('newpasswordrequest_id_fkey', 'newpasswordrequest', 'verificationrequest', ['id'], ['id'], ondelete='CASCADE')
+        # NewPasswordRequest relationship to system_account
+        op.drop_constraint('newpasswordrequest_system_account_id_fk', 'newpasswordrequest')
+        op.create_foreign_key('newpasswordrequest_system_account_id_fkey', 'newpasswordrequest', 'systemaccount', 
+                              ['system_account_id'], ['id'], deferrable=True, initially='DEFERRED')
+       
         # Task in elixir did not generate a row_type for use as discriminator
         op.add_column('task', 'row_type', Column('row_type', String(40)))
         # Task in elixir's queue_id was NULLABLE, but should not be (Tasks HAVE to be in a Queue now)
@@ -38,17 +50,26 @@ class ElixirToDeclarativeChanges(Migration):
         op.create_foreign_key('task_reserved_by_party_id_fkey', 'task', 'party', ['reserved_by_party_id'], ['id'])
         
         # Rename of foreign key names for relationships
-        for name_base, table_name, column_name, other_table_name, other_column_name 
-            in [('usersession_account_id', 'usersession', 'account_id', 'systemaccount', 'id'),
+        for name_base, table_name, column_name, other_table_name, other_column_name in [
+                ('usersession_account_id', 'usersession', 'account_id', 'systemaccount', 'id'),
                 ('sessiondata_web_session_id', 'sessiondata', 'web_session_id', 'webusersession', 'id'),
-                ('deferredaction_requirements', 'requirement_deferred_actions__deferredaction_requirements', 'deferredaction_id', 'deferredaction', 'id'),
-                ('requirement_deferred_actions', 'requirement_deferred_actions__deferredaction_requirements', 'requirement_id', 'requirement', 'id'),
                 ('activateaccount_system_account_id', 'activateaccount', 'system_account_id', 'systemaccount', 'id'),
                 ('changeaccountemail_system_account_id', 'changeaccountemail', 'system_account_id', 'systemaccount', 'id'),
                 ('task_queue_id', 'task', 'queue_id', 'queue', 'id')
-                   ]:
+                ]:
                 op.drop_constraint('%s_fk' % name_base, table_name)
                 op.create_foreign_key('%s_fkey' % name_base, table_name, other_table_name, [column_name], [other_column_name])
+
+        # Rename of foreign key names for many-to-many relationship link table 
+        for old_name, new_name, table_name, column_name, other_table_name, other_column_name in [
+                ('deferredaction_requirements_fk', 'requirement_deferred_actions__deferredac_deferredaction_id_fkey', 
+                 'requirement_deferred_actions__deferredaction_requirements', 'deferredaction_id', 'deferredaction', 'id'),
+                ('requirement_deferred_actions_fk', 'requirement_deferred_actions__deferredactio_requirement_id_fkey', 
+                 'requirement_deferred_actions__deferredaction_requirements', 'requirement_id', 'requirement', 'id')
+                   ]:
+                op.drop_constraint(old_name, table_name)
+                op.create_foreign_key(new_name, table_name, other_table_name, [column_name], [other_column_name])
+
         # Move of relationship between Party and SystemAccount
         # TODO:Assert no rows for : select count(*) from party group by system_account_party_id having count(*) > 1;
         op.drop_constraint('party_system_account_id_fk', 'party')
