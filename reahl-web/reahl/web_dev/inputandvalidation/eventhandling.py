@@ -28,6 +28,7 @@ from reahl.stubble import CallMonitor, EmptyStub
 
 from reahl.sqlalchemysupport import Session
 from reahl.web.ui import Button
+from reahl.web.ui import Panel
 from reahl.web.ui import Form
 from reahl.web.ui import LabelledBlockInput
 from reahl.web.ui import NestedForm
@@ -36,6 +37,7 @@ from reahl.web.ui import TwoColumnPage
 from reahl.web.fw import Url
 from reahl.web.fw import UserInterface
 from reahl.web.fw import ValidationException
+
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, BooleanField, EmailField, DateField, \
                                     exposed, Field, Event, Action
@@ -207,6 +209,45 @@ def basic_field_linkup(fixture):
     fixture.driver_browser.click("//input[@value='click me']")
     vassert( model_object.field_name == 5 )
 
+
+@test(FormFixture)
+def distinguishing_identical_field_names(fixture):
+    """A programmer can add different Inputs on the same Form even if their respective Fields are bound
+       to identically named attributes of different objects."""
+
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.field_name = IntegerField()
+            
+    model_object1 = ModelObject()
+    model_object2 = ModelObject()
+
+    class MyForm(Form):
+        @exposed
+        def events(self, events):
+            events.an_event = Event(label='click me')
+
+        def __init__(self, view, name):
+            super(MyForm, self).__init__(view, name)
+            self.define_event_handler(self.events.an_event)
+            self.add_child(Button(self, self.events.an_event))
+            
+            self.add_child(TextInput(self, model_object1.fields.field_name))
+            self.add_child(TextInput(self, model_object2.fields.field_name))
+
+    wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
+    fixture.reahl_server.set_app(wsgi_app)
+    fixture.driver_browser.open('/')
+
+    # the correct input value gets to the correct object despite referencing identically named attributes
+    fixture.driver_browser.type('//input[@type="text"][1]', '0')
+    fixture.driver_browser.type('//input[@type="text"][2]', '1')
+    fixture.driver_browser.click(XPath.button_labelled('click me'))
+    vassert( model_object1.field_name == 0 )
+    vassert( model_object2.field_name == 1 )
+
+
 @test(FormFixture)
 def wrong_arguments_to_define_event_handler(fixture):
     """Passing anything other than an Event to define_event_handler is an error."""
@@ -324,7 +365,8 @@ def rendering_of_form(fixture):
 
     action = actual.xpath('//form')[0].attrib['action']
     vassert( action == '/a/b/_test_channel_method' )
-    
+
+
 @test(FormFixture)
 def duplicate_forms(fixture):
     """It is an error to add more than one form with the same unique_name to a page."""
@@ -345,6 +387,72 @@ def duplicate_forms(fixture):
     with expected(ProgrammerError, test=check_exc):
         browser.open('/')
 
+
+
+@test(FormFixture)
+def check_input_placement(fixture):
+    """When a web request is handled, the framework throws an exception if an input might be seperated conceptually from the form they are bound to."""
+    
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.name = Field()
+
+    class MainUI(UserInterface):
+        def assemble(self):
+            page = self.define_page(TwoColumnPage)
+            home = self.define_view(u'/', title=u'Home page')
+            home.set_slot(u'main', MyForm.factory())
+
+    class MyForm(Form):
+        def __init__(self, view):
+            super(MyForm, self).__init__(view, u'my_form')
+            self.add_child(RerenderableInputPanel(view, self))
+            
+    class RerenderableInputPanel(Panel):
+        def __init__(self, view, form):
+            super(RerenderableInputPanel, self).__init__(view, css_id='my_refresh_id')
+            self.enable_refresh()
+            model_object = ModelObject()
+            self.add_child(TextInput(form, model_object.fields.name))
+
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)            
+    browser = Browser(wsgi_app)
+    
+    def check_exc(ex):
+        vassert( 'Inputs are not allowed where they can be refreshed separately from their forms.' in str(ex))
+    
+    with expected(ProgrammerError, test=check_exc):
+        browser.open('/')
+            
+
+@test(FormFixture)
+def check_missing_form(fixture):
+    """All forms referred to by inputs on a page have to be present on that page."""
+    
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.name = Field()
+           
+    class MyPanel(Panel):
+        def __init__(self, view):
+            super(MyPanel, self).__init__(view)
+            model_object = ModelObject()
+            forgotten_form = Form(view, 'myform')
+            self.add_child(TextInput(forgotten_form, model_object.fields.name))
+
+    wsgi_app = fixture.new_wsgi_app(child_factory=MyPanel.factory())            
+    browser = Browser(wsgi_app)
+    
+    def check_exc(ex):
+        expected_message = 'Could not find form for <TextInput name=name>. '\
+                           'Its form, <Form form id=myform> is not present on the current page'
+        vassert( str(ex) == expected_message )
+    
+    with expected(ProgrammerError, test=check_exc):
+        browser.open('/')
+            
 
 @test(FormFixture)
 def nested_forms(fixture):
@@ -609,7 +717,8 @@ def event_names_are_canonicalised(fixture):
     # when the Action is executed, the correct arguments are passed
     browser.post('/__myform_method', {'event.an_event?some_argument=f~nnystuff': ''})
     vassert( model_object.received_argument == 'f~nnystuff' )
-    
+
+
 @test(FormFixture)
 def alternative_event_trigerring(fixture):
     """Events can also be triggered by submitting a Form via Ajax. In such cases the normal redirect-after-submit
@@ -713,7 +822,6 @@ def remote_field_formatting(fixture):
 
     browser.open('/_myform_format_method?a_field=invaliddate')
     vassert( browser.raw_html == '' )
-
 
 
 

@@ -158,7 +158,7 @@ def print_final_message(missing_dependencies):
       print('      on your system. What these are called may differ depending on your distribution/OS,')
       print('      As a hint, on ubuntu these are called:')
       print('')
-      print('  python-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 postgresql-server-dev-9.1 zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms1-dev')
+      print('  python-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-9.1 zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms1-dev')
       print('')
       print('NB:  You will have to run this script again after satisfying these dependencies')
       print('')

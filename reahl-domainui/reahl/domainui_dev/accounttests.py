@@ -16,6 +16,7 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+import six
 
 from nose.tools import istest
 from reahl.tofu import Fixture
@@ -73,7 +74,7 @@ class Tests(object):
         vassert( fixture.browser.location_path == '/a_ui/register' )
         vassert( fixture.browser.location_query_string == 'a=b&name=kitty' )
 
-        fixture.browser.open(fixture.new_login_bookmark(request=fixture.browser.last_request).href)
+        fixture.browser.open(six.text_type(fixture.new_login_bookmark(request=fixture.browser.last_request).href))
         fixture.browser.click('//a[text()="Forgot your password?"]')
         fixture.browser.go_back()
         fixture.browser.type('//input[@name="email"]', account.email)

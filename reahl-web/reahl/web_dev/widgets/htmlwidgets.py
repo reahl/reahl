@@ -196,7 +196,6 @@ def closing_tags(fixture):
     vassert( rendered == '<closing><p></p></closing>' )
 
 
-
 class Scenarios(WebFixture):
     @scenario
     def text_node(self):
@@ -269,7 +268,7 @@ class Scenarios(WebFixture):
     def ul(self):
         self.widget = Ul(self.view)
         self.expected_html = '<ul></ul>'
-        
+
     @scenario
     def img1(self):
         self.widget = Img(self.view, 'ss')
@@ -279,7 +278,7 @@ class Scenarios(WebFixture):
     def img2(self):
         self.widget = Img(self.view, 'ss', alt='aa')
         self.expected_html = '<img alt="aa" src="ss">'
-        
+
     @scenario
     def span(self):
         self.widget = Span(self.view)
@@ -294,6 +293,61 @@ class Scenarios(WebFixture):
     def div(self):
         self.widget = Div(self.view)
         self.expected_html = '<div></div>'
+
+    @scenario
+    def caption(self):
+        self.widget = Caption(self.view, text='some text')
+        self.expected_html = '<caption>some text</caption>'
+        
+    @scenario
+    def col(self):
+        self.widget = Col(self.view, span='2')
+        self.expected_html = '<col span="2">'
+
+    @scenario
+    def colgroup(self):
+        self.widget = Colgroup(self.view, span='2')
+        self.expected_html = '<colgroup span="2"></colgroup>'
+
+    @scenario
+    def thead(self):
+        self.widget = Thead(self.view)
+        self.expected_html = '<thead></thead>'
+
+    @scenario
+    def thead_with_scope(self):
+        self.widget = Thead(self.view, scope='col')
+        self.expected_html = '<thead scope="col"></thead>'
+
+    @scenario
+    def tfoot(self):
+        self.widget = Tfoot(self.view)
+        self.expected_html = '<tfoot></tfoot>'
+
+    @scenario
+    def tbody(self):
+        self.widget = Tbody(self.view)
+        self.expected_html = '<tbody></tbody>'
+
+    @scenario
+    def tr(self):
+        self.widget = Tr(self.view)
+        self.expected_html = '<tr></tr>'
+
+    @scenario
+    def th(self):
+        self.widget = Th(self.view)
+        self.expected_html = '<th></th>'
+
+    @scenario
+    def td(self):
+        self.widget = Td(self.view)
+        self.expected_html = '<td></td>'
+
+    @scenario
+    def table(self):
+        self.widget = Table(self.view, caption_text='my caption', summary='my summary')
+        self.expected_html = '<table summary="my summary"><caption>my caption</caption></table>'
         
     @scenario
     def nav(self):

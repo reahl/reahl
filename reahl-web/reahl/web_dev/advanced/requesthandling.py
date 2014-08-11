@@ -71,7 +71,7 @@ class RequestHandlingTests(object):
 
            The framework ensures that an instance of web.session_class is available during any
            Request. The database is committed before any user code executes, so that any database activity
-           done by web.session_class would be committed even if an exception in the user code occurrs. 
+           done by web.session_class would be committed even if an exception in the user code occurs.
            After user code is executed, methods are called on the web.session_class so that it can set 
            its key on the response and save the last_activity_time.
            Finally, another commit is issued to the database so that any database activity during these last
