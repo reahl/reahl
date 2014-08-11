@@ -428,3 +428,43 @@ ul.reahl-menu li > a:hover {
     border-top: 2em solid transparent;
     border-bottom: 2em solid transparent;
 }
+
+/*----------------------------- table --------*/
+
+table {
+    color:#333333;
+    border-width: 1px;
+    border-color: #666666;
+    border-collapse: collapse;
+}
+
+table>caption { 
+    font-size: 150%;
+    font-weight: bold;
+    text-decoration: none; 
+    margin-bottom: 1em;
+}
+
+table>thead>tr>th {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+    background-color: #C1D2E7;
+}
+
+table>tbody>tr:nth-child(even) {
+    background: #dedede;
+}
+
+table>tbody>tr>td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #666666;
+}
+
+.reahl-column-sort > a{
+    text-decoration: none;
+}
+

@@ -25,7 +25,7 @@ from reahl.tofu import tear_down
 from reahl.component.config import ReahlSystemConfig
 from reahl.component.context import ExecutionContext
 
-from reahl.sqlalchemysupport import metadata, Session
+from reahl.sqlalchemysupport import metadata, Session, Base
 
     
 class SqlAlchemyTestMixin(object):
@@ -54,6 +54,12 @@ class SqlAlchemyTestMixin(object):
         finally:
             self.destroy_test_tables(*entities)
 
+    def elixir_classes_in(self, entities):
+        return [e for e in entities if not issubclass(e, Base)]
+
+    def declarative_classes_in(self, entities):
+        return [e for e in entities if issubclass(e, Base)]
+        
     def create_test_tables(self, *entities):
         metadata.create_all(bind=Session.connection())
 

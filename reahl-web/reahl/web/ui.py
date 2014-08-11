@@ -25,6 +25,7 @@ import six
 from string import Template
 import re
 import cgi
+import copy
 
 from babel import Locale, UnknownLocaleError
 from reahl.component.eggs import ReahlEgg
@@ -33,7 +34,8 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
-                          CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, Url, Bookmark, WidgetList
+                          CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
+                          Url, Bookmark, WidgetList
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
@@ -219,6 +221,12 @@ class HTMLElement(Widget):
         if css_id:
             self.set_id(css_id)
 
+    def __str__(self):
+        css_id_part = '(not set)'
+        if self.css_id_is_set:
+            css_id_part = self.css_id
+        return '<%s %s %s>' % (self.__class__.__name__, self.tag_name, 'id=%s' % css_id_part)
+
     def enable_refresh(self):
         """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that 
            one of its `query_fields` have changed.
@@ -227,6 +235,9 @@ class HTMLElement(Widget):
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
         self.add_hash_change_handler()
         
+    def is_refresh_enabled(self):
+        return len(self.ajax_handlers) > 0
+
     def add_child(self, child):
         assert self.children_allowed, 'You cannot add children to a %s' % type(self)
         return super(HTMLElement, self).add_child(child)
@@ -948,9 +959,11 @@ class Form(HTMLElement):
        :param unique_name: A name for this form, unique in the UserInterface where it is used.
        :param css_id: (See :class:`HTMLElement`)
     """
+    is_Form = True
     def __init__(self, view, unique_name, rendered_form=None):
         self.view = view
         self.inputs = {}
+        self.registered_input_names = {}
         self.set_up_event_channel(unique_name)
         self.set_up_field_validator('%s_validate' % unique_name)
         self.set_up_input_formatter('%s_format' % unique_name)
@@ -971,9 +984,6 @@ class Form(HTMLElement):
                                           json_result,
                                           immutable=True)
         self.view.add_resource(self.field_validator)
-
-    def get_forms(self):
-        return [self]
 
     def validate_single_input(self, **input_values):
         try:
@@ -1032,7 +1042,15 @@ class Form(HTMLElement):
         return six.text_type(action)
     
     def register_input(self, input_widget):
-        self.inputs[input_widget.name] = input_widget
+        assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' #xxx
+        proposed_name = input_widget.make_name('')
+        name = proposed_name
+        clashing_names_count = self.registered_input_names.setdefault(proposed_name, 0)
+        if clashing_names_count > 0:
+            name = input_widget.make_name(six.text_type(clashing_names_count))
+        self.registered_input_names[proposed_name] += 1
+        self.inputs[name] = input_widget
+        return name
 
     @property
     def channel_name(self):
@@ -1155,7 +1173,6 @@ class InputGroup(FieldSet):
     """
 
 
-
 class Input(Widget):
     """A Widget that proxies data between a user and the web application.
     
@@ -1165,16 +1182,20 @@ class Input(Widget):
     """
     input_type = None
     is_for_file = False
-    
+    is_Input = True
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field):
         self.form = form
         self.bound_field = bound_field
-        self.register(form) # bound_field must be set for this registration to work
+        self.name = form.register_input(self) # bound_field must be set for this registration to work
+
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
         self.add_wrapped_input()
 
-    def set_wrapped_widget(self, wrapped_widget):
+    def __str__(self):
+        return '<%s name=%s>' % (self.__class__.__name__, self.name)
+
+    def set_wrapped_widget(self, wrapped_widget): #xxx should perhaps return the input???
         self.wrapped_widget = wrapped_widget
         
     def append_class(self, css_class):
@@ -1206,11 +1227,12 @@ class Input(Widget):
 
     def add_wrapped_input(self):
         self.wrapped_html_input = self.add_child(self.create_html_input())
-        
+
     def create_html_input(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user."""
         return HTMLElement(self.view, 'input', wrapper_widget=self)
-    
+
+
     def get_wrapped_html_attributes(self, attributes):
         """Sets the HTML attributes which should be present on the HTMLElement that represents this Input
            in HTML to the user.
@@ -1230,10 +1252,7 @@ class Input(Widget):
         if self.disabled:
             attributes.set_to('disabled', 'disabled')
         return attributes
-        
-    def register(self, form):
-        form.register_input(self)
-        
+                
     def render(self):
         self.prepare_input()
         normal_output = super(Input, self).render()
@@ -1244,9 +1263,8 @@ class Input(Widget):
             error_output = error_label.render()
         return normal_output + error_output
 
-    @property
-    def name(self):
-        return self.bound_field.variable_name
+    def make_name(self, discriminator):
+        return '%s%s' % (self.bound_field.variable_name, discriminator)
 
     @property
     def label(self):
@@ -1592,9 +1610,8 @@ class ButtonInput(Input):
     def query_encoded_arguments(self):
         return self.bound_field.as_input() or '?'
 
-    @property
-    def name(self):
-        return 'event.%s%s' % (self.bound_field.name, self.query_encoded_arguments)
+    def make_name(self, discriminator):
+        return 'event.%s%s%s' % (self.bound_field.name, discriminator, self.query_encoded_arguments)
 
     @property
     def label(self):
@@ -1610,7 +1627,7 @@ class ButtonInput(Input):
         return None
    
 
-class Button(Span):    
+class Button(Span):
     """A button. 
 
        .. admonition:: Styling
@@ -1843,9 +1860,6 @@ class LabelOverInput(LabelledInlineInput):
     def get_js(self, context=None):
         js = ['$(%s).labeloverinput();' % self.contextualise_selector('".reahl-labeloverinput"', context)]
         return super(LabelOverInput, self).get_js(context=context) + js
-
-
-    
 
 
 class MenuItem(Li):
@@ -2472,3 +2486,218 @@ class PopupA(A):
         return ['$(%s).popupa({showForSelector: "%s", buttons: { %s }  });' % \
               (selector, self.show_for_selector, self.buttons_as_jquery())]
 
+
+class Caption(HTMLElement):
+    """An HTML caption element.
+
+       .. admonition:: Styling
+
+          Renders as an HTML <caption> element.
+    
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword text: Text to be displayed inside the caption element.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, text=None, css_id=None):
+        super(Caption, self).__init__(view, u'caption', children_allowed=True, css_id=css_id)
+        if text is not None:
+            self.add_child(TextNode(view, text))
+
+
+class Col(HTMLElement):
+    """An HTML col element, defines a column in a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword span: The number of columns spanned by this column.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, span=None, css_id=None):
+        super(Col, self).__init__(view, u'col', children_allowed=False, css_id=css_id)
+        if span:
+            self.set_attribute(u'span', span)
+
+
+class Colgroup(HTMLElement):
+    """An HTML colgroup element, defines a group of columns in a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword span: The number of columns spanned by this group.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, span=None, css_id=None):
+        super(Colgroup, self).__init__(view, u'colgroup', children_allowed=True, css_id=css_id)
+        if span:
+            self.set_attribute(u'span', span)
+
+
+class Thead(HTMLElement):
+    """An HTML thead element. Contains the header of the table columns.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, css_id=None):
+        super(Thead, self).__init__(view, 'thead', children_allowed=True, css_id=css_id)
+
+
+class Tfoot(HTMLElement):
+    """An HTML tfoot element. Contains the footer of the table columns.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, css_id=None):
+        super(Tfoot, self).__init__(view, 'tfoot', children_allowed=True, css_id=css_id)
+
+
+class Tbody(HTMLElement):
+    """An HTML tbody element. Contains the rows with data in the table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, css_id=None):
+        super(Tbody, self).__init__(view, 'tbody', children_allowed=True, css_id=css_id)
+
+
+class Tr(HTMLElement):
+    """An HTML tr element represents one row of data in a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, css_id=None):
+        super(Tr, self).__init__(view, 'tr',children_allowed=True, css_id=css_id)
+
+
+class Cell(HTMLElement):
+    def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None):
+        super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
+        if rowspan:
+            self.set_attribute(u'rowspan', rowspan)
+        if colspan:
+            self.set_attribute(u'colspan', colspan)
+
+
+class Th(Cell):
+    """An HTML th element - a single cell heading for a column of a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword rowspan: The number of rows this table cell should span.
+       :keyword colspan: The number of columns this table cell should span.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view,  rowspan=None, colspan=None, css_id=None):
+        super(Th, self).__init__(view, 'th', rowspan=rowspan, colspan=colspan, css_id=css_id)
+
+
+class Td(Cell):
+    """An HTML td element - a single cell of data inside a row of a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword rowspan: The number of rows this table cell should span.
+       :keyword colspan: The number of columns this table cell should span.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, rowspan=None, colspan=None, css_id=None):
+        super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
+
+
+class DynamicColumn(object):
+    """DynamicColumn defines the heading of a logical column of a table, and how each
+       cell in that row is displayed.
+
+       :param make_heading_or_string: A string to be used as heading for this column, or \
+              a single-argument callable that will be called (passing the current view) in \
+              order to compute a Widget to be displayed as heading of the column.
+       :param make_widget: A callable that takes two arguments: the current view, and an item \
+              of data of the current table row. It will be called to compute a Widget \
+              to be displayed in the current column for the given data item.
+       :keyword sort_key: If specified, this value will be passed to sort() for sortable tables. 
+    """
+    def __init__(self, make_heading_or_string, make_widget, sort_key=None):
+        if isinstance(make_heading_or_string, six.string_types):
+            def make_span(view):
+                return Span(view, text=make_heading_or_string)
+            self.make_heading_widget = make_span
+        else:
+            self.make_heading_widget = make_heading_or_string
+
+        self.make_widget = make_widget
+        self.sort_key = sort_key
+
+    def heading_as_widget(self, view):
+        return self.make_heading_widget(view)
+
+    def as_widget(self, view, item):
+        return self.make_widget(view, item)
+        
+    def with_overridden_heading_widget(self, make_heading_widget):
+        new_column = copy.copy(self)
+        new_column.make_heading_widget = make_heading_widget
+        return new_column
+
+
+class StaticColumn(DynamicColumn):
+    """StaticColumn defines a column whose heading and contents are derived from the given field.
+
+       :param field: The :class:`Field` that defines the heading for this column, and which \
+              will also be used to get the data to be displayed for each row in this column.
+       :param attribute_name: The name of the attribute to which `field` should be bound to \
+              on each data item when rendering this column.
+       :keyword sort_key: If specified, this value will be passed to sort() for sortable tables. 
+    """
+    def __init__(self, field, attribute_name, sort_key=None):
+        super(StaticColumn, self).__init__(field.label, self.make_text_node, sort_key=sort_key)
+        self.field = field
+        self.attribute_name = attribute_name
+    
+    def make_text_node(self, view, item):
+        field = self.field.copy()
+        field.bind(self.attribute_name, item)
+        return TextNode(view, field.as_input())    
+
+
+class Table(HTMLElement):
+    """An HTML table element: data displayed on columns and rows.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword caption_text: If text is given here, a caption will be added to the table containing the caption text.
+       :keyword summary:  A textual summary of the contents of the table which is not displayed visually, \
+                but may be used by a user agent for accessibility purposes.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, caption_text=None, summary=None, css_id=None):
+        super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id)
+        if caption_text:
+            self.add_child(Caption(view, text=caption_text))
+        if summary:
+            self.set_attribute('summary', '%s' % summary)
+
+    @classmethod
+    def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
+        """Creates a table with rows, columns, header and footer, with one row per provided item. The table is
+           defined by the list of Columns passed in.  
+        """
+        table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
+        table.create_header_columns(columns)
+        table.create_rows(columns, items)
+        return table
+
+    def create_header_columns(self, columns):
+        table_header = self.add_child(Thead(self.view))
+        header_tr = table_header.add_child(Tr(self.view))
+        for column_number, column in enumerate(columns):
+            column_th = header_tr.add_child(Th(self.view))
+            column_th.add_child(column.heading_as_widget(self.view))
+            
+    def heading_widget(self, heading_text):
+        return Span(self.view, text=column.heading)
+
+    def create_rows(self, columns, items):
+        body = self.add_child(Tbody(self.view))
+        for item in items:
+            row = body.add_child(Tr(self.view))
+            for column in columns:
+                row_td = row.add_child(Td(self.view))
+                row_td.add_child(column.as_widget(self.view, item))
