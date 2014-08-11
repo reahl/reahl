@@ -2488,6 +2488,16 @@ class PopupA(A):
 
 
 class Caption(HTMLElement):
+    """An HTML caption element.
+
+       .. admonition:: Styling
+
+          Renders as an HTML <caption> element.
+    
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword text: Text to be displayed inside the caption element.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, text=None, css_id=None):
         super(Caption, self).__init__(view, u'caption', children_allowed=True, css_id=css_id)
         if text is not None:
@@ -2495,6 +2505,12 @@ class Caption(HTMLElement):
 
 
 class Col(HTMLElement):
+    """An HTML col element, defines a column in a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword span: The number of columns spanned by this column.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, span=None, css_id=None):
         super(Col, self).__init__(view, u'col', children_allowed=False, css_id=css_id)
         if span:
@@ -2502,6 +2518,12 @@ class Col(HTMLElement):
 
 
 class Colgroup(HTMLElement):
+    """An HTML colgroup element, defines a group of columns in a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword span: The number of columns spanned by this group.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, span=None, css_id=None):
         super(Colgroup, self).__init__(view, u'colgroup', children_allowed=True, css_id=css_id)
         if span:
@@ -2509,23 +2531,41 @@ class Colgroup(HTMLElement):
 
 
 class Thead(HTMLElement):
-    def __init__(self, view, scope=None, css_id=None):
+    """An HTML thead element. Contains the header of the table columns.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
+    def __init__(self, view, css_id=None):
         super(Thead, self).__init__(view, 'thead', children_allowed=True, css_id=css_id)
-        if scope:
-            self.set_attribute(u'scope', scope)
 
 
 class Tfoot(HTMLElement):
+    """An HTML tfoot element. Contains the footer of the table columns.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, css_id=None):
         super(Tfoot, self).__init__(view, 'tfoot', children_allowed=True, css_id=css_id)
 
 
 class Tbody(HTMLElement):
+    """An HTML tbody element. Contains the rows with data in the table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, css_id=None):
         super(Tbody, self).__init__(view, 'tbody', children_allowed=True, css_id=css_id)
 
 
 class Tr(HTMLElement):
+    """An HTML tr element represents one row of data in a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, css_id=None):
         super(Tr, self).__init__(view, 'tr',children_allowed=True, css_id=css_id)
 
@@ -2540,16 +2580,41 @@ class Cell(HTMLElement):
 
 
 class Th(Cell):
+    """An HTML th element - a single cell heading for a column of a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword rowspan: The number of rows this table cell should span.
+       :keyword colspan: The number of columns this table cell should span.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view,  rowspan=None, colspan=None, css_id=None):
         super(Th, self).__init__(view, 'th', rowspan=rowspan, colspan=colspan, css_id=css_id)
 
 
 class Td(Cell):
+    """An HTML td element - a single cell of data inside a row of a table.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword rowspan: The number of rows this table cell should span.
+       :keyword colspan: The number of columns this table cell should span.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, rowspan=None, colspan=None, css_id=None):
         super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
 
 
 class DynamicColumn(object):
+    """DynamicColumn defines the heading of a logical column of a table, and how each
+       cell in that row is displayed.
+
+       :param make_heading_or_string: A string to be used as heading for this column, or \
+              a single-argument callable that will be called (passing the current view) in \
+              order to compute a Widget to be displayed as heading of the column.
+       :param make_widget: A callable that takes two arguments: the current view, and an item \
+              of data of the current table row. It will be called to compute a Widget \
+              to be displayed in the current column for the given data item.
+       :keyword sort_key: If specified, this value will be passed to sort() for sortable tables. 
+    """
     def __init__(self, make_heading_or_string, make_widget, sort_key=None):
         if isinstance(make_heading_or_string, six.string_types):
             def make_span(view):
@@ -2574,6 +2639,14 @@ class DynamicColumn(object):
 
 
 class StaticColumn(DynamicColumn):
+    """StaticColumn defines a column whose heading and contents are derived from the given field.
+
+       :param field: The :class:`Field` that defines the heading for this column, and which \
+              will also be used to get the data to be displayed for each row in this column.
+       :param attribute_name: The name of the attribute to which `field` should be bound to \
+              on each data item when rendering this column.
+       :keyword sort_key: If specified, this value will be passed to sort() for sortable tables. 
+    """
     def __init__(self, field, attribute_name, sort_key=None):
         super(StaticColumn, self).__init__(field.label, self.make_text_node, sort_key=sort_key)
         self.field = field
@@ -2586,6 +2659,14 @@ class StaticColumn(DynamicColumn):
 
 
 class Table(HTMLElement):
+    """An HTML table element: data displayed on columns and rows.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword caption_text: If text is given here, a caption will be added to the table containing the caption text.
+       :keyword summary:  A textual summary of the contents of the table which is not displayed visually, \
+                but may be used by a user agent for accessibility purposes.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
         super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id)
         if caption_text:
@@ -2595,6 +2676,9 @@ class Table(HTMLElement):
 
     @classmethod
     def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
+        """Creates a table with rows, columns, header and footer, with one row per provided item. The table is
+           defined by the list of Columns passed in.  
+        """
         table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
         table.create_header_columns(columns)
         table.create_rows(columns, items)
