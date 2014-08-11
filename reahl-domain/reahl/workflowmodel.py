@@ -86,11 +86,16 @@ class DeferredAction(Base):
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
-
-    requirements = relationship('Requirement', secondary=Table('requirement_deferred_actions__deferredaction_requirements', Base.metadata,
-                                                               Column('deferredaction_id', Integer, ForeignKey('deferredaction.id'), primary_key=True),
-                                                               Column('requirement_id', Integer, ForeignKey('requirement.id'), primary_key=True)
-                                                               ),
+    requirements = relationship('Requirement', 
+                                secondary=Table('requirement_deferred_actions__deferredaction_requirements', 
+                                            Base.metadata,
+                                            Column('deferredaction_id', Integer, 
+                                               ForeignKey('deferredaction.id'), 
+                                               primary_key=True),
+                                            Column('requirement_id', Integer, 
+                                               ForeignKey('requirement.id'), 
+                                               primary_key=True)
+                                ),
                                 lazy='dynamic',
                                 backref=backref('deferred_actions', lazy='dynamic'))
 
@@ -171,7 +176,7 @@ class Task(Base):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    queue_id = Column(Integer, ForeignKey(Queue.id), nullable=False)
+    queue_id = Column(Integer, ForeignKey(Queue.id), nullable=True)
 #    queue  (would like to declare it here)
     title = Column(UnicodeText, nullable=False)
     reserved_by_party_id = Column(Integer, ForeignKey(Party.id))

@@ -176,10 +176,15 @@ class NullDatabaseControl(DatabaseControl):
 
 class ORMControl(object):
     def migrate_db(self, eggs_in_order):
-        with self.managed_transaction():
+        with self.managed_transaction() as transaction:
             migrations = [(egg, egg.compute_migrations(self.schema_version_for(egg))) 
-                          for egg in eggs_in_order]
+                          for egg in eggs_in_order
+                          if self.has_schema_version(egg)]
+            new_eggs = [egg 
+                        for egg in eggs_in_order
+                        if not self.has_schema_version(egg)]
             self.run_migrate_phase(reversed(migrations), 1)
+            self.create_schema_for(transaction, new_eggs)
             self.run_migrate_phase(migrations, 2)
                 
             for egg in eggs_in_order:
@@ -194,6 +199,8 @@ class ORMControl(object):
             for migration in migration_list:
                 migration.run_phase(phase)
 
+    def create_schema_for(self, transaction, new_eggs):
+        self.create_db_tables(transaction, new_eggs)
 
 
 

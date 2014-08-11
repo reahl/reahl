@@ -41,6 +41,10 @@
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
   <schedule locator="reahl.systemaccountmodel:UserSession.remove_dead_sessions"/>
 
+  <migrations>
+    <class locator="reahl.domainmigrations:ElixirToDeclarativeChanges"/>
+  </migrations>
+
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domain_dev -F reahl.dev.fixtures:CleanDatabase"/>
   
   <distpackage type="sdist">
