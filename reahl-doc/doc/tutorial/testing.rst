@@ -188,9 +188,9 @@ the one using :class:`~reahl.webdev.tools.XPath` much more explicit and readable
 
 .. code-block:: python
    
-   browser.click(u'//a[href="/news"]')
+   browser.click('//a[href="/news"]')
 
-   browser.click(XPath.link_labelled(u'News'))
+   browser.click(XPath.link_labelled('News'))
 
 Readable tests
 --------------

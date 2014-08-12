@@ -142,7 +142,7 @@ widget function, this is something small, like:
 .. code-block:: python
 
     def get_js(self, context=None):
-        return [u'$(".myclass").labeloverinput();']
+        return ['$(".myclass").labeloverinput();']
 
 The Python implementation of :class:`~reahl.web.ui.LabelledInlineInput` does not illustrate
 how the HTML is composed, since it inherits all of that from
