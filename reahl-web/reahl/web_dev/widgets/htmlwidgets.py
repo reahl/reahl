@@ -313,11 +313,6 @@ class Scenarios(WebFixture):
         self.expected_html = '<thead></thead>'
 
     @scenario
-    def thead_with_scope(self):
-        self.widget = Thead(self.view, scope='col')
-        self.expected_html = '<thead scope="col"></thead>'
-
-    @scenario
     def tfoot(self):
         self.widget = Tfoot(self.view)
         self.expected_html = '<tfoot></tfoot>'
