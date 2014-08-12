@@ -137,12 +137,12 @@ class PageMenuTests(object):
         fixture.number_of_pages = 30
         fixture.max_page_links = 5
         fixture.reahl_server.set_app(fixture.wsgi_app)
-        fixture.driver_browser.open(u'/')
+        fixture.driver_browser.open('/')
 
-        fixture.driver_browser.click(XPath.link_with_text(u'p2'))
-        fixture.driver_browser.wait_for(fixture.container_contents_is, u'contents of page 2')
-        fixture.driver_browser.click(XPath.link_with_text(u'>'))
-        fixture.driver_browser.wait_for(fixture.container_contents_is, u'contents of page 2')
+        fixture.driver_browser.click(XPath.link_with_text('p2'))
+        fixture.driver_browser.wait_for(fixture.container_contents_is, 'contents of page 2')
+        fixture.driver_browser.click(XPath.link_with_text('>'))
+        fixture.driver_browser.wait_for(fixture.container_contents_is, 'contents of page 2')
 
     @test(PageMenuFixture)
     def active_state_of_next_prev_links(self, fixture):

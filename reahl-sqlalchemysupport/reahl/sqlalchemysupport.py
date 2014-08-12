@@ -165,10 +165,10 @@ class SqlAlchemyControl(ORMControl):
         registry = {}
         for cls in all_classes:
             try:
-#                if not hasattr(cls, u'metadata'):
+#                if not hasattr(cls, 'metadata'):
 #                if '_decl_class_registry' not in cls.__dict__:
-#                if not hasattr(cls, u'__table__'):
-#                if getattr(cls, u'__table__', None) not in metadata.sorted_tables:
+#                if not hasattr(cls, '__table__'):
+#                if getattr(cls, '__table__', None) not in metadata.sorted_tables:
                 if not hasattr(cls, '__mapper__'):
                     instrument_declarative(cls, registry, metadata)
                     logging.getLogger(__file__).info( 'Instrumented %s: __tablename__=%s [polymorphic_identity=%s]' % \
