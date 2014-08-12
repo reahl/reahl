@@ -69,7 +69,7 @@ class QueryFixture(Fixture, BasicModelZooMixin):
         return MyObject
         
     def new_objects(self):
-        objects = [self.MyObject(name=u'B'), self.MyObject(name=u'A'), self.MyObject(name=u'C')]
+        objects = [self.MyObject(name='B'), self.MyObject(name='A'), self.MyObject(name='C')]
         for o in objects:
             Session.add(o)
         return objects
