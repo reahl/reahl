@@ -37,8 +37,8 @@ let's string together two :class:`~reahl.web.ui.P`\ (aragraph)s onto a :class:`~
    class ReahllyBadPoem(Panel): 
        def __init__(self, view):
            super(ReahllyBadPoem, self).__init__(view)
-           self.add_child(P(view, text=u'Reahl is for real.'))
-           self.add_child(P(view, text=u'You can use it in the real world.'))
+           self.add_child(P(view, text='Reahl is for real.'))
+           self.add_child(P(view, text='You can use it in the real world.'))
 
 To use an instance of the ReahllyBadPoem
 :class:`~reahl.web.fw.Widget`, you add it as a child of another
