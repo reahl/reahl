@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.stubble import stubclass, EmptyStub
-from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario, set_up
+from __future__ import unicode_literals
+from __future__ import print_function
+
+from reahl.stubble import EmptyStub
+from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath, WidgetTester
@@ -68,26 +70,26 @@ def table_basics(fixture):
         def __init__(self, view):
             super(MainWidget, self).__init__(view)
             table = Table.from_columns(view, 
-                            [StaticColumn(Field(label=u'Row Number'), u'row'),
-                             StaticColumn(Field(label=u'Alpha'), u'alpha')],
+                            [StaticColumn(Field(label='Row Number'), 'row'),
+                             StaticColumn(Field(label='Alpha'), 'alpha')],
                             fixture.data,
-                            caption_text=u'All my friends',
-                            summary=u'Summary for screen reader',
-                            css_id=u'my_table_data'
+                            caption_text='All my friends',
+                            summary='Summary for screen reader',
+                            css_id='my_table_data'
                             )
             self.add_child(table)
 
     wsgi_app = fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
     fixture.reahl_server.set_app(wsgi_app)
-    fixture.driver_browser.open(u'/')
+    fixture.driver_browser.open('/')
         
     # The table has a caption and summary
-    vassert( fixture.table_caption_is(u'All my friends') )
-    vassert( fixture.table_summary_is(u'Summary for screen reader') )
+    vassert( fixture.table_caption_is('All my friends') )
+    vassert( fixture.table_summary_is('Summary for screen reader') )
 
     # Column headings are derived from given Column Fields
-    vassert( fixture.table_column_name_is(1, u'Row Number') )
-    vassert( fixture.table_column_name_is(2, u'Alpha') )
+    vassert( fixture.table_column_name_is(1, 'Row Number') )
+    vassert( fixture.table_column_name_is(2, 'Alpha') )
 
     # A string representation of the value of each Field of a given data item is shown in the appropriate cell
     vassert( fixture.table_number_rows() == 3 )
@@ -99,15 +101,15 @@ def table_basics(fixture):
 
 class ColumnFixture(WebFixture):
     sort_key = EmptyStub()
-    heading = u'A heading'
+    heading = 'A heading'
     row_item = EmptyStub(some_attribute=True)
     
     @scenario
     def static_column(self):
         """StaticColumn represents an attribute of the item in a row, using a Field to translate the value of that attribute into a string and to specify a column header."""
-        self.column = StaticColumn(BooleanField(label=self.heading), u'some_attribute', sort_key=self.sort_key)
-        self.expected_cell_html = u'on' # as translated by BooleanField
-        self.expected_heading_html = u'<span>A heading</span>'
+        self.column = StaticColumn(BooleanField(label=self.heading), 'some_attribute', sort_key=self.sort_key)
+        self.expected_cell_html = 'on' # as translated by BooleanField
+        self.expected_heading_html = '<span>A heading</span>'
 
     @scenario
     def dynamic_column(self):
@@ -116,8 +118,8 @@ class ColumnFixture(WebFixture):
             return Span(view, text='Answer: %s' % (data_item.some_attribute))
 
         self.column = DynamicColumn(self.heading, make_span, sort_key=self.sort_key)
-        self.expected_cell_html = u'<span>Answer: True</span>' # raw attribute used
-        self.expected_heading_html = u'<span>A heading</span>'
+        self.expected_cell_html = '<span>Answer: True</span>' # raw attribute used
+        self.expected_heading_html = '<span>A heading</span>'
 
     @scenario
     def dynamic_column_static_heading(self):
@@ -129,8 +131,8 @@ class ColumnFixture(WebFixture):
             return P(view, text=self.heading)
 
         self.column = DynamicColumn(make_heading, make_span, sort_key=self.sort_key)
-        self.expected_cell_html = u'<span>Answer: True</span>' # raw attribute used
-        self.expected_heading_html = u'<p>A heading</p>'
+        self.expected_cell_html = '<span>Answer: True</span>' # raw attribute used
+        self.expected_heading_html = '<p>A heading</p>'
 
 
 @test(ColumnFixture)

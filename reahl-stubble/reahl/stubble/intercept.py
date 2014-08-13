@@ -81,12 +81,12 @@ class CallMonitor(object):
           s = SomeClass()
 
           with CallMonitor(s.foo) as monitor:
-              assert s.foo('a value') == u'something'
+              assert s.foo('a value') == 'something'
 
           assert monitor.times_called == 1
           assert monitor.calls[0].args == ('a value',)
           assert monitor.calls[0].kwargs == {}
-          assert monitor.calls[0].return_value == u'something'
+          assert monitor.calls[0].return_value == 'something'
     """
     def __init__(self, method):
         self.obj = method.__self__
@@ -153,7 +153,7 @@ def replaced(method, replacement):
 
           class SomethingElse(object):
               def foo(self, n, y='yyy'):
-                  assert None, u'This should never be reached in this test'
+                  assert None, 'This should never be reached in this test'
 
           s = SomethingElse()
 
@@ -161,7 +161,7 @@ def replaced(method, replacement):
               return y
 
           with replaced(s.foo, replacement):
-              assert s.foo(1, y=u'a') == u'a'
+              assert s.foo(1, y='a') == 'a'
               assert s.foo(2) == None
 
           assert s.foo(2) == 'yyy'

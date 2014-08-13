@@ -177,7 +177,6 @@ html_static_path = []
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 html_file_suffix = None
 #html_file_suffix = '.d.html'
-#cs
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Reahldoc'

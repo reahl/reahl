@@ -212,7 +212,7 @@ class UserInterfaceTests(object):
 
         # Phase1: specifying a user_interface and assembleing it to a site (with kwargs)
         parent_ui = None
-#        parent_ui = EmptyStub(base_path=u'/')
+#        parent_ui = EmptyStub(base_path='/')
         slot_map = {'slotA': 'main_slot'}
         ui_factory = UserInterfaceFactory(parent_ui, RegexPath('/', '/', {}), slot_map, UserInterfaceStub, 'test_ui')
 
