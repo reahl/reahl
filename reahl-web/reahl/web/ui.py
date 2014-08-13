@@ -70,7 +70,7 @@ class HTMLAttribute(object):
     def as_html_snippet(self):
         if not self.value:
             return ''
-#        return u'''%s='%s\'''' % (self.name, self.as_html_value())
+#        return '''%s='%s\'''' % (self.name, self.as_html_value())
         return '%s="%s"' % (self.name, cgi.escape(self.as_html_value(), True))
         
     def as_html_value(self):
@@ -1120,8 +1120,8 @@ class Form(HTMLElement):
        
     def get_js(self, context=None):
         js = ['$(%s).form();' % self.jquery_selector]
-#        js = [u'$(%s).validate({meta: "validate"});' % self.jquery_selector]
-#        js = [u'$("#%s").validate();' % self.event_channel.name]
+#        js = ['$(%s).validate({meta: "validate"});' % self.jquery_selector]
+#        js = ['$("#%s").validate();' % self.event_channel.name]
         return super(Form, self).get_js(context=context) + js 
 
     @property
@@ -2499,7 +2499,7 @@ class Caption(HTMLElement):
        :keyword css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, text=None, css_id=None):
-        super(Caption, self).__init__(view, u'caption', children_allowed=True, css_id=css_id)
+        super(Caption, self).__init__(view, 'caption', children_allowed=True, css_id=css_id)
         if text is not None:
             self.add_child(TextNode(view, text))
 
@@ -2512,9 +2512,9 @@ class Col(HTMLElement):
        :keyword css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, span=None, css_id=None):
-        super(Col, self).__init__(view, u'col', children_allowed=False, css_id=css_id)
+        super(Col, self).__init__(view, 'col', children_allowed=False, css_id=css_id)
         if span:
-            self.set_attribute(u'span', span)
+            self.set_attribute('span', span)
 
 
 class Colgroup(HTMLElement):
@@ -2525,9 +2525,9 @@ class Colgroup(HTMLElement):
        :keyword css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, span=None, css_id=None):
-        super(Colgroup, self).__init__(view, u'colgroup', children_allowed=True, css_id=css_id)
+        super(Colgroup, self).__init__(view, 'colgroup', children_allowed=True, css_id=css_id)
         if span:
-            self.set_attribute(u'span', span)
+            self.set_attribute('span', span)
 
 
 class Thead(HTMLElement):
@@ -2574,9 +2574,9 @@ class Cell(HTMLElement):
     def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None):
         super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
         if rowspan:
-            self.set_attribute(u'rowspan', rowspan)
+            self.set_attribute('rowspan', rowspan)
         if colspan:
-            self.set_attribute(u'colspan', colspan)
+            self.set_attribute('colspan', colspan)
 
 
 class Th(Cell):
