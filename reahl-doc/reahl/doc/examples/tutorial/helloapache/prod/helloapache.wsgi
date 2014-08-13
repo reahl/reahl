@@ -1,6 +1,6 @@
 
 # Activate your virtual env
-virtualenv_dir = u'/usr/local/helloapache/virtualenv'
+virtualenv_dir = '/usr/local/helloapache/virtualenv'
 activate_env="%s/bin/activate_this.py" % virtualenv_dir
 execfile(activate_env, dict(__file__=activate_env))
 

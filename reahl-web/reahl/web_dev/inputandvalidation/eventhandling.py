@@ -401,12 +401,12 @@ def check_input_placement(fixture):
     class MainUI(UserInterface):
         def assemble(self):
             page = self.define_page(TwoColumnPage)
-            home = self.define_view(u'/', title=u'Home page')
-            home.set_slot(u'main', MyForm.factory())
+            home = self.define_view('/', title='Home page')
+            home.set_slot('main', MyForm.factory())
 
     class MyForm(Form):
         def __init__(self, view):
-            super(MyForm, self).__init__(view, u'my_form')
+            super(MyForm, self).__init__(view, 'my_form')
             self.add_child(RerenderableInputPanel(view, self))
             
     class RerenderableInputPanel(Panel):
@@ -420,7 +420,7 @@ def check_input_placement(fixture):
     browser = Browser(wsgi_app)
     
     def check_exc(ex):
-        vassert( 'Inputs are not allowed where they can be refreshed separately from their forms.' in str(ex))
+        vassert( 'Inputs are not allowed where they can be refreshed separately from their forms.' in six.text_type(ex))
     
     with expected(ProgrammerError, test=check_exc):
         browser.open('/')
@@ -448,7 +448,7 @@ def check_missing_form(fixture):
     def check_exc(ex):
         expected_message = 'Could not find form for <TextInput name=name>. '\
                            'Its form, <Form form id=myform> is not present on the current page'
-        vassert( str(ex) == expected_message )
+        vassert( six.text_type(ex) == expected_message )
     
     with expected(ProgrammerError, test=check_exc):
         browser.open('/')

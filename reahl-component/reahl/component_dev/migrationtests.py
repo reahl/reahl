@@ -18,6 +18,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 from contextlib import contextmanager
+import warnings
 
 from reahl.tofu import Fixture, test, vassert
 
@@ -25,11 +26,22 @@ from reahl.component.dbutils import ORMControl
 from reahl.component.eggs import ReahlEgg
 from reahl.component.migration import Migration
 
-# current schema version is saved when tables are creates
-# when you run upgrade, only the relevant migrations are run, in order - 2 phases, then new schema version is notes
+warnings.warn('TODO: these tests need neatening, some facts to test are in comments below this warning')
+#
+# current schema version is saved when tables are created
+# when you run upgrade, only the relevant migrations are run, in order - 2 phases, then new schema version is noted
+# when a new egg appears in the dependency tree that was not installed before, its tables are created & version is noted
+# when an old egg disappears from the dependency tree???
 
 
+class stubclass(object):
+    def __init__(self, cls):
+        pass
+    def __call__(self, cls):
+        warnings.warn('This needs to become stubble.stubclass, but stubble does not deal with this scenario - it needs to be fixed')
+        return cls
 
+@stubclass(ReahlEgg)
 class ReahlEggStub(ReahlEgg):
     def __init__(self, name, version, migrations):
         super(ReahlEggStub, self).__init__(None)
@@ -48,6 +60,7 @@ class ReahlEggStub(ReahlEgg):
     def migrations_in_order(self):
         return self.migrations
 
+@stubclass(ORMControl)
 class ORMControlStub(ORMControl):
     def __init__(self):
         self.versions = {}
@@ -60,7 +73,10 @@ class ORMControlStub(ORMControl):
         return self.versions[egg.name]
     def initialise_schema_version_for(self, egg):
         self.versions[egg.name] = egg.version
-
+    def has_schema_version(self, egg):
+        return egg.name in self.versions
+    def create_schema_for(self, transaction, new_eggs):
+        pass
 
 class MigrateFixture(Fixture):
     def new_orm_control(self):
