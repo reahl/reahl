@@ -815,7 +815,6 @@ class SpecificFieldsTests(object):
                 return 'af'
             
         with AfrikaansContext():
-            #cs context.force_interface_locale = u'af'
             obj = EmptyStub()
             field = BooleanField()
             field.bind('boolean_attribute', obj)
@@ -859,16 +858,16 @@ class SpecificFieldsTests(object):
         field.bind('value', obj)
 
         # From input
-        field.from_input(u'abc')
-        vassert( obj.value == u'abc' )
+        field.from_input('abc')
+        vassert( obj.value == 'abc' )
 
         # As input
-        obj.value = u'def'
-        vassert( field.as_input() == u'def' )
+        obj.value = 'def'
+        vassert( field.as_input() == 'def' )
 
         # As input - corner case
-        obj.value = u''
-        vassert( field.as_input() == u'' )
+        obj.value = ''
+        vassert( field.as_input() == '' )
 
     @test(Fixture)
     def integer_marshalling(self, fixture):
@@ -886,7 +885,7 @@ class SpecificFieldsTests(object):
 
         # As input - corner case
         obj.integer_value = 0
-        vassert( field.as_input() == u'0' )
+        vassert( field.as_input() == '0' )
 
     class ChoiceFixture(Fixture):
         def new_field(self, field_class=None):
