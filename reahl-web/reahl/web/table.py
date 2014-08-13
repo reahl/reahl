@@ -22,7 +22,7 @@ Displaying tabular data in a paged, sortable manner
 import functools
 
 from reahl.web.fw import Bookmark
-from reahl.web.ui import A, Span, Panel, Table, Widget, Form
+from reahl.web.ui import A, Span, Panel, Table, Widget
 from reahl.web.pager import SequentialPageIndex, PagedPanel, PageMenu
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 
@@ -73,11 +73,11 @@ class PagedTable(PagedPanel):
                                                 css_id=css_id))
 
     def create_sorter_link(self, column_number, descending=False):
-        description = u'▼' if descending else u'▲'
-        sort_descending = u'on' if descending else u'off'
+        description = '▼' if descending else '▲'
+        sort_descending = 'on' if descending else 'off'
         return A.from_bookmark(self.view, Bookmark.for_widget(description=description, 
-                                              query_arguments={u'sort_column_number': column_number, 
-                                                               u'sort_descending': sort_descending}))
+                                              query_arguments={'sort_column_number': column_number,
+                                                               'sort_descending': sort_descending}))
 
     def create_sorter_controls(self, column_number):
         sorting_controls = Span(self.view)
@@ -96,13 +96,13 @@ class PagedTable(PagedPanel):
 class DataTable(Panel):
     def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, css_id=None):
         super(DataTable, self).__init__(view, css_id=css_id)
-        self.append_class(u'reahl-datatable')
+        self.append_class('reahl-datatable')
 
         self.page_index = TablePageIndex(columns, items, items_per_page=items_per_page)
 
-        paged_css_id = u'%s_paged' % css_id
+        paged_css_id = '%s_paged' % css_id
         self.paged_contents = PagedTable(view, self.page_index, columns, caption_text=caption_text, summary=summary, css_id=paged_css_id)
-        self.page_menu = PageMenu(view, u'page_menu', self.page_index, self.paged_contents)
+        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.paged_contents)
         self.add_children([self.page_menu, self.paged_contents])
 
 

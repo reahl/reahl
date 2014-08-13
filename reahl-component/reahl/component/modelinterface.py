@@ -844,7 +844,7 @@ class Field(object):
     def unparse_input(self, parsed_value):
         """Override this method on a subclass to specify how that subclass transforms a given Python
            object (`parsed_value`) to a string that represents it to a user."""
-        return six.text_type(parsed_value if parsed_value is not None else u'')
+        return six.text_type(parsed_value if parsed_value is not None else '')
 
     def from_input(self, unparsed_input):
         """Sets the value of this Field from the given `unparsed_input`."""
