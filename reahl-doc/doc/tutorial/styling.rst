@@ -40,7 +40,7 @@ by adding it to the Head of your :class:`~reahl.web.ui.HTML5Page`:
 
 .. code-block:: python
 
-   self.head.add_css(Url(u'/styles/basic.css'))
+   self.head.add_css(Url('/styles/basic.css'))
 
 If you are using the :class:`~reahl.web.ui.TwoColumnPage` as a page, the same effect
 can be accomplished by merely passing ``style='basic'`` to its
