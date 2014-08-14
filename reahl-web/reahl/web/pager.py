@@ -145,7 +145,7 @@ class PageIndex(PageIndexProtocol):
     @memoized
     def pages_in_range(self):
         return [self.get_page_number(page_number) 
-                for page_number in range(self.start_page_number, self.end_page.number+1)]
+                for page_number in list(range(self.start_page_number, self.end_page.number+1))]
 
     @property
     @memoized

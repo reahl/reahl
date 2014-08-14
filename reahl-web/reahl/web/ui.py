@@ -709,7 +709,7 @@ class P(HTMLElement):
         for child in self.parse_children(self.text):
             filled_p.add_child(child)
 
-        for i in range(0,len(args)):
+        for i in list(range(0, len(args))):
             filled_p.set_slot(six.text_type(i), args[i])
         for slot_name, widget in kwargs.items():
             filled_p.set_slot(slot_name, widget)
