@@ -25,13 +25,12 @@ import os.path
 from six.moves import html_parser
 import logging
 
-from BeautifulSoup import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup, SoupStrainer
 
 from reahl.component.modelinterface import Field
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
-from reahl.web.fw import WebExecutionContext, Bookmark, UrlBoundView, NoView, \
-                         FileOnDisk, UserInterface, FileView, NoMatchingFactoryFound, CannotCreate
+from reahl.web.fw import WebExecutionContext, UrlBoundView, FileOnDisk, UserInterface, FileView, CannotCreate
 from reahl.web.ui import LiteralHTML
 
 _ = Translator('reahl-web')
@@ -85,10 +84,10 @@ class DhtmlUI(UserInterface):
                 if name == 'div' and dict(attrs).get('id', None) == self.static_div_name:
                     return True
                 return False
-            soup = BeautifulSoup(dhtml_file, parseOnlyThese=SoupStrainer(strain))
+            soup = BeautifulSoup(dhtml_file, parse_only=SoupStrainer(strain))
             parser = html_parser.HTMLParser()
-            statics['title'] = parser.unescape(soup.title.renderContents()) if soup.title else _('Untitled')
-            statics['div'] = soup.div.renderContents() if soup.div else ''
+            statics['title'] = parser.unescape(soup.title.encode_contents()) if soup.title else _('Untitled')
+            statics['div'] = soup.div.encode_contents() if soup.div else ''
         return statics
     
     def create_view(self, relative_path, user_interface, file_path=None):
