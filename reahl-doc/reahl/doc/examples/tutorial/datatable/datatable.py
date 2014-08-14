@@ -2,14 +2,15 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import elixir
+
+from sqlalchemy import Column, Integer, UnicodeText
 from sqlalchemy.orm.exc import NoResultFound
 
-from reahl.sqlalchemysupport import Session, metadata
+from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
-from reahl.web.ui import Button, Form, H, HMenu, InputGroup, LabelledBlockInput, A, CheckboxInput
 from reahl.web.ui import Panel, P, TextInput, TwoColumnPage, StaticColumn, DynamicColumn
+from reahl.web.ui import Button, Form, H, HMenu, InputGroup, LabelledBlockInput, A
 from reahl.web.table import DataTable
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action, BooleanField
 
@@ -24,7 +25,7 @@ class AddressBookPage(TwoColumnPage):
 class EditView(UrlBoundView):
     def assemble(self, address_id=None):
         try:
-            address = Address.query.filter_by(id=address_id).one()
+            address = Session.query(Address).filter_by(id=address_id).one()
         except NoResultFound:
             raise CannotCreate()
 
@@ -90,7 +91,7 @@ class AddressBookPanel(Panel):
         self.add_child(data_table)
 
     def initialise_rows(self):
-        return [Row(address) for address in Address.query.all()]
+        return [Row(address) for address in Session.query(Address).all()]
 
 
 class EditAddressForm(Form):
@@ -127,13 +128,13 @@ class AddressBox(Form):
         par.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))
 
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata, tablename='tutorial_datatable_address')
-    elixir.using_mapper_options(save_on_init=False)
-    
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
-    zip_code      = elixir.Field(elixir.Integer)
+class Address(Base):
+    __tablename__ = 'datatable_address'
+
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
+    zip_code      = Column(Integer)
 
     @exposed
     def fields(self, fields):
@@ -148,5 +149,3 @@ class Address(elixir.Entity):
 
     def save(self):
         Session.add(self)
-
-
