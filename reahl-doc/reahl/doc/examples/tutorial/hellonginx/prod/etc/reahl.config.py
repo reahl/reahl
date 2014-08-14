@@ -8,4 +8,4 @@ reahlsystem.root_egg = 'hellonginx'
 reahlsystem.connection_uri = 'sqlite:////var/local/hellonginx/hellonginx.db'  
 
 # If using PostgreSQL:
-#reahlsystem.connection_uri = 'postgres://hellonginx:hellonginx@localhost/hellonginx'  
+#reahlsystem.connection_uri = 'postgresql://hellonginx:hellonginx@localhost/hellonginx'  

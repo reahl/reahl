@@ -8,4 +8,4 @@ reahlsystem.root_egg = 'helloapache'
 reahlsystem.connection_uri = 'sqlite:////var/local/helloapache/helloapache.db'  
 
 # If using PostgreSQL:
-#reahlsystem.connection_uri = 'postgres://helloapache:helloapache@localhost/helloapache'  
+#reahlsystem.connection_uri = 'postgresql://helloapache:helloapache@localhost/helloapache'  
