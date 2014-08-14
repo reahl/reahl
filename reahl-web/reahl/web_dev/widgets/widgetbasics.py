@@ -20,6 +20,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import re
+import io
 import pkg_resources
 
 
@@ -282,7 +283,7 @@ class WidgetBasics(object):
         attachments = reahl_egg.find_attachments(fixture.attachment_label)
 
         # Only the js/css of one widget is checked to check the mechanism...
-        with open(attachments[0].filename, 'r') as snippet_file:
+        with io.open(attachments[0].filename, 'r') as snippet_file:
             snippet = broken_but_comparable_minify(snippet_file.read())
 
         served_statics = broken_but_comparable_minify(browser.raw_html)

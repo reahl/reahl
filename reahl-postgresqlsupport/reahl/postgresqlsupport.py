@@ -18,7 +18,9 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+
 import six
+import io
 import subprocess
 import gzip
 from datetime import date
@@ -67,7 +69,7 @@ class PostgresqlControl(DatabaseControl):
         today = date.today()
         filename = '%s.psql.%s' % (self.database_name, today.strftime('%A'))
         full_path = os.path.join(directory, filename)
-        with open(full_path, 'w') as destination_file:
+        with io.open(full_path, 'w') as destination_file:
             cmd_args = ['-Fc', '-o'] + self.login_args + [self.database_name]
             Executable('pg_dump').check_call(cmd_args, stdout=destination_file)
         return 0

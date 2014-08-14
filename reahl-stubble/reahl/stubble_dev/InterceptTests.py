@@ -16,6 +16,8 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+
+import io
 from nose.tools import istest, assert_raises
 import tempfile
 
@@ -162,7 +164,7 @@ class InterceptTests(object):
         screenshot_filename = tempfile.mktemp()
         output.capture_console_screenshot(screenshot_filename)
 
-        with open(screenshot_filename,'r') as screenshot:
+        with io.open(screenshot_filename,'r') as screenshot:
             assert( screenshot.read() == output.captured_output )
 
 
