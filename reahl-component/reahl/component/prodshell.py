@@ -267,7 +267,6 @@ class RunJobs(ProductionCommand):
 
 class ProductionCommandline(ReahlCommandline):
     """The main class for invoking commands on projects in production environments."""
-    args_re = ''
     def __init__(self, options):
         super(ProductionCommandline, self).__init__(options, ProdShellConfig())
 
