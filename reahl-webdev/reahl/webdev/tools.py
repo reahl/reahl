@@ -17,7 +17,9 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+
 import six
+import io
 import contextlib
 from six.moves.urllib import parse as urllib_parse
 import logging
@@ -53,7 +55,7 @@ def patch_Field():
 
 class BasicBrowser(object):
     def save_source(self, filename):
-        with open(filename, 'w') as output:
+        with io.open(filename, 'w') as output:
             for line in html.tostring(self.lxml_html, pretty_print=True).split('\n'): 
                 output.write(line+'\n')
 
@@ -62,7 +64,7 @@ class BasicBrowser(object):
             print(line)
             
     def save_source(self, filename):
-        with open(filename, 'w') as html_file:
+        with io.open(filename, 'w') as html_file:
             html_file.write(self.raw_html)
             
     def get_html_for(self, locator):
