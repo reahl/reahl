@@ -86,7 +86,7 @@ class DataTableFixture(TableFixture):
 
     def get_table_header(self):
         header_data = []
-        for column_number in range(1, len(self.columns)+1):
+        for column_number in list(range(1, len(self.columns)+1)):
             header_data.append(self.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]' % (column_number)).text)
         return header_data
 

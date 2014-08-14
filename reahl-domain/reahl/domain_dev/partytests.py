@@ -432,7 +432,7 @@ class RegistrationTests(object):
 
         account_management_interface.email = system_account.email
         account_management_interface.password = 'gobbledegook'
-        for i in range(3):
+        for i in list(range(3)):
             with expected(InvalidPasswordException, test=lambda e: vassert(e.commit)):
                 account_management_interface.log_in()
             vassert( system_account.failed_logins == i+1 )
