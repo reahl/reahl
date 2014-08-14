@@ -15,16 +15,20 @@ class SchemaChange(object):
     def __init__(self, *phases):
         self.phases_in_order = phases
         self.phases = dict([(i, []) for i in phases])
+
     def schedule(self, phase, to_call, *args, **kwargs):
         self.phases[phase].append((to_call, args, kwargs))
+
     def execute(self, phase):
-        logging.getLogger(__file__).warn('Executing phase %s' % phase)
+        logging.getLogger(__file__).info('Executing schema change phase %s' % phase)
         for to_call, args, kwargs in self.phases[phase]:
-            logging.getLogger(__file__).warn('--> change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
+            logging.getLogger(__file__).info('--> change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
             to_call(*args, **kwargs)
+
     def execute_all(self):
         for phase in self.phases_in_order:
             self.execute(phase)
+
 
 class ElixirToDeclarativeChanges(Migration):
     version = '3.0'
@@ -132,4 +136,4 @@ class ElixirToDeclarativeChanges(Migration):
 
             
     def upgrade_cleanup(self):
-        print('executing AddDate (upgrade_cleanup)')
+        pass
