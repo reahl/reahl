@@ -22,6 +22,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import os.path
+import io
 from six.moves import html_parser
 import logging
 
@@ -77,7 +78,7 @@ class DhtmlUI(UserInterface):
 
     def statics(self, relative_path):
         statics = {}
-        with open(self.filesystem_path(relative_path)) as dhtml_file:
+        with io.open(self.filesystem_path(relative_path)) as dhtml_file:
             def strain(name, attrs):
                 if name == 'title':
                     return True

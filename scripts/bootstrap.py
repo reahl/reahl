@@ -26,6 +26,7 @@ import os
 import shutil
 import glob
 import re
+import io
 
 def ask(prompt):
     answer = None
@@ -64,9 +65,9 @@ def clean_egg_info_dirs():
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
-    with open(requires_file, 'r') as input_file:
+    with io.open(requires_file, 'r') as input_file:
         lines = input_file.readlines()
-    with open(requires_file, 'w') as output_file:
+    with io.open(requires_file, 'w') as output_file:
         for line in lines:
             version_stripped_line = re.match('([\w-]+)', line).group(0)
             output_file.write(version_stripped_line)
@@ -81,7 +82,7 @@ def fake_distributions_into_existence(project_dirs):
 
 def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
     non_reahl_requirements = hard_coded_core_dependencies[:]
-    for line in open(requires_file, 'r'):
+    for line in io.open(requires_file, 'r'):
         if not line.startswith('reahl-'):
             non_reahl_requirements.append(line)
     missing = []

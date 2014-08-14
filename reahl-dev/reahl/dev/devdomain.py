@@ -19,6 +19,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import os
+import io
 import sys
 import glob
 import re
@@ -199,7 +200,7 @@ class DebianDotInstallFile(object):
         return os.path.join('debian', 'python-%s.install' % self.egg_project.project_name)
 
     def generate(self):
-        with open(self.filename, 'w') as out_file:
+        with io.open(self.filename, 'w') as out_file:
             out_file.write(os.path.join('debian', self.package_set.deb_base_name, self.egg_project.project_name, 'usr'))
             out_file.write('  /\n') 
 
@@ -248,12 +249,12 @@ class RepositoryLocalState(object):
         self.uploaded_project_ids = set()
         if not os.path.exists(self.upload_state_filename):
             return
-        f = open(self.upload_state_filename, 'r')
+        f = io.open(self.upload_state_filename, 'r')
         self.uploaded_project_ids = set(f.read().splitlines())
         f.close()
 
     def write(self):
-        f = open(self.upload_state_filename, 'w')
+        f = io.open(self.upload_state_filename, 'w')
         f.writelines(['%s\n' % i for i in self.uploaded_project_ids])
         f.close()
 
@@ -394,11 +395,11 @@ class LocalRepository(object):
         
 class LocalAptRepository(LocalRepository):
     def build_index_files(self):
-        with open( os.path.join(self.root_directory, 'Packages'), 'w' ) as packages_file:
+        with io.open( os.path.join(self.root_directory, 'Packages'), 'w' ) as packages_file:
             Executable('apt-ftparchive').check_call(['packages', '.'], cwd=self.root_directory, stdout=packages_file)
 
         path_name, directory_name = os.path.split(self.root_directory)
-        with open( os.path.join(self.root_directory, 'Release'), 'w' ) as release_file:
+        with io.open( os.path.join(self.root_directory, 'Release'), 'w' ) as release_file:
             Executable('apt-ftparchive').check_call(['release', directory_name], cwd=path_name, stdout=release_file)
 
         Executable('gpg').check_call(['-abs', '--yes', '-o', 'Release.gpg', 'Release'], cwd=self.root_directory)
@@ -1135,7 +1136,7 @@ class DebianChangelog(object):
         self.filename = filename
 
     def parse_heading_for(self, element):
-        with open(self.filename) as changelog_file:
+        with io.open(self.filename) as changelog_file:
             for line in changelog_file:
                 if line.strip():
                     match = re.match(self.heading_regex, line)
@@ -1159,7 +1160,7 @@ class DebianControl(object):
     def stanzas(self):
         stanzas = []
         current_stanza = ''
-        with open(self.filename) as control_file:
+        with io.open(self.filename) as control_file:
             for line in control_file:
                 if not line.strip():
                     if current_stanza:
@@ -1292,7 +1293,7 @@ class Project(object):
         project_filename = os.path.join(directory, '.reahlproject')
         if not os.path.isfile(project_filename):
             raise NotAValidProjectException(project_filename)
-        input_file = open(project_filename, 'r')
+        input_file = io.open(project_filename, 'r')
         try:
             reader = XMLReader()
             project = reader.read_file(input_file, (workspace, directory))
@@ -1611,7 +1612,7 @@ class EggProject(Project):
         sources = []
         sources_filename = os.path.join(self.egg_info_directory, 'SOURCES.txt')
 
-        with open(sources_filename) as in_file:
+        with io.open(sources_filename) as in_file:
             for line in in_file:
                 sources.append(line)
         return sources
@@ -1651,7 +1652,7 @@ class EggProject(Project):
                      extras_require=self.extras_require_for_setup() )
 
     def generate_setup_py(self):
-        with open(os.path.join(self.directory, 'setup.py'), 'w') as setup_file:
+        with io.open(os.path.join(self.directory, 'setup.py'), 'w') as setup_file:
             setup_file.write('from setuptools import setup\n')
             setup_file.write('setup(\n')
             setup_file.write('    name=%s,\n' % repr(self.project_name))
@@ -1871,7 +1872,7 @@ class DirectoryList(list):
         return directories
 
     def read(self, filename):
-        f = open(filename, 'r')
+        f = io.open(filename, 'r')
         dirnames = f.read().splitlines()
         f.close()
         for name in dirnames:
@@ -1932,7 +1933,7 @@ class ProjectList(list):
                         dirs[:] = []  # This prunes the tree so it does not walk deeper in here
 
     def save(self, filename):
-        f = open(filename, 'w')
+        f = io.open(filename, 'w')
         f.writelines(['%s\n' % i.relative_directory for i in self])
         f.close()
 
@@ -1943,7 +1944,7 @@ class ProjectList(list):
         self[:] = []
         if not os.path.isfile(filename):
             return
-        with open(filename, 'r') as f:
+        with io.open(filename, 'r') as f:
             project_dirs = f.read().splitlines()
         for name in project_dirs:
             full_dir = os.path.join(self.workspace.directory, name)
@@ -2108,7 +2109,7 @@ class SubstvarsFile(list):
         if not os.path.isfile(self.filename):
             return
 
-        with open(self.filename) as f:
+        with io.open(self.filename) as f:
             for line in f:
                 bits = line.strip().split('=')
                 key = bits[0]
@@ -2116,7 +2117,7 @@ class SubstvarsFile(list):
                 self[key] = value
 
     def write(self):
-        with open(self.filename, 'w') as f:
+        with io.open(self.filename, 'w') as f:
             for key, value in self:
                 f.write('%s=%s\n' % (key, value))
 

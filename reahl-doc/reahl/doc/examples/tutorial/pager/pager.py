@@ -41,4 +41,4 @@ class Address(object):
         
     @classmethod
     def all_addresses(cls):
-        return [Address('friend %s' % i,'friend%s@some.org' % i ) for i in range(200)]
+        return [Address('friend %s' % i,'friend%s@some.org' % i ) for i in list(range(200))]

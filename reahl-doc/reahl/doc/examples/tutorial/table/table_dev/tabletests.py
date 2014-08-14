@@ -15,7 +15,7 @@ class TableExampleFixture(WebFixture):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
 
     def new_addresses(self):
-        addresses = [Address(name='friend %s' % i, email_address='friend%s@some.org' % i) for i in range(1,21)]
+        addresses = [Address(name='friend %s' % i, email_address='friend%s@some.org' % i) for i in list(range(1, 21))]
         for address in addresses:
             address.save()
         return addresses

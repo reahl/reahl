@@ -114,8 +114,8 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
-        self.salt = ''.join([random.choice(alphabet) for x in range(40)])
-        self.secure_salt = ''.join([random.choice(alphabet) for x in range(40)])        
+        self.salt = ''.join([random.choice(alphabet) for x in list(range(40))])
+        self.secure_salt = ''.join([random.choice(alphabet) for x in list(range(40))])        
 
     def get_interface_locale(self):
         context = WebExecutionContext.get_context()

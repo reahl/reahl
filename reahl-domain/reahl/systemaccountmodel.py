@@ -453,7 +453,7 @@ class VerificationRequest(Requirement):
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
-        self.salt = ''.join([random.choice(alphabet) for x in range(10)])
+        self.salt = ''.join([random.choice(alphabet) for x in list(range(10))])
 
     def send_mail(self, destination, subject_config_key, mail_config_key):
         data = self.get_data_for_substitution()

@@ -28,6 +28,7 @@ from datetime import datetime
 import pkg_resources
 import os
 import os.path
+import io
 import re
 import json
 import string
@@ -2245,7 +2246,7 @@ class FileOnDisk(ViewableFile):
 
     @contextmanager
     def open(self):
-        open_file = open(self.full_path, 'rb')
+        open_file = io.open(self.full_path, 'rb')
         try:
             yield open_file
         finally:
@@ -2315,7 +2316,7 @@ class ConcatenatedFile(FileOnDisk):
 
         (file_handle, path) = tempfile.mkstemp(suffix=suffix)
         os.close(file_handle)
-        open_file = open(path,'w+b')
+        open_file = io.open(path,'w+b')
         
         def close_temp_file(open_file):
             import os
@@ -2328,7 +2329,7 @@ class ConcatenatedFile(FileOnDisk):
     def concatenate(self, relative_name, contents):
         temp_file = self.create_temp_file(relative_name)
         for inner_file in contents:
-            with open(inner_file.full_path) as opened_inner_file:
+            with io.open(inner_file.full_path) as opened_inner_file:
                 self.minifier(relative_name).minify(opened_inner_file, temp_file)
         temp_file.flush()
         return temp_file

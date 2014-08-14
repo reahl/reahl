@@ -18,6 +18,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import sys
+import io
 from contextlib import contextmanager
 
 from reahl.stubble.stub import StubClass
@@ -52,7 +53,7 @@ class SystemOutStub(object):
         sys.stdout = self.original_stdout
 
     def capture_console_screenshot(self, filename):
-        with open(filename, 'wb') as output_file:
+        with io.open(filename, 'wb') as output_file:
             output_file.write(self.captured_output)
 
 
