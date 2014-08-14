@@ -81,10 +81,10 @@ used.  The examples all assume the following real class::
       b = 123
     
       def foo(self, a):
-          print 'i am the real foo'
+          print('i am the real foo')
 
       def bar(self):
-          print 'i am the real bar'
+          print('i am the real bar')
  
 
 Basic functionality
@@ -143,7 +143,7 @@ can use a decorator on that method::
   class Stub(object):
       @exempt
       def my_own_method(self):
-          print 'i am my own method'
+          print('i am my own method')
 
 
 Attributes
@@ -208,7 +208,7 @@ oblivious to the fact that the provided classes are stubs)::
 
   #  (we just print out each class it finds...)
   for i in pkg_resources.iter_entry_points(group_name):
-      print i.load()
+      print(i.load())
 
 
 Where you tear down test fixtures after a test run, you should clear
@@ -346,7 +346,7 @@ A delegate is declared like this::
       shadowed = ['foo', 'aa']
 
       def foo(self, a):
-          print 'i am a fake foo'
+          print('i am a fake foo')
  
 
 And instance of it is then created like this::
