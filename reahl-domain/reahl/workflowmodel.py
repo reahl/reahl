@@ -176,10 +176,10 @@ class Task(Base):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    queue_id = Column(Integer, ForeignKey(Queue.id), nullable=True)
+    queue_id = Column(Integer, ForeignKey(Queue.id), nullable=True, index=True)
 #    queue  (would like to declare it here)
     title = Column(UnicodeText, nullable=False)
-    reserved_by_party_id = Column(Integer, ForeignKey(Party.id))
+    reserved_by_party_id = Column(Integer, ForeignKey(Party.id), index=True)
     reserved_by = relationship(Party)
 
     def is_available(self):
