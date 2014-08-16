@@ -94,6 +94,24 @@ class PagedTable(PagedPanel):
 
 
 class DataTable(Panel):
+    """A table containing a potentially large set of data items. DataTable does not display all its items 
+       on the current page. It renders as a table spread over different pages between which a user can
+       navigate, thus preventing a large data set sent back to a single page.
+
+       If a :class:`DynamicColumn`\s used to define the table also specifies a `sort_key`, the table
+       is rendered with controls on that column heading that allows it to be sorted on that column. The
+       sort operation applies to the entire dataset even though the user stays on the current page and only
+       sees a subset of that data.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :param columns: The :class:`reahl.web.ui.DynamicColumn` instances that define the contents of the table.
+       :param items: A list containing objects represented in each row of the table.
+
+       :keyword items_per_page: The maximum number of rows allowed per page.
+       :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
+       :keyword summary: If given, a :class:`reahl.web.ui.Summary` is added with this text.
+       :keyword css_id: (See :class:`HTMLElement`)
+    """
     def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, css_id=None):
         super(DataTable, self).__init__(view, css_id=css_id)
         self.append_class('reahl-datatable')
