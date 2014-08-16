@@ -88,7 +88,7 @@ class QueryAsSequence(Sequence):
 
 
 def session_scoped(cls):
-    cls.user_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'))
+    cls.user_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
     cls.user_session = relationship('UserSession', cascade='all, delete')
 
     @classmethod

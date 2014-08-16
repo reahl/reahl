@@ -484,7 +484,7 @@ class NewPasswordRequest(VerificationRequest):
     id = Column(Integer, ForeignKey(VerificationRequest.id, ondelete='CASCADE'), primary_key=True)
 
     system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'),
-                               nullable=False, primary_key=True)
+                               nullable=False, primary_key=True, index=True)
     system_account = relationship(SystemAccount)
 
 
@@ -527,7 +527,7 @@ class ActivateAccount(DeferredAction):
 
     id = Column(Integer, ForeignKey(DeferredAction.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'))
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'), index=True)
     system_account = relationship(SystemAccount)
 
     def __init__(self, system_account=None, **kwargs):
@@ -549,7 +549,7 @@ class ChangeAccountEmail(DeferredAction):
 
     id = Column(Integer, ForeignKey(DeferredAction.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'))
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'), index=True)
     system_account = relationship(SystemAccount)
 
     def __init__(self, system_account, new_email):
@@ -583,7 +583,7 @@ class UserSession(Base, UserSessionProtocol):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    account_id = Column(Integer, ForeignKey('systemaccount.id'))#, deferrable=True, initially='deferred'))
+    account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
     account = relationship(SystemAccount)
 
     idle_lifetime = Column(Integer(), nullable=False, default=0)
