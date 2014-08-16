@@ -130,7 +130,7 @@ class Bzr(object):
                     out.seek(0)
                     err.seek(0)
                     if not err.read():
-                        files = out.read().split('\n')
+                        files = out.read().decode().split('\n')
                         return files
                 except Exception as ex:
                     logging.error('Error trying to execute "bzr %s": %s' % (bzr_args, ex))

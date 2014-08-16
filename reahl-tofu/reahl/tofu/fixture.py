@@ -19,7 +19,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import sys
-import new
+import types
 
 #--------------------------------------------------[ MarkingDecorator ]
 class MarkingDecorator(object):
@@ -35,10 +35,10 @@ class MarkingDecorator(object):
         
     def __get__(self, instance, owner):
         self.bind_class(owner)
-        if not instance:
+        if instance is None:
             return self
-#        return functools.wraps(self.function)(new.instancemethod(self.function, instance, owner))
-        return new.instancemethod(self.function, instance, owner)
+        else:
+            return types.MethodType(self.function, instance)
 
     @property
     def name(self):
