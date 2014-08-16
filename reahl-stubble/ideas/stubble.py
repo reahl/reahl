@@ -17,7 +17,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import six
-import new
 import types
 import inspect
 from functools import reduce
@@ -68,7 +67,7 @@ class StubMethod(object):
         stub_args = inspect.getargspec(self.stub)
         assert real_args == stub_args, 'argument specification mismatch'
 
-        return new.instancemethod(self.stub, instance, owner)
+        return types.MethodType(self.stub, instance)
 
     def __set__(self, instance, value):
         assert None, 'cannot set stub methods'

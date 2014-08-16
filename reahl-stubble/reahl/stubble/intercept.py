@@ -53,7 +53,7 @@ class SystemOutStub(object):
         sys.stdout = self.original_stdout
 
     def capture_console_screenshot(self, filename):
-        with io.open(filename, 'wb') as output_file:
+        with io.open(filename, 'w') as output_file:
             output_file.write(self.captured_output)
 
 
