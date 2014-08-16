@@ -20,6 +20,7 @@ from __future__ import print_function
 
 import six
 import io
+import time
 import contextlib
 from six.moves.urllib import parse as urllib_parse
 import logging
@@ -77,6 +78,9 @@ class BasicBrowser(object):
 
     @property
     def lxml_html(self):
+        if self.raw_html:
+            return html.fromstring(self.raw_html)
+        time.sleep(0.5) #xxxxx
         if self.raw_html:
             return html.fromstring(self.raw_html)
         return None
