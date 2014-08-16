@@ -19,7 +19,6 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import six
 import sys
-import new
 
 #--------------------------------------------------[ MarkingDecorator ]
 class MarkingDecorator(object):
@@ -37,8 +36,9 @@ class MarkingDecorator(object):
         self.bind_class(owner)
         if not instance:
             return self
-#        return functools.wraps(self.function)(new.instancemethod(self.function, instance, owner))
-        return new.instancemethod(self.function, instance, owner)
+        def wrapper(*args, **kwargs):
+            return self.function(instance, *args, **kwargs)
+        return wrapper
 
     @property
     def name(self):
