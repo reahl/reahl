@@ -209,7 +209,10 @@ class Exempt(StubbleDescriptor):
         if inspect.ismethoddescriptor(self.value) or inspect.isdatadescriptor(self.value):
             return self.value.__get__(instance, owner)
         if inspect.isfunction(self.value):
-            return types.MethodType(self.value, instance, owner)
+            if instance is None:
+                return self
+            else:
+                return types.MethodType(self.value, instance)
         else:
             return self.value            
 
