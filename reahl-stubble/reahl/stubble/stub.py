@@ -21,7 +21,7 @@ import os
 import os.path
 import pkg_resources
 import inspect
-import new
+import types
 
 import collections
 from functools import reduce
@@ -209,7 +209,7 @@ class Exempt(StubbleDescriptor):
         if inspect.ismethoddescriptor(self.value) or inspect.isdatadescriptor(self.value):
             return self.value.__get__(instance, owner)
         if inspect.isfunction(self.value):
-            return new.instancemethod(self.value, instance, owner)
+            return types.MethodType(self.value, instance, owner)
         else:
             return self.value            
 
