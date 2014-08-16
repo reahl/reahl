@@ -57,5 +57,6 @@
     <packageindex repository="pypi"/>
   </distpackage>
 
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture"/>
 </project>
 
