@@ -19,7 +19,7 @@ Installing all of this is explained excellently on `The Hitchhiker's guide to Py
 
 Here is the super-short summary:
 
-- Download Python 2.7 from `the official website <http://python.org/>`_, and install it.
+- Download Python from `the official website <http://python.org/>`_ (version 2.7 or 3.3), and install it.
 - Ensure that your path includes both the directory where the Python executable is located as well as Python's "Scripts" directory.
 - Install setuptools:
     - download `ez_setup.py <https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py>`_ from the setuptools project on bitbucket.
