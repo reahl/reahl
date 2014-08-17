@@ -23,51 +23,55 @@ like this. Usually at least some of the objects would need to be saved
 to a database to avoid losing them. This is especially true for web
 applications.
 
-Persisting a model using Elixir
--------------------------------
+Persisting a model using SqlAlchemy
+-----------------------------------
 
+The problem of mapping Object Oriented models to relational databases
+is a considerable headache, but necessary if you want to work in
+an Object Oriented programming language like Python!
 Reahl does not implement persistence mechanisms by itself. That's a
 tough nut to crack. Besides there are cool tools for persisting
 objects in Python. Reahl merely provides some glue so these tools can
-be used easily. `SqlAlchemy <http://www.sqlalchemy.org/>`_ and its
-companion project, `Elixir <http://elixir.ematia.de/trac/wiki>`_ work
-in unison to deal with this persistence problem. If you are not
-familiar with these tools, please refer to their respective
-documentation.
+be used easily. `SqlAlchemy <http://www.sqlalchemy.org/>`_ 
+deals with this persistence problem. 
 
-Let's shift to a more real world model for an address book
-application. If Address instances can be persisted in a database, 
-an AddressBook is not needed anymore. An AddressBook was merely the
-thing that held on to our Addresses and the database does the job
-just as well, if not better.
+Let's shift to a more real world model for an address book application
+that uses SqlAlchemy for persistence. If Address instances can be
+persisted in a database, an AddressBook is not needed anymore. An
+AddressBook was merely the thing that held on to our Addresses and the
+database does the job just as well, if not better.
 
 That leaves a model consisting of a single class:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/modeltests2.py
-   :lines: 3-4
+   :lines: 5-7
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/modeltests2.py
    :pyobject: Address
 
-This shows mostly Elixir/SqlAlchemy stuff (which you should be
-familiar with from reading up on those projects), with a little Reahl
-help. Notice that Session and metadata are imported from a Reahl
-package. These are provided for working with Elixir/SqlAlchemy in a
-Reahl program.
+This shows mostly SqlAlchemy stuff, with a little Reahl help. Notice
+that Session, Base and metadata are imported from a Reahl
+package. These are provided for working with SqlAlchemy in a Reahl
+program.
 
-Elixir needs to be told to use the Session and metadata provided by
-Reahl, and that's what the `using_options()` call is for.
+A discussion of SqlAlchemy is outside the scope of this tutorial, but here
+are some pointers to readers unfamiliar with SqlAlchemy:
 
-The call to `using_mapper_options()` is needed because by default any
-Elixir Entity is immediately saved to the database upon creation and
-that's not really what we want in this example. We want to be able to
-create an Address in memory, but will only save it to the database
-later on if the user decides to click on the "Save" button.
+In order to map Address to a relational database table, we use SqlALchemy's
+Declarative extension:
 
-Of course, the assignment of `elixir.Field` instances to
-`email_address` and `name` is how one instructs Elixir to persist
-these data items to the database for a particular Address
-instance (but you already knew that).
+  * __tablename__ states which relational table Address instances go into
+  * The assignment of `Column` instances to
+    `email_address` and `name` states that those attributes of Address
+    are to be inserted in similarly named columns on the relational database
+    that are defined as per the Columns stated.
+  * The id `Column` provides a unique identifier for each Address instance 
+    (and is also its primary key in the database)
+  * To actually persist an Address instance to the database, 
+    `Session.add()` is called.
+
+If you are not familiar with SqlAlchemy, please refer to its
+documentation: no short introduction can ever do it justice.
 
 Exercising a persistent model
 -----------------------------
@@ -91,7 +95,7 @@ below:
 
    Have you noticed how the first few lines of the `test_model()`
    connects to the database, ensuring that its schema is created for
-   the test run? That is all standard Elixir/SqlAlchemy without any
+   the test run? That is all standard SqlAlchemy without any
    Reahl influence.
 
    In a complete Reahl program, none of this database housekeeping is

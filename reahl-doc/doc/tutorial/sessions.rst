@@ -98,8 +98,7 @@ mechanism used by your other persistent objects. It should also hold
 onto the :class:`~reahl.systemaccountmodel.UserSession` so that it is discoverable for a particular
 :class:`~reahl.systemaccountmodel.UserSession`.
 
-When using Elixir (as is done throughout the tutorial thus far),
-creating an Entity that has a `session scoped` lifetime is really
+When using SqlAlchemy, creating an object that has a `session scoped` lifetime is really
 easy: just use the `@session_scoped` class decorator:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
@@ -109,7 +108,7 @@ easy: just use the `@session_scoped` class decorator:
 The responsibility of a LoginSession starts by keeping track of who is
 logged in. That is why it has a `.current_user` attribute. Since
 LoginSession is a persisted object itself, it is trivial to make it
-hold onto another persisted object (User) via a ManyToOne relationship.
+hold onto another persisted object (User) via a relationship.
 
 The other responsibility of the LoginSession is to actually log someone
 in. The logic of doing this is quite easily followed by looking at
