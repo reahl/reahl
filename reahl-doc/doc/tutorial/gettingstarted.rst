@@ -1,7 +1,7 @@
 .. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Getting started guide
-=====================
+Getting started with Reahl
+==========================
 
 .. sidebar:: Other projects used
 

@@ -1,7 +1,7 @@
 .. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Get developing
-==============
+Getting started with Reahl development
+======================================
 
 This chapter explains the very basics necessary to run a Reahl
 application, at the hand of a simple "Hello World" example. These are

@@ -1,8 +1,8 @@
 .. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-==========
- Features
-==========
+===============
+ Reahl features
+===============
 
 .. toctree::
    :hidden:
