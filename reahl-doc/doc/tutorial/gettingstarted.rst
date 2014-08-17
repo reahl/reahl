@@ -1,7 +1,7 @@
 .. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Getting started guide
-=====================
+Getting started with Reahl
+==========================
 
 .. sidebar:: Other projects used
 
@@ -29,9 +29,8 @@ Getting started guide
 Follow this guide to get Reahl installed in your development
 environment and to get a skeleton web application going.
 
-This version of Reahl requires at least version 2.7 of Python. We're
-excited about Python 3, but changing over to Python 3 is a big job
-which we still have to get to!
+This version of Reahl requires at least version 2.7 of Python. Check out
+Reahl 3.0 and later for Python 3 support.
 
 We have split the guide into parts:
 
