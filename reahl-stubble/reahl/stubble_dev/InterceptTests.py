@@ -18,7 +18,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import io
-from nose.tools import istest, assert_raises
+import warnings
+from nose.tools import istest, assert_raises, assert_equal
 import tempfile
 
 from reahl.stubble import CallMonitor, InitMonitor, SystemOutStub, replaced
@@ -115,17 +116,38 @@ class InterceptTests(object):
         assert s.foo.im_func is original_method
 
         # Case: unbound method
+        """Python 3 does not support the concept of unbound methods, they are
+        just plain functions without an im_class pointing back to their class.
+        See https://docs.python.org/3/whatsnew/3.0.html#operators-and-special-methods,
+        and https://mail.python.org/pipermail/python-dev/2005-January/050625.html
+        for the rationale.
+
+        If stubble wishes to support them under Python 3, the signature of
+        stubble.replaced will need to change to take the class as a parameter.
+        But since reahl itself does not use this feature, we just deprecate
+        it under Python 2 and make it illegal under Python 3.
+
+        Note that we are only talking about instance methods here, not class
+        methods. Instance methods always require an instance to be called on, so
+        there should always be an instance they can be stubbed on, i.e. by using
+        replaced(instance.method, ...) instead of replaced(someclass.method, ...).
+        """
+
         s = SomethingElse()
         def replacement(self, n, y=None):
             return y
         original_method = SomethingElse.foo.im_func
 
-        with replaced(SomethingElse.foo, replacement):
-            assert s.foo(1, y='a') == 'a'
-            assert s.foo(2) == None
-            assert SomethingElse.foo.im_func is not original_method
-
+        with warnings.catch_warnings(record=True) as raised_warnings:
+            warnings.simplefilter("always")
+            with replaced(SomethingElse.foo, replacement):
+                assert s.foo(1, y='a') == 'a'
+                assert s.foo(2) == None
+                assert SomethingElse.foo.im_func is not original_method
         assert SomethingElse.foo.im_func is original_method
+
+        [deprecation] = raised_warnings
+        assert issubclass(deprecation.category, DeprecationWarning)
 
     @istest
     def test_replaced_signature_should_match(self):

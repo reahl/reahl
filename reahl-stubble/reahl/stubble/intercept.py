@@ -17,6 +17,7 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+import warnings
 import sys
 import io
 from contextlib import contextmanager
@@ -168,7 +169,13 @@ def replaced(method, replacement):
           assert s.foo(2) == 'yyy'
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
-    target = method.im_self or method.im_class
+    if method.im_self:
+        target = method.im_self
+    else:
+        warnings.warn(
+            'Stubbing by passing in unbound methods is deprecated.',
+            DeprecationWarning)
+        target = method.im_class
     method_name = method.im_func.__name__
     saved_method = getattr(target, method_name)
     try:
