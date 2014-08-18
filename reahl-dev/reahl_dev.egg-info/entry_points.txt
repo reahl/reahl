@@ -1,68 +1,68 @@
-[console_scripts]
-reahl = reahl.dev.devshell:WorkspaceCommandline.execute_one
-
 [reahl.dev.xmlclasses]
-MetaInfo = reahl.dev.devdomain:MetaInfo
-MigrationList = reahl.dev.devdomain:MigrationList
 NamespaceList = reahl.dev.devdomain:NamespaceList
-Project = reahl.dev.devdomain:Project
-ShippedFile = reahl.dev.devdomain:ShippedFile
-ConfigurationSpec = reahl.dev.devdomain:ConfigurationSpec
-ChickenProject = reahl.dev.devdomain:ChickenProject
-SshRepository = reahl.dev.devdomain:SshRepository
-EntryPointExport = reahl.dev.devdomain:EntryPointExport
-ExtraPath = reahl.dev.devdomain:ExtraPath
-PersistedClassesList = reahl.dev.devdomain:PersistedClassesList
-XMLDependencyList = reahl.dev.devdomain:XMLDependencyList
-DebianPackageMetadata = reahl.dev.devdomain:DebianPackageMetadata
+DebianPackage = reahl.dev.devdomain:DebianPackage
 ScriptExport = reahl.dev.devdomain:ScriptExport
-FileList = reahl.dev.devdomain:FileList
-PythonSourcePackage = reahl.dev.devdomain:PythonSourcePackage
-TranslationPackage = reahl.dev.devdomain:TranslationPackage
-ScheduledJobSpec = reahl.dev.devdomain:ScheduledJobSpec
+BzrSourceControl = reahl.dev.devdomain:BzrSourceControl
+ExtraPath = reahl.dev.devdomain:ExtraPath
 ThirdpartyDependency = reahl.dev.devdomain:ThirdpartyDependency
-AttachmentList = reahl.dev.devdomain:AttachmentList
+EntryPointExport = reahl.dev.devdomain:EntryPointExport
+MigrationList = reahl.dev.devdomain:MigrationList
+NamespaceEntry = reahl.dev.devdomain:NamespaceEntry
+FileList = reahl.dev.devdomain:FileList
+MetaInfo = reahl.dev.devdomain:MetaInfo
+DebianPackageSet = reahl.dev.devdomain:DebianPackageSet
+ExcludedPackage = reahl.dev.devdomain:ExcludedPackage
+OrderedPersistedClass = reahl.dev.devdomain:OrderedPersistedClass
+TranslationPackage = reahl.dev.devdomain:TranslationPackage
+PersistedClassesList = reahl.dev.devdomain:PersistedClassesList
 PackageIndex = reahl.dev.devdomain:PackageIndex
+SshRepository = reahl.dev.devdomain:SshRepository
+AttachmentList = reahl.dev.devdomain:AttachmentList
+Project = reahl.dev.devdomain:Project
 Dependency = reahl.dev.devdomain:Dependency
 CommandAlias = reahl.dev.devdomain:CommandAlias
-HardcodedMetadata = reahl.dev.devdomain:HardcodedMetadata
-DebianPackage = reahl.dev.devdomain:DebianPackage
-BzrSourceControl = reahl.dev.devdomain:BzrSourceControl
+ConfigurationSpec = reahl.dev.devdomain:ConfigurationSpec
 ExtrasList = reahl.dev.devdomain:ExtrasList
-OrderedPersistedClass = reahl.dev.devdomain:OrderedPersistedClass
-ProjectTag = reahl.dev.devdomain:ProjectTag
 EggProject = reahl.dev.devdomain:EggProject
-DebianPackageSet = reahl.dev.devdomain:DebianPackageSet
-NamespaceEntry = reahl.dev.devdomain:NamespaceEntry
-ExcludedPackage = reahl.dev.devdomain:ExcludedPackage
+ProjectTag = reahl.dev.devdomain:ProjectTag
+HardcodedMetadata = reahl.dev.devdomain:HardcodedMetadata
+ShippedFile = reahl.dev.devdomain:ShippedFile
+XMLDependencyList = reahl.dev.devdomain:XMLDependencyList
+ChickenProject = reahl.dev.devdomain:ChickenProject
+DebianPackageMetadata = reahl.dev.devdomain:DebianPackageMetadata
+ScheduledJobSpec = reahl.dev.devdomain:ScheduledJobSpec
+PythonSourcePackage = reahl.dev.devdomain:PythonSourcePackage
+
+[console_scripts]
+reahl = reahl.dev.devshell:WorkspaceCommandline.execute_one
 
 [reahl.eggs]
 Egg = reahl.component.eggs:ReahlEgg
 
 [reahl.dev.commands]
-Info = reahl.dev.devshell:Info
-ListMissingDependencies = reahl.dev.devshell:ListMissingDependencies
-ServeSMTP = reahl.dev.mailtest:ServeSMTP
-Setup = reahl.dev.devshell:Setup
-UpdateAptRepository = reahl.dev.devshell:UpdateAptRepository
-Debianise = reahl.dev.devshell:Debianise
 DebInstall = reahl.dev.devshell:DebInstall
-AddLocale = reahl.dev.devshell:AddLocale
-MarkReleased = reahl.dev.devshell:MarkReleased
-Shell = reahl.dev.devshell:Shell
 MergeTranslations = reahl.dev.devshell:MergeTranslations
+AddLocale = reahl.dev.devshell:AddLocale
+SubstVars = reahl.dev.devshell:SubstVars
 Build = reahl.dev.devshell:Build
+Save = reahl.dev.devshell:Save
+Debianise = reahl.dev.devshell:Debianise
+Shell = reahl.dev.devshell:Shell
+Read = reahl.dev.devshell:Read
+UpdateAptRepository = reahl.dev.devshell:UpdateAptRepository
+ListSelections = reahl.dev.devshell:ListSelections
+Info = reahl.dev.devshell:Info
+ClearSelection = reahl.dev.devshell:ClearSelection
+Setup = reahl.dev.devshell:Setup
 List = reahl.dev.devshell:List
 Upload = reahl.dev.devshell:Upload
-SubstVars = reahl.dev.devshell:SubstVars
-DeleteSelection = reahl.dev.devshell:DeleteSelection
-Read = reahl.dev.devshell:Read
-Select = reahl.dev.devshell:Select
-ExplainLegend = reahl.dev.devshell:ExplainLegend
-CompileTranslations = reahl.dev.devshell:CompileTranslations
-ClearSelection = reahl.dev.devshell:ClearSelection
-Save = reahl.dev.devshell:Save
 Refresh = reahl.dev.devshell:Refresh
-ListSelections = reahl.dev.devshell:ListSelections
+ExplainLegend = reahl.dev.devshell:ExplainLegend
+MarkReleased = reahl.dev.devshell:MarkReleased
 ExtractMessages = reahl.dev.devshell:ExtractMessages
+ListMissingDependencies = reahl.dev.devshell:ListMissingDependencies
+ServeSMTP = reahl.dev.mailtest:ServeSMTP
+DeleteSelection = reahl.dev.devshell:DeleteSelection
+CompileTranslations = reahl.dev.devshell:CompileTranslations
+Select = reahl.dev.devshell:Select
 
