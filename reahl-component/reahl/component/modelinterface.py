@@ -1130,7 +1130,7 @@ class SecuredDeclaration(object):
         return arg_spec.args[:positional_args_end]
 
     def __get__(self, instance, owner):
-        method = six.create_bound_method(self.func, instance)
+        method = types.MethodType(self.func, instance, owner)
         return SecuredMethod(method, self)
 
 
