@@ -31,7 +31,7 @@ __all__ = ['temp_file_name', 'temp_file_with', 'temp_file_with', 'file_with',
 class AutomaticallyDeletedFile(io.FileIO):
     def __init__(self, name, contents=''):
         super(AutomaticallyDeletedFile, self).__init__(name, 'w+b')
-        self.write(contents)
+        self.write(contents.encode())
         self.seek(0)
     def rm(self):
         if os.path.exists(self.name):
