@@ -137,18 +137,36 @@ class InterceptTests(object):
         s = SomethingElse()
         def replacement(self, n, y=None):
             return y
-        original_method = six.get_method_function(SomethingElse.foo)
+        if six.PY2:
+            original_method = six.get_method_function(SomethingElse.foo)
 
-        with warnings.catch_warnings(record=True) as raised_warnings:
-            warnings.simplefilter("always")
-            with replaced(SomethingElse.foo, replacement):
-                assert s.foo(1, y='a') == 'a'
-                assert s.foo(2) == None
-                assert six.get_method_function(SomethingElse.foo) is not original_method
-        assert six.get_method_function(SomethingElse.foo) is original_method
+            with warnings.catch_warnings(record=True) as raised_warnings:
+                warnings.simplefilter("always")
+                with replaced(SomethingElse.foo, replacement):
+                    assert s.foo(1, y='a') == 'a'
+                    assert s.foo(2) == None
+                    assert six.get_method_function(SomethingElse.foo) is not original_method
+            assert six.get_method_function(SomethingElse.foo) is original_method
 
-        [deprecation] = raised_warnings
-        assert issubclass(deprecation.category, DeprecationWarning)
+            [deprecation] = raised_warnings
+            assert issubclass(deprecation.category, DeprecationWarning)
+        else:
+            with assert_raises(ValueError):
+                with replaced(SomethingElse.foo, replacement):
+                    pass
+
+    @istest
+    def test_replacing_functions_is_disallowed(self):
+        """Functions can not be replaced, only methods can."""
+
+        def function1():
+            pass
+        def function2():
+            pass
+
+        with assert_raises(ValueError):
+            with replaced(function1, function2):
+                pass
 
     @istest
     def test_replaced_signature_should_match(self):

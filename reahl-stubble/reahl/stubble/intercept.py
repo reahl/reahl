@@ -20,6 +20,8 @@ from __future__ import print_function
 import warnings
 import sys
 import io
+import six
+import inspect
 from contextlib import contextmanager
 
 from reahl.stubble.stub import StubClass
@@ -169,14 +171,17 @@ def replaced(method, replacement):
           assert s.foo(2) == 'yyy'
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
-    if method.im_self:
-        target = method.im_self
+    if inspect.isfunction(method):
+        raise ValueError('%s should be a method' % method)
+    method_self = six.get_method_self(method)
+    if inspect.ismethod(method) and method_self is not None:
+        target = method_self
     else:
         warnings.warn(
             'Stubbing by passing in unbound methods is deprecated.',
             DeprecationWarning)
         target = method.im_class
-    method_name = method.im_func.__name__
+    method_name = six.get_method_function(method).__name__
     saved_method = getattr(target, method_name)
     try:
         setattr(target, method_name, replacement)
