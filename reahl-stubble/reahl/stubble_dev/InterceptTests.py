@@ -182,11 +182,9 @@ class InterceptTests(object):
         def replacement():
             pass
 
-        def with_statement():
+        with assert_raises(AssertionError):
             with replaced(s.foo, replacement):
                 pass
-        
-        assert_raises(AssertionError, with_statement)
 
     @istest
     def test_stubbed_sysout(self):
