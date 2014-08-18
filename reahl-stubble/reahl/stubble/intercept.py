@@ -70,8 +70,8 @@ class MonitoredCall(object):
         self.kwargs = kwargs #: The dictionary with keyword arguments passed during the call
 
         
-class CallMonitor(object):
-    """The CallMonitor is a context manager which records calls to a single method of an object or class.
+class CallMonitorBase(object):
+    """The CallMonitorBase is a context manager which records calls to a single method of an object or class.
        The calls are recorded, but the original method is also executed.
 
        For example:
@@ -92,9 +92,9 @@ class CallMonitor(object):
           assert monitor.calls[0].kwargs == {}
           assert monitor.calls[0].return_value == 'something'
     """
-    def __init__(self, method):
-        self.obj = method.__self__
-        self.method_name = method.__func__.__name__
+    def __init__(self, obj, method):
+        self.obj = obj
+        self.method_name = method.__name__
         self.calls = []  #: A list of :class:`MonitoredCalls` made, one for each call made, in the order they were made
         self.original_method = None
 
@@ -117,12 +117,18 @@ class CallMonitor(object):
         setattr(self.obj, self.method_name, self.original_method)
 
 
-class InitMonitor(CallMonitor):
+class CallMonitor(CallMonitorBase):
+    """A :class:`CallMonitorBase` used to intercept calls to bound methods
+       of a class."""
+    def __init__(self, method):
+        super(CallMonitor, self).__init__(six.get_method_self(method), method)
+
+
+class InitMonitor(CallMonitorBase):
     """A :class:`CallMonitor` used to intercept calls to the __init__ method
        of a class."""
     def __init__(self, monitored_class):
-        super(InitMonitor, self).__init__(monitored_class.__init__)
-        self.obj = monitored_class
+        super(InitMonitor, self).__init__(monitored_class, monitored_class.__init__)
 
     @property
     def monitored_class(self):
