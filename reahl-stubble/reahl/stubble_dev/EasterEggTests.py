@@ -70,7 +70,7 @@ class EasterEggTests(object):
 
     @istest
     def test_resource_api(self):
-        test_file = NamedTemporaryFile()
+        test_file = NamedTemporaryFile(mode='w+')
         dirname, file_name = os.path.split(test_file.name)
 
         self.stub_egg.set_module_path(dirname)
@@ -80,7 +80,7 @@ class EasterEggTests(object):
 
         contents = 'asdd '
         test_file.write(contents)
-        test_file.seek(0)
+        test_file.flush()
 
         as_string = pkg_resources.resource_string(self.stub_egg.as_requirement(), file_name)
         assert as_string == contents

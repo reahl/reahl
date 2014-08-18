@@ -125,7 +125,7 @@ class FileSystemResourceProvider(pkg_resources.NullProvider):
         return os.path.join(base, *resource_name.split('/'))
 
     def _get(self, path):
-        return file(path).read()
+        return open(path).read()
 
 
 #------------------------------------------------[ Delegate ]
