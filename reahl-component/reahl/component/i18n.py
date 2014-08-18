@@ -46,6 +46,8 @@ class SystemWideTranslator(object):
                     for locale_dir in package.__path__:
                         if not isinstance(translation, Translations):
                             translation = Translations.load(dirname=locale_dir, locales=[locale], domain=domain)
+                            # Babel 1.3 bug under Python 3: files is a filter object, not a list like in Python 2
+                            translation.files = list(translation.files)
                         else:
                             translation.merge(Translations.load(dirname=locale_dir, locales=[locale], domain=domain))
                 self.translations[(locale, domain)] = translation
