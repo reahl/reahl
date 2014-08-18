@@ -16,15 +16,15 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import os
 import os.path
-import pkg_resources
 import inspect
-import types
-
 import collections
 from functools import reduce
+
+import six
+import pkg_resources
+
 
 class StubClass(object):
     def __init__(self, orig, check_attributes_also=False):
@@ -212,7 +212,7 @@ class Exempt(StubbleDescriptor):
             if instance is None:
                 return self
             else:
-                return types.MethodType(self.value, instance)
+                return six.create_bound_method(self.value, instance)
         else:
             return self.value            
 
