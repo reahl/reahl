@@ -18,8 +18,9 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import io
+import six
 import warnings
-from nose.tools import istest, assert_raises, assert_equal
+from nose.tools import istest, assert_raises
 import tempfile
 
 from reahl.stubble import CallMonitor, InitMonitor, SystemOutStub, replaced
@@ -36,13 +37,13 @@ class InterceptTests(object):
                 return y
 
         s = SomethingElse()
-        original_method = s.foo.im_func
+        original_method = six.get_method_function(s.foo)
 
         with CallMonitor(s.foo) as monitor:
             assert s.foo(1, y='a') == 'a'
             assert s.foo(2) == None
 
-        assert s.foo.im_func is original_method
+        assert six.get_method_function(s.foo) is original_method
         assert s.n == 2
         assert monitor.times_called == 2
         assert monitor.calls[0].args == (1,)
@@ -107,13 +108,13 @@ class InterceptTests(object):
         s = SomethingElse()
         def replacement(n, y=None):
             return y
-        original_method = s.foo.im_func
+        original_method = six.get_method_function(s.foo)
 
         with replaced(s.foo, replacement):
             assert s.foo(1, y='a') == 'a'
             assert s.foo(2) == None
 
-        assert s.foo.im_func is original_method
+        assert six.get_method_function(s.foo) is original_method
 
         # Case: unbound method
         """Python 3 does not support the concept of unbound methods, they are
@@ -136,15 +137,15 @@ class InterceptTests(object):
         s = SomethingElse()
         def replacement(self, n, y=None):
             return y
-        original_method = SomethingElse.foo.im_func
+        original_method = six.get_method_function(SomethingElse.foo)
 
         with warnings.catch_warnings(record=True) as raised_warnings:
             warnings.simplefilter("always")
             with replaced(SomethingElse.foo, replacement):
                 assert s.foo(1, y='a') == 'a'
                 assert s.foo(2) == None
-                assert SomethingElse.foo.im_func is not original_method
-        assert SomethingElse.foo.im_func is original_method
+                assert six.get_method_function(SomethingElse.foo) is not original_method
+        assert six.get_method_function(SomethingElse.foo) is original_method
 
         [deprecation] = raised_warnings
         assert issubclass(deprecation.category, DeprecationWarning)
@@ -159,10 +160,9 @@ class InterceptTests(object):
 
 
         s = SomethingElse()
-        original_method = s.foo.im_func
 
         def replacement():
-            return y
+            pass
 
         def with_statement():
             with replaced(s.foo, replacement):
