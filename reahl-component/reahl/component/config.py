@@ -19,6 +19,7 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 import sys
+import six
 import os.path
 import logging
 import tempfile
@@ -256,9 +257,51 @@ class StoredConfiguration(Configuration):
         self.in_production = in_production
 
     def configure(self, validate=True):
-        #http://mail.python.org/pipermail/tutor/2005-August/040993.html
-        imp.reload(sys); #read setdefaultencoding python docs - it "enables" the method again
-        sys.setdefaultencoding('utf-8')
+        if six.PY2:
+            # NO! Doing this is WRONG. The fact that you had to hack around
+            # sys.setdefaultencoding being removed should be a clue that you
+            # are doing something bogus.
+            #
+            # The default encoding is a property of the end-user system that
+            # reahl is running on, and they are free to configure it to
+            # anything else. You just broke reahl on all systems not configured
+            # to be utf-8.
+            #
+            # The best way to think of this is to think that each and every
+            # external system around reahl that receives strings as a sequences
+            # of bytes can have its own encoding, possibly different from all
+            # others.
+            #
+            # So we have:
+            #
+            #                     HTTP
+            #                      ^
+            #                      | (utf-8, unless otherwise specified in headers etc.)
+            #                      v
+            # Command-Line <--> Reahl <-->
+            #   (stdout,
+            #    stderr)
+            #
+            # sys.setdefaultencoding is intended for the command-line, so that
+            # unicode you print to stdout etc. converts correctly to the end-user
+            # system's chosen encoding.
+            #
+            # It also governs the encoding used when you open files in text mode
+            # and read/write unicode out of or into them. If those files originate
+            # from the end-user's system they *are* most likely encoded in that
+            # system's default encoding and you should not much with that. If
+            # those files originate from some other protocol, you need to
+            # explicitly specify that protocol's encoding as per its spec.
+            #
+            # Most likely you do sys.setdefaultencoding('utf-8') so that you
+            # won't need to specify the parameter to encode() every time you
+            # send bytes to HTTP. But your code specifies the parameter to each
+            # and every encode anyway.
+            #
+
+            #http://mail.python.org/pipermail/tutor/2005-August/040993.html
+            imp.reload(sys); #read setdefaultencoding python docs - it "enables" the method again
+            sys.setdefaultencoding('utf-8')
         
         self.configure_logging()
         logging.getLogger(__name__).info('Using config in %s' % self.config_directory)
