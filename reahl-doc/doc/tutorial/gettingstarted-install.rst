@@ -1,7 +1,7 @@
 .. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Installation
-============
+Reahl installation
+==================
 
 .. toctree::
    :hidden:
@@ -20,8 +20,8 @@ developing.
 
 .. _prep_install:
 
-Prepare your platform for Reahl Python development
---------------------------------------------------
+Prepare your platform for Python development
+--------------------------------------------
 
 Before you can install Reahl itself, you need to install several
 pieces of software on your platform (including Python and several
@@ -76,10 +76,10 @@ changes to reflect the environment that is currently active.
 
 .. sidebar:: For interest's sake
 
-   Installing ``reahl[sqlite,dev,doc]`` results in an installation of
-   Reahl with Sqlite support (sqlite), the Reahl development tools
-   (dev) and documentation and examples (doc). This is all you need
-   for following the tutorial.
+   Installing ``reahl[elixir,sqlite,dev,doc]`` results in an installation of
+   Reahl implemented using Elixir (elixir), with Sqlite support (sqlite), the 
+   Reahl development tools (dev) and documentation and examples (doc). This is
+   all you need for following the tutorial.
 
    If you want to play with Postgresql too, you have to additionally
    install Postgresql itself and its client libraries for your
@@ -95,7 +95,7 @@ issuing:
 
 .. code-block:: bash
 
-   easy_install reahl[sqlite,dev,doc]
+   easy_install reahl[elixir,sqlite,dev,doc]
 
 .. note::
 
