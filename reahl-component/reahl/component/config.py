@@ -359,7 +359,8 @@ class StoredConfiguration(Configuration):
         file_path = os.path.join(self.config_directory, new_config.filename)
         if os.path.isfile(file_path):
             locals_dict = ConfigAsDict(self)
-            exec(compile(open(file_path).read(), file_path, 'exec'), globals(), locals_dict)
+            with open(file_path) as f:
+                exec(compile(f.read(), file_path, 'exec'), globals(), locals_dict)
             locals_dict.update_required(new_config.config_key)
         else:
             message = 'file "%s" not found, using defaults' % file_path
