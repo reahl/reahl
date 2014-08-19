@@ -3,6 +3,7 @@
 Stubble -- A collection of tools for writing stubs in unit tests (reahl.stubble)
 ================================================================================
 
+
 Introduction
 ^^^^^^^^^^^^
 
@@ -249,6 +250,7 @@ CallMonitor
 -----------
 
 .. autoclass:: reahl.stubble.intercept.CallMonitor
+   :inherited-members:
    :members:
 
 MonitoredCall
@@ -261,6 +263,7 @@ InitMonitor
 -----------
 
 .. autoclass:: reahl.stubble.intercept.InitMonitor
+   :inherited-members:
    :members:
 
 replaced

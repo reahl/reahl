@@ -17,8 +17,11 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+import warnings
 import sys
 import io
+import six
+import inspect
 from contextlib import contextmanager
 
 from reahl.stubble.stub import StubClass
@@ -60,14 +63,40 @@ class SystemOutStub(object):
 class MonitoredCall(object):
     """The record of one call that was made to a method. This class is not intended to be 
        instantiated by a programmer. Programmers can query instances of MonitoredCall
-       returned by a :class:`CallMonitor` or :class:`InitMonitor`."""
+       returned by a :class:`reahl.stubble.intercept.CallMonitor` or :class:`reahl.stubble.intercept.InitMonitor`."""
     def __init__(self, args, kwargs, return_value):
-        self.return_value = return_value #: The value resurned by the call
+        self.return_value = return_value #: The value returned by the call
         self.args = args #: The tuple with positional arguments passed during the call
         self.kwargs = kwargs #: The dictionary with keyword arguments passed during the call
 
         
-class CallMonitor(object):
+class CallMonitorBase(object):
+    def __init__(self, obj, method):
+        self.obj = obj
+        self.method_name = method.__name__
+        self.calls = []  #: A list of :class:`MonitoredCall`\s made, one for each call made, in the order they were made
+        self.original_method = None
+
+    @property
+    def times_called(self):
+        """The number of calls that were made during the time the CallMonitor was active."""
+        return len(self.calls)
+
+    def monitor_call(self, *args, **kwargs):
+        return_value = self.original_method(*args, **kwargs)
+        self.calls.append( MonitoredCall(args, kwargs, return_value) )
+        return return_value
+                
+    def __enter__(self):
+        self.original_method = getattr(self.obj, self.method_name)
+        setattr(self.obj, self.method_name, self.monitor_call)
+        return self
+
+    def __exit__(self, exception_type, value, traceback):
+        setattr(self.obj, self.method_name, self.original_method)
+
+
+class CallMonitor(CallMonitorBase):
     """The CallMonitor is a context manager which records calls to a single method of an object or class.
        The calls are recorded, but the original method is also executed.
 
@@ -90,36 +119,15 @@ class CallMonitor(object):
           assert monitor.calls[0].return_value == 'something'
     """
     def __init__(self, method):
-        self.obj = method.__self__
-        self.method_name = method.__func__.__name__
-        self.calls = []  #: A list of :class:`MonitoredCalls` made, one for each call made, in the order they were made
-        self.original_method = None
-
-    @property
-    def times_called(self):
-        """The number of calls that were made during the time the CallMonitor was active."""
-        return len(self.calls)
-
-    def monitor_call(self, *args, **kwargs):
-        return_value = self.original_method(*args, **kwargs)
-        self.calls.append( MonitoredCall(args, kwargs, return_value) )
-        return return_value
-                
-    def __enter__(self):
-        self.original_method = getattr(self.obj, self.method_name)
-        setattr(self.obj, self.method_name, self.monitor_call)
-        return self
-
-    def __exit__(self, exception_type, value, traceback):
-        setattr(self.obj, self.method_name, self.original_method)
+        super(CallMonitor, self).__init__(six.get_method_self(method), method)
 
 
-class InitMonitor(CallMonitor):
-    """A :class:`CallMonitor` used to intercept calls to the __init__ method
-       of a class."""
+class InitMonitor(CallMonitorBase):
+    """An InitMonitor is like a :class:`reahl.stubble.intercept.CallMonitor`, except it is used to intercept 
+       calls to the __init__ of a class. (See :class:`reahl.stubble.intercept.CallMonitor` for attributes.)
+    """
     def __init__(self, monitored_class):
-        super(InitMonitor, self).__init__(monitored_class.__init__)
-        self.obj = monitored_class
+        super(InitMonitor, self).__init__(monitored_class, monitored_class.__init__)
 
     @property
     def monitored_class(self):
@@ -168,8 +176,17 @@ def replaced(method, replacement):
           assert s.foo(2) == 'yyy'
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
-    target = method.im_self or method.im_class
-    method_name = method.im_func.__name__
+    if inspect.isfunction(method):
+        raise ValueError('%s should be a method' % method)
+    method_self = six.get_method_self(method)
+    if inspect.ismethod(method) and method_self is not None:
+        target = method_self
+    else:
+        warnings.warn(
+            'Stubbing by passing in unbound methods is deprecated.',
+            DeprecationWarning)
+        target = method.im_class
+    method_name = six.get_method_function(method).__name__
     saved_method = getattr(target, method_name)
     try:
         setattr(target, method_name, replacement)
