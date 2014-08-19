@@ -19,8 +19,29 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 from pkg_resources import parse_version
+import logging
 
 from reahl.component.exceptions import ProgrammerError
+
+
+class MigrationSchedule(object):
+    def __init__(self, *phases):
+        self.phases_in_order = phases
+        self.phases = dict([(i, []) for i in phases])
+
+    def schedule(self, phase, to_call, *args, **kwargs):
+        self.phases[phase].append((to_call, args, kwargs))
+
+    def execute(self, phase):
+        logging.getLogger(__file__).info('Executing schema change phase %s' % phase)
+        for to_call, args, kwargs in self.phases[phase]:
+            logging.getLogger(__file__).info('--> change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
+            to_call(*args, **kwargs)
+
+    def execute_all(self):
+        for phase in self.phases_in_order:
+            self.execute(phase)
+
 
 class Migration(object):
     """Represents one logical change that can be made to an existing database schema.
@@ -40,21 +61,36 @@ class Migration(object):
         return parse_version(cls.version) > parse_version(current_schema_version) and \
                parse_version(cls.version) <= parse_version(new_version)
 
-    def run_phase(self, phase):
-        if phase == 1:
-            self.upgrade()
-        else:
-            self.upgrade_cleanup()
+    def __init__(self, changes):
+        self.changes = changes
 
+    def schedule(self, phase, to_call, *args, **kwargs):
+        """Call this method to schedule a method call for execution later during the specified migration phase.
+
+           Scheduled migrations are first collected from all components, then the calls scheduled for each defined
+           phase are executed. Calls in one phase are executed in the order they were sheduled. Phases are executed
+           in the following order:
+
+           'drop_fk', 'drop_pk', 'pre_alter', 'alter', 'create_pk', 'indexes', 'data', 'create_fk', 'cleanup'
+
+           :param phase: The name of the phase to schedule this call.
+           :param to_call: The method or function to call.
+           :param args: The positional arguments to be passed in the call.
+           :param kwargs: The keyword arguments to be passed in the call.
+        """
+        self.changes.schedule(phase, to_call, *args, **kwargs)
+        
     def upgrade(self):
         """Override this method in a subclass in order to supply custom logic for changing the database schema. This
            method will be called for each of the applicable Migrations listed for all components, in reverse order of 
            dependency of components (less dependent components first).
         """
+
     def upgrade_cleanup(self):
         """Override this method in a subclass in order to supply custom logic that needs to run after the `.upgrade` method
            has been run for all Migrations of all components in an application. This
            method will be called for each of the applicable Migrations listed for all components, in normal order of 
            dependency of components (most dependent components first).
         """
+
 
