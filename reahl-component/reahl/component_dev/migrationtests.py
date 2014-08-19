@@ -26,10 +26,14 @@ from reahl.component.dbutils import ORMControl
 from reahl.component.eggs import ReahlEgg
 from reahl.component.migration import Migration
 
+
 warnings.warn('TODO: these tests need neatening, some facts to test are in comments below this warning')
 #
+# Migrations schedule changes to be run in several phases on a single object of some kind
+# the relevant migrations are computed to be run, then allowed to schedule their changes
+# phases are run, in order, tasks in a phase are run in the order they were scheduled
+# All the migrations are schedueld, then run for all the migrations to bring things up to each intermediate version. (not done)
 # current schema version is saved when tables are created
-# when you run upgrade, only the relevant migrations are run, in order - 2 phases, then new schema version is noted
 # when a new egg appears in the dependency tree that was not installed before, its tables are created & version is noted
 # when an old egg disappears from the dependency tree???
 

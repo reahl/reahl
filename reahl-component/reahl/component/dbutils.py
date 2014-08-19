@@ -23,7 +23,7 @@ from contextlib import contextmanager
 import logging
 
 from reahl.component.eggs import ReahlEgg
-
+from reahl.component.migration import MigrationSchedule
 
 class InvalidConnectionURIException(Exception):
     pass
@@ -176,28 +176,30 @@ class NullDatabaseControl(DatabaseControl):
 
 class ORMControl(object):
     def migrate_db(self, eggs_in_order):
-        with self.managed_transaction() as transaction:
-            migrations = [(egg, egg.compute_migrations(self.schema_version_for(egg))) 
-                          for egg in eggs_in_order
-                          if self.has_schema_version(egg)]
+        with self.managed_transaction():
+            changes = MigrationSchedule('drop_fk', 'drop_pk', 'pre_alter', 'alter', 
+                                        'create_pk', 'indexes', 'data', 'create_fk', 'cleanup')
+            migrations = [(egg, [migration(changes) for migration in egg.compute_migrations(self.schema_version_for(egg))]) 
+                          for egg in eggs_in_order]
             new_eggs = [egg 
                         for egg in eggs_in_order
                         if not self.has_schema_version(egg)]
-            self.run_migrate_phase(reversed(migrations), 1)
+            self.schedule_migration_changes(reversed(migrations), 'upgrade')
             self.create_schema_for(transaction, new_eggs)
-            self.run_migrate_phase(migrations, 2)
+            self.schedule_migration_changes(migrations, 'upgrade_cleanup')
+            changes.execute_all()
                 
             for egg in eggs_in_order:
                 logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
                 self.update_schema_version_for(egg)
 
-    def run_migrate_phase(self, migrations, phase):
+    def schedule_migration_changes(self, migrations, method_name):
         for egg, migration_list in migrations:
             current_schema_version = self.schema_version_for(egg)
-            logging.getLogger(__name__).info('Migrating %s - phase %s going from version %s to %s' % \
-                                             (egg.name, phase, current_schema_version, egg.version))
+            logging.getLogger(__name__).info('Scheduling migration changes %s - "%s" going from version %s to %s' % \
+                                             (egg.name, method_name, current_schema_version, egg.version))
             for migration in migration_list:
-                migration.run_phase(phase)
+                getattr(migration, method_name)()
 
     def create_schema_for(self, transaction, new_eggs):
         self.create_db_tables(transaction, new_eggs)
