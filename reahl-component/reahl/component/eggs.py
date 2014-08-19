@@ -252,7 +252,7 @@ class ReahlEgg(object):
         for i in cls.compute_ordered_dependent_distributions(main_egg):
             entry_map = i.get_entry_map('reahl.eggs')
             if entry_map:
-                classes = entry_map.values()
+                classes = list(entry_map.values())
                 assert len(classes) == 1, 'Only one eggdeb class per egg allowed'
                 interfaces.append(classes[0].load()(i))
 
