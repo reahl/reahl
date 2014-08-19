@@ -54,7 +54,7 @@ class AccessControlTests(object):
 
         model_object = ModelObject()
         
-        # Case: access not allowed
+        # Case: access not allowed, called via bound method
         model_object.did_something = False
         with expected(AccessRestricted):
             model_object.do_something_write_only()
@@ -65,10 +65,30 @@ class AccessControlTests(object):
             model_object.do_something_read_only()
         vassert( not model_object.did_something )
 
-        # Case: access allowed
+        # Case: access not allowed, called via unbound method
+        model_object.did_something = False
+        method = ModelObject.do_something_write_only
+        with expected(AccessRestricted):
+            method(model_object)
+        vassert( not model_object.did_something )
+
+        model_object.did_something = False
+        method = ModelObject.do_something_read_only
+        with expected(AccessRestricted):
+            method(model_object)
+        vassert( not model_object.did_something )
+
+        # Case: access allowed, called via bound method
         model_object.did_something = False
         with expected(NoException):
             model_object.do_something_read_and_write()
+        vassert( model_object.did_something )
+
+        # Case: access allowed, called via unbound method
+        model_object.did_something = False
+        method = ModelObject.do_something_read_and_write
+        with expected(NoException):
+            method(model_object)
         vassert( model_object.did_something )
 
 
