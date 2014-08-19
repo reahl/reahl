@@ -235,9 +235,10 @@ class SqlAlchemyControl(ORMControl):
     def execute_one(self, sql):
         return Session.execute(sql).fetchone()
 
-    def run_migrate_phase(self, migrations, phase):
-        with Operations.context(MigrationContext.configure(Session.connection())):
-            return super(SqlAlchemyControl, self).run_migrate_phase(migrations, phase)
+    def migrate_db(self, eggs_in_order):
+        with Operations.context(MigrationContext.configure(Session.connection())) as op:
+            self.op = op
+            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order)
 
     def initialise_schema_version_for(self, egg):
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
