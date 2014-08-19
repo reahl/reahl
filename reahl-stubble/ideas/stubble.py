@@ -67,7 +67,7 @@ class StubMethod(object):
         stub_args = inspect.getargspec(self.stub)
         assert real_args == stub_args, 'argument specification mismatch'
 
-        return types.MethodType(self.stub, instance)
+        return six.create_bound_method(self.stub, instance)
 
     def __set__(self, instance, value):
         assert None, 'cannot set stub methods'

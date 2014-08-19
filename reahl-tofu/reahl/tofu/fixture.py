@@ -17,9 +17,10 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-import six
 import sys
-import types
+
+import six
+
 
 #--------------------------------------------------[ MarkingDecorator ]
 class MarkingDecorator(object):
@@ -38,7 +39,7 @@ class MarkingDecorator(object):
         if instance is None:
             return self
         else:
-            return types.MethodType(self.function, instance)
+            return six.create_bound_method(self.function, instance)
 
     @property
     def name(self):

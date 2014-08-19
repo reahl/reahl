@@ -18,7 +18,6 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import tempfile
 import os
-import io
 import sys
 import os.path
 from contextlib import contextmanager
@@ -28,20 +27,15 @@ __all__ = ['temp_file_name', 'temp_file_with', 'temp_file_with', 'file_with',
            'temp_dir', 'added_sys_path', 'preserved_sys_modules']
 
 
-class AutomaticallyDeletedFile(io.FileIO):
+class AutomaticallyDeletedFile:
     def __init__(self, name, contents=''):
-        super(AutomaticallyDeletedFile, self).__init__(name, 'w+b')
-        self.write(contents)
-        self.seek(0)
-    def rm(self):
+        self.name = name
+        with open(name, 'w') as f:
+            f.write(contents)
+
+    def __del__(self):
         if os.path.exists(self.name):
             os.remove(self.name)
-    def __del__(self):
-        self.close()
-        try:
-            self.rm()
-        except AttributeError:
-            pass
 
 def file_with(name, contents):
     """Creates a file with the given `name` and `contents`. The file will be deleted
