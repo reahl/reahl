@@ -1129,11 +1129,9 @@ class SecuredDeclaration(object):
         return arg_spec.args[:positional_args_end]
 
     def __get__(self, instance, owner):
-        if instance is None:
-            return SecuredMethod(None, self.func, self)
-        else:
-            method = six.create_bound_method(self.func, instance)
-            return SecuredMethod(instance, method, self)
+        method = (self.func if instance is None
+                  else six.create_bound_method(self.func, instance))
+        return SecuredMethod(instance, method, self)
 
 
 secured = SecuredDeclaration #: An alias for :class:`SecuredDeclaration`
