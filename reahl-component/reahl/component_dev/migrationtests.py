@@ -72,7 +72,7 @@ class ORMControlStub(ORMControl):
     def update_schema_version_for(self, egg):
         self.versions[egg.name] = egg.version
 
-    def schema_version_for(self, egg):
+    def schema_version_for(self, egg, default=None):
         return self.versions[egg.name]
 
     def initialise_schema_version_for(self, egg):

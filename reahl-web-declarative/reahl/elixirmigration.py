@@ -9,7 +9,7 @@ from sqlalchemy import Column, String, Integer
 from alembic import op
 
 from reahl.component.migration import Migration
-
+from reahl.component.context import ExecutionContext
 
 class ElixirToDeclarativeChanges(Migration):
     version = '3.0'
@@ -85,8 +85,8 @@ class ElixirToDeclarativeChanges(Migration):
 
         # reahl-declarative is new, and replaces reahl-elixir-impl
         orm_control = ExecutionContext.get_context().system_control.orm_control
-        self.schedule('cleanup', orm_control.initialise_schema_version_for(egg_name='reahl-declarative', egg_version=self.version))
-        self.schedule('cleanup', orm_control.remove_schema_version_for(egg_name='reahl-elixir-impl'))
+        self.schedule('cleanup', orm_control.initialise_schema_version_for, egg_name='reahl-web-declarative', egg_version=self.version)
+        self.schedule('cleanup', orm_control.remove_schema_version_for, egg_name='reahl-web-elixirimpl')
 
 
     def rename_pk_column(self, table_name, old_name, new_name, primary_key_columns):

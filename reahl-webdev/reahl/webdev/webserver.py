@@ -124,10 +124,7 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
             logging.getLogger(__name__).warn(message)
 
     def finish_response(self):
-        try:
-            simple_server.WSGIRequestHandler.finish_response()
-        except socket.error as ex:
-            import pdb; pdb.set_trace()
+        simple_server.WSGIRequestHandler.finish_response()
 
 
 class SSLWSGIRequestHandler(LoggingRequestHandler):

@@ -95,7 +95,6 @@ class ReahlEgg(object):
             if ep in found_eps:
                 raise AssertionError('%s is listed twice' % ep)
             found_eps.add(ep)
-#        import pdb; pdb.set_trace()
         return [entry.load() for order, entry in sorted([(int(order), e) for order, e in entry_point_dict.items()])]
 
     def get_classes_exported_on(self, entry_point):

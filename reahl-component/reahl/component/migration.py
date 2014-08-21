@@ -33,20 +33,23 @@ class MigrationRun(object):
 
     def migrations_to_run_for(self, egg):
         return [migration(self.changes) 
-                for migration in egg.compute_migrations(self.orm_control.schema_version_for(egg))]
+                for migration in egg.compute_migrations(self.orm_control.schema_version_for(egg, default='0.0'))]
 
     def schedule_migrations(self):
         migrations_per_egg = [(egg, self.migrations_to_run_for(egg))
                               for egg in self.eggs_in_order]
+
         
         self.schedule_migration_changes(reversed(migrations_per_egg), 'upgrade')
         self.schedule_migration_changes(migrations_per_egg, 'upgrade_cleanup')
 
     def schedule_migration_changes(self, migrations_per_egg, method_name):
         for egg, migration_list in migrations_per_egg:
-            current_schema_version = self.orm_control.schema_version_for(egg)
-            logging.getLogger(__name__).info('Scheduling migration changes %s - "%s" going from version %s to %s' % \
-                                             (egg.name, method_name, current_schema_version, egg.version))
+            current_schema_version = self.orm_control.schema_version_for(egg, default='0.0')
+            message = 'Scheduling %s %s migrations for %s - from version %s to %s' % \
+                          (len(migration_list), method_name, egg.name, 
+                           current_schema_version, egg.version)
+            logging.getLogger(__name__).info(message)
             for migration in migration_list:
                 getattr(migration, method_name)()
 
@@ -56,8 +59,9 @@ class MigrationRun(object):
         
     def update_schema_versions(self):
         for egg in self.eggs_in_order:
-            logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
-            self.orm_control.update_schema_version_for(egg)
+            if self.orm_control.schema_version_for(egg, default='0.0') != egg.version:
+                logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
+                self.orm_control.update_schema_version_for(egg)
 
 
 class MigrationSchedule(object):
@@ -72,9 +76,9 @@ class MigrationSchedule(object):
             raise ProgrammerError('A phase with name<%s> does not exist.' % phase)
 
     def execute(self, phase):
-        logging.getLogger(__file__).info('Executing schema change phase %s' % phase)
+        logging.getLogger(__name__).info('Executing schema change phase %s' % phase)
         for to_call, args, kwargs in self.phases[phase]:
-            logging.getLogger(__file__).info('--> change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
+            logging.getLogger(__name__).debug(' change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
             to_call(*args, **kwargs)
 
     def execute_all(self):
