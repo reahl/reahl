@@ -29,6 +29,10 @@
     <class locator="reahl.webdeclarative:PersistedFile"/>
   </persisted>
 
+  <migrations>
+    <class locator="reahl.elixirmigration:ElixirToDeclarativeChanges"/>
+  </migrations>
+
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/webdeclarative_dev -F reahl.webdev.fixtures:BrowserSetup"/>
   
   <distpackage type="sdist">
