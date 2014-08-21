@@ -33,7 +33,7 @@ class BzrFixture(Fixture):
     def new_bzr_directory(self, initialised=True):
         bzr_directory = temp_dir()
         if initialised:
-            with file(os.devnull, 'w') as DEVNULL:
+            with open(os.devnull, 'w') as DEVNULL:
                 Executable('bzr').check_call(['init'], cwd=bzr_directory.name, stdout=DEVNULL, stderr=DEVNULL)
         return bzr_directory
 
@@ -54,7 +54,7 @@ class BzrTests(object):
         bzr = Bzr(fixture.bzr_directory.name)
         vassert( bzr.is_checked_in() )
 
-        file(os.path.join(fixture.bzr_directory.name, 'afile'), 'w').close()
+        open(os.path.join(fixture.bzr_directory.name, 'afile'), 'w').close()
         vassert( not bzr.is_checked_in() )
         
     @test(BzrFixture)

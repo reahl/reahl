@@ -22,8 +22,8 @@ from __future__ import print_function
 import re
 import smtplib
 import logging
-import email.MIMEMultipart
-import email.MIMEText
+from six.moves import email_mime_multipart as MIMEMultipart
+from six.moves import email_mime_text as MIMEText
 
 from reahl.component.context import ExecutionContext
 from reahl.mailutil.rst import RestructuredText
@@ -50,7 +50,7 @@ class MailMessage(object):
             self.to_addresses = to_addresses
             self.subject = subject
             self.rst_text = rst_message
-            self.message_root = email.MIMEMultipart.MIMEMultipart('related')
+            self.message_root = MIMEMultipart.MIMEMultipart('related')
             self.message_root['Subject'] = subject
             self.message_root['From'] = from_address
             self.message_root['To'] = ", ".join(to_addresses)
@@ -58,14 +58,14 @@ class MailMessage(object):
 
             # Encapsulate the plain and HTML versions of the message body in an
             # 'alternative' part, so message agents can decide which they want to display.
-            self.message_alternative = email.MIMEMultipart.MIMEMultipart('alternative')
+            self.message_alternative = MIMEMultipart.MIMEMultipart('alternative')
             self.message_root.attach(self.message_alternative)
 
-            message_text = email.MIMEText.MIMEText(rst_message.encode(charset), 'plain', charset)
+            message_text = MIMEText.MIMEText(rst_message.encode(charset), 'plain', charset)
             self.message_alternative.attach(message_text)
 
             rst = RestructuredText(rst_message)
-            message_text = email.MIMEText.MIMEText(rst.as_HTML_fragment().encode(charset), 'html', charset)
+            message_text = MIMEText.MIMEText(rst.as_HTML_fragment().encode(charset), 'html', charset)
             self.message_alternative.attach(message_text)
 
     def as_string(self):
