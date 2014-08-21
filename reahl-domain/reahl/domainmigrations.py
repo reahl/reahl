@@ -72,9 +72,6 @@ class ElixirToDeclarativeChanges(Migration):
                 self.schedule('drop_fk', op.drop_constraint, old_name, table_name)
                 self.schedule('create_fk', op.create_foreign_key, new_name, table_name, other_table_name, [column_name], [other_column_name])
 
-
-
-
         # Move of relationship between Party and SystemAccount
         # TODO:Assert no rows for : select count(*) from party group by system_account_party_id having count(*) > 1;
         self.schedule('drop_fk', op.drop_constraint, 'party_system_account_id_fk', 'party')
@@ -86,6 +83,11 @@ class ElixirToDeclarativeChanges(Migration):
         self.schedule('drop_pk', op.drop_index, 'ix_task_reserved_by_id')
         self.schedule('indexes', op.create_index, 'ix_task_reserved_by_party_id', 'task', ['reserved_by_party_id'])
 
+        # reahl-declarative is new, and replaces reahl-elixir-impl
+        orm_control = ExecutionContext.get_context().system_control.orm_control
+        self.schedule('cleanup', orm_control.initialise_schema_version_for(egg_name='reahl-declarative', egg_version=self.version))
+        self.schedule('cleanup', orm_control.remove_schema_version_for(egg_name='reahl-elixir-impl'))
+
 
     def rename_pk_column(self, table_name, old_name, new_name, primary_key_columns):
         self.schedule('drop_pk', op.drop_constraint, '%s_pkey' % table_name, table_name)
@@ -94,7 +96,7 @@ class ElixirToDeclarativeChanges(Migration):
 
     def create_index(self, table_name, index_name, primary_key_columns):
         self.schedule('indexes', op.create_index, index_name, table_name, primary_key_columns)
-        
+
     def change_web_session_for_session_scoped(self, table_name):
         self.schedule('drop_fk', op.drop_constraint, '%s_session_id_fk' % table_name, table_name)
         self.schedule('alter', op.alter_column, table_name, 'session_id', new_column_name='user_session_id')
