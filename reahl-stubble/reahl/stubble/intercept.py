@@ -61,7 +61,7 @@ class MonitoredCall(object):
        instantiated by a programmer. Programmers can query instances of MonitoredCall
        returned by a :class:`CallMonitor` or :class:`InitMonitor`."""
     def __init__(self, args, kwargs, return_value):
-        self.return_value = return_value #: The value resurned by the call
+        self.return_value = return_value #: The value returned by the call
         self.args = args #: The tuple with positional arguments passed during the call
         self.kwargs = kwargs #: The dictionary with keyword arguments passed during the call
 

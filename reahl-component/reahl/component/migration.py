@@ -24,13 +24,52 @@ import logging
 from reahl.component.exceptions import ProgrammerError
 
 
+class MigrationRun(object):
+    def __init__(self, orm_control, eggs_in_order):
+        self.orm_control = orm_control
+        self.changes = MigrationSchedule('drop_fk', 'drop_pk', 'pre_alter', 'alter', 
+                                         'create_pk', 'indexes', 'data', 'create_fk', 'cleanup')
+        self.eggs_in_order = eggs_in_order
+
+    def migrations_to_run_for(self, egg):
+        return [migration(self.changes) 
+                for migration in egg.compute_migrations(self.orm_control.schema_version_for(egg))]
+
+    def schedule_migrations(self):
+        migrations_per_egg = [(egg, self.migrations_to_run_for(egg))
+                              for egg in self.eggs_in_order]
+        
+        self.schedule_migration_changes(reversed(migrations_per_egg), 'upgrade')
+        self.schedule_migration_changes(migrations_per_egg, 'upgrade_cleanup')
+
+    def schedule_migration_changes(self, migrations_per_egg, method_name):
+        for egg, migration_list in migrations_per_egg:
+            current_schema_version = self.orm_control.schema_version_for(egg)
+            logging.getLogger(__name__).info('Scheduling migration changes %s - "%s" going from version %s to %s' % \
+                                             (egg.name, method_name, current_schema_version, egg.version))
+            for migration in migration_list:
+                getattr(migration, method_name)()
+
+    def execute_migrations(self):
+        self.changes.execute_all()
+        self.update_schema_versions()
+        
+    def update_schema_versions(self):
+        for egg in self.eggs_in_order:
+            logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
+            self.orm_control.update_schema_version_for(egg)
+
+
 class MigrationSchedule(object):
     def __init__(self, *phases):
         self.phases_in_order = phases
         self.phases = dict([(i, []) for i in phases])
 
     def schedule(self, phase, to_call, *args, **kwargs):
-        self.phases[phase].append((to_call, args, kwargs))
+        try:
+            self.phases[phase].append((to_call, args, kwargs))
+        except KeyError as e:
+            raise ProgrammerError('A phase with name<%s> does not exist.' % phase)
 
     def execute(self, phase):
         logging.getLogger(__file__).info('Executing schema change phase %s' % phase)
@@ -68,7 +107,7 @@ class Migration(object):
         """Call this method to schedule a method call for execution later during the specified migration phase.
 
            Scheduled migrations are first collected from all components, then the calls scheduled for each defined
-           phase are executed. Calls in one phase are executed in the order they were sheduled. Phases are executed
+           phase are executed. Calls in one phase are executed in the order they were scheduled. Phases are executed
            in the following order:
 
            'drop_fk', 'drop_pk', 'pre_alter', 'alter', 'create_pk', 'indexes', 'data', 'create_fk', 'cleanup'
