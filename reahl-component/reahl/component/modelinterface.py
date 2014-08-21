@@ -1051,7 +1051,8 @@ class Event(Field):
     
     
 class SecuredMethod(object):
-    def __init__(self, to_be_called, secured_declaration):
+    def __init__(self, instance, to_be_called, secured_declaration):
+        self.instance = instance
         self.to_be_called = to_be_called
         self.secured_declaration = secured_declaration
 
@@ -1060,21 +1061,19 @@ class SecuredMethod(object):
             raise AccessRestricted()
         return self.to_be_called(*args, **kwargs)
 
-    def check_right(self, right_to_check, called_self, *args, **kwargs):
-        args_to_send = args
-        if called_self:
-            args_to_send = [called_self]+list(args)
+    def check_right(self, right_to_check, *args, **kwargs):
         if right_to_check:
+            args_to_send = (args if self.instance is None
+                            else (self.instance,)+args)
             return right_to_check(*args_to_send, **kwargs)
         else:
             return True
 
     def read_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.read_check, six.get_method_self(self.to_be_called), *args, **kwargs)
+        return self.check_right(self.secured_declaration.read_check, *args, **kwargs)
     
     def write_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.write_check, six.get_method_self(self.to_be_called), *args, **kwargs)
-
+        return self.check_right(self.secured_declaration.write_check, *args, **kwargs)
 
 
 class SecuredDeclaration(object):
@@ -1130,8 +1129,9 @@ class SecuredDeclaration(object):
         return arg_spec.args[:positional_args_end]
 
     def __get__(self, instance, owner):
-        method = types.MethodType(self.func, instance, owner)
-        return SecuredMethod(method, self)
+        method = (self.func if instance is None
+                  else six.create_bound_method(self.func, instance))
+        return SecuredMethod(instance, method, self)
 
 
 secured = SecuredDeclaration #: An alias for :class:`SecuredDeclaration`

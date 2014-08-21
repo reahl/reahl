@@ -21,7 +21,6 @@ from __future__ import print_function
 import os
 import os.path
 import logging
-import copy
 
 from pkg_resources import Requirement
 from pkg_resources import iter_entry_points
@@ -91,7 +90,6 @@ class ReahlEgg(object):
 
     def get_ordered_classes_exported_on(self, entry_point):
         entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
-        eps = copy.copy(entry_point_dict.values())
         found_eps = set()
         for ep in entry_point_dict.values():
             if ep in found_eps:
@@ -252,7 +250,7 @@ class ReahlEgg(object):
         for i in cls.compute_ordered_dependent_distributions(main_egg):
             entry_map = i.get_entry_map('reahl.eggs')
             if entry_map:
-                classes = entry_map.values()
+                classes = list(entry_map.values())
                 assert len(classes) == 1, 'Only one eggdeb class per egg allowed'
                 interfaces.append(classes[0].load()(i))
 
