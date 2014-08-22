@@ -45,7 +45,7 @@ The minor upgrades are:
 SqlAlchemy and Elixir/Declarative
 ---------------------------------
 
-SqlAlchemy had to be upgraded to 0.9 (instead of 0.7). Unfortunately
+SqlAlchemy had to be upgraded from version 0.7 to 0.9. Unfortunately
 Elixir does not support these newer versions of SqlAlchemy, prompting
 us to implement the framework and all examples using `SqlAlchemy's declarative 
 extension instead <http://docs.sqlalchemy.org/en/rel_0_9/orm/extensions/declarative.html>`_.

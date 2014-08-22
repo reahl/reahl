@@ -87,7 +87,7 @@ class DeferredAction(Base):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
     requirements = relationship('Requirement', 
-                                secondary=Table('requirement_deferred_actions__deferredaction_requirements', 
+                                secondary=Table('deferredaction_requirement', 
                                             Base.metadata,
                                             Column('deferredaction_id', Integer, 
                                                ForeignKey('deferredaction.id'), 
