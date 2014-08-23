@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-doc 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2013-12-05 16:28+0200\n"
+"POT-Creation-Date: 2014-08-23 19:27+0200\n"
 "PO-Revision-Date: 2012-05-31 12:02+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language-Team: af <info@reahl.org>\n"
@@ -16,38 +16,38 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: reahl/doc/examples/features/i18nexample/i18nexample.py:16
+#: reahl/doc/examples/features/i18nexample/i18nexample.py:15
+msgid "Translated example"
+msgstr "Vertaalde voorbeeld"
+
+#: reahl/doc/examples/features/i18nexample/i18nexample.py:25
 #, python-format
 msgid "This is a translated string. The current URL is \"%s\"."
 msgstr "Hierdie is 'n vertaalde string. Die huidige URL is \"%s\"."
 
-#: reahl/doc/examples/features/i18nexample/i18nexample.py:24
-msgid "Translated example"
-msgstr "Vertaalde voorbeeld"
-
-#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:28
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:30
 msgid "Address Book"
 msgstr "Adres Boek"
 
-#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:37
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:39
 msgid "Address"
 msgid_plural "Addresses"
 msgstr[0] "Adres"
 msgstr[1] "Adresse"
 
-#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:52
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:54
 msgid "Add an address"
 msgstr "Voeg 'n adres by"
 
-#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:77
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:79
 msgid "Name"
 msgstr "Naam"
 
-#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:78
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:80
 msgid "Email"
 msgstr "E-pos"
 
-#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:86
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:88
 msgid "Save"
 msgstr "Stoor"
 
