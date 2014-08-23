@@ -282,9 +282,6 @@ class SqlAlchemyControl(ORMControl):
             assert default, 'No existing schema version found for egg %s, and you did not specify a default version' % egg.name
             return default
             
-    def has_schema_version(self, egg):
-        return Session.query(SchemaVersion).filter_by(egg_name=egg.name).count() > 0
-
     def update_schema_version_for(self, egg):
         current_version = Session.query(SchemaVersion).filter_by(egg_name=egg.name).one()
         current_version.version = egg.version

@@ -1,148 +1,148 @@
 # Translations template for reahl-domain.
-# Copyright (C) 2013 ORGANIZATION
+# Copyright (C) 2014 ORGANIZATION
 # This file is distributed under the same license as the reahl-domain
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-domain 2.0.0a1\n"
+"Project-Id-Version: reahl-domain 3.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-12-05 16:28+0200\n"
+"POT-Creation-Date: 2014-08-23 19:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.6\n"
+"Generated-By: Babel 1.3\n"
 
-#: reahl/systemaccountmodel.py:109
+#: reahl/systemaccountmodel.py:294
 msgid "Email"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:110
+#: reahl/systemaccountmodel.py:295
 msgid "New email"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:111
+#: reahl/systemaccountmodel.py:296
 msgid "Password"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:112
+#: reahl/systemaccountmodel.py:297
 msgid "Remember me?"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:113
+#: reahl/systemaccountmodel.py:298
 msgid "Secret key"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:114
+#: reahl/systemaccountmodel.py:299
 msgid "Re-type password"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:114
+#: reahl/systemaccountmodel.py:299
 msgid "Please type your password again."
 msgstr ""
 
-#: reahl/systemaccountmodel.py:116
+#: reahl/systemaccountmodel.py:301
 msgid "Please accept the terms of service"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:117
+#: reahl/systemaccountmodel.py:302
 msgid "I accept the terms of service"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:121
+#: reahl/systemaccountmodel.py:306
 msgid "Verify"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:122
+#: reahl/systemaccountmodel.py:307
 msgid "Register"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:123
+#: reahl/systemaccountmodel.py:308
 msgid "Change email address"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:124
+#: reahl/systemaccountmodel.py:309
 msgid "Investigate"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:125
+#: reahl/systemaccountmodel.py:310
 msgid "Set new password"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:126
+#: reahl/systemaccountmodel.py:311
 msgid "Reset password"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:127
+#: reahl/systemaccountmodel.py:312
 msgid "Log in"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:128
+#: reahl/systemaccountmodel.py:313
 msgid "Send"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:129
+#: reahl/systemaccountmodel.py:314
 msgid "Log out"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:183
+#: reahl/systemaccountmodel.py:368
 msgid "Passwords do not match"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:189
+#: reahl/systemaccountmodel.py:374
 msgid "Invalid login credentials"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:195
+#: reahl/systemaccountmodel.py:380
 msgid "The secret key supplied is invalid."
 msgstr ""
 
-#: reahl/systemaccountmodel.py:201
+#: reahl/systemaccountmodel.py:386
 msgid "The email address supplied is invalid."
 msgstr ""
 
-#: reahl/systemaccountmodel.py:207
+#: reahl/systemaccountmodel.py:392
 msgid "Could not find an account matching the supplied email address."
 msgstr ""
 
-#: reahl/systemaccountmodel.py:214
+#: reahl/systemaccountmodel.py:399
 msgid "The email address supplied is not unique."
 msgstr ""
 
-#: reahl/systemaccountmodel.py:422
+#: reahl/systemaccountmodel.py:634
 msgid "Unknown status"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:429
+#: reahl/systemaccountmodel.py:641
 msgid "Please verify your account before logging in"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:434
+#: reahl/systemaccountmodel.py:646
 msgid "Account is locked: too many failed attempts"
 msgstr ""
 
-#: reahl/systemaccountmodel.py:439
+#: reahl/systemaccountmodel.py:651
 msgid "Account is active"
 msgstr ""
 
-#: reahl/workflowmodel.py:50
+#: reahl/workflowmodel.py:59
 msgid "Take"
 msgstr ""
 
-#: reahl/workflowmodel.py:54
+#: reahl/workflowmodel.py:63
 msgid "Defer"
 msgstr ""
 
-#: reahl/workflowmodel.py:55
+#: reahl/workflowmodel.py:64
 msgid "Go to"
 msgstr ""
 
-#: reahl/workflowmodel.py:59
+#: reahl/workflowmodel.py:68
 msgid "Release"
 msgstr ""
 

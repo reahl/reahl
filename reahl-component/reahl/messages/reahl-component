@@ -1,33 +1,33 @@
 # Translations template for reahl-component.
-# Copyright (C) 2013 ORGANIZATION
+# Copyright (C) 2014 ORGANIZATION
 # This file is distributed under the same license as the reahl-component
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-component 2.0.0a1\n"
+"Project-Id-Version: reahl-component 3.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-12-05 16:28+0200\n"
+"POT-Creation-Date: 2014-08-23 19:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 0.9.6\n"
+"Generated-By: Babel 1.3\n"
 
-#: reahl/component/config.py:134
+#: reahl/component/config.py:138
 msgid "MISSING!!"
 msgstr ""
 
-#: reahl/component/exceptions.py:46
+#: reahl/component/exceptions.py:51
 #, python-format
 msgid "An error occurred: %s"
 msgstr ""
 
-#: reahl/component/modelinterface.py:272 reahl/component/modelinterface.py:563
+#: reahl/component/modelinterface.py:274 reahl/component/modelinterface.py:563
 msgid "$label is invalid"
 msgstr ""
 
@@ -373,15 +373,15 @@ msgstr ""
 msgid "a maximum of $max_files files may be uploaded"
 msgstr ""
 
-#: reahl/component_dev/i18ntests.py:50 reahl/component_dev/i18ntests.py:51
-#: reahl/component_dev/i18ntests.py:56 reahl/component_dev/i18ntests.py:57
-#: reahl/component_dev/i18ntests.py:92 reahl/component_dev/i18ntests.py:112
+#: reahl/component_dev/i18ntests.py:52 reahl/component_dev/i18ntests.py:53
+#: reahl/component_dev/i18ntests.py:58 reahl/component_dev/i18ntests.py:59
+#: reahl/component_dev/i18ntests.py:94 reahl/component_dev/i18ntests.py:114
 msgid "test string"
 msgstr ""
 
-#: reahl/component_dev/i18ntests.py:52 reahl/component_dev/i18ntests.py:53
-#: reahl/component_dev/i18ntests.py:58 reahl/component_dev/i18ntests.py:59
-#: reahl/component_dev/i18ntests.py:93 reahl/component_dev/i18ntests.py:94
+#: reahl/component_dev/i18ntests.py:54 reahl/component_dev/i18ntests.py:55
+#: reahl/component_dev/i18ntests.py:60 reahl/component_dev/i18ntests.py:61
+#: reahl/component_dev/i18ntests.py:95 reahl/component_dev/i18ntests.py:96
 msgid "thing"
 msgid_plural "things"
 msgstr[0] ""
