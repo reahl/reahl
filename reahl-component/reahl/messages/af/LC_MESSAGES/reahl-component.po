@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-component 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2013-12-05 16:28+0200\n"
+"POT-Creation-Date: 2014-08-23 19:27+0200\n"
 "PO-Revision-Date: 2012-04-13 08:38+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language-Team: af <info@reahl.org>\n"
@@ -16,16 +16,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: reahl/component/config.py:134
+#: reahl/component/config.py:137
 msgid "MISSING!!"
 msgstr "NIE GESPESIFISEER!!"
 
-#: reahl/component/exceptions.py:46
+#: reahl/component/exceptions.py:51
 #, python-format
 msgid "An error occurred: %s"
 msgstr "'n Fout het gebeur: %s"
 
-#: reahl/component/modelinterface.py:272 reahl/component/modelinterface.py:563
+#: reahl/component/modelinterface.py:274 reahl/component/modelinterface.py:563
 msgid "$label is invalid"
 msgstr "$label is ongeldig"
 
@@ -371,15 +371,15 @@ msgstr "lêer mag slegs een van $human_accepted_types tipes wees"
 msgid "a maximum of $max_files files may be uploaded"
 msgstr "'n maksimum van $max_files mag opgelaai word"
 
-#: reahl/component_dev/i18ntests.py:50 reahl/component_dev/i18ntests.py:51
-#: reahl/component_dev/i18ntests.py:56 reahl/component_dev/i18ntests.py:57
-#: reahl/component_dev/i18ntests.py:92 reahl/component_dev/i18ntests.py:112
+#: reahl/component_dev/i18ntests.py:52 reahl/component_dev/i18ntests.py:53
+#: reahl/component_dev/i18ntests.py:58 reahl/component_dev/i18ntests.py:59
+#: reahl/component_dev/i18ntests.py:94 reahl/component_dev/i18ntests.py:114
 msgid "test string"
 msgstr "toets string"
 
-#: reahl/component_dev/i18ntests.py:52 reahl/component_dev/i18ntests.py:53
-#: reahl/component_dev/i18ntests.py:58 reahl/component_dev/i18ntests.py:59
-#: reahl/component_dev/i18ntests.py:93 reahl/component_dev/i18ntests.py:94
+#: reahl/component_dev/i18ntests.py:54 reahl/component_dev/i18ntests.py:55
+#: reahl/component_dev/i18ntests.py:60 reahl/component_dev/i18ntests.py:61
+#: reahl/component_dev/i18ntests.py:95 reahl/component_dev/i18ntests.py:96
 msgid "thing"
 msgid_plural "things"
 msgstr[0] "ding"
