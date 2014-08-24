@@ -20,8 +20,8 @@ from alembic import op
 
 class AddDate(Migration):
     version = '0.1'
-    def upgrade(self):
-        print('executing AddDate (upgrade)')
+    def schedule_upgrades(self):
+        print('scheduling upgrades for AddDate')
         self.schedule('alter', op.add_column, 'migration_address', Column('added_date', DateTime))
             
 
