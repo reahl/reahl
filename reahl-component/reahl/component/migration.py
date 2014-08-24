@@ -90,7 +90,7 @@ class Migration(object):
        should be run when upgrading from a previous version.
        
        Never use code imported from your component in a Migration, since Migration code is kept around in
-       future versions of a component and may be run to migrate a schema with different versions of your component.
+       future versions of a component and may be run to migrate a schema with different versions of the code in your component.
     """
     version = None
     @classmethod
