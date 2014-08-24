@@ -42,6 +42,7 @@ class MigrationRun(object):
         
         self.schedule_migration_changes(reversed(migrations_per_egg), 'upgrade')
         self.schedule_migration_changes(migrations_per_egg, 'upgrade_cleanup')
+        self.schedule_migration_changes(migrations_per_egg, 'schedule_upgrades')
 
     def schedule_migration_changes(self, migrations_per_egg, method_name):
         for egg, migration_list in migrations_per_egg:
@@ -94,7 +95,7 @@ class Migration(object):
        should be run when upgrading from a previous version.
        
        Never use code imported from your component in a Migration, since Migration code is kept around in
-       future versions of a component and may be run to migrate a schema with different versions of your component.
+       future versions of a component and may be run to migrate a schema with different versions of the code in your component.
     """
     version = None
     @classmethod
@@ -123,17 +124,27 @@ class Migration(object):
         """
         self.changes.schedule(phase, to_call, *args, **kwargs)
         
-    def upgrade(self):
+    def schedule_upgrades(self):
         """Override this method in a subclass in order to supply custom logic for changing the database schema. This
-           method will be called for each of the applicable Migrations listed for all components, in reverse order of 
-           dependency of components (less dependent components first).
+           method will be called for each of the applicable Migrations listed for all components, in order of 
+           dependency of components (the component deepest down in the dependency tree, first).
+
+           **Added in 2.1.2**: Supply custom upgrade logic by calling `self.schedule()`.
+        """
+
+    def upgrade(self):
+        """**Changed in 2.1.2**: This method should not be used anymore. Since 2.1.2, a more involved scheme
+           is implemented for dealing with ordering issues. Individual migration calls can now be sheduled
+           for execution in phases. Rather use :meth:`reahl.component.migration.Migration.schedule_upgrades`.
+           (See :meth:`reahl.component.migration.Migration.schedule`).
         """
 
     def upgrade_cleanup(self):
-        """Override this method in a subclass in order to supply custom logic that needs to run after the `.upgrade` method
-           has been run for all Migrations of all components in an application. This
-           method will be called for each of the applicable Migrations listed for all components, in normal order of 
-           dependency of components (most dependent components first).
+        """**Changed in 2.1.2**: This method should not be used anymore. Since 2.1.2, a more involved scheme
+           is implemented for dealing with ordering issues. Individual migration calls can now be sheduled
+           for execution in phases. Rather use :meth:`reahl.component.migration.Migration.schedule_upgrades`.
+           (See :meth:`reahl.component.migration.Migration.schedule`).
         """
+
 
 

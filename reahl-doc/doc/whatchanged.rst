@@ -83,4 +83,3 @@ Please see the :doc:`declarativemigration` for details on how to do this,
 or discuss on `the mailing list <https://groups.google.com/forum/#!forum/reahl-discuss>`_.
 
 
-
