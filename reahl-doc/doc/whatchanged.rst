@@ -30,3 +30,15 @@ One can now directly specify the page to be rendered for a
 that it is not necessary to understand the concept of a
 :class:`~reahl.web.ui.Slot` and related complexities when just
 building a simple app.
+
+Migrations (since 2.1.2)
+------------------------
+
+Migrations have grown up a bit in version 2.1.2 to easy with the
+anticipated migration that will be necessary to move from version 2.x
+to 3.x.
+
+Migrations now consist of calls that are scheduled for executed during
+one of several predefined migration phases, ordered to deal with possibly 
+dependencies between database objects. See :ref:`Database schema evolution <database-schema-evolution>` 
+for a full explanation.
