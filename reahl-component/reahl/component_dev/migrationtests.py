@@ -55,6 +55,7 @@ class ReahlEggStub(ReahlEgg):
     def migrations_in_order(self):
         return self.migrations
 
+
 class ORMControlStub(ORMControl):
     created_schema_for = None
     def __init__(self):
@@ -73,6 +74,7 @@ class ORMControlStub(ORMControl):
     def create_db_tables(self, transaction, new_eggs):
         self.created_schema_for = new_eggs
 
+
 class MigrateFixture(Fixture):
     def new_orm_control(self):
         return ORMControlStub()
@@ -80,8 +82,8 @@ class MigrateFixture(Fixture):
 
 @test(MigrateFixture)
 def how_migration_works(fixture):
-    """Calls that will modify the database are scheduled in the upgrade() method of all
-       the applicable Migrations for a single migration run. Upgrade() is called on each
+    """Calls that will modify the database are scheduled in the schedule_upgrades() method of all
+       the applicable Migrations for a single migration run. `shedule_upgrades()` is called on each
        migration in order of their versions. Once all calls are scheduled,
        they are executed as scheduled.
     """
@@ -94,14 +96,14 @@ def how_migration_works(fixture):
     
     class Migration1(Migration):
         version = '2.0'
-        def upgrade(self):
+        def schedule_upgrades(self):
             self.schedule('drop_fk', some_object.do_something, 'drop_fk_1')
             self.schedule('data', some_object.do_something, 'data_1')
             self.schedule('drop_fk', some_object.do_something, 'drop_fk_2')
 
     class Migration2(Migration):
         version = '3.0'
-        def upgrade(self):
+        def schedule_upgrades(self):
             self.schedule('drop_fk', some_object.do_something, 'drop_fk_3')
 
     egg = ReahlEggStub('my_egg', '4.0', [Migration1, Migration2])
