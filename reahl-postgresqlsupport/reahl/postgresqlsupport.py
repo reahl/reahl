@@ -39,7 +39,7 @@ class PostgresqlControl(DatabaseControl):
 
     @property
     def login_args(self):
-	if self.host == 'localhost' and self.port == 5432:
+        if self.host == 'localhost' and self.port == 5432:
             return []
         return ['-h', self.host, '-p', six.text_type(self.port)]
 
