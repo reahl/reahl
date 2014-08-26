@@ -1293,7 +1293,7 @@ class DateField(Field):
     def parse_input(self, unparsed_input):
         try:
             return dateutil.parser.parse(unparsed_input, dayfirst=True, parserinfo=self.parser_info).date()
-        except ValueError:
+        except (ValueError, TypeError):  # For TypeError, see https://bugs.launchpad.net/dateutil/+bug/1247643
             raise InputParseException()
 
     def unparse_input(self, parsed_value):
