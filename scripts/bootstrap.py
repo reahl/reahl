@@ -19,7 +19,8 @@ from __future__ import print_function
 try:
     from six.moves import input
 except:
-    input = raw_input
+    if 'raw_input' in dir():
+        input = raw_input
 import sys
 import pkg_resources
 import os
