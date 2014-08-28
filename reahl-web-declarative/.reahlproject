@@ -31,7 +31,7 @@
 
   <migrations>
     <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
-    <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeChanges"/>
+    <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeWebDeclarativeChanges"/>
   </migrations>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/webdeclarative_dev -F reahl.webdev.fixtures:BrowserSetup"/>

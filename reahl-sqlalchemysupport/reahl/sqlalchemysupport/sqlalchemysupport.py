@@ -62,7 +62,7 @@ def reahl_scope():
         message += ' could be found.'
         raise ProgrammerError(message)
 
-Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
+
 naming_convention = {
   'ix': 'ix_%(column_0_label)s',
   'uq': 'uq_%(table_name)s_%(column_0_name)s',
@@ -70,8 +70,21 @@ naming_convention = {
   'fk': 'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
   'pk': 'pk_%(table_name)s'
 }
+
+def fk_name(table_name, column_name, other_table_name):
+    return 'fk_%s_%s_%s' % (table_name, column_name, other_table_name)
+
+def pk_name(table_name):
+    return 'pk_%s' % table_name
+
+def ix_name(table_name, column_name):
+    return 'ix_%s_%s' % (table_name, column_name)
+
+
+Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base 
 Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata)    #: A Base for using with declarative
+
 
 class QueryAsSequence(Sequence):
     """Used to wrap a SqlAlchemy Query so that it looks like a normal Python :class:`Sequence`."""

@@ -22,6 +22,10 @@
     <class locator="reahl.sqlalchemysupport:SchemaVersion"/>
   </persisted>
 
+  <migrations>
+    <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
+  </migrations>
+
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/sqlalchemysupport_dev -F reahl.dev.fixtures:CleanDatabase"/>
 
   <distpackage type="sdist">
