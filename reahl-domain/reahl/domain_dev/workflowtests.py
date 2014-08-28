@@ -28,7 +28,7 @@ from sqlalchemy import Column, Integer, Boolean, UnicodeText, ForeignKey
 
 from reahl.dev.tools import EventTester
 from reahl.sqlalchemysupport import metadata, Session, Base
-from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
+from reahl.domain.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 
