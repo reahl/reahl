@@ -31,7 +31,7 @@ from reahl.tofu import vassert, assert_recent, expected
 from reahl.stubble import stubclass
 
 from reahl.component.eggs import ReahlEgg
-from reahl.partymodel import Party
+from reahl.domain.partymodel import Party
 from reahl.systemaccountmodel import EmailAndPasswordSystemAccount, VerificationRequest, VerifyEmailRequest, NewPasswordRequest, \
      ChangeAccountEmail, UserSession, PasswordException, NotUniqueException, InvalidPasswordException, KeyException, \
      InvalidEmailException, AccountNotActiveException, NoSuchAccountException, AccountActive, AccountDisabled, AccountNotActivated,\
