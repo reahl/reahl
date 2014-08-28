@@ -1,7 +1,7 @@
 .. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Getting developing with Reahl
-=============================
+Get developing with Reahl
+=========================
 
 This chapter explains the very basics necessary to run a Reahl
 application, at the hand of a simple "Hello World" example. These are
@@ -10,8 +10,8 @@ application; dealing with Python eggs in development; Reahl
 configuration or how to manage the database that underlies your
 application.
 
-This explanation assumes `that you have installed Reahl in a
-virtualenv, and that you have activated the virtualenv <gettingstarted-install>`_.
+This explanation assumes :ref:`that you have installed Reahl in a
+virtualenv, and that you have activated the virtualenv <install-reahl-itself>`.
 
 With Reahl, these topics are simple enough to be explained quickly,
 and you can do everything by hand -- there's no need to ask a script
