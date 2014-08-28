@@ -1,4 +1,4 @@
-.. Copyright 2012, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 An application that actually does something
 ===========================================
