@@ -32,15 +32,22 @@ from elixir import PickleType
 from elixir import String
 from elixir import UnicodeText
 from elixir import using_options
+from alembic import op
 
 from reahl.sqlalchemysupport import Session
 from reahl.sqlalchemysupport import metadata
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
+from reahl.component.migration import Migration
 from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
 from reahl.systemaccountmodel import UserSession
 from reahl.web.fw import WebExecutionContext, Url
 
+
+class RenameRegionToUi(Migration):
+    version='2.1'
+    def schedule_upgrades(self):
+        self.schedule('alter', op.alter_column, 'sessiondata', 'region_name', new_column_name='ui_name')
 
 class InvalidKeyException(Exception):
     pass
