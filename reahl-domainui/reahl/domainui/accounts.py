@@ -30,7 +30,7 @@ from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxI
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.component.decorators import deprecated
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
      AccountManagementInterface
 
 _ = Translator('reahl-domainui')

@@ -6,7 +6,7 @@ from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, Boolean
 from sqlalchemy.orm import relationship, backref
 
 from reahl.sqlalchemysupport import Session, Base
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 
 class Address(Base):

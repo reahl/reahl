@@ -32,7 +32,7 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.component.migration import Migration
 from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
-from reahl.systemaccountmodel import UserSession
+from reahl.domain.systemaccountmodel import UserSession
 from reahl.web.fw import WebExecutionContext, Url
 
 

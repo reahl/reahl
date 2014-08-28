@@ -8,7 +8,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.login1.login1 import LoginUI
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 
 class LoginFixture(WebFixture):
