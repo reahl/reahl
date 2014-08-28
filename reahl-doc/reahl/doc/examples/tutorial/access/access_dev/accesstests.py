@@ -11,7 +11,7 @@ from reahl.webdev.tools import Browser, XPath
 from reahl.doc.examples.tutorial.access.access import Address
 from reahl.doc.examples.tutorial.access.access import AddressBook
 from reahl.doc.examples.tutorial.access.access import AddressBookUI
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 
 class AccessFixture(WebFixture):

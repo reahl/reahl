@@ -13,7 +13,7 @@ from reahl.tofu import test, set_up
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.sqlalchemysupport import Session
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.doc.examples.tutorial.access2.access2 import AddressBookUI, AddressBook, Address
 

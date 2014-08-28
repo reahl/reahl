@@ -32,7 +32,7 @@ from reahl.webdev.webserver import ReahlWebServer
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
 from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
-from reahl.systemaccountmodel import SystemAccountConfig
+from reahl.domain.systemaccountmodel import SystemAccountConfig
 
 
 class BrowserSetup(CleanDatabase):
