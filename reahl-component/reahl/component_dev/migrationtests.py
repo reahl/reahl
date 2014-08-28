@@ -233,6 +233,22 @@ def version_of_migration_not_set_error(fixture):
 
 
 @test(MigrateFixture)
+def missing_schedule_upgrades_warns(fixture):
+    """If a programmer does not override schedule_upgrades, a warning is raised."""
+    class TestMigration(Migration):
+        pass
+
+    with warnings.catch_warnings(record=True) as raised_warnings:
+         warnings.simplefilter("always")
+  
+         TestMigration(EmptyStub()).schedule_upgrades()
+ 
+    [warning] = raised_warnings
+    expected_message = 'Ignoring TestMigration.schedule_upgrades(): it does not override schedule_upgrades() (method name typo perhaps?)'
+    vassert( six.text_type(warning.message) == expected_message  )
+
+
+@test(MigrateFixture)
 def available_migration_phases(fixture):
     """These are the phases, and order of the phases in a MigrationRun."""
 

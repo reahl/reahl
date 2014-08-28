@@ -2,7 +2,7 @@
 .reahlproject
 COPYING
 LICENSE
-setup.py
+reahl
 reahl/__init__.py
 reahl/dev/__init__.py
 reahl/dev/devdomain.py
