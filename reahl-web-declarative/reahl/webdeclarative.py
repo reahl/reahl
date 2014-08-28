@@ -30,6 +30,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from reahl.sqlalchemysupport import Session, Base
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
+from reahl.component.migration import Migration
 from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
 from reahl.systemaccountmodel import UserSession
 from reahl.web.fw import WebExecutionContext, Url

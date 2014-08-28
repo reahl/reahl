@@ -12,6 +12,12 @@ from reahl.component.migration import Migration
 from reahl.component.context import ExecutionContext
 
 
+class RenameRegionToUi(Migration):
+    version='2.1'
+    def schedule_upgrades(self):
+        self.schedule('alter', op.alter_column, 'sessiondata', 'region_name', new_column_name='ui_name')
+
+
 def fk_name(table_name, column_name, other_table_name):
     return 'fk_%s_%s_%s' % (table_name, column_name, other_table_name)
 

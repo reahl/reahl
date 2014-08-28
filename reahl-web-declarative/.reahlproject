@@ -30,6 +30,7 @@
   </persisted>
 
   <migrations>
+    <class locator="reahl.elixirmigration:RenameRegionToUi"/>
     <class locator="reahl.elixirmigration:ElixirToDeclarativeChanges"/>
   </migrations>
 
