@@ -98,7 +98,7 @@ class DataTable(Panel):
        on the current page. It renders as a table spread over different pages between which a user can
        navigate, thus preventing a large data set sent back to a single page.
 
-       If a :class:`DynamicColumn`\s used to define the table also specifies a `sort_key`, the table
+       If a :class:`DynamicColumn` is used to define the table also specifies a `sort_key`, the table
        is rendered with controls on that column heading that allows it to be sorted on that column. The
        sort operation applies to the entire dataset even though the user stays on the current page and only
        sees a subset of that data.
