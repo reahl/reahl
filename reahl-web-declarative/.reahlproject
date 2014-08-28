@@ -1,5 +1,5 @@
 <project type="egg" packagedata="included">
-  <configuration locator="reahl.webdeclarative:WebDeclarativeConfig"/>
+  <configuration locator="reahl.webdeclarative.webdeclarative:WebDeclarativeConfig"/>
 
   <namespaces>
     <package name="reahl"/>
@@ -22,16 +22,16 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.webdeclarative:WebUserSession"/>
-    <class locator="reahl.webdeclarative:SessionData"/>
-    <class locator="reahl.webdeclarative:UserInput"/>
-    <class locator="reahl.webdeclarative:PersistedException"/>
-    <class locator="reahl.webdeclarative:PersistedFile"/>
+    <class locator="reahl.webdeclarative.webdeclarative:WebUserSession"/>
+    <class locator="reahl.webdeclarative.webdeclarative:SessionData"/>
+    <class locator="reahl.webdeclarative.webdeclarative:UserInput"/>
+    <class locator="reahl.webdeclarative.webdeclarative:PersistedException"/>
+    <class locator="reahl.webdeclarative.webdeclarative:PersistedFile"/>
   </persisted>
 
   <migrations>
-    <class locator="reahl.elixirmigration:RenameRegionToUi"/>
-    <class locator="reahl.elixirmigration:ElixirToDeclarativeChanges"/>
+    <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
+    <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeChanges"/>
   </migrations>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/webdeclarative_dev -F reahl.webdev.fixtures:BrowserSetup"/>

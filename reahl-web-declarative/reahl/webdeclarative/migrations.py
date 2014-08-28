@@ -31,7 +31,7 @@ def ix_name(table_name, column_name):
 class ElixirToDeclarativeChanges(Migration):
     version = '3.0'
 
-    def upgrade(self):
+    def schedule_upgrade(self):
         self.rename_primary_key_constraints()
         self.rename_foreign_keys_constraints()
 
