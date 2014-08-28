@@ -39,7 +39,7 @@ from reahl.component.i18n import Translator
 from reahl.component.modelinterface import EmailField, PasswordField, BooleanField, EqualToConstraint, \
                                    RemoteConstraint, Field, Event, exposed, exposed, Action
 from reahl.component.context import ExecutionContext
-from reahl.partymodel import Party
+from reahl.domain.partymodel import Party
 from reahl.workflowmodel import DeferredAction, Requirement
 
 _ = Translator('reahl-domain')

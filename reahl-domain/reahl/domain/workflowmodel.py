@@ -37,7 +37,7 @@ from reahl.component.modelinterface import Event
 from reahl.component.modelinterface import exposed
 from reahl.component.modelinterface import secured
 from reahl.component.context import ExecutionContext
-from reahl.partymodel import Party
+from reahl.domain.partymodel import Party
 
 _ = Translator('reahl-domain')
 
