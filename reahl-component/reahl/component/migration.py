@@ -39,7 +39,6 @@ class MigrationRun(object):
         migrations_per_egg = [(egg, self.migrations_to_run_for(egg))
                               for egg in self.eggs_in_order]
 
-        
         self.schedule_migration_changes(reversed(migrations_per_egg), 'upgrade')
         self.schedule_migration_changes(migrations_per_egg, 'upgrade_cleanup')
         self.schedule_migration_changes(migrations_per_egg, 'schedule_upgrades')
