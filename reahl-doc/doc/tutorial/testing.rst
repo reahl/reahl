@@ -212,8 +212,8 @@ Testing JavaScript
 
 .. sidebar:: Running tests with Selenium
 
-   If you installed Reahl[all], as per `our introductory instructions
-   <gettingstarted>`_, you should have all the necessary testing
+   If you installed Reahl[all], as per :ref:`our introductory instructions
+   <install-reahl-itself>`, you should have all the necessary testing
    packages installed, including Selenium and WebTest.
 
    Using Selenium's WebDriver module with Chromium takes a bit more
