@@ -17,6 +17,8 @@
 """Various bits of support for SQLAlchemy and declarative."""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+
+from abc import ABCMeta
 import six
 import weakref
 from contextlib import contextmanager
@@ -25,7 +27,7 @@ from collections import Sequence
 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
-from sqlalchemy.ext.declarative import instrument_declarative, declarative_base 
+from sqlalchemy.ext.declarative import instrument_declarative, declarative_base, DeclarativeMeta
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.migration import MigrationContext
@@ -81,8 +83,14 @@ def ix_name(table_name, column_name):
 
 
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
-metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base 
-Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata)    #: A Base for using with declarative
+metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base
+
+class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
+    """ Prevent metaclass conflict in subclasses that want multiply inherit from
+    ancestors that have ABCMeta as metaclass """
+    pass
+
+Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
 
 
 class QueryAsSequence(Sequence):
