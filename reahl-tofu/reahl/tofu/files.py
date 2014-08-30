@@ -28,23 +28,25 @@ __all__ = ['temp_file_name', 'temp_file_with', 'temp_file_with', 'file_with',
 
 
 class AutomaticallyDeletedFile:
-    def __init__(self, name, contents=''):
+    def __init__(self, name, contents='', mode='w+'):
         self.name = name
-        with open(name, 'w') as f:
+        with open(name, mode) as f:
             f.write(contents)
 
     def __del__(self):
         if os.path.exists(self.name):
             os.remove(self.name)
 
-def file_with(name, contents):
+def file_with(name, contents, mode='w+'):
     """Creates a file with the given `name` and `contents`. The file will be deleted
        automatically when it is garbage collected. The file is opened after creation, ready to be read.
        
        :param name: The full path name of the file to be created.
-       :param contents: The contents of the file.
+       :param mode: The mode to open the file in, as per open() builtin.
+       :param contents: The contents of the file. Must text unless binary mode was specified, in which
+       case bytes should be used.
     """
-    return AutomaticallyDeletedFile(name, contents)
+    return AutomaticallyDeletedFile(name, contents, mode)
 
 
 class EmptyDirectory(object):
@@ -93,12 +95,12 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
             pass
 
 
-    def file_with(self, name, contents):
+    def file_with(self, name, contents, mode='w+'):
         """Returns a file inside this directory with the given `name` and `contents`.""" 
         if name == None:
             handle, full_name = tempfile.mkstemp(dir=self.name)
             name = os.path.basename(full_name)
-        f = AutomaticallyDeletedFile('%s/%s' % (self.name, name), contents)
+        f = AutomaticallyDeletedFile('%s/%s' % (self.name, name), contents, mode)
         self.entries.append(f)
         return f
 
@@ -130,11 +132,13 @@ def temp_file_name():
     temp_file.close()
     return temp_file.name
 
-def temp_file_with(contents, name=None):
+def temp_file_with(contents, name=None, mode='w+'):
     """Returns an opened, named temp file with contents as supplied. If `name` is supplied, the file
        is created inside a temporary directory.
-       
-       :param contents: The contents of the file.
+
+       :param mode: The mode to open the file in, as per open() builtin.
+       :param contents: The contents of the file. Must text unless binary mode was specified, in which
+       case bytes should be used.
        :keyword name: If given, the the name of the file (not including the file system path to it).
     """
     if name:
@@ -142,7 +146,7 @@ def temp_file_with(contents, name=None):
         temp_file = directory.file_with(name, contents)
         temp_file.temp_dir = directory
     else:
-        temp_file = tempfile.NamedTemporaryFile()
+        temp_file = tempfile.NamedTemporaryFile(mode=mode)
         temp_file.write(contents)
         temp_file.seek(0)
     return temp_file
