@@ -17,6 +17,8 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 from reahl.component.context import ExecutionContext
 from reahl.tofu import TestSuite, Fixture, test
 from reahl.stubble import stubclass

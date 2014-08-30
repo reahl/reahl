@@ -31,6 +31,8 @@ temporary files, etc. All this functionality is now also part of Tofu.
 """
 from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 from reahl.tofu.fixture import Fixture
 from .nosesupport import test

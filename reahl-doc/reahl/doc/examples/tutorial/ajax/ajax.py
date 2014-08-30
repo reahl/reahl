@@ -3,6 +3,8 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 from reahl.web.fw import UserInterface, Bookmark
 from reahl.web.ui import TwoColumnPage, P, H, Panel, HMenu
 from reahl.component.modelinterface import exposed, IntegerField

@@ -21,3 +21,7 @@ from __future__ import print_function
 import six
 It includes all component-related functionality needed in a production environment.
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from __future__ import unicode_literals
