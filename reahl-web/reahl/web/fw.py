@@ -1282,10 +1282,12 @@ class RegexPath(object):
     def parse_arguments_from_fields(self, for_fields, relative_path):
         if not for_fields:
             return {}
+        assert isinstance(relative_path, six.text_type) # Scaffolding for Py3 port
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
-        raw_input_values = dict([(key.encode('utf-8'), urllib_parse.unquote(value or ''))
-                                     for key, value in matched_arguments.items()])
+        raw_input_values = dict(
+            [(self.convert_str_to_identifier(key), urllib_parse.unquote(value or ''))
+             for key, value in matched_arguments.items()])
         fields.accept_input(raw_input_values)
         return fields.as_kwargs()
 
@@ -1293,6 +1295,18 @@ class RegexPath(object):
         fields = self.get_temp_url_argument_field_index(self.argument_fields, arguments)
         fields.validate_defaults()
         return fields.as_input_kwargs()
+
+    if six.PY2:
+        @classmethod
+        def convert_str_to_identifier(cls, s):
+            try:
+                return s.encode('ascii')
+            except UnicodeDecodeError:
+                raise ValueError('Python 2 does not support non-ASCII identifier %r' % s)
+    else:
+        @classmethod
+        def convert_str_to_identifier(cls, s):
+            return s
 
 
 class ParameterisedPath(RegexPath):
