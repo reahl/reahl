@@ -23,7 +23,7 @@ import time
 import contextlib
 from six.moves.urllib import parse as urllib_parse
 import logging
-import cookielib
+from six.moves.http_cookiejar import Cookie
 
 from webtest import TestApp
 from lxml import html
@@ -354,8 +354,8 @@ class Browser(BasicBrowser):
         domain_set = domain != ''
         secure = cookie_dict.get('secure', False)
         expires = cookie_dict.get('expiry', None)
-        cookie = cookielib.Cookie(None, name, value, None, False, domain, domain_set, None, path, path_set, 
-                                  secure, expires, None, None, None, None)
+        cookie = Cookie(None, name, value, None, False, domain, domain_set, None, path, path_set,
+                        secure, expires, None, None, None, None)
         self.testapp.cookiejar.set_cookie(cookie)
 
     def is_element_enabled(self, locator):
