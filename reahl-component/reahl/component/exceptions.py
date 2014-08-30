@@ -151,6 +151,7 @@ class IsSubclass(TypeBasedArgumentCheck):
     def __str__(self):
         return '%s: %s should be %s or subclass of it (got %s instead)' % (self.func, self.arg_name, self.type_.value, self.value)
 
+
 class IsCallable(ArgumentCheck):
     def __init__(self, args=(), kwargs={}, allow_none=False):
         super(IsCallable, self).__init__(allow_none=allow_none)
