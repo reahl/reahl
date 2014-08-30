@@ -16,10 +16,7 @@
 
 """A collection of classes to deal with accounts for different parties on a system."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
+from __future__ import print_function, unicode_literals, absolute_import, division
 from datetime import datetime, timedelta
 import hashlib
 import re

@@ -17,10 +17,7 @@
 """A User interface that allows a user to monitor tasks allocated to the user's queues and to complete those tasks.
 """
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.component.decorators import deprecated

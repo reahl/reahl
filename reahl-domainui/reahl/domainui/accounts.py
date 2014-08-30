@@ -18,10 +18,7 @@
 """A user interface for logging in, registering, etc using :class:`~reahl.systemaccountmodel.EmailAndPasswordSystemAccount`."""
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface
 from reahl.web.fw import WebExecutionContext

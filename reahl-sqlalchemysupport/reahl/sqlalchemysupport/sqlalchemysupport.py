@@ -16,10 +16,7 @@
 
 """Various bits of support for SQLAlchemy and declarative."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import weakref
 from contextlib import contextmanager
