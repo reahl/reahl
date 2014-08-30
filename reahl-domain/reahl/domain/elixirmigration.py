@@ -30,10 +30,8 @@ class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
         self.rename_link_table()
         self.move_party_systemaccount_relationship()
 
-
     def change_session_scoped_classes(self):
         self.change_session_scoped('accountmanagementinterface')
-
 
     def rename_link_table(self):
         old_table_name = 'requirement_deferred_actions__deferredaction_requirements'
