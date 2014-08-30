@@ -15,12 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """The module contains code to implement commands that can be issued from a commandline to manipulate Reahl projects."""
-from __future__ import unicode_literals
-from __future__ import with_statement
-
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
+from __future__ import print_function, unicode_literals, absolute_import, division, with_statement
 import six
 import sys
 import os
