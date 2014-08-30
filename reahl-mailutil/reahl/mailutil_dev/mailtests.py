@@ -23,6 +23,8 @@ Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 
 from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 from reahl.tofu import Fixture, test
 from reahl.tofu import expected, vassert

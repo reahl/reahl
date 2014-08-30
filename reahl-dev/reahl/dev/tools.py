@@ -17,6 +17,8 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 class EventTester(object):
     def __init__(self, event, **arguments):
         self.occurring_event = event.with_arguments(**arguments)

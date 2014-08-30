@@ -19,6 +19,8 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.component.decorators import deprecated
