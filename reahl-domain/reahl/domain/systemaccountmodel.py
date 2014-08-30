@@ -22,11 +22,9 @@ import hashlib
 import re
 import random
 from string import Template
-from abc import ABCMeta
 
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
@@ -574,7 +572,6 @@ class ChangeAccountEmail(DeferredAction):
 
 class UserSession(Base, UserSessionProtocol):
     """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
-    class __metaclass__(DeclarativeMeta, ABCMeta): pass
 
     __tablename__ = 'usersession'
 

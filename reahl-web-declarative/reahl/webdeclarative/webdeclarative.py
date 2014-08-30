@@ -18,13 +18,11 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import random
-from abc import ABCMeta
 from six.moves.urllib import parse as urllib_parse
 
 
 from sqlalchemy import Column, Integer, BigInteger, LargeBinary, PickleType, String, UnicodeText, ForeignKey
 from sqlalchemy.orm import relationship, deferred, backref
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from reahl.sqlalchemysupport import Session, Base
 from reahl.component.eggs import ReahlEgg
@@ -37,8 +35,8 @@ from reahl.web.fw import WebExecutionContext, Url
 
 class InvalidKeyException(Exception):
     pass
-    
-class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, WebUserSessionProtocol)):
+
+class WebUserSession(UserSession, WebUserSessionProtocol):
     __tablename__ = 'webusersession'
     __mapper_args__ = {'polymorphic_identity': 'webusersession'}
     id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), primary_key=True)
@@ -169,8 +167,7 @@ class SessionData(Base):
         return not self.__eq__(other)
 
 
-class UserInputMeta(DeclarativeMeta, ABCMeta): pass
-class UserInput(six.with_metaclass(UserInputMeta, SessionData, UserInputProtocol)):
+class UserInput(SessionData, UserInputProtocol):
     __tablename__ = 'userinput'
     __mapper_args__ = {'polymorphic_identity': 'userinput'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -198,8 +195,7 @@ class UserInput(six.with_metaclass(UserInputMeta, SessionData, UserInputProtocol
         cls.new_for_form(form, key=input_name, value=value)
 
 
-class PersistedExceptionMeta(DeclarativeMeta, ABCMeta): pass
-class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData, PersistedExceptionProtocol)):
+class PersistedException(SessionData, PersistedExceptionProtocol):
     __tablename__ = 'persistedexception'
     __mapper_args__ = {'polymorphic_identity': 'persistedexception'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -239,8 +235,7 @@ class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData,
         return None
 
 
-class PersistedFileMeta(DeclarativeMeta, ABCMeta): pass
-class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, PersistedFileProtocol)):
+class PersistedFile(SessionData, PersistedFileProtocol):
     __tablename__ = 'persistedfile'
     __mapper_args__ = {'polymorphic_identity': 'persistedfile'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
