@@ -2,7 +2,15 @@ python-reahl (3.0) unstable; urgency=low
 
  * xxx.
 
- -- Iwan Vosloo <iwan@reahl.org>  Wed, 28 May 2014 12:30:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Sun, 24 Aug 2014 13:50:00 +0200
+
+python-reahl (2.1.2) unstable; urgency=low
+
+ * Implements https://blueprints.launchpad.net/reahl/+spec/phased-migration.
+ * Implements https://blueprints.launchpad.net/reahl/+spec/datatable.
+ * Closes bugs: #1326745, #1335641, #1336039, #1336042, #1356992, #1345577, #1345579.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Sun, 24 Aug 2014 13:50:00 +0200
 
 python-reahl (2.1.1) unstable; urgency=low
 

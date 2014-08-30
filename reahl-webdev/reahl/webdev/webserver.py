@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -124,10 +124,7 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
             logging.getLogger(__name__).warn(message)
 
     def finish_response(self):
-        try:
-            simple_server.WSGIRequestHandler.finish_response()
-        except socket.error as ex:
-            import pdb; pdb.set_trace()
+        simple_server.WSGIRequestHandler.finish_response()
 
 
 class SSLWSGIRequestHandler(LoggingRequestHandler):

@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -62,9 +62,29 @@ def reahl_scope():
         message += ' could be found.'
         raise ProgrammerError(message)
 
+
+naming_convention = {
+  'ix': 'ix_%(column_0_label)s',
+  'uq': 'uq_%(table_name)s_%(column_0_name)s',
+#  'ck': 'ck_%(table_name)s_%(constraint_name)s',
+  'fk': 'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
+  'pk': 'pk_%(table_name)s'
+}
+
+def fk_name(table_name, column_name, other_table_name):
+    return 'fk_%s_%s_%s' % (table_name, column_name, other_table_name)
+
+def pk_name(table_name):
+    return 'pk_%s' % table_name
+
+def ix_name(table_name, column_name):
+    return 'ix_%s_%s' % (table_name, column_name)
+
+
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
-Base = declarative_base(class_registry=weakref.WeakValueDictionary())    #: A Base for using with declarative
-metadata = Base.metadata  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base 
+metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base 
+Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata)    #: A Base for using with declarative
+
 
 class QueryAsSequence(Sequence):
     """Used to wrap a SqlAlchemy Query so that it looks like a normal Python :class:`Sequence`."""
@@ -242,25 +262,39 @@ class SqlAlchemyControl(ORMControl):
     def execute_one(self, sql):
         return Session.execute(sql).fetchone()
 
-    def run_migrate_phase(self, migrations, phase):
-        with Operations.context(MigrationContext.configure(Session.connection())):
-            return super(SqlAlchemyControl, self).run_migrate_phase(migrations, phase)
+    def migrate_db(self, eggs_in_order):
+        with Operations.context(MigrationContext.configure(Session.connection())) as op:
+            self.op = op
+            return super(SqlAlchemyControl, self).migrate_db(eggs_in_order)
 
-    def initialise_schema_version_for(self, egg):
-        existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
+    def initialise_schema_version_for(self, egg=None, egg_name=None, egg_version=None):
+        assert egg or (egg_name and egg_version)
+        if egg:
+            egg_name = egg.name
+            egg_version = egg.version
+        existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg_name)
         already_created = existing_versions.count() > 0
         assert not already_created, 'The schema for the "%s" egg has already been created previously at version %s' % \
-            (egg.name, existing_versions.one().version)
-        Session.add(SchemaVersion(version=egg.version, egg_name=egg.name))
+            (egg_name, existing_versions.one().version)
+        Session.add(SchemaVersion(version=egg_version, egg_name=egg_name))
 
-    def schema_version_for(self, egg):
+    def remove_schema_version_for(self, egg=None, egg_name=None):
+        assert egg or egg_name
+        if egg:
+            egg_name = egg.name
+        schema_version_for_egg = Session.query(SchemaVersion).filter_by(egg_name=egg_name).one()
+        Session.delete(schema_version_for_egg)
+
+    def schema_version_for(self, egg, default=None):
         existing_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
-        assert existing_versions.count(), 'No existing schema version found for egg %s' % egg.name
-        return existing_versions.one().version
-
-    def has_schema_version(self, egg):
-        return Session.query(SchemaVersion).filter_by(egg_name=egg.name).count() > 0
-
+        number_versions_found = existing_versions.count()
+        assert number_versions_found <= 1, 'More than one existing schema version found for egg %s' % egg.name
+        if number_versions_found == 1:
+            return existing_versions.one().version
+        else:
+            assert default, 'No existing schema version found for egg %s, and you did not specify a default version' % egg.name
+            return default
+            
     def update_schema_version_for(self, egg):
         current_version = Session.query(SchemaVersion).filter_by(egg_name=egg.name).one()
         current_version.version = egg.version

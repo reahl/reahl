@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -31,8 +31,8 @@ from reahl.dev.fixtures import CleanDatabase
 from reahl.webdev.webserver import ReahlWebServer
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
-from reahl.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
-from reahl.systemaccountmodel import SystemAccountConfig
+from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.domain.systemaccountmodel import SystemAccountConfig
 
 
 class BrowserSetup(CleanDatabase):

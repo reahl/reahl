@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -36,7 +36,7 @@ from reahl.web.ui import SimpleFileInput, FileUploadInput, FileUploadPanel, Butt
 from reahl.web.fw import UploadedFile
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
-from reahl.webdeclarative import PersistedFile
+from reahl.webdeclarative.webdeclarative import PersistedFile
 
 
 class FileUploadInputFixture(WebFixture):

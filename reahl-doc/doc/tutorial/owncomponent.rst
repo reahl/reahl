@@ -1,4 +1,4 @@
-.. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Developing your own component
 =============================
@@ -113,6 +113,7 @@ it. See how it is done in this example:
 .. literalinclude:: ../../reahl/doc/examples/tutorial/componentconfig/componentconfig.py
    :pyobject: AddressBookPanel
 
+.. _database-schema-evolution:
 
 Database schema evolution
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,8 +134,16 @@ code of an application that is already running somewhere, with
 existing data in its database. Changes to the code of that application
 frequently require changes to the underlying database schema as well,
 and such changes to the schema need to be done without losing the data
-that's already in the database. Reahl provides some infrastructure to
-help you deal with such ":class:`~reahl.component.migration.Migration`\ s".
+that's already in the database. 
+
+Reahl provides some infrastructure to
+help you deal with such ":class:`~reahl.component.migration.Migration`\ s". Since
+Reahl sets out to let one reuse components in different projects, its migration
+infrastructure caters for migrations to be written for a specific component,
+without containing any knowledge of the other components may be used with.
+
+An example
+""""""""""
 
 To show how :class:`~reahl.component.migration.Migration`\ s are handled, we have another example. This
 example is again a variation of the simplest AddressBook application
@@ -152,6 +161,9 @@ without the need for other code changes:
 .. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexample/migrationexample.py
    :pyobject: Address
 
+Migration basics
+""""""""""""""""
+
 As you know, each Reahl component has a version number. When you
 install a new application, you will create the initial database schema
 using ``reahl-control createdbtables etc``. While creating the schema
@@ -164,8 +176,7 @@ line with the new version of the component. A migration can be as
 simple as adding a single column. :class:`~reahl.component.migration.Migration`\ s can also require more
 complicated code specific to your problem domain that does many
 database changes in a specific sequence to get the schema changed
-without damaging the data. In extreme cases, one needs more than one
-:class:`~reahl.component.migration.Migration` to be done in a specific order.
+without damaging the data.
 
 After installing a new version of your component, you need to run the
 following in order to migrate the old schema, using your provided :class:`~reahl.component.migration.Migration`\ s:
@@ -175,36 +186,45 @@ following in order to migrate the old schema, using your provided :class:`~reahl
    reahl-control migratedb etc
 
 The `migratedb` command first checks to see which version of your
-component the current database schema corresponds with. All :class:`~reahl.component.migration.Migration`\ s
-for your component are then inspected, and only the necessary ones are
-run, in order, to bring the schema up to date with the currently
-installed version of your component.
+component the current database schema corresponds with. All
+:class:`~reahl.component.migration.Migration`\ s for your component
+are then inspected, and only ones that are needed to bring the schema
+up to date with the *currently installed version* of your component,
+are run, in order.
 
 The code of each migration you write must include the (new) version
 of the component it is for. Each migration should also be registered
 in the `.reahlproject` of your component -- in the order in which
-migrations should be run. :class:`~reahl.component.migration.Migration`\ s should not be coded using any
-other code in your component, because all the :class:`~reahl.component.migration.Migration`\ s you write
-will stay in your component forever, as is, even if the code of the
-actual component itself changes over time.
+migrations should be run. 
 
-A :class:`~reahl.component.migration.Migration` is a class which inherits from :class:`~reahl.component.migration.Migration`. It should have a
-class attribute, `version`, which states which version of your
-component it is for. The actual upgrading of the schema done by the
-:class:`~reahl.component.migration.Migration` happens in its `.upgrade()` method. After all :class:`~reahl.component.migration.Migration`\ s of
-all the components in the system have been run, each :class:`~reahl.component.migration.Migration`'s
-`.upgrade_cleanup()` method is run. Complex :class:`~reahl.component.migration.Migration`\ s sometimes need
-such a cleanup phase. 
+.. important::
 
-Here is the :class:`~reahl.component.migration.Migration` for adding our `added_date` column:
+  :class:`~reahl.component.migration.Migration`\ s should not be coded
+  using any other code in your component, because all the
+  :class:`~reahl.component.migration.Migration`\ s you write will stay
+  in your component forever, as is, even if the code of the actual
+  component itself changes over time.
+
+Writing migrations
+""""""""""""""""""
+
+A :class:`~reahl.component.migration.Migration` is a class which
+inherits from :class:`~reahl.component.migration.Migration`. It should
+have a class attribute, `version`, which states which version of your
+component it is for. A programmer codes migration logic in the `.upgrade()`
+method of a subclass of :class:`~reahl.component.migration.Migration`.
+
+Before an explanation of that, here is the
+:class:`~reahl.component.migration.Migration` for adding our
+`added_date` column:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexample/migrationexample.py
    :pyobject: AddDate
 
 The code doing the changes to the schema is written in terms of
 SqlAlchemy's migration tool: `Alembic
-<https://pypi.python.org/pypi/alembic>`_. Alembic typically is also
-used to keep track of versioning of schemas and migration
+<https://pypi.python.org/pypi/alembic>`_. Alembic is meant for also
+keeping track of versioning of schemas and migration
 scripts. Reahl does not use those parts of Alembic since Reahl has to
 keep track of versions of components already. Reahl also deals with
 the fact that a single application contains many components, each one
@@ -212,6 +232,60 @@ of which has its own schema, :class:`~reahl.component.migration.Migration`\ s an
 however, Alembic is set up in the Reahl environment for a programmer
 to just use the `alembic.op` module as any Alembic programmer
 normally would do.
+
+There is another catch to migration that Reahl helps you solve:
+Migrations are complicated by the fact that some database objects may
+be dependent on others. For example, you may want to rename a primary
+key column that is referred to by a foreign key constraint. In such a
+case, you will have to first drop the foreign key constraint and the
+primary key constraint, alter the column to be renamed, then recreate
+first the primary key and then the foreign key. To make matters worse, 
+the said foreign key could be part of a component that does not itself
+include the table to which it refers.
+
+To solve this particular problem, migration code is not run immediately. In
+each :class:`~reahl.component.migration.Migration`, the programmer merely
+schedules all the calls that would effect the necessary changes. Actual execution
+of these calls happen only once all components had a chance to schedule their 
+migration calls. Execution of these calls happen in a number of predefined, named
+*phases*. When a call is scheduled, it is scheduled to run in a particular phase.
+All calls that are scheduled in a phase are executed when that phase is
+executed, regardless of which component scheduled them. Only once the calls for
+a phase are done, the next phase is executed.
+
+Here are the phases, and the order in which they are finally executed:
+
+ drop_fk
+   Foreign keys are dropped first, because they refer to other columns.
+
+ drop_pk
+   Primary keys are dropped next, they may also prevent other actions from completing.
+
+ pre_alter
+   Sometimes some code needs to be executed before tables are altered -- saving some data
+   in a temporary table, for example, or disabling some other constraints.
+
+ alter
+   Now that all possible constraints have been disabled, tables and columns may be altered.
+
+ create_pk
+   Then, primary keys can be created again.
+
+ indexes
+   Followed by indexes dependent on those primary keys.
+
+ data
+   With a schema mostly fixed, data can be inserted or moved to new locations.
+   
+ create_fk
+   A last chance to recreate foreign keys to possible newly moved data in the new schema.
+
+ cleanup
+   Use this phase if any cleanup is needed of temporary tables, etc.
+
+
+Register your :class:`~reahl.component.migration.Migration`
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Registering the AddDate class in the `.reahlproject` file is similar
 to registering persistent classes, it just happens in a `<migrations>`
@@ -222,6 +296,9 @@ tag, and the :class:`~reahl.component.migration.Migration`\ s are listed in the 
    :end-before:   </migrations>
    :prepend:   <migrations>
    :append:   </migrations>
+
+Try the example out
+"""""""""""""""""""
 
 To appreciate the example, you'd have to get your own copy of it (via
 ``reahl example tutorial.migrationexample``), and run everything you need to

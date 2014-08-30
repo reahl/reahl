@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -34,7 +34,7 @@ from reahl.web.ui import TwoColumnPage
 from reahl.component.i18n import Translator
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.web.egg import WebConfig
-from reahl.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
 from reahl.webdev.tools import DriverBrowser
 
 

@@ -17,14 +17,10 @@ from reahl.component.migration import Migration
 
 class AddDate(Migration):
     version = '0.1'
-    def upgrade(self):
-        print('executing AddDate (upgrade)')
-        op.add_column('migration_address', Column('added_date', DateTime))
+    def schedule_upgrades(self):
+        print('scheduling upgrades for AddDate')
+        self.schedule('alter', op.add_column, 'migration_address', Column('added_date', DateTime))
             
-    def upgrade_cleanup(self):
-        print('executing AddDate (upgrade_cleanup)')
-
-
 
 class AddressBookUI(UserInterface):
     def assemble(self):

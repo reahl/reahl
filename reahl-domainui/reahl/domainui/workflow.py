@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -26,7 +26,7 @@ from reahl.sqlalchemysupport import PersistedField
 from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
 from reahl.web.ui import P, Panel, Ul, Li, H, Form, Button
 
-from reahl.workflowmodel import Inbox, Task, WorkflowInterface
+from reahl.domain.workflowmodel import Inbox, Task, WorkflowInterface
 
 
 _ = Translator('reahl-domainui')

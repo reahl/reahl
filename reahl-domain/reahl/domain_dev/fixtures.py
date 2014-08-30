@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -24,10 +24,10 @@ from reahl.mailutil.mail import Mailer
 
 from reahl.sqlalchemysupport import Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
-from reahl.partymodel import Party
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
-from reahl.systemaccountmodel import SystemAccountConfig
-from reahl.systemaccountmodel import UserSession
+from reahl.domain.partymodel import Party
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import SystemAccountConfig
+from reahl.domain.systemaccountmodel import UserSession
 
 @stubclass(Mailer)
 class MailerStub(object):

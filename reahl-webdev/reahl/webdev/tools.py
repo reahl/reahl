@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -345,7 +345,8 @@ class Browser(BasicBrowser):
            :param cookie_dict: A dictionary with two keys: 'name' and 'value'. The values of these\
                                keys are the name of the cookie and its value, respectively.
                                The keys  'path', 'domain', 'secure', 'expiry' can also be set to values.\
-                               These have the respective meanings as defined in `RFC6265 <http://tools.ietf.org/html/rfc6265#section-5.2>        """
+                               These have the respective meanings as defined in `RFC6265 <http://tools.ietf.org/html/rfc6265#section-5.2>`
+        """
         name = cookie_dict['name'].encode('utf-8')
         value = cookie_dict['value'].encode('utf-8')
         path = cookie_dict.get('path', '').encode('utf-8')

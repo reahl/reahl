@@ -11,7 +11,7 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage, VMenu, Slot, MenuItem, A, Widget, SelectInput, CheckboxInput
-from reahl.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, UserSession
+from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, UserSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 
 

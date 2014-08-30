@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -31,8 +31,8 @@ from reahl.tofu import vassert, assert_recent, expected
 from reahl.stubble import stubclass
 
 from reahl.component.eggs import ReahlEgg
-from reahl.partymodel import Party
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount, VerificationRequest, VerifyEmailRequest, NewPasswordRequest, \
+from reahl.domain.partymodel import Party
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, VerificationRequest, VerifyEmailRequest, NewPasswordRequest, \
      ChangeAccountEmail, UserSession, PasswordException, NotUniqueException, InvalidPasswordException, KeyException, \
      InvalidEmailException, AccountNotActiveException, NoSuchAccountException, AccountActive, AccountDisabled, AccountNotActivated,\
      AccountManagementInterface,  ActivateAccount

@@ -1,4 +1,4 @@
-.. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Module reahl.web.ui
 -------------------
@@ -300,6 +300,97 @@ VMenu
 """""
 
 .. autoclass:: VMenu
+   :members:
+
+
+Tables
+^^^^^^
+
+Table
+"""""
+.. sidebar:: Examples
+
+   - tutorial.table
+
+   Get a copy of an example by running:
+
+   .. code-block:: bash
+
+      reahl example <examplename>
+
+
+.. autoclass:: Table
+   :members:
+
+
+DynamicColumn
+"""""""""""""
+
+.. autoclass:: DynamicColumn
+   :members:
+
+StaticColumn
+""""""""""""
+
+.. autoclass:: StaticColumn
+   :members:
+
+DataTable
+"""""""""
+
+.. sidebar:: Examples
+
+   - tutorial.datatable
+
+   Get a copy of an example by running:
+
+   .. code-block:: bash
+
+      reahl example <examplename>
+
+.. autoclass:: reahl.web.table.DataTable
+   :members:
+
+Caption
+"""""""
+
+.. autoclass:: Caption
+   :members:
+
+Thead
+"""""
+
+.. autoclass:: Thead
+   :members:
+
+Tfoot
+"""""
+
+.. autoclass:: Tfoot
+   :members:
+
+Tbody
+"""""
+
+.. autoclass:: Tbody
+   :members:
+
+Tr
+""
+
+.. autoclass:: Tr
+   :members:
+
+Td
+""
+
+.. autoclass:: Td
+   :members:
+
+Th
+""
+
+.. autoclass:: Th
    :members:
 
 

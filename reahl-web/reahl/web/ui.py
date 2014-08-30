@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -2604,8 +2604,9 @@ class Td(Cell):
 
 
 class DynamicColumn(object):
-    """DynamicColumn defines the heading of a logical column of a table, and how each
-       cell in that row is displayed.
+    """DynamicColumn defines a logical column of a table, specifying how its heading will be 
+       rendered, and how the cell in this column will be displayed for each data item in the 
+       table.
 
        :param make_heading_or_string: A string to be used as heading for this column, or \
               a single-argument callable that will be called (passing the current view) in \
@@ -2676,8 +2677,15 @@ class Table(HTMLElement):
 
     @classmethod
     def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
-        """Creates a table with rows, columns, header and footer, with one row per provided item. The table is
-           defined by the list of Columns passed in.  
+        """Creates a table populated with rows, columns, header and footer, with one row per provided item. The table is
+           defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.  
+
+           :param view: (See :class:`reahl.web.fw.Widget`)
+           :param columns: The :class:`reahl.web.ui.DynamicColumn` instances that define the contents of the table.
+           :param items: A list containing objects represented in each row of the table.
+           :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
+           :keyword summary: If given, a `summary` attribute is added to the table containing this text.
+           :keyword css_id: (See :class:`HTMLElement`)
         """
         table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
         table.create_header_columns(columns)

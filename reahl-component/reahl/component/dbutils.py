@@ -1,4 +1,4 @@
-# Copyright 2008-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -23,7 +23,7 @@ from contextlib import contextmanager
 import logging
 
 from reahl.component.eggs import ReahlEgg
-
+from reahl.component.migration import MigrationSchedule, MigrationRun
 
 class InvalidConnectionURIException(Exception):
     pass
@@ -159,6 +159,7 @@ class DatabaseControl(object):
             raise InvalidConnectionURIException()
         return match.groupdict()
 
+
 class NullDatabaseControl(DatabaseControl):
     uri_regex_string = r''
     @classmethod
@@ -176,31 +177,10 @@ class NullDatabaseControl(DatabaseControl):
 
 class ORMControl(object):
     def migrate_db(self, eggs_in_order):
-        with self.managed_transaction() as transaction:
-            migrations = [(egg, egg.compute_migrations(self.schema_version_for(egg))) 
-                          for egg in eggs_in_order
-                          if self.has_schema_version(egg)]
-            new_eggs = [egg 
-                        for egg in eggs_in_order
-                        if not self.has_schema_version(egg)]
-            self.run_migrate_phase(reversed(migrations), 1)
-            self.create_schema_for(transaction, new_eggs)
-            self.run_migrate_phase(migrations, 2)
-                
-            for egg in eggs_in_order:
-                logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
-                self.update_schema_version_for(egg)
-
-    def run_migrate_phase(self, migrations, phase):
-        for egg, migration_list in migrations:
-            current_schema_version = self.schema_version_for(egg)
-            logging.getLogger(__name__).info('Migrating %s - phase %s going from version %s to %s' % \
-                                             (egg.name, phase, current_schema_version, egg.version))
-            for migration in migration_list:
-                migration.run_phase(phase)
-
-    def create_schema_for(self, transaction, new_eggs):
-        self.create_db_tables(transaction, new_eggs)
+        with self.managed_transaction():
+            migration_run = MigrationRun(self, eggs_in_order)
+            migration_run.schedule_migrations()
+            migration_run.execute_migrations()
 
 
 

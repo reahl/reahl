@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -39,7 +39,7 @@ class PostgresqlControl(DatabaseControl):
 
     @property
     def login_args(self):
-	if self.host == 'localhost' and self.port == 5432:
+        if self.host == 'localhost' and self.port == 5432:
             return []
         return ['-h', self.host, '-p', six.text_type(self.port)]
 

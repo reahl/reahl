@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -913,16 +913,15 @@ class WidgetList(list):
 
 
 class Widget(object):
-    """Any user interface element in Reahl is a Widget. A direct instance of this class will not display anything
-       when rendered. A User interface is composed of Widgets by adding other Widgets to a Widget such as this one,
+    """Any user interface element in Reahl is a Widget. A direct instance of this class will not display anything when rendered. 
+       A User interface is composed of Widgets by adding other Widgets to a Widget such as this one,
        forming a whole tree of Widgets.
     
-    :param view: The current View.
-    :param read_check: A no-arg callable. If it returns True, the Widget will be rendered for the current user, else not.
-    :param write_check: A no-arg callable. If it returns True, the current user is allowed to write to this Widget.
+       :param view: The current View.
+       :param read_check: A no-arg callable. If it returns True, the Widget will be rendered for the current user, else not.
+       :param write_check: A no-arg callable. If it returns True, the current user is allowed to write to this Widget.
                         The act of writing to a Widget is defined differently for subclasses of Widget. On this high level,
                         the Widget will also merely be displayed to the user if the user can write to the Widget.
-       
     """
     exists = True
     @classmethod
