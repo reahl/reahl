@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -63,39 +63,18 @@ class SystemOutStub(object):
 class MonitoredCall(object):
     """The record of one call that was made to a method. This class is not intended to be 
        instantiated by a programmer. Programmers can query instances of MonitoredCall
-       returned by a :class:`CallMonitor` or :class:`InitMonitor`."""
+       returned by a :class:`reahl.stubble.intercept.CallMonitor` or :class:`reahl.stubble.intercept.InitMonitor`."""
     def __init__(self, args, kwargs, return_value):
-        self.return_value = return_value #: The value resurned by the call
+        self.return_value = return_value #: The value returned by the call
         self.args = args #: The tuple with positional arguments passed during the call
         self.kwargs = kwargs #: The dictionary with keyword arguments passed during the call
 
         
 class CallMonitorBase(object):
-    """The CallMonitorBase is a context manager which records calls to a single method of an object or class.
-       The calls are recorded, but the original method is also executed.
-
-       For example:
-
-       .. code-block:: python
-       
-          class SomeClass(object):
-              def foo(self, arg):
-                  return 'something'
-
-          s = SomeClass()
-
-          with CallMonitor(s.foo) as monitor:
-              assert s.foo('a value') == 'something'
-
-          assert monitor.times_called == 1
-          assert monitor.calls[0].args == ('a value',)
-          assert monitor.calls[0].kwargs == {}
-          assert monitor.calls[0].return_value == 'something'
-    """
     def __init__(self, obj, method):
         self.obj = obj
         self.method_name = method.__name__
-        self.calls = []  #: A list of :class:`MonitoredCalls` made, one for each call made, in the order they were made
+        self.calls = []  #: A list of :class:`MonitoredCall`\s made, one for each call made, in the order they were made
         self.original_method = None
 
     @property
@@ -118,15 +97,35 @@ class CallMonitorBase(object):
 
 
 class CallMonitor(CallMonitorBase):
-    """A :class:`CallMonitorBase` used to intercept calls to bound methods
-       of a class."""
+    """The CallMonitor is a context manager which records calls to a single method of an object or class.
+       The calls are recorded, but the original method is also executed.
+
+       For example:
+
+       .. code-block:: python
+       
+          class SomeClass(object):
+              def foo(self, arg):
+                  return 'something'
+
+          s = SomeClass()
+
+          with CallMonitor(s.foo) as monitor:
+              assert s.foo('a value') == 'something'
+
+          assert monitor.times_called == 1
+          assert monitor.calls[0].args == ('a value',)
+          assert monitor.calls[0].kwargs == {}
+          assert monitor.calls[0].return_value == 'something'
+    """
     def __init__(self, method):
         super(CallMonitor, self).__init__(six.get_method_self(method), method)
 
 
 class InitMonitor(CallMonitorBase):
-    """A :class:`CallMonitor` used to intercept calls to the __init__ method
-       of a class."""
+    """An InitMonitor is like a :class:`reahl.stubble.intercept.CallMonitor`, except it is used to intercept 
+       calls to the __init__ of a class. (See :class:`reahl.stubble.intercept.CallMonitor` for attributes.)
+    """
     def __init__(self, monitored_class):
         super(InitMonitor, self).__init__(monitored_class, monitored_class.__init__)
 

@@ -1,4 +1,4 @@
-.. Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Overview
 ========
@@ -61,8 +61,8 @@ web-based user interfaces.
 The core of the web framework is written such that it is independent
 of the technology used for object persistence. This core is in the
 `reahl-web` component. The web framework does use some objects that
-are persisted though -- an implementation of these using Elixir is
-provided in `reahl-web-declarative`.
+are persisted though -- an implementation of these using SqlAlchemy's 
+declarative is provided in `reahl-web-declarative`.
 
 These components are discussed under :doc:`web/index`.
 

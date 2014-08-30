@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -28,7 +28,7 @@ from sqlalchemy import Column, Integer, ForeignKey
 
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.ui import TwoColumnPage, Panel, P
-from reahl.workflowmodel import Task
+from reahl.domain.workflowmodel import Task
 from reahl.domainui.workflow import InboxUI
 from reahl.web.fw import UserInterface, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin

@@ -1,4 +1,4 @@
-# Copyright 2005, 2006, 2008-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -199,7 +199,7 @@ class BasicStubRequirementsTests(object):
 
     @istest
     def test_exempt_inherited_method(self):
-        """any methods marked as exempt does not raise an error, even if they are inherited by the stub"""
+        """any methods marked as exempt do not raise an error, even if they are inherited by the stub"""
         #normal case
         @stubclass(self.stubbed)
         class Stub(object):

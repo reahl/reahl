@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -19,7 +19,8 @@ from __future__ import print_function
 try:
     from six.moves import input
 except:
-    input = raw_input
+    if 'raw_input' in dir():
+        input = raw_input
 import sys
 import pkg_resources
 import os

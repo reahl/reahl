@@ -1,4 +1,4 @@
-.. Copyright 2013,2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Make light work of similar-looking pages
 ========================================

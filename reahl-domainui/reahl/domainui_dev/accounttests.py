@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -32,7 +32,7 @@ from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.domainui.accounts import AccountUI
-from reahl.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
+from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
 
 class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
     def new_login_bookmark(self, request=None):

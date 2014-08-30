@@ -1,4 +1,4 @@
-.. Copyright 2012, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 An application that actually does something
 ===========================================
@@ -36,8 +36,8 @@ bit in these steps:
  #. :doc:`Next, the model is changed (with tests) so that it can be persisted in a database. <persistence>`
  #. :doc:`Then, a component is created for the app, and persisted classes registered with that component so that Reahl has the info it needs to create and maintain the underlying database schema for you. <housingmodels>`
  #. :doc:`Some user interface fundamentals are explained next by building a simple first part of the user interface of our application using Widgets. <uibasics>`
- #. :doc:`Then it is time to add Input widgets (for adding a new address) to the user interface. This shows how one augments a model with meta information for the user interface. <inputwidgets>`
- #. :doc:`Lastly, a "Save" Button is added to actually trigger the work server-side of adding this new address to the database. <reactingtoevents>`
+ #. :doc:`Then it is time to add Input widgets (for adding a new address) to the user interface. To do that, the model is also augmented with meta information used by the user interface. <inputwidgets>`
+ #. :doc:`Lastly, a "Save" Button is added to actually trigger the work server-side of adding this new address to the database. <buttonwidgets>`
 
 
 

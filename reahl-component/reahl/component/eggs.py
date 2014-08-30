@@ -1,4 +1,4 @@
-# Copyright 2007-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -80,8 +80,8 @@ class ReahlEgg(object):
         return self.get_ordered_classes_exported_on('reahl.migratelist')
 
     def compute_migrations(self, current_schema_version):
-        return [cls() for cls in self.migrations_in_order
-                      if cls.is_applicable(current_schema_version, self.version)]
+        return [cls for cls in self.migrations_in_order
+                if cls.is_applicable(current_schema_version, self.version)]
 
     def get_ordered_names_exported_on(self, entry_point):
         entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
@@ -95,7 +95,6 @@ class ReahlEgg(object):
             if ep in found_eps:
                 raise AssertionError('%s is listed twice' % ep)
             found_eps.add(ep)
-#        import pdb; pdb.set_trace()
         return [entry.load() for order, entry in sorted([(int(order), e) for order, e in entry_point_dict.items()])]
 
     def get_classes_exported_on(self, entry_point):

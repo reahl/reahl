@@ -1,7 +1,8 @@
-.. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+
  
-Getting started guide
-=====================
+Getting started with Reahl
+==========================
 
 .. sidebar:: Other projects used
 
@@ -14,10 +15,8 @@ Getting started guide
     - `virtualenv <http://pypi.python.org/pypi/virtualenv>`_
     - `distribute <http://pypi.python.org/pypi/distribute>`_
     - `nosetests <https://nose.readthedocs.org/en/latest/>`_
-    - `SqlAlchemy <http://www.sqlalchemy.org/>`_
-    - `Alembic <https://pypi.python.org/pypi/alembic/>`_; and
-    - `Elixir <http://elixir.ematia.de/trac/wiki>`_ (optional, but used
-      in the tutorial).
+    - `SqlAlchemy <http://www.sqlalchemy.org/>`_; and
+    - `Alembic <https://pypi.python.org/pypi/alembic/>`_.
 
    There are also projects that are used almost totally behind the
    scenes.  The most visible of these is a database back-end. For this
@@ -29,9 +28,8 @@ Getting started guide
 Follow this guide to get Reahl installed in your development
 environment and to get a skeleton web application going.
 
-This version of Reahl requires at least version 2.7 of Python. We're
-excited about Python 3, but changing over to Python 3 is a big job
-which we still have to get to!
+This version of Reahl requires version 2.7 of Python 2 or versions
+of Python greater than 3.3.
 
 We have split the guide into parts:
 
