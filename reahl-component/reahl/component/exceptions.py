@@ -178,27 +178,25 @@ class IsCallable(ArgumentCheck):
     def __str__(self):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
 
-def checkargs(method, *args, **kwargs):
+def checkargs(target, *args, **kwargs):
+    if inspect.ismethod(target) or inspect.isfunction(target):
+        to_check = target
+    elif inspect.isclass(target):
+        to_check = target.__init__
+    elif isinstance(target, collections.Callable):
+        to_check = target.__call__
+    else:
+        raise ProgrammerError('%s was expected to be a callable object' % target)
+
     try:
-        if inspect.ismethod(method) or inspect.isfunction(method):
-            to_check = method
-        elif inspect.isclass(method):
-            to_check = method.__init__
-        elif isinstance(method, collections.Callable):
-            to_check = method.__call__
-        else:
-            raise ProgrammerError('%s was expected to be a callable object' % method)
-
-        args_to_check = getattr(to_check, 'arg_checks', {})
-
-        call_args = args
-        bound_args = inspect.getcallargs(to_check, *call_args, **kwargs)
+        bound_args = inspect.getcallargs(to_check, *args, **kwargs)
     except TypeError as ex:
-        ex.args = (('%s: ' % method)+ex.args[0],) + ex.args[1:]
+        ex.args = (('%s: ' % target)+ex.args[0],) + ex.args[1:]
         raise
+    args_to_check = getattr(to_check, 'arg_checks', {})
     for arg_name, arg_check in args_to_check.items():
         if arg_name in bound_args.keys():
-            arg_check.check(method, arg_name, bound_args[arg_name])
+            arg_check.check(target, arg_name, bound_args[arg_name])
 
 def checkargs_explained(explanation, method, *args, **kwargs):
     try:
