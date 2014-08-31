@@ -2,12 +2,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-def old_str(something):
-    if six.PY2:
-        return something.encode('utf-8')
-    else:
-        return something
-
 
 def ascii_as_bytes_or_str(unicode_str):
     if six.PY2:
