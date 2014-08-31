@@ -509,7 +509,7 @@ class UserInterface(object):
            be passed to `widget_class` upon construction, except the first one (its `view`).
         """
         checkargs_explained('define_page was called with arguments that do not match those expected by %s' % widget_class, 
-                            widget_class.__init__, NotYetAvailable('view'), *args, **kwargs)
+                            widget_class, NotYetAvailable('view'), *args, **kwargs)
 
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
@@ -1534,7 +1534,7 @@ class WidgetFactory(Factory):
        :param widget_kwargs: All the keyword arguments of `widget_class`.
     """
     def __init__(self, widget_class, *widget_args, **widget_kwargs):
-        checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class), widget_class.__init__, NotYetAvailable('view'), *widget_args, **widget_kwargs)
+        checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class), widget_class, NotYetAvailable('view'), *widget_args, **widget_kwargs)
 
         super(WidgetFactory, self).__init__(self.create_widget)
         self.widget_class = widget_class
