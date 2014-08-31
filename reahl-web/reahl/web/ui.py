@@ -23,7 +23,6 @@ import six
 
 from string import Template
 import re
-import cgi
 import copy
 
 from babel import Locale, UnknownLocaleError
@@ -32,6 +31,7 @@ from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
+from reahl.component.py3compat import html_escape
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
                           Url, Bookmark, WidgetList
@@ -43,6 +43,8 @@ import collections
                                      
 
 _ = Translator('reahl-web')
+
+
 
 
 class LiteralHTML(Widget):
@@ -70,7 +72,7 @@ class HTMLAttribute(object):
         if not self.value:
             return ''
 #        return '''%s='%s\'''' % (self.name, self.as_html_value())
-        return '%s="%s"' % (self.name, cgi.escape(self.as_html_value(), True))
+        return '%s="%s"' % (self.name, html_escape(self.as_html_value()))
         
     def as_html_value(self):
         return ' '.join(sorted(self.value))
@@ -359,9 +361,9 @@ class TextNode(Widget):
         return self.value_getter()
 
     def render(self):
-        if self.html_escape:
-            return cgi.escape(self.value)
-        return self.value
+        # Un-escaped quotes are not harmful between tags, where TextNodes live,
+        # and even make the HTML source make nicer
+        return html_escape(self.value, quote=False) if self.html_escape else self.value
 
 
 class Title(HTMLElement):

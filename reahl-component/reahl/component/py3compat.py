@@ -5,4 +5,19 @@ import six
 def old_str(something):
     if six.PY2:
         return something.encode('utf-8')
-    return something
+    else:
+        return something
+
+
+def _html_escape_function():
+    if six.PY2:
+        import cgi
+        def html_escape(s, quote=True):
+            return cgi.escape(s, quote=quote)
+        return html_escape
+    else:
+        import html
+        return html.escape
+
+
+html_escape = _html_escape_function()

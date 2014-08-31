@@ -408,11 +408,11 @@ def text_node_can_vary(fixture):
 def text_node_escapes_html(fixture):
     """The text of a TextNode is html-escaped."""
 
-    widget = TextNode(fixture.view, '<tag>')
+    widget = TextNode(fixture.view, '<tag> "Here" & \'there\'')
     tester = WidgetTester(widget)
     
     rendered = tester.render_html()
-    vassert( rendered == '&lt;tag&gt;' )
+    vassert( rendered == '&lt;tag&gt; "Here" &amp; \'there\'')
 
 
 @test(WebFixture)
