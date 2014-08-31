@@ -16,18 +16,15 @@
 
 """A collection of classes to deal with accounts for different parties on a system."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from datetime import datetime, timedelta
 import hashlib
 import re
 import random
 from string import Template
-from abc import ABCMeta
 
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
@@ -575,7 +572,6 @@ class ChangeAccountEmail(DeferredAction):
 
 class UserSession(Base, UserSessionProtocol):
     """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
-    class __metaclass__(DeclarativeMeta, ABCMeta): pass
 
     __tablename__ = 'usersession'
 
