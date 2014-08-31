@@ -9,6 +9,13 @@ def old_str(something):
         return something
 
 
+def ascii_as_bytes_or_str(unicode_str):
+    if six.PY2:
+        return unicode_str.encode('ascii')
+    else:
+        return unicode_str
+
+
 def _html_escape_function():
     if six.PY2:
         import cgi
