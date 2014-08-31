@@ -65,6 +65,7 @@ from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Fie
 from reahl.component.config import StoredConfiguration                                             
 from reahl.component.decorators import deprecated
 from reahl.component.eggs import ReahlEgg
+from reahl.component.py3compat import ascii_as_bytes_or_str
 
 _ = Translator('reahl-web')
 
@@ -2211,18 +2212,36 @@ class ComposedPage(Resource):
         
     def handle_get(self, request):
         return self.render()
-        
+
     def render(self):
-        response = Response(body=self.page.render())
-        response.content_type=self.page.content_type.encode('utf-8')
-        response.charset=self.page.charset.encode('utf-8')
+        # This method used to encode content_type, charset and cache_control
+        # headers to UTF-8 before passing them to WebOb.
+        # That was wrong. Let's suppose that the headers did contain values
+        # outside of ASCII range, but that self.page.charset was i.e. KOI8-R
+        # than UTF-8. How would WebOb/the web client ever retrieve the original
+        # value if they decode something as KOI8-R which was originally encoded
+        # as UTF-8?
+        #
+        # But in actual fact these headers are part of HTTP protocol and are
+        # documented as being in ASCII [citation neeeded], so the utf-8 encoding
+        # in the code was nothing but noise that confuses the reader.
+        #
+        # WebOb wants whatever a "native" string literal is on the version of
+        # Python it runs on: (a normal non-unicode str on Python 2, a normal
+        # str on Python 3). That behaviour is another strong clue that values
+        # outside ASCII range can not be at here.
+        return Response(
+            body=self.page.render(),
+            content_type=ascii_as_bytes_or_str(self.page.content_type),
+            charset=ascii_as_bytes_or_str(self.page.charset),
+            cache_control=ascii_as_bytes_or_str(self._response_cache_control()))
+
+    def _response_cache_control(self):
         if self.view.cacheable:
             config = ExecutionContext.get_context().config
-            response.cache_control=('max-age=%s' % config.web.cache_max_age).encode('utf-8')
+            return 'max-age=%s' % config.web.cache_max_age
         else:
-            response.cache_control='no-cache'.encode('utf-8')
-        return response
-
+            return 'no-cache'
 
 
 class FileView(View):
