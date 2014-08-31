@@ -23,7 +23,7 @@ import logging
 from nose.tools import make_decorator
 from nose.plugins import Plugin
 
-from reahl.component.py3compat import old_str
+from reahl.component.py3compat import ascii_as_bytes_or_str
 
 run_fixture = None
 
@@ -93,10 +93,10 @@ class RunFixturePlugin(Plugin):
        Python package where the class is defined, followed by a colon and then the name of the class.
        For example: "reahl.webdev.fixtures:WebFixture"
     """
-    name = old_str('run-fixture')
+    name = ascii_as_bytes_or_str('run-fixture')
 
     def options(self, parser, env=os.environ):
-        parser.add_option(old_str("-F"), old_str("--with-run-fixture"),
+        parser.add_option(ascii_as_bytes_or_str("-F"), ascii_as_bytes_or_str("--with-run-fixture"),
                           action="store", dest="run_fixture", default=None,
                           help="the run fixture to use")
 
@@ -125,7 +125,7 @@ class LongOutputPlugin(Plugin):
     """A plugin for nose which lets nose output the name of each test before it starts running it.
        Enable this plugin by passing ``--with-long-output`` to nosetests on the commandline.
     """
-    name = old_str('long-output')
+    name = ascii_as_bytes_or_str('long-output')
     def setOutputStream(self, stream):
         self.output = stream
 
@@ -143,9 +143,9 @@ class TestDirectoryPlugin(Plugin):
 
        Enable this plugin by passing ``--with-test-directory=<directory path relative to current dir>`` to nosetests on the commandline.
     """
-    name = old_str('test-directory')
+    name = ascii_as_bytes_or_str('test-directory')
     def options(self, parser, env=os.environ):
-        parser.add_option(old_str("-T"), old_str("--with-test-directory"),
+        parser.add_option(ascii_as_bytes_or_str("-T"), ascii_as_bytes_or_str("--with-test-directory"),
                           action="store", dest="test_directory", default="",
                           help="the directories (relative to the current directory) to search for tests (can be a regex)")
 
@@ -183,9 +183,9 @@ class LogLevelPlugin(Plugin):
 
        Enable this plugin by passing ``--with-log-level=(ERROR|WARNING|INFO|DEBUG)`` to nosetests on the commandline.
     """
-    name = old_str('log-level')
+    name = ascii_as_bytes_or_str('log-level')
     def options(self, parser, env=os.environ):
-        parser.add_option(old_str("-L"), old_str("--with-log-level"),
+        parser.add_option(ascii_as_bytes_or_str("-L"), ascii_as_bytes_or_str("--with-log-level"),
                           action="store", dest="log_level", default='WARNING',
                           help="the log level at which to emit log statements")
 
@@ -205,10 +205,10 @@ class SetUpFixturePlugin(Plugin):
        Python package where the class is defined, followed by a colon and then the name of the class.
        For example: "reahl.webdev.fixtures:WebFixture"
     """
-    name = old_str('setup-fixture')
+    name = ascii_as_bytes_or_str('setup-fixture')
 
     def options(self, parser, env=os.environ):
-        parser.add_option(old_str("--with-setup-fixture"),
+        parser.add_option(ascii_as_bytes_or_str("--with-setup-fixture"),
                           action="store", dest="setup_fixture", default=None,
                           help="just run the set_up and tear_down of this fixture")
 
