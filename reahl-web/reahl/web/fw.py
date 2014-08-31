@@ -508,8 +508,8 @@ class UserInterface(object):
            Widget that will be constructed in `widget_class`.  Next, pass all the arguments that should
            be passed to `widget_class` upon construction, except the first one (its `view`).
         """
-        checkargs_explained('define_page was called with arguments that do not match those expected by %s' % widget_class, 
-                            widget_class, NotYetAvailable('view'), *args, **kwargs)
+        checkargs_explained('define_page was called with arguments that do not match those expected by %s' % widget_class,
+                            widget_class, NotYetAvailable('self'), NotYetAvailable('view'), *args, **kwargs)
 
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
@@ -563,7 +563,7 @@ class UserInterface(object):
 
         view_class = view_class or UrlBoundView
         checkargs_explained('.define_view() was called with incorrect arguments for %s' % view_class.assemble, 
-                            view_class.assemble, **assemble_args)
+                            view_class.assemble, NotYetAvailable('self'), **assemble_args)
 
         factory = ViewFactory(ParameterisedPath(relative_path, path_argument_fields), title, slot_definitions, 
                               page_factory=page, detour=detour, view_class=view_class, 
@@ -597,8 +597,8 @@ class UserInterface(object):
 
         if not factory_method:
             view_class = view_class or UrlBoundView
-            checkargs_explained('.define_regex_view() was called with incorrect arguments for %s' % \
-                            view_class.assemble, view_class.assemble, **assemble_args)
+            checkargs_explained('.define_regex_view() was called with incorrect arguments for %s' % view_class.assemble,
+                                view_class.assemble, NotYetAvailable('self'), **assemble_args)
 
         factory = ViewFactory(RegexPath(path_regex, path_template, path_argument_fields), None, {}, 
                               view_class=view_class, factory_method=factory_method, read_check=None, write_check=None, **passed_kwargs)
@@ -654,7 +654,7 @@ class UserInterface(object):
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
         checkargs_explained('.define_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
-                            ui_class.assemble,  **assemble_args)
+                            ui_class.assemble, NotYetAvailable('self'), **assemble_args)
 
         ui_factory = UserInterfaceFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
@@ -675,7 +675,7 @@ class UserInterface(object):
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
         checkargs_explained('.define_regex_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
-                            ui_class.assemble,  **assemble_args)
+                            ui_class.assemble, NotYetAvailable('self'), **assemble_args)
 
         regex_path = RegexPath(path_regex, path_template, path_argument_fields)
         ui_factory = UserInterfaceFactory(self, regex_path, slot_map, ui_class, name, **passed_kwargs)
@@ -1534,7 +1534,8 @@ class WidgetFactory(Factory):
        :param widget_kwargs: All the keyword arguments of `widget_class`.
     """
     def __init__(self, widget_class, *widget_args, **widget_kwargs):
-        checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class), widget_class, NotYetAvailable('view'), *widget_args, **widget_kwargs)
+        checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class),
+                            widget_class, NotYetAvailable('self'), NotYetAvailable('view'), *widget_args, **widget_kwargs)
 
         super(WidgetFactory, self).__init__(self.create_widget)
         self.widget_class = widget_class
