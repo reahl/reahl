@@ -179,7 +179,6 @@ class IsCallable(ArgumentCheck):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
 
 def checkargs(method, *args, **kwargs):
-    arg_checks = getattr(method, 'arg_checks', {})
     try:
         if inspect.ismethod(method) or inspect.isfunction(method):
             to_check = method
@@ -190,6 +189,8 @@ def checkargs(method, *args, **kwargs):
         else:
             raise ProgrammerError('%s was expected to be a callable object' % method)
 
+        args_to_check = getattr(to_check, 'arg_checks', {})
+
         if inspect.ismethod(to_check) and not to_check.__self__:
             call_args = (NotYetAvailable('self'),)+args
         else:
@@ -198,7 +199,7 @@ def checkargs(method, *args, **kwargs):
     except TypeError as ex:
         ex.args = (('%s: ' % method)+ex.args[0],) + ex.args[1:]
         raise
-    for arg_name, arg_check in arg_checks.items():
+    for arg_name, arg_check in args_to_check.items():
         if arg_name in bound_args.keys():
             arg_check.check(method, arg_name, bound_args[arg_name])
 
