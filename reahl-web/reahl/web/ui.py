@@ -101,7 +101,7 @@ class HTMLAttributeDict(dict):
         return HTMLAttributeValues(self)
 
     def sorted_values(self):
-        values = self.values()
+        values = list(self.values())
         sorted_values = []
         if 'name' in self:
             name_value = self['name']
@@ -988,7 +988,7 @@ class Form(HTMLElement):
 
     def validate_single_input(self, **input_values):
         try:
-            name = input_values.keys()[0]
+            name = list(input_values.keys())[0]
             self.inputs[name].validate_input(input_values)
             return True
         except (KeyError, IndexError):
