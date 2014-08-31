@@ -191,10 +191,7 @@ def checkargs(method, *args, **kwargs):
 
         args_to_check = getattr(to_check, 'arg_checks', {})
 
-        if inspect.ismethod(to_check) and not to_check.__self__:
-            call_args = (NotYetAvailable('self'),)+args
-        else:
-            call_args = args
+        call_args = args
         bound_args = inspect.getcallargs(to_check, *call_args, **kwargs)
     except TypeError as ex:
         ex.args = (('%s: ' % method)+ex.args[0],) + ex.args[1:]
