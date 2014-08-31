@@ -31,6 +31,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
+from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.web.fw import Url
 
 
@@ -173,7 +174,7 @@ class Browser(BasicBrowser):
            Other keyword arguments are passed directly on to 
            `WebTest.post <http://webtest.readthedocs.org/en/latest/api.html#webtest.app.TestApp.post>`_.
         """
-        self.last_response = self.testapp.post((url_string.encode('utf-8')), form_values, **kwargs)
+        self.last_response = self.testapp.post((ascii_as_bytes_or_str(url_string)), form_values, **kwargs)
 
     def relative(self, url_string):
         url_bits = urllib_parse.urlparse(url_string)
@@ -277,7 +278,7 @@ class Browser(BasicBrowser):
         if button.tag == 'input' and button.attrib['type'] == 'submit':
             button_name = self.xpath(xpath)[0].name
             form = self.get_form_for(xpath)
-            form.action = (self.relative(form.action).encode('utf-8'))
+            form.action = ascii_as_bytes_or_str(self.relative(form.action))
             self.last_response = form.submit(button_name, **kwargs)
             self.follow_response()
         elif button.tag == 'a':
@@ -346,11 +347,11 @@ class Browser(BasicBrowser):
                                The keys  'path', 'domain', 'secure', 'expiry' can also be set to values.\
                                These have the respective meanings as defined in `RFC6265 <http://tools.ietf.org/html/rfc6265#section-5.2>`
         """
-        name = cookie_dict['name'].encode('utf-8')
-        value = cookie_dict['value'].encode('utf-8')
-        path = cookie_dict.get('path', '').encode('utf-8')
+        name = ascii_as_bytes_or_str(cookie_dict['name'])
+        value = ascii_as_bytes_or_str(cookie_dict['value'])
+        path = ascii_as_bytes_or_str(cookie_dict.get('path', ''))
         path_set = path != ''
-        domain = cookie_dict.get('domain', '').encode('utf-8')
+        domain = ascii_as_bytes_or_str(cookie_dict.get('domain', ''))
         domain_set = domain != ''
         secure = cookie_dict.get('secure', False)
         expires = cookie_dict.get('expiry', None)

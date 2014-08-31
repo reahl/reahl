@@ -847,7 +847,7 @@ class Bookmark(object):
 class RedirectToScheme(HTTPSeeOther):
     def __init__(self, scheme):
         self.scheme = scheme
-        super(RedirectToScheme, self).__init__(location=six.text_type(self.compute_target_url()).encode('utf-8'))
+        super(RedirectToScheme, self).__init__(location=ascii_as_bytes_or_str(six.text_type(self.compute_target_url())))
 
     def compute_target_url(self):
         context = WebExecutionContext.get_context()
@@ -862,7 +862,7 @@ class Redirect(HTTPSeeOther):
     """
     def __init__(self, target):
         self.target = target
-        super(Redirect, self).__init__(location=six.text_type(self.compute_target_url()).encode('utf-8'))
+        super(Redirect, self).__init__(location=ascii_as_bytes_or_str(six.text_type(self.compute_target_url())))
      
     def compute_target_url(self):
         return self.target.href.as_network_absolute()
@@ -1764,7 +1764,7 @@ class RedirectView(UrlBoundView):
         self.to_bookmark = to_bookmark
 
     def as_resource(self, page):
-        raise HTTPSeeOther(location=six.text_type(self.to_bookmark.href.as_network_absolute()).encode('utf-8'))
+        raise HTTPSeeOther(location=ascii_as_bytes_or_str(six.text_type(self.to_bookmark.href.as_network_absolute())))
 
 
 class PseudoView(View):
@@ -1777,7 +1777,7 @@ class NoView(PseudoView):
 
 class UserInterfaceRootRedirectView(PseudoView):
     def as_resource(self, page):
-        raise HTTPSeeOther(location=six.text_type(self.user_interface.get_absolute_url_for('/').as_network_absolute()).encode('utf-8'))
+        raise HTTPSeeOther(location=ascii_as_bytes_or_str(six.text_type(self.user_interface.get_absolute_url_for('/').as_network_absolute())))
     
 
 
@@ -1981,14 +1981,14 @@ class MethodResult(object):
 
     def get_response(self, return_value):
         response = self.create_response(return_value)
-        response.content_type = self.content_type.encode('utf-8')
-        response.charset = self.charset.encode('utf-8')
+        response.content_type = ascii_as_bytes_or_str(self.content_type)
+        response.charset = ascii_as_bytes_or_str(self.charset)
         return response
 
     def get_exception_response(self, exception):
         response = self.create_exception_response(exception)
-        response.content_type = self.content_type.encode('utf-8')
-        response.charset = self.charset.encode('utf-8')
+        response.content_type = ascii_as_bytes_or_str(self.content_type)
+        response.charset = ascii_as_bytes_or_str(self.charset)
         return response
 
     
@@ -2005,11 +2005,11 @@ class RedirectAfterPost(MethodResult):
 
     def create_response(self, return_value):
         next_url = return_value
-        return HTTPSeeOther(location=six.text_type(next_url).encode('utf-8'))
+        return HTTPSeeOther(location=ascii_as_bytes_or_str(six.text_type(next_url)))
     
     def create_exception_response(self, exception):
         next_url = SubResource.get_parent_url()
-        return HTTPSeeOther(location=six.text_type(next_url).encode('utf-8'))
+        return HTTPSeeOther(location=ascii_as_bytes_or_str(six.text_type(next_url)))
 
 
 class JsonResult(MethodResult):
@@ -2404,15 +2404,15 @@ class DiskDirectory(FileFactory):
 class FileDownload(Response):
     chunk_size = 4096
     def __init__(self, a_file):
-        self.file = a_file
+        self.file = a_file 
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
-        self.content_type = ((self.file.content_type.encode('utf-8')) if self.file.content_type else None)
-        self.content_encoding = ((self.file.encoding.encode('utf-8')) if self.file.encoding else None)
-        self.content_length = (six.text_type(self.file.size).encode('utf-8') if (self.file.size is not None) else None)
+        self.content_type = (ascii_as_bytes_or_str(self.file.content_type) if self.file.content_type else None)
+        self.content_encoding = (ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None)
+        self.content_length = (ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None)
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
-        self.etag = ('%s-%s-%s' % (self.file.mtime,
-                                  self.file.size, 
-                                  abs(hash(self.file.name)))).encode('utf-8')
+        self.etag = ascii_as_bytes_or_str(('%s-%s-%s' % (self.file.mtime,
+                                                         self.file.size, 
+                                                         abs(hash(self.file.name)))))
 
     def __iter__(self):
         return self.app_iter_range(start=0)

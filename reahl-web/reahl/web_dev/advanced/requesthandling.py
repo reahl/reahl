@@ -82,6 +82,10 @@ class RequestHandlingTests(object):
             last_activity_time_set = False
             key_is_set = False
             @classmethod
+            def for_current_session(cls):
+                assert None, 'Not implemented'
+
+            @classmethod
             def get_or_create_session(cls):
                 cls.session = cls()
                 return cls.session

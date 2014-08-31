@@ -20,6 +20,7 @@ import warnings
 import itertools
 
 import six
+from six.moves import zip_longest
 from nose.tools import istest
 from reahl.tofu import expected
 from reahl.tofu import scenario
@@ -111,7 +112,7 @@ def basic_assembly(fixture):
 
     warning_messages = [six.text_type(i.message) for i in caught_warnings]
     vassert( len(warning_messages) == len(fixture.expected_warnings) )
-    for caught, expected_message in itertools.izip_longest(warning_messages, fixture.expected_warnings):
+    for caught, expected_message in zip_longest(warning_messages, fixture.expected_warnings):
         vassert( expected_message in caught )
 
     if fixture.content_includes_p:
