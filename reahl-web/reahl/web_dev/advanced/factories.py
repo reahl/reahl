@@ -1,4 +1,5 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# -*- coding: utf-8 -*-
+#  Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,9 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from nose.tools import istest
+from __future__ import print_function, unicode_literals, absolute_import, division
+import six
+from nose.tools import istest, assert_raises_regexp
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub
@@ -78,7 +79,6 @@ class FactoryTests(object):
         instance = factory.create('somecoolpath')
         vassert( instance.path_arg == 'cool' )
         vassert( instance.extra_kwarg == '42' )
-
 
     class MatchingScenarios(WebFixture):
         class ViewWithArg(UrlBoundView):

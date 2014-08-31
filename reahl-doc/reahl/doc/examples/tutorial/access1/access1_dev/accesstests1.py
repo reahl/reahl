@@ -3,8 +3,7 @@
 # nosetests -F reahl.webdev.fixtures:BrowserSetup -s --nologcapture reahl/doc_dev/tutorialtests/accesstests1.py
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount

@@ -7,8 +7,7 @@
 
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import test, set_up
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath

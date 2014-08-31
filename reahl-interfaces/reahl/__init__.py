@@ -17,7 +17,6 @@
 # -*- mode: python; mode: font-lock -*-
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 __import__('pkg_resources').declare_namespace(__name__)
 

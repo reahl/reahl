@@ -17,8 +17,7 @@
 """The reahl.fw module implements the core of the Reahl web framework.
 """
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import atexit
 import tempfile
@@ -28,7 +27,6 @@ from datetime import datetime
 import pkg_resources
 import os
 import os.path
-import io
 import re
 import json
 import string
@@ -67,6 +65,7 @@ from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Fie
 from reahl.component.config import StoredConfiguration                                             
 from reahl.component.decorators import deprecated
 from reahl.component.eggs import ReahlEgg
+from reahl.component.py3compat import ascii_as_bytes_or_str
 
 _ = Translator('reahl-web')
 
@@ -510,8 +509,8 @@ class UserInterface(object):
            Widget that will be constructed in `widget_class`.  Next, pass all the arguments that should
            be passed to `widget_class` upon construction, except the first one (its `view`).
         """
-        checkargs_explained('define_page was called with arguments that do not match those expected by %s' % widget_class, 
-                            widget_class.__init__, NotYetAvailable('view'), *args, **kwargs)
+        checkargs_explained('define_page was called with arguments that do not match those expected by %s' % widget_class,
+                            widget_class, NotYetAvailable('self'), NotYetAvailable('view'), *args, **kwargs)
 
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
@@ -565,7 +564,7 @@ class UserInterface(object):
 
         view_class = view_class or UrlBoundView
         checkargs_explained('.define_view() was called with incorrect arguments for %s' % view_class.assemble, 
-                            view_class.assemble, **assemble_args)
+                            view_class.assemble, NotYetAvailable('self'), **assemble_args)
 
         factory = ViewFactory(ParameterisedPath(relative_path, path_argument_fields), title, slot_definitions, 
                               page_factory=page, detour=detour, view_class=view_class, 
@@ -599,8 +598,8 @@ class UserInterface(object):
 
         if not factory_method:
             view_class = view_class or UrlBoundView
-            checkargs_explained('.define_regex_view() was called with incorrect arguments for %s' % \
-                            view_class.assemble, view_class.assemble, **assemble_args)
+            checkargs_explained('.define_regex_view() was called with incorrect arguments for %s' % view_class.assemble,
+                                view_class.assemble, NotYetAvailable('self'), **assemble_args)
 
         factory = ViewFactory(RegexPath(path_regex, path_template, path_argument_fields), None, {}, 
                               view_class=view_class, factory_method=factory_method, read_check=None, write_check=None, **passed_kwargs)
@@ -656,7 +655,7 @@ class UserInterface(object):
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
         checkargs_explained('.define_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
-                            ui_class.assemble,  **assemble_args)
+                            ui_class.assemble, NotYetAvailable('self'), **assemble_args)
 
         ui_factory = UserInterfaceFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
@@ -677,7 +676,7 @@ class UserInterface(object):
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
         checkargs_explained('.define_regex_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
-                            ui_class.assemble,  **assemble_args)
+                            ui_class.assemble, NotYetAvailable('self'), **assemble_args)
 
         regex_path = RegexPath(path_regex, path_template, path_argument_fields)
         ui_factory = UserInterfaceFactory(self, regex_path, slot_map, ui_class, name, **passed_kwargs)
@@ -1284,10 +1283,12 @@ class RegexPath(object):
     def parse_arguments_from_fields(self, for_fields, relative_path):
         if not for_fields:
             return {}
+        assert isinstance(relative_path, six.text_type) # Scaffolding for Py3 port
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
-        raw_input_values = dict([(key.encode('utf-8'), urllib_parse.unquote(value or ''))
-                                     for key, value in matched_arguments.items()])
+        raw_input_values = dict(
+            [(self.convert_str_to_identifier(key), urllib_parse.unquote(value or ''))
+             for key, value in matched_arguments.items()])
         fields.accept_input(raw_input_values)
         return fields.as_kwargs()
 
@@ -1295,6 +1296,18 @@ class RegexPath(object):
         fields = self.get_temp_url_argument_field_index(self.argument_fields, arguments)
         fields.validate_defaults()
         return fields.as_input_kwargs()
+
+    if six.PY2:
+        @classmethod
+        def convert_str_to_identifier(cls, s):
+            try:
+                return s.encode('ascii')
+            except UnicodeDecodeError:
+                raise ValueError('Python 2 does not support non-ASCII identifier %r' % s)
+    else:
+        @classmethod
+        def convert_str_to_identifier(cls, s):
+            return s
 
 
 class ParameterisedPath(RegexPath):
@@ -1522,7 +1535,8 @@ class WidgetFactory(Factory):
        :param widget_kwargs: All the keyword arguments of `widget_class`.
     """
     def __init__(self, widget_class, *widget_args, **widget_kwargs):
-        checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class), widget_class.__init__, NotYetAvailable('view'), *widget_args, **widget_kwargs)
+        checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class),
+                            widget_class, NotYetAvailable('self'), NotYetAvailable('view'), *widget_args, **widget_kwargs)
 
         super(WidgetFactory, self).__init__(self.create_widget)
         self.widget_class = widget_class
@@ -2198,18 +2212,36 @@ class ComposedPage(Resource):
         
     def handle_get(self, request):
         return self.render()
-        
+
     def render(self):
-        response = Response(body=self.page.render())
-        response.content_type=self.page.content_type.encode('utf-8')
-        response.charset=self.page.charset.encode('utf-8')
+        # This method used to encode content_type, charset and cache_control
+        # headers to UTF-8 before passing them to WebOb.
+        # That was wrong. Let's suppose that the headers did contain values
+        # outside of ASCII range, but that self.page.charset was i.e. KOI8-R
+        # than UTF-8. How would WebOb/the web client ever retrieve the original
+        # value if they decode something as KOI8-R which was originally encoded
+        # as UTF-8?
+        #
+        # But in actual fact these headers are part of HTTP protocol and are
+        # documented as being in ASCII [citation neeeded], so the utf-8 encoding
+        # in the code was nothing but noise that confuses the reader.
+        #
+        # WebOb wants whatever a "native" string literal is on the version of
+        # Python it runs on: (a normal non-unicode str on Python 2, a normal
+        # str on Python 3). That behaviour is another strong clue that values
+        # outside ASCII range can not be at here.
+        return Response(
+            body=self.page.render(),
+            content_type=ascii_as_bytes_or_str(self.page.content_type),
+            charset=ascii_as_bytes_or_str(self.page.charset),
+            cache_control=ascii_as_bytes_or_str(self._response_cache_control()))
+
+    def _response_cache_control(self):
         if self.view.cacheable:
             config = ExecutionContext.get_context().config
-            response.cache_control=('max-age=%s' % config.web.cache_max_age).encode('utf-8')
+            return 'max-age=%s' % config.web.cache_max_age
         else:
-            response.cache_control='no-cache'.encode('utf-8')
-        return response
-
+            return 'no-cache'
 
 
 class FileView(View):
@@ -2245,7 +2277,7 @@ class FileOnDisk(ViewableFile):
 
     @contextmanager
     def open(self):
-        open_file = io.open(self.full_path, 'rb')
+        open_file = open(self.full_path, 'rb')
         try:
             yield open_file
         finally:
@@ -2315,7 +2347,7 @@ class ConcatenatedFile(FileOnDisk):
 
         (file_handle, path) = tempfile.mkstemp(suffix=suffix)
         os.close(file_handle)
-        open_file = io.open(path,'w+b')
+        open_file = open(path, 'w+')
         
         def close_temp_file(open_file):
             import os
@@ -2328,7 +2360,7 @@ class ConcatenatedFile(FileOnDisk):
     def concatenate(self, relative_name, contents):
         temp_file = self.create_temp_file(relative_name)
         for inner_file in contents:
-            with io.open(inner_file.full_path) as opened_inner_file:
+            with open(inner_file.full_path) as opened_inner_file:
                 self.minifier(relative_name).minify(opened_inner_file, temp_file)
         temp_file.flush()
         return temp_file

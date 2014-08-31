@@ -16,8 +16,7 @@
 
 """Classes that aid in dealing with Eggs and setting them up."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import os.path
 import logging
