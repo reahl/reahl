@@ -53,7 +53,7 @@ class RequestHandlingTests(object):
         
         wsgi_iterator = wsgi_app(environ, start_response)
 
-        result = ''.join([i for i in wsgi_iterator])  # To check that it is iterable and get the value
+        result = ''.join([i.decode('utf-8') for i in wsgi_iterator])  # To check that it is iterable and get the value
         vassert( fixture.result_is_valid(result) )
         vassert( fixture.status == '200 OK' )
         vassert( fixture.some_headers_are_set(fixture.headers) )

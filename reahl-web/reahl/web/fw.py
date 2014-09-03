@@ -2051,7 +2051,7 @@ class WidgetResult(MethodResult):
         result = self.result_widget.render_contents()
         js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
         result += '<script type="text/javascript">' 
-        result += ''.join(js)
+        result += ''.join(sorted(js))
         result += '</script>'
         return result
 
@@ -2318,7 +2318,24 @@ class ConcatenatedFile(FileOnDisk):
                     output_stream.write(line)
         
         class JSMinifier(object):
+            def monkey_patch_ply(self):
+                # Current version of ply (used by slimit) has a bug in Py3
+                # See https://github.com/rspivak/slimit/issues/64
+                from ply import yacc
+                import slimit
+
+                def __getitem__(self,n):
+                    if isinstance(n, slice):
+                        return self.__getslice__(n.start, n.stop)
+                    if n >= 0: return self.slice[n].value
+                    else: return self.stack[n].value
+
+                yacc.YaccProduction.__getitem__ = __getitem__
+                
             def minify(self, input_stream, output_stream):
+                if six.PY3:
+                    self.monkey_patch_ply()
+
                 text = cStringIO()
                 for line in input_stream:
                     text.write(line)

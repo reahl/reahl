@@ -91,7 +91,7 @@ class FieldValidatorTests(object):
         browser.open(six.text_type(fixture.url))
         response = browser.last_response
 
-        vassert( response.body == fixture.expected_body )
+        vassert( response.unicode_body == fixture.expected_body )
         vassert( response.status == fixture.expected_status )
         vassert( response.content_type == fixture.expected_content_type )
         vassert( response.charset == fixture.expected_charset )

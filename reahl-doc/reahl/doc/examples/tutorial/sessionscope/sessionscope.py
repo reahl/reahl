@@ -27,10 +27,10 @@ class User(Base):
     password_md5  = Column(String, nullable=False)
 
     def set_password(self, password):
-        self.password_md5 = hashlib.md5(password).hexdigest()
+        self.password_md5 = hashlib.md5(password.encode('utf-8')).hexdigest()
         
     def matches_password(self, password):
-        return self.password_md5 == hashlib.md5(password).hexdigest()
+        return self.password_md5 == hashlib.md5(password.encode('utf-8')).hexdigest()
 
 
 @session_scoped

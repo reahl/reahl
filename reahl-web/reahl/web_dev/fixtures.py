@@ -31,6 +31,7 @@ from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext
                          WidgetList, Url, Widget, RegexPath
 from reahl.web.ui import TwoColumnPage
 from reahl.component.i18n import Translator
+from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.web.egg import WebConfig
 from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
@@ -54,7 +55,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         self.session.set_session_key(response)
-        cookies = http_cookies.BaseCookie((', '.join(response.headers.getall('set-cookie'))).encode('utf-8'))
+        cookies = http_cookies.BaseCookie(ascii_as_bytes_or_str(', '.join(response.headers.getall('set-cookie'))))
         for name, morsel in cookies.items():
             cookie = {'name':name, 'value':morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
