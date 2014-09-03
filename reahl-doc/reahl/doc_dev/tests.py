@@ -330,8 +330,8 @@ def fileupload(fixture):
     attached_file1 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file1.name)).one()
     attached_file3 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file3.name)).one()
     vassert( Session.query(AttachedFile).count() == 2 )
-    vassert( attached_file1.contents == 'some content in a file' )
-    vassert( attached_file3.contents == 'even more content' )
+    vassert( attached_file1.contents.decode('utf-8') == 'some content in a file' )
+    vassert( attached_file3.contents.decode('utf-8') == 'even more content' )
 
 @test(ExampleFixture.slots)
 def slots(fixture):

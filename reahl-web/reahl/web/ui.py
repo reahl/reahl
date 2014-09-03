@@ -1006,7 +1006,7 @@ class Form(HTMLElement):
 
     def format_single_input(self, **input_values):
         try:
-            name = input_values.keys()[0]
+            name = list(input_values.keys())[0]
             return self.inputs[name].format_input(input_values)
         except (KeyError, IndexError):
             return ''

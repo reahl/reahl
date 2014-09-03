@@ -195,7 +195,7 @@ class ControlledUserInterfacesTests(object):
 
         # when the Action is executed, the correct arguments are passed to the View
         fixture.driver_browser.click("//input[@value='click me']")
-        vassert( fixture.driver_browser.title == 'View with event_argument1: 1<type \'int\'> and view_argument: 3<type \'int\'>' )
+        vassert( fixture.driver_browser.title == 'View with event_argument1: 1%s and view_argument: 3%s' % (type(1), type(3)) )
 
 
     @test(WebFixture)

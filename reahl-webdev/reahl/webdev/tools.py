@@ -70,7 +70,7 @@ class BasicBrowser(object):
             
     def get_html_for(self, locator):
         xpath = six.text_type(locator)
-        return html.tostring(self.lxml_html.xpath(xpath)[0])
+        return html.tostring(self.lxml_html.xpath(xpath)[0]).decode('utf-8')
         
     def is_element_present(self, locator):
         xpath = six.text_type(locator)
@@ -355,7 +355,7 @@ class Browser(BasicBrowser):
         domain_set = domain != ''
         secure = cookie_dict.get('secure', False)
         expires = cookie_dict.get('expiry', None)
-        cookie = Cookie(None, name, value, None, False, domain, domain_set, None, path, path_set,
+        cookie = Cookie(0, name, value, None, False, domain, domain_set, None, path, path_set,
                         secure, expires, None, None, None, None)
         self.testapp.cookiejar.set_cookie(cookie)
 

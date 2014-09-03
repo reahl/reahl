@@ -86,8 +86,8 @@ class DhtmlUI(UserInterface):
                 return False
             soup = BeautifulSoup(dhtml_file, parse_only=SoupStrainer(strain))
             parser = html_parser.HTMLParser()
-            statics['title'] = parser.unescape(soup.title.encode_contents()) if soup.title else _('Untitled')
-            statics['div'] = soup.div.encode_contents() if soup.div else ''
+            statics['title'] = parser.unescape(soup.title.decode_contents()) if soup.title else _('Untitled')
+            statics['div'] = soup.div.decode_contents() if soup.div else ''
         return statics
     
     def create_view(self, relative_path, user_interface, file_path=None):
