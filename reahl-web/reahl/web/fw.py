@@ -2260,26 +2260,30 @@ class FileView(View):
 
 
 class ViewableFile(object):
-    def __init__(self, name, content_type, encoding, size, mtime):
+    def __init__(self, name, content_type, encoding, charset, size, mtime):
         self.name = name
         self.content_type = content_type
         self.encoding = encoding
+        self.charset = charset
         self.mtime = mtime
         self.size = size    
 
 
 class FileOnDisk(ViewableFile):
     def __init__(self, full_path, relative_name):
-        self.content_type, content_encoding = mimetypes.guess_type(full_path)
-        # FIXME: This assumes all text files on disk are encoded with the system's preferred
-        # encoding, which is nothing but a guess
-        charset = locale.getpreferredencoding() if self.is_text() else None
+        self.content_type, encoding = mimetypes.guess_type(full_path)
         self.full_path = full_path
         self.relative_name = relative_name
         st = os.stat(full_path)
-        super(FileOnDisk, self).__init__(full_path, self.content_type or 'application/octet-stream', charset,
-                                         st.st_size,
-                                         st.st_mtime)
+        super(FileOnDisk, self).__init__(
+            full_path,
+            self.content_type or 'application/octet-stream',
+            encoding,
+            # FIXME: This assumes all text files on disk are encoded with the system's preferred
+            # encoding, which is nothing but a guess
+            locale.getpreferredencoding() if self.is_text() else None,
+            st.st_size,
+            st.st_mtime)
 
     def is_text(self):
         return self.content_type and self.content_type.startswith('text/')
@@ -2295,7 +2299,8 @@ class FileOnDisk(ViewableFile):
 
 class FileFromBlob(ViewableFile):
     def __init__(self, name, file_obj, content_type, encoding, size, mtime):
-        super(FileFromBlob, self).__init__(name, content_type, encoding, size, mtime)
+        # TODO: Fill in charset
+        super(FileFromBlob, self).__init__(name, content_type, encoding, 'utf-8', size, mtime)
         self.file_obj = file_obj
         self.relative_name = name
 
@@ -2432,9 +2437,10 @@ class FileDownload(Response):
     def __init__(self, a_file):
         self.file = a_file 
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
-        self.content_type = (ascii_as_bytes_or_str(self.file.content_type) if self.file.content_type else None)
-        self.charset = (ascii_as_bytes_or_str(self.file.encoding if self.file.encoding else 'utf-8'))
-        self.content_length = (ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None)
+        self.content_type = ascii_as_bytes_or_str(self.file.content_type) if self.file.content_type else None
+        self.encoding = ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None
+        self.charset = ascii_as_bytes_or_str(self.file.charset if self.file.charset else 'utf-8')
+        self.content_length = ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = ascii_as_bytes_or_str(('%s-%s-%s' % (self.file.mtime,
                                                          self.file.size, 

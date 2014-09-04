@@ -17,7 +17,7 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
+from nose.tools import istest, assert_equal
 from reahl.tofu import Fixture, test
 from reahl.stubble import stubclass
 from reahl.tofu import vassert
