@@ -19,7 +19,9 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
+import io
 import atexit
+import locale
 import tempfile
 import mimetypes
 import inspect
@@ -2258,26 +2260,37 @@ class FileView(View):
 
 
 class ViewableFile(object):
-    def __init__(self, name, content_type, encoding, size, mtime):
+    def __init__(self, name, content_type, encoding, charset, size, mtime):
         self.name = name
         self.content_type = content_type
         self.encoding = encoding
+        self.charset = charset
         self.mtime = mtime
         self.size = size    
 
 
 class FileOnDisk(ViewableFile):
     def __init__(self, full_path, relative_name):
-        content_type, encoding = mimetypes.guess_type(full_path)
+        self.content_type, encoding = mimetypes.guess_type(full_path)
         self.full_path = full_path
         self.relative_name = relative_name
-        size = os.path.getsize(full_path)
-        mtime = os.path.getmtime(self.full_path)
-        super(FileOnDisk, self).__init__(full_path, content_type or 'application/octet-stream', encoding, size, mtime)
+        st = os.stat(full_path)
+        super(FileOnDisk, self).__init__(
+            full_path,
+            self.content_type or 'application/octet-stream',
+            encoding,
+            # FIXME: This assumes all text files on disk are encoded with the system's preferred
+            # encoding, which is nothing but a guess
+            locale.getpreferredencoding() if self.is_text() else None,
+            st.st_size,
+            st.st_mtime)
+
+    def is_text(self):
+        return self.content_type and self.content_type.startswith('text/')
 
     @contextmanager
     def open(self):
-        open_file = open(self.full_path, 'rb')
+        open_file = io.open(self.full_path, mode='rb')
         try:
             yield open_file
         finally:
@@ -2285,18 +2298,22 @@ class FileOnDisk(ViewableFile):
 
 
 class FileFromBlob(ViewableFile):
-    def __init__(self, name, file_obj, content_type, encoding, size, mtime):
-        super(FileFromBlob, self).__init__(name, content_type, encoding, size, mtime)
-        self.file_obj = file_obj
+    def __init__(self, name, contents, content_type, encoding, size, mtime):
+        if isinstance(contents, six.text_type):
+            charset = 'utf-8'
+            content_bytes = contents.encode(charset)
+        elif isinstance(contents, six.binary_type):
+            charset = None
+            content_bytes = contents
+        else:
+            raise ValueError("Contents should be of type %s for text data or %s for binary data" % (six.text_type, six.binary_type))
+        super(FileFromBlob, self).__init__(name, content_type, encoding, charset, size, mtime)
+        self.content_bytes = content_bytes
         self.relative_name = name
 
     @contextmanager
     def open(self):
-        self.file_obj.seek(0)
-        try:
-            yield self.file_obj
-        finally:
-            self.file_obj.seek(0)
+        yield io.BytesIO(self.content_bytes)
 
 
 class PackagedFile(FileOnDisk):
@@ -2423,9 +2440,10 @@ class FileDownload(Response):
     def __init__(self, a_file):
         self.file = a_file 
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
-        self.content_type = (ascii_as_bytes_or_str(self.file.content_type) if self.file.content_type else None)
-        self.content_encoding = (ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None)
-        self.content_length = (ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None)
+        self.content_type = ascii_as_bytes_or_str(self.file.content_type) if self.file.content_type else None
+        self.encoding = ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None
+        self.charset = ascii_as_bytes_or_str(self.file.charset if self.file.charset else 'utf-8')
+        self.content_length = ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = ascii_as_bytes_or_str(('%s-%s-%s' % (self.file.mtime,
                                                          self.file.size, 
@@ -2441,7 +2459,7 @@ class FileDownload(Response):
         if start < 0:
             start = 0
         if start >= end:
-            yield ''
+            yield b''
             return
         current = start or 0
 
