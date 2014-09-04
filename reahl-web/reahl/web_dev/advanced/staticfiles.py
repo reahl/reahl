@@ -34,6 +34,7 @@ from reahl.stubble import easter_egg, stubclass
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, UserInterface
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
+from reahl.component.py3compat import ascii_as_bytes_or_str
 
 @istest
 class StaticFileTests(object):
