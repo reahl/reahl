@@ -1461,7 +1461,23 @@ class SingleFileConstraint(ValidationConstraint):
 
 
 class UploadedFile(object):
-    """Represents a file that was input by a user."""
+    """Represents a file that was input by a user.
+
+    FIXME: This would work better if it just took the bytes of the file as
+    parameter, and computed size from that, instead of taking a file-like object.
+    Any idea that using a file is more optimal is a fiction, because we seek
+    the file to the end which forces the whole file to be buffered in memory
+    anyway.
+
+    The contents of the file should be represented as bytes, because knowing what
+    the encoding is is a tricky issue. The user only sits in front of the browser
+    and selects files on their filesystem and hits 'upload'. Those files can be
+    binary or text. If text, they may or may not be in the same encoding as their
+    system's preferred encoding. If binary, their browser may guess their content
+    type correctly or may not, and if we go and decode them with i.e UTF-8, the
+    system could break with UnicodeDecodeError on jpegs and the like.
+    """
+
     def __init__(self, filename, file_obj, content_type, size):
         self.file_obj = file_obj
         self.filename = filename

@@ -1808,7 +1808,7 @@ class HeaderContent(Widget):
         result += '$(\'body\').addClass(\'enhanced\');\n'
         js = set()
         js.update(self.page.get_js())
-        for item in js:
+        for item in sorted(js):
             result += item+'\n'
         result += '\n});'
         result += '\n</script>\n'

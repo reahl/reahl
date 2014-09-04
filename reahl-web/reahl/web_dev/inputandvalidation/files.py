@@ -44,14 +44,14 @@ class FileUploadInputFixture(WebFixture):
 
     file_to_upload1_name = 'file1.html'
     file_to_upload2_name = 'file2.gif'
-    file_to_upload1_content = 'some content'
-    file_to_upload2_content = 'some different content'
+    file_to_upload1_content = b'some content'
+    file_to_upload2_content = b'some different content'
 
     def new_file_to_upload1(self):
-        return temp_file_with(self.file_to_upload1_content, name=self.file_to_upload1_name)
+        return temp_file_with(self.file_to_upload1_content, name=self.file_to_upload1_name, mode='w+b')
 
     def new_file_to_upload2(self):
-        return temp_file_with(self.file_to_upload2_content, name=self.file_to_upload2_name)
+        return temp_file_with(self.file_to_upload2_content, name=self.file_to_upload2_name, mode='w+b')
 
     def new_domain_object(self):
         class DomainObject(object):
@@ -249,7 +249,8 @@ class FileTests(object):
            The SimpleFileInput transforms the chosen files to UploadedFile objects, and passes these
            to its associated FileField upon a Form submit."""
 
-        file_to_upload = temp_file_with('some content')
+        expected_content = b'some content'
+        file_to_upload = temp_file_with(expected_content, mode='w+b')
         class DomainObject(object):
             def __init__(self):
                self.file = None
@@ -282,8 +283,8 @@ class FileTests(object):
         vassert( isinstance(domain_object.file, UploadedFile) )
         vassert( domain_object.file.filename == os.path.basename(file_to_upload.name) )
         with domain_object.file.open() as opened_file:
-            contents = opened_file.read()
-        vassert( contents == 'some content' )
+            read_contents = opened_file.read()
+        vassert( read_contents == expected_content )
 
 
     @test(WebFixture)

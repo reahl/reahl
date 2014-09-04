@@ -142,7 +142,7 @@ def temp_file_with(contents, name=None, mode='w+'):
     """
     if name:
         directory = temp_dir()
-        temp_file = directory.file_with(name, contents)
+        temp_file = directory.file_with(name, contents, mode=mode)
         temp_file.temp_dir = directory
     else:
         temp_file = tempfile.NamedTemporaryFile(mode=mode)
