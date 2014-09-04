@@ -24,6 +24,7 @@ import six
 from string import Template
 import re
 import copy
+from collections import OrderedDict
 
 from babel import Locale, UnknownLocaleError
 from reahl.component.eggs import ReahlEgg
@@ -963,7 +964,7 @@ class Form(HTMLElement):
     is_Form = True
     def __init__(self, view, unique_name, rendered_form=None):
         self.view = view
-        self.inputs = {}
+        self.inputs = OrderedDict()
         self.registered_input_names = {}
         self.set_up_event_channel(unique_name)
         self.set_up_field_validator('%s_validate' % unique_name)
@@ -1541,7 +1542,7 @@ class PasswordInput(Input):
         attributes.clear('value')
         return attributes
 
-    
+
 class CheckboxInput(Input):
     """A checkbox. 
     
