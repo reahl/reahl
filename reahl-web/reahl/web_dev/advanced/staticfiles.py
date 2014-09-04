@@ -17,7 +17,6 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-from six.moves import cStringIO
 import datetime
 import os.path
 
@@ -34,7 +33,6 @@ from reahl.stubble import easter_egg, stubclass
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, UserInterface
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
-from reahl.component.py3compat import ascii_as_bytes_or_str
 
 @istest
 class StaticFileTests(object):
@@ -124,10 +122,8 @@ class StaticFileTests(object):
                 encoding = None # This is not character-encoding... it's content-encoding (zip, etc)
                 size = 10
                 mtime = 123
-                meta_info = content_type, encoding, size, mtime
-                data_blob = cStringIO('x'*size)
 
-                list_of_files = [FileFromBlob('database_file', data_blob, *meta_info)]
+                list_of_files = [FileFromBlob('database_file', 'x'*size, content_type, encoding, size, mtime)]
                 self.define_static_files('/files', list_of_files)
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
