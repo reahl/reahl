@@ -228,8 +228,8 @@ class StaticFileTests(object):
         """FileDownloadStub (the GET response for a StaticFileResource) works correctly in
           different scenarios of partial GETting too."""
         
-        file_content = 'some content'
-        server_file = temp_file_with(file_content, 'afile.css')
+        file_content = b'some content'
+        server_file = temp_file_with(file_content, 'afile.css', mode='w+b')
         @stubclass(FileDownload)
         class FileDownloadStub(FileDownload):
             chunk_size = 1
@@ -237,7 +237,7 @@ class StaticFileTests(object):
         
         # Case: The whole content is sent, in chunk_size bits
         read = [i for i in response.app_iter]
-        expected = [i for i in file_content]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content)]
         vassert( read == expected )
 
         # Case: Headers are set correctly
@@ -259,44 +259,44 @@ class StaticFileTests(object):
         # Case: partial response is supported - different cases:
         #      - normal case
         actual = [i for i in response.app_iter.app_iter_range(3,7)]
-        expected = [i for i in file_content[3:8]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:8])]
         vassert( actual == expected )
 
         #      - no end specified
         actual = [i for i in response.app_iter.app_iter_range(3)]
-        expected = [i for i in file_content[3:]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
         vassert( actual == expected )
 
         #      - no start specified
         actual = [i for i in response.app_iter.app_iter_range(end=7)]
-        expected = [i for i in file_content[:8]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
         vassert( actual == expected )
 
         #      - where the last chunk read would stretch past end
         response.chunk_size = 2
-        actual = ''.join([i for i in response.app_iter.app_iter_range(end=6)])
+        actual = b''.join([i for i in response.app_iter.app_iter_range(end=6)])
         expected = file_content[:7]
         vassert( actual == expected )
 
         #      - where start > end
         response.chunk_size = 1
         actual = [i for i in response.app_iter.app_iter_range(start=7, end=3)]
-        expected = ['']
+        expected = [b'']
         vassert( actual == expected )
 
         #      - where start < 0
         actual = [i for i in response.app_iter.app_iter_range(start=-10, end=7)]
-        expected = [i for i in file_content[:8]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
         vassert( actual == expected )
 
         #      - where end > length of file
         actual = [i for i in response.app_iter.app_iter_range(start=3, end=2000)]
-        expected = [i for i in file_content[3:]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
         vassert( actual == expected )
 
         #      - where start > length of file        
         actual = [i for i in response.app_iter.app_iter_range(start=700)]
-        expected = ['']
+        expected = [b'']
         vassert( actual == expected )
 
     @test(WebFixture)
