@@ -57,11 +57,11 @@ def patch_Field():
 class BasicBrowser(object):
     def save_source(self, filename):
         with io.open(filename, 'w') as output:
-            for line in html.tostring(self.lxml_html, pretty_print=True).split('\n'): 
+            for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
                 output.write(line+'\n')
 
     def view_source(self):
-        for line in html.tostring(self.lxml_html, pretty_print=True).split('\n'): 
+        for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
             print(line)
             
     def save_source(self, filename):
@@ -70,7 +70,7 @@ class BasicBrowser(object):
             
     def get_html_for(self, locator):
         xpath = six.text_type(locator)
-        return html.tostring(self.lxml_html.xpath(xpath)[0]).decode('utf-8')
+        return html.tostring(self.lxml_html.xpath(xpath)[0], encoding='unicode')
         
     def is_element_present(self, locator):
         xpath = six.text_type(locator)
@@ -238,7 +238,7 @@ class Browser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         element = self.xpath(xpath)[0]
-        return html.tostring(element, encoding='utf-8').decode('utf-8')
+        return html.tostring(element, encoding='unicode')
 
     def get_inner_html_for(self, locator):
         """Returns the HTML of the children of the element targeted by the given `locator` (excluding the 
@@ -248,7 +248,7 @@ class Browser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         element = self.xpath(xpath)[0]
-        return ''.join(html.tostring(child, encoding='utf-8').decode('utf-8')
+        return ''.join(html.tostring(child, encoding='unicode')
                          for child in element.getchildren())
 
     def type(self, locator, text):

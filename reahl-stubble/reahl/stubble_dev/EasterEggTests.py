@@ -69,7 +69,7 @@ class EasterEggTests(object):
 
     @istest
     def test_resource_api(self):
-        test_file = NamedTemporaryFile(mode='w+')
+        test_file = NamedTemporaryFile(mode='bw+')
         dirname, file_name = os.path.split(test_file.name)
 
         self.stub_egg.set_module_path(dirname)
@@ -77,7 +77,7 @@ class EasterEggTests(object):
         assert pkg_resources.resource_exists(self.stub_egg.as_requirement(), file_name)
         assert not pkg_resources.resource_exists(self.stub_egg.as_requirement(), 'IDoNotExist')
 
-        contents = 'asdd '
+        contents = b'asdd '
         test_file.write(contents)
         test_file.flush()
 
