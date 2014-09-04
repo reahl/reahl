@@ -21,6 +21,7 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test
 from reahl.stubble import stubclass
 from reahl.tofu import vassert
+from reahl.component.py3compat import html_escape
 
 from reahl.component.modelinterface import Field, EmailField, PasswordField, BooleanField, IntegerField, \
                              ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
@@ -75,6 +76,7 @@ class FieldTests(object):
             @property
             def parameters(self):
                 return 'a parameter'
+
         constraint2 = ConstraintWithParams('validation_constraint 2 message with apostrophe\'s')
         constraint2.name = 'two'
 
@@ -84,7 +86,8 @@ class FieldTests(object):
         tester = WidgetTester(fixture.input)
 
         actual = tester.render_html()
-        expected_html = '''<input name="an_attribute" data-one="" data-two="a parameter" form="test" type="inputtype" value="field value" class="{&quot;validate&quot;: {&quot;messages&quot;: {&quot;data-two&quot;: &quot;validation_constraint 2 message with apostrophe\\\\\'s&quot;, &quot;data-one&quot;: &quot;validation_constraint 1 message&quot;}}}">'''
+        escaped_json = html_escape('{"validate": {"messages": {"data-one": "validation_constraint 1 message", "data-two": "validation_constraint 2 message with apostrophe\\\\\'s"}}}')
+        expected_html = '''<input name="an_attribute" data-one="" data-two="a parameter" form="test" type="inputtype" value="field value" class="%s">''' % escaped_json
         vassert( actual == expected_html )
 
     @test(ConstraintRenderingFixture)

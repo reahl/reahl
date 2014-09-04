@@ -17,6 +17,8 @@
 """Facilities to govern user input and output, as well as what access the current user has to model objects."""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+
+import io
 import six
 import copy
 import re
@@ -29,6 +31,7 @@ import types
 import inspect
 from contextlib import contextmanager
 import functools
+from collections import OrderedDict
 
 import dateutil.parser 
 import babel.dates 
@@ -404,9 +407,9 @@ class ValidationConstraintList(list):
         return message.replace('\'', '\\\'')
         
     def as_json_messages(self, map_name_function, ignore_names):
-        messages_dict = dict([(map_name_function(validation_constraint.name), self.js_escape(validation_constraint.message))
-                              for validation_constraint in self
-                              if (not validation_constraint.name in ignore_names) ])
+        messages_dict = OrderedDict([(map_name_function(validation_constraint.name), self.js_escape(validation_constraint.message))
+                                     for validation_constraint in self
+                                     if (not validation_constraint.name in ignore_names) ])
         if messages_dict:
             return json.dumps({'validate':{'messages':messages_dict}})
         return ''
@@ -1461,36 +1464,30 @@ class SingleFileConstraint(ValidationConstraint):
 
 
 class UploadedFile(object):
-    """Represents a file that was input by a user.
-
-    FIXME: This would work better if it just took the bytes of the file as
-    parameter, and computed size from that, instead of taking a file-like object.
-    Any idea that using a file is more optimal is a fiction, because we seek
-    the file to the end which forces the whole file to be buffered in memory
-    anyway.
-
-    The contents of the file should be represented as bytes, because knowing what
-    the encoding is is a tricky issue. The user only sits in front of the browser
-    and selects files on their filesystem and hits 'upload'. Those files can be
-    binary or text. If text, they may or may not be in the same encoding as their
-    system's preferred encoding. If binary, their browser may guess their content
-    type correctly or may not, and if we go and decode them with i.e UTF-8, the
-    system could break with UnicodeDecodeError on jpegs and the like.
+    """Represents a file that was input by a user. The contents of the file
+    is represented as bytes, because knowing what the encoding is is a tricky
+    issue. The user only sits in front of the browser and selects files on their
+    filesystem and hits 'upload'. Those files can be binary or text. If text,
+    they may or may not be in the same encoding as their system's preferred
+    encoding. If binary, their browser may guess their content type correctly
+    or may not, and if we go and decode them with i.e UTF-8, the system could
+    break with UnicodeDecodeError on jpegs and the like.
     """
-
-    def __init__(self, filename, file_obj, content_type, size):
-        self.file_obj = file_obj
+    def __init__(self, filename, contents, content_type):
+        assert isinstance(contents, six.binary_type)
+        self.contents = contents
         self.filename = filename
         self.content_type = content_type
-        self.size = size
+
+    @property
+    def size(self):
+        return len(self.contents)
 
     @contextmanager
     def open(self):
-        self.file_obj.seek(0)
-        try:
-            yield self.file_obj
-        finally:
-            self.file_obj.seek(0)
+        # Scaffolding to maintain the old API when contents was a file-like object
+        with io.BytesIO(self.contents) as f:
+            yield f
 
 
 class FileSizeConstraint(ValidationConstraint):

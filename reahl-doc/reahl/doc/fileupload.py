@@ -54,7 +54,7 @@ class Comment(Base):
 
     def attach_uploaded_files(self):
         for f in self.uploaded_files:
-            self.attached_files.append(AttachedFile(comment=self, filename=f.filename, contents=f.file_obj.read()))
+            self.attached_files.append(AttachedFile(comment=self, filename=f.filename, contents=f.contents))
 
     def submit(self):
         self.attach_uploaded_files()

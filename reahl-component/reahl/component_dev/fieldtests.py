@@ -1047,11 +1047,11 @@ class SpecificFieldsTests(object):
         obj = fixture.model_object
         field.bind('file_value', obj)
 
-        files = [UploadedFile('file1', EmptyStub(), '', 100), UploadedFile('file2', EmptyStub(), '', 50)]
+        files = [UploadedFile('file1', b'.'*100, ''), UploadedFile('file2', b'.'*50, '')]
         with expected(NoException):
             field.set_user_input(files)
 
-        files = [UploadedFile('file1', EmptyStub(), '', 100), UploadedFile('file2', EmptyStub(), '', 200)]
+        files = [UploadedFile('file1', b'.'*100, ''), UploadedFile('file2', b'.'*200, '')]
         with expected(FileSizeConstraint):
             field.set_user_input(files)
 
@@ -1064,11 +1064,11 @@ class SpecificFieldsTests(object):
         obj = fixture.model_object
         field.bind('file_value', obj)
 
-        files = [UploadedFile('file1', EmptyStub(), 'text/html', 100), UploadedFile('file2', EmptyStub(), 'text/xml', 50)]
+        files = [UploadedFile('file1', b'stuff 1', 'text/html'), UploadedFile('file2', b'stuff 2', 'text/xml')]
         with expected(NoException):
             field.set_user_input(files)
 
-        files = [UploadedFile('file1', EmptyStub(), 'text/html', 100), UploadedFile('file2', EmptyStub(), 'application/java', 200)]
+        files = [UploadedFile('file1', b'stuff 3', 'text/html'), UploadedFile('file2', b'stuff 4', 'application/java')]
         with expected(MimeTypeConstraint):
             field.set_user_input(files)
 
@@ -1081,11 +1081,11 @@ class SpecificFieldsTests(object):
         obj = fixture.model_object
         field.bind('file_value', obj)
 
-        files = [UploadedFile('file1', EmptyStub(), '', 100)]
+        files = [UploadedFile('file1', b'stuff 1', '')]
         with expected(NoException):
             field.set_user_input(files)
 
-        files = [UploadedFile('file1', EmptyStub(), '', 100), UploadedFile('file2', EmptyStub(), '', 200)]
+        files = [UploadedFile('file1', b'stuff 2', ''), UploadedFile('file2', b'stuff 3', '')]
         with expected(MaxFilesConstraint):
             field.set_user_input(files)
 
