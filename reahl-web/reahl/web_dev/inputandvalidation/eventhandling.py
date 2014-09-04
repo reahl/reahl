@@ -497,7 +497,7 @@ def nested_forms(fixture):
     wsgi_app = fixture.new_wsgi_app(child_factory=OuterForm.factory('outer_form'))
     fixture.reahl_server.set_app(wsgi_app)
     browser = fixture.driver_browser
-    
+
     browser.open('/')
     browser.type(XPath.input_labelled('input nested'), 'some nested input')
     

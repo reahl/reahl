@@ -30,7 +30,7 @@ from reahl.stubble import stubclass
 
 from reahl.sqlalchemysupport import metadata, Session
 from reahl.web_dev.fixtures import WebFixture
-
+from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.webdeclarative.webdeclarative import WebUserSession, SessionData
 
 
@@ -132,7 +132,7 @@ class BasicTests(object):
         web_session = WebUserSession()
         Session.add(web_session)
 
-        fixture.request.headers['Cookie'] = ('reahl=%s' % web_session.as_key()).encode('utf-8')
+        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % web_session.as_key())
 
         fixture.context.initialise_web_session()
         
@@ -147,8 +147,8 @@ class BasicTests(object):
         Session.add(web_session)
         web_session.set_as_logged_in(account, False)
 
-        fixture.request.headers['Cookie'] = ('reahl=%s , reahl_secure=%s' % \
-                                            (web_session.as_key(), web_session.secure_salt)).encode('utf-8')
+        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
+                                            (web_session.as_key(), web_session.secure_salt))
         fixture.context.initialise_web_session()
 
         vassert( fixture.context.session is web_session )
@@ -162,8 +162,8 @@ class BasicTests(object):
         web_session = WebUserSession()
         Session.add(web_session)
         web_session.set_as_logged_in(account, False)
-        fixture.request.headers['Cookie'] = ('reahl=%s , reahl_secure=%s' % \
-                                            (web_session.as_key(), web_session.secure_salt)).encode('utf-8')
+        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
+                                            (web_session.as_key(), web_session.secure_salt))
          
         fixture.context.initialise_web_session()
 

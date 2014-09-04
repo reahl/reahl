@@ -68,9 +68,16 @@ We provide two upgrade paths for users with code based on Elixir:
 
  2. Change your own code to use Declarative instead of Elixir. The 
     declarative implementation provided with Reahl 3.0 includes 
-    migrations that change older database schemas created by the
+    migrations that change existing database schemas created by the
     Elixir implementation to work with the current, Declarative 
-    implementation.
+    implementation. (This, of course, is necessary if you need to
+    preserve a running database through such changes.)
+
+.. note::
+   
+   The Sqlite database does not support migration of existing data
+   very well, and as a result migration is only possible on PostgreSQL
+   databases.
     
 
 :doc:`Elixir to Declarative migration guide <declarativemigration>`
@@ -82,3 +89,25 @@ Declarative, you will have to write migrations yourself.
 Please see the :doc:`declarativemigration` for details on how to do this,
 or discuss on `the mailing list <https://groups.google.com/forum/#!forum/reahl-discuss>`_.
 
+
+Moved modules
+-------------
+
+As a rule, a component named reahl-xxx would contain a package
+reahl.xxx, with possibly sub modules, such as reahl.xxx.yyy. For a
+small number of components, this is not true. Specifically,
+reahl-domain includes reahl.partymodel, reahl.workflowmodel and
+reahl.systemaccountmodel that do not fit this structure.
+
+In this version, these have been moved to reahl.domain.partymodel,
+reahl.domain.workflowmodel and reahl.domain.systemaccountmodel
+respectively. Older imports will continue to work for now, but 
+will eventually be removed.
+
+Renamed attributes
+------------------
+
+Classes that are @session_scoped used to have an attribute 'session'. This has been renamed to 'user_session'.
+
+
+Previously, a Party always had a SystemAccount. It makes more sense to be able to have Party objects with or without SystemAccounts. Hence, the relationship was changed. Now, a Party does not have any knowledge of a SystemAccount, but a SystemAccount has an 'owner', which is a Party.

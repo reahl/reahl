@@ -39,9 +39,10 @@ class DomainException(Exception):
     def __init__(self, commit=False):
         self.commit = commit
 
-    __hash__ = None
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.commit == other.commit
+#    __hash__ = None
+#    def __eq__(self, other):
+#        import pdb; pdb.set_trace()
+#        return isinstance(other, self.__class__) and self.commit == other.commit
     
     def __reduce__(self):
         return (self.__class__, (self.commit,))
@@ -149,6 +150,7 @@ class IsSubclass(TypeBasedArgumentCheck):
 
     def __str__(self):
         return '%s: %s should be %s or subclass of it (got %s instead)' % (self.func, self.arg_name, self.type_.value, self.value)
+
 
 class IsCallable(ArgumentCheck):
     def __init__(self, args=(), kwargs={}, allow_none=False):

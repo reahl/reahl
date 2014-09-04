@@ -32,6 +32,7 @@ from reahl.web.fw import RemoteMethod
 from reahl.web.fw import Widget
 from reahl.web.fw import WidgetResult
 from reahl.component.modelinterface import Field, IntegerField
+from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.web_dev.fixtures import  WebFixture
 
 class RemoteMethodFixture(WebFixture):

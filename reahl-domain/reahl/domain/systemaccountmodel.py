@@ -204,7 +204,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     def authenticate(self, password):
         self.assert_account_live()
 
-        password_md5 = hashlib.md5(password).hexdigest()
+        password_md5 = hashlib.md5(password.encode('utf-8')).hexdigest()
         if self.password_md5 != password_md5:
             self.failed_logins += 1
             if self.failed_logins >= 3:
@@ -231,8 +231,8 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         if self.email != email:
             raise InvalidEmailException()
         new_password = password
-        self.password_md5 = hashlib.md5(new_password).hexdigest()
-        self.apache_digest = hashlib.md5('%s:%s:%s' % (self.email,'',new_password)).hexdigest()
+        self.password_md5 = hashlib.md5(new_password.encode('utf-8')).hexdigest()
+        self.apache_digest = hashlib.md5(('%s:%s:%s' % (self.email,'',new_password)).encode('utf-8')).hexdigest()
 
     def request_email_change(self, new_email):
         self.assert_account_live()

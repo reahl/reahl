@@ -100,7 +100,7 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
 
     def set_session_key(self, response):
         context = WebExecutionContext.get_context()
-        session_cookie = self.as_key().encode('utf-8')
+        session_cookie = self.as_key()
         response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
         if self.is_secure():
             response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',

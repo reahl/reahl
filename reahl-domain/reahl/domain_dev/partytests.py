@@ -81,9 +81,9 @@ class RegistrationTests(object):
 
         vassert( mailer_stub.mail_sent )
         vassert( system_account.email == account_management_interface.email )
-        vassert( system_account.password_md5 == hashlib.md5(account_management_interface.password).hexdigest() )
-        vassert( system_account.apache_digest == hashlib.md5('%s:%s:%s' %\
-                                              (account_management_interface.email,'',account_management_interface.password)).hexdigest() )
+        vassert( system_account.password_md5 == hashlib.md5(account_management_interface.password.encode('utf-8')).hexdigest() )
+        vassert( system_account.apache_digest == hashlib.md5(('%s:%s:%s' %\
+                                              (account_management_interface.email,'',account_management_interface.password)).encode('utf-8')).hexdigest() )
         assert_recent( activation_action.deadline - timedelta(days=10) )
         vassert( not system_account.registration_activated )
         vassert( not system_account.account_enabled )
@@ -513,7 +513,7 @@ class UserSessionTests(object):
         # Case: user activity is older than non-secure lifetime max, but keep_me_logged_in is set
         vassert( (config.accounts.idle_lifetime - config.accounts.idle_secure_lifetime) > 50 )
         vassert( (config.accounts.idle_lifetime_max - config.accounts.idle_lifetime) > 50 )
-    	session.set_as_logged_in(real_user, True)
+        session.set_as_logged_in(real_user, True)
         session.last_activity = datetime.now() - timedelta(seconds=config.accounts.idle_lifetime_max+50)
         vassert( not session.is_logged_in() )
         vassert( not session.is_secure() )

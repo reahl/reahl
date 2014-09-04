@@ -230,7 +230,7 @@ class AddressBookList(Panel):
 
 class AddressBookPanel(Panel):
     def __init__(self, view, address_book, address_book_ui):
-    	self.address_book = address_book
+        self.address_book = address_book
         super(AddressBookPanel, self).__init__(view)
         
         self.add_child(H(view, 1, text='Addresses in %s' % address_book.display_name))
