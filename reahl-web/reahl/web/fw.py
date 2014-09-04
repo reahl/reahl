@@ -2450,7 +2450,7 @@ class FileDownload(Response):
         if start < 0:
             start = 0
         if start >= end:
-            yield ''
+            yield b''
             return
         current = start or 0
 
