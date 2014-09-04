@@ -21,6 +21,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import io
 import atexit
+import locale
 import tempfile
 import mimetypes
 import inspect
@@ -2269,13 +2270,19 @@ class ViewableFile(object):
 
 class FileOnDisk(ViewableFile):
     def __init__(self, full_path, relative_name):
-        content_type, encoding = mimetypes.guess_type(full_path)
+        self.content_type, content_encoding = mimetypes.guess_type(full_path)
+        # FIXME: This assumes all text files on disk are encoded with the system's preferred
+        # encoding, which is nothing but a guess
+        charset = locale.getpreferredencoding() if self.is_text() else None
         self.full_path = full_path
         self.relative_name = relative_name
         st = os.stat(full_path)
-        super(FileOnDisk, self).__init__(full_path, content_type or 'application/octet-stream', encoding,
+        super(FileOnDisk, self).__init__(full_path, self.content_type or 'application/octet-stream', charset,
                                          st.st_size,
                                          st.st_mtime)
+
+    def is_text(self):
+        return self.content_type and self.content_type.startswith('text/')
 
     @contextmanager
     def open(self):
@@ -2426,7 +2433,7 @@ class FileDownload(Response):
         self.file = a_file 
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
         self.content_type = (ascii_as_bytes_or_str(self.file.content_type) if self.file.content_type else None)
-        self.content_encoding = (ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None)
+        self.charset = (ascii_as_bytes_or_str(self.file.encoding if self.file.encoding else 'utf-8'))
         self.content_length = (ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None)
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = ascii_as_bytes_or_str(('%s-%s-%s' % (self.file.mtime,
