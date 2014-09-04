@@ -19,6 +19,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
+import io
 import atexit
 import tempfile
 import mimetypes
@@ -2271,13 +2272,14 @@ class FileOnDisk(ViewableFile):
         content_type, encoding = mimetypes.guess_type(full_path)
         self.full_path = full_path
         self.relative_name = relative_name
-        size = os.path.getsize(full_path)
-        mtime = os.path.getmtime(self.full_path)
-        super(FileOnDisk, self).__init__(full_path, content_type or 'application/octet-stream', encoding, size, mtime)
+        st = os.stat(full_path)
+        super(FileOnDisk, self).__init__(full_path, content_type or 'application/octet-stream', encoding,
+                                         st.st_size,
+                                         st.st_mtime)
 
     @contextmanager
     def open(self):
-        open_file = open(self.full_path, 'rb')
+        open_file = io.open(self.full_path, mode='rb')
         try:
             yield open_file
         finally:
