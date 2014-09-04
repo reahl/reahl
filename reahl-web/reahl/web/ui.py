@@ -2246,12 +2246,7 @@ class SimpleFileInput(Input):
     def get_value_from_input(self, input_values):
         field_storages = input_values.getall(self.name)
 
-        def file_size(field_storage):
-            field_storage.file.seek(0, 2)
-            size = field_storage.file.tell()
-            field_storage.file.seek(0)
-            return size
-        return [UploadedFile(six.text_type(field_storage.filename), field_storage.file, six.text_type(field_storage.type), file_size(field_storage)) 
+        return [UploadedFile(six.text_type(field_storage.filename), field_storage.file.read(), six.text_type(field_storage.type))
                  for field_storage in field_storages
                  if field_storage not in ('', b'')]
 
@@ -2431,7 +2426,7 @@ class FileUploadInput(Input):
         return FileUploadPanel(self)
 
     def get_value_from_input(self, input_values):
-        return [UploadedFile(f.filename, f.file_obj, f.content_type, f.size) 
+        return [UploadedFile(f.filename, f.file_obj.read(), f.content_type)
                  for f in self.persisted_file_class.get_persisted_for_form(self.form, self.name)]
 
     def enter_value(self, input_value):

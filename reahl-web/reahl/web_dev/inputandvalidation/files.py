@@ -446,7 +446,7 @@ class FileTests(object):
 
         # Only the one file is submitted
         browser.click( XPath.button_labelled('Submit') )
-        vassert( fixture.domain_object.submitted_file_info.keys() == [fixture.file_to_upload2_name] )
+        vassert( list(fixture.domain_object.submitted_file_info.keys()) == [fixture.file_to_upload2_name] )
         
 
     @test(FileUploadInputFixture)

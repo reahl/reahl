@@ -274,7 +274,7 @@ class PersistedFile(SessionData, PersistedFileProtocol):
     @classmethod
     def add_persisted_for_form(cls, form, input_name, uploaded_file):
         filename = uploaded_file.filename
-        file_data = uploaded_file.file_obj.read()
+        file_data = uploaded_file.contents
         content_type = uploaded_file.content_type
         size = uploaded_file.size
         cls.new_for_form(form, input_name=input_name, filename=filename, file_data=file_data, content_type=content_type, size=size)
