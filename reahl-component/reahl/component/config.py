@@ -256,11 +256,6 @@ class StoredConfiguration(Configuration):
         self.in_production = in_production
 
     def configure(self, validate=True):
-        if six.PY2:
-            #http://mail.python.org/pipermail/tutor/2005-August/040993.html
-            imp.reload(sys); #read setdefaultencoding python docs - it "enables" the method again
-            sys.setdefaultencoding('utf-8')
-        
         self.configure_logging()
         logging.getLogger(__name__).info('Using config in %s' % self.config_directory)
         sys.path.insert(0,self.config_directory)

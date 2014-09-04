@@ -35,9 +35,10 @@ class DjhtmlFixture(Fixture, WebBasicsMixin):
     div_internals = '<p>some stúff</p>'
 
     def new_dhtml_file(self):
-        contents = '<!DOCTYPE html><meta charset="UTF-8"><html><head><title>â title</title></head>' \
-                   '<body><div id="astatic">%s</div></body></html>' % self.div_internals
-        return self.static_dir.file_with('correctfile.d.html', contents)
+        charset = 'UTF-8'
+        contents = '<!DOCTYPE html><meta charset="%s"><html><head><title>â title</title></head>' \
+                   '<body><div id="astatic">%s</div></body></html>' % (charset, self.div_internals)
+        return self.static_dir.file_with('correctfile.d.html', contents.encode(charset), mode='w+b')
 
     def new_afrikaans_dhtml_file(self):
         contents = '<!DOCTYPE html><meta charset="UTF-8"><html><head><title>Afrikaans bo!</title></head><body></body></html>'
