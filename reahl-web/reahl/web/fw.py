@@ -2298,19 +2298,22 @@ class FileOnDisk(ViewableFile):
 
 
 class FileFromBlob(ViewableFile):
-    def __init__(self, name, file_obj, content_type, encoding, size, mtime):
-        # TODO: Fill in charset
-        super(FileFromBlob, self).__init__(name, content_type, encoding, 'utf-8', size, mtime)
-        self.file_obj = file_obj
+    def __init__(self, name, contents, content_type, encoding, size, mtime):
+        if isinstance(contents, six.text_type):
+            charset = 'utf-8'
+            content_bytes = contents.encode(charset)
+        elif isinstance(contents, six.binary_type):
+            charset = None
+            content_bytes = contents
+        else:
+            raise ValueError("Contents should be of type %s for text data or %s for binary data" % (six.text_type, six.binary_type))
+        super(FileFromBlob, self).__init__(name, content_type, encoding, charset, size, mtime)
+        self.content_bytes = content_bytes
         self.relative_name = name
 
     @contextmanager
     def open(self):
-        self.file_obj.seek(0)
-        try:
-            yield self.file_obj
-        finally:
-            self.file_obj.seek(0)
+        yield io.BytesIO(self.content_bytes)
 
 
 class PackagedFile(FileOnDisk):
