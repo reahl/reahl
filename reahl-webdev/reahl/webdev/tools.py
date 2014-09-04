@@ -80,9 +80,6 @@ class BasicBrowser(object):
     def lxml_html(self):
         if self.raw_html:
             return html.fromstring(self.raw_html)
-        time.sleep(0.5) #xxxxx
-        if self.raw_html:
-            return html.fromstring(self.raw_html)
         return None
 
 
@@ -161,9 +158,9 @@ class Browser(BasicBrowser):
         """
         counter = 0
         while self.status >= 300 and self.status < 400:
-             self.last_response = self.last_response.follow()
-             counter += 1
-             assert counter <= 10, 'HTTP Redirect loop detected.'
+            self.last_response = self.last_response.follow()
+            counter += 1
+            assert counter <= 10, 'HTTP Redirect loop detected.'
 
     def post(self, url_string, form_values, **kwargs):
         """POSTs the given form values to the url given.
