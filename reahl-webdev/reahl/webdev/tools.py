@@ -248,8 +248,7 @@ class Browser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         element = self.xpath(xpath)[0]
-        return ''.join(html.tostring(child, encoding='unicode')
-                         for child in element.getchildren())
+        return ''.join(html.tostring(child, encoding='unicode') for child in element.getchildren())
 
     def type(self, locator, text):
         """Types the text in `text` into the input found by the `locator`.
