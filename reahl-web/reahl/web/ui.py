@@ -2253,7 +2253,7 @@ class SimpleFileInput(Input):
             return size
         return [UploadedFile(six.text_type(field_storage.filename), field_storage.file, six.text_type(field_storage.type), file_size(field_storage)) 
                  for field_storage in field_storages
-                 if field_storage != '']
+                 if field_storage not in ('', b'')]
 
     @property
     def value(self):
