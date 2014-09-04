@@ -81,6 +81,7 @@ class RegistrationTests(object):
 
         vassert( mailer_stub.mail_sent )
         vassert( system_account.email == account_management_interface.email )
+        # FIXME: These are those dubious tests where the assert just repeats the implementation verbatim
         vassert( system_account.password_md5 == hashlib.md5(account_management_interface.password.encode('utf-8')).hexdigest() )
         vassert( system_account.apache_digest == hashlib.md5(('%s:%s:%s' %\
                                               (account_management_interface.email,'',account_management_interface.password)).encode('utf-8')).hexdigest() )
