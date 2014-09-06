@@ -83,15 +83,24 @@ changes to reflect the environment that is currently active.
 With your `virtualenv` activated, Reahl can be installed into it by
 issuing:
 
+On Linux or Mac:
+
 .. code-block:: bash
 
-   easy_install reahl[declarative,sqlite,dev,doc]
+   pip reahl[declarative,sqlite,dev,doc]  
+
+On Windows:
+
+   easy_install reahl[declarative,sqlite,dev,doc]  
 
 .. note::
 
-   If you're tempted to install using pip, be warned that on Windows
-   that won't work... pip cannot install binary packages, and many of
+   Wherever we use pip for installing things, on Windows you should
+   use easy_install instead... pip cannot install binary packages, and many of
    Reahl's dependencies are distributed in binary form for Windows.
+
+   You can still use pip on Windows to uninstall things, see what's 
+   installed, etc.
 
 This may run a while, as it installs all of the projects Reahl depends
 on as well. Some of these dependencies are installed and built from
@@ -132,6 +141,9 @@ include, and what they install:
    the web framework (uses some components from the 2.1 
    series, and only runs on Python 2.7)
 
+.. note::
 
+   You cannot install `doc` and `elixir` together, as the reahl-doc 
+   component depends on the new, declarative implementations.
 
 
