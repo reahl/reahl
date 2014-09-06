@@ -41,8 +41,6 @@ class AddressBook(Base):
         visible_books.extend(cls.owned_by(account))
         return visible_books
 
-    # See https://groups.google.com/forum/?fromgroups=#!topic/sqlelixir/ZlR9Kvcor6Q
-    #    addresses  = elixir.OneToMany(Address)
     @property
     def addresses(self):
         return Session.query(Address).filter_by(address_book=self).all()
