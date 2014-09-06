@@ -1631,7 +1631,7 @@ class EggProject(Project):
     def setup(self, setup_command):
         with self.paths_set():
             return setup(script_args=setup_command,
-                     name=self.project_name,
+                     name=ascii_as_bytes_or_str(self.project_name),
                      version=self.version_for_setup(),
                      description=self.get_description_for(self),
                      long_description=self.get_long_description_for(self),
@@ -1684,21 +1684,21 @@ class EggProject(Project):
             setup_file.write(')\n')
 
     def version_for_setup(self):
-        return six.text_type(self.version.as_upstream())
+        return ascii_as_bytes_or_str(six.text_type(self.version.as_upstream()))
         
     def run_deps_for_setup(self):
-        return [dep.as_string_for_egg() for dep in self.run_deps]
+        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.run_deps]
 
     def build_deps_for_setup(self):
-        return [dep.as_string_for_egg() for dep in self.build_deps]
+        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.build_deps]
 
     def test_deps_for_setup(self):
-        return [dep.as_string_for_egg() for dep in self.test_deps]
+        return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.test_deps]
 
     def packages_for_setup(self):
         exclusions = [i.name for i in self.excluded_packages]
         exclusions += ['%s.*' % i.name for i in self.excluded_packages]
-        return find_packages(where=self.directory, exclude=exclusions)
+        return [ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]
 
     def namespace_packages_for_setup(self):
         return [ascii_as_bytes_or_str(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!
