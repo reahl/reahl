@@ -2,6 +2,8 @@ python-reahl (2.1.2) unstable; urgency=low
 
  * Implements https://blueprints.launchpad.net/reahl/+spec/phased-migration.
  * Implements https://blueprints.launchpad.net/reahl/+spec/datatable.
+ * Implements https://blueprints.launchpad.net/reahl/+spec/tutorial-restructure.
+ * Implements https://blueprints.launchpad.net/reahl/+spec/deprecation-warnings.
  * Closes bugs: #1326745, #1335641, #1336039, #1336042, #1356992, #1345577, #1345579.
 
  -- Iwan Vosloo <iwan@reahl.org>  Sun, 24 Aug 2014 13:50:00 +0200
