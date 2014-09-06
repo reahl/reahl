@@ -42,8 +42,8 @@ def file_with(name, contents, mode='w+'):
        
        :param name: The full path name of the file to be created.
        :param mode: The mode to open the file in, as per open() builtin.
-       :param contents: The contents of the file. Must text unless binary mode was specified, in which
-       case bytes should be used.
+       :param contents: The contents of the file. Must text unless binary mode was specified, in which case bytes should be used.
+
     """
     return AutomaticallyDeletedFile(name, contents, mode)
 
@@ -136,9 +136,9 @@ def temp_file_with(contents, name=None, mode='w+'):
        is created inside a temporary directory.
 
        :param mode: The mode to open the file in, as per open() builtin.
-       :param contents: The contents of the file. Must text unless binary mode was specified, in which
-       case bytes should be used.
+       :param contents: The contents of the file. Must text unless binary mode was specified, in which case bytes should be used.
        :keyword name: If given, the the name of the file (not including the file system path to it).
+
     """
     if name:
         directory = temp_dir()

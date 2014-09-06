@@ -34,10 +34,7 @@ Summary of changes
    differ from names chosen automatically by PostgreSQL in the past.
 
    This means that all of the following need to be dropped, and 
-   recreated with their new names:
-    - primary keys
-    - foreign keys
-    - indexes
+   recreated with their new names: primary keys, foreign keys and indexes.
 
  * All our Elixir classes used joined table inheritance (where they did indeed inherit).
    Perhaps yours do too... In this case, Elixir automatically created a column on the table
