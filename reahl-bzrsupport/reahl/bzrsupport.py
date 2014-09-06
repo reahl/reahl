@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import subprocess
 import logging
@@ -112,18 +111,17 @@ class Bzr(object):
         return None
         
     def uses_bzr(self):
-        with TemporaryFile() as err:
-            with TemporaryFile() as out:
-                try:
-                    return_code = Executable('bzr').call(['info', self.directory], stdout=out, stderr=err)
-                    return return_code == 0
-                except Exception as ex:
-                    logging.error('Error trying to execute "bzr info %s": %s' % (self.directory, ex))
-                return False
+        with open(os.devnull, 'w') as DEVNULL:
+            try:
+                return_code = Executable('bzr').call(['info', self.directory], stdout=DEVNULL, stderr=DEVNULL)
+                return return_code == 0
+            except Exception as ex:
+                logging.error('Error trying to execute "bzr info %s": %s' % (self.directory, ex))
+            return False
 
     def inventory(self):
-        with TemporaryFile() as err:
-            with TemporaryFile() as out:
+        with TemporaryFile(mode='w+') as err:
+            with TemporaryFile(mode='w+') as out:
                 bzr_args = 'inventory %s --kind=file' % self.directory
                 try:
                     return_code = Executable('bzr').call(bzr_args.split(), stdout=out, stderr=err)
@@ -137,24 +135,23 @@ class Bzr(object):
                 return ['']
 
     def bzr_installed(self):
-        with TemporaryFile() as err:
-            with TemporaryFile() as out:
-                try:
-                    return_code = Executable('bzr').call([], stdout=out, stderr=err, shell=True)
-                    return return_code == 0
-                except OSError as ex:
-                    if ex.errno == os.errno.ENOENT:
-                        return False
-                    else:
-                        logging.error('Error trying to execute "bzr": %s' % ex)
-                except ExecutableNotInstalledException as ex:
-                    pass
-                except Exception as ex:
+        with open(os.devnull, 'w') as DEVNULL:
+            try:
+                return_code = Executable('bzr').call([], stdout=DEVNULL, stderr=DEVNULL, shell=True)
+                return return_code == 0
+            except OSError as ex:
+                if ex.errno == os.errno.ENOENT:
+                    return False
+                else:
                     logging.error('Error trying to execute "bzr": %s' % ex)
-                return False
+            except ExecutableNotInstalledException as ex:
+                pass
+            except Exception as ex:
+                logging.error('Error trying to execute "bzr": %s' % ex)
+            return False
  
     def commit(self, message, unchanged=False):
-        with file(os.devnull, 'w') as DEVNULL:
+        with open(os.devnull, 'w') as DEVNULL:
             args = '-m %s' % message
             if unchanged:
                 args += ' --unchanged'
@@ -162,20 +159,20 @@ class Bzr(object):
         return return_code == 0
         
     def is_version_controlled(self):
-        with file(os.devnull, 'w') as DEVNULL:
+        with open(os.devnull, 'w') as DEVNULL:
             return_code = Executable('bzr').call('info'.split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
         return return_code == 0
 
     def is_checked_in(self):
-        with TemporaryFile() as out:
+        with TemporaryFile(mode='w+') as out:
             return_code = Executable('bzr').call('status'.split(), cwd=self.directory, stdout=out, stderr=out)
             out.seek(0)
             return return_code == 0 and not out.read()
 
     @property
     def last_commit_time(self):
-        with TemporaryFile() as out:
-            with file(os.devnull, 'w') as DEVNULL:
+        with TemporaryFile(mode='w+') as out:
+            with open(os.devnull, 'w') as DEVNULL:
                 Executable('bzr').check_call('log -r -1'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
                 out.seek(0)
                 [timestamp] = [line for line in out if line.startswith('timestamp')]
@@ -183,13 +180,13 @@ class Bzr(object):
         return datetime.datetime.strptime(timestamp, 'timestamp: %a %Y-%m-%d %H:%M:%S')
 
     def tag(self, tag_string):
-        with file(os.devnull, 'w') as DEVNULL:
+        with open(os.devnull, 'w') as DEVNULL:
             Executable('bzr').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
         
     def get_tags(self, head_only=False):
         tags = []
-        with TemporaryFile() as out:
-            with file(os.devnull, 'w') as DEVNULL:
+        with TemporaryFile(mode='w+') as out:
+            with open(os.devnull, 'w') as DEVNULL:
                 head_only = ' -r -1 ' if head_only else ''
                 Executable('bzr').check_call(('tags'+head_only).split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
                 out.seek(0)

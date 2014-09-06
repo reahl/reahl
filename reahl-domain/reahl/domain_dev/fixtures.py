@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,18 +16,17 @@
 
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import Fixture
 from reahl.stubble import stubclass, exempt
 from reahl.mailutil.mail import Mailer
 
 from reahl.sqlalchemysupport import Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
-from reahl.partymodel import Party
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
-from reahl.systemaccountmodel import SystemAccountConfig
-from reahl.systemaccountmodel import UserSession
+from reahl.domain.partymodel import Party
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import SystemAccountConfig
+from reahl.domain.systemaccountmodel import UserSession
 
 @stubclass(Mailer)
 class MailerStub(object):
@@ -77,16 +76,20 @@ class BasicModelZooMixin(SqlAlchemyTestMixin):
 class PartyModelZooMixin(BasicModelZooMixin):
     def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
         password = 'bobbejaan'
-        system_account = EmailAndPasswordSystemAccount(party=party, email=email)
+        system_account = EmailAndPasswordSystemAccount(owner=party or self.party, email=email)
         system_account.set_new_password(email, password)
         system_account.password = password # The unencrypted version for use in tests
         if activated:
             system_account.activate()
+        Session.add(system_account)
         Session.flush()
         return system_account
 
     def new_party(self):
-        return Party()
+        party = Party()
+        Session.add(party)
+        Session.flush()
+        return party
 
     def new_mailer(self):
         return MailerStub.from_context()

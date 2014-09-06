@@ -1,12 +1,10 @@
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
-import elixir
+from sqlalchemy import Column, Integer, UnicodeText, Boolean
 
-
-from reahl.sqlalchemysupport import Session, metadata
+from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
@@ -26,7 +24,7 @@ class AddressBookPanel(Panel):
 
         self.add_child(H(view, 1, text='Addresses'))
         
-        for address in Address.query.all():
+        for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address))
 
         self.add_child(AddAddressForm(view))
@@ -53,17 +51,17 @@ class AddressBox(Widget):
         self.add_child(P(view, text='%s: %s%s' % (address.name, address.email_address, new)))
 
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    elixir.using_mapper_options(save_on_init=False)
-    
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
-    added_today   = elixir.Field(elixir.Boolean, required=True, default=True)
+class Address(Base):
+    __tablename__ = 'jobs_address'
+
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
+    added_today   = Column(Boolean, nullable=False, default=True)
 
     @classmethod
     def clear_added_flags(cls):
-        for address in cls.query.filter_by(added_today=True):
+        for address in Session.query(cls).filter_by(added_today=True):
             address.added_today = False
 
     @exposed

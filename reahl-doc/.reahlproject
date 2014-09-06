@@ -10,7 +10,7 @@
     <egg name="reahl-web"/>
     <egg name="reahl-component"/>
     <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-elixirimpl"/>
+    <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
   </deps>
@@ -42,12 +42,14 @@
     <class locator="reahl.doc.examples.tutorial.access1.access1:AddressBook"/>
     <class locator="reahl.doc.examples.tutorial.access1.access1:Collaborator"/>
     <class locator="reahl.doc.examples.tutorial.access1.access1:Address"/>
+
     <class locator="reahl.doc.examples.tutorial.access2.access2:AddressBook"/>
     <class locator="reahl.doc.examples.tutorial.access2.access2:Collaborator"/>
     <class locator="reahl.doc.examples.tutorial.access2.access2:Address"/>
     <class locator="reahl.doc.examples.tutorial.access.access:AddressBook"/>
     <class locator="reahl.doc.examples.tutorial.access.access:Collaborator"/>
     <class locator="reahl.doc.examples.tutorial.access.access:Address"/>
+
     <class locator="reahl.doc.examples.tutorial.i18nexample.i18nexample:Address"/>
     <class locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:Address"/>
     <class locator="reahl.doc.examples.tutorial.migrationexample.migrationexample:Address"/>

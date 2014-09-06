@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -16,10 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import re
+import io
 import pkg_resources
 
 
@@ -132,7 +132,7 @@ class WidgetBasics(object):
                 self.saved_kwarg = kwarg
 
         def check_exc(ex):
-            vassert( six.text_type(ex).startswith("An attempt was made to create a WidgetFactory for <class 'reahl.web_dev.widgets.widgetbasics.WidgetWithArgs'> with arguments that do not match what is expected for <class 'reahl.web_dev.widgets.widgetbasics.WidgetWithArgs'>") )
+            vassert( six.text_type(ex).startswith("An attempt was made to create a WidgetFactory for %r with arguments that do not match what is expected for %r" % (WidgetWithArgs, WidgetWithArgs)) )
         with expected(IncorrectArgumentError, test=check_exc):
             factory = WidgetWithArgs.factory('a', 'b', 'c')
 
@@ -282,7 +282,7 @@ class WidgetBasics(object):
         attachments = reahl_egg.find_attachments(fixture.attachment_label)
 
         # Only the js/css of one widget is checked to check the mechanism...
-        with open(attachments[0].filename, 'r') as snippet_file:
+        with io.open(attachments[0].filename, 'r') as snippet_file:
             snippet = broken_but_comparable_minify(snippet_file.read())
 
         served_statics = broken_but_comparable_minify(browser.raw_html)

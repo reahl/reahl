@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from contextlib import contextmanager
 
 from reahl.tofu import set_up
@@ -61,32 +60,15 @@ class SqlAlchemyTestMixin(object):
         return [e for e in entities if issubclass(e, Base)]
         
     def create_test_tables(self, *entities):
-        try:
-            from elixir import setup_entities
-            self.instrument_elixir_classes(self.elixir_classes_in(entities))
-        except ImportError:
-            pass
-        self.system_control.orm_control.instrument_declarative_classes(self.declarative_classes_in(entities))
         metadata.create_all(bind=Session.connection())
-
-    def instrument_elixir_classes(self, entities):
-        from elixir import setup_entities
-        for entity in entities:
-            for cls in entity.mro():
-                if '_setup_done' in cls.__dict__:
-                    delattr(cls, '_setup_done') 
-        setup_entities(entities)
 
     def destroy_test_tables(self, *entities):
 #        Session.flush()
         Session.expunge_all()
-        for entity in self.elixir_classes_in(entities):
-            entity.table.metadata.remove(entity.table)
-        for entity in self.declarative_classes_in(entities):
-            entity.__table__.metadata.remove(entity.__table__)
-            for k, v in Base._decl_class_registry.items():
-                if v is entity:
-                    Base._decl_class_registry.pop(k)
+        for entity in entities:
+            if hasattr(entity, '__table__'):
+                entity.__table__.metadata.remove(entity.__table__)
+                del entity._decl_class_registry[entity.__name__]
 
     def new_reahlsystem(self, root_egg=None, connection_uri=None, orm_control=None):
         reahlsystem = ReahlSystemConfig()

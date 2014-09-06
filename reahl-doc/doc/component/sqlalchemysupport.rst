@@ -1,7 +1,7 @@
 .. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Module reahl.sqlalchemysupport
-------------------------------
+Module reahl.sqlalchemysupport.sqlalchemysupport
+------------------------------------------------
 
 .. automodule:: reahl.sqlalchemysupport
    :members: Session, Base, metadata

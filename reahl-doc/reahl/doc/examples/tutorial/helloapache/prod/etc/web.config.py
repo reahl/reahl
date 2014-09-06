@@ -1,6 +1,5 @@
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from helloapache import HelloUI
 
 # The UserInterface class acting as the root of the URL hierachy of your application:

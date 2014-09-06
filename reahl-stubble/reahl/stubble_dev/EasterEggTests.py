@@ -1,4 +1,4 @@
-# Copyright 2006, 2008, 2009, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from tempfile import NamedTemporaryFile
 import os
 import pkg_resources
@@ -70,7 +69,7 @@ class EasterEggTests(object):
 
     @istest
     def test_resource_api(self):
-        test_file = NamedTemporaryFile()
+        test_file = NamedTemporaryFile(mode='wb+')
         dirname, file_name = os.path.split(test_file.name)
 
         self.stub_egg.set_module_path(dirname)
@@ -78,9 +77,9 @@ class EasterEggTests(object):
         assert pkg_resources.resource_exists(self.stub_egg.as_requirement(), file_name)
         assert not pkg_resources.resource_exists(self.stub_egg.as_requirement(), 'IDoNotExist')
 
-        contents = 'asdd '
+        contents = b'asdd '
         test_file.write(contents)
-        test_file.seek(0)
+        test_file.flush()
 
         as_string = pkg_resources.resource_string(self.stub_egg.as_requirement(), file_name)
         assert as_string == contents

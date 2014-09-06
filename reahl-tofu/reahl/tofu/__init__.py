@@ -1,4 +1,4 @@
-# Copyright 2006, 2009, 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -29,8 +29,7 @@ Tofu also gobbled up another little test project, called `tut` which
 implemented a few utilities for testing exceptions, dealing with
 temporary files, etc. All this functionality is now also part of Tofu.
 """
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu.fixture import Fixture
 from .nosesupport import test

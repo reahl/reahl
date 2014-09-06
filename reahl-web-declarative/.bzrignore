@@ -1,0 +1,12 @@
+*egg-info
+*.spic
+*~
+
+build
+build-stamp
+configure-stamp
+tmp
+debian/python-reahl-web-declarative.*.debhelper
+debian/python-reahl-web-declarative.substvars
+debian/python-reahl-web-declarative
+debian/files

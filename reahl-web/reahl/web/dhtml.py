@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -18,20 +18,19 @@
 
 Static pages that are included on the fly inside Views.
 """
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import os.path
+import io
 from six.moves import html_parser
 import logging
 
-from BeautifulSoup import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup, SoupStrainer
 
 from reahl.component.modelinterface import Field
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
-from reahl.web.fw import WebExecutionContext, Bookmark, UrlBoundView, NoView, \
-                         FileOnDisk, UserInterface, FileView, NoMatchingFactoryFound, CannotCreate
+from reahl.web.fw import WebExecutionContext, UrlBoundView, FileOnDisk, UserInterface, FileView, CannotCreate
 from reahl.web.ui import LiteralHTML
 
 _ = Translator('reahl-web')
@@ -78,17 +77,17 @@ class DhtmlUI(UserInterface):
 
     def statics(self, relative_path):
         statics = {}
-        with open(self.filesystem_path(relative_path)) as dhtml_file:
+        with io.open(self.filesystem_path(relative_path)) as dhtml_file:
             def strain(name, attrs):
                 if name == 'title':
                     return True
                 if name == 'div' and dict(attrs).get('id', None) == self.static_div_name:
                     return True
                 return False
-            soup = BeautifulSoup(dhtml_file, parseOnlyThese=SoupStrainer(strain))
+            soup = BeautifulSoup(dhtml_file, parse_only=SoupStrainer(strain))
             parser = html_parser.HTMLParser()
-            statics['title'] = parser.unescape(soup.title.renderContents()) if soup.title else _('Untitled')
-            statics['div'] = soup.div.renderContents() if soup.div else ''
+            statics['title'] = parser.unescape(soup.title.decode_contents()) if soup.title else _('Untitled')
+            statics['div'] = soup.div.decode_contents() if soup.div else ''
         return statics
     
     def create_view(self, relative_path, user_interface, file_path=None):

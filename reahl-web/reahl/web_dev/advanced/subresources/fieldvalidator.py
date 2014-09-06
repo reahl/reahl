@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 from nose.tools import istest
 from reahl.tofu import scenario
@@ -92,7 +91,7 @@ class FieldValidatorTests(object):
         browser.open(six.text_type(fixture.url))
         response = browser.last_response
 
-        vassert( response.body == fixture.expected_body )
+        vassert( response.unicode_body == fixture.expected_body )
         vassert( response.status == fixture.expected_status )
         vassert( response.content_type == fixture.expected_content_type )
         vassert( response.charset == fixture.expected_charset )

@@ -1,0 +1,43 @@
+<project type="egg" packagedata="included">
+  <configuration locator="reahl.webdeclarative.webdeclarative:WebDeclarativeConfig"/>
+
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <deps purpose="run">
+    <egg name="reahl-interfaces" ignoreversion="True"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web" ignoreversion="True"/>
+    <egg name="reahl-component" ignoreversion="True"/>
+    <egg name="reahl-domain"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+  <persisted>
+    <class locator="reahl.webdeclarative.webdeclarative:WebUserSession"/>
+    <class locator="reahl.webdeclarative.webdeclarative:SessionData"/>
+    <class locator="reahl.webdeclarative.webdeclarative:UserInput"/>
+    <class locator="reahl.webdeclarative.webdeclarative:PersistedException"/>
+    <class locator="reahl.webdeclarative.webdeclarative:PersistedFile"/>
+  </persisted>
+
+  <migrations>
+    <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
+    <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeWebDeclarativeChanges"/>
+  </migrations>
+
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/webdeclarative_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  
+  <distpackage type="sdist">
+    <packageindex repository="pypi"/>
+  </distpackage>
+  
+</project>

@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from nose.tools import istest
 from reahl.tofu import  Fixture, test, scenario
 from reahl.tofu import expected, NoException, vassert
@@ -54,7 +53,7 @@ class AccessControlTests(object):
 
         model_object = ModelObject()
         
-        # Case: access not allowed
+        # Case: access not allowed, called via bound method
         model_object.did_something = False
         with expected(AccessRestricted):
             model_object.do_something_write_only()
@@ -65,10 +64,30 @@ class AccessControlTests(object):
             model_object.do_something_read_only()
         vassert( not model_object.did_something )
 
-        # Case: access allowed
+        # Case: access not allowed, called via unbound method
+        model_object.did_something = False
+        method = ModelObject.do_something_write_only
+        with expected(AccessRestricted):
+            method(model_object)
+        vassert( not model_object.did_something )
+
+        model_object.did_something = False
+        method = ModelObject.do_something_read_only
+        with expected(AccessRestricted):
+            method(model_object)
+        vassert( not model_object.did_something )
+
+        # Case: access allowed, called via bound method
         model_object.did_something = False
         with expected(NoException):
             model_object.do_something_read_and_write()
+        vassert( model_object.did_something )
+
+        # Case: access allowed, called via unbound method
+        model_object.did_something = False
+        method = ModelObject.do_something_read_and_write
+        with expected(NoException):
+            method(model_object)
         vassert( model_object.did_something )
 
 

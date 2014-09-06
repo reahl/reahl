@@ -1,4 +1,4 @@
-# Copyright 2005, 2006, 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,17 +14,16 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
-import six
+from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import os.path
-import pkg_resources
 import inspect
-import new
-
 import collections
 from functools import reduce
+
+import six
+import pkg_resources
+
 
 class StubClass(object):
     def __init__(self, orig, check_attributes_also=False):
@@ -125,7 +124,7 @@ class FileSystemResourceProvider(pkg_resources.NullProvider):
         return os.path.join(base, *resource_name.split('/'))
 
     def _get(self, path):
-        return file(path).read()
+        return open(path, 'rb').read()
 
 
 #------------------------------------------------[ Delegate ]
@@ -209,7 +208,10 @@ class Exempt(StubbleDescriptor):
         if inspect.ismethoddescriptor(self.value) or inspect.isdatadescriptor(self.value):
             return self.value.__get__(instance, owner)
         if inspect.isfunction(self.value):
-            return new.instancemethod(self.value, instance, owner)
+            if instance is None:
+                return self
+            else:
+                return six.create_bound_method(self.value, instance)
         else:
             return self.value            
 

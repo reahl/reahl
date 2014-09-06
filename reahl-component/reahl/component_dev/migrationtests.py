@@ -1,4 +1,4 @@
-# Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,11 +15,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import six
 from contextlib import contextmanager
+import warnings
+import re
 
 from reahl.tofu import Fixture, test, vassert, expected, NoException
 from reahl.stubble import CallMonitor, EmptyStub
@@ -30,13 +31,14 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.migration import Migration, MigrationSchedule, MigrationRun
 from reahl.component.exceptions import ProgrammerError
 
-# Migrations schedule changes to be run in several phases on a single object of some kind
-# the relevant migrations are computed to be run, then allowed to schedule their changes
-# phases are run, in order, tasks in a phase are run in the order they were scheduled
+class stubclass(object):
+    def __init__(self, cls):
+        pass
+    def __call__(self, cls):
+        warnings.warn('This needs to become stubble.stubclass, but stubble does not deal with this scenario - it needs to be fixed')
+        return cls
 
-# All the migrations are scheduled, then run for all the migrations to bring things up to each intermediate version.
-
-
+@stubclass(ReahlEgg)
 class ReahlEggStub(ReahlEgg):
     def __init__(self, name, version, migrations):
         super(ReahlEggStub, self).__init__(None)
@@ -56,23 +58,29 @@ class ReahlEggStub(ReahlEgg):
         return self.migrations
 
 
+@stubclass(ORMControl)
 class ORMControlStub(ORMControl):
     created_schema_for = None
+
     def __init__(self):
         self.versions = {}
+
     @contextmanager
     def managed_transaction(self):
         yield
+
     def update_schema_version_for(self, egg):
         self.versions[egg.name] = egg.version
-    def schema_version_for(self, egg):
+
+    def schema_version_for(self, egg, default=None):
         return self.versions[egg.name]
+
     def initialise_schema_version_for(self, egg):
         self.versions[egg.name] = egg.version
+
     def set_currently_installed_version_for(self, egg, version_number):
         self.versions[egg.name] = version_number
-    def create_db_tables(self, transaction, new_eggs):
-        self.created_schema_for = new_eggs
+
 
 
 class MigrateFixture(Fixture):
@@ -217,10 +225,26 @@ def version_of_migration_not_set_error(fixture):
     fixture.orm_control.set_currently_installed_version_for(egg, '0.0')
 
     def check_exception(ex):
-        vassert( six.text_type(ex) == 'Migration <class \'reahl.component_dev.migrationtests.TestMigration\'> does not have a version set' )
+        vassert( re.match('Migration <class \'reahl\.component_dev\.migrationtests\..*TestMigration\'> does not have a version set', six.text_type(ex) ))
 
     with expected(ProgrammerError, test=check_exception):
         fixture.orm_control.migrate_db([egg])
+
+
+@test(MigrateFixture)
+def missing_schedule_upgrades_warns(fixture):
+    """If a programmer does not override schedule_upgrades, a warning is raised."""
+    class TestMigration(Migration):
+        pass
+
+    with warnings.catch_warnings(record=True) as raised_warnings:
+         warnings.simplefilter("always")
+  
+         TestMigration(EmptyStub()).schedule_upgrades()
+ 
+    [warning] = raised_warnings
+    expected_message = 'Ignoring TestMigration.schedule_upgrades(): it does not override schedule_upgrades() (method name typo perhaps?)'
+    vassert( six.text_type(warning.message) == expected_message  )
 
 
 @test(MigrateFixture)

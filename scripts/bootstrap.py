@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,18 +14,19 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 try:
     from six.moves import input
 except:
-    input = raw_input
+    if 'raw_input' in dir():
+        input = raw_input
 import sys
 import pkg_resources
 import os
 import shutil
 import glob
 import re
+import io
 
 def ask(prompt):
     answer = None
@@ -64,9 +65,9 @@ def clean_egg_info_dirs():
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
-    with open(requires_file, 'r') as input_file:
+    with io.open(requires_file, 'r') as input_file:
         lines = input_file.readlines()
-    with open(requires_file, 'w') as output_file:
+    with io.open(requires_file, 'w') as output_file:
         for line in lines:
             version_stripped_line = re.match('([\w-]+)', line).group(0)
             output_file.write(version_stripped_line)
@@ -81,7 +82,7 @@ def fake_distributions_into_existence(project_dirs):
 
 def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
     non_reahl_requirements = hard_coded_core_dependencies[:]
-    for line in open(requires_file, 'r'):
+    for line in io.open(requires_file, 'r'):
         if not line.startswith('reahl-'):
             non_reahl_requirements.append(line)
     missing = []
@@ -187,7 +188,7 @@ clean_egg_info_dirs()
 
 remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
-missing = find_missing_prerequisites(reahl_dev_requires_file, ['decorator', 'six'])
+missing = find_missing_prerequisites(reahl_dev_requires_file, ['six','decorator'])
 if missing:
     install_prerequisites(missing)
 

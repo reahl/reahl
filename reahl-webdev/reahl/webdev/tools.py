@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -15,12 +15,15 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 import six
+import io
+import time
 import contextlib
 from six.moves.urllib import parse as urllib_parse
 import logging
+from six.moves.http_cookiejar import Cookie
 
 from webtest import TestApp
 from lxml import html
@@ -28,11 +31,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
+from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.web.fw import Url
 
 
 # See: https://bitbucket.org/ianb/webtest/issue/45/html5-form-associated-inputs-break-webtest
-from webtest.app import Field, Form
+from webtest.forms import Field, Form
 def patch(cls):
     if hasattr(cls, '__orig__init__'):
         return
@@ -52,21 +56,21 @@ def patch_Field():
 
 class BasicBrowser(object):
     def save_source(self, filename):
-        with open(filename, 'w') as output:
-            for line in html.tostring(self.lxml_html, pretty_print=True).split('\n'): 
+        with io.open(filename, 'w') as output:
+            for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
                 output.write(line+'\n')
 
     def view_source(self):
-        for line in html.tostring(self.lxml_html, pretty_print=True).split('\n'): 
+        for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
             print(line)
             
     def save_source(self, filename):
-        with open(filename, 'w') as html_file:
+        with io.open(filename, 'w') as html_file:
             html_file.write(self.raw_html)
             
     def get_html_for(self, locator):
         xpath = six.text_type(locator)
-        return html.tostring(self.lxml_html.xpath(xpath)[0])
+        return html.tostring(self.lxml_html.xpath(xpath)[0], encoding='unicode')
         
     def is_element_present(self, locator):
         xpath = six.text_type(locator)
@@ -154,9 +158,9 @@ class Browser(BasicBrowser):
         """
         counter = 0
         while self.status >= 300 and self.status < 400:
-             self.last_response = self.last_response.follow()
-             counter += 1
-             assert counter <= 10, 'HTTP Redirect loop detected.'
+            self.last_response = self.last_response.follow()
+            counter += 1
+            assert counter <= 10, 'HTTP Redirect loop detected.'
 
     def post(self, url_string, form_values, **kwargs):
         """POSTs the given form values to the url given.
@@ -167,7 +171,7 @@ class Browser(BasicBrowser):
            Other keyword arguments are passed directly on to 
            `WebTest.post <http://webtest.readthedocs.org/en/latest/api.html#webtest.app.TestApp.post>`_.
         """
-        self.last_response = self.testapp.post((url_string.encode('utf-8')), form_values, **kwargs)
+        self.last_response = self.testapp.post((ascii_as_bytes_or_str(url_string)), form_values, **kwargs)
 
     def relative(self, url_string):
         url_bits = urllib_parse.urlparse(url_string)
@@ -231,7 +235,7 @@ class Browser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         element = self.xpath(xpath)[0]
-        return html.tostring(element, encoding='utf-8').decode('utf-8')
+        return html.tostring(element, encoding='unicode')
 
     def get_inner_html_for(self, locator):
         """Returns the HTML of the children of the element targeted by the given `locator` (excluding the 
@@ -241,8 +245,7 @@ class Browser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         element = self.xpath(xpath)[0]
-        return ''.join(html.tostring(child, encoding='utf-8').decode('utf-8')
-                         for child in element.getchildren())
+        return ''.join(html.tostring(child, encoding='unicode') for child in element.getchildren())
 
     def type(self, locator, text):
         """Types the text in `text` into the input found by the `locator`.
@@ -271,7 +274,7 @@ class Browser(BasicBrowser):
         if button.tag == 'input' and button.attrib['type'] == 'submit':
             button_name = self.xpath(xpath)[0].name
             form = self.get_form_for(xpath)
-            form.action = (self.relative(form.action).encode('utf-8'))
+            form.action = ascii_as_bytes_or_str(self.relative(form.action))
             self.last_response = form.submit(button_name, **kwargs)
             self.follow_response()
         elif button.tag == 'a':
@@ -337,10 +340,20 @@ class Browser(BasicBrowser):
 
            :param cookie_dict: A dictionary with two keys: 'name' and 'value'. The values of these\
                                keys are the name of the cookie and its value, respectively.
+                               The keys  'path', 'domain', 'secure', 'expiry' can also be set to values.\
+                               These have the respective meanings as defined in `RFC6265 <http://tools.ietf.org/html/rfc6265#section-5.2>`
         """
-        name = cookie_dict['name'].encode('utf-8')
-        value = cookie_dict['value'].encode('utf-8')
-        self.testapp.cookies[name] = value #'%s;%s' % (value, options)
+        name = ascii_as_bytes_or_str(cookie_dict['name'])
+        value = ascii_as_bytes_or_str(cookie_dict['value'])
+        path = ascii_as_bytes_or_str(cookie_dict.get('path', ''))
+        path_set = path != ''
+        domain = ascii_as_bytes_or_str(cookie_dict.get('domain', ''))
+        domain_set = domain != ''
+        secure = cookie_dict.get('secure', False)
+        expires = cookie_dict.get('expiry', None)
+        cookie = Cookie(0, name, value, None, False, domain, domain_set, None, path, path_set,
+                        secure, expires, None, None, None, None)
+        self.testapp.cookiejar.set_cookie(cookie)
 
     def is_element_enabled(self, locator):
         """Answers whether the located element is reactive to user commands or not. For <a> elements,

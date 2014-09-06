@@ -12,7 +12,7 @@
     <egg name="reahl-web"/>
     <egg name="reahl-component"/>
     <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web-elixirimpl"/>
+    <egg name="reahl-web-declarative"/>
   </deps>
 
   <deps purpose="test">

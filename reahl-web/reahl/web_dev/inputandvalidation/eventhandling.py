@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import json
 
@@ -26,6 +25,7 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario, NoException, vassert, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
+from reahl.sqlalchemysupport import Session
 from reahl.web.ui import Button
 from reahl.web.ui import Panel
 from reahl.web.ui import Form
@@ -40,7 +40,7 @@ from reahl.web.fw import ValidationException
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, BooleanField, EmailField, DateField, \
                                     exposed, Field, Event, Action
-from reahl.webelixirimpl import PersistedException, UserInput
+from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import WidgetTester, XPath, Browser
@@ -497,7 +497,7 @@ def nested_forms(fixture):
     wsgi_app = fixture.new_wsgi_app(child_factory=OuterForm.factory('outer_form'))
     fixture.reahl_server.set_app(wsgi_app)
     browser = fixture.driver_browser
-    
+
     browser.open('/')
     browser.type(XPath.input_labelled('input nested'), 'some nested input')
     
@@ -566,8 +566,8 @@ def form_input_validation(fixture):
     label = browser.get_html_for('//label')
     vassert( label == '<label for="field_name" class="error">field_name should be a valid email address</label>' )
 
-    vassert( UserInput.query.filter_by(key='field_name').count() == 1 ) # The invalid input was persisted
-    exception = PersistedException.query.one().exception
+    vassert( Session.query(UserInput).filter_by(key='field_name').count() == 1 ) # The invalid input was persisted
+    exception = Session.query(PersistedException).one().exception
     vassert( isinstance(exception, ValidationException) ) # Is was persisted
     vassert( not exception.commit )
 
@@ -579,8 +579,8 @@ def form_input_validation(fixture):
     browser.click("//input[@value='click me']")
     vassert( model_object.field_name == 'valid@home.org' )
 
-    vassert( UserInput.query.filter_by(key='field_name').count() == 0 ) # The invalid input was removed
-    vassert( PersistedException.query.count() == 0 ) # The exception was removed
+    vassert( Session.query(UserInput).filter_by(key='field_name').count() == 0 ) # The invalid input was removed
+    vassert( Session.query(PersistedException).count() == 0 ) # The exception was removed
 
     vassert( browser.location_path == '/page2' )
 

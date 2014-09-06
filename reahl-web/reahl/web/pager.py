@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -19,8 +19,7 @@
 Tools for breaking long lists into shorter lists that can be paged.
 """
 
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
 
@@ -145,7 +144,7 @@ class PageIndex(PageIndexProtocol):
     @memoized
     def pages_in_range(self):
         return [self.get_page_number(page_number) 
-                for page_number in range(self.start_page_number, self.end_page.number+1)]
+                for page_number in list(range(self.start_page_number, self.end_page.number+1))]
 
     @property
     @memoized

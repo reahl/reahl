@@ -1,4 +1,4 @@
-.. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Getting input from a user
 =========================
@@ -68,8 +68,8 @@ an Address are exposed to the user.
 To augment our Address class with :class:`~reahl.component.modelinterface.Field`\ s, create a special method `fields()` on the class, and annotate it with the `@exposed` decorator. Such a method should take one argument: `fields` on which you can set each :class:`~reahl.component.modelinterface.Field` needed. Take care though -- each :class:`~reahl.component.modelinterface.Field` you create will eventually manipulate an attribute of the same name on instances of your class:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
-   :prepend: class Address(elixir.Entity):
-   :start-after: class Address(elixir.Entity):
+   :prepend: class Address(Base):
+   :start-after: class Address(Base):
    :end-before: def save(self):
 
 The `@exposed` decorator turns your `fields()` method into a property

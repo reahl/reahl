@@ -1,4 +1,4 @@
-# Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,10 +16,10 @@
 
 """Support for database schema migration."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from pkg_resources import parse_version
 import logging
+import warnings
 
 from reahl.component.exceptions import ProgrammerError
 
@@ -33,22 +33,29 @@ class MigrationRun(object):
 
     def migrations_to_run_for(self, egg):
         return [migration(self.changes) 
-                for migration in egg.compute_migrations(self.orm_control.schema_version_for(egg))]
+                for migration in egg.compute_migrations(self.orm_control.schema_version_for(egg, default='0.0'))]
 
     def schedule_migrations(self):
         migrations_per_egg = [(egg, self.migrations_to_run_for(egg))
                               for egg in self.eggs_in_order]
+
         self.schedule_migration_changes(reversed(migrations_per_egg), 'upgrade')
         self.schedule_migration_changes(migrations_per_egg, 'upgrade_cleanup')
         self.schedule_migration_changes(migrations_per_egg, 'schedule_upgrades')
 
     def schedule_migration_changes(self, migrations_per_egg, method_name):
         for egg, migration_list in migrations_per_egg:
-            current_schema_version = self.orm_control.schema_version_for(egg)
-            logging.getLogger(__name__).info('Scheduling migration changes %s - "%s" going from version %s to %s' % \
-                                             (egg.name, method_name, current_schema_version, egg.version))
+            current_schema_version = self.orm_control.schema_version_for(egg, default='0.0')
+            message = 'Scheduling %s %s migrations for %s - from version %s to %s' % \
+                          (len(migration_list), method_name, egg.name, 
+                           current_schema_version, egg.version)
+            logging.getLogger(__name__).info(message)
             for migration in migration_list:
-                getattr(migration, method_name)()
+                if (method_name in ['upgrade', 'upgrade_cleanup']) and hasattr(migration, method_name):
+                    message = 'Please override Migration.schedule_upgrades() instead.'
+                    warnings.warn('DEPRECATED: %s.%s. %s' % (migration.__class__.__name__, method_name, message), DeprecationWarning, stacklevel=-1)
+                if hasattr(migration, method_name):
+                    getattr(migration, method_name)()
 
     def execute_migrations(self):
         self.changes.execute_all()
@@ -56,8 +63,9 @@ class MigrationRun(object):
         
     def update_schema_versions(self):
         for egg in self.eggs_in_order:
-            logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
-            self.orm_control.update_schema_version_for(egg)
+            if self.orm_control.schema_version_for(egg, default='0.0') != egg.version:
+                logging.getLogger(__name__).info('Migrating %s - updating schema version to %s' % (egg.name, egg.version))
+                self.orm_control.update_schema_version_for(egg)
 
 
 class MigrationSchedule(object):
@@ -72,9 +80,9 @@ class MigrationSchedule(object):
             raise ProgrammerError('A phase with name<%s> does not exist.' % phase)
 
     def execute(self, phase):
-        logging.getLogger(__file__).info('Executing schema change phase %s' % phase)
+        logging.getLogger(__name__).info('Executing schema change phase %s' % phase)
         for to_call, args, kwargs in self.phases[phase]:
-            logging.getLogger(__file__).info('--> change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
+            logging.getLogger(__name__).debug(' change: %s(%s, %s)' % (to_call.__name__, args, kwargs))
             to_call(*args, **kwargs)
 
     def execute_all(self):
@@ -118,7 +126,7 @@ class Migration(object):
            :param kwargs: The keyword arguments to be passed in the call.
         """
         self.changes.schedule(phase, to_call, *args, **kwargs)
-        
+
     def schedule_upgrades(self):
         """Override this method in a subclass in order to supply custom logic for changing the database schema. This
            method will be called for each of the applicable Migrations listed for all components, in order of 
@@ -126,20 +134,7 @@ class Migration(object):
 
            **Added in 2.1.2**: Supply custom upgrade logic by calling `self.schedule()`.
         """
-
-    def upgrade(self):
-        """**Changed in 2.1.2**: This method should not be used anymore. Since 2.1.2, a more involved scheme
-           is implemented for dealing with ordering issues. Individual migration calls can now be sheduled
-           for execution in phases. Rather use :meth:`reahl.component.migration.Migration.schedule_upgrades`.
-           (See :meth:`reahl.component.migration.Migration.schedule`).
-        """
-
-    def upgrade_cleanup(self):
-        """**Changed in 2.1.2**: This method should not be used anymore. Since 2.1.2, a more involved scheme
-           is implemented for dealing with ordering issues. Individual migration calls can now be sheduled
-           for execution in phases. Rather use :meth:`reahl.component.migration.Migration.schedule_upgrades`.
-           (See :meth:`reahl.component.migration.Migration.schedule`).
-        """
-
+        warnings.warn('Ignoring %s.schedule_upgrades(): it does not override schedule_upgrades() (method name typo perhaps?)' % self.__class__.__name__ , 
+                      UserWarning, stacklevel=-1)
 
 

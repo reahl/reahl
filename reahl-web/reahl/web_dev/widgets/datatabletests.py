@@ -15,8 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import test
 from reahl.tofu import vassert
@@ -86,7 +85,7 @@ class DataTableFixture(TableFixture):
 
     def get_table_header(self):
         header_data = []
-        for column_number in range(1, len(self.columns)+1):
+        for column_number in list(range(1, len(self.columns)+1)):
             header_data.append(self.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]' % (column_number)).text)
         return header_data
 

@@ -1,4 +1,4 @@
-# Copyright 2010, 2011, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,9 +16,10 @@
 
 """Support for the PostgreSQL database backend."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
+
 import six
+import io
 import subprocess
 import gzip
 from datetime import date
@@ -37,7 +38,7 @@ class PostgresqlControl(DatabaseControl):
 
     @property
     def login_args(self):
-	if self.host == 'localhost' and self.port == 5432:
+        if self.host == 'localhost' and self.port == 5432:
             return []
         return ['-h', self.host, '-p', six.text_type(self.port)]
 
@@ -67,7 +68,7 @@ class PostgresqlControl(DatabaseControl):
         today = date.today()
         filename = '%s.psql.%s' % (self.database_name, today.strftime('%A'))
         full_path = os.path.join(directory, filename)
-        with open(full_path, 'w') as destination_file:
+        with io.open(full_path, 'w') as destination_file:
             cmd_args = ['-Fc', '-o'] + self.login_args + [self.database_name]
             Executable('pg_dump').check_call(cmd_args, stdout=destination_file)
         return 0

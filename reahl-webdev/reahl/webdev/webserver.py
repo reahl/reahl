@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,8 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 from threading import Event
 from threading import Thread
@@ -36,6 +35,7 @@ from webob.exc import HTTPInternalServerError
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
 from reahl.component.config import StoredConfiguration
+from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.web.fw import ReahlWSGIApplication
 
 class WrappedApp(object):
@@ -59,13 +59,16 @@ class WrappedApp(object):
                 to_return += i 
         except socket.error:
             to_return = b''
-            for i in HTTPInternalServerError(charset='utf-8')(environ, start_response):
+            for i in HTTPInternalServerError(charset=ascii_as_bytes_or_str('utf-8'))(environ, start_response):
                 to_return += i
         except:
             to_return = b''
             (_, self.exception, self.traceback) = sys.exc_info()
-            traceback_html = six.text_type(traceback.format_exc(self.traceback))
-            for i in HTTPInternalServerError(content_type=b'text/plain', charset=b'utf-8', unicode_body=traceback_html)(environ, start_response):
+            try:
+                traceback_html = six.text_type(traceback.format_exc(self.traceback))
+            except Exception as ex:
+                traceback_html = 'Exception happened while trying to render traceback: %s' % ex
+            for i in HTTPInternalServerError(content_type=ascii_as_bytes_or_str('text/plain'), charset=ascii_as_bytes_or_str('utf-8'), unicode_body=traceback_html)(environ, start_response):
                 to_return += i
         yield to_return
 
@@ -114,7 +117,10 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
         #   but there really is nothing to read on the socket, and our server will block here.
         # All this timeout stuff justs safeguards against that eventuality - which is a hard thing
         #   to debug if it happens.
-        self.rfile._sock.settimeout(3)  
+        if six.PY2:
+            self.rfile._sock.settimeout(3)  
+        else:
+            self.connection.settimeout(3)
 
     def handle(self):
         try:
@@ -124,10 +130,7 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
             logging.getLogger(__name__).warn(message)
 
     def finish_response(self):
-        try:
-            simple_server.WSGIRequestHandler.finish_response()
-        except socket.error as ex:
-            import pdb; pdb.set_trace()
+        simple_server.WSGIRequestHandler.finish_response()
 
 
 class SSLWSGIRequestHandler(LoggingRequestHandler):
@@ -177,22 +180,26 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
         self.socket = ssl.wrap_socket(self.socket, certfile=self.certfile)
         
     def get_request(self):
-        #This method is shamelessly copied from WerkZeug (and changed)
-        class _SSLConnectionFix(object):
-            #This class is shamelessly copied from WerkZeug
-            """Wrapper around SSL connection to provide a working makefile()."""
+        if six.PY2:
+            #This method is shamelessly copied from WerkZeug (and changed)
+            class _SSLConnectionFix(object):
+                #This class is shamelessly copied from WerkZeug
+                """Wrapper around SSL connection to provide a working makefile()."""
 
-            def __init__(self, con):
-                self._con = con
+                def __init__(self, con):
+                    self._con = con
 
-            def makefile(self, mode, bufsize):
-                return socket._fileobject(self._con, mode, bufsize)
+                def makefile(self, mode, bufsize):
+                    return socket._fileobject(self._con, mode, bufsize)
 
-            def __getattr__(self, attrib):
-                return getattr(self._con, attrib)
+                def __getattr__(self, attrib):
+                    return getattr(self._con, attrib)
 
-        con, info = self.socket.accept()
-        con = _SSLConnectionFix(con)
+            con, info = self.socket.accept()
+            con = _SSLConnectionFix(con)
+        else:
+            con, info = self.socket.accept()
+        
         return con, info
 
     def finish_request(self, request, client_address):
@@ -217,6 +224,7 @@ class Handler(object):
     def install(self, reahl_server):
         self.reahl_server = reahl_server
         def wrapped_execute(command, params):
+            exceptions=[]
             results = []
             started = Event()
             def doit():
@@ -225,6 +233,7 @@ class Handler(object):
                     r = self.original_execute(command, params)
                     results.append(r)
                 except Exception as e:
+                    exceptions.append(e)
                     raise
                 finally:
                     results.append(None)
@@ -233,6 +242,8 @@ class Handler(object):
             started.wait()
 
             self.reahl_server.serve_until(lambda: not command_thread.is_alive())
+            if exceptions:
+                raise Exception(exceptions[0])
             command_thread.join(5)
             return results[0]
         self.command_executor.execute = wrapped_execute
@@ -319,22 +330,9 @@ class ReahlWebServer(object):
         if self.running:
             self.stop_thread()
         self.reahl_wsgi_app.stop()
-        self.shutdown_socket(self.httpd.socket)
-        self.shutdown_socket(self.httpsd.socket)
+        self.httpd.server_close()
+        self.httpsd.server_close()
     
-    def shutdown_socket(self, socket_to_shutdown):
-        """ On windows, the shutdown of a socket does not work as we expect.
-            http://stackoverflow.com/questions/409783/socket-shutdown-vs-socket-close
-            This method tries the shutdown, and if it cannot, tries to close it.
-        """
-        try:
-            socket_to_shutdown.shutdown(socket.SHUT_RDWR)
-        except socket.error as e:
-            if e.errno == 10057:
-                socket_to_shutdown.close();
-            else:
-                raise
-            
     def requests_waiting(self, timeout):
         return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
 

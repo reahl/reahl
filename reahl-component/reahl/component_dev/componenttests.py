@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from nose.tools import istest
 from reahl.tofu import  test, Fixture
@@ -38,7 +37,7 @@ class ComponentTests(object):
         # All eggs for a root egg can be found in dependency order
         components_in_order = ReahlEgg.compute_ordered_dependent_distributions(easter_egg.as_requirement_string())
         component_names_in_order = [i.project_name for i in components_in_order]
-        vassert( component_names_in_order == [easter_egg.project_name, 'reahl-component', 'decorator', 'python-dateutil', 'Babel', 'six'] )
+        vassert( component_names_in_order == [easter_egg.project_name, 'reahl-component', 'decorator', 'python-dateutil', 'six', 'Babel', 'pytz'] )
 
     @test(Fixture)
     def interface_with_meta_info(self, fixture):

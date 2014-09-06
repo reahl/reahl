@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,10 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-from six.moves import cStringIO
 import datetime
 import os.path
 
@@ -121,13 +119,11 @@ class StaticFileTests(object):
         class MainUI(UserInterface):
             def assemble(self):
                 content_type = 'text/html'
-                encoding = 'utf-8'
+                encoding = None # This is not character-encoding... it's content-encoding (zip, etc)
                 size = 10
                 mtime = 123
-                meta_info = content_type, encoding, size, mtime
-                data_blob = cStringIO('x'*size)
 
-                list_of_files = [FileFromBlob('database_file', data_blob, *meta_info)]
+                list_of_files = [FileFromBlob('database_file', 'x'*size, content_type, encoding, size, mtime)]
                 self.define_static_files('/files', list_of_files)
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -140,7 +136,7 @@ class StaticFileTests(object):
 
         # The meta-info of the file
         vassert( response.content_type == 'text/html' )
-        vassert( response.content_encoding == 'utf-8' )
+        vassert( not response.content_encoding )
         vassert( response.content_length == 10 )
         vassert( response.last_modified.replace(tzinfo=None) == datetime.datetime.fromtimestamp(123) )
         expected_etag = '123-10-%s' % abs(hash('database_file'))
@@ -228,8 +224,8 @@ class StaticFileTests(object):
         """FileDownloadStub (the GET response for a StaticFileResource) works correctly in
           different scenarios of partial GETting too."""
         
-        file_content = 'some content'
-        server_file = temp_file_with(file_content, 'afile.css')
+        file_content = b'some content'
+        server_file = temp_file_with(file_content, 'afile.css', mode='w+b')
         @stubclass(FileDownload)
         class FileDownloadStub(FileDownload):
             chunk_size = 1
@@ -237,7 +233,7 @@ class StaticFileTests(object):
         
         # Case: The whole content is sent, in chunk_size bits
         read = [i for i in response.app_iter]
-        expected = [i for i in file_content]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content)]
         vassert( read == expected )
 
         # Case: Headers are set correctly
@@ -259,44 +255,44 @@ class StaticFileTests(object):
         # Case: partial response is supported - different cases:
         #      - normal case
         actual = [i for i in response.app_iter.app_iter_range(3,7)]
-        expected = [i for i in file_content[3:8]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:8])]
         vassert( actual == expected )
 
         #      - no end specified
         actual = [i for i in response.app_iter.app_iter_range(3)]
-        expected = [i for i in file_content[3:]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
         vassert( actual == expected )
 
         #      - no start specified
         actual = [i for i in response.app_iter.app_iter_range(end=7)]
-        expected = [i for i in file_content[:8]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
         vassert( actual == expected )
 
         #      - where the last chunk read would stretch past end
         response.chunk_size = 2
-        actual = ''.join([i for i in response.app_iter.app_iter_range(end=6)])
+        actual = b''.join([i for i in response.app_iter.app_iter_range(end=6)])
         expected = file_content[:7]
         vassert( actual == expected )
 
         #      - where start > end
         response.chunk_size = 1
         actual = [i for i in response.app_iter.app_iter_range(start=7, end=3)]
-        expected = ['']
+        expected = [b'']
         vassert( actual == expected )
 
         #      - where start < 0
         actual = [i for i in response.app_iter.app_iter_range(start=-10, end=7)]
-        expected = [i for i in file_content[:8]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
         vassert( actual == expected )
 
         #      - where end > length of file
         actual = [i for i in response.app_iter.app_iter_range(start=3, end=2000)]
-        expected = [i for i in file_content[3:]]
+        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
         vassert( actual == expected )
 
         #      - where start > length of file        
         actual = [i for i in response.app_iter.app_iter_range(start=700)]
-        expected = ['']
+        expected = [b'']
         vassert( actual == expected )
 
     @test(WebFixture)

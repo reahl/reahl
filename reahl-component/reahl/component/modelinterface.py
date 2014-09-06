@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,8 +16,9 @@
 
 """Facilities to govern user input and output, as well as what access the current user has to model objects."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
+
+import io
 import six
 import copy
 import re
@@ -30,6 +31,7 @@ import types
 import inspect
 from contextlib import contextmanager
 import functools
+from collections import OrderedDict
 
 import dateutil.parser 
 import babel.dates 
@@ -405,9 +407,9 @@ class ValidationConstraintList(list):
         return message.replace('\'', '\\\'')
         
     def as_json_messages(self, map_name_function, ignore_names):
-        messages_dict = dict([(map_name_function(validation_constraint.name), self.js_escape(validation_constraint.message))
-                              for validation_constraint in self
-                              if (not validation_constraint.name in ignore_names) ])
+        messages_dict = OrderedDict([(map_name_function(validation_constraint.name), self.js_escape(validation_constraint.message))
+                                     for validation_constraint in self
+                                     if (not validation_constraint.name in ignore_names) ])
         if messages_dict:
             return json.dumps({'validate':{'messages':messages_dict}})
         return ''
@@ -1051,7 +1053,8 @@ class Event(Field):
     
     
 class SecuredMethod(object):
-    def __init__(self, to_be_called, secured_declaration):
+    def __init__(self, instance, to_be_called, secured_declaration):
+        self.instance = instance
         self.to_be_called = to_be_called
         self.secured_declaration = secured_declaration
 
@@ -1060,21 +1063,19 @@ class SecuredMethod(object):
             raise AccessRestricted()
         return self.to_be_called(*args, **kwargs)
 
-    def check_right(self, right_to_check, called_self, *args, **kwargs):
-        args_to_send = args
-        if called_self:
-            args_to_send = [called_self]+list(args)
+    def check_right(self, right_to_check, *args, **kwargs):
         if right_to_check:
+            args_to_send = (args if self.instance is None
+                            else (self.instance,)+args)
             return right_to_check(*args_to_send, **kwargs)
         else:
             return True
 
     def read_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.read_check, six.get_method_self(self.to_be_called), *args, **kwargs)
+        return self.check_right(self.secured_declaration.read_check, *args, **kwargs)
     
     def write_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.write_check, six.get_method_self(self.to_be_called), *args, **kwargs)
-
+        return self.check_right(self.secured_declaration.write_check, *args, **kwargs)
 
 
 class SecuredDeclaration(object):
@@ -1130,8 +1131,9 @@ class SecuredDeclaration(object):
         return arg_spec.args[:positional_args_end]
 
     def __get__(self, instance, owner):
-        method = types.MethodType(self.func, instance, owner)
-        return SecuredMethod(method, self)
+        method = (self.func if instance is None
+                  else six.create_bound_method(self.func, instance))
+        return SecuredMethod(instance, method, self)
 
 
 secured = SecuredDeclaration #: An alias for :class:`SecuredDeclaration`
@@ -1142,7 +1144,7 @@ class CurrentUser(Field):
     def __init__(self):
         account = ExecutionContext.get_context().session.account
         if account:
-            party = account.party
+            party = account.owner
         else:
             party = None
         super(CurrentUser, self).__init__(required=True, default=party)
@@ -1293,7 +1295,7 @@ class DateField(Field):
     def parse_input(self, unparsed_input):
         try:
             return dateutil.parser.parse(unparsed_input, dayfirst=True, parserinfo=self.parser_info).date()
-        except ValueError:
+        except (ValueError, TypeError):  # For TypeError, see https://bugs.launchpad.net/dateutil/+bug/1247643
             raise InputParseException()
 
     def unparse_input(self, parsed_value):
@@ -1462,20 +1464,33 @@ class SingleFileConstraint(ValidationConstraint):
 
 
 class UploadedFile(object):
-    """Represents a file that was input by a user."""
-    def __init__(self, filename, file_obj, content_type, size):
-        self.file_obj = file_obj
+    """Represents a file that was input by a user. The contents of the file
+    is represented as bytes, because knowing what the encoding is is a tricky
+    issue. The user only sits in front of the browser and selects files on their
+    filesystem and hits 'upload'. Those files can be binary or text. If text,
+    they may or may not be in the same encoding as their system's preferred
+    encoding. If binary, their browser may guess their content type correctly
+    or may not, and if we go and decode them with i.e UTF-8, the system could
+    break with UnicodeDecodeError on jpegs and the like.
+
+    *Changed in 3.0*: UploadedFile is now constructed with the entire contents
+    of the uploaded file instead of with a file-like object as in 2.1.
+    """
+    def __init__(self, filename, contents, content_type):
+        assert isinstance(contents, six.binary_type)
+        self.contents = contents
         self.filename = filename
         self.content_type = content_type
-        self.size = size
+
+    @property
+    def size(self):
+        return len(self.contents)
 
     @contextmanager
     def open(self):
-        self.file_obj.seek(0)
-        try:
-            yield self.file_obj
-        finally:
-            self.file_obj.seek(0)
+        # Scaffolding to maintain the old API when contents was a file-like object
+        with io.BytesIO(self.contents) as f:
+            yield f
 
 
 class FileSizeConstraint(ValidationConstraint):

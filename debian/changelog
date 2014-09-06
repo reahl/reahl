@@ -1,3 +1,10 @@
+python-reahl (3.0.0) unstable; urgency=low
+
+ * Changed from using Elixir to Declarative (Blueprint: declarative).
+ * Changed to run on Python3 (Blueprint: python3).
+
+ -- Iwan Vosloo <iwan@reahl.org>  Sat, 06 Sep 2014 11:50:00 +0200
+
 python-reahl (2.1.2) unstable; urgency=low
 
  * Implements https://blueprints.launchpad.net/reahl/+spec/phased-migration.

@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from nose.tools import istest
 from reahl.tofu import Fixture, test, set_up
 from reahl.tofu import vassert, temp_dir
@@ -36,13 +35,14 @@ class DjhtmlFixture(Fixture, WebBasicsMixin):
     div_internals = '<p>some stúff</p>'
 
     def new_dhtml_file(self):
-        contents = '<!DOCTYPE html><meta charset="UTF-8"><html><head><title>â title</title></head>' \
-                   '<body><div id="astatic">%s</div></body></html>' % self.div_internals
-        return self.static_dir.file_with('correctfile.d.html', contents.encode('utf-8'))
+        charset = 'UTF-8'
+        contents = '<!DOCTYPE html><meta charset="%s"><html><head><title>â title</title></head>' \
+                   '<body><div id="astatic">%s</div></body></html>' % (charset, self.div_internals)
+        return self.static_dir.file_with('correctfile.d.html', contents.encode(charset), mode='w+b')
 
     def new_afrikaans_dhtml_file(self):
         contents = '<!DOCTYPE html><meta charset="UTF-8"><html><head><title>Afrikaans bo!</title></head><body></body></html>'
-        return self.static_dir.file_with('correctfile.af.d.html', contents.encode('utf-8'))
+        return self.static_dir.file_with('correctfile.af.d.html', contents)
 
     def new_other_file(self):
         return self.static_dir.file_with('otherfile.txt', 'other')

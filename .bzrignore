@@ -5,6 +5,7 @@ debian/*.install
 debian/*.debhelper
 debian/*.substvars
 debian/files
+__pycache__
 *.old
 build
 _build
@@ -28,7 +29,7 @@ debian/python-reahl-tofu/
 debian/python-reahl-domain/
 debian/python-reahl-domainui/
 debian/python-reahl-web/
-debian/python-reahl-web-elixirimpl/
+debian/python-reahl-web-declarative/
 debian/*.debhelper.log
 reahl-component/reahl_component.egg-info/
 reahl-doc/reahl_doc.egg-info/
@@ -42,7 +43,7 @@ reahl-sqlitesupport/reahl_sqlitesupport.egg-info/
 reahl-stubble/reahl_stubble.egg-info/
 reahl-tofu/reahl_tofu.egg-info/
 reahl-web/reahl_web.egg-info/
-reahl-web-elixirimpl/reahl_web_elixirimpl.egg-info/
+reahl-web-declarative/reahl_web_webdeclarative.egg-info/
 reahl-webdev/reahl_webdev.egg-info/
 
 reahl.egg-info/

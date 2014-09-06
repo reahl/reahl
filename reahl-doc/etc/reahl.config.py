@@ -1,4 +1,5 @@
-# Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+from __future__ import print_function, unicode_literals, absolute_import, division
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#reahlsystem.connection_uri = 'postgres://rhug:rhug@localhost/rhug'
+reahlsystem.connection_uri = 'postgresql://rhug:rhug@localhost/rhug'
 #reahlsystem.connection_uri = 'sqlite:////tmp/hj.db'
 #reahlsystem.connection_uri = 'sqlite:///:memory:'
 #reahlsystem.debug = True

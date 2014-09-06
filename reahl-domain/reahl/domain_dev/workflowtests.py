@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import datetime
 
 from nose.tools import istest
@@ -24,12 +23,11 @@ from reahl.tofu import Fixture
 from reahl.tofu import test
 from reahl.tofu import vassert
 
-import elixir
-from elixir import using_options, Entity, Boolean, UnicodeText
+from sqlalchemy import Column, Integer, Boolean, UnicodeText, ForeignKey
 
 from reahl.dev.tools import EventTester
-from reahl.sqlalchemysupport import metadata, Session
-from reahl.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
+from reahl.sqlalchemysupport import metadata, Session, Base
+from reahl.domain.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 
@@ -37,11 +35,12 @@ from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 
 class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_SomeObject(self):
-        class SomeObject(Entity):
-            using_options(metadata=metadata, session=Session, shortnames=True)
-            done_flag = elixir.Field(Boolean, required=True, default=False)
-            name = elixir.Field(UnicodeText, required=True)
-            deadline_flag = elixir.Field(Boolean, required=True, default=False)
+        class SomeObject(Base):
+            __tablename__ = 'someobject'
+            id = Column(Integer, primary_key=True)
+            done_flag = Column(Boolean, nullable=False, default=False)
+            name = Column(UnicodeText, nullable=False)
+            deadline_flag = Column(Boolean, nullable=False, default=False)
 
             def make_done(self):
                 self.done_flag = True
@@ -52,15 +51,17 @@ class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_MyDeferredAction(self):
         fixture = self
         class MyDeferredAction(DeferredAction):
-            using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-            some_object_key = elixir.Field(UnicodeText, required=True)
+            __tablename__ = 'mydeferredaction'
+            __mapper_args__ = {'polymorphic_identity': 'mydeferredaction'}
+            id = Column(Integer, ForeignKey(DeferredAction.id), primary_key=True)
+            some_object_key = Column(UnicodeText, nullable=False)
         
             def __init__(self, some_object, **kwargs):
                 super(MyDeferredAction, self).__init__(some_object_key=some_object.name, **kwargs)
             def success_action(self):
-                fixture.SomeObject.query.filter_by(name=self.some_object_key).one().make_done()
+                Session.query(fixture.SomeObject).filter_by(name=self.some_object_key).one().make_done()
             def deadline_action(self):
-                fixture.SomeObject.query.filter_by(name=self.some_object_key).one().deadline_reached()
+                Session.query(fixture.SomeObject).filter_by(name=self.some_object_key).one().deadline_reached()
         return MyDeferredAction
 
     def new_current_time(self):
@@ -73,10 +74,14 @@ class DeferredActionFixture(Fixture, BasicModelZooMixin):
         return self.current_time - datetime.timedelta(days=1)
 
     def new_one_object(self):
-        return self.SomeObject(name='one')
+        one = self.SomeObject(name='one')
+        Session.add(one)
+        return one
 
     def new_another_object(self):
-        return self.SomeObject(name='another')
+        another = self.SomeObject(name='another')
+        Session.add(another)
+        return another
   
     
 @istest
@@ -87,13 +92,15 @@ class DeferredActionTests(object):
         with fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
             requirements = [Requirement(), Requirement(), Requirement()]
             deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
+            Session.add(deferred_action)
+            Session.flush()
             for requirement in requirements:
                 requirement.set_fulfilled()
             vassert( fixture.one_object.done_flag )
             vassert( not fixture.another_object.done_flag )
 
-            vassert( Requirement.query.count() == 0 )
-            vassert( DeferredAction.query.count() == 0 )
+            vassert( Session.query(Requirement).count() == 0 )
+            vassert( Session.query(DeferredAction).count() == 0 )
 
     @test(DeferredActionFixture)
     def deferred_action_times_out(self, fixture):
@@ -102,22 +109,24 @@ class DeferredActionTests(object):
         with fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
             requirements = [Requirement(), Requirement(), Requirement()]
             deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
+            Session.add(deferred_action)
+            Session.flush()
 
             vassert( deferred_action.deadline == fixture.future_time )
             ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
             vassert( not fixture.one_object.deadline_flag )
             vassert( not fixture.another_object.deadline_flag )
 
-            vassert( Requirement.query.count() == 3 )
-            vassert( DeferredAction.query.count() == 1 )
+            vassert( Session.query(Requirement).count() == 3 )
+            vassert( Session.query(DeferredAction).count() == 1 )
 
             deferred_action.deadline = fixture.past_time
             ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
             vassert( fixture.one_object.deadline_flag )
             vassert( not fixture.another_object.deadline_flag )
 
-            vassert( Requirement.query.count() == 0 )
-            vassert( DeferredAction.query.count() == 0 )
+            vassert( Session.query(Requirement).count() == 0 )
+            vassert( Session.query(DeferredAction).count() == 0 )
 
         
     @test(DeferredActionFixture)
@@ -130,10 +139,13 @@ class DeferredActionTests(object):
             deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
                                                         requirements=requirements2,
                                                         deadline=fixture.future_time)
+            Session.add(deferred_action1)
             deferred_action2 = fixture.MyDeferredAction(fixture.another_object,
                                                         requirements=requirements1+requirements2,
                                                         deadline=fixture.future_time)
 
+            Session.add(deferred_action2)
+            Session.flush()
             # The requirements are linked back to the correct DeferredActions
             for requirement in requirements2:
                 vassert( set(requirement.deferred_actions) == {deferred_action1, deferred_action2} )
@@ -150,8 +162,8 @@ class DeferredActionTests(object):
 
             for requirement in requirements1+requirements2:
                 vassert( set(requirement.deferred_actions) == {deferred_action2} )
-            vassert( Requirement.query.count() == 3 )
-            vassert( DeferredAction.query.count() == 1 )
+            vassert( Session.query(Requirement).count() == 3 )
+            vassert( Session.query(DeferredAction).count() == 1 )
 
             # But as soon as all Requirements of the last DeferredAction are fulfilled, the last Requirements
             # are deleted as usual
@@ -160,8 +172,8 @@ class DeferredActionTests(object):
             vassert( fixture.one_object.done_flag )
             vassert( fixture.another_object.done_flag )
 
-            vassert( Requirement.query.count() == 0 )
-            vassert( DeferredAction.query.count() == 0 )
+            vassert( Session.query(Requirement).count() == 0 )
+            vassert( Session.query(DeferredAction).count() == 0 )
 
 
     @test(DeferredActionFixture)
@@ -174,9 +186,13 @@ class DeferredActionTests(object):
             deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
                                                         requirements=requirements2,
                                                         deadline=fixture.future_time)
+            Session.add(deferred_action1)
             deferred_action2 = fixture.MyDeferredAction(fixture.another_object,
                                                         requirements=requirements1+requirements2,
                                                         deadline=fixture.future_time)
+
+            Session.add(deferred_action2)
+            Session.flush()
 
             # If one DeferredAction times out, the remaining one and its Requirements are left intact
             deferred_action1.deadline=fixture.past_time
@@ -185,8 +201,8 @@ class DeferredActionTests(object):
             vassert( fixture.one_object.deadline_flag )
             vassert( not fixture.another_object.deadline_flag )
 
-            vassert( Requirement.query.count() == 3 )
-            vassert( DeferredAction.query.count() == 1 )
+            vassert( Session.query(Requirement).count() == 3 )
+            vassert( Session.query(DeferredAction).count() == 1 )
 
             for requirement in requirements1+requirements2:
                 vassert( set(requirement.deferred_actions) == {deferred_action2} )
@@ -198,8 +214,8 @@ class DeferredActionTests(object):
             vassert( fixture.one_object.deadline_flag )
             vassert( fixture.another_object.deadline_flag )
 
-            vassert( Requirement.query.count() == 0 )
-            vassert( DeferredAction.query.count() == 0 )
+            vassert( Session.query(Requirement).count() == 0 )
+            vassert( Session.query(DeferredAction).count() == 0 )
 
 
 class TaskQueueZooMixin(PartyModelZooMixin):
@@ -214,12 +230,15 @@ class TaskQueueZooMixin(PartyModelZooMixin):
 
     def new_queue(self, name=None):
         name = name or 'A queue'
-        return Queue(name=name)
+        queue = Queue(name=name)
+        Session.add(queue)
+        return queue
 
     def new_task(self, title=None, queue=None):
         title = title or 'A task'
         queue = queue or self.queue
         task = Task(title=title, queue=queue)
+        Session.add(task)
         Session.flush()
         return task
 

@@ -1,9 +1,8 @@
 
-from __future__ import unicode_literals
-from __future__ import print_function
-import elixir
+from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.sqlalchemysupport import Session, metadata
+from sqlalchemy import Column, UnicodeText, Integer
+from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
 from reahl.web.ui import Button
@@ -28,16 +27,16 @@ class HomePage(TwoColumnPage):
 
         self.main.add_child(CommentForm(view))
 
-        for comment in Comment.query.all():
+        for comment in Session.query(Comment).all():
             self.main.add_child(CommentBox(view, comment))
 
 
-class Comment(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata, tablename='features_comment')
-    elixir.using_mapper_options(save_on_init=False)
+class Comment(Base):
+    __tablename__ = 'features_comment'
     
-    email_address = elixir.Field(elixir.UnicodeText)
-    text          = elixir.Field(elixir.UnicodeText)
+    id = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    text          = Column(UnicodeText)
     
     @exposed
     def fields(self, fields):

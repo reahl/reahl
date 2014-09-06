@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -18,8 +18,7 @@
 """A user interface for logging in, registering, etc using :class:`~reahl.systemaccountmodel.EmailAndPasswordSystemAccount`."""
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface
 from reahl.web.fw import WebExecutionContext
@@ -30,7 +29,7 @@ from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxI
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.component.decorators import deprecated
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
      AccountManagementInterface
 
 _ = Translator('reahl-domainui')

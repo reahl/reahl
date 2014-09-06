@@ -1,22 +1,18 @@
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from datetime import datetime
 
-import elixir
+from sqlalchemy import Column, Integer, UnicodeText, DateTime
+from alembic import op
 
-
-
-from reahl.sqlalchemysupport import Session, metadata
+from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.migration import Migration
 
-from sqlalchemy import Column, DateTime
-from alembic import op
 
 class AddDate(Migration):
     version = '0.1'
@@ -38,7 +34,7 @@ class AddressBookPanel(Panel):
 
         self.add_child(H(view, 1, text='Addresses'))
         
-        for address in Address.query.all():
+        for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address))
 
         self.add_child(AddAddressForm(view))
@@ -64,13 +60,13 @@ class AddressBox(Widget):
         self.add_child(P(view, text='%s: %s (%s)' % (address.name, address.email_address, address.added_date)))
 
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata, tablename='migration_address')
-    elixir.using_mapper_options(save_on_init=False)
-    
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
-#    added_date    = elixir.Field(elixir.DateTime)
+class Address(Base):
+    __tablename__ = 'migration_address'
+
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
+#    added_date    = Column(DateTime)
     added_date    = 'TODO'
 
     @exposed

@@ -1,4 +1,4 @@
-# Copyright 2008-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,9 +16,9 @@
 
 """The Reahl configuration utilities."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
+import six
 import os.path
 import logging
 import tempfile
@@ -256,10 +256,6 @@ class StoredConfiguration(Configuration):
         self.in_production = in_production
 
     def configure(self, validate=True):
-        #http://mail.python.org/pipermail/tutor/2005-August/040993.html
-        imp.reload(sys); #read setdefaultencoding python docs - it "enables" the method again
-        sys.setdefaultencoding('utf-8')
-        
         self.configure_logging()
         logging.getLogger(__name__).info('Using config in %s' % self.config_directory)
         sys.path.insert(0,self.config_directory)
@@ -316,7 +312,8 @@ class StoredConfiguration(Configuration):
         file_path = os.path.join(self.config_directory, new_config.filename)
         if os.path.isfile(file_path):
             locals_dict = ConfigAsDict(self)
-            exec(compile(open(file_path).read(), file_path, 'exec'), globals(), locals_dict)
+            with open(file_path) as f:
+                exec(compile(f.read(), file_path, 'exec'), globals(), locals_dict)
             locals_dict.update_required(new_config.config_key)
         else:
             message = 'file "%s" not found, using defaults' % file_path
