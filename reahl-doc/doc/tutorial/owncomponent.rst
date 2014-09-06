@@ -124,6 +124,15 @@ Database schema evolution
    done using the `Operations` object of the `Alembic
    <https://pypi.python.org/pypi/alembic>`_ project.
 
+.. note::
+   
+   The Sqlite database itself does not support migration of existing
+   data very well, and as a result migration is only possible on
+   PostgreSQL databases. See these posts for more information on
+   the issue: `one of the last bullets of goals of alembic
+   <https://bitbucket.org/zzzeek/alembic>`_ and `Christopher Allan's
+   rant about the issue <http://dustycloud.org/blog/sqlite-alter-pain/>`_.
+
 Right at the end of :doc:`models` we show how one registers all
 persistent classes of your component in a `.reahlproject` file, and
 that the `reahl-control` script uses this information when you run
