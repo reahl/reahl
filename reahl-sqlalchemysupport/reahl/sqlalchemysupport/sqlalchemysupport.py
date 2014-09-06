@@ -73,12 +73,27 @@ naming_convention = {
 }
 
 def fk_name(table_name, column_name, other_table_name):
+    """Returns the name that will be used in the database for a foreign key, given:
+
+       :arg table_name: The name of the table from which the foreign key points.
+       :arg column_name: The name of the column in which the foreign key pointer is stored.
+       :arg other_table_name: The name of the table to which this foreign key points.
+    """
     return 'fk_%s_%s_%s' % (table_name, column_name, other_table_name)
 
 def pk_name(table_name):
+    """Returns the name that will be used in the database for a primary key, given:
+
+       :arg table_name: The name of the table to which the primary key belongs.
+    """
     return 'pk_%s' % table_name
 
 def ix_name(table_name, column_name):
+    """Returns the name that will be used in the database for an index key, given:
+
+       :arg table_name: The name of the table to which the index belongs.
+       :arg column_name: The name of the column that is indexed.
+    """
     return 'ix_%s_%s' % (table_name, column_name)
 
 

@@ -1472,6 +1472,9 @@ class UploadedFile(object):
     encoding. If binary, their browser may guess their content type correctly
     or may not, and if we go and decode them with i.e UTF-8, the system could
     break with UnicodeDecodeError on jpegs and the like.
+
+    *Changed in 3.0*: UploadedFile is now constructed with the entire contents
+    of the uploaded file instead of with a file-like object as in 2.1.
     """
     def __init__(self, filename, contents, content_type):
         assert isinstance(contents, six.binary_type)

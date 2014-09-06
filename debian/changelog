@@ -1,8 +1,9 @@
-python-reahl (3.0) unstable; urgency=low
+python-reahl (3.0.0) unstable; urgency=low
 
- * xxx.
+ * Changed from using Elixir to Declarative (Blueprint: declarative).
+ * Changed to run on Python3 (Blueprint: python3).
 
- -- Iwan Vosloo <iwan@reahl.org>  Sun, 24 Aug 2014 13:50:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Sat, 06 Sep 2014 11:50:00 +0200
 
 python-reahl (2.1.2) unstable; urgency=low
 
