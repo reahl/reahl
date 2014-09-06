@@ -1,4 +1,4 @@
-# Copyright 2011, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,9 +16,6 @@
 
 """A generic factory that can construct Python classes from XML.
 
-from __future__ import unicode_literals
-from __future__ import print_function
-import six
 This package provides infrastructure that will read an XML file with
 clean, human readable XML and provide you with a bunch of classes that
 have been constructed and initialised according to the information in
@@ -96,6 +93,7 @@ instance:
 
 
 """
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from xml.dom.minidom import parse
 

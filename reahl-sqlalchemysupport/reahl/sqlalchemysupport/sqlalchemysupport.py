@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,10 +14,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Various bits of support for SQLAlchemy (and declarative/Elixir)."""
+"""Various bits of support for SQLAlchemy and declarative."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
+
+from abc import ABCMeta
 import six
 import weakref
 from contextlib import contextmanager
@@ -25,9 +26,10 @@ import logging
 from collections import Sequence
 
 from sqlalchemy import *
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.ext.declarative import instrument_declarative, declarative_base 
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship
+from sqlalchemy.ext.declarative import instrument_declarative, declarative_base, DeclarativeMeta
 from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy import Column, Integer, ForeignKey
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
@@ -61,9 +63,50 @@ def reahl_scope():
         message += ' could be found.'
         raise ProgrammerError(message)
 
+
+naming_convention = {
+  'ix': 'ix_%(column_0_label)s',
+  'uq': 'uq_%(table_name)s_%(column_0_name)s',
+#  'ck': 'ck_%(table_name)s_%(constraint_name)s',
+  'fk': 'fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s',
+  'pk': 'pk_%(table_name)s'
+}
+
+def fk_name(table_name, column_name, other_table_name):
+    """Returns the name that will be used in the database for a foreign key, given:
+
+       :arg table_name: The name of the table from which the foreign key points.
+       :arg column_name: The name of the column in which the foreign key pointer is stored.
+       :arg other_table_name: The name of the table to which this foreign key points.
+    """
+    return 'fk_%s_%s_%s' % (table_name, column_name, other_table_name)
+
+def pk_name(table_name):
+    """Returns the name that will be used in the database for a primary key, given:
+
+       :arg table_name: The name of the table to which the primary key belongs.
+    """
+    return 'pk_%s' % table_name
+
+def ix_name(table_name, column_name):
+    """Returns the name that will be used in the database for an index key, given:
+
+       :arg table_name: The name of the table to which the index belongs.
+       :arg column_name: The name of the column that is indexed.
+    """
+    return 'ix_%s_%s' % (table_name, column_name)
+
+
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
-Base = declarative_base(class_registry=weakref.WeakValueDictionary())    #: A Base for using with declarative
-metadata = Base.metadata  #: a metadata for use with Elixir, shared with declarative classes using Base 
+metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base
+
+class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
+    """ Prevent metaclass conflict in subclasses that want multiply inherit from
+    ancestors that have ABCMeta as metaclass """
+    pass
+
+Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
+
 
 class QueryAsSequence(Sequence):
     """Used to wrap a SqlAlchemy Query so that it looks like a normal Python :class:`Sequence`."""
@@ -84,6 +127,24 @@ class QueryAsSequence(Sequence):
             self.query = self.original_query
 
 
+
+
+def session_scoped(cls):
+    cls.user_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
+    cls.user_session = relationship('UserSession', cascade='all, delete')
+
+    @classmethod
+    def for_current_session(cls, **kwargs):
+        user_session = ExecutionContext.get_context().session
+        found = Session.query(cls).filter_by(user_session=user_session)
+        if found.count() >= 1:
+            return found.one()
+        instance = cls(user_session=user_session, **kwargs)
+        Session.add(instance)
+        return instance
+    cls.for_current_session = for_current_session
+
+    return cls
 
 
 class SqlAlchemyControl(ORMControl):
@@ -150,25 +211,15 @@ class SqlAlchemyControl(ORMControl):
     def instrument_classes_for(self, root_egg):
         all_classes = []
         for i in ReahlEgg.get_all_relevant_interfaces(root_egg):
-            all_classes.extend(i.get_persisted_classes_in_order(self)) # So that they get imported  
+            all_classes.extend(i.get_persisted_classes_in_order(self)) # So that they get imported
         
-        try:
-            from elixir import setup_all
-            setup_all()
-        except ImportError:
-            logging.info('skipping setup of elixir classes, elixir could not be imported')
-
-        declarative_classes = [i for i in all_classes if not getattr(i, 'mapper', None)]
+        declarative_classes = [i for i in all_classes if issubclass(i, Base)]
         self.instrument_declarative_classes(declarative_classes)
 
     def instrument_declarative_classes(self, all_classes):
         registry = {}
         for cls in all_classes:
             try:
-#                if not hasattr(cls, 'metadata'):
-#                if '_decl_class_registry' not in cls.__dict__:
-#                if not hasattr(cls, '__table__'):
-#                if getattr(cls, '__table__', None) not in metadata.sorted_tables:
                 if not hasattr(cls, '__mapper__'):
                     instrument_declarative(cls, registry, metadata)
                     logging.getLogger(__file__).info( 'Instrumented %s: __tablename__=%s [polymorphic_identity=%s]' % \
@@ -215,13 +266,11 @@ class SqlAlchemyControl(ORMControl):
     def commit(self):
         """Commits the current transaction. Programmers should not need to deal with such transaction
            management explicitly, since the framework already manages transactions itself."""
-        # Called on elixir.session (via import in persist), since it knows about the current session fro the current context
         Session.commit()
         
     def rollback(self):
         """Rolls back the current transaction. Programmers should not need to deal with such transaction
            management explicitly, since the framework already manages transactions itself."""
-        # Called on elixir.session (via import in persist), since it knows about the current session fro the current context
         Session.rollback()
 
     def create_db_tables(self, transaction, eggs_in_order):
@@ -268,7 +317,6 @@ class SqlAlchemyControl(ORMControl):
             assert default, 'No existing schema version found for egg %s, and you did not specify a default version' % egg.name
             return default
             
-
     def update_schema_version_for(self, egg):
         current_version = Session.query(SchemaVersion).filter_by(egg_name=egg.name).one()
         current_version.version = egg.version

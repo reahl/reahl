@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,13 +14,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 import warnings
 import itertools
 
 import six
+from six.moves import zip_longest
 from nose.tools import istest
 from reahl.tofu import expected
 from reahl.tofu import scenario
@@ -112,7 +112,7 @@ def basic_assembly(fixture):
 
     warning_messages = [six.text_type(i.message) for i in caught_warnings]
     vassert( len(warning_messages) == len(fixture.expected_warnings) )
-    for caught, expected_message in itertools.izip_longest(warning_messages, fixture.expected_warnings):
+    for caught, expected_message in zip_longest(warning_messages, fixture.expected_warnings):
         vassert( expected_message in caught )
 
     if fixture.content_includes_p:

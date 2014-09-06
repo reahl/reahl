@@ -1,4 +1,4 @@
-.. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Get developing with Reahl
 =========================
@@ -47,8 +47,8 @@ into a :class:`~reahl.web.fw.UserInterface`.
 
 .. _create-component:
 
-Creating a Reahl component
---------------------------
+Create a Reahl component
+------------------------
 
 In Reahl, everything -- even your web application -- is a component
 (and, Reahl components are Python eggs). The very first thing to do in
@@ -72,13 +72,13 @@ To do that, create a directory (for example called
    reahl-web
      The Reahl web framework itself.
 
-   reahl-web-elixirimpl
+   reahl-web-declarative
      An implementation of technology-dependent bits of Reahl, using
-     using `SqlAlchemy <http://sqlalchemy.org>`_ and `Elixir <http://elixir.ematia.de/>`_.  
+     using `SqlAlchemy <http://sqlalchemy.org>`__.
 
    reahl-sqlalchemysupport
-     The necessary glue for using `SqlAlchemy <http://www.sqlalchemy.org/>`_ (and
-     `Elixir <http://elixir.ematia.de/trac/wiki>`_) with a Reahl program.
+     The necessary glue for using `SqlAlchemy <http://www.sqlalchemy.org/>`__ 
+     with a Reahl program.
 
 The presence of the .reahlproject file in a directory alerts the
 `reahl` script (a tool used while in development) that the directory
@@ -95,14 +95,14 @@ application (go ahead and copy this into your `.reahlproject`):
        <egg name="reahl-component"/>
        <egg name="reahl-web"/>
        <egg name="reahl-sqlalchemysupport"/>
-       <egg name="reahl-web-elixirimpl"/>
+       <egg name="reahl-web-declarative"/>
      </deps>
    </project>
 
 .. _preparing-for-development:
 
-Preparing for development
--------------------------
+Prepare the component for development
+-------------------------------------
 
 Before you can do anything with a new component, you need to register
 it with your development environment. This is done by executing the
@@ -199,8 +199,8 @@ Or, to see the other possibilities related to `listconfig`, use::
   reahl-control listconfig -h etc
 
 
-Preparing the database
-----------------------
+Prepare the database
+--------------------
 
 The last step necessary before the web application can be started is to create a
 database for it. This is necessary for any web application because the
@@ -225,8 +225,8 @@ finally the database tables needed::
    to alert a user of such "dangerous" default config values.
 
 
-Running it
-----------
+Run it
+------
 
 It is not necessary to install a web server in your development
 environment. To run your application just execute the following from
@@ -238,10 +238,12 @@ You should now be able to point your browser to http://localhost:8000
 and see a page which looks empty and is titled "Home".
 
 
-Checking out an example
------------------------
+Check out an example
+--------------------
 
-You can get a local copy of this example by using the `reahl` script::
+Throughout the Reahl documentation (and this tutorial) examples are
+provided. You can get a local copy of *this* example by using the 
+`reahl` script::
 
   reahl example tutorial.hello
 

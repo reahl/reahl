@@ -2,7 +2,7 @@
   <deps purpose="run">
     <egg name="reahl-web"/>
     <egg name="reahl-component"/>
-    <egg name="reahl-web-elixirimpl"/>
+    <egg name="reahl-web-declarative"/>
     <egg name="reahl-doc"/>
   </deps>
 

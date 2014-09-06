@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -18,14 +18,13 @@
 Basic Widgets and related user interface elements.
 """
 
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
 from string import Template
 import re
-import cgi
 import copy
+from collections import OrderedDict
 
 from babel import Locale, UnknownLocaleError
 from reahl.component.eggs import ReahlEgg
@@ -33,6 +32,7 @@ from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
+from reahl.component.py3compat import html_escape
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
                           Url, Bookmark, WidgetList
@@ -44,6 +44,8 @@ import collections
                                      
 
 _ = Translator('reahl-web')
+
+
 
 
 class LiteralHTML(Widget):
@@ -71,7 +73,7 @@ class HTMLAttribute(object):
         if not self.value:
             return ''
 #        return '''%s='%s\'''' % (self.name, self.as_html_value())
-        return '%s="%s"' % (self.name, cgi.escape(self.as_html_value(), True))
+        return '%s="%s"' % (self.name, html_escape(self.as_html_value()))
         
     def as_html_value(self):
         return ' '.join(sorted(self.value))
@@ -100,7 +102,7 @@ class HTMLAttributeDict(dict):
         return HTMLAttributeValues(self)
 
     def sorted_values(self):
-        values = self.values()
+        values = list(self.values())
         sorted_values = []
         if 'name' in self:
             name_value = self['name']
@@ -360,9 +362,9 @@ class TextNode(Widget):
         return self.value_getter()
 
     def render(self):
-        if self.html_escape:
-            return cgi.escape(self.value)
-        return self.value
+        # Un-escaped quotes are not harmful between tags, where TextNodes live,
+        # and even make the HTML source make nicer
+        return html_escape(self.value, quote=False) if self.html_escape else self.value
 
 
 class Title(HTMLElement):
@@ -709,7 +711,7 @@ class P(HTMLElement):
         for child in self.parse_children(self.text):
             filled_p.add_child(child)
 
-        for i in range(0,len(args)):
+        for i in list(range(0, len(args))):
             filled_p.set_slot(six.text_type(i), args[i])
         for slot_name, widget in kwargs.items():
             filled_p.set_slot(slot_name, widget)
@@ -962,7 +964,7 @@ class Form(HTMLElement):
     is_Form = True
     def __init__(self, view, unique_name, rendered_form=None):
         self.view = view
-        self.inputs = {}
+        self.inputs = OrderedDict()
         self.registered_input_names = {}
         self.set_up_event_channel(unique_name)
         self.set_up_field_validator('%s_validate' % unique_name)
@@ -987,7 +989,7 @@ class Form(HTMLElement):
 
     def validate_single_input(self, **input_values):
         try:
-            name = input_values.keys()[0]
+            name = list(input_values.keys())[0]
             self.inputs[name].validate_input(input_values)
             return True
         except (KeyError, IndexError):
@@ -1005,7 +1007,7 @@ class Form(HTMLElement):
 
     def format_single_input(self, **input_values):
         try:
-            name = input_values.keys()[0]
+            name = list(input_values.keys())[0]
             return self.inputs[name].format_input(input_values)
         except (KeyError, IndexError):
             return ''
@@ -1115,7 +1117,7 @@ class Form(HTMLElement):
             raise ValidationException()
         events -= {None}
         if not len(events) == 1:
-                raise ProgrammerError('there should always be one and only one event per form submission. Inputs submitted: %s Events detected: %s' % (input_values.keys(), events))
+            raise ProgrammerError('there should always be one and only one event per form submission. Inputs submitted: %s Events detected: %s' % (input_values.keys(), events))
         return events.pop()
        
     def get_js(self, context=None):
@@ -1540,7 +1542,7 @@ class PasswordInput(Input):
         attributes.clear('value')
         return attributes
 
-    
+
 class CheckboxInput(Input):
     """A checkbox. 
     
@@ -2245,14 +2247,9 @@ class SimpleFileInput(Input):
     def get_value_from_input(self, input_values):
         field_storages = input_values.getall(self.name)
 
-        def file_size(field_storage):
-            field_storage.file.seek(0, 2)
-            size = field_storage.file.tell()
-            field_storage.file.seek(0)
-            return size
-        return [UploadedFile(six.text_type(field_storage.filename), field_storage.file, six.text_type(field_storage.type), file_size(field_storage)) 
+        return [UploadedFile(six.text_type(field_storage.filename), field_storage.file.read(), six.text_type(field_storage.type))
                  for field_storage in field_storages
-                 if field_storage != '']
+                 if field_storage not in ('', b'')]
 
     @property
     def value(self):
@@ -2430,7 +2427,7 @@ class FileUploadInput(Input):
         return FileUploadPanel(self)
 
     def get_value_from_input(self, input_values):
-        return [UploadedFile(f.filename, f.file_obj, f.content_type, f.size) 
+        return [UploadedFile(f.filename, f.file_obj.read(), f.content_type)
                  for f in self.persisted_file_class.get_persisted_for_form(self.form, self.name)]
 
     def enter_value(self, input_value):

@@ -1,4 +1,4 @@
-.. Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Reahl installation
 ==================
@@ -47,6 +47,12 @@ On Linux or Mac, do:
 
    virtualenv ./reahl_env
 
+.. note:: 
+
+   If you have more than one version of Python installed, also pass the `-p` argument
+   to virtualenv, specifying the path to the Python interpreter you want this
+   virtualenv for.
+
 On Windows, do (in a command shell):
 
 .. code-block:: bash
@@ -74,28 +80,12 @@ On Windows:
 After activating your new environment, the prompt of the command line
 changes to reflect the environment that is currently active.
 
-.. sidebar:: For interest's sake
-
-   Installing ``reahl[elixir,sqlite,dev,doc]`` results in an installation of
-   Reahl implemented using Elixir (elixir), with Sqlite support (sqlite), the 
-   Reahl development tools (dev) and documentation and examples (doc). This is
-   all you need for following the tutorial.
-
-   If you want to play with Postgresql too, you have to additionally
-   install Postgresql itself and its client libraries for your
-   platform before you install Reahl with PostgreSQL support inside
-   the virtualenv:
-
-   .. code-block:: bash
-
-      easy_install reahl[postgresql]
-
 With your `virtualenv` activated, Reahl can be installed into it by
 issuing:
 
 .. code-block:: bash
 
-   easy_install reahl[elixir,sqlite,dev,doc]
+   easy_install reahl[declarative,sqlite,dev,doc]
 
 .. note::
 
@@ -108,4 +98,40 @@ on as well. Some of these dependencies are installed and built from
 source, hence, this process needs :ref:`your platform to be prepared
 properly for Python development <prep_install>` before you attempt to
 install Reahl.
+
+Choose what to install
+----------------------
+
+Reahl is composed of a number of different components that you
+can mix and match depending on your requirements. For example, 
+you probably do not want the development tools in a production
+environment, so they are packaged in a component you can omit.
+
+In order to specify which sets of components you want installed,
+you use keywords in square brackets behind `reahl` in the command
+to easy_install as shown above. Here is a list of keywords you can 
+include, and what they install:
+
+ declarative
+   The declarative implementation of the web framework
+
+ dev
+   The development tools
+
+ doc
+   Documentation and examples
+
+ sqlite
+   Support for sqlite databases
+
+ postgresql
+   Support for postgresql databases 
+ 
+ elixir
+   Support for the older Elixir-based implementation of
+   the web framework (uses some components from the 2.1 
+   series, and only runs on Python 2.7)
+
+
+
 

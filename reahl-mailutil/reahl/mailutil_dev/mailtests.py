@@ -1,4 +1,4 @@
-# Copyright 2009, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -21,8 +21,7 @@ Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 
 """ 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture, test
 from reahl.tofu import expected, vassert

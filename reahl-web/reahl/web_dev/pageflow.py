@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from nose.tools import istest
 from reahl.tofu import test
@@ -196,7 +195,7 @@ class ControlledUserInterfacesTests(object):
 
         # when the Action is executed, the correct arguments are passed to the View
         fixture.driver_browser.click("//input[@value='click me']")
-        vassert( fixture.driver_browser.title == 'View with event_argument1: 1<type \'int\'> and view_argument: 3<type \'int\'>' )
+        vassert( fixture.driver_browser.title == 'View with event_argument1: 1%s and view_argument: 3%s' % (type(1), type(3)) )
 
 
     @test(WebFixture)

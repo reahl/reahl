@@ -5,7 +5,7 @@
   
   <deps purpose="run">
     <egg name="reahl-component"/>
-    <thirdpartyegg name="psycopg2" minversion="2.4" maxversion="2.5"/>
+    <thirdpartyegg name="psycopg2" minversion="2.5" maxversion="2.5.9999"/>
   </deps>
 
   <deps purpose="test">

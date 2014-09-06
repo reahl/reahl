@@ -1,4 +1,4 @@
-# Copyright 2005, 2006, 2009, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,10 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-import new
 import types
 import inspect
 from functools import reduce
@@ -68,7 +66,7 @@ class StubMethod(object):
         stub_args = inspect.getargspec(self.stub)
         assert real_args == stub_args, 'argument specification mismatch'
 
-        return new.instancemethod(self.stub, instance, owner)
+        return six.create_bound_method(self.stub, instance)
 
     def __set__(self, instance, value):
         assert None, 'cannot set stub methods'

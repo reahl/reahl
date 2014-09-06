@@ -1,4 +1,4 @@
-# Copyright 2007-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,8 +16,7 @@
 
 """Classes that aid in dealing with Eggs and setting them up."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import os.path
 import logging
@@ -90,6 +89,11 @@ class ReahlEgg(object):
 
     def get_ordered_classes_exported_on(self, entry_point):
         entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
+        found_eps = set()
+        for ep in entry_point_dict.values():
+            if ep in found_eps:
+                raise AssertionError('%s is listed twice' % ep)
+            found_eps.add(ep)
         return [entry.load() for order, entry in sorted([(int(order), e) for order, e in entry_point_dict.items()])]
 
     def get_classes_exported_on(self, entry_point):
@@ -148,7 +152,7 @@ class ReahlEgg(object):
 
             if resource_isdir(requirement, egg_internal_path):
                 languages = [d for d in resource_listdir(requirement, egg_internal_path)
-                             if resource_isdir(requirement, '%s/%s' % (egg_internal_path, d))]
+                             if (resource_isdir(requirement, '%s/%s' % (egg_internal_path, d)) and not d.startswith('__'))]
             else:
                 logging.error('Translations of %s not found in %s' % (requirement, egg_internal_path))
                 languages = []
@@ -244,7 +248,7 @@ class ReahlEgg(object):
         for i in cls.compute_ordered_dependent_distributions(main_egg):
             entry_map = i.get_entry_map('reahl.eggs')
             if entry_map:
-                classes = entry_map.values()
+                classes = list(entry_map.values())
                 assert len(classes) == 1, 'Only one eggdeb class per egg allowed'
                 interfaces.append(classes[0].load()(i))
 

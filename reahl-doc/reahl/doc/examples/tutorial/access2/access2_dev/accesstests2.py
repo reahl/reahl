@@ -7,13 +7,12 @@
 
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import test, set_up
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.sqlalchemysupport import Session
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.doc.examples.tutorial.access2.access2 import AddressBookUI, AddressBook, Address
 
@@ -26,13 +25,16 @@ class AccessFixture(WebFixture):
 
     def new_account(self, email='johndoe@some.org'):
         account = EmailAndPasswordSystemAccount(email=email)
+        Session.add(account)
         account.set_new_password(account.email, self.password)
         account.activate()
         return account
 
     def new_address_book(self, owner=None):
         owner = owner or self.account
-        return AddressBook(owner=owner)
+        address_book = AddressBook(owner=owner)
+        Session.add(address_book)
+        return address_book
 
     def new_other_account(self):
         return self.new_account(email='other@some.org')

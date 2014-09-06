@@ -1,4 +1,4 @@
-# Copyright 2008-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,8 +16,7 @@
 
 """Utilities to manipulate underlying databases - sometimes via an ORM tool."""
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import re
 from contextlib import contextmanager
 import logging
@@ -159,6 +158,7 @@ class DatabaseControl(object):
             raise InvalidConnectionURIException()
         return match.groupdict()
 
+
 class NullDatabaseControl(DatabaseControl):
     uri_regex_string = r''
     @classmethod
@@ -172,20 +172,14 @@ class NullDatabaseControl(DatabaseControl):
 
     def __getattr__(self, name):
         return self.donothing
-        
+
 
 class ORMControl(object):
-    is_elixir = False
-
     def migrate_db(self, eggs_in_order):
         with self.managed_transaction():
             migration_run = MigrationRun(self, eggs_in_order)
             migration_run.schedule_migrations()
             migration_run.execute_migrations()
-
-
-
-
 
 
 

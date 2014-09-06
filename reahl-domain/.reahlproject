@@ -13,7 +13,6 @@
     <egg name="reahl-mailutil" ignoreversion="True"/>
     <egg name="reahl-interfaces" ignoreversion="True"/>
     <egg name="reahl-sqlalchemysupport"/>
-    <thirdpartyegg name="elixir" minversion="0.7" maxversion="0.8"/>
   </deps>
 
   <deps purpose="test">
@@ -41,6 +40,10 @@
 
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
   <schedule locator="reahl.systemaccountmodel:UserSession.remove_dead_sessions"/>
+
+  <migrations>
+      <class locator="reahl.domain.elixirmigration:ElixirToDeclarativeDomainChanges"/>
+  </migrations>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domain_dev -F reahl.dev.fixtures:CleanDatabase"/>
   

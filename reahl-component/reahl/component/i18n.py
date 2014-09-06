@@ -1,4 +1,4 @@
-# Copyright 2009, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,8 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import gettext
 import threading
 
@@ -46,6 +45,8 @@ class SystemWideTranslator(object):
                     for locale_dir in package.__path__:
                         if not isinstance(translation, Translations):
                             translation = Translations.load(dirname=locale_dir, locales=[locale], domain=domain)
+                            # Babel 1.3 bug under Python 3: files is a filter object, not a list like in Python 2
+                            translation.files = list(translation.files)
                         else:
                             translation.merge(Translations.load(dirname=locale_dir, locales=[locale], domain=domain))
                 self.translations[(locale, domain)] = translation

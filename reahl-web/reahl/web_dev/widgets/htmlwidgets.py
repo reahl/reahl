@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import scenario
 from reahl.tofu import test
 from reahl.tofu import vassert, expected
@@ -409,11 +408,11 @@ def text_node_can_vary(fixture):
 def text_node_escapes_html(fixture):
     """The text of a TextNode is html-escaped."""
 
-    widget = TextNode(fixture.view, '<tag>')
+    widget = TextNode(fixture.view, '<tag> "Here" & \'there\'')
     tester = WidgetTester(widget)
     
     rendered = tester.render_html()
-    vassert( rendered == '&lt;tag&gt;' )
+    vassert( rendered == '&lt;tag&gt; "Here" &amp; \'there\'')
 
 
 @test(WebFixture)

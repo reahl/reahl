@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -17,8 +17,7 @@
 """A User interface that allows a user to monitor tasks allocated to the user's queues and to complete those tasks.
 """
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.component.decorators import deprecated
@@ -26,7 +25,7 @@ from reahl.sqlalchemysupport import PersistedField
 from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
 from reahl.web.ui import P, Panel, Ul, Li, H, Form, Button
 
-from reahl.workflowmodel import Inbox, Task, WorkflowInterface
+from reahl.domain.workflowmodel import Inbox, Task, WorkflowInterface
 
 
 _ = Translator('reahl-domainui')

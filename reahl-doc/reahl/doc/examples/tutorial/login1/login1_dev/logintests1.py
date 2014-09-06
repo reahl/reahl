@@ -1,13 +1,13 @@
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import test, set_up
 
+from reahl.sqlalchemysupport import Session
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.login1.login1 import LoginUI
-from reahl.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 
 class LoginFixture(WebFixture):
@@ -18,6 +18,7 @@ class LoginFixture(WebFixture):
 
     def new_account(self):
         account = EmailAndPasswordSystemAccount(email='johndoe@some.org')
+        Session.add(account)
         account.set_new_password(account.email, self.password)
         account.activate()
         return account

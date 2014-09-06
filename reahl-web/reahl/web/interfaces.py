@@ -1,4 +1,4 @@
-# Copyright 2010, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -18,8 +18,7 @@
 The interfaces for persisted classes that are needed by the core Reahl framework. Different
 implementations of the framework can be provided by implementing these.
 """
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
 from abc import ABCMeta, abstractmethod
@@ -43,16 +42,27 @@ class WebUserSessionProtocol(UserSessionProtocol):
 
 
 @six.add_metaclass(ABCMeta)
-class UserInputProtocol(object):
-    """User input, typed as strings on a form is persisted using this class, for the current user's session
-       for use in a subsequent request. Used via `web.persisted_userinput_class`.
-    """
-
+class SessionDataProtocol(object):
     @classmethod
     @abstractmethod
     def clear_for_form(cls, form):
         """Removes all the user input associated with the given :class:`reahl.web.ui.Form`."""
+    
+    __hash__ = None
+    @abstractmethod
+    def __eq__(self, other): 
+        """Is required to be implemented."""
 
+    @abstractmethod
+    def __neq__(self, other): 
+        """Is required to be implemented."""
+
+
+@six.add_metaclass(ABCMeta)
+class UserInputProtocol(SessionDataProtocol):
+    """User input, typed as strings on a form is persisted using this class, for the current user's session
+       for use in a subsequent request. Used via `web.persisted_userinput_class`.
+    """
     @classmethod
     @abstractmethod
     def get_previously_entered_for_form(cls, form, input_name): 
@@ -65,17 +75,9 @@ class UserInputProtocol(object):
         """Persists `value` as the value of the user input associated with the given :class:`reahl.web.ui.Form`,
            using `input_name` as name."""
 
-    __hash__ = None
-    @abstractmethod
-    def __eq__(self, other): 
-        """Is required to be implemented."""
-
-    @abstractmethod
-    def __neq__(self, other): 
-        """Is required to be implemented."""
 
 
-class PersistedExceptionProtocol(UserInputProtocol):
+class PersistedExceptionProtocol(SessionDataProtocol):
     """When a :class:`reahl.component.exceptions.DomainException` happens during Form submission, the 
        exception is persisted using this class, for the current user's session for use in a subsequent 
        request. Used via `web.persisted_exception_class`.

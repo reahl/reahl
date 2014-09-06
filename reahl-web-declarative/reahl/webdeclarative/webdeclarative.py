@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,47 +15,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import random
-from abc import ABCMeta
 from six.moves.urllib import parse as urllib_parse
 
 
-import elixir
-from elixir import BigInteger
-from elixir import Entity
-from elixir import LargeBinary
-from elixir import ManyToOne
-from elixir import PickleType
-from elixir import String
-from elixir import UnicodeText
-from elixir import using_options
-from alembic import op
+from sqlalchemy import Column, Integer, BigInteger, LargeBinary, PickleType, String, UnicodeText, ForeignKey
+from sqlalchemy.orm import relationship, deferred, backref
 
-from reahl.sqlalchemysupport import Session
-from reahl.sqlalchemysupport import metadata
+from reahl.sqlalchemysupport import Session, Base
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.component.migration import Migration
 from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
-from reahl.systemaccountmodel import UserSession
+from reahl.domain.systemaccountmodel import UserSession
 from reahl.web.fw import WebExecutionContext, Url
 
 
-class RenameRegionToUi(Migration):
-    version='2.1'
-    def schedule_upgrades(self):
-        self.schedule('alter', op.alter_column, 'sessiondata', 'region_name', new_column_name='ui_name')
-
 class InvalidKeyException(Exception):
     pass
-    
-class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, WebUserSessionProtocol)):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    salt = elixir.Field(String(40), required=True)
-    secure_salt = elixir.Field(String(40), required=True)
+
+class WebUserSession(UserSession, WebUserSessionProtocol):
+    __tablename__ = 'webusersession'
+    __mapper_args__ = {'polymorphic_identity': 'webusersession'}
+    id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), primary_key=True)
+
+    salt = Column(String(40), nullable=False)
+    secure_salt = Column(String(40), nullable=False)
 
     @classmethod
     def from_key(cls, key):
@@ -63,7 +50,7 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
             web_session_id, salt = key.split(':')
         except ValueError:
             raise InvalidKeyException()
-        sessions = cls.query.filter_by(id=web_session_id)
+        sessions = Session.query(cls).filter_by(id=web_session_id)
         if sessions.count() == 1 and sessions.one().salt == salt:
             return sessions.one()
         raise InvalidKeyException()
@@ -98,6 +85,7 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
 
         if not web_session:
             web_session = cls()
+            Session.add(web_session)
 
         return web_session
 
@@ -112,7 +100,7 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
 
     def set_session_key(self, response):
         context = WebExecutionContext.get_context()
-        session_cookie = self.as_key().encode('utf-8')
+        session_cookie = self.as_key()
         response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
         if self.is_secure():
             response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
@@ -124,8 +112,8 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
-        self.salt = ''.join([random.choice(alphabet) for x in range(40)])
-        self.secure_salt = ''.join([random.choice(alphabet) for x in range(40)])        
+        self.salt = ''.join([random.choice(alphabet) for x in list(range(40))])
+        self.secure_salt = ''.join([random.choice(alphabet) for x in list(range(40))])        
 
     def get_interface_locale(self):
         context = WebExecutionContext.get_context()
@@ -139,27 +127,35 @@ class WebUserSession(six.with_metaclass(UserSession.__metaclass__, UserSession, 
         return context.config.web.default_url_locale
 
 
-class SessionData(Entity):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+class SessionData(Base):
+    __tablename__ = 'sessiondata'
+
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('row_type', String(40))
+    __mapper_args__ = {'polymorphic_on': discriminator}
     
-    web_session = ManyToOne('UserSession', ondelete='cascade')
-    ui_name = elixir.Field(UnicodeText, required=True)
-    channel_name = elixir.Field(UnicodeText, required=True)
+    web_session_id = Column(Integer, ForeignKey('webusersession.id', ondelete='CASCADE'), index=True)
+    web_session = relationship(WebUserSession)
+
+    ui_name = Column(UnicodeText, nullable=False)
+    channel_name = Column(UnicodeText, nullable=False)
 
     @classmethod
     def clear_for_form(cls, form):
         for stale in cls.for_form(form).all():
-            stale.delete()
+            Session.delete(stale)
 
     @classmethod
     def for_form(cls, form):
         web_session = WebExecutionContext.get_context().session
-        return cls.query.filter_by(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name)
+        return Session.query(cls).filter_by(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name)
     
     @classmethod
     def new_for_form(cls, form, **kwargs):
         web_session = WebExecutionContext.get_context().session
-        return cls(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name, **kwargs)
+        instance = cls(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name, **kwargs)
+        Session.add(instance)
+        return instance
 
     __hash__ = None
     def __eq__(self, other):
@@ -171,13 +167,15 @@ class SessionData(Entity):
         return not self.__eq__(other)
 
 
-class UserInputMeta(SessionData.__metaclass__, ABCMeta): pass
-class UserInput(six.with_metaclass(UserInputMeta, SessionData, UserInputProtocol)):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    
-    key = elixir.Field(UnicodeText, required=True)
-    value = elixir.Field(UnicodeText, required=True)
+class UserInput(SessionData, UserInputProtocol):
+    __tablename__ = 'userinput'
+    __mapper_args__ = {'polymorphic_identity': 'userinput'}
+    id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
 
+    key = Column(UnicodeText, nullable=False)
+    value = Column(UnicodeText, nullable=False)
+
+    __hash__ = None
     def __eq__(self, other):
         return super(UserInput, self).__eq__(other) and \
                self.key == other.key and \
@@ -197,12 +195,13 @@ class UserInput(six.with_metaclass(UserInputMeta, SessionData, UserInputProtocol
         cls.new_for_form(form, key=input_name, value=value)
 
 
-class PersistedExceptionMeta(SessionData.__metaclass__, ABCMeta): pass
-class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData, PersistedExceptionProtocol)):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
+class PersistedException(SessionData, PersistedExceptionProtocol):
+    __tablename__ = 'persistedexception'
+    __mapper_args__ = {'polymorphic_identity': 'persistedexception'}
+    id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
 
-    exception = elixir.Field(PickleType, required=True)
-    input_name = elixir.Field(UnicodeText)
+    exception = Column(PickleType, nullable=False)
+    input_name = Column(UnicodeText)
 
     def __eq__(self, other):
         return super(PersistedException, self).__eq__(other) and \
@@ -219,7 +218,7 @@ class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData,
     @classmethod
     def clear_for_all_inputs(cls, form):
         for e in super(PersistedException, cls).for_form(form).filter(cls.input_name != None):
-            e.delete()
+            Session.delete(e)
 
     @classmethod
     def get_exception_for_form(cls, form):
@@ -236,15 +235,16 @@ class PersistedException(six.with_metaclass(PersistedExceptionMeta, SessionData,
         return None
 
 
-class PersistedFileMeta(SessionData.__metaclass__, ABCMeta): pass
-class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, PersistedFileProtocol)):
-    using_options(metadata=metadata, session=Session, shortnames=True, inheritance='multi')
-    
-    input_name = elixir.Field(UnicodeText, required=True)
-    filename = elixir.Field(UnicodeText, required=True)
-    file_data = elixir.Field(LargeBinary, required=True, deferred=True)
-    content_type = elixir.Field(UnicodeText, required=True)
-    size = elixir.Field(BigInteger, required=True)
+class PersistedFile(SessionData, PersistedFileProtocol):
+    __tablename__ = 'persistedfile'
+    __mapper_args__ = {'polymorphic_identity': 'persistedfile'}
+    id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
+
+    input_name = Column(UnicodeText, nullable=False)
+    filename = Column(UnicodeText, nullable=False)
+    file_data = deferred(Column(LargeBinary, nullable=False)) 
+    content_type = Column(UnicodeText, nullable=False)
+    size = Column(BigInteger, nullable=False)
 
     def __eq__(self, other):
         return super(PersistedFile, self).__eq__(other) and \
@@ -274,7 +274,7 @@ class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, Persisted
     @classmethod
     def add_persisted_for_form(cls, form, input_name, uploaded_file):
         filename = uploaded_file.filename
-        file_data = uploaded_file.file_obj.read()
+        file_data = uploaded_file.contents
         content_type = uploaded_file.content_type
         size = uploaded_file.size
         cls.new_for_form(form, input_name=input_name, filename=filename, file_data=file_data, content_type=content_type, size=size)
@@ -283,16 +283,16 @@ class PersistedFile(six.with_metaclass(PersistedFileMeta, SessionData, Persisted
     def remove_persisted_for_form(cls, form, input_name, filename):
         persisted = cls.for_form(form).filter_by(input_name=input_name).filter_by(filename=filename)
         for persisted_file in persisted.all():
-            persisted_file.delete()
+            Session.delete(persisted_file)
 
     @classmethod
     def is_uploaded_for_form(cls, form, input_name, filename):
         return PersistedFile.for_form(form).filter_by(input_name=input_name).filter_by(filename=filename).count() == 1
     
 
-class ElixirImplConfig(Configuration):
-    filename = 'web.elixirimpl.config.py'
-    config_key = 'web.elixirimpl'
+class WebDeclarativeConfig(Configuration):
+    filename = 'web.webdeclarative.config.py'
+    config_key = 'web.webdeclarative'
 
     def do_injections(self, config):
         config.web.session_class = WebUserSession

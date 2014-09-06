@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 import os.path
 
@@ -27,6 +26,7 @@ from reahl.tofu import vassert, expected, temp_file_with
 from reahl.stubble import SystemOutStub
 from reahl.component.shelltools import Executable
 
+from reahl.sqlalchemysupport import Session
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import XPath, Browser
 
@@ -302,9 +302,9 @@ def fileupload(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/')
 
-    file1 = temp_file_with('some content in a file', 'file1.txt')
-    file2 = temp_file_with('different content', 'file2.txt')
-    file3 = temp_file_with('even more content', 'file3.txt')
+    file1 = temp_file_with(b'some content in a file', 'file1.txt', mode='w+b')
+    file2 = temp_file_with(b'different content', 'file2.txt', mode='w+b')
+    file3 = temp_file_with(b'even more content', 'file3.txt', mode='w+b')
 
     # Upload a file
     fixture.driver_browser.type('//input[@type="file"]', file1.name)
@@ -327,11 +327,11 @@ def fileupload(fixture):
     fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
     fixture.driver_browser.click(XPath.button_labelled('Submit'))
 
-    attached_file1 = AttachedFile.query.filter_by(filename=os.path.basename(file1.name)).one()
-    attached_file3 = AttachedFile.query.filter_by(filename=os.path.basename(file3.name)).one()
-    vassert( AttachedFile.query.count() == 2 )
-    vassert( attached_file1.contents == 'some content in a file' )
-    vassert( attached_file3.contents == 'even more content' )
+    attached_file1 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file1.name)).one()
+    attached_file3 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file3.name)).one()
+    vassert( Session.query(AttachedFile).count() == 2 )
+    vassert( attached_file1.contents == b'some content in a file' )
+    vassert( attached_file3.contents == b'even more content' )
 
 @test(ExampleFixture.slots)
 def slots(fixture):
@@ -443,7 +443,7 @@ def test_parameterised1(fixture):
     vassert( browser.location_path == '/' )
     browser.click(XPath.link_with_text('edit'))
 
-    john = parameterised1.Address.query.one()
+    john = Session.query(parameterised1.Address).one()
     vassert( browser.location_path == '/edit/%s' % john.id )
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')

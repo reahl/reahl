@@ -1,20 +1,21 @@
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from nose.tools import istest
 from reahl.tofu import expected, NoException
 
-import elixir
-from reahl.sqlalchemysupport import Session, metadata
+
+from sqlalchemy import Column, Integer, UnicodeText
+
+from reahl.sqlalchemysupport import Session, Base, metadata
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.context import ExecutionContext
 
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata)
-    elixir.using_mapper_options(save_on_init=False)
+class Address(Base):
+    __tablename__ = 'modeltests3_address'
 
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
 
     def save(self):
         Session.add(self)
@@ -33,12 +34,12 @@ class Address(elixir.Entity):
 def test_reahl_additions():
 
     metadata.bind = 'sqlite:///:memory:'
-    elixir.setup_all()
-    elixir.create_all()
+    metadata.create_all()
 
     with ExecutionContext():
 
         address = Address()
+        Session.add(address)
         email_field = address.fields.email_address
         
         # While a programmer would not usually write code like this,

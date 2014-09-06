@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -15,8 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import os
 from six.moves import http_cookies 
@@ -25,14 +24,17 @@ from webob import Request, Response
 
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture
+from reahl.sqlalchemysupport import Session
+
 from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
                          UserInterfaceFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
                          WidgetList, Url, Widget, RegexPath
 from reahl.web.ui import TwoColumnPage
 from reahl.component.i18n import Translator
+from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.web.egg import WebConfig
-from reahl.webelixirimpl import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
 from reahl.webdev.tools import DriverBrowser
 
 
@@ -53,7 +55,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         self.session.set_session_key(response)
-        cookies = http_cookies.BaseCookie((', '.join(response.headers.getall('set-cookie'))).encode('utf-8'))
+        cookies = http_cookies.BaseCookie(ascii_as_bytes_or_str(', '.join(response.headers.getall('set-cookie'))))
         for name, morsel in cookies.items():
             cookie = {'name':name, 'value':morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
@@ -101,7 +103,9 @@ class WebBasicsMixin(PartyModelZooMixin):
         return context
         
     def new_session(self, system_account=None):
-        return WebUserSession(account=system_account)
+        web_user_session = WebUserSession(account=system_account)
+        Session.add(web_user_session)
+        return web_user_session
 
     def new_request(self, path=None, url_scheme=None):
         request = Request.blank(path or '/', charset='utf8')

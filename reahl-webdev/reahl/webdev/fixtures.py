@@ -1,4 +1,4 @@
-# Copyright 2009-2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,8 +16,7 @@
 
 # Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import os
 
 from selenium import webdriver
@@ -31,8 +30,8 @@ from reahl.dev.fixtures import CleanDatabase
 from reahl.webdev.webserver import ReahlWebServer
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
-from reahl.webelixirimpl import WebUserSession, PersistedException, PersistedFile, UserInput
-from reahl.systemaccountmodel import SystemAccountConfig
+from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.domain.systemaccountmodel import SystemAccountConfig
 
 
 class BrowserSetup(CleanDatabase):
@@ -149,7 +148,7 @@ class BrowserSetup(CleanDatabase):
             self.reahl_server.stop()
 
     def new_test_dependencies(self):
-        return ['reahl-web-elixirimpl']
+        return ['reahl-web-declarative']
 
     def new_config(self):
         config = super(BrowserSetup, self).new_config()

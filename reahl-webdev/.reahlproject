@@ -9,13 +9,13 @@
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/>
     
-    <thirdpartyegg name="lxml" minversion="3.2"/>
-    <thirdpartyegg name="WebTest" minversion="1.4" maxversion="1.5"/>
-    <thirdpartyegg name="selenium" minversion="2.25" maxversion="2.27"/>
+    <thirdpartyegg name="lxml" minversion="3.3" maxversion="3.3.999"/>
+    <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
+    <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.42.999"/>
   </deps>
 
   <extras name="pillow">
-    <thirdpartyegg name="pillow" minversion="1.7.8" maxversion="1.999"/>
+    <thirdpartyegg name="pillow" minversion="2.5" maxversion="2.5.999"/>
   </extras>
 
   <deps purpose="test">

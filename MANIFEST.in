@@ -13,4 +13,4 @@ prune reahl-stubble
 prune reahl-tofu
 prune reahl-web
 prune reahl-webdev
-prune reahl-web-elixirimpl
+prune reahl-web-declarative

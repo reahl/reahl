@@ -1,11 +1,11 @@
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
-import elixir
+from __future__ import print_function, unicode_literals, absolute_import, division
+
+from sqlalchemy import Column, Integer, UnicodeText
 from sqlalchemy.orm.exc import NoResultFound
 
-from reahl.sqlalchemysupport import Session, metadata
+from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.ui import Button, Form, H, HMenu, InputGroup, LabelledBlockInput, A, CheckboxInput
@@ -23,7 +23,7 @@ class AddressBookPage(TwoColumnPage):
 class EditView(UrlBoundView):
     def assemble(self, address_id=None):
         try:
-            address = Address.query.filter_by(id=address_id).one()
+            address = Session.query(Address).filter_by(id=address_id).one()
         except NoResultFound:
             raise CannotCreate()
 
@@ -99,7 +99,7 @@ class AddressBookPanel(Panel):
         form.add_child(table)
 
     def initialise_rows(self):
-        return [Row(address) for address in Address.query.all()]
+        return [Row(address) for address in Session.query(Address).all()]
 
     @exposed
     def events(self, events):
@@ -108,7 +108,7 @@ class AddressBookPanel(Panel):
     def delete_selected(self):
         for row in self.rows:
             if row.selected_by_user:
-                row.address.delete()
+                Session.delete(row.address)
 
 
 class EditAddressForm(Form):
@@ -145,12 +145,12 @@ class AddressBox(Form):
         par.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))
 
 
-class Address(elixir.Entity):
-    elixir.using_options(session=Session, metadata=metadata, tablename='tutorial_table_address')
-    elixir.using_mapper_options(save_on_init=False)
-    
-    email_address = elixir.Field(elixir.UnicodeText)
-    name          = elixir.Field(elixir.UnicodeText)
+class Address(Base):
+    __tablename__ = 'table_address'
+
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
 
     @exposed
     def fields(self, fields):

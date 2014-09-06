@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, test, scenario
@@ -51,7 +50,7 @@ class TableFixture(Fixture, WebBasicsMixin):
 
     def get_table_row(self, row_number):
         row_data = []
-        for column_number in range(1,self.table_number_columns()+1):
+        for column_number in list(range(1,self.table_number_columns()+1)):
             row_data.append(self.driver_browser.web_driver.find_element_by_xpath('((//table/tbody/tr)[%s]/td)[%s]' % (row_number, column_number)).text)
         return row_data
 

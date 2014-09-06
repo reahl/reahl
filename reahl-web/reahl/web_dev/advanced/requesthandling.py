@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,8 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from webob import Request, Response
 from webob.exc import HTTPNotFound
 
@@ -54,7 +53,7 @@ class RequestHandlingTests(object):
         
         wsgi_iterator = wsgi_app(environ, start_response)
 
-        result = ''.join([i for i in wsgi_iterator])  # To check that it is iterable and get the value
+        result = ''.join([i.decode('utf-8') for i in wsgi_iterator])  # To check that it is iterable and get the value
         vassert( fixture.result_is_valid(result) )
         vassert( fixture.status == '200 OK' )
         vassert( fixture.some_headers_are_set(fixture.headers) )
@@ -82,6 +81,10 @@ class RequestHandlingTests(object):
             session = None
             last_activity_time_set = False
             key_is_set = False
+            @classmethod
+            def for_current_session(cls):
+                assert None, 'Not implemented'
+
             @classmethod
             def get_or_create_session(cls):
                 cls.session = cls()

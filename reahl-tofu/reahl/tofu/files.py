@@ -1,4 +1,4 @@
-# Copyright 2005, 2006, 2008, 2009, 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,8 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import tempfile
 import os
 import sys
@@ -27,29 +26,26 @@ __all__ = ['temp_file_name', 'temp_file_with', 'temp_file_with', 'file_with',
            'temp_dir', 'added_sys_path', 'preserved_sys_modules']
 
 
-class AutomaticallyDeletedFile(file):
-    def __init__(self, name, contents=''):
-        super(AutomaticallyDeletedFile, self).__init__(name, 'w+b')
-        self.write(contents)
-        self.seek(0)
-    def rm(self):
+class AutomaticallyDeletedFile:
+    def __init__(self, name, contents='', mode='w+'):
+        self.name = name
+        with open(name, mode) as f:
+            f.write(contents)
+
+    def __del__(self):
         if os.path.exists(self.name):
             os.remove(self.name)
-    def __del__(self):
-        self.close()
-        try:
-            self.rm()
-        except AttributeError:
-            pass
 
-def file_with(name, contents):
+def file_with(name, contents, mode='w+'):
     """Creates a file with the given `name` and `contents`. The file will be deleted
        automatically when it is garbage collected. The file is opened after creation, ready to be read.
        
        :param name: The full path name of the file to be created.
-       :param contents: The contents of the file.
+       :param mode: The mode to open the file in, as per open() builtin.
+       :param contents: The contents of the file. Must text unless binary mode was specified, in which
+       case bytes should be used.
     """
-    return AutomaticallyDeletedFile(name, contents)
+    return AutomaticallyDeletedFile(name, contents, mode)
 
 
 class EmptyDirectory(object):
@@ -98,12 +94,12 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
             pass
 
 
-    def file_with(self, name, contents):
+    def file_with(self, name, contents, mode='w+'):
         """Returns a file inside this directory with the given `name` and `contents`.""" 
         if name == None:
             handle, full_name = tempfile.mkstemp(dir=self.name)
             name = os.path.basename(full_name)
-        f = AutomaticallyDeletedFile('%s/%s' % (self.name, name), contents)
+        f = AutomaticallyDeletedFile('%s/%s' % (self.name, name), contents, mode)
         self.entries.append(f)
         return f
 
@@ -135,19 +131,21 @@ def temp_file_name():
     temp_file.close()
     return temp_file.name
 
-def temp_file_with(contents, name=None):
+def temp_file_with(contents, name=None, mode='w+'):
     """Returns an opened, named temp file with contents as supplied. If `name` is supplied, the file
        is created inside a temporary directory.
-       
-       :param contents: The contents of the file.
+
+       :param mode: The mode to open the file in, as per open() builtin.
+       :param contents: The contents of the file. Must text unless binary mode was specified, in which
+       case bytes should be used.
        :keyword name: If given, the the name of the file (not including the file system path to it).
     """
     if name:
         directory = temp_dir()
-        temp_file = directory.file_with(name, contents)
+        temp_file = directory.file_with(name, contents, mode=mode)
         temp_file.temp_dir = directory
     else:
-        temp_file = tempfile.NamedTemporaryFile()
+        temp_file = tempfile.NamedTemporaryFile(mode=mode)
         temp_file.write(contents)
         temp_file.seek(0)
     return temp_file

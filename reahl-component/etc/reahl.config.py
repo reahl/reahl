@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -15,12 +15,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.sqlalchemysupport import SqlAlchemyControl
 
 reahlsystem.root_egg = 'reahl-component'
-#reahlsystem.connection_uri = 'postgres://rhug:rhug@localhost/rhug'
+#reahlsystem.connection_uri = 'postgresql://rhug:rhug@localhost/rhug'
 reahlsystem.connection_uri = 'sqlite:///:memory:'
 
 reahlsystem.orm_control = SqlAlchemyControl(echo=False)

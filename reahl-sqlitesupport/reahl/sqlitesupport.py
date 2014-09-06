@@ -1,4 +1,4 @@
-# Copyright 2011, 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -17,10 +17,8 @@
 """Support for the SQLite database backend."""
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import os
-import exceptions
 import shutil
 import os.path
 from datetime import date
@@ -69,7 +67,7 @@ class SQLiteControl(DatabaseControl):
         if not self.is_in_memory:
             try:
                 os.remove(self.database_name)
-            except exceptions.OSError:
+            except OSError:
                 pass
         return 0
 

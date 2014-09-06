@@ -1,4 +1,4 @@
-# Copyright 2012, 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -17,8 +17,7 @@
 
 
 
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import print_function, unicode_literals, absolute_import, division
 import os.path
 import threading 
 
@@ -29,29 +28,30 @@ from reahl.tofu import expected
 from reahl.tofu import temp_file_with
 from reahl.tofu import vassert
 
+from reahl.sqlalchemysupport import Session
 from reahl.component.exceptions import DomainException
 from reahl.component.modelinterface import FileField, exposed, Event, Action, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, FileUploadInput, FileUploadPanel, Button, Form
 from reahl.web.fw import UploadedFile
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
-from reahl.webelixirimpl import PersistedFile
+from reahl.webdeclarative.webdeclarative import PersistedFile
 
 
 class FileUploadInputFixture(WebFixture):
     def file_was_uploaded(self, filename):
-        return PersistedFile.query.filter_by(filename=os.path.basename(filename)).count() == 1
+        return Session.query(PersistedFile).filter_by(filename=os.path.basename(filename)).count() == 1
 
     file_to_upload1_name = 'file1.html'
     file_to_upload2_name = 'file2.gif'
-    file_to_upload1_content = 'some content'
-    file_to_upload2_content = 'some different content'
+    file_to_upload1_content = b'some content'
+    file_to_upload2_content = b'some different content'
 
     def new_file_to_upload1(self):
-        return temp_file_with(self.file_to_upload1_content, name=self.file_to_upload1_name)
+        return temp_file_with(self.file_to_upload1_content, name=self.file_to_upload1_name, mode='w+b')
 
     def new_file_to_upload2(self):
-        return temp_file_with(self.file_to_upload2_content, name=self.file_to_upload2_name)
+        return temp_file_with(self.file_to_upload2_content, name=self.file_to_upload2_name, mode='w+b')
 
     def new_domain_object(self):
         class DomainObject(object):
@@ -249,7 +249,8 @@ class FileTests(object):
            The SimpleFileInput transforms the chosen files to UploadedFile objects, and passes these
            to its associated FileField upon a Form submit."""
 
-        file_to_upload = temp_file_with('some content')
+        expected_content = b'some content'
+        file_to_upload = temp_file_with(expected_content, mode='w+b')
         class DomainObject(object):
             def __init__(self):
                self.file = None
@@ -282,8 +283,8 @@ class FileTests(object):
         vassert( isinstance(domain_object.file, UploadedFile) )
         vassert( domain_object.file.filename == os.path.basename(file_to_upload.name) )
         with domain_object.file.open() as opened_file:
-            contents = opened_file.read()
-        vassert( contents == 'some content' )
+            read_contents = opened_file.read()
+        vassert( read_contents == expected_content )
 
 
     @test(WebFixture)
@@ -445,7 +446,7 @@ class FileTests(object):
 
         # Only the one file is submitted
         browser.click( XPath.button_labelled('Submit') )
-        vassert( fixture.domain_object.submitted_file_info.keys() == [fixture.file_to_upload2_name] )
+        vassert( list(fixture.domain_object.submitted_file_info.keys()) == [fixture.file_to_upload2_name] )
         
 
     @test(FileUploadInputFixture)
@@ -551,7 +552,7 @@ class FileTests(object):
         with browser.no_page_load_expected():
             browser.click( XPath.button_labelled('Submit'), wait=False )
 
-            alert = fixture.web_driver.switch_to_alert()
+            alert = fixture.web_driver.switch_to.alert
             vassert( alert.text == 'Please try again when all files have finished uploading.' )
             alert.accept()
         
@@ -587,7 +588,7 @@ class FileTests(object):
 
         # No files are submitted eventually
         browser.click( XPath.button_labelled('Submit') )
-        vassert( fixture.domain_object.submitted_file_info.keys() == [] )
+        vassert( list(fixture.domain_object.submitted_file_info.keys()) == [] )
 
     @test(BrokenFileUploadInputFixture)
     def async_upload_error(self, fixture):

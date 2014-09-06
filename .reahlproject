@@ -33,10 +33,18 @@
     <egg name="reahl-postgresqlsupport"/>
   </extras>  
 
-  <extras name="elixir">
+  <extras name="declarative">
     <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
+  </extras>  
+
+  <extras name="elixir">
+    <egg name="reahl-sqlalchemysupport" version="2.1"/>
+    <egg name="reahl-domain" version="2.1"/>
+    <egg name="reahl-domainui" version="2.1"/>
+    <egg name="reahl-web-elixirimpl" version="2.1"/>
     <egg name="reahl-web-elixirimpl"/>
   </extras>  
 

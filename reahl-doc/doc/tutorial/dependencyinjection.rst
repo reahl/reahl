@@ -1,13 +1,13 @@
-.. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Using a different persistence mechanism
 =======================================
 
 The Reahl framework itself contains a few classes that need to be
-persisted to a database. For example, the :class:`~reahl.webelixirimpl.WebUserSession` is an object
+persisted to a database. For example, the :class:`~reahl.webdeclarative.webdeclarative.WebUserSession` is an object
 that represents the :class:`~reahl.systemaccountmodel.UserSession`, and is needed for all the :class:`~reahl.systemaccountmodel.UserSession`\ -related
 features explained in :doc:`sessions`. There is a handful of other
-classes that work in concert with the :class:`~reahl.webelixirimpl.WebUserSession`.
+classes that work in concert with the :class:`~reahl.webdeclarative.webdeclarative.WebUserSession`.
 
 These persisted classes are written using a specific object
 persistence technology. The technology used throughout this tutorial
@@ -88,7 +88,7 @@ Dependency injection
 As explained at the beginning of this section, the `reahl-web`
 component needs a number of classes that are provided by a different
 component. The Elixir-based implementation of these classes live in
-the `reahl-web-elixirimpl` component which in turn is written using
+the `reahl-web-declarative` component which in turn is written using
 the `reahl-domain` component. Diagramatically this is the scenario:
 
 .. figure:: depinjection.png
@@ -96,9 +96,9 @@ the `reahl-domain` component. Diagramatically this is the scenario:
    :width: 90%
 
 Normally, `reahl-web` would merely import the classes it needs from
-`reahl-web-elixirimpl`, but that would make `reahl-web` dependent on
-`reahl-web-elixir` without any possibility to swap
-`reahl-web-elixirimpl` out for a different implementation. So,
+`reahl-web-declarative`, but that would make `reahl-web` dependent on
+`reahl-web-declarative` without any possibility to swap
+`reahl-web-declarative` out for a different implementation. So,
 instead, the `reahl-web` component discovers the actual classes it
 should use during run-time, when an application starts up. The
 mechanism used to do this is simply the configuration of `reahl-web`:
@@ -123,25 +123,25 @@ details?
 Instead, there's a bit of a twist to the configuration mechanism to
 make it usable for this purpose without the need for users to write
 anything in a configuration file: One component can set parts of the
-configuration of another. Hence, the `reahl-web-elixirimpl` component
+configuration of another. Hence, the `reahl-web-declarative` component
 itself modifies the configuration of `reahl-web` to supply these
 special settings -- without any need for a user to configure anything.
 
 A :class:`~reahl.component.config.Configuration` class can optionally have a method
 `.do_injections()`. This method is called after that configuration has
 been read. When called, it is passed the entire configuration of the
-system. The programmer of `reahl-web-elixirimpl` can thus write code
+system. The programmer of `reahl-web-declarative` can thus write code
 in this method to supply or change the configuration of any component
 that has been read by this time. To ensure that the configuration of
-`reahl-web` is read before that of `reahl-web-elixirimpl`,
-`reahl-web-elixirimpl` is declared to be dependent on `reahl-web` in
+`reahl-web` is read before that of `reahl-web-declarative`,
+`reahl-web-declarative` is declared to be dependent on `reahl-web` in
 its `.reahlproject` file (an **inverted dependency**).
 
 Here is the :class:`~reahl.component.config.Configuration` of the
-`reahl-web-elixirimpl` component:
+`reahl-web-declarative` component:
 
-.. literalinclude:: ../../../reahl-web-elixirimpl/reahl/webelixirimpl.py
-   :pyobject: ElixirImplConfig
+.. literalinclude:: ../../../reahl-web-declarative/reahl/webdeclarative/webdeclarative.py
+   :pyobject: WebDeclarativeConfig
 
 (The classes assigned here are defined higher up in the same file.)
 
