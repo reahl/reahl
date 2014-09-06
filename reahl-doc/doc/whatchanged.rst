@@ -77,16 +77,28 @@ We provide two upgrade paths for users with code based on Elixir:
     on your part, but you have to stay on Python 2.7 yourself. 
 
     In order to follow this route, specify the elixir keyword to 
-    pip when upgrading or installing Reahl, eg::
+    pip when upgrading or installing Reahl, eg:
 
-       pip install --upgrade "reahl[web,elixir,sqlite]"
+    .. code-block:: bash
+
+       pip install --upgrade "reahl[web,elixir,postgresql]"
 
     .. note::
 
        On Windows, first use pip uninstall to uninstall any
        reahl package that is currently installed, then do::
 
-          easy_install "reahl[web,elixir,sqlite]"
+          easy_install "reahl[web,elixir,postgresql]"
+
+    For your own eggs, ensure that their .reahlproject files are
+    updated to explicitly mention versions of the 2.1 packages used:
+
+    .. code-block:: xml
+
+      <egg name="reahl-sqlalchemysupport" version="2.1"/>
+      <egg name="reahl-web-elixirimpl" version="2.1"/>
+      <egg name="reahl-domain" version="2.1"/>
+      <egg name="reahl-domainui" version="2.1"/>
 
 
  2. **Switch to using Declarative**:
@@ -96,7 +108,7 @@ We provide two upgrade paths for users with code based on Elixir:
     keyword to easy_install when upgrading or installing Reahl 
     (you also have to manually uninstall the old reahl-web-elixirimpl)::
 
-       pip install --upgrade reahl[web,declarative,sqlite]
+       pip install --upgrade reahl[web,declarative,postgresql]
        pip uninstall reahl-web-elixirimpl
 
     .. note::
@@ -104,7 +116,7 @@ We provide two upgrade paths for users with code based on Elixir:
        On Windows, first use pip uninstall to uninstall any
        reahl package that is currently installed, then do::
 
-          easy_install "reahl[web,declarative,sqlite]"
+          easy_install "reahl[web,declarative,postgresql]"
 
     *If you do have code of your own written in terms of Elixir*, you
     will have to change that code to use Declarative instead.  In
