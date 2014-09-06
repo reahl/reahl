@@ -1,10 +1,7 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-import six
 This is python-reahl, written and maintained 
 by Reahl Software Services (Pty) Ltd <info@reahl.org>.
 
-Copyright (C) 2009-2013 Reahl Software Services (Pty) Ltd. 
+Copyright (C) 2009-2014 Reahl Software Services (Pty) Ltd. 
 
 All rights reserved.
 
