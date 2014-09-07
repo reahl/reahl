@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2014-08-23 19:48+0200\n"
+"POT-Creation-Date: 2014-09-06 14:59+0200\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language-Team: af <info@reahl.org>\n"
@@ -16,61 +16,61 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: reahl/web/dhtml.py:90 reahl/web/fw.py:562
+#: reahl/web/dhtml.py:89 reahl/web/fw.py:563
 msgid "Untitled"
 msgstr "Ongetiteld"
 
-#: reahl/web/fw.py:77
+#: reahl/web/fw.py:78
 msgid "Invalid data supplied"
 msgstr "Ongeldige data verskaf"
 
-#: reahl/web/ui.py:173
+#: reahl/web/ui.py:175
 msgid "An error occurred when contacting the server. Please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:174
+#: reahl/web/ui.py:176
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 "Die bediener het te lank gevat om te antwoord. Probeer asseblief later "
 "weer."
 
-#: reahl/web/ui.py:2333
+#: reahl/web/ui.py:2330
 msgid "Upload"
 msgstr "Laai op"
 
-#: reahl/web/ui.py:2334
+#: reahl/web/ui.py:2331
 msgid "Remove"
 msgstr "Neem weg"
 
-#: reahl/web/ui.py:2359
+#: reahl/web/ui.py:2356
 msgid "an error occurred, please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:2361
+#: reahl/web/ui.py:2358
 msgid "Cancel"
 msgstr "Kanselleer"
 
-#: reahl/web/ui.py:2363
+#: reahl/web/ui.py:2360
 msgid "Please try again when all files have finished uploading."
 msgstr "Probeer asseblief weer nadat alle lêers opgelaai het."
 
-#: reahl/web/ui.py:2377
+#: reahl/web/ui.py:2374
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
-#: reahl/web/ui.py:2472
+#: reahl/web/ui.py:2469
 msgid "Close"
 msgstr "Maak toe"
 
-#: reahl/web_dev/i18ntests.py:64
+#: reahl/web_dev/i18ntests.py:63
 msgid "A View"
 msgstr "'n Oogpunt"
 
-#: reahl/web_dev/widgets/specificwidgets.py:238
+#: reahl/web_dev/widgets/specificwidgets.py:237
 msgid "This is an English sentence."
 msgstr "Hierdie is 'n sin in Afrikaans."
 

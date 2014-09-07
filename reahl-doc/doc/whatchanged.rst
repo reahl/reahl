@@ -69,37 +69,79 @@ built on previous versions of Reahl, using Elixir.
 
 We provide two upgrade paths for users with code based on Elixir:
 
- 1. **Use Reahl 3.0, but stay on Elixir**:
+Use Reahl 3.0, but stay on Elixir:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Reahl 3.0 can be used in conjunction with a few components of
-    Reahl 2.1: the Elixir implementation itself, and its small number 
-    of dependencies. Following this path means there are no code changes 
-    on your part, but you have to stay on Python 2.7 yourself. 
+Reahl 3.0 can be used in conjunction with a few components of
+Reahl 2.1: the Elixir implementation itself, and its small number 
+of dependencies. Following this path means there are no code changes 
+on your part, but you have to stay on Python 2.7 yourself. 
 
-    In order to follow this route, specify the elixir keyword to 
-    easy_install when upgrading or installing Reahl, eg::
+In order to follow this route, specify the elixir keyword to 
+pip when upgrading or installing Reahl, eg:
 
-       easy_install reahl[web,elixir,sqlite] --upgrade
+.. code-block:: bash
 
- 2. **Switch to using Declarative**:
+    pip install --upgrade "reahl[web,elixir,postgresql]"
 
-    If you do not have any of your own code written using Elixir,
-    following this route is simple. Just specify the declarative
-    keyword to easy_install when upgrading or installing Reahl::
+.. note::
 
-       easy_install reahl[web,declarative,sqlite] --upgrade
+   On Windows, first use pip uninstall to uninstall any
+   reahl package that is currently installed, then do::
 
-    *If you do have code of your own written in terms of Elixir*, you
-    will have to change that code to use Declarative instead.  In
-    order to understand what you need to do, there is no better guide
-    than `Declarative's own documentation
-    <http://docs.sqlalchemy.org/en/rel_0_9/orm/extensions/declarative.html>`_.
+     easy_install "reahl[web,elixir,postgresql]"
 
-    If you have a database running in production that was made with
-    your own code written in terms of Elixir, you will also have to
-    provide database migrations to change the underlying schema
-    from what it was using Elixir, to what it is using Declarative.
+   For your own eggs, ensure that their .reahlproject files are
+   updated to explicitly mention versions of the 2.1 packages used:
+
+   .. code-block:: xml
+
+      <egg name="reahl-sqlalchemysupport" version="2.1"/>
+      <egg name="reahl-web-elixirimpl" version="2.1"/>
+      <egg name="reahl-domain" version="2.1"/>
+      <egg name="reahl-domainui" version="2.1"/>
+
+
+Switch to using Declarative:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you do not have any of your own code written using Elixir,
+following this route is simple. Just specify the declarative
+keyword to easy_install when upgrading or installing Reahl 
+(you also have to manually uninstall the old reahl-web-elixirimpl)::
+
+  pip install --upgrade reahl[web,declarative,postgresql]
+  pip uninstall reahl-web-elixirimpl
+
+.. note::
+
+   On Windows, first use pip uninstall to uninstall any
+   reahl package that is currently installed, then do::
+
+     easy_install "reahl[web,declarative,postgresql]"
+
+*If you do have code of your own written in terms of Elixir*, you
+will have to change that code to use Declarative instead.  In
+order to understand what you need to do, there is no better guide
+than `Declarative's own documentation
+<http://docs.sqlalchemy.org/en/rel_0_9/orm/extensions/declarative.html>`_.
+
+If you have a database running in production that was made with
+your own code written in terms of Elixir, you will also have to
+provide database migrations to change the underlying schema
+from what it was using Elixir, to what it is using Declarative.
     
+
+.. note::
+
+   In the instructions above, you will note that `doc` is never specified in
+   the keywords to pip install. That would install the Reahl documentation and
+   examples -- typically not present on a production system. The documentation 
+   (which includes examples) cannot be installed together with Elixir.
+
+   You may want to uninstall reahl-doc first if you have it installed, but want
+   to stay on Elixir.
+
 
 :doc:`Elixir to Declarative database migration guide <declarativemigration>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -189,7 +231,7 @@ convention used to name database objects (constraints, etc). Using
 this means the same conventions will be used across different
 database backends -- something that will make migrations easier in
 future. Reahl 3.0 now uses these conventions. The
-:module:`reahl.sqlalchemysupport.sqlalchemysupport` module includes a
+:mod:`reahl.sqlalchemysupport.sqlalchemysupport` module includes a
 few functions that compute the names for such database objects
 according to the new naming convention. This is helpful during 
 database migrations.
