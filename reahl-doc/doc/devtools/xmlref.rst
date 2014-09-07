@@ -1,4 +1,4 @@
-.. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 XML reference for .reahlproject
 ===============================
@@ -25,10 +25,15 @@ Project basics and dependencies
 """""
 
   Used to list a single dependency within a `<deps>` element. It requires one attribute: `name`, which should
-  be set to the name of the egg referred to.
+  be set to the name of the egg referred to. Two more attributes are optional:  `version` can be specified (as
+  a string) to pin down the version of the dependency manually to what is specified here; `ignoreversion` 
+  (a boolean value) can be specified as False to indicate that the dependency can be on any version of the
+  specified egg.
   
   Use this element only for other projects in your workspace, under your control. Version information for such
   dependencies can be obtained from the metainfo in your workspace.
+
+  **Changed in 3.0**: The optional `name` and `version` attributes were added.
 
 <thirdpartyegg>
 """""""""""""""

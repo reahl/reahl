@@ -85,8 +85,6 @@ class AddressBook(Base):
         chosen_account = Session.query(EmailAndPasswordSystemAccount).filter_by(id=self.chosen_collaborator).one()
         self.allow(chosen_account, can_add_addresses=self.may_add_address, can_edit_addresses=self.may_edit_address)
 
-    # See https://groups.google.com/forum/?fromgroups=#!topic/sqlelixir/ZlR9Kvcor6Q
-    #    addresses  = elixir.OneToMany(Address)
     @property
     def addresses(self):
         return Session.query(Address).filter_by(address_book=self).all()

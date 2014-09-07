@@ -16,4 +16,4 @@ Component framework
    General interfaces (reahl.interfaces) <interfaces>
    Support for PostgreSQL (reahl.postgresqlsupport) <postgresqlsupport>
    Support for SQLite (reahl.sqlitesupport) <sqlitesupport>
-   Support for SQLAlchemy and Elixir (reahl.sqlalchemysupport) <sqlalchemysupport>
+   Support for SQLAlchemy (reahl.sqlalchemysupport) <sqlalchemysupport>

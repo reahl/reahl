@@ -24,10 +24,11 @@ Description: The Reahl web framework.
  This package does not contain much itself, but is an entry point for installing
  a set of Reahl eggs:
  .
- Install Reahl by installing with extras, eg: easy_install "reahl[declarative,sqlite,dev,doc]"
+ Install Reahl by installing with extras, eg: pip install "reahl[declarative,sqlite,dev,doc]"
  to install everything needed to run Reahl on sqlite, the dev tools and documentation.
+ (On Windows platforms, use easy_install instead of pip.)
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for complete
  installation instructions.
 
 Package: python-reahl-component
@@ -40,7 +41,7 @@ Description: The component framework of Reahl.
  .
  Reahl-component is the component that contains Reahl's component framework.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-dev
@@ -53,7 +54,7 @@ Description: The core Reahl development tools.
  .
  Reahl-dev is the component containing general Reahl development tools. 
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-bzrsupport
@@ -67,7 +68,7 @@ Description: Distutils support for Bazaar when using Reahl development tools.
  Reahl-bzrsupport contains a finder for distutils for the Bazaar
  version control system.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-stubble
@@ -122,7 +123,7 @@ Description: Simple utilities for sending email from Reahl.
  Reahl-mailutil is a simple library for sending emails (optionally from ReST 
  sources).
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
  
 
@@ -137,7 +138,7 @@ Description: Documentation and examples for Reahl.
  .
  Reahl-doc contains documentation and examples of Reahl.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-interfaces
@@ -152,7 +153,7 @@ Description: Python abstract classes for important Reahl interfaces.
  can be supplied. These implementations are called from the core
  Reahl framework.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-postgresqlsupport
@@ -166,7 +167,7 @@ Description: Support for using PostgreSQL with Reahl.
  This package contains infrastructure necessary to
  use Reahl with PostgreSQL.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-web
@@ -179,7 +180,7 @@ Description: The core Reahl web framework
  .
  This package contains the core of the Reahl framework. 
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 
@@ -194,7 +195,7 @@ Description: Support for using SqlAlchemy with Reahl.
  This package contains infrastructure necessary to
  use Reahl with SqlAlchemy or Elixir.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-sqlitesupport
@@ -208,7 +209,7 @@ Description: Support for using Sqlite with Reahl.
  This package contains infrastructure necessary to
  use Reahl with Sqlite.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 
@@ -222,7 +223,7 @@ Description: Web-specific development tools for Reahl.
  .
  Reahl development tools for testing and working with web based programs.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-domain
@@ -236,7 +237,7 @@ Description: End-user domain functionality for use with Reahl.
  This Reahl component includes functionality modelling user accounts,
  some simple workflow concepts and more.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-domainui
@@ -250,7 +251,7 @@ Description: A user interface for reahl-domain.
  This Reahl component contains a user interface for some
  of the domain functionality in reahl-domainui.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 Package: python-reahl-web-declarative
@@ -265,7 +266,7 @@ Description: An implementation of Reahl persisted classes using Elixir.
  different persistence technologies. This is such an implementation
  based on SqlAlchemy/Elixir.
  .
- See http://www.reahl.org/docs/current/tutorial/gettingstarted.d.html for 
+ See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
 

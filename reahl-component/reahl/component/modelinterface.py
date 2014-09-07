@@ -469,7 +469,7 @@ class ComparingConstraint(ValidationConstraint):
 
 class EqualToConstraint(ComparingConstraint):
     """A ValidationConstraint that requires the value of its Field to be equal to the value input into `other_field`.
-    
+
        :param other_field: The Field whose value must be equal to the Field to which this ValidationConstraint is attached.
        :param error_message: (See :class:`ValidationConstraint`)
     """

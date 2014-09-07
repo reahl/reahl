@@ -30,6 +30,21 @@ from reahl.component.context import ExecutionContext
 
 class RenameRegionToUi(Migration):
     version='2.1'
+    @classmethod
+    def is_applicable(cls, current_schema_version, new_version):
+        if super(cls, cls).is_applicable(current_schema_version, new_version):
+            # reahl-declarative is new, and replaces reahl-elixir-impl. Therefore it thinks it is migrating from version 0 always.
+            # We need to manually check that it's not coming from reahl-web-elixirimpl 2.0 or 2.1 instead.
+            orm_control = ExecutionContext.get_context().system_control.orm_control
+
+            class FakeElixirEgg(object):
+                name = 'reahl-web-declarative'
+            previous_elixir_version = orm_control.schema_version_for(FakeElixirEgg(), default='0.0')
+
+            return previous_elixir_version != '0.0' and super(cls, cls).is_applicable(current_schema_version, previous_elixir_version)
+        else:
+            return False
+
     def schedule_upgrades(self):
         self.schedule('alter', op.alter_column, 'sessiondata', 'region_name', new_column_name='ui_name')
 
@@ -37,7 +52,6 @@ class RenameRegionToUi(Migration):
 class ElixirToDeclarativeWebDeclarativeChanges(MigrateElixirToDeclarative):
     def schedule_upgrades(self):
         super(ElixirToDeclarativeWebDeclarativeChanges, self).schedule_upgrades()
-
         self.replace_elixir()
 
     def rename_primary_key_constraints(self):
