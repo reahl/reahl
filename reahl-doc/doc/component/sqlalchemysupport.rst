@@ -1,17 +1,29 @@
 .. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Module reahl.sqlalchemysupport.sqlalchemysupport
-------------------------------------------------
+Module reahl.sqlalchemysupport
+------------------------------
 
-.. automodule:: reahl.sqlalchemysupport
-   :members: Session, Base, metadata
+.. automodule:: reahl.sqlalchemysupport.sqlalchemysupport
 
 
-SqlAlchemyControl
-"""""""""""""""""
+For using SqlAlchemy with Reahl
+"""""""""""""""""""""""""""""""
 
-.. autoclass:: SqlAlchemyControl
-   :members:
+.. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.Session
+
+.. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.Base
+
+.. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.metadata
+
+
+Names of database objects
+"""""""""""""""""""""""""
+
+.. autofunction:: pk_name
+
+.. autofunction:: fk_name
+
+.. autofunction:: ix_name
 
 
 QueryAsSequence
@@ -26,3 +38,12 @@ PersistedField
 
 .. autoclass:: PersistedField
    :members:
+
+
+SqlAlchemyControl
+"""""""""""""""""
+
+.. autoclass:: SqlAlchemyControl
+   :members:
+
+
