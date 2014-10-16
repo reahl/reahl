@@ -136,13 +136,18 @@ def session_scoped(cls):
     @classmethod
     def for_current_session(cls, **kwargs):
         user_session = ExecutionContext.get_context().session
+        return cls.for_session(user_session, **kwargs)
+    cls.for_current_session = for_current_session
+
+    @classmethod
+    def for_session(cls, user_session, **kwargs):
         found = Session.query(cls).filter_by(user_session=user_session)
         if found.count() >= 1:
             return found.one()
         instance = cls(user_session=user_session, **kwargs)
         Session.add(instance)
         return instance
-    cls.for_current_session = for_current_session
+    cls.for_session = for_session
 
     return cls
 

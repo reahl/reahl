@@ -26,6 +26,7 @@ from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detou
 from reahl.web.ui import P, Panel, Ul, Li, H, Form, Button
 
 from reahl.domain.workflowmodel import Inbox, Task, WorkflowInterface
+from reahl.domain.systemaccountmodel import LoginSession
 
 
 _ = Translator('reahl-domainui')
@@ -116,7 +117,7 @@ class InboxUI(UserInterface):
     def assemble(self, login_bookmark=None, get_queues=None):
         self.get_queues = get_queues
         self.web_session = WebExecutionContext.get_context().session 
-        self.first_log_in = ViewPreCondition(self.web_session.is_logged_in, exception=Detour(login_bookmark))
+        self.first_log_in = ViewPreCondition(LoginSession.for_current_session().is_logged_in, exception=Detour(login_bookmark))
 
         self.workflow_interface = WorkflowInterface()
         self.inbox = Inbox(self.get_queues())
