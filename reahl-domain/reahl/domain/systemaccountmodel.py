@@ -198,8 +198,9 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         except NoSuchAccountException:
             raise InvalidPasswordException()
         target_account.authenticate(password)
-        session = ExecutionContext.get_context().session
-        session.set_as_logged_in(target_account, stay_logged_in)
+        login_session = LoginSession.for_current_session()
+        login_session.log_out()
+        login_session.set_as_logged_in(target_account, stay_logged_in)
 
     def authenticate(self, password):
         self.assert_account_live()
@@ -317,8 +318,8 @@ class AccountManagementInterface(Base):
         EmailAndPasswordSystemAccount.log_in(self.email, self.password, self.stay_logged_in)
         
     def log_out(self):
-        web_session = ExecutionContext.get_context().session 
-        web_session.log_out()
+        login_session = LoginSession.for_current_session()
+        login_session.log_out()
 
     def request_password_reset(self):
         account = EmailAndPasswordSystemAccount.by_email(self.email)
@@ -582,9 +583,6 @@ class UserSession(Base, UserSessionProtocol):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
-    account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
-    account = relationship(SystemAccount)
-
     idle_lifetime = Column(Integer(), nullable=False, default=0)
     last_activity = Column(DateTime(), nullable=False, default=datetime.now)
 
@@ -602,30 +600,50 @@ class UserSession(Base, UserSessionProtocol):
 
     def is_secure(self):
         config = ExecutionContext.get_context().config
-        return self.is_logged_in() \
-               and self.is_within_timeout(config.accounts.idle_secure_lifetime)
+        return self.is_within_timeout(config.accounts.idle_secure_lifetime)
         
-    def is_logged_in(self):
-        return self.account is not None \
-               and self.is_within_timeout(self.idle_lifetime)
+    def is_active(self):
+        return self.is_within_timeout(self.idle_lifetime)
 
     def is_within_timeout(self, timeout):
         return self.last_activity + timedelta(seconds=timeout) > datetime.now()
 
+    def set_last_activity_time(self):
+        self.last_activity = datetime.now()
+
+    def set_idle_lifetime(self, idle_lifetime):
+        self.idle_lifetime = idle_lifetime
+
+    def get_interface_locale(self):
+        return 'en_gb'
+
+
+@session_scoped
+class LoginSession(Base):
+    __tablename__ = 'loginsession'
+
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('row_type', String(40))
+    __mapper_args__ = {'polymorphic_on': discriminator}
+
+    account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
+    account = relationship(SystemAccount)
+
+    def is_secure(self):
+        return self.is_logged_in() and self.user_session.is_secure()
+        
+    def is_logged_in(self):
+        return self.account is not None and self.user_session.is_active()
+
     def set_as_logged_in(self, account, stay_logged_in):
         self.account = account
         config = ExecutionContext.get_context().config
-        self.idle_lifetime = config.accounts.idle_lifetime_max if stay_logged_in else config.accounts.idle_lifetime
-        self.set_last_activity_time()
+        self.user_session.set_idle_lifetime(config.accounts.idle_lifetime_max if stay_logged_in else config.accounts.idle_lifetime)
+        self.user_session.set_last_activity_time()
 
     def log_out(self):
         self.account = None
                     
-    def set_last_activity_time(self):
-        self.last_activity = datetime.now()
-
-    def get_interface_locale(self):
-        return 'en_gb'
 
 
 class SystemAccountStatus(object):

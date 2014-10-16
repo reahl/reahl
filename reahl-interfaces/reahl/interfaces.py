@@ -35,9 +35,9 @@ class UserSessionProtocol(object):
     def is_secure(self): 
         """Answers whether the interaction is currently done via a secure channel where applicable."""
         
-    @abstractmethod
-    def is_logged_in(self): 
-        """Answers whether the current user has been authenticated."""
+#    @abstractmethod
+#    def is_logged_in(self): 
+#        """Answers whether the current user has been authenticated."""
 
     @abstractmethod
     def set_last_activity_time(self): 
