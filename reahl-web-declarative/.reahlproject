@@ -6,7 +6,6 @@
   </namespaces>
 
   <deps purpose="run">
-    <egg name="reahl-interfaces" ignoreversion="True"/>
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-web" ignoreversion="True"/>
     <egg name="reahl-component" ignoreversion="True"/>
@@ -23,7 +22,6 @@
 
   <persisted>
     <class locator="reahl.webdeclarative.webdeclarative:UserSession"/>
-    <class locator="reahl.webdeclarative.webdeclarative:WebUserSession"/>
     <class locator="reahl.webdeclarative.webdeclarative:SessionData"/>
     <class locator="reahl.webdeclarative.webdeclarative:UserInput"/>
     <class locator="reahl.webdeclarative.webdeclarative:PersistedException"/>

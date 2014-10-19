@@ -84,25 +84,6 @@
            style="font-size:16px" /></flowRegion><flowPara
          id="flowPara3769" /></flowRoot>    <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779"
-       width="117"
-       height="21"
-       x="50"
-       y="997.36212"
-       ry="8" />
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="63"
-       y="1011.3621"
-       id="text3781"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783"
-         x="63"
-         y="1011.3621">reahl-interfaces</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
        id="rect3779-9"
        width="157"
        height="22"
@@ -126,37 +107,37 @@
        width="117.20683"
        height="21"
        x="51"
-       y="968.36212"
+       y="998.36212"
        ry="8" />
     <text
        xml:space="preserve"
        style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
        x="64"
-       y="982.36212"
+       y="1012.3621"
        id="text3781-2"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3783-1"
          x="64"
-         y="982.36212">reahl-component</tspan></text>
+         y="1012.3621">reahl-component</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
        id="rect3779-5-5"
        width="159.16171"
        height="22"
-       x="181"
+       x="179"
        y="968.36206"
        ry="8" />
     <text
        xml:space="preserve"
        style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="194"
+       x="192"
        y="982.36206"
        id="text3781-2-9"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan3783-1-9"
-         x="194"
+         x="192"
          y="982.36206">reahl-postgresqlsupport</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"

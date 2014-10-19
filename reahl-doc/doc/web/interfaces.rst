@@ -6,10 +6,10 @@ Module reahl.web.interfaces
 .. automodule:: reahl.web.interfaces
 
 
-WebUserSessionProtocol
-""""""""""""""""""""""
+UserSessionProtocol
+"""""""""""""""""""
 
-.. autoclass:: WebUserSessionProtocol
+.. autoclass:: UserSessionProtocol
    :members:
 
 UserInputProtocol
