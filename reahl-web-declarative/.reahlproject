@@ -22,12 +22,15 @@
   </deps>
 
   <persisted>
+    <class locator="reahl.webdeclarative.webdeclarative:UserSession"/>
     <class locator="reahl.webdeclarative.webdeclarative:WebUserSession"/>
     <class locator="reahl.webdeclarative.webdeclarative:SessionData"/>
     <class locator="reahl.webdeclarative.webdeclarative:UserInput"/>
     <class locator="reahl.webdeclarative.webdeclarative:PersistedException"/>
     <class locator="reahl.webdeclarative.webdeclarative:PersistedFile"/>
   </persisted>
+
+  <schedule locator="reahl.webdeclarative.webdeclarative:UserSession.remove_dead_sessions"/>
 
   <migrations>
     <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>

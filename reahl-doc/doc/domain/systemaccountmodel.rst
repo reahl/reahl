@@ -14,10 +14,10 @@ AccountManagementInterface
    :members:
 
 
-UserSession
-"""""""""""
+LoginSession
+""""""""""""
 
-.. autoclass:: UserSession
+.. autoclass:: LoginSession
    :members:
 
 SystemAccount
