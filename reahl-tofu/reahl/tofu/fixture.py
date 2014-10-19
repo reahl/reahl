@@ -111,9 +111,13 @@ class Fixture(object):
        A Fixture instance can be used as a context manager. It is set up before 
        entering the block of code it manages, and torn down upon exiting it.
 
-       A Fixture has a default :class:`reahl.component.context.ExecutionContext` 
-       instance available as its `.context` attribute, which can be overridden
-       by creating a method named `new_context` on a subclass.
+       A Fixture instance also has a context manager available as its
+       '.context' attribute. Setup, test run and tear down code is run
+       within the context of '.context' as well. The default context
+       manager does not do anything, but you can supply your own by
+       creating a method named `new_context` on a subclass. If no custom
+       context is given and the fixture has a run_fixture, the run_fixture.context
+       is used.
     """
     factory_method_prefix = 'new'
 
@@ -187,16 +191,17 @@ class Fixture(object):
         return '%s[%s]' % (self.__class__.__name__, self.scenario.name)
 
     def __enter__(self):
-        with self.context:
-            self.set_up()
-            self.run_marked_methods(SetUp, order=reversed)
-            self.scenario.method_for(self)()
+        self.context.__enter__()
+        self.set_up()
+        self.run_marked_methods(SetUp, order=reversed)
+        self.scenario.method_for(self)()
         return self
 
     def __exit__(self, exception_type, value, traceback):
-        with self.context:
-            self.run_marked_methods(TearDown)
-            self.tear_down()
+        self.context.__exit__(exception_type, value, traceback)
+        self.run_marked_methods(TearDown)
+        self.tear_down()
+
 
 class NoContext(object):
     def __enter__(self):

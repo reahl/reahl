@@ -18,14 +18,31 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import re
 import os
+import six
 import logging
 
-from nose.tools import make_decorator
-from nose.plugins import Plugin
+try:
+    from nose.tools import make_decorator
+    from nose.plugins import Plugin
+except ImportException:
+    msg = 'nose not available, nosesupport disabled'
+    logging.warn(msg)
+    def make_decorator(f):
+        raise AssertionError(msg)
+    class Plugin(object):
+        def __init__(self, *args, **kwargs):
+            raise AssertionError(msg)
 
-from reahl.component.py3compat import ascii_as_bytes_or_str
 
 run_fixture = None
+
+# Copied from: (in order to prevent reahl-tofu to be dependent in reahl-component)
+#  from reahl.component.py3compat import ascii_as_bytes_or_str
+def ascii_as_bytes_or_str(unicode_str):
+    if six.PY2:
+        return unicode_str.encode('ascii')
+    else:
+        return unicode_str
 
 
 class IsTestWithFixture(object):

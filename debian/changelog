@@ -1,3 +1,10 @@
+python-reahl (3.1.0) unstable; urgency=low
+
+ * Split the login functionality out of UserSession to LoginSession (Blueprint: login-session-split).
+ * Removed reahl-tofu dependency on nose and on reahl-component.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Sat, 06 Sep 2014 11:50:00 +0200
+
 python-reahl (3.0.0) unstable; urgency=low
 
  * Changed from using Elixir to Declarative (Blueprint: declarative).
