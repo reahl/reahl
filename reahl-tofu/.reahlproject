@@ -3,12 +3,8 @@
     <package name="reahl"/>
   </namespaces>
 
-  <deps purpose="run">
-    <egg name="reahl-component"/>
-    <thirdpartyegg name="nose"/>
-  </deps>
-
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-stubble"/>
   </deps>
 
