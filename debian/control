@@ -141,21 +141,6 @@ Description: Documentation and examples for Reahl.
  See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
  installation instructions.
 
-Package: python-reahl-interfaces
-Architecture: all
-Depends: ${python:Depends}, ${reahl:Depends}
-Provides: ${python:Provides}
-Description: Python abstract classes for important Reahl interfaces.
- Reahl is a web application framework that allows a Python programmer to work in 
- terms of useful abstractions - using a single programming language.
- .
- This package contains interfaces for which different implementations
- can be supplied. These implementations are called from the core
- Reahl framework.
- .
- See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for 
- installation instructions.
-
 Package: python-reahl-postgresqlsupport
 Architecture: all
 Depends: ${python:Depends}, ${reahl:Depends}

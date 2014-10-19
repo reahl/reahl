@@ -1,0 +1,11 @@
+
+ * Split the login functionality out of UserSession to LoginSession (Blueprint: login-session-split).
+   UserSession.<methods related to logging in and out> no longer exist.
+   LoginSession now exists (elsewhere) and has those, and is used differently.
+   reahl-interfaces does not exist anymore, and UserSessionProtocol & WebUserSessionProtocol have been merged into the latter
+   There is no WebUserSession anymore.
+   Database migration??
+
+ * Removed reahl-tofu dependency on nose and on reahl-component.
+   Installing reahl-tofu does not automatically pull in nose anymore.
+   reahl-{tofu,stubble} can be used without any other reahl stuff.

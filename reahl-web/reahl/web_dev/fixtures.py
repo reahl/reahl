@@ -35,7 +35,7 @@ from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
 from reahl.web.egg import WebConfig
-from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.webdev.tools import DriverBrowser
 
 
@@ -84,7 +84,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         web = WebConfig()
         web.site_root = UserInterface
         web.static_root = os.path.join(os.getcwd(), 'static')
-        web.session_class = WebUserSession
+        web.session_class = UserSession
         web.persisted_exception_class = PersistedException
         web.persisted_file_class = PersistedFile
         web.persisted_userinput_class = UserInput
@@ -105,7 +105,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         return context
         
     def new_session(self):
-        web_user_session = WebUserSession()
+        web_user_session = UserSession()
         Session.add(web_user_session)
         return web_user_session
 

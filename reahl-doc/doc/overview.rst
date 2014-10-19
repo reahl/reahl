@@ -42,9 +42,7 @@ programmer to build domain models that are annotated with information
 used by user interface code.
 
 The core of the Reahl component framework is implemented in
-`reahl-component`.  Interfaces for concepts defined by the Reahl
-component framework (but not implemented by it) are in
-`reahl-interfaces`. Support for different databases or ORM tools is
+`reahl-component`. Support for different databases or ORM tools is
 implemented in separate components: `reahl-postgresqlsupport`,
 `reahl-sqlalchemysupport` and `reahl-sqllitesupport`.
 

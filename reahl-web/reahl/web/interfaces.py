@@ -23,11 +23,32 @@ import six
 
 from abc import ABCMeta, abstractmethod
 
-from reahl.interfaces import UserSessionProtocol
 
+@six.add_metaclass(ABCMeta)
+class UserSessionProtocol(object):
+    """A UserSession represents a potentially lengthy interaction of a particular the user with the system."""
 
-class WebUserSessionProtocol(UserSessionProtocol):
-    """The protocol for an implementation to a class used via `web.session_class`."""
+    @classmethod
+    @abstractmethod
+    def for_current_session(cls): 
+        """Returns a UserSession instance for the current user. If no UserSession is present for the current
+           interaction yet this method should create one. If a UserSession does exist for the current interaction,
+           this method returns the correct UserSession."""
+
+    @abstractmethod
+    def is_secure(self): 
+        """Answers whether the interaction is currently done via a secure channel where applicable."""
+        
+    @abstractmethod
+    def set_last_activity_time(self): 
+        """Sets a timestamp on the UserSession to indicate when the last activity was detected 
+           relating to this interaction. UserSessions typically expore automatically if no activity is
+           detected after some time."""
+
+    @abstractmethod
+    def get_interface_locale(self): 
+        """Answers a string identifying the currently selected locale."""
+
     @classmethod
     @abstractmethod
     def get_or_create_session(cls): 

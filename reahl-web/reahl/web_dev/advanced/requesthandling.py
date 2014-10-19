@@ -25,7 +25,7 @@ from reahl.tofu import vassert
 from reahl.stubble import stubclass, CallMonitor
 
 from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext
-from reahl.web.interfaces import WebUserSessionProtocol
+from reahl.web.interfaces import UserSessionProtocol
 from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
 
@@ -63,7 +63,7 @@ class RequestHandlingTests(object):
         """The core web framework (this egg) does not implement a notion of session directly.
            It relies on such a notion, but expects an implementation for this to be supplied.
 
-           An implementation should implement the WebUserSessionProtocol. The implementation
+           An implementation should implement the UserSessionProtocol. The implementation
            is thus responsible for associating an instance of itself with the current request.
 
            The implementation to be used is set in the web.session_class configuration setting.
@@ -76,8 +76,8 @@ class RequestHandlingTests(object):
            Finally, another commit is issued to the database so that any database activity during these last
            actions would also be saved.
         """
-        stubclass(WebUserSessionProtocol)
-        class WebUserSessionStub(WebUserSessionProtocol):
+        stubclass(UserSessionProtocol)
+        class UserSessionStub(UserSessionProtocol):
             session = None
             last_activity_time_set = False
             key_is_set = False
@@ -106,17 +106,17 @@ class RequestHandlingTests(object):
                 return 'en_gb'
 
         # Setting the implementation in config
-        fixture.config.web.session_class = WebUserSessionStub
+        fixture.config.web.session_class = UserSessionStub
 
         with CallMonitor(fixture.system_control.orm_control.commit) as monitor:
             @stubclass(Resource)
             class ResourceStub(object):
                 def handle_request(self, request):
                     context = WebExecutionContext.get_context()
-                    vassert( context.session is WebUserSessionStub.session )  # By the time user code executes, the session is set
+                    vassert( context.session is UserSessionStub.session )  # By the time user code executes, the session is set
                     vassert( monitor.times_called == 1 )                      # The database has been committed
                     vassert( not context.session.last_activity_time_set )     
-                    vassert( not WebUserSessionStub.session.key_is_set )
+                    vassert( not UserSessionStub.session.key_is_set )
                     return Response()
         
             @stubclass(ReahlWSGIApplication)
@@ -127,16 +127,16 @@ class RequestHandlingTests(object):
             browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
 
             # A session is obtained, and the correct params passed to the hook methods
-            vassert( not WebUserSessionStub.session )      # Before the request, the session is not yet set
+            vassert( not UserSessionStub.session )      # Before the request, the session is not yet set
             vassert( monitor.times_called == 0 )           # ... and the database is not yet committed
             browser.open('/')
             
             vassert( monitor.times_called == 1 )           # The database is committed after user code executed
-            vassert( WebUserSessionStub.session )          # The session was set
-            vassert( WebUserSessionStub.session.key_is_set ) # The set_session_key was called
-            vassert( WebUserSessionStub.session.saved_response.status_int is 200 ) # The correct response was passed to set_session_key
+            vassert( UserSessionStub.session )          # The session was set
+            vassert( UserSessionStub.session.key_is_set ) # The set_session_key was called
+            vassert( UserSessionStub.session.saved_response.status_int is 200 ) # The correct response was passed to set_session_key
 
-            vassert( WebUserSessionStub.session.last_activity_time_set ) # set_last_activity_time was called
+            vassert( UserSessionStub.session.last_activity_time_set ) # set_last_activity_time was called
 
     @test(WebFixture)
     def handling_HTTPError_exceptions(self, fixture):

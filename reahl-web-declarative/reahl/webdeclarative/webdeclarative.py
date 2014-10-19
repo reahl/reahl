@@ -33,8 +33,7 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.component.context import ExecutionContext
 from reahl.component.migration import Migration
-from reahl.interfaces import UserSessionProtocol
-from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
+from reahl.web.interfaces import UserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
 from reahl.web.fw import WebExecutionContext, Url
 
 
@@ -53,6 +52,9 @@ class UserSession(Base, UserSessionProtocol):
     idle_lifetime = Column(Integer(), nullable=False, default=0)
     last_activity = Column(DateTime(), nullable=False, default=datetime.now)
 
+    salt = Column(String(40), nullable=False)
+    secure_salt = Column(String(40), nullable=False)
+
     @classmethod
     def remove_dead_sessions(cls, now=None):
         now = now or datetime.now()
@@ -65,9 +67,15 @@ class UserSession(Base, UserSessionProtocol):
     def for_current_session(cls):
         return ExecutionContext.get_context().session
 
+    def __init__(self, **kwargs):
+        self.generate_salt()
+        super(UserSession, self).__init__(**kwargs)
+
     def is_secure(self):
-        config = ExecutionContext.get_context().config
-        return self.is_within_timeout(config.accounts.idle_secure_lifetime)
+        context = WebExecutionContext.get_context()
+        return self.is_within_timeout(context.config.accounts.idle_secure_lifetime) \
+               and context.request.scheme == 'https' \
+               and self.secure_cookie_is_valid()
         
     def is_active(self):
         return self.is_within_timeout(self.idle_lifetime)
@@ -80,17 +88,6 @@ class UserSession(Base, UserSessionProtocol):
 
     def set_idle_lifetime(self, idle_lifetime):
         self.idle_lifetime = idle_lifetime
-
-    def get_interface_locale(self):
-        return 'en_gb'
-
-class WebUserSession(UserSession, WebUserSessionProtocol):
-    __tablename__ = 'webusersession'
-    __mapper_args__ = {'polymorphic_identity': 'webusersession'}
-    id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), primary_key=True)
-
-    salt = Column(String(40), nullable=False)
-    secure_salt = Column(String(40), nullable=False)
 
     @classmethod
     def from_key(cls, key):
@@ -106,12 +103,6 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
     def as_key(self):
         Session.flush() # To make sure .id is populated
         return '%s:%s' % (six.text_type(self.id), self.salt)
-
-    def is_secure(self):
-        context = WebExecutionContext.get_context()
-        return super(WebUserSession, self).is_secure() \
-               and context.request.scheme == 'https' \
-               and self.secure_cookie_is_valid()
 
     def secure_cookie_is_valid(self):
         context = WebExecutionContext.get_context()
@@ -154,10 +145,6 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
             response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
                                 max_age=context.config.accounts.idle_secure_lifetime)
 
-    def __init__(self, **kwargs):
-        self.generate_salt()
-        super(WebUserSession, self).__init__(**kwargs)
-
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
         self.salt = ''.join([random.choice(alphabet) for x in list(range(40))])
@@ -165,6 +152,9 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
 
     def get_interface_locale(self):
         context = WebExecutionContext.get_context()
+        if not hasattr(context, 'request'):
+            return 'en_gb'
+
         request = context.request
         url = Url.get_current_url()
         possible_locale, path = url.get_locale_split_path()
@@ -182,8 +172,8 @@ class SessionData(Base):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
     
-    web_session_id = Column(Integer, ForeignKey('webusersession.id', ondelete='CASCADE'), index=True)
-    web_session = relationship(WebUserSession)
+    web_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
+    web_session = relationship(UserSession)
 
     ui_name = Column(UnicodeText, nullable=False)
     channel_name = Column(UnicodeText, nullable=False)
@@ -343,7 +333,7 @@ class WebDeclarativeConfig(Configuration):
     config_key = 'web.webdeclarative'
 
     def do_injections(self, config):
-        config.web.session_class = WebUserSession
+        config.web.session_class = UserSession
         config.web.persisted_exception_class = PersistedException
         config.web.persisted_userinput_class = UserInput
         config.web.persisted_file_class = PersistedFile
