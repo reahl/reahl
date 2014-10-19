@@ -39,33 +39,34 @@ User sessions
 
    Did you notice the similarity? For a GUI program, the user starts
    the application, and exits it when done using it. The GUI process
-   itself is thus pretty much the GUI equivalent of a :class:`~reahl.systemaccountmodel.UserSession` on
+   itself is thus pretty much the GUI equivalent of a WebUserSession on
    the web.
 
 In order to deal with this problem, Reahl has the notion of a
-:class:`~reahl.systemaccountmodel.UserSession`. A :class:`~reahl.systemaccountmodel.UserSession` is an object which represents one sitting
+WebUserSession -- a class implementing :class:`~reahl.web.interfaces.WebUserSessionProtocol`. An
+implementation of :class:`~reahl.web.interfaces.WebUserSessionProtocol` is an object which represents one sitting
 of a user while the user is interacting with the web application. When
-a user first visits the web application, a :class:`~reahl.systemaccountmodel.UserSession` is created and
+a user first visits the web application, such a WebUserSession is created and
 saved to the database. On subsequent visits, Reahl checks behind the
-scenes (currently using cookies) for an existing :class:`~reahl.systemaccountmodel.UserSession` relating
-to the browser which sent the current request. The :class:`~reahl.systemaccountmodel.UserSession` is
+scenes (currently using cookies) for an existing WebUserSession matching
+the browser which sent the current request. The WebUserSession is
 automatically destroyed if a specified amount of time passes with no
 further interaction from the user.
 
-The :class:`~reahl.systemaccountmodel.UserSession` provides a way for the programmer to persist objects
+The WebUserSession provides a way for the programmer to persist objects
 on the server side -- for a particular user while that user uses the
 web application. The programmer can get to objects stored "in the
-session" from any page. The stuff persisted as part of the :class:`~reahl.systemaccountmodel.UserSession`
-typically disappears automatically when the :class:`~reahl.systemaccountmodel.UserSession` expires. An Object
-that lives in the :class:`~reahl.systemaccountmodel.UserSession` is said to be *session scoped*.
+session" from any page. The stuff persisted as part of the WebUserSession
+typically disappears automatically when the WebUserSession expires. An Object
+that lives in the WebUserSession is said to be *session scoped*. 
 
 
 An example: logging in
 ----------------------
 
-To see how one can use the :class:`~reahl.systemaccountmodel.UserSession` in Reahl, let's build an
+To see how one can use the WebUserSession in Reahl, let's build an
 example which allows users to log in using an email address and
-password. Reahl has a fancier built-in way of dealing with user logins
+password. Reahl has a built-in way of dealing with user logins
 :doc:`explained later on <loggingin>`, but doing this from scratch
 provides for a nice example.
 
@@ -93,10 +94,10 @@ Declaring the LoginSession
 --------------------------
 
 In Reahl, if you want to persist an object just for the lifetime of a
-:class:`~reahl.systemaccountmodel.UserSession`, that object should be persisted via the same persistence
+WebUserSession, that object should be persisted via the same persistence
 mechanism used by your other persistent objects. It should also hold
-onto the :class:`~reahl.systemaccountmodel.UserSession` so that it is discoverable for a particular
-:class:`~reahl.systemaccountmodel.UserSession`.
+onto the WebUserSession so that it is discoverable for a particular
+WebUserSession.
 
 When using SqlAlchemy, creating an object that has a `session scoped` lifetime is really
 easy: just use the `@session_scoped` class decorator:
@@ -139,10 +140,10 @@ the login page, we need the LoginSession to be able to link its
 In this example, we obtain the current LoginSession at the beginning
 of `.assemble()` of the :class:`~reahl.web.fw.UserInterface`, and send it around as argument to the
 login page. Most of that is old hat for you, except the bit about how
-to obtain the LoginSession for the current :class:`~reahl.systemaccountmodel.UserSession`. The
+to obtain the LoginSession for the current WebUserSession. The
 `@session_scoped` decorator adds a method to the class it decorates
 for this purpose. `LoginSession.for_current_session()` will check
-whether there is a LoginSession for the current :class:`~reahl.systemaccountmodel.UserSession` and create
+whether there is a LoginSession for the current WebUserSession and create
 one if necessary. Either way it returns what you expect:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
@@ -162,7 +163,7 @@ password. That's why an InvalidPassword exception is raised in this
 case inside the `.log_in()` method of LoginSession.
 
 When a :class:`~reahl.web.fw.DomainException` is raised, this poses some more
-:class:`~reahl.systemaccountmodel.UserSession`\ -related problems for the framework. Understanding some of
+WebUserSession -related problems for the framework. Understanding some of
 the underlying implementation is necessary to explain this well. So,
 please bear with us going down that route:
 
@@ -193,7 +194,7 @@ implementation of LoginForm below.
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
    :pyobject: LoginForm
 
-Can you spot the :class:`~reahl.systemaccountmodel.UserSession` at work here? The input values and an
+Can you spot the WebUserSession at work here? The input values and an
 exception were available during the POST, but has to be saved in
 session scope for them to be retrievable in a subsequent GET request
 again.
@@ -202,7 +203,7 @@ The easy (but wrong) way around the problem could be for the framework
 to send back a rendition of the same page (including exception) in
 response to the POST request. That way all the information it needs to
 re-render the login page would still have been available without the need
-for a :class:`~reahl.systemaccountmodel.UserSession`. This solution, however is not what was intended by
+for a WebUserSession. This solution, however is not what was intended by
 the designers of the HTTP standard, and hence can cause the
 back-button of the browser to behave strangely. It could even result
 in users submitting the same form twice by mistake (not a nice thing

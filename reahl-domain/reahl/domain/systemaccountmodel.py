@@ -29,7 +29,7 @@ from sqlalchemy.orm import relationship, backref
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
 from reahl.component.exceptions import DomainException, ProgrammerError
-from reahl.interfaces import UserSessionProtocol
+
 from reahl.mailutil.mail import Mailer, MailMessage
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.i18n import Translator
@@ -574,48 +574,6 @@ class ChangeAccountEmail(DeferredAction):
         self.verify_email_request.send_notification()
 
 
-class UserSession(Base, UserSessionProtocol):
-    """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
-
-    __tablename__ = 'usersession'
-
-    id = Column(Integer, primary_key=True)
-    discriminator = Column('row_type', String(40))
-    __mapper_args__ = {'polymorphic_on': discriminator}
-
-    idle_lifetime = Column(Integer(), nullable=False, default=0)
-    last_activity = Column(DateTime(), nullable=False, default=datetime.now)
-
-    @classmethod
-    def remove_dead_sessions(cls, now=None):
-        now = now or datetime.now()
-        if now.minute > 0 and now.minute < 5:
-            config = ExecutionContext.get_context().config
-            cutoff = now - timedelta(seconds=config.accounts.session_lifetime)
-            Session.query(cls).filter(cls.last_activity <= cutoff).delete()
-
-    @classmethod
-    def for_current_session(cls):
-        return ExecutionContext.get_context().session
-
-    def is_secure(self):
-        config = ExecutionContext.get_context().config
-        return self.is_within_timeout(config.accounts.idle_secure_lifetime)
-        
-    def is_active(self):
-        return self.is_within_timeout(self.idle_lifetime)
-
-    def is_within_timeout(self, timeout):
-        return self.last_activity + timedelta(seconds=timeout) > datetime.now()
-
-    def set_last_activity_time(self):
-        self.last_activity = datetime.now()
-
-    def set_idle_lifetime(self, idle_lifetime):
-        self.idle_lifetime = idle_lifetime
-
-    def get_interface_locale(self):
-        return 'en_gb'
 
 
 @session_scoped

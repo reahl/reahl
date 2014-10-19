@@ -19,22 +19,70 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import random
 from six.moves.urllib import parse as urllib_parse
+from datetime import datetime, timedelta
 
 
-from sqlalchemy import Column, Integer, BigInteger, LargeBinary, PickleType, String, UnicodeText, ForeignKey
+
+from sqlalchemy import Column, Integer, BigInteger, LargeBinary, PickleType, String, UnicodeText, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, deferred, backref
+#from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
+
 
 from reahl.sqlalchemysupport import Session, Base
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
+from reahl.component.context import ExecutionContext
 from reahl.component.migration import Migration
+from reahl.interfaces import UserSessionProtocol
 from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
-from reahl.domain.systemaccountmodel import UserSession
 from reahl.web.fw import WebExecutionContext, Url
 
 
 class InvalidKeyException(Exception):
     pass
+
+class UserSession(Base, UserSessionProtocol):
+    """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
+
+    __tablename__ = 'usersession'
+
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('row_type', String(40))
+    __mapper_args__ = {'polymorphic_on': discriminator}
+
+    idle_lifetime = Column(Integer(), nullable=False, default=0)
+    last_activity = Column(DateTime(), nullable=False, default=datetime.now)
+
+    @classmethod
+    def remove_dead_sessions(cls, now=None):
+        now = now or datetime.now()
+        if now.minute > 0 and now.minute < 5:
+            config = ExecutionContext.get_context().config
+            cutoff = now - timedelta(seconds=config.accounts.session_lifetime)
+            Session.query(cls).filter(cls.last_activity <= cutoff).delete()
+
+    @classmethod
+    def for_current_session(cls):
+        return ExecutionContext.get_context().session
+
+    def is_secure(self):
+        config = ExecutionContext.get_context().config
+        return self.is_within_timeout(config.accounts.idle_secure_lifetime)
+        
+    def is_active(self):
+        return self.is_within_timeout(self.idle_lifetime)
+
+    def is_within_timeout(self, timeout):
+        return self.last_activity + timedelta(seconds=timeout) > datetime.now()
+
+    def set_last_activity_time(self):
+        self.last_activity = datetime.now()
+
+    def set_idle_lifetime(self, idle_lifetime):
+        self.idle_lifetime = idle_lifetime
+
+    def get_interface_locale(self):
+        return 'en_gb'
 
 class WebUserSession(UserSession, WebUserSessionProtocol):
     __tablename__ = 'webusersession'

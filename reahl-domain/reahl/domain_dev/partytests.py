@@ -32,7 +32,7 @@ from reahl.stubble import stubclass
 from reahl.component.eggs import ReahlEgg
 from reahl.domain.partymodel import Party
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, VerificationRequest, VerifyEmailRequest, NewPasswordRequest, \
-     ChangeAccountEmail, UserSession, PasswordException, NotUniqueException, InvalidPasswordException, KeyException, \
+     ChangeAccountEmail, PasswordException, NotUniqueException, InvalidPasswordException, KeyException, \
      InvalidEmailException, AccountNotActiveException, NoSuchAccountException, AccountActive, AccountDisabled, AccountNotActivated,\
      AccountManagementInterface,  ActivateAccount
 from reahl.domain_dev.fixtures import PartyModelZooMixin

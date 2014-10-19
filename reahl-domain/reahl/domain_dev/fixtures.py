@@ -26,7 +26,7 @@ from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
 from reahl.domain.partymodel import Party
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 from reahl.domain.systemaccountmodel import SystemAccountConfig
-from reahl.domain.systemaccountmodel import UserSession
+from reahl.webdeclarative.webdeclarative import UserSession
 
 @stubclass(Mailer)
 class MailerStub(object):
