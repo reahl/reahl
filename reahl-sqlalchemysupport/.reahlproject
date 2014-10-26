@@ -12,7 +12,6 @@
   </deps>
 
   <deps purpose="test">
-    <egg name="reahl-domain"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>

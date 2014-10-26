@@ -592,7 +592,7 @@ class LoginSession(Base):
     def set_as_logged_in(self, account, stay_logged_in):
         self.account = account
         config = ExecutionContext.get_context().config
-        self.user_session.set_idle_lifetime(config.web.idle_lifetime_max if stay_logged_in else config.web.idle_lifetime)
+        self.user_session.set_idle_lifetime(stay_logged_in)
         self.user_session.set_last_activity_time()
 
     def log_out(self):
