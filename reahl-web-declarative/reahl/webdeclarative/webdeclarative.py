@@ -69,6 +69,8 @@ class UserSession(Base, UserSessionProtocol):
 
     def __init__(self, **kwargs):
         self.generate_salt()
+        self.last_activity = datetime.fromordinal(1)
+        self.set_idle_lifetime(False)
         super(UserSession, self).__init__(**kwargs)
 
     def is_secure(self):
@@ -86,8 +88,9 @@ class UserSession(Base, UserSessionProtocol):
     def set_last_activity_time(self):
         self.last_activity = datetime.now()
 
-    def set_idle_lifetime(self, idle_lifetime):
-        self.idle_lifetime = idle_lifetime
+    def set_idle_lifetime(self, use_max):
+        config = WebExecutionContext.get_context().config
+        self.idle_lifetime = config.web.idle_lifetime_max if use_max else config.web.idle_lifetime
 
     @classmethod
     def from_key(cls, key):

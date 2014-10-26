@@ -16,6 +16,8 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+from datetime import datetime, timedelta
+
 import six
 from six.moves import http_cookies
 from six.moves.urllib import parse as urllib_parse
@@ -55,21 +57,25 @@ class BasicTests(object):
             self.scheme = 'https'
             self.last_activity = datetime.now()
             self.secure_cookie = self.context.session.secure_salt
+            self.expect_secure = True
 
         @scenario
         def insecure_scheme(self):
             self.secure()
             self.scheme = 'http'
+            self.expect_secure = False
 
         @scenario
         def old_interaction(self):
             self.secure()
             self.last_activity = datetime.now() - timedelta(seconds=self.config.web.idle_secure_lifetime+10)
+            self.expect_secure = False
 
         @scenario
         def bad_cookie(self):
             self.secure()
             self.secure_cookie = 'bad cookie value'
+            self.expect_secure = False
 
             
     @test(SecureScenarios)
@@ -85,7 +91,7 @@ class BasicTests(object):
         fixture.request.scheme = fixture.scheme
         user_session.last_activity = fixture.last_activity
         context.request.cookies[context.config.web.secure_key_name] = fixture.secure_cookie
-        vassert( user_session.is_secure() is fixture.is_secure )
+        vassert( user_session.is_secure() is fixture.expect_secure )
 
 
     @test(WebFixture)
@@ -146,56 +152,52 @@ class BasicTests(object):
 
     @test(WebFixture)
     def reading_cookies_on_initialising_a_session(self, fixture):
-        account = fixture.system_account
-        
         # Case: session cookie not set in Request
         fixture.context.initialise_web_session()
-        vassert( not fixture.context.session.is_logged_in() )
+        vassert( not fixture.context.session.is_active() )
         vassert( not fixture.context.session.is_secure() )
         
         # Case: session cookie set in Request
         fixture.context.set_session(None)
         user_session = UserSession()
+        user_session.set_last_activity_time()
         Session.add(user_session)
 
         fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % user_session.as_key())
-
         fixture.context.initialise_web_session()
         
         vassert( fixture.context.session is user_session )
-        vassert( not fixture.context.session.is_logged_in() )
+        vassert( fixture.context.session.is_active() )
         vassert( not fixture.context.session.is_secure() )
 
         # Case: session cookie set, secure cookie also set in Request, https
         fixture.request.scheme = 'https'
         fixture.context.set_session(None)
         user_session = UserSession()
+        user_session.set_last_activity_time()
         Session.add(user_session)
-        user_session.set_as_logged_in(account, False)
 
         fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
                                             (user_session.as_key(), user_session.secure_salt))
         fixture.context.initialise_web_session()
 
         vassert( fixture.context.session is user_session )
-        vassert( fixture.context.session.account is account )
-        vassert( fixture.context.session.is_logged_in() )
+        vassert( fixture.context.session.is_active() )
         vassert( fixture.context.session.is_secure() )
 
         # Case: session cookie set, secure cookie also set in Request, http
         fixture.request.scheme = 'http'
         fixture.context.set_session(None)
         user_session = UserSession()
+        user_session.set_last_activity_time()
         Session.add(user_session)
-        user_session.set_as_logged_in(account, False)
         fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
                                             (user_session.as_key(), user_session.secure_salt))
          
         fixture.context.initialise_web_session()
 
         vassert( fixture.context.session is user_session )
-        vassert( fixture.context.session.account is account )
-        vassert( fixture.context.session.is_logged_in() )
+        vassert( fixture.context.session.is_active() )
         vassert( not fixture.context.session.is_secure() )
 
     @test(WebFixture)

@@ -18,8 +18,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from contextlib import contextmanager
 
-from reahl.tofu import set_up
-from reahl.tofu import tear_down
+from reahl.tofu import set_up, tear_down
+from reahl.stubble import EmptyStub
 
 from reahl.component.config import ReahlSystemConfig
 from reahl.component.context import ExecutionContext
@@ -85,6 +85,9 @@ class SqlAlchemyTestMixin(object):
             context.set_session( session or self.session )
         return context
 
+    def new_session(self):
+        return EmptyStub()
+    
     @property
     def system_control(self):
         return self.run_fixture.system_control
