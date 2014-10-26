@@ -14,7 +14,7 @@ These persisted classes are written using a specific object
 persistence technology. The technology used throughout this tutorial
 is SqlAlchemy (using Declarative). Rather than tie the Reahl framework to
 a specific persistence technology, the (small) part of the Reahl
-framework that is written using SqlAlchemy is split into a
+framework that is written using Declarative/SqlAlchemy is split into a
 separate component. This component can be swapped out for a different
 one which contains an implementation that uses a persistence technology
 of your choosing.
@@ -88,7 +88,7 @@ Dependency injection
 
 As explained at the beginning of this section, the `reahl-web`
 component needs a number of classes that are provided by a different
-component. The declarative-based implementation of these classes live in
+component. The Declarative-based implementation of these classes live in
 the `reahl-web-declarative` component which in turn is written using
 the `reahl-domain` component. Diagramatically this is the scenario:
 

@@ -150,6 +150,28 @@ class FixtureTests(object):
         assert fixture.is_torn_down
          
     @istest
+    def setup_breakages_as_context_manager(self):
+        """Breakage in the setup triggers tear down to be run when a fixture is used in a with statement."""
+        class MyFixture(Fixture):
+            is_torn_down = False
+            def set_up(self):
+                raise Exception()
+            def tear_down(self):
+                self.is_torn_down = True
+
+        fixture = MyFixture(None)
+        try:
+            with fixture as fixture:
+                pass
+        except:
+            pass
+        else:
+            assert None, 'No exception raised'
+        
+        assert fixture.is_torn_down
+
+         
+    @istest
     def default_set_up_and_tear_down(self):
         """The default set_up and tear_down run marked methods."""
         class MyFixture(Fixture):

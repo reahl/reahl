@@ -192,9 +192,13 @@ class Fixture(object):
 
     def __enter__(self):
         self.context.__enter__()
-        self.set_up()
-        self.run_marked_methods(SetUp, order=reversed)
-        self.scenario.method_for(self)()
+        try:
+            self.set_up()
+            self.run_marked_methods(SetUp, order=reversed)
+            self.scenario.method_for(self)()
+        except:
+            self.__exit__(*sys.exc_info())
+            raise
         return self
 
     def __exit__(self, exception_type, value, traceback):
