@@ -9,7 +9,6 @@
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-web" ignoreversion="True"/>
     <egg name="reahl-component" ignoreversion="True"/>
-    <egg name="reahl-domain"/>
   </deps>
 
   <deps purpose="test">

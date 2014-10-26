@@ -24,8 +24,7 @@ from sqlalchemy import Column, ForeignKey, Integer, inspect
 from webob import Response
 
 from nose.tools import istest
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import test, scenario, vassert
 from reahl.stubble import stubclass
 
 from reahl.sqlalchemysupport import metadata, Session
@@ -37,30 +36,57 @@ from reahl.webdeclarative.webdeclarative import UserSession, SessionData
 @istest
 class BasicTests(object):
     @test(WebFixture)
-    def user_session_handling_of_login(self, fixture):
-        """  """     
+    def session_active_state(self, fixture):
+        """The session is active if the last user interaction was in the last idle_lifetime """     
         user_session = fixture.context.session
-        account = fixture.system_account
+        config = fixture.config
+
+        # Case: recent interaction
+        user_session.set_last_activity_time()
+        vassert( user_session.is_active() )
+
+        # Case: last interaction not recent
+        user_session.last_activity = datetime.now() - timedelta(seconds=user_session.idle_lifetime+10)
+        vassert( not user_session.is_active() )
+
+    class SecureScenarios(WebFixture):
+        @scenario
+        def secure(self):
+            self.scheme = 'https'
+            self.last_activity = datetime.now()
+            self.secure_cookie = self.context.session.secure_salt
+
+        @scenario
+        def insecure_scheme(self):
+            self.secure()
+            self.scheme = 'http'
+
+        @scenario
+        def old_interaction(self):
+            self.secure()
+            self.last_activity = datetime.now() - timedelta(seconds=self.config.web.idle_secure_lifetime+10)
+
+        @scenario
+        def bad_cookie(self):
+            self.secure()
+            self.secure_cookie = 'bad cookie value'
+
+            
+    @test(SecureScenarios)
+    def session_secure_state(self, fixture):
+        """The session is only secure when used over https, the secure cookie is set correctly,
+           and the last interaction is within idle_secure_lifetime"""     
+        user_session = fixture.context.session
         config = fixture.config
         context = fixture.context
-        vassert( config.accounts.idle_secure_lifetime < config.accounts.idle_lifetime )
-        vassert( config.accounts.idle_lifetime < config.accounts.idle_lifetime_max )
+        vassert( config.web.idle_secure_lifetime < config.web.idle_lifetime )
+        vassert( config.web.idle_lifetime < config.web.idle_lifetime_max )
 
-        # Case: user logs in over http
-        fixture.request.scheme = 'http'
-        user_session.last_activity = None
-        user_session.set_as_logged_in(account, False)
-        context.request.cookies[context.config.web.secure_key_name] = user_session.secure_salt
-        vassert( user_session.is_logged_in() )
-        vassert( not user_session.is_secure() )
+        fixture.request.scheme = fixture.scheme
+        user_session.last_activity = fixture.last_activity
+        context.request.cookies[context.config.web.secure_key_name] = fixture.secure_cookie
+        vassert( user_session.is_secure() is fixture.is_secure )
 
-        # Case: user logs in over https
-        fixture.request.scheme = 'https'
-        user_session.last_activity = None
-        user_session.set_as_logged_in(account, False)
-        context.request.cookies[context.config.web.secure_key_name] = user_session.secure_salt
-        vassert( user_session.is_logged_in() )
-        vassert( user_session.is_secure() )
 
     @test(WebFixture)
     def setting_cookies_on_response(self, fixture):
@@ -113,7 +139,7 @@ class BasicTests(object):
             secure_cookie = response.cookies[fixture.config.web.secure_key_name]
             vassert( user_session.secure_salt == secure_cookie.value )
             vassert( secure_cookie['path'] == '/' )
-            vassert( secure_cookie['max-age'] == '%s' % fixture.config.accounts.idle_secure_lifetime )
+            vassert( secure_cookie['max-age'] == '%s' % fixture.config.web.idle_secure_lifetime )
             vassert( 'secure' in secure_cookie )
             #vassert( 'httponly' in secure_cookie )
         

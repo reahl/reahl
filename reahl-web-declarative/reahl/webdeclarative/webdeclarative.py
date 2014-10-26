@@ -60,7 +60,7 @@ class UserSession(Base, UserSessionProtocol):
         now = now or datetime.now()
         if now.minute > 0 and now.minute < 5:
             config = ExecutionContext.get_context().config
-            cutoff = now - timedelta(seconds=config.accounts.session_lifetime)
+            cutoff = now - timedelta(seconds=config.web.session_lifetime)
             Session.query(cls).filter(cls.last_activity <= cutoff).delete()
 
     @classmethod
@@ -73,7 +73,7 @@ class UserSession(Base, UserSessionProtocol):
 
     def is_secure(self):
         context = WebExecutionContext.get_context()
-        return self.is_within_timeout(context.config.accounts.idle_secure_lifetime) \
+        return self.is_within_timeout(context.config.web.idle_secure_lifetime) \
                and context.request.scheme == 'https' \
                and self.secure_cookie_is_valid()
         
@@ -143,7 +143,7 @@ class UserSession(Base, UserSessionProtocol):
         response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
         if self.is_secure():
             response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
-                                max_age=context.config.accounts.idle_secure_lifetime)
+                                max_age=context.config.web.idle_secure_lifetime)
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'

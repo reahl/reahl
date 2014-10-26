@@ -61,10 +61,6 @@ class SystemAccountConfig(Configuration):
         '''If you have received this message in error, please ignore it.\n\n'''\
         '''You need to accept this change before it will take effect.\n\n'''\
         '''Your secret key is: $secret_key\n\n''', description='Body of an email address changed email')
-    session_lifetime = ConfigSetting(default=60*60*24*7*2, description='The time in seconds a user session will be kept after last use')
-    idle_lifetime = ConfigSetting(default=60*60*2, description='The time in seconds after which a user session will be considered idle - normal setting')
-    idle_lifetime_max = ConfigSetting(default=60*60*24*7*2, description='The time in seconds after which a user session will be considered idle - "forever" setting')
-    idle_secure_lifetime = ConfigSetting(default=60*60, description='The time in seconds after which a secure session will be considered expired')
     mailer_class = ConfigSetting(default=Mailer, description='The class to instantiate for sending email')
 
 
@@ -596,7 +592,7 @@ class LoginSession(Base):
     def set_as_logged_in(self, account, stay_logged_in):
         self.account = account
         config = ExecutionContext.get_context().config
-        self.user_session.set_idle_lifetime(config.accounts.idle_lifetime_max if stay_logged_in else config.accounts.idle_lifetime)
+        self.user_session.set_idle_lifetime(config.web.idle_lifetime_max if stay_logged_in else config.web.idle_lifetime)
         self.user_session.set_last_activity_time()
 
     def log_out(self):
