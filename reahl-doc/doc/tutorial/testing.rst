@@ -226,6 +226,8 @@ Testing JavaScript
    <http://code.google.com/p/selenium/wiki/ChromeDriver>`_ as per the
    instructions for your platform. 
 
+   (:ref:`See our instructions for installing chromedriver in Ubuntu <install-ubuntu>`.)
+
 
 The :class:`~reahl.webdev.tools.Browser` class used above cannot be used for all tests, since it
 cannot execute javascript.  If you want to test something which makes
