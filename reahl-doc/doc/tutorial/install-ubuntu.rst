@@ -38,3 +38,41 @@ The first two of these packages (libxml2-dev and libxslt-dev) are used by some o
 infrastructure, and sqlite is the database used by the tutorial examples.
 
 Remember to go back and :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`!
+
+Chromedriver
+------------
+
+You do not need to install chromedriver in order to follow this
+tutorial. However, if you are going to use chromium for testing, you
+will need chromedriver. Installation of chromedriver in Ubuntu need a
+bit of tweaking, and this seemed toe appropriate place to jot down
+what is needed:
+
+Install the chromium-chromedriver package:
+
+.. code-block:: bash
+
+   sudo apt-get install chromium-chromedriver
+
+In Ubuntu 14.4, this installs the chromedriver binary in
+`/usr/lib/chromium-browser/chromedriver`, but it neglects setting
+the LD_LIBRARY_PATH for it to work correctly. To correct this,
+create the file `/etc/ld.so.conf.d/chrome_lib.conf`, with the
+following contents:
+
+.. code-block:: bash
+
+   /usr/lib/chromium-browser/libs
+
+Finally, run:
+
+.. code-block:: bash
+
+   sudo ldconfig
+
+You also need to adjust your PATH so that /usr/lib/chromium-browser is
+included. In your .bashrc, add the line:
+
+.. code-block:: bash
+
+   export PATH=$PATH:/usr/lib/chromium-browser
