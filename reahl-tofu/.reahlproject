@@ -8,8 +8,14 @@
     <thirdpartyegg name="nose"/>
   </deps>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-stubble"/>
+    <egg name="reahl-tofu"/>
   </deps>
 
   <export entrypoint="nose.plugins.0.10" name="run-fixture" locator="reahl.tofu.nosesupport:RunFixturePlugin"/>
@@ -20,7 +26,7 @@
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/tofu_dev"/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 </project>

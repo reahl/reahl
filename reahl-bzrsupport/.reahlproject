@@ -8,7 +8,7 @@
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/bzrsupport_dev"/>
 
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 </project>

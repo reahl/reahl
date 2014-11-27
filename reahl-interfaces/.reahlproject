@@ -3,16 +3,8 @@
     <package name="reahl"/>
   </namespaces>
 
-  <deps purpose="test">
-    <egg name="reahl-tofu"/>
-    
-    <egg name="reahl-stubble"/>
-  </deps>
-
-  <alias name="unit" command="setup -- -q nosetests"/>  
-  
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
   
 </project>

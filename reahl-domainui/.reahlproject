@@ -15,11 +15,9 @@
   </deps>
 
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>
-    
     <egg name="reahl-stubble"/>
-    <egg name="reahl-dev"/>
-    <egg name="reahl-webdev"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
   </deps>
@@ -29,7 +27,7 @@
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domainui_dev -F reahl.webdev.fixtures:BrowserSetup"/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
     
 </project>
