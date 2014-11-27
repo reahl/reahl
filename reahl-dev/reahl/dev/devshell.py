@@ -22,6 +22,7 @@ import os
 import os.path
 import subprocess
 from subprocess import CalledProcessError
+from contextlib import contextmanager
 import traceback
 
 
@@ -363,12 +364,27 @@ class Shell(ForAllParsedWorkspaceCommand):
     """Executes a shell command in each selected project, from each project's own root directory."""
     keyword = 'shell'
     usage_args = '-- <shell_command> [shell_command_options]'
+    options = ForAllParsedWorkspaceCommand.options +\
+              [('-g', '--generate_setup_py', dict(action='store_true', dest='generate_setup_py', default=False,
+                                          help='temporarily generate a setup.py for the duration of the shell command (it is removed afterwards)'))]
+
     def function(self, project, options, args):
         if not args:
             print('No shell command specified to run', file=sys.stderr)
             return 1
+
+        @contextmanager
+        def nop_context_manager():
+            yield
+
+        context_manager = project.generated_setup_py if options.generate_setup_py else nop_context_manager
+        with context_manager():   
+            command = self.do_shell_expansions(args)
+            return Executable(command[0]).call(command[1:], cwd=project.directory)
+
+    def do_shell_expansions(self, commandline):
         replaced_command = []
-        for i in args:
+        for i in commandline:
             if i.startswith('$(') and i.endswith(')'):
                 shellcommand = i[2]
                 shell_args = i[3:-1].split(' ')
@@ -377,10 +393,7 @@ class Shell(ForAllParsedWorkspaceCommand):
                     replaced_command.append(line)
             else:
                 replaced_command.append(i)
-
-        command = replaced_command
-
-        return Executable(command[0]).call(command[1:], cwd=project.directory)
+        return replaced_command
 
 
 
@@ -408,6 +421,7 @@ class Build(ForAllWorkspaceCommand):
 
     def perform_post_command_duties(self):
         self.workspace.update_apt_repository_index()
+
 
 
 class ListMissingDependencies(ForAllWorkspaceCommand):
@@ -440,9 +454,17 @@ class Upload(ForAllWorkspaceCommand):
     """Uploads all built distributable packages for each project in the current selection."""
     keyword = 'upload'
     options = ForAllWorkspaceCommand.options+[('-k', '--knock', dict(action='append', dest='knocks', default=[],
-                                                                     help='port to knock on before uploading'))]
+                                                                     help='port to knock on before uploading')),
+                                              ('-r', '--ignore-release-checks', dict(action='store_true', dest='ignore_release_checks', default=False,
+                                                                     help='proceed with uploading despite possible failing release checks')),
+                                              ('-u', '--ignore-uploaded-check', dict(action='store_true', dest='ignore_upload_check', default=False,
+                                                                     help='upload regardless of possible previous uploads'))]
     def function(self, project, options, args):
-        return project.upload(knocks=options.knocks)
+        if options.ignore_release_checks:
+            print('WARNING: Ignoring release checks at your request') 
+        if options.ignore_upload_check:
+            print('WARNING: Overwriting possible previous uploads') 
+        return project.upload(knocks=options.knocks, ignore_release_checks=options.ignore_release_checks, ignore_upload_check=options.ignore_upload_check)
 
 
 class MarkReleased(ForAllWorkspaceCommand):

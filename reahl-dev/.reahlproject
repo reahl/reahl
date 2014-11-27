@@ -6,11 +6,15 @@
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/> 
-    <egg name="reahl-bzrsupport"/> 
     <thirdpartyegg name="Babel" minversion="1.3" maxversion="1.3.9999"/> 
   </deps>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/> 
+  </deps>
+
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
   </deps>
@@ -90,7 +94,7 @@
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/dev_dev"/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 </project>
