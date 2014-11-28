@@ -73,10 +73,10 @@ class UserSession(Base, UserSessionProtocol):
         self.set_idle_lifetime(False)
         super(UserSession, self).__init__(**kwargs)
 
-    @deprecated('Please use LoginSession.is_logged_in(secure=True) instead.')
+    @deprecated('Please use LoginSession.is_logged_in(secured=True) instead.')
     def is_secure(self):
         from reahl.systemaccountmodel import LoginSession
-        return LoginSession.for_current_session().is_logged_in(secure=True)
+        return LoginSession.for_current_session().is_logged_in(secured=True)
 
     def is_secured(self):
         context = WebExecutionContext.get_context()

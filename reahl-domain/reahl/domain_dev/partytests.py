@@ -490,26 +490,26 @@ class LoginSessionTests(object):
         user_session.last_activity = None
         login_session.set_as_logged_in(system_account, False)
         vassert( login_session.is_logged_in() )
-        vassert( login_session.is_logged_in(secure=True) )
+        vassert( login_session.is_logged_in(secured=True) )
 
         # Case: user logs out
         login_session.log_out()
         vassert( not login_session.is_logged_in() )
-        vassert( not login_session.is_logged_in(secure=True) )
+        vassert( not login_session.is_logged_in(secured=True) )
 
         # Case: user activity is older than secure lifetime
         vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
         login_session.set_as_logged_in(system_account, False)
         user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_secure_lifetime+50)
         vassert( login_session.is_logged_in() )
-        vassert( not login_session.is_logged_in(secure=True) )
+        vassert( not login_session.is_logged_in(secured=True) )
 
         # Case: user activity is older than all lifetimes
         vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
         login_session.set_as_logged_in(system_account, False)
         user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime+50)
         vassert( not login_session.is_logged_in() )
-        vassert( not login_session.is_logged_in(secure=True) )
+        vassert( not login_session.is_logged_in(secured=True) )
 
         # Case: user activity is older than non-secure lifetime, but keep_me_logged_in is set
         vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
@@ -517,7 +517,7 @@ class LoginSessionTests(object):
         login_session.set_as_logged_in(system_account, True)
         user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime+50)
         vassert( login_session.is_logged_in() )
-        vassert( not login_session.is_logged_in(secure=True) )
+        vassert( not login_session.is_logged_in(secured=True) )
 
         # Case: user activity is older than non-secure lifetime max, but keep_me_logged_in is set
         vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
@@ -526,7 +526,7 @@ class LoginSessionTests(object):
         Session.flush()
         user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime_max+50)
         vassert( not login_session.is_logged_in() )
-        vassert( not login_session.is_logged_in(secure=True) )
+        vassert( not login_session.is_logged_in(secured=True) )
 
     @test(WebLoginFixture)
     def backwards_compatibility(self, fixture):

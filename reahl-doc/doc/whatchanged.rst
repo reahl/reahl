@@ -43,14 +43,15 @@ Some repercussions:
       - UserSession.is_secured() was added. It answers whether the user is communicationg 
         via secure channel without considering whether a user is logged in or not.
 
-      - UserSession.is_secure() was moved to LoginSession, maintaining the semantics of being 
-        logged in *while* connected via secure channel. A version of UserSession.is_secure() 
-        was left on UserSession, but deprecated in order to maintain backwards compatibility
-        for the 3.x series.
-
       - UserSession.is_logged_in() was moved to LoginSession. A version of UserSession.is_logged_in() 
         was left on UserSession, but deprecated in order to maintain backwards compatibility 
         for the 3.x series.
+
+      - The functionality provided by UserSession.is_secure() was moved to LoginSession.is_logged_in(secured=True).
+        Ie.: with secured=True, is_logged_in checks whether the user is logged in *while* connected
+        via secure channel. A version of UserSession.is_secure() was left on UserSession, 
+        but deprecated in order to maintain backwards compatibility for the 3.x series.
+
 
 
 
