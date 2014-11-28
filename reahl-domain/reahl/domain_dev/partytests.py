@@ -466,15 +466,19 @@ class RegistrationTests(object):
 
 
 
+class WebLoginFixture(WebFixture, PartyModelZooMixin):
+    pass
+
 @istest
 class LoginSessionTests(object):
-    @test(WebFixture)
+    @test(WebLoginFixture)
     def login_queries(self, fixture):
         """"""
         
         user_session = fixture.context.session
         login_session = LoginSession.for_session(fixture.context.session)
-        real_user = fixture.party
+        system_account = fixture.system_account
+        
         config = fixture.context.config
         context = fixture.context
         fixture.request.scheme = 'https'
@@ -484,44 +488,62 @@ class LoginSessionTests(object):
 
         # Case: user logs in
         user_session.last_activity = None
-        login_session.set_as_logged_in(real_user, False)
+        login_session.set_as_logged_in(system_account, False)
         vassert( login_session.is_logged_in() )
-        vassert( login_session.is_secure() )
+        vassert( login_session.is_logged_in(secure=True) )
 
         # Case: user logs out
         login_session.log_out()
         vassert( not login_session.is_logged_in() )
-        vassert( not login_session.is_secure() )
+        vassert( not login_session.is_logged_in(secure=True) )
 
         # Case: user activity is older than secure lifetime
         vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
-        login_session.set_as_logged_in(real_user, False)
+        login_session.set_as_logged_in(system_account, False)
         user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_secure_lifetime+50)
         vassert( login_session.is_logged_in() )
-        vassert( not login_session.is_secure() )
+        vassert( not login_session.is_logged_in(secure=True) )
 
         # Case: user activity is older than all lifetimes
         vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
-        login_session.set_as_logged_in(real_user, False)
+        login_session.set_as_logged_in(system_account, False)
         user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime+50)
         vassert( not login_session.is_logged_in() )
-        vassert( not login_session.is_secure() )
+        vassert( not login_session.is_logged_in(secure=True) )
 
         # Case: user activity is older than non-secure lifetime, but keep_me_logged_in is set
         vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
         vassert( (config.web.idle_lifetime_max - config.web.idle_lifetime) > 50 )
-        login_session.set_as_logged_in(real_user, True)
+        login_session.set_as_logged_in(system_account, True)
         user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime+50)
         vassert( login_session.is_logged_in() )
-        vassert( not login_session.is_secure() )
+        vassert( not login_session.is_logged_in(secure=True) )
 
         # Case: user activity is older than non-secure lifetime max, but keep_me_logged_in is set
         vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
         vassert( (config.web.idle_lifetime_max - config.web.idle_lifetime) > 50 )
-        login_session.set_as_logged_in(real_user, True)
+        login_session.set_as_logged_in(system_account, True)
+        Session.flush()
         user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime_max+50)
         vassert( not login_session.is_logged_in() )
-        vassert( not login_session.is_secure() )
+        vassert( not login_session.is_logged_in(secure=True) )
 
+    @test(WebLoginFixture)
+    def backwards_compatibility(self, fixture):
+        """"""
+        
+        user_session = fixture.context.session
+        login_session = LoginSession.for_session(fixture.context.session)
+        system_account = fixture.system_account
+        config = fixture.context.config
+        context = fixture.context
+        fixture.request.scheme = 'https'
+        context.request.cookies[context.config.web.secure_key_name] = user_session.secure_salt
+        vassert( config.web.idle_secure_lifetime < config.web.idle_lifetime )
+        vassert( config.web.idle_lifetime < config.web.idle_lifetime_max )
+        login_session.set_as_logged_in(system_account, False)
 
+        # Case: user logs in
+        vassert( user_session.is_logged_in() )
+        vassert( user_session.is_secure() )
 

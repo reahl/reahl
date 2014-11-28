@@ -574,6 +574,10 @@ class ChangeAccountEmail(DeferredAction):
 
 @session_scoped
 class LoginSession(Base):
+    """A @session_scoped object that keeps track of logged in access to the system.
+
+       (See :class:`AccountManagementInterface` for logging users into and out of the system.)
+    """
     __tablename__ = 'loginsession'
 
     id = Column(Integer, primary_key=True)
@@ -581,13 +585,18 @@ class LoginSession(Base):
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
-    account = relationship(SystemAccount)
+    account = relationship(SystemAccount) #: The SystemAccount currently logged on
 
-    def is_secure(self):
-        return self.is_logged_in() and self.user_session.is_secure()
-        
-    def is_logged_in(self):
-        return self.account is not None and self.user_session.is_active()
+    def is_logged_in(self, secure=False):
+        """Answers whether the user is logged in.
+
+           :keyword secure: If True, ensures the login is done via secure means (such as an encrypted connection).
+        """
+        logged_in = self.account is not None
+        if secure:
+            return logged_in and self.user_session.is_secured()
+        else:
+            return logged_in and self.user_session.is_active()
 
     def set_as_logged_in(self, account, stay_logged_in):
         self.account = account

@@ -36,7 +36,7 @@ class UserSessionProtocol(object):
            this method returns the correct UserSession."""
 
     @abstractmethod
-    def is_secure(self): 
+    def is_secured(self): 
         """Answers whether the interaction is currently done via a secure channel where applicable."""
         
     @abstractmethod
