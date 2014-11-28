@@ -80,7 +80,7 @@ class BasicTests(object):
             
     @test(SecureScenarios)
     def session_secure_state(self, fixture):
-        """The session is only secure when used over https, the secure cookie is set correctly,
+        """The session is only secured when used over https, the secure cookie is set correctly,
            and the last interaction is within idle_secure_lifetime"""     
         user_session = fixture.context.session
         config = fixture.config
@@ -91,8 +91,7 @@ class BasicTests(object):
         fixture.request.scheme = fixture.scheme
         user_session.last_activity = fixture.last_activity
         context.request.cookies[context.config.web.secure_key_name] = fixture.secure_cookie
-        vassert( user_session.is_secure() is fixture.expect_secure )
-
+        vassert( user_session.is_secured() is fixture.expect_secure )
 
     @test(WebFixture)
     def setting_cookies_on_response(self, fixture):
@@ -104,7 +103,7 @@ class BasicTests(object):
             id = Column(Integer, ForeignKey('usersession.id'), primary_key=True)
 
             secured = False
-            def is_secure(self):
+            def is_secured(self):
                 return self.secured
 
         with fixture.persistent_test_classes(UserSessionStub):
@@ -155,7 +154,7 @@ class BasicTests(object):
         # Case: session cookie not set in Request
         fixture.context.initialise_web_session()
         vassert( not fixture.context.session.is_active() )
-        vassert( not fixture.context.session.is_secure() )
+        vassert( not fixture.context.session.is_secured() )
         
         # Case: session cookie set in Request
         fixture.context.set_session(None)
@@ -168,7 +167,7 @@ class BasicTests(object):
         
         vassert( fixture.context.session is user_session )
         vassert( fixture.context.session.is_active() )
-        vassert( not fixture.context.session.is_secure() )
+        vassert( not fixture.context.session.is_secured() )
 
         # Case: session cookie set, secure cookie also set in Request, https
         fixture.request.scheme = 'https'
@@ -183,7 +182,7 @@ class BasicTests(object):
 
         vassert( fixture.context.session is user_session )
         vassert( fixture.context.session.is_active() )
-        vassert( fixture.context.session.is_secure() )
+        vassert( fixture.context.session.is_secured() )
 
         # Case: session cookie set, secure cookie also set in Request, http
         fixture.request.scheme = 'http'
@@ -198,7 +197,7 @@ class BasicTests(object):
 
         vassert( fixture.context.session is user_session )
         vassert( fixture.context.session.is_active() )
-        vassert( not fixture.context.session.is_secure() )
+        vassert( not fixture.context.session.is_secured() )
 
     @test(WebFixture)
     def session_data_disappears_when_session_does(self, fixture):
