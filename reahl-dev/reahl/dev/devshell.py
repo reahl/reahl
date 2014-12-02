@@ -402,8 +402,8 @@ class Setup(ForAllParsedWorkspaceCommand):
     keyword = 'setup'
     usage_args = '-- <setup_command> [setup_command_options]'
     def function(self, project, options, args):
-        project.setup(args)
-        return 0
+        distribution = project.setup(args)
+        return distribution.return_code_for_all_commands()
 
 
 class Build(ForAllWorkspaceCommand):
