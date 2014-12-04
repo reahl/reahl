@@ -1,3 +1,14 @@
+
+python-reahl (3.1.0) unstable; urgency=low
+
+ * Added use of tox and devpi on all projects (Blueprint: using-tox-devpi).
+ * Added monitoring and reporting of important setup.py commands in ForAllWorkspaceCommands.
+ * Changed reahl uploading to Pypi repos to first register also on each upload.
+ * Added --ignore-release-checks and --ignore-upload-check switches to reahl upload command.
+ * Added --generate-setup-py switch to reahl shell command.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Sat, 06 Sep 2014 11:50:00 +0200
+
 python-reahl (3.0.0) unstable; urgency=low
 
  * Changed from using Elixir to Declarative (Blueprint: declarative).
