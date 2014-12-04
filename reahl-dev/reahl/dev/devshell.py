@@ -31,7 +31,7 @@ import shlex
 from reahl.component.shelltools import Command, ReahlCommandline, Executable
 from reahl.component.config import EntryPointClassList, Configuration
 
-from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository
+from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository, SetupCommandFailed
 from reahl.dev.exceptions import StatusException, AlreadyUploadedException, NotBuiltException, \
     NotUploadedException, NotVersionedException, NotCheckedInException, \
     MetaInformationNotAvailableException, AlreadyDebianisedException, \
@@ -209,6 +209,9 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             except OSError as ex:
                 print('Execution failed: %s' % ex, file=sys.stderr)
                 retcode = ex.errno
+            except SetupCommandFailed as ex:
+                print('Execution failed: %s' % ex, file=sys.stderr)
+                retcode = -1
             except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
                     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
                     NotUploadedException, AlreadyMarkedAsReleasedException,
@@ -329,6 +332,7 @@ class Info(ForAllWorkspaceCommand):
         self.print_heading('\tPackages to distribute:')
         for package in main_project.packages_to_distribute:
             print('\t%s' % six.text_type(package))
+        return 0
 
 
 class ForAllParsedWorkspaceCommand(ForAllWorkspaceCommand):
@@ -402,22 +406,16 @@ class Setup(ForAllParsedWorkspaceCommand):
     keyword = 'setup'
     usage_args = '-- <setup_command> [setup_command_options]'
     def function(self, project, options, args):
-        distribution = project.setup(args)
-        return distribution.return_code_for_all_commands()
+        project.setup(args)
+        return 0
 
 
 class Build(ForAllWorkspaceCommand):
     """Builds all distributable packages for each project in the current selection."""
     keyword = 'build'
     def function(self, project, options, args):
-        try:
-            return_code = project.build()
-        except:
-            print('', file=sys.stderr)
-            traceback.print_exc()
-            return_code = -1
-
-        return return_code
+        project.build()
+        return 0
 
     def perform_post_command_duties(self):
         self.workspace.update_apt_repository_index()
@@ -430,16 +428,15 @@ class ListMissingDependencies(ForAllWorkspaceCommand):
     options = ForAllWorkspaceCommand.options+[('-D', '--development', dict(action='store_true', dest='for_development', default=False,
                                                                            help='include development dependencies'))]
     def function(self, project, options, args):
-        return_code = 0
         try:
             dependencies = project.list_missing_dependencies(for_development=options.for_development)
             if dependencies:
                 print(' '.join(dependencies))
         except:
             traceback.print_exc()
-            return_code = -1
+            return -1
 
-        return return_code
+        return 0
 
 
 class DebInstall(ForAllParsedWorkspaceCommand):
@@ -464,14 +461,16 @@ class Upload(ForAllWorkspaceCommand):
             print('WARNING: Ignoring release checks at your request') 
         if options.ignore_upload_check:
             print('WARNING: Overwriting possible previous uploads') 
-        return project.upload(knocks=options.knocks, ignore_release_checks=options.ignore_release_checks, ignore_upload_check=options.ignore_upload_check)
+        project.upload(knocks=options.knocks, ignore_release_checks=options.ignore_release_checks, ignore_upload_check=options.ignore_upload_check)
+        return 0
 
 
 class MarkReleased(ForAllWorkspaceCommand):
     """Marks each project in the current selection as released."""
     keyword = 'markreleased'
     def function(self, project, options, args):
-        return project.mark_as_released()
+        project.mark_as_released()
+        return 0
 
 
 class SubstVars(ForAllWorkspaceCommand):

@@ -78,29 +78,6 @@ class DistributionPackage(object):
         self.repositories.append(child)
 
 
-class DistributionProxy(object):
-    """A proxy to assist in decoding som ethings the distutils distribution knows"""
-    def __init__(self, distribution, captured_distribution_output):
-        self.distribution = distribution
-        self.captured_distribution_output = captured_distribution_output
-
-    def return_code_for_command(self, command_name):
-        return 0 if self.distribution.have_run.get(command_name, None) else -1
-
-    def return_code_for_all_commands(self):
-        for command_name in self.distribution.commands:
-            return_code = self.return_code_for_command(command_name)
-            if return_code != 0:
-                return return_code
-        return 0
-
-    def build_command_return_code(self):
-        return 0 if (self.captured_distribution_output.captured_stdout[0] == 'running build\n' and  'Creating tar archive\n' in self.captured_distribution_output.captured_stdout) else -1
-
-    def upload_command_return_code(self):
-        return 0 if ('running upload\n' in self.captured_distribution_output.captured_stdout and 'Server response (200): OK\n' in self.captured_distribution_output.captured_stdout) else -1
-
-
 class PythonSourcePackage(DistributionPackage):
     """A PythonSourcePackage is an egg as built with setup sdist."""
     @classmethod
@@ -113,8 +90,7 @@ class PythonSourcePackage(DistributionPackage):
     def build(self):
         with self.project.generated_setup_py():
             build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
-            distribution = self.project.setup(['build', '-b', build_directory, 'sdist', '--dist-dir', self.project.distribution_egg_repository.root_directory])
-            return distribution.build_command_return_code() & distribution.return_code_for_all_commands()
+            self.project.setup(['build', '-b', build_directory, 'sdist', '--dist-dir', self.project.distribution_egg_repository.root_directory])
 
     @property
     def is_built(self):
@@ -314,16 +290,9 @@ class RemoteRepository(object):
             raise AlreadyUploadedException()
         if knocks:
             self.knock(knocks)
-        return_code = self.transfer(package)
-        if return_code != 0:
-            return return_code
+        self.transfer(package)
         self.local_storage.set_uploaded(package)
-        if return_code != 0:
-            return return_code
         self.local_storage.write()
-        if return_code != 0:
-            return return_code
-        return 0
 
     @property
     def unique_id(self):
@@ -364,23 +333,8 @@ class PackageIndex(RemoteRepository):
             pass
 
         with package.project.generated_setup_py():
-            distribution = package.project.setup(['sdist', '--dist-dir', package.project.distribution_egg_repository.root_directory, 'register',
-                                   '--repository', self.repository])
-            return_code = distribution.return_code_for_all_commands()
-            if return_code != 0:
-                return return_code
-
-            distribution = package.project.setup(['sdist', '--dist-dir', package.project.distribution_egg_repository.root_directory, 'upload',
-                                   '--repository', self.repository, '-s'])
-            return_code = distribution.upload_command_return_code()
-            if return_code != 0:
-                return return_code
-
-            return_code = distribution.return_code_for_all_commands()
-            if return_code != 0:
-                return return_code
-
-            return 0
+            package.project.setup(['sdist', '--dist-dir', package.project.distribution_egg_repository.root_directory, 'register',
+                                   '--repository', self.repository, 'upload', '--repository', self.repository, '-s'])
 
     
 class SshRepository(RemoteRepository):
@@ -428,10 +382,7 @@ class LocalRepository(object):
 
     def upload(self, package, knocks):
         for filename in package.build_output_files:
-            return_code = 0 if shutil.copy(filename, self.root_directory) is not None else -1
-            if return_code != 0:
-                return return_code
-        return 0
+            shutil.copy(filename, self.root_directory)
 
     def is_uploaded(self, package):
         result = True
@@ -1519,10 +1470,8 @@ class Project(object):
         
     def build(self):
         assert self.packages_to_distribute, 'For %s: No <package>... listed in .reahlproject, nothing to do.' % self.project_name
-        build_status = 0
         for i in self.packages_to_distribute:
-            build_status += i.build()
-        return build_status
+            i.build()
 
     def is_built(self):
         is_built = True
@@ -1540,10 +1489,7 @@ class Project(object):
               logging.warning( ex )
         for i in self.packages_to_distribute:
             for repo in i.repositories:
-                return_code = repo.upload(i, knocks, ignore_upload_check=ignore_upload_check)
-                if return_code != 0:
-                    return return_code
-        return 0
+                repo.upload(i, knocks, ignore_upload_check=ignore_upload_check)
 
     def check_uploaded(self):
         for i in self.packages_to_distribute:
@@ -1557,7 +1503,13 @@ class Project(object):
         self.source_control.place_tag(six.text_type(self.version))
 
 
-class CopyStdout(object):
+class SetupCommandFailed(Exception):
+    def __init__(self, command):
+        super(SetupCommandFailed, self).__init__(command)
+        self.command = command
+
+
+class SetupMonitor(object):
     def __init__(self):
         self.captured_stdout = []
 
@@ -1573,19 +1525,40 @@ class CopyStdout(object):
     def __exit__(self, *args):
         sys.stdout.write = self.original_stdout_write
 
+    def check_command_status(self, commands):
+        for command in commands:
+            self.check(command)
 
-class CopyStdout2(object):
-    def __enter__(self):
-        #self.original_stdout = sys.stdout
-        self.stdout = six.moves.cStringIO()
-        sys.stdout = self.stdout
-        return self
+    def check(self, command):
+        check_method = getattr(self, 'check_%s_command' % command, None)
+        if check_method and not check_method():
+            raise SetupCommandFailed(command)
+      
+    def output_ends_with(self, starting, expected_end, only_up_to=None):
+        if not starting in self.captured_stdout:
+            return False
+        start_index = self.captured_stdout.index(starting)
+        for line in self.captured_stdout[start_index+1:]:
+            if line == expected_end:
+                return True
+            if only_up_to and line.startswith(only_up_to):
+                return False
+        return True
+        
+    def check_build_command(self):
+        return self.output_ends_with('running build\n', 'Creating tar archive\n')
 
-    def __exit__(self, *args):
-        self.captured_stdout = self.stdout.getvalue().splitlines()
-        sys.stdout = self.original_stdout
-        for line in self.captured_stdout:
-            sys.stdout.write('%s\n' % line)
+    def check_upload_command(self):
+        return self.output_ends_with('running upload\n', 'Server response (200): OK\n', only_up_to='running')
+
+    def check_register_command(self):
+        return self.output_ends_with('running register\n', 'Server response (200): OK\n', only_up_to='running')
+
+    def check_sdist_command(self):
+        return self.output_ends_with('running sdist\n', 'Creating tar archive\n')
+
+
+
 
 
 class EggProject(Project):
@@ -1733,7 +1706,7 @@ class EggProject(Project):
 
     def setup(self, setup_command):
         with self.paths_set():
-            with CopyStdout() as distutils_output:
+            with SetupMonitor() as monitor:
                 distribution = setup(script_args=setup_command,
                      name=ascii_as_bytes_or_str(self.project_name),
                      version=self.version_for_setup(),
@@ -1753,7 +1726,7 @@ class EggProject(Project):
                      test_suite=self.test_suite_for_setup(),
                      entry_points=self.entry_points_for_setup(),
                      extras_require=self.extras_require_for_setup() )
-            return DistributionProxy(distribution, distutils_output)
+            monitor.check_command_status(distribution.commands)
 
     @property
     def setup_py_filename(self):
