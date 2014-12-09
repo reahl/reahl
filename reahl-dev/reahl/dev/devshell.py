@@ -364,6 +364,14 @@ class ForAllParsedWorkspaceCommand(ForAllWorkspaceCommand):
         return super(ForAllParsedWorkspaceCommand, self).execute(options, self.saved_args)
 
 
+class DevPiTest(ForAllWorkspaceCommand):
+    """Runs devpi test."""
+    keyword = 'devpitest'
+
+    def function(self, project, options, args):
+        return Executable('devpi').call(['test', '%s==%s' % (project.project_name, project.version_for_setup())], cwd=project.directory)
+
+
 class Shell(ForAllParsedWorkspaceCommand):
     """Executes a shell command in each selected project, from each project's own root directory."""
     keyword = 'shell'
@@ -383,16 +391,16 @@ class Shell(ForAllParsedWorkspaceCommand):
 
         context_manager = project.generated_setup_py if options.generate_setup_py else nop_context_manager
         with context_manager():   
-            command = self.do_shell_expansions(args)
+            command = self.do_shell_expansions(project.directory, args)
             return Executable(command[0]).call(command[1:], cwd=project.directory)
 
-    def do_shell_expansions(self, commandline):
+    def do_shell_expansions(self, directory, commandline):
         replaced_command = []
         for i in commandline:
             if i.startswith('$(') and i.endswith(')'):
                 shellcommand = i[2]
                 shell_args = i[3:-1].split(' ')
-                output = Executable(shellcommand).Popen(shell_args, cwd=project.directory, stdout=subprocess.PIPE).communicate()[0]
+                output = Executable(shellcommand).Popen(shell_args, cwd=directory, stdout=subprocess.PIPE).communicate()[0]
                 for line in output.splitlines():
                     replaced_command.append(line)
             else:

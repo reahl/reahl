@@ -8,6 +8,10 @@
     <thirdpartyegg name="psycopg2" minversion="2.5" maxversion="2.5.9999"/>
   </deps>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <export entrypoint="reahl.component.databasecontrols" name="PostgresqlControl" locator="reahl.postgresqlsupport:PostgresqlControl"/>
 
   <alias name="unit" command="setup -- -q nosetests"/>

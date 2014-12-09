@@ -23,6 +23,10 @@
     <egg name="reahl-postgresqlsupport"/>
   </deps>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <persisted>
     <class locator="reahl.partymodel:Party"/>
     <class locator="reahl.systemaccountmodel:SystemAccount"/>

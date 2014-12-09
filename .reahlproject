@@ -61,6 +61,10 @@
 
   <excludepackage name="reahl.doc.*"/>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <distpackage type="sdist">
     <packageindex repository="devpi"/>
   </distpackage>

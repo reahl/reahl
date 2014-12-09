@@ -19,6 +19,10 @@
     <egg name="reahl-stubble"/>
   </deps>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <script name="reahl-control" locator="reahl.component.prodshell:ProductionCommandline.execute_one"/>
   
   <export entrypoint="reahl.component.prodcommands" name="CreateDBUser" locator="reahl.component.prodshell:CreateDBUser"/>

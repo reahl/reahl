@@ -180,7 +180,7 @@ reahl_workspace = read_env_variable('REAHLWORKSPACE',
                     'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
                           % (os.getcwd()))
 reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
-core_project_dirs = ['reahl-component', 'reahl-bzrsupport', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
+core_project_dirs = ['reahl-bzrsupport', 'reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
 
 clean_virtual_env(virtual_env)
 clean_workspace(reahl_workspace)

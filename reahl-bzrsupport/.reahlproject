@@ -2,6 +2,10 @@
   <namespaces>
     <package name="reahl"/>
   </namespaces>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
   
   <export entrypoint="setuptools.file_finders" name="reahl_finder" locator="reahl.bzrsupport:find_files"/> 
 

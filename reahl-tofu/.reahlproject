@@ -8,14 +8,14 @@
     <thirdpartyegg name="nose"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="nose"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-tofu"/>
+  </deps>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <export entrypoint="nose.plugins.0.10" name="run-fixture" locator="reahl.tofu.nosesupport:RunFixturePlugin"/>

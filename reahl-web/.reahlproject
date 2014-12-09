@@ -31,6 +31,10 @@
     <egg name="reahl-dev"/>
   </deps>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <persisted>
     <class locator="reahl.web.pager:SequentialPageIndex"/>
   </persisted>
