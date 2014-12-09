@@ -8,6 +8,10 @@
     <egg name="reahl-tofu"/>
   </deps>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <alias name="unit" command="setup -- -q tofu"/> 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/stubble_dev"/>
   

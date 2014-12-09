@@ -26,6 +26,12 @@
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-postgresqlsupport"/>
+    <egg name="reahl-sqlitesupport"/>
+  </deps>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
  <persisted>

@@ -10,6 +10,7 @@
   <deps purpose="run">
     <egg name="reahl-component" ignoreversion="True"/>
     <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-declarative"/>
     <egg name="reahl-web" ignoreversion="True"/>
     <egg name="reahl-domain"/>
   </deps>
@@ -22,6 +23,10 @@
     <egg name="reahl-webdev"/>
   </deps>
   
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <export entrypoint="reahl.workflowui.task_widgets" name="TaskWidget" locator="reahl.domainui.workflow:TaskWidget"/>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domainui_dev -F reahl.webdev.fixtures:BrowserSetup"/>
