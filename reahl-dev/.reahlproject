@@ -92,7 +92,7 @@
   <export entrypoint="reahl.dev.commands" name="UpdateAptRepository" locator="reahl.dev.devshell:UpdateAptRepository"/>
   <export entrypoint="reahl.dev.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/dev_dev"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/dev_dev -t -i '.*'"/>
   
   <distpackage type="sdist">
     <packageindex repository="devpi"/>

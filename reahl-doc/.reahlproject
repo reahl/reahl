@@ -70,7 +70,7 @@
   <export entrypoint="reahl.dev.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.dev.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T (reahl/.*_dev/|.*/testbasics) -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T (reahl/.*_dev/|.*/testbasics) -t"/>
 
   <distpackage type="sdist">
     <packageindex repository="devpi"/>

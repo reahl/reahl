@@ -65,7 +65,7 @@
     <file path="reahl/web/reahl.slidingpanel.js"/>
   </attachedfiles>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/web_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/web_dev -i'.*' -t "/>
   
   <distpackage type="sdist">
     <packageindex repository="devpi"/>

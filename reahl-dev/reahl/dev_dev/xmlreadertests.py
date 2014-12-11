@@ -23,7 +23,7 @@ import time
 
 from reahl.stubble import easter_egg, stubclass, EmptyStub
 from nose.tools import istest
-from reahl.tofu import Fixture, test, set_up, tear_down
+from reahl.tofu import Fixture, test, set_up, tear_down, scenario
 from reahl.tofu import temp_file_with, check_limitation, vassert, expected
 
 from reahl.dev.xmlreader import XMLReader, DoubleRegistrationException, TagNotRegisteredException
@@ -87,8 +87,6 @@ class ConfiguredReader(BasicObjectSetup):
 
 
 class TextObjectSetup(BasicObjectSetup):
-    text = 'somet ext'
-
     def new_test_class(self):
         class TestClass(object):
             def inflate_text(self, reader, text, parent):
@@ -98,9 +96,13 @@ class TextObjectSetup(BasicObjectSetup):
     def new_file_contents(self):
         return '<%s>%s</%s>' % (self.tag_name, self.text, self.tag_name)
 
+    @scenario
+    def empty_text(self):
+        self.text = ''
 
-class EmptyTextObjectSetup(TextObjectSetup):
-    text = ''
+    @scenario
+    def some_text(self):
+        self.text = 'some text'
 
 
 class CompositeObjectSetup(BasicObjectSetup):
@@ -237,6 +239,7 @@ class XMLReaderTests(object):
         vassert(isinstance(read_object.inner[1][1], fixture.inner_class2))
 
     #--------------------------------------------------[ simple object with text content ]
+    @test(TextObjectSetup)
     def read_text_object(self, fixture):
         fixture.reader.register(fixture.tag_name, fixture.test_class)
         read_object = fixture.reader.read_file(fixture.file, None)
@@ -244,15 +247,6 @@ class XMLReaderTests(object):
             vassert(read_object.text == fixture.text)
         else:
             vassert(not hasattr(read_object, 'text'))
-
-    @test(TextObjectSetup)
-    def read_non_empty_text_object(self, fixture):
-        self.read_text_object(fixture)
-
-    @test(EmptyTextObjectSetup)
-    def read_empty_text_object(self, fixture):
-        self.read_text_object(fixture)
-
 
     #--------------------------------------------------[ order of inflation method calls ]
     @test(TimeStampedInflationSetup)

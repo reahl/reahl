@@ -30,7 +30,7 @@
 
   <export entrypoint="reahl.workflowui.task_widgets" name="TaskWidget" locator="reahl.domainui.workflow:TaskWidget"/>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domainui_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/domainui_dev -t -i '.*'"/>
   
   <distpackage type="sdist">
     <packageindex repository="devpi"/>

@@ -69,6 +69,6 @@
     <packageindex repository="devpi"/>
   </distpackage>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -t -i'.*'"/>
 </project>
 
