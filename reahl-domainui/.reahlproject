@@ -21,6 +21,7 @@
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-postgresqlsupport"/>
   </deps>
   
   <deps purpose="build">
