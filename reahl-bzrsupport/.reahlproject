@@ -9,7 +9,7 @@
   
   <export entrypoint="setuptools.file_finders" name="reahl_finder" locator="reahl.bzrsupport:find_files"/> 
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/bzrsupport_dev"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/bzrsupport_dev -i '.*' -t"/>
 
   <distpackage type="sdist">
     <packageindex repository="devpi"/>

@@ -32,7 +32,6 @@ from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 
  
-
 class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_SomeObject(self):
         class SomeObject(Base):

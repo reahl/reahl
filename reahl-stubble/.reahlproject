@@ -12,8 +12,7 @@
     <egg name="reahl-bzrsupport"/>
   </deps>
 
-  <alias name="unit" command="setup -- -q tofu"/> 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/stubble_dev"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/stubble_dev -t -i '.*'"/>
   
   <distpackage type="sdist">
     <packageindex repository="devpi"/>
