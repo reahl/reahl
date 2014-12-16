@@ -173,12 +173,6 @@ class TimeStampedInflationSetup(CompositeObjectSetup):
 @istest
 class XMLReaderTests(object):
 
-    @test(Fixture)
-    def usage_of_dom_implementation(self, fixture):
-        dom_msg = 'DOM Level 3 adds a Load/Store specification, which defines an interface to the reader, but this is not yet available in the Python standard library.'
-        check_limitation('2.7', 'More standardised DOM stuff may be available - this implementation uses minidom (from current docs: "%s")' % dom_msg)
-
-
     #--------------------------------------------------[ a basic object ]
     @test(BasicObjectSetup)
     def read_basic_object(self, fixture):

@@ -5,7 +5,6 @@ from nose.tools import istest
 from sqlalchemy import Column, Integer, UnicodeText
 
 
-import pdb;pdb.set_trace()
 from reahl.sqlalchemysupport import Session, Base, metadata
 from reahl.component.context import ExecutionContext
 
