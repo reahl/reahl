@@ -36,13 +36,17 @@ class UserSessionProtocol(object):
            this method returns the correct UserSession."""
 
     @abstractmethod
+    def is_active(self): 
+        """Answers whether the session is still usable (instead of being expired due to inactivity)."""
+        
+    @abstractmethod
     def is_secured(self): 
         """Answers whether the interaction is currently done via a secure channel where applicable."""
         
     @abstractmethod
     def set_last_activity_time(self): 
         """Sets a timestamp on the UserSession to indicate when the last activity was detected 
-           relating to this interaction. UserSessions typically expore automatically if no activity is
+           relating to this interaction. UserSessions typically expire automatically if no activity is
            detected after some time."""
 
     @abstractmethod

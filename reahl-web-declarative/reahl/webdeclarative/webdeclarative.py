@@ -41,7 +41,7 @@ class InvalidKeyException(Exception):
     pass
 
 class UserSession(Base, UserSessionProtocol):
-    """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
+    """An implementation of :class:`reahl.web.interfaces.UserSessionProtocol` of the Reahl framework."""
 
     __tablename__ = 'usersession'
 
