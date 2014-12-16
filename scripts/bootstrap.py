@@ -51,8 +51,9 @@ def read_env_variable(variable, error_message):
 def clean_virtual_env(virtual_env):
     for f in glob.iglob(os.path.join(virtual_env, 'lib', 'python*', 'site-packages', '*egg-link')):
         rm_f(f)
-       
-    rm_f(os.path.join(virtual_env, 'lib', 'python*', 'site-packages', 'easy-install.pth'))
+
+    for f in glob.iglob(os.path.join(virtual_env, 'lib', 'python*', 'site-packages', 'easy-install.pth')):
+        rm_f(f)
 
 def clean_workspace(reahl_workspace):
     rm_f(os.path.join(reahl_workspace, '.reahlworkspace', 'workspace.projects'))
@@ -61,7 +62,7 @@ def clean_workspace(reahl_workspace):
 def clean_egg_info_dirs():
     for current_directory, directories, files in os.walk(os.getcwd()):
         for d in directories:
-            if d.endswith('egg-info') and not d == 'reahl_dev.egg-info':
+            if d.endswith('egg-info') and not d in ['reahl_dev.egg-info']:#,'reahl_bzrsupport.egg-info']:
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
@@ -119,6 +120,9 @@ def bootstrap_workspace(workspace_dir, core_project_dirs):
     from reahl.dev.devdomain import Project, Workspace
 
     workspace = Workspace(workspace_dir)
+    for project_dir in core_project_dirs:
+        Project.from_file(workspace, os.path.join(os.getcwd(), project_dir))
+
     core_projects = [Project.from_file(workspace, os.path.join(os.getcwd(), project_dir)) for project_dir in core_project_dirs]
     return workspace, core_projects
 

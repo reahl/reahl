@@ -30,7 +30,6 @@ def test_model():
     assert contacts.addresses[0].name == 'John'
     assert contacts.addresses[0].email_address == 'john@world.com'
 
-    #import pdb; pdb.set_trace()
     assert contacts.addresses[1].name == 'Jane'
     assert contacts.addresses[1].email_address == 'jane@world.com'
 
