@@ -94,6 +94,7 @@ class RequestHandlingTests(object):
                 self.key_is_set = True
                 self.saved_response = response
 
+            def is_active(self): pass
             def is_secured(self): pass
             def set_as_logged_in(self, party, stay_logged_in): pass
             def log_out(self): pass

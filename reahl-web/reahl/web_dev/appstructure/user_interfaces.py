@@ -80,6 +80,7 @@ class UserInterfaceTests(object):
         browser = Browser(wsgi_app)
 
         with warnings.catch_warnings(record=True) as caught_warnings:
+            warnings.simplefilter("always")
             browser.open('/a_ui/aview')
             vassert( browser.title == 'UserInterface view' )
 

@@ -24,6 +24,7 @@ import contextlib
 from six.moves.urllib import parse as urllib_parse
 import logging
 from six.moves.http_cookiejar import Cookie
+from six.moves.http_client import CannotSendRequest
 
 from webtest import TestApp
 from lxml import html
@@ -581,13 +582,23 @@ class DriverBrowser(BasicBrowser):
            to `condition`.
         """
         def wrapped(driver):
-            return condition(*args, **kwargs)
+            try:
+                return condition(*args, **kwargs)
+            except Exception as ex:
+                if isinstance(ex.args[0], CannotSendRequest):
+                    return False
+                raise
         return WebDriverWait(self.web_driver, 2).until(wrapped)
 
     def wait_for_not(self, condition, *args, **kwargs):
         """Waits until the given `condition` is **not** satisfied. See :meth:`DriverBrowser.wait_for`."""
         def wrapped(driver):
-            return not condition(*args, **kwargs)
+            try:
+                return not condition(*args, **kwargs)
+            except Exception as ex:
+                if isinstance(ex.args[0], CannotSendRequest):
+                    return False
+                raise
         return WebDriverWait(self.web_driver, 2).until(wrapped)
 
     def wait_for_element_visible(self, locator):

@@ -95,7 +95,7 @@ class ConfigSetting(object):
                 if value is self:
                     self._name = name
                     return name
-        raise AssertionError('Could not deduce name for descriptor %s (%s) %s' % (self, self.description, self.default))
+        raise AttributeError('Could not deduce name for descriptor %s (%s) %s' % (self, self.description, self.default))
 
     def is_set(self, obj):
         name = self.name(type(obj))

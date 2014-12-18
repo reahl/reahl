@@ -215,6 +215,7 @@ class ParameterisedTests(object):
 
         # A sub-user_interface is dynamically created from an URL
         with warnings.catch_warnings(record=True) as caught_warnings:
+            warnings.simplefilter('always')
             browser.open('/a_ui/apath/test1/')
             vassert( browser.title == 'Simple user_interface user_interface-test1' )
 

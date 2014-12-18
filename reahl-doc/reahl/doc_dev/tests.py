@@ -17,7 +17,10 @@
     
 from __future__ import print_function, unicode_literals, absolute_import, division
 import os
+import shutil
 import os.path
+from contextlib import contextmanager
+import tempfile
 
 from reahl.tofu import Fixture
 from reahl.tofu import scenario
@@ -361,12 +364,22 @@ def slots(fixture):
 def basichtmlinputs(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/')
+
+@contextmanager
+def temp_copy(filename):
+    try:
+        copyname = os.path.join(tempfile.gettempdir(), os.path.basename(filename))
+        shutil.copyfile(filename, copyname)
+        yield copyname
+    finally:
+        os.remove(copyname)
     
 @test(Fixture)
 def model_examples(fixture):
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
     for example in ['modeltests1.py', 'modeltests2.py', 'modeltests3.py']:
-        Executable('nosetests').check_call(['reahl/doc/examples/tutorial/%s' % example ])
+        with temp_copy('reahl/doc/examples/tutorial/%s' % example) as t:
+            Executable('nosetests').check_call([t])
 
 @test(ExampleFixture.addressbook1)
 def test_addressbook1(fixture):

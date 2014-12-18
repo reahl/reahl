@@ -33,16 +33,30 @@ except ImportException:
         def __init__(self, *args, **kwargs):
             raise AssertionError(msg)
 
-
-run_fixture = None
-
-# Copied from: (in order to prevent reahl-tofu to be dependent in reahl-component)
-#  from reahl.component.py3compat import ascii_as_bytes_or_str
+# Copied from reahl-component (in order to prevent reahl-tofu to be dependent in reahl-component)
+#  (was) from reahl.component.py3compat import ascii_as_bytes_or_str
 def ascii_as_bytes_or_str(unicode_str):
     if six.PY2:
         return unicode_str.encode('ascii')
     else:
         return unicode_str
+
+
+run_fixture = None
+
+def set_run_fixture(fixture, namespace):
+    def setup():
+        global run_fixture
+        fixture.__enter__()
+        run_fixture = fixture
+
+    def teardown(self):
+        global run_fixture
+        fixture.__exit__(None, None, None)
+        run_fixture = None
+
+    namespace['setup'] = setup
+    namespace['teardown'] = teardown
 
 
 class IsTestWithFixture(object):
@@ -251,4 +265,67 @@ class SetUpFixturePlugin(Plugin):
         print('Finished running %s' % self.setup_fixture, file=stream)
         return True
         
-        
+  
+from nose.plugins.attrib import AttributeSelector
+from nose.selector import Selector
+import unittest
+log = logging.getLogger(__name__)
+class MarkedTestsSelector(Selector):
+    def wantClass(self, cls):
+        is_test = getattr(cls, '__test__', False) or issubclass(cls, unittest.TestCase)
+        wanted = is_test and not (self.plugins.wantClass(cls) is False)
+        log.debug("wantClass %s? %s", cls, wanted)
+        return wanted
+
+    def wantFunction(self, function):
+        if not hasattr(function, '__name__'):
+            return False
+        is_test = getattr(function, '__test__', False)
+        wanted = is_test and not (self.plugins.wantFunction(function) is False)
+        log.debug("wantFunction %s? %s", function, wanted)
+        return wanted
+
+    def wantMethod(self, method):
+        if not hasattr(method, '__name__'):
+            return False
+        is_test = getattr(method, '__test__', False)
+        wanted = is_test and not (self.plugins.wantMethod(method) is False)
+        log.debug("wantMethod %s? %s", method, wanted)
+        return wanted
+
+    def wantModule(self, module):
+        is_test = getattr(module, '__test__', True)
+        wanted = is_test and not (self.plugins.wantModule(module) is False)
+        return wanted
+
+
+class MarkedTestsPlugin(Plugin):
+    """A Nose plugin that changes the meaning of testMatch, include and exclude patterns. With --marked-tests,
+       thse patterns are only applied to file and directory names, and disregarded when modules and the Python
+       objects inside them are assessed.
+
+       Python objects are regarded as tests only of they are marked marked with an @test or nose's @istest.
+       Python modules are regarded as test modules regardless of name except if __test__ is explicitly set
+       to False in the __init__.py of that module.
+
+       Enable this plugin by passing ``--with-marked-tests`` to nosetests on the commandline.
+    """
+    name = ascii_as_bytes_or_str('marked-tests')
+    def options(self, parser, env=os.environ):
+        parser.add_option(ascii_as_bytes_or_str("-t"), ascii_as_bytes_or_str("--with-marked-tests"),
+                          action="store_true", dest="marked_tests", default=False,
+                          help="apply naming conventions to files and directories only, Python artifacts are tests when explicitly marked with @istest")
+
+    def configure(self, options, conf):
+        super(MarkedTestsPlugin, self).configure(options, conf)
+        if options.marked_tests:
+            self.enabled = True
+
+    def prepareTestLoader(self, loader):
+        if self.enabled:
+            loader.selector = MarkedTestsSelector(loader.config)
+
+#    def describeTest(self, test):
+#        return str(test)
+
+

@@ -16,9 +16,15 @@
   </deps>
 
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
+    <egg name="reahl-postgresqlsupport"/>
+  </deps>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <persisted>
@@ -44,10 +50,10 @@
       <class locator="reahl.domain.elixirmigration:ElixirToDeclarativeDomainChanges"/>
   </migrations>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/domain_dev -F reahl.dev.fixtures:CleanDatabase"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/domain_dev -i '.*' -t"/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
     
 </project>

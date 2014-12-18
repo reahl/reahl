@@ -20,11 +20,18 @@
   </extras>
 
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>
     <thirdpartyegg name="Sphinx"/>    
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-postgresqlsupport"/>
+    <egg name="reahl-sqlitesupport"/>
+  </deps>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
  <persisted>
@@ -63,10 +70,10 @@
   <export entrypoint="reahl.dev.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.dev.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T (reahl/.*_dev/|.*/testbasics) -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T (reahl/.*_dev/|.*/testbasics)"/>
 
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 </project>
