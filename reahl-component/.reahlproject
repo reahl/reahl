@@ -38,6 +38,7 @@
   <export entrypoint="reahl.component.prodcommands" name="CreateDBTables" locator="reahl.component.prodshell:CreateDBTables"/>
   <export entrypoint="reahl.component.prodcommands" name="DropDBTables" locator="reahl.component.prodshell:DropDBTables"/>
   <export entrypoint="reahl.component.prodcommands" name="MigrateDB" locator="reahl.component.prodshell:MigrateDB"/>
+  <export entrypoint="reahl.component.prodcommands" name="DiffDB" locator="reahl.component.prodshell:DiffDB"/>
   <export entrypoint="reahl.component.prodcommands" name="ListConfig" locator="reahl.component.prodshell:ListConfig"/>
   <export entrypoint="reahl.component.prodcommands" name="CheckConfig" locator="reahl.component.prodshell:CheckConfig"/>
   <export entrypoint="reahl.component.prodcommands" name="ListDependencies" locator="reahl.component.prodshell:ListDependencies"/>

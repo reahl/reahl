@@ -32,6 +32,7 @@ from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
+from alembic.autogenerate import compare_metadata
 
 from reahl.component.i18n import Translator
 from reahl.component.eggs import ReahlEgg
@@ -295,6 +296,9 @@ class SqlAlchemyControl(ORMControl):
             self.op = op
             return super(SqlAlchemyControl, self).migrate_db(eggs_in_order)
 
+    def diff_db(self):
+        return compare_metadata(MigrationContext.configure(Session.connection()), metadata)
+
     def initialise_schema_version_for(self, egg=None, egg_name=None, egg_version=None):
         assert egg or (egg_name and egg_version)
         if egg:
@@ -324,7 +328,9 @@ class SqlAlchemyControl(ORMControl):
             return default
             
     def update_schema_version_for(self, egg):
-        current_version = Session.query(SchemaVersion).filter_by(egg_name=egg.name).one()
+        current_versions = Session.query(SchemaVersion).filter_by(egg_name=egg.name)
+        assert current_versions.count() == 1, 'Found %s versions for %s, expected exactly 1' % (current_versions.count(), egg.name)
+        current_version = current_versions.one()
         current_version.version = egg.version
 
 
