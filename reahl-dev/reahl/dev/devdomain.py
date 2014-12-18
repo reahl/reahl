@@ -16,6 +16,7 @@
 
 """This module houses the main classes used to understand and manipulate Reahl projects in development."""
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 import six
 import os
 import io
@@ -87,9 +88,9 @@ class PythonSourcePackage(DistributionPackage):
         return 'Sdist (source egg).'
 
     def build(self):
-        self.project.generate_setup_py()
-        build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
-        self.project.setup(['build', '-b', build_directory, 'sdist', '--dist-dir', self.project.distribution_egg_repository.root_directory])
+        with self.project.generated_setup_py():
+            build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
+            self.project.setup(['build', '-b', build_directory, 'sdist', '--dist-dir', self.project.distribution_egg_repository.root_directory])
 
     @property
     def is_built(self):
@@ -102,6 +103,10 @@ class PythonSourcePackage(DistributionPackage):
     @property
     def targz_filename(self):
         return self.targz_filename_for(self.project)
+
+    @property
+    def sign_filename(self):
+        return '%s.asc' % self.targz_filename
 
     def targz_filename_for(self, project):
         return '%s-%s.tar.gz' % (project.project_name, project.version)
@@ -179,11 +184,11 @@ class DebianPackage(DistributionPackage):
         Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr', '-k%s' % os.environ['EMAIL']], cwd=self.project.directory)
         self.project.distribution_apt_repository.upload(self, [])
         self.clean_files(self.build_output_files)
+        return 0
         
     @property
     def package_files(self):
         return [self.deb_filename(self.project), self.targz_filename, self.changes_filename, self.dsc_filename]
-
 
     def generate_install_files(self):
         pass
@@ -278,10 +283,10 @@ class RemoteRepository(object):
         self.local_storage.read()
         return self.local_storage.is_uploaded(package)
         
-    def upload(self, package, knocks):
+    def upload(self, package, knocks, ignore_upload_check=False):
         if not package.is_built:
             raise NotBuiltException()
-        if self.is_uploaded(package):
+        if self.is_uploaded(package) and not ignore_upload_check:
             raise AlreadyUploadedException()
         if knocks:
             self.knock(knocks)
@@ -291,6 +296,9 @@ class RemoteRepository(object):
 
     @property
     def unique_id(self):
+        assert None, 'Not implemented'
+
+    def transfer(self, package):
         assert None, 'Not implemented'
 
 
@@ -319,8 +327,14 @@ class PackageIndex(RemoteRepository):
         return file_unsafe_id.replace(os.sep, '-')
 
     def transfer(self, package):
-        package.project.setup(['sdist', '--dist-dir', package.project.distribution_egg_repository.root_directory, 'upload',
-                               '--repository', self.repository, '-s'])
+        try:
+            os.remove(os.path.join(package.project.distribution_egg_repository.root_directory, package.sign_filename))
+        except OSError:
+            pass
+
+        with package.project.generated_setup_py():
+            package.project.setup(['sdist', '--dist-dir', package.project.distribution_egg_repository.root_directory, 'register',
+                                   '--repository', self.repository, 'upload', '--repository', self.repository, '-s'])
 
     
 class SshRepository(RemoteRepository):
@@ -586,8 +600,6 @@ class Dependency(object):
             return project.version
         except ProjectNotFound:
             return None
-
-
 
 
 class ThirdpartyDependency(Dependency):
@@ -1467,11 +1479,17 @@ class Project(object):
             is_built &= i.is_built
         return is_built
         
-    def upload(self, knocks=[]):
-        self.do_release_checks()
+    def upload(self, knocks=[], ignore_release_checks=False, ignore_upload_check=False):
+        try:
+           self.do_release_checks()
+        except StatusException as ex:
+           if not ignore_release_checks:
+              raise
+           else:
+              logging.warning( ex )
         for i in self.packages_to_distribute:
             for repo in i.repositories:
-                repo.upload(i, knocks)
+                repo.upload(i, knocks, ignore_upload_check=ignore_upload_check)
 
     def check_uploaded(self):
         for i in self.packages_to_distribute:
@@ -1483,6 +1501,64 @@ class Project(object):
         self.do_release_checks()
         self.check_uploaded()
         self.source_control.place_tag(six.text_type(self.version))
+
+
+class SetupCommandFailed(Exception):
+    def __init__(self, command):
+        super(SetupCommandFailed, self).__init__(command)
+        self.command = command
+
+
+class SetupMonitor(object):
+    def __init__(self):
+        self.captured_stdout = []
+
+    def __enter__(self):
+        self.original_stdout_write = sys.stdout.write
+        sys.stdout.write = self.intercept_write
+        return self
+
+    def intercept_write(self, line_to_write):
+        self.captured_stdout.append(line_to_write)
+        self.original_stdout_write(line_to_write)
+
+    def __exit__(self, *args):
+        sys.stdout.write = self.original_stdout_write
+
+    def check_command_status(self, commands):
+        for command in commands:
+            self.check(command)
+
+    def check(self, command):
+        check_method = getattr(self, 'check_%s_command' % command, None)
+        if check_method and not check_method():
+            raise SetupCommandFailed(command)
+      
+    def output_ends_with(self, starting, expected_end, only_up_to=None):
+        if not starting in self.captured_stdout:
+            return False
+        start_index = self.captured_stdout.index(starting)
+        for line in self.captured_stdout[start_index+1:]:
+            if line == expected_end:
+                return True
+            if only_up_to and line.startswith(only_up_to):
+                return False
+        return True
+        
+    def check_build_command(self):
+        return self.output_ends_with('running build\n', 'Creating tar archive\n')
+
+    def check_upload_command(self):
+        return self.output_ends_with('running upload\n', 'Server response (200): OK\n', only_up_to='running')
+
+    def check_register_command(self):
+        return self.output_ends_with('running register\n', 'Server response (200): OK\n', only_up_to='running')
+
+    def check_sdist_command(self):
+        return self.output_ends_with('running sdist\n', 'Creating tar archive\n')
+
+
+
 
 
 class EggProject(Project):
@@ -1630,7 +1706,8 @@ class EggProject(Project):
 
     def setup(self, setup_command):
         with self.paths_set():
-            return setup(script_args=setup_command,
+            with SetupMonitor() as monitor:
+                distribution = setup(script_args=setup_command,
                      name=ascii_as_bytes_or_str(self.project_name),
                      version=self.version_for_setup(),
                      description=self.get_description_for(self),
@@ -1649,10 +1726,34 @@ class EggProject(Project):
                      test_suite=self.test_suite_for_setup(),
                      entry_points=self.entry_points_for_setup(),
                      extras_require=self.extras_require_for_setup() )
+            monitor.check_command_status(distribution.commands)
+
+    @property
+    def setup_py_filename(self):
+        return os.path.join(self.directory, 'setup.py')
+
+    @contextmanager
+    def generated_setup_py(self):
+        self.generate_setup_py()
+        try:
+           yield
+        finally:
+           os.remove(self.setup_py_filename)
 
     def generate_setup_py(self):
-        with io.open(os.path.join(self.directory, 'setup.py'), 'w') as setup_file:
-            setup_file.write('from setuptools import setup\n')
+        with io.open(self.setup_py_filename, 'w') as setup_file:
+            setup_file.write('from setuptools import setup, Command\n')
+            setup_file.write('class InstallTestDependencies(Command):\n')
+            setup_file.write('    user_options = []\n')
+            setup_file.write('    def run(self):\n')
+            setup_file.write('        from setuptools.command import easy_install\n')
+            setup_file.write('        easy_install.main(self.distribution.tests_require)\n')
+            setup_file.write('\n')
+            setup_file.write('    def initialize_options(self):\n')
+            setup_file.write('        pass\n')
+            setup_file.write('\n')
+            setup_file.write('    def finalize_options(self):\n')
+            setup_file.write('        pass\n\n')
             setup_file.write('setup(\n')
             setup_file.write('    name=%s,\n' % repr(self.project_name))
             setup_file.write('    version=%s,\n' % repr(self.version_for_setup()))
@@ -1680,7 +1781,8 @@ class EggProject(Project):
                 setup_file.write('    ],\n')
             setup_file.write('                 },\n')
 
-            setup_file.write('    extras_require=%s\n' % repr(self.extras_require_for_setup()) )
+            setup_file.write('    extras_require=%s,\n' % repr(self.extras_require_for_setup()) )
+            setup_file.write('    cmdclass={\'install_test_dependencies\': InstallTestDependencies}\n' )
             setup_file.write(')\n')
 
     def version_for_setup(self):

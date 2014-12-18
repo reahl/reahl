@@ -21,6 +21,6 @@
     <class locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T componentconfig_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=componentconfig_dev -t -i '.*'"/>
   
 </project>

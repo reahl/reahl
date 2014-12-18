@@ -10,15 +10,20 @@
   </deps>
 
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
+    <egg name="reahl-dev"/>
     <egg name="reahl-tofu"/>
-    
     <egg name="reahl-stubble"/>
   </deps>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/mailutil_dev"/>
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/mailutil_dev -i '.*' -t"/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
   
 </project>

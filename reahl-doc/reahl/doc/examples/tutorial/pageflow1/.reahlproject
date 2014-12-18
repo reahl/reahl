@@ -17,6 +17,6 @@
     <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T pageflow1_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=pageflow1_dev -t '.*'"/>
   
 </project>

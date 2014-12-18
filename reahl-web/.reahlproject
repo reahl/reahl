@@ -11,6 +11,7 @@
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-interfaces"/>
+    <egg name="reahl-bzrsupport"/>
     <thirdpartyegg name="slimit" minversion="0.8" maxversion="0.8.999"/>
     <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
     <thirdpartyegg name="BeautifulSoup4" minversion="4.3" maxversion="4.3.999"/>
@@ -19,14 +20,19 @@
   </deps>
 
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>
-    
     <egg name="reahl-stubble"/>
     <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
-    <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-dev"/>
+  </deps>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <persisted>
@@ -59,10 +65,10 @@
     <file path="reahl/web/reahl.slidingpanel.js"/>
   </attachedfiles>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/web_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/web_dev -i'.*' -t "/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
     
 </project>

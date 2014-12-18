@@ -14,21 +14,20 @@
     <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.42.999"/>
   </deps>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+
   <extras name="pillow">
     <thirdpartyegg name="pillow" minversion="2.5" maxversion="2.5.999"/>
   </extras>
-
-  <deps purpose="test">
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-stubble"/>
-  </deps>
 
   <export entrypoint="reahl.dev.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
   
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture"/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 </project>
