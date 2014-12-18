@@ -7,14 +7,22 @@
 
   <deps purpose="run">
     <egg name="reahl-component"/>
+    <egg name="reahl-bzrsupport"/>
     <thirdpartyegg name="sqlalchemy" minversion="0.9.2" maxversion="0.9.999"/>
     <thirdpartyegg name="alembic" minversion="0.6" maxversion="0.6.999"/>
   </deps>
 
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
+    <egg name="reahl-sqlitesupport"/>
+    <egg name="reahl-domain"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
+  </deps>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <persisted>
@@ -25,10 +33,10 @@
     <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
   </migrations>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/sqlalchemysupport_dev -F reahl.dev.fixtures:CleanDatabase"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/sqlalchemysupport_dev -i '.*' -t"/>
 
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 </project>

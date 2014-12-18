@@ -603,7 +603,7 @@ class FileTests(object):
         with expected(Exception):
             browser.type(XPath.input_of_type('file'), fixture.file_to_upload1.name)
 
-        vassert( browser.is_element_present(XPath.label_with_text('an error occurred, please try again later.')) )
+        vassert( browser.wait_for_element_present(XPath.label_with_text('an error occurred, please try again later.')) )
         vassert( not browser.is_element_enabled(XPath.button_labelled('Cancel')) )
 
     @test(ToggleValidationFixture)

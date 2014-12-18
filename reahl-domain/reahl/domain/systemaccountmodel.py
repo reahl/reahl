@@ -587,13 +587,13 @@ class LoginSession(Base):
     account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
     account = relationship(SystemAccount) #: The SystemAccount currently logged on
 
-    def is_logged_in(self, secure=False):
+    def is_logged_in(self, secured=False):
         """Answers whether the user is logged in.
 
            :keyword secure: If True, ensures the login is done via secure means (such as an encrypted connection).
         """
         logged_in = self.account is not None
-        if secure:
+        if secured:
             return logged_in and self.user_session.is_secured()
         else:
             return logged_in and self.user_session.is_active()

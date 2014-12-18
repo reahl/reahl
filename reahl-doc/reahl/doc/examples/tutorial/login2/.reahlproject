@@ -15,6 +15,6 @@
     <egg name="reahl-webdev"/>
   </deps>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T login2_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=login2_dev -t -i'.*'"/>
   
 </project>

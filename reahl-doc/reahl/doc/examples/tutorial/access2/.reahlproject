@@ -20,6 +20,6 @@
     <class locator="reahl.doc.examples.tutorial.access2.access2:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T access2_dev -F reahl.webdev.fixtures:BrowserSetup"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=access2_dev -t -i '.*'"/>
   
 </project>

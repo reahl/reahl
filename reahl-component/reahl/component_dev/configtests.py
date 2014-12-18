@@ -297,8 +297,3 @@ class ConfigTests5(object):
         vassert( config.some_key.injected_setting == 123 )
 
 
-
-
-
-
-

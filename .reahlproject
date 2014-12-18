@@ -61,10 +61,14 @@
 
   <excludepackage name="reahl.doc.*"/>
 
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
+  </deps>
+  
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture"/>
+  <alias name="unit" command="setup -- -q nosetests"/>
 </project>
 
