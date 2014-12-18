@@ -22,6 +22,7 @@ import os
 import os.path
 import subprocess
 from subprocess import CalledProcessError
+from contextlib import contextmanager
 import traceback
 
 
@@ -30,7 +31,7 @@ import shlex
 from reahl.component.shelltools import Command, ReahlCommandline, Executable
 from reahl.component.config import EntryPointClassList, Configuration
 
-from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository
+from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository, SetupCommandFailed
 from reahl.dev.exceptions import StatusException, AlreadyUploadedException, NotBuiltException, \
     NotUploadedException, NotVersionedException, NotCheckedInException, \
     MetaInformationNotAvailableException, AlreadyDebianisedException, \
@@ -208,6 +209,9 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             except OSError as ex:
                 print('Execution failed: %s' % ex, file=sys.stderr)
                 retcode = ex.errno
+            except SetupCommandFailed as ex:
+                print('Execution failed: %s' % ex, file=sys.stderr)
+                retcode = -1
             except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
                     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
                     NotUploadedException, AlreadyMarkedAsReleasedException,
@@ -328,6 +332,7 @@ class Info(ForAllWorkspaceCommand):
         self.print_heading('\tPackages to distribute:')
         for package in main_project.packages_to_distribute:
             print('\t%s' % six.text_type(package))
+        return 0
 
 
 class ForAllParsedWorkspaceCommand(ForAllWorkspaceCommand):
@@ -359,28 +364,59 @@ class ForAllParsedWorkspaceCommand(ForAllWorkspaceCommand):
         return super(ForAllParsedWorkspaceCommand, self).execute(options, self.saved_args)
 
 
+class DevPiTest(ForAllWorkspaceCommand):
+    """Runs devpi test."""
+    keyword = 'devpitest'
+
+    def function(self, project, options, args):
+        return Executable('devpi').check_call(['test', '%s==%s' % (project.project_name, project.version_for_setup())], cwd=project.directory)
+
+
+class DevPiPush(ForAllWorkspaceCommand):
+    """Runs devpi push."""
+    keyword = 'devpipush'
+    usage_args = '<target_spec>'
+
+    def function(self, project, options, args):
+        if not args:
+            raise Exception('You have to supply the destination of the push as <target_spec>')
+        return Executable('devpi').check_call(['push', '%s-%s' % (project.project_name, project.version_for_setup()), args[0]], cwd=project.directory)
+
+
 class Shell(ForAllParsedWorkspaceCommand):
     """Executes a shell command in each selected project, from each project's own root directory."""
     keyword = 'shell'
     usage_args = '-- <shell_command> [shell_command_options]'
+    options = ForAllParsedWorkspaceCommand.options +\
+              [('-g', '--generate_setup_py', dict(action='store_true', dest='generate_setup_py', default=False,
+                                          help='temporarily generate a setup.py for the duration of the shell command (it is removed afterwards)'))]
+
     def function(self, project, options, args):
         if not args:
             print('No shell command specified to run', file=sys.stderr)
             return 1
+
+        @contextmanager
+        def nop_context_manager():
+            yield
+
+        context_manager = project.generated_setup_py if options.generate_setup_py else nop_context_manager
+        with context_manager():   
+            command = self.do_shell_expansions(project.directory, args)
+            return Executable(command[0]).call(command[1:], cwd=project.directory)
+
+    def do_shell_expansions(self, directory, commandline):
         replaced_command = []
-        for i in args:
+        for i in commandline:
             if i.startswith('$(') and i.endswith(')'):
                 shellcommand = i[2]
                 shell_args = i[3:-1].split(' ')
-                output = Executable(shellcommand).Popen(shell_args, cwd=project.directory, stdout=subprocess.PIPE).communicate()[0]
+                output = Executable(shellcommand).Popen(shell_args, cwd=directory, stdout=subprocess.PIPE).communicate()[0]
                 for line in output.splitlines():
                     replaced_command.append(line)
             else:
                 replaced_command.append(i)
-
-        command = replaced_command
-
-        return Executable(command[0]).call(command[1:], cwd=project.directory)
+        return replaced_command
 
 
 
@@ -397,17 +433,12 @@ class Build(ForAllWorkspaceCommand):
     """Builds all distributable packages for each project in the current selection."""
     keyword = 'build'
     def function(self, project, options, args):
-        try:
-            return_code = project.build()
-        except:
-            print('', file=sys.stderr)
-            traceback.print_exc()
-            return_code = -1
-
-        return return_code
+        project.build()
+        return 0
 
     def perform_post_command_duties(self):
         self.workspace.update_apt_repository_index()
+
 
 
 class ListMissingDependencies(ForAllWorkspaceCommand):
@@ -416,16 +447,15 @@ class ListMissingDependencies(ForAllWorkspaceCommand):
     options = ForAllWorkspaceCommand.options+[('-D', '--development', dict(action='store_true', dest='for_development', default=False,
                                                                            help='include development dependencies'))]
     def function(self, project, options, args):
-        return_code = 0
         try:
             dependencies = project.list_missing_dependencies(for_development=options.for_development)
             if dependencies:
                 print(' '.join(dependencies))
         except:
             traceback.print_exc()
-            return_code = -1
+            return -1
 
-        return return_code
+        return 0
 
 
 class DebInstall(ForAllParsedWorkspaceCommand):
@@ -440,16 +470,26 @@ class Upload(ForAllWorkspaceCommand):
     """Uploads all built distributable packages for each project in the current selection."""
     keyword = 'upload'
     options = ForAllWorkspaceCommand.options+[('-k', '--knock', dict(action='append', dest='knocks', default=[],
-                                                                     help='port to knock on before uploading'))]
+                                                                     help='port to knock on before uploading')),
+                                              ('-r', '--ignore-release-checks', dict(action='store_true', dest='ignore_release_checks', default=False,
+                                                                     help='proceed with uploading despite possible failing release checks')),
+                                              ('-u', '--ignore-uploaded-check', dict(action='store_true', dest='ignore_upload_check', default=False,
+                                                                     help='upload regardless of possible previous uploads'))]
     def function(self, project, options, args):
-        return project.upload(knocks=options.knocks)
+        if options.ignore_release_checks:
+            print('WARNING: Ignoring release checks at your request') 
+        if options.ignore_upload_check:
+            print('WARNING: Overwriting possible previous uploads') 
+        project.upload(knocks=options.knocks, ignore_release_checks=options.ignore_release_checks, ignore_upload_check=options.ignore_upload_check)
+        return 0
 
 
 class MarkReleased(ForAllWorkspaceCommand):
     """Marks each project in the current selection as released."""
     keyword = 'markreleased'
     def function(self, project, options, args):
-        return project.mark_as_released()
+        project.mark_as_released()
+        return 0
 
 
 class SubstVars(ForAllWorkspaceCommand):

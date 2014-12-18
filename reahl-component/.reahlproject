@@ -14,8 +14,13 @@
   </deps>
 
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
+  </deps>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <script name="reahl-control" locator="reahl.component.prodshell:ProductionCommandline.execute_one"/>
@@ -39,10 +44,10 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="NullDatabaseControl" locator="reahl.component.dbutils:NullDatabaseControl"/>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/component_dev -F reahl.component_dev.fixtures:ContextFixture"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/component_dev -t -i '.*'"/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 

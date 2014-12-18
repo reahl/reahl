@@ -7,18 +7,14 @@
     <egg name="reahl-component"/>
   </deps>
 
-  <deps purpose="test">
-    <egg name="reahl-tofu"/>
-    
-    <egg name="reahl-stubble"/>
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <export entrypoint="reahl.component.databasecontrols" name="SQLiteControl" locator="reahl.sqlitesupport:SQLiteControl"/>
 
-  <alias name="unit" command="setup -- -q nosetests"/>
-  
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 </project>

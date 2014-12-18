@@ -6,13 +6,17 @@
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/> 
-    <egg name="reahl-bzrsupport"/> 
     <thirdpartyegg name="Babel" minversion="1.3" maxversion="1.3.9999"/> 
   </deps>
 
   <deps purpose="test">
+    <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
+  </deps>
+
+  <deps purpose="build">
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <script name="reahl" locator="reahl.dev.devshell:WorkspaceCommandline.execute_one"/>
@@ -78,6 +82,8 @@
   <export entrypoint="reahl.dev.commands" name="SubstVars" locator="reahl.dev.devshell:SubstVars"/>
   <export entrypoint="reahl.dev.commands" name="Debianise" locator="reahl.dev.devshell:Debianise"/>
   <export entrypoint="reahl.dev.commands" name="Info" locator="reahl.dev.devshell:Info"/>
+  <export entrypoint="reahl.dev.commands" name="DevPiTest" locator="reahl.dev.devshell:DevPiTest"/>
+  <export entrypoint="reahl.dev.commands" name="DevPiPush" locator="reahl.dev.devshell:DevPiPush"/>
 
   <export entrypoint="reahl.dev.commands" name="ExtractMessages" locator="reahl.dev.devshell:ExtractMessages"/>
   <export entrypoint="reahl.dev.commands" name="MergeTranslations" locator="reahl.dev.devshell:MergeTranslations"/>
@@ -87,10 +93,10 @@
   <export entrypoint="reahl.dev.commands" name="UpdateAptRepository" locator="reahl.dev.devshell:UpdateAptRepository"/>
   <export entrypoint="reahl.dev.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T reahl/dev_dev"/>
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/dev_dev -t -i '.*'"/>
   
   <distpackage type="sdist">
-    <packageindex repository="pypi"/>
+    <packageindex repository="devpi"/>
   </distpackage>
 
 </project>

@@ -17,8 +17,8 @@
     <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T datatable_dev -F reahl.webdev.fixtures:BrowserSetup"/>
-  <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:CleanDatabase
-                                   --with-setup-fixture  reahl.doc.examples.tutorial.datatable.datatable_dev.datatabletests:DemoSetup" />
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=datatable_dev -t -i'.*'"/>
+  <alias name="demosetup" command="setup -- -q nosetests
+                                   --with-setup-fixture reahl.doc.examples.tutorial.datatable.datatable_dev.datatabletests:DemoSetup" />
 
 </project>
