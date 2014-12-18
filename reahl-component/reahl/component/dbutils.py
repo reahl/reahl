@@ -119,6 +119,9 @@ class SystemControl(object):
         self.orm_control.migrate_db(eggs_in_order)
         return 0
 
+    def diff_db(self):
+        return self.orm_control.diff_db()
+
     def do_daily_maintenance(self):
         with self.orm_control.managed_transaction() as transaction:
             ReahlEgg.do_daily_maintenance_for_egg(self.config.reahlsystem.root_egg)

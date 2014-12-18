@@ -16,7 +16,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from alembic import op
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, ForeignKey
 
 from reahl.component.migration import Migration
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
@@ -132,3 +132,18 @@ class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
         self.schedule('create_fk', op.create_foreign_key, fk_name('systemaccount', 'owner_party_id', 'party'), 
                       'systemaccount', 'party', ['owner_party_id'], ['id'])
         self.schedule('drop_pk', op.drop_index, ix_name('party','system_account_id'))
+
+
+class AddLoginSession(Migration):
+    version='3.1'    
+    def schedule_upgrades(self):
+        self.schedule('alter', op.create_table, 'loginsession', 
+                      Column('id', Integer(), primary_key=True, nullable=False),
+                      Column('row_type', String(length=40)),
+                      Column('account_id', Integer(), ForeignKey('systemaccount.id')), 
+                      Column('user_session_id', Integer(), ForeignKey('usersession.id')))
+        self.schedule('indexes', op.create_index, ix_name('loginsession', 'account_id'), 'loginsession', ['account_id'])
+        self.schedule('indexes', op.create_index, ix_name('loginsession', 'user_session_id'), 'loginsession', ['user_session_id'])
+
+
+
