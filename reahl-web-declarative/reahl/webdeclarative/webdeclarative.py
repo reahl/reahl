@@ -219,6 +219,8 @@ class SessionData(Base):
 
 
 class UserInput(SessionData, UserInputProtocol):
+    """An implementation of :class:`reahl.web.interfaces.UserInputProtocol`. It represents
+       an value that was input by a user."""
     __tablename__ = 'userinput'
     __mapper_args__ = {'polymorphic_identity': 'userinput'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -247,6 +249,8 @@ class UserInput(SessionData, UserInputProtocol):
 
 
 class PersistedException(SessionData, PersistedExceptionProtocol):
+    """An implementation of :class:`reahl.web.interfaces.PersistedExceptionProtocol`. It represents
+       an Exception that was raised upon a user interaction."""
     __tablename__ = 'persistedexception'
     __mapper_args__ = {'polymorphic_identity': 'persistedexception'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -287,6 +291,8 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
 
 
 class PersistedFile(SessionData, PersistedFileProtocol):
+    """An implementation of :class:`reahl.web.interfaces.PersistedFileProtocol`. It represents
+       a file that was input by a user."""
     __tablename__ = 'persistedfile'
     __mapper_args__ = {'polymorphic_identity': 'persistedfile'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
