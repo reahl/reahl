@@ -1142,7 +1142,8 @@ secured = SecuredDeclaration #: An alias for :class:`SecuredDeclaration`
 class CurrentUser(Field):
     """A Field whose value is always set to the party of the account currently logged in."""
     def __init__(self):
-        account = ExecutionContext.get_context().session.account
+        from reahl.domain.systemaccountmodel import LoginSession
+        account = LoginSession.for_current_session().account
         if account:
             party = account.owner
         else:

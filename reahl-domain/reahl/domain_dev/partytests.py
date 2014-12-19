@@ -32,10 +32,11 @@ from reahl.stubble import stubclass
 from reahl.component.eggs import ReahlEgg
 from reahl.domain.partymodel import Party
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, VerificationRequest, VerifyEmailRequest, NewPasswordRequest, \
-     ChangeAccountEmail, UserSession, PasswordException, NotUniqueException, InvalidPasswordException, KeyException, \
+     ChangeAccountEmail, PasswordException, NotUniqueException, InvalidPasswordException, KeyException, \
      InvalidEmailException, AccountNotActiveException, NoSuchAccountException, AccountActive, AccountDisabled, AccountNotActivated,\
-     AccountManagementInterface,  ActivateAccount
+     AccountManagementInterface,  ActivateAccount, LoginSession
 from reahl.domain_dev.fixtures import PartyModelZooMixin
+from reahl.web_dev.fixtures import WebFixture
 
 
 class PartyModelFixture(Fixture, PartyModelZooMixin):
@@ -417,17 +418,17 @@ class RegistrationTests(object):
     @test(PartyModelFixture)
     def logging_in(self,fixture):
         system_account = fixture.system_account
-        session = fixture.context.session
+        login_session = LoginSession.for_session(fixture.context.session)
         account_management_interface = fixture.account_management_interface
         account_management_interface.stay_logged_in = False
 
         # Case: successful email attempt
-        vassert( session.account is not system_account )
+        vassert( login_session.account is not system_account )
         account_management_interface.log_in()
-        vassert( session.account is system_account )
+        vassert( login_session.account is system_account )
 
         # Case: failed email attempts disable the account
-        session.account = None
+        login_session.account = None
         vassert( system_account.account_enabled )
 
         account_management_interface.email = system_account.email
@@ -437,7 +438,7 @@ class RegistrationTests(object):
                 account_management_interface.log_in()
             vassert( system_account.failed_logins == i+1 )
 
-        vassert( session.account is None )
+        vassert( login_session.account is None )
         vassert( not system_account.account_enabled )
 
         # Case: Account is locked
@@ -445,79 +446,104 @@ class RegistrationTests(object):
         vassert( isinstance(system_account.status, AccountDisabled) )
         with expected(AccountNotActiveException):
             account_management_interface.log_in()
-        vassert( session.account is None )
+        vassert( login_session.account is None )
 
         # Case: Account is not activated yet
-        session.account = None
+        login_session.account = None
         system_account = fixture.new_system_account(email='other@email.com', activated=False)
 
         vassert( isinstance(system_account.status, AccountNotActivated) )
         with expected(AccountNotActiveException):
             account_management_interface.log_in()
-        vassert( session.account is None )
+        vassert( login_session.account is None )
 
         # Case: Login for nonexistant email name
         account_management_interface.email = 'i@do not exist'
         account_management_interface.password = 'gobbledegook'
         with expected(InvalidPasswordException, test=lambda e: vassert(not e.commit)):
             account_management_interface.log_in()
-        vassert( session.account is None )
+        vassert( login_session.account is None )
 
 
+
+class WebLoginFixture(WebFixture, PartyModelZooMixin):
+    pass
 
 @istest
-class UserSessionTests(object):
-    @test(PartyModelFixture)
+class LoginSessionTests(object):
+    @test(WebLoginFixture)
     def login_queries(self, fixture):
         """"""
         
-        session = fixture.context.session
-        real_user = fixture.party
+        user_session = fixture.context.session
+        login_session = LoginSession.for_session(fixture.context.session)
+        system_account = fixture.system_account
+        
         config = fixture.context.config
         context = fixture.context
-        vassert( config.accounts.idle_secure_lifetime < config.accounts.idle_lifetime )
-        vassert( config.accounts.idle_lifetime < config.accounts.idle_lifetime_max )
+        fixture.request.scheme = 'https'
+        context.request.cookies[context.config.web.secure_key_name] = user_session.secure_salt
+        vassert( config.web.idle_secure_lifetime < config.web.idle_lifetime )
+        vassert( config.web.idle_lifetime < config.web.idle_lifetime_max )
 
         # Case: user logs in
-        session.last_activity = None
-        session.set_as_logged_in(real_user, False)
-        vassert( session.is_logged_in() )
-        vassert( session.is_secure() )
+        user_session.last_activity = None
+        login_session.set_as_logged_in(system_account, False)
+        vassert( login_session.is_logged_in() )
+        vassert( login_session.is_logged_in(secured=True) )
 
         # Case: user logs out
-        session.log_out()
-        vassert( not session.is_logged_in() )
-        vassert( not session.is_secure() )
+        login_session.log_out()
+        vassert( not login_session.is_logged_in() )
+        vassert( not login_session.is_logged_in(secured=True) )
 
         # Case: user activity is older than secure lifetime
-        vassert( (config.accounts.idle_lifetime - config.accounts.idle_secure_lifetime) > 50 )
-        session.set_as_logged_in(real_user, False)
-        session.last_activity = datetime.now() - timedelta(seconds=config.accounts.idle_secure_lifetime+50)
-        vassert( session.is_logged_in() )
-        vassert( not session.is_secure() )
+        vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
+        login_session.set_as_logged_in(system_account, False)
+        user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_secure_lifetime+50)
+        vassert( login_session.is_logged_in() )
+        vassert( not login_session.is_logged_in(secured=True) )
 
         # Case: user activity is older than all lifetimes
-        vassert( (config.accounts.idle_lifetime - config.accounts.idle_secure_lifetime) > 50 )
-        session.set_as_logged_in(real_user, False)
-        session.last_activity = datetime.now() - timedelta(seconds=config.accounts.idle_lifetime+50)
-        vassert( not session.is_logged_in() )
-        vassert( not session.is_secure() )
+        vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
+        login_session.set_as_logged_in(system_account, False)
+        user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime+50)
+        vassert( not login_session.is_logged_in() )
+        vassert( not login_session.is_logged_in(secured=True) )
 
         # Case: user activity is older than non-secure lifetime, but keep_me_logged_in is set
-        vassert( (config.accounts.idle_lifetime - config.accounts.idle_secure_lifetime) > 50 )
-        vassert( (config.accounts.idle_lifetime_max - config.accounts.idle_lifetime) > 50 )
-        session.set_as_logged_in(real_user, True)
-        session.last_activity = datetime.now() - timedelta(seconds=config.accounts.idle_lifetime+50)
-        vassert( session.is_logged_in() )
-        vassert( not session.is_secure() )
+        vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
+        vassert( (config.web.idle_lifetime_max - config.web.idle_lifetime) > 50 )
+        login_session.set_as_logged_in(system_account, True)
+        user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime+50)
+        vassert( login_session.is_logged_in() )
+        vassert( not login_session.is_logged_in(secured=True) )
 
         # Case: user activity is older than non-secure lifetime max, but keep_me_logged_in is set
-        vassert( (config.accounts.idle_lifetime - config.accounts.idle_secure_lifetime) > 50 )
-        vassert( (config.accounts.idle_lifetime_max - config.accounts.idle_lifetime) > 50 )
-        session.set_as_logged_in(real_user, True)
-        session.last_activity = datetime.now() - timedelta(seconds=config.accounts.idle_lifetime_max+50)
-        vassert( not session.is_logged_in() )
-        vassert( not session.is_secure() )
+        vassert( (config.web.idle_lifetime - config.web.idle_secure_lifetime) > 50 )
+        vassert( (config.web.idle_lifetime_max - config.web.idle_lifetime) > 50 )
+        login_session.set_as_logged_in(system_account, True)
+        Session.flush()
+        user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime_max+50)
+        vassert( not login_session.is_logged_in() )
+        vassert( not login_session.is_logged_in(secured=True) )
 
+    @test(WebLoginFixture)
+    def backwards_compatibility(self, fixture):
+        """"""
+        
+        user_session = fixture.context.session
+        login_session = LoginSession.for_session(fixture.context.session)
+        system_account = fixture.system_account
+        config = fixture.context.config
+        context = fixture.context
+        fixture.request.scheme = 'https'
+        context.request.cookies[context.config.web.secure_key_name] = user_session.secure_salt
+        vassert( config.web.idle_secure_lifetime < config.web.idle_lifetime )
+        vassert( config.web.idle_lifetime < config.web.idle_lifetime_max )
+        login_session.set_as_logged_in(system_account, False)
 
+        # Case: user logs in
+        vassert( user_session.is_logged_in() )
+        vassert( user_session.is_secure() )
 

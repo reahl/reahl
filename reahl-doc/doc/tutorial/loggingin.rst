@@ -37,8 +37,8 @@ in the module `reahl.systemaccountmodel`.
 In there is a class, `AccountManagementInterface` which is
 session-scoped. In other words to get an AccountManagementInterface,
 you just call AccountManagementInterface.for_current_session(). The
-:class:`~reahl.systemaccountmodel.UserSession` class is also in this module. It is session-scoped
-and serves basically the same role as the LoginSession of :doc:`the
+:class:`~reahl.systemaccountmodel.LoginSession` class is also in this module. It is session-scoped
+and serves the same purpose as the LoginSession of :doc:`the
 previous example <sessions>`.
 
 An AccountManagementInterface has many :class:`~reahl.component.modelinterface.Field`\ s and :class:`~reahl.component.modelinterface.Event`\ s available for
@@ -46,7 +46,7 @@ use by user interface code. It allows for logging in and out, but also
 for registration, verification of the email addresses of new
 registrations, resetting forgotten passwords, etc.
 
-The :class:`~reahl.systemaccountmodel.UserSession` object itself is mostly only used for finding out who
+The :class:`~reahl.systemaccountmodel.LoginSession` object itself is mostly only used for finding out who
 is currently logged in.
 
 Here is our simple login application, changed to use this code,

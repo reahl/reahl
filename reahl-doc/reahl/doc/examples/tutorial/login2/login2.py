@@ -4,7 +4,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, P, HMenu
-from reahl.webdeclarative.webdeclarative import WebUserSession
+from reahl.domain.systemaccountmodel import LoginSession
 from reahl.domainui.accounts import AccountUI
 
 
@@ -17,9 +17,9 @@ class MenuPage(TwoColumnPage):
 
 class LoginUI(UserInterface):
     def assemble(self):
-        user_session = WebUserSession.for_current_session()
-        if user_session.account:
-            logged_in_as = user_session.account.email
+        login_session = LoginSession.for_current_session()
+        if login_session.account:
+            logged_in_as = login_session.account.email
         else:
             logged_in_as = 'Guest'
 

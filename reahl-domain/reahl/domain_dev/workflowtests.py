@@ -30,7 +30,7 @@ from reahl.sqlalchemysupport import metadata, Session, Base
 from reahl.domain.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
-
+from reahl.domain.systemaccountmodel import LoginSession
  
 class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_SomeObject(self):
@@ -221,7 +221,8 @@ class TaskQueueZooMixin(PartyModelZooMixin):
     def new_session(self, system_account=None):
         session = super(TaskQueueZooMixin, self).new_session()
         system_account = self.new_system_account(party=self.party)
-        session.set_as_logged_in(system_account, True)
+        login_session = LoginSession.for_session(session)
+        login_session.set_as_logged_in(system_account, True)
         return session
 
     def new_workflow_interface(self):

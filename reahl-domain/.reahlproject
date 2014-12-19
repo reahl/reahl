@@ -9,10 +9,10 @@
   <translations locator="reahl.messages"/>
 
   <deps purpose="run">
-    <egg name="reahl-component" ignoreversion="True"/>
-    <egg name="reahl-mailutil" ignoreversion="True"/>
-    <egg name="reahl-interfaces" ignoreversion="True"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-mailutil"/>
     <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-declarative"/>
   </deps>
 
   <deps purpose="test">
@@ -30,7 +30,7 @@
   <persisted>
     <class locator="reahl.partymodel:Party"/>
     <class locator="reahl.systemaccountmodel:SystemAccount"/>
-    <class locator="reahl.systemaccountmodel:UserSession"/>
+    <class locator="reahl.systemaccountmodel:LoginSession"/>
     <class locator="reahl.systemaccountmodel:EmailAndPasswordSystemAccount"/>
     <class locator="reahl.systemaccountmodel:AccountManagementInterface"/>
     <class locator="reahl.systemaccountmodel:VerificationRequest"/>
@@ -45,10 +45,10 @@
   </persisted>
 
   <schedule locator="reahl.workflowmodel:DeferredAction.check_deadline"/>
-  <schedule locator="reahl.systemaccountmodel:UserSession.remove_dead_sessions"/>
 
   <migrations>
-      <class locator="reahl.domain.elixirmigration:ElixirToDeclarativeDomainChanges"/>
+      <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
+      <class locator="reahl.domain.migrations:AddLoginSession"/>
   </migrations>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/domain_dev -i '.*' -t"/>

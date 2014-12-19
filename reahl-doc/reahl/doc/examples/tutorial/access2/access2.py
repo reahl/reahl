@@ -5,7 +5,7 @@ from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, Boolean
 from sqlalchemy.orm import relationship
 
 from reahl.sqlalchemysupport import Session, Base
-from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, UserSession
+from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, A, P, H, InputGroup, HMenu,\
@@ -146,9 +146,9 @@ class AddressAppPage(TwoColumnPage):
     def __init__(self, view, home_bookmark):
         super(AddressAppPage, self).__init__(view, style='basic')
 
-        user_session = UserSession.for_current_session()
-        if user_session.is_logged_in():
-            logged_in_as = user_session.account.email
+        login_session = LoginSession.for_current_session()
+        if login_session.is_logged_in():
+            logged_in_as = login_session.account.email
         else:
             logged_in_as = 'Not logged in'
 
@@ -181,8 +181,8 @@ class HomePageWidget(Widget):
     def __init__(self, view, address_book_ui):
         super(HomePageWidget, self).__init__(view)
         accounts = AccountManagementInterface.for_current_session()
-        user_session = UserSession.for_current_session()
-        if user_session.is_logged_in():
+        login_session = LoginSession.for_current_session()
+        if login_session.is_logged_in():
             self.add_child(AddressBookList(view, address_book_ui))
             self.add_child(LogoutForm(view, accounts))
         else:
@@ -193,7 +193,7 @@ class AddressBookList(Panel):
     def __init__(self, view, address_book_ui):
         super(AddressBookList, self).__init__(view)
 
-        current_account = UserSession.for_current_session().account
+        current_account = LoginSession.for_current_session().account
         address_books = [book for book in AddressBook.address_books_visible_to(current_account)]
         bookmarks = [address_book_ui.get_address_book_bookmark(address_book, description=address_book.display_name)
                      for address_book in address_books]

@@ -5,7 +5,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.web.fw import UserInterface
 from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage
-from reahl.domain.systemaccountmodel import AccountManagementInterface, UserSession
+from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSession
 
 
 
@@ -33,9 +33,9 @@ class LoginForm(Form):
 
 class LoginUI(UserInterface):
     def assemble(self):
-        user_session = UserSession.for_current_session()
-        if user_session.account:
-            logged_in_as = user_session.account.email
+        login_session = LoginSession.for_current_session()
+        if login_session.account:
+            logged_in_as = login_session.account.email
         else:
             logged_in_as = 'Guest'
 

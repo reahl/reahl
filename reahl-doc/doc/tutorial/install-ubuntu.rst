@@ -21,7 +21,12 @@ Python, a compiler and the basic python development tools are installed by issui
 
 .. code-block:: bash
 
-   sudo apt-get install python-dev gcc cython python-virtualenv
+   sudo apt-get install python3-dev gcc cython python-virtualenv
+
+.. note::
+
+   For Python 2, just install python-dev (or python2.7-dev) instead of python3-dev above.
+
 
 Additional necessary packages for a Reahl installation
 ------------------------------------------------------

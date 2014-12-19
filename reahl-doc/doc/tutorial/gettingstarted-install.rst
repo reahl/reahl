@@ -87,7 +87,7 @@ On Linux or Mac:
 
 .. code-block:: bash
 
-   pip reahl[declarative,sqlite,dev,doc]  
+   pip install reahl[declarative,sqlite,dev,doc]  
 
 On Windows:
 

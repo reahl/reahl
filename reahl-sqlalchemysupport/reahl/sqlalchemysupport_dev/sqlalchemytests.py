@@ -24,7 +24,6 @@ from reahl.tofu import Fixture, test, vassert
 from reahl.sqlalchemysupport import SqlAlchemyControl, QueryAsSequence, Session, Base, metadata
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
 
-from reahl.domain_dev.fixtures import BasicModelZooMixin
 from reahl.component_dev.migrationtests import ReahlEggStub
 
 
@@ -58,7 +57,7 @@ def egg_schema_version_init(fixture):
     vassert( current_version == egg.version )
 
 
-class QueryFixture(Fixture, BasicModelZooMixin):
+class QueryFixture(Fixture, SqlAlchemyTestMixin):
     def new_MyObject(self):
         class MyObject(Base):
             __tablename__ = 'my_object'

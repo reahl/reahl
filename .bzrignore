@@ -16,7 +16,6 @@ chromedriver.log
 
 debian/python-reahl-doc/
 debian/python-reahl-sqlalchemysupport/
-debian/python-reahl-interfaces/
 debian/python-reahl-mailutil/
 debian/python-reahl-postgresqlsupport/
 debian/python-reahl-sqlitesupport/
@@ -35,7 +34,6 @@ reahl-component/reahl_component.egg-info/
 reahl-doc/reahl_doc.egg-info/
 reahl-domain/reahl_domain.egg-info/
 reahl-domainui/reahl_domainui.egg-info/
-reahl-interfaces/reahl_interfaces.egg-info/
 reahl-mailutil/reahl_mailutil.egg-info/
 reahl-postgresqlsupport/reahl_postgresqlsupport.egg-info/
 reahl-sqlalchemysupport/reahl_sqlalchemysupport.egg-info/

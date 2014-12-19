@@ -6,11 +6,9 @@
   </namespaces>
 
   <deps purpose="run">
-    <egg name="reahl-interfaces" ignoreversion="True"/>
     <egg name="reahl-sqlalchemysupport"/>
-    <egg name="reahl-web" ignoreversion="True"/>
-    <egg name="reahl-component" ignoreversion="True"/>
-    <egg name="reahl-domain"/>
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
   </deps>
 
   <deps purpose="test">
@@ -27,16 +25,19 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.webdeclarative.webdeclarative:WebUserSession"/>
+    <class locator="reahl.webdeclarative.webdeclarative:UserSession"/>
     <class locator="reahl.webdeclarative.webdeclarative:SessionData"/>
     <class locator="reahl.webdeclarative.webdeclarative:UserInput"/>
     <class locator="reahl.webdeclarative.webdeclarative:PersistedException"/>
     <class locator="reahl.webdeclarative.webdeclarative:PersistedFile"/>
   </persisted>
 
+  <schedule locator="reahl.webdeclarative.webdeclarative:UserSession.remove_dead_sessions"/>
+
   <migrations>
     <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
     <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeWebDeclarativeChanges"/>
+    <class locator="reahl.webdeclarative.migrations:MergeWebUserSessionToUserSession"/>
   </migrations>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -t -i'.*' --tests=reahl/webdeclarative_dev "/>

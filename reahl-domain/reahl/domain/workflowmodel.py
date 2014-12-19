@@ -188,7 +188,8 @@ class Task(Base):
         return party and (self.reserved_by is party)
 
     def is_reserved_for_current_party(self):
-        current_account = ExecutionContext.get_context().session.account
+        from reahl.domain.systemaccountmodel import LoginSession    # To prevent circulat dependency with systemaccountmodel
+        current_account = LoginSession.for_current_session().account
         return current_account and self.is_reserved_for(current_account.owner)
         
     @secured( write_check=is_reserved_for_current_party )

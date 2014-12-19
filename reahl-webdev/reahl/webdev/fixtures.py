@@ -30,7 +30,7 @@ from reahl.dev.fixtures import CleanDatabase
 from reahl.webdev.webserver import ReahlWebServer
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
-from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.domain.systemaccountmodel import SystemAccountConfig
 
 
@@ -156,7 +156,7 @@ class BrowserSetup(CleanDatabase):
         config.web = WebConfig()
         config.web.site_root = UserInterface
         config.web.static_root = os.getcwd()
-        config.web.session_class = WebUserSession
+        config.web.session_class = UserSession
         config.web.persisted_exception_class = PersistedException
         config.web.persisted_userinput_class = UserInput
         config.web.persisted_file_class = PersistedFile

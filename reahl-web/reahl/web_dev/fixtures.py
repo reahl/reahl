@@ -33,8 +33,9 @@ from reahl.web.ui import TwoColumnPage
 from reahl.component.i18n import Translator
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.domain_dev.fixtures import PartyModelZooMixin
+from reahl.domain.systemaccountmodel import LoginSession
 from reahl.web.egg import WebConfig
-from reahl.webdeclarative.webdeclarative import WebUserSession, PersistedException, PersistedFile, UserInput
+from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.webdev.tools import DriverBrowser
 
 
@@ -51,7 +52,8 @@ class WebBasicsMixin(PartyModelZooMixin):
     def log_in(self, browser=None, session=None, system_account=None, stay_logged_in=False):
         session = session or self.session
         browser = browser or self.driver_browser
-        session.set_as_logged_in(system_account or self.system_account, stay_logged_in)
+        login_session = LoginSession.for_session(session)
+        login_session.set_as_logged_in(system_account or self.system_account, stay_logged_in)
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         self.session.set_session_key(response)
@@ -82,7 +84,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         web = WebConfig()
         web.site_root = UserInterface
         web.static_root = os.path.join(os.getcwd(), 'static')
-        web.session_class = WebUserSession
+        web.session_class = UserSession
         web.persisted_exception_class = PersistedException
         web.persisted_file_class = PersistedFile
         web.persisted_userinput_class = UserInput
@@ -102,8 +104,8 @@ class WebBasicsMixin(PartyModelZooMixin):
             context.set_session( session or self.session )
         return context
         
-    def new_session(self, system_account=None):
-        web_user_session = WebUserSession(account=system_account)
+    def new_session(self):
+        web_user_session = UserSession()
         Session.add(web_user_session)
         return web_user_session
 
