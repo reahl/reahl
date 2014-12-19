@@ -3,11 +3,13 @@ python-reahl (3.1.0) unstable; urgency=low
  * Split the login functionality out of UserSession to LoginSession (Blueprint: login-session-split).
  * Removed reahl-tofu dependency on nose and on reahl-component.
  * Added use of tox and devpi on all projects (Blueprint: using-tox-devpi).
- * Added monitoring and reporting of important setup.py commands in ForAllWorkspaceCommands.
+ * Added correct status reporting for important commands when run via reahl setup -sX.
  * Changed reahl uploading to Pypi repos to first register also on each upload.
  * Added devpipush and devpitest commands to reahl script.
  * Added --ignore-release-checks and --ignore-upload-check switches to reahl upload command.
  * Added --generate-setup-py switch to reahl shell command.
+ * Added --with-marked-tests nose plugin to reahl-tofu.
+ * Added reahl.tofu.nosesupport.set_run_fixture to reahl-tofu.
 
  -- Iwan Vosloo <iwan@reahl.org>  Sat, 06 Sep 2014 11:50:00 +0200
 

@@ -24,7 +24,7 @@ technology used -- it needs to be supplied with a few classes, each of
 which sports a given interface. The framework makes use of a simple
 form of `dependency injection
 <http://www.martinfowler.com/articles/injection.html>`_ in order to
-discover the implementation of these classes which it should use for a
+discover which implementation of these classes which it should use for a
 given application. This section aims to tell you a little more about
 the role dependencies play in Reahl in general, and how to use
 dependency injection. It does to at the hand of the example of writing
@@ -89,8 +89,7 @@ Dependency injection
 As explained at the beginning of this section, the `reahl-web`
 component needs a number of classes that are provided by a different
 component. The Declarative-based implementation of these classes live in
-the `reahl-web-declarative` component which in turn is written using
-the `reahl-domain` component. Diagramatically this is the scenario:
+the `reahl-web-declarative` component. Diagramatically this is the scenario:
 
 .. figure:: depinjection.png
    :align: center

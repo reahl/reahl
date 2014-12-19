@@ -45,6 +45,19 @@ def ascii_as_bytes_or_str(unicode_str):
 run_fixture = None
 
 def set_run_fixture(fixture, namespace):
+    """Adds setup and teardown methods to the calling context that will set a fixture
+       as the run fixture for tests in that context.
+
+       The run fixture is set up only once: before any tests are run in the calling context, 
+       and torn down once after all tests in this context have run. Fixtures used by tests
+       in this context will have their `.run_fixture` set to the Fixture instance you
+       set here.
+
+       :arg fixture: The Fixture instance to use as run fixture for this context.
+       :arg namespace: Pass `locals()` from the context where set_run_fixture is called here.
+
+       (Since 3.1)
+    """
     def setup():
         global run_fixture
         fixture.__enter__()
@@ -309,6 +322,8 @@ class MarkedTestsPlugin(Plugin):
        to False in the __init__.py of that module.
 
        Enable this plugin by passing ``--with-marked-tests`` to nosetests on the commandline.
+
+       (Since 3.1)
     """
     name = ascii_as_bytes_or_str('marked-tests')
     def options(self, parser, env=os.environ):

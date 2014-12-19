@@ -51,6 +51,12 @@ Integration with nose
 .. autoclass:: reahl.tofu.nosesupport.IsTestWithFixture
    :members:
 
+set_run_fixture
+"""""""""""""""
+
+.. autofunction:: reahl.tofu.nosesupport.set_run_fixture
+
+
 RunFixturePlugin
 """"""""""""""""
 
@@ -61,6 +67,12 @@ LongOutputPlugin
 """"""""""""""""
 
 .. autoclass:: reahl.tofu.nosesupport.LongOutputPlugin
+   :members:
+
+MarkedTestsPlugin
+"""""""""""""""""
+
+.. autoclass:: reahl.tofu.nosesupport.MarkedTestsPlugin
    :members:
 
 TestDirectoryPlugin

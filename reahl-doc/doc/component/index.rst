@@ -13,7 +13,6 @@ Component framework
    Dealing with user input and output and security (reahl.component.modelinterface) <modelinterface>
    General exceptions (reahl.component.exceptions) <exceptions>
 
-   General interfaces (reahl.interfaces) <interfaces>
    Support for PostgreSQL (reahl.postgresqlsupport) <postgresqlsupport>
    Support for SQLite (reahl.sqlitesupport) <sqlitesupport>
    Support for SQLAlchemy (reahl.sqlalchemysupport) <sqlalchemysupport>

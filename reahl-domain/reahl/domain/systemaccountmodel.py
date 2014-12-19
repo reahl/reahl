@@ -577,6 +577,8 @@ class LoginSession(Base):
     """A @session_scoped object that keeps track of logged in access to the system.
 
        (See :class:`AccountManagementInterface` for logging users into and out of the system.)
+
+       (Since 3.1)
     """
     __tablename__ = 'loginsession'
 

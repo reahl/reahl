@@ -11,6 +11,7 @@ Web framework
    Paging long lists (reahl.web.pager) <pager>
    Including not-quite-static static content (reahl.web.dhtml) <dhtml>
    Interfaces for persisted classes of which many implementations can exist (reahl.web.interfaces) <interfaces>
+   The declarative implementation (reahl.webdeclarative) <webdeclarative>
 
 
 
