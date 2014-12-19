@@ -1,0 +1,19 @@
+
+ * Split the login functionality out of UserSession to LoginSession (Blueprint: login-session-split).
+   UserSession.<methods related to logging in and out> no longer exist.
+   LoginSession now exists (elsewhere) and has those, and is used differently.
+   reahl-interfaces does not exist anymore, and UserSessionProtocol & WebUserSessionProtocol have been merged into the latter
+   There is no WebUserSession anymore.
+   Database migration??
+   Dependencies between components have changed: domain is now dependent on web-declarative, not the other way around.
+   The Implication of this is that domain stuff cannot be used except in "the web"
+
+   Config settings moved from config.accounts.* (systemaccountmodel.config.py) config.web.* (in web.config.py)
+    session_lifetime
+    idle_lifetime
+    idle_lifetime_max
+    idle_secure_lifetime
+
+ * Removed reahl-tofu dependency on nose and on reahl-component.
+   Installing reahl-tofu does not automatically pull in nose anymore.
+   reahl-{tofu,stubble} can be used without any other reahl stuff.

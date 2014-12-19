@@ -23,6 +23,7 @@ from sqlalchemy import Column, String, Integer
 from alembic import op
 
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
+from reahl.sqlalchemysupport import fk_name, ix_name
 
 from reahl.component.migration import Migration
 from reahl.component.context import ExecutionContext
@@ -74,5 +75,20 @@ class ElixirToDeclarativeWebDeclarativeChanges(MigrateElixirToDeclarative):
         orm_control = ExecutionContext.get_context().system_control.orm_control
         self.schedule('cleanup', orm_control.initialise_schema_version_for, egg_name='reahl-web-declarative', egg_version=self.version)
         self.schedule('cleanup', orm_control.remove_schema_version_for, egg_name='reahl-web-elixirimpl')
+
+
+class MergeWebUserSessionToUserSession(Migration):
+    version='3.1'
+    def schedule_upgrades(self):
+        self.schedule('drop_pk', op.drop_index, ix_name('usersession', 'account_id'))
+        self.schedule('alter', op.drop_column, 'usersession', 'account_id')
+        self.schedule('alter', op.add_column, 'usersession', Column('salt', String(40), nullable=False))
+        self.schedule('alter', op.add_column, 'usersession', Column('secure_salt', String(40), nullable=False))
+        self.schedule('alter', op.drop_table, 'webusersession')
+        self.schedule('data', op.execute, 'delete from usersession')
+
+        self.schedule('drop_fk', op.drop_constraint, fk_name('sessiondata', 'web_session_id', 'webusersession'), 'sessiondata')
+        self.schedule('create_fk', op.create_foreign_key, fk_name('sessiondata', 'web_session_id', 'usersession'), 'sessiondata',
+                      'usersession', ['web_session_id'], ['id'], ondelete='CASCADE')
 
 

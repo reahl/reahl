@@ -1,237 +1,150 @@
 .. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-What changed in version 3.0
+What changed in version 3.1
 ===========================
 
-.. toctree::
-   :hidden:
- 
-   declarativemigration
 
-Python 3 support
-----------------
+LoginSession and related dependencies
+-------------------------------------
 
-This version of Reahl runs on Python 3 (>= 3.3) as well on Python 2.7. In 
-order to achieve this, some major changes were necessary.
+The Reahl web framework (reahl-web) is dependent on a small number
+of classes that are implemented using a specific persistence
+technology. The reahl-web-declarative component contains our current
+implementation of these -- done using SqlAlchemy's declarative layer.
 
+These classes are kept separate in order to minimize the work needed
+to use the framework in conjunction with a different persistence
+technology.  Previously one of these classes, the UserSession,
+contained functionality regarding the logging in of users, and keeping track
+of who is logged in. This functionality in turn was dependent on a
+whole host of other code in reahl-domain, defeating the purpose of
+keeping the implementation separate: to provide the implementation of
+the framework on a different technology, one had to implement a large
+body of code.
 
-Updated dependencies
---------------------
+For this reason, functionality pertaining to logging users into the
+system is now split out into its own class, :class:`reahl.domain.systemaccountmodel.LoginSession`. 
+LoginSession is part of reahl-domain, meaning it is part of extra niceties
+that are not needed for the core framework to work. As a result, 
+UserSession is no longer dependent on reahl-domain, and the
+reahl-web-declarative implementation as a whole is no longer dependent
+on the functionality of reahl-domain.
 
-Many of the versions of other packages Reahl 2.1 depends on do not
-support Python 3. Thus, almost all dependencies were upgraded to 
-versions compatible with Python 3. Most of these should go unnoticed
-to users of Reahl, barring the exception discussed next.
+Some repercussions:
 
-The minor upgrades are:
+  - This change impacts the interface one needs to provide in order to
+    provide an implementation of the framework using a different
+    persistence technology (now only reahl.web.interfaces). As a result, 
+    this version of Reahl cannot be used with the older
+    Elixir implementation anymore. The Elixir implementation implements
+    the older interface.
 
-   ================= ============= ========================
-    Name              Old version   New version 
-   ================= ============= ========================
-    Babel             0.9           1.3  
-    python-dateutil   1.5           2.2  
-    docutils          0.8           0.12  
-    psycopg2          2.4           2.5  
-    alembic           0.5           0.6  
-    lxml              3.2           3.3  
-    WebTest           1.4           2.0  
-    selenium          2.25          2.42  
-    pillow            1.7.8         2.5  
-    cssmin            0.1           0.2  
-    BeautifulSoup     3.2           BeautifulSoup4 4.3  
-    webob             3.2           4.3  
-   ================= ============= ========================
-  
+  - :class:`reahl.domain.systemaccountmodel.LoginSession` is
+    introduced, which keeps track of who is currently logged on, but does
+    not form part of the core web framework any longer.
 
-SqlAlchemy and Elixir/Declarative
----------------------------------
+  - The following methods on :class:`reahl.web.interfaces.UserSessionProtocol` have changed:
 
-SqlAlchemy was upgraded from version 0.7 to 0.9. Unfortunately Elixir
-does not support these newer versions of SqlAlchemy, prompting us to
-implement the framework, domain code and all examples using
-`SqlAlchemy's declarative extension instead
-<http://docs.sqlalchemy.org/en/rel_0_9/orm/extensions/declarative.html>`_.
+      - :meth:`reahl.web.interfaces.UserSessionProtocol.is_secured` was added. It answers whether the user is communicationg 
+        via secure channel without considering whether a user is logged in or not.
 
-Elixir has not been maintained for a while now, while Declarative is
-actively maintained as part of SqlAlchemy. Declarative follows a more
-conservative approach though, which means that you have to specify
-much more SQL-related info in your Python code than is needed when
-using Elixir. While it would be great to be able to circumvent the
-verbosity of Declarative, specifying things explicitly involves quite
-a bit less magic "under the hood" and getting rid of that magic has
-quite a few positive effects. The better support one gets on mailing
-lists of SqlAlchemy for Declarative (as opposed to Elixir being
-largely defunct) is also a major plus.
+      - UserSessionProtocol.is_logged_in() was moved to
+        :class:`reahl.domain.systemaccountmodel.LoginSession`.  A
+        version of UserSession.is_logged_in() was left on UserSession,
+        but deprecated in order to maintain backwards compatibility
+        for the 3.x series.
 
-This is a major change which is necessary to make Python 3 support
-possible.  The switch from Elixir to Declarative impacts model code
-built on previous versions of Reahl, using Elixir.
-
-We provide two upgrade paths for users with code based on Elixir:
-
-Use Reahl 3.0, but stay on Elixir:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Reahl 3.0 can be used in conjunction with a few components of
-Reahl 2.1: the Elixir implementation itself, and its small number 
-of dependencies. Following this path means there are no code changes 
-on your part, but you have to stay on Python 2.7 yourself. 
-
-In order to follow this route, specify the elixir keyword to 
-pip when upgrading or installing Reahl, eg:
-
-.. code-block:: bash
-
-    pip install --upgrade "reahl[web,elixir,postgresql]"
-
-.. note::
-
-   On Windows, first use pip uninstall to uninstall any
-   reahl package that is currently installed, then do::
-
-     easy_install "reahl[web,elixir,postgresql]"
-
-   For your own eggs, ensure that their .reahlproject files are
-   updated to explicitly mention versions of the 2.1 packages used:
-
-   .. code-block:: xml
-
-      <egg name="reahl-sqlalchemysupport" version="2.1"/>
-      <egg name="reahl-web-elixirimpl" version="2.1"/>
-      <egg name="reahl-domain" version="2.1"/>
-      <egg name="reahl-domainui" version="2.1"/>
+      - The functionality previously provided by
+        UserSession.is_secure() was moved to
+        :meth:`reahl.domain.systemaccountmodel.LoginSession.is_logged_in`,
+        when used with secured=True.  With secured=True, is_logged_in
+        checks whether the user is logged in *while* connected via
+        secure channel. A version of UserSession.is_secure() was left
+        on UserSession, but deprecated in order to maintain backwards
+        compatibility for the 3.x series.
 
 
-Switch to using Declarative:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you do not have any of your own code written using Elixir,
-following this route is simple. Just specify the declarative
-keyword to easy_install when upgrading or installing Reahl 
-(you also have to manually uninstall the old reahl-web-elixirimpl)::
-
-  pip install --upgrade reahl[web,declarative,postgresql]
-  pip uninstall reahl-web-elixirimpl
-
-.. note::
-
-   On Windows, first use pip uninstall to uninstall any
-   reahl package that is currently installed, then do::
-
-     easy_install "reahl[web,declarative,postgresql]"
-
-*If you do have code of your own written in terms of Elixir*, you
-will have to change that code to use Declarative instead.  In
-order to understand what you need to do, there is no better guide
-than `Declarative's own documentation
-<http://docs.sqlalchemy.org/en/rel_0_9/orm/extensions/declarative.html>`_.
-
-If you have a database running in production that was made with
-your own code written in terms of Elixir, you will also have to
-provide database migrations to change the underlying schema
-from what it was using Elixir, to what it is using Declarative.
-    
-
-.. note::
-
-   In the instructions above, you will note that `doc` is never specified in
-   the keywords to pip install. That would install the Reahl documentation and
-   examples -- typically not present on a production system. The documentation 
-   (which includes examples) cannot be installed together with Elixir.
-
-   You may want to uninstall reahl-doc first if you have it installed, but want
-   to stay on Elixir.
 
 
-:doc:`Elixir to Declarative database migration guide <declarativemigration>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Other changed dependencies
+--------------------------
 
-If you have a database running in production, and you want to upgrade
-that to a newer version of Reahl, you should always migrate that
-database schema (and possibly data) to be compatible with the newer
-versions of components you will be using going forward. With the
-change from Elixir to Declarative, Reahl includes quite a large number
-of such database migrations.
-
-.. note::
-   
-   The Sqlite database itself does not support migration of existing
-   data very well, and as a result migration is only possible on
-   PostgreSQL databases. See these posts for more information on
-   the issue: `one of the last bullets of goals of alembic
-   <https://bitbucket.org/zzzeek/alembic>`_ and `Christopher Allan's
-   post about the issue <http://dustycloud.org/blog/sqlite-alter-pain/>`_.
-
-If you decide to make the switch from Elixir to Declarative and you
-*did not* have any of your own code written in terms of Elixir, you
-can simply migrate such an existing database with the command::
-
-   reahl-control migratedb /path/to/config/directory
-
-(In fact, you should always run this command when upgrading Reahl for
-a project with an existing database.)
-
-If you do have code of your own written in terms of Elixir, and you
-decide to make the switch with us, you will have to write code to make
-such database migration possible for your own code.
-
-Please see the :doc:`declarativemigration` for details on how to do
-this, or feel free to ask for help on `the mailing list
-<https://groups.google.com/forum/#!forum/reahl-discuss>`_.
+The reahl-tofu component used to be dependent on reahl-component on
+nose. These dependencies were unnecessary and forced someone who only
+wanted to install reahl-tofu to also install reahl-component and
+nose. These dependencies have been removed.
 
 
-Other changes
--------------
+Development infrastructure
+--------------------------
 
-Moved modules
-~~~~~~~~~~~~~
+Several internal changes were made internally, and so some development infrastructure
+to be able to use tools such as devpi and tox, which were not available when we started 
+out. These resulted in a number of small changes that are visible to users:
 
-As a rule, a component named reahl-xxx would contain a package
-reahl.xxx, with possibly sub modules, such as reahl.xxx.yyy. For a
-small number of components, this is not true. Specifically,
-reahl-domain includes reahl.partymodel, reahl.workflowmodel and
-reahl.systemaccountmodel that do not fit this structure.
+  - The `reahl upload` command has two new options:
+    `--ignore-release-checks` and `--ignore-upload-check`. The
+    `--ignore-release-checks` option allows one to upload a package
+    even if some release check (such as it not being committed) fails.
+    The `--ignore-upload-check` allows an upload even when the package has
+    already been uploaded previously.
 
-In this version, these have been moved to reahl.domain.partymodel,
-reahl.domain.workflowmodel and reahl.domain.systemaccountmodel
-respectively. Older imports will continue to work for now, but 
-will eventually be removed.
+    These switches make it possible to upload packages repeatedly to a devpi
+    staging server before an actual release.
 
-Session scoped classes
-~~~~~~~~~~~~~~~~~~~~~~
+  - The `reahl upload` command now also does a register before it uploads to a pypi-like
+    repository, so that a separate register step is not necessary anymore.
 
-Classes that are @session_scoped used to have an attribute
-'session'. This has been renamed to 'user_session'.
+  - The `reahl shell` command gained the `--generate-setup-py` option. The `setup.py`
+    file of a Reahl project is generated from its `.reahlproject` file. Sometimes
+    one needs to execute a command (tox is an example) which is dependent on the
+    `setup.py`. This switch allows execution via `reahl shell`. For example, the
+    following command generates an up-to-date `setup.py`, runs tox, and then removes
+    the generated `setup.py` again:
 
-The relationship between a Party and a SystemAccount
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    .. code-block:: bash
 
-Previously, a Party always had a SystemAccount. It makes more sense to
-be able to have Party objects with or without SystemAccounts. Hence,
-the relationship was changed. Now, a Party does not have any knowledge
-of a SystemAccount, but a SystemAccount has an 'owner', which is a
-Party.
+       reahl shell --generate-setup-py -- tox
 
-Behind-the-scenes changes to UploadedFile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - Two commands were added to the `reahl` script: `devpitest` and `devpipush`. These run
+    `devpi test` and `devpi push` on the current project, respectively, but with suitable
+    arguments for the exact version of the current project. The `devpi test` command, for 
+    example, needs to be passed an spec, such as: `reahl-doc==3.1.0` to test the exact version
+    that is under development. We need to be able to run such a command for all components
+    making up Reahl, each with a different spec. This is now possible via, for example:
 
-:class:`reahl.component.modelinterface.UploadedFile` instances are
-constructed by the framework, not user code. Previously it was
-constructed with a file-like object from which it effectively could
-read the contents of the file from the client-connected socket. It is
-now constructed with the entire contents of the file. The file
-contents are always handled as bytes with no attempt to deduce
-character encoding.
+    .. code-block:: bash
 
-A naming convention for database objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       reahl devpitest -sX
 
-The new SqlAlchemy provides a mechanism for dictating the naming
-convention used to name database objects (constraints, etc). Using
-this means the same conventions will be used across different
-database backends -- something that will make migrations easier in
-future. Reahl 3.0 now uses these conventions. The
-:mod:`reahl.sqlalchemysupport.sqlalchemysupport` module includes a
-few functions that compute the names for such database objects
-according to the new naming convention. This is helpful during 
-database migrations.
+    or:
+
+    .. code-block:: bash
+
+       reahl devpipush -sX -- pypi:pypi
+
+  - In order to use nosetests in a more natural way (from a nose perspective), we have
+    added two features to reahl.tofu.nosesupport:
+
+    - We like to do tests slightly differently to how they are done
+      generally: we put all tests in a single directory and we do not
+      want to use naming conventions for test discovery. The :class:`reahl.tofu.nosesupport.MarkedTestsPlugin` 
+      (`--with-marked-tests`) allows this. It changes nose test discovery
+      to apply the naming conventions to *files only*, and inside those files
+      it only sees something as a test if it has been marked with the @istest, or 
+      tofu's @test() decorators.
+
+      `--with-marked-tests` plays well with other nose plugins, and supercedes the 
+      older `--with-test-directory` which does not play well with other nose plugins.
+
+    - Using a run fixture per project (via the `--with-run-fixture`
+      plugin) is not very "nose". The "nose" way of doing things is to
+      have a setup and teardown methods in, say the `__init__.py` of
+      the package where such batch setup should apply.
+
+      The function :func:`reahl.tofu.nosesupport.set_run_fixture`
+      was added to deal with this situation. It can be called in an
+      `__init__.py` to add setup and teardown methods there as nose
+      expects.  The effect of this is to make the run fixture apply
+      for the duration of tests in that package.
+

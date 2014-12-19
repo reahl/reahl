@@ -29,7 +29,7 @@ from sqlalchemy.orm import relationship, backref
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
 from reahl.component.exceptions import DomainException, ProgrammerError
-from reahl.interfaces import UserSessionProtocol
+
 from reahl.mailutil.mail import Mailer, MailMessage
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.i18n import Translator
@@ -61,10 +61,6 @@ class SystemAccountConfig(Configuration):
         '''If you have received this message in error, please ignore it.\n\n'''\
         '''You need to accept this change before it will take effect.\n\n'''\
         '''Your secret key is: $secret_key\n\n''', description='Body of an email address changed email')
-    session_lifetime = ConfigSetting(default=60*60*24*7*2, description='The time in seconds a user session will be kept after last use')
-    idle_lifetime = ConfigSetting(default=60*60*2, description='The time in seconds after which a user session will be considered idle - normal setting')
-    idle_lifetime_max = ConfigSetting(default=60*60*24*7*2, description='The time in seconds after which a user session will be considered idle - "forever" setting')
-    idle_secure_lifetime = ConfigSetting(default=60*60, description='The time in seconds after which a secure session will be considered expired')
     mailer_class = ConfigSetting(default=Mailer, description='The class to instantiate for sending email')
 
 
@@ -198,8 +194,9 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         except NoSuchAccountException:
             raise InvalidPasswordException()
         target_account.authenticate(password)
-        session = ExecutionContext.get_context().session
-        session.set_as_logged_in(target_account, stay_logged_in)
+        login_session = LoginSession.for_current_session()
+        login_session.log_out()
+        login_session.set_as_logged_in(target_account, stay_logged_in)
 
     def authenticate(self, password):
         self.assert_account_live()
@@ -317,8 +314,8 @@ class AccountManagementInterface(Base):
         EmailAndPasswordSystemAccount.log_in(self.email, self.password, self.stay_logged_in)
         
     def log_out(self):
-        web_session = ExecutionContext.get_context().session 
-        web_session.log_out()
+        login_session = LoginSession.for_current_session()
+        login_session.log_out()
 
     def request_password_reset(self):
         account = EmailAndPasswordSystemAccount.by_email(self.email)
@@ -573,59 +570,45 @@ class ChangeAccountEmail(DeferredAction):
         self.verify_email_request.send_notification()
 
 
-class UserSession(Base, UserSessionProtocol):
-    """An implementation of :class:`reahl.interfaces.UserSessionProtocol` of the Reahl framework."""
 
-    __tablename__ = 'usersession'
+
+@session_scoped
+class LoginSession(Base):
+    """A @session_scoped object that keeps track of logged in access to the system.
+
+       (See :class:`AccountManagementInterface` for logging users into and out of the system.)
+
+       *New in 3.1*
+    """
+    __tablename__ = 'loginsession'
 
     id = Column(Integer, primary_key=True)
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
-    account = relationship(SystemAccount)
+    account = relationship(SystemAccount) #: The SystemAccount currently logged on
 
-    idle_lifetime = Column(Integer(), nullable=False, default=0)
-    last_activity = Column(DateTime(), nullable=False, default=datetime.now)
+    def is_logged_in(self, secured=False):
+        """Answers whether the user is logged in.
 
-    @classmethod
-    def remove_dead_sessions(cls, now=None):
-        now = now or datetime.now()
-        if now.minute > 0 and now.minute < 5:
-            config = ExecutionContext.get_context().config
-            cutoff = now - timedelta(seconds=config.accounts.session_lifetime)
-            Session.query(cls).filter(cls.last_activity <= cutoff).delete()
-
-    @classmethod
-    def for_current_session(cls):
-        return ExecutionContext.get_context().session
-
-    def is_secure(self):
-        config = ExecutionContext.get_context().config
-        return self.is_logged_in() \
-               and self.is_within_timeout(config.accounts.idle_secure_lifetime)
-        
-    def is_logged_in(self):
-        return self.account is not None \
-               and self.is_within_timeout(self.idle_lifetime)
-
-    def is_within_timeout(self, timeout):
-        return self.last_activity + timedelta(seconds=timeout) > datetime.now()
+           :keyword secure: If True, ensures the login is done via secure means (such as an encrypted connection).
+        """
+        logged_in = self.account is not None
+        if secured:
+            return logged_in and self.user_session.is_secured()
+        else:
+            return logged_in and self.user_session.is_active()
 
     def set_as_logged_in(self, account, stay_logged_in):
         self.account = account
         config = ExecutionContext.get_context().config
-        self.idle_lifetime = config.accounts.idle_lifetime_max if stay_logged_in else config.accounts.idle_lifetime
-        self.set_last_activity_time()
+        self.user_session.set_idle_lifetime(stay_logged_in)
+        self.user_session.set_last_activity_time()
 
     def log_out(self):
         self.account = None
                     
-    def set_last_activity_time(self):
-        self.last_activity = datetime.now()
-
-    def get_interface_locale(self):
-        return 'en_gb'
 
 
 class SystemAccountStatus(object):

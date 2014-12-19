@@ -4,7 +4,6 @@ prune reahl-dev
 prune reahl-doc
 prune reahl-domain
 prune reahl-domainui
-prune reahl-interfaces
 prune reahl-mailutil
 prune reahl-postgresqlsupport
 prune reahl-sqlalchemysupport

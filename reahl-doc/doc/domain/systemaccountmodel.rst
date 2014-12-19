@@ -1,9 +1,9 @@
 .. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Module reahl.systemaccountmodel
--------------------------------
+Module reahl.domain.systemaccountmodel
+--------------------------------------
 
-.. automodule:: reahl.systemaccountmodel
+.. automodule:: reahl.domain.systemaccountmodel
 
 
 
@@ -14,10 +14,10 @@ AccountManagementInterface
    :members:
 
 
-UserSession
-"""""""""""
+LoginSession
+""""""""""""
 
-.. autoclass:: UserSession
+.. autoclass:: LoginSession
    :members:
 
 SystemAccount

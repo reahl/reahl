@@ -18,16 +18,46 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import re
 import os
+import six
 import logging
 
-from nose.tools import make_decorator
-from nose.plugins import Plugin
+try:
+    from nose.tools import make_decorator
+    from nose.plugins import Plugin
+except ImportException:
+    msg = 'nose not available, nosesupport disabled'
+    logging.warn(msg)
+    def make_decorator(f):
+        raise AssertionError(msg)
+    class Plugin(object):
+        def __init__(self, *args, **kwargs):
+            raise AssertionError(msg)
 
-from reahl.component.py3compat import ascii_as_bytes_or_str
+# Copied from reahl-component (in order to prevent reahl-tofu to be dependent in reahl-component)
+#  (was) from reahl.component.py3compat import ascii_as_bytes_or_str
+def ascii_as_bytes_or_str(unicode_str):
+    if six.PY2:
+        return unicode_str.encode('ascii')
+    else:
+        return unicode_str
+
 
 run_fixture = None
 
 def set_run_fixture(fixture, namespace):
+    """Adds setup and teardown methods to the calling context that will set a fixture
+       as the run fixture for tests in that context.
+
+       The run fixture is set up only once: before any tests are run in the calling context, 
+       and torn down once after all tests in this context have run. Fixtures used by tests
+       in this context will have their `.run_fixture` set to the Fixture instance you
+       set here.
+
+       :arg fixture: The Fixture instance to use as run fixture for this context.
+       :arg namespace: Pass `locals()` from the context where set_run_fixture is called here.
+
+       *New in 3.1*
+    """
     def setup():
         global run_fixture
         fixture.__enter__()
@@ -292,6 +322,8 @@ class MarkedTestsPlugin(Plugin):
        to False in the __init__.py of that module.
 
        Enable this plugin by passing ``--with-marked-tests`` to nosetests on the commandline.
+
+       *New in 3.1*
     """
     name = ascii_as_bytes_or_str('marked-tests')
     def options(self, parser, env=os.environ):

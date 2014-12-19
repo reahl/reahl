@@ -16,20 +16,9 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.component.context import ExecutionContext
-from reahl.tofu import TestSuite, Fixture, test
-from reahl.stubble import stubclass
+import os
 
-@stubclass(TestSuite)
-class TestSuiteStub(TestSuite):
-    @test(Fixture)
-    def a_method(self, fixture):
-        self.__class__.saved_set_up = fixture.run_fixture.is_set_up
-        self.__class__.saved_torn_down = fixture.run_fixture.is_torn_down
-        self.__class__.saved_fixture = fixture
-        self.__class__.saved_context = ExecutionContext.get_context()
+from reahl.web.fw import UserInterface
 
-class TestSuiteStubB(TestSuiteStub):
-    pass
-
-TestSuite = None # In order to fool the Harness into NOT wanting to load and run it as well...
+web.site_root = UserInterface
+web.static_root = os.getcwd()

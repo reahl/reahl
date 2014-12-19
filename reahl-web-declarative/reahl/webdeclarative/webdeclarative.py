@@ -19,30 +19,88 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import random
 from six.moves.urllib import parse as urllib_parse
+from datetime import datetime, timedelta
 
 
-from sqlalchemy import Column, Integer, BigInteger, LargeBinary, PickleType, String, UnicodeText, ForeignKey
+
+from sqlalchemy import Column, Integer, BigInteger, LargeBinary, PickleType, String, UnicodeText, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, deferred, backref
+#from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
+
 
 from reahl.sqlalchemysupport import Session, Base
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
+from reahl.component.context import ExecutionContext
 from reahl.component.migration import Migration
-from reahl.web.interfaces import WebUserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
-from reahl.domain.systemaccountmodel import UserSession
+from reahl.component.decorators import deprecated
+from reahl.web.interfaces import UserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
 from reahl.web.fw import WebExecutionContext, Url
-
 
 class InvalidKeyException(Exception):
     pass
 
-class WebUserSession(UserSession, WebUserSessionProtocol):
-    __tablename__ = 'webusersession'
-    __mapper_args__ = {'polymorphic_identity': 'webusersession'}
-    id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), primary_key=True)
+class UserSession(Base, UserSessionProtocol):
+    """An implementation of :class:`reahl.web.interfaces.UserSessionProtocol` of the Reahl framework."""
+
+    __tablename__ = 'usersession'
+
+    id = Column(Integer, primary_key=True)
+    discriminator = Column('row_type', String(40))
+    __mapper_args__ = {'polymorphic_on': discriminator}
+
+    idle_lifetime = Column(Integer(), nullable=False, default=0)
+    last_activity = Column(DateTime(), nullable=False, default=datetime.now)
 
     salt = Column(String(40), nullable=False)
     secure_salt = Column(String(40), nullable=False)
+
+    @classmethod
+    def remove_dead_sessions(cls, now=None):
+        now = now or datetime.now()
+        if now.minute > 0 and now.minute < 5:
+            config = ExecutionContext.get_context().config
+            cutoff = now - timedelta(seconds=config.web.session_lifetime)
+            Session.query(cls).filter(cls.last_activity <= cutoff).delete()
+
+    @classmethod
+    def for_current_session(cls):
+        return ExecutionContext.get_context().session
+
+    def __init__(self, **kwargs):
+        self.generate_salt()
+        self.last_activity = datetime.fromordinal(1)
+        self.set_idle_lifetime(False)
+        super(UserSession, self).__init__(**kwargs)
+
+    @deprecated('Please use LoginSession.is_logged_in(secured=True) instead.')
+    def is_secure(self):
+        from reahl.systemaccountmodel import LoginSession
+        return LoginSession.for_current_session().is_logged_in(secured=True)
+
+    def is_secured(self):
+        context = WebExecutionContext.get_context()
+        return self.is_within_timeout(context.config.web.idle_secure_lifetime) \
+               and context.request.scheme == 'https' \
+               and self.secure_cookie_is_valid()
+
+    @deprecated('Please use LoginSession.is_logged_in instead.')
+    def is_logged_in(self):
+        from reahl.systemaccountmodel import LoginSession
+        return LoginSession.for_current_session().is_logged_in()
+        
+    def is_active(self):
+        return self.is_within_timeout(self.idle_lifetime)
+
+    def is_within_timeout(self, timeout):
+        return self.last_activity + timedelta(seconds=timeout) > datetime.now()
+
+    def set_last_activity_time(self):
+        self.last_activity = datetime.now()
+
+    def set_idle_lifetime(self, use_max):
+        config = WebExecutionContext.get_context().config
+        self.idle_lifetime = config.web.idle_lifetime_max if use_max else config.web.idle_lifetime
 
     @classmethod
     def from_key(cls, key):
@@ -58,12 +116,6 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
     def as_key(self):
         Session.flush() # To make sure .id is populated
         return '%s:%s' % (six.text_type(self.id), self.salt)
-
-    def is_secure(self):
-        context = WebExecutionContext.get_context()
-        return super(WebUserSession, self).is_secure() \
-               and context.request.scheme == 'https' \
-               and self.secure_cookie_is_valid()
 
     def secure_cookie_is_valid(self):
         context = WebExecutionContext.get_context()
@@ -102,13 +154,9 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
         context = WebExecutionContext.get_context()
         session_cookie = self.as_key()
         response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
-        if self.is_secure():
+        if self.is_secured():
             response.set_cookie(context.config.web.secure_key_name, urllib_parse.quote(self.secure_salt), secure=True, path='/',
-                                max_age=context.config.accounts.idle_secure_lifetime)
-
-    def __init__(self, **kwargs):
-        self.generate_salt()
-        super(WebUserSession, self).__init__(**kwargs)
+                                max_age=context.config.web.idle_secure_lifetime)
 
     def generate_salt(self):
         alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm0123456789'
@@ -117,6 +165,9 @@ class WebUserSession(UserSession, WebUserSessionProtocol):
 
     def get_interface_locale(self):
         context = WebExecutionContext.get_context()
+        if not hasattr(context, 'request'):
+            return 'en_gb'
+
         request = context.request
         url = Url.get_current_url()
         possible_locale, path = url.get_locale_split_path()
@@ -134,8 +185,8 @@ class SessionData(Base):
     discriminator = Column('row_type', String(40))
     __mapper_args__ = {'polymorphic_on': discriminator}
     
-    web_session_id = Column(Integer, ForeignKey('webusersession.id', ondelete='CASCADE'), index=True)
-    web_session = relationship(WebUserSession)
+    web_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
+    web_session = relationship(UserSession)
 
     ui_name = Column(UnicodeText, nullable=False)
     channel_name = Column(UnicodeText, nullable=False)
@@ -168,6 +219,8 @@ class SessionData(Base):
 
 
 class UserInput(SessionData, UserInputProtocol):
+    """An implementation of :class:`reahl.web.interfaces.UserInputProtocol`. It represents
+       an value that was input by a user."""
     __tablename__ = 'userinput'
     __mapper_args__ = {'polymorphic_identity': 'userinput'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -196,6 +249,8 @@ class UserInput(SessionData, UserInputProtocol):
 
 
 class PersistedException(SessionData, PersistedExceptionProtocol):
+    """An implementation of :class:`reahl.web.interfaces.PersistedExceptionProtocol`. It represents
+       an Exception that was raised upon a user interaction."""
     __tablename__ = 'persistedexception'
     __mapper_args__ = {'polymorphic_identity': 'persistedexception'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -236,6 +291,8 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
 
 
 class PersistedFile(SessionData, PersistedFileProtocol):
+    """An implementation of :class:`reahl.web.interfaces.PersistedFileProtocol`. It represents
+       a file that was input by a user."""
     __tablename__ = 'persistedfile'
     __mapper_args__ = {'polymorphic_identity': 'persistedfile'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -295,7 +352,7 @@ class WebDeclarativeConfig(Configuration):
     config_key = 'web.webdeclarative'
 
     def do_injections(self, config):
-        config.web.session_class = WebUserSession
+        config.web.session_class = UserSession
         config.web.persisted_exception_class = PersistedException
         config.web.persisted_userinput_class = UserInput
         config.web.persisted_file_class = PersistedFile

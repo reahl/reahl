@@ -18,6 +18,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import pprint
 
 from pkg_resources import DistributionNotFound
 
@@ -233,6 +234,16 @@ class MigrateDB(ProductionCommand):
         with self.context:
             with self.sys_control.auto_connected():
                 return self.sys_control.migrate_db()
+
+
+class DiffDB(ProductionCommand):
+    """Prints out a diff between the current database schema and what is expected by the current code."""
+    keyword = 'diffdb'
+    def execute(self, options, args):
+        super(DiffDB, self).execute(options, args)
+        with self.context:
+            with self.sys_control.auto_connected():
+                pprint.pprint(self.sys_control.diff_db(), indent=2, width=20)
 
 
 class ListDependencies(ProductionCommand):
