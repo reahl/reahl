@@ -365,8 +365,8 @@ ul.reahl-menu li > a:hover {
 
 .reahl-tabbedpanel > ul  {
   position: relative;
-  top: .07em;
-  left: 0; 
+  margin: 0;
+  padding: 0;
 }
 
 .reahl-tabbedpanel > ul > li  {
