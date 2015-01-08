@@ -198,18 +198,18 @@ class HTMLElement(Widget):
     
     :param view: (See :class:`reahl.web.fw.Widget`)
     :param tag_name: The element name used to render tags for this HTMLElement
-    :param children_allowed: Elements that are not allowed to have children are rendered only with opening tags,
+    :keyword children_allowed: Elements that are not allowed to have children are rendered only with opening tags,
                              others have an opening and closing tag. 
                              (See `HTML5 void elements <http://dev.w3.org/html5/markup/syntax.html#syntax-elements>`_.)
-    :param css_id: If specified, the HTMLElement will have an id attribute set to this. Mandatory when a Widget has :meth:`query_fields`.
-    :param wrapper_widget: Inputs are Widgets that are not HTMLElements. Such an Input acts as "wrapper_widget" for the 
+    :keyword css_id: If specified, the HTMLElement will have an id attribute set to this. Mandatory when a Widget has :meth:`query_fields`.
+    :keyword wrapper_widget: Inputs are Widgets that are not HTMLElements. Such an Input acts as "wrapper_widget" for the 
                            HTMLElement representing it in HTML. This `wrapper_widget` (the Input) dictates some of the
                            attributes its HTML representative should have.
-    :param read_check: (See :class:`reahl.web.fw.Widget`)
-    :param write_check: (See :class:`reahl.web.fw.Widget`)
+    :keyword read_check: (See :class:`reahl.web.fw.Widget`)
+    :keyword write_check: (See :class:`reahl.web.fw.Widget`)
+    :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, tag_name, children_allowed=False, css_id=None, wrapper_widget=None, read_check=None, write_check=None):
-        super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check)
+    def __init__(self, view, tag_name, children_allowed=False, css_id=None, wrapper_widget=None, read_check=None, write_check=None, layout=None):
         self.wrapper_widget = wrapper_widget
         if wrapper_widget:
             if not isinstance(wrapper_widget, Input):
@@ -222,6 +222,7 @@ class HTMLElement(Widget):
         self.ajax_handlers = []
         if css_id:
             self.set_id(css_id)
+        super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check, layout=layout)
 
     def __str__(self):
         css_id_part = '(not set)'
@@ -379,10 +380,11 @@ class Title(HTMLElement):
                     value after substituting this string Template will be used as the value of this Title. The
                     template string may use one placeholder: $current_title which contains the title of the current
                     View.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, text, css_id=None):
-        super(Title, self).__init__(view, 'title', children_allowed=True, css_id=css_id)
+    def __init__(self, view, text, css_id=None, layout=None):
+        super(Title, self).__init__(view, 'title', children_allowed=True, css_id=css_id, layout=layout)
         self.text = Template(text)
         self.add_child(TextNode(view, self.get_current_title))
 
@@ -401,10 +403,11 @@ class Link(HTMLElement):
        :param rel: The value of the "rel" attribute of this HTMLElement.
        :param href: The value of the "href" attribute of this HTMLElement.
        :param _type: The value of the "type" attribute of this HTMLElement.
-       :param css_id:  (See :class:`HTMLElement`)
+       :keyword css_id:  (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, rel, href, _type, css_id=None):
-        super(Link, self).__init__(view, 'link', css_id=css_id)
+    def __init__(self, view, rel, href, _type, css_id=None, layout=None):
+        super(Link, self).__init__(view, 'link', css_id=css_id, layout=layout)
         self.set_attribute('rel', rel)
         self.set_attribute('href', six.text_type(href))
         self.set_attribute('type', _type)
@@ -460,10 +463,11 @@ class Body(HTMLElement):
           Renders as an HTML <body> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Body, self).__init__(view, 'body', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Body, self).__init__(view, 'body', children_allowed=True, css_id=css_id, layout=layout)
         self.add_child(Slot(self.view, name='reahl_footer'))
 
     def footer_already_added(self):        
@@ -494,12 +498,13 @@ class HTML5Page(HTMLElement):
           Renders as an HTML5 page with customised <head> and an empty <body>.
        
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param title: Text for a template to be used as document Title (See also :class:`Title`).
-       :param style: Pass a string denoting a predifined set of css styles.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword title: Text for a template to be used as document Title (See also :class:`Title`).
+       :keyword style: Pass a string denoting a predifined set of css styles.
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, title='$current_title', style=None, css_id=None):
-        super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
+    def __init__(self, view, title='$current_title', style=None, css_id=None, layout=None):
+        super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id, layout=layout)
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 
@@ -577,11 +582,12 @@ class A(HTMLElement):
     
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param href: The URL (or URL fragment) to which the hyperlink leads. 
-       :param description: The textual description to be shown on the hyperlink.
-       :param ajax: (Not for general use)
-       :param read_check: (See :class:`reahl.web.fw.Widget`)
-       :param write_check: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword description: The textual description to be shown on the hyperlink.
+       :keyword ajax: (Not for general use)
+       :keyword read_check: (See :class:`reahl.web.fw.Widget`)
+       :keyword write_check: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
     @classmethod
     def from_bookmark(cls, view, bookmark):
@@ -596,10 +602,10 @@ class A(HTMLElement):
                              read_check=bookmark.read_check, write_check=bookmark.write_check)
 
     @arg_checks(href=IsInstance(Url, allow_none=True))
-    def __init__(self, view, href, description=None, ajax=False, read_check=None, write_check=None, css_id=None):
+    def __init__(self, view, href, description=None, ajax=False, read_check=None, write_check=None, css_id=None, layout=None):
         self.href = href
         self.ajax = ajax
-        super(A, self).__init__(view, 'a', children_allowed=True, read_check=read_check, write_check=write_check, css_id=css_id)
+        super(A, self).__init__(view, 'a', children_allowed=True, read_check=read_check, write_check=write_check, css_id=css_id, layout=layout)
         if description:
             self.add_child(TextNode(self.view, description))
         if self.ajax:
@@ -651,17 +657,20 @@ class H(HTMLElement):
               
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param priority: The heading level (a value from 1 to 6)
-       :param text: The text value displayed in the heading (if given)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword text: The text value displayed in the heading (if given)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, priority, text=None, css_id=None):
-        super(H, self).__init__(view, 'h%s' % priority, children_allowed=True, css_id=css_id)
+    def __init__(self, view, priority, text=None, css_id=None, layout=None):
+        super(H, self).__init__(view, 'h%s' % priority, children_allowed=True, css_id=css_id, layout=layout)
         if text:
             self.add_child(TextNode(view, text))
+
 
 class Br(HTMLElement):
     def __init__(self, view):
         super(Br, self).__init__(view, 'br', children_allowed=False)
+
 
 class P(HTMLElement):
     """A paragraph of text.
@@ -674,9 +683,10 @@ class P(HTMLElement):
        :keyword text: The text value displayed in the paragraph (if given)
        :keyword css_id: (See :class:`HTMLElement`)
        :keyword html_escape: If `text` is given, by default such text is HTML-escaped. Pass False in here to prevent this from happening.
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, text=None, css_id=None, html_escape=True):
-        super(P, self).__init__(view, 'p', children_allowed=True, css_id=css_id)
+    def __init__(self, view, text=None, css_id=None, html_escape=True, layout=None):
+        super(P, self).__init__(view, 'p', children_allowed=True, css_id=css_id, layout=layout)
         if text:
             self.add_child(TextNode(view, text, html_escape=html_escape))
 
@@ -743,10 +753,11 @@ class Div(HTMLElement):
           Renders as an HTML <div> element
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Div, self).__init__(view, 'div', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Div, self).__init__(view, 'div', children_allowed=True, css_id=css_id, layout=layout)
 
 
 
@@ -758,10 +769,11 @@ class Nav(HTMLElement):
           Renders as an HTML <nav> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Nav, self).__init__(view, 'nav', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Nav, self).__init__(view, 'nav', children_allowed=True, css_id=css_id, layout=layout)
 
 
 class Article(HTMLElement):
@@ -772,10 +784,11 @@ class Article(HTMLElement):
           Renders as an HTML <article> element.
           
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Article, self).__init__(view, 'article', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Article, self).__init__(view, 'article', children_allowed=True, css_id=css_id, layout=layout)
 
 
 class Header(HTMLElement):
@@ -786,10 +799,11 @@ class Header(HTMLElement):
           Rendered as an HTML <article> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Header, self).__init__(view, 'header', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Header, self).__init__(view, 'header', children_allowed=True, css_id=css_id, layout=layout)
 
 
 class Footer(HTMLElement):
@@ -800,10 +814,11 @@ class Footer(HTMLElement):
           Renders as an HTML <footer> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Footer, self).__init__(view, 'footer', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Footer, self).__init__(view, 'footer', children_allowed=True, css_id=css_id, layout=layout)
 
 
 class Li(HTMLElement):
@@ -814,10 +829,11 @@ class Li(HTMLElement):
           Renders as an HTML <li> element.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Li, self).__init__(view, 'li', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Li, self).__init__(view, 'li', children_allowed=True, css_id=css_id, layout=layout)
         
     
 class Ul(HTMLElement):
@@ -828,10 +844,11 @@ class Ul(HTMLElement):
           Renders as an HTML <ul> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Ul, self).__init__(view, 'ul', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Ul, self).__init__(view, 'ul', children_allowed=True, css_id=css_id, layout=layout)
 
 
     
@@ -845,11 +862,12 @@ class Img(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param src: The URL from where the embedded image file should be fetched.
-       :param alt: Alternative text describing the image.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword alt: Alternative text describing the image.
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, src, alt=None, css_id=None):
-        super(Img, self).__init__(view, 'img', css_id=css_id)
+    def __init__(self, view, src, alt=None, css_id=None, layout=None):
+        super(Img, self).__init__(view, 'img', css_id=css_id, layout=layout)
         self.set_attribute('src', six.text_type(src))
         if alt:
             self.set_attribute('alt', alt)
@@ -936,12 +954,13 @@ class Span(HTMLElement):
           Renders as an HTML <span> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param text: Will be added as text content of the Span if given.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword text: Will be added as text content of the Span if given.
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
 
-    def __init__(self, view, text=None, css_id=None):
-        super(Span, self).__init__(view, 'span', children_allowed=True, css_id=css_id)
+    def __init__(self, view, text=None, css_id=None, layout=None):
+        super(Span, self).__init__(view, 'span', children_allowed=True, css_id=css_id, layout=layout)
         if text:
             self.add_child(TextNode(view, text))
 
@@ -959,10 +978,10 @@ class Form(HTMLElement):
        
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: A name for this form, unique in the UserInterface where it is used.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
     is_Form = True
-    def __init__(self, view, unique_name, rendered_form=None):
+    def __init__(self, view, unique_name, rendered_form=None, layout=None):
         self.view = view
         self.inputs = OrderedDict()
         self.registered_input_names = {}
@@ -971,7 +990,7 @@ class Form(HTMLElement):
         self.set_up_input_formatter('%s_format' % unique_name)
         self.rendered_form = rendered_form or self
         assert unique_name == self.event_channel.name
-        super(Form, self).__init__(view, 'form', children_allowed=True, css_id=unique_name)
+        super(Form, self).__init__(view, 'form', children_allowed=True, css_id=unique_name, layout=layout)
         self.set_attribute('data-formatter', six.text_type(self.input_formatter.get_url()))
 
     def set_up_event_channel(self, event_channel_name):
@@ -1141,10 +1160,11 @@ class NestedForm(Div):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: (See :class:`Form`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, unique_name, css_id=None):
-        self.out_of_bound_form = Form(view, unique_name, rendered_form=self)
+    def __init__(self, view, unique_name, css_id=None, layout=None):
+        self.out_of_bound_form = Form(view, unique_name, rendered_form=self, layout=layout)
         super(NestedForm, self).__init__(view, css_id='%s_nested' % self.out_of_bound_form.css_id)
         self.add_to_attribute('class', ['reahl-nested-form'])
         self.set_id(self.css_id)
@@ -1156,8 +1176,8 @@ class NestedForm(Div):
 
     
 class FieldSet(HTMLElement):
-    def __init__(self, view, label_text=None, css_id=None):
-        super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
+    def __init__(self, view, label_text=None, css_id=None, layout=None):
+        super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id, layout=layout)
         if label_text:
             self.label = self.add_child(Label(view, text=label_text))
     
@@ -1170,8 +1190,9 @@ class InputGroup(FieldSet):
           Rendered as an HTML <fieldset> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param label_text: If given, the FieldSet will have a label containing this text.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword label_text: If given, the FieldSet will have a label containing this text.
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
 
 
@@ -1186,13 +1207,13 @@ class Input(Widget):
     is_for_file = False
     is_Input = True
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
-    def __init__(self, form, bound_field):
+    def __init__(self, form, bound_field, layout=None):
         self.form = form
         self.bound_field = bound_field
         self.name = form.register_input(self) # bound_field must be set for this registration to work
 
-        super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
-        self.add_wrapped_input()
+        super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write, layout=None)
+        self.add_wrapped_input(layout)
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
@@ -1227,12 +1248,12 @@ class Input(Widget):
     def can_write(self):
         return (not self.write_check) or self.write_check()
 
-    def add_wrapped_input(self):
-        self.wrapped_html_input = self.add_child(self.create_html_input())
+    def add_wrapped_input(self, layout):
+        self.wrapped_html_input = self.add_child(self.create_html_input(layout))
 
-    def create_html_input(self):
+    def create_html_input(self, layout):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user."""
-        return HTMLElement(self.view, 'input', wrapper_widget=self)
+        return HTMLElement(self.view, 'input', wrapper_widget=self, layout=layout)
 
 
     def get_wrapped_html_attributes(self, attributes):
@@ -1383,8 +1404,8 @@ class TextArea(Input):
         self.columns = columns
         super(TextArea, self).__init__(form, bound_field)
 
-    def create_html_input(self):
-        html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True, wrapper_widget=self)
+    def create_html_input(self, layout):
+        html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True, wrapper_widget=self, layout=layout)
         self.text = html_text_area.add_child(TextNode(self.view, self.get_value))
         return html_text_area
 
@@ -1401,8 +1422,8 @@ class TextArea(Input):
 
 
 class Option(HTMLElement):
-    def __init__(self, view, value, label, selected=False, css_id=None):
-        super(Option, self).__init__(view, 'option', children_allowed=True, css_id=css_id)
+    def __init__(self, view, value, label, selected=False, css_id=None, layout=None):
+        super(Option, self).__init__(view, 'option', children_allowed=True, css_id=css_id, layout=layout)
         self.add_child(TextNode(view, label))
         self.set_attribute('value', value)
         if selected:
@@ -1410,8 +1431,8 @@ class Option(HTMLElement):
 
 
 class OptGroup(HTMLElement):
-    def __init__(self, view, label, options, css_id=None):
-        super(OptGroup, self).__init__(view, 'optgroup', children_allowed=True, css_id=css_id)
+    def __init__(self, view, label, options, css_id=None, layout=None):
+        super(OptGroup, self).__init__(view, 'optgroup', children_allowed=True, css_id=css_id, layout=layout)
         self.set_attribute('label', label)
         for option in options:
             self.add_child(option)
@@ -1428,8 +1449,8 @@ class SelectInput(Input):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
-    def create_html_input(self):
-        html_select = HTMLElement(self.view, 'select', children_allowed=True, wrapper_widget=self)
+    def create_html_input(self, layout):
+        html_select = HTMLElement(self.view, 'select', children_allowed=True, wrapper_widget=self, layout=layout)
         for choice_or_group in self.bound_field.grouped_choices:
             options = [self.make_option(choice) for choice in choice_or_group.choices]
             if isinstance(choice_or_group, Choice):
@@ -1456,8 +1477,8 @@ class SelectInput(Input):
 
 
 class SingleRadioButton(Span):
-    def __init__(self, form, value, label, checked=False, wrapper_widget=None, css_id=None):
-        super(SingleRadioButton, self).__init__(form.view, css_id=css_id)
+    def __init__(self, form, value, label, checked=False, wrapper_widget=None, css_id=None, layout=None):
+        super(SingleRadioButton, self).__init__(form.view, css_id=css_id, layout=layout)
         self.form = form
         self.set_attribute('class', 'reahl-radio-button')
         button = self.add_child(HTMLElement(self.view, 'input', wrapper_widget=wrapper_widget))
@@ -1482,8 +1503,8 @@ class RadioButtonInput(Input):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
-    def create_html_input(self):
-        outer_div = Panel(self.view)
+    def create_html_input(self, layout):
+        outer_div = Panel(self.view, layout=layout)
         outer_div.set_attribute('class', 'reahl-radio-button-input')
         for choice in self.bound_field.flattened_choices:
             button = SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), wrapper_widget=self)
@@ -1638,10 +1659,11 @@ class Button(Span):
     
        :param form: (See :class:`Input`)
        :param event: The :class:`reahl.web.fw.Event` that will fire when the user clicks on this ButtonInput.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, form, event, css_id=None):
-        super(Button, self).__init__(form.view, css_id=css_id)
+    def __init__(self, form, event, css_id=None, layout=None):
+        super(Button, self).__init__(form.view, css_id=css_id, layout=layout)
         self.html_input = self.add_child(ButtonInput(form, event))
 
     @property
@@ -1652,8 +1674,8 @@ class Button(Span):
 
 
 class Label(HTMLElement):
-    def __init__(self, view, text=None, css_id=None):
-        super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
+    def __init__(self, view, text=None, css_id=None, layout=None):
+        super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id, layout=layout)
         if text:
             self.text_node = self.add_child(TextNode(view, text))
 
@@ -1666,13 +1688,14 @@ class InputLabel(Label):
           Rendered as an HTML <label> element.
 
        :param html_input: The :class:`Input` labelled by this Label.
-       :param text: If given, used as the text for the label rather than the default value (`html_input.label`).
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, html_input, text=None, css_id=None):
+    def __init__(self, html_input, text=None, css_id=None, layout=None):
         view = html_input.view
         self.html_input = html_input
-        super(InputLabel, self).__init__(view, text=text or self.html_input.label, css_id=css_id)
+        super(InputLabel, self).__init__(view, text=text or self.html_input.label, css_id=css_id, layout=layout)
 
     @property
     def visible(self):
@@ -1694,8 +1717,9 @@ class ErrorLabel(InputLabel):
           Rendered as an HTML <label class="error"> element.
 
        :param html_input: (See :class:`InputLabel`)
-       :param text: (See :class:`InputLabel`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword text: (See :class:`InputLabel`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
     @property
     def attributes(self):
@@ -1875,9 +1899,10 @@ class MenuItem(Li):
        
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a: The :class:`A` to use as link.
-       :param active_regex: If the href of `a` matches this regex, the MenuItem is deemed active.
-       :param exact_match: (See :meth:`reahl.web.fw.Url.is_currently_active`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword active_regex: If the href of `a` matches this regex, the MenuItem is deemed active.
+       :keyword exact_match: (See :meth:`reahl.web.fw.Url.is_currently_active`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
     @classmethod
     def from_bookmark(cls, view, bookmark, active_regex=None):
@@ -1889,8 +1914,8 @@ class MenuItem(Li):
         """
         return cls(view, A.from_bookmark(view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
     
-    def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
-        super(MenuItem, self).__init__(view, css_id=css_id)
+    def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None, layout=None):
+        super(MenuItem, self).__init__(view, css_id=css_id, layout=layout)
         self.exact_match = exact_match
         self.a = self.add_child(a)
         self.active_regex = active_regex
@@ -1919,10 +1944,11 @@ class SubMenu(MenuItem):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param title: Text to use as a title for this SubMenu.
        :param menu: The :class:`Menu` contained inside this SubMenu.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, title, menu, css_id=None):
-        super(SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id)
+    def __init__(self, view, title, menu, css_id=None, layout=None):
+        super(SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id, layout=layout)
         self.add_child(menu)
 
 
@@ -1936,7 +1962,8 @@ class Menu(Ul):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: A list of :class:`A` instances to which each :class:`MenuItem` will lead.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
     @classmethod
     def from_languages(cls, view):
@@ -1967,8 +1994,8 @@ class Menu(Ul):
             menu.add_item(MenuItem(view, a, exact_match=bookmark.exact))
         return menu
 
-    def __init__(self, view, a_list, css_id=None):
-        super(Menu, self).__init__(view, css_id=css_id)
+    def __init__(self, view, a_list, css_id=None, layout=None):
+        super(Menu, self).__init__(view, css_id=css_id, layout=layout)
         self.append_class('reahl-menu')
         self.set_items_from(a_list)
 
@@ -1992,7 +2019,8 @@ class HMenu(Menu):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: (See :class:`Menu`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
     @property
     def attributes(self):
@@ -2010,7 +2038,8 @@ class VMenu(Menu):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: (See :class:`Menu`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
     @property
     def attributes(self):
@@ -2030,15 +2059,16 @@ class Tab(MenuItem):
        :param title: Text that is displayed inside the Tab itself.
        :param tab_key: A name for this tag identifying it uniquely amongst other Tabs in the same :class:`TabbedPanel`.
        :param contents_factory: A :class:`WidgetFactory` specifying how to create the contents of this Tab, once selected.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, title, tab_key, contents_factory, css_id=None):
+    def __init__(self, view, title, tab_key, contents_factory, css_id=None, layout=None):
         self.title = title
         self.tab_key = tab_key
         self.contents_factory = contents_factory
         self.force_active = False
         a = A.from_bookmark(view, self.get_bookmark())
-        super(Tab, self).__init__(view, a, css_id=css_id)
+        super(Tab, self).__init__(view, a, css_id=css_id, layout=layout)
         
     def get_bookmark(self):
         query_arguments={'tab': self.tab_key}
@@ -2066,12 +2096,13 @@ class MultiTab(Tab):
        :param title: (See :class:`Tab`)
        :param tab_key: (See :class:`Tab`)
        :param contents_factory: (See :class:`Tab`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, title, tab_key, contents_factory, css_id=None):
+    def __init__(self, view, title, tab_key, contents_factory, css_id=None, layout=None):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
-        super(MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
+        super(MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id, layout=layout)
         self.add_child(TextNode(view, '&nbsp;', html_escape=False))
         dropdown_handle = self.add_child(A(view, None, description='▼'))
         dropdown_handle.append_class('dropdown-handle')
@@ -2145,7 +2176,7 @@ class TabbedPanel(Panel):
             self.set_active(tab)
 
         if tab.is_active:
-            tab.add_content_to_panel(self.content_panel)    
+            tab.add_content_to_panel(self.content_panel)
 
 
 # Uses: reahl/web/reahl.slidingpanel.css
@@ -2238,8 +2269,8 @@ class SimpleFileInput(Input):
     """
     input_type = 'file'
     is_for_file = True
-    def create_html_input(self):
-        add_file = HTMLElement(self.view, 'input', wrapper_widget=self)
+    def create_html_input(self, layout):
+        add_file = HTMLElement(self.view, 'input', wrapper_widget=self, layout=layout)
         if self.bound_field.allow_multiple:
             add_file.set_attribute('multiple', 'multiple')
         return add_file
@@ -2272,8 +2303,8 @@ class SimpleFileInput(Input):
 
 # Uses: reahl/web/reahl.fileuploadli.js
 class FileUploadLi(Li):
-    def __init__(self, form, remove_event, persisted_file, css_id=None):
-        super(FileUploadLi, self).__init__(form.view, css_id=css_id)
+    def __init__(self, form, remove_event, persisted_file, css_id=None, layout=None):
+        super(FileUploadLi, self).__init__(form.view, css_id=css_id, layout=layout)
         self.set_attribute('class', 'reahl-file-upload-li')
         self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
         self.add_child(Span(self.view, persisted_file.filename))
@@ -2285,8 +2316,8 @@ class FileUploadLi(Li):
 
 # Uses: reahl/web/reahl.fileuploadpanel.js
 class FileUploadPanel(Panel):
-    def __init__(self, file_upload_input, css_id=None):
-        super(FileUploadPanel, self).__init__(file_upload_input.view, css_id=css_id)
+    def __init__(self, file_upload_input, css_id=None, layout=None):
+        super(FileUploadPanel, self).__init__(file_upload_input.view, css_id=css_id, layout=layout)
         self.set_attribute('class', 'reahl-file-upload-panel')
         self.file_upload_input = file_upload_input
 
@@ -2423,8 +2454,8 @@ class FileUploadInput(Input):
         config = WebExecutionContext.get_context().config
         return config.web.persisted_file_class
 
-    def create_html_input(self):
-        return FileUploadPanel(self)
+    def create_html_input(self, layout):
+        return FileUploadPanel(self, layout=layout)
 
     def get_value_from_input(self, input_values):
         return [UploadedFile(f.filename, f.file_obj.read(), f.content_type)
@@ -2459,8 +2490,8 @@ class PopupA(A):
     # Implements:
     # http://blog.nemikor.com/category/jquery-ui/jquery-ui-dialog/
     # ... with buttons added
-    def __init__(self, view, target_bookmark, show_for_selector, close_button=True, css_id=None):
-        super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
+    def __init__(self, view, target_bookmark, show_for_selector, close_button=True, css_id=None, layout=None):
+        super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id, layout=layout)
         self.set_title(target_bookmark.description)
         self.append_class('reahl-popupa')
         self.show_for_selector = show_for_selector
@@ -2494,9 +2525,10 @@ class Caption(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword text: Text to be displayed inside the caption element.
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, text=None, css_id=None):
-        super(Caption, self).__init__(view, 'caption', children_allowed=True, css_id=css_id)
+    def __init__(self, view, text=None, css_id=None, layout=None):
+        super(Caption, self).__init__(view, 'caption', children_allowed=True, css_id=css_id, layout=layout)
         if text is not None:
             self.add_child(TextNode(view, text))
 
@@ -2507,9 +2539,10 @@ class Col(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword span: The number of columns spanned by this column.
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, span=None, css_id=None):
-        super(Col, self).__init__(view, 'col', children_allowed=False, css_id=css_id)
+    def __init__(self, view, span=None, css_id=None, layout=None):
+        super(Col, self).__init__(view, 'col', children_allowed=False, css_id=css_id, layout=layout)
         if span:
             self.set_attribute('span', span)
 
@@ -2520,9 +2553,10 @@ class Colgroup(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword span: The number of columns spanned by this group.
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, span=None, css_id=None):
-        super(Colgroup, self).__init__(view, 'colgroup', children_allowed=True, css_id=css_id)
+    def __init__(self, view, span=None, css_id=None, layout=None):
+        super(Colgroup, self).__init__(view, 'colgroup', children_allowed=True, css_id=css_id, layout=layout)
         if span:
             self.set_attribute('span', span)
 
@@ -2532,9 +2566,10 @@ class Thead(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Thead, self).__init__(view, 'thead', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Thead, self).__init__(view, 'thead', children_allowed=True, css_id=css_id, layout=layout)
 
 
 class Tfoot(HTMLElement):
@@ -2542,9 +2577,10 @@ class Tfoot(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Tfoot, self).__init__(view, 'tfoot', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Tfoot, self).__init__(view, 'tfoot', children_allowed=True, css_id=css_id, layout=layout)
 
 
 class Tbody(HTMLElement):
@@ -2552,9 +2588,10 @@ class Tbody(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Tbody, self).__init__(view, 'tbody', children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Tbody, self).__init__(view, 'tbody', children_allowed=True, css_id=css_id, layout=layout)
 
 
 class Tr(HTMLElement):
@@ -2562,14 +2599,15 @@ class Tr(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id=None):
-        super(Tr, self).__init__(view, 'tr',children_allowed=True, css_id=css_id)
+    def __init__(self, view, css_id=None, layout=None):
+        super(Tr, self).__init__(view, 'tr',children_allowed=True, css_id=css_id, layout=layout)
 
 
 class Cell(HTMLElement):
-    def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None):
-        super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id)
+    def __init__(self, view, html_tag_name, rowspan=None, colspan=None, css_id=None, layout=None):
+        super(Cell, self).__init__(view, html_tag_name, children_allowed=True, css_id=css_id, layout=layout)
         if rowspan:
             self.set_attribute('rowspan', rowspan)
         if colspan:
@@ -2583,9 +2621,10 @@ class Th(Cell):
        :keyword rowspan: The number of rows this table cell should span.
        :keyword colspan: The number of columns this table cell should span.
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view,  rowspan=None, colspan=None, css_id=None):
-        super(Th, self).__init__(view, 'th', rowspan=rowspan, colspan=colspan, css_id=css_id)
+    def __init__(self, view,  rowspan=None, colspan=None, css_id=None, layout=None):
+        super(Th, self).__init__(view, 'th', rowspan=rowspan, colspan=colspan, css_id=css_id, layout=layout)
 
 
 class Td(Cell):
@@ -2595,9 +2634,10 @@ class Td(Cell):
        :keyword rowspan: The number of rows this table cell should span.
        :keyword colspan: The number of columns this table cell should span.
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, rowspan=None, colspan=None, css_id=None):
-        super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
+    def __init__(self, view, rowspan=None, colspan=None, css_id=None, layout=None):
+        super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id, layout=layout)
 
 
 class DynamicColumn(object):
@@ -2664,16 +2704,17 @@ class Table(HTMLElement):
        :keyword summary:  A textual summary of the contents of the table which is not displayed visually, \
                 but may be used by a user agent for accessibility purposes.
        :keyword css_id: (See :class:`HTMLElement`)
+       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, caption_text=None, summary=None, css_id=None):
-        super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id)
+    def __init__(self, view, caption_text=None, summary=None, css_id=None, layout=None):
+        super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id, layout=layout)
         if caption_text:
             self.add_child(Caption(view, text=caption_text))
         if summary:
             self.set_attribute('summary', '%s' % summary)
 
     @classmethod
-    def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
+    def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None, layout=None):
         """Creates a table populated with rows, columns, header and footer, with one row per provided item. The table is
            defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.  
 
@@ -2683,8 +2724,9 @@ class Table(HTMLElement):
            :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
            :keyword summary: If given, a `summary` attribute is added to the table containing this text.
            :keyword css_id: (See :class:`HTMLElement`)
+           :keyword layout: (See :class:`reahl.web.fw.Widget`)
         """
-        table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
+        table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id, layout=layout)
         table.create_header_columns(columns)
         table.create_rows(columns, items)
         return table

@@ -913,16 +913,42 @@ class WidgetList(list):
         return False
 
 
+class Layout(object):
+    """A Layout is used to add children to the Widget in customised ways, and to customise the Widget itself upon construction.
+    """
+    
+    def __init__(self):
+        self.widget = None
+        
+    @property
+    def view(self):
+        return self.widget.view
+
+    def initialise_widget(self, widget):
+        if self.widget:
+            raise ProgrammerError('Already attached to %s' % self.widget)
+        self.widget = widget
+        self.customise_widget()
+
+    def customise_widget(self):
+        """Override this method in subclasses to allod your Layout to change its Widget upon construction. 
+           There is no need to call super(), as the superclass implementation does nothing.
+        """
+        pass
+
+
+
 class Widget(object):
     """Any user interface element in Reahl is a Widget. A direct instance of this class will not display anything when rendered. 
        A User interface is composed of Widgets by adding other Widgets to a Widget such as this one,
        forming a whole tree of Widgets.
     
        :param view: The current View.
-       :param read_check: A no-arg callable. If it returns True, the Widget will be rendered for the current user, else not.
-       :param write_check: A no-arg callable. If it returns True, the current user is allowed to write to this Widget.
+       :keyword read_check: A no-arg callable. If it returns True, the Widget will be rendered for the current user, else not.
+       :keyword write_check: A no-arg callable. If it returns True, the current user is allowed to write to this Widget.
                         The act of writing to a Widget is defined differently for subclasses of Widget. On this high level,
                         the Widget will also merely be displayed to the user if the user can write to the Widget.
+       :keyword layout: A Layout to be used in the construction of this Widget.
     """
     exists = True
     @classmethod
@@ -934,7 +960,7 @@ class Widget(object):
         return WidgetFactory(cls, *widget_args, **widget_kwargs)
 
     @arg_checks(view=IsInstance('reahl.web.fw:View'))
-    def __init__(self, view, read_check=None, write_check=None):
+    def __init__(self, view, read_check=None, write_check=None, layout=None):
         self.children = WidgetList()         #: All the Widgets that have been added as children of this Widget,
                                              #: in order of being added.
         self.view = view                     #: The current view, as passed in at construction
@@ -948,6 +974,8 @@ class Widget(object):
         self.read_check = read_check         #:
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
+        self.layout = layout or Layout()     #: The Layout used for visual layout of this Widget
+        self.layout.initialise_widget(self)
 
     def set_creating_factory(self, factory):
         self.created_by = factory
@@ -1796,7 +1824,7 @@ class HeaderContent(Widget):
         result += '<script src="/static/html5shiv-printshiv-3.6.3.js" type="text/javascript"></script>'
         result += '<![endif]-->'
         # From: http://code.google.com/p/ie7-js/ 
-        # Not sure if this does not perhaps interfere with YUI reset stuff? 
+        # Not sure if this does not perhaps interfere with Normalize reset stuff? 
         result += '\n<!--[if lte IE 9]>'  
         result += '<script src="/static/IE9.js" type="text/javascript"></script>'
         result += '<![endif]-->'  
@@ -2541,8 +2569,9 @@ class ReahlWSGIApplication(object):
                           'jquery/jquery.form-3.14.js'
                           ]]
         jquery_ui = [PackagedFile('reahl-web', 'reahl/web/static', 'jquery-ui-1.10.3.custom.js')]
-        css_files = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
-                     ['reset-fonts-grids.css', 'reahl.css']] 
+        css_files = [PackagedFile('reahl-web', 'reahl/web/static/pure-release-0.5.0/', i) for i in
+                      ['base.css', 'grids.css', 'grids-responsive.css']] 
+        css_files += [PackagedFile('reahl-web', 'reahl/web/static', 'reahl.css')]
         css_files += self.find_packaged_files('css')
         js_files = self.find_packaged_files('js')
         reahl_jquery_ui_plugins = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
