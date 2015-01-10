@@ -17,6 +17,9 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+
+import os
+
 from reahl.tofu import Fixture
 from reahl.stubble import stubclass, exempt
 from reahl.mailutil.mail import Mailer
@@ -26,7 +29,10 @@ from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
 from reahl.domain.partymodel import Party
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 from reahl.domain.systemaccountmodel import SystemAccountConfig
-from reahl.webdeclarative.webdeclarative import UserSession
+from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
+from reahl.web.egg import WebConfig
+from reahl.web.fw import UserInterface
+
 
 @stubclass(Mailer)
 class MailerStub(object):
@@ -64,8 +70,19 @@ class BasicModelZooMixin(SqlAlchemyTestMixin):
         accounts.mailer_class = MailerStub
         return accounts
     
-    def new_config(self, reahlsystem=None, accounts=None):
+    def new_webconfig(self, wsgi_app=None):
+        web = WebConfig()
+        web.site_root = UserInterface
+        web.static_root = os.path.join(os.getcwd(), 'static')
+        web.session_class = UserSession
+        web.persisted_exception_class = PersistedException
+        web.persisted_file_class = PersistedFile
+        web.persisted_userinput_class = UserInput
+        return web
+
+    def new_config(self, reahlsystem=None, accounts=None, web=None):
         config = super(BasicModelZooMixin, self).new_config(reahlsystem=reahlsystem)
+        config.web = web or self.new_webconfig()
         config.accounts = accounts or self.accounts
         return config
 

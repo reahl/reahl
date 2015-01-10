@@ -34,9 +34,8 @@ from reahl.component.i18n import Translator
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
-from reahl.web.egg import WebConfig
-from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.webdev.tools import DriverBrowser
+from reahl.webdeclarative.webdeclarative import UserSession
 
 
 _ = Translator('reahl-webdev')
@@ -79,21 +78,6 @@ class WebBasicsMixin(PartyModelZooMixin):
     @property
     def reahl_server(self):
         return self.run_fixture.reahl_server
-
-    def new_webconfig(self, wsgi_app=None):
-        web = WebConfig()
-        web.site_root = UserInterface
-        web.static_root = os.path.join(os.getcwd(), 'static')
-        web.session_class = UserSession
-        web.persisted_exception_class = PersistedException
-        web.persisted_file_class = PersistedFile
-        web.persisted_userinput_class = UserInput
-        return web
-
-    def new_config(self, reahlsystem=None, accounts=None, web=None):
-        config = super(WebBasicsMixin, self).new_config(reahlsystem=reahlsystem, accounts=accounts)
-        config.web = web or self.new_webconfig()
-        return config
         
     def new_context(self, request=None, config=None, session=None):
         context = WebExecutionContext()

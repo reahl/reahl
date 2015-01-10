@@ -249,7 +249,7 @@ class WebExecutionContext(ExecutionContext):
     def handle_wsgi_call(self, wsgi_app, environ, start_response):
         with self:
             with wsgi_app.concurrency_manager:
-                with self.system_control.nested_transaction():
+                with self.system_control.nested_transaction() as aap:
                     self.initialise_web_session()
                 try:
                     resource = wsgi_app.resource_for(self.request)
@@ -1818,41 +1818,26 @@ class HeaderContent(Widget):
         self.page = page
 
     def header_only_material(self):
+        config = WebExecutionContext.get_context().config
+
         result = ''
-        # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
-        result += '\n<!--[if lt IE 9]>'
-        result += '<script src="/static/html5shiv-printshiv-3.6.3.js" type="text/javascript"></script>'
-        result += '<![endif]-->'
-        # From: http://code.google.com/p/ie7-js/ 
-        # Not sure if this does not perhaps interfere with Normalize reset stuff? 
-        result += '\n<!--[if lte IE 9]>'  
-        result += '<script src="/static/IE9.js" type="text/javascript"></script>'
-        result += '<![endif]-->'  
+        for library in config.web.frontend_libraries:
+            result += library.header_only_material(self.page)
+
         result += '\n<script type="text/javascript" src="/static/reahl.js"></script>'
         result += '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
         return result
 
-    def render_document_ready_material(self):
-        result = '\n<script type="text/javascript">\n'
-        result += 'jQuery(document).ready(function($){\n'
-        result += '$(\'body\').addClass(\'enhanced\');\n'
-        js = set()
-        js.update(self.page.get_js())
-        for item in sorted(js):
-            result += item+'\n'
-        result += '\n});'
-        result += '\n</script>\n'
-        return result
-        
     def render(self):
-        return self.header_only_material() + self.render_document_ready_material()
+        return self.header_only_material()
     
 
 
 class FooterContent(HeaderContent):
     def render(self):
-        #from http://ryanpricemedia.com/2008/03/19/jquery-broken-in-internet-explorer-put-your-documentready-at-the-bottom/
-        return '<!--[if IE 6]>' + self.render_document_ready_material() +  '<![endif]-->'
+        config = WebExecutionContext.get_context().config
+        return ''.join([library.footer_only_material(self.page)
+                        for library in config.web.frontend_libraries])
 
 
 class Resource(object):
@@ -2558,31 +2543,17 @@ class ReahlWSGIApplication(object):
         return found_files
 
     def add_reahl_static_files(self):
-        misc = [] 
-        jquery = [PackagedFile('reahl-web', 'reahl/web/static', 'jquery/jquery-1.8.1.js')]
-        jquery_plugins = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
-                          ['jquery/jquery.cookie-1.0.js', 
-                          'jquery/jquery.metadata-2.1.js',
-                          'jquery/jquery.validate-1.10.0.modified.js',
-                          'jquery/jquery.ba-bbq-1.2.1.js',
-                          'jquery/jquery.blockUI-2.43.js',
-                          'jquery/jquery.form-3.14.js'
-                          ]]
-        jquery_ui = [PackagedFile('reahl-web', 'reahl/web/static', 'jquery-ui-1.10.3.custom.js')]
-        css_files = [PackagedFile('reahl-web', 'reahl/web/static/pure-release-0.5.0/', i) for i in
-                      ['base.css', 'grids.css', 'grids-responsive.css']] 
-        css_files += [PackagedFile('reahl-web', 'reahl/web/static', 'reahl.css')]
+        css_files = [PackagedFile('reahl-web', 'reahl/web/static', 'reahl.css')]
         css_files += self.find_packaged_files('css')
-        js_files = self.find_packaged_files('js')
-        reahl_jquery_ui_plugins = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
+        js_files = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
                                    [
                                    'reahl.validate.js',
                                    'reahl.modaldialog.js',
                                    ]]
+        js_files += self.find_packaged_files('js')
 
-        static_files = [PackagedFile('reahl-web', 'reahl/web/static', 'html5shiv-printshiv-3.6.3.js'),
-                        PackagedFile('reahl-web', 'reahl/web/static', 'IE9.js'),
-                        ConcatenatedFile('reahl.js', misc+jquery+jquery_plugins+jquery_ui+reahl_jquery_ui_plugins+js_files),
+        static_files = self.config.web.frontend_libraries.packaged_files() +\
+                       [ConcatenatedFile('reahl.js', js_files),
                         ConcatenatedFile('reahl.css', css_files)]
         static_files += self.find_packaged_files('any')
         self.define_static_files('/static', static_files)

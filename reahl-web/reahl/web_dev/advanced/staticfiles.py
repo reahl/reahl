@@ -152,6 +152,7 @@ class StaticFileTests(object):
         init_file = package_dir.file_with('__init__.py', '')
         afile = package_dir.file_with('packaged_file', 'contents')
 
+        easter_egg.clear()
         pkg_resources.working_set.add(easter_egg)
         easter_egg.set_module_path(egg_dir.name)
         
@@ -295,26 +296,7 @@ class StaticFileTests(object):
         expected = [b'']
         vassert( actual == expected )
 
-    @test(WebFixture)
-    def standard_reahl_files(self, fixture):
-        """The framework creates certain static files by default."""
-        wsgi_app = ReahlWSGIApplication(fixture.config)
-        browser = Browser(wsgi_app)
 
-        browser.open('/static/html5shiv-printshiv-3.6.3.js')
-        vassert( browser.last_response.content_length > 0 )
-
-        browser.open('/static/IE9.js')
-        vassert( browser.last_response.content_length > 0 )
-
-        browser.open('/static/reahl.js')
-        vassert( browser.last_response.content_length > 0 )
-
-        browser.open('/static/reahl.css')
-        vassert( browser.last_response.content_length > 0 )
-
-        browser.open('/static/runningon.png')
-        vassert( browser.last_response.content_length > 0 )
 
 
 
