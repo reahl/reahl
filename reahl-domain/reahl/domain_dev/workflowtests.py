@@ -31,7 +31,7 @@ from reahl.domain.workflowmodel import DeferredAction, Requirement, WorkflowInte
 from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
- 
+from reahl.web_dev.fixtures import WebBasicsMixin 
 class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_SomeObject(self):
         class SomeObject(Base):

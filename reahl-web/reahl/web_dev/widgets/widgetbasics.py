@@ -266,7 +266,7 @@ class WidgetBasics(object):
         browser = Browser(wsgi_app)
         
         browser.open('/')
-        rendered_js = browser.lxml_html.xpath('//script')[1].text
+        rendered_js = [i.text for i in browser.lxml_html.xpath('//script') if i.text][0]
         vassert( rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n' )
         
         number_of_duplicates = rendered_js.count('js1') - 1

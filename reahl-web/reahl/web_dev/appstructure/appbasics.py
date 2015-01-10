@@ -50,7 +50,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello', page=SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 685
+        self.expected_content_length = 1602
         self.content_includes_p = True
 
     @scenario
@@ -66,7 +66,7 @@ class BasicScenarios(WebFixture):
                 home.set_page(SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 685
+        self.expected_content_length = 1602
         self.content_includes_p = True
 
     @scenario
@@ -77,7 +77,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 893
+        self.expected_content_length = 1810
         self.content_includes_p = False
 
     @scenario
@@ -88,7 +88,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 893
+        self.expected_content_length = 1810
         self.content_includes_p = False
         self.expected_warnings = ['Region has been renamed to UserInterface, please use UserInterface instead', 
                                   'Please use .define_page() instead']

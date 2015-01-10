@@ -35,6 +35,7 @@ from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
 from reahl.domainui.accounts import AccountUI
+from reahl.domainuiegg import DomainUiConfig
 
 class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
     def new_queues(self):
@@ -66,6 +67,13 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         account = super(WorkflowWebFixture, self).new_system_account()
         account.party = self.party
         return account
+
+    def new_config(self):
+        config = super(WorkflowWebFixture, self).new_config()
+        config.workflowui = DomainUiConfig()
+        return config
+
+
 
 class MyTask(Task):
     __tablename__ = 'mytask'
