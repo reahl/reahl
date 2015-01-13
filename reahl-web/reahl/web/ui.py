@@ -35,7 +35,7 @@ from reahl.component.i18n import Translator
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
-                          Url, Bookmark, WidgetList
+                          Url, Bookmark, WidgetList, Layout
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
@@ -570,8 +570,40 @@ class TwoColumnPage(HTML5Page):
     def secondary(self):
         """The Panel used as secondary column."""
         return self.yui_page.secondary_block
-    
-    
+
+
+class TwoColumnPage2(HTML5Page):
+    """TODO
+    """
+    @arg_checks(title=IsInstance(six.string_types))
+    def __init__(self, view, layout, title='$current_title', style=None, css_id=None):
+        super(TwoColumnPage2, self).__init__(view, title=title, style=style, css_id=css_id, layout=layout)
+        self.main.add_child(Slot(view, 'main'))
+        self.secondary.add_child(Slot(view, 'secondary'))
+        self.header.add_child(Slot(view, 'header'))
+        self.footer.add_child(Slot(view, 'footer'))
+
+    @property
+    def footer(self):
+        """The Panel used as footer area."""
+        return self.layout.footer
+
+    @property
+    def header(self):
+        """The Panel used as header area."""
+        return self.layout.header
+
+    @property
+    def main(self):
+        """The Panel used as main column."""
+        return self.layout.main_block
+
+    @property
+    def secondary(self):
+        """The Panel used as secondary column."""
+        return self.layout.secondary_block
+
+
 # Uses: reahl/web/reahl.ajaxlink.js
 class A(HTMLElement):
     """A hyper link.
