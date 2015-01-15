@@ -69,11 +69,10 @@ class PagedPanel(Panel):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param page_index: The :class:`PageIndex` to use to supply contents to the pages displayed by this PagedPanel.
        :param css_id: (See :class:`HTMLElement`)
-       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, page_index, css_id, layout=None):
+    def __init__(self, view, page_index, css_id):
         self.page_index = page_index
-        super(PagedPanel, self).__init__(view, css_id=css_id, layout=layout)
+        super(PagedPanel, self).__init__(view, css_id=css_id)
         self.enable_refresh()
     
     @classmethod
@@ -203,11 +202,10 @@ class PageMenu(HMenu):
        :param css_id: (See :class:`HTMLElement`)
        :param page_index: The :class:`PageIndex` whose pages are displayed by this PageMenu.
        :param page_container: The :class:`PagedPanel` in which the contents of a page is displayed.
-       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, css_id, page_index, paged_panel, layout=None):
+    def __init__(self, view, css_id, page_index, paged_panel):
         self.page_index = page_index
-        super(PageMenu, self).__init__(view, [], css_id=css_id, layout=layout)
+        super(PageMenu, self).__init__(view, [], css_id=css_id)
         self.append_class('reahl-pagemenu')
 
         self.paged_panel = paged_panel
