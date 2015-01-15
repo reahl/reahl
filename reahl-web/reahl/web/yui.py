@@ -20,15 +20,9 @@ Layout tools based on YUI
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.web.ui import TwoColumnPage2, Layout, YuiDoc
+from reahl.web.ui import  Layout, YuiDoc
 from reahl.component.decorators import memoized
 
-
-class TwoColumnPageYUI(TwoColumnPage2):
-    """TwoColumnPageYUI
-    """
-    def __init__(self, view, title='$current_title', style=None, css_id=None):
-        super(TwoColumnPageYUI, self).__init__(view, YUITwoColumnPageLayout(), title=title, style=style, css_id=css_id)
 
 
 class YUITwoColumnPageLayout(Layout):
