@@ -211,6 +211,7 @@ class HTMLElement(Widget):
     
     """
     def __init__(self, view, tag_name, children_allowed=False, css_id=None, wrapper_widget=None, read_check=None, write_check=None):
+        super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check)
         self.wrapper_widget = wrapper_widget
         if wrapper_widget:
             if not isinstance(wrapper_widget, Input):
@@ -223,7 +224,6 @@ class HTMLElement(Widget):
         self.ajax_handlers = []
         if css_id:
             self.set_id(css_id)
-        super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check)
 
     def __str__(self):
         css_id_part = '(not set)'
@@ -519,7 +519,7 @@ class HTML5Page(HTMLElement):
     def render(self):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
 
-@deprecated('Please use reahl.web.pure:PageColumnLayout instead.')
+#@deprecated('Please use reahl.web.pure:PageColumnLayout instead.')
 class TwoColumnPage(HTML5Page):
     """An HTML5Page with a basic layout: It has a header area which displays at top of two columns. A footer area
        displays below the two columns. The main column is to the right, and larger. The secondary column is to 

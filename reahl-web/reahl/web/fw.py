@@ -249,7 +249,7 @@ class WebExecutionContext(ExecutionContext):
     def handle_wsgi_call(self, wsgi_app, environ, start_response):
         with self:
             with wsgi_app.concurrency_manager:
-                with self.system_control.nested_transaction() as aap:
+                with self.system_control.nested_transaction():
                     self.initialise_web_session()
                 try:
                     resource = wsgi_app.resource_for(self.request)
