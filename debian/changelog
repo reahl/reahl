@@ -10,6 +10,9 @@ python-reahl (3.1.0) unstable; urgency=low
  * Added --generate-setup-py switch to reahl shell command.
  * Added --with-marked-tests nose plugin to reahl-tofu.
  * Added reahl.tofu.nosesupport.set_run_fixture to reahl-tofu.
+ * Added .get_attribute() method on HTMLElement.
+ * Moved .xpath() method to be available for WidgetTester too.
+
 
  -- Iwan Vosloo <iwan@reahl.org>  Sat, 06 Sep 2014 11:50:00 +0200
 
