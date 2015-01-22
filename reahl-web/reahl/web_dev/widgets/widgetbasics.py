@@ -28,7 +28,7 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub, stubclass
 
-from reahl.component.exceptions import IncorrectArgumentError, IsInstance
+from reahl.component.exceptions import IncorrectArgumentError, IsInstance, ProgrammerError
 from reahl.component.eggs import ReahlEgg
 from reahl.web.fw import UrlBoundView
 from reahl.web.fw import UserInterface
@@ -74,28 +74,6 @@ class WidgetBasics(object):
         actual = widget_tester.render_html()
         
         vassert( actual == '<div><p>Hello World!</p><p>a</p><p>b</p></div>' )
-
-
-    @test(WebFixture)
-    def widget_layout(self, fixture):
-        """A Layout is used to add children to the Widget in customised ways, and to customise the Widget itself upon construction."""
-
-        class MyLayout(Layout):
-            def customise_widget(self):
-                self.widget.append_class('class-added-by-custom-layout')
-
-            def add_wrapped(self, child):
-                wrapper = self.widget.add_child(Div(self.view))
-                wrapper.add_child(child)
-                return child
-
-        widget_with_layout = Div(fixture.view, layout=MyLayout())
-        widget_with_layout.layout.add_wrapped(P(fixture.view, text='Added in a wrapper by a custom Layout'))
-        
-        widget_tester = WidgetTester(widget_with_layout)
-        actual = widget_tester.render_html()
-        
-        vassert( actual == '<div class="class-added-by-custom-layout"><div><p>Added in a wrapper by a custom Layout</p></div></div>' )
 
 
     @test(WebFixture)

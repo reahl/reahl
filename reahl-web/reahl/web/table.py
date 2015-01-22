@@ -52,8 +52,8 @@ class TablePageIndex(SequentialPageIndex):
 
 
 class PagedTable(PagedPanel):
-    def __init__(self, view, page_index, columns, caption_text=None, summary=None, css_id=None, layout=None):
-        super(PagedTable, self).__init__(view, page_index, css_id=css_id, layout=layout)  
+    def __init__(self, view, page_index, columns, caption_text=None, summary=None, css_id=None):
+        super(PagedTable, self).__init__(view, page_index, css_id=css_id)  
 
         def make_heading_with_sort_controls(column_number, sort_key, old_make_heading_widget, view):
             heading_widget = Widget(view)
@@ -112,10 +112,9 @@ class DataTable(Panel):
        :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
        :keyword summary: If given, a :class:`reahl.web.ui.Summary` is added with this text.
        :keyword css_id: (See :class:`HTMLElement`)
-       :keyword layout: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, css_id=None, layout=None):
-        super(DataTable, self).__init__(view, css_id=css_id, layout=layout)
+    def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, css_id=None):
+        super(DataTable, self).__init__(view, css_id=css_id)
         self.append_class('reahl-datatable')
 
         self.page_index = TablePageIndex(columns, items, items_per_page=items_per_page)

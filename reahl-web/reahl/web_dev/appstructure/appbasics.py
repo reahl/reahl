@@ -213,6 +213,7 @@ def slots(fixture):
     vassert( main_p.text == 'Hello world' )
     vassert( footer_p.text == 'I am the footer' )
 
+
 @test(WebFixture)
 def slot_error(fixture):
     """Supplying contents for a slot that does not exist results in s sensible error."""
