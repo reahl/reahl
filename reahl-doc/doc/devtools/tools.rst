@@ -26,12 +26,14 @@ WidgetTester
 
 .. autoclass:: reahl.webdev.tools.WidgetTester
    :members:
+   :inherited-members:
 
 Browser
 """""""
 
 .. autoclass:: reahl.webdev.tools.Browser
    :members:
+   :inherited-members:
 
 XPath
 """""
@@ -50,4 +52,5 @@ DriverBrowser
 
 .. autoclass:: reahl.webdev.tools.DriverBrowser
    :members:
+   :inherited-members:
 

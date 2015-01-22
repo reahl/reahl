@@ -77,41 +77,6 @@ class WidgetBasics(object):
 
 
     @test(WebFixture)
-    def widget_layout(self, fixture):
-        """A Layout is used to add children to the Widget in customised ways, and to customise the Widget itself upon construction."""
-
-        class MyLayout(Layout):
-            def customise_widget(self):
-                self.widget.append_class('class-added-by-custom-layout')
-
-            def add_wrapped(self, child):
-                wrapper = self.widget.add_child(Div(self.view))
-                wrapper.add_child(child)
-                return child
-
-        widget_with_layout = Div(fixture.view).using_layout(MyLayout())
-        widget_with_layout.layout.add_wrapped(P(fixture.view, text='Added in a wrapper by a custom Layout'))
-
-        widget_tester = WidgetTester(widget_with_layout)
-        actual = widget_tester.render_html()
-        
-        vassert( actual == '<div class="class-added-by-custom-layout"><div><p>Added in a wrapper by a custom Layout</p></div></div>' )
-
-    @test(WebFixture)
-    def widget_layout_errors(self, fixture):
-        """A Layout can only be used with a single Widget, and a Widget can only have a single Layout."""
-
-        widget_with_layout = Div(fixture.view).using_layout(Layout())
-
-        with expected(ProgrammerError):
-            widget_with_layout.using_layout(Layout())
-
-        re_used_layout = Layout()
-        widget_with_reused_layout = Div(fixture.view).using_layout(re_used_layout)
-        with expected(ProgrammerError):
-            Div(fixture.view).using_layout(re_used_layout)
-
-    @test(WebFixture)
     def visibility(self, fixture):
         """Widgets are rendered only if their .visible property is True."""
         
