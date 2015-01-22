@@ -33,6 +33,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.component.py3compat import html_escape
+from reahl.component.decorators import deprecated
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
                           Url, Bookmark, WidgetList, Layout
@@ -254,6 +255,10 @@ class HTMLElement(Widget):
     def set_attribute(self, name, value):
         """Sets the value of the attribute `name` of this HTMLElement to the string `value`."""
         self.constant_attributes.set_to(name, value)
+
+    def get_attribute(self, name):
+        """Answers the value of the attribute named `name`."""
+        return self.attributes[name].as_html_value()
 
     def has_attribute(self, name):
         """Answers whether this HTMLElement has an attribute named `name`."""
@@ -514,7 +519,7 @@ class HTML5Page(HTMLElement):
     def render(self):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
 
-
+@deprecated('Please use reahl.web.pure:PageColumnLayout instead.')
 class TwoColumnPage(HTML5Page):
     """An HTML5Page with a basic layout: It has a header area which displays at top of two columns. A footer area
        displays below the two columns. The main column is to the right, and larger. The secondary column is to 

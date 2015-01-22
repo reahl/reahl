@@ -83,6 +83,11 @@ class BasicBrowser(object):
             return html.fromstring(self.raw_html)
         return None
 
+    def xpath(self, xpath):
+        """Returns the `lmxl Element <http://lxml.de/>`_ found by the given `xpath`."""
+        return self.lxml_html.xpath(xpath)
+
+
 
 class WidgetTester(BasicBrowser):
     """A WidgetTester is used to render the contents of a :class:`reahl.web.fw.Widget` instance.
@@ -178,10 +183,6 @@ class Browser(BasicBrowser):
         url_bits = urllib_parse.urlparse(url_string)
         return urllib_parse.urlunparse(('', '', url_bits.path, url_bits.params, url_bits.query, url_bits.fragment))
             
-    def xpath(self, xpath):
-        """Returns the `lmxl Element <http://lxml.de/>`_ found by the given `xpath`."""
-        return self.lxml_html.xpath(xpath)
-
     @property
     def raw_html(self):
         """Returns the HTML for the current location unchanged."""

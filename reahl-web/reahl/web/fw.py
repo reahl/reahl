@@ -505,7 +505,7 @@ class UserInterface(object):
             raise HTTPNotFound()
 
     @arg_checks(widget_class=IsSubclass('reahl.web.fw:Widget'))
-    def define_page(self, widget_class, using_layout=None, *args, **kwargs):
+    def define_page(self, widget_class, use_layout=None, *args, **kwargs):
         """Called from `assemble` to create the :class:`WidgetFactory` to use when the framework
            needs to create a Widget for use as the page for this UserInterface. Pass the class of
            Widget that will be constructed in `widget_class`.  Next, pass all the arguments that should
@@ -514,7 +514,7 @@ class UserInterface(object):
         checkargs_explained('define_page was called with arguments that do not match those expected by %s' % widget_class,
                             widget_class, NotYetAvailable('self'), NotYetAvailable('view'), *args, **kwargs)
 
-        self.page_factory = widget_class.factory(using_layout=using_layout, *args, **kwargs)
+        self.page_factory = widget_class.factory(use_layout=use_layout, *args, **kwargs)
         return self.page_factory
 
     @deprecated('Please use .define_page() instead.')
@@ -931,7 +931,7 @@ class Layout(object):
         self.customise_widget()
 
     def customise_widget(self):
-        """Override this method in subclasses to allod your Layout to change its Widget upon construction. 
+        """Override this method in subclasses to allow your Layout to change its Widget upon construction.
            There is no need to call super(), as the superclass implementation does nothing.
         """
         pass
@@ -951,12 +951,14 @@ class Widget(object):
     """
     exists = True
     @classmethod
-    def factory(cls, using_layout=None, *widget_args, **widget_kwargs):
+    def factory(cls, *widget_args, **widget_kwargs):
         """Obtains a Factory for this Widget. A Factory for this Widget is merely an object that will be used by the 
            framework to instantiate the Widget only once needed. Pass the exact arguments and keyword arguments 
            that you would have passed to the Widget's constructor, except the very first argument of Widgets: the `view`.
+           
+           :keyword use_layout: A layout to be used with the newly created Widget
         """
-        return WidgetFactory(cls, using_layout=using_layout, *widget_args, **widget_kwargs)
+        return WidgetFactory(cls, *widget_args, **widget_kwargs)
 
     @arg_checks(view=IsInstance('reahl.web.fw:View'))
     def __init__(self, view, read_check=None, write_check=None):
@@ -976,7 +978,7 @@ class Widget(object):
         self.layout = None                   #: The Layout used for visual layout of this Widget
         
         
-    def using_layout(self, layout):
+    def use_layout(self, layout):
         """Attaches the given Layout to this Widget. The Layout is also given a chance to customise the Widget.
         
            Returns the original (modified) Widget for convenience.
@@ -1576,8 +1578,12 @@ class WidgetFactory(Factory):
        :param widget_class: The kind of Widget to be constructed.
        :param widget_args:  All the arguments needed by `widget_class` except the first argument of Widgets: `view`
        :param widget_kwargs: All the keyword arguments of `widget_class`.
+       :keyword use_layout: A layout to be used with the newly created Widget
     """
-    def __init__(self, widget_class, using_layout=None, *widget_args, **widget_kwargs):
+    def __init__(self, widget_class, *widget_args, **widget_kwargs):
+        use_layout = widget_kwargs.pop('use_layout', None)  # Py2 cannot do keyword-only args, specifying layout= 
+                                                            # before the * args results in the layout= kwarg sometimes
+                                                            # eating up one of the *args
         checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class),
                             widget_class, NotYetAvailable('self'), NotYetAvailable('view'), *widget_args, **widget_kwargs)
 
@@ -1586,12 +1592,12 @@ class WidgetFactory(Factory):
         self.widget_args = widget_args
         self.widget_kwargs = widget_kwargs
         self.default_slot_definitions = {}
-        self.layout = using_layout
+        self.layout = use_layout
 
     def create_widget(self, view):
         widget = self.widget_class(view, *self.widget_args, **self.widget_kwargs)
         if self.layout:
-            widget.using_layout(self.layout)
+            widget.use_layout(self.layout)
         for name, widget_factory in self.default_slot_definitions.items():
             widget.add_default_slot(name, widget_factory)
         widget.set_creating_factory(self)

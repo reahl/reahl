@@ -18,59 +18,175 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import vassert, scenario
 
-from reahl.webdev.tools import XPath
+from reahl.webdev.tools import XPath, Browser
 
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import Panel, P, HTML5Page
+from reahl.web.ui import Panel, P, HTML5Page, Header, Footer
 
-from reahl.web.pure import GridLayout, UnitSize, PageColumnLayout
+from reahl.web.pure import ColumnLayout, UnitSize, PageColumnLayout
 
-#    def add_unit(self, widget, default=None, sm=None, md=None, lg=None, xl=None):
+class ColumnConstructionScenarios(WebFixture):
+    @scenario
+    def without_sizes(self):
+        """Construct the ColumnLayout with a list of column names."""
+        self.layout = ColumnLayout('column_a', 'column_b')
+        self.expected_class_for_column_b = 'pure-u'
+
+    @scenario
+    def with_size(self):
+        """You can optionally specify the sizes a column should adhere to."""
+        self.layout = ColumnLayout('column_a', ('column_b', UnitSize(default='1/2')))
+        self.expected_class_for_column_b = 'pure-u-1-2'
+
+
+@test(ColumnConstructionScenarios)
+def column_layout_basics(fixture):
+    """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Panel, laid out next to each other."""
+
+    widget = Panel(fixture.view)
+    
+    vassert( not widget.has_attribute('class') )
+    vassert( not widget.children )
+    
+    widget.use_layout(fixture.layout)
+
+    vassert( widget.get_attribute('class') == 'pure-g' )
+    column_a, column_b = widget.children
+    vassert( isinstance(column_a, Panel) )
+    vassert( isinstance(column_b, Panel) )
+
+    vassert( column_a.get_attribute('class') == 'pure-u' )    # never varies in scenarios
+    vassert( column_b.get_attribute('class') == fixture.expected_class_for_column_b )
 
 
 @test(WebFixture)
-def grid_layout_basics(fixture):
-    """A GridLayout turns its Widget into a Pure Grid to which children can be added as Pure Units."""
+def order_of_columns(fixture):
+    """Columns are added in the order given to the ColumnLayout constructor, and the Panel representing each column
+       can be obtained using dictionary access on Layout.columns."""
 
-    widget = Panel(fixture.view).using_layout(GridLayout())
+    widget = Panel(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b'))
 
-    widget.layout.add_unit(P(fixture.view))
-
-    widget_tester = WidgetTester(widget)
-    actual = widget_tester.render_html()
+    column_a = widget.layout.columns['column_name_a']
+    column_b = widget.layout.columns['column_name_b']
     
-    vassert( actual == '<div class="pure-g"><div class="pure-u"><p></p></div></div>' )
+    first_column, second_column = widget.children
+
+    vassert( first_column is column_a )
+    vassert( second_column is column_b )
 
 
 @test(WebFixture)
-def grid_layout_fractions(fixture):
-    """When adding a unit, you can specify the sizes to be used for different media sizes."""
+def a_slot_created_for_each_column(fixture):
+    """Each column has a Slot, named after the column name as specified."""
 
-    widget = Panel(fixture.view).using_layout(GridLayout())
+    widget = Panel(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b'))
 
-    widget.layout.add_unit(P(fixture.view), size=UnitSize(default='1/2', sm='1/3', md='2/3', lg='1/4', xl='3/4'))
+    column_a, column_b = widget.children
+    vassert( 'column_name_a' in column_a.available_slots )
+    vassert( 'column_name_b' in column_b.available_slots )
 
-    widget_tester = WidgetTester(widget)
-    actual = widget_tester.render_html()
+
+@test(WebFixture)
+def adding_columns(fixture):
+    """You can add additional columns after construction, containing a supplied Widget."""
+
+    widget = Panel(fixture.view).use_layout(ColumnLayout())
+
+    vassert( not widget.children )
+
+    contents_of_column = P(fixture.view)
+    widget.layout.add_column(contents_of_column)
+
+    [added_column] = widget.children
+    vassert( added_column.get_attribute('class') == 'pure-u' )
+    vassert( added_column.children == [contents_of_column] )
+
+
+
+class SizingFixture(WebFixture):
+    @scenario
+    def all_sizes_given(self):
+        self.sizes = dict(default='1/2', sm='1/3', md='2/3', lg='1/4', xl='3/4')
+        self.expected_classes = ['pure-u-1-2','pure-u-lg-1-4','pure-u-md-2-3','pure-u-sm-1-3','pure-u-xl-3-4']
+
+    @scenario
+    def some_sizes_unspecified(self):
+        self.sizes = dict(default='1/3', sm='2/3')
+        self.expected_classes = ['pure-u-1-3','pure-u-sm-2-3']
+
+
+@test(SizingFixture)
+def sizing_when_adding(fixture):
+    """When adding a column, the unit_size kwarg can be used to specify sizes for the added column."""
+
+    widget = Panel(fixture.view).use_layout(ColumnLayout())
+
+    widget.layout.add_column(P(fixture.view), unit_size=UnitSize(**fixture.sizes))
+
+    widget.children[0].attributes['class'] == fixture.expected_classes
+
+
+
+
+@test(WebFixture)
+def page_column_layout_basics(fixture):
+    """A PageColumnLayout adds a Panel to the body of its page (the page's document), containing a header, footer 
+       with a div inbetween the two."""
+
+    layout = PageColumnLayout()
+    widget = HTML5Page(fixture.view).use_layout(layout)
+    header, contents_div, footer = layout.document.children
+
+    vassert( isinstance(header, Header) )
+    vassert( isinstance(contents_div, Panel) )
+    vassert( isinstance(footer, Footer) )
+
+
+@test(WebFixture)
+def page_column_layout_content_layout(fixture):
+    """A PageColumnLayout lays out its content (the bits between header and footer) using a ColumnLayout with the columns it is created with."""
+
+    widget = HTML5Page(fixture.view).use_layout(PageColumnLayout('column_a', 'column_b'))
     
-    vassert( actual == '<div class="pure-g"><div class="pure-u-1-2 pure-u-lg-1-4 pure-u-md-2-3 pure-u-sm-1-3 pure-u-xl-3-4"><p></p></div></div>' )
+    contents_layout = widget.layout.contents.layout
+    vassert( isinstance(contents_layout, ColumnLayout) )
+    vassert( 'column_a' in contents_layout.columns )
+    vassert( 'column_b' in contents_layout.columns )
 
 
-"""Responsive sizing for a unit can be described using a UnitSize object."""
-"""A Layout can be spefified to a WidgetFactory in using_layout kwarg"""
-"""Similarly, this can be passed on from .define_page"""
-"""use_layout is an alias for using_layout that just reads better in other contexts"""
-"""A ColumnLayout is (conceptually): a bunch of columns"""
-  """Columns can be specified with a UnitSize (when passed as tuple), or without a UnitSize using a string."""
-  """Dictionary access on layout.columns can be used to access the Panel in each named column as specified"""
-  """Each column has a slot, named after the column name as specified."""
-"""A PageColumnLayout adds a header, and footer to the body of the page, and a ColumnLayout (with given dimentions?) inbetween the header and footer"""
-   """Exposes the header, footer and columns of the body of the page"""
+@test(WebFixture)
+def page_column_layout_convenience_features(fixture):
+    """A PageColumnLayout exposes useful methods to get to its contents, and adds ids to certain elements for convenience in CSS."""
+
+    layout = PageColumnLayout()
+    widget = HTML5Page(fixture.view).use_layout(layout)
+    header, contents_div, footer = layout.document.children
+    
+    vassert( layout.document.css_id == 'doc' )
+    vassert( header.css_id == 'hd' )
+    vassert( footer.css_id == 'ft' )
+    vassert( contents_div.css_id == 'bd' )
+    vassert( contents_div.get_attribute('role') == 'main' )
+    
+    vassert( layout.header is header )
+    vassert( layout.contents is contents_div )
+    vassert( layout.footer is footer )
+    vassert( layout.columns is contents_div.layout.columns )
+
+
+
+
+
+
+"""find places that use yui - add include for yui 'library'"""
+
+
+#------------------------------------------------
 
 @test(WebFixture)
 def humantest(fixture):
@@ -82,7 +198,7 @@ def humantest(fixture):
             
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page, using_layout=PageColumnLayout(('secondary', UnitSize(lg='1/4', sm='1/2')), 
+            self.define_page(HTML5Page, use_layout=PageColumnLayout(('secondary', UnitSize(lg='1/4', sm='1/2')), 
                                                                       ('main', UnitSize(lg='3/4', sm='1/2'))))
 
             home = self.define_view('/', title='Hello')
@@ -95,7 +211,7 @@ def humantest(fixture):
     class KoosPage(HTML5Page):
         def __init__(self, *args, **kwargs):
             super(KoosPage, self).__init__(*args, **kwargs)
-            self.using_layout(PageColumnLayout(('koos0', UnitSize(default='1/2')), 'koos1'))
+            self.use_layout(PageColumnLayout(('koos0', UnitSize(default='1/2')), 'koos1'))
             self.layout.columns['koos0'].add_child(P(self.view, text='koos was hier'))
             self.layout.columns['koos1'].add_child(P(self.view, text='koos1 was hier'))
 
@@ -113,20 +229,21 @@ def humantest(fixture):
     fixture.driver_browser.open('/')
     fixture.driver_browser.view_source()
 
+    rendered_in_body = fixture.driver_browser.get_inner_html_for('//body')
+    expected_html = '''<div id="doc">'''\
+                  '''<header id="hd"><p>Header</p></header>'''\
+                  '''<div id="bd" role="main" class="pure-g">'''\
+                    '''<div class="pure-u pure-u-lg-1-4 pure-u-sm-1-2"><p>Secondary column</p></div>'''\
+                    '''<div class="pure-u pure-u-lg-3-4 pure-u-sm-1-2"><p>Main column</p></div>'''\
+                  '''</div>'''\
+                  '''<footer id="ft"><p>Footer</p></footer></div>'''
+    rendered_in_body = rendered_in_body[:len(expected_html)]
+    vassert( rendered_in_body == expected_html )
+
     fixture.driver_browser.open('/koos2')
     fixture.driver_browser.view_source()
     
-    rendered_in_body = fixture.driver_browser.get_inner_html_for('//body')
 
-
-    expected = '''<div id="doc">'''\
-                  '''<header id="hd"><p>Header</p></header>'''\
-                  '''<div id="bd" role="main" class="pure-g">'''\
-                  '''  <div class="pure-u"><div><p>Main column</p></div></div>'''\
-                  '''  <div class="pure-u"><div><p>Secondary column</p></div></div>'''\
-                  '''</div>'''\
-                  '''<footer id="ft"><p>Footer</p></footer></div>'''
-    vassert( rendered_in_body.startswith(expected) )
 
 
 
