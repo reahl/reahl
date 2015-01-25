@@ -83,19 +83,19 @@ class WidgetCreationScenarios(WebFixture):
         return MyLayout()
 
     @scenario
-    def layout_given_to_factory(self):
+    def use_layout_with_factory_class_method(self):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_view('/', title='Hello', page=HTML5Page.factory(use_layout=fixture.layout))
+                self.define_view('/', title='Hello', page=HTML5Page.factory().use_layout(fixture.layout))
         self.MainUI = MainUI
         
     @scenario
-    def layout_given_to_define_page(self):
+    def use_layout_with_define_page(self):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page, use_layout=fixture.layout)
+                self.define_page(HTML5Page).use_layout(fixture.layout)
                 self.define_view('/', title='Hello')
         self.MainUI = MainUI
 
