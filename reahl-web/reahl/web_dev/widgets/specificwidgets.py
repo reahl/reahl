@@ -253,25 +253,30 @@ class BasicReahlWidgets(object):
     class Scenarios(WebFixture):
         @scenario
         def yuidoc(self):
+            self.config.web.frontend_libraries.use_deprecated_yui()
             self.widget = YuiDoc(self.view, 'docid', 'docclass')
             self.expected_html = '<div id="docid" class="docclass"><div id="hd" class="yui-g"><header></header></div><div id="bd" role="main"><div id="yui-main"><div class="yui-b"></div></div><div class="yui-b"></div></div><div id="ft"><footer></footer></div></div>'
         @scenario
         def yuiblock(self):
+            self.config.web.frontend_libraries.use_deprecated_yui()
             self.widget = YuiBlock(self.view)
             self.expected_html = '<div class="yui-b"></div>'
 
         @scenario
         def yuigrid(self):
+            self.config.web.frontend_libraries.use_deprecated_yui()
             self.widget = YuiGrid(self.view)
             self.expected_html = '<div class="yui-g"></div>'
 
         @scenario
         def yuiunit1(self):
+            self.config.web.frontend_libraries.use_deprecated_yui()
             self.widget = YuiUnit(self.view)
             self.expected_html = '<div class="yui-u"></div>'
 
         @scenario
-        def yuiunit1(self):
+        def yuiunit_first(self):
+            self.config.web.frontend_libraries.use_deprecated_yui()
             self.widget = YuiUnit(self.view, first=True)
             self.expected_html = '<div class="first yui-u"></div>'
             
@@ -285,6 +290,7 @@ class BasicReahlWidgets(object):
     @test(WebFixture)
     def twocolumn_page(self, fixture):
         """A simple Yui page with two columns, a header and a footer."""
+        fixture.config.web.frontend_libraries.use_deprecated_yui()
         widget = TwoColumnPage(fixture.view, title='It: $current_title')
         widget.add_default_slot('slot1', P.factory())
         tester = WidgetTester(widget)

@@ -2,6 +2,8 @@
 import itertools
 from collections import OrderedDict
 
+from reahl.component.exceptions import ProgrammerError
+from reahl.component.context import ExecutionContext
 from reahl.web.fw import PackagedFile, ConcatenatedFile
 
 class LibraryIndex(object):
@@ -24,6 +26,12 @@ class LibraryIndex(object):
 
     def __iter__(self):
         return iter(self.libraries_by_name.values())
+        
+    def use_deprecated_yui(self):
+        if 'pure' in self:
+            del self.libraries_by_name['pure']
+        if 'yuigridscss' not in self:
+            self.add(YuiGridsCss())
         
 
 class Library(object):
@@ -124,6 +132,18 @@ class Pure(Library):
 
 
 class YuiGridsCss(Library):
+    @classmethod
+    def is_enabled(cls):
+        frontend_libraries = ExecutionContext.get_context().config.web.frontend_libraries
+        return 'yuigridscss' in frontend_libraries
+
+    @classmethod
+    def check_enabled(cls, calling_object):
+        if not cls.is_enabled():
+            raise ProgrammerError('YuiGridsCss not enabled in current configuration. For %s to work, add the line: \n'\
+                                  '"web.frontend_libraries.use_deprecated_yui()"\n in your web.config.py'\
+                                   % calling_object.__class__.__name__)
+
     def __init__(self):
         super(YuiGridsCss, self).__init__('yuigridscss')
         self.shipped_in_directory = '/reahl/web/static'

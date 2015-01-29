@@ -46,7 +46,8 @@ class ColumnConstructionScenarios(WebFixture):
 
 @test(ColumnConstructionScenarios)
 def column_layout_basics(fixture):
-    """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Panel, laid out next to each other."""
+    """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Panel, 
+       laid out next to each other."""
 
     widget = Panel(fixture.view)
     
@@ -60,8 +61,8 @@ def column_layout_basics(fixture):
     vassert( isinstance(column_a, Panel) )
     vassert( isinstance(column_b, Panel) )
 
-    vassert( column_a.get_attribute('class') == 'pure-u' )    # never varies in scenarios
-    vassert( column_b.get_attribute('class') == fixture.expected_class_for_column_b )
+    vassert( 'pure-u' in column_a.get_attribute('class') )    # never varies in scenarios
+    vassert( fixture.expected_class_for_column_b in column_b.get_attribute('class')  )
 
 
 @test(WebFixture)
@@ -78,6 +79,15 @@ def order_of_columns(fixture):
 
     vassert( first_column is column_a )
     vassert( second_column is column_b )
+
+
+@test(WebFixture)
+def columns_classes(fixture):
+    """The Panel added for each column specified to ColumnLayout is given a CSS class derived from the column name."""
+
+    widget = Panel(fixture.view).use_layout(ColumnLayout('column_name_a'))
+    column_a = widget.layout.columns['column_name_a']
+    vassert( 'column-column_name_a' in column_a.get_attribute('class') )  
 
 
 @test(WebFixture)
@@ -177,72 +187,6 @@ def page_column_layout_convenience_features(fixture):
     vassert( layout.contents is contents_div )
     vassert( layout.footer is footer )
     vassert( layout.columns is contents_div.layout.columns )
-
-
-
-
-
-
-"""find places that use yui - add include for yui 'library'"""
-
-
-#------------------------------------------------
-
-@test(WebFixture)
-def humantest(fixture):
-
-    class ColumnSpec(object):
-        def __init__(self, name, fraction):
-            self.name = name
-            self.fraction = fraction
-            
-    class MainUI(UserInterface):
-        def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageColumnLayout(('secondary', UnitSize(lg='1/4', sm='1/2')), 
-                                                                    ('main', UnitSize(lg='3/4', sm='1/2'))))
-
-            home = self.define_view('/', title='Hello')
-            home.set_slot('main', P.factory(text='Main column'))
-            home.set_slot('secondary', P.factory(text='Secondary column'))
-            home.set_slot('header', P.factory(text='Header'))
-            home.set_slot('footer', P.factory(text='Footer'))
-            self.define_view('/koos2', title='kosie', page=KoosPage.factory())
-
-    class KoosPage(HTML5Page):
-        def __init__(self, *args, **kwargs):
-            super(KoosPage, self).__init__(*args, **kwargs)
-            self.use_layout(PageColumnLayout(('koos0', UnitSize(default='1/2')), 'koos1'))
-            self.layout.columns['koos0'].add_child(P(self.view, text='koos was hier'))
-            self.layout.columns['koos1'].add_child(P(self.view, text='koos1 was hier'))
-
-    class MainUI2(UserInterface):
-        def assemble(self):
-            home = self.define_view('/', title='Hello', page=KoosPage.factory())
-            home.set_slot('koos0', P.factory(text='Main column'))
-            home.set_slot('koos1', P.factory(text='Secondary column'))
-            home.set_slot('header', P.factory(text='Header'))
-            home.set_slot('footer', P.factory(text='Footer'))
-
-
-    wsgi_app = fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
-    fixture.reahl_server.set_app(wsgi_app)
-    fixture.driver_browser.open('/')
-    fixture.driver_browser.view_source()
-
-    rendered_in_body = fixture.driver_browser.get_inner_html_for('//body')
-    expected_html = '''<div id="doc">'''\
-                  '''<header id="hd"><p>Header</p></header>'''\
-                  '''<div id="bd" role="main" class="pure-g">'''\
-                    '''<div class="pure-u pure-u-lg-1-4 pure-u-sm-1-2"><p>Secondary column</p></div>'''\
-                    '''<div class="pure-u pure-u-lg-3-4 pure-u-sm-1-2"><p>Main column</p></div>'''\
-                  '''</div>'''\
-                  '''<footer id="ft"><p>Footer</p></footer></div>'''
-    rendered_in_body = rendered_in_body[:len(expected_html)]
-    vassert( rendered_in_body == expected_html )
-
-    fixture.driver_browser.open('/koos2')
-    fixture.driver_browser.view_source()
-    
 
 
 

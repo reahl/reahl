@@ -32,10 +32,12 @@ from reahl.web.ui import Form
 from reahl.web.ui import LabelledBlockInput
 from reahl.web.ui import NestedForm
 from reahl.web.ui import TextInput
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
 from reahl.web.fw import Url
 from reahl.web.fw import UserInterface
 from reahl.web.fw import ValidationException
+from reahl.web.pure import PageColumnLayout
+
 
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, BooleanField, EmailField, DateField, \
@@ -75,7 +77,7 @@ def basic_event_linkup(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
@@ -118,7 +120,7 @@ def arguments_to_actions(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform'))
@@ -189,7 +191,7 @@ def basic_field_linkup(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             home.set_slot('main', MyForm.factory('myform'))
 
@@ -318,7 +320,7 @@ def exception_handling(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
@@ -372,7 +374,7 @@ def duplicate_forms(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main', 'secondary'))
             home = self.define_view('/', title='Home page')
             home.set_slot('main', Form.factory('myform'))
             home.set_slot('secondary', Form.factory('myform'))
@@ -399,7 +401,7 @@ def check_input_placement(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            page = self.define_page(TwoColumnPage)
+            page = self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             home.set_slot('main', MyForm.factory())
 
@@ -533,7 +535,7 @@ def form_input_validation(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
@@ -665,7 +667,7 @@ def propagation_of_querystring(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
@@ -706,7 +708,7 @@ def event_names_are_canonicalised(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             home.set_slot('main', MyForm.factory('myform'))
 
@@ -745,7 +747,7 @@ def alternative_event_trigerring(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))

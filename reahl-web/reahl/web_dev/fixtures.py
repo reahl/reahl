@@ -29,7 +29,8 @@ from reahl.sqlalchemysupport import Session
 from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
                          UserInterfaceFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
                          WidgetList, Url, Widget, RegexPath
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
+from reahl.web.pure import PageColumnLayout
 from reahl.component.i18n import Translator
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.domain_dev.fixtures import PartyModelZooMixin
@@ -117,7 +118,7 @@ class WebBasicsMixin(PartyModelZooMixin):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout(*view_slots.keys()))
                 self.define_view('/', title='Home page', slot_definitions=view_slots)
 
         site_root = site_root or MainUI

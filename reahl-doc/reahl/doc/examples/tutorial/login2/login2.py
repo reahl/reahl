@@ -3,16 +3,18 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage, P, HMenu
+from reahl.web.ui import HTML5Page, P, HMenu
+from reahl.web.pure import PageColumnLayout
 from reahl.domain.systemaccountmodel import LoginSession
 from reahl.domainui.accounts import AccountUI
 
 
 
-class MenuPage(TwoColumnPage):
+class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(MenuPage, self).__init__(view, style='basic')
-        self.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
+        self.use_layout(PageColumnLayout('main'))
+        self.layout.header.add_child(HMenu.from_bookmarks(view, main_bookmarks))
 
 
 class LoginUI(UserInterface):

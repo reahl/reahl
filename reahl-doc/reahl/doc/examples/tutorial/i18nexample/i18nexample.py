@@ -8,7 +8,8 @@ from sqlalchemy import Column, Integer, UnicodeText, Date
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, VMenu
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, VMenu
+from reahl.web.pure import PageColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.i18n import Translator
 import babel.dates 
@@ -17,9 +18,10 @@ import babel.dates
 _ = Translator('reahl-doc')
 
 
-class AddressBookPage(TwoColumnPage):
+class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view, style='basic')
+        self.use_layout(PageColumnLayout(('secondary', UnitSize('1/4')), ('main', UnitSize('3/4'))))
         self.secondary.add_child(VMenu.from_languages(view))
 
 

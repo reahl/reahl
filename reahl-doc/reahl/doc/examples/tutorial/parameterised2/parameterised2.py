@@ -19,15 +19,17 @@ from reahl.web.ui import LabelledBlockInput
 from reahl.web.ui import P
 from reahl.web.ui import Panel
 from reahl.web.ui import TextInput
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
+from reahl.web.pure import PageColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
 
 
-class AddressBookPage(TwoColumnPage):
+class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
+        self.use_layout(PageColumnLayout('main'))
         menu = HMenu.from_bookmarks(view, main_bookmarks)
-        self.header.add_child(menu)
+        self.layout.header.add_child(menu)
 
 
 class EditView(UrlBoundView):

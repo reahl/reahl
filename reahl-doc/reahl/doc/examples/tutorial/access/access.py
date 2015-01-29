@@ -8,11 +8,11 @@ from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
-from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, HMenu,\
                          PasswordInput, ErrorFeedbackMessage, VMenu, Slot, MenuItem, A, Widget, SelectInput, CheckboxInput
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
-
+from reahl.web.pure import PageColumnLayout
 
 
 class Address(Base):
@@ -165,9 +165,10 @@ class Collaborator(Base):
     can_edit_addresses = Column(Boolean, default=False)
 
 
-class AddressAppPage(TwoColumnPage):
+class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
         super(AddressAppPage, self).__init__(view, style='basic')
+        self.use_layout(PageColumnLayout('main'))
 
         login_session = LoginSession.for_current_session()
         if login_session.is_logged_in():
@@ -175,8 +176,8 @@ class AddressAppPage(TwoColumnPage):
         else:
             logged_in_as = 'Not logged in'
 
-        self.header.add_child(P(view, text=logged_in_as))
-        self.header.add_child(HMenu.from_bookmarks(view, [home_bookmark]))
+        self.layout.header.add_child(P(view, text=logged_in_as))
+        self.layout.header.add_child(HMenu.from_bookmarks(view, [home_bookmark]))
 
 
 class LoginForm(Form):

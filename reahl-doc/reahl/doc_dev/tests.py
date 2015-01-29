@@ -82,11 +82,14 @@ class ExampleFixture(Fixture, WebBasicsMixin):
     def is_error_text(self, text):
         return text == self.driver_browser.get_text("//form/label[@class='error']")
 
+    def get_text_in_p(self):
+        return self.driver_browser.get_text('//p')
+
     def get_main_slot_contents(self):
-        return self.driver_browser.get_text('//div[@id="yui-main"]//p')
+        return self.driver_browser.get_text('//div[contains(@class, "column-main")]/*')
 
     def get_secondary_slot_contents(self):
-        return self.driver_browser.get_text('//div[@id="yui-main"]/following-sibling::div/p')
+        return self.driver_browser.get_text('//div[contains(@class, "column-secondary")]/*')
 
     def uploaded_file_is_listed(self, filename):
         return self.driver_browser.is_element_present('//ul/li/span[text()="%s"]' % os.path.basename(filename))
@@ -286,12 +289,12 @@ def access(fixture):
 def i18n(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/some_page')
-    vassert( fixture.get_main_slot_contents() == 'This is a translated string. The current URL is "/some_page".' )
+    vassert( fixture.get_text_in_p() == 'This is a translated string. The current URL is "/some_page".' )
     vassert( fixture.driver_browser.title == 'Translated example' )
     fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n1.png'))
 
     fixture.driver_browser.click(XPath.link_with_text('Afrikaans'))
-    vassert( fixture.get_main_slot_contents() == 'Hierdie is \'n vertaalde string. Die huidige URL is "/af/some_page".' )
+    vassert( fixture.get_text_in_p() == 'Hierdie is \'n vertaalde string. Die huidige URL is "/af/some_page".' )
     vassert( fixture.driver_browser.title == 'Vertaalde voorbeeld' )
     fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n2.png'))
 

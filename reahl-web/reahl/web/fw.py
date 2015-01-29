@@ -476,11 +476,6 @@ class UserInterface(object):
             return path
         return relative_path
 
-    @property
-    def current_view(self):
-        """The :class:`View` which is targetted by the URL of the current :class:webob.Request."""
-        return self.controller.view_for(self.relative_path)
-
     def assemble(self, **ui_arguments):
         """Programmers override this method in order to define the contents of their UserInterface. This mainly
            means defining Views or other UserInterfaces inside the UserInterface being assembled. The default

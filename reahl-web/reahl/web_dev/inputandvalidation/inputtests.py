@@ -190,9 +190,9 @@ class Scenarios(WebFixture, InputMixin):
     def labelled_block_input(self):
         self.model_object.an_attribute = 'field value'
         self.widget = self.form.add_child(LabelledBlockInput(TextInput(self.form, self.field)))
-        self.expected_html = '<div class="reahl-labelledinput yui-g">'\
-                             '<div class="first yui-u"><label for="an_attribute">the label</label></div>' \
-                             '<div class="yui-u"><input name="an_attribute" form="test" type="text" value="field value" class="reahl-textinput"></div>' \
+        self.expected_html = '<div class="pure-g reahl-labelledinput">'\
+                             '<div class="column-label pure-u-1-4"><label for="an_attribute">the label</label></div>' \
+                             '<div class="column-input pure-u-3-4"><input name="an_attribute" form="test" type="text" value="field value" class="reahl-textinput"></div>' \
                              '</div>'
         self.field_controls_visibility = True
 
@@ -419,22 +419,22 @@ def basic_rendering_label_over(fixture):
     #  - the label is hidden
     fixture.model_object.an_attribute = 'my value'
     actual = tester.render_html()
-    expected = '<span class="reahl-labelledinput reahl-labeloverinput">'\
+    expected_html = '<span class="reahl-labelledinput reahl-labeloverinput">'\
                '<label for="an_attribute" hidden="true">the label</label>' \
                '<span><input name="an_attribute" form="test" type="text" value="my value" class="reahl-textinput"></span>'\
                '</span>'
-    vassert( actual == expected )
+    vassert( actual == expected_html )
 
     # Case: HTML - without a value
     #  - has CSS class reahl-labeloverinput
     #  - the label is not hidden
     del fixture.model_object.an_attribute
     actual = tester.render_html()
-    expected = '<span class="reahl-labelledinput reahl-labeloverinput">'\
+    expected_html = '<span class="reahl-labelledinput reahl-labeloverinput">'\
                '<label for="an_attribute">the label</label>' \
                '<span><input name="an_attribute" form="test" type="text" value="" class="reahl-textinput"></span>'\
                '</span>'
-    vassert( actual == expected )
+    vassert( actual == expected_html )
 
     # Case: when the underlying input is not visible
     fixture.field.access_rights.readable = Allowed(False)
@@ -444,7 +444,7 @@ def basic_rendering_label_over(fixture):
 
 
 class CueInputFixture(WebFixture, InputMixin2):
-    cue_xpath = "//div[@class='reahl-cueinput reahl-labelledinput yui-g']/div/div[@class='reahl-cue yui-u']/p"
+    cue_xpath = "//div[contains(@class,'reahl-cueinput')]/div[contains(@class,'reahl-cue')]/p"
 
     def new_text_input(self):
         return TextInput(self.form, self.field)
@@ -498,16 +498,14 @@ def basic_rendering_cue_input(fixture):
 
     # Case: normal behaviour
     actual = tester.render_html()
-    expected = '<div class="reahl-cueinput reahl-labelledinput yui-g">'\
-                '<div class="first yui-u"><label for="an_attribute">the label</label></div>' \
-                '<div class="yui-g">' \
-                 '<div class="first yui-u"><input name="an_attribute" form="test" type="text" value="my value" class="reahl-textinput"></div>' \
-                 '<div class="reahl-cue yui-u">' \
-                  '<p hidden="true">this is your cue</p>' \
+    expected_html = '<div class="pure-g reahl-cueinput reahl-labelledinput">'\
+                '<div class="column-label pure-u-1-4"><label for="an_attribute">the label</label></div>' \
+                '<div class="column-input pure-u-1-2"><input name="an_attribute" form="test" type="text" value="my value" class="reahl-textinput"></div>' \
+                 '<div class="column-cue pure-u-1-4 reahl-cue">' \
+                 '<p hidden="true">this is your cue</p>' \
                  '</div>' \
-                '</div>' \
                '</div>'
-    vassert( actual == expected )
+    vassert( actual == expected_html )
 
     # Case: when the underlying input is not visible
     fixture.field.access_rights.readable = Allowed(False)

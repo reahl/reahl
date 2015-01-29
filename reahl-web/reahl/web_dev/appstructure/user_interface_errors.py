@@ -22,8 +22,7 @@ from reahl.tofu import test
 from reahl.tofu import expected
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import P
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import P, HTML5Page
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError
@@ -38,7 +37,7 @@ class UserInterfaceErrorScenarios(WebFixture):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page)
                 self.define_user_interface('/a_ui',  SimpleUserInterface,  {}, name='test_ui')
 
         return super(UserInterfaceErrorScenarios, self).new_wsgi_app(site_root=MainUI)

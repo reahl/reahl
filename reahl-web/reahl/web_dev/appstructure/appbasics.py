@@ -30,7 +30,8 @@ from reahl.stubble import EmptyStub
 
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Region
-from reahl.web.ui import HTML5Page, TwoColumnPage, P
+from reahl.web.ui import HTML5Page, P
+from reahl.web.pure import PageColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
@@ -73,22 +74,22 @@ class BasicScenarios(WebFixture):
     def ui_with_page(self):
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page)
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 1810
+        self.expected_content_length = 1583
         self.content_includes_p = False
 
     @scenario
     def backwards_compatibility(self):
         class MainUI(Region):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_main_window(HTML5Page)
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 1810
+        self.expected_content_length = 1583
         self.content_includes_p = False
         self.expected_warnings = ['Region has been renamed to UserInterface, please use UserInterface instead', 
                                   'Please use .define_page() instead']
@@ -149,7 +150,7 @@ def basic_error2(fixture):
     """Sending the the wrong arguments for the specified class to define_page is reported to the programmer."""
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage, 1, 2)
+            self.define_page(HTML5Page, 1, 2)
             self.define_view('/', title='Hello')
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -184,7 +185,7 @@ class SlotScenarios(WebFixture):
     def page_on_ui(self):
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
                 home = self.define_view('/', title='Hello')
                 home.set_slot('main', P.factory(text='Hello world'))
                 home.set_slot('footer', P.factory(text='I am the footer'))
@@ -195,7 +196,7 @@ class SlotScenarios(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 home = self.define_view('/', title='Hello')
-                home.set_page(TwoColumnPage.factory())
+                home.set_page(HTML5Page.factory().use_layout(PageColumnLayout('main')))
                 home.set_slot('main', P.factory(text='Hello world'))
                 home.set_slot('footer', P.factory(text='I am the footer'))
         self.MainUI = MainUI
@@ -219,7 +220,7 @@ def slot_error(fixture):
     """Supplying contents for a slot that does not exist results in s sensible error."""
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             home = self.define_view('/', title='Hello')
             home.set_slot('main', P.factory(text='Hello world'))
             home.set_slot('nonexistantslotname', P.factory(text='I am breaking'))
@@ -241,7 +242,7 @@ def slot_defaults(fixture):
     """
     class MainUI(UserInterface):
         def assemble(self):
-            main = self.define_page(TwoColumnPage)
+            main = self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
             main.add_default_slot('main', P.factory(text='defaulted slot contents'))
             self.define_view('/', title='Hello')
 
