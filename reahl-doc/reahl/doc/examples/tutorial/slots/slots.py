@@ -2,13 +2,15 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage, P, HMenu
+from reahl.web.ui import HTML5Page, P, HMenu
+from reahl.web.pure import PageColumnLayout, UnitSize
 
 
-class MyCustomPage(TwoColumnPage):
+class MyCustomPage(HTML5Page):
     def __init__(self, view, bookmarks):
         super(MyCustomPage, self).__init__(view, style='basic')
-        self.header.add_child(HMenu.from_bookmarks(view, bookmarks))
+        self.use_layout(PageColumnLayout(('secondary', UnitSize('1/4')), ('main', UnitSize('3/4'))))
+        self.layout.header.add_child(HMenu.from_bookmarks(view, bookmarks))
 
 class SlotsUI(UserInterface):
     def assemble(self):

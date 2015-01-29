@@ -1,7 +1,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage, Form, TextInput
+from reahl.web.ui import HTML5Page, Form, TextInput
 from reahl.component.modelinterface import exposed, EmailField
 
 class ValidationUI(UserInterface):
@@ -9,10 +9,10 @@ class ValidationUI(UserInterface):
         self.define_view('/', title='Validation demo', page=HomePage.factory())
 
 
-class HomePage(TwoColumnPage):
+class HomePage(HTML5Page):
     def __init__(self, view):
         super(HomePage, self).__init__(view, style='basic')
-        self.main.add_child(CommentForm(view))
+        self.body.add_child(CommentForm(view))
 
 
 class Comment(object):

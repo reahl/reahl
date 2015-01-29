@@ -57,6 +57,7 @@ class ColumnLayout(Layout):
         for name, unit_size in self.column_sizes.items():
             panel = self.add_column(Slot(self.view, name), unit_size=unit_size)
             self.columns[name] = panel
+            panel.append_class('column-%s' % name)
 
     def add_column(self, widget, unit_size=None):
         unit_size = unit_size or UnitSize()

@@ -22,14 +22,15 @@ from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, \
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, \
                          P, H, InputGroup, FileUploadInput, SimpleFileInput
+from reahl.web.pure import PageColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
 
 
 class FileUploadUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style='basic')
+        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))
         home = self.define_view('/', title='File upload demo')
         home.set_slot('main', CommentPostPanel.factory())
 

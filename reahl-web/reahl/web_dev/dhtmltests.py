@@ -24,7 +24,8 @@ from reahl.stubble import stubclass, replaced
 
 from reahl.web.dhtml import DhtmlUI
 from reahl.web.fw import WebExecutionContext, UserInterface
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
+from reahl.web.pure import PageColumnLayout
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 
@@ -47,6 +48,9 @@ class DjhtmlFixture(Fixture, WebBasicsMixin):
     def new_other_file(self):
         return self.static_dir.file_with('otherfile.txt', 'other')
 
+    def get_inserted_html(self, browser):
+        return browser.get_html_for('//div[contains(@class, "column-main")]/*')
+
     @set_up
     def create_files(self):
         self.dhtml_file
@@ -65,7 +69,7 @@ class BasicTests(object):
         
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
                 self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
                                 name='test_ui', static_div_name='astatic')
 
@@ -75,9 +79,9 @@ class BasicTests(object):
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
         browser = Browser(wsgi_app)
 
-        # A dhtml file: TwoColumnPage's main_slot now contains the insides of the div in the dhtml file
+        # A dhtml file: HTML5Page's main_slot now contains the insides of the div in the dhtml file
         browser.open('/dhtml_ui/correctfile.d.html')
-        html = browser.get_html_for('//div[@id="bd"]/div/div/*')
+        html = fixture.get_inserted_html(browser)
         vassert( html == fixture.div_internals )
 
         # A non-dhtml file is returned verbatim
@@ -101,7 +105,7 @@ class BasicTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
                 self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
                                    name='test_ui', static_div_name='astatic')
 

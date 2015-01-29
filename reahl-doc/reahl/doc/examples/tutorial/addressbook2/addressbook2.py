@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
@@ -15,10 +15,10 @@ class AddressBookUI(UserInterface):
         self.define_view('/', title='Addresses', page=AddressBookPage.factory())
 
 
-class AddressBookPage(TwoColumnPage):
+class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view, style='basic')
-        self.main.add_child(AddressBookPanel(view))
+        self.body.add_child(AddressBookPanel(view))
 
 
 class AddressBookPanel(Panel):

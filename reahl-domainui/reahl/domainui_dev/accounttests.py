@@ -23,7 +23,8 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 
 from reahl.sqlalchemysupport import Session
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
+from reahl.web.pure import PageColumnLayout
 from reahl.web.fw import Url
 from reahl.web.fw import UserInterface
 from reahl.web_dev.fixtures import WebBasicsMixin
@@ -42,7 +43,7 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
                 account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui', 
                                                             bookmarks=fixture.bookmarks)
                 fixture.account_user_interface_factory = account_user_interface_factory

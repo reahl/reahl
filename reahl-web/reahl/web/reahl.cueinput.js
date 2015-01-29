@@ -24,8 +24,8 @@ $.widget("reahl.cueinput", {
 	    var o = this.options;
 	    this.element.addClass("reahl-cueinput");
 
-		var input = this.element.find('div>div>input');
-		var cue = this.element.find('div>div.reahl-cue');
+		var input = this.element.find('div input');
+		var cue = this.element.find('div.reahl-cue');
 
         cue.children().each( function() {
              var child = $(this);
