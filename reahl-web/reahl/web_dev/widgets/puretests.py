@@ -198,8 +198,8 @@ def humantest(fixture):
             
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page, use_layout=PageColumnLayout(('secondary', UnitSize(lg='1/4', sm='1/2')), 
-                                                                      ('main', UnitSize(lg='3/4', sm='1/2'))))
+            self.define_page(HTML5Page).use_layout(PageColumnLayout(('secondary', UnitSize(lg='1/4', sm='1/2')), 
+                                                                    ('main', UnitSize(lg='3/4', sm='1/2'))))
 
             home = self.define_view('/', title='Hello')
             home.set_slot('main', P.factory(text='Main column'))
