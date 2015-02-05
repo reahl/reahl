@@ -27,7 +27,8 @@ from reahl.stubble import stubclass
 
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
 from reahl.web.fw import Region
-from reahl.web.ui import TwoColumnPage, P, A, Panel, Slot
+from reahl.web.ui import HTML5Page, P, A, Panel, Slot
+from reahl.web.pure import PageColumnLayout
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
@@ -47,7 +48,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page)
                 self.define_user_interface('/a_ui',  UIWithTwoViews,  {}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -73,7 +74,7 @@ class UserInterfaceTests(object):
 
         class MainUI(Region):
             def assemble(self):
-                self.define_main_window(TwoColumnPage)
+                self.define_main_window(HTML5Page)
                 self.define_region('/a_ui',  UIWithAView,  {}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -98,7 +99,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
                 self.define_user_interface('/a_ui',  UIWithSlots,  {'text': 'main'}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -107,8 +108,8 @@ class UserInterfaceTests(object):
         browser.open('/a_ui/')
         vassert( browser.title == 'UserInterface root view' )
 
-        # The widget in the UserInterface's slot named 'text' end up in the TwoColumnPage slot called main
-        [p] = browser.lxml_html.xpath('//div[@id="yui-main"]/div/p')
+        # The widget in the UserInterface's slot named 'text' end up in the HTML5Page slot called main
+        [p] = browser.lxml_html.xpath('//div[contains(@class,"column-main")]/p')
         vassert( p.text == 'in user_interface slot named text' )
 
 
@@ -123,7 +124,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page)
                 self.define_user_interface('/a_ui',  UIWithRootView,  {}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -146,7 +147,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
                 self.define_user_interface('/a_ui', UIWithArguments, {'text': 'main'},
                                 name='myui', kwarg='the kwarg')
 
@@ -169,7 +170,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page)
                 ui_factory = self.define_user_interface('/a_ui',  UIWithRelativeView,  {}, name='myui')
 
                 # How you could get a bookmark from a UserInterfaceFactory

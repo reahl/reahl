@@ -12,7 +12,7 @@ from reahl.web.ui import LabelledBlockInput
 from reahl.web.ui import P
 from reahl.web.ui import Panel
 from reahl.web.ui import TextInput
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
@@ -21,14 +21,14 @@ class PersistenceUI(UserInterface):
         self.define_view('/', title='Persistence demo', page=HomePage.factory())
 
 
-class HomePage(TwoColumnPage):
+class HomePage(HTML5Page):
     def __init__(self, view):
         super(HomePage, self).__init__(view, style='basic')
 
-        self.main.add_child(CommentForm(view))
+        self.body.add_child(CommentForm(view))
 
         for comment in Session.query(Comment).all():
-            self.main.add_child(CommentBox(view, comment))
+            self.body.add_child(CommentBox(view, comment))
 
 
 class Comment(Base):

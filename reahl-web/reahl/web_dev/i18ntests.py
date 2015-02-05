@@ -22,7 +22,8 @@ from reahl.tofu import vassert
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import UserInterface, IdentityDictionary
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
+from reahl.web.pure import PageColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.component.i18n import Translator
 
@@ -64,7 +65,7 @@ def i18n_urls(fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(TwoColumnPage)
+            self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  I18nUI,  IdentityDictionary(), name='test_ui')
             
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

@@ -9,15 +9,17 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.ui import Button, Form, H, HMenu, InputGroup, LabelledBlockInput, A, CheckboxInput
-from reahl.web.ui import Panel, P, TextInput, TwoColumnPage, StaticColumn, DynamicColumn, Table
+from reahl.web.ui import Panel, P, TextInput, HTML5Page, StaticColumn, DynamicColumn, Table
+from reahl.web.pure import PageColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action, BooleanField
 
 
-class AddressBookPage(TwoColumnPage):
+class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
+        self.use_layout(PageColumnLayout('main'))
         menu = HMenu.from_bookmarks(view, main_bookmarks)
-        self.header.add_child(menu)
+        self.layout.header.add_child(menu)
 
 
 class EditView(UrlBoundView):
