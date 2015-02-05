@@ -26,12 +26,9 @@ from reahl.stubble import EmptyStub
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import Widget, UserInterface
-from reahl.web.ui import Form, TextInput, ButtonInput, Button, Panel, P, TwoColumnPage
-from reahl.component.modelinterface import Action
-from reahl.component.modelinterface import Allowed
-from reahl.component.modelinterface import Event
-from reahl.component.modelinterface import Field
-from reahl.component.modelinterface import exposed
+from reahl.web.ui import Form, TextInput, ButtonInput, Button, Panel, P, HTML5Page
+from reahl.web.pure import PageColumnLayout
+from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
 
 
     
@@ -308,7 +305,7 @@ class SecurityTests(object):
         
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page)
                 self.define_view('/view', 'Title', read_check=disallowed)
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
@@ -330,7 +327,7 @@ class SecurityTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
                 home = self.define_view('/a_view', 'Title', write_check=disallowed)
                 home.set_slot('main', MyForm.factory())
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

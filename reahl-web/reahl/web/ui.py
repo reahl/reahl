@@ -37,6 +37,7 @@ from reahl.component.decorators import deprecated
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
                           Url, Bookmark, WidgetList, Layout
+from reahl.web.libraries import YuiGridsCss
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
@@ -508,6 +509,7 @@ class HTML5Page(HTMLElement):
        :keyword css_id: (See :class:`HTMLElement`)
        
     """
+    @arg_checks(title=IsInstance(six.string_types))
     def __init__(self, view, title='$current_title', style=None, css_id=None):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
@@ -549,6 +551,7 @@ class TwoColumnPage(HTML5Page):
     @arg_checks(title=IsInstance(six.string_types))
     def __init__(self, view, title='$current_title', style=None, css_id=None):
         super(TwoColumnPage, self).__init__(view, title=title, style=style, css_id=css_id)
+        YuiGridsCss.check_enabled(self)
             
         self.yui_page = self.body.add_child(YuiDoc(view, 'doc', 'yui-t2'))
         self.main.add_child(Slot(view, 'main'))
@@ -891,6 +894,7 @@ class YuiDoc(Div):
     """A Yui 2 #doc div: the container of the #hd, #bd and #ft ( see http://developer.yahoo.com/yui/grids/#start )"""
     def __init__(self, view, doc_id, doc_class, css_id=None):
         super(YuiDoc, self).__init__(view, css_id=css_id)
+        YuiGridsCss.check_enabled(self)
         self.set_id(doc_id)
         self.append_class(doc_class)
         self.hd = YuiGrid(view)   #:
@@ -914,6 +918,11 @@ class YuiDoc(Div):
 
 class YuiElement(Panel):
     yui_class = None
+    
+    def __init__(self, view, css_id=None):
+        YuiGridsCss.check_enabled(self)
+        super (YuiElement, self).__init__(view, css_id=css_id)
+
 
     @property
     def attributes(self):
@@ -1767,7 +1776,7 @@ class LabelledInlineInput(Span):
         return attributes
 
 # Uses: reahl/web/reahl.labelledinput.css
-class LabelledBlockInput(YuiGrid):
+class LabelledBlockInput(Panel):
     """A Widget that wraps around a given Input, adding a Label to the Input. Labels and their corresponding Inputs
        are arranged in columns. Successive LabelledBlockInputs are positioned underneath one another. This has the 
        effect that the Labels and Inputs of successive LabelledBlockInputs line up.
@@ -1786,11 +1795,20 @@ class LabelledBlockInput(YuiGrid):
         view = html_input.view
         super(LabelledBlockInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
-        self.label_part = self.add_child(YuiUnit(view, first=True))
+        
+        if YuiGridsCss.is_enabled():
+            self.append_class('yui-g')
+            self.label_part = self.add_child(YuiUnit(view, first=True))
+            self.input_part = self.add_child(YuiUnit(view))
+        else:
+            from reahl.web.pure import ColumnLayout, UnitSize
+            self.use_layout(ColumnLayout(('label', UnitSize('1/4')), ('input', UnitSize('3/4'))))
+            self.label_part = self.layout.columns['label']
+            self.input_part = self.layout.columns['input']
+
         self.label = self.label_part.add_child(self.label_class(html_input))
-        self.input_part = self.add_child(YuiUnit(view))
         self.input_part.add_child(html_input)
-    
+            
     @property
     def visible(self):
         return self.html_input.visible
@@ -1805,7 +1823,7 @@ class LabelledBlockInput(YuiGrid):
 
 
 # Uses: reahl/web/reahl.cueinput.js
-class CueInput(YuiGrid):
+class CueInput(Panel):
     """A Widget that wraps around a given Input, adding a Label to the Input and a "cue" - a hint that 
        appears only when the Input has focus. The intention of the cue is to give the user a hint as to
        what to input into the Input.
@@ -1828,14 +1846,21 @@ class CueInput(YuiGrid):
         super(CueInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
 
-        self.label_part = self.add_child(YuiUnit(view, first=True))
+        if YuiGridsCss.is_enabled():
+            self.append_class('yui-g')
+            self.label_part = self.add_child(YuiUnit(view, first=True))
+            self.input_wrapper = self.add_child(YuiGrid(view))
+            self.input_part = self.input_wrapper.add_child(YuiUnit(view, first=True))
+            self.cue_part = self.input_wrapper.add_child(YuiUnit(view))
+        else:
+            from reahl.web.pure import ColumnLayout, UnitSize
+            self.use_layout(ColumnLayout(('label', UnitSize('1/4')), ('input', UnitSize('1/2')), ('cue', UnitSize('1/4'))))
+            self.label_part = self.layout.columns['label']
+            self.input_part = self.layout.columns['input']
+            self.cue_part = self.layout.columns['cue']
+
         self.label = self.label_part.add_child(self.label_class(html_input))
-
-        self.input_wrapper = self.add_child(YuiGrid(view))
-        self.input_part = self.input_wrapper.add_child(YuiUnit(view, first=True))
         self.input_part.add_child(self.html_input)
-
-        self.cue_part = self.input_wrapper.add_child(YuiUnit(view))
         self.cue_part.append_class('reahl-cue')
         self.cue_part.add_child(cue_widget)
         cue_widget.set_attribute('hidden', 'true')

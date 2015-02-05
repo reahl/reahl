@@ -27,7 +27,7 @@ from reahl.component.modelinterface import Field, RequiredConstraint
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UrlBoundView
 from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 
@@ -47,7 +47,7 @@ class ParameterisedViewErrors(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page)
                 self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -70,12 +70,12 @@ class ParameterisedUserInterfaceErrors(WebFixture):
         class UIWithParameterisedUserInterfaces(UserInterface):
             def assemble(self):
                 self.define_regex_user_interface('/(?P<xxx>[^/]*)', 'N/A', RegexUserInterface,
-                                         {'user_interface-slot': 'main'},
+                                         {},
                                          ui_key=Field(required=True))
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page)
                 self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  {}, name='test_ui')
 
         return super(ParameterisedUserInterfaceErrors, self).new_wsgi_app(site_root=MainUI)

@@ -26,7 +26,8 @@ from reahl.stubble import easter_egg
 from sqlalchemy import Column, Integer, ForeignKey
 
 from reahl.sqlalchemysupport import Session, metadata
-from reahl.web.ui import TwoColumnPage, Panel, P
+from reahl.web.ui import HTML5Page, Panel, P
+from reahl.web.pure import PageColumnLayout
 from reahl.domain.workflowmodel import Task
 from reahl.domainui.workflow import InboxUI
 from reahl.web.fw import UserInterface, Url
@@ -54,7 +55,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
             return fixture.queues
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(TwoColumnPage)
+                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
                 accounts = self.define_user_interface('/accounts', AccountUI, {'main_slot': 'main'},
                                               name='test_ui', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
