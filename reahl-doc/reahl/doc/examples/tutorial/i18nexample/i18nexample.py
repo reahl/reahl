@@ -22,7 +22,7 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view, style='basic')
         self.use_layout(PageColumnLayout(('secondary', UnitSize('1/4')), ('main', UnitSize('3/4'))))
-        self.secondary.add_child(VMenu.from_languages(view))
+        self.layout.columns['secondary'].add_child(VMenu.from_languages(view))
 
 
 class AddressBookUI(UserInterface):
@@ -32,14 +32,13 @@ class AddressBookUI(UserInterface):
         find.set_slot('main', AddressBookPanel.factory())
 
 
-
 class AddressBookPanel(Panel):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 
-        self.add_child(H(view, 1, text=_.ngettext('Address', 'Addresses', Address.query.count())))
+        self.add_child(H(view, 1, text=_.ngettext('Address', 'Addresses', Session.query(Address).count())))
         
-        for address in Address.query.all():
+        for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address))
 
         self.add_child(AddAddressForm(view))

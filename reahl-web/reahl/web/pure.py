@@ -25,7 +25,8 @@ from fractions import Fraction
 
 from reahl.web.fw import Layout
 
-from reahl.web.ui import Panel, Header, Footer, Slot
+from reahl.web.ui import Panel, Header, Footer, Slot, HTML5Page
+from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
 
 
 class UnitSize(object):
@@ -55,11 +56,11 @@ class ColumnLayout(Layout):
     def customise_widget(self):
         self.widget.append_class('pure-g')
         for name, unit_size in self.column_sizes.items():
-            panel = self.add_column(Slot(self.view, name), unit_size=unit_size)
-            self.columns[name] = panel
-            panel.append_class('column-%s' % name)
+             panel = self.add_column(unit_size=unit_size)
+             self.columns[name] = panel
+             panel.append_class('column-%s' % name)
 
-    def add_column(self, widget, unit_size=None):
+    def add_column(self, unit_size=None):
         unit_size = unit_size or UnitSize()
         unit = self.widget.add_child(Panel(self.view))
 
@@ -69,7 +70,6 @@ class ColumnLayout(Layout):
             elif value:
                 unit.append_class(self.fraction_css_class('pure-u-%s' % label, value))
 
-        unit.add_child(widget)
         return unit
 
     def fraction_css_class(self, prefix, fraction_string):
@@ -86,7 +86,15 @@ class PageColumnLayout(Layout):
         self.footer = None
         self.document = None
 
-    def customise_widget(self): 
+    def add_slots_for_columns(self):
+        for column_name, column_widget in self.document_layout.columns.items():
+            column_widget.add_child(Slot(self.view, column_name))
+
+    @arg_checks(widget=IsInstance(HTML5Page))
+    def apply_to_widget(self, widget):
+        super(PageColumnLayout, self).apply_to_widget(widget)
+
+    def customise_widget(self):
         self.document = self.widget.body.add_child(Panel(self.view))
         self.document.set_id('doc')
         
@@ -95,6 +103,8 @@ class PageColumnLayout(Layout):
         self.header.set_id('hd')
 
         self.contents = self.document.add_child(Panel(self.view).use_layout(self.document_layout))
+        self.add_slots_for_columns()
+
         self.contents.set_id('bd')
         self.contents.set_attribute('role', 'main')
         
