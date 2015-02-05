@@ -35,9 +35,9 @@ class AddressBookPanel(Panel):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 
-        self.add_child(H(view, 1, text=_.ngettext('Address', 'Addresses', Address.query.count())))
+        self.add_child(H(view, 1, text=_.ngettext('Address', 'Addresses', Session.query(Address).count())))
         
-        for address in Address.query.all():
+        for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address))
 
         self.add_child(AddAddressForm(view))
