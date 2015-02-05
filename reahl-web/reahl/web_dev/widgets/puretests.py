@@ -17,8 +17,9 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import test
-from reahl.tofu import vassert, scenario
+import six
+
+from reahl.tofu import vassert, scenario, expected, test
 
 from reahl.webdev.tools import XPath, Browser
 
@@ -28,6 +29,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import UserInterface
 from reahl.web.ui import Panel, P, HTML5Page, Header, Footer
 
+from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.web.pure import ColumnLayout, UnitSize, PageColumnLayout
 
 class ColumnConstructionScenarios(WebFixture):
@@ -91,31 +93,17 @@ def columns_classes(fixture):
 
 
 @test(WebFixture)
-def a_slot_created_for_each_column(fixture):
-    """Each column has a Slot, named after the column name as specified."""
-
-    widget = Panel(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b'))
-
-    column_a, column_b = widget.children
-    vassert( 'column_name_a' in column_a.available_slots )
-    vassert( 'column_name_b' in column_b.available_slots )
-
-
-@test(WebFixture)
 def adding_columns(fixture):
-    """You can add additional columns after construction, containing a supplied Widget."""
+    """You can add additional columns after construction."""
 
     widget = Panel(fixture.view).use_layout(ColumnLayout())
 
     vassert( not widget.children )
 
-    contents_of_column = P(fixture.view)
-    widget.layout.add_column(contents_of_column)
+    widget.layout.add_column()
 
     [added_column] = widget.children
     vassert( added_column.get_attribute('class') == 'pure-u' )
-    vassert( added_column.children == [contents_of_column] )
-
 
 
 class SizingFixture(WebFixture):
@@ -136,7 +124,7 @@ def sizing_when_adding(fixture):
 
     widget = Panel(fixture.view).use_layout(ColumnLayout())
 
-    widget.layout.add_column(P(fixture.view), unit_size=UnitSize(**fixture.sizes))
+    widget.layout.add_column(unit_size=UnitSize(**fixture.sizes))
 
     widget.children[0].attributes['class'] == fixture.expected_classes
 
@@ -150,6 +138,8 @@ def page_column_layout_basics(fixture):
 
     layout = PageColumnLayout()
     widget = HTML5Page(fixture.view).use_layout(layout)
+    
+    vassert( [layout.document] == widget.body.children[:-1] )
     header, contents_div, footer = layout.document.children
 
     vassert( isinstance(header, Header) )
@@ -167,6 +157,31 @@ def page_column_layout_content_layout(fixture):
     vassert( isinstance(contents_layout, ColumnLayout) )
     vassert( 'column_a' in contents_layout.columns )
     vassert( 'column_b' in contents_layout.columns )
+
+
+@test(WebFixture)
+def convenient_slots_created(fixture):
+    """PageColumnLayout add a Slot for Header, Footer and each column defined. The Slot for each column is named the same as the column's name."""
+
+    layout = PageColumnLayout('column_name_a', 'column_name_b')
+    HTML5Page(fixture.view).use_layout(layout)
+
+    header, contents_div, footer = layout.document.children
+
+    vassert( 'header' in header.available_slots )
+    vassert( 'footer' in footer.available_slots )
+
+    column_a, column_b = contents_div.children
+    vassert( 'column_name_a' in column_a.available_slots )
+    vassert( 'column_name_b' in column_b.available_slots )
+
+
+@test(WebFixture)
+def page_column_layout_only_meant_for_html5page(fixture):
+    """When an attempting to use a PageColumnLayout on something other than an HTML5Page, a useful exception is raised."""
+
+    with expected(IsInstance):
+        Panel(fixture.view).use_layout(PageColumnLayout())
 
 
 @test(WebFixture)
