@@ -52,13 +52,12 @@ class ArgumentCheckTests(object):
             model_object.do_something(1, 2)
 
         with expected(IsInstance):
-            checkargs(model_object.do_something, 1, 2, 3)
+            checkargs(model_object.do_something, (1, 2, 3), {})
         with expected(TypeError):
-            checkargs(model_object.do_something, 1, 2, 3, 4, 5, 6, 7)
+            checkargs(model_object.do_something, (1, 2, 3, 4, 5, 6, 7), {})
 
         with expected(IncorrectArgumentError):
-            checkargs_explained('explanation', model_object.do_something, 1, '2', title='some title', style='style')
-
+            checkargs_explained('explanation', model_object.do_something, (1, '2'), dict(title='some title', style='style'))
 
     @test(Fixture)
     def stubbable_is_instance(self, fixture):
@@ -87,11 +86,26 @@ class ArgumentCheckTests(object):
                 
         model_object = ModelObject()
         with expected(NoException):
-            checkargs(model_object.do_something, 'x', NotYetAvailable('y'), 'a title')
+            checkargs(model_object.do_something, ('x', NotYetAvailable('y')), dict(title='a title'))
         with expected(IsInstance):
-            checkargs(model_object.do_something, 'x', NotYetAvailable('y'), 123)
+            checkargs(model_object.do_something, ('x', NotYetAvailable('y')), dict(title=123))
 
         with expected(IncorrectArgumentError):
-            checkargs(model_object.do_something, 'x', NotYetAvailable('x'), 'a valid title')
+            checkargs(model_object.do_something, ('x', NotYetAvailable('x')), dict(title='a valid title'))
 
 
+@test(Fixture)
+def bug(fixture):
+    from reahl.component.decorators import deprecated
+    @deprecated('twatata')
+    @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+    class Koos(object):
+        def __init__(self, x, y, title='a title', style=None):
+            pass
+            
+    with expected(IsInstance):
+        Koos(1, 2, title=1)
+    
+    with expected(IsInstance):
+        checkargs(Koos, (1,2), dict(title=1))
+    assert None, 'STOP'

@@ -47,6 +47,8 @@ from functools import partial, wraps
 import inspect
 import warnings
 
+import wrapt
+
 class Memoized(object):
     def __init__(self, func):
         self.func = func
@@ -70,27 +72,16 @@ class Memoized(object):
 memoized=Memoized
 
 
-class Deprecated(object):
-    def __init__(self, message):
-        self.message = message
+def deprecated(message):
+    def catch_wrapped(f):
+        @wrapt.decorator
+        def deprecated_wrapper(wrapped, instance, args, kwargs):
+            warnings.warn('DEPRECATED: %s. %s' % (wrapped, message), DeprecationWarning, stacklevel=2)
+            print('DEPRECATED: %s. %s' % (wrapped, message))
+            return wrapped(*args, **kwargs)
 
-    def __call__(self, something):
-        if inspect.isfunction(something):
-            func = something
-        elif inspect.isclass(something):
-            func = something.__init__
-        else:
-            raise AssertionError('@deprecated can only be used for classes, functions or methods')
+        return deprecated_wrapper(f)
 
-        @wraps(func)
-        def deprecated_wrapper(*args, **kwds):
-            warnings.warn('DEPRECATED: %s. %s' % (something, self.message), DeprecationWarning, stacklevel=2)
-            return func(*args, **kwds)
+    return catch_wrapped
 
-        if inspect.isfunction(something):
-            return deprecated_wrapper
-        elif inspect.isclass(something):
-            something.__init__ = deprecated_wrapper
-            return something
 
-deprecated=Deprecated

@@ -21,7 +21,8 @@ import six
 import inspect
 import sys
 
-from decorator import decorator
+import wrapt
+import inspect
 
 from reahl.component.i18n import Translator
 import collections
@@ -162,7 +163,7 @@ class IsCallable(ArgumentCheck):
         super(IsCallable, self).check(func, name, value)
         if value:
             message = '%s will be called with %s' % (value, self.formatted_message())
-            checkargs_explained(message, value, *self.args, **self.kwargs)
+            checkargs_explained(message, value, self.args, self.kwargs)
 
     def formatted_message(self):
         formatted_args = ','.join([i.name for i in self.args])
@@ -180,7 +181,7 @@ class IsCallable(ArgumentCheck):
     def __str__(self):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
 
-def checkargs(target, *args, **kwargs):
+def checkargs(target, args, kwargs):
     if inspect.ismethod(target) or inspect.isfunction(target):
         to_check = target
     elif inspect.isclass(target):
@@ -200,23 +201,24 @@ def checkargs(target, *args, **kwargs):
         if arg_name in bound_args.keys():
             arg_check.check(target, arg_name, bound_args[arg_name])
 
-def checkargs_explained(explanation, method, *args, **kwargs):
+def checkargs_explained(explanation, method, args, kwargs):
     try:
-        checkargs(method, *args, **kwargs)
+        checkargs(method, args, kwargs)
     except (TypeError, ArgumentCheck) as ex:
         _, _, tb = sys.exc_info()
         new_ex = IncorrectArgumentError(explanation, ex)
         six.reraise(new_ex.__class__, new_ex, tb)
 
 
-class arg_checks(object):
-    def __init__(self, **arg_checks):
-        self.arg_checks = arg_checks
-    
-    def __call__(self, f):
-        f.arg_checks = self.arg_checks
-        def check_call(func, *args, **kwargs):
-            checkargs(func, *args, **kwargs)
-            return func(*args, **kwargs)
-        return decorator(check_call, f)
+
+def arg_checks(**checks):
+    def catch_wrapped(f):
+        f.arg_checks = checks
+        @wrapt.decorator
+        def check_call(wrapped, instance, args, kwargs):
+            checkargs(wrapped, args, kwargs)
+            return wrapped(*args, **kwargs)
+        return check_call(f)
+    return catch_wrapped
+
 

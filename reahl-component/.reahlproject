@@ -10,7 +10,7 @@
     <thirdpartyegg name="six"/> 
     <thirdpartyegg name="Babel" minversion="1.3" maxversion="1.3.9999"/> 
     <thirdpartyegg name="python-dateutil" minversion="2.2" maxversion="2.2.999"/> 
-    <thirdpartyegg name="decorator" minversion="3.4" maxversion="3.4"/> 
+    <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/> 
   </deps>
 
   <deps purpose="test">
