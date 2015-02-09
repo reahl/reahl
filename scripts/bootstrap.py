@@ -192,7 +192,7 @@ clean_egg_info_dirs()
 
 remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
-missing = find_missing_prerequisites(reahl_dev_requires_file, ['six','decorator'])
+missing = find_missing_prerequisites(reahl_dev_requires_file, ['six','wrapt'])
 if missing:
     install_prerequisites(missing)
 
