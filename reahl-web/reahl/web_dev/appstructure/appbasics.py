@@ -91,8 +91,13 @@ class BasicScenarios(WebFixture):
         self.MainUI = MainUI
         self.expected_content_length = 1583
         self.content_includes_p = False
-        self.expected_warnings = ['Region has been renamed to UserInterface, please use UserInterface instead', 
-                                  'Please use .define_page() instead']
+
+        self.expected_warnings = ['Region has been renamed to UserInterface, please use UserInterface instead',
+                                  'Region has been renamed to UserInterface, please use UserInterface instead', 
+                                  'Please use .define_page() instead',
+                                  'Region has been renamed to UserInterface, please use UserInterface instead',
+                                  'Region has been renamed to UserInterface, please use UserInterface instead']
+
 
 @test(BasicScenarios)
 def basic_assembly(fixture):

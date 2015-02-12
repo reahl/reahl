@@ -49,6 +49,7 @@ import warnings
 
 import wrapt
 
+
 class Memoized(object):
     def __init__(self, func):
         self.func = func
@@ -74,13 +75,23 @@ memoized=Memoized
 
 def deprecated(message):
     def catch_wrapped(f):
+        def is_init_or_classmethod(member):
+            if inspect.ismethod(member) and member.__self__ is f:
+                return True
+            return (inspect.ismethod(member) or inspect.isfunction(member)) and member.__name__ == '__init__'
+
         @wrapt.decorator
         def deprecated_wrapper(wrapped, instance, args, kwargs):
-            warnings.warn('DEPRECATED: %s. %s' % (wrapped, message), DeprecationWarning, stacklevel=2)
-            print('DEPRECATED: %s. %s' % (wrapped, message))
+            deprecated_thing = wrapped.__self__ if is_init_or_classmethod(wrapped) else wrapped
+            warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing, message), DeprecationWarning, stacklevel=2)
             return wrapped(*args, **kwargs)
 
-        return deprecated_wrapper(f)
+        if inspect.isclass(f):
+            for name, method in inspect.getmembers(f, predicate=is_init_or_classmethod):
+                setattr(f, name, deprecated_wrapper(method))
+            return f
+        else:
+            return deprecated_wrapper(f)
 
     return catch_wrapped
 
