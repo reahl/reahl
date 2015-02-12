@@ -524,6 +524,7 @@ class HTML5Page(HTMLElement):
 
 @deprecated('Please use reahl.web.pure:PageColumnLayout instead.')
 class TwoColumnPage(HTML5Page):
+    tag_name = 'html'  # So deprecation warning does not break
     """An HTML5Page with a basic layout: It has a header area which displays at top of two columns. A footer area
        displays below the two columns. The main column is to the right, and larger. The secondary column is to 
        the left, and smaller.

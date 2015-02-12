@@ -182,10 +182,14 @@ class IsCallable(ArgumentCheck):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
 
 def checkargs(target, args, kwargs):
-    if inspect.ismethod(target) or inspect.isfunction(target):
+    if inspect.ismethod(target):
         to_check = target
+    elif inspect.isfunction(target):
+        to_check = target
+        args = (NotYetAvailable('self'), )+args
     elif inspect.isclass(target):
         to_check = target.__init__
+        args = (NotYetAvailable('self'), )+args
     elif isinstance(target, collections.Callable):
         to_check = target.__call__
     else:
@@ -213,7 +217,10 @@ def checkargs_explained(explanation, method, args, kwargs):
 
 def arg_checks(**checks):
     def catch_wrapped(f):
-        f.arg_checks = checks
+        if inspect.ismethoddescriptor(f):
+            f.__func__.arg_checks = checks
+        else:
+            f.arg_checks = checks
         @wrapt.decorator
         def check_call(wrapped, instance, args, kwargs):
             checkargs(wrapped, args, kwargs)
