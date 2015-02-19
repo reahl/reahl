@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import warnings
 import contextlib
-from itertools import zip_longest
+from six.moves import zip_longest
 
 from nose.tools import istest
 

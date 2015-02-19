@@ -21,52 +21,79 @@ import six
 from nose.tools import istest
 
 from reahl.tofu import Fixture, test, scenario, expected, NoException, vassert
-from reahl.component.exceptions import ArgumentCheck, IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, checkargs, checkargs_explained, NotYetAvailable
+from reahl.component.exceptions import ArgumentCheck, IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, ArgumentCheckedCallable, NotYetAvailable
 from reahl.component.decorators import deprecated
 
 @istest
 class ArgumentCheckTests(object):
     class ArgumentCheckScenarios(Fixture):
-        def new_model_object(self):
+        def new_ModelObject(self):
             class ModelObject(object):
                 @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
                 def do_something(self, x, y, title='a title', style=None):
                     pass
-            return ModelObject()
-            
-        def new_callable(self):
-            return self.model_object.do_something
-            
+            return ModelObject
+                        
         @scenario
         def incorrect_positional_arg(self):
             self.expected_exception = IsInstance
             self.args = (1, '2')
+            self.call_args = self.args
             self.kwargs = dict(title='some title', style='style')
+            self.callable = self.ModelObject().do_something
 
         @scenario
         def incorrect_kwarg(self):
             self.expected_exception = IsInstance
             self.args = (1, 2)
+            self.call_args = self.args
             self.kwargs = dict(title=3, style='style')
+            self.callable = self.ModelObject().do_something
 
         @scenario
         def incorrect_deduced_kwarg(self):
             self.expected_exception = IsInstance
             self.args = (1, 2, 2, 'style')
+            self.call_args = self.args
             self.kwargs = {}
+            self.callable = self.ModelObject().do_something
 
         @scenario
         def incorrect_kwarg_not_all_sent(self):
             self.expected_exception = IsInstance
             self.args = (1, 2)
+            self.call_args = self.args
             self.kwargs = dict(title=None)
+            self.callable = self.ModelObject().do_something
 
         @scenario
         def correct_args_defaulted_kwargs(self):
             self.expected_exception = NoException
             self.args = (1, 2)
+            self.call_args = self.args
             self.kwargs = {}
+            self.callable = self.ModelObject().do_something
 
+        @scenario
+        def correct_unbound_method_called(self):
+            self.expected_exception = NoException
+            self.args = (NotYetAvailable('self'), 1, 2)
+            self.call_args = (self.ModelObject(), 1, 2)
+            self.kwargs = {}
+            self.callable = self.ModelObject.do_something
+
+        @scenario
+        def correct_function_called(self):
+            @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+            def do_something(x, y, title='a title', style=None):
+                pass
+
+            self.expected_exception = NoException
+            self.args = (1, 2)
+            self.call_args = (1, 2)
+            self.kwargs = {}
+            self.callable = do_something
+            
         @scenario
         def checks_on_classmethod(self):
             self.expected_exception = IsInstance
@@ -76,6 +103,7 @@ class ArgumentCheckTests(object):
                 def do_something(cls, x, y, title='a title', style=None):
                     pass
             self.args = (1, 'y')
+            self.call_args = self.args
             self.kwargs = {}
             self.callable = ModelObject.do_something
 
@@ -83,18 +111,20 @@ class ArgumentCheckTests(object):
         def wrong_args_sent(self):
             self.expected_exception = TypeError
             self.args = (1, 2, 3, 4, 5, 6, 7)
+            self.call_args = self.args
             self.kwargs = {}
+            self.callable = self.ModelObject().do_something
 
 
     @test(ArgumentCheckScenarios)
     def checking_arguments(self, fixture):
         """Methods can be augmented with argument checks. These checks are done when calling such a method,
-           or via checkargs or checkargs_explained before an actual call is made."""
+           or before an actual call is made using ArgumentCheckedCallable.checkargs."""
 
         with expected(fixture.expected_exception):
-            fixture.callable(*fixture.args, **fixture.kwargs)
+            fixture.callable(*fixture.call_args, **fixture.kwargs)
         with expected(fixture.expected_exception):
-            checkargs(fixture.callable, fixture.args, fixture.kwargs)
+            ArgumentCheckedCallable(fixture.callable).checkargs(*fixture.args, **fixture.kwargs)
 
 
         wrapped_exception = NoException
@@ -102,7 +132,7 @@ class ArgumentCheckTests(object):
             wrapped_exception = IncorrectArgumentError
 
         with expected(wrapped_exception):
-            checkargs_explained('some message', fixture.callable, fixture.args, fixture.kwargs)
+            ArgumentCheckedCallable(fixture.callable, explanation='some message').checkargs(*fixture.args, **fixture.kwargs)
 
 
     @test(Fixture)
@@ -132,12 +162,12 @@ class ArgumentCheckTests(object):
                 
         model_object = ModelObject()
         with expected(NoException):
-            checkargs(model_object.do_something, ('x', NotYetAvailable('y')), dict(title='a title'))
+            ArgumentCheckedCallable(model_object.do_something).checkargs('x', NotYetAvailable('y'), title='a title')
         with expected(IsInstance):
-            checkargs(model_object.do_something, ('x', NotYetAvailable('y')), dict(title=123))
+            ArgumentCheckedCallable(model_object.do_something).checkargs('x', NotYetAvailable('y'), title=123)
 
         with expected(IncorrectArgumentError):
-            checkargs_explained('an explanation', model_object.do_something, ('x', NotYetAvailable('x')), dict(title='a valid title'))
+            ArgumentCheckedCallable(model_object.do_something, explanation='an explanation').checkargs('x', NotYetAvailable('x'), title='a valid title')
 
 
 
@@ -153,9 +183,9 @@ def argument_checks_with_deprecated_methods(fixture):
     with expected(IsInstance):
         ADeprecatedClass(1, 'y')
     with expected(IsInstance):
-        checkargs(ADeprecatedClass, ('x', 'y'), {})
+        ArgumentCheckedCallable(ADeprecatedClass).checkargs('x', 'y')
     with expected(IncorrectArgumentError):
-        checkargs_explained('an explanation', ADeprecatedClass, ('x', NotYetAvailable('x')), dict(title='a valid title'))
+        ArgumentCheckedCallable(ADeprecatedClass, explanation='an explanation').checkargs('x', NotYetAvailable('x'), title='a valid title')
 
 
     class ADeprecatedClass(object):

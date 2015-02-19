@@ -1514,16 +1514,15 @@ class SetupMonitor(object):
         self.captured_stdout = []
 
     def __enter__(self):
-        self.original_stdout_write = sys.stdout.write
-        sys.stdout.write = self.intercept_write
+        self.original_stdout = sys.stdout
         return self
 
-    def intercept_write(self, line_to_write):
+    def write(self, line_to_write):
         self.captured_stdout.append(line_to_write)
-        self.original_stdout_write(line_to_write)
+        self.original_stdout.write(line_to_write)
 
     def __exit__(self, *args):
-        sys.stdout.write = self.original_stdout_write
+        sys.stdout = self.original_stdout
 
     def check_command_status(self, commands):
         for command in commands:
