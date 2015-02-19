@@ -18,7 +18,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 try:
     from six.moves import input
 except:
-    if 'raw_input' in dir():
+    if 'raw_input' in dir(__builtins__):
         input = raw_input
 import sys
 import pkg_resources
