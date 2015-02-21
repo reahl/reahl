@@ -409,30 +409,58 @@ class FieldTests(object):
             Event(writable=do_nothing)
 
 
-    @test(Fixture)
-    def event_security(self, fixture):
-        """If an Event specifies an Action, the access controls of the Action are
-           used for access to the Event as well."""
-        class ModelObject(object):
-            allow_read_flag = True
-            allow_write_flag = True
-            def allow_read(self):
+    class ActionScenarios(Fixture):
+        @scenario
+        def action_method(self):
+            class ModelObject(object):
+                allow_read_flag = True
+                allow_write_flag = True
+                def allow_read(self):
+                    return self.allow_read_flag
+
+                def allow_write(self):
+                    return self.allow_write_flag
+
+                @secured( read_check=allow_read, write_check=allow_write )
+                def do_something(self):
+                    pass
+
+                @exposed
+                def events(self, events):
+                    events.an_event = Event(action=Action(self.do_something))
+            self.model_object = ModelObject()
+            self.rights_flags = self.model_object
+
+        @scenario
+        def action_function(self):
+            self.allow_read_flag = True
+            self.allow_write_flag = True
+
+            def allow_read():
                 return self.allow_read_flag
 
-            def allow_write(self):
+            def allow_write():
                 return self.allow_write_flag
 
             @secured( read_check=allow_read, write_check=allow_write )
-            def do_something(self):
+            def do_something():
                 pass
 
-            @exposed
-            def events(self, events):
-                events.an_event = Event(action=Action(self.do_something))
+            class ModelObject(object):
+                @exposed
+                def events(self, events):
+                    events.an_event = Event(action=Action(do_something))
+            self.model_object = ModelObject()
+            self.rights_flags = self
 
 
-        model_object = ModelObject()
-        event = model_object.events.an_event.with_arguments()
+    @test(ActionScenarios)
+    def event_security(self, fixture):
+        """If an Event specifies an Action, the access controls of the Action are
+           used for access to the Event as well."""
+
+
+        event = fixture.model_object.events.an_event.with_arguments()
         event.from_input(event.as_input())
         
         event.fire()
@@ -440,10 +468,10 @@ class FieldTests(object):
         vassert( event.can_read() )
         vassert( event.can_write() )
 
-        model_object.allow_read_flag = False
+        fixture.rights_flags.allow_read_flag = False
         vassert( not event.can_read() )
 
-        model_object.allow_write_flag = False
+        fixture.rights_flags.allow_write_flag = False
         vassert( not event.can_write() )
 
         with expected(ProgrammerError):

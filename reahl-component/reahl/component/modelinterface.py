@@ -923,13 +923,13 @@ class Action(AdaptedMethod):
 
     @property
     def readable(self):
-        if isinstance(self.declared_method, SecuredMethod):
-            return Action(self.declared_method.read_check, arg_names=self.arg_names, kwarg_name_map=self.kwarg_name_map)
+        if isinstance(self.declared_method, (SecuredMethod, SecuredFunction)):
+            return Action(self.declared_method._self_read_check, arg_names=self.arg_names, kwarg_name_map=self.kwarg_name_map)
         return None
     @property
     def writable(self):
-        if isinstance(self.declared_method, SecuredMethod):
-            return Action(self.declared_method.write_check, arg_names=self.arg_names, kwarg_name_map=self.kwarg_name_map)
+        if isinstance(self.declared_method, (SecuredMethod, SecuredFunction)):
+            return Action(self.declared_method._self_write_check, arg_names=self.arg_names, kwarg_name_map=self.kwarg_name_map)
         return None
 
 
@@ -1051,31 +1051,62 @@ class Event(Field):
         else:
             return '?'
     
-    
-class SecuredMethod(object):
-    def __init__(self, instance, to_be_called, secured_declaration):
-        self.instance = instance
-        self.to_be_called = to_be_called
-        self.secured_declaration = secured_declaration
 
-    def __call__(self, *args, **kwargs):
-        if not (self.read_check(*args, **kwargs) and self.write_check(*args, **kwargs)):
+from wrapt import FunctionWrapper , BoundFunctionWrapper
+class SecuredMethod(BoundFunctionWrapper):
+    def __init__(self,  *args, **kwargs):
+        super(SecuredMethod, self).__init__(*args, **kwargs)
+    def _self_read_check(self, *args, **kwargs):
+        return self._self_parent.check_right(self.read_check, self._self_instance, *args, **kwargs)
+    def _self_write_check(self, *args, **kwargs):
+        return self._self_parent.check_right(self.write_check, self._self_instance, *args, **kwargs)
+
+
+class SecuredFunction(FunctionWrapper):
+    __bound_function_wrapper__ = SecuredMethod
+
+    def __init__(self,  wrapped, read_check, write_check):
+        super(SecuredFunction, self).__init__(wrapped, self.check_call_wrapped)
+        self.check_and_setup_check(read_check)
+        self._self_read_check = self.read_check = read_check
+
+        self.check_and_setup_check(write_check)
+        self._self_write_check = self.write_check = write_check
+
+    def check_and_setup_check(self, check):
+        if isinstance(check, AdaptedMethod):
+            check.set_full_arg_names(self.get_declared_argument_names())
+        if not isinstance(check, AdaptedMethod) and isinstance(check, collections.Callable):
+            self.check_method_signature(check, self.__wrapped__)
+
+    def check_call_wrapped(self, wrapped, instance, args, kwargs):
+        if not (self.check_right(self.read_check, instance, *args, **kwargs) and \
+                self.check_right(self.write_check, instance, *args, **kwargs)):
             raise AccessRestricted()
-        return self.to_be_called(*args, **kwargs)
+        return wrapped(*args, **kwargs)
 
-    def check_right(self, right_to_check, *args, **kwargs):
+    def check_right(self, right_to_check, instance, *args, **kwargs):
         if right_to_check:
-            args_to_send = (args if self.instance is None
-                            else (self.instance,)+args)
+            args_to_send = (args if instance is None
+                            else (instance,)+args)
             return right_to_check(*args_to_send, **kwargs)
         else:
             return True
 
-    def read_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.read_check, *args, **kwargs)
-    
-    def write_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.write_check, *args, **kwargs)
+    def check_method_signature(self, check_method, original_method):
+        check_signature = inspect.getargspec(check_method)
+        expected_signature = inspect.getargspec(original_method)
+        if check_signature != expected_signature:
+            messages = [repr(method) + inspect.formatargspec(*signature)
+                        for signature, method in [(check_signature, check_method),
+                                                  (expected_signature, original_method)]]
+            raise ProgrammerError('signature of %s does not match expected signature of %s' % \
+                                  tuple(messages))
+
+    def get_declared_argument_names(self):
+        arg_spec = inspect.getargspec(self.__wrapped__)
+        positional_args_end = len(arg_spec.args)-len(arg_spec.defaults or [])
+        return arg_spec.args[:positional_args_end]
 
 
 class SecuredDeclaration(object):
@@ -1098,43 +1129,9 @@ class SecuredDeclaration(object):
     def __init__(self, read_check=None, write_check=None):
         self.read_check = read_check
         self.write_check = write_check
-        self.func = None
 
     def __call__(self, func):
-        self.func = func
-        arg_names = self.get_declared_argument_names(self.func)
-        
-        if isinstance(self.read_check, AdaptedMethod):
-            self.read_check.set_full_arg_names(arg_names)
-        elif isinstance(self.read_check, collections.Callable):
-            self.check_method_signature(self.read_check, self.func)
-        
-        if isinstance(self.write_check, AdaptedMethod):
-            self.write_check.set_full_arg_names(arg_names)
-        elif isinstance(self.write_check, collections.Callable):
-            self.check_method_signature(self.write_check, self.func)
-        return self
-
-    def check_method_signature(self, check_method, original_method):
-        check_signature = inspect.getargspec(check_method)
-        expected_signature = inspect.getargspec(original_method)
-        if check_signature != expected_signature:
-            messages = [repr(method) + inspect.formatargspec(*signature)
-                        for signature, method in [(check_signature, check_method),
-                                                  (expected_signature, original_method)]]
-            raise ProgrammerError('signature of %s does not match expected signature of %s' % \
-                                  tuple(messages))
-
-    def get_declared_argument_names(self, func):
-        arg_spec = inspect.getargspec(func)
-        positional_args_end = len(arg_spec.args)-len(arg_spec.defaults or [])
-        return arg_spec.args[:positional_args_end]
-
-    def __get__(self, instance, owner):
-        method = (self.func if instance is None
-                  else six.create_bound_method(self.func, instance))
-        return SecuredMethod(instance, method, self)
-
+        return SecuredFunction(func, self.read_check, self.write_check)
 
 secured = SecuredDeclaration #: An alias for :class:`SecuredDeclaration`
 
