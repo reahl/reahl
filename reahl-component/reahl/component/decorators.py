@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# memoized
 # Adapted from the original:
 # http://code.activestate.com/recipes/577452/ (r1)
 # Original Copyright notice:
@@ -49,29 +50,23 @@ import warnings
 
 import wrapt
 
+@wrapt.decorator
+def memoized(wrapped, instance, args, kwargs):
+    if instance is None:
+        return wrapped(*args, **kwargs)
 
-class Memoized(object):
-    def __init__(self, func):
-        self.func = func
-    def __get__(self, obj, objtype=None):
-        if obj is None:
-            return self.func
-        return wraps(self.func)(partial(self, obj))
-    def __call__(self, *args, **kw):
-        obj = args[0]
-        try:
-            cache = obj.__cache
-        except AttributeError:
-            cache = obj.__cache = {}
-        key = (self.func, args[1:], frozenset(kw.items()))
-        try:
-            res = cache[key]
-        except KeyError:
-            res = cache[key] = self.func(*args, **kw)
-        return res
+    try:
+        cache = instance.__cache__
+    except AttributeError:
+        cache = instance.__cache__ = {}
 
-memoized=Memoized
-
+    key = (wrapped, args[1:], frozenset(kwargs.items()))
+    try:
+        res = cache[key]
+    except KeyError:
+        res = cache[key] = wrapped(*args, **kwargs)
+    return res
+        
 
 def deprecated(message):
     def catch_wrapped(f):

@@ -139,6 +139,7 @@ class StandaloneFieldIndex(FieldIndex):
         for field in self.fields.values():
             field.validate_default()
 
+
 import functools
 class ExposedDecorator(object):
     """This class has the alias "exposed". Apply it as decorator to a method declaration to indicate that the method defines
@@ -166,31 +167,33 @@ class ExposedDecorator(object):
         return self
 
     def set_property(self, func):
-        exposed_decorator = self
-        @functools.wraps(func)
-        def call_with_field_index(model_object):
-            # Note: This function effectively becomes a method on the class where the exposed decorator is used
-            #       Then it is wrapped as per exposed implementation below
-            fields = FieldIndex(model_object)
-            func(model_object, fields)
-            if exposed_decorator.expected_event_names:
-                declared_fields = set(fields.keys())
-                expected_fields = set(exposed_decorator.expected_event_names)
-                missing_fields = expected_fields - declared_fields
-                if missing_fields:
-                    raise ProgrammerError('You promised to instantiate "%s" in %s of %s but did not do so' % \
-                                              (','.join(missing_fields), func, model_object))
-            return fields
-        self.property = property(memoized(call_with_field_index))
+        self.func = func
         
     def __get__(self, instance, owner):
         if not instance:
             return self
-        return self.property.__get__(instance, owner)
 
-    def __set__(self, instance, owner, value):
-        return self.property.__set__(instance, owner, value)
-        
+        if not hasattr(instance, '__exposed__'):
+            instance.__exposed__ = {}
+
+        model_object = instance
+
+        try:
+            return instance.__exposed__[self]
+        except KeyError:
+            field_index = FieldIndex(model_object)
+            instance.__exposed__[self] = field_index
+        self.func(model_object, field_index)
+        if self.expected_event_names:
+            declared_fields = set(field_index.keys())
+            expected_fields = set(self.expected_event_names)
+            missing_fields = expected_fields - declared_fields
+            if missing_fields:
+                raise ProgrammerError('You promised to instantiate "%s" in %s of %s but did not do so' % \
+                                          (','.join(missing_fields), self.func, model_object))
+
+        return field_index
+
     def __getattr__(self, name):
         raise AttributeError('%s has no attribute \'%s\' - did you perhaps write @exposed instead of @exposed(\'%s\')?' % \
                             (self, name, name))
