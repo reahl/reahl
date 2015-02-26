@@ -39,6 +39,34 @@ class DJHTMLWidget(LiteralHTML):
     def __init__(self, view, html_content):
         super(DJHTMLWidget, self).__init__(view, html_content)
 
+class DHTMLFile(object):
+    def __init__(self, filename, ids):
+        self.filename = filename
+        self.ids = ids
+        self.elements = {}
+        self.title = None
+        self.orignal_encoding = None
+        
+    def read(self):
+        with io.open(self.filename, 'rb') as dhtml_file:
+            def strain(name, attrs):
+                if name == 'title':
+                    return True
+                if name == 'div' and dict(attrs).get('id', None) in self.ids:
+                    return True
+                return False
+            soup = BeautifulSoup(dhtml_file, parse_only=SoupStrainer(strain))
+            parser = html_parser.HTMLParser()
+            self.title = parser.unescape(soup.title.decode_contents()) if soup.title else _('Untitled')
+            for an_id in self.ids:
+                found_elements = soup.find_all(id=an_id)
+                if found_elements:
+                    [element] = found_elements
+                    self.elements[an_id] = element.decode_contents()
+                else:
+                    self.elements[an_id] = ''
+            self.original_encoding = soup.original_encoding
+
 
 class DhtmlUI(UserInterface):
     """A UserInterface which serves content from the static directory configured in `web.staticroot`.
@@ -76,18 +104,11 @@ class DhtmlUI(UserInterface):
         return for_default_locale
 
     def statics(self, relative_path):
+        dhtml_file = DHTMLFile(self.filesystem_path(relative_path), [self.static_div_name])
+        dhtml_file.read()
         statics = {}
-        with io.open(self.filesystem_path(relative_path)) as dhtml_file:
-            def strain(name, attrs):
-                if name == 'title':
-                    return True
-                if name == 'div' and dict(attrs).get('id', None) == self.static_div_name:
-                    return True
-                return False
-            soup = BeautifulSoup(dhtml_file, parse_only=SoupStrainer(strain))
-            parser = html_parser.HTMLParser()
-            statics['title'] = parser.unescape(soup.title.decode_contents()) if soup.title else _('Untitled')
-            statics['div'] = soup.div.decode_contents() if soup.div else ''
+        statics['title'] = dhtml_file.title
+        statics['div'] = dhtml_file.elements[self.static_div_name]
         return statics
     
     def create_view(self, relative_path, user_interface, file_path=None):
