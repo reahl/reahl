@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import logging
 
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, UnicodeText
 from alembic import op
 
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
@@ -90,5 +90,13 @@ class MergeWebUserSessionToUserSession(Migration):
         self.schedule('drop_fk', op.drop_constraint, fk_name('sessiondata', 'web_session_id', 'webusersession'), 'sessiondata')
         self.schedule('create_fk', op.create_foreign_key, fk_name('sessiondata', 'web_session_id', 'usersession'), 'sessiondata',
                       'usersession', ['web_session_id'], ['id'], ondelete='CASCADE')
+
+
+class RenameContentType(Migration):
+    version='3.1'
+    def schedule_upgrades(self):
+        self.schedule('alter', op.add_column, 'persistedfile', Column('mime_type', UnicodeText, nullable=False))
+        self.schedule('data', op.execute, 'update persistedfile set mime_type=content_type')
+        self.schedule('cleanup', op.drop_column, 'persistedfile', 'content_type')
 
 

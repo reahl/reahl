@@ -39,6 +39,7 @@ from six.moves import cStringIO
 import logging
 from contextlib import contextmanager
 from pkg_resources import Requirement
+import warnings
 
 from webob import Request, Response
 from webob.exc import HTTPException
@@ -955,8 +956,8 @@ class Widget(object):
                                              #: in order of being added.
         self.view = view                     #: The current view, as passed in at construction
         self.priority = None
-        self.content_type = 'text/html'
-        self.charset = 'utf-8'
+        self.mime_type = 'text/html'
+        self.encoding = 'utf-8'
         self.default_slot_definitions = {}
         self.slot_contents = {}
         self.marked_as_security_sensitive = False
@@ -966,6 +967,24 @@ class Widget(object):
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
         
+    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.')
+    def _get_charset(self):
+        return self.encoding
+    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.')
+    def _set_charset(self, value):
+        self.encoding = value
+
+    charset = property(_get_charset, _set_charset)
+
+    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.')
+    def _get_content_type(self):
+        return self.mime_type
+    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.')
+    def _set_content_type(self, value):
+        self.mime_type = value
+
+    content_type = property(_get_content_type, _set_content_type)
+
         
     def use_layout(self, layout):
         """Attaches the given Layout to this Widget. The Layout is also given a chance to customise the Widget.
@@ -1977,18 +1996,26 @@ class MethodResult(object):
        ways. MethodResult is the superclass of all such different kinds of results.
 
        :param catch_exception: The class of Exeption to catch if thrown while the :class:`RemoteMethod` executes.
-       :param content_type: The content type to use when sending this MethodResult back to a browser.
-       :param charset: The charset to use when sending this MethodResult back to a browser.
+       :param mime_type: The mime type to use as html content type when sending this MethodResult back to a browser.
+       :param encoding: The encoding to use when sending this MethodResult back to a browser.
     """
-    def __init__(self, catch_exception=None, content_type='text/html', charset='utf-8'):
+    def __init__(self, catch_exception=None, content_type=None, mime_type='text/html', charset=None, encoding='utf-8'):
+        if charset:
+            warnings.warn('The charset keyword argument is deprecated, please use encoding instead.', 
+                          DeprecationWarning, stacklevel=2)
+        if content_type:
+            warnings.warn('The charset keyword argument is deprecated, please use mime_type instead.', 
+                          DeprecationWarning, stacklevel=2)
         self.catch_exception = catch_exception
-        self.content_type = content_type
-        self.charset = charset
+        self.mime_type = content_type or mime_type
+        self.encoding = charset or encoding
 
     def create_response(self, return_value):
         """Override this in your subclass to create a :class:`webob.Response` for the given `return_value` which
            was returned when calling the RemoteMethod."""
-        return Response(body=self.render(return_value))
+        return Response(body=self.render(return_value), 
+                        charset = ascii_as_bytes_or_str(self.encoding),
+                        content_type = ascii_as_bytes_or_str(self.mime_type))
     
     def create_exception_response(self, exception):
         """Override this in your subclass to create a :class:`webob.Response` for the given `exception` instance
@@ -1996,7 +2023,9 @@ class MethodResult(object):
            is raised, and only if you specified for it to be caught using `catch_exception` when this MethodResult
            was created.
         """
-        return Response(body=self.render_exception(exception))
+        return Response(body=self.render_exception(exception),
+                        charset = ascii_as_bytes_or_str(self.encoding),
+                        content_type = ascii_as_bytes_or_str(self.mime_type))
 
     def render(self, return_value):
         """Instead of overriding `.create_response` to customise how `return_value` will be reported, 
@@ -2010,14 +2039,14 @@ class MethodResult(object):
 
     def get_response(self, return_value):
         response = self.create_response(return_value)
-        response.content_type = ascii_as_bytes_or_str(self.content_type)
-        response.charset = ascii_as_bytes_or_str(self.charset)
+        response.content_type = ascii_as_bytes_or_str(self.mime_type)
+        response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
     def get_exception_response(self, exception):
         response = self.create_exception_response(exception)
-        response.content_type = ascii_as_bytes_or_str(self.content_type)
-        response.charset = ascii_as_bytes_or_str(self.charset)
+        response.content_type = ascii_as_bytes_or_str(self.mime_type)
+        response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
     
@@ -2026,11 +2055,13 @@ class RedirectAfterPost(MethodResult):
        RemoteMethod instead of actually returning the result for display. A RedirectAfterPost is meant to be
        used by the EventChannel only.
 
-       :param content_type:
-       :param charset:
+       :param content_type: (See :class:`MethodResult`.)
+       :param encoding: (See :class:`MethodResult`.)
     """
-    def __init__(self, content_type='text/html', charset='utf-8'):
-        super(RedirectAfterPost, self).__init__(catch_exception=DomainException, content_type=content_type, charset=charset)
+    def __init__(self, content_type=None, mime_type='text/html', charset=None, encoding='utf-8'):
+        super(RedirectAfterPost, self).__init__(catch_exception=DomainException, 
+                                                content_type=content_type, mime_type=mime_type, 
+                                                charset=charset, encoding=encoding)
 
     def create_response(self, return_value):
         next_url = return_value
@@ -2050,7 +2081,7 @@ class JsonResult(MethodResult):
        :param kwargs: Other keyword arguments are sent to MethodResult, see :class:`MethodResult`.
     """
     def __init__(self, result_field, **kwargs):
-        super(JsonResult, self).__init__(content_type='application/json', charset='utf-8', **kwargs)
+        super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
         
@@ -2073,7 +2104,7 @@ class WidgetResult(MethodResult):
     """
 
     def __init__(self, result_widget):
-        super(WidgetResult, self).__init__(content_type='text/html', charset='utf-8', catch_exception=DomainException)
+        super(WidgetResult, self).__init__(mime_type='text/html', encoding='utf-8', catch_exception=DomainException)
         self.result_widget = result_widget
 
     def render(self, return_value):
@@ -2243,26 +2274,10 @@ class ComposedPage(Resource):
         return self.render()
 
     def render(self):
-        # This method used to encode content_type, charset and cache_control
-        # headers to UTF-8 before passing them to WebOb.
-        # That was wrong. Let's suppose that the headers did contain values
-        # outside of ASCII range, but that self.page.charset was i.e. KOI8-R
-        # than UTF-8. How would WebOb/the web client ever retrieve the original
-        # value if they decode something as KOI8-R which was originally encoded
-        # as UTF-8?
-        #
-        # But in actual fact these headers are part of HTTP protocol and are
-        # documented as being in ASCII [citation neeeded], so the utf-8 encoding
-        # in the code was nothing but noise that confuses the reader.
-        #
-        # WebOb wants whatever a "native" string literal is on the version of
-        # Python it runs on: (a normal non-unicode str on Python 2, a normal
-        # str on Python 3). That behaviour is another strong clue that values
-        # outside ASCII range can not be at here.
         return Response(
             body=self.page.render(),
-            content_type=ascii_as_bytes_or_str(self.page.content_type),
-            charset=ascii_as_bytes_or_str(self.page.charset),
+            content_type=ascii_as_bytes_or_str(self.page.mime_type),
+            charset=ascii_as_bytes_or_str(self.page.encoding),
             cache_control=ascii_as_bytes_or_str(self._response_cache_control()))
 
     def _response_cache_control(self):
@@ -2287,33 +2302,35 @@ class FileView(View):
 
 
 class ViewableFile(object):
-    def __init__(self, name, content_type, encoding, charset, size, mtime):
+    def __init__(self, name, mime_type, encoding, size, mtime):
         self.name = name
-        self.content_type = content_type
+        self.mime_type = mime_type
         self.encoding = encoding
-        self.charset = charset
         self.mtime = mtime
         self.size = size    
 
 
 class FileOnDisk(ViewableFile):
     def __init__(self, full_path, relative_name):
-        self.content_type, encoding = mimetypes.guess_type(full_path)
+        mime_type, encoding = mimetypes.guess_type(full_path)
+        self.mime_type = mime_type or 'application/octet-stream' # So you can is_text() below
+        if not encoding:
+            # FIXME: This assumes all text files on disk are encoded with the system's preferred
+            # encoding, which is nothing but a guess
+            encoding = locale.getpreferredencoding() if self.is_text() else None
+
         self.full_path = full_path
         self.relative_name = relative_name
         st = os.stat(full_path)
         super(FileOnDisk, self).__init__(
             full_path,
-            self.content_type or 'application/octet-stream',
+            self.mime_type,
             encoding,
-            # FIXME: This assumes all text files on disk are encoded with the system's preferred
-            # encoding, which is nothing but a guess
-            locale.getpreferredencoding() if self.is_text() else None,
             st.st_size,
             st.st_mtime)
 
     def is_text(self):
-        return self.content_type and self.content_type.startswith('text/')
+        return self.mime_type and self.mime_type.startswith('text/')
 
     @contextmanager
     def open(self):
@@ -2323,18 +2340,12 @@ class FileOnDisk(ViewableFile):
         finally:
             open_file.close()
 
-
 class FileFromBlob(ViewableFile):
-    def __init__(self, name, contents, content_type, encoding, size, mtime):
-        if isinstance(contents, six.text_type):
-            charset = 'utf-8'
-            content_bytes = contents.encode(charset)
-        elif isinstance(contents, six.binary_type):
-            charset = None
-            content_bytes = contents
-        else:
-            raise ValueError("Contents should be of type %s for text data or %s for binary data" % (six.text_type, six.binary_type))
-        super(FileFromBlob, self).__init__(name, content_type, encoding, charset, size, mtime)
+    def __init__(self, name, content_bytes, mime_type, encoding, size, mtime):
+        if not isinstance(content_bytes, six.binary_type):
+            raise ProgrammerError('When content_bytes should be bytes')
+
+        super(FileFromBlob, self).__init__(name, mime_type, encoding, size, mtime)
         self.content_bytes = content_bytes
         self.relative_name = name
 
@@ -2467,9 +2478,8 @@ class FileDownload(Response):
     def __init__(self, a_file):
         self.file = a_file 
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
-        self.content_type = ascii_as_bytes_or_str(self.file.content_type) if self.file.content_type else None
-        self.encoding = ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None
-        self.charset = ascii_as_bytes_or_str(self.file.charset if self.file.charset else 'utf-8')
+        self.content_type = ascii_as_bytes_or_str(self.file.mime_type) if self.file.mime_type else None
+        self.charset = ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None
         self.content_length = ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = ascii_as_bytes_or_str(('%s-%s-%s' % (self.file.mtime,

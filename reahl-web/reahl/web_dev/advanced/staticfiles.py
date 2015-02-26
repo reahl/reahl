@@ -116,14 +116,16 @@ class StaticFileTests(object):
     def files_from_database(self, fixture):
         """Files can also be created on the fly such as from data in a database."""
 
+        content_bytes = ('hôt stuff').encode('utf-8')
+
         class MainUI(UserInterface):
             def assemble(self):
-                content_type = 'text/html'
-                encoding = None # This is not character-encoding... it's content-encoding (zip, etc)
-                size = 10
+                mime_type = 'text/html'
+                encoding = 'utf-8'
                 mtime = 123
+                size = len(content_bytes)
 
-                list_of_files = [FileFromBlob('database_file', 'x'*size, content_type, encoding, size, mtime)]
+                list_of_files = [FileFromBlob('database_file', content_bytes, mime_type, encoding, size, mtime)]
                 self.define_static_files('/files', list_of_files)
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -131,15 +133,15 @@ class StaticFileTests(object):
 
         # How the file would be accessed
         browser.open('/files/database_file')
-        vassert( browser.raw_html == 'xxxxxxxxxx' )
+        vassert( browser.raw_html == 'hôt stuff' )
         response = browser.last_response
 
         # The meta-info of the file
         vassert( response.content_type == 'text/html' )
         vassert( not response.content_encoding )
-        vassert( response.content_length == 10 )
+        vassert( response.content_length == len(content_bytes) )
         vassert( response.last_modified.replace(tzinfo=None) == datetime.datetime.fromtimestamp(123) )
-        expected_etag = '123-10-%s' % abs(hash('database_file'))
+        expected_etag = '123-%s-%s' % (len(content_bytes), abs(hash('database_file')))
         vassert( response.etag == expected_etag )
 
     @test(WebFixture)

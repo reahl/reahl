@@ -38,6 +38,7 @@
     <class locator="reahl.webdeclarative.migrations:RenameRegionToUi"/>
     <class locator="reahl.webdeclarative.migrations:ElixirToDeclarativeWebDeclarativeChanges"/>
     <class locator="reahl.webdeclarative.migrations:MergeWebUserSessionToUserSession"/>
+    <class locator="reahl.webdeclarative.migrations:RenameContentType"/>
   </migrations>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -t -i'.*' --tests=reahl/webdeclarative_dev "/>

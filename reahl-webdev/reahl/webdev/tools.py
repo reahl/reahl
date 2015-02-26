@@ -186,7 +186,7 @@ class Browser(BasicBrowser):
     @property
     def raw_html(self):
         """Returns the HTML for the current location unchanged."""
-        return self.last_response.unicode_body
+        return self.last_response.body.decode('utf-8')
 
     @property
     def status(self):

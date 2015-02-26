@@ -300,7 +300,7 @@ class PersistedFile(SessionData, PersistedFileProtocol):
     input_name = Column(UnicodeText, nullable=False)
     filename = Column(UnicodeText, nullable=False)
     file_data = deferred(Column(LargeBinary, nullable=False)) 
-    content_type = Column(UnicodeText, nullable=False)
+    mime_type = Column(UnicodeText, nullable=False)
     size = Column(BigInteger, nullable=False)
 
     def __eq__(self, other):
@@ -332,9 +332,9 @@ class PersistedFile(SessionData, PersistedFileProtocol):
     def add_persisted_for_form(cls, form, input_name, uploaded_file):
         filename = uploaded_file.filename
         file_data = uploaded_file.contents
-        content_type = uploaded_file.content_type
+        mime_type = uploaded_file.mime_type
         size = uploaded_file.size
-        cls.new_for_form(form, input_name=input_name, filename=filename, file_data=file_data, content_type=content_type, size=size)
+        cls.new_for_form(form, input_name=input_name, filename=filename, file_data=file_data, mime_type=mime_type, size=size)
 
     @classmethod
     def remove_persisted_for_form(cls, form, input_name, filename):

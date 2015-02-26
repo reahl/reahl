@@ -39,7 +39,7 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Translator
-from reahl.component.decorators import memoized
+from reahl.component.decorators import memoized, deprecated
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 import collections
@@ -1475,11 +1475,20 @@ class UploadedFile(object):
     *Changed in 3.0*: UploadedFile is now constructed with the entire contents
     of the uploaded file instead of with a file-like object as in 2.1.
     """
-    def __init__(self, filename, contents, content_type):
+    def __init__(self, filename, contents, mime_type):
         assert isinstance(contents, six.binary_type)
         self.contents = contents
         self.filename = filename
-        self.content_type = content_type
+        self.mime_type = mime_type
+
+    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.')
+    def _get_content_type(self):
+        return self.mime_type
+    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.')
+    def _set_content_type(self, value):
+        self.mime_type = value
+
+    content_type = property(_get_content_type, _set_content_type)
 
     @property
     def size(self):
@@ -1551,7 +1560,7 @@ class MimeTypeConstraint(ValidationConstraint):
 
         files_list = unparsed_input
         for f in files_list:
-            if not matches(f.content_type, self.accept):
+            if not matches(f.mime_type, self.accept):
                 raise self
 
 

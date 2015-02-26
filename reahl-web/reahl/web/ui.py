@@ -2490,7 +2490,7 @@ class FileUploadInput(Input):
         return FileUploadPanel(self)
 
     def get_value_from_input(self, input_values):
-        return [UploadedFile(f.filename, f.file_obj.read(), f.content_type)
+        return [UploadedFile(f.filename, f.file_obj.read(), f.mime_type)
                  for f in self.persisted_file_class.get_persisted_for_form(self.form, self.name)]
 
     def enter_value(self, input_value):
