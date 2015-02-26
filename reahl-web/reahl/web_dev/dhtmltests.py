@@ -22,7 +22,7 @@ from reahl.tofu import Fixture, test, set_up
 from reahl.tofu import vassert, temp_dir
 from reahl.stubble import stubclass, replaced
 
-from reahl.web.dhtml import DhtmlUI
+from reahl.web.dhtml import DhtmlUI, DHTMLFile
 from reahl.web.fw import WebExecutionContext, UserInterface
 from reahl.web.ui import TwoColumnPage
 from reahl.web_dev.fixtures import WebBasicsMixin
@@ -120,4 +120,12 @@ class BasicTests(object):
             
         vassert( browser.title == 'Afrikaans bo!' )
 
-
+    @test(DjhtmlFixture)
+    def encoding_dammit(self, fixture):
+        """ """
+        dhtml_file = DHTMLFile(fixture.dhtml_file.name, ['astatic'])
+        dhtml_file.read()
+        vassert( dhtml_file.title == 'â title' )
+        vassert( dhtml_file.elements == {'astatic': fixture.div_internals} )
+        vassert( dhtml_file.original_encoding == 'utf-8' )
+        
