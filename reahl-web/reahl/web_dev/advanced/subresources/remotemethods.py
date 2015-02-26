@@ -62,8 +62,8 @@ class RemoteMethodTests(object):
         def callable_object():
             return 'value returned from method'
 
-        charset = 'koi8_r'  # Deliberat
-        remote_method = RemoteMethod('amethod', callable_object, MethodResult(content_type='ttext/hhtml', charset=charset))
+        encoding = 'koi8_r'  # Deliberate
+        remote_method = RemoteMethod('amethod', callable_object, MethodResult(mime_type='ttext/hhtml', encoding=encoding))
     
         @stubclass(Widget)
         class WidgetWithRemoteMethod(Widget):
@@ -80,7 +80,7 @@ class RemoteMethodTests(object):
         # POSTing to the URL, returns the result of the method
         browser.post('/_amethod_method', {})
         vassert( browser.raw_html == 'value returned from method' )
-        vassert( browser.last_response.charset == charset)
+        vassert( browser.last_response.charset == encoding)
         vassert( browser.last_response.content_type == 'ttext/hhtml' )
     
     @test(RemoteMethodFixture)
@@ -171,7 +171,7 @@ class RemoteMethodTests(object):
             self.value_to_return = 1
             self.expected_response = '1'
             self.exception_response = '"exception text"'
-            self.expected_charset = self.method_result.charset
+            self.expected_charset = self.method_result.encoding
             self.expected_content_type = 'application/json'
 
         @scenario
@@ -186,7 +186,7 @@ class RemoteMethodTests(object):
             self.value_to_return = 'ignored in this case'
             self.expected_response = '<the widget contents><script type="text/javascript">javascriptsome</script>'
             self.exception_response = Exception
-            self.expected_charset = self.method_result.charset
+            self.expected_charset = self.method_result.encoding
             self.expected_content_type = 'text/html'
             
     @test(ResultScenarios)

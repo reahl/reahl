@@ -75,7 +75,7 @@ class FileUploadInputFixture(WebFixture):
                 for f in self.files:
                     with f.open() as opened_file:
                         contents = opened_file.read()
-                    self.submitted_file_info[f.filename] = (contents, f.content_type)
+                    self.submitted_file_info[f.filename] = (contents, f.mime_type)
                 self.submitted = True
                 
         return DomainObject()
@@ -380,9 +380,9 @@ class FileTests(object):
                                                                                for f in [fixture.file_to_upload1, fixture.file_to_upload2]] ))
 
         # Files that were submitted are correct
-        file1_content, file1_content_type = fixture.domain_object.submitted_file_info[os.path.basename(fixture.file_to_upload1.name)]
+        file1_content, file1_mime_type = fixture.domain_object.submitted_file_info[os.path.basename(fixture.file_to_upload1.name)]
         vassert( file1_content == fixture.file_to_upload1_content )
-        vassert( file1_content_type == 'text/html' )
+        vassert( file1_mime_type == 'text/html' )
 
 
 
