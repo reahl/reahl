@@ -366,7 +366,7 @@ def basichtmlinputs(fixture):
 def model_examples(fixture):
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
     for example in ['modeltests1.py', 'modeltests2.py', 'modeltests3.py']:
-        Executable('nosetests').check_call(['reahl/doc/examples/tutorial/%s' % example ])
+        Executable('nosetests').check_call(['--first-package-wins', 'reahl/doc/examples/tutorial/%s' % example ])
 
 @test(ExampleFixture.addressbook1)
 def test_addressbook1(fixture):
