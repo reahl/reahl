@@ -60,7 +60,7 @@ def memoized(wrapped, instance, args, kwargs):
     except AttributeError:
         cache = instance.__cache__ = {}
 
-    key = (wrapped, args[1:], frozenset(kwargs.items()))
+    key = (wrapped, args[:], frozenset(kwargs.items()))
     try:
         res = cache[key]
     except KeyError:
