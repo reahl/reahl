@@ -35,6 +35,7 @@ from collections import OrderedDict
 
 import dateutil.parser 
 import babel.dates 
+from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Translator
@@ -140,7 +141,6 @@ class StandaloneFieldIndex(FieldIndex):
             field.validate_default()
 
 
-import functools
 class ExposedDecorator(object):
     """This class has the alias "exposed". Apply it as decorator to a method declaration to indicate that the method defines
        a number of Fields. The decorated method is passed an instance of :class:`FieldIndex` to which each Field should be assigned. 
@@ -150,12 +150,12 @@ class ExposedDecorator(object):
                     resultant FieldIndex on a class, instead of on an instance.
     """
     def __init__(self, *args):
-        self.property = None
         self.expected_event_names = []
         if isinstance(args[0], six.string_types):
             self.add_fake_events(args)
+            self.func = None
         else:
-            self.set_property(args[0])
+            self.func = args[0]
 
     def add_fake_events(self, event_names):
         self.expected_event_names.extend(event_names)
@@ -163,11 +163,8 @@ class ExposedDecorator(object):
             setattr(self, name, FakeEvent(name))
 
     def __call__(self, func):
-        self.set_property(func)
-        return self
-
-    def set_property(self, func):
         self.func = func
+        return self
         
     def __get__(self, instance, owner):
         if not instance:
@@ -183,7 +180,9 @@ class ExposedDecorator(object):
         except KeyError:
             field_index = FieldIndex(model_object)
             instance.__exposed__[self] = field_index
+
         self.func(model_object, field_index)
+
         if self.expected_event_names:
             declared_fields = set(field_index.keys())
             expected_fields = set(self.expected_event_names)
@@ -1055,7 +1054,6 @@ class Event(Field):
             return '?'
     
 
-from wrapt import FunctionWrapper , BoundFunctionWrapper
 class SecuredMethod(BoundFunctionWrapper):
     def __init__(self,  *args, **kwargs):
         super(SecuredMethod, self).__init__(*args, **kwargs)
