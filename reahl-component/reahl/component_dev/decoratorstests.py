@@ -44,7 +44,7 @@ class ClassDeprecationScenarios(Fixture):
     def plain_usage(self):
         class ASuperClassWithAnInit(object):
             def __init__(self): pass
-        @deprecated('this test deprecated class is deprecated')
+        @deprecated('this test deprecated class is deprecated', '1.2')
         class ADeprecatedClass(ASuperClassWithAnInit):
             @classmethod
             def some_class_method(cls):
@@ -55,7 +55,7 @@ class ClassDeprecationScenarios(Fixture):
 
     @scenario
     def used_with_arg_checks(self):
-        @deprecated('this test deprecated class is deprecated')
+        @deprecated('this test deprecated class is deprecated', '2.3')
         class ADeprecatedClass(object):
             @arg_checks()
             def __init__(self):
@@ -87,19 +87,41 @@ def deprecating_a_class(fixture):
         fixture.ADeprecatedClass.some_class_method()
 
 
+@test(Fixture)
+def deprecating_a_class(fixture):
+    """When @deprecated is used, the docstring (if present) of the deprecated class or method is changed to indicate deprecation."""
+    
+    @deprecated('this is deprecated', '1.2')
+    class ClassWithDocstring(object):
+        """A docstring."""
+        @deprecated('this also', '0.0')
+        def do_something(self):
+            """another"""
+            pass
+
+    vassert( ClassWithDocstring.__doc__ == 'A docstring.\n.. deprecated:: 1.2\n   this is deprecated' )
+    vassert( ClassWithDocstring().do_something.__doc__ == 'another\n.. deprecated:: 0.0\n   this also' )
+
+    @deprecated('this is deprecated', '1.2')
+    class ClassWithoutDocstring(object):
+        pass
+
+    vassert( not ClassWithoutDocstring.__doc__ )
+
+
 
 class MethodDeprecationScenarios(Fixture):
     @scenario
     def plain_usage(self):
         class NonDeprecatedClass(object):
-            @deprecated('this class method is deprecated')
+            @deprecated('this class method is deprecated', '1.1')
             @classmethod
             def some_deprecated_class_method(cls):
                 pass
             @classmethod
             def some_class_method(cls):
                 pass
-            @deprecated('this instance method is deprecated')
+            @deprecated('this instance method is deprecated', '4.5')
             def some_deprecated_instance_method(self):
                 pass
             def some_instance_method(self):
@@ -109,7 +131,7 @@ class MethodDeprecationScenarios(Fixture):
     @scenario
     def used_with_arg_checks(self):
         class NonDeprecatedClass(object):
-            @deprecated('this class method is deprecated')
+            @deprecated('this class method is deprecated', '1.2')
             @arg_checks()
             @classmethod
             def some_deprecated_class_method(cls):
@@ -117,7 +139,7 @@ class MethodDeprecationScenarios(Fixture):
             @classmethod
             def some_class_method(cls):
                 pass
-            @deprecated('this instance method is deprecated')
+            @deprecated('this instance method is deprecated', '2.3')
             @arg_checks()
             def some_deprecated_instance_method(self):
                 pass

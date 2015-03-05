@@ -68,7 +68,7 @@ def memoized(wrapped, instance, args, kwargs):
     return res
         
 
-def deprecated(message):
+def deprecated(message, version='n/a'):
     def catch_wrapped(f):
         def is_init_or_classmethod(member):
             if inspect.ismethod(member) and member.__self__ is f:
@@ -80,6 +80,9 @@ def deprecated(message):
             deprecated_thing = wrapped.__self__ if is_init_or_classmethod(wrapped) else wrapped
             warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing, message), DeprecationWarning, stacklevel=2)
             return wrapped(*args, **kwargs)
+
+        if f.__doc__:
+            f.__doc__ = '%s\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
 
         if inspect.isclass(f):
             for name, method in inspect.getmembers(f, predicate=is_init_or_classmethod):
