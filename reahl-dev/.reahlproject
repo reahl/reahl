@@ -7,6 +7,9 @@
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/> 
     <thirdpartyegg name="Babel" minversion="1.3" maxversion="1.3.9999"/> 
+    <thirdpartyegg name="twine" minversion="1.4.0" maxversion="1.4.9999"/> 
+    <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/> 
+    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <deps purpose="test">
@@ -35,6 +38,7 @@
   <export entrypoint="reahl.dev.xmlclasses" name="SshRepository" locator="reahl.dev.devdomain:SshRepository"/>
 
   <export entrypoint="reahl.dev.xmlclasses" name="PythonSourcePackage" locator="reahl.dev.devdomain:PythonSourcePackage"/>
+  <export entrypoint="reahl.dev.xmlclasses" name="PythonWheelPackage" locator="reahl.dev.devdomain:PythonWheelPackage"/>
   <export entrypoint="reahl.dev.xmlclasses" name="PackageIndex" locator="reahl.dev.devdomain:PackageIndex"/>
 
   <export entrypoint="reahl.dev.xmlclasses" name="Dependency" locator="reahl.dev.devdomain:Dependency"/>
@@ -95,7 +99,7 @@
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/dev_dev -t -i '.*'"/>
   
-  <distpackage type="sdist">
+  <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>
 
