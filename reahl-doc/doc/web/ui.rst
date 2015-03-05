@@ -248,6 +248,18 @@ Layout
 .. autoclass:: Layout
    :members:
 
+HorizontalLayout
+""""""""""""""""
+
+.. autoclass:: HorizontalLayout
+   :members:
+
+VerticalLayout
+""""""""""""""
+
+.. autoclass:: VerticalLayout
+   :members:
+
 LabelledInlineInput
 """""""""""""""""""
 

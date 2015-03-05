@@ -512,7 +512,7 @@ class UserInterface(object):
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
 
-    @deprecated('Please use .define_page() instead.')
+    @deprecated('Please use .define_page() instead.', '2.1')
     def define_main_window(self, *args, **kwargs):
         return self.define_page(*args, **kwargs)
 
@@ -655,7 +655,7 @@ class UserInterface(object):
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    @deprecated('Please use .define_user_interface() instead')
+    @deprecated('Please use .define_user_interface() instead', '2.1')
     def define_region(self, *args, **kwargs):
         return self.define_user_interface(*args, **kwargs)
 
@@ -676,7 +676,7 @@ class UserInterface(object):
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    @deprecated('Please use .define_regex_user_interface() instead')
+    @deprecated('Please use .define_regex_user_interface() instead', '2.1')
     def define_regex_region(self, *args, **kwargs):
         return self.define_regex_user_interface(*args, **kwargs)
 
@@ -747,7 +747,7 @@ class UserInterface(object):
         return self.controller.view_for(relative_path, for_bookmark=for_bookmark)
 
 
-@deprecated('Region has been renamed to UserInterface, please use UserInterface instead')
+@deprecated('Region has been renamed to UserInterface, please use UserInterface instead', '2.1')
 class Region(UserInterface):
     pass
 
@@ -967,19 +967,19 @@ class Widget(object):
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
         
-    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.')
+    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
     def _get_charset(self):
         return self.encoding
-    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.')
+    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
     def _set_charset(self, value):
         self.encoding = value
 
     charset = property(_get_charset, _set_charset)
 
-    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.')
+    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.', '3.1')
     def _get_content_type(self):
         return self.mime_type
-    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.')
+    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.', '3.1')
     def _set_content_type(self, value):
         self.mime_type = value
 
@@ -2678,7 +2678,7 @@ class ReahlWSGIApplication(object):
         return new_context.handle_wsgi_call(self, environ, start_response)
 
 
-@deprecated('ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead')
+@deprecated('ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead', '2.1')
 class ReahlWebApplication(ReahlWSGIApplication):
     pass
 

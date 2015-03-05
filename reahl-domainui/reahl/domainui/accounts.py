@@ -454,7 +454,7 @@ class AccountUI(UserInterface):
         self.define_transition(self.account_management_interface.events.verify_event, verify, thanks)
 
 
-@deprecated('Please use AccountUI instead.')
+@deprecated('Please use AccountUI instead.', '2.1')
 class AccountRegion(AccountUI):
     pass
 
