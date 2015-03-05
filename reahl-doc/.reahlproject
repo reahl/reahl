@@ -72,7 +72,7 @@
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T (reahl/.*_dev/|.*/testbasics)"/>
 
-  <distpackage type="sdist">
+  <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>
 
