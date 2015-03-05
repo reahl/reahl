@@ -242,12 +242,6 @@ ErrorLabel
 Widgets to help with layout of Inputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Layout
-""""""
-
-.. autoclass:: Layout
-   :members:
-
 HorizontalLayout
 """"""""""""""""
 

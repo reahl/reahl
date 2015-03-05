@@ -1,7 +1,104 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 What changed in version 3.1
 ===========================
+
+Improved support for layout
+---------------------------
+
+The main feature of this release is changes related to dealing more efficiently with 
+layout of Widgets.
+
+Using Pure instead of Yui
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Yui 2 CSS grids project has quite a while ago been succeeded by
+Yui3, and more recently Yui3 has been succeeded by the Pure CSS
+library. In this release of Reahl, we switched to using Pure CSS
+instead.
+
+Backwards compatibility (for Widgets dependend on Yui2) is maintained, but not the default.
+Using Yui2 and thus Widgets depending on it, requires the folliwing line of code to be
+added in your `reahl.web.config.py` file:
+
+.. code-block:: python
+
+   web.frontend_libraries.use_deprecated_yui()
+
+Yui2 and Pure cannot be used concurrently in the same project, and the
+default library used is Pure.
+
+Several Widgets are deprecated for this reason because their
+functionality is now provided in a slightly different way (see the
+next section), via :mod:`reahl.web.pure`::
+
+ - :class:`reahl.web.ui.YuiDoc`
+ - :class:`reahl.web.ui.YuiGrid`
+ - :class:`reahl.web.ui.YuiBlock`
+ - :class:`reahl.web.ui.YuiUnit`
+ - :class:`reahl.web.ui.TwoColumnPage`:
+
+Switching over to Pure also changed the look of a site slightly. This
+change has to do with Pure's reliance on Modernize.js which only
+selectively clears styling of elements instead of Yui2's approach of
+clearing all styling from elements. 
+
+A new Layout concept
+~~~~~~~~~~~~~~~~~~~~
+
+A simple, yet powerful new concept was introduced to help deal with
+the issue of layout. This makes it possible for us to wrap the
+functionality of advanced layout engines in Python in future.
+
+Any :class:`reahl.web.fw.Widget` can now optionally use a :class:`reahl.web.fw.Layout`. 
+
+The Layout is attached to its Widget immediately after the Widget is
+constructed, by means of the :meth:`reahl.web.fw.Widget.use_layout` method.
+
+For example:
+
+.. code-block:: python
+
+   menu = Menu.from_bookmarks(view, bookmarks).use_layout(HorizontalLayout())
+
+The Layout is responsible for changing the Widget in subtle ways (such
+as adding CSS classes to it which would make it render in a particular
+way.  The Layout can also add children Widgets to its Widget, either
+just after construction of the Widget, or by special methods a
+programmer can call on a Widget.
+
+For example:
+
+It is possible to build, say a StackedFormLayout which allows a
+programmer to add inputs that stack on top of one another inside any
+Form using this Layout. Here is how that would look:
+
+.. code-block:: python
+
+   form = Form(view).use_layout(StackedFormLayout())
+   form.layout.add_stacked(TextInput(view, address.fields.name))
+
+
+The concept of a Layout has made the following classes unnecessary, and thus deprecated:
+
+ - :class:`reahl.web.ui.TwoColumnPage`:
+
+   This class was nothing more than an :class:`reahl.web.ui.HTML5Page`
+   to which certain children were added with CSS that made it display
+   in columns. The much more powerful
+   :class:`reahl.web.pure.PageColumnLayout` was added which can be
+   applied to an
+   :class:`reahl.web.ui.HTML5Page`. :class:`reahl.web.pure.PageColumnLayout`
+   is more flexible than :class:`reahl.web.ui.TwoColumnPage`, allowing
+   you more control over the number of columns.
+
+ - :class:`reahl.web.ui.HMenu` and :class:`reahl.web.ui.VMenu`:
+
+   These classes were made obsolete by the new
+   :class:`reahl.web.ui.HorizontalLayout` and
+   :class:`reahl.web.ui.VerticalLayout` classes that can be applied to
+   any :class:`reahl.web.ui.Menu` or one of its subclasses.
+
 
 
 LoginSession and related dependencies
@@ -64,6 +161,13 @@ Some repercussions:
         compatibility for the 3.x series.
 
 
+Wheels
+------
+
+We now build and distribute packages using Python Wheels instead of a source 
+distribution. While Reahl packages at present are all pure Python packages, many
+of the projects that Reahl depends on need compiling. Using wheels sets us on the
+path to easier installation of these packages once they provide wheels too.
 
 
 Other changed dependencies
@@ -73,6 +177,7 @@ The reahl-tofu component used to be dependent on reahl-component on
 nose. These dependencies were unnecessary and forced someone who only
 wanted to install reahl-tofu to also install reahl-component and
 nose. These dependencies have been removed.
+
 
 
 Development infrastructure
