@@ -23,6 +23,7 @@ EntryPointExport = reahl.dev.devdomain:EntryPointExport
 BzrSourceControl = reahl.dev.devdomain:BzrSourceControl
 ConfigurationSpec = reahl.dev.devdomain:ConfigurationSpec
 PythonSourcePackage = reahl.dev.devdomain:PythonSourcePackage
+PythonWheelPackage = reahl.dev.devdomain:PythonWheelPackage
 SshRepository = reahl.dev.devdomain:SshRepository
 FileList = reahl.dev.devdomain:FileList
 ExtraPath = reahl.dev.devdomain:ExtraPath
