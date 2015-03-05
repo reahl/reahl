@@ -65,7 +65,7 @@
     <egg name="reahl-bzrsupport"/>
   </deps>
   
-  <distpackage type="sdist">
+  <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>
 
