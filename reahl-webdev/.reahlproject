@@ -26,7 +26,7 @@
   
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture"/>
   
-  <distpackage type="sdist">
+  <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>
 

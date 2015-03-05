@@ -21,7 +21,7 @@
   <export entrypoint="nose.plugins.0.10" name="all-tests" locator="reahl.tofu.nosesupport:MarkedTestsPlugin"/>
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/tofu_dev -t -i'.*'"/>
   
-  <distpackage type="sdist">
+  <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>
 
