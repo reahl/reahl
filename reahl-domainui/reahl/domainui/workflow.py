@@ -136,7 +136,7 @@ class InboxUI(UserInterface):
 
 
 
-@deprecated('Please use InboxUI instead.')
+@deprecated('Please use InboxUI instead.', '2.1')
 class InboxRegion(InboxUI):
     pass
 
