@@ -3,7 +3,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface, Bookmark
-from reahl.web.ui import HTML5Page, P, H, Panel, HMenu
+from reahl.web.ui import HTML5Page, P, H, Panel, Menu, HorizontalLayout
 from reahl.web.pure import PageColumnLayout
 from reahl.component.modelinterface import exposed, IntegerField
 
@@ -25,7 +25,7 @@ class HomePanel(Panel):
                      panel.get_bookmark(3)]
 
         self.add_child(H(view, 1, text='Refreshing widget'))
-        self.add_child(HMenu.from_bookmarks(view, bookmarks))
+        self.add_child(Menu.from_bookmarks(view, bookmarks).use_layout(HorizontalLayout()))
         self.add_child(panel)
 
 

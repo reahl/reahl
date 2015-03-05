@@ -3,7 +3,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, P, H, Panel
+from reahl.web.ui import HTML5Page, P, H, Panel, HorizontalLayout
 from reahl.web.pure import PageColumnLayout
 from reahl.web.pager import SequentialPageIndex, PageMenu, PagedPanel
 
@@ -23,7 +23,7 @@ class AddressBookPanel(Panel):
 
         self.page_index = SequentialPageIndex(Address.all_addresses(), items_per_page=5)
         self.address_list = AddressList(view, self.page_index)
-        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.address_list)
+        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.address_list).use_layout(HorizontalLayout())
         self.add_children([self.page_menu, self.address_list])
 
 
