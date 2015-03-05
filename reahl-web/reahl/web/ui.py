@@ -211,6 +211,7 @@ class HTMLElement(Widget):
     :keyword write_check: (See :class:`reahl.web.fw.Widget`)
     
     """
+    tag_name = 'tag'
     def __init__(self, view, tag_name, children_allowed=False, css_id=None, wrapper_widget=None, read_check=None, write_check=None):
         super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check)
         self.wrapper_widget = wrapper_widget
@@ -2050,7 +2051,7 @@ class HorizontalLayout(Layout):
        
           Adds class reahl-horizontal to its Widget.
           
-       (Only works for :class:`Menu` currently.)
+       (Only works for :class:`Menu` and subclasses.)
     
     """
     def customise_widget(self):
@@ -2064,7 +2065,7 @@ class VerticalLayout(Layout):
        
           Adds class reahl-vertical to its Widget.
           
-       (Only works for :class:`Menu` currently.)
+       (Only works for :class:`Menu` and subclasses.)
     
     """
     def customise_widget(self):

@@ -30,7 +30,7 @@ from reahl.component.i18n import Translator
 from reahl.component.decorators import memoized
 from reahl.component.modelinterface import IntegerField, exposed
 from reahl.web.fw import Bookmark
-from reahl.web.ui import HMenu, A, Panel
+from reahl.web.ui import Menu, A, Panel
 
 _ = Translator('reahl-web')
 
@@ -186,14 +186,14 @@ class PageIndex(PageIndexProtocol):
         return self.start_page.number > 1
 
 
-class PageMenu(HMenu):
-    """An HMenu, which lists the pages of items that can be navigated by a user. If there are
+class PageMenu(Menu):
+    """An Menu, which lists the pages of items that can be navigated by a user. If there are
        many pages, only a small subset is shown, with controls allowing the user to browse to
        the wanted page number and choose it.
 
        .. admonition:: Styling
        
-          Rendered as a <ul class="reahl-menu reahl-horizontal reahl-pagemenu">. The <a> inside its
+          Rendered as a <ul class="reahl-menu reahl-pagemenu">. The <a> inside its
           first <li> has class="first", the <a> in the second <li> has class="prev". The <a> in the 
           second last <li> has class="next", and the <a> in the last <li> has class="last".
           
