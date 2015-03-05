@@ -522,17 +522,16 @@ class HTML5Page(HTMLElement):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
 
 
-@deprecated('Please use reahl.web.pure:PageColumnLayout instead.')
+@deprecated('Please use reahl.web.pure:PageColumnLayout instead.', '3.1')
 class TwoColumnPage(HTML5Page):
-    tag_name = 'html'  # So deprecation warning does not break
     """An HTML5Page with a basic layout: It has a header area which displays at top of two columns. A footer area
        displays below the two columns. The main column is to the right, and larger. The secondary column is to 
        the left, and smaller.
        
        .. admonition:: Styling
 
-          Renders as a page structured using `Yui 2, with two template preset columns 
-          <http://developer.yahoo.com/yui/grids/#start>`_ (main and secondary).
+          Renders as a page structured using Yui 2, with two template preset columns 
+           (main and secondary).
 
        The TwoColumnPage has the following Slots:
 
@@ -560,7 +559,9 @@ class TwoColumnPage(HTML5Page):
         self.secondary.add_child(Slot(view, 'secondary'))
         self.header.add_child(Slot(view, 'header'))
         self.footer.add_child(Slot(view, 'footer'))
-        
+
+    tag_name = 'html'  # So deprecation warning does not break
+
     @property
     def footer(self):
         """The Panel used as footer area."""
@@ -1777,6 +1778,7 @@ class LabelledInlineInput(Span):
             attributes.add_to('class', ['reahl-state-error'])
         return attributes
 
+
 # Uses: reahl/web/reahl.labelledinput.css
 class LabelledBlockInput(Panel):
     """A Widget that wraps around a given Input, adding a Label to the Input. Labels and their corresponding Inputs
@@ -2041,7 +2043,36 @@ class Menu(Ul):
         self.menu_items.append(item)
 
 
+class HorizontalLayout(Layout):
+    """A Layout that causes Widgets to be displayed horizontally. 
+    
+       .. admonition:: Styling
+       
+          Adds class reahl-horizontal to its Widget.
+          
+       (Only works for :class:`Menu` currently.)
+    
+    """
+    def customise_widget(self):
+        self.widget.append_class('reahl-horizontal')
+
+
+class VerticalLayout(Layout):
+    """A Layout that causes Widgets to be displayed vertically.
+    
+       .. admonition:: Styling
+       
+          Adds class reahl-vertical to its Widget.
+          
+       (Only works for :class:`Menu` currently.)
+    
+    """
+    def customise_widget(self):
+        self.widget.append_class('reahl-vertical')
+
+
 # Uses: reahl/web/reahl.hmenu.css
+@deprecated('Please use Menu().with_layout(HorizontalLayout()) instead.', '3.1')
 class HMenu(Menu):
     """A Menu, with items displayed next to each other.
 
@@ -2061,6 +2092,7 @@ class HMenu(Menu):
         return attributes
 
 
+@deprecated('Please use Menu().with_layout(VerticalLayout()) instead.', '3.1')
 class VMenu(Menu):
     """A Menu, with items displayed underneath each other.
 

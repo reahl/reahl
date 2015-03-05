@@ -1472,8 +1472,9 @@ class UploadedFile(object):
     or may not, and if we go and decode them with i.e UTF-8, the system could
     break with UnicodeDecodeError on jpegs and the like.
 
-    *Changed in 3.0*: UploadedFile is now constructed with the entire contents
-    of the uploaded file instead of with a file-like object as in 2.1.
+    .. versionchanged:: 3.0
+       UploadedFile is now constructed with the entire contents of the uploaded file instead of with a file-like object as in 2.1.
+
     """
     def __init__(self, filename, contents, mime_type):
         assert isinstance(contents, six.binary_type)
@@ -1481,10 +1482,10 @@ class UploadedFile(object):
         self.filename = filename
         self.mime_type = mime_type
 
-    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.')
+    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.', '3.1')
     def _get_content_type(self):
         return self.mime_type
-    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.')
+    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.', '3.1')
     def _set_content_type(self, value):
         self.mime_type = value
 

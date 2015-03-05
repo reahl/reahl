@@ -578,7 +578,7 @@ class LoginSession(Base):
 
        (See :class:`AccountManagementInterface` for logging users into and out of the system.)
 
-       *New in 3.1*
+       .. versionadded:: 3.1
     """
     __tablename__ = 'loginsession'
 

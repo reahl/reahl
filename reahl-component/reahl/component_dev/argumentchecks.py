@@ -174,7 +174,7 @@ class ArgumentCheckTests(object):
 @test(Fixture)
 def argument_checks_with_deprecated_methods(fixture):
     """When used with @deprecated, argument checks still work."""
-    @deprecated('this test class is deprecated')
+    @deprecated('this test class is deprecated', '1.2')
     class ADeprecatedClass(object):
         @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
         def __init__(self, x, y, title='a title', style=None):
@@ -189,12 +189,12 @@ def argument_checks_with_deprecated_methods(fixture):
 
 
     class ADeprecatedClass(object):
-        @deprecated('this instance method is deprecated')
+        @deprecated('this instance method is deprecated', '1.3')
         @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
         def instance_method(self, x, y, title='a title', style=None):
             pass
 
-        @deprecated('this class method is deprecated')
+        @deprecated('this class method is deprecated', '2.3')
         @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
         @classmethod
         def class_method(cls, x, y, title='a title', style=None):
