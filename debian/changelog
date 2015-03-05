@@ -16,7 +16,7 @@ python-reahl (3.1.0) unstable; urgency=low
  * Renamed content_type args to mime_type, resulting in migration needed for PersistedFile.
  * Deprecated HMenu and VMenu in favour of HorizontalLayout and VerticalLayout.
  * Changed @deprecated to include version and add it to docstring.
-
+ * Added rudimentary support for distributing wheels (Blueprint: wheels).
 
  -- Iwan Vosloo <iwan@reahl.org>  Sat, 06 Sep 2014 11:50:00 +0200
 

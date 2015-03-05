@@ -6,7 +6,7 @@
   
   <deps purpose="run">
     <egg name="reahl-component"/>
-    <thirdpartyegg name="docutils" minversion="0.12" maxversion="0.12"/>
+    <thirdpartyegg name="docutils" minversion="0.12" maxversion="0.12.999"/>
   </deps>
 
   <deps purpose="test">
@@ -22,7 +22,7 @@
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/mailutil_dev -i '.*' -t"/>
   
-  <distpackage type="sdist">
+  <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>
   
