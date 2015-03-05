@@ -30,6 +30,37 @@ from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
 
 
 class UnitSize(object):
+    """Represents a set of relative sizes to be used for an element depending on the size of the user's device.
+
+       The Pure library sizes elements relative to their parent using
+       fractions (1/2 or 3/4 or 1 are examples).  The size of an
+       element relative to its parent can also vary, depending on the
+       size of the device a user is using to view your web
+       application.
+
+       This class lets one specify which size whould be used for which
+       size of device display for a given element.
+
+       Sizes should be given as fractions in strings, such as the literal:
+
+       .. code-block:: python
+
+          UnitSize(sm='1', md='1/2', xl='1/4')
+
+       Sizes can be given for sizes of device using the keyword arguments:
+
+       :keyword default: If no other size is specified, or if the screen being used is smaller than the sizes given, this size is used.
+       :keyword sm: For small screens (or larger).
+       :keyword md: For medium-sized screen (or larger).
+       :keyword lg: For large devices (or larger).
+       :keyword xl: For extra-large devices (or larger).
+
+       .. note::
+
+          If a size is specified for `md`, for example, it will be used
+          on all screens that are medium-sized or larger and Pure will fall
+          back to using the `default` size for smaller screens.
+    """
     def __init__(self, default=None, sm=None, md=None, lg=None, xl=None):
         self.default = default
         self.sm = sm
@@ -42,9 +73,34 @@ class UnitSize(object):
 
 
 class ColumnLayout(Layout):
+    """A Layout that divides an element into a number of columns.
+
+       Each argument passed to the constructor defines a
+       column. Columns are added to the element using this Layout in
+       the order they are passed to the constructor. Columns can also 
+       be added to the Widget later, by calling :meth:`ColumnLayout.add_column`.
+
+       To define a column without specifying a size, just pass a
+       string containing the column name.
+       
+       To define a column with a given UnitSize, pass a tuple of which
+       the first element is the column name, and the second an
+       instance of :class:`UnitSize`
+
+       .. example::
+
+          ColumnLayout('column_a', ('column_b', UnitSize(default='1/2')))
+
+       .. admonition:: Styling
+       
+          Each column added is a <div> which has has the css class
+          'column-<column_name>' where <column_name> is the name as
+          specified to the constructor.
+
+    """
     def __init__(self, *column_definitions):
         super(ColumnLayout, self).__init__()
-        self.columns = OrderedDict()
+        self.columns = OrderedDict()  #: A dictionary containing the added columns, keyed by column name.
         self.column_sizes = OrderedDict()
         for column_definition in column_definitions:
             if isinstance(column_definition, tuple):
@@ -61,6 +117,12 @@ class ColumnLayout(Layout):
              panel.append_class('column-%s' % name)
 
     def add_column(self, unit_size=None):
+        """Add an un-named column, optionally with the given :class:`UnitSize`.
+
+           :keyword unit_size: The sizes to use for the column.
+
+           Returns a :class:`reahl.web.ui.Panel` representing the added column.
+        """
         unit_size = unit_size or UnitSize()
         unit = self.widget.add_child(Panel(self.view))
 
@@ -78,13 +140,35 @@ class ColumnLayout(Layout):
 
 
 class PageColumnLayout(Layout):
+    """A Layout that provides the main layout for an :class:`reahl.web.ui.HTML5Page`.
+
+       A PageColumnLayout adds a header and footer area to an HTML5Page, as well as 
+       a number of columns between the header and footer area, as specified by the
+       arguments to its constructor.
+    
+       All of these contents are also wrapped in a
+       :class:`reahl.web.ui.Panel`, which is handy for styling.
+
+       Specifying columns work exactly as for :class:`ColumnLayout`.
+
+       .. admonition:: Styling
+       
+          Adds a <div id="doc"> to the <body> of the page, which contains:
+
+           - a <header id="hd">
+           - a <div id="contents">
+           - a <footer id="ft">
+
+         The div#id element is further set up as with a :class:`ColumnLayout` using the
+         arguments passed as `column_definition`\ s.
+    """
     def __init__(self, *column_definitions):
         super(PageColumnLayout, self).__init__()
         self.document_layout = ColumnLayout(*column_definitions)
-        self.header = None
-        self.contents = None
-        self.footer = None
-        self.document = None
+        self.header = None    #: The :class:`reahl.web.ui.Header` of the page.
+        self.contents = None  #: The :class:`reahl.web.ui.Panel` containing the columns.
+        self.footer = None    #: The :class:`reahl.web.ui.Footer` of the page.
+        self.document = None  #: The :class:`reahl.web.ui.Panel` containing the entire page.
 
     def add_slots_for_columns(self):
         for column_name, column_widget in self.document_layout.columns.items():
@@ -114,6 +198,7 @@ class PageColumnLayout(Layout):
 
     @property
     def columns(self):
+        """A dictionary containing the added columns, keyed by column name."""
         return self.contents.layout.columns
 
 
