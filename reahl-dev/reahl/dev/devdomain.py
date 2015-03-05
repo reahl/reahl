@@ -91,6 +91,7 @@ class PythonSourcePackage(DistributionPackage):
         with self.project.generated_setup_py():
             build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
             self.project.setup(['build', '-b', build_directory, 'sdist', '--dist-dir', self.project.distribution_egg_repository.root_directory])
+            self.project.distribution_egg_repository.sign_files_for(self)
 
     @property
     def is_built(self):
@@ -98,7 +99,7 @@ class PythonSourcePackage(DistributionPackage):
 
     @property
     def package_files(self):
-        return [self.targz_filename]
+        return [self.targz_filename, self.sign_filename]
 
     @property
     def targz_filename(self):
@@ -107,6 +108,10 @@ class PythonSourcePackage(DistributionPackage):
     @property
     def sign_filename(self):
         return '%s.asc' % self.targz_filename
+
+    @property
+    def filenames_to_sign(self):
+        return [self.targz_filename]
 
     def targz_filename_for(self, project):
         return '%s-%s.tar.gz' % (project.project_name, project.version)
@@ -121,6 +126,57 @@ class PythonSourcePackage(DistributionPackage):
     @property
     def unique_id(self):
         return self.targz_filename
+
+
+class PythonWheelPackage(DistributionPackage):
+    """A PythonWheelPackage is an python wheel binary package."""
+    @classmethod
+    def get_xml_registration_info(cls):
+        return ('distpackage', cls, 'wheel')
+
+    def __str__(self):
+        return 'Wheel (bdist_wheel).'
+
+    def build(self):
+        with self.project.generated_setup_py():
+            build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
+            self.project.setup(['build', '-b', build_directory, 'bdist_wheel', '--dist-dir', self.project.distribution_egg_repository.root_directory, '--universal'])
+            self.project.distribution_egg_repository.sign_files_for(self)
+
+
+    @property
+    def is_built(self):
+        return self.project.distribution_egg_repository.is_uploaded(self)
+
+    @property
+    def package_files(self):
+        return [self.wheel_filename, self.sign_filename]
+
+    @property
+    def wheel_filename(self):
+        return self.wheel_filename_for(self.project)
+
+    @property
+    def sign_filename(self):
+        return '%s.asc' % self.wheel_filename
+        
+    @property
+    def filenames_to_sign(self):
+        return [self.wheel_filename]
+
+    def wheel_filename_for(self, project):
+        return '%s-%s-py2.py3-none-any.whl' % (project.project_name_pythonised, project.version)
+
+    def last_built_after(self, when):
+        return self.project.distribution_egg_repository.is_uploaded_after(self, when)
+
+    @property
+    def files_to_distribute(self):
+        return self.project.distribution_egg_repository.uploaded_files_for(self)
+
+    @property
+    def unique_id(self):
+        return self.wheel_filename
 
 
 class DebianPackage(DistributionPackage):
@@ -327,14 +383,7 @@ class PackageIndex(RemoteRepository):
         return file_unsafe_id.replace(os.sep, '-')
 
     def transfer(self, package):
-        try:
-            os.remove(os.path.join(package.project.distribution_egg_repository.root_directory, package.sign_filename))
-        except OSError:
-            pass
-
-        with package.project.generated_setup_py():
-            package.project.setup(['sdist', '--dist-dir', package.project.distribution_egg_repository.root_directory, 'register',
-                                   '--repository', self.repository, 'upload', '--repository', self.repository, '-s'])
+        Executable('twine').check_call(['upload', '-r', self.repository] + package.files_to_distribute)
 
     
 class SshRepository(RemoteRepository):
@@ -404,6 +453,11 @@ class LocalRepository(object):
     def uploaded_files_for(self, package):
         return [os.path.join(self.root_directory, filename)
                 for filename in package.package_files]
+
+    def sign_files_for(self, package):
+        sign_file = os.path.join(self.root_directory, package.sign_filename)
+        files_to_sign = [os.path.join(self.root_directory, filename) for filename in package.filenames_to_sign]
+        Executable('gpg').check_call(['-ab', '--yes', '-o', sign_file]+files_to_sign, cwd=self.root_directory)
 
         
 class LocalAptRepository(LocalRepository):

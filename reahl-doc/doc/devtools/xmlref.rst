@@ -176,9 +176,13 @@ Development and packaging
 <distpackage>
 """""""""""""
 
-  Use `<distpackage>` to indicate a package that should be built for distributing your project. Currently,
-  only one package format is supported, a Python egg source tarball. To have your project packaged in this way, 
-  set the `type` attribute to the string "sdist".
+  Use `<distpackage>` to indicate a package that should be built for distributing your project. 
+  The following package type are supported:
+
+   - sdist: a Python egg source tarball.
+   - wheel: a Python wheel (universal).
+
+  Set the `type` attribute of distpackage tag to one of the types above.  
   
   To build your distribution packages as per the .reahlproject file, run ``reahl build``. Such packages
   are not yet uploaded.
