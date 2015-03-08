@@ -483,9 +483,8 @@ class EqualToConstraint(ComparingConstraint):
         
 
 class GreaterThanConstraint(ComparingConstraint):
-    """A ValidationConstraint that requires the value of its Field to be greater than the value input into 
-      `other_field` (the > operator is used for the comparison).
-    
+    """A ValidationConstraint that requires the value of its Field to be greater than the value input into `other_field` (the > operator is used for the comparison).
+
        :param other_field: The Field whose value is compared.
        :param error_message: (See :class:`ValidationConstraint`)
     """
@@ -498,8 +497,8 @@ class GreaterThanConstraint(ComparingConstraint):
 
 
 class SmallerThanConstraint(ComparingConstraint):
-    """A ValidationConstraint that requires the value of its Field to be smaller than the value input into 
-      `other_field` (the < operator is used for the comparison).
+    """A ValidationConstraint that requires the value of its Field to be smaller than the value input 
+       into `other_field` (the < operator is used for the comparison).
     
        :param other_field: The Field whose value is compared.
        :param error_message: (See :class:`ValidationConstraint`)
@@ -513,8 +512,7 @@ class SmallerThanConstraint(ComparingConstraint):
 
 
 class MinLengthConstraint(ValidationConstraint):
-    """A ValidationConstraint that requires length of what the user typed to be at least `min_length`
-       characters long.
+    """A ValidationConstraint that requires length of what the user typed to be at least `min_length` characters long.
        
        :param min_length: The minimum allowed length of the input.
        :param error_message: (See :class:`ValidationConstraint`)
@@ -535,7 +533,7 @@ class MinLengthConstraint(ValidationConstraint):
 
 
 class MaxLengthConstraint(ValidationConstraint):
-    """A ValidationConstraint that requires length of what the user typed to not be more than `max_length`
+    """A ValidationConstraint that requires length of what the user typed to not be more than `max_length` 
        characters long.
        
        :param max_length: The maximum allowed length of the input.
@@ -1479,8 +1477,8 @@ class UploadedFile(object):
     def __init__(self, filename, contents, mime_type):
         assert isinstance(contents, six.binary_type)
         self.contents = contents
-        self.filename = filename
-        self.mime_type = mime_type
+        self.filename = filename  #: The name of the file
+        self.mime_type = mime_type #: The mime type of the file
 
     @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.', '3.1')
     def _get_content_type(self):
@@ -1493,10 +1491,20 @@ class UploadedFile(object):
 
     @property
     def size(self):
+        """The size of the UploadedFile contents."""
         return len(self.contents)
 
     @contextmanager
     def open(self):
+        """A contextmanager for reading the file contents (as bytes).
+
+        For example:
+
+        .. code-block:: python
+
+           with uploaded_file.open() as contents:
+               print(contents.read())
+        """
         # Scaffolding to maintain the old API when contents was a file-like object
         with io.BytesIO(self.contents) as f:
             yield f

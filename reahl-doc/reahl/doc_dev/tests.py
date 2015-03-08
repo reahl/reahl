@@ -38,6 +38,7 @@ from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
 from reahl.doc.examples.tutorial.slots.slots import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
+from reahl.doc.examples.features.slidingpanel.slidingpanel import SlidingPanelUI
 from reahl.doc.examples.features.validation.validation import ValidationUI
 from reahl.doc.examples.features.layout.layout import LayoutUI
 from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
@@ -76,6 +77,9 @@ class ExampleFixture(Fixture, WebBasicsMixin):
     def tab_contents_equals(self, expected_contents):
         return self.driver_browser.execute_script('return window.jQuery("div.reahl-tabbedpanel div p").html() == "%s"' % expected_contents)
 
+    def sliding_contents_equals(self, expected_contents):
+        return self.driver_browser.execute_script('return window.jQuery("div.contained:visible p").html() == "%s"' % expected_contents)
+
     def error_is_visible(self):
         return self.driver_browser.execute_script('return window.jQuery(".reahl-form label.error").is(":visible")')
 
@@ -109,6 +113,10 @@ class ExampleFixture(Fixture, WebBasicsMixin):
     @scenario
     def tabbed_panel(self):
         self.wsgi_app = self.new_wsgi_app(site_root=TabbedPanelUI, enable_js=True)
+
+    @scenario
+    def sliding_panel(self):
+        self.wsgi_app = self.new_wsgi_app(site_root=SlidingPanelUI, enable_js=True)
 
     @scenario
     def validation(self):
@@ -178,7 +186,7 @@ def hit_home_page(fixture):
     fixture.driver_browser.open('/')
 
 @test(ExampleFixture.tabbed_panel)
-def widgets(fixture):
+def widgets_using_factories(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/')
     vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 1') )
@@ -189,6 +197,15 @@ def widgets(fixture):
     vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 2') )
     vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'And another ...  to give content to the second tab.') )
     fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
+
+@test(ExampleFixture.sliding_panel)
+def widgets(fixture):
+    fixture.start_example_app()
+    fixture.driver_browser.open('/')
+    vassert( fixture.driver_browser.wait_for(fixture.sliding_contents_equals, 'a paragraph with text') )
+    fixture.driver_browser.click(XPath.link_with_text('>'))
+    vassert( fixture.driver_browser.wait_for(fixture.sliding_contents_equals, 'a different paragraph') )
+
 
 @test(ExampleFixture.validation)
 def validation(fixture):

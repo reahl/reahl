@@ -47,7 +47,7 @@ To use an instance of the ReahllyBadPoem
 
 .. code-block:: python
 
-   class HelloPage(TwoColumnPage):
+   class HelloPage(HTML5Page):
        def __init__(self, view):
            super(HelloPage, self).__init__(view)
            self.main.add_child(ReahllyBadPoem(view))
@@ -95,10 +95,8 @@ defined:
    :pyobject: AddressBookUI
 
 AddressBookPage, in turn, is a :class:`~reahl.web.fw.Widget` which inherits from
-:class:`~reahl.web.ui.TwoColumnPage`. This is pure lazyness:
-:class:`~reahl.web.ui.TwoColumnPage` is a page with two columns, a
-header and footer -- all nicely laid out already. We just add our
-content to its `.main` column.
+:class:`~reahl.web.ui.HTML5Page` -- a basic page that already contains
+a `.body` for us to add stuff to.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
    :pyobject: AddressBookPage

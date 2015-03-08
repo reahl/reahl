@@ -28,13 +28,13 @@ in the figure above:
 
 Using Reahl, this is written entirely in Python, and in terms of user
 interface widgets: You create a page by inheriting from the existing
-TwoColumnPage Widget (which comes with basic two-column layout
-already). In the ``__init__`` of that page, you add a TabbedPanel
-Widget as a child to the main column of this TwoColumnPage, and
-populate the TabbedPanel with Tabs. Each Tab is given a *factory* it
-can use to generate its own contents if and when that becomes
-necessary (in each case here, the contents is just a paragraph with
-text, but it could have been any Widget).
+HTML5Page Widget (which comes with a `.body` already). In the
+``__init__`` of that page, you add a TabbedPanel Widget as a child to
+the body of this HTML5Page, and populate the TabbedPanel
+with Tabs. Each Tab is given a *factory* it can use to generate its
+own contents if and when that becomes necessary (in each case here,
+the contents is just a paragraph with text, but it could have been any
+Widget).
 
 What you get for that is tabs that can be switched via JavaScript,
 preventing the entire page to be refreshed when the user switches

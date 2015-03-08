@@ -17,6 +17,9 @@
 
 """
 Layout tools based on Pure (http://purecss.io/)
+
+.. versionadded:: 3.1
+
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
@@ -87,7 +90,7 @@ class ColumnLayout(Layout):
        the first element is the column name, and the second an
        instance of :class:`UnitSize`
 
-       .. example::
+       .. code-block:: python
 
           ColumnLayout('column_a', ('column_b', UnitSize(default='1/2')))
 
@@ -150,6 +153,9 @@ class PageColumnLayout(Layout):
        :class:`reahl.web.ui.Panel`, which is handy for styling.
 
        Specifying columns work exactly as for :class:`ColumnLayout`.
+
+       Inside each added column, a :class:`reahl.web.ui.Slot` is added that is named
+       after the column. 
 
        .. admonition:: Styling
        
