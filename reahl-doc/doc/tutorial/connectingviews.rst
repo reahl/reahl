@@ -14,13 +14,16 @@ Moving between Views
 
       reahl example <examplename>
 
-Most :class:`~reahl.web.fw.UserInterface`\ s consist of several  :class:`~reahl.web.fw.View`\ s  that are designed to work
-together. It is useful to have a clear picture of which  :class:`~reahl.web.fw.View`\ s  exist in
-a user interface, and how they relate to one another.
+Most :class:`~reahl.web.fw.UserInterface`\ s consist of several
+:class:`~reahl.web.fw.View`\ s that are designed to work together. It
+is useful to have a clear picture of which
+:class:`~reahl.web.fw.View`\ s exist in a user interface, and how the
+user can move between them.
 
 For example, the user interface of the address book application can be
-split up into two different  :class:`~reahl.web.fw.View`\ s : one that lists all the addresses,
-and another on which you can add a new address.
+split up into two different :class:`~reahl.web.fw.View`\ s : one that
+lists all the addresses, and another on which you can add a new
+address.
 
 .. figure:: addressbooksplit.png
    :align: center
@@ -35,7 +38,7 @@ navigation provided which is under the control of the user.
 Also shown in the schematic is that when a user is on the "Add
 Address" :class:`~reahl.web.fw.View`, and clicks on the Add button, the user is automatically
 transitioned back to the "Addresses" :class:`~reahl.web.fw.View`. In this case, the web
-application controls the navigation.
+application itself controls the navigation.
 
 Each of these modes of navigation are dealt with differently:
 
@@ -56,17 +59,20 @@ current user with regard to the given :class:`~reahl.web.fw.View`. The meta-info
 The example below shows the application designed above with its two
 :class:`~reahl.web.fw.View`\ s , and a :class:`~reahl.web.ui.Menu` which is created from :class:`~reahl.web.fw.Bookmark`\ s.  Note how the
 :class:`~reahl.web.fw.Bookmark`\ s are obtained: using the :class:`~reahl.web.fw.View` and the :class:`~reahl.web.fw.UserInterface` of which the
-:class:`~reahl.web.fw.View` forms part.
+:class:`~reahl.web.fw.View` forms part.  (Layout, such as the use of :class:`~reahl.web.ui.HorizontalLayout` :doc:`is discussed in the next section<styling>`.)
 
-The :class:`~reahl.web.ui.Menu` should be on every page. We accomplish this by creating AddressBookPage, and 
-letting the page for each :class:`~reahl.web.fw.View` inherit from AddressBookPage. An
-AddressBookPage is literally just a :class:`~reahl.web.ui.TwoColumnPage`, with an :class:`~reahl.web.ui.HMenu` (a
-horisontal menu) added to its `.header`. The :class:`~reahl.web.ui.Menu` uses the textual
-description for each :class:`~reahl.web.fw.View` as obtained from the :class:`~reahl.web.fw.Bookmark`\ s from which it
-is constructed. Such a description defaults to being the title of the
+The :class:`~reahl.web.ui.Menu` should be on every page. We accomplish
+this by creating AddressBookPage, and letting the page for each
+:class:`~reahl.web.fw.View` inherit from AddressBookPage. An
+AddressBookPage is literally just a :class:`~reahl.web.ui.HTML5Page`,
+with a :class:`~reahl.web.ui.Menu` added to its `.body`. The
+:class:`~reahl.web.ui.Menu` uses the textual description for each
+:class:`~reahl.web.fw.View` as obtained from the
+:class:`~reahl.web.fw.Bookmark`\ s from which it is constructed. Such
+a description defaults to being the title of the
 :class:`~reahl.web.fw.View`.
 
-In order to be able to create the :class:`~reahl.web.ui.HMenu`, AddressBookPage and its subclasses need a
+In order to be able to create the :class:`~reahl.web.ui.Menu`, AddressBookPage and its subclasses need a
 :class:`~reahl.web.fw.Bookmark` for every :class:`~reahl.web.fw.View` in the application. This leaves us with 
 a bit of a chicken-and-egg problem: We usually set the page for a particular :class:`~reahl.web.fw.View` when 
 it is defined. However, each page needs all the bookmarks to all :class:`~reahl.web.fw.View`\ s. To get around

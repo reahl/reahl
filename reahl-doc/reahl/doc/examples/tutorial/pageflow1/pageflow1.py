@@ -8,27 +8,25 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, Menu, HorizontalLayout
-from reahl.web.pure import PageColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout('main'))
-        self.layout.header.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
+        self.body.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
 
 
 class HomePage(AddressBookPage):
     def __init__(self, view, main_bookmarks):
         super(HomePage, self).__init__(view, main_bookmarks)
-        self.layout.columns['main'].add_child(AddressBookPanel(view))
+        self.body.add_child(AddressBookPanel(view))
 
 
 class AddPage(AddressBookPage):
     def __init__(self, view, main_bookmarks):
         super(AddPage, self).__init__(view, main_bookmarks)
-        self.layout.columns['main'].add_child(AddAddressForm(view))
+        self.body.add_child(AddAddressForm(view))
 
 
 class AddressBookUI(UserInterface):

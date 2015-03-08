@@ -10,7 +10,7 @@ def lots_of(message):
 
 class LayoutUI(UserInterface):
     def assemble(self):
-        layout = PageColumnLayout(('secondary', UnitSize('1/3')), ('main', UnitSize(default='2/3')))
+        layout = PageColumnLayout(('secondary', UnitSize(default='1/3')), ('main', UnitSize(default='2/3')))
         self.define_page(HTML5Page, style='basic').use_layout(layout)  
 
         home = self.define_view('/', title='Layout demo')
@@ -39,8 +39,8 @@ class CommentForm(Form):
         self.add_child( LabelledBlockInput(TextInput(self, comment.fields.email_address)) )
         self.add_child( LabelledBlockInput(TextInput(self, comment.fields.text)) )
 
-        layout = ColumnLayout(('left', UnitSize('1/2')), ('right', UnitSize('1/2')))
+        layout = ColumnLayout(('left', UnitSize(default='1/2')), ('right', UnitSize(default='1/2')))
         row = self.add_child(Panel(view).use_layout(layout))
 
-        row.layout.columns['left'].add_child( P(view, text='This is in the left block of the row') ) 
-        row.layout.columns['right'].add_child( P(view, text='This is in the right block of the row') ) 
+        row.layout.columns['left'].add_child( P(view, text='This is in the left column of the row') ) 
+        row.layout.columns['right'].add_child( P(view, text='This is in the right column of the row') ) 
