@@ -41,8 +41,8 @@ class UnitSize(object):
        size of the device a user is using to view your web
        application.
 
-       This class lets one specify which size whould be used for which
-       size of device display for a given element.
+       This class lets one specify the size to use for different sizes of
+       display device.
 
        Sizes should be given as fractions in strings, such as the literal:
 
