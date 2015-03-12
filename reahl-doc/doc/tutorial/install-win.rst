@@ -24,12 +24,26 @@ Here is the super-short summary:
 - Install setuptools:
     - download `ez_setup.py <https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py>`_ from the setuptools project on bitbucket.
     - run ez_setup.py (right-click, then choose "Open with > Python")
-- Install virtualenv (don't bother with pip, it cannot install binary packages needed for Windows):
+- Install pip:
+    - download `get-pip.py <https://bootstrap.pypa.io/get-pip.py` from PyPA.
+    - run get-pip.py (right-click, then choose "Open with > Python")
+
+Wheel support and virtualenv
+----------------------------
+
+- Ensure you have the latests pip with wheel support
     - In a command prompt window, execute:
     
     .. code-block:: bash
     
-       easy_install virtualenv
+       pip install -U wheel
+
+- Install virtualenv using wheels:
+    - In a command prompt window, execute:
+    
+    .. code-block:: bash
+    
+       pip install -U virtualenv
 
 
 Remember to go back and :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`!

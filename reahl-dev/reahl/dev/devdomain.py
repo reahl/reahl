@@ -1566,14 +1566,19 @@ class SetupCommandFailed(Exception):
 class SetupMonitor(object):
     def __init__(self):
         self.captured_stdout = []
+        self.errors = None
 
     def __enter__(self):
         self.original_stdout = sys.stdout
+        sys.stdout = self
         return self
 
     def write(self, line_to_write):
         self.captured_stdout.append(line_to_write)
         self.original_stdout.write(line_to_write)
+        
+    def flush(self):
+        self.original_stdout.flush()
 
     def __exit__(self, *args):
         sys.stdout = self.original_stdout
@@ -1592,14 +1597,14 @@ class SetupMonitor(object):
             return False
         start_index = self.captured_stdout.index(starting)
         for line in self.captured_stdout[start_index+1:]:
-            if line == expected_end:
+            if re.match(expected_end, line):
                 return True
             if only_up_to and line.startswith(only_up_to):
                 return False
         return True
         
     def check_build_command(self):
-        return self.output_ends_with('running build\n', 'Creating tar archive\n')
+        return self.output_ends_with('running build\n', '[Cc]reating (tar archive|.*/WHEEL)\n')
 
     def check_upload_command(self):
         return self.output_ends_with('running upload\n', 'Server response (200): OK\n', only_up_to='running')

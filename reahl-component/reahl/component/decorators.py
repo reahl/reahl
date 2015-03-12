@@ -41,8 +41,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
- 
+
 from __future__ import print_function, unicode_literals, absolute_import, division
+import six
 
 from functools import partial, wraps
 import inspect
@@ -81,7 +82,7 @@ def deprecated(message, version='n/a'):
             warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing, message), DeprecationWarning, stacklevel=2)
             return wrapped(*args, **kwargs)
 
-        if f.__doc__:
+        if six.PY3 and f.__doc__:
             f.__doc__ = '%s\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
 
         if inspect.isclass(f):

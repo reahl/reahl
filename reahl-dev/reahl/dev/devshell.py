@@ -204,13 +204,16 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             try:
                 retcode = self.function(project, options, args)
             except SystemExit as ex:
-                print('Script exited: %s' % ex, file=sys.stderr)
-                retcode = ex.code
+                if ex.code:
+                    print('\nERROR: Script exited: %s' % ex, file=sys.stderr)
+                    retcode = ex.code
+                else:
+                    retcode = 0
             except OSError as ex:
-                print('Execution failed: %s' % ex, file=sys.stderr)
+                print('\nERROR: Execution failed: %s' % ex, file=sys.stderr)
                 retcode = ex.errno
             except SetupCommandFailed as ex:
-                print('Execution failed: %s' % ex, file=sys.stderr)
+                print('\nERROR: Execution failed: %s' % ex, file=sys.stderr)
                 retcode = -1
             except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
                     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
@@ -225,11 +228,11 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
           
         if retcode != None:
             if isinstance(retcode, six.string_types):
-                print('Child was terminated with error message: %s' % retcode, file=sys.stderr)
+                print('ERROR: Child was terminated with error message: %s\n' % retcode, file=sys.stderr)
             elif retcode < 0:
-                print('Child was terminated by signal %s' % -retcode, file=sys.stderr)
+                print('ERROR: Child was terminated by signal %s\n' % -retcode, file=sys.stderr)
             elif retcode > 0:
-                print('Child returned %s' % -retcode, file=sys.stderr)
+                print('ERROR: Child returned %s\n' % -retcode, file=sys.stderr)
 
         return retcode
 
@@ -270,10 +273,14 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             print('\n--- SUMMARY ---')
             for i in project_list:
                 print('%s %s' % (results[i], i.relative_directory), file=sys.stdout)
+            print('--- END ---\n')
 
+        success = set(results.values()) == {0}
+        status_message = '' if success else '(despite failures)'
+        print('Performing post command duties %s' % status_message)
         self.perform_post_command_duties()
 
-        if set(results.values()) == {0}:
+        if success:
             return 0
         return -1
 
@@ -437,6 +444,7 @@ class Build(ForAllWorkspaceCommand):
         return 0
 
     def perform_post_command_duties(self):
+        print('Signing the apt repository')
         self.workspace.update_apt_repository_index()
 
 

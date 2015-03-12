@@ -2218,7 +2218,7 @@ class TabbedPanel(Panel):
     def __init__(self, view, css_id):
         super(TabbedPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-tabbedpanel')
-        self.tabs = self.add_child(Menu(view, []).use_layout(HorizontalLayout())
+        self.tabs = self.add_child(Menu(view, [])).use_layout(HorizontalLayout())
         self.content_panel = self.add_child(Panel(view))
         self.enable_refresh()
 
