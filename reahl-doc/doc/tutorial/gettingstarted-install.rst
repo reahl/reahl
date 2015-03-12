@@ -81,32 +81,23 @@ After activating your new environment, the prompt of the command line
 changes to reflect the environment that is currently active.
 
 With your `virtualenv` activated, Reahl can be installed into it by
-issuing:
-
-On Linux or Mac:
+issuing (regardless of platform):
 
 .. code-block:: bash
 
    pip install reahl[declarative,sqlite,dev,doc]  
 
-On Windows:
-
-   easy_install reahl[declarative,sqlite,dev,doc]  
-
 .. note::
 
-   Wherever we use pip for installing things, on Windows you should
-   use easy_install instead... pip cannot install binary packages, and many of
-   Reahl's dependencies are distributed in binary form for Windows.
-
-   You can still use pip on Windows to uninstall things, see what's 
-   installed, etc.
+   Some of Reahl's dependencies are distributed in binary form for 
+   Windows. These have to be installed using the wheel format when
+   using pip, so do ensure that you are using a version of Pip > 6.
 
 This may run a while, as it installs all of the projects Reahl depends
 on as well. Some of these dependencies are installed and built from
-source, hence, this process needs :ref:`your platform to be prepared
-properly for Python development <prep_install>` before you attempt to
-install Reahl.
+source (on platforms other than windows), hence, this process needs
+:ref:`your platform to be prepared properly for Python development 
+<prep_install>` before you attempt to install Reahl.
 
 Choose what to install
 ----------------------
@@ -136,14 +127,5 @@ include, and what they install:
  postgresql
    Support for postgresql databases 
  
- elixir
-   Support for the older Elixir-based implementation of
-   the web framework (uses some components from the 2.1 
-   series, and only runs on Python 2.7)
-
-.. note::
-
-   You cannot install `doc` and `elixir` together, as the reahl-doc 
-   component depends on the new, declarative implementations.
 
 
