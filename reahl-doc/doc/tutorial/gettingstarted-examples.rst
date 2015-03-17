@@ -28,7 +28,7 @@ To get an example, run (e.g.):
 
    reahl example tutorial.hello
 
-This will create a directory "hello" in your current location with the
+This will create a directory "hello" in your current location containing the
 example.
 
 
@@ -39,6 +39,7 @@ After first checking out an example, you need to do the following
 before you can run it:
 
  - Go to the checked out example:
+
    .. code-block:: bash
 
       cd hello
@@ -77,6 +78,6 @@ example, you need to remove the previous database:
 
 To remove a previous example from development, run:
 
- .. code-block:: bash
+.. code-block:: bash
 
-    reahl setup -- develop -N --uninstall
+   reahl setup -- develop -N --uninstall
