@@ -39,6 +39,7 @@ from six.moves import cStringIO
 import logging
 from contextlib import contextmanager
 from pkg_resources import Requirement
+import warnings
 
 from webob import Request, Response
 from webob.exc import HTTPException
@@ -58,7 +59,7 @@ from reahl.component.exceptions import IsSubclass
 from reahl.component.exceptions import NotYetAvailable
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
-from reahl.component.exceptions import checkargs_explained
+from reahl.component.exceptions import ArgumentCheckedCallable
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
 from reahl.component.i18n import Translator
@@ -476,11 +477,6 @@ class UserInterface(object):
             return path
         return relative_path
 
-    @property
-    def current_view(self):
-        """The :class:`View` which is targetted by the URL of the current :class:webob.Request."""
-        return self.controller.view_for(self.relative_path)
-
     def assemble(self, **ui_arguments):
         """Programmers override this method in order to define the contents of their UserInterface. This mainly
            means defining Views or other UserInterfaces inside the UserInterface being assembled. The default
@@ -511,13 +507,12 @@ class UserInterface(object):
            Widget that will be constructed in `widget_class`.  Next, pass all the arguments that should
            be passed to `widget_class` upon construction, except the first one (its `view`).
         """
-        checkargs_explained('define_page was called with arguments that do not match those expected by %s' % widget_class,
-                            widget_class, NotYetAvailable('self'), NotYetAvailable('view'), *args, **kwargs)
+        ArgumentCheckedCallable(widget_class, explanation='define_page was called with arguments that do not match those expected by %s' % widget_class).checkargs(NotYetAvailable('view'), *args, **kwargs)
 
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
 
-    @deprecated('Please use .define_page() instead.')
+    @deprecated('Please use .define_page() instead.', '2.1')
     def define_main_window(self, *args, **kwargs):
         return self.define_page(*args, **kwargs)
 
@@ -565,8 +560,7 @@ class UserInterface(object):
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
 
         view_class = view_class or UrlBoundView
-        checkargs_explained('.define_view() was called with incorrect arguments for %s' % view_class.assemble, 
-                            view_class.assemble, NotYetAvailable('self'), **assemble_args)
+        ArgumentCheckedCallable(view_class.assemble, '.define_view() was called with incorrect arguments for %s' % view_class.assemble).checkargs(NotYetAvailable('self'), **assemble_args)
 
         factory = ViewFactory(ParameterisedPath(relative_path, path_argument_fields), title, slot_definitions, 
                               page_factory=page, detour=detour, view_class=view_class, 
@@ -600,8 +594,7 @@ class UserInterface(object):
 
         if not factory_method:
             view_class = view_class or UrlBoundView
-            checkargs_explained('.define_regex_view() was called with incorrect arguments for %s' % view_class.assemble,
-                                view_class.assemble, NotYetAvailable('self'), **assemble_args)
+            ArgumentCheckedCallable(view_class.assemble, explanation='.define_regex_view() was called with incorrect arguments for %s' % view_class.assemble).checkargs(NotYetAvailable('self'), **assemble_args)
 
         factory = ViewFactory(RegexPath(path_regex, path_template, path_argument_fields), None, {}, 
                               view_class=view_class, factory_method=factory_method, read_check=None, write_check=None, **passed_kwargs)
@@ -656,14 +649,13 @@ class UserInterface(object):
              after construction.
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
-        checkargs_explained('.define_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
-                            ui_class.assemble, NotYetAvailable('self'), **assemble_args)
+        ArgumentCheckedCallable(ui_class.assemble, explanation='.define_user_interface() was called with incorrect arguments for %s' % ui_class.assemble).checkargs(NotYetAvailable('self'), **assemble_args)
 
         ui_factory = UserInterfaceFactory(self, ParameterisedPath(path, path_argument_fields), slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    @deprecated('Please use .define_user_interface() instead')
+    @deprecated('Please use .define_user_interface() instead', '2.1')
     def define_region(self, *args, **kwargs):
         return self.define_user_interface(*args, **kwargs)
 
@@ -677,15 +669,14 @@ class UserInterface(object):
            :param name: (See `define_user_interface`.)
         """
         path_argument_fields, passed_kwargs = self.split_fields_and_hardcoded_kwargs(assemble_args)
-        checkargs_explained('.define_regex_user_interface() was called with incorrect arguments for %s' % ui_class.assemble, 
-                            ui_class.assemble, NotYetAvailable('self'), **assemble_args)
+        ArgumentCheckedCallable(ui_class.assemble, explanation='.define_regex_user_interface() was called with incorrect arguments for %s' % ui_class.assemble).checkargs(NotYetAvailable('self'), **assemble_args)
 
         regex_path = RegexPath(path_regex, path_template, path_argument_fields)
         ui_factory = UserInterfaceFactory(self, regex_path, slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    @deprecated('Please use .define_regex_user_interface() instead')
+    @deprecated('Please use .define_regex_user_interface() instead', '2.1')
     def define_regex_region(self, *args, **kwargs):
         return self.define_regex_user_interface(*args, **kwargs)
 
@@ -756,9 +747,10 @@ class UserInterface(object):
         return self.controller.view_for(relative_path, for_bookmark=for_bookmark)
 
 
-@deprecated('Region has been renamed to UserInterface, please use UserInterface instead')
+@deprecated('Region has been renamed to UserInterface, please use UserInterface instead', '2.1')
 class Region(UserInterface):
     pass
+
 
 
 class StaticUI(UserInterface):
@@ -913,14 +905,39 @@ class WidgetList(list):
         return False
 
 
+class Layout(object):
+    """A Layout is used to add children to the Widget in customised ways, and to customise the Widget itself upon construction.
+    """
+    
+    def __init__(self):
+        self.widget = None
+        
+    @property
+    def view(self):
+        return self.widget.view
+
+    def apply_to_widget(self, widget):
+        if self.widget:
+            raise ProgrammerError('Already used by %s' % self.widget)
+        self.widget = widget
+        self.customise_widget()
+
+    def customise_widget(self):
+        """Override this method in subclasses to allow your Layout to change its Widget upon construction.
+           There is no need to call super(), as the superclass implementation does nothing.
+        """
+        pass
+
+
+
 class Widget(object):
     """Any user interface element in Reahl is a Widget. A direct instance of this class will not display anything when rendered. 
        A User interface is composed of Widgets by adding other Widgets to a Widget such as this one,
        forming a whole tree of Widgets.
     
        :param view: The current View.
-       :param read_check: A no-arg callable. If it returns True, the Widget will be rendered for the current user, else not.
-       :param write_check: A no-arg callable. If it returns True, the current user is allowed to write to this Widget.
+       :keyword read_check: A no-arg callable. If it returns True, the Widget will be rendered for the current user, else not.
+       :keyword write_check: A no-arg callable. If it returns True, the current user is allowed to write to this Widget.
                         The act of writing to a Widget is defined differently for subclasses of Widget. On this high level,
                         the Widget will also merely be displayed to the user if the user can write to the Widget.
     """
@@ -939,8 +956,8 @@ class Widget(object):
                                              #: in order of being added.
         self.view = view                     #: The current view, as passed in at construction
         self.priority = None
-        self.content_type = 'text/html'
-        self.charset = 'utf-8'
+        self.mime_type = 'text/html'
+        self.encoding = 'utf-8'
         self.default_slot_definitions = {}
         self.slot_contents = {}
         self.marked_as_security_sensitive = False
@@ -948,6 +965,40 @@ class Widget(object):
         self.read_check = read_check         #:
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
+        self.layout = None                   #: The Layout used for visual layout of this Widget
+        
+    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
+    def _get_charset(self):
+        return self.encoding
+    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
+    def _set_charset(self, value):
+        self.encoding = value
+
+    charset = property(_get_charset, _set_charset)
+
+    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.', '3.1')
+    def _get_content_type(self):
+        return self.mime_type
+    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.', '3.1')
+    def _set_content_type(self, value):
+        self.mime_type = value
+
+    content_type = property(_get_content_type, _set_content_type)
+
+        
+    def use_layout(self, layout):
+        """Attaches the given Layout to this Widget. The Layout is also given a chance to customise the Widget.
+        
+           Returns the original (modified) Widget for convenience.
+        
+           :param layout: A Layout to be used in the construction of this Widget.
+        """
+       
+        if self.layout: 
+            raise ProgrammerError('Already using a layout: %s' % self.layout)
+        self.layout = layout
+        self.layout.apply_to_widget(self)
+        return self
 
     def set_creating_factory(self, factory):
         self.created_by = factory
@@ -1537,17 +1588,27 @@ class WidgetFactory(Factory):
        :param widget_kwargs: All the keyword arguments of `widget_class`.
     """
     def __init__(self, widget_class, *widget_args, **widget_kwargs):
-        checkargs_explained('An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class),
-                            widget_class, NotYetAvailable('self'), NotYetAvailable('view'), *widget_args, **widget_kwargs)
+        ArgumentCheckedCallable(widget_class, explanation='An attempt was made to create a WidgetFactory for %s with arguments that do not match what is expected for %s' % (widget_class, widget_class)).checkargs(NotYetAvailable('view'), *widget_args, **widget_kwargs)
 
         super(WidgetFactory, self).__init__(self.create_widget)
         self.widget_class = widget_class
         self.widget_args = widget_args
         self.widget_kwargs = widget_kwargs
         self.default_slot_definitions = {}
+        self.layout = None
+
+    def use_layout(self, layout):
+        """If called on the factory, .use_layout will be called in the Widget created, passing along the given layout.
+
+           :keyword use_layout: A layout to be used with the newly created Widget
+        """
+        self.layout = layout
+        return self
 
     def create_widget(self, view):
         widget = self.widget_class(view, *self.widget_args, **self.widget_kwargs)
+        if self.layout:
+            widget.use_layout(self.layout)
         for name, widget_factory in self.default_slot_definitions.items():
             widget.add_default_slot(name, widget_factory)
         widget.set_creating_factory(self)
@@ -1790,41 +1851,26 @@ class HeaderContent(Widget):
         self.page = page
 
     def header_only_material(self):
+        config = WebExecutionContext.get_context().config
+
         result = ''
-        # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
-        result += '\n<!--[if lt IE 9]>'
-        result += '<script src="/static/html5shiv-printshiv-3.6.3.js" type="text/javascript"></script>'
-        result += '<![endif]-->'
-        # From: http://code.google.com/p/ie7-js/ 
-        # Not sure if this does not perhaps interfere with YUI reset stuff? 
-        result += '\n<!--[if lte IE 9]>'  
-        result += '<script src="/static/IE9.js" type="text/javascript"></script>'
-        result += '<![endif]-->'  
+        for library in config.web.frontend_libraries:
+            result += library.header_only_material(self.page)
+
         result += '\n<script type="text/javascript" src="/static/reahl.js"></script>'
         result += '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
         return result
 
-    def render_document_ready_material(self):
-        result = '\n<script type="text/javascript">\n'
-        result += 'jQuery(document).ready(function($){\n'
-        result += '$(\'body\').addClass(\'enhanced\');\n'
-        js = set()
-        js.update(self.page.get_js())
-        for item in sorted(js):
-            result += item+'\n'
-        result += '\n});'
-        result += '\n</script>\n'
-        return result
-        
     def render(self):
-        return self.header_only_material() + self.render_document_ready_material()
+        return self.header_only_material()
     
 
 
 class FooterContent(HeaderContent):
     def render(self):
-        #from http://ryanpricemedia.com/2008/03/19/jquery-broken-in-internet-explorer-put-your-documentready-at-the-bottom/
-        return '<!--[if IE 6]>' + self.render_document_ready_material() +  '<![endif]-->'
+        config = WebExecutionContext.get_context().config
+        return ''.join([library.footer_only_material(self.page)
+                        for library in config.web.frontend_libraries])
 
 
 class Resource(object):
@@ -1950,18 +1996,26 @@ class MethodResult(object):
        ways. MethodResult is the superclass of all such different kinds of results.
 
        :param catch_exception: The class of Exeption to catch if thrown while the :class:`RemoteMethod` executes.
-       :param content_type: The content type to use when sending this MethodResult back to a browser.
-       :param charset: The charset to use when sending this MethodResult back to a browser.
+       :param mime_type: The mime type to use as html content type when sending this MethodResult back to a browser.
+       :param encoding: The encoding to use when sending this MethodResult back to a browser.
     """
-    def __init__(self, catch_exception=None, content_type='text/html', charset='utf-8'):
+    def __init__(self, catch_exception=None, content_type=None, mime_type='text/html', charset=None, encoding='utf-8'):
+        if charset:
+            warnings.warn('The charset keyword argument is deprecated, please use encoding instead.', 
+                          DeprecationWarning, stacklevel=2)
+        if content_type:
+            warnings.warn('The charset keyword argument is deprecated, please use mime_type instead.', 
+                          DeprecationWarning, stacklevel=2)
         self.catch_exception = catch_exception
-        self.content_type = content_type
-        self.charset = charset
+        self.mime_type = content_type or mime_type
+        self.encoding = charset or encoding
 
     def create_response(self, return_value):
         """Override this in your subclass to create a :class:`webob.Response` for the given `return_value` which
            was returned when calling the RemoteMethod."""
-        return Response(body=self.render(return_value))
+        return Response(body=self.render(return_value), 
+                        charset = ascii_as_bytes_or_str(self.encoding),
+                        content_type = ascii_as_bytes_or_str(self.mime_type))
     
     def create_exception_response(self, exception):
         """Override this in your subclass to create a :class:`webob.Response` for the given `exception` instance
@@ -1969,7 +2023,9 @@ class MethodResult(object):
            is raised, and only if you specified for it to be caught using `catch_exception` when this MethodResult
            was created.
         """
-        return Response(body=self.render_exception(exception))
+        return Response(body=self.render_exception(exception),
+                        charset = ascii_as_bytes_or_str(self.encoding),
+                        content_type = ascii_as_bytes_or_str(self.mime_type))
 
     def render(self, return_value):
         """Instead of overriding `.create_response` to customise how `return_value` will be reported, 
@@ -1983,14 +2039,14 @@ class MethodResult(object):
 
     def get_response(self, return_value):
         response = self.create_response(return_value)
-        response.content_type = ascii_as_bytes_or_str(self.content_type)
-        response.charset = ascii_as_bytes_or_str(self.charset)
+        response.content_type = ascii_as_bytes_or_str(self.mime_type)
+        response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
     def get_exception_response(self, exception):
         response = self.create_exception_response(exception)
-        response.content_type = ascii_as_bytes_or_str(self.content_type)
-        response.charset = ascii_as_bytes_or_str(self.charset)
+        response.content_type = ascii_as_bytes_or_str(self.mime_type)
+        response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
     
@@ -1999,11 +2055,13 @@ class RedirectAfterPost(MethodResult):
        RemoteMethod instead of actually returning the result for display. A RedirectAfterPost is meant to be
        used by the EventChannel only.
 
-       :param content_type:
-       :param charset:
+       :param content_type: (See :class:`MethodResult`.)
+       :param encoding: (See :class:`MethodResult`.)
     """
-    def __init__(self, content_type='text/html', charset='utf-8'):
-        super(RedirectAfterPost, self).__init__(catch_exception=DomainException, content_type=content_type, charset=charset)
+    def __init__(self, content_type=None, mime_type='text/html', charset=None, encoding='utf-8'):
+        super(RedirectAfterPost, self).__init__(catch_exception=DomainException, 
+                                                content_type=content_type, mime_type=mime_type, 
+                                                charset=charset, encoding=encoding)
 
     def create_response(self, return_value):
         next_url = return_value
@@ -2023,7 +2081,7 @@ class JsonResult(MethodResult):
        :param kwargs: Other keyword arguments are sent to MethodResult, see :class:`MethodResult`.
     """
     def __init__(self, result_field, **kwargs):
-        super(JsonResult, self).__init__(content_type='application/json', charset='utf-8', **kwargs)
+        super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
         
@@ -2046,7 +2104,7 @@ class WidgetResult(MethodResult):
     """
 
     def __init__(self, result_widget):
-        super(WidgetResult, self).__init__(content_type='text/html', charset='utf-8', catch_exception=DomainException)
+        super(WidgetResult, self).__init__(mime_type='text/html', encoding='utf-8', catch_exception=DomainException)
         self.result_widget = result_widget
 
     def render(self, return_value):
@@ -2216,26 +2274,10 @@ class ComposedPage(Resource):
         return self.render()
 
     def render(self):
-        # This method used to encode content_type, charset and cache_control
-        # headers to UTF-8 before passing them to WebOb.
-        # That was wrong. Let's suppose that the headers did contain values
-        # outside of ASCII range, but that self.page.charset was i.e. KOI8-R
-        # than UTF-8. How would WebOb/the web client ever retrieve the original
-        # value if they decode something as KOI8-R which was originally encoded
-        # as UTF-8?
-        #
-        # But in actual fact these headers are part of HTTP protocol and are
-        # documented as being in ASCII [citation neeeded], so the utf-8 encoding
-        # in the code was nothing but noise that confuses the reader.
-        #
-        # WebOb wants whatever a "native" string literal is on the version of
-        # Python it runs on: (a normal non-unicode str on Python 2, a normal
-        # str on Python 3). That behaviour is another strong clue that values
-        # outside ASCII range can not be at here.
         return Response(
             body=self.page.render(),
-            content_type=ascii_as_bytes_or_str(self.page.content_type),
-            charset=ascii_as_bytes_or_str(self.page.charset),
+            content_type=ascii_as_bytes_or_str(self.page.mime_type),
+            charset=ascii_as_bytes_or_str(self.page.encoding),
             cache_control=ascii_as_bytes_or_str(self._response_cache_control()))
 
     def _response_cache_control(self):
@@ -2260,33 +2302,35 @@ class FileView(View):
 
 
 class ViewableFile(object):
-    def __init__(self, name, content_type, encoding, charset, size, mtime):
+    def __init__(self, name, mime_type, encoding, size, mtime):
         self.name = name
-        self.content_type = content_type
+        self.mime_type = mime_type
         self.encoding = encoding
-        self.charset = charset
         self.mtime = mtime
         self.size = size    
 
 
 class FileOnDisk(ViewableFile):
     def __init__(self, full_path, relative_name):
-        self.content_type, encoding = mimetypes.guess_type(full_path)
+        mime_type, encoding = mimetypes.guess_type(full_path)
+        self.mime_type = mime_type or 'application/octet-stream' # So you can is_text() below
+        if not encoding:
+            # FIXME: This assumes all text files on disk are encoded with the system's preferred
+            # encoding, which is nothing but a guess
+            encoding = locale.getpreferredencoding() if self.is_text() else None
+
         self.full_path = full_path
         self.relative_name = relative_name
         st = os.stat(full_path)
         super(FileOnDisk, self).__init__(
             full_path,
-            self.content_type or 'application/octet-stream',
+            self.mime_type,
             encoding,
-            # FIXME: This assumes all text files on disk are encoded with the system's preferred
-            # encoding, which is nothing but a guess
-            locale.getpreferredencoding() if self.is_text() else None,
             st.st_size,
             st.st_mtime)
 
     def is_text(self):
-        return self.content_type and self.content_type.startswith('text/')
+        return self.mime_type and self.mime_type.startswith('text/')
 
     @contextmanager
     def open(self):
@@ -2296,18 +2340,12 @@ class FileOnDisk(ViewableFile):
         finally:
             open_file.close()
 
-
 class FileFromBlob(ViewableFile):
-    def __init__(self, name, contents, content_type, encoding, size, mtime):
-        if isinstance(contents, six.text_type):
-            charset = 'utf-8'
-            content_bytes = contents.encode(charset)
-        elif isinstance(contents, six.binary_type):
-            charset = None
-            content_bytes = contents
-        else:
-            raise ValueError("Contents should be of type %s for text data or %s for binary data" % (six.text_type, six.binary_type))
-        super(FileFromBlob, self).__init__(name, content_type, encoding, charset, size, mtime)
+    def __init__(self, name, content_bytes, mime_type, encoding, size, mtime):
+        if not isinstance(content_bytes, six.binary_type):
+            raise ProgrammerError('When content_bytes should be bytes')
+
+        super(FileFromBlob, self).__init__(name, mime_type, encoding, size, mtime)
         self.content_bytes = content_bytes
         self.relative_name = name
 
@@ -2440,9 +2478,8 @@ class FileDownload(Response):
     def __init__(self, a_file):
         self.file = a_file 
         super(FileDownload, self).__init__(app_iter=self, conditional_response=True)
-        self.content_type = ascii_as_bytes_or_str(self.file.content_type) if self.file.content_type else None
-        self.encoding = ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None
-        self.charset = ascii_as_bytes_or_str(self.file.charset if self.file.charset else 'utf-8')
+        self.content_type = ascii_as_bytes_or_str(self.file.mime_type) if self.file.mime_type else None
+        self.charset = ascii_as_bytes_or_str(self.file.encoding) if self.file.encoding else None
         self.content_length = ascii_as_bytes_or_str(six.text_type(self.file.size)) if (self.file.size is not None) else None
         self.last_modified = datetime.fromtimestamp(self.file.mtime)
         self.etag = ascii_as_bytes_or_str(('%s-%s-%s' % (self.file.mtime,
@@ -2530,30 +2567,17 @@ class ReahlWSGIApplication(object):
         return found_files
 
     def add_reahl_static_files(self):
-        misc = [] 
-        jquery = [PackagedFile('reahl-web', 'reahl/web/static', 'jquery/jquery-1.8.1.js')]
-        jquery_plugins = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
-                          ['jquery/jquery.cookie-1.0.js', 
-                          'jquery/jquery.metadata-2.1.js',
-                          'jquery/jquery.validate-1.10.0.modified.js',
-                          'jquery/jquery.ba-bbq-1.2.1.js',
-                          'jquery/jquery.blockUI-2.43.js',
-                          'jquery/jquery.form-3.14.js'
-                          ]]
-        jquery_ui = [PackagedFile('reahl-web', 'reahl/web/static', 'jquery-ui-1.10.3.custom.js')]
-        css_files = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
-                     ['reset-fonts-grids.css', 'reahl.css']] 
+        css_files = [PackagedFile('reahl-web', 'reahl/web/static', 'reahl.css')]
         css_files += self.find_packaged_files('css')
-        js_files = self.find_packaged_files('js')
-        reahl_jquery_ui_plugins = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
+        js_files = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
                                    [
                                    'reahl.validate.js',
                                    'reahl.modaldialog.js',
                                    ]]
+        js_files += self.find_packaged_files('js')
 
-        static_files = [PackagedFile('reahl-web', 'reahl/web/static', 'html5shiv-printshiv-3.6.3.js'),
-                        PackagedFile('reahl-web', 'reahl/web/static', 'IE9.js'),
-                        ConcatenatedFile('reahl.js', misc+jquery+jquery_plugins+jquery_ui+reahl_jquery_ui_plugins+js_files),
+        static_files = self.config.web.frontend_libraries.packaged_files() +\
+                       [ConcatenatedFile('reahl.js', js_files),
                         ConcatenatedFile('reahl.css', css_files)]
         static_files += self.find_packaged_files('any')
         self.define_static_files('/static', static_files)
@@ -2654,8 +2678,9 @@ class ReahlWSGIApplication(object):
         return new_context.handle_wsgi_call(self, environ, start_response)
 
 
-@deprecated('ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead')
+@deprecated('ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead', '2.1')
 class ReahlWebApplication(ReahlWSGIApplication):
     pass
+
 
 

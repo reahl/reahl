@@ -35,10 +35,11 @@ from collections import OrderedDict
 
 import dateutil.parser 
 import babel.dates 
+from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Translator
-from reahl.component.decorators import memoized
+from reahl.component.decorators import memoized, deprecated
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 import collections
@@ -139,7 +140,7 @@ class StandaloneFieldIndex(FieldIndex):
         for field in self.fields.values():
             field.validate_default()
 
-import functools
+
 class ExposedDecorator(object):
     """This class has the alias "exposed". Apply it as decorator to a method declaration to indicate that the method defines
        a number of Fields. The decorated method is passed an instance of :class:`FieldIndex` to which each Field should be assigned. 
@@ -149,12 +150,12 @@ class ExposedDecorator(object):
                     resultant FieldIndex on a class, instead of on an instance.
     """
     def __init__(self, *args):
-        self.property = None
         self.expected_event_names = []
         if isinstance(args[0], six.string_types):
             self.add_fake_events(args)
+            self.func = None
         else:
-            self.set_property(args[0])
+            self.func = args[0]
 
     def add_fake_events(self, event_names):
         self.expected_event_names.extend(event_names)
@@ -162,35 +163,36 @@ class ExposedDecorator(object):
             setattr(self, name, FakeEvent(name))
 
     def __call__(self, func):
-        self.set_property(func)
+        self.func = func
         return self
-
-    def set_property(self, func):
-        exposed_decorator = self
-        @functools.wraps(func)
-        def call_with_field_index(model_object):
-            # Note: This function effectively becomes a method on the class where the exposed decorator is used
-            #       Then it is wrapped as per exposed implementation below
-            fields = FieldIndex(model_object)
-            func(model_object, fields)
-            if exposed_decorator.expected_event_names:
-                declared_fields = set(fields.keys())
-                expected_fields = set(exposed_decorator.expected_event_names)
-                missing_fields = expected_fields - declared_fields
-                if missing_fields:
-                    raise ProgrammerError('You promised to instantiate "%s" in %s of %s but did not do so' % \
-                                              (','.join(missing_fields), func, model_object))
-            return fields
-        self.property = property(memoized(call_with_field_index))
         
     def __get__(self, instance, owner):
         if not instance:
             return self
-        return self.property.__get__(instance, owner)
 
-    def __set__(self, instance, owner, value):
-        return self.property.__set__(instance, owner, value)
-        
+        if not hasattr(instance, '__exposed__'):
+            instance.__exposed__ = {}
+
+        model_object = instance
+
+        try:
+            return instance.__exposed__[self]
+        except KeyError:
+            field_index = FieldIndex(model_object)
+            instance.__exposed__[self] = field_index
+
+        self.func(model_object, field_index)
+
+        if self.expected_event_names:
+            declared_fields = set(field_index.keys())
+            expected_fields = set(self.expected_event_names)
+            missing_fields = expected_fields - declared_fields
+            if missing_fields:
+                raise ProgrammerError('You promised to instantiate "%s" in %s of %s but did not do so' % \
+                                          (','.join(missing_fields), self.func, model_object))
+
+        return field_index
+
     def __getattr__(self, name):
         raise AttributeError('%s has no attribute \'%s\' - did you perhaps write @exposed instead of @exposed(\'%s\')?' % \
                             (self, name, name))
@@ -481,9 +483,8 @@ class EqualToConstraint(ComparingConstraint):
         
 
 class GreaterThanConstraint(ComparingConstraint):
-    """A ValidationConstraint that requires the value of its Field to be greater than the value input into 
-      `other_field` (the > operator is used for the comparison).
-    
+    """A ValidationConstraint that requires the value of its Field to be greater than the value input into `other_field` (the > operator is used for the comparison).
+
        :param other_field: The Field whose value is compared.
        :param error_message: (See :class:`ValidationConstraint`)
     """
@@ -496,8 +497,8 @@ class GreaterThanConstraint(ComparingConstraint):
 
 
 class SmallerThanConstraint(ComparingConstraint):
-    """A ValidationConstraint that requires the value of its Field to be smaller than the value input into 
-      `other_field` (the < operator is used for the comparison).
+    """A ValidationConstraint that requires the value of its Field to be smaller than the value input 
+       into `other_field` (the < operator is used for the comparison).
     
        :param other_field: The Field whose value is compared.
        :param error_message: (See :class:`ValidationConstraint`)
@@ -511,8 +512,7 @@ class SmallerThanConstraint(ComparingConstraint):
 
 
 class MinLengthConstraint(ValidationConstraint):
-    """A ValidationConstraint that requires length of what the user typed to be at least `min_length`
-       characters long.
+    """A ValidationConstraint that requires length of what the user typed to be at least `min_length` characters long.
        
        :param min_length: The minimum allowed length of the input.
        :param error_message: (See :class:`ValidationConstraint`)
@@ -533,7 +533,7 @@ class MinLengthConstraint(ValidationConstraint):
 
 
 class MaxLengthConstraint(ValidationConstraint):
-    """A ValidationConstraint that requires length of what the user typed to not be more than `max_length`
+    """A ValidationConstraint that requires length of what the user typed to not be more than `max_length` 
        characters long.
        
        :param max_length: The maximum allowed length of the input.
@@ -923,13 +923,13 @@ class Action(AdaptedMethod):
 
     @property
     def readable(self):
-        if isinstance(self.declared_method, SecuredMethod):
-            return Action(self.declared_method.read_check, arg_names=self.arg_names, kwarg_name_map=self.kwarg_name_map)
+        if isinstance(self.declared_method, (SecuredMethod, SecuredFunction)):
+            return Action(self.declared_method._self_read_check, arg_names=self.arg_names, kwarg_name_map=self.kwarg_name_map)
         return None
     @property
     def writable(self):
-        if isinstance(self.declared_method, SecuredMethod):
-            return Action(self.declared_method.write_check, arg_names=self.arg_names, kwarg_name_map=self.kwarg_name_map)
+        if isinstance(self.declared_method, (SecuredMethod, SecuredFunction)):
+            return Action(self.declared_method._self_write_check, arg_names=self.arg_names, kwarg_name_map=self.kwarg_name_map)
         return None
 
 
@@ -1051,31 +1051,61 @@ class Event(Field):
         else:
             return '?'
     
-    
-class SecuredMethod(object):
-    def __init__(self, instance, to_be_called, secured_declaration):
-        self.instance = instance
-        self.to_be_called = to_be_called
-        self.secured_declaration = secured_declaration
 
-    def __call__(self, *args, **kwargs):
-        if not (self.read_check(*args, **kwargs) and self.write_check(*args, **kwargs)):
+class SecuredMethod(BoundFunctionWrapper):
+    def __init__(self,  *args, **kwargs):
+        super(SecuredMethod, self).__init__(*args, **kwargs)
+    def _self_read_check(self, *args, **kwargs):
+        return self._self_parent.check_right(self.read_check, self._self_instance, *args, **kwargs)
+    def _self_write_check(self, *args, **kwargs):
+        return self._self_parent.check_right(self.write_check, self._self_instance, *args, **kwargs)
+
+
+class SecuredFunction(FunctionWrapper):
+    __bound_function_wrapper__ = SecuredMethod
+
+    def __init__(self,  wrapped, read_check, write_check):
+        super(SecuredFunction, self).__init__(wrapped, self.check_call_wrapped)
+        self.check_and_setup_check(read_check)
+        self._self_read_check = self.read_check = read_check
+
+        self.check_and_setup_check(write_check)
+        self._self_write_check = self.write_check = write_check
+
+    def check_and_setup_check(self, check):
+        if isinstance(check, AdaptedMethod):
+            check.set_full_arg_names(self.get_declared_argument_names())
+        if not isinstance(check, AdaptedMethod) and isinstance(check, collections.Callable):
+            self.check_method_signature(check, self.__wrapped__)
+
+    def check_call_wrapped(self, wrapped, instance, args, kwargs):
+        if not (self.check_right(self.read_check, instance, *args, **kwargs) and \
+                self.check_right(self.write_check, instance, *args, **kwargs)):
             raise AccessRestricted()
-        return self.to_be_called(*args, **kwargs)
+        return wrapped(*args, **kwargs)
 
-    def check_right(self, right_to_check, *args, **kwargs):
+    def check_right(self, right_to_check, instance, *args, **kwargs):
         if right_to_check:
-            args_to_send = (args if self.instance is None
-                            else (self.instance,)+args)
+            args_to_send = (args if instance is None
+                            else (instance,)+args)
             return right_to_check(*args_to_send, **kwargs)
         else:
             return True
 
-    def read_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.read_check, *args, **kwargs)
-    
-    def write_check(self, *args, **kwargs):
-        return self.check_right(self.secured_declaration.write_check, *args, **kwargs)
+    def check_method_signature(self, check_method, original_method):
+        check_signature = inspect.getargspec(check_method)
+        expected_signature = inspect.getargspec(original_method)
+        if check_signature != expected_signature:
+            messages = [repr(method) + inspect.formatargspec(*signature)
+                        for signature, method in [(check_signature, check_method),
+                                                  (expected_signature, original_method)]]
+            raise ProgrammerError('signature of %s does not match expected signature of %s' % \
+                                  tuple(messages))
+
+    def get_declared_argument_names(self):
+        arg_spec = inspect.getargspec(self.__wrapped__)
+        positional_args_end = len(arg_spec.args)-len(arg_spec.defaults or [])
+        return arg_spec.args[:positional_args_end]
 
 
 class SecuredDeclaration(object):
@@ -1098,43 +1128,9 @@ class SecuredDeclaration(object):
     def __init__(self, read_check=None, write_check=None):
         self.read_check = read_check
         self.write_check = write_check
-        self.func = None
 
     def __call__(self, func):
-        self.func = func
-        arg_names = self.get_declared_argument_names(self.func)
-        
-        if isinstance(self.read_check, AdaptedMethod):
-            self.read_check.set_full_arg_names(arg_names)
-        elif isinstance(self.read_check, collections.Callable):
-            self.check_method_signature(self.read_check, self.func)
-        
-        if isinstance(self.write_check, AdaptedMethod):
-            self.write_check.set_full_arg_names(arg_names)
-        elif isinstance(self.write_check, collections.Callable):
-            self.check_method_signature(self.write_check, self.func)
-        return self
-
-    def check_method_signature(self, check_method, original_method):
-        check_signature = inspect.getargspec(check_method)
-        expected_signature = inspect.getargspec(original_method)
-        if check_signature != expected_signature:
-            messages = [repr(method) + inspect.formatargspec(*signature)
-                        for signature, method in [(check_signature, check_method),
-                                                  (expected_signature, original_method)]]
-            raise ProgrammerError('signature of %s does not match expected signature of %s' % \
-                                  tuple(messages))
-
-    def get_declared_argument_names(self, func):
-        arg_spec = inspect.getargspec(func)
-        positional_args_end = len(arg_spec.args)-len(arg_spec.defaults or [])
-        return arg_spec.args[:positional_args_end]
-
-    def __get__(self, instance, owner):
-        method = (self.func if instance is None
-                  else six.create_bound_method(self.func, instance))
-        return SecuredMethod(instance, method, self)
-
+        return SecuredFunction(func, self.read_check, self.write_check)
 
 secured = SecuredDeclaration #: An alias for :class:`SecuredDeclaration`
 
@@ -1474,21 +1470,41 @@ class UploadedFile(object):
     or may not, and if we go and decode them with i.e UTF-8, the system could
     break with UnicodeDecodeError on jpegs and the like.
 
-    *Changed in 3.0*: UploadedFile is now constructed with the entire contents
-    of the uploaded file instead of with a file-like object as in 2.1.
+    .. versionchanged:: 3.0
+       UploadedFile is now constructed with the entire contents of the uploaded file instead of with a file-like object as in 2.1.
+
     """
-    def __init__(self, filename, contents, content_type):
+    def __init__(self, filename, contents, mime_type):
         assert isinstance(contents, six.binary_type)
         self.contents = contents
-        self.filename = filename
-        self.content_type = content_type
+        self.filename = filename  #: The name of the file
+        self.mime_type = mime_type #: The mime type of the file
+
+    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.', '3.1')
+    def _get_content_type(self):
+        return self.mime_type
+    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.', '3.1')
+    def _set_content_type(self, value):
+        self.mime_type = value
+
+    content_type = property(_get_content_type, _set_content_type)
 
     @property
     def size(self):
+        """The size of the UploadedFile contents."""
         return len(self.contents)
 
     @contextmanager
     def open(self):
+        """A contextmanager for reading the file contents (as bytes).
+
+        For example:
+
+        .. code-block:: python
+
+           with uploaded_file.open() as contents:
+               print(contents.read())
+        """
         # Scaffolding to maintain the old API when contents was a file-like object
         with io.BytesIO(self.contents) as f:
             yield f
@@ -1553,7 +1569,7 @@ class MimeTypeConstraint(ValidationConstraint):
 
         files_list = unparsed_input
         for f in files_list:
-            if not matches(f.content_type, self.accept):
+            if not matches(f.mime_type, self.accept):
                 raise self
 
 

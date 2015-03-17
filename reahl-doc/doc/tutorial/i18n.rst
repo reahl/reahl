@@ -52,16 +52,16 @@ Making your component translatable
 A way to switch locales
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The first adaptation to the program is the addition of a :class:`~reahl.web.ui.VMenu` which
+The first adaptation to the program is the addition of a :class:`~reahl.web.ui.Menu` which
 will allow users to choose the locale they prefer for display. Since
-we want the :class:`~reahl.web.ui.VMenu` to be on all pages of the application, the correct
+we want the :class:`~reahl.web.ui.Menu` to be on all pages of the application, the correct
 way to add it is to create a :class:`~reahl.web.fw.Widget` that can be used as page
-for the application, derived from :class:`~reahl.web.ui.TwoColumnPage`.
+for the application, derived from :class:`~reahl.web.ui.HTML5Page`.
 
-A :class:`~reahl.web.ui.TwoColumnPage` has a `.secondary` attribute to which one can add
-children that will appear in the smaller, secondary column. The novel
-thing here is how the :class:`~reahl.web.ui.VMenu` is constructed: by using the
-`Menu.from_languages()` class method:
+A :class:`~reahl.web.ui.HTML5Page` has a `.body` attribute to which one can add
+children that will appear in is body. The novel
+thing here is how the :class:`~reahl.web.ui.Menu` is constructed: by using the
+:meth:`~reahl.web.ui.Menu.from_languages` class method:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexample/i18nexample.py
    :pyobject: AddressBookPage

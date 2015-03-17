@@ -28,11 +28,11 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub, stubclass
 
-from reahl.component.exceptions import IncorrectArgumentError, IsInstance
+from reahl.component.exceptions import IncorrectArgumentError, IsInstance, ProgrammerError
 from reahl.component.eggs import ReahlEgg
 from reahl.web.fw import UrlBoundView
 from reahl.web.fw import UserInterface
-from reahl.web.fw import Widget
+from reahl.web.fw import Widget, Layout
 from reahl.web.ui import Div
 from reahl.web.ui import P
 from reahl.web.ui import Slot
@@ -74,6 +74,7 @@ class WidgetBasics(object):
         actual = widget_tester.render_html()
         
         vassert( actual == '<div><p>Hello World!</p><p>a</p><p>b</p></div>' )
+
 
     @test(WebFixture)
     def visibility(self, fixture):
@@ -243,7 +244,7 @@ class WidgetBasics(object):
         browser = Browser(wsgi_app)
         
         browser.open('/')
-        rendered_js = browser.lxml_html.xpath('//script')[1].text
+        rendered_js = [i.text for i in browser.lxml_html.xpath('//script') if i.text][0]
         vassert( rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n' )
         
         number_of_duplicates = rendered_js.count('js1') - 1

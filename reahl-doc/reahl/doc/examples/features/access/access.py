@@ -2,7 +2,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import TwoColumnPage, Form, TextInput, Button, LabelledBlockInput
+from reahl.web.ui import HTML5Page, Form, TextInput, Button, LabelledBlockInput
 from reahl.component.modelinterface import Action
 from reahl.component.modelinterface import EmailField
 from reahl.component.modelinterface import Event
@@ -16,10 +16,10 @@ class AccessUI(UserInterface):
         self.define_view('/', title='Access control demo', page=HomePage.factory())
 
 
-class HomePage(TwoColumnPage):
+class HomePage(HTML5Page):
     def __init__(self, view):
         super(HomePage, self).__init__(view, style='basic')
-        self.main.add_child(CommentForm(view))
+        self.body.add_child(CommentForm(view))
 
 
 class Comment(object):

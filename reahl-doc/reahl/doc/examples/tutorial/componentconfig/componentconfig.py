@@ -7,7 +7,8 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import TwoColumnPage, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
+from reahl.web.pure import PageColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.context import ExecutionContext
@@ -22,7 +23,8 @@ class AddressConfig(Configuration):
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style='basic')
+        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))
+
         find = self.define_view('/', title='Addresses')
         find.set_slot('main', AddressBookPanel.factory())
 

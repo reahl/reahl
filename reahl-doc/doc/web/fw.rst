@@ -26,6 +26,12 @@ Widget
 .. autoclass:: Widget
    :members:
 
+Layout
+""""""
+
+.. autoclass:: Layout
+   :members:
+
 WidgetFactory
 """""""""""""
 

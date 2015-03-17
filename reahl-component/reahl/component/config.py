@@ -25,6 +25,7 @@ import tempfile
 from logging import config
 from contextlib import contextmanager
 import imp
+import functools
 
 from pkg_resources import require, iter_entry_points, DistributionNotFound
 
@@ -37,6 +38,7 @@ class ConfigurationException(Exception):
 
 class ExplicitSettingRequired(object):
     pass
+
 
 class ConfigSetting(object):
     """Used to define one configuration setting on a :class:`Configuration`.

@@ -37,7 +37,7 @@ class ComponentTests(object):
         # All eggs for a root egg can be found in dependency order
         components_in_order = ReahlEgg.compute_ordered_dependent_distributions(easter_egg.as_requirement_string())
         component_names_in_order = [i.project_name for i in components_in_order]
-        vassert( component_names_in_order == [easter_egg.project_name, 'reahl-component', 'decorator', 'python-dateutil', 'six', 'Babel', 'pytz'] )
+        vassert( component_names_in_order == [easter_egg.project_name, 'reahl-component', 'wrapt', 'python-dateutil', 'six', 'Babel', 'pytz'] )
 
     @test(Fixture)
     def interface_with_meta_info(self, fixture):

@@ -17,47 +17,122 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
+
 from nose.tools import istest
-from reahl.tofu import Fixture
-from reahl.tofu import test
-from reahl.tofu import expected, NoException, vassert
 
-from reahl.component.exceptions import IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, checkargs, checkargs_explained, NotYetAvailable
-
+from reahl.tofu import Fixture, test, scenario, expected, NoException, vassert
+from reahl.component.exceptions import ArgumentCheck, IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, ArgumentCheckedCallable, NotYetAvailable
+from reahl.component.decorators import deprecated
 
 @istest
 class ArgumentCheckTests(object):
-    @test(Fixture)
-    def checking_arguments(self, fixture):
-        """Methods can be augmented with checks that can be performed on arguments sent to them. 
-           These checks are done when calling such a method, or can be done before calling a method
-           via checkargs or checkargs_explained."""
-        
-        class ModelObject(object):
+    class ArgumentCheckScenarios(Fixture):
+        def new_ModelObject(self):
+            class ModelObject(object):
+                @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+                def do_something(self, x, y, title='a title', style=None):
+                    pass
+            return ModelObject
+                        
+        @scenario
+        def incorrect_positional_arg(self):
+            self.expected_exception = IsInstance
+            self.args = (1, '2')
+            self.call_args = self.args
+            self.kwargs = dict(title='some title', style='style')
+            self.callable = self.ModelObject().do_something
+
+        @scenario
+        def incorrect_kwarg(self):
+            self.expected_exception = IsInstance
+            self.args = (1, 2)
+            self.call_args = self.args
+            self.kwargs = dict(title=3, style='style')
+            self.callable = self.ModelObject().do_something
+
+        @scenario
+        def incorrect_deduced_kwarg(self):
+            self.expected_exception = IsInstance
+            self.args = (1, 2, 2, 'style')
+            self.call_args = self.args
+            self.kwargs = {}
+            self.callable = self.ModelObject().do_something
+
+        @scenario
+        def incorrect_kwarg_not_all_sent(self):
+            self.expected_exception = IsInstance
+            self.args = (1, 2)
+            self.call_args = self.args
+            self.kwargs = dict(title=None)
+            self.callable = self.ModelObject().do_something
+
+        @scenario
+        def correct_args_defaulted_kwargs(self):
+            self.expected_exception = NoException
+            self.args = (1, 2)
+            self.call_args = self.args
+            self.kwargs = {}
+            self.callable = self.ModelObject().do_something
+
+        @scenario
+        def correct_unbound_method_called(self):
+            self.expected_exception = NoException
+            self.args = (NotYetAvailable('self'), 1, 2)
+            self.call_args = (self.ModelObject(), 1, 2)
+            self.kwargs = {}
+            self.callable = self.ModelObject.do_something
+
+        @scenario
+        def correct_function_called(self):
             @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
-            def do_something(self, x, y, title='a title', style=None):
+            def do_something(x, y, title='a title', style=None):
                 pass
-                
-        model_object = ModelObject()
-        with expected(IsInstance):
-            model_object.do_something(1, '2', title='some title', style='style')
-        with expected(IsInstance):
-            model_object.do_something(1, 2, title=3, style='style')
-        with expected(IsInstance):
-            model_object.do_something(1, 2, 3, 'style')
-        with expected(IsInstance):
-            model_object.do_something(1, 2, title=None)
-        
-        with expected(NoException):
-            model_object.do_something(1, 2)
 
-        with expected(IsInstance):
-            checkargs(model_object.do_something, 1, 2, 3)
-        with expected(TypeError):
-            checkargs(model_object.do_something, 1, 2, 3, 4, 5, 6, 7)
+            self.expected_exception = NoException
+            self.args = (1, 2)
+            self.call_args = (1, 2)
+            self.kwargs = {}
+            self.callable = do_something
+            
+        @scenario
+        def checks_on_classmethod(self):
+            self.expected_exception = IsInstance
+            class ModelObject(object):
+                @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+                @classmethod
+                def do_something(cls, x, y, title='a title', style=None):
+                    pass
+            self.args = (1, 'y')
+            self.call_args = self.args
+            self.kwargs = {}
+            self.callable = ModelObject.do_something
 
-        with expected(IncorrectArgumentError):
-            checkargs_explained('explanation', model_object.do_something, 1, '2', title='some title', style='style')
+        @scenario
+        def wrong_args_sent(self):
+            self.expected_exception = TypeError
+            self.args = (1, 2, 3, 4, 5, 6, 7)
+            self.call_args = self.args
+            self.kwargs = {}
+            self.callable = self.ModelObject().do_something
+
+
+    @test(ArgumentCheckScenarios)
+    def checking_arguments(self, fixture):
+        """Methods can be augmented with argument checks. These checks are done when calling such a method,
+           or before an actual call is made using ArgumentCheckedCallable.checkargs."""
+
+        with expected(fixture.expected_exception):
+            fixture.callable(*fixture.call_args, **fixture.kwargs)
+        with expected(fixture.expected_exception):
+            ArgumentCheckedCallable(fixture.callable).checkargs(*fixture.args, **fixture.kwargs)
+
+
+        wrapped_exception = NoException
+        if fixture.expected_exception is not NoException:
+            wrapped_exception = IncorrectArgumentError
+
+        with expected(wrapped_exception):
+            ArgumentCheckedCallable(fixture.callable, explanation='some message').checkargs(*fixture.args, **fixture.kwargs)
 
 
     @test(Fixture)
@@ -87,11 +162,45 @@ class ArgumentCheckTests(object):
                 
         model_object = ModelObject()
         with expected(NoException):
-            checkargs(model_object.do_something, 'x', NotYetAvailable('y'), 'a title')
+            ArgumentCheckedCallable(model_object.do_something).checkargs('x', NotYetAvailable('y'), title='a title')
         with expected(IsInstance):
-            checkargs(model_object.do_something, 'x', NotYetAvailable('y'), 123)
+            ArgumentCheckedCallable(model_object.do_something).checkargs('x', NotYetAvailable('y'), title=123)
 
         with expected(IncorrectArgumentError):
-            checkargs(model_object.do_something, 'x', NotYetAvailable('x'), 'a valid title')
+            ArgumentCheckedCallable(model_object.do_something, explanation='an explanation').checkargs('x', NotYetAvailable('x'), title='a valid title')
 
 
+
+@test(Fixture)
+def argument_checks_with_deprecated_methods(fixture):
+    """When used with @deprecated, argument checks still work."""
+    @deprecated('this test class is deprecated', '1.2')
+    class ADeprecatedClass(object):
+        @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+        def __init__(self, x, y, title='a title', style=None):
+            pass
+
+    with expected(IsInstance):
+        ADeprecatedClass(1, 'y')
+    with expected(IsInstance):
+        ArgumentCheckedCallable(ADeprecatedClass).checkargs('x', 'y')
+    with expected(IncorrectArgumentError):
+        ArgumentCheckedCallable(ADeprecatedClass, explanation='an explanation').checkargs('x', NotYetAvailable('x'), title='a valid title')
+
+
+    class ADeprecatedClass(object):
+        @deprecated('this instance method is deprecated', '1.3')
+        @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+        def instance_method(self, x, y, title='a title', style=None):
+            pass
+
+        @deprecated('this class method is deprecated', '2.3')
+        @arg_checks(y=IsInstance(int), title=IsInstance(six.string_types))
+        @classmethod
+        def class_method(cls, x, y, title='a title', style=None):
+            pass
+
+    with expected(IsInstance):
+        ADeprecatedClass().instance_method('x', 'y')
+    with expected(IsInstance):
+        ADeprecatedClass.class_method('x', 'y')
