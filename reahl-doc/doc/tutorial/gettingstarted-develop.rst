@@ -254,3 +254,6 @@ provided. You can get a local copy of *this* example by using the
 You can also see what other examples are available by running::
 
   reahl listexamples
+
+:doc:`The previous section<gettingstarted-examples>` gives a summary
+of all you need to do to run an example.
