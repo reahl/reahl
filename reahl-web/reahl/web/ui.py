@@ -2267,7 +2267,7 @@ class SlidingPanel(Panel):
        :keyword next: Text to put in the link clicked to slide to the next panel.
        :keyword prev: Text to put in the link clicked to slide to the previous panel.
     """
-    def __init__(self, view, css_id=None, next='>', prev='<'):
+    def __init__(self, view, css_id=None, next='', prev=''):
         super(SlidingPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-slidingpanel')
         self.container = Panel(view)

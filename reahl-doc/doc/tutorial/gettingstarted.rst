@@ -36,6 +36,7 @@ We have split the guide into parts:
 .. toctree::
 
    gettingstarted-install
+   gettingstarted-examples
    gettingstarted-develop
 
 
