@@ -361,12 +361,13 @@ ul.reahl-menu li > a:hover {
 .reahl-tabbedpanel > div {
   padding: 1em; 
   border: .1em solid #603e35;
+  margin-top: -.05em;
 }
 
 .reahl-tabbedpanel > ul  {
   position: relative;
-  top: .07em;
-  left: 0; 
+  margin: 0;
+  padding: 0;
 }
 
 .reahl-tabbedpanel > ul > li  {
@@ -382,7 +383,7 @@ ul.reahl-menu li > a:hover {
 }
 
 .reahl-tabbedpanel > ul > li:hover > ul {
-  border: 1px solid #603e35;
+  border: .1em solid #603e35;
   background: #fff;
   padding: .5em;
   font-size: 80%;

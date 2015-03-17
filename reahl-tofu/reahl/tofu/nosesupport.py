@@ -56,7 +56,7 @@ def set_run_fixture(fixture, namespace):
        :arg fixture: The Fixture instance to use as run fixture for this context.
        :arg namespace: Pass `locals()` from the context where set_run_fixture is called here.
 
-       *New in 3.1*
+       .. versionadded:: 3.1
     """
     def setup():
         global run_fixture
@@ -323,7 +323,7 @@ class MarkedTestsPlugin(Plugin):
 
        Enable this plugin by passing ``--with-marked-tests`` to nosetests on the commandline.
 
-       *New in 3.1*
+       .. versionadded:: 3.1
     """
     name = ascii_as_bytes_or_str('marked-tests')
     def options(self, parser, env=os.environ):

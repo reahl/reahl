@@ -578,7 +578,7 @@ class LoginSession(Base):
 
        (See :class:`AccountManagementInterface` for logging users into and out of the system.)
 
-       *New in 3.1*
+       .. versionadded:: 3.1
     """
     __tablename__ = 'loginsession'
 
@@ -593,6 +593,9 @@ class LoginSession(Base):
         """Answers whether the user is logged in.
 
            :keyword secure: If True, ensures the login is done via secure means (such as an encrypted connection).
+
+           .. versionchanged:: 3.1
+              Moved here from the older UserSession, and the `secured` keyword argument was added.
         """
         logged_in = self.account is not None
         if secured:

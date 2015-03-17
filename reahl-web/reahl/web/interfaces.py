@@ -41,7 +41,10 @@ class UserSessionProtocol(object):
         
     @abstractmethod
     def is_secured(self): 
-        """Answers whether the interaction is currently done via a secure channel where applicable."""
+        """Answers whether the interaction is currently done via a secure channel where applicable.
+        
+           .. versionadded:: 3.1
+        """
         
     @abstractmethod
     def set_last_activity_time(self): 

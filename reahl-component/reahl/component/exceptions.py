@@ -20,8 +20,10 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import inspect
 import sys
+import functools
 
-from decorator import decorator
+import wrapt
+import inspect
 
 from reahl.component.i18n import Translator
 import collections
@@ -162,7 +164,7 @@ class IsCallable(ArgumentCheck):
         super(IsCallable, self).check(func, name, value)
         if value:
             message = '%s will be called with %s' % (value, self.formatted_message())
-            checkargs_explained(message, value, *self.args, **self.kwargs)
+            ArgumentCheckedCallable(value, explanation=message).checkargs(*self.args, **self.kwargs)
 
     def formatted_message(self):
         formatted_args = ','.join([i.name for i in self.args])
@@ -180,43 +182,63 @@ class IsCallable(ArgumentCheck):
     def __str__(self):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
 
-def checkargs(target, *args, **kwargs):
-    if inspect.ismethod(target) or inspect.isfunction(target):
-        to_check = target
-    elif inspect.isclass(target):
-        to_check = target.__init__
-    elif isinstance(target, collections.Callable):
-        to_check = target.__call__
-    else:
-        raise ProgrammerError('%s was expected to be a callable object' % target)
+class ArgumentCheckedCallable(object):
+    def __init__(self, target, explanation=None):
+        if six.PY2 and isinstance(target, functools.partial):
+           self.target = target.func
+        else:
+           self.target = target
+        self.explanation = explanation
 
-    try:
-        bound_args = inspect.getcallargs(to_check, *args, **kwargs)
-    except TypeError as ex:
-        ex.args = (('%s: ' % target)+ex.args[0],) + ex.args[1:]
-        raise
-    args_to_check = getattr(to_check, 'arg_checks', {})
-    for arg_name, arg_check in args_to_check.items():
-        if arg_name in bound_args.keys():
-            arg_check.check(target, arg_name, bound_args[arg_name])
+    def __call__(self, *args, **kwargs):
+        self.checkargs(*args, **kwargs)
+        return self.target(*args, **kwargs)
 
-def checkargs_explained(explanation, method, *args, **kwargs):
-    try:
-        checkargs(method, *args, **kwargs)
-    except (TypeError, ArgumentCheck) as ex:
-        _, _, tb = sys.exc_info()
-        new_ex = IncorrectArgumentError(explanation, ex)
-        six.reraise(new_ex.__class__, new_ex, tb)
+    def checkargs(self, *args, **kwargs):
+        if inspect.ismethod(self.target):
+            to_check = self.target
+        elif inspect.isfunction(self.target):
+            to_check = self.target
+        elif inspect.isclass(self.target):
+            to_check = self.target.__init__
+            args = (NotYetAvailable('self'), )+args
+        elif isinstance(self.target, collections.Callable):
+            to_check = self.target.__call__
+        else:
+            raise ProgrammerError('%s was expected to be a callable object' % self.target)
+
+        try:
+            try:
+                bound_args = inspect.getcallargs(to_check, *args, **kwargs)
+            except TypeError as ex:
+                ex.args = (('%s: ' % self.target)+ex.args[0],) + ex.args[1:]
+                raise
+            args_to_check = getattr(to_check, 'arg_checks', {})
+            for arg_name, arg_check in args_to_check.items():
+                if arg_name in bound_args.keys():
+                    arg_check.check(self.target, arg_name, bound_args[arg_name])
+        except (TypeError, ArgumentCheck) as ex:
+            if self.explanation:
+                _, _, tb = sys.exc_info()
+                new_ex = IncorrectArgumentError(self.explanation, ex)
+                six.reraise(new_ex.__class__, new_ex, tb)
+            else:
+                raise
 
 
-class arg_checks(object):
-    def __init__(self, **arg_checks):
-        self.arg_checks = arg_checks
-    
-    def __call__(self, f):
-        f.arg_checks = self.arg_checks
-        def check_call(func, *args, **kwargs):
-            checkargs(func, *args, **kwargs)
-            return func(*args, **kwargs)
-        return decorator(check_call, f)
+def arg_checks(**checks):
+    def catch_wrapped(f):
+        if inspect.ismethoddescriptor(f):
+            f.__func__.arg_checks = checks
+        else:
+            f.arg_checks = checks
+        @wrapt.decorator
+        def check_call(wrapped, instance, args, kwargs):
+            if six.PY2:
+                if isinstance(wrapped, functools.partial) and not wrapped.func.__self__ and instance:
+                    args = (instance,)+args
+            return ArgumentCheckedCallable(wrapped)(*args, **kwargs)
+        return check_call(f)
+    return catch_wrapped
+
 

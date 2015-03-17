@@ -34,11 +34,9 @@ the :class:`~reahl.web.fw.UserInterface` are defined in its
 ``.assemble()`` method.
 
 To give the :class:`~reahl.web.fw.View` itself some contents,
-HelloPage is derived from :class:`~reahl.web.ui.TwoColumnPage` -- a
-handy Widget that represents an :class:`~reahl.web.ui.HTML5Page` which
-already has a header, footer and two columns where you can add more
-Widgets. In this case, we just add a paragraph of text
-(:class:`~reahl.web.ui.P`) to the ``main`` column of the page.
+HelloPage is derived from :class:`~reahl.web.ui.HTML5Page`.
+In this case, we just add a paragraph of text
+(:class:`~reahl.web.ui.P`) to the `.body` of the page.
 
 Each URL a user can visit is defined by a :class:`~reahl.web.fw.View`,
 and a bunch of related :class:`~reahl.web.fw.View`\ s are organised

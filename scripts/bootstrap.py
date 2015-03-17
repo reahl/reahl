@@ -18,7 +18,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 try:
     from six.moves import input
 except:
-    if 'raw_input' in dir():
+    if 'raw_input' in dir(__builtins__):
         input = raw_input
 import sys
 import pkg_resources
@@ -74,10 +74,13 @@ def remove_versions_from_requirements(requires_file):
             output_file.write(version_stripped_line)
             output_file.write('\n')
 
-def fake_distributions_into_existence(project_dirs):
+def egg_dirs_for(project_dirs):
     for project_dir in project_dirs:
         egg_info = '%s.egg-info' % project_dir.replace('-', '_')
-        egg_dir = os.path.join(os.getcwd(), project_dir, egg_info)
+        yield os.path.join(os.getcwd(), project_dir, egg_info)
+
+def fake_distributions_into_existence(project_dirs):
+    for egg_dir in egg_dirs_for(project_dirs):
         if not os.path.exists(egg_dir):
             os.mkdir(egg_dir)
 
@@ -114,11 +117,21 @@ def install_prerequisites(missing):
       print('Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0])))
       exit(1)
 
-def bootstrap_workspace(workspace_dir, core_project_dirs):
+def make_core_projects_importable(core_project_dirs):
     for d in core_project_dirs:
         pkg_resources.working_set.add_entry(os.path.join(os.getcwd(), d))
-    from reahl.dev.devdomain import Project, Workspace
+    from reahl.dev.devdomain import DebianChangelog
+    common_version = DebianChangelog('debian/changelog').version
+ 
+    for egg_dir in egg_dirs_for(core_project_dirs):
+        pkg_filename = os.path.join(egg_dir, 'PKG-INFO')
+        if not os.path.exists(pkg_filename):
+            with open(pkg_filename, 'w') as pkg_file:
+                pkg_file.write('Version: %s\n' % common_version)
 
+def bootstrap_workspace(workspace_dir, core_project_dirs):
+    make_core_projects_importable(core_project_dirs)
+    from reahl.dev.devdomain import Project, Workspace
     workspace = Workspace(workspace_dir)
     for project_dir in core_project_dirs:
         Project.from_file(workspace, os.path.join(os.getcwd(), project_dir))
@@ -192,7 +205,7 @@ clean_egg_info_dirs()
 
 remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
-missing = find_missing_prerequisites(reahl_dev_requires_file, ['six','decorator'])
+missing = find_missing_prerequisites(reahl_dev_requires_file, ['six','wrapt'])
 if missing:
     install_prerequisites(missing)
 

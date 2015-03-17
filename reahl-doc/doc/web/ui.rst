@@ -242,6 +242,18 @@ ErrorLabel
 Widgets to help with layout of Inputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+HorizontalLayout
+""""""""""""""""
+
+.. autoclass:: HorizontalLayout
+   :members:
+
+VerticalLayout
+""""""""""""""
+
+.. autoclass:: VerticalLayout
+   :members:
+
 LabelledInlineInput
 """""""""""""""""""
 

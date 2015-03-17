@@ -22,6 +22,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 
 from reahl.component.config import Configuration, ConfigSetting
+from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Pure, HTML5Shiv, IE9, YuiGridsCss
 
 class WebConfig(Configuration):
     filename = 'web.config.py'
@@ -31,6 +32,7 @@ class WebConfig(Configuration):
     static_root = ConfigSetting(default=os.getcwd(),
                                 description='The directory from which static files will be served',
                                 dangerous=True)
+    frontend_libraries = ConfigSetting(description='A collection of front end libraries to include on pages')
     session_key_name = ConfigSetting(default='reahl',
                                      description='The name of this site\'s cookie in a user\'s a browser')
     guest_key_name = ConfigSetting(default='reahl-guest',
@@ -69,3 +71,8 @@ class WebConfig(Configuration):
     def secure_key_name(self):
         return '%s_secure' % self.session_key_name
 
+    def __init__(self):
+        super(WebConfig, self).__init__()
+        # We create it here, so that each instance of a WebConfig will have its own LibraryIndex instance
+        self.frontend_libraries = LibraryIndex(JQuery(), JQueryUI(), Pure(), HTML5Shiv(), IE9())
+        

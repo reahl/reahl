@@ -148,10 +148,8 @@ programmer who wrote it. You can call that method from many different
 places, passing in different values for those arguments. Specifying
 the :class:`~reahl.web.ui.Slot`\ s when re-using a :class:`~reahl.web.fw.UserInterface` is similar.
 
-In this example, we have a :class:`~reahl.web.ui.Slot` named `main` in :class:`~reahl.web.ui.TwoColumnPage`, and the
-:class:`~reahl.domainui.accounts.AccountUI` has a :class:`~reahl.web.ui.Slot` named `main_slot`. Hence, it is necessary to
-state that `main_slot` of :class:`~reahl.domainui.accounts.AccountUI` plugs into `main` of
-:class:`~reahl.web.ui.TwoColumnPage`.
+In this example, we used the :class:`~reahl.web.pure.PageColumnLayout` to add a :class:`~reahl.web.ui.Slot` named `main` to our MenuPage.  The :class:`~reahl.domainui.accounts.AccountUI` in turn has a :class:`~reahl.web.ui.Slot` named `main_slot`. Hence, it is necessary to
+state that `main_slot` of :class:`~reahl.domainui.accounts.AccountUI` plugs into `main` of our MenuPage.
 
 :class:`~reahl.domainui.accounts.AccountUI` also has its own requirements: it needs a number of
 bookmarks. Specifically, it expects to be passed an object from which

@@ -138,5 +138,8 @@ doctest: tests
 SVGS:=$(shell find . -name '*svg')
 PNGS =$(SVGS:%.svg=%.png)
 
+pngs: $(PNGS)
+
 $(PNGS): %.png: %.svg
+	@echo ssh localhost "cd $(PWD) && inkscape -z -e $@  $<"
 	ssh localhost "cd $(PWD) && inkscape -z -e $@  $<"

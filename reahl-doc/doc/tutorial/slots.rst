@@ -20,14 +20,16 @@ having a common class (AddressBookPage) from which the page used by
 each :class:`~reahl.web.fw.View` inherit all the common elements.
 
 In a large :class:`~reahl.web.fw.UserInterface` it becomes cumbersome
-to do what we've done with AddressBookPage. :doc:`Later on you will
-also learn how to incorporate other pre-existing<loggingin>`
-:class:`~reahl.web.fw.UserInterface`\ s as part of your own
-:class:`~reahl.web.fw.UserInterface`. Obviously if the look and layout
-of the pages of a :class:`~reahl.web.fw.UserInterface` are hard-coded
-like we've done with :doc:`our example <connectingviews>`, you would
-not be able to incorporate it onto your web application, which has its
-own look and layout!
+to do what we've done with AddressBookPage. Moreover, what we did also
+hard-codes the main layout (and usually, look) used for your
+application in the code of the
+:class:`~reahl.web.fw.UserInterface`. As you will learn later on,
+:doc:`it is also possible to re-use other pre-existing<loggingin>`
+:class:`~reahl.web.fw.UserInterface`\ s as part of your web
+application.  Hard-coding the main page of a
+:class:`~reahl.web.fw.UserInterface` that is supposed to be re-used in
+different web applications (that each may look different) obviously
+won't do either.
 
 
 Slots and Views without pages
@@ -81,18 +83,20 @@ text in those :class:`~reahl.web.ui.Slot`\ s:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/slots/slots.py
 
-A :class:`~reahl.web.ui.TwoColumnPage` is a handy :class:`~reahl.web.fw.Widget`, since it contains a sensible page
-with all sorts of sub-parts to which one can attach extra :class:`~reahl.web.fw.Widget`\ s.  Of
-interest here are its `.header` element (a :class:`~reahl.web.ui.Panel` positioned well for
-holding things like menu bars), and two of its predefined :class:`~reahl.web.ui.Slot`\ s:
-"main" and "secondary". These two slots represent the two columns of
-the :class:`~reahl.web.ui.TwoColumnPage` :class:`~reahl.web.fw.Widget`: "main" is to the right, and fairly large,
-whereas "secondary" sits to the left of it, and is narrower.
+In the example, the :class:`~reahl.web.pure.PageColumnLayout` is used
+to give our plain :class:`~reahl.web.ui.HTML5Page` a `.header` (which
+we can use to put a menu bar) and two columns for content. The column
+named "main" is to the right, and fairly large, whereas "secondary"
+sits to the left of it, and is narrower.
 
-In this example, a CustomPage is derived from :class:`~reahl.web.ui.TwoColumnPage`. That way
-the CustomPage inherits all the abovementioned niceties from
-:class:`~reahl.web.ui.TwoColumnPage`. To ba a useful page for this application,
-CustomPage only needs to add an :class:`~reahl.web.ui.HMenu` to the `.header` of the
-:class:`~reahl.web.ui.TwoColumnPage` on which it is based.
+The :class:`~reahl.web.pure.PageColumnLayout` also adds :class:`~reahl.web.ui.Slot`\ s
+in each column so that we can use the columns without having to hard-code their contents.
+
+In this example, a CustomPage is derived from
+:class:`~reahl.web.ui.HTML5Page`. That way the
+:class:`~reahl.web.pure.PageColumnLayout` can be applied to our
+CustomPage, and a suitably laid out :class:`~reahl.web.ui.Menu` can be
+added to the `.header` of all CustomPage instances.
+
 
 

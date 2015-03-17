@@ -24,6 +24,7 @@ Contents:
    buttonwidgets
 
    connectingviews
+   styling
    slots
    parameterised
    testing
@@ -38,7 +39,6 @@ Contents:
    dependencyinjection
    ownwidget 
 
-   styling
    deployment
 
 

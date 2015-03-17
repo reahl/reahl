@@ -14,5 +14,8 @@
   <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>
+  <distpackage type="sdist">
+    <packageindex repository="devpi"/>
+  </distpackage>
 
 </project>

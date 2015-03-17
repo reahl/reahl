@@ -6,12 +6,13 @@ from reahl.web.ui import Form
 from reahl.web.ui import LabelledBlockInput
 from reahl.web.ui import P
 from reahl.web.ui import TextInput
-from reahl.web.ui import TwoColumnPage
+from reahl.web.ui import HTML5Page
+from reahl.web.pure import PageColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, Not
 
 class PageFlowUI(UserInterface):
     def assemble(self):
-        self.define_page(TwoColumnPage, style='basic')  
+        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))  
 
         comment = Comment()
 

@@ -33,9 +33,11 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.component.py3compat import html_escape
+from reahl.component.decorators import deprecated
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
                           CheckedRemoteMethod, ValidationException, WidgetResult, WidgetFactory, \
-                          Url, Bookmark, WidgetList
+                          Url, Bookmark, WidgetList, Layout
+from reahl.web.libraries import YuiGridsCss
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
@@ -198,16 +200,18 @@ class HTMLElement(Widget):
     
     :param view: (See :class:`reahl.web.fw.Widget`)
     :param tag_name: The element name used to render tags for this HTMLElement
-    :param children_allowed: Elements that are not allowed to have children are rendered only with opening tags,
+    :keyword children_allowed: Elements that are not allowed to have children are rendered only with opening tags,
                              others have an opening and closing tag. 
                              (See `HTML5 void elements <http://dev.w3.org/html5/markup/syntax.html#syntax-elements>`_.)
-    :param css_id: If specified, the HTMLElement will have an id attribute set to this. Mandatory when a Widget has :meth:`query_fields`.
-    :param wrapper_widget: Inputs are Widgets that are not HTMLElements. Such an Input acts as "wrapper_widget" for the 
+    :keyword css_id: If specified, the HTMLElement will have an id attribute set to this. Mandatory when a Widget has :meth:`query_fields`.
+    :keyword wrapper_widget: Inputs are Widgets that are not HTMLElements. Such an Input acts as "wrapper_widget" for the 
                            HTMLElement representing it in HTML. This `wrapper_widget` (the Input) dictates some of the
                            attributes its HTML representative should have.
-    :param read_check: (See :class:`reahl.web.fw.Widget`)
-    :param write_check: (See :class:`reahl.web.fw.Widget`)
+    :keyword read_check: (See :class:`reahl.web.fw.Widget`)
+    :keyword write_check: (See :class:`reahl.web.fw.Widget`)
+    
     """
+    tag_name = 'tag'
     def __init__(self, view, tag_name, children_allowed=False, css_id=None, wrapper_widget=None, read_check=None, write_check=None):
         super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check)
         self.wrapper_widget = wrapper_widget
@@ -253,6 +257,10 @@ class HTMLElement(Widget):
     def set_attribute(self, name, value):
         """Sets the value of the attribute `name` of this HTMLElement to the string `value`."""
         self.constant_attributes.set_to(name, value)
+
+    def get_attribute(self, name):
+        """Answers the value of the attribute named `name`."""
+        return self.attributes[name].as_html_value()
 
     def has_attribute(self, name):
         """Answers whether this HTMLElement has an attribute named `name`."""
@@ -379,7 +387,8 @@ class Title(HTMLElement):
                     value after substituting this string Template will be used as the value of this Title. The
                     template string may use one placeholder: $current_title which contains the title of the current
                     View.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, text, css_id=None):
         super(Title, self).__init__(view, 'title', children_allowed=True, css_id=css_id)
@@ -401,7 +410,8 @@ class Link(HTMLElement):
        :param rel: The value of the "rel" attribute of this HTMLElement.
        :param href: The value of the "href" attribute of this HTMLElement.
        :param _type: The value of the "type" attribute of this HTMLElement.
-       :param css_id:  (See :class:`HTMLElement`)
+       :keyword css_id:  (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, rel, href, _type, css_id=None):
         super(Link, self).__init__(view, 'link', css_id=css_id)
@@ -460,7 +470,8 @@ class Body(HTMLElement):
           Renders as an HTML <body> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Body, self).__init__(view, 'body', children_allowed=True, css_id=css_id)
@@ -494,10 +505,12 @@ class HTML5Page(HTMLElement):
           Renders as an HTML5 page with customised <head> and an empty <body>.
        
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param title: Text for a template to be used as document Title (See also :class:`Title`).
-       :param style: Pass a string denoting a predifined set of css styles.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword title: Text for a template to be used as document Title (See also :class:`Title`).
+       :keyword style: Pass a string denoting a predifined set of css styles.
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
+    @arg_checks(title=IsInstance(six.string_types))
     def __init__(self, view, title='$current_title', style=None, css_id=None):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
@@ -510,6 +523,7 @@ class HTML5Page(HTMLElement):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
 
 
+@deprecated('Please use reahl.web.pure:PageColumnLayout instead.', '3.1')
 class TwoColumnPage(HTML5Page):
     """An HTML5Page with a basic layout: It has a header area which displays at top of two columns. A footer area
        displays below the two columns. The main column is to the right, and larger. The secondary column is to 
@@ -517,8 +531,8 @@ class TwoColumnPage(HTML5Page):
        
        .. admonition:: Styling
 
-          Renders as a page structured using `Yui 2, with two template preset columns 
-          <http://developer.yahoo.com/yui/grids/#start>`_ (main and secondary).
+          Renders as a page structured using Yui 2, with two template preset columns 
+           (main and secondary).
 
        The TwoColumnPage has the following Slots:
 
@@ -539,13 +553,16 @@ class TwoColumnPage(HTML5Page):
     @arg_checks(title=IsInstance(six.string_types))
     def __init__(self, view, title='$current_title', style=None, css_id=None):
         super(TwoColumnPage, self).__init__(view, title=title, style=style, css_id=css_id)
+        YuiGridsCss.check_enabled(self)
             
         self.yui_page = self.body.add_child(YuiDoc(view, 'doc', 'yui-t2'))
         self.main.add_child(Slot(view, 'main'))
         self.secondary.add_child(Slot(view, 'secondary'))
         self.header.add_child(Slot(view, 'header'))
         self.footer.add_child(Slot(view, 'footer'))
-        
+
+    tag_name = 'html'  # So deprecation warning does not break
+
     @property
     def footer(self):
         """The Panel used as footer area."""
@@ -565,8 +582,8 @@ class TwoColumnPage(HTML5Page):
     def secondary(self):
         """The Panel used as secondary column."""
         return self.yui_page.secondary_block
-    
-    
+
+
 # Uses: reahl/web/reahl.ajaxlink.js
 class A(HTMLElement):
     """A hyper link.
@@ -577,11 +594,12 @@ class A(HTMLElement):
     
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param href: The URL (or URL fragment) to which the hyperlink leads. 
-       :param description: The textual description to be shown on the hyperlink.
-       :param ajax: (Not for general use)
-       :param read_check: (See :class:`reahl.web.fw.Widget`)
-       :param write_check: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword description: The textual description to be shown on the hyperlink.
+       :keyword ajax: (Not for general use)
+       :keyword read_check: (See :class:`reahl.web.fw.Widget`)
+       :keyword write_check: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     @classmethod
     def from_bookmark(cls, view, bookmark):
@@ -651,17 +669,20 @@ class H(HTMLElement):
               
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param priority: The heading level (a value from 1 to 6)
-       :param text: The text value displayed in the heading (if given)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword text: The text value displayed in the heading (if given)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, priority, text=None, css_id=None):
         super(H, self).__init__(view, 'h%s' % priority, children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text))
 
+
 class Br(HTMLElement):
     def __init__(self, view):
         super(Br, self).__init__(view, 'br', children_allowed=False)
+
 
 class P(HTMLElement):
     """A paragraph of text.
@@ -674,6 +695,7 @@ class P(HTMLElement):
        :keyword text: The text value displayed in the paragraph (if given)
        :keyword css_id: (See :class:`HTMLElement`)
        :keyword html_escape: If `text` is given, by default such text is HTML-escaped. Pass False in here to prevent this from happening.
+       
     """
     def __init__(self, view, text=None, css_id=None, html_escape=True):
         super(P, self).__init__(view, 'p', children_allowed=True, css_id=css_id)
@@ -743,7 +765,8 @@ class Div(HTMLElement):
           Renders as an HTML <div> element
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Div, self).__init__(view, 'div', children_allowed=True, css_id=css_id)
@@ -758,7 +781,8 @@ class Nav(HTMLElement):
           Renders as an HTML <nav> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Nav, self).__init__(view, 'nav', children_allowed=True, css_id=css_id)
@@ -772,7 +796,8 @@ class Article(HTMLElement):
           Renders as an HTML <article> element.
           
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Article, self).__init__(view, 'article', children_allowed=True, css_id=css_id)
@@ -786,7 +811,8 @@ class Header(HTMLElement):
           Rendered as an HTML <article> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Header, self).__init__(view, 'header', children_allowed=True, css_id=css_id)
@@ -800,7 +826,8 @@ class Footer(HTMLElement):
           Renders as an HTML <footer> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Footer, self).__init__(view, 'footer', children_allowed=True, css_id=css_id)
@@ -814,7 +841,8 @@ class Li(HTMLElement):
           Renders as an HTML <li> element.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Li, self).__init__(view, 'li', children_allowed=True, css_id=css_id)
@@ -828,7 +856,8 @@ class Ul(HTMLElement):
           Renders as an HTML <ul> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Ul, self).__init__(view, 'ul', children_allowed=True, css_id=css_id)
@@ -845,8 +874,9 @@ class Img(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param src: The URL from where the embedded image file should be fetched.
-       :param alt: Alternative text describing the image.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword alt: Alternative text describing the image.
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, src, alt=None, css_id=None):
         super(Img, self).__init__(view, 'img', css_id=css_id)
@@ -868,6 +898,7 @@ class YuiDoc(Div):
     """A Yui 2 #doc div: the container of the #hd, #bd and #ft ( see http://developer.yahoo.com/yui/grids/#start )"""
     def __init__(self, view, doc_id, doc_class, css_id=None):
         super(YuiDoc, self).__init__(view, css_id=css_id)
+        YuiGridsCss.check_enabled(self)
         self.set_id(doc_id)
         self.append_class(doc_class)
         self.hd = YuiGrid(view)   #:
@@ -891,6 +922,11 @@ class YuiDoc(Div):
 
 class YuiElement(Panel):
     yui_class = None
+    
+    def __init__(self, view, css_id=None):
+        YuiGridsCss.check_enabled(self)
+        super (YuiElement, self).__init__(view, css_id=css_id)
+
 
     @property
     def attributes(self):
@@ -936,8 +972,9 @@ class Span(HTMLElement):
           Renders as an HTML <span> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param text: Will be added as text content of the Span if given.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword text: Will be added as text content of the Span if given.
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
 
     def __init__(self, view, text=None, css_id=None):
@@ -959,7 +996,7 @@ class Form(HTMLElement):
        
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: A name for this form, unique in the UserInterface where it is used.
-       :param css_id: (See :class:`HTMLElement`)
+       
     """
     is_Form = True
     def __init__(self, view, unique_name, rendered_form=None):
@@ -1141,7 +1178,8 @@ class NestedForm(Div):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: (See :class:`Form`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, unique_name, css_id=None):
         self.out_of_bound_form = Form(view, unique_name, rendered_form=self)
@@ -1170,8 +1208,9 @@ class InputGroup(FieldSet):
           Rendered as an HTML <fieldset> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param label_text: If given, the FieldSet will have a label containing this text.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword label_text: If given, the FieldSet will have a label containing this text.
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
 
 
@@ -1638,7 +1677,8 @@ class Button(Span):
     
        :param form: (See :class:`Input`)
        :param event: The :class:`reahl.web.fw.Event` that will fire when the user clicks on this ButtonInput.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, form, event, css_id=None):
         super(Button, self).__init__(form.view, css_id=css_id)
@@ -1666,8 +1706,9 @@ class InputLabel(Label):
           Rendered as an HTML <label> element.
 
        :param html_input: The :class:`Input` labelled by this Label.
-       :param text: If given, used as the text for the label rather than the default value (`html_input.label`).
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, html_input, text=None, css_id=None):
         view = html_input.view
@@ -1694,8 +1735,9 @@ class ErrorLabel(InputLabel):
           Rendered as an HTML <label class="error"> element.
 
        :param html_input: (See :class:`InputLabel`)
-       :param text: (See :class:`InputLabel`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword text: (See :class:`InputLabel`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     @property
     def attributes(self):
@@ -1737,8 +1779,9 @@ class LabelledInlineInput(Span):
             attributes.add_to('class', ['reahl-state-error'])
         return attributes
 
+
 # Uses: reahl/web/reahl.labelledinput.css
-class LabelledBlockInput(YuiGrid):
+class LabelledBlockInput(Panel):
     """A Widget that wraps around a given Input, adding a Label to the Input. Labels and their corresponding Inputs
        are arranged in columns. Successive LabelledBlockInputs are positioned underneath one another. This has the 
        effect that the Labels and Inputs of successive LabelledBlockInputs line up.
@@ -1757,11 +1800,20 @@ class LabelledBlockInput(YuiGrid):
         view = html_input.view
         super(LabelledBlockInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
-        self.label_part = self.add_child(YuiUnit(view, first=True))
+        
+        if YuiGridsCss.is_enabled():
+            self.append_class('yui-g')
+            self.label_part = self.add_child(YuiUnit(view, first=True))
+            self.input_part = self.add_child(YuiUnit(view))
+        else:
+            from reahl.web.pure import ColumnLayout, UnitSize
+            self.use_layout(ColumnLayout(('label', UnitSize('1/4')), ('input', UnitSize('3/4'))))
+            self.label_part = self.layout.columns['label']
+            self.input_part = self.layout.columns['input']
+
         self.label = self.label_part.add_child(self.label_class(html_input))
-        self.input_part = self.add_child(YuiUnit(view))
         self.input_part.add_child(html_input)
-    
+            
     @property
     def visible(self):
         return self.html_input.visible
@@ -1776,7 +1828,7 @@ class LabelledBlockInput(YuiGrid):
 
 
 # Uses: reahl/web/reahl.cueinput.js
-class CueInput(YuiGrid):
+class CueInput(Panel):
     """A Widget that wraps around a given Input, adding a Label to the Input and a "cue" - a hint that 
        appears only when the Input has focus. The intention of the cue is to give the user a hint as to
        what to input into the Input.
@@ -1799,14 +1851,21 @@ class CueInput(YuiGrid):
         super(CueInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
 
-        self.label_part = self.add_child(YuiUnit(view, first=True))
+        if YuiGridsCss.is_enabled():
+            self.append_class('yui-g')
+            self.label_part = self.add_child(YuiUnit(view, first=True))
+            self.input_wrapper = self.add_child(YuiGrid(view))
+            self.input_part = self.input_wrapper.add_child(YuiUnit(view, first=True))
+            self.cue_part = self.input_wrapper.add_child(YuiUnit(view))
+        else:
+            from reahl.web.pure import ColumnLayout, UnitSize
+            self.use_layout(ColumnLayout(('label', UnitSize('1/4')), ('input', UnitSize('1/2')), ('cue', UnitSize('1/4'))))
+            self.label_part = self.layout.columns['label']
+            self.input_part = self.layout.columns['input']
+            self.cue_part = self.layout.columns['cue']
+
         self.label = self.label_part.add_child(self.label_class(html_input))
-
-        self.input_wrapper = self.add_child(YuiGrid(view))
-        self.input_part = self.input_wrapper.add_child(YuiUnit(view, first=True))
         self.input_part.add_child(self.html_input)
-
-        self.cue_part = self.input_wrapper.add_child(YuiUnit(view))
         self.cue_part.append_class('reahl-cue')
         self.cue_part.add_child(cue_widget)
         cue_widget.set_attribute('hidden', 'true')
@@ -1875,9 +1934,10 @@ class MenuItem(Li):
        
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a: The :class:`A` to use as link.
-       :param active_regex: If the href of `a` matches this regex, the MenuItem is deemed active.
-       :param exact_match: (See :meth:`reahl.web.fw.Url.is_currently_active`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword active_regex: If the href of `a` matches this regex, the MenuItem is deemed active.
+       :keyword exact_match: (See :meth:`reahl.web.fw.Url.is_currently_active`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     @classmethod
     def from_bookmark(cls, view, bookmark, active_regex=None):
@@ -1919,7 +1979,8 @@ class SubMenu(MenuItem):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param title: Text to use as a title for this SubMenu.
        :param menu: The :class:`Menu` contained inside this SubMenu.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, title, menu, css_id=None):
         super(SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id)
@@ -1936,7 +1997,8 @@ class Menu(Ul):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: A list of :class:`A` instances to which each :class:`MenuItem` will lead.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     @classmethod
     def from_languages(cls, view):
@@ -1982,7 +2044,36 @@ class Menu(Ul):
         self.menu_items.append(item)
 
 
+class HorizontalLayout(Layout):
+    """A Layout that causes Widgets to be displayed horizontally. 
+    
+       .. admonition:: Styling
+       
+          Adds class reahl-horizontal to its Widget.
+          
+       (Only works for :class:`Menu` and subclasses.)
+    
+    """
+    def customise_widget(self):
+        self.widget.append_class('reahl-horizontal')
+
+
+class VerticalLayout(Layout):
+    """A Layout that causes Widgets to be displayed vertically.
+    
+       .. admonition:: Styling
+       
+          Adds class reahl-vertical to its Widget.
+          
+       (Only works for :class:`Menu` and subclasses.)
+    
+    """
+    def customise_widget(self):
+        self.widget.append_class('reahl-vertical')
+
+
 # Uses: reahl/web/reahl.hmenu.css
+@deprecated('Please use Menu().with_layout(HorizontalLayout()) instead.', '3.1')
 class HMenu(Menu):
     """A Menu, with items displayed next to each other.
 
@@ -1992,7 +2083,8 @@ class HMenu(Menu):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: (See :class:`Menu`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     @property
     def attributes(self):
@@ -2001,6 +2093,7 @@ class HMenu(Menu):
         return attributes
 
 
+@deprecated('Please use Menu().with_layout(VerticalLayout()) instead.', '3.1')
 class VMenu(Menu):
     """A Menu, with items displayed underneath each other.
 
@@ -2010,7 +2103,8 @@ class VMenu(Menu):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: (See :class:`Menu`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     @property
     def attributes(self):
@@ -2030,7 +2124,8 @@ class Tab(MenuItem):
        :param title: Text that is displayed inside the Tab itself.
        :param tab_key: A name for this tag identifying it uniquely amongst other Tabs in the same :class:`TabbedPanel`.
        :param contents_factory: A :class:`WidgetFactory` specifying how to create the contents of this Tab, once selected.
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
         self.title = title
@@ -2066,7 +2161,8 @@ class MultiTab(Tab):
        :param title: (See :class:`Tab`)
        :param tab_key: (See :class:`Tab`)
        :param contents_factory: (See :class:`Tab`)
-       :param css_id: (See :class:`HTMLElement`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
         self.tab_key = tab_key
@@ -2122,7 +2218,7 @@ class TabbedPanel(Panel):
     def __init__(self, view, css_id):
         super(TabbedPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-tabbedpanel')
-        self.tabs = self.add_child(HMenu(view, []))
+        self.tabs = self.add_child(Menu(view, [])).use_layout(HorizontalLayout())
         self.content_panel = self.add_child(Panel(view))
         self.enable_refresh()
 
@@ -2145,7 +2241,7 @@ class TabbedPanel(Panel):
             self.set_active(tab)
 
         if tab.is_active:
-            tab.add_content_to_panel(self.content_panel)    
+            tab.add_content_to_panel(self.content_panel)
 
 
 # Uses: reahl/web/reahl.slidingpanel.css
@@ -2171,7 +2267,7 @@ class SlidingPanel(Panel):
        :keyword next: Text to put in the link clicked to slide to the next panel.
        :keyword prev: Text to put in the link clicked to slide to the previous panel.
     """
-    def __init__(self, view, css_id=None, next='>', prev='<'):
+    def __init__(self, view, css_id=None, next='', prev=''):
         super(SlidingPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-slidingpanel')
         self.container = Panel(view)
@@ -2427,7 +2523,7 @@ class FileUploadInput(Input):
         return FileUploadPanel(self)
 
     def get_value_from_input(self, input_values):
-        return [UploadedFile(f.filename, f.file_obj.read(), f.content_type)
+        return [UploadedFile(f.filename, f.file_obj.read(), f.mime_type)
                  for f in self.persisted_file_class.get_persisted_for_form(self.form, self.name)]
 
     def enter_value(self, input_value):
@@ -2494,6 +2590,7 @@ class Caption(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword text: Text to be displayed inside the caption element.
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, text=None, css_id=None):
         super(Caption, self).__init__(view, 'caption', children_allowed=True, css_id=css_id)
@@ -2507,6 +2604,7 @@ class Col(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword span: The number of columns spanned by this column.
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, span=None, css_id=None):
         super(Col, self).__init__(view, 'col', children_allowed=False, css_id=css_id)
@@ -2520,6 +2618,7 @@ class Colgroup(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword span: The number of columns spanned by this group.
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, span=None, css_id=None):
         super(Colgroup, self).__init__(view, 'colgroup', children_allowed=True, css_id=css_id)
@@ -2532,6 +2631,7 @@ class Thead(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Thead, self).__init__(view, 'thead', children_allowed=True, css_id=css_id)
@@ -2542,6 +2642,7 @@ class Tfoot(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Tfoot, self).__init__(view, 'tfoot', children_allowed=True, css_id=css_id)
@@ -2552,6 +2653,7 @@ class Tbody(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Tbody, self).__init__(view, 'tbody', children_allowed=True, css_id=css_id)
@@ -2562,6 +2664,7 @@ class Tr(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, css_id=None):
         super(Tr, self).__init__(view, 'tr',children_allowed=True, css_id=css_id)
@@ -2583,6 +2686,7 @@ class Th(Cell):
        :keyword rowspan: The number of rows this table cell should span.
        :keyword colspan: The number of columns this table cell should span.
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view,  rowspan=None, colspan=None, css_id=None):
         super(Th, self).__init__(view, 'th', rowspan=rowspan, colspan=colspan, css_id=css_id)
@@ -2595,6 +2699,7 @@ class Td(Cell):
        :keyword rowspan: The number of rows this table cell should span.
        :keyword colspan: The number of columns this table cell should span.
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, rowspan=None, colspan=None, css_id=None):
         super(Td, self).__init__(view, 'td', rowspan=rowspan, colspan=colspan, css_id=css_id)
@@ -2664,6 +2769,7 @@ class Table(HTMLElement):
        :keyword summary:  A textual summary of the contents of the table which is not displayed visually, \
                 but may be used by a user agent for accessibility purposes.
        :keyword css_id: (See :class:`HTMLElement`)
+       
     """
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
         super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id)
@@ -2683,6 +2789,7 @@ class Table(HTMLElement):
            :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
            :keyword summary: If given, a `summary` attribute is added to the table containing this text.
            :keyword css_id: (See :class:`HTMLElement`)
+           
         """
         table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
         table.create_header_columns(columns)
