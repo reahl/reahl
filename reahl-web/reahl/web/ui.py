@@ -2256,7 +2256,8 @@ class SlidingPanel(Panel):
        .. admonition:: Styling
 
           Rendered as a <div class="reahl-slidingpanel"> which contains three children: a <div class="viewport">
-          flanked on either side by an <a> (the controls for forcing it to transition left or right).
+          flanked on either side by an <a> (the controls for forcing it to transition left or right). The
+          labels passed as `next` and `prev` are embedded in <span> tags inside the <a> tags.
           The :class:`Panel` instances added to the :class:`SlidingPanel` are marked with a ``class="contained"``.
 
           For a SlidingPanel to function property, you need to specify a height and width to 
@@ -2267,14 +2268,16 @@ class SlidingPanel(Panel):
        :keyword next: Text to put in the link clicked to slide to the next panel.
        :keyword prev: Text to put in the link clicked to slide to the previous panel.
     """
-    def __init__(self, view, css_id=None, next='', prev=''):
+    def __init__(self, view, css_id=None, next='>', prev='<'):
         super(SlidingPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-slidingpanel')
         self.container = Panel(view)
         self.container.append_class('viewport')
-        self.prev = self.add_child(A.from_bookmark(view, self.get_bookmark(index=self.previous_index, description=prev)))
+        self.prev = self.add_child(A.from_bookmark(view, self.get_bookmark(index=self.previous_index, description='')))
+        self.prev.add_child(Span(view, text=prev))
         self.add_child(self.container)
-        self.next = self.add_child(A.from_bookmark(view, self.get_bookmark(index=self.next_index, description=next)))
+        self.next = self.add_child(A.from_bookmark(view, self.get_bookmark(index=self.next_index, description='')))
+        self.next.add_child(Span(view, text=next))
 
     def add_panel(self, panel):
         """Adds `panel` to the list of :class:`Panel` instances that share the same visual space."""
