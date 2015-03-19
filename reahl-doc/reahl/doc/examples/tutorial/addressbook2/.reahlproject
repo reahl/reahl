@@ -18,5 +18,6 @@
   </persisted>
   
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=addressbook2_dev -t -i '.*'"/>
+  <alias name="demosetup" command="setup -- -q nosetests nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.addressbook2.addressbook2_dev.addressbook2tests:DemoFixture"/>
   
 </project>
