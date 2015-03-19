@@ -10,7 +10,7 @@ from reahl.component.modelinterface import exposed, IntegerField, BooleanField, 
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, A, P, H, InputGroup, Menu, HorizontalLayout,\
                          PasswordInput, ErrorFeedbackMessage, Slot, Widget, SelectInput, CheckboxInput
-from reahl.web.pure import PageColumnLayout
+from reahl.web.pure import PageColumnLayout, UnitSize
 
 class Address(Base):
     __tablename__ = 'access2_address'
@@ -145,7 +145,7 @@ class Collaborator(Base):
 class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
         super(AddressAppPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout('main'))
+        self.use_layout(PageColumnLayout(('main', UnitSize('1/2'))))
 
         login_session = LoginSession.for_current_session()
         if login_session.is_logged_in():

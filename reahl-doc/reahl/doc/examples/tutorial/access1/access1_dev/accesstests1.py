@@ -1,6 +1,6 @@
 
 # To run this test do:
-# nosetests -F reahl.webdev.fixtures:BrowserSetup -s --nologcapture reahl/doc_dev/tutorialtests/accesstests1.py
+# nosetests reahl.doc.examples.tutorial.access1.access1_dev.accesstests1
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division

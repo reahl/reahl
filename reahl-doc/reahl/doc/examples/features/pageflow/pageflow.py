@@ -1,18 +1,13 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import Button
-from reahl.web.ui import Form
-from reahl.web.ui import LabelledBlockInput
-from reahl.web.ui import P
-from reahl.web.ui import TextInput
-from reahl.web.ui import HTML5Page
-from reahl.web.pure import PageColumnLayout
+from reahl.web.ui import Button, Form, LabelledBlockInput, P, TextInput, HTML5Page
+from reahl.web.pure import PageColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, Not
 
 class PageFlowUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))  
+        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout(('main', UnitSize('1/2'))))  
 
         comment = Comment()
 

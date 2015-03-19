@@ -11,7 +11,7 @@ from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, Menu,\
                          HorizontalLayout, PasswordInput, ErrorFeedbackMessage
-from reahl.web.pure import PageColumnLayout
+from reahl.web.pure import PageColumnLayout, UnitSize
 from reahl.component.modelinterface import Action
 from reahl.component.modelinterface import EmailField
 from reahl.component.modelinterface import Event
@@ -68,7 +68,7 @@ class LoginSession(Base):
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(MenuPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout('main'))
+        self.use_layout(PageColumnLayout(('main', UnitSize('1/2'))))
         self.layout.header.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
 
 

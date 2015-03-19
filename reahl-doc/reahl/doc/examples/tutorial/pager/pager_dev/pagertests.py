@@ -1,7 +1,8 @@
 
 # To run this test do:
-# nosetests -F reahl.webdev.fixtures:BrowserSetup -s --nologcapture reahl/doc_dev/tutorialtests/pagertests.py
+# nosetests reahl.doc.examples.tutorial.pager.pager_dev.pagertests
 #
+
 
 
 
