@@ -8,6 +8,7 @@
     <egg name="reahl-dev"/>
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/>
+    <egg name="reahl-domain"/>
     
     <thirdpartyegg name="lxml" minversion="3.3" maxversion="3.3.999"/>
     <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
