@@ -1,9 +1,9 @@
 
 # To run this test do:
-# nosetests -F reahl.webdev.fixtures:BrowserSetup -s --nologcapture reahl/doc_dev/tutorialtests/accesstests2.py
+# nosetests reahl.doc.examples.tutorial.access2.access2_dev.accesstests2
 #
 # To set up a demo database for playing with, do:
-# nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc_dev.tutorialtests.accesstests2:DemoFixture -s --nologcapture
+# nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.access2.access2_dev.accesstests2:DemoFixture -s --nologcapture
 
 
 

@@ -214,3 +214,22 @@ Here is the complete source so far:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
 
+Curios to see what the webpage would look like?
+-----------------------------------------------
+
+To create some persisted test data, we have defined a command alias (found in the .reahlproject file for the project)
+that you should run:
+
+.. code-block:: bash
+
+    reahl demosetup
+
+Run the reahl development webserver (it uses the etc directory to figure out what to serve) with this command:
+
+.. code-block:: bash
+
+  reahl serve
+
+Once it has started up, point your browser to http://localhost:8000/
+
+
