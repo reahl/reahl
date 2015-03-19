@@ -207,6 +207,10 @@ fieldset>.reahl-labelledinput {
   margin-bottom: 2em;
 }
 
+.reahl-labelledinput input {
+  width: 100%;
+}
+
 /* -- labels that are shown over an input -- */
 .reahl-labeloverinput > label {
   font-size: 80%;

@@ -12,6 +12,12 @@ from reahl.doc.examples.tutorial.access.access import AddressBook
 from reahl.doc.examples.tutorial.access.access import AddressBookUI
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
+# To run this test do:
+# nosetests reahl.doc.examples.tutorial.access.access_dev.accesstests
+#
+# To set up a demo database for playing with, do:
+# nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.access.access_dev.accesstests:DemoFixture -s --nologcapture
+
 
 class AccessFixture(WebFixture):
     def new_browser(self):
@@ -44,8 +50,6 @@ class AccessFixture(WebFixture):
     def do_demo_setup(self):
         DemoFixture().do_demo_setup()
 
-#nosetests -F reahl.webdev.fixtures:BrowserSetup -s --nologcapture reahl/doc_dev/tutorialtests/accesstests.py
-#nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc_dev.tutorialtests.accesstests:DemoFixture -s --nologcapture
 
 class DemoFixture(AccessFixture):
     commit=True
