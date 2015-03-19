@@ -31,15 +31,17 @@ Here is the super-short summary:
 Wheel support and virtualenv
 ----------------------------
 
-- Ensure you have the latests pip with wheel support
-    - In a command prompt window, execute:
+- Ensure you have the latest pip with wheel support
+
+    In a command prompt window, execute:
     
     .. code-block:: bash
     
        pip install -U wheel
 
 - Install virtualenv using wheels:
-    - In a command prompt window, execute:
+
+    In a command prompt window, execute:
     
     .. code-block:: bash
     

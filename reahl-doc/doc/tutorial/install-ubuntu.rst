@@ -50,7 +50,7 @@ Chromedriver
 You do not need to install chromedriver in order to follow this
 tutorial. However, if you are going to use chromium for testing, you
 will need chromedriver. Installation of chromedriver in Ubuntu need a
-bit of tweaking, and this seemed toe appropriate place to jot down
+bit of tweaking, and this seemed to be the appropriate place to jot down
 what is needed:
 
 Install the chromium-chromedriver package:

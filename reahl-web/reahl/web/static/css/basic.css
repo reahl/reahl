@@ -416,7 +416,9 @@ ul.reahl-menu li > a:hover {
     width: 0;
     margin: 1em;
 }
-
+.reahl-slidingpanel > a > span {
+    display: none;
+}
 .reahl-slidingpanel > a:first-child {
     border-right: 2em solid black;
     border-top: 2em solid transparent;
