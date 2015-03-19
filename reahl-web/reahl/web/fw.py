@@ -19,6 +19,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
+import sys
 import io
 import atexit
 import locale
@@ -2548,6 +2549,10 @@ class ReahlWSGIApplication(object):
         return cls(config)
 
     def __init__(self, config):
+        if six.PY2:
+            reload(sys)  # to enable `setdefaultencoding` again
+            sys.setdefaultencoding("UTF-8")
+
         self.request_lock = threading.Lock()
         self.config = config
         self.system_control = SystemControl(self.config)
