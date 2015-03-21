@@ -1,13 +1,15 @@
-
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 from reahl.web.fw import UserInterface
 from reahl.web.ui import Button, Form, LabelledBlockInput, P, TextInput, HTML5Page
 from reahl.web.pure import PageColumnLayout, UnitSize
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, Not
+from reahl.component.modelinterface import exposed, EmailField, Field
+from reahl.component.modelinterface import Event, Action, Not
 
 class PageFlowUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout(('main', UnitSize('1/2'))))  
+        layout = PageColumnLayout(('main', UnitSize('1/2')))
+        self.define_page(HTML5Page, style='basic').use_layout(layout)  
 
         comment = Comment()
 
@@ -15,13 +17,17 @@ class PageFlowUI(UserInterface):
         home.set_slot('main', CommentForm.factory(comment))
 
         thanks = self.define_view('/thanks', title='Thank you!')
-        thanks.set_slot('main', P.factory(text='Thanks for submitting your comment'))
+        thanks_text = 'Thanks for submitting your comment'
+        thanks.set_slot('main', P.factory(text=thanks_text))
 
         none_submitted = self.define_view('/none', title='Nothing to say?')
-        none_submitted.set_slot('main', P.factory(text='Mmm, you submitted an empty comment??'))
+        none_text = 'Mmm, you submitted an empty comment??'
+        none_submitted.set_slot('main', P.factory(text=none_text))
 
-        self.define_transition(comment.events.submit, home, thanks, guard=Action(comment.contains_text))
-        self.define_transition(comment.events.submit, home, none_submitted, guard=Not(Action(comment.contains_text)))
+        self.define_transition(comment.events.submit, home, thanks, 
+                               guard=Action(comment.contains_text))
+        self.define_transition(comment.events.submit, home, none_submitted, 
+                               guard=Not(Action(comment.contains_text)))
 
         
 class Comment(object):
@@ -46,9 +52,13 @@ class CommentForm(Form):
     def __init__(self, view, comment):
         super(CommentForm, self).__init__(view, 'myform')
 
-        self.add_child( LabelledBlockInput(TextInput(self, comment.fields.email_address)) )
-        self.add_child( LabelledBlockInput(TextInput(self, comment.fields.text)) )
-        self.add_child( Button(self, comment.events.submit) )
+        email_input = TextInput(self, comment.fields.email_address)
+        self.add_child(LabelledBlockInput(email_input))
+
+        text_input = TextInput(self, comment.fields.text)
+        self.add_child(LabelledBlockInput(text_input))
+
+        self.add_child(Button(self, comment.events.submit))
 
 
 

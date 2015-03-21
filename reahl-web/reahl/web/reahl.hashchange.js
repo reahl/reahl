@@ -53,7 +53,8 @@ $.widget('reahl.hashchange', {
                             cache:   hashChangeHandler.cache,
                             data:    changedParams,
                             success: function(data){
-                                element.fadeOut('fast', function(){element.html(data).fadeIn();});
+/*                                element.fadeOut('fast', function(){element.html(data).fadeIn();}); */
+                                element.html(data);
                                 hashChangeHandler.params = changedParams;
                             },
                             complete: function(data){

@@ -9,27 +9,31 @@ Validating user input
    `JQuery <http://www.jquery.org>`_ and the `JQuery validation plugin
    <http://docs.jquery.com/Plugins/Validation>`_.
 
-The code in this section is the complete listing of a Reahl web
-application which demonstrates the validation of a single item that
-can be input by a user.
+Reahl does validation of user input differently. You declare what
+Fields of an object can be input by a user. When creating an Input
+Widget, you link it to such a Field. The same Field can be reused by
+different Inputs on different screens. (There's more to Fields than
+this, but this is the basic idea.)
 
-The application will render a sole text input on its home page:
+What you get is validations done in JavaScript on the browser, but
+*the same* validations are also performed server-side if the user
+switched off JavaScript or when a malicious attempt is done to try and
+circumvent your validations.
+
+Our example only has a single Input, with its EmailField:
 
    .. figure:: ../_build/screenshots/validation1.png
       :alt: Screenshot showing a single input.
 
-
-The user is expected to type a valid email address into the
-input. When the user types something into the input and hits tab (for
-example), the typed input is checked and a useful error message is
-shown:
+If you type an invalid email address and hit tab, the typed input is
+checked and a specific error message is shown:
 
    .. figure:: ../_build/screenshots/validation2.png
       :alt: Screenshot showing a single input with invalid input, coloured red, with an accompanying error message.
 
 
-The error message changes while the user types. For example, if
-the user deletes the invalid email address, the message changes:
+The error message changes while the user types to indicate a different
+ValidationConstraint is now failing:
 
    .. figure:: ../_build/screenshots/validation3.png
       :alt: Screenshot showing a single input with invalid input, coloured red with a different accompanying error message.
@@ -41,19 +45,7 @@ When the input is changed to a valid value, the message disappears:
       :alt: Screenshot showing a single input with valid input.
 
 
-The validation shown above is done in a user's browser using
-JavaScript. Doing validation using JavaScript is desirable because it
-gives immediate feedback to the user. There is a problem with doing
-validation in JavaScript, however: a user could disable JavaScript and
-bypass such validation.
-
-Reahl guards against this scenario by re-checking the same validation
-rules on the server side when the user clicks on a button. If the
-validation fails, the same page is shown again with exactly the same
-error messages, format and styling shown above for the JavaScript
-version.
-
-Here is a listing of the code, followed by an explanation:
+Below is the *complete* source code for this example, followed by an explanation:
 
 .. literalinclude:: ../../reahl/doc/examples/features/validation/validation.py
 
