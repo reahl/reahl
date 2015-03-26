@@ -894,6 +894,7 @@ class Panel(Div):
     """
 
 
+@deprecated('Please use reahl.web.pure:PageColumnLayout instead.', '3.1')
 class YuiDoc(Div):
     """A Yui 2 #doc div: the container of the #hd, #bd and #ft ( see http://developer.yahoo.com/yui/grids/#start )"""
     def __init__(self, view, doc_id, doc_class, css_id=None):
@@ -935,16 +936,19 @@ class YuiElement(Panel):
         return attributes
 
 
+@deprecated('Please use reahl.web.pure:ColumnLayout instead.', '3.1')
 class YuiBlock(YuiElement):
     """A Yui 2 block: see http://developer.yahoo.com/yui/grids/#start """
     yui_class = 'yui-b'
 
 
+@deprecated('Please use reahl.web.pure:ColumnLayout instead.', '3.1')
 class YuiGrid(YuiElement):
     """A Yui 2 grid: see http://developer.yahoo.com/yui/grids/#start """
     yui_class = 'yui-g'
 
 
+@deprecated('Please use reahl.web.pure:ColumnLayout instead.', '3.1')
 class YuiUnit(YuiElement):
     """A Yui 2 unit: see http://developer.yahoo.com/yui/grids/#start 
     

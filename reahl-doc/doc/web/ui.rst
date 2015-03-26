@@ -452,6 +452,9 @@ FileUploadInput
 Support for Yui 2 CSS Grids
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. deprecated:: 3.1
+   Please use the new :doc:`layout concepts based on Pure<pure>` instead.
+
 
 YuiDoc
 """"""
