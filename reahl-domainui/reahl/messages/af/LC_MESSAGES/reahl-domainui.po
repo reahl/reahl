@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-domainui 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2014-09-06 14:59+0200\n"
+"POT-Creation-Date: 2015-03-26 15:37+0200\n"
 "PO-Revision-Date: 2012-05-31 12:07+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language-Team: af <info@reahl.org>\n"
@@ -350,7 +350,7 @@ msgstr "Verifiëer hangende registrasie"
 msgid "Thanks for all your troubles"
 msgstr "Dankie vir jou moeite"
 
-#: reahl/domainui/workflow.py:48 reahl/domainui/workflow.py:124
+#: reahl/domainui/workflow.py:49 reahl/domainui/workflow.py:125
 msgid "Inbox"
 msgstr "Taak leêr"
 
