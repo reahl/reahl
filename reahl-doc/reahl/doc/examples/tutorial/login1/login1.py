@@ -5,7 +5,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, Menu, HorizontalLayout,\
                          PasswordInput, ErrorFeedbackMessage
-from reahl.web.pure import PageColumnLayout
+from reahl.web.pure import PageColumnLayout, UnitSize
 from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSession
 
 
@@ -13,7 +13,7 @@ from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSes
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(MenuPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout('main'))
+        self.use_layout(PageColumnLayout(('main', UnitSize('1/3'))))
         self.layout.header.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
 
 
