@@ -137,8 +137,8 @@ class ReahlEgg(object):
             'No translations found for %s, did you specify a translations package and forget to add locales in there?' % translations_entry_point.dist
         return unique_paths.pop()
 
-    @classmethod
     @memoized
+    @classmethod
     def get_languages_supported_by_all(cls, root_egg):
         egg_interfaces = cls.get_all_relevant_interfaces(root_egg)
         default_languages = ['en_gb']
