@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Testing
 =======
@@ -96,6 +96,12 @@ object available on the :class:`~reahl.tofu.Fixture`:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/testbasics.py
    :start-after: # ------- using new_ methods directly
+
+Running the tests:
+
+.. code-block:: bash
+
+   nosetests testbasics.py
 
 
 Set_up, tear_down, and run fixtures

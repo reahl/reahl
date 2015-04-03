@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -1567,6 +1567,10 @@ class SetupMonitor(object):
     def __init__(self):
         self.captured_stdout = []
         self.errors = None
+
+    @property
+    def encoding(self):
+        return self.original_stdout.encoding
 
     def __enter__(self):
         self.original_stdout = sys.stdout

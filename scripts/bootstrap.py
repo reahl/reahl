@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -93,7 +93,7 @@ def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
     for i in non_reahl_requirements:
         try:
             pkg_resources.require(i)
-        except pkg_resources.DistributionNotFound:
+        except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
             missing.append(i)
     return missing
 
@@ -205,7 +205,7 @@ clean_egg_info_dirs()
 
 remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
-missing = find_missing_prerequisites(reahl_dev_requires_file, ['six','wrapt'])
+missing = find_missing_prerequisites(reahl_dev_requires_file, ['six','wrapt','setuptools>11'])
 if missing:
     install_prerequisites(missing)
 

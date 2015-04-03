@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 User interface basics
 =====================
@@ -193,6 +193,10 @@ This is what happens on the server to handle a request:
 Try it out
 ----------
 
+.. sidebar: Reminder
+
+   Remember :doc:`our summary of everything necessary to run an app<gettingstarted-examples>`.
+
 Finally, we have something we can run and play with in a web browser.
 
 When you try to run this app, remember the following gotchas:
@@ -209,6 +213,13 @@ When you try to run this app, remember the following gotchas:
    directories of which the names differ! Reahl assumes that your
    component is named for the directory in which it resides.
  - Your app will not list any addresses at first, because there are none in the database yet!
+   To create some persisted test data, we have defined a command alias (found in the .reahlproject file for the project)
+   that you should run:
+
+   .. code-block:: bash
+
+      reahl demosetup
+
 
 Here is the complete source so far:
 

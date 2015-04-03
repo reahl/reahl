@@ -1,4 +1,4 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Reahl installation
 ==================
@@ -17,6 +17,32 @@ Doing this means that your main Python installation is left in the
 state it currently is, and that you do not need permissions of
 restricted users to install all the extra Python packages when
 developing.
+
+
+The bottom line
+---------------
+
+If you are a seasoned Python developer here is the quick summary. More detailed 
+installation instructions follow below this section.
+
+Reahl itself is installed via pip, using extras in [] to select what you want:
+   
+.. code-block:: bash
+   
+   pip install reahl[declarative,sqlite,dev,doc]  
+
+On platforms other than Windows, some dependencies pulled in during installation
+will also need to be compiled, needing:
+
+   - Libxml, libxslt
+   - Libsqlite   
+   
+   - Python headers for compiling the above
+   - A C/C++ compiler (such as gcc) 
+   - Cython
+
+
+Read on for detailed instructions.
 
 .. _prep_install:
 
@@ -38,7 +64,7 @@ Create a virtualenv and install Reahl inside it
 -----------------------------------------------
 
 If you followed the instructions above, virtualenv should have been
-installed with the packages listed above. You need to now create a
+installed along with other required packages. You need to now create a
 virtual environment using virtualenv.
 
 On Linux or Mac, do:
@@ -109,7 +135,7 @@ environment, so they are packaged in a component you can omit.
 
 In order to specify which sets of components you want installed,
 you use keywords in square brackets behind `reahl` in the command
-to easy_install as shown above. Here is a list of keywords you can 
+to pip as shown above. Here is a list of keywords you can 
 include, and what they install:
 
  declarative

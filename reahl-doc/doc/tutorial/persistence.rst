@@ -15,7 +15,7 @@ A persistent model
 
 
 
-The model from :doc:`the previous chapter <models>` is a bit naïve.
+The model from :doc:`the previous chapter <models>` is a bit naive.
 
 Sure, you can create Addresses and save them to an AddressBook, but
 all of this is done in memory.  A real world application rarely works

@@ -1,4 +1,4 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 Models live in components
 =========================
@@ -75,7 +75,7 @@ Of course, at this point your database schema needs to be updated to include tab
 
    reahl-control createdbtables etc
 
-.. note:: 
+.. note::
 
    The `createdbtables` command will only succeed if you have not run it before. In this case you can always
    undo your previous run before you re-create the tables, by running:
@@ -83,6 +83,4 @@ Of course, at this point your database schema needs to be updated to include tab
    .. code-block:: bash
 
       reahl-control dropdbtables etc
-
-
 

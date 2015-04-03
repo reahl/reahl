@@ -1,19 +1,16 @@
-
-
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, Form, TextInput, Button, LabelledBlockInput
-from reahl.component.modelinterface import Action
-from reahl.component.modelinterface import EmailField
-from reahl.component.modelinterface import Event
-from reahl.component.modelinterface import exposed
-from reahl.component.modelinterface import secured
+from reahl.component.modelinterface import secured, Action, Event
+from reahl.component.modelinterface import exposed, EmailField
 
 
 
 class AccessUI(UserInterface):
     def assemble(self):
-        self.define_view('/', title='Access control demo', page=HomePage.factory())
+        self.define_view('/', title='Access control demo', 
+                              page=HomePage.factory())
 
 
 class HomePage(HTML5Page):
@@ -38,7 +35,8 @@ class Comment(object):
 
     @exposed
     def events(self, events):
-        events.greyed_out_event = Event(label='Greyed out button', action=Action(self.do_something))
+        events.greyed_out_event = Event(label='Greyed out button', 
+                                        action=Action(self.do_something))
 
     @secured(read_check=always_allowed, write_check=never_allowed)
     def do_something(self): 
@@ -50,7 +48,8 @@ class CommentForm(Form):
         super(CommentForm, self).__init__(view, 'myform')
 
         comment = Comment()
-        self.add_child( LabelledBlockInput(TextInput(self, comment.fields.greyed_out_field)) )
+        text_input = TextInput(self, comment.fields.greyed_out_field)
+        self.add_child(LabelledBlockInput(text_input))
 
         self.define_event_handler(comment.events.greyed_out_event)
         self.add_child( Button(self, comment.events.greyed_out_event) )

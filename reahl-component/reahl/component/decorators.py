@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -53,13 +53,14 @@ import wrapt
 
 @wrapt.decorator
 def memoized(wrapped, instance, args, kwargs):
+    cache_location = instance
     if instance is None:
-        return wrapped(*args, **kwargs)
+        cache_location = wrapped
 
     try:
-        cache = instance.__cache__
+        cache = cache_location.__cache__
     except AttributeError:
-        cache = instance.__cache__ = {}
+        cache = cache_location.__cache__ = {}
 
     key = (wrapped, args[:], frozenset(kwargs.items()))
     try:

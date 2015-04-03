@@ -1,4 +1,4 @@
-/* Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved. */
+/* Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved. */
 /*
     This file is part of Reahl.
 
@@ -205,6 +205,10 @@ fieldset>.reahl-labelledinput {
   float: right;
   margin-right: 25%;
   margin-bottom: 2em;
+}
+
+.reahl-labelledinput input {
+  width: 100%;
 }
 
 /* -- labels that are shown over an input -- */
@@ -416,7 +420,9 @@ ul.reahl-menu li > a:hover {
     width: 0;
     margin: 1em;
 }
-
+.reahl-slidingpanel > a > span {
+    display: none;
+}
 .reahl-slidingpanel > a:first-child {
     border-right: 2em solid black;
     border-top: 2em solid transparent;

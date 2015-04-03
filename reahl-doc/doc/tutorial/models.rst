@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 A basic model
 =============
@@ -60,7 +60,7 @@ You can execute this example by running:
 
 .. code-block:: bash
 
-   nosetests test.py
+   nosetests modeltests1.py
 
 Sometimes it is useful to include a line somewhere in that test which
 will invoke the Python debugger so that you can play around with the
@@ -75,7 +75,7 @@ option:
 
 .. code-block:: bash
 
-   nosetests -s test.py
+   nosetests -s modeltests1.py
 
    
 

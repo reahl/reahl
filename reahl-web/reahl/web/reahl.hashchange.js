@@ -1,4 +1,4 @@
-/* Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved. */
+/* Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved. */
 /*
     This file is part of Reahl.
 
@@ -53,7 +53,8 @@ $.widget('reahl.hashchange', {
                             cache:   hashChangeHandler.cache,
                             data:    changedParams,
                             success: function(data){
-                                element.fadeOut('fast', function(){element.html(data).fadeIn();});
+/*                                element.fadeOut('fast', function(){element.html(data).fadeIn();}); */
+                                element.html(data);
                                 hashChangeHandler.params = changedParams;
                             },
                             complete: function(data){

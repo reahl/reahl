@@ -3,6 +3,10 @@
     <package name="reahl"/>
   </namespaces>
 
+  <deps purpose="run">
+    <thirdpartyegg name="six"/>
+  </deps>
+
   <deps purpose="test">
     <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>

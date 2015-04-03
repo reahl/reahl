@@ -1,4 +1,4 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Preparing for installation on Ubuntu
 ====================================
@@ -50,7 +50,7 @@ Chromedriver
 You do not need to install chromedriver in order to follow this
 tutorial. However, if you are going to use chromium for testing, you
 will need chromedriver. Installation of chromedriver in Ubuntu need a
-bit of tweaking, and this seemed toe appropriate place to jot down
+bit of tweaking, and this seemed to be the appropriate place to jot down
 what is needed:
 
 Install the chromium-chromedriver package:

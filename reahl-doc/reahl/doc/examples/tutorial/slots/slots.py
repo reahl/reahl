@@ -9,8 +9,14 @@ from reahl.web.pure import PageColumnLayout, UnitSize
 class MyCustomPage(HTML5Page):
     def __init__(self, view, bookmarks):
         super(MyCustomPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout(('secondary', UnitSize('1/4')), ('main', UnitSize('3/4'))))
-        self.layout.header.add_child(Menu.from_bookmarks(view, bookmarks).use_layout(HorizontalLayout()))
+
+        columns_needed = [('secondary', UnitSize('1/4')), 
+                          ('main', UnitSize('3/4'))]
+        self.use_layout(PageColumnLayout(*columns_needed))
+
+        menu = Menu.from_bookmarks(view, bookmarks)
+        menu.use_layout(HorizontalLayout())
+        self.layout.header.add_child(menu)
 
 class SlotsUI(UserInterface):
     def assemble(self):

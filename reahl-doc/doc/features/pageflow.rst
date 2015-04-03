@@ -1,44 +1,36 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Reacting to user events
 =======================
 
-Any web application needs to control what gets executed in response to
-a user action, and also how the user is transitioned between the
-different pages of an application. The application presented here
-illustrates the basics of how this is done in Reahl.
+In Reahl, each screen the user can see is called a View. The user is
+transitioned from one View to another depending on which Event a
+user action triggers.
 
-There are three pages in the example application presented here. If
-the user `submits` a comment on the home page, and *did* enter some
-text for the comment, the next page shown is '/thanks'. If the user
-*did not* enter any text, '/none' is shown instead.
+You program how the user is transitioned between different Views
+depending on which Events are fired, and you can make such transitions
+conditional using Guards.
 
-A visual representation shows this succinctly:
+The example here has three Views. If the user `submits` a comment on
+the home View, and *did* enter some text for the comment, the next
+View shown is '/thanks'. If the user *did not* enter any text, '/none'
+is shown instead:
 
    .. figure:: pageflow.png
       :align: center
       :width: 80%
       :alt: A graph showing each View as a node, with arrows showing how the user would transition between the views.
 
-Remember :doc:`how user input is controlled by means of Fields
-<validation>`? The Actions a user can trigger are similarly controlled
-by means of Events.
+Events are defined on an object (just like Fields are). Each Button is
+linked to the Event it will fire when clicked. Each Event is in turn optionally
+linked to an Action.
 
-Note in the code below how a Comment @exposes a `submit` Event, which
-will result in the execution of the `submit` method of the Comment
-when triggered. The execution of the `submit` method renders the
-following output on the console:
-
-
-.. literalinclude:: ../_build/screenshots/pageflow2.txt
+Defining the entire design depicted visually above is preferably done
+in one place: the `assemble` method of your UserInterface. Here each
+View is defined, as well as the Transitions between the Views.
 
 
-To enable a user to actually trigger this Event, a Button is linked to
-the Event.
-
-Defining the entire design depicted visually above is done in one
-place: the `assemble` method. Here each View is defined, as well as a
-number of Transitions between Views.
+.. literalinclude:: ../../reahl/doc/examples/features/pageflow/pageflow.py
 
 .. note::
 
@@ -46,8 +38,5 @@ number of Transitions between Views.
    required us to create a page class for each View. We rather use :doc:`a different
    technique using Slots and a page defined for the entire UserInterface <../tutorial/slots>`
    that saves some typing.
-
-
-.. literalinclude:: ../../reahl/doc/examples/features/pageflow/pageflow.py
 
 

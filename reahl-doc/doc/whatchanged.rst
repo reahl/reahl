@@ -1,4 +1,4 @@
-.. Copyright 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 What changed in version 3.1
 ===========================
@@ -18,7 +18,7 @@ library. In this release of Reahl, we switched to using Pure CSS
 instead.
 
 Backwards compatibility (for Widgets dependend on Yui2) is maintained, but not the default.
-Using Yui2 and thus Widgets depending on it, requires the folliwing line of code to be
+Using Yui2 and thus Widgets depending on it, requires the following line of code to be
 added in your `reahl.web.config.py` file:
 
 .. code-block:: python

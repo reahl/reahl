@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Persistence
 ===========
@@ -10,11 +10,24 @@ Persistence
    familiar with this tool, please refer to its
    documentation.
 
+For those programmers who have an object oriented model (which is
+recommended, but not strictly necessary to use Reahl), we provide glue
+to the object relational mapping tools provided by `SqlAlchemy
+<http://www.sqlalchemy.org/>`_.
 
-This example implements another application which allows a user to leave
-Comments.  Everything happens on one page though:
+Reahl allows you :doc:`to build and distribute parts of your
+program as reusable components<enduserfunctionality>`. Existing tools
+for the task of migrating an existing database to a newer schema do
+not take our components into account. Hence, Reahl adds some
+additional infrastructure to help with database migration. (:ref:`See
+the tutorial for more on this topic <database-schema-evolution>`.)
 
-The home page first comes up with only a (somewhat prettied up) form
+Here is an example showing the use of SqlAlchemy. Reahl merely
+provides versions of SqlAlchemy's `Session`, `Base` and `metadata`
+objects for use with Reahl applications. Further use is just normal
+SqlAlchemy.
+
+Our example first comes up with only a (somewhat prettied up) form
 asking the user to leave a comment:
 
    .. figure:: ../_build/screenshots/persistence1.png
@@ -29,14 +42,7 @@ but a list of all the comments in the database is shown below it:
       :align: center
       :alt: A screenshot of a form with input for a user's email, and also a list of previously entered email addresses.
 
-
-The example uses a CommentPostPanel widget as the container of
-everything shown on the home page. Its contents are: one CommentForm
-widget (used to post a new Comment), and several CommentBox
-widgets -- one for each posted Comment.
-
-Notice that Reahl provides versions of SqlAlchemy's `Session`, `Base` and
-`metadata` objects for use with Reahl applications. 
+Read the *complete* example source code:
 
 
 .. literalinclude:: ../../reahl/doc/examples/features/persistence/persistence.py
