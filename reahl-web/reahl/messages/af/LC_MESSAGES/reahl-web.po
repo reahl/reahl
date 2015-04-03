@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2014-09-06 14:59+0200\n"
+"POT-Creation-Date: 2015-03-26 15:37+0200\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language-Team: af <info@reahl.org>\n"
@@ -16,57 +16,57 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: reahl/web/dhtml.py:89 reahl/web/fw.py:563
+#: reahl/web/dhtml.py:60 reahl/web/fw.py:559
 msgid "Untitled"
 msgstr "Ongetiteld"
 
-#: reahl/web/fw.py:78
+#: reahl/web/fw.py:80
 msgid "Invalid data supplied"
 msgstr "Ongeldige data verskaf"
 
-#: reahl/web/ui.py:175
+#: reahl/web/ui.py:177
 msgid "An error occurred when contacting the server. Please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:176
+#: reahl/web/ui.py:178
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 "Die bediener het te lank gevat om te antwoord. Probeer asseblief later "
 "weer."
 
-#: reahl/web/ui.py:2330
+#: reahl/web/ui.py:2429
 msgid "Upload"
 msgstr "Laai op"
 
-#: reahl/web/ui.py:2331
+#: reahl/web/ui.py:2430
 msgid "Remove"
 msgstr "Neem weg"
 
-#: reahl/web/ui.py:2356
+#: reahl/web/ui.py:2455
 msgid "an error occurred, please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:2358
+#: reahl/web/ui.py:2457
 msgid "Cancel"
 msgstr "Kanselleer"
 
-#: reahl/web/ui.py:2360
+#: reahl/web/ui.py:2459
 msgid "Please try again when all files have finished uploading."
 msgstr "Probeer asseblief weer nadat alle lêers opgelaai het."
 
-#: reahl/web/ui.py:2374
+#: reahl/web/ui.py:2473
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
-#: reahl/web/ui.py:2469
+#: reahl/web/ui.py:2568
 msgid "Close"
 msgstr "Maak toe"
 
-#: reahl/web_dev/i18ntests.py:63
+#: reahl/web_dev/i18ntests.py:64
 msgid "A View"
 msgstr "'n Oogpunt"
 

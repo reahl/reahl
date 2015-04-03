@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Module reahl.web.ui
 -------------------
@@ -226,6 +226,12 @@ Button
    :members:
    
 
+Label
+"""""
+
+.. autoclass:: Label
+   :members:
+
 InputLabel
 """"""""""
 
@@ -451,6 +457,9 @@ FileUploadInput
 
 Support for Yui 2 CSS Grids
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. deprecated:: 3.1
+   Please use the new :doc:`layout concepts based on Pure<pure>` instead.
 
 
 YuiDoc

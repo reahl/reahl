@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -19,6 +19,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
+import sys
 import io
 import atexit
 import locale
@@ -906,7 +907,8 @@ class WidgetList(list):
 
 
 class Layout(object):
-    """A Layout is used to add children to the Widget in customised ways, and to customise the Widget itself upon construction.
+    """A Layout is used to change what a Widget looks like by (e.g.) changing what css classes are used 
+       by the Widget, or by letting you add children to a Widget in customised ways.
     """
     
     def __init__(self):
@@ -2548,6 +2550,10 @@ class ReahlWSGIApplication(object):
         return cls(config)
 
     def __init__(self, config):
+        if six.PY2:
+            reload(sys)  # to enable `setdefaultencoding` again
+            sys.setdefaultencoding("UTF-8")
+
         self.request_lock = threading.Lock()
         self.config = config
         self.system_control = SystemControl(self.config)

@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -389,17 +389,17 @@ class XPath(object):
     @classmethod
     def label_with_text(cls, text):
         """Returns an XPath to find an HTML <label> containing the text in `text`."""
-        return cls('//label[text()="%s"]' % text)
+        return cls('//label[node()="%s"]' % text)
 
     @classmethod
     def heading_with_text(cls, level, text):
         """Returns an XPath to find an HTML <h> of level `level` containing the text in `text`."""
-        return cls('//h%s[text()="%s"]' % (level, text))
+        return cls('//h%s[node()="%s"]' % (level, text))
 
     @classmethod
     def caption_with_text(cls, text):
         """Returns an XPath to find an HTML <caption> matching the text in `text`."""
-        return cls('//caption[text()="%s"]' % (text))
+        return cls('//caption[node()="%s"]' % (text))
 
     @classmethod
     def table_with_summary(cls, text):
@@ -409,7 +409,7 @@ class XPath(object):
     @classmethod
     def table_cell_with_text(cls, text):
         """Returns an XPath to find an HTML <tr> that contains a <td> / cell with text matching the text in `text`"""
-        return cls('//tr/td[normalize-space(text())="%s"]' % (text))
+        return cls('//tr/td[normalize-space(node())="%s"]' % (text))
 
     @classmethod
     def checkbox_in_table_row(cls, nth):
@@ -419,27 +419,27 @@ class XPath(object):
     @classmethod
     def link_with_text(cls, text, nth=1):
         """Returns an XPath to find an HTML <a> containing the text in `text`."""
-        return cls('(//a[normalize-space(text())=normalize-space("%s")])[%s]' % (text, nth))
+        return cls('(//a[normalize-space(node())=normalize-space("%s")])[%s]' % (text, nth))
 
     @classmethod
     def link_starting_with_text(cls, text):
         """Returns an XPath to find an HTML <a> containing text that starts with the contents of `text`."""
-        return cls('//a[starts-with(text(), "%s")]' % text)
+        return cls('//a[starts-with(node(), "%s")]' % text)
 
     @classmethod
     def paragraph_containing(cls, text):
         """Returns an XPath to find an HTML <p> that contains the text in `text`."""
-        return cls('//p[contains(text(), "%s")]' % text)
+        return cls('//p[contains(node(), "%s")]' % text)
 
     @classmethod
     def input_labelled(cls, label):
         """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
-        return cls('//input[@name=//label[normalize-space(text())=normalize-space("%s")]/@for]' % label)
+        return cls('//input[@name=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
 
     @classmethod
     def select_labelled(cls, label):
         """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
-        return cls('//select[@name=//label[normalize-space(text())=normalize-space("%s")]/@for]' % label)
+        return cls('//select[@name=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
 
     @classmethod
     def input_of_type(cls, input_type):
@@ -449,7 +449,7 @@ class XPath(object):
     @classmethod
     def inputgroup_labelled(cls, label):
         """Returns an XPath to find an InputGroup with label text `label`."""
-        return cls('//fieldset[label[normalize-space(text())=normalize-space("%s")]]' % label)
+        return cls('//fieldset[label[normalize-space(node())=normalize-space("%s")]]' % label)
 
     @classmethod
     def button_labelled(cls, label, **arguments):
@@ -470,7 +470,7 @@ class XPath(object):
     @classmethod
     def error_label_containing(cls, text):
         """Returns an XPath to find an ErrorLabel containing the text in `text`."""
-        return cls('//label[@class="error" and contains(text(),"%s")]' % text)
+        return cls('//label[@class="error" and contains(node(),"%s")]' % text)
 
 
 class UnexpectedPageLoad(Exception):

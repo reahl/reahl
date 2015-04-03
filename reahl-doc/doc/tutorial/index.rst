@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Tutorial
 ========
@@ -23,8 +23,8 @@ Contents:
    inputwidgets
    buttonwidgets
 
-   connectingviews
    styling
+   connectingviews
    slots
    parameterised
    testing

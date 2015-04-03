@@ -1,3 +1,9 @@
+python-reahl (3.1.1) unstable; urgency=low
+
+ * Changed Label to subsume what was done by InputLabel previously.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 19 Mar 2015 13:18:00 +0200
+
 python-reahl (3.1.0) unstable; urgency=low
 
  * Split the login functionality out of UserSession to LoginSession (Blueprint: login-session-split).
@@ -14,11 +20,12 @@ python-reahl (3.1.0) unstable; urgency=low
  * Moved .xpath() method to be available for WidgetTester too.
  * Renamed charset to encoding on MethodResult and subclasses, ViewableFile and subclasses.
  * Renamed content_type args to mime_type, resulting in migration needed for PersistedFile.
+ * Added better support for layout, changed over to using pure (Blueprint: layout).
  * Deprecated HMenu and VMenu in favour of HorizontalLayout and VerticalLayout.
  * Changed @deprecated to include version and add it to docstring.
  * Added rudimentary support for distributing wheels (Blueprint: wheels).
 
- -- Iwan Vosloo <iwan@reahl.org>  Sat, 06 Sep 2014 11:50:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 19 Mar 2015 13:18:00 +0200
 
 python-reahl (3.0.0) unstable; urgency=low
 

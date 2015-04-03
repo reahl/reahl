@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: reahl-dev
-Version: 3.1.0
+Version: 3.1.1
 Summary: The core Reahl development tools.
 Home-page: http://www.reahl.org
 Author: Iwan Vosloo
@@ -10,5 +10,5 @@ Description: Reahl is a web application framework that allows a Python programme
         
         Reahl-dev is the component containing general Reahl development tools.
         
-        See http://www.reahl.org/docs/3.0/tutorial/gettingstarted.d.html for installation instructions. 
+        See http://www.reahl.org/docs/3.1/tutorial/gettingstarted.d.html for installation instructions. 
 Platform: UNKNOWN

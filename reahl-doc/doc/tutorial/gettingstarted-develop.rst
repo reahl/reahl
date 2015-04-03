@@ -1,4 +1,4 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Get developing with Reahl
 =========================
@@ -112,8 +112,7 @@ Programmers familiar with Python Eggs would immediately recognise that
 this is equivalent to what you'd do for a Python Egg with a
 `setup.py`: ``python setup.py develop -N``: the Reahl component
 infrastructure is really just a thin layer built upon `Python eggs and
-the Python distribute package
-<http://pypi.python.org/pypi/distribute>`_.
+Python setuptools <http://pypi.python.org/pypi/setuptools>`_.
 
 When using Python Eggs, a programmer usually creates a file called
 `setup.py` in the root directory of a new Python Egg. This file
@@ -254,3 +253,6 @@ provided. You can get a local copy of *this* example by using the
 You can also see what other examples are available by running::
 
   reahl listexamples
+
+:doc:`The previous section<gettingstarted-examples>` gives a summary
+of all you need to do to run an example.
