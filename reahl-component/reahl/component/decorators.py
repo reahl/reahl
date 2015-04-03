@@ -53,13 +53,14 @@ import wrapt
 
 @wrapt.decorator
 def memoized(wrapped, instance, args, kwargs):
+    cache_location = instance
     if instance is None:
-        return wrapped(*args, **kwargs)
+        cache_location = wrapped
 
     try:
-        cache = instance.__cache__
+        cache = cache_location.__cache__
     except AttributeError:
-        cache = instance.__cache__ = {}
+        cache = cache_location.__cache__ = {}
 
     key = (wrapped, args[:], frozenset(kwargs.items()))
     try:
