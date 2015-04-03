@@ -1696,12 +1696,44 @@ class Button(Span):
 
 
 class Label(HTMLElement):
-    def __init__(self, view, text=None, css_id=None):
+    """A label for an Input.
+
+       If `for_input` is given, the Label will only be visible if for_input is visible.
+
+       .. admonition:: Styling
+    
+          Rendered as an HTML <label> element.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword text: If given, used as the text for the label.
+       :keyword for_input: If given, the :class:`Input` to which this Label applies (its `.label` is also used as text).
+       :keyword css_id: (See :class:`HTMLElement`)
+       
+       .. versionchanged:: 3.1.1
+          Added the for_input keyword argument.
+    """
+    def __init__(self, view, text=None, for_input=None, css_id=None):
         super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
-        if text:
-            self.text_node = self.add_child(TextNode(view, text))
+        self.for_input = for_input
+        if text or for_input:
+            self.text_node = self.add_child(TextNode(view, text or for_input.label))
+
+    @property
+    def visible(self):
+        if self.for_input:
+            return self.for_input.visible
+        else:
+            return super(Label, self).visible
+
+    @property
+    def attributes(self):
+        attributes = super(Label, self).attributes
+        if self.for_input:
+            attributes.set_to('for', self.for_input.name)
+        return attributes
 
         
+@deprecated('Please use Label(for_input=) instead.', '3.1.1')
 class InputLabel(Label):
     """A label for the Input given in `html_input`.
 
@@ -1715,22 +1747,13 @@ class InputLabel(Label):
        
     """
     def __init__(self, html_input, text=None, css_id=None):
-        view = html_input.view
-        self.html_input = html_input
-        super(InputLabel, self).__init__(view, text=text or self.html_input.label, css_id=css_id)
-
-    @property
-    def visible(self):
-        return self.html_input.visible
-
-    @property
-    def attributes(self):
-        attributes = super(InputLabel, self).attributes
-        attributes.set_to('for', self.html_input.name)
-        return attributes
+        super(InputLabel, self).__init__(html_input.view, text=text, for_input=html_input, css_id=css_id)
 
 
-class ErrorLabel(InputLabel):
+
+class ErrorLabel(Label):
+    def __init__(self, html_input, text=None, css_id=None):
+        super(ErrorLabel, self).__init__(html_input.view, text=text, for_input=html_input, css_id=css_id)
     """If an :class:`Input` fails validation, an ErrorLabel is automatically rendered after it containing
        the specific validation error message.
 
@@ -1738,8 +1761,8 @@ class ErrorLabel(InputLabel):
        
           Rendered as an HTML <label class="error"> element.
 
-       :param html_input: (See :class:`InputLabel`)
-       :keyword text: (See :class:`InputLabel`)
+       :param html_input: The :class:`Input` labelled by this Label.
+       :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
        :keyword css_id: (See :class:`HTMLElement`)
        
     """
@@ -1763,14 +1786,16 @@ class LabelledInlineInput(Span):
        :param html_input: (See :class:`InputLabel`)
        :param css_id: (See :class:`HTMLElement`)
     """
-    label_class = InputLabel
     def __init__(self, html_input, css_id=None):
         view = html_input.view
         super(LabelledInlineInput, self).__init__(view, css_id=css_id)
-        self.label = self.add_child(self.label_class(html_input))
+        self.label = self.add_child(self.make_label(html_input))
         self.inner_span = self.add_child(Span(view))
         self.html_input = self.inner_span.add_child(html_input)
-    
+
+    def make_label(self, for_input):
+        return Label(self.view, for_input=for_input)
+
     @property
     def visible(self):
         return self.html_input.visible
@@ -1799,7 +1824,6 @@ class LabelledBlockInput(Panel):
        :param html_input: (See :class:`InputLabel`)
        :param css_id: (See :class:`HTMLElement`)
     """
-    label_class = InputLabel
     def __init__(self, html_input, css_id=None):
         view = html_input.view
         super(LabelledBlockInput, self).__init__(view, css_id=css_id)
@@ -1815,7 +1839,7 @@ class LabelledBlockInput(Panel):
             self.label_part = self.layout.columns['label']
             self.input_part = self.layout.columns['input']
 
-        self.label = self.label_part.add_child(self.label_class(html_input))
+        self.label = self.label_part.add_child(Label(self.view, for_input=html_input))
         self.input_part.add_child(html_input)
             
     @property
@@ -1849,7 +1873,6 @@ class CueInput(Panel):
        :param html_input: (See :class:`InputLabel`)
        :param css_id: (See :class:`HTMLElement`)
     """
-    label_class = InputLabel
     def __init__(self, html_input, cue_widget, css_id=None):
         view = html_input.view
         super(CueInput, self).__init__(view, css_id=css_id)
@@ -1868,7 +1891,7 @@ class CueInput(Panel):
             self.input_part = self.layout.columns['input']
             self.cue_part = self.layout.columns['cue']
 
-        self.label = self.label_part.add_child(self.label_class(html_input))
+        self.label = self.label_part.add_child(Label(self.view, for_input=html_input))
         self.input_part.add_child(self.html_input)
         self.cue_part.append_class('reahl-cue')
         self.cue_part.add_child(cue_widget)
@@ -1892,14 +1915,6 @@ class CueInput(Panel):
         return super(CueInput, self).get_js(context=context) + js
 
 
-class AutoHideLabel(InputLabel):
-    @property
-    def attributes(self):
-        attributes = super(AutoHideLabel, self).attributes
-        if self.html_input.value != '':
-            attributes.set_to('hidden', 'true')
-        return attributes
-
 
 # Uses: reahl/web/reahl.labeloverinput.js
 # Uses: reahl/web/reahl.labeloverinput.css
@@ -1915,13 +1930,22 @@ class LabelOverInput(LabelledInlineInput):
        :param html_input: (See :class:`InputLabel`)
        :param css_id: (See :class:`HTMLElement`)
     """
-    label_class = AutoHideLabel
     @property
     def attributes(self):
         attributes = super(LabelOverInput, self).attributes
         attributes.add_to('class', ['reahl-labeloverinput'])
         return attributes
         
+    def make_label(self, for_input):
+        class AutoHideLabel(Label):
+            @property
+            def attributes(self):
+                attributes = super(AutoHideLabel, self).attributes
+                if self.for_input.value != '':
+                    attributes.set_to('hidden', 'true')
+                return attributes
+        return AutoHideLabel(self.view, for_input=for_input)
+
     def get_js(self, context=None):
         js = ['$(%s).labeloverinput();' % self.contextualise_selector('".reahl-labeloverinput"', context)]
         return super(LabelOverInput, self).get_js(context=context) + js

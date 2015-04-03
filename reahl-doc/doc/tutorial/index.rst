@@ -23,8 +23,8 @@ Contents:
    inputwidgets
    buttonwidgets
 
-   connectingviews
    styling
+   connectingviews
    slots
    parameterised
    testing
