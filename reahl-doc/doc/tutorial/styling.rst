@@ -8,16 +8,25 @@ Layout and styling
    Reahl uses the `Pure.css framework <http://purecss.io/>`_ to deal
    with layout issues.
 
-Layout and styling is a thorny issue for programmers. Here is the support
-Reahl provides support for dealing with this issue:
+Styling is probably not the first thing a programmer wants
+to worry about. That is why Reahl comes with some styling you can use
+when starting a project -- perhaps to be replaced by a
+graphic designer later.  (We hope to improve on this in future.)
+
+Layout you can't completely get away from though, and Reahl has
+concepts to help with this. Let us detour to introduce layout and
+styling ideas because that will allow us to use better layout
+further on in the tutorial to make our examples look just a little bit
+better.
 
 Layout
 ------
 
 A :class:`~reahl.web.fw.Layout` is used to change what a
-:class:`~reahl.web.fw.Widget` looks like, how it is styled, or even how
+:class:`~reahl.web.fw.Widget` looks like, what css classes are attached to it for styling, or even how
 children :class:`~reahl.web.fw.Widget`\ s are added to it -- all for
 the purpose of influencing look and layout.
+
 A :class:`~reahl.web.fw.Widget` is configured to use a particular
 :class:`~reahl.web.fw.Layout` by calling
 :meth:`~reahl.web.fw.Widget.use_layout` on the
@@ -59,10 +68,10 @@ There are also some :class:`~reahl.web.fw.Widget`\ s with special behaviour that
 layout and styling:
 
 :class:`~reahl.web.ui.LabelledBlockInput`
- This :class:`~reahl.web.fw.Widget` wraps around an :class:`~reahl.web.ui.Input`, and adds a Label
- to it. The combination of the :class:`~reahl.web.ui.Input` and its Label are then arranged
+ This :class:`~reahl.web.fw.Widget` wraps around an :class:`~reahl.web.ui.Input`, and adds a :class:`~reahl.web.ui.Label`
+ to it. The combination of the :class:`~reahl.web.ui.Input` and its :class:`~reahl.web.ui.Label` are then arranged
  in two columns next to each other. Successive :class:`~reahl.web.ui.LabelledBlockInput`\ s
- appear underneath each other, with all the Labels aligned and all the
+ appear underneath each other, with all the :class:`~reahl.web.ui.Label`\s aligned and all the
  Inputs aligned.
 
 :class:`~reahl.web.ui.LabelledInlineInput`

@@ -226,6 +226,12 @@ Button
    :members:
    
 
+Label
+"""""
+
+.. autoclass:: Label
+   :members:
+
 InputLabel
 """"""""""
 

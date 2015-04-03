@@ -1568,6 +1568,10 @@ class SetupMonitor(object):
         self.captured_stdout = []
         self.errors = None
 
+    @property
+    def encoding(self):
+        return self.original_stdout.encoding
+
     def __enter__(self):
         self.original_stdout = sys.stdout
         sys.stdout = self

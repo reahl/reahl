@@ -17,6 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import warnings
+
 from nose.tools import istest
 from reahl.tofu import scenario
 from reahl.tofu import test
@@ -24,7 +26,7 @@ from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub
 
 from reahl.web.ui import Input, TextInput, Button, Form, ValidationException, \
-                          LabelOverInput, CueInput, CheckboxInput, TextInput, InputLabel, ButtonInput,\
+                          LabelOverInput, CueInput, CheckboxInput, TextInput, Label, InputLabel, ButtonInput,\
                           PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
                           TextArea, SelectInput, RadioButtonInput
 
@@ -151,16 +153,25 @@ def the_states_of_an_input(fixture):
 
 class Scenarios(WebFixture, InputMixin):
     @scenario
+    def input_label_deprecated_interface(self):
+        html_input = TextInput(self.form, self.field)
+        with warnings.catch_warnings(record=True):
+            warnings.simplefilter('always')
+            self.widget = InputLabel(html_input)
+        self.expected_html = '<label for="an_attribute">the label</label>'
+        self.field_controls_visibility = True
+
+    @scenario
     def input_label(self):
         html_input = TextInput(self.form, self.field)
-        self.widget = InputLabel(html_input)
+        self.widget = Label(self.view, for_input=html_input)
         self.expected_html = '<label for="an_attribute">the label</label>'
         self.field_controls_visibility = True
 
     @scenario
     def input_label_with_text(self):
         html_input = TextInput(self.form, self.field)
-        self.widget = InputLabel(html_input, text='some text')
+        self.widget = Label(self.view, for_input=html_input, text='some text')
         self.expected_html = '<label for="an_attribute">some text</label>'
         self.field_controls_visibility = True
 

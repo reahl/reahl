@@ -907,7 +907,8 @@ class WidgetList(list):
 
 
 class Layout(object):
-    """A Layout is used to add children to the Widget in customised ways, and to customise the Widget itself upon construction.
+    """A Layout is used to change what a Widget looks like by (e.g.) changing what css classes are used 
+       by the Widget, or by letting you add children to a Widget in customised ways.
     """
     
     def __init__(self):
