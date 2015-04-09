@@ -22,7 +22,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 
 from reahl.component.config import Configuration, ConfigSetting
-from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Pure, HTML5Shiv, IE9, YuiGridsCss
+from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Pure, HTML5Shiv, IE9, YuiGridsCss, Bootstrap
 
 class WebConfig(Configuration):
     filename = 'web.config.py'
