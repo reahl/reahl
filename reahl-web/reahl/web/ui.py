@@ -2199,7 +2199,7 @@ class MultiTab(Tab):
         self.add_child(TextNode(view, '&nbsp;', html_escape=False))
         dropdown_handle = self.add_child(A(view, None, description='▼'))
         dropdown_handle.append_class('dropdown-handle')
-        self.menu = self.add_child(VMenu(view, []))
+        self.menu = self.add_child(Menu(view, []).use_layout(VerticalLayout()))
     
     def add_tab(self, tab):
         self.menu.add_item(tab)
@@ -2844,3 +2844,8 @@ class Table(HTMLElement):
             for column in columns:
                 row_td = row.add_child(Td(self.view))
                 row_td.add_child(column.as_widget(self.view, item))
+
+
+
+
+

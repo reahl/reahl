@@ -271,9 +271,15 @@ class StoredConfiguration(Configuration):
         try:
             require(self.reahlsystem.root_egg)
         except DistributionNotFound as ex:
+            class WrappedException(DistributionNotFound):
+                def __init__(self, wrapped):
+                    super(WrappedException, self).__init__()
+                    self.wrapped = wrapped
+                def __str__(self):
+                    return self.wrapped.__str__()+'\n It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?'
             requirement = ex.args[0]
             if (requirement.project_name == self.reahlsystem.root_egg.replace('_','-')) and not self.in_production:
-                ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.args[0],)
+                raise WrappedException(ex)
             raise
 
         self.configure_components()
