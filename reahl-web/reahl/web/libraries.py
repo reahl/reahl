@@ -81,15 +81,17 @@ class Library(object):
 class JQuery(Library):
     def __init__(self):
         super(JQuery, self).__init__('jquery')
-        self.files = ['jquery-1.8.1.js']
-        self.shipped_in_directory = '/reahl/web/static/%s' % self.name
-        for i in ['jquery.cookie-1.0.js', 
+        self.files = ['jquery-1.11.2/jquery-1.11.2.js',
+                      'jquery-1.11.2/jquery-1.11.2.min.map']
+        self.shipped_in_directory = '/reahl/web/static'
+        for i in ['jquery-migrate-1.2.1.js',
+                  'jquery.cookie-1.0.js', 
                   'jquery.metadata-2.1.js',
                   'jquery.validate-1.10.0.modified.js',
                   'jquery.ba-bbq-1.2.1.js',
-                  'jquery.blockUI-2.43.js',
+                  'jquery.blockUI-2.70.0.js',
                   'jquery.form-3.14.js']:
-            self.add_shipped_plugin(i)
+            self.add_shipped_plugin('jquery/%s' % i)
 
     def add_shipped_plugin(self, file_name):
         self.files.append(file_name)
@@ -124,6 +126,7 @@ class JQueryUI(Library):
         self.files = ['jquery-ui-1.10.3.custom.js']
 
 
+
 class Pure(Library):
     def __init__(self):
         super(Pure, self).__init__('pure')
@@ -156,6 +159,13 @@ class HTML5Shiv(Library):
         self.shipped_in_directory = '/reahl/web/static'
         self.files = ['html5shiv-printshiv-3.6.3.js']
 
+    def header_only_material(self, rendered_page):
+        # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
+        result  = '\n<!--[if lt IE 9]>'
+        result  += '<script src="/static/html5shiv-printshiv-3.6.3.js" type="text/javascript"></script>'
+        result  += '<![endif]-->'
+        return result
+
 
 class IE9(Library):
     def __init__(self):
@@ -164,13 +174,31 @@ class IE9(Library):
         self.files = ['IE9.js']
 
     def header_only_material(self, rendered_page):
-        # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
-        result  = '\n<!--[if lt IE 9]>'
-        result  += '<script src="/static/html5shiv-printshiv-3.6.3.js" type="text/javascript"></script>'
-        result  += '<![endif]-->'
         # From: http://code.google.com/p/ie7-js/ 
         # Not sure if this does not perhaps interfere with Normalize reset stuff? 
-        result  += '\n<!--[if lte IE 9]>'  
+        result  = '\n<!--[if lte IE 9]>'  
         result  += '<script src="/static/IE9.js" type="text/javascript"></script>'
         result  += '<![endif]-->'  
         return result
+
+
+class Bootstrap(Library):
+    def __init__(self):
+        super(Bootstrap, self).__init__('bootstrap')
+        self.shipped_in_directory = '/reahl/web/static'
+        self.files = ['bootstrap-3.3.4/css/bootstrap-theme.css',
+                      'bootstrap-3.3.4/css/bootstrap-theme.css.map',
+                      'bootstrap-3.3.4/css/bootstrap.css',
+                      'bootstrap-3.3.4/css/bootstrap.css.map',
+                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.eot',
+                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.svg',
+                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.ttf',
+                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.woff',
+                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.woff2',
+                      'bootstrap-3.3.4/js/bootstrap.js']
+
+    def header_only_material(self, rendered_page):
+        return '<meta http-equiv="X-UA-Compatible" content="IE=edge">'\
+               '<meta name="viewport" content="width=device-width, initial-scale=1">' +\
+               super(Bootstrap, self).header_only_material(rendered_page) 
+
