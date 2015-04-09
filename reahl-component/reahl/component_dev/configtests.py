@@ -208,7 +208,7 @@ class ConfigTests3(object):
         config = StoredConfiguration(fixture.config_dir.name, in_production=False)
         
         def check_exception(ex):
-            vassert( six.text_type(ex) == 'missing-root-egg (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' )
+            vassert( 'It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?' in six.text_type(ex) )
 
         with expected(DistributionNotFound, test=check_exception):
             config.configure()
@@ -217,7 +217,7 @@ class ConfigTests3(object):
         config = StoredConfiguration(fixture.config_dir.name, in_production=True)
         
         def check_exception(ex):
-            vassert( six.text_type(ex) == 'missing-root-egg' )
+            vassert( 'missing-root-egg' in six.text_type(ex) )
 
         with expected(DistributionNotFound, test=check_exception):
             config.configure()

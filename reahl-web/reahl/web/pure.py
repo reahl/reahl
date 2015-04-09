@@ -27,12 +27,13 @@ from collections import OrderedDict
 from fractions import Fraction
 
 from reahl.web.fw import Layout
+import reahl.web.layout
 
 from reahl.web.ui import Panel, Header, Footer, Slot, HTML5Page
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
 
 
-class UnitSize(object):
+class UnitSize(reahl.web.layout.ResponsiveSize):
     """Represents a set of relative sizes to be used for an element depending on the size of the user's device.
 
        The Pure library sizes elements relative to their parent using
@@ -65,17 +66,10 @@ class UnitSize(object):
           back to using the `default` size for smaller screens.
     """
     def __init__(self, default=None, sm=None, md=None, lg=None, xl=None):
-        self.default = default
-        self.sm = sm
-        self.md = md
-        self.lg = lg
-        self.xl = xl
-
-    def as_dict(self):
-        return dict(self.__dict__)
+        super(UnitSize, self).__init__(default=default, sm=sm, md=md, lg=lg, xl=xl)
 
 
-class ColumnLayout(Layout):
+class ColumnLayout(reahl.web.layout.ColumnLayout):
     """A Layout that divides an element into a number of columns.
 
        Each argument passed to the constructor defines a
@@ -101,23 +95,9 @@ class ColumnLayout(Layout):
           specified to the constructor.
 
     """
-    def __init__(self, *column_definitions):
-        super(ColumnLayout, self).__init__()
-        self.columns = OrderedDict()  #: A dictionary containing the added columns, keyed by column name.
-        self.column_sizes = OrderedDict()
-        for column_definition in column_definitions:
-            if isinstance(column_definition, tuple):
-                name, fractions = column_definition
-            else:
-                name, fractions = column_definition, UnitSize()
-            self.column_sizes[name] = fractions
-
     def customise_widget(self):
+        super(ColumnLayout, self).customise_widget()
         self.widget.append_class('pure-g')
-        for name, unit_size in self.column_sizes.items():
-             panel = self.add_column(unit_size=unit_size)
-             self.columns[name] = panel
-             panel.append_class('column-%s' % name)
 
     def add_column(self, unit_size=None):
         """Add an un-named column, optionally with the given :class:`UnitSize`.
@@ -127,13 +107,16 @@ class ColumnLayout(Layout):
            Returns a :class:`reahl.web.ui.Panel` representing the added column.
         """
         unit_size = unit_size or UnitSize()
-        unit = self.widget.add_child(Panel(self.view))
+        unit = super(ColumnLayout, self).add_column(size=unit_size)
 
-        for label, value in unit_size.as_dict().items():
-            if label == 'default':
-                unit.append_class(self.fraction_css_class('pure-u', unit_size.default) if unit_size.default else 'pure-u')
-            elif value:
-                unit.append_class(self.fraction_css_class('pure-u-%s' % label, value))
+        if not unit_size:
+            unit.append_class('pure-u')
+        else:
+            for label, value in unit_size.items():
+                if label == 'default':
+                    unit.append_class(self.fraction_css_class('pure-u', value))
+                else:
+                    unit.append_class(self.fraction_css_class('pure-u-%s' % label, value))
 
         return unit
 

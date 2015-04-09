@@ -148,7 +148,7 @@ class BasicReahlWidgets(object):
             actual = tester.render_html()
         vassert( actual == expected )
         
-        # Case: HMenu
+        # Case: Menu
         menu = Menu.from_bookmarks(fixture.view, item_specs)
         vassert( menu.attributes.v['class'] == 'reahl-menu' )
 

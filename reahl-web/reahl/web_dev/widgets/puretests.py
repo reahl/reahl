@@ -27,7 +27,7 @@ from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import Panel, P, HTML5Page, Header, Footer
+from reahl.web.ui import Div, P, HTML5Page, Header, Footer
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.web.pure import ColumnLayout, UnitSize, PageColumnLayout
@@ -48,92 +48,59 @@ class ColumnConstructionScenarios(WebFixture):
 
 @test(ColumnConstructionScenarios)
 def column_layout_basics(fixture):
-    """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Panel, 
-       laid out next to each other."""
+    """The pure.ColumnLayout adds the correct classes for Pure to lay out its Widget as a pure grid with columns as pure units."""
 
-    widget = Panel(fixture.view)
+    widget = Div(fixture.view)
     
     vassert( not widget.has_attribute('class') )
-    vassert( not widget.children )
     
     widget.use_layout(fixture.layout)
 
     vassert( widget.get_attribute('class') == 'pure-g' )
     column_a, column_b = widget.children
-    vassert( isinstance(column_a, Panel) )
-    vassert( isinstance(column_b, Panel) )
 
     vassert( 'pure-u' in column_a.get_attribute('class') )    # never varies in scenarios
     vassert( fixture.expected_class_for_column_b in column_b.get_attribute('class')  )
 
 
-@test(WebFixture)
-def order_of_columns(fixture):
-    """Columns are added in the order given to the ColumnLayout constructor, and the Panel representing each column
-       can be obtained using dictionary access on Layout.columns."""
-
-    widget = Panel(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b'))
-
-    column_a = widget.layout.columns['column_name_a']
-    column_b = widget.layout.columns['column_name_b']
-    
-    first_column, second_column = widget.children
-
-    vassert( first_column is column_a )
-    vassert( second_column is column_b )
-
-
-@test(WebFixture)
-def columns_classes(fixture):
-    """The Panel added for each column specified to ColumnLayout is given a CSS class derived from the column name."""
-
-    widget = Panel(fixture.view).use_layout(ColumnLayout('column_name_a'))
-    column_a = widget.layout.columns['column_name_a']
-    vassert( 'column-column_name_a' in column_a.get_attribute('class') )  
-
-
-@test(WebFixture)
-def adding_columns(fixture):
-    """You can add additional columns after construction."""
-
-    widget = Panel(fixture.view).use_layout(ColumnLayout())
-
-    vassert( not widget.children )
-
-    widget.layout.add_column()
-
-    [added_column] = widget.children
-    vassert( added_column.get_attribute('class') == 'pure-u' )
 
 
 class SizingFixture(WebFixture):
     @scenario
     def all_sizes_given(self):
+        "The unit_size kwarg can be used to specify sizes for the added column"
         self.sizes = dict(default='1/2', sm='1/3', md='2/3', lg='1/4', xl='3/4')
         self.expected_classes = ['pure-u-1-2','pure-u-lg-1-4','pure-u-md-2-3','pure-u-sm-1-3','pure-u-xl-3-4']
 
     @scenario
-    def some_sizes_unspecified(self):
-        self.sizes = dict(default='1/3', sm='2/3')
-        self.expected_classes = ['pure-u-1-3','pure-u-sm-2-3']
+    def no_sizes_specified(self):
+        "If no size is given, the column is still a pure unit without a size"
+        self.sizes = dict()
+        self.expected_classes = ['pure-u']
 
 
 @test(SizingFixture)
-def sizing_when_adding(fixture):
-    """When adding a column, the unit_size kwarg can be used to specify sizes for the added column."""
+def adding(fixture):
+    """You can add a column by calling add_column on the ColumnLayout"""
 
-    widget = Panel(fixture.view).use_layout(ColumnLayout())
+    widget = Div(fixture.view).use_layout(ColumnLayout())
 
     widget.layout.add_column(unit_size=UnitSize(**fixture.sizes))
 
-    widget.children[0].attributes['class'] == fixture.expected_classes
+    vassert( widget.children[0].attributes['class'].value == set(fixture.expected_classes) )
 
 
+@test(WebFixture)
+def allowed_sizes(fixture):
+    """The device classes for which sizes can be specified, and how to specify a size."""
+    size = UnitSize(default='1/2', sm='1/3', md='1/4', lg='1/5', xl='6/7')
+
+    vassert( size == {'default':'1/2', 'sm':'1/3', 'md':'1/4', 'lg':'1/5', 'xl':'6/7'} )
 
 
 @test(WebFixture)
 def page_column_layout_basics(fixture):
-    """A PageColumnLayout adds a Panel to the body of its page (the page's document), containing a header, footer 
+    """A PageColumnLayout adds a Div to the body of its page (the page's document), containing a header, footer 
        with a div inbetween the two."""
 
     layout = PageColumnLayout()
@@ -143,7 +110,7 @@ def page_column_layout_basics(fixture):
     header, contents_div, footer = layout.document.children
 
     vassert( isinstance(header, Header) )
-    vassert( isinstance(contents_div, Panel) )
+    vassert( isinstance(contents_div, Div) )
     vassert( isinstance(footer, Footer) )
 
 
@@ -181,7 +148,7 @@ def page_column_layout_only_meant_for_html5page(fixture):
     """When an attempting to use a PageColumnLayout on something other than an HTML5Page, a useful exception is raised."""
 
     with expected(IsInstance):
-        Panel(fixture.view).use_layout(PageColumnLayout())
+        Div(fixture.view).use_layout(PageColumnLayout())
 
 
 @test(WebFixture)
