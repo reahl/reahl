@@ -16,6 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 Utilities to deal with layout.
+
+versionadded:: 3.2
+
 """
 
 import copy
@@ -35,6 +38,9 @@ class ResponsiveSize(Mapping):
        that size applies.
 
        Values for sizes and device classes are as defined by the underlying layout library.
+
+       versionadded:: 3.2
+
     """
     def __init__(self, **sizes):
         self.sizes = {size_name: size_value for (size_name, size_value) in sizes.items() if size_value}
@@ -60,6 +66,9 @@ class ColumnLayout(Layout):
        To define a column with a given :class:`ResponsiveSize`, pass a tuple of which
        the first element is the column name, and the second an
        instance of :class:`ResponsiveSize`.
+
+       versionadded:: 3.2
+
     """
     def __init__(self, *column_definitions):
         super(ColumnLayout, self).__init__()
@@ -116,6 +125,9 @@ class PageLayout(Layout):
 
          The div#contents element is further set up to use the :class:`Layout` passed
          to the constructor.
+
+       versionadded:: 3.2
+
     """
     def __init__(self, contents_layout=None):
         super(PageLayout, self).__init__()
