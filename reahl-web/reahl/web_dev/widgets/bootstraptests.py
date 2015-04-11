@@ -53,6 +53,19 @@ def column_layout_basics(fixture):
 
 
 @test(WebFixture)
+def column_offsets(fixture):
+    """You can also specify offsets for columns."""
+
+    layout = ColumnLayout(('column_a', ResponsiveSize(lg=6).with_offset(lg=2)))
+    widget = Div(fixture.view).use_layout(layout)
+
+    [column_a] = widget.children
+
+    vassert( 'col-lg-offset-2' in column_a.get_attribute('class')  )
+    vassert( 'col-lg-6' in column_a.get_attribute('class')  )
+
+
+@test(WebFixture)
 def column_layout_sizes(fixture):
     """Is is mandatory to specify sizes for all columns."""
 
@@ -72,7 +85,6 @@ def adding_columns(fixture):
 
     [added_column] = widget.children
     vassert( added_column.get_attribute('class') == 'col-lg-4' )
-
 
 
 @test(WebFixture)
