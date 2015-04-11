@@ -53,19 +53,6 @@ def column_layout_basics(fixture):
 
 
 @test(WebFixture)
-def column_offsets(fixture):
-    """You can also specify offsets for columns."""
-
-    layout = ColumnLayout(('column_a', ResponsiveSize(lg=6).with_offset(lg=2)))
-    widget = Div(fixture.view).use_layout(layout)
-
-    [column_a] = widget.children
-
-    vassert( 'col-lg-offset-2' in column_a.get_attribute('class')  )
-    vassert( 'col-lg-6' in column_a.get_attribute('class')  )
-
-
-@test(WebFixture)
 def column_layout_sizes(fixture):
     """Is is mandatory to specify sizes for all columns."""
 
@@ -94,6 +81,49 @@ def allowed_sizes(fixture):
 
     vassert( size == {'xs':1, 'sm':2, 'md':3, 'lg':4} )
 
+
+@test(WebFixture)
+def column_offsets(fixture):
+    """You can optionally specify space to leave empty (an offset) before a column at specific device sizes."""
+
+    layout = ColumnLayout(('column_a', ResponsiveSize(lg=6).with_offset(xs=2, sm=4, md=6, lg=3)))
+    widget = Div(fixture.view).use_layout(layout)
+
+    [column_a] = layout.columns.values()
+
+    vassert( 'col-lg-6' in column_a.get_attribute('class')  )
+    vassert( 'col-lg-offset-3' in column_a.get_attribute('class')  )
+    vassert( 'col-xs-offset-2' in column_a.get_attribute('class')  )
+    vassert( 'col-sm-offset-4' in column_a.get_attribute('class')  )
+    vassert( 'col-md-offset-6' in column_a.get_attribute('class')  )
+
+
+@test(WebFixture)
+def column_clearfix(fixture):
+    """If a logical row spans more than one visual row for a device size, bootstrap clearfixes are
+       automatically inserted to ensure cells in resultant visual rows are neatly arranged.
+    """
+
+    # Case: Adding a correct clearfix in the right place
+    wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).with_offset(xs=2)),
+                                   ('column_b', ResponsiveSize(xs=2).with_offset(xs=2))
+    )
+    widget = Div(fixture.view).use_layout(wrapping_layout)
+
+    [column_a, clearfix, column_b] = widget.children           
+    vassert( [column_a, column_b] == [i for i in wrapping_layout.columns.values()] )
+    vassert( 'clearfix' in clearfix.get_attribute('class')  )
+    vassert( 'visible-xs' in clearfix.get_attribute('class')  )
+
+
+    # Case: When no clearfix must be added
+    non_wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=2).with_offset(xs=2)),
+                                       ('column_b', ResponsiveSize(xs=2))
+    )
+    widget = Div(fixture.view).use_layout(non_wrapping_layout)
+
+    [column_a, column_b] = widget.children
+    vassert( [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()] )  
 
 
 

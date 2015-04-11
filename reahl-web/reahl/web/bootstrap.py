@@ -65,6 +65,7 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
         if not all([isinstance(column_definition, tuple) for column_definition in column_definitions]):
             raise ProgrammerError('All column definitions are expected a tuple of the form (name, %s), got %s' %\
                                   (ResponsiveSize, column_definitions))
+        self.added_sizes = []
         super(ColumnLayout, self).__init__(*column_definitions)
 
     def customise_widget(self):
@@ -72,15 +73,32 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
         self.widget.append_class('row')
     
     def add_column(self, column_size):
+        for device_class in ['xs', 'sm', 'md', 'lg']:
+            if self.row_will_wrap_when_added(device_class, column_size):
+                clearfix = self.widget.add_child(Div(self.view))
+                clearfix.append_class('clearfix')
+                clearfix.append_class('visible-%s' % device_class)
+            
         column = super(ColumnLayout, self).add_column(column_size)
 
-        for label, value in column_size.items():
-            column.append_class('col-%s-%s' % (label, value))
-        for label, value in column_size.offsets.items():
-            column.append_class('col-%s-offset-%s' % (label, value))
+        for device_class, value in column_size.items():
+            column.append_class('col-%s-%s' % (device_class, value))
+        for device_class, value in column_size.offsets.items():
+            column.append_class('col-%s-offset-%s' % (device_class, value))
 
+        self.added_sizes.append(column_size)
         return column
 
+    def row_will_wrap_when_added(self, device_class, to_add):
+        return (self.total_width_for(device_class, self.added_sizes) + \
+                self.total_width_for(device_class, [to_add]        )) > 12
 
-
+    def total_width_for(self, device_class, sizes):
+        total = 0
+        for size in sizes:
+            if device_class in size:
+                total += size[device_class]
+            if device_class in size.offsets:
+                total += size.offsets[device_class]
+        return total
 
