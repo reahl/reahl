@@ -21,14 +21,15 @@ from reahl.web.ui import HTML5Page, Panel, Form, TextInput, Button, Form, \
                           LabelOverInput, CueInput, CheckboxInput, TextInput, \
                           PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
                           TextArea, SelectInput, RadioButtonInput
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 
 from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
                                            IntegerField, Event, MultiChoiceField, Action, DateField
 
 class BasicHTMLInputsUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))  
+        self.define_page(HTML5Page, style='basic').use_layout(PageLayout(ColumnLayout('main').with_slots()))  
 
         home = self.define_view('/', title='Basic HTML Inputs demo')
         home.set_slot('main', ExampleForm.factory('myform'))

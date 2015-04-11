@@ -13,7 +13,8 @@ from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button,
                          PasswordInput, ErrorFeedbackMessage, Slot, MenuItem, A, Widget, SelectInput, CheckboxInput
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
-from reahl.web.pure import PageColumnLayout, UnitSize
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 
 
 class Address(Base):
@@ -169,7 +170,9 @@ class Collaborator(Base):
 class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
         super(AddressAppPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout(('main', UnitSize('1/2'))))
+        self.use_layout(PageLayout())
+        contents_layout = ColumnLayout(('main', UnitSize('1/2'))).with_slots()
+        self.layout.contents.use_layout(contents_layout)
 
         login_session = LoginSession.for_current_session()
         if login_session.is_logged_in():

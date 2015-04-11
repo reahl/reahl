@@ -2,7 +2,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, P, Panel
-from reahl.web.pure import ColumnLayout, PageColumnLayout, UnitSize
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, Field, EmailField
 
 def lots_of(message):
@@ -10,9 +11,10 @@ def lots_of(message):
 
 class LayoutUI(UserInterface):
     def assemble(self):
-        layout = PageColumnLayout(('secondary', UnitSize(default='1/3')), 
-                                  ('main', UnitSize(default='2/3')))
-        self.define_page(HTML5Page, style='basic').use_layout(layout)  
+        contents_layout = ColumnLayout(('secondary', UnitSize(default='1/3')), 
+                                       ('main', UnitSize(default='2/3')))
+        page_layout = PageLayout(contents_layout.with_slots())
+        self.define_page(HTML5Page, style='basic').use_layout(page_layout)  
 
         home = self.define_view('/', title='Layout demo')
         home.set_slot('main', CommentForm.factory())
@@ -25,12 +27,12 @@ class LayoutUI(UserInterface):
 
 
         header_text = lots_of('This text is located in the header,'
-                              'which is added by the PageColumnLayout. ')
+                              'which is added by the PageLayout. ')
         home.set_slot('header', P.factory(text=header_text))
 
 
         footer_text = lots_of('The footer spans the bottom of all the '
-                              'columns on a PageColumnLayout ')
+                              'columns on a PageLayout ')
         home.set_slot('footer', P.factory(text=footer_text))
 
 

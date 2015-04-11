@@ -10,7 +10,8 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, \
                          Menu, VerticalLayout
-from reahl.web.pure import PageColumnLayout, UnitSize
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.i18n import Translator
 import babel.dates 
@@ -22,7 +23,9 @@ _ = Translator('reahl-doc')
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout(('secondary', UnitSize('1/4')), ('main', UnitSize('3/4'))))
+        contents_layout = ColumnLayout(('secondary', UnitSize('1/4')), 
+                                       ('main', UnitSize('3/4'))).with_slots()
+        self.use_layout(PageLayout(contents_layout))
         self.layout.columns['secondary'].add_child(Menu.from_languages(view).use_layout(VerticalLayout()))
 
 

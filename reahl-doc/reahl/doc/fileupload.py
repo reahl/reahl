@@ -24,13 +24,15 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, \
                          P, H, InputGroup, FileUploadInput, SimpleFileInput
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
 
 
 class FileUploadUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))
+        page_layout = PageLayout(ColumnLayout('main').with_slots())
+        self.define_page(HTML5Page, style='basic').use_layout(page_layout)
         home = self.define_view('/', title='File upload demo')
         home.set_slot('main', CommentPostPanel.factory())
 

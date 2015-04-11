@@ -4,13 +4,15 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, P, H, Panel, HorizontalLayout
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.web.pager import SequentialPageIndex, PageMenu, PagedPanel
 
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))
+        page_layout = PageLayout(ColumnLayout('main').with_slots())
+        self.define_page(HTML5Page, style='basic').use_layout(page_layout)
         find = self.define_view('/', title='Addresses')
         find.set_slot('main', AddressBookPanel.factory())
 

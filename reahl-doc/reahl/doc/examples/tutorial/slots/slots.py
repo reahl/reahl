@@ -3,20 +3,22 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, P, Menu, HorizontalLayout
-from reahl.web.pure import PageColumnLayout, UnitSize
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 
 
 class MyCustomPage(HTML5Page):
     def __init__(self, view, bookmarks):
         super(MyCustomPage, self).__init__(view, style='basic')
 
-        columns_needed = [('secondary', UnitSize('1/4')), 
-                          ('main', UnitSize('3/4'))]
-        self.use_layout(PageColumnLayout(*columns_needed))
+        contents_layout = ColumnLayout(('secondary', UnitSize('1/4')), 
+                                       ('main', UnitSize('3/4'))).with_slots()
+        self.use_layout(PageLayout(contents_layout))
 
         menu = Menu.from_bookmarks(view, bookmarks)
         menu.use_layout(HorizontalLayout())
         self.layout.header.add_child(menu)
+
 
 class SlotsUI(UserInterface):
     def assemble(self):
