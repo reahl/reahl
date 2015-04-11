@@ -17,6 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import warnings
+
 import six
 
 from reahl.tofu import vassert, scenario, expected, test
@@ -64,7 +66,6 @@ def column_layout_basics(fixture):
 
 
 
-
 class SizingFixture(WebFixture):
     @scenario
     def all_sizes_given(self):
@@ -81,7 +82,7 @@ class SizingFixture(WebFixture):
 
 @test(SizingFixture)
 def adding(fixture):
-    """You can add a column by calling add_column on the ColumnLayout"""
+    """You can add a column by calling add_column on the ColumnLayout, only optionally giving a size."""
 
     widget = Div(fixture.view).use_layout(ColumnLayout())
 
@@ -99,26 +100,11 @@ def allowed_sizes(fixture):
 
 
 @test(WebFixture)
-def page_column_layout_basics(fixture):
-    """A PageColumnLayout adds a Div to the body of its page (the page's document), containing a header, footer 
-       with a div inbetween the two."""
-
-    layout = PageColumnLayout()
-    widget = HTML5Page(fixture.view).use_layout(layout)
-    
-    vassert( [layout.document] == widget.body.children[:-1] )
-    header, contents_div, footer = layout.document.children
-
-    vassert( isinstance(header, Header) )
-    vassert( isinstance(contents_div, Div) )
-    vassert( isinstance(footer, Footer) )
-
-
-@test(WebFixture)
 def page_column_layout_content_layout(fixture):
     """A PageColumnLayout lays out its content (the bits between header and footer) using a ColumnLayout with the columns it is created with."""
 
-    widget = HTML5Page(fixture.view).use_layout(PageColumnLayout('column_a', 'column_b'))
+    with warnings.catch_warnings(record=True):
+        widget = HTML5Page(fixture.view).use_layout(PageColumnLayout('column_a', 'column_b'))
     
     contents_layout = widget.layout.contents.layout
     vassert( isinstance(contents_layout, ColumnLayout) )
@@ -130,7 +116,8 @@ def page_column_layout_content_layout(fixture):
 def convenient_slots_created(fixture):
     """PageColumnLayout add a Slot for Header, Footer and each column defined. The Slot for each column is named the same as the column's name."""
 
-    layout = PageColumnLayout('column_name_a', 'column_name_b')
+    with warnings.catch_warnings(record=True):
+        layout = PageColumnLayout('column_name_a', 'column_name_b')
     HTML5Page(fixture.view).use_layout(layout)
 
     header, contents_div, footer = layout.document.children
@@ -142,33 +129,6 @@ def convenient_slots_created(fixture):
     vassert( 'column_name_a' in column_a.available_slots )
     vassert( 'column_name_b' in column_b.available_slots )
 
-
-@test(WebFixture)
-def page_column_layout_only_meant_for_html5page(fixture):
-    """When an attempting to use a PageColumnLayout on something other than an HTML5Page, a useful exception is raised."""
-
-    with expected(IsInstance):
-        Div(fixture.view).use_layout(PageColumnLayout())
-
-
-@test(WebFixture)
-def page_column_layout_convenience_features(fixture):
-    """A PageColumnLayout exposes useful methods to get to its contents, and adds ids to certain elements for convenience in CSS."""
-
-    layout = PageColumnLayout()
-    widget = HTML5Page(fixture.view).use_layout(layout)
-    header, contents_div, footer = layout.document.children
-    
-    vassert( layout.document.css_id == 'doc' )
-    vassert( header.css_id == 'hd' )
-    vassert( footer.css_id == 'ft' )
-    vassert( contents_div.css_id == 'bd' )
-    vassert( contents_div.get_attribute('role') == 'main' )
-    
-    vassert( layout.header is header )
-    vassert( layout.contents is contents_div )
-    vassert( layout.footer is footer )
-    vassert( layout.columns is contents_div.layout.columns )
 
 
 

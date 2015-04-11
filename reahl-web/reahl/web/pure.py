@@ -31,10 +31,12 @@ import reahl.web.layout
 
 from reahl.web.ui import Panel, Header, Footer, Slot, HTML5Page
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
+from reahl.component.decorators import deprecated
 
 
 class UnitSize(reahl.web.layout.ResponsiveSize):
-    """Represents a set of relative sizes to be used for an element depending on the size of the user's device.
+    """Represents a set of relative sizes to be used for an element depending 
+       on the size of the user's device, as defined by the Pure library.
 
        The Pure library sizes elements relative to their parent using
        fractions (1/2 or 3/4 or 1 are examples).  The size of an
@@ -70,12 +72,11 @@ class UnitSize(reahl.web.layout.ResponsiveSize):
 
 
 class ColumnLayout(reahl.web.layout.ColumnLayout):
-    """A Layout that divides an element into a number of columns.
+    """A Layout that uses the Pure library to divides an element into a number of columns.
 
-       Each argument passed to the constructor defines a
-       column. Columns are added to the element using this Layout in
-       the order they are passed to the constructor. Columns can also 
-       be added to the Widget later, by calling :meth:`ColumnLayout.add_column`.
+       .. seealso::
+
+          :class:`~reahl.web.layout.ColumnLayout`
 
        To define a column without specifying a size, just pass a
        string containing the column name.
@@ -125,7 +126,8 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
         return '%s-%s-%s' % (prefix,  fraction.numerator, fraction.denominator)
 
 
-class PageColumnLayout(Layout):
+@deprecated('Instead, please use reahl.web.layout.PageLayout combined with your choice of Layout for its contents', '3.2')
+class PageColumnLayout(reahl.web.layout.PageLayout):
     """A Layout that provides the main layout for an :class:`reahl.web.ui.HTML5Page`.
 
        A PageColumnLayout adds a header and footer area to an HTML5Page, as well as 
@@ -148,49 +150,16 @@ class PageColumnLayout(Layout):
            - a <div id="contents">
            - a <footer id="ft">
 
-         The div#id element is further set up as with a :class:`ColumnLayout` using the
+         The div#contents element is further set up as with a :class:`ColumnLayout` using the
          arguments passed as `column_definition`\ s.
     """
     def __init__(self, *column_definitions):
-        super(PageColumnLayout, self).__init__()
-        self.document_layout = ColumnLayout(*column_definitions)
-        self.header = None    #: The :class:`reahl.web.ui.Header` of the page.
-        self.contents = None  #: The :class:`reahl.web.ui.Panel` containing the columns.
-        self.footer = None    #: The :class:`reahl.web.ui.Footer` of the page.
-        self.document = None  #: The :class:`reahl.web.ui.Panel` containing the entire page.
-
-    def add_slots_for_columns(self):
-        for column_name, column_widget in self.document_layout.columns.items():
-            column_widget.add_child(Slot(self.view, column_name))
-
-    @arg_checks(widget=IsInstance(HTML5Page))
-    def apply_to_widget(self, widget):
-        super(PageColumnLayout, self).apply_to_widget(widget)
-
-    def customise_widget(self):
-        self.document = self.widget.body.add_child(Panel(self.view))
-        self.document.set_id('doc')
-        
-        self.header = self.document.add_child(Header(self.view))
-        self.header.add_child(Slot(self.view, 'header'))
-        self.header.set_id('hd')
-
-        self.contents = self.document.add_child(Panel(self.view).use_layout(self.document_layout))
-        self.add_slots_for_columns()
-
-        self.contents.set_id('bd')
-        self.contents.set_attribute('role', 'main')
-        
-        self.footer = self.document.add_child(Footer(self.view))
-        self.footer.add_child(Slot(self.view, 'footer'))
-        self.footer.set_id('ft')
+        super(PageColumnLayout, self).__init__(contents_layout=ColumnLayout(*column_definitions).with_slots())
 
     @property
     def columns(self):
         """A dictionary containing the added columns, keyed by column name."""
         return self.contents.layout.columns
-
-
 
 
 

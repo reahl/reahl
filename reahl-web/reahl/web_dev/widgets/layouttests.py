@@ -26,9 +26,10 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.webdev.tools import WidgetTester, Browser
 from reahl.web_dev.fixtures import WebFixture
 
+from reahl.component.exceptions import IsInstance
 from reahl.web.fw import UserInterface
-from reahl.web.ui import P, HTML5Page, Layout, Div, Widget
-from reahl.web.layout import ResponsiveSize, ColumnLayout
+from reahl.web.ui import P, HTML5Page, Layout, Div, Widget, Header, Footer
+from reahl.web.layout import ResponsiveSize, ColumnLayout, PageLayout
 
 @test(WebFixture)
 def widget_layout(fixture):
@@ -210,3 +211,93 @@ def columns_classes(fixture):
     widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a'))
     column_a = widget.layout.columns['column_name_a']
     vassert( 'column-column_name_a' in column_a.get_attribute('class') )  
+
+
+@test(WebFixture)
+def column_slots(fixture):
+    """A ColumnLayout can be made that adds a Slot to each added column, named after the column it is added to."""
+
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b').with_slots())
+
+    column_a, column_b = widget.layout.columns.values()
+    vassert( 'column_name_a' in column_a.available_slots )
+    vassert( 'column_name_b' in column_b.available_slots )
+
+
+@test(WebFixture)
+def adding_unnamed_columns(fixture):
+    """You can add a column by calling add_column on the ColumnLayout"""
+
+    widget = Div(fixture.view).use_layout(ColumnLayout())
+
+    vassert( not widget.children )
+
+    widget.layout.add_column(ResponsiveSize())
+
+    vassert( len(widget.children) == 1 )
+    vassert( isinstance(widget.children[0], Div) )
+
+
+@test(WebFixture)
+def page_layout_basics(fixture):
+    """A PageLayout adds a Div to the body of its page (the page's document), containing a header, footer 
+       with a div inbetween the two for page contents."""
+
+    layout = PageLayout()
+    widget = HTML5Page(fixture.view).use_layout(layout)
+    
+    vassert( [layout.document] == widget.body.children[:-1] )
+    header, contents_div, footer = layout.document.children
+
+    vassert( isinstance(header, Header) )
+    vassert( isinstance(contents_div, Div) )
+    vassert( isinstance(footer, Footer) )
+
+
+@test(WebFixture)
+def header_and_footer_slots(fixture):
+    """PageLayout adds a Slot for Header and Footer."""
+
+    page = HTML5Page(fixture.view).use_layout(PageLayout())
+
+    header, contents_div, footer = page.layout.document.children
+
+    vassert( 'header' in header.available_slots )
+    vassert( 'footer' in footer.available_slots )
+
+
+@test(WebFixture)
+def page_layout_content_layout(fixture):
+    """A PageLayout can be given a Layout it should use to lay out its contents Div."""
+
+    contents_layout = Layout()
+    widget = HTML5Page(fixture.view).use_layout(PageLayout(contents_layout))
+    
+    vassert( widget.layout.contents.layout is contents_layout )
+
+
+@test(WebFixture)
+def page_layout_only_meant_for_html5page(fixture):
+    """When an attempting to use a PageLayout on something other than an HTML5Page, a useful exception is raised."""
+
+    with expected(IsInstance):
+        Div(fixture.view).use_layout(PageLayout())
+
+@test(WebFixture)
+def page_layout_convenience_features(fixture):
+    """A PageLayout exposes useful methods to get to its contents, and adds ids to certain elements for convenience in CSS."""
+
+    layout = PageLayout()
+    widget = HTML5Page(fixture.view).use_layout(layout)
+    header, contents_div, footer = layout.document.children
+    
+    vassert( layout.document.css_id == 'doc' )
+    vassert( header.css_id == 'hd' )
+    vassert( footer.css_id == 'ft' )
+    vassert( contents_div.css_id == 'bd' )
+    vassert( contents_div.get_attribute('role') == 'main' )
+    
+    vassert( layout.header is header )
+    vassert( layout.contents is contents_div )
+    vassert( layout.footer is footer )
+
