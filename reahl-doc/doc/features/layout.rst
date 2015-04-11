@@ -31,12 +31,12 @@ In this example, the page used is not specified per View, but a single
 one here) just specifies some contents for the named Slots provided by
 that page. (See :doc:`../tutorial/slots` for an explanation.)
 
-PageColumnLayout is used in this example to change the HTMLPage of the
+PageLayout is used in this example to change the HTMLPage of the
 application to have a header and footer with a content area inbetween
-the two, that is itself split into columns. Each column created by the
-PageColumnLayout contains a Slot with the same name as the column.
+the two, that is itself split into columns using ColumnLayout. A
+Slot is inserted in the header, footer and each column.
 
-The `row` variable is a Panel split into columns using a simpler ColumnLayout.
+The `row` variable is a Panel split into columns using another ColumnLayout.
 
 Widgets like the LabelledBlockInput can be used to do the internal
 layout of elements of a form. A LabelledBlockInput wraps around any

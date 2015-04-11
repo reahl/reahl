@@ -83,18 +83,21 @@ text in those :class:`~reahl.web.ui.Slot`\ s:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/slots/slots.py
 
-In the example, the :class:`~reahl.web.pure.PageColumnLayout` is used
+In the example, the :class:`~reahl.web.layout.PageLayout` is used
 to give our plain :class:`~reahl.web.ui.HTML5Page` a `.header` (which
-we can use to put a menu bar) and two columns for content. The column
+we can use to put a menu bar) and contents area. The contents are in turn
+laid out using a :class:`~reahl.web.pure.ColumnLayout`. The column
 named "main" is to the right, and fairly large, whereas "secondary"
 sits to the left of it, and is narrower.
 
-The :class:`~reahl.web.pure.PageColumnLayout` also adds :class:`~reahl.web.ui.Slot`\ s
-in each column so that we can use the columns without having to hard-code their contents.
+The :class:`~reahl.web.pure.ColumnLayout` also adds :class:`~reahl.web.ui.Slot`\ s
+in each column so that we can use the columns without having to hard-code their 
+contents. The  :class:`~reahl.web.layout.PageLayout` does the same for the header 
+and footer areas.
 
 In this example, a CustomPage is derived from
 :class:`~reahl.web.ui.HTML5Page`. That way the
-:class:`~reahl.web.pure.PageColumnLayout` can be applied to our
+:class:`~reahl.web.layout.PageLayout` can be applied to our
 CustomPage, and a suitably laid out :class:`~reahl.web.ui.Menu` can be
 added to the `.header` of all CustomPage instances.
 
