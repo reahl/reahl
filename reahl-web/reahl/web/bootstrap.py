@@ -24,6 +24,7 @@ Widgets and Layouts that provide an abstraction on top of Bootstrap (http://getb
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from collections import OrderedDict
+import copy
 
 from reahl.web.fw import Layout
 from reahl.web.ui import Div, Header, Footer, Slot, HTML5Page
@@ -48,6 +49,15 @@ class Container(Layout):
 class ResponsiveSize(reahl.web.layout.ResponsiveSize):
     def __init__(self, xs=None, sm=None, md=None, lg=None):
         super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg)
+        self.offsets = {}
+
+    def set_offsets(self, xs=None, sm=None, md=None, lg=None):
+        self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg)
+
+    def with_offset(self, xs=None, sm=None, md=None, lg=None):
+        size_with_offsets = copy.deepcopy(self)
+        size_with_offsets.set_offsets(xs=xs, sm=sm, md=md, lg=lg)
+        return size_with_offsets
 
 
 class ColumnLayout(reahl.web.layout.ColumnLayout):
@@ -66,6 +76,8 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
 
         for label, value in column_size.items():
             column.append_class('col-%s-%s' % (label, value))
+        for label, value in column_size.offsets.items():
+            column.append_class('col-%s-offset-%s' % (label, value))
 
         return column
 
