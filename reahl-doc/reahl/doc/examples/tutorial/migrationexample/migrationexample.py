@@ -10,7 +10,8 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
-from reahl.web.pure import PageColumnLayout, UnitSize
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.migration import Migration
 
@@ -24,7 +25,9 @@ class AddDate(Migration):
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout(('main', UnitSize('1/3'))))
+        contents_layout = ColumnLayout(('main', UnitSize('1/3'))).with_slots()
+        page_layout = PageLayout(contents_layout)
+        self.define_page(HTML5Page, style='basic').use_layout(page_layout)
         find = self.define_view('/', title='Addresses')
         find.set_slot('main', AddressBookPanel.factory())
 

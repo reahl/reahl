@@ -18,12 +18,14 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, Panel, P
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 
 
 class BasicHTMLWidgetsUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))    
+        page_layout = PageLayout(ColumnLayout('main').with_slots())
+        self.define_page(HTML5Page, style='basic').use_layout(page_layout)
 
         home = self.define_view('/', title='Basic HTML Widgets demo')
         home.set_slot('main', WidgetPanel.factory())
