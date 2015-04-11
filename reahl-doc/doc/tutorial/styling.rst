@@ -49,9 +49,11 @@ used for viewing. See the documentation for
 :class:`~reahl.web.pure.ColumnLayout` and
 :class:`~reahl.web.pure.UnitSize` for more details.
 
-:class:`~reahl.web.pure.PageColumnLayout` is meant to be used with an
+:class:`~reahl.web.layout.PageLayout` is meant to be used with an
 :class:`~reahl.web.ui.HTML5Page`. It changes the page to have a header
-and footer with several columns inbetween.
+and footer with a content area inbetween. A :class:`~reahl.web.pure.ColumnLayout`
+can be used with the :class:`~reahl.web.layout.PageLayout` to lay out the
+content area of the page as distinct columns.
 
 Here is an example of how these Layouts are used to change a page and
 a :class:`~reahl.web.ui.Menu` on that page:
