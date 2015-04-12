@@ -38,25 +38,35 @@ For example, the :class:`~reahl.web.ui.HorizontalLayout` or
 :class:`~reahl.web.ui.Menu` appear with its items horizontally next to
 each other or stacked vertically.
 
+Some layout concepts are implemented in terms of some frontend
+library, others are generally applicable.
+
 The :mod:`~reahl.web.pure` module includes some layouts based on the
 `Pure.css framework <http://purecss.io/>`_. The
 :class:`~reahl.web.pure.ColumnLayout` changes a
 :class:`~reahl.web.fw.Widget` by adding several
-:class:`~reahl.web.ui.Panel`\ s to it that are arranged in columns next
+:class:`~reahl.web.ui.Div`\ s to it that are arranged in columns next
 to each other. You can specify the size of these columns, and in such
 a way that the size can change, depending on the size of the device
 used for viewing. See the documentation for
 :class:`~reahl.web.pure.ColumnLayout` and
 :class:`~reahl.web.pure.UnitSize` for more details.
+(See the :mod:`~reahl.web.bootstrap` module for Layouts and Widgets
+built using the Bootstrap library.)
 
+The :mod:`~reahl.web.layout` module houses generically applicable concepts.
 :class:`~reahl.web.layout.PageLayout` is meant to be used with an
 :class:`~reahl.web.ui.HTML5Page`. It changes the page to have a header
-and footer with a content area inbetween. A :class:`~reahl.web.pure.ColumnLayout`
-can be used with the :class:`~reahl.web.layout.PageLayout` to lay out the
-content area of the page as distinct columns.
+and footer with a content area inbetween. If a :class:`~reahl.web.pure.ColumnLayout`
+(for example) is passed to the :class:`~reahl.web.layout.PageLayout` constuctor, 
+it will automatically be used as the layout of the content area of the page.
 
-Here is an example of how these Layouts are used to change a page and
-a :class:`~reahl.web.ui.Menu` on that page:
+
+Here is an example of how :class:`~reahl.web.layout.PageLayout` and
+:class:`~reahl.web.pure.ColumnLayout` can be used in conjunction to
+create a page with some structure. In the example,
+:class:`~reahl.web.ui.HorizontalLayout` is also used to specify how
+the :class:`~reahl.web.ui.Menu` is presented.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/slots/slots.py
    :pyobject: MyCustomPage
@@ -117,10 +127,14 @@ tags do not have special classes -- they can be targeted in CSS by just
 using the HTML tag name they represent: the :class:`reahl.web.ui.P` :class:`~reahl.web.fw.Widget` is just a `<p>`,
 for example.
 
+Any :class:`~reahl.web.fw.Layout` can also add CSS classes to a
+:class:`~reahl.web.fw.Widget` or change how contents is added to it.
+
 Given these ways to be able to target a :class:`~reahl.web.fw.Widget`
-via CSS, you can write normal CSS to provide your own look and feel
-for Reahl :class:`~reahl.web.fw.Widget`\ s (if you really want to). In
-the reference documentation for each :class:`~reahl.web.fw.Widget` an
+(possibly modified by a apecific :class:`~reahl.web.fw.Layout`) via
+CSS, you can write normal CSS to provide your own look and feel for
+Reahl :class:`~reahl.web.fw.Widget`\ s (if you really want to). In the
+reference documentation for each :class:`~reahl.web.fw.Widget` an
 explanation is given of what the HTML for that
 :class:`~reahl.web.fw.Widget` looks like, for this purpose. (Similar
 documentation is provided with :class:`~reahl.web.fw.Layout`\ s.)
