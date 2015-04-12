@@ -1,19 +1,21 @@
 .. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-What changed in version 3.1
+What changed in version 3.2
 ===========================
 
 Added support for Bootstrap
 ---------------------------
 
 The main feature of this release is our addition of Widgets and Layouts
-for leveraging the Bootstrap web frontent library.
+for leveraging the Bootstrap web frontend library.
 
 Bootstrap library added 
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-We now ship a vanilla version of Bootstrap. This can interfere with
-other stuff, hence for backwards compatibility it is not enabled by default.
+We now ship a vanilla version of Bootstrap. Enabling the Bootstrap library
+can interfere with other CSS and JavaScript, hence it is not enabled
+by default. Keeping the use of Bootstrap optional also ensures
+backwards compatibility.
 
 If you want to use the new Bootstrap goodies, switch it on in your web.config.py:
 
@@ -29,7 +31,7 @@ If you want to use the new Bootstrap goodies, switch it on in your web.config.py
 The reahl.web.layout module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We added :module:`reahl.web.layout` to contain generic layout-specific
+We added :mod:`reahl.web.layout` to contain generic layout-specific
 tools that are not specific a a specific library.
 
 PageColumnLayout and ColumnLayout refined

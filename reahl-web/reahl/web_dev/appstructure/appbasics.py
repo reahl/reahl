@@ -31,7 +31,8 @@ from reahl.stubble import EmptyStub
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, P
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
@@ -190,7 +191,7 @@ class SlotScenarios(WebFixture):
     def page_on_ui(self):
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
                 home = self.define_view('/', title='Hello')
                 home.set_slot('main', P.factory(text='Hello world'))
                 home.set_slot('footer', P.factory(text='I am the footer'))
@@ -201,7 +202,7 @@ class SlotScenarios(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 home = self.define_view('/', title='Hello')
-                home.set_page(HTML5Page.factory().use_layout(PageColumnLayout('main')))
+                home.set_page(HTML5Page.factory().use_layout(PageLayout(ColumnLayout('main').with_slots())))
                 home.set_slot('main', P.factory(text='Hello world'))
                 home.set_slot('footer', P.factory(text='I am the footer'))
         self.MainUI = MainUI
@@ -225,7 +226,7 @@ def slot_error(fixture):
     """Supplying contents for a slot that does not exist results in s sensible error."""
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+            self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
             home = self.define_view('/', title='Hello')
             home.set_slot('main', P.factory(text='Hello world'))
             home.set_slot('nonexistantslotname', P.factory(text='I am breaking'))
@@ -247,7 +248,7 @@ def slot_defaults(fixture):
     """
     class MainUI(UserInterface):
         def assemble(self):
-            main = self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+            main = self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
             main.add_default_slot('main', P.factory(text='defaulted slot contents'))
             self.define_view('/', title='Hello')
 

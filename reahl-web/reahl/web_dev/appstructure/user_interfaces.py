@@ -28,7 +28,8 @@ from reahl.stubble import stubclass
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
 from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, P, A, Panel, Slot
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.webdev.tools import Browser, WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
@@ -99,7 +100,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithSlots,  {'text': 'main'}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -147,7 +148,7 @@ class UserInterfaceTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui', UIWithArguments, {'text': 'main'},
                                 name='myui', kwarg='the kwarg')
 

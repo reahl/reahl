@@ -17,7 +17,7 @@
 """
 Utilities to deal with layout.
 
-versionadded:: 3.2
+.. versionadded:: 3.2
 
 """
 
@@ -39,7 +39,7 @@ class ResponsiveSize(Mapping):
 
        Values for sizes and device classes are as defined by the underlying layout library.
 
-       versionadded:: 3.2
+       .. versionadded:: 3.2
 
     """
     def __init__(self, **sizes):
@@ -67,7 +67,7 @@ class ColumnLayout(Layout):
        the first element is the column name, and the second an
        instance of :class:`ResponsiveSize`.
 
-       versionadded:: 3.2
+       .. versionadded:: 3.2
 
     """
     def __init__(self, *column_definitions):
@@ -83,6 +83,9 @@ class ColumnLayout(Layout):
             self.column_sizes[name] = size
 
     def with_slots(self):
+        """Returns a copy of this ColumnLayout which will additionally add a Slot inside each added column,
+           named for that column.
+        """
         copy_with_slots = copy.deepcopy(self)
         copy_with_slots.add_slots = True
         return copy_with_slots
@@ -107,9 +110,7 @@ class ColumnLayout(Layout):
 
 
 class PageLayout(Layout):
-    """A Layout that provides the main layout for an :class:`reahl.web.ui.HTML5Page`.
-
-       A PageLayout adds a header and footer area to an HTML5Page, as well as 
+    """A PageLayout adds a header and footer area to an :class:`reahl.web.ui.HTML5Page`, as well as 
        a content area between the header and footer areas.
     
        All of these contents are also wrapped in a
@@ -126,7 +127,7 @@ class PageLayout(Layout):
          The div#contents element is further set up to use the :class:`Layout` passed
          to the constructor.
 
-       versionadded:: 3.2
+       .. versionadded:: 3.2
 
     """
     def __init__(self, contents_layout=None):

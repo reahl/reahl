@@ -23,7 +23,6 @@ from reahl.tofu import vassert
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import UserInterface, IdentityDictionary
 from reahl.web.ui import HTML5Page
-from reahl.web.pure import PageColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.component.i18n import Translator
 

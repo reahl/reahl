@@ -74,10 +74,6 @@ class UnitSize(reahl.web.layout.ResponsiveSize):
 class ColumnLayout(reahl.web.layout.ColumnLayout):
     """A Layout that uses the Pure library to divides an element into a number of columns.
 
-       .. seealso::
-
-          :class:`~reahl.web.layout.ColumnLayout`
-
        To define a column without specifying a size, just pass a
        string containing the column name.
        
