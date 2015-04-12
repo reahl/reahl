@@ -77,7 +77,7 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
             if self.row_will_wrap_when_added(device_class, column_size):
                 clearfix = self.widget.add_child(Div(self.view))
                 clearfix.append_class('clearfix')
-                clearfix.append_class('visible-%s' % device_class)
+                clearfix.append_class('visible-%s-block' % device_class)
             
         column = super(ColumnLayout, self).add_column(column_size)
 

@@ -113,7 +113,7 @@ def column_clearfix(fixture):
     [column_a, clearfix, column_b] = widget.children           
     vassert( [column_a, column_b] == [i for i in wrapping_layout.columns.values()] )
     vassert( 'clearfix' in clearfix.get_attribute('class')  )
-    vassert( 'visible-xs' in clearfix.get_attribute('class')  )
+    vassert( 'visible-xs-block' in clearfix.get_attribute('class')  )
 
 
     # Case: When no clearfix must be added
