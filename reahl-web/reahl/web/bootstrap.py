@@ -51,13 +51,9 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
         super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg)
         self.offsets = {}
 
-    def set_offsets(self, xs=None, sm=None, md=None, lg=None):
+    def offset(self, xs=None, sm=None, md=None, lg=None):
         self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg)
-
-    def with_offset(self, xs=None, sm=None, md=None, lg=None):
-        size_with_offsets = copy.deepcopy(self)
-        size_with_offsets.set_offsets(xs=xs, sm=sm, md=md, lg=lg)
-        return size_with_offsets
+        return self
 
 
 class ColumnLayout(reahl.web.layout.ColumnLayout):
