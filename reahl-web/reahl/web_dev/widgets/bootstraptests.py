@@ -86,7 +86,7 @@ def allowed_sizes(fixture):
 def column_offsets(fixture):
     """You can optionally specify space to leave empty (an offset) before a column at specific device sizes."""
 
-    layout = ColumnLayout(('column_a', ResponsiveSize(lg=6).with_offset(xs=2, sm=4, md=6, lg=3)))
+    layout = ColumnLayout(('column_a', ResponsiveSize(lg=6).offset(xs=2, sm=4, md=6, lg=3)))
     widget = Div(fixture.view).use_layout(layout)
 
     [column_a] = layout.columns.values()
@@ -105,8 +105,8 @@ def column_clearfix(fixture):
     """
 
     # Case: Adding a correct clearfix in the right place
-    wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).with_offset(xs=2)),
-                                   ('column_b', ResponsiveSize(xs=2).with_offset(xs=2))
+    wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).offset(xs=2)),
+                                   ('column_b', ResponsiveSize(xs=2).offset(xs=2))
     )
     widget = Div(fixture.view).use_layout(wrapping_layout)
 
@@ -117,7 +117,7 @@ def column_clearfix(fixture):
 
 
     # Case: When no clearfix must be added
-    non_wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=2).with_offset(xs=2)),
+    non_wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=2).offset(xs=2)),
                                        ('column_b', ResponsiveSize(xs=2))
     )
     widget = Div(fixture.view).use_layout(non_wrapping_layout)
