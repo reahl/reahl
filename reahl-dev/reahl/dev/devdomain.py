@@ -1566,7 +1566,6 @@ class SetupCommandFailed(Exception):
 class SetupMonitor(object):
     def __init__(self):
         self.captured_stdout = []
-        self.errors = None
 
     @property
     def encoding(self):
@@ -1574,6 +1573,8 @@ class SetupMonitor(object):
 
     def __enter__(self):
         self.original_stdout = sys.stdout
+        self.encoding = sys.stdout.encoding # input() raises (TypeError: bad argument type for built-in operation) without this defined. See bug 1442104
+        self.errors = sys.stdout.errors     # input() raises (TypeError: bad argument type for built-in operation) without this defined. See bug 1442104
         sys.stdout = self
         return self
 
