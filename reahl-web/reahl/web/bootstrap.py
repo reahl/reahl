@@ -47,6 +47,7 @@ class Container(Layout):
 
 
 class ResponsiveSize(reahl.web.layout.ResponsiveSize):
+    device_classes = ['xs', 'sm', 'md', 'lg']
     def __init__(self, xs=None, sm=None, md=None, lg=None):
         super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg)
         self.offsets = {}
@@ -54,6 +55,38 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
     def offset(self, xs=None, sm=None, md=None, lg=None):
         self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg)
         return self
+
+    def calculated_size_for(self, device_class):
+        classes_that_impact = self.device_classes[:self.device_classes.index(device_class)+1]
+        for possible_class in reversed(classes_that_impact):
+            try:
+                return self[possible_class]
+            except KeyError:
+                pass
+        return 0
+        
+    def total_width_for(self, device_class):
+        total = self.calculated_size_for(device_class)
+        if self.offsets:
+            total += self.offsets.calculated_size_for(device_class)
+        return total
+    
+    @classmethod    
+    def wraps_for_some_device_class(cls, sizes): 
+        return any(cls.wraps_for(device_class, sizes)
+                   for device_class in cls.device_classes)
+
+    @classmethod    
+    def wraps_for(cls, device_class, sizes):
+        return (cls.sum_sizes_for(device_class, sizes)) > 12
+
+    @classmethod    
+    def sum_sizes_for(cls, device_class, sizes):
+        total = 0
+        for size in sizes:
+            total += size.total_width_for(device_class)
+        return total
+
 
 
 class ColumnLayout(reahl.web.layout.ColumnLayout):
@@ -67,13 +100,17 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
     def customise_widget(self):
         super(ColumnLayout, self).customise_widget()
         self.widget.append_class('row')
-    
-    def add_column(self, column_size):
-        for device_class in ['xs', 'sm', 'md', 'lg']:
-            if self.row_will_wrap_when_added(device_class, column_size):
-                clearfix = self.widget.add_child(Div(self.view))
-                clearfix.append_class('clearfix')
+   
+    def add_clearfix(self, column_size):
+        clearfix = self.widget.add_child(Div(self.view))
+        clearfix.append_class('clearfix')
+        for device_class in column_size.device_classes:
+            if ResponsiveSize.wraps_for(device_class, self.added_sizes+[column_size]):
                 clearfix.append_class('visible-%s-block' % device_class)
+
+    def add_column(self, column_size):
+        if ResponsiveSize.wraps_for_some_device_class(self.added_sizes+[column_size]):
+            self.add_clearfix(column_size)
             
         column = super(ColumnLayout, self).add_column(column_size)
 
@@ -84,17 +121,4 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
 
         self.added_sizes.append(column_size)
         return column
-
-    def row_will_wrap_when_added(self, device_class, to_add):
-        return (self.total_width_for(device_class, self.added_sizes) + \
-                self.total_width_for(device_class, [to_add]        )) > 12
-
-    def total_width_for(self, device_class, sizes):
-        total = 0
-        for size in sizes:
-            if device_class in size:
-                total += size[device_class]
-            if device_class in size.offsets:
-                total += size.offsets[device_class]
-        return total
 

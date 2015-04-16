@@ -115,6 +115,16 @@ def column_clearfix(fixture):
     vassert( 'clearfix' in clearfix.get_attribute('class')  )
     vassert( 'visible-xs-block' in clearfix.get_attribute('class')  )
 
+    # Case: When clearfix needs to take "implicit" sizes of smaller device classes into account
+    wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).offset(xs=2)),
+                                   ('column_b', ResponsiveSize(lg=2).offset(lg=2))
+    )
+    widget = Div(fixture.view).use_layout(wrapping_layout)
+
+    [column_a, clearfix, column_b] = widget.children           
+    vassert( [column_a, column_b] == [i for i in wrapping_layout.columns.values()] )
+    vassert( 'clearfix' in clearfix.get_attribute('class')  )
+    vassert( 'visible-lg-block' in clearfix.get_attribute('class')  )
 
     # Case: When no clearfix must be added
     non_wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=2).offset(xs=2)),
