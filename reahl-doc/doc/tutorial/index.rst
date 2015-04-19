@@ -4,9 +4,7 @@ Tutorial
 ========
 
 This tutorial is intended for those who'd like to understand Reahl and
-what it is about.  If you just want some examples you can
-cut-and-paste to get something going, you'd be better served by
-looking through :doc:`the feature examples <../features/index>`.
+what it is about.
 
 
 Contents:
