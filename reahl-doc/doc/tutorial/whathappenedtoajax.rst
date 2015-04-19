@@ -68,12 +68,12 @@ the arguments to the applicable :class:`~reahl.web.fw.Widget`. This is what trig
 :class:`~reahl.web.fw.Widget` to be re-rendered.
 
 The arguments of a :class:`~reahl.web.fw.Widget` are called query arguments. To declare query
-arguments on the :class:`~reahl.web.fw.Widget` you add a method called `query_arguments` to
+arguments on the :class:`~reahl.web.fw.Widget` you add a method called `query_fields` to
 the :class:`~reahl.web.fw.Widget` class, and decorate it with `@expose`. Inside the
-`query_arguments` method, each argument of the :class:`~reahl.web.fw.Widget` is defined using
+`query_fields` method, each argument of the :class:`~reahl.web.fw.Widget` is defined using
 a :class:`~reahl.component.modelinterface.Field`. In fact, the arguments of a :class:`~reahl.web.fw.Widget` work exactly like the
 :class:`~reahl.component.modelinterface.Field`\ s on a model object. Think of the :class:`~reahl.web.fw.Widget` as being the model
-object, and its `.fields` as being called its `.query_arguments`. When
+object, and its `.fields` as being called its `.query_fields`. When
 the :class:`~reahl.web.fw.Widget` is constructed, an attribute will be set for each query
 argument on the :class:`~reahl.web.fw.Widget` instance:
 
@@ -81,7 +81,7 @@ argument on the :class:`~reahl.web.fw.Widget` instance:
 
 .. note::
 
-   If a :class:`~reahl.web.fw.Widget` has `query_arguments`, it is required to have a unique
+   If a :class:`~reahl.web.fw.Widget` has `query_fields`, it is required to have a unique
    css_id.  (The framework raises a :class:`~reahl.component.exceptions.ProgrammerError` if this rule is
    violated.)
 
