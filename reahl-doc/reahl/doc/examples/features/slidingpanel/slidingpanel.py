@@ -5,7 +5,7 @@ from reahl.web.ui import HTML5Page, SlidingPanel, Panel, P
 
 class MyPage(HTML5Page):
     def __init__(self, view):
-        super(MyPage, self).__init__(view)
+        super(MyPage, self).__init__(view, style='basic')
 	 
         sliding_panel = SlidingPanel(view)
         self.body.add_child(sliding_panel)
