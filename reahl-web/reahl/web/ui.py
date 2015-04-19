@@ -1709,7 +1709,7 @@ class Label(HTMLElement):
        :keyword for_input: If given, the :class:`Input` to which this Label applies (its `.label` is also used as text).
        :keyword css_id: (See :class:`HTMLElement`)
        
-       .. versionchanged:: 3.1.1
+       .. versionchanged:: 3.2
           Added the for_input keyword argument.
     """
     def __init__(self, view, text=None, for_input=None, css_id=None):
@@ -1733,7 +1733,7 @@ class Label(HTMLElement):
         return attributes
 
         
-@deprecated('Please use Label(for_input=) instead.', '3.1.1')
+@deprecated('Please use Label(for_input=) instead.', '3.2')
 class InputLabel(Label):
     """A label for the Input given in `html_input`.
 
