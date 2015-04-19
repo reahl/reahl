@@ -3,10 +3,14 @@
 Reahl examples
 ==============
 
-Reahl comes with a number of examples ready for you to check out and 
-play with. This is a quick guide for the impatient to do just that.
-:doc:`The next section<gettingstarted-develop>` contains a step-by-step
-explanation of all the details here.
+Reahl comes with a number of examples ready for you to check out and
+play with. These typically do not mean much when seen on their own --
+*they are referred to all over in the rest of the tutorial* to 
+illustrate what is explained there. This is a quick guide you can use
+as a cheat sheet for running these examples.
+
+:doc:`The next section<gettingstarted-develop>` contains a
+step-by-step explanation of all the details here.
 
 
 Listing and checking out examples
