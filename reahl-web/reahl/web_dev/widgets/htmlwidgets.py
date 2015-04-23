@@ -104,15 +104,17 @@ def wrapper_widgets(fixture):
     """Sometimes, a HTMLElement is "wrapped" by an Input which represents the HTMLElement. In this case,
        dynamic as well as static attributes for the wrapped HTMLElement are obtained from its Input wrapper."""
 
-    class WrapperWidget(Input):
-        def get_wrapped_html_attributes(self, attributes):
+    class MyInputAttributesClass(DerivedInputAttributes):
+        def set_attributes(self, attributes):
             attributes.set_to('set-by-wrapper', 'rhythm and poetry')
-            return attributes
+
+    class WrapperWidget(Input):
+        derived_input_attributes_class = MyInputAttributesClass
 
     field = Field()
     field.bind('aname', field)
     wrapper = WrapperWidget(Form(fixture.view, 'formname'), field)
-    widget = HTMLElement(fixture.view, 'x', wrapper_widget=wrapper)
+    widget = HTMLElement(fixture.view, 'x', wrapper_widget=wrapper, attribute_source=wrapper.html_input_attributes)
     tester = WidgetTester(widget)
 
     # Case: dynamic attributes are supplied by the wrapper
