@@ -204,23 +204,15 @@ class HTMLElement(Widget):
                              others have an opening and closing tag. 
                              (See `HTML5 void elements <http://dev.w3.org/html5/markup/syntax.html#syntax-elements>`_.)
     :keyword css_id: If specified, the HTMLElement will have an id attribute set to this. Mandatory when a Widget has :meth:`query_fields`.
-    :keyword wrapper_widget: Inputs are Widgets that are not HTMLElements. Such an Input acts as "wrapper_widget" for the 
-                           HTMLElement representing it in HTML. This `wrapper_widget` (the Input) dictates some of the
-                           attributes its HTML representative should have.
+    :keyword attribute_source: The class that will modify this widgets' list of attributes
     :keyword read_check: (See :class:`reahl.web.fw.Widget`)
     :keyword write_check: (See :class:`reahl.web.fw.Widget`)
     
     """
     tag_name = 'tag'
-    def __init__(self, view, tag_name, children_allowed=False, css_id=None, wrapper_widget=None, attribute_source=None, read_check=None, write_check=None):
+    def __init__(self, view, tag_name, children_allowed=False, css_id=None, attribute_source=None, read_check=None, write_check=None):
         super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check)
-        self.wrapper_widget = wrapper_widget
         self.attribute_source = attribute_source
-        if wrapper_widget:
-            if not isinstance(wrapper_widget, Input):
-                raise ProgrammerError('Only Inputs can be wrappers, got a %s instead' % wrapper_widget)
-            wrapper_widget.set_wrapped_widget(self)
-
         self.children_allowed = children_allowed
         self.tag_name = tag_name
         self.constant_attributes = HTMLAttributeDict()
@@ -1219,7 +1211,6 @@ class InputGroup(FieldSet):
     """
 
 
-
 class DerivedInputAttributes(object):
     def __init__(self, input_widget):
         self.input_widget = input_widget
@@ -1246,7 +1237,6 @@ class DerivedInputAttributes(object):
 
     def set_attributes(self, attributes):
 
-
         if self.wrapped_html_input.tag_name == 'input':
             attributes.set_to('type', self.input_widget.input_type)
             attributes.set_to('value', self.input_widget.value)
@@ -1257,7 +1247,6 @@ class DerivedInputAttributes(object):
             attributes.set_to('form', self.input_widget.form.css_id)
 
         attributes.set_to('name', self.input_widget.name)
-
 
         if self.has_validation_error:
             attributes.add_to('class', ['error'])
@@ -1295,42 +1284,43 @@ class Input(Widget):
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
 
-    def set_wrapped_widget(self, wrapped_widget): #xxx should perhaps return the input???
-        self.wrapped_widget = wrapped_widget
+    def set_wrapped_html_input(self, wrapped_html_input):
+        self.wrapped_html_input = wrapped_html_input
+        return wrapped_html_input
 
     def append_class(self, css_class):
         """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Input in HTML to the user."""
-        self.wrapped_widget.append_class(css_class)
+        self.wrapped_html_input.append_class(css_class)
 
     def set_id(self, value):
         """Set the "id" attribute of the HTMLElement which represents this Input in HTML to the user."""
-        self.wrapped_widget.set_id(value)
+        self.wrapped_html_input.set_id(value)
 
     def set_title(self, value):
         """Set the the "title" attribute of the HTMLElement which represents this Input in HTML to the user."""
-        self.wrapped_widget.set_title(value)
+        self.wrapped_html_input.set_title(value)
 
     def add_to_attribute(self, name, values):
         """Ensures that the value of the attribute `name` of the HTMLElement which represents this Input in 
            HTML to the user includes the words listed in `values` (a list of strings).
         """
-        self.wrapped_widget.add_to_attribute(name, values)
+        self.wrapped_html_input.add_to_attribute(name, values)
     
     def set_attribute(self, name, value):
         """Sets the value of the attribute `name` of the HTMLElement which represents this Input in HTML to the user
            to the string `value`.
         """
-        self.wrapped_widget.set_attribute(name, value)
+        self.wrapped_html_input.set_attribute(name, value)
 
     def can_write(self):
         return (not self.write_check) or self.write_check()
 
     def add_wrapped_input(self):
-        self.wrapped_html_input = self.add_child(self.create_html_input())
+        self.set_wrapped_html_input(self.add_child(self.create_html_input()))
 
     def create_html_input(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user."""
-        return HTMLElement(self.view, 'input', wrapper_widget=self, attribute_source=self.html_input_attributes)
+        return HTMLElement(self.view, 'input', attribute_source=self.html_input_attributes)
 
     def render(self):
         self.prepare_input()
@@ -1474,7 +1464,7 @@ class TextArea(Input):
         super(TextArea, self).__init__(form, bound_field)
 
     def create_html_input(self):
-        html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True, wrapper_widget=self, attribute_source=self.html_input_attributes)
+        html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True, attribute_source=self.html_input_attributes)
         self.text = html_text_area.add_child(TextNode(self.view, self.get_value))
         return html_text_area
 
@@ -1520,7 +1510,7 @@ class SelectInput(Input):
     derived_input_attributes_class = SelectInputDerivedAttributes
 
     def create_html_input(self):
-        html_select = HTMLElement(self.view, 'select', children_allowed=True, wrapper_widget=self, attribute_source=self.html_input_attributes)
+        html_select = HTMLElement(self.view, 'select', children_allowed=True, attribute_source=self.html_input_attributes)
         for choice_or_group in self.bound_field.grouped_choices:
             options = [self.make_option(choice) for choice in choice_or_group.choices]
             if isinstance(choice_or_group, Choice):
@@ -1541,11 +1531,11 @@ class SelectInput(Input):
 
 
 class SingleRadioButton(Span):
-    def __init__(self, form, value, label, checked=False, wrapper_widget=None, attribute_source=None, css_id=None):
+    def __init__(self, form, value, label, checked=False, attribute_source=None, css_id=None):
         super(SingleRadioButton, self).__init__(form.view, css_id=css_id)
         self.form = form
         self.set_attribute('class', 'reahl-radio-button')
-        button = self.add_child(HTMLElement(self.view, 'input', wrapper_widget=wrapper_widget, attribute_source=attribute_source))
+        button = self.add_child(HTMLElement(self.view, 'input', attribute_source=attribute_source))
         button.set_attribute('type', 'radio')
         button.set_attribute('value', value)
         button.set_attribute('form', form.css_id)
@@ -1571,9 +1561,9 @@ class RadioButtonInput(Input):
         outer_div = Panel(self.view)
         outer_div.set_attribute('class', 'reahl-radio-button-input')
         for choice in self.bound_field.flattened_choices:
-            button = SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), wrapper_widget=self, attribute_source=self.html_input_attributes)
+            button = SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes)
             outer_div.add_child(button)
-        self.set_wrapped_widget(outer_div)
+        self.set_wrapped_html_input(outer_div)
         return outer_div
 
     def get_value_from_input(self, input_values):
@@ -1606,7 +1596,7 @@ class TextInput(Input):
             self.append_class('fuzzy')
 
     def get_js(self, context=None):
-        js = ['$(%s).textinput();' % self.wrapped_widget.contextualise_selector('".reahl-textinput"', context)]
+        js = ['$(%s).textinput();' % self.wrapped_html_input.contextualise_selector('".reahl-textinput"', context)]
         return super(TextInput, self).get_js(context=context) + js
 
 
@@ -2414,7 +2404,7 @@ class SimpleFileInput(Input):
     input_type = 'file'
     is_for_file = True
     def create_html_input(self):
-        add_file = HTMLElement(self.view, 'input', wrapper_widget=self, attribute_source=self.html_input_attributes)
+        add_file = HTMLElement(self.view, 'input', attribute_source=self.html_input_attributes)
         if self.bound_field.allow_multiple:
             add_file.set_attribute('multiple', 'multiple')
         return add_file
