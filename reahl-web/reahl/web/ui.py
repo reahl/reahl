@@ -278,8 +278,6 @@ class HTMLElement(Widget):
             attributes.add_to('class', ['reahl-priority-primary'])
         if self.attribute_source:
             self.attribute_source.set_attributes(attributes)
-        if self.wrapper_widget:
-            attributes = self.wrapper_widget.get_wrapped_html_attributes(attributes)
         return attributes
         
     def add_hash_change_handler(self):
@@ -1282,12 +1280,14 @@ class Input(Widget):
     input_type = None
     is_for_file = False
     is_Input = True
+    derived_input_attributes_class = DerivedInputAttributes
+
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field):
         self.form = form
         self.bound_field = bound_field
         self.name = form.register_input(self) # bound_field must be set for this registration to work
-        self.html_input_attributes = DerivedInputAttributes(self)
+        self.html_input_attributes = self.derived_input_attributes_class(self)
 
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
         self.add_wrapped_input()
@@ -1331,14 +1331,6 @@ class Input(Widget):
     def create_html_input(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user."""
         return HTMLElement(self.view, 'input', wrapper_widget=self, attribute_source=self.html_input_attributes)
-
-    def get_wrapped_html_attributes(self, attributes):
-        """Sets the HTML attributes which should be present on the HTMLElement that represents this Input
-           in HTML to the user.
-        """
-
-
-        return attributes
 
     def render(self):
         self.prepare_input()
@@ -1453,6 +1445,15 @@ class Input(Widget):
         self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
 
 
+class TextAreaDerivedAttributes(DerivedInputAttributes):
+    def set_attributes(self, attributes):
+        super(TextAreaDerivedAttributes, self).set_attributes(attributes)
+        if self.input_widget.rows:
+            attributes.set_to('rows', six.text_type(self.input_widget.rows))
+        if self.input_widget.columns:
+            attributes.set_to('cols', six.text_type(self.input_widget.columns))
+
+
 class TextArea(Input):
     """A muli-line Input for plain text.
 
@@ -1465,6 +1466,8 @@ class TextArea(Input):
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
     """
+    derived_input_attributes_class = TextAreaDerivedAttributes
+
     def __init__(self, form, bound_field, rows=None, columns=None):
         self.rows = rows
         self.columns = columns
@@ -1477,14 +1480,6 @@ class TextArea(Input):
 
     def get_value(self):
         return self.value
-        
-    def get_wrapped_html_attributes(self, attributes):
-        attributes = super(TextArea, self).get_wrapped_html_attributes(attributes)
-        if self.rows:
-            attributes.set_to('rows', six.text_type(self.rows))
-        if self.columns:
-            attributes.set_to('cols', six.text_type(self.columns))
-        return attributes
 
 
 class Option(HTMLElement):
@@ -1503,7 +1498,14 @@ class OptGroup(HTMLElement):
         for option in options:
             self.add_child(option)
     
-    
+
+class SelectInputDerivedAttributes(DerivedInputAttributes):
+    def set_attributes(self, attributes):
+        super(SelectInputDerivedAttributes, self).set_attributes(attributes)
+        if self.input_widget.bound_field.allows_multiple_selections:
+            attributes.set_to('multiple', 'multiple')
+
+
 class SelectInput(Input):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a dropdown 
        list of valid ones.
@@ -1515,6 +1517,8 @@ class SelectInput(Input):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
+    derived_input_attributes_class = SelectInputDerivedAttributes
+
     def create_html_input(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True, wrapper_widget=self, attribute_source=self.html_input_attributes)
         for choice_or_group in self.bound_field.grouped_choices:
@@ -1528,12 +1532,6 @@ class SelectInput(Input):
     def make_option(self, choice):
         selected = self.bound_field.is_selected(choice)
         return Option(self.view, choice.as_input(), choice.label, selected=selected)
-
-    def get_wrapped_html_attributes(self, attributes):
-        attributes = super(SelectInput, self).get_wrapped_html_attributes(attributes)
-        if self.bound_field.allows_multiple_selections:
-            attributes.set_to('multiple', 'multiple')
-        return attributes
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
@@ -1612,6 +1610,12 @@ class TextInput(Input):
         return super(TextInput, self).get_js(context=context) + js
 
 
+class PasswordInputDerivedAttributes(DerivedInputAttributes):
+    def set_attributes(self, attributes):
+        super(PasswordInputDerivedAttributes, self).set_attributes(attributes)
+        attributes.clear('value')
+
+
 class PasswordInput(Input):
     """A PasswordInput is a single line text input, but it does not show what the user is typing.
 
@@ -1623,11 +1627,15 @@ class PasswordInput(Input):
        :param bound_field: (See :class:`Input`)
     """
     input_type = 'password'
+    derived_input_attributes_class = PasswordInputDerivedAttributes
 
-    def get_wrapped_html_attributes(self, attributes):
-        attributes = super(PasswordInput, self).get_wrapped_html_attributes(attributes)
+
+class CheckBoxDerivedAttributes(DerivedInputAttributes):
+    def set_attributes(self, attributes):
+        super(CheckBoxDerivedAttributes, self).set_attributes(attributes)
         attributes.clear('value')
-        return attributes
+        if self.input_widget.value == self.input_widget.bound_field.true_value:
+            attributes.set_to('checked', 'checked')
 
 
 class CheckboxInput(Input):
@@ -1641,6 +1649,7 @@ class CheckboxInput(Input):
        :param bound_field: (See :class:`Input`)
     """
     input_type = 'checkbox'
+    derived_input_attributes_class = CheckBoxDerivedAttributes
 
     def add_validation_constraints_to_attributes(self, attributes, validation_constraints):
         applicable_constraints = ValidationConstraintList()
@@ -1648,13 +1657,7 @@ class CheckboxInput(Input):
             validation_constraint = validation_constraints.get_constraint_named('required')
             applicable_constraints.append(validation_constraint)
         super(CheckboxInput, self).add_validation_constraints_to_attributes(attributes, applicable_constraints)
-                                                   
-    def get_wrapped_html_attributes(self, attributes):
-        attributes = super(CheckboxInput, self).get_wrapped_html_attributes(attributes)
-        attributes.clear('value')
-        if self.value == self.bound_field.true_value:
-            attributes.set_to('checked', 'checked')
-        return attributes
+
 
     def get_value_from_input(self, input_values):
         if self.name in input_values:
