@@ -114,7 +114,8 @@ def wrapper_widgets(fixture):
     field = Field()
     field.bind('aname', field)
     wrapper = WrapperWidget(Form(fixture.view, 'formname'), field)
-    widget = HTMLElement(fixture.view, 'x', wrapper_widget=wrapper, attribute_source=wrapper.html_input_attributes)
+    widget = HTMLElement(fixture.view, 'x', attribute_source=wrapper.html_input_attributes)
+    wrapper.set_wrapped_html_input(widget)
     tester = WidgetTester(widget)
 
     # Case: dynamic attributes are supplied by the wrapper
