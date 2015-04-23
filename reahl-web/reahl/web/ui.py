@@ -276,10 +276,10 @@ class HTMLElement(Widget):
             attributes.add_to('class', ['reahl-priority-secondary'])
         elif self.priority == 'primary':
             attributes.add_to('class', ['reahl-priority-primary'])
-        if self.wrapper_widget:
-            attributes = self.wrapper_widget.get_wrapped_html_attributes(attributes)
         if self.attribute_source:
             self.attribute_source.set_attributes(attributes)
+        if self.wrapper_widget:
+            attributes = self.wrapper_widget.get_wrapped_html_attributes(attributes)
         return attributes
         
     def add_hash_change_handler(self):
@@ -1247,6 +1247,20 @@ class DerivedInputAttributes(object):
         return self.input_widget.validation_error.message
 
     def set_attributes(self, attributes):
+
+
+        if self.wrapped_html_input.tag_name == 'input':
+            attributes.set_to('type', self.input_widget.input_type)
+            attributes.set_to('value', self.input_widget.value)
+            attributes.set_to('form', self.input_widget.form.css_id)
+            self.input_widget.add_validation_constraints_to_attributes(attributes, self.input_widget.bound_field.validation_constraints)
+
+        if self.wrapped_html_input.tag_name == 'select':
+            attributes.set_to('form', self.input_widget.form.css_id)
+
+        attributes.set_to('name', self.input_widget.name)
+
+
         if self.has_validation_error:
             attributes.add_to('class', ['error'])
         if self.disabled:
@@ -1280,9 +1294,6 @@ class Input(Widget):
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
-
-    def add_derived_attributes(self, derived_attributes):
-        self.html_input_attributes.chain(derived_attributes)
 
     def set_wrapped_widget(self, wrapped_widget): #xxx should perhaps return the input???
         self.wrapped_widget = wrapped_widget
@@ -1325,16 +1336,7 @@ class Input(Widget):
         """Sets the HTML attributes which should be present on the HTMLElement that represents this Input
            in HTML to the user.
         """
-        if self.wrapped_html_input.tag_name == 'input':
-            attributes.set_to('type', self.input_type)
-            attributes.set_to('value', self.value)
-            attributes.set_to('form', self.form.css_id)
-            self.add_validation_constraints_to_attributes(attributes, self.bound_field.validation_constraints)
 
-        if self.wrapped_html_input.tag_name == 'select':
-            attributes.set_to('form', self.form.css_id)
-
-        attributes.set_to('name', self.name)
 
         return attributes
 
@@ -1545,7 +1547,7 @@ class SingleRadioButton(Span):
         super(SingleRadioButton, self).__init__(form.view, css_id=css_id)
         self.form = form
         self.set_attribute('class', 'reahl-radio-button')
-        button = self.add_child(HTMLElement(self.view, 'input', wrapper_widget=wrapper_widget))
+        button = self.add_child(HTMLElement(self.view, 'input', wrapper_widget=wrapper_widget, attribute_source=attribute_source))
         button.set_attribute('type', 'radio')
         button.set_attribute('value', value)
         button.set_attribute('form', form.css_id)
