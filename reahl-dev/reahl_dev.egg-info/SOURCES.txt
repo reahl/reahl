@@ -2,6 +2,7 @@
 .reahlproject
 COPYING
 LICENSE
+MANIFEST.in
 reahl
 tox.ini
 reahl/__init__.py
@@ -18,7 +19,6 @@ reahl/dev_dev/domaintests.py
 reahl/dev_dev/xmlreadertests.py
 reahl_dev.egg-info/PKG-INFO
 reahl_dev.egg-info/SOURCES.txt
-reahl_dev.egg-info/SOURCES.txt.~1~
 reahl_dev.egg-info/dependency_links.txt
 reahl_dev.egg-info/entry_points.txt
 reahl_dev.egg-info/namespace_packages.txt
