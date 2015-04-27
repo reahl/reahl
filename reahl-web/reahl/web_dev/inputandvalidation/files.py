@@ -173,7 +173,7 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
     def new_FileUploadForm(self):
         fixture = self
         class FileUploadInputStub(FileUploadInput):
-            def create_html_input(self):
+            def create_html_widget(self):
                 return FileUploadPanelStub(self)
             
         class FileUploadPanelStub(FileUploadPanel):

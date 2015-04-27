@@ -25,7 +25,7 @@ from reahl.tofu import test
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub
 
-from reahl.web.ui import Input, TextInput, Button, Form, ValidationException, \
+from reahl.web.ui import HTMLElement, Input, TextInput, Button, Form, ValidationException, \
                           LabelOverInput, CueInput, CheckboxInput, TextInput, Label, InputLabel, ButtonInput,\
                           PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
                           TextArea, SelectInput, RadioButtonInput
@@ -311,6 +311,57 @@ def basic_rendering(fixture):
         vassert( actual == '' )
     else:
         vassert( actual == fixture.expected_html )
+
+
+@test(SimpleInputFixture)
+def backwards_compatibility(fixture):
+    """We still support overriding create_html_input for backwards compatibility."""
+
+    # Case when old interface is overridden
+    class OldInput(TextInput):
+        def create_html_input(self):
+            return super(OldInput, self).create_html_widget()
+
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter('always')
+        html_input = OldInput(fixture.form, fixture.field)
+
+    vassert( caught_warnings )
+    tester = WidgetTester(html_input)
+
+    actual = tester.render_html()
+    vassert( actual ) # Something was rendered.
+
+    # Case when new interface is used
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter('always')
+        html_input = TextInput(fixture.form, fixture.field)
+    vassert( not caught_warnings )
+
+
+@test(SimpleInputFixture)
+def input_wrapped_widgets(fixture):
+    """An Input is an empty Widget; its contents are supplied by overriding its 
+       .create_html_widget() method. Several methods for setting HTML-things, like 
+       css id are delegated to this Widget which represents the Input in HTML.
+    """
+    class MyInput(Input):
+        def create_html_widget(self):
+            return HTMLElement(self.view, 'x')
+
+    test_input = MyInput(fixture.form, fixture.field)
+    tester = WidgetTester(test_input)
+
+    rendered = tester.render_html()
+    vassert( rendered == '<x>' )
+
+    test_input.set_id('myid')
+    test_input.set_title('mytitle')
+    test_input.add_to_attribute('list-attribute', ['one', 'two'])
+    test_input.set_attribute('an-attribute', 'a value')
+
+    rendered = tester.render_html()
+    vassert( rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" title="mytitle">' )
 
 
 @test(SimpleInputFixture)
