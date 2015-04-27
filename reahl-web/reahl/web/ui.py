@@ -1212,6 +1212,7 @@ class InputGroup(FieldSet):
 
 
 class DerivedInputAttributes(object):
+    """Attributes for an HTMLElement that are derived on the fly from some other source."""
     def __init__(self, input_widget):
         self.input_widget = input_widget
 
@@ -1770,7 +1771,7 @@ class Label(HTMLElement):
         return attributes
 
         
-@deprecated('Please use Label(for_input=) instead.', '3.1.1')
+@deprecated('Please use Label(for_input=) instead.', '3.2')
 class InputLabel(Label):
     """A label for the Input given in `html_input`.
 
@@ -1788,6 +1789,7 @@ class InputLabel(Label):
 
 
 
+@deprecated('Please use Label() instead, and add css class error', '3.2')
 class ErrorLabel(Label):
     def __init__(self, html_input, text=None, css_id=None):
         super(ErrorLabel, self).__init__(html_input.view, text=text, for_input=html_input, css_id=css_id)

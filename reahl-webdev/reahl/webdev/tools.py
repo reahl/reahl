@@ -469,7 +469,7 @@ class XPath(object):
 
     @classmethod
     def error_label_containing(cls, text):
-        """Returns an XPath to find an ErrorLabel containing the text in `text`."""
+        """Returns an XPath to find a Label containing the error message in `text`."""
         return cls('//label[@class="error" and contains(node(),"%s")]' % text)
 
 
