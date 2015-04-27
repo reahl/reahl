@@ -20,7 +20,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.tofu import scenario
 from reahl.tofu import test
 from reahl.tofu import vassert, expected
-from reahl.stubble import EmptyStub
+from reahl.stubble import EmptyStub, stubclass
 
 from reahl.web.ui import *
 from reahl.webdev.tools import WidgetTester
@@ -98,38 +98,25 @@ def dynamically_determining_attributes(fixture):
     rendered = tester.render_html()
     vassert( rendered == '<x dynamic="2" dynamiclist="2" fixed="value1">' )
 
-
 @test(WebFixture)
-def wrapper_widgets(fixture):
-    """Sometimes, a HTMLElement is "wrapped" by an Input which represents the HTMLElement. In this case,
-       dynamic as well as static attributes for the wrapped HTMLElement are obtained from its Input wrapper."""
+def delegating_setting_of_attributes(fixture):
+    """An HTMLElement can be created with an `attribute_source` -- an object which the HTMLElement
+       can use in order to let some other object modify or add to its attributes.
+    """
 
-    class MyInputAttributesClass(DerivedInputAttributes):
+    @stubclass(DelegatedAttributes)
+    class MyDelegatedAttributesClass(DelegatedAttributes):
         def set_attributes(self, attributes):
-            attributes.set_to('set-by-wrapper', 'rhythm and poetry')
+            attributes.set_to('set-by-external-source', 'rhythm and poetry')
 
-    class WrapperWidget(Input):
-        derived_input_attributes_class = MyInputAttributesClass
+    attribute_source = MyDelegatedAttributesClass()
 
-    field = Field()
-    field.bind('aname', field)
-    wrapper = WrapperWidget(Form(fixture.view, 'formname'), field)
-    widget = HTMLElement(fixture.view, 'x', attribute_source=wrapper.html_input_attributes)
-    wrapper.set_wrapped_html_input(widget)
+    widget = HTMLElement(fixture.view, 'x', attribute_source=attribute_source)
     tester = WidgetTester(widget)
 
     # Case: dynamic attributes are supplied by the wrapper
     rendered = tester.render_html()
-    vassert( rendered == '<x set-by-wrapper="rhythm and poetry">' )
-
-    # Case:several methods to set static attributes are delegated from the wrapper
-    wrapper.set_id('myid')
-    wrapper.set_title('mytitle')
-    wrapper.add_to_attribute('list-attribute', ['one', 'two'])
-    wrapper.set_attribute('an-attribute', 'a value')
-
-    rendered = tester.render_html()
-    vassert( rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" set-by-wrapper="rhythm and poetry" title="mytitle">' )
+    vassert( rendered == '<x set-by-external-source="rhythm and poetry">' )
 
 @test(WebFixture)
 def all_html_widgets_have_css_ids(fixture):
