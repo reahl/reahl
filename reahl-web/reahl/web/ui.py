@@ -1156,10 +1156,11 @@ class Form(HTMLElement):
         return events.pop()
        
     def get_js(self, context=None):
-        js = ['$(%s).form();' % self.jquery_selector]
-#        js = ['$(%s).validate({meta: "validate"});' % self.jquery_selector]
-#        js = ['$("#%s").validate();' % self.event_channel.name]
+        js = ['$(%s).form(%s);' % (self.jquery_selector, self.get_js_options())]
         return super(Form, self).get_js(context=context) + js 
+
+    def get_js_options(self):
+        return ''
 
     @property
     def jquery_selector(self):
