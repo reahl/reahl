@@ -20,11 +20,10 @@
 "use strict";
 
 $.widget('reahl.form', {
-    options: {
-    },
+    options: $.extend(true, {meta: 'validate'}, $.validator.defaults),
 
     _create: function() {
-        $(this.element).validate({meta: 'validate'});
+        $(this.element).validate(this.options);
     }
 });
 
