@@ -136,91 +136,117 @@ def column_clearfix(fixture):
     vassert( [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()] )  
 
 
-@test(WebFixture)
-def form(fixture):
-    from reahl.web.ui import Layout, Form, DerivedInputAttributes, Span, Label, TextInput
+class InputStateFixture(WebFixture):
+
+    @scenario
+    def valid_input(self):
+        self.input_email = 'defaulted'
+        self.validation_error_should_be_shown = False
+
+    @scenario
+    def invalid_input(self):
+        self.input_email = 'piet@home.org'
+        self.validation_error_should_be_shown = True
+
+
+@test(InputStateFixture)
+def adding_form_group(fixture):
+    """Wrap labels and controls in .form-group for optimum spacing."""
+    from reahl.web.ui import Form
+    from reahl.web.bootstrap import TextInput, FormLayout
     from reahl.component.modelinterface import EmailField, exposed
     from reahl.stubble import EmptyStub
 
-    class HelpBlock(DerivedInputAttributes):
-        def get_error_widget(self):
-            widget = Span(self.view, text=self.validation_error_message)
-            widget.append_class('help-block')
-            return widget
+    field = EmailField()
+    field.bind('field_name', EmptyStub())
 
-    class FormGroup(Div):
-        def __init__(self, view, input_widget, label_text):
-            super(FormGroup, self).__init__(view)
-            self.append_class('form-group')
+    form = Form(fixture.view, 'boots').use_layout(FormLayout())
+    text_input = TextInput(form, field)
+    form_group_widget = form.layout.add_form_group(text_input)
 
-            input_widget.html_input_attributes = HelpBlock(input_widget)
-            input_widget.append_class('form-control')
+    text_input.enter_value(fixture.input_email)
+    text_input.prepare_input()
 
-            label = Label(view, text=label_text, for_input=input_widget)
-            label.append_class('control-label')
+    [form_group_div] = form_group_widget.children
+    vassert( 'form-group' in form_group_widget.get_attribute('class')  )
 
-            self.add_child(label)
-            self.add_child(input_widget)
+    [label, html_input] = form_group_div.children
+
+    vassert( 'control-label' in label.get_attribute('class')  )
+    vassert( 'form-control' in html_input.wrapped_html_widget.get_attribute('class')  )
+    vassert( fixture.input_email in html_input.wrapped_html_widget.get_attribute('placeholder')  )
+
+    if fixture.validation_error_should_be_shown:
+        vassert( 'field_name should be a valid email address' in form_group_div.render()  )
 
 
+@test(WebFixture)
+def mixing_formgroup_with_inputgroup(fixture):
+    vassert( False )
 
-    class Horizontal(Layout):
-         def customise_widget(self):
-            self.widget.append_class('form-horizontal')
 
+@test(WebFixture)
+def adding_input_group(fixture):
+    from reahl.web.ui import Form
+    from reahl.web.bootstrap import TextInput, FormLayout
+    from reahl.component.modelinterface import EmailField, exposed
+    from reahl.stubble import EmptyStub
 
     field = EmailField()
     field.bind('field_name', EmptyStub())
-    form = Form(fixture.view, 'boots').use_layout(Horizontal())
+
+    form = Form(fixture.view, 'boots').use_layout(FormLayout())
     text_input = TextInput(form, field)
+    form_group_widget = form.layout.add_form_group(text_input, input_prepend_addon_text='$', input_append_addon_text='.00')
+
+    text_input.enter_value('some email')
+    text_input.prepare_input()
+
+    [label, input_group] = form_group_widget.children
+
+    vassert( 'input-group' in input_group.get_attribute('class')  )
+
+    [prepend_addon, html_input, append_addon ] = input_group.children
+
+    vassert( 'input-group-addon' in prepend_addon.get_attribute('class')  )
+    vassert( 'input-group-addon' in append_addon.get_attribute('class')  )
+
+
+#@test(WebFixture)
+def form(fixture):
+    from reahl.web.ui import Form
+    from reahl.web.bootstrap import TextInput, FormLayout, Button
+    from reahl.component.modelinterface import EmailField, exposed
+    from reahl.stubble import EmptyStub
+
+    field = EmailField()
+    field.bind('field_name', EmptyStub())
+
+    form = Form(fixture.view, 'boots').use_layout(FormLayout(horizontal=True))
+    text_input = TextInput(form, field)
+    form.layout.add_form_group(text_input, label_text='Email')
 
     text_input.enter_value('not an email address')
     text_input.prepare_input()
 
-    form.add_child(FormGroup(fixture.view, text_input, 'Email'))
+    expected = '<form id="boots" action="/__boots_method" data-formatter="/__boots_format_method" method="POST" class="form-horizontal reahl-form"><div class="form-group"><label for="field_name" class="control-label">Email</label><input name="field_name" form="boots" pattern="[^\s]+@[^\s]+\.[^\s]{2,4}" placeholder="not an email address" title="field_name should be a valid email address" type="text" value="not an email address" class="error form-control reahl-textinput {&quot;validate&quot;: {&quot;messages&quot;: {&quot;pattern&quot;: &quot;field_name should be a valid email address&quot;}}}"><span class="help-block">field_name should be a valid email address</span></div></form>'
+    vassert( form.render() == expected )
+    #print (form.render())
 
-    #import pdb;pdb.set_trace()
-    print (form.render())
 
-@test(WebFixture)
+#@test(WebFixture)
 def form2(fixture):
-    from reahl.web.ui import Layout, Form, DerivedInputAttributes, Span, Label, TextInput, Button
+    from reahl.web.ui import Form
+    from reahl.web.bootstrap import TextInput, FormLayout, ButtonInput
     from reahl.component.modelinterface import EmailField, exposed, Event, Action
     from reahl.stubble import EmptyStub
-
-    class HelpBlock(DerivedInputAttributes):
-        def get_error_widget(self, error_message):
-            widget = Span(self.view, text=self.validation_error_message)
-            widget.append_class('help-block')
-            return widget
-
-    class FormGroup(Div):
-        def __init__(self, view, input_widget, label_text):
-            super(FormGroup, self).__init__(view)
-            self.append_class('form-group')
-
-            input_widget.html_input_attributes = HelpBlock(input_widget)
-            input_widget.append_class('form-control')
-
-            label = Label(view, text=label_text, for_input=input_widget)
-            label.append_class('control-label')
-
-            self.add_child(label)
-            self.add_child(input_widget)
-
-
-
-    class Horizontal(Layout):
-         def customise_widget(self):
-            self.widget.append_class('form-horizontal')
-
 
     field = EmailField()
     field.bind('field_name', EmptyStub())
 
     class ModelObject(object):
         def handle_event(self):
-            pass
+            print('clicked')
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', action=Action(self.handle_event))
@@ -233,17 +259,16 @@ def form2(fixture):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
 
-            self.use_layout(Horizontal())
-            text_input = TextInput(self, field)
+            self.use_layout(FormLayout(horizontal=True))
 
-            self.add_child(FormGroup(fixture.view, text_input, 'Email'))
+            self.layout.add_form_group(TextInput(self, field), label_text='Email')
 
             self.define_event_handler(model_object.events.an_event)
-            self.add_child(Button(self, model_object.events.an_event))
+            self.add_child(ButtonInput(self, model_object.events.an_event))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
     fixture.reahl_server.set_app(wsgi_app)
     fixture.driver_browser.open('/')
 
-    #import pdb;pdb.set_trace()
+    import pdb;pdb.set_trace()
 
