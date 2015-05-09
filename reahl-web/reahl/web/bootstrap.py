@@ -157,11 +157,6 @@ class DerivedTextInputAttributes(DerivedInputAttributes):
         attributes.add_to('class', ['form-control'])
         attributes.set_to('placeholder', self.input_widget.value)
 
-    def get_error_widget(self):
-        widget = Span(self.view, text=self.validation_error_message)
-        widget.append_class('help-block')
-        return widget
-
 
 class TextInput(reahl.web.ui.TextInput):
     derived_input_attributes_class = DerivedTextInputAttributes
@@ -170,7 +165,7 @@ class TextInput(reahl.web.ui.TextInput):
 class InputGroup(Div):
     def __init__(self, view, prepend, input_widget, append, css_id=None):
         super(InputGroup, self).__init__(view, css_id=css_id)
-        self.set_attribute('class', 'input-group')
+        self.append_class('input-group')
         if prepend:
             self.add_as_addon(prepend)
         self.input_widget = self.add_child(input_widget)
@@ -187,6 +182,37 @@ class InputGroup(Div):
         return self.add_child(span)
 
 
+class FormGroup(Div):
+    def __init__(self, view, contents, label_text=None, css_id=None):
+        super(FormGroup, self).__init__(view, css_id=css_id)
+        self.append_class('form-group')
+
+        if hasattr(contents, 'input_widget'):
+            self.input_widget = contents.input_widget
+        else:
+            self.input_widget = contents
+        self.contents = contents
+        self.label_text = label_text
+        self.recreate()
+
+    def recreate(self):
+        self.clear_children()
+
+        label = self.add_child(Label(self.view, text=self.label_text, for_input=self.input_widget))
+        label.append_class('control-label')
+
+        self.add_child(self.contents)
+        self.input_widget.append_error = False
+        if self.input_widget.get_input_status() == 'invalidly_entered':
+            self.append_class('has-error')
+            span = self.add_child(Span(self.view, text=self.input_widget.validation_error_message))
+            span.append_class('help-block')
+        elif self.input_widget.get_input_status() == 'validly_entered':
+            self.append_class('has-success')
+            
+            
+
+
 class FormLayout(Layout):
     def __init__(self, inline=False, horizontal=False):
         super(FormLayout, self).__init__()
@@ -201,17 +227,6 @@ class FormLayout(Layout):
             self.widget.append_class('form-horizontal')
 
     def add_form_group(self, contents, label_text=None):
-        if hasattr(contents, 'input_widget'):
-            input_widget = contents.input_widget
-        else:
-            input_widget = contents
-        group = self.widget.add_child(Div(self.view))
-        group.append_class('form-group')
-
-        label = group.add_child(Label(self.view, text=label_text, for_input=input_widget))
-        label.append_class('control-label')
-
-        group.add_child(contents)
-        return group
+        self.widget.add_child(FormGroup(self.view, contents, label_text=label_text))
 
 

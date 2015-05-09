@@ -1252,10 +1252,6 @@ class DerivedGlobalInputAttributes(DelegatedAttributes):
         if self.disabled:
             attributes.set_to('disabled', 'disabled')
 
-    def get_error_widget(self):
-        label = Label(self.view, text=self.validation_error_message, for_input=self.input_widget)
-        label.append_class('error')
-        return label
 
 
 class DerivedInputAttributes(DerivedGlobalInputAttributes):
@@ -1308,6 +1304,7 @@ class Input(Widget):
     is_for_file = False
     is_Input = True
     derived_input_attributes_class = DerivedInputAttributes
+    append_error = True
 
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field):
@@ -1329,8 +1326,10 @@ class Input(Widget):
             html_widget = self.create_html_input()
         self.wrapped_html_widget = self.add_child(html_widget or self.create_html_widget())
 
-        if self.get_input_status() == 'invalidly_entered':
-            self.add_child(self.html_input_attributes.get_error_widget())
+        if self.append_error and (self.get_input_status() == 'invalidly_entered'):
+            label = Label(self.view, text=self.validation_error_message, for_input=self.input_widget)
+            label.append_class('error')
+            self.add_child(label)
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
