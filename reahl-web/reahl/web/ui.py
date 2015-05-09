@@ -1317,12 +1317,20 @@ class Input(Widget):
         self.html_input_attributes = self.derived_input_attributes_class(self)
 
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
+        self.recreate()
+
+    def recreate(self):
+        self.clear_children()
+        self.prepare_input()
         html_widget = None
         if (type(self) is not Input) and ('create_html_input' in type(self).__dict__):
             warnings.warn('DEPRECATED: %s. %s' % (self.create_html_input, 'Please use .create_html_widget instead.'),
                           DeprecationWarning, stacklevel=5)
             html_widget = self.create_html_input()
         self.wrapped_html_widget = self.add_child(html_widget or self.create_html_widget())
+
+        if self.get_input_status() == 'invalidly_entered':
+            self.add_child(self.html_input_attributes.get_error_widget())
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
@@ -1364,14 +1372,6 @@ class Input(Widget):
            .. versionadded: 3.2
         """
         return HTMLElement(self.view, 'input', attribute_source=self.html_input_attributes)
-
-    def render(self):
-        self.prepare_input()
-        normal_output = super(Input, self).render()
-        error_output = ''
-        if self.get_input_status() == 'invalidly_entered':
-            error_output = self.html_input_attributes.get_error_widget().render()
-        return normal_output + error_output
 
     def make_name(self, discriminator):
         return '%s%s' % (self.bound_field.variable_name, discriminator)

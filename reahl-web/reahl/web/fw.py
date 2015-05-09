@@ -968,6 +968,10 @@ class Widget(object):
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
+
+    def recreate(self):
+        for child in self.children:
+            child.recreate()
         
     @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
     def _get_charset(self):
@@ -2110,6 +2114,7 @@ class WidgetResult(MethodResult):
         self.result_widget = result_widget
 
     def render(self, return_value):
+        self.result_widget.recreate()
         result = self.result_widget.render_contents()
         js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
         result += '<script type="text/javascript">' 
