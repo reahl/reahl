@@ -1156,10 +1156,11 @@ class Form(HTMLElement):
         return events.pop()
        
     def get_js(self, context=None):
-        js = ['$(%s).form();' % self.jquery_selector]
-#        js = ['$(%s).validate({meta: "validate"});' % self.jquery_selector]
-#        js = ['$("#%s").validate();' % self.event_channel.name]
+        js = ['$(%s).form(%s);' % (self.jquery_selector, self.get_js_options())]
         return super(Form, self).get_js(context=context) + js 
+
+    def get_js_options(self):
+        return ''
 
     @property
     def jquery_selector(self):
@@ -1215,7 +1216,8 @@ class DelegatedAttributes(object):
     def set_attributes(self, attributes):
         pass
 
-class DerivedInputAttributes(DelegatedAttributes):
+
+class DerivedGlobalInputAttributes(DelegatedAttributes):
     """Attributes for an HTMLElement that are derived on the fly from some other source."""
     def __init__(self, input_widget):
         self.input_widget = input_widget
@@ -1241,34 +1243,43 @@ class DerivedInputAttributes(DelegatedAttributes):
         return self.input_widget.validation_error.message
 
     def set_attributes(self, attributes):
-
-        if self.wrapped_html_input.tag_name == 'input':
-            attributes.set_to('type', self.input_widget.input_type)
-            attributes.set_to('value', self.input_widget.value)
-            attributes.set_to('form', self.input_widget.form.css_id)
-            self.input_widget.add_validation_constraints_to_attributes(attributes, self.input_widget.bound_field.validation_constraints)
-
-        if self.wrapped_html_input.tag_name == 'select':
-            attributes.set_to('form', self.input_widget.form.css_id)
+        super(DerivedGlobalInputAttributes, self).set_attributes(attributes)
 
         attributes.set_to('name', self.input_widget.name)
 
         if self.has_validation_error:
             attributes.add_to('class', ['error'])
         if self.disabled:
-            attributes.set_to('disabled', 'disabled')   
+            attributes.set_to('disabled', 'disabled')
 
+        self.add_validation_constraints_to_attributes(attributes)
+
+    def add_validation_constraints_to_attributes(self, attributes):
+        pass
+    
     def get_error_widget(self):
         label = Label(self.view, text=self.validation_error_message, for_input=self.input_widget)
         label.append_class('error')
         return label
 
 
+class DerivedInputAttributes(DerivedGlobalInputAttributes):
+    def set_attributes(self, attributes):
+        super(DerivedInputAttributes, self).set_attributes(attributes)
+        if self.wrapped_html_input.tag_name == 'input':
+            attributes.set_to('type', self.input_widget.input_type)
+            attributes.set_to('value', self.input_widget.value)
+            attributes.set_to('form', self.input_widget.form.css_id)
+
+    def add_validation_constraints_to_attributes(self, attributes):
+        self.input_widget.add_validation_constraints_to_attributes(attributes, self.input_widget.bound_field.validation_constraints)
+
+
 class Input(Widget):
     """A Widget that proxies data between a user and the web application.
-    
+
        :param form: The :class:`Form` with which this Input is associated.
-       :param bound_field: The :class:`reahl.component.modelinterface.Field` which validates and marshalls user 
+       :param bound_field: The :class:`reahl.component.modelinterface.Field` which validates and marshalls user
                      input given via this Input.
     """
     input_type = None
@@ -1286,7 +1297,7 @@ class Input(Widget):
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
         html_widget = None
         if (type(self) is not Input) and ('create_html_input' in type(self).__dict__):
-            warnings.warn('DEPRECATED: %s. %s' % (self.create_html_input, 'Please use .create_html_widget instead.'), 
+            warnings.warn('DEPRECATED: %s. %s' % (self.create_html_input, 'Please use .create_html_widget instead.'),
                           DeprecationWarning, stacklevel=5)
             html_widget = self.create_html_input()
         self.wrapped_html_widget = self.add_child(html_widget or self.create_html_widget())
@@ -1307,11 +1318,11 @@ class Input(Widget):
         self.wrapped_html_widget.set_title(value)
 
     def add_to_attribute(self, name, values):
-        """Ensures that the value of the attribute `name` of the HTMLElement which represents this Input in 
+        """Ensures that the value of the attribute `name` of the HTMLElement which represents this Input in
            HTML to the user includes the words listed in `values` (a list of strings).
         """
         self.wrapped_html_widget.add_to_attribute(name, values)
-    
+
     def set_attribute(self, name, value):
         """Sets the value of the attribute `name` of the HTMLElement which represents this Input in HTML to the user
            to the string `value`.
@@ -1354,13 +1365,13 @@ class Input(Widget):
     @property
     def required(self):
         return self.bound_field.required
-    
+
     @property
     def value(self):
         if self.get_input_status() == 'defaulted' or self.disabled:
             return self.bound_field.as_input()
         return self.bound_field.user_input
-    
+
     @property
     def channel_name(self):
         return self.form.channel_name
@@ -1371,7 +1382,7 @@ class Input(Widget):
 
     def get_input_status(self):
         return self.bound_field.input_status
-        
+
     def add_validation_constraints_to_attributes(self, attributes, validation_constraints):
         html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue', 'remote']
         for validation_constraint in validation_constraints:
@@ -1445,7 +1456,7 @@ class Input(Widget):
         self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
 
 
-class TextAreaDerivedAttributes(DerivedInputAttributes):
+class TextAreaDerivedAttributes(DerivedGlobalInputAttributes):
     def set_attributes(self, attributes):
         super(TextAreaDerivedAttributes, self).set_attributes(attributes)
         if self.input_widget.rows:
@@ -1458,9 +1469,9 @@ class TextArea(Input):
     """A muli-line Input for plain text.
 
        .. admonition:: Styling
-    
+
           Represented in HTML as a <textarea> element.
-    
+
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
        :param rows: The number of rows that this Input should have.
@@ -1497,23 +1508,24 @@ class OptGroup(HTMLElement):
         self.set_attribute('label', label)
         for option in options:
             self.add_child(option)
-    
 
-class SelectInputDerivedAttributes(DerivedInputAttributes):
+
+class SelectInputDerivedAttributes(DerivedGlobalInputAttributes):
     def set_attributes(self, attributes):
         super(SelectInputDerivedAttributes, self).set_attributes(attributes)
+        attributes.set_to('form', self.input_widget.form.css_id)
         if self.input_widget.bound_field.allows_multiple_selections:
             attributes.set_to('multiple', 'multiple')
 
 
 class SelectInput(Input):
-    """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a dropdown 
+    """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a dropdown
        list of valid ones.
 
        .. admonition:: Styling
-       
+
           Represented in HTML as a <select> element which can contain <option> and <optgroup> children.
-    
+
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
@@ -1557,16 +1569,19 @@ class SingleRadioButton(Span):
 class RadioButtonInput(Input):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a list of valid ones
        shown as radio buttons.
-       
+
        .. admonition:: Styling
-       
+
           Represented in HTML as a <div class="reahl-radio-button-input"> element which
           contains an <input type="radio">, wrapped in a <span class="reahl-radio-button"> for each valid
           :class:`reahl.component.modelinterface.Choice`.
-    
+
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
+
+    derived_input_attributes_class = DerivedGlobalInputAttributes
+
     def create_html_widget(self):
         outer_div = Panel(self.view)
         outer_div.set_attribute('class', 'reahl-radio-button-input')
@@ -1578,19 +1593,19 @@ class RadioButtonInput(Input):
     def get_value_from_input(self, input_values):
         return input_values.get(self.name, '')
 
-    
+
 # Uses: reahl/web/reahl.textinput.js
 class TextInput(Input):
     """A single line Input for typing plain text.
 
        .. admonition:: Styling
-    
+
           Represented in HTML by an <input type="text" class="reahl-textinput"> element.
-    
+
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
        :param fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
-                     when a user is allowed to type almost free-form input for structured types of input, 
+                     when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
                      such "fuzzy input". If fuzzy=True, the typed value will be changed on the fly to
                      the system's interpretation of what the user originally typed as soon as the TextInput
@@ -1600,7 +1615,7 @@ class TextInput(Input):
     def __init__(self, form, bound_field, fuzzy=False):
         super(TextInput, self).__init__(form, bound_field)
         self.append_class('reahl-textinput')
-        
+
         if fuzzy:
             self.append_class('fuzzy')
 
@@ -1619,9 +1634,9 @@ class PasswordInput(Input):
     """A PasswordInput is a single line text input, but it does not show what the user is typing.
 
        .. admonition:: Styling
-    
+
           Represented in HTML by a <input type="password"> element.
-    
+
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
@@ -1638,10 +1653,10 @@ class CheckBoxDerivedAttributes(DerivedInputAttributes):
 
 
 class CheckboxInput(Input):
-    """A checkbox. 
-    
+    """A checkbox.
+
        .. admonition:: Styling
-          
+
           Represented in HTML by an <input type="checkbox"> element.
 
        :param form: (See :class:`Input`)
@@ -1679,7 +1694,7 @@ class ButtonInput(Input):
 
     def is_event(self, input_name):
         return input_name.find('?') > 0
-    
+
     def canonicalise_input(self, input_name):
         [name_part, query_part] = input_name.split('?')
         if self.name.startswith('%s?' % name_part):
@@ -1687,9 +1702,9 @@ class ButtonInput(Input):
             canonical_input = self.bound_field.unparse_input(self.bound_field.parse_input(incoming_arguments))
             return '%s%s' % (name_part, canonical_input)
         return None
- 
+
     def get_value_from_input(self, input_values):
-        canonicalised_inputs = [self.canonicalise_input(i) for i in input_values.keys() 
+        canonicalised_inputs = [self.canonicalise_input(i) for i in input_values.keys()
                                                            if self.is_event(i)]
 
         if self.name in canonicalised_inputs:
@@ -1707,7 +1722,7 @@ class ButtonInput(Input):
     @property
     def label(self):
         return self.bound_field.label
-        
+
     @property
     def value(self):
         return self.label
@@ -1716,19 +1731,19 @@ class ButtonInput(Input):
         if self.bound_field.occurred:
             return self.bound_field
         return None
-   
+
 
 class Button(Span):
-    """A button. 
+    """A button.
 
        .. admonition:: Styling
-    
+
           Represented in HTML by an <input type="submit"> element, wrapped in a <span class="reahl-button">.
-    
+
        :param form: (See :class:`Input`)
        :param event: The :class:`reahl.web.fw.Event` that will fire when the user clicks on this ButtonInput.
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     def __init__(self, form, event, css_id=None):
         super(Button, self).__init__(form.view, css_id=css_id)
@@ -1747,14 +1762,14 @@ class Label(HTMLElement):
        If `for_input` is given, the Label will only be visible if for_input is visible.
 
        .. admonition:: Styling
-    
+
           Rendered as an HTML <label> element.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword text: If given, used as the text for the label.
        :keyword for_input: If given, the :class:`Input` to which this Label applies (its `.label` is also used as text).
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
        .. versionchanged:: 3.1.1
           Added the for_input keyword argument.
     """
@@ -1778,19 +1793,19 @@ class Label(HTMLElement):
             attributes.set_to('for', self.for_input.name)
         return attributes
 
-        
+
 @deprecated('Please use Label(for_input=) instead.', '3.2')
 class InputLabel(Label):
     """A label for the Input given in `html_input`.
 
        .. admonition:: Styling
-    
+
           Rendered as an HTML <label> element.
 
        :param html_input: The :class:`Input` labelled by this Label.
        :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     def __init__(self, html_input, text=None, css_id=None):
         super(InputLabel, self).__init__(html_input.view, text=text, for_input=html_input, css_id=css_id)
@@ -1805,13 +1820,13 @@ class ErrorLabel(Label):
        the specific validation error message.
 
        .. admonition:: Styling
-       
+
           Rendered as an HTML <label class="error"> element.
 
        :param html_input: The :class:`Input` labelled by this Label.
        :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     @property
     def attributes(self):
@@ -1823,11 +1838,11 @@ class ErrorLabel(Label):
 # Uses: reahl/web/reahl.labelledinput.css
 class LabelledInlineInput(Span):
     """A Widget that wraps around a given Input, adding a Label to the Input. Adheres to text flow.
-    
+
        .. admonition:: Styling
-    
+
           Rendered as a <span class="reahl-labelledinput"> containing the <label> followed by
-          another <span> which contains the `html_input`. If the current input is not valid, it will also have 
+          another <span> which contains the `html_input`. If the current input is not valid, it will also have
           class reahl-state-error.
 
        :param html_input: (See :class:`InputLabel`)
@@ -1859,13 +1874,13 @@ class LabelledInlineInput(Span):
 # Uses: reahl/web/reahl.labelledinput.css
 class LabelledBlockInput(Panel):
     """A Widget that wraps around a given Input, adding a Label to the Input. Labels and their corresponding Inputs
-       are arranged in columns. Successive LabelledBlockInputs are positioned underneath one another. This has the 
+       are arranged in columns. Successive LabelledBlockInputs are positioned underneath one another. This has the
        effect that the Labels and Inputs of successive LabelledBlockInputs line up.
-    
+
        .. admonition:: Styling
-       
+
           Rendered as a <div class="reahl-labelledinput"> containing two <div> elements: one with the Label
-          in it, and the other with `html_input` itself. If the current input is not valid, it will also have 
+          in it, and the other with `html_input` itself. If the current input is not valid, it will also have
           class reahl-state-error.
 
        :param html_input: (See :class:`InputLabel`)
@@ -1875,7 +1890,7 @@ class LabelledBlockInput(Panel):
         view = html_input.view
         super(LabelledBlockInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
-        
+
         if YuiGridsCss.is_enabled():
             self.append_class('yui-g')
             self.label_part = self.add_child(YuiUnit(view, first=True))
@@ -1888,7 +1903,7 @@ class LabelledBlockInput(Panel):
 
         self.label = self.label_part.add_child(Label(self.view, for_input=html_input))
         self.input_part.add_child(html_input)
-            
+
     @property
     def visible(self):
         return self.html_input.visible
@@ -1904,17 +1919,17 @@ class LabelledBlockInput(Panel):
 
 # Uses: reahl/web/reahl.cueinput.js
 class CueInput(Panel):
-    """A Widget that wraps around a given Input, adding a Label to the Input and a "cue" - a hint that 
+    """A Widget that wraps around a given Input, adding a Label to the Input and a "cue" - a hint that
        appears only when the Input has focus. The intention of the cue is to give the user a hint as to
        what to input into the Input.
-       
+
        Successive CueInputs are arranged underneath each other, with their labels, Inputs and Cue's lined up.
-    
+
        .. admonition:: Styling
-       
+
           Rendered as a <div class="reahl-cueinput reahl-labelledinput"> containing two <div> elements: one with the Label
-          in it, and the other with two more <div> elements. The first of these contains the `html_input` itself. The 
-          last contains the `cue_widget`. If the current input is not valid, it will also have 
+          in it, and the other with two more <div> elements. The first of these contains the `html_input` itself. The
+          last contains the `cue_widget`. If the current input is not valid, it will also have
           class reahl-state-error.
 
        :param html_input: (See :class:`InputLabel`)
@@ -1943,8 +1958,8 @@ class CueInput(Panel):
         self.cue_part.append_class('reahl-cue')
         self.cue_part.add_child(cue_widget)
         cue_widget.set_attribute('hidden', 'true')
-        
-    
+
+
     @property
     def visible(self):
         return self.html_input.visible
@@ -1966,12 +1981,12 @@ class CueInput(Panel):
 # Uses: reahl/web/reahl.labeloverinput.js
 # Uses: reahl/web/reahl.labeloverinput.css
 class LabelOverInput(LabelledInlineInput):
-    """A :class:`LabelledInlineWidget` that shows the Label superimposed over the Input itself. 
+    """A :class:`LabelledInlineWidget` that shows the Label superimposed over the Input itself.
        The label is only visible while the Input is empty.
-    
+
        .. admonition:: Styling
-       
-          Rendered like a :class:`LabelledInlineWidget` with reahl-labeloverinput appended to the class 
+
+          Rendered like a :class:`LabelledInlineWidget` with reahl-labeloverinput appended to the class
           of the containing <div> element.
 
        :param html_input: (See :class:`InputLabel`)
@@ -1982,7 +1997,7 @@ class LabelOverInput(LabelledInlineInput):
         attributes = super(LabelOverInput, self).attributes
         attributes.add_to('class', ['reahl-labeloverinput'])
         return attributes
-        
+
     def make_label(self, for_input):
         class AutoHideLabel(Label):
             @property
@@ -2000,19 +2015,19 @@ class LabelOverInput(LabelledInlineInput):
 
 class MenuItem(Li):
     """One item in a Menu.
-    
+
        .. admonition:: Styling
-       
+
           Rendered as a <li> element. When active, includes class="active".
 
        Normally, a programmer would not instantiate this class directly, rather use :meth:`MenuItem.from_bookmark`.
-       
+
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a: The :class:`A` to use as link.
        :keyword active_regex: If the href of `a` matches this regex, the MenuItem is deemed active.
        :keyword exact_match: (See :meth:`reahl.web.fw.Url.is_currently_active`)
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     @classmethod
     def from_bookmark(cls, view, bookmark, active_regex=None):
@@ -2023,7 +2038,7 @@ class MenuItem(Li):
           :param active_regex: (See :class:`MenuItem`)
         """
         return cls(view, A.from_bookmark(view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
-    
+
     def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
         super(MenuItem, self).__init__(view, css_id=css_id)
         self.exact_match = exact_match
@@ -2046,16 +2061,16 @@ class MenuItem(Li):
 
 class SubMenu(MenuItem):
     """A MenuItem that can contain another complete Menu itself.
-    
+
        .. admonition:: Styling
-       
+
           Rendered as a <li> element that contains a :class:`Menu` (see the latter for how it is rendered).
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param title: Text to use as a title for this SubMenu.
        :param menu: The :class:`Menu` contained inside this SubMenu.
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     def __init__(self, view, title, menu, css_id=None):
         super(SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id)
@@ -2067,13 +2082,13 @@ class Menu(Ul):
     """A visual menu that lists a number of Views to which the user can choose to go to.
 
        .. admonition:: Styling
-       
+
           Rendered as a <ul class="reahl-menu"> element that contains a <li> for each MenuItem.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: A list of :class:`A` instances to which each :class:`MenuItem` will lead.
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     @classmethod
     def from_languages(cls, view):
@@ -2121,14 +2136,14 @@ class Menu(Ul):
 
 
 class HorizontalLayout(Layout):
-    """A Layout that causes Widgets to be displayed horizontally. 
-    
+    """A Layout that causes Widgets to be displayed horizontally.
+
        .. admonition:: Styling
-       
+
           Adds class reahl-horizontal to its Widget.
-          
+
        (Only works for :class:`Menu` and subclasses.)
-    
+
     """
     def customise_widget(self):
         self.widget.append_class('reahl-horizontal')
@@ -2136,13 +2151,13 @@ class HorizontalLayout(Layout):
 
 class VerticalLayout(Layout):
     """A Layout that causes Widgets to be displayed vertically.
-    
+
        .. admonition:: Styling
-       
+
           Adds class reahl-vertical to its Widget.
-          
+
        (Only works for :class:`Menu` and subclasses.)
-    
+
     """
     def customise_widget(self):
         self.widget.append_class('reahl-vertical')
@@ -2154,13 +2169,13 @@ class HMenu(Menu):
     """A Menu, with items displayed next to each other.
 
        .. admonition:: Styling
-       
+
           Rendered as a <ul class="reahl-menu reahl-horizontal">
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: (See :class:`Menu`)
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     @property
     def attributes(self):
@@ -2174,13 +2189,13 @@ class VMenu(Menu):
     """A Menu, with items displayed underneath each other.
 
        .. admonition:: Styling
-       
+
           Rendered as a <ul class="reahl-menu reahl-vertical">
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: (See :class:`Menu`)
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     @property
     def attributes(self):
@@ -2193,7 +2208,7 @@ class Tab(MenuItem):
     """One Tab in a :class:`TabbedPanel`.
 
        .. admonition:: Styling
-       
+
           Rendered like a :class:`MenuItem`, with the <a> containing `title`.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
@@ -2201,7 +2216,7 @@ class Tab(MenuItem):
        :param tab_key: A name for this tag identifying it uniquely amongst other Tabs in the same :class:`TabbedPanel`.
        :param contents_factory: A :class:`WidgetFactory` specifying how to create the contents of this Tab, once selected.
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
         self.title = title
@@ -2210,7 +2225,7 @@ class Tab(MenuItem):
         self.force_active = False
         a = A.from_bookmark(view, self.get_bookmark())
         super(Tab, self).__init__(view, a, css_id=css_id)
-        
+
     def get_bookmark(self):
         query_arguments={'tab': self.tab_key}
         return Bookmark('', '', description=self.title, query_arguments=query_arguments, ajax=True)
@@ -2228,7 +2243,7 @@ class MultiTab(Tab):
        results in a dropdown menu with more choices for the user.
 
        .. admonition:: Styling
-       
+
           Rendered like a :class:`Tab`, but with more contents. The usual <a> containing the title
           is followed by an &nbsp; and an <a class="dropdown-handle">. This is followed by a
           normal :class:`VMenu`.
@@ -2238,7 +2253,7 @@ class MultiTab(Tab):
        :param tab_key: (See :class:`Tab`)
        :param contents_factory: (See :class:`Tab`)
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
         self.tab_key = tab_key
@@ -2248,17 +2263,17 @@ class MultiTab(Tab):
         dropdown_handle = self.add_child(A(view, None, description='▼'))
         dropdown_handle.append_class('dropdown-handle')
         self.menu = self.add_child(Menu(view, []).use_layout(VerticalLayout()))
-    
+
     def add_tab(self, tab):
         self.menu.add_item(tab)
 
     @property
     def first_tab(self):
         return self.menu.menu_items[0]
-        
+
     @property
     def current_sub_tab(self):
-        active_tab = [tab for tab in self.menu.menu_items 
+        active_tab = [tab for tab in self.menu.menu_items
                       if tab.is_active]
         if len(active_tab) == 1:
             return active_tab[0]
@@ -2281,10 +2296,10 @@ class TabbedPanel(Panel):
     """A Panel sporting different Tabs which the user can select to change what is displayed. The contents
        of a TabbedPanel are changed when the user clicks on a different Tab without refreshing the entire
        page, provided that JavaScript is available on the user agent.
-    
+
        .. admonition:: Styling
 
-          Rendered as a <div class="reahl-tabbedpanel"> which contains two children: an :class:`HMenu` 
+          Rendered as a <div class="reahl-tabbedpanel"> which contains two children: an :class:`HMenu`
           containing instances of :class:`Tab` for MenuItems, followed by a <div> that will be populated
           by the current contents of the TabbedPanel.
 
@@ -2305,7 +2320,7 @@ class TabbedPanel(Panel):
     @property
     def active_tab_set(self):
         return self.tab is not None
-        
+
     def set_active(self, tab):
         tab.force_active = True
         self.tab = tab.tab_key
@@ -2328,7 +2343,7 @@ class SlidingPanel(Panel):
        next or previous Panel. Advancing is done by visually sliding in the direction indicated
        by the user if JavaScript is available. The panels advance once every 10 seconds if no
        user action is detected.
-    
+
        .. admonition:: Styling
 
           Rendered as a <div class="reahl-slidingpanel"> which contains three children: a <div class="viewport">
@@ -2336,7 +2351,7 @@ class SlidingPanel(Panel):
           labels passed as `next` and `prev` are embedded in <span> tags inside the <a> tags.
           The :class:`Panel` instances added to the :class:`SlidingPanel` are marked with a ``class="contained"``.
 
-          For a SlidingPanel to function property, you need to specify a height and width to 
+          For a SlidingPanel to function property, you need to specify a height and width to
           ``div.reahl-slidingpanel div.viewport``.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
@@ -2376,16 +2391,16 @@ class SlidingPanel(Panel):
             return self.max_panel_index
         return self.index-1
 
-    @property    
+    @property
     def next_index(self):
         if self.index == self.max_panel_index:
             return 0
         return self.index+1
-        
+
     def get_bookmark(self, index=None, description=None):
         description = ('%s' % index) if description is None else description
         return Bookmark.for_widget(description, query_arguments={'index': index})
-        
+
     @exposed
     def query_fields(self, fields):
         fields.index = IntegerField(required=False, default=0)
@@ -2397,6 +2412,17 @@ class SlidingPanel(Panel):
     @property
     def jquery_selector(self):
         return '".reahl-slidingpanel"'
+
+
+class FileInputAttributes(DerivedInputAttributes):
+    def set_attributes(self, attributes):
+        super(FileInputAttributes, self).set_attributes(attributes)
+        if self.allow_multiple:
+            self.wrapped_html_input.set_attribute('multiple', 'multiple')
+
+    @property
+    def allow_multiple(self):
+        return self.input_widget.bound_field.allow_multiple
 
 
 class SimpleFileInput(Input):
@@ -2413,11 +2439,7 @@ class SimpleFileInput(Input):
     """
     input_type = 'file'
     is_for_file = True
-    def create_html_widget(self):
-        add_file = HTMLElement(self.view, 'input', attribute_source=self.html_input_attributes)
-        if self.bound_field.allow_multiple:
-            add_file.set_attribute('multiple', 'multiple')
-        return add_file
+    derived_input_attributes_class = FileInputAttributes
 
     def get_value_from_input(self, input_values):
         field_storages = input_values.getall(self.name)

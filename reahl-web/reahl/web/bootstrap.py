@@ -23,14 +23,40 @@ Widgets and Layouts that provide an abstraction on top of Bootstrap (http://getb
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import six
+
 from collections import OrderedDict
 import copy
 
 from reahl.web.fw import Layout
-from reahl.web.ui import Div, Header, Footer, Slot, HTML5Page
+from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, Span, TextInput, Label, TextNode
+
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
 
+
+
+class Form(reahl.web.ui.Form):
+    def get_js_options(self):
+        return '''
+        {
+            errorElement: 'span',
+            errorClass: 'help-block',
+            highlight: function(element) {
+                $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+            },
+            unhighlight: function(element) {
+                $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+            },
+            errorPlacement: function (error, element) {
+                if (element.parent('.input-group').length || element.prop('type') === 'checkbox' || element.prop('type') === 'radio') {
+                    error.insertAfter(element.parent());
+                } else {
+                    error.insertAfter(element);
+                }
+            }
+         }
+    '''
 
 
 class Container(Layout):
@@ -121,4 +147,71 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
 
         self.added_sizes.append(column_size)
         return column
+
+
+
+class DerivedTextInputAttributes(DerivedInputAttributes):
+
+    def set_attributes(self, attributes):
+        super(DerivedTextInputAttributes, self).set_attributes(attributes)
+        attributes.add_to('class', ['form-control'])
+        attributes.set_to('placeholder', self.input_widget.value)
+
+    def get_error_widget(self):
+        widget = Span(self.view, text=self.validation_error_message)
+        widget.append_class('help-block')
+        return widget
+
+
+class TextInput(reahl.web.ui.TextInput):
+    derived_input_attributes_class = DerivedTextInputAttributes
+
+
+class InputGroup(Div):
+    def __init__(self, view, prepend, input_widget, append, css_id=None):
+        super(InputGroup, self).__init__(view, css_id=css_id)
+        self.set_attribute('class', 'input-group')
+        if prepend:
+            self.add_as_addon(prepend)
+        self.input_widget = self.add_child(input_widget)
+        if append:
+            self.add_as_addon(append)
+
+    def add_as_addon(self, addon):
+        if isinstance(addon, six.string_types):
+            span = Span(self.view, text=addon)
+        else:
+            span = Span(self.view)
+            span.add_child(addon)
+        span.append_class('input-group-addon')
+        return self.add_child(span)
+
+
+class FormLayout(Layout):
+    def __init__(self, inline=False, horizontal=False):
+        super(FormLayout, self).__init__()
+        assert not (inline and horizontal), 'Cannot set both inline and horizontal'
+        self.inline = inline
+        self.horizontal = horizontal
+
+    def customise_widget(self):
+        if self.inline:
+            self.widget.append_class('form-inline')
+        elif self.horizontal:
+            self.widget.append_class('form-horizontal')
+
+    def add_form_group(self, contents, label_text=None):
+        if hasattr(contents, 'input_widget'):
+            input_widget = contents.input_widget
+        else:
+            input_widget = contents
+        group = self.widget.add_child(Div(self.view))
+        group.append_class('form-group')
+
+        label = group.add_child(Label(self.view, text=label_text, for_input=input_widget))
+        label.append_class('control-label')
+
+        group.add_child(contents)
+        return group
+
 
