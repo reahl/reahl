@@ -30,7 +30,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.ui import Div, P, HTML5Page, Header, Footer
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
-from reahl.web.bootstrap import ColumnLayout, ResponsiveSize
+from reahl.web.bootstrap import ColumnLayout, ResponsiveSize, InputGroup
 
 
 
@@ -152,7 +152,7 @@ class InputStateFixture(WebFixture):
 @test(InputStateFixture)
 def adding_form_group(fixture):
     """Wrap labels and controls in .form-group for optimum spacing."""
-    from reahl.web.ui import Form
+    from reahl.web.bootstrap import Form
     from reahl.web.bootstrap import TextInput, FormLayout
     from reahl.component.modelinterface import EmailField, exposed
     from reahl.stubble import EmptyStub
@@ -187,7 +187,7 @@ def mixing_formgroup_with_inputgroup(fixture):
 
 @test(WebFixture)
 def adding_input_group(fixture):
-    from reahl.web.ui import Form
+    from reahl.web.bootstrap import Form
     from reahl.web.bootstrap import TextInput, FormLayout
     from reahl.component.modelinterface import EmailField, exposed
     from reahl.stubble import EmptyStub
@@ -197,7 +197,7 @@ def adding_input_group(fixture):
 
     form = Form(fixture.view, 'boots').use_layout(FormLayout())
     text_input = TextInput(form, field)
-    form_group_widget = form.layout.add_form_group(text_input, input_prepend_addon_text='$', input_append_addon_text='.00')
+    form_group_widget = form.layout.add_form_group(InputGroup(fixture.view, '$', text_input, '.00'))
 
     text_input.enter_value('some email')
     text_input.prepare_input()
@@ -212,10 +212,10 @@ def adding_input_group(fixture):
     vassert( 'input-group-addon' in append_addon.get_attribute('class')  )
 
 
-#@test(WebFixture)
+@test(WebFixture)
 def form(fixture):
-    from reahl.web.ui import Form
-    from reahl.web.bootstrap import TextInput, FormLayout, Button
+    from reahl.web.bootstrap import Form
+    from reahl.web.bootstrap import TextInput, FormLayout
     from reahl.component.modelinterface import EmailField, exposed
     from reahl.stubble import EmptyStub
 
@@ -229,15 +229,16 @@ def form(fixture):
     text_input.enter_value('not an email address')
     text_input.prepare_input()
 
-    expected = '<form id="boots" action="/__boots_method" data-formatter="/__boots_format_method" method="POST" class="form-horizontal reahl-form"><div class="form-group"><label for="field_name" class="control-label">Email</label><input name="field_name" form="boots" pattern="[^\s]+@[^\s]+\.[^\s]{2,4}" placeholder="not an email address" title="field_name should be a valid email address" type="text" value="not an email address" class="error form-control reahl-textinput {&quot;validate&quot;: {&quot;messages&quot;: {&quot;pattern&quot;: &quot;field_name should be a valid email address&quot;}}}"><span class="help-block">field_name should be a valid email address</span></div></form>'
-    vassert( form.render() == expected )
-    #print (form.render())
+    expected_html = '<form id="boots" action="/__boots_method" data-formatter="/__boots_format_method" method="POST" class="form-horizontal reahl-form"><div class="form-group"><label for="field_name" class="control-label">Email</label><input name="field_name" form="boots" pattern="[^\s]+@[^\s]+\.[^\s]{2,4}" placeholder="not an email address" title="field_name should be a valid email address" type="text" value="not an email address" class="error form-control reahl-textinput {&quot;validate&quot;: {&quot;messages&quot;: {&quot;pattern&quot;: &quot;field_name should be a valid email address&quot;}}}"><span class="help-block">field_name should be a valid email address</span></div></form>'
+    print (form.render())
+    vassert( form.render() == expected_html )
 
 
-#@test(WebFixture)
+
+@test(WebFixture)
 def form2(fixture):
-    from reahl.web.ui import Form
-    from reahl.web.bootstrap import TextInput, FormLayout, ButtonInput
+    from reahl.web.bootstrap import Form
+    from reahl.web.bootstrap import TextInput, FormLayout
     from reahl.component.modelinterface import EmailField, exposed, Event, Action
     from reahl.stubble import EmptyStub
 
@@ -264,7 +265,7 @@ def form2(fixture):
             self.layout.add_form_group(TextInput(self, field), label_text='Email')
 
             self.define_event_handler(model_object.events.an_event)
-            self.add_child(ButtonInput(self, model_object.events.an_event))
+#            self.add_child(ButtonInput(self, model_object.events.an_event))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
     fixture.reahl_server.set_app(wsgi_app)
