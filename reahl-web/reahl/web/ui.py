@@ -1252,11 +1252,6 @@ class DerivedGlobalInputAttributes(DelegatedAttributes):
         if self.disabled:
             attributes.set_to('disabled', 'disabled')
 
-        self.add_validation_constraints_to_attributes(attributes)
-
-    def add_validation_constraints_to_attributes(self, attributes):
-        pass
-    
     def get_error_widget(self):
         label = Label(self.view, text=self.validation_error_message, for_input=self.input_widget)
         label.append_class('error')
@@ -1271,8 +1266,35 @@ class DerivedInputAttributes(DerivedGlobalInputAttributes):
             attributes.set_to('value', self.input_widget.value)
             attributes.set_to('form', self.input_widget.form.css_id)
 
+        self.add_validation_constraints_to_attributes(attributes)
+
+    @property
+    def form(self):
+        return self.input_widget.form
+
     def add_validation_constraints_to_attributes(self, attributes):
-        self.input_widget.add_validation_constraints_to_attributes(attributes, self.input_widget.bound_field.validation_constraints)
+        validation_constraints = self.input_widget.validation_constraints_to_render()
+        html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue', 'remote']
+        for validation_constraint in validation_constraints:
+            if validation_constraint.is_remote:
+                attributes.set_to(validation_constraint.name, six.text_type(self.form.field_validator.get_url()))
+            elif validation_constraint.name in html5_validations:
+                attributes.set_to(validation_constraint.name, validation_constraint.parameters)
+            elif validation_constraint.name != '':
+                attributes.set_to('data-%s' % validation_constraint.name, validation_constraint.parameters)
+        def map_name(name):
+            if name in html5_validations:
+                return name
+            else:
+                return 'data-%s' % name
+        error_messages = validation_constraints.as_json_messages(map_name, ['', RemoteConstraint.name])
+        if error_messages:
+            attributes.add_to('class', [error_messages])
+        try:
+            title = validation_constraints.get_constraint_named('pattern').message
+            attributes.set_to('title', validation_constraints.get_constraint_named('pattern').message)
+        except ConstraintNotFound:
+            pass
 
 
 class Input(Widget):
@@ -1383,28 +1405,8 @@ class Input(Widget):
     def get_input_status(self):
         return self.bound_field.input_status
 
-    def add_validation_constraints_to_attributes(self, attributes, validation_constraints):
-        html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue', 'remote']
-        for validation_constraint in validation_constraints:
-            if validation_constraint.is_remote:
-                attributes.set_to(validation_constraint.name, six.text_type(self.form.field_validator.get_url()))
-            elif validation_constraint.name in html5_validations:
-                attributes.set_to(validation_constraint.name, validation_constraint.parameters)
-            elif validation_constraint.name != '':
-                attributes.set_to('data-%s' % validation_constraint.name, validation_constraint.parameters)
-        def map_name(name):
-            if name in html5_validations:
-                return name
-            else:
-                return 'data-%s' % name
-        error_messages = validation_constraints.as_json_messages(map_name, ['', RemoteConstraint.name])
-        if error_messages:
-            attributes.add_to('class', [error_messages])
-        try:
-            title = validation_constraints.get_constraint_named('pattern').message
-            attributes.set_to('title', validation_constraints.get_constraint_named('pattern').message)
-        except ConstraintNotFound:
-            pass
+    def validation_constraints_to_render(self):
+        return self.bound_field.validation_constraints
 
     def validate_input(self, input_values):
         value = self.get_value_from_input(input_values)
@@ -1665,13 +1667,13 @@ class CheckboxInput(Input):
     input_type = 'checkbox'
     derived_input_attributes_class = CheckBoxDerivedAttributes
 
-    def add_validation_constraints_to_attributes(self, attributes, validation_constraints):
+    def validation_constraints_to_render(self):
         applicable_constraints = ValidationConstraintList()
         if self.required:
+            validation_constraints = super(CheckboxInput, self).validation_constraints_to_render()
             validation_constraint = validation_constraints.get_constraint_named('required')
             applicable_constraints.append(validation_constraint)
-        super(CheckboxInput, self).add_validation_constraints_to_attributes(attributes, applicable_constraints)
-
+        return applicable_constraints
 
     def get_value_from_input(self, input_values):
         if self.name in input_values:
