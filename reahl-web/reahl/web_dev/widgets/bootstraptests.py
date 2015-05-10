@@ -30,7 +30,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.ui import Div, P, HTML5Page, Header, Footer
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
-from reahl.web.bootstrap import ColumnLayout, ResponsiveSize, InputGroup
+from reahl.web.bootstrap import ColumnLayout, ResponsiveSize, InputGroup, Button
 
 
 
@@ -260,12 +260,14 @@ def form2(fixture):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
 
+            self.append_class('container')
+            self.set_attribute('novalidate', 'novalidate')
             self.use_layout(FormLayout(horizontal=True))
 
             self.layout.add_form_group(TextInput(self, field), label_text='Email')
 
             self.define_event_handler(model_object.events.an_event)
-#            self.add_child(ButtonInput(self, model_object.events.an_event))
+            self.add_child(Button(self, model_object.events.an_event))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
     fixture.reahl_server.set_app(wsgi_app)
