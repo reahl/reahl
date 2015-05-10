@@ -29,7 +29,7 @@ from collections import OrderedDict
 import copy
 
 from reahl.web.fw import Layout
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, Span, TextInput, Label, TextNode
+from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, Span, TextInput, Label, TextNode, ButtonInput
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
@@ -159,6 +159,7 @@ class DerivedTextInputAttributes(DerivedInputAttributes):
 
 
 class TextInput(reahl.web.ui.TextInput):
+    append_error = False
     derived_input_attributes_class = DerivedTextInputAttributes
 
 
@@ -202,10 +203,9 @@ class FormGroup(Div):
         label.append_class('control-label')
 
         self.add_child(self.contents)
-        self.input_widget.append_error = False
         if self.input_widget.get_input_status() == 'invalidly_entered':
             self.append_class('has-error')
-            span = self.add_child(Span(self.view, text=self.input_widget.validation_error_message))
+            span = self.add_child(Span(self.view, text=self.input_widget.validation_error.message))
             span.append_class('help-block')
         elif self.input_widget.get_input_status() == 'validly_entered':
             self.append_class('has-success')
@@ -230,3 +230,7 @@ class FormLayout(Layout):
         self.widget.add_child(FormGroup(self.view, contents, label_text=label_text))
 
 
+class Button(ButtonInput):
+    def __init__(self, form, event):
+        super(Button, self).__init__(form, event)
+        self.append_class('btn')

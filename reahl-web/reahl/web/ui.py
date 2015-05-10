@@ -1238,10 +1238,6 @@ class DerivedGlobalInputAttributes(DelegatedAttributes):
     def view(self):
         return self.input_widget.view
         
-    @property
-    def validation_error_message(self):
-        return self.input_widget.validation_error.message
-
     def set_attributes(self, attributes):
         super(DerivedGlobalInputAttributes, self).set_attributes(attributes)
 
@@ -1257,11 +1253,9 @@ class DerivedGlobalInputAttributes(DelegatedAttributes):
 class DerivedInputAttributes(DerivedGlobalInputAttributes):
     def set_attributes(self, attributes):
         super(DerivedInputAttributes, self).set_attributes(attributes)
-        if self.wrapped_html_input.tag_name == 'input':
-            attributes.set_to('type', self.input_widget.input_type)
-            attributes.set_to('value', self.input_widget.value)
-            attributes.set_to('form', self.input_widget.form.css_id)
-
+        attributes.set_to('type', self.input_widget.input_type)
+        attributes.set_to('value', self.input_widget.value)
+        attributes.set_to('form', self.input_widget.form.css_id)
         self.add_validation_constraints_to_attributes(attributes)
 
     @property
@@ -1327,7 +1321,7 @@ class Input(Widget):
         self.wrapped_html_widget = self.add_child(html_widget or self.create_html_widget())
 
         if self.append_error and (self.get_input_status() == 'invalidly_entered'):
-            label = Label(self.view, text=self.validation_error_message, for_input=self.input_widget)
+            label = Label(self.view, text=self.validation_error.message, for_input=self)
             label.append_class('error')
             self.add_child(label)
 
