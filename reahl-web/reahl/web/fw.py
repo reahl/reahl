@@ -239,9 +239,24 @@ class Url(object):
         return other_values == self_args
 
 
+class InternalRedirect(Exception):
+    commit = True
+    def __init__(self, return_value, exception):
+        super(Exception, self).__init__()
+        self.return_value = return_value
+        self.exception = exception
+
+    def get_response(self, result):
+        if self.exception:
+            return result.get_exception_response(self.exception)
+        else:
+            return result.get_response(self.return_value)
+
+
 class WebExecutionContext(ExecutionContext):
     def set_request(self, request):
         self.request = request
+        self.internal_redirect = None
 
     def initialise_web_session(self):
         with self:
@@ -255,7 +270,12 @@ class WebExecutionContext(ExecutionContext):
                     self.initialise_web_session()
                 try:
                     resource = wsgi_app.resource_for(self.request)
-                    response = resource.handle_request(self.request) 
+                    try:
+                        response = resource.handle_request(self.request) 
+                    except InternalRedirect as e:
+                        self.internal_redirect = e
+                        resource = wsgi_app.resource_for(self.request)
+                        response = resource.handle_request(self.request)
                 except HTTPException as e:
                     response = e
                 except DisconnectionError as e:
@@ -969,10 +989,6 @@ class Widget(object):
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
 
-    def recreate(self):
-        for child in self.children:
-            child.recreate()
-        
     @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
     def _get_charset(self):
         return self.encoding
@@ -1898,6 +1914,7 @@ class Resource(object):
         return method_handler(request)
 
 
+
 class SubResource(Resource):
     """A Resource that a Widget can register underneath the URL of the View the Widget is present on.
        This can be used to create URLs for whatever purpose the Widget may need server-side URLs for.
@@ -2113,8 +2130,21 @@ class WidgetResult(MethodResult):
         super(WidgetResult, self).__init__(mime_type='text/html', encoding='utf-8', catch_exception=DomainException)
         self.result_widget = result_widget
 
+    @property
+    def is_processing_internal_redirect(self):
+        return WebExecutionContext.get_context().internal_redirect is not None
+
+    def create_response(self, return_value):
+        if not self.is_processing_internal_redirect:
+            raise InternalRedirect(return_value, None)
+        return super(WidgetResult, self).create_response(return_value)
+
+    def create_exception_response(self, exception):
+        if not self.is_processing_internal_redirect:
+            raise InternalRedirect(None, exception)
+        return super(WidgetResult, self).create_exception_response(exception)
+
     def render(self, return_value):
-        self.result_widget.recreate()
         result = self.result_widget.render_contents()
         js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
         result += '<script type="text/javascript">' 
@@ -2187,26 +2217,32 @@ class RemoteMethod(SubResource):
            during construction of the RemoteMethod."""
         return self.default_result
 
+    @property
+    def internal_redirect(self):
+        return ExecutionContext.get_context().internal_redirect
+
     def handle_get_or_post(self, input_values):
         result = self.make_result(input_values)
         context = ExecutionContext.get_context()
         response = None
-        try:
-            with context.system_control.nested_transaction():
-                return_value = self.call_with_input(input_values)
-                response = result.get_response(return_value)
-        except result.catch_exception as ex:
-            context.initialise_web_session()  # Because the rollback above nuked it
-            self.cleanup_after_exception(input_values, ex)
-            response = result.get_exception_response(ex)
+        if self.internal_redirect:
+            response = self.internal_redirect.get_response(result)
         else:
-            self.cleanup_after_success()
-
+            try:
+                with context.system_control.nested_transaction():
+                    return_value = self.call_with_input(input_values)
+                    response = result.get_response(return_value)
+            except result.catch_exception as ex:
+                context.initialise_web_session()  # Because the rollback above nuked it
+                self.cleanup_after_exception(input_values, ex)
+                response = result.get_exception_response(ex)
+            else:
+                self.cleanup_after_success()
         return response
 
     def handle_post(self, request):
         return self.handle_get_or_post(request.POST)
-
+        
     def handle_get(self, request):
         return self.handle_get_or_post(request.GET)
 
