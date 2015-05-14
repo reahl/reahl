@@ -1308,10 +1308,7 @@ class Input(Widget):
         self.html_input_attributes = self.derived_input_attributes_class(self)
 
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
-        self.recreate()
 
-    def recreate(self):
-        self.clear_children()
         self.prepare_input()
         html_widget = None
         if (type(self) is not Input) and ('create_html_input' in type(self).__dict__):
