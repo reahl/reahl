@@ -167,10 +167,9 @@ def adding_form_group(fixture):
     text_input.enter_value(fixture.input_email)
     text_input.prepare_input()
 
-    [form_group_div] = form_group_widget.children
     vassert( 'form-group' in form_group_widget.get_attribute('class')  )
-
-    [label, html_input] = form_group_div.children
+    
+    [label, html_input] = form_group_widget.children
 
     vassert( 'control-label' in label.get_attribute('class')  )
     vassert( 'form-control' in html_input.wrapped_html_widget.get_attribute('class')  )
@@ -230,7 +229,7 @@ def form(fixture):
     text_input.prepare_input()
 
     expected_html = '<form id="boots" action="/__boots_method" data-formatter="/__boots_format_method" method="POST" class="form-horizontal reahl-form"><div class="form-group"><label for="field_name" class="control-label">Email</label><input name="field_name" form="boots" pattern="[^\s]+@[^\s]+\.[^\s]{2,4}" placeholder="not an email address" title="field_name should be a valid email address" type="text" value="not an email address" class="error form-control reahl-textinput {&quot;validate&quot;: {&quot;messages&quot;: {&quot;pattern&quot;: &quot;field_name should be a valid email address&quot;}}}"><span class="help-block">field_name should be a valid email address</span></div></form>'
-    print (form.render())
+    #print (form.render())
     vassert( form.render() == expected_html )
 
 
@@ -273,5 +272,5 @@ def form2(fixture):
     fixture.reahl_server.set_app(wsgi_app)
     fixture.driver_browser.open('/')
 
-    import pdb;pdb.set_trace()
+    #import pdb;pdb.set_trace()
 

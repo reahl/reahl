@@ -181,7 +181,6 @@ class RemoteMethodTests(object):
                 css_id = 'someid'
                 def render_contents(self): return '<the widget contents>'
                 def get_contents_js(self, context=None): return ['some', 'some', 'javascript']
-                def recreate(self): pass
 
             self.method_result = WidgetResult(WidgetStub())
             self.value_to_return = 'ignored in this case'
@@ -236,7 +235,7 @@ class RemoteMethodTests(object):
         with expected(Exception):
             browser.post('/_amethod_method', {})
 
-    @test(RemoteMethodFixture)
+    @test(WebFixture)
     def widgets_that_change_during_post(self, fixture):
         """When a Widget changes during a POST, WidgetResult ensures that its children are recreated before rendering
            by calling a customised .recreate() method on it before rendering the result."""
@@ -248,29 +247,33 @@ class RemoteMethodTests(object):
             def render(self): return '<%s>' % self.text
             def get_js(self, context=None): return ['some', 'child', 'js', self.text]
 
-
+        fixture.first_run = True
         @stubclass(Widget)
         class WidgetStub(Widget):
             css_id = 'an_id'
             def __init__(self, view):
                 super(WidgetStub, self).__init__(view)
-                self.add_child(WidgetChildStub('initial contents'))
-            def recreate(self): 
-                self.clear_children()
-                self.add_child(WidgetChildStub('changed contents'))
+                if fixture.first_run:
+                    fixture.first_run = False
+                    self.add_child(WidgetChildStub('initial contents'))
+                else:
+                    self.add_child(WidgetChildStub('changed contents'))
 
-        method_result = WidgetResult(WidgetStub(fixture.view))
-        expected_response = '<changed contents><script type="text/javascript">changed contentschildjssome</script>'
-
-
-        def callable_object():
-            return None
-        remote_method = RemoteMethod('amethod', callable_object, default_result=method_result)
+        @stubclass(Widget)
+        class WidgetWithRemoteMethod(Widget):
+            def __init__(self, view):
+                super(WidgetWithRemoteMethod, self).__init__(view)
+                method_result = WidgetResult(WidgetStub(view))
+                def callable_object():
+                    return None
+                remote_method = RemoteMethod('amethod', callable_object, default_result=method_result, immutable=False)
+                view.add_resource(remote_method)
     
-        wsgi_app = fixture.new_wsgi_app(remote_method=remote_method)
+        wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
         browser = Browser(wsgi_app)
         
         browser.post('/_amethod_method', {})
+        expected_response = '<changed contents><script type="text/javascript">changed contentschildjssome</script>'
         vassert( expected_response == browser.raw_html )
         vassert( re.match(expected_response, browser.raw_html) )
 
