@@ -194,10 +194,6 @@ class FormGroup(Div):
             self.input_widget = contents
         self.contents = contents
         self.label_text = label_text
-        self.recreate()
-
-    def recreate(self):
-        self.clear_children()
 
         label = self.add_child(Label(self.view, text=self.label_text, for_input=self.input_widget))
         label.append_class('control-label')
@@ -227,7 +223,7 @@ class FormLayout(Layout):
             self.widget.append_class('form-horizontal')
 
     def add_form_group(self, contents, label_text=None):
-        self.widget.add_child(FormGroup(self.view, contents, label_text=label_text))
+        return self.widget.add_child(FormGroup(self.view, contents, label_text=label_text))
 
 
 class Button(ButtonInput):
