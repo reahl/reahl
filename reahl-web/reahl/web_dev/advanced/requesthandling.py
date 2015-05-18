@@ -24,7 +24,7 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 from reahl.stubble import stubclass, CallMonitor
 
-from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext
+from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext, InternalRedirect
 from reahl.web.interfaces import UserSessionProtocol
 from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
@@ -140,7 +140,7 @@ class RequestHandlingTests(object):
 
     @test(WebFixture)
     def handling_HTTPError_exceptions(self, fixture):
-        """If an HTTPError exception is raised, it is used ad response."""
+        """If an HTTPError exception is raised, it is used as response."""
         @stubclass(ReahlWSGIApplication)
         class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
             def resource_for(self, request):
@@ -149,3 +149,37 @@ class RequestHandlingTests(object):
         browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
 
         browser.open('/', status=404)
+
+    @test(WebFixture)
+    def internal_redirects(self, fixture):
+        """During request handling, an InternalRedirect exception can be thrown. This is handled by
+           restarting the request loop from scratch to handle the same request again, using a freshly
+           constructed resource just as though the request was submitted again by the browser
+           save for the browser round trip."""
+
+        fixture.requests_handled = []
+        fixture.handling_resources = []
+
+        @stubclass(Resource)
+        class ResourceStub(object):
+            def handle_request(self, request):
+                fixture.requests_handled.append(request)
+                fixture.handling_resources.append(self)
+                context = WebExecutionContext.get_context()
+                if context.internal_redirect:
+                    return Response(body='response given after internal redirect')
+                raise InternalRedirect(None, None)
+
+        @stubclass(ReahlWSGIApplication)
+        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
+            def resource_for(self, request):
+                return ResourceStub()
+
+        browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
+
+        browser.open('/')
+
+        vassert( browser.raw_html == 'response given after internal redirect' )
+        vassert( fixture.requests_handled[0] is fixture.requests_handled[1] )
+        vassert( fixture.handling_resources[0] is not fixture.handling_resources[1] )
+

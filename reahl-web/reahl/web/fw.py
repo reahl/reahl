@@ -240,18 +240,7 @@ class Url(object):
 
 
 class InternalRedirect(Exception):
-    commit = True
-    def __init__(self, return_value, exception):
-        super(Exception, self).__init__()
-        self.return_value = return_value
-        self.exception = exception
-
-    def get_response(self, result):
-        if self.exception:
-            return result.get_exception_response(self.exception)
-        else:
-            return result.get_response(self.return_value)
-
+    pass
 
 class WebExecutionContext(ExecutionContext):
     def set_request(self, request):
@@ -2116,6 +2105,20 @@ class JsonResult(MethodResult):
         return '"%s"' % six.text_type(exception)
 
 
+class RegenerateMethodResult(InternalRedirect):
+    commit = True
+    def __init__(self, return_value, exception):
+        super(RegenerateMethodResult, self).__init__()
+        self.return_value = return_value
+        self.exception = exception
+
+    def get_response(self, result):
+        if self.exception:
+            return result.get_exception_response(self.exception)
+        else:
+            return result.get_response(self.return_value)
+
+
 class WidgetResult(MethodResult):
     """A MethodResult used to render a given Widget (`result_widget`) back to the browser in response
        to a RemoteMethod being invoked. The HTML rendered is only the contents of the `result_widget`,
@@ -2126,9 +2129,11 @@ class WidgetResult(MethodResult):
        new contents of this refreshed Widget.
     """
 
-    def __init__(self, result_widget):
-        super(WidgetResult, self).__init__(mime_type='text/html', encoding='utf-8', catch_exception=DomainException)
+    def __init__(self, result_widget, as_json_and_result=False):
+        mime_type = 'application/json' if as_json_and_result else 'text/html'
+        super(WidgetResult, self).__init__(mime_type=mime_type, encoding='utf-8', catch_exception=DomainException)
         self.result_widget = result_widget
+        self.as_json_and_result = as_json_and_result
 
     @property
     def is_processing_internal_redirect(self):
@@ -2136,15 +2141,15 @@ class WidgetResult(MethodResult):
 
     def create_response(self, return_value):
         if not self.is_processing_internal_redirect:
-            raise InternalRedirect(return_value, None)
+            raise RegenerateMethodResult(return_value, None)
         return super(WidgetResult, self).create_response(return_value)
 
     def create_exception_response(self, exception):
         if not self.is_processing_internal_redirect:
-            raise InternalRedirect(None, exception)
+            raise RegenerateMethodResult(None, exception)
         return super(WidgetResult, self).create_exception_response(exception)
 
-    def render(self, return_value):
+    def render_html(self, return_value):
         result = self.result_widget.render_contents()
         js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
         result += '<script type="text/javascript">' 
@@ -2152,18 +2157,20 @@ class WidgetResult(MethodResult):
         result += '</script>'
         return result
 
-
-class NoRedirectAfterPost(WidgetResult):
     def render_as_json(self, exception):
-        rendered_widget = super(NoRedirectAfterPost, self).render(None)
+        rendered_widget = self.render_html(None)
         success = exception is None
         return json.dumps({ 'success': success, 'widget': rendered_widget })
-    
+
     def render(self, return_value):
-        return self.render_as_json(None)
-    
+        if self.as_json_and_result:
+            return self.render_as_json(None)
+        return self.render_html(None)
+
     def render_exception(self, exception):
-        return self.render_as_json(exception)
+        if self.as_json_and_result:
+            return self.render_as_json(exception)
+        return super(WidgetResult, self).render_exception(exception)
 
 
 class RemoteMethod(SubResource): 
@@ -2286,7 +2293,7 @@ class EventChannel(RemoteMethod):
 
     def make_result(self, input_values):
         if '_noredirect' in input_values.keys():
-            return NoRedirectAfterPost(self.form.rendered_form)
+            return WidgetResult(self.form.rendered_form, as_json_and_result=True)
         else:
             return RedirectAfterPost()
 
