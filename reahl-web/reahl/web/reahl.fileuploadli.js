@@ -131,13 +131,12 @@ $.widget('reahl.fileuploadli', {
                     this_.saveJqXhr(jqXHR);
                 },
                 success: function(data){
-                    var result = $.parseJSON(data);
-                    if (result.success) {
+                    if (data.success) {
                         this_.changeToUploaded();
                     } else {
                         var nestedForm = $('#'+this_.getNestedFormId());
                         nestedForm.empty();
-                        nestedForm.append(result.widget);
+                        nestedForm.append(data.widget);
                         this_.getFileInputPanel().uploadFinished();
                     }
                 },
