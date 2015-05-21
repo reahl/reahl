@@ -28,8 +28,8 @@ import six
 from collections import OrderedDict
 import copy
 
-from reahl.web.fw import Layout
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, Span, TextInput, Label, TextNode, ButtonInput
+from reahl.web.fw import Layout, Widget
+from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
@@ -163,6 +163,65 @@ class TextInput(reahl.web.ui.TextInput):
     derived_input_attributes_class = DerivedTextInputAttributes
 
 
+
+class CheckboxInput(Input):
+    def __init__(self, form, bound_field, inline=False):
+        self.inline = inline
+        super(CheckboxInput, self).__init__(form, bound_field)
+
+    def create_html_widget(self):
+        checkbox = reahl.web.ui.CheckboxInput(self.form, self.bound_field)
+        label_widget = Label(self.view)
+
+        if inline:
+            label_widget.append_class('checkbox-inline')
+        else:
+            outer_div = Div(self.view)
+            outer_div.append_class('checkbox')
+            outer_div.add_child(label_widget)
+
+        label_widget.add_child(checkbox)
+        label_widget.add_child(TextNode(self.view, self.label))
+
+        return outer_div
+
+
+from reahl.web.ui import HTMLElement, TextNode, Label, Span
+class SingleRadioButton(Widget):
+    def __init__(self, form, value, label, checked=False, attribute_source=None, css_id=None, inline=False):
+        super(SingleRadioButton, self).__init__(form.view)
+
+        button = HTMLElement(self.view, 'input', attribute_source=attribute_source)
+        button.set_attribute('type', 'radio')
+        button.set_attribute('value', value)
+        button.set_attribute('form', form.css_id)
+        if checked:
+            button.set_attribute('checked', 'checked')
+
+        label_widget = Label(self.view)
+        label_widget.add_child(button)
+        label_widget.add_child(TextNode(self.view, label))
+
+        if inline:
+            label_widget.append_class('radio-inline')
+            self.add_child(label_widget)
+        else:
+            outer_div = Div(self.view)
+            outer_div.append_class('radio')
+            outer_div.add_child(label_widget)
+            self.add_child(outer_div)
+
+
+class RadioButtonInput(reahl.web.ui.RadioButtonInput):
+    def __init__(self, form, bound_field, inline=False):
+        self.inline = inline
+        super(RadioButtonInput, self).__init__(form, bound_field)
+        
+    def create_button_for_choice(self, choice):
+        return SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes, inline=self.inline)
+
+
+
 class InputGroup(Div):
     def __init__(self, view, prepend, input_widget, append, css_id=None):
         super(InputGroup, self).__init__(view, css_id=css_id)
@@ -184,7 +243,7 @@ class InputGroup(Div):
 
 
 class FormGroup(Div):
-    def __init__(self, view, contents, label_text=None, css_id=None):
+    def __init__(self, view, contents, render_label=True, label_text=None, css_id=None):
         super(FormGroup, self).__init__(view, css_id=css_id)
         self.append_class('form-group')
 
@@ -195,8 +254,9 @@ class FormGroup(Div):
         self.contents = contents
         self.label_text = label_text
 
-        label = self.add_child(Label(self.view, text=self.label_text, for_input=self.input_widget))
-        label.append_class('control-label')
+        if render_label:
+            label = self.add_child(Label(self.view, text=self.label_text, for_input=self.input_widget))
+            label.append_class('control-label')
 
         self.add_child(self.contents)
         if self.input_widget.get_input_status() == 'invalidly_entered':
@@ -222,8 +282,8 @@ class FormLayout(Layout):
         elif self.horizontal:
             self.widget.append_class('form-horizontal')
 
-    def add_form_group(self, contents, label_text=None):
-        return self.widget.add_child(FormGroup(self.view, contents, label_text=label_text))
+    def add_form_group(self, contents, render_label=True, label_text=None):
+        return self.widget.add_child(FormGroup(self.view, contents, render_label=render_label, label_text=label_text))
 
 
 class Button(ButtonInput):
