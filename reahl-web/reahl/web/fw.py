@@ -245,7 +245,6 @@ class InternalRedirect(Exception):
 class WebExecutionContext(ExecutionContext):
     def set_request(self, request):
         self.request = request
-        self.internal_redirect = None
 
     def initialise_web_session(self):
         with self:
@@ -258,12 +257,11 @@ class WebExecutionContext(ExecutionContext):
                 with self.system_control.nested_transaction():
                     self.initialise_web_session()
                 try:
-                    self.internal_redirect = None
                     resource = wsgi_app.resource_for(self.request)
                     try:
                         response = resource.handle_request(self.request) 
                     except InternalRedirect as e:
-                        self.internal_redirect = e
+                        self.request.internal_redirect = e
                         resource = wsgi_app.resource_for(self.request)
                         response = resource.handle_request(self.request)
                 except HTTPException as e:
@@ -2032,10 +2030,6 @@ class MethodResult(object):
         self.encoding = charset or encoding
         self.replay_request = replay_request
 
-    @property
-    def is_processing_internal_redirect(self):
-        return WebExecutionContext.get_context().internal_redirect is not None
-
     def create_response(self, return_value):
         """Override this in your subclass to create a :class:`webob.Response` for the given `return_value` which
            was returned when calling the RemoteMethod."""
@@ -2063,16 +2057,16 @@ class MethodResult(object):
            this method can be overridden instead, supplying only the body of a normal 200 Response."""
         return six.text_type(exception)
 
-    def get_response(self, return_value):
-        if not self.is_processing_internal_redirect:
+    def get_response(self, return_value, is_internal_redirect):
+        if not is_internal_redirect:
             raise RegenerateMethodResult(return_value, None)
         response = self.create_response(return_value)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
         response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
-    def get_exception_response(self, exception):
-        if not self.is_processing_internal_redirect:
+    def get_exception_response(self, exception, is_internal_redirect):
+        if not is_internal_redirect:
             raise RegenerateMethodResult(None, exception)
         response = self.create_exception_response(exception)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
@@ -2129,7 +2123,7 @@ class RegenerateMethodResult(InternalRedirect):
         self.return_value = return_value
         self.exception = exception
 
-    def replay(self):
+    def get_results(self):
         return (self.return_value, self.exception)
 
 
@@ -2233,33 +2227,33 @@ class RemoteMethod(SubResource):
     def make_result(self, input_values):
         """Override this method to be able to determine (at run time) what MethodResult to use
            for this method. The default implementation merely uses the `default_result` given
-           during construction of the RemoteMethod."""
+           during construction of the RemoteMethod.
+
+           :param input_values: The current request.GET or request.POST depending on the request.method.
+        """
         return self.default_result
 
-    @property
-    def internal_redirect(self):
-        return ExecutionContext.get_context().internal_redirect
-
-    def handle_get_or_post(self, input_values):
+    def handle_get_or_post(self, request, input_values):
         result = self.make_result(input_values)
 
-        if self.internal_redirect:
-            return_value, caught_exception = self.internal_redirect.replay()
+        internal_redirect = getattr(request, 'internal_redirect', None)
+        if internal_redirect:
+            return_value, caught_exception = internal_redirect.get_results()
         else:
             return_value, caught_exception = self.call_with_input(input_values, result.catch_exception)
 
         if caught_exception:
-            response = result.get_exception_response(caught_exception)
+            response = result.get_exception_response(caught_exception, internal_redirect is not None)
         else:
-            response = result.get_response(return_value)
+            response = result.get_response(return_value, internal_redirect is not None)
 
         return response
 
     def handle_post(self, request):
-        return self.handle_get_or_post(request.POST)
+        return self.handle_get_or_post(request, request.POST)
 
     def handle_get(self, request):
-        return self.handle_get_or_post(request.GET)
+        return self.handle_get_or_post(request, request.GET)
 
 
 class CheckedRemoteMethod(RemoteMethod): 
