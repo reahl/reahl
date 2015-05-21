@@ -258,6 +258,7 @@ class WebExecutionContext(ExecutionContext):
                 with self.system_control.nested_transaction():
                     self.initialise_web_session()
                 try:
+                    self.internal_redirect = None
                     resource = wsgi_app.resource_for(self.request)
                     try:
                         response = resource.handle_request(self.request) 
@@ -2007,11 +2008,19 @@ class MethodResult(object):
     """A :class:`RemoteMethod` can be constructed to yield its results back to a browser in different 
        ways. MethodResult is the superclass of all such different kinds of results.
 
-       :param catch_exception: The class of Exeption to catch if thrown while the :class:`RemoteMethod` executes.
-       :param mime_type: The mime type to use as html content type when sending this MethodResult back to a browser.
-       :param encoding: The encoding to use when sending this MethodResult back to a browser.
+       :keyword catch_exception: The class of Exeption for which this MethodResult will generate an exceptional Response\
+                                 if thrown while the :class:`RemoteMethod` executes \
+                                 (default: :class:`~reahl.component.exceptions.DomainException`).
+       :keyword mime_type: The mime type to use as html content type when sending this MethodResult back to a browser.
+       :keyword encoding: The encoding to use when sending this MethodResult back to a browser.
+       :keyword replay_request: If True, first recreate everything (including this MethodResult) before generating \
+            the final response in order to take possible changes made by the execution of the RemoteMethod into account.
+            
+       .. versionchanged: 3.2
+          Added the replay_request functionality.
+          Set the default for catch_exception to DomainException
     """
-    def __init__(self, catch_exception=None, content_type=None, mime_type='text/html', charset=None, encoding='utf-8'):
+    def __init__(self, catch_exception=DomainException, content_type=None, mime_type='text/html', charset=None, encoding='utf-8', replay_request=False):
         if charset:
             warnings.warn('The charset keyword argument is deprecated, please use encoding instead.', 
                           DeprecationWarning, stacklevel=2)
@@ -2021,6 +2030,11 @@ class MethodResult(object):
         self.catch_exception = catch_exception
         self.mime_type = content_type or mime_type
         self.encoding = charset or encoding
+        self.replay_request = replay_request
+
+    @property
+    def is_processing_internal_redirect(self):
+        return WebExecutionContext.get_context().internal_redirect is not None
 
     def create_response(self, return_value):
         """Override this in your subclass to create a :class:`webob.Response` for the given `return_value` which
@@ -2050,18 +2064,22 @@ class MethodResult(object):
         return six.text_type(exception)
 
     def get_response(self, return_value):
+        if not self.is_processing_internal_redirect:
+            raise RegenerateMethodResult(return_value, None)
         response = self.create_response(return_value)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
         response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
     def get_exception_response(self, exception):
+        if not self.is_processing_internal_redirect:
+            raise RegenerateMethodResult(None, exception)
         response = self.create_exception_response(exception)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
         response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
-    
+
 class RedirectAfterPost(MethodResult):
     """A MethodResult which will cause the browser to be redirected to the Url returned by the called
        RemoteMethod instead of actually returning the result for display. A RedirectAfterPost is meant to be
@@ -2096,7 +2114,7 @@ class JsonResult(MethodResult):
         super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
-        
+
     def render(self, return_value):
         self.result = return_value
         return self.fields.result.as_input()
@@ -2106,17 +2124,13 @@ class JsonResult(MethodResult):
 
 
 class RegenerateMethodResult(InternalRedirect):
-    commit = True
     def __init__(self, return_value, exception):
         super(RegenerateMethodResult, self).__init__()
         self.return_value = return_value
         self.exception = exception
 
-    def get_response(self, result):
-        if self.exception:
-            return result.get_exception_response(self.exception)
-        else:
-            return result.get_response(self.return_value)
+    def replay(self):
+        return (self.return_value, self.exception)
 
 
 class WidgetResult(MethodResult):
@@ -2131,23 +2145,9 @@ class WidgetResult(MethodResult):
 
     def __init__(self, result_widget, as_json_and_result=False):
         mime_type = 'application/json' if as_json_and_result else 'text/html'
-        super(WidgetResult, self).__init__(mime_type=mime_type, encoding='utf-8', catch_exception=DomainException)
+        super(WidgetResult, self).__init__(mime_type=mime_type, encoding='utf-8', catch_exception=DomainException, replay_request=True)
         self.result_widget = result_widget
         self.as_json_and_result = as_json_and_result
-
-    @property
-    def is_processing_internal_redirect(self):
-        return WebExecutionContext.get_context().internal_redirect is not None
-
-    def create_response(self, return_value):
-        if not self.is_processing_internal_redirect:
-            raise RegenerateMethodResult(return_value, None)
-        return super(WidgetResult, self).create_response(return_value)
-
-    def create_exception_response(self, exception):
-        if not self.is_processing_internal_redirect:
-            raise RegenerateMethodResult(None, exception)
-        return super(WidgetResult, self).create_exception_response(exception)
 
     def render_html(self, return_value):
         result = self.result_widget.render_contents()
@@ -2215,8 +2215,20 @@ class RemoteMethod(SubResource):
         """Override this method in a subclass to trigger custom behaviour after the method
            completed successfully."""
 
-    def call_with_input(self, input_values):
-        return self.callable_object(**self.parse_arguments(input_values))
+    def call_with_input(self, input_values, catch_exception):
+        context = ExecutionContext.get_context()
+        caught_exception = None
+        return_value = None
+        try:
+            with context.system_control.nested_transaction():
+                return_value = self.callable_object(**self.parse_arguments(input_values))
+        except catch_exception as ex:
+            context.initialise_web_session()  # Because the rollback above nuked it
+            self.cleanup_after_exception(input_values, ex)
+            caught_exception = ex
+        else:
+            self.cleanup_after_success()
+        return (return_value, caught_exception)
 
     def make_result(self, input_values):
         """Override this method to be able to determine (at run time) what MethodResult to use
@@ -2230,26 +2242,22 @@ class RemoteMethod(SubResource):
 
     def handle_get_or_post(self, input_values):
         result = self.make_result(input_values)
-        context = ExecutionContext.get_context()
-        response = None
+
         if self.internal_redirect:
-            response = self.internal_redirect.get_response(result)
+            return_value, caught_exception = self.internal_redirect.replay()
         else:
-            try:
-                with context.system_control.nested_transaction():
-                    return_value = self.call_with_input(input_values)
-                    response = result.get_response(return_value)
-            except result.catch_exception as ex:
-                context.initialise_web_session()  # Because the rollback above nuked it
-                self.cleanup_after_exception(input_values, ex)
-                response = result.get_exception_response(ex)
-            else:
-                self.cleanup_after_success()
+            return_value, caught_exception = self.call_with_input(input_values, result.catch_exception)
+
+        if caught_exception:
+            response = result.get_exception_response(caught_exception)
+        else:
+            response = result.get_response(return_value)
+
         return response
 
     def handle_post(self, request):
         return self.handle_get_or_post(request.POST)
-        
+
     def handle_get(self, request):
         return self.handle_get_or_post(request.GET)
 

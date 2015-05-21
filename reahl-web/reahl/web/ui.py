@@ -80,7 +80,7 @@ class HTMLAttribute(object):
         
     def as_html_value(self):
         return ' '.join(sorted(self.value))
-    
+
     def remove_values(self, values):
         self.value -= set(values)
 
@@ -1217,10 +1217,11 @@ class DelegatedAttributes(object):
         pass
 
 
-class DerivedGlobalInputAttributes(DelegatedAttributes):
-    """Attributes for an HTMLElement that are derived on the fly from some other source."""
-    def __init__(self, input_widget):
+class InputStateAttributes(DelegatedAttributes):
+    def __init__(self, input_widget, error_class='error', success_class='success'):
         self.input_widget = input_widget
+        self.error_class = error_class
+        self.success_class = success_class
 
     @property
     def has_validation_error(self):
@@ -1239,15 +1240,21 @@ class DerivedGlobalInputAttributes(DelegatedAttributes):
         return self.input_widget.view
         
     def set_attributes(self, attributes):
-        super(DerivedGlobalInputAttributes, self).set_attributes(attributes)
-
-        attributes.set_to('name', self.input_widget.name)
+        super(InputStateAttributes, self).set_attributes(attributes)
 
         if self.has_validation_error:
-            attributes.add_to('class', ['error'])
+            attributes.add_to('class', [self.error_class]) 
+        else:
+            attributes.add_to('class', [self.success_class]) 
+            
         if self.disabled:
             attributes.set_to('disabled', 'disabled')
 
+
+class DerivedGlobalInputAttributes(InputStateAttributes):
+    def set_attributes(self, attributes):
+        super(DerivedGlobalInputAttributes, self).set_attributes(attributes)
+        attributes.set_to('name', self.input_widget.name)
 
 
 class DerivedInputAttributes(DerivedGlobalInputAttributes):
@@ -1575,15 +1582,18 @@ class RadioButtonInput(Input):
     derived_input_attributes_class = DerivedGlobalInputAttributes
 
     def create_html_widget(self):
-        outer_div = Panel(self.view)
+        outer_div = Div(self.view)
         outer_div.set_attribute('class', 'reahl-radio-button-input')
         for choice in self.bound_field.flattened_choices:
-            button = SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes)
+            button = self.create_button_for_choice(choice)
             outer_div.add_child(button)
         return outer_div
 
     def get_value_from_input(self, input_values):
         return input_values.get(self.name, '')
+
+    def create_button_for_choice(self, choice):
+        return SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes)
 
 
 # Uses: reahl/web/reahl.textinput.js
@@ -1762,7 +1772,7 @@ class Label(HTMLElement):
        :keyword for_input: If given, the :class:`Input` to which this Label applies (its `.label` is also used as text).
        :keyword css_id: (See :class:`HTMLElement`)
 
-       .. versionchanged:: 3.1.1
+       .. versionchanged:: 3.2
           Added the for_input keyword argument.
     """
     def __init__(self, view, text=None, for_input=None, css_id=None):
