@@ -1218,7 +1218,7 @@ class DelegatedAttributes(object):
 
 
 class InputStateAttributes(DelegatedAttributes):
-    def __init__(self, input_widget, error_class='error', success_class='success'):
+    def __init__(self, input_widget, error_class='error', success_class=None):
         self.input_widget = input_widget
         self.error_class = error_class
         self.success_class = success_class
@@ -1242,9 +1242,9 @@ class InputStateAttributes(DelegatedAttributes):
     def set_attributes(self, attributes):
         super(InputStateAttributes, self).set_attributes(attributes)
 
-        if self.has_validation_error:
+        if self.has_validation_error and self.error_class:
             attributes.add_to('class', [self.error_class]) 
-        else:
+        elif not self.has_validation_error and self.success_class:
             attributes.add_to('class', [self.success_class]) 
             
         if self.disabled:

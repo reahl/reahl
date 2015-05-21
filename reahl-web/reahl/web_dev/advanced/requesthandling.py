@@ -165,8 +165,7 @@ class RequestHandlingTests(object):
             def handle_request(self, request):
                 fixture.requests_handled.append(request)
                 fixture.handling_resources.append(self)
-                context = WebExecutionContext.get_context()
-                if context.internal_redirect:
+                if hasattr(request, 'internal_redirect'):
                     return Response(body='response given after internal redirect')
                 raise InternalRedirect(None, None)
 
