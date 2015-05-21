@@ -80,7 +80,7 @@ class HTMLAttribute(object):
         
     def as_html_value(self):
         return ' '.join(sorted(self.value))
-    
+
     def remove_values(self, values):
         self.value -= set(values)
 
@@ -1762,7 +1762,7 @@ class Label(HTMLElement):
        :keyword for_input: If given, the :class:`Input` to which this Label applies (its `.label` is also used as text).
        :keyword css_id: (See :class:`HTMLElement`)
 
-       .. versionchanged:: 3.1.1
+       .. versionchanged:: 3.2
           Added the for_input keyword argument.
     """
     def __init__(self, view, text=None, for_input=None, css_id=None):

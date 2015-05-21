@@ -18,6 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import re
 import json
+from webob import Response
 
 from reahl.stubble import stubclass, CallMonitor
 from nose.tools import istest
@@ -30,7 +31,7 @@ from reahl.component.exceptions import DomainException
 from reahl.web.fw import CheckedRemoteMethod
 from reahl.web.fw import JsonResult
 from reahl.web.fw import MethodResult
-from reahl.web.fw import RemoteMethod
+from reahl.web.fw import RemoteMethod, RegenerateMethodResult
 from reahl.web.fw import Widget
 from reahl.web.fw import WidgetResult
 from reahl.component.modelinterface import Field, IntegerField
@@ -251,6 +252,56 @@ class RemoteMethodTests(object):
         with expected(Exception):
             browser.post('/_amethod_method', {})
 
+    class RegenerateMethodResultScenarios(RemoteMethodFixture):
+        method_called = 0
+        def new_method_result(self):
+            fixture = self
+            @stubclass(MethodResult)
+            class ResultThatDependsOnExecutionOfMethod(MethodResult):
+                def create_response(self, return_value):
+                    return Response(body='success: method was called %s times' % fixture.method_called)
+
+                def create_exception_response(self, exception):
+                    return Response(body='exception: method was called %s times' % fixture.method_called)
+            return ResultThatDependsOnExecutionOfMethod(catch_exception=DomainException, replay_request=True)
+
+        def new_remote_method(self):
+            fixture = self
+            def callable_to_call():
+                fixture.method_called += 1
+                if fixture.exception:
+                    raise DomainException('ex')
+            return RemoteMethod('amethod', callable_to_call, self.method_result, immutable=False)
+
+        @scenario
+        def success(self):
+            self.exception = False
+            self.expected_response = 'success: method was called 1 times'
+
+        @scenario
+        def exception(self):
+            self.exception = True
+            self.expected_response = 'exception: method was called 1 times'
+
+    @test(RegenerateMethodResultScenarios)
+    def regenerating_method_results(self, fixture):
+        """If a MethodResult is set up to replay_request=True, the view it is part of (and thus itself) is recreated
+           before the (new incarnation of the) MethodResult generates its actual response. Replaying the request means recreating
+           all Widgets on the current View as well as the MethodResult itself. The construction of any of these 
+           objects may happen differently because of the changes made during the RemoteMethod's execution. Replaying
+           the request ensures that the MethodResult reflects such changes, yet ensures that the RemoteMethod
+           is not executed twice.
+        """
+
+        wsgi_app = fixture.new_wsgi_app(remote_method=fixture.remote_method)
+        browser = Browser(wsgi_app)
+        
+        with CallMonitor(fixture.system_control.orm_control.commit) as monitor:
+            browser.post('/_amethod_method', {})
+        vassert( browser.raw_html == fixture.expected_response )
+        vassert( monitor.times_called == 2 )
+
+
     class WidgetResultScenarios(WebFixture):
         changes_made = False
         @stubclass(Widget)
@@ -310,8 +361,6 @@ class RemoteMethodTests(object):
         wsgi_app = fixture.new_wsgi_app(child_factory=fixture.WidgetWithRemoteMethod.factory())
         browser = Browser(wsgi_app)
         
-        with CallMonitor(fixture.system_control.orm_control.commit) as monitor:
-            browser.post('/_amethod_method', {})
+        browser.post('/_amethod_method', {})
         json_response = json.loads(browser.raw_html)
         vassert( json_response == fixture.expected_response )
-
