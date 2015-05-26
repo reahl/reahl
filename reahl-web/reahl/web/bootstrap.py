@@ -29,7 +29,7 @@ from collections import OrderedDict
 import copy
 
 from reahl.web.fw import Layout, Widget
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput
+from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, DerivedGlobalInputAttributes, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput, P
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
@@ -150,21 +150,24 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
 
 
 
-class DerivedTextInputAttributes(DerivedInputAttributes):
+class DerivedBootstrapInputAttributes(DerivedInputAttributes):
 
     def set_attributes(self, attributes):
-        super(DerivedTextInputAttributes, self).set_attributes(attributes)
+        super(DerivedBootstrapInputAttributes, self).set_attributes(attributes)
         attributes.add_to('class', ['form-control'])
         attributes.set_to('placeholder', self.input_widget.value)
 
 
 class TextInput(reahl.web.ui.TextInput):
     append_error = False
-    derived_input_attributes_class = DerivedTextInputAttributes
+    derived_input_attributes_class = DerivedBootstrapInputAttributes
 
 
+class CheckboxInput(reahl.web.ui.CheckboxInput):
+    append_error = False
 
-class CheckboxInput(Input):
+
+class Koos:
     def __init__(self, form, bound_field, inline=False):
         self.inline = inline
         super(CheckboxInput, self).__init__(form, bound_field)
@@ -187,86 +190,104 @@ class CheckboxInput(Input):
 
 
 from reahl.web.ui import HTMLElement, TextNode, Label, Span
-class SingleRadioButton(Widget):
-    def __init__(self, form, value, label, checked=False, attribute_source=None, css_id=None, inline=False):
-        super(SingleRadioButton, self).__init__(form.view)
+class SingleRadioButton(Input):
+    def __init__(self, form, bound_field, value, label, checked=False, attribute_source=None):
+        self.checked = checked
+        self._value = value
+        self._label = label
+        self.attribute_source = attribute_source
+        super(SingleRadioButton, self).__init__(form, bound_field)
+        
+    @property
+    def value(self):
+        return self._value
 
-        button = HTMLElement(self.view, 'input', attribute_source=attribute_source)
+    @property
+    def label(self):
+        return self._label
+
+    def create_html_widget(self):
+        button = HTMLElement(self.view, 'input', attribute_source=self.attribute_source)
         button.set_attribute('type', 'radio')
-        button.set_attribute('value', value)
-        button.set_attribute('form', form.css_id)
-        if checked:
+        button.set_attribute('value', self.value)
+        button.set_attribute('form', self.form.css_id)
+        if self.checked:
             button.set_attribute('checked', 'checked')
+        return button
 
-        label_widget = Label(self.view)
-        label_widget.add_child(button)
-        label_widget.add_child(TextNode(self.view, label))
 
-        if inline:
-            label_widget.append_class('radio-inline')
-            self.add_child(label_widget)
-        else:
-            outer_div = Div(self.view)
-            outer_div.append_class('radio')
-            outer_div.add_child(label_widget)
-            self.add_child(outer_div)
 
 
 class RadioButtonInput(reahl.web.ui.RadioButtonInput):
     def __init__(self, form, bound_field, inline=False):
         self.inline = inline
         super(RadioButtonInput, self).__init__(form, bound_field)
+
+    def create_html_widget(self):
+        outer_div = Div(self.view).use_layout(ChoicesLayout())
+        outer_div.set_attribute('class', 'reahl-radio-button-input')
+        for choice in self.bound_field.flattened_choices:
+            button = self.create_button_for_choice(choice)
+            outer_div.layout.add_choice(button, inline=self.inline)
+        return outer_div
         
     def create_button_for_choice(self, choice):
-        return SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes, inline=self.inline)
+        return SingleRadioButton(self.form, self.bound_field, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes)
 
 
 
-class InputGroup(Div):
-    def __init__(self, view, prepend, input_widget, append, css_id=None):
-        super(InputGroup, self).__init__(view, css_id=css_id)
-        self.append_class('input-group')
-        if prepend:
-            self.add_as_addon(prepend)
-        self.input_widget = self.add_child(input_widget)
-        if append:
-            self.add_as_addon(append)
+class InputGroup(Input):
+    def __init__(self, prepend, input_widget, append):
+        self.prepend = prepend
+        self.input_widget = input_widget
+        self.append = append
+        super(InputGroup, self).__init__(input_widget.form, input_widget.bound_field)
 
-    def add_as_addon(self, addon):
+    def create_html_widget(self):
+        group_div = Div(self.view)
+        group_div.append_class('input-group')
+        if self.prepend:
+            self.add_addon(group_div, self.prepend)
+        group_div.add_child(self.input_widget)
+        if self.append:
+            self.add_addon(group_div, self.append)
+        return group_div
+
+    def add_addon(self, group_div, addon):
         if isinstance(addon, six.string_types):
             span = Span(self.view, text=addon)
         else:
             span = Span(self.view)
             span.add_child(addon)
         span.append_class('input-group-addon')
-        return self.add_child(span)
+        return group_div.add_child(span)
 
 
-class FormGroup(Div):
-    def __init__(self, view, contents, render_label=True, label_text=None, css_id=None):
-        super(FormGroup, self).__init__(view, css_id=css_id)
-        self.append_class('form-group')
+class ChoicesLayout(Layout):
+    def add_choice(self, html_input, inline=False):
+        assert isinstance(html_input, (CheckboxInput, SingleRadioButton))
 
-        if hasattr(contents, 'input_widget'):
-            self.input_widget = contents.input_widget
+        label_widget = Label(self.view)
+        input_type_class = 'checkbox' if isinstance(html_input, CheckboxInput) else 'radio'
+
+        if inline:
+            label_widget.append_class('%s-inline' % input_type_class)
+            wrapper = label_widget
         else:
-            self.input_widget = contents
-        self.contents = contents
-        self.label_text = label_text
+            outer_div = Div(self.view)
+            outer_div.append_class(input_type_class)
+            outer_div.add_child(label_widget)
+            wrapper = outer_div
 
-        if render_label:
-            label = self.add_child(Label(self.view, text=self.label_text, for_input=self.input_widget))
-            label.append_class('control-label')
+        label_widget.add_child(html_input)
+        label_widget.add_child(TextNode(self.view, html_input.label))
 
-        self.add_child(self.contents)
-        if self.input_widget.get_input_status() == 'invalidly_entered':
-            self.append_class('has-error')
-            span = self.add_child(Span(self.view, text=self.input_widget.validation_error.message))
-            span.append_class('help-block')
-        elif self.input_widget.get_input_status() == 'validly_entered':
-            self.append_class('has-success')
-            
-            
+        self.widget.add_child(wrapper)
+        wrapper.html_input_attributes = InputStateAttributes(wrapper, 
+                                                             error_class='has-error', success_class='has-success')
+        if html_input.get_input_status() == 'invalidly_entered':
+            wrapper.add_child(Span(self.view, text=html_input.validation_error.message))
+        return wrapper
 
 
 class FormLayout(Layout):
@@ -277,13 +298,43 @@ class FormLayout(Layout):
         self.horizontal = horizontal
 
     def customise_widget(self):
+        self.widget.set_attribute('role', 'form')
         if self.inline:
             self.widget.append_class('form-inline')
         elif self.horizontal:
             self.widget.append_class('form-horizontal')
 
-    def add_form_group(self, contents, render_label=True, label_text=None):
-        return self.widget.add_child(FormGroup(self.view, contents, render_label=render_label, label_text=label_text))
+    def add_input(self, html_input, render_label=True, help_text=None):
+        if isinstance(html_input, CheckboxInput):
+            if render_label:
+                return self.add_form_group(html_input, render_label=render_label, help_text=help_text)
+            return self.add_choice_input(html_input, help_text=help_text)
+        else:
+            return self.add_form_group(html_input, render_label=render_label, help_text=help_text)
+            
+    def add_form_group(self, html_input, render_label=True, help_text=None):
+        form_group = self.widget.add_child(Div(self.view))
+        form_group.append_class('form-group')
+        form_group.html_input_attributes = InputStateAttributes(form_group, 
+                                                                error_class='has-error', success_class='has-success')
+        label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
+        label.append_class('control-label' if render_label else 'sr-only')
+
+        form_group.add_child(html_input)
+
+        if html_input.get_input_status() == 'invalidly_entered':
+            form_group.add_child(Span(self.view, text=html_input.validation_error.message))
+
+        if help_text:
+            help_text = form_group.add_child(P(self.view, text=help_text))
+            help_text.append_class('help-block')
+
+        return form_group
+
+    def add_choice_input(self, html_input, help_text=None, inline=False):
+        wrapper = self.widget.add_child(Widget(self.view).use_layout(ChoicesLayout()))
+        wrapper.layout.add_choice(html_input, inline=inline)
+        return wrapper
 
 
 class Button(ButtonInput):
