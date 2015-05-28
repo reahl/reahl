@@ -34,7 +34,6 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.web.pager:SequentialPageIndex"/>
   </persisted>
 
   <staticfiles>

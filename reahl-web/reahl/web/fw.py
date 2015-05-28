@@ -1535,6 +1535,12 @@ class ViewFactory(FactoryFromUrlRegex):
         return hash(other) == hash(self)
 
     def get_relative_path(self, **arguments):
+        """Returns a string containing the path this View would have relative to its UserInterface, 
+           given the arguments passed.
+        
+           :kwarg url_arguments: Values for the arguments of the parameterised View to which the relative_path 
+                                 should lead. (Just omit these if the target View is not parameterised.)
+        """
         return self.regex_path.get_relative_path_from(arguments)
 
     def matches_view(self, view):

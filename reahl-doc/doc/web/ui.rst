@@ -113,7 +113,7 @@ Nav
    :members:
 
 Article
-"""
+"""""""
 
 .. autoclass:: Article
    :members:
