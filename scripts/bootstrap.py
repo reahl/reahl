@@ -62,7 +62,7 @@ def clean_workspace(reahl_workspace):
 def clean_egg_info_dirs():
     for current_directory, directories, files in os.walk(os.getcwd()):
         for d in directories:
-            if d.endswith('egg-info') and not d in ['reahl_dev.egg-info']:#,'reahl_bzrsupport.egg-info']:
+            if d.endswith('egg-info') and not d in ['reahl_dev.egg-info','reahl_bzrsupport.egg-info']:
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
