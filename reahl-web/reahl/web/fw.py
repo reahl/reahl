@@ -2024,6 +2024,7 @@ class MethodResult(object):
           Added the replay_request functionality.
           Set the default for catch_exception to DomainException
     """
+    redirects_internally = False
     def __init__(self, catch_exception=DomainException, content_type=None, mime_type='text/html', charset=None, encoding='utf-8', replay_request=False):
         if charset:
             warnings.warn('The charset keyword argument is deprecated, please use encoding instead.', 
@@ -2064,7 +2065,7 @@ class MethodResult(object):
         return six.text_type(exception)
 
     def get_response(self, return_value, is_internal_redirect):
-        if not is_internal_redirect:
+        if self.redirects_internally and not is_internal_redirect:
             raise RegenerateMethodResult(return_value, None)
         response = self.create_response(return_value)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
@@ -2072,7 +2073,7 @@ class MethodResult(object):
         return response
 
     def get_exception_response(self, exception, is_internal_redirect):
-        if not is_internal_redirect:
+        if self.redirects_internally and not is_internal_redirect:
             raise RegenerateMethodResult(None, exception)
         response = self.create_exception_response(exception)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
@@ -2110,6 +2111,7 @@ class JsonResult(MethodResult):
                             for outputting the return value of the RemoteMethod as a string.
        :param kwargs: Other keyword arguments are sent to MethodResult, see :class:`MethodResult`.
     """
+    redirects_internally = True
     def __init__(self, result_field, **kwargs):
         super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', **kwargs)
         self.fields = FieldIndex(self)
@@ -2142,6 +2144,7 @@ class WidgetResult(MethodResult):
        A JavaScript `<script>` tag is rendered also, containing the JavaScript activating code for the 
        new contents of this refreshed Widget.
     """
+    redirects_internally = True
 
     def __init__(self, result_widget, as_json_and_result=False):
         mime_type = 'application/json' if as_json_and_result else 'text/html'
