@@ -25,7 +25,7 @@ from reahl.tofu import test
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub
 
-from reahl.web.ui import HTMLElement, Input, TextInput, Button, Form, ValidationException, \
+from reahl.web.ui import HTMLElement, PrimitiveInput, TextInput, Button, Form, ValidationException, \
                           LabelOverInput, CueInput, CheckboxInput, TextInput, Label, InputLabel, ButtonInput,\
                           PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
                           TextArea, SelectInput, RadioButtonInput
@@ -80,7 +80,7 @@ class InputStateFixture(WebFixture, InputMixin):
         return field
 
     def new_input(self):    
-        return Input(self.form, self.field)
+        return PrimitiveInput(self.form, self.field)
 
     @scenario
     def defaulted_input_no_value_on_domain(self):
@@ -345,7 +345,7 @@ def input_wrapped_widgets(fixture):
        .create_html_widget() method. Several methods for setting HTML-things, like 
        css id are delegated to this Widget which represents the Input in HTML.
     """
-    class MyInput(Input):
+    class MyInput(PrimitiveInput):
         def create_html_widget(self):
             return HTMLElement(self.view, 'x')
 
@@ -369,10 +369,10 @@ def wrong_args_to_input(fixture):
     """Passing the wrong arguments upon constructing an Input results in an error."""
 
     with expected(IsInstance):
-        Input(fixture.form, EmptyStub())
+        PrimitiveInput(fixture.form, EmptyStub())
 
     with expected(IsInstance):
-        Input(EmptyStub(), Field())
+        PrimitiveInput(EmptyStub(), Field())
 
 
 class CheckboxFixture(WebFixture, InputMixin2):
