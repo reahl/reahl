@@ -28,7 +28,7 @@ from reahl.component.modelinterface import Field, EmailField, PasswordField, Boo
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, IntegerConstraint, \
                              MaxValueConstraint, MinValueConstraint, exposed
-from reahl.web.ui import Input, Form, TextInput, Button
+from reahl.web.ui import PrimitiveInput, Form, TextInput, Button
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.inputandvalidation.inputtests import InputMixin, InputMixin2
@@ -50,7 +50,7 @@ class ConstraintRenderingFixture(Fixture, WebBasicsMixin, InputMixin2):
         return text == self.driver_browser.get_text(self.error_xpath)
 
     def new_input(self, field=None):
-        the_input = Input(self.form, field or self.field)
+        the_input = PrimitiveInput(self.form, field or self.field)
         the_input.input_type = 'inputtype'
         return the_input
 
@@ -59,7 +59,7 @@ class ConstraintRenderingFixture(Fixture, WebBasicsMixin, InputMixin2):
 class FieldTests(object):
     @test(ConstraintRenderingFixture)
     def rendering_of_constraints(self, fixture):
-        """The constraints of the Field of an Input are rendered in html as html attributes of an Input
+        """The constraints of the Field of an PrimitiveInput are rendered in html as html attributes of an Input
            which corresponds with the name of each validation_constraint and has value the parameters of the validation_constraint.
            The error message of each validation_constraint is also put in a json object inside the class attribute.
            These measures make it possible to write constraints that are checked on the browser either by

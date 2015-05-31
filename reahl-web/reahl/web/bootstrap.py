@@ -29,7 +29,7 @@ from collections import OrderedDict
 import copy
 
 from reahl.web.fw import Layout, Widget
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput, P
+from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput, P, WrappedInput
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
@@ -174,32 +174,14 @@ class CheckboxInput(reahl.web.ui.CheckboxInput):
 
 
 
-
 from reahl.web.ui import HTMLElement, TextNode, Label, Span
-class SingleRadioButton(Widget):
-    def __init__(self, radio_input, form, value, label, checked=False, attribute_source=None, css_id=None):
-        super(SingleRadioButton, self).__init__(form.view)
-
-        button = self.add_child(HTMLElement(self.view, 'input', attribute_source=attribute_source))
-        button.set_attribute('type', 'radio')
-        button.set_attribute('value', value)
-        button.set_attribute('form', form.css_id)
-        if checked:
-            button.set_attribute('checked', 'checked')
-
-        self.type_class = 'radio'
-        self.bound_field = radio_input.bound_field
-        self.name = radio_input.name
-        self.choice_value = label
-    @property
-    def label(self):
-        return self.choice_value
-    def get_input_status(self):
-        return self.bound_field.input_status
-    @property
-    def validation_error(self):
-        return self.bound_field.validation_error
-
+class SingleRadioButton(reahl.web.ui.SingleRadioButton):
+    type_class = 'radio'
+    def create_main_widget(self, attribute_source, css_id):
+        button = self.create_button_input(attribute_source)
+        if css_id:
+            button.set_id(css_id)
+        return button
 
 
 
@@ -213,37 +195,24 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
         return super(RadioButtonInput, self).create_main_element().use_layout(ChoicesLayout())
 
     def add_button_for_choice_to(self, widget, choice):
-        button = SingleRadioButton(self, self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes)
+        button = SingleRadioButton(self, choice, attribute_source=self.html_input_attributes)
         widget.layout.add_choice(button)
 
 
 
-class InputGroup(Div):
-    @property
-    def label(self):
-        return self.bound_field.label
-
-    @property
-    def name(self):
-        return self.input_widget.name
-
-    @property
-    def bound_field(self):
-        return self.input_widget.bound_field
-
-    def get_input_status(self):
-        return self.bound_field.input_status
-
+class InputGroup(WrappedInput):
     @property
     def validation_error(self):
         return self.bound_field.validation_error
 
-    def __init__(self, prepend, input_widget, append, css_id=None):
-        super(InputGroup, self).__init__(input_widget.view, css_id=css_id)
-        self.append_class('input-group')
+    def __init__(self, prepend, input_widget, append):
+        super(InputGroup, self).__init__(input_widget)
+
+        self.div = self.add_child(Div(self.view))
+        self.div.append_class('input-group')
         if prepend:
             self.add_as_addon(prepend)
-        self.input_widget = self.add_child(input_widget)
+        self.input_widget = self.div.add_child(input_widget)
         if append:
             self.add_as_addon(append)
 
@@ -254,7 +223,7 @@ class InputGroup(Div):
             span = Span(self.view)
             span.add_child(addon)
         span.append_class('input-group-addon')
-        return self.add_child(span)
+        return self.div.add_child(span)
 
 
 

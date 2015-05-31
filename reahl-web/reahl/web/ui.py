@@ -1302,24 +1302,62 @@ class Input(Widget):
        :param bound_field: The :class:`reahl.component.modelinterface.Field` which validates and marshalls user
                      input given via this Input.
     """
-    input_type = None
-    is_for_file = False
     is_Input = True
-    derived_input_attributes_class = DerivedInputAttributes
-    append_error = True
-
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field):
         self.form = form
         self.bound_field = bound_field
+        super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
+
+    def can_write(self):
+        return (not self.write_check) or self.write_check()
+
+    @property
+    def validation_error(self):
+        return self.bound_field.validation_error
+
+    @property
+    def label(self):
+        return self.bound_field.label
+
+    @property
+    def required(self):
+        return self.bound_field.required
+
+    @property
+    def value(self):
+        if self.get_input_status() == 'defaulted' or self.disabled:
+            return self.bound_field.as_input()
+        return self.bound_field.user_input
+
+    def get_input_status(self):
+        return self.bound_field.input_status
+
+
+class WrappedInput(Input):
+    def __init__(self, input_widget):
+        super(WrappedInput, self).__init__(input_widget.form, input_widget.bound_field)
+        self.input_widget = input_widget
+
+    @property
+    def name(self):
+        return self.input_widget.name
+
+
+class PrimitiveInput(Input):
+    input_type = None
+    is_for_file = False
+    derived_input_attributes_class = DerivedInputAttributes
+    append_error = True
+
+    def __init__(self, form, bound_field):
+        super(PrimitiveInput, self).__init__(form, bound_field)
         self.name = form.register_input(self) # bound_field must be set for this registration to work
         self.html_input_attributes = self.derived_input_attributes_class(self)
 
-        super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
-
         self.prepare_input()
         html_widget = None
-        if (type(self) is not Input) and ('create_html_input' in type(self).__dict__):
+        if (type(self) is not PrimitiveInput) and ('create_html_input' in type(self).__dict__):
             warnings.warn('DEPRECATED: %s. %s' % (self.create_html_input, 'Please use .create_html_widget instead.'),
                           DeprecationWarning, stacklevel=5)
             html_widget = self.create_html_input()
@@ -1357,9 +1395,6 @@ class Input(Widget):
         """
         self.wrapped_html_widget.set_attribute(name, value)
 
-    def can_write(self):
-        return (not self.write_check) or self.write_check()
-
     @deprecated('Please override create_html_widget() instead', '3.2')
     def create_html_input(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user."""
@@ -1375,33 +1410,12 @@ class Input(Widget):
         return '%s%s' % (self.bound_field.variable_name, discriminator)
 
     @property
-    def validation_error(self):
-        return self.bound_field.validation_error
-
-    @property
-    def label(self):
-        return self.bound_field.label
-
-    @property
-    def required(self):
-        return self.bound_field.required
-
-    @property
-    def value(self):
-        if self.get_input_status() == 'defaulted' or self.disabled:
-            return self.bound_field.as_input()
-        return self.bound_field.user_input
-
-    @property
     def channel_name(self):
         return self.form.channel_name
 
     @property
     def jquery_selector(self):
         return '''$('input[name=%s][form="%s"]')''' % (self.name, self.form.css_id)
-
-    def get_input_status(self):
-        return self.bound_field.input_status
 
     def validation_constraints_to_render(self):
         return self.bound_field.validation_constraints
@@ -1465,7 +1479,7 @@ class TextAreaDerivedAttributes(DerivedGlobalInputAttributes):
             attributes.set_to('cols', six.text_type(self.input_widget.columns))
 
 
-class TextArea(Input):
+class TextArea(PrimitiveInput):
     """A muli-line Input for plain text.
 
        .. admonition:: Styling
@@ -1518,7 +1532,7 @@ class SelectInputDerivedAttributes(DerivedGlobalInputAttributes):
             attributes.set_to('multiple', 'multiple')
 
 
-class SelectInput(Input):
+class SelectInput(PrimitiveInput):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a dropdown
        list of valid ones.
 
@@ -1552,21 +1566,38 @@ class SelectInput(Input):
             return super(SelectInput, self).get_value_from_input(input_values)
 
 
-class SingleRadioButton(Span):
-    def __init__(self, form, value, label, checked=False, attribute_source=None, css_id=None):
-        super(SingleRadioButton, self).__init__(form.view, css_id=css_id)
-        self.form = form
-        self.set_attribute('class', 'reahl-radio-button')
-        button = self.add_child(HTMLElement(self.view, 'input', attribute_source=attribute_source))
+class SingleRadioButton(WrappedInput):
+    def __init__(self, radio_input, choice, attribute_source=None, css_id=None):
+        super(SingleRadioButton, self).__init__(radio_input)
+        self.choice = choice
+        self.add_child(self.create_main_widget(attribute_source, css_id))
+
+    def create_main_widget(self, attribute_source, css_id):
+        span = Span(self.view, css_id=css_id)
+        span.set_attribute('class', 'reahl-radio-button')
+        span.add_child(self.create_button_input(attribute_source))
+        span.add_child(TextNode(self.view, self.label))
+        return span
+
+    def create_button_input(self, attribute_source):
+        button = HTMLElement(self.view, 'input', attribute_source=attribute_source)
         button.set_attribute('type', 'radio')
-        button.set_attribute('value', value)
-        button.set_attribute('form', form.css_id)
-        if checked:
+        button.set_attribute('value', self.choice.as_input())
+        button.set_attribute('form', self.form.css_id)
+        if self.checked:
             button.set_attribute('checked', 'checked')
-        self.add_child(TextNode(self.view, label))
+        return button
+
+    @property
+    def label(self):
+        return self.choice.label
+
+    @property
+    def checked(self):
+        return self.bound_field.is_selected(self.choice)
 
 
-class RadioButtonInput(Input):
+class RadioButtonInput(PrimitiveInput):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a list of valid ones
        shown as radio buttons.
 
@@ -1597,7 +1628,7 @@ class RadioButtonInput(Input):
         return Div(self.view)
 
     def add_button_for_choice_to(self, widget, choice):
-        widget.add_child(SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes))
+        widget.add_child(SingleRadioButton(self, choice, attribute_source=self.html_input_attributes))
 
     def validation_constraints_to_render(self):
         applicable_constraints = ValidationConstraintList()
@@ -1609,7 +1640,7 @@ class RadioButtonInput(Input):
 
 
 # Uses: reahl/web/reahl.textinput.js
-class TextInput(Input):
+class TextInput(PrimitiveInput):
     """A single line Input for typing plain text.
 
        .. admonition:: Styling
@@ -1644,7 +1675,7 @@ class PasswordInputDerivedAttributes(DerivedInputAttributes):
         attributes.clear('value')
 
 
-class PasswordInput(Input):
+class PasswordInput(PrimitiveInput):
     """A PasswordInput is a single line text input, but it does not show what the user is typing.
 
        .. admonition:: Styling
@@ -1666,7 +1697,7 @@ class CheckBoxDerivedAttributes(DerivedInputAttributes):
             attributes.set_to('checked', 'checked')
 
 
-class CheckboxInput(Input):
+class CheckboxInput(PrimitiveInput):
     """A checkbox.
 
        .. admonition:: Styling
@@ -1693,7 +1724,7 @@ class CheckboxInput(Input):
         return self.bound_field.false_value
 
 
-class ButtonInput(Input):
+class ButtonInput(PrimitiveInput):
     input_type = 'submit'
     def __init__(self, form, event):
         super(ButtonInput, self).__init__(form, event)
@@ -2439,7 +2470,7 @@ class FileInputAttributes(DerivedInputAttributes):
         return self.input_widget.bound_field.allow_multiple
 
 
-class SimpleFileInput(Input):
+class SimpleFileInput(PrimitiveInput):
     """An Input for selecting a single file which will be uploaded once the user clicks on any :class:`Button`
        associated with the same :class:`Form` as this Input.
     
@@ -2602,7 +2633,7 @@ class UniqueFilesConstraint(ValidationConstraint):
         return reduced
 
 
-class FileUploadInput(Input):
+class FileUploadInput(PrimitiveInput):
     """An Input which allows a user to choose several files for uploding to a server. As each file is
        chosen, the file is uploaded to the server in the background (if JavaScript is enabled on the user
        agent). A file being uploaded can be cancelled and uploaded files can be removed from the list.
