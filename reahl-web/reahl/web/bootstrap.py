@@ -29,7 +29,7 @@ from collections import OrderedDict
 import copy
 
 from reahl.web.fw import Layout, Widget
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, DerivedGlobalInputAttributes, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput, P
+from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput, P
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
@@ -49,14 +49,19 @@ class Form(reahl.web.ui.Form):
                 $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
             },
             errorPlacement: function (error, element) {
-                if (element.parent('.input-group').length || element.prop('type') === 'checkbox' || element.prop('type') === 'radio') {
+                if (element.parent('.input-group').length) {
                     error.insertAfter(element.parent());
+                } else if (element.prop('type') === 'checkbox') {
+                    error.insertAfter($(element).closest('.'+$(element).prop('type')));
+                } else if (element.prop('type') === 'radio') {
+                    error.insertAfter($(element).closest('.'+$(element).prop('type')).parent());
                 } else {
                     error.insertAfter(element);
                 }
             }
          }
     '''
+
 
 
 class Container(Layout):
@@ -150,125 +155,117 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
 
 
 
-class DerivedBootstrapInputAttributes(DerivedInputAttributes):
+class DerivedTextInputAttributes(DerivedInputAttributes):
 
     def set_attributes(self, attributes):
-        super(DerivedBootstrapInputAttributes, self).set_attributes(attributes)
+        super(DerivedTextInputAttributes, self).set_attributes(attributes)
         attributes.add_to('class', ['form-control'])
         attributes.set_to('placeholder', self.input_widget.value)
 
 
 class TextInput(reahl.web.ui.TextInput):
     append_error = False
-    derived_input_attributes_class = DerivedBootstrapInputAttributes
+    derived_input_attributes_class = DerivedTextInputAttributes
 
 
 class CheckboxInput(reahl.web.ui.CheckboxInput):
     append_error = False
+    type_class = 'checkbox'
 
 
-class Koos:
-    def __init__(self, form, bound_field, inline=False):
-        self.inline = inline
-        super(CheckboxInput, self).__init__(form, bound_field)
-
-    def create_html_widget(self):
-        checkbox = reahl.web.ui.CheckboxInput(self.form, self.bound_field)
-        label_widget = Label(self.view)
-
-        if inline:
-            label_widget.append_class('checkbox-inline')
-        else:
-            outer_div = Div(self.view)
-            outer_div.append_class('checkbox')
-            outer_div.add_child(label_widget)
-
-        label_widget.add_child(checkbox)
-        label_widget.add_child(TextNode(self.view, self.label))
-
-        return outer_div
 
 
 from reahl.web.ui import HTMLElement, TextNode, Label, Span
-class SingleRadioButton(Input):
-    def __init__(self, form, bound_field, value, label, checked=False, attribute_source=None):
-        self.checked = checked
-        self._value = value
-        self._label = label
-        self.attribute_source = attribute_source
-        super(SingleRadioButton, self).__init__(form, bound_field)
-        
-    @property
-    def value(self):
-        return self._value
+class SingleRadioButton(Widget):
+    def __init__(self, radio_input, form, value, label, checked=False, attribute_source=None, css_id=None):
+        super(SingleRadioButton, self).__init__(form.view)
 
+        button = self.add_child(HTMLElement(self.view, 'input', attribute_source=attribute_source))
+        button.set_attribute('type', 'radio')
+        button.set_attribute('value', value)
+        button.set_attribute('form', form.css_id)
+        if checked:
+            button.set_attribute('checked', 'checked')
+
+        self.type_class = 'radio'
+        self.bound_field = radio_input.bound_field
+        self.name = radio_input.name
+        self.choice_value = label
     @property
     def label(self):
-        return self._label
-
-    def create_html_widget(self):
-        button = HTMLElement(self.view, 'input', attribute_source=self.attribute_source)
-        button.set_attribute('type', 'radio')
-        button.set_attribute('value', self.value)
-        button.set_attribute('form', self.form.css_id)
-        if self.checked:
-            button.set_attribute('checked', 'checked')
-        return button
+        return self.choice_value
+    def get_input_status(self):
+        return self.bound_field.input_status
+    @property
+    def validation_error(self):
+        return self.bound_field.validation_error
 
 
 
 
 class RadioButtonInput(reahl.web.ui.RadioButtonInput):
+    append_error = False
     def __init__(self, form, bound_field, inline=False):
         self.inline = inline
         super(RadioButtonInput, self).__init__(form, bound_field)
 
-    def create_html_widget(self):
-        outer_div = Div(self.view).use_layout(ChoicesLayout())
-        outer_div.set_attribute('class', 'reahl-radio-button-input')
-        for choice in self.bound_field.flattened_choices:
-            button = self.create_button_for_choice(choice)
-            outer_div.layout.add_choice(button, inline=self.inline)
-        return outer_div
-        
-    def create_button_for_choice(self, choice):
-        return SingleRadioButton(self.form, self.bound_field, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes)
+    def create_main_element(self):
+        return super(RadioButtonInput, self).create_main_element().use_layout(ChoicesLayout())
+
+    def add_button_for_choice_to(self, widget, choice):
+        button = SingleRadioButton(self, self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes)
+        widget.layout.add_choice(button)
 
 
 
-class InputGroup(Input):
-    def __init__(self, prepend, input_widget, append):
-        self.prepend = prepend
-        self.input_widget = input_widget
-        self.append = append
-        super(InputGroup, self).__init__(input_widget.form, input_widget.bound_field)
+class InputGroup(Div):
+    @property
+    def label(self):
+        return self.bound_field.label
 
-    def create_html_widget(self):
-        group_div = Div(self.view)
-        group_div.append_class('input-group')
-        if self.prepend:
-            self.add_addon(group_div, self.prepend)
-        group_div.add_child(self.input_widget)
-        if self.append:
-            self.add_addon(group_div, self.append)
-        return group_div
+    @property
+    def name(self):
+        return self.input_widget.name
 
-    def add_addon(self, group_div, addon):
+    @property
+    def bound_field(self):
+        return self.input_widget.bound_field
+
+    def get_input_status(self):
+        return self.bound_field.input_status
+
+    @property
+    def validation_error(self):
+        return self.bound_field.validation_error
+
+    def __init__(self, prepend, input_widget, append, css_id=None):
+        super(InputGroup, self).__init__(input_widget.view, css_id=css_id)
+        self.append_class('input-group')
+        if prepend:
+            self.add_as_addon(prepend)
+        self.input_widget = self.add_child(input_widget)
+        if append:
+            self.add_as_addon(append)
+
+    def add_as_addon(self, addon):
         if isinstance(addon, six.string_types):
             span = Span(self.view, text=addon)
         else:
             span = Span(self.view)
             span.add_child(addon)
         span.append_class('input-group-addon')
-        return group_div.add_child(span)
+        return self.add_child(span)
 
 
+
+            
+            
 class ChoicesLayout(Layout):
-    def add_choice(self, html_input, inline=False):
+    def add_choice(self, html_input, help_text=None, inline=False):
         assert isinstance(html_input, (CheckboxInput, SingleRadioButton))
-
+ 
         label_widget = Label(self.view)
-        input_type_class = 'checkbox' if isinstance(html_input, CheckboxInput) else 'radio'
+        input_type_class = html_input.type_class
 
         if inline:
             label_widget.append_class('%s-inline' % input_type_class)
@@ -281,12 +278,9 @@ class ChoicesLayout(Layout):
 
         label_widget.add_child(html_input)
         label_widget.add_child(TextNode(self.view, html_input.label))
-
+ 
         self.widget.add_child(wrapper)
-        wrapper.html_input_attributes = InputStateAttributes(wrapper, 
-                                                             error_class='has-error', success_class='has-success')
-        if html_input.get_input_status() == 'invalidly_entered':
-            wrapper.add_child(Span(self.view, text=html_input.validation_error.message))
+            
         return wrapper
 
 
@@ -298,32 +292,32 @@ class FormLayout(Layout):
         self.horizontal = horizontal
 
     def customise_widget(self):
-        self.widget.set_attribute('role', 'form')
         if self.inline:
             self.widget.append_class('form-inline')
         elif self.horizontal:
             self.widget.append_class('form-horizontal')
 
-    def add_input(self, html_input, render_label=True, help_text=None):
-        if isinstance(html_input, CheckboxInput):
-            if render_label:
-                return self.add_form_group(html_input, render_label=render_label, help_text=help_text)
-            return self.add_choice_input(html_input, help_text=help_text)
-        else:
-            return self.add_form_group(html_input, render_label=render_label, help_text=help_text)
-            
-    def add_form_group(self, html_input, render_label=True, help_text=None):
+    def add_input(self, html_input, render_label=None, help_text=None):
+        render_label = render_label if render_label is not None else not isinstance(html_input, CheckboxInput)
         form_group = self.widget.add_child(Div(self.view))
         form_group.append_class('form-group')
-        form_group.html_input_attributes = InputStateAttributes(form_group, 
-                                                                error_class='has-error', success_class='has-success')
-        label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
-        label.append_class('control-label' if render_label else 'sr-only')
+        form_group.attribute_source = InputStateAttributes(html_input, 
+                                                           error_class='has-error', success_class='has-success')
+        if render_label:
+            label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
+            label.append_class('control-label' if render_label else 'sr-only')
 
-        form_group.add_child(html_input)
+        if isinstance(html_input, CheckboxInput):
+            form_group.use_layout(ChoicesLayout())
+            form_group.layout.add_choice(html_input, inline=False)
+        else:
+            form_group.add_child(html_input)
 
         if html_input.get_input_status() == 'invalidly_entered':
-            form_group.add_child(Span(self.view, text=html_input.validation_error.message))
+            error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
+            error_text.append_class('help-block')
+            error_text.set_attribute('for', html_input.name)
+            error_text.set_attribute('generated', 'true')
 
         if help_text:
             help_text = form_group.add_child(P(self.view, text=help_text))
@@ -331,10 +325,6 @@ class FormLayout(Layout):
 
         return form_group
 
-    def add_choice_input(self, html_input, help_text=None, inline=False):
-        wrapper = self.widget.add_child(Widget(self.view).use_layout(ChoicesLayout()))
-        wrapper.layout.add_choice(html_input, inline=inline)
-        return wrapper
 
 
 class Button(ButtonInput):

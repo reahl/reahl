@@ -1261,7 +1261,8 @@ class DerivedInputAttributes(DerivedGlobalInputAttributes):
     def set_attributes(self, attributes):
         super(DerivedInputAttributes, self).set_attributes(attributes)
         attributes.set_to('type', self.input_widget.input_type)
-        attributes.set_to('value', self.input_widget.value)
+        if 'value' not in attributes:
+            attributes.set_to('value', self.input_widget.value)
         attributes.set_to('form', self.input_widget.form.css_id)
         self.add_validation_constraints_to_attributes(attributes)
 
@@ -1579,21 +1580,32 @@ class RadioButtonInput(Input):
        :param bound_field: (See :class:`Input`)
     """
 
-    derived_input_attributes_class = DerivedGlobalInputAttributes
+    input_type = 'radio'
+    derived_input_attributes_class = DerivedInputAttributes
 
     def create_html_widget(self):
-        outer_div = Div(self.view)
-        outer_div.set_attribute('class', 'reahl-radio-button-input')
+        main_element = self.create_main_element()
+        main_element.set_attribute('class', 'reahl-radio-button-input')
         for choice in self.bound_field.flattened_choices:
-            button = self.create_button_for_choice(choice)
-            outer_div.add_child(button)
-        return outer_div
+            self.add_button_for_choice_to(main_element, choice)
+        return main_element
 
     def get_value_from_input(self, input_values):
         return input_values.get(self.name, '')
 
-    def create_button_for_choice(self, choice):
-        return SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes)
+    def create_main_element(self):
+        return Div(self.view)
+
+    def add_button_for_choice_to(self, widget, choice):
+        widget.add_child(SingleRadioButton(self.form, choice.as_input(), choice.label, checked=self.bound_field.is_selected(choice), attribute_source=self.html_input_attributes))
+
+    def validation_constraints_to_render(self):
+        applicable_constraints = ValidationConstraintList()
+        if self.required:
+            validation_constraints = super(RadioButtonInput, self).validation_constraints_to_render()
+            validation_constraint = validation_constraints.get_constraint_named('required')
+            applicable_constraints.append(validation_constraint)
+        return applicable_constraints
 
 
 # Uses: reahl/web/reahl.textinput.js
