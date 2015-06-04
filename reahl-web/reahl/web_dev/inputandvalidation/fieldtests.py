@@ -28,7 +28,7 @@ from reahl.component.modelinterface import Field, EmailField, PasswordField, Boo
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, IntegerConstraint, \
                              MaxValueConstraint, MinValueConstraint, exposed
-from reahl.web.ui import PrimitiveInput, Form, TextInput, Button
+from reahl.web.ui import InputTypeInput, Form, TextInput, Button
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.inputandvalidation.inputtests import InputMixin, InputMixin2
@@ -50,9 +50,7 @@ class ConstraintRenderingFixture(Fixture, WebBasicsMixin, InputMixin2):
         return text == self.driver_browser.get_text(self.error_xpath)
 
     def new_input(self, field=None):
-        the_input = PrimitiveInput(self.form, field or self.field)
-        the_input.input_type = 'inputtype'
-        return the_input
+        return InputTypeInput(self.form, field or self.field, 'inputtype')
 
 
 @istest

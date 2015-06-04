@@ -18,12 +18,12 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import warnings
-
 from nose.tools import istest
 from reahl.tofu import scenario
 from reahl.tofu import test
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub
+from reahl.component.py3compat import html_escape
 
 from reahl.web.ui import HTMLElement, PrimitiveInput, TextInput, Button, Form, ValidationException, \
                           LabelOverInput, CueInput, CheckboxInput, TextInput, Label, InputLabel, ButtonInput,\
@@ -213,27 +213,29 @@ class Scenarios(WebFixture, InputMixin):
         self.expected_html = '<input name="an_attribute" form="test" type="password">'
         self.field_controls_visibility = True
 
-    @scenario
-    def checkbox_true(self):
-        """A checkbox needs a 'checked' an_attribute if its field is True. It also renders ONLY the
-            validation message for its required validation_constraint, not for all constraints"""
-        self.model_object.an_attribute = True
+
+    def setup_checkbox_scenario(self, boolean_value):
+        self.model_object.an_attribute = boolean_value
 
         self.field = BooleanField(required=True, label='my text', required_message='$label is needed here')
         self.field.bind('an_attribute', self.model_object)
 
         self.widget = self.form.add_child(CheckboxInput(self.form, self.field))
-        self.expected_html = '<input name="an_attribute" checked="checked" form="test" required="*" type="checkbox" ' \
-                             'class="{&quot;validate&quot;: {&quot;messages&quot;: {&quot;required&quot;: &quot;my text is needed here&quot;}}}">'
         self.field_controls_visibility = True
 
     @scenario
+    def checkbox_true(self):
+        """A checkbox needs a 'checked' an_attribute if its field is True. It also renders ONLY the
+            validation message for its required validation_constraint, not for all constraints"""
+        self.setup_checkbox_scenario(True)
+        self.expected_html = '<input name="an_attribute" checked="checked" form="test" required="*" type="checkbox" ' \
+                             'class="{&quot;validate&quot;: {&quot;messages&quot;: {&quot;required&quot;: &quot;my text is needed here&quot;}}}">'
+
+    @scenario
     def checkbox_false(self):
-        self.checkbox_true()
-        self.model_object.an_attribute = False
+        self.setup_checkbox_scenario(False)
         self.expected_html = '<input name="an_attribute" form="test" required="*" type="checkbox" '\
                              'class="{&quot;validate&quot;: {&quot;messages&quot;: {&quot;required&quot;: &quot;my text is needed here&quot;}}}">'
-        self.field_controls_visibility = True
 
     @scenario
     def text_area_input(self):
@@ -285,10 +287,16 @@ class Scenarios(WebFixture, InputMixin):
 
         self.widget = self.form.add_child(RadioButtonInput(self.form, self.field))
 
-        radio_button = '<span class="reahl-radio-button"><input name="an_attribute"%s form="test" type="radio" value="%s">%s</span>'
+        validations = html_escape('{"validate": {"messages": {"pattern": "an_attribute should be one of the following: 1|2"}}}')
+        radio_button = '<span class="reahl-radio-button">'\
+                       '<input name="an_attribute"%s form="test" pattern="(1|2)" '\
+                              'title="an_attribute should be one of the following: 1|2" '\
+                              'type="radio" value="%s" class="%s">%s'\
+                       '</span>'
 
         outer_div = '<div class="reahl-radio-button-input">%s</div>'
-        buttons = (radio_button % ('', '1', 'One')) + (radio_button % (' checked="checked"', '2', 'Two'))
+        buttons = (radio_button % ('', '1', validations, 'One')) +\
+                  (radio_button % (' checked="checked"', '2', validations, 'Two'))
         self.expected_html = outer_div % buttons
         self.field_controls_visibility = True
 
@@ -298,12 +306,15 @@ def basic_rendering(fixture):
     """What the rendered html for a number of simple inputs look like."""
 
     tester = WidgetTester(fixture.widget)
-
-    # Case: Normal behaviour
     actual = tester.render_html()
     vassert( actual == fixture.expected_html )
 
-    # Case: When the Widget should not be visible
+
+@test(Scenarios)
+def rendering_when_not_allowed(fixture):
+    """When not allowed to see the Widget, it is not rendered."""
+    tester = WidgetTester(fixture.widget)
+
     fixture.field.access_rights.readable = Allowed(False)
     fixture.field.access_rights.writable = Allowed(False)
     actual = tester.render_html()
@@ -468,7 +479,38 @@ def label_behaviour(fixture):
     fixture.driver_browser.wait_for_element_visible(fixture.label_xpath)
 
 
-@test(LabelOverInputFixture)
+class BasicRenderingLabelOverInputScenarios(LabelOverInputFixture):
+    @scenario
+    def domain_has_value(self):
+        #  - has CSS class reahl-labeloverinput
+        #  - the label is hidden
+        self.model_object.an_attribute = 'my value'
+        self.expected_html = '<span class="reahl-labelledinput reahl-labeloverinput">'\
+               '<label for="an_attribute" hidden="true">the label</label>' \
+               '<span><input name="an_attribute" form="test" type="text" value="my value" class="reahl-textinput"></span>'\
+               '</span>'
+
+    @scenario
+    def domain_has_no_value(self):
+        #  - has CSS class reahl-labeloverinput
+        #  - the label is not hidden
+        vassert( not hasattr(self.model_object, 'an_attribute') )
+        self.expected_html = '<span class="reahl-labelledinput reahl-labeloverinput">'\
+               '<label for="an_attribute">the label</label>' \
+               '<span><input name="an_attribute" form="test" type="text" value="" class="reahl-textinput"></span>'\
+               '</span>'
+
+    @scenario
+    def not_allowed_to_be_seen(self):
+        # - the underlying input is not visible
+        self.model_object.an_attribute = 'my value'
+        self.field.access_rights.readable = Allowed(False)
+        self.field.access_rights.writable = Allowed(False)
+        self.expected_html = ''
+
+
+
+@test(BasicRenderingLabelOverInputScenarios)
 def basic_rendering_label_over(fixture):
     """What the html for a LabelOverInput looks like."""
 
@@ -476,33 +518,9 @@ def basic_rendering_label_over(fixture):
     label_over_input = fixture.form.add_child(LabelOverInput(TextInput(fixture.form, fixture.field)))
     tester = WidgetTester(label_over_input)
 
-    # Case: HTML - with a value
-    #  - has CSS class reahl-labeloverinput
-    #  - the label is hidden
-    fixture.model_object.an_attribute = 'my value'
     actual = tester.render_html()
-    expected_html = '<span class="reahl-labelledinput reahl-labeloverinput">'\
-               '<label for="an_attribute" hidden="true">the label</label>' \
-               '<span><input name="an_attribute" form="test" type="text" value="my value" class="reahl-textinput"></span>'\
-               '</span>'
-    vassert( actual == expected_html )
+    vassert( actual == fixture.expected_html )
 
-    # Case: HTML - without a value
-    #  - has CSS class reahl-labeloverinput
-    #  - the label is not hidden
-    del fixture.model_object.an_attribute
-    actual = tester.render_html()
-    expected_html = '<span class="reahl-labelledinput reahl-labeloverinput">'\
-               '<label for="an_attribute">the label</label>' \
-               '<span><input name="an_attribute" form="test" type="text" value="" class="reahl-textinput"></span>'\
-               '</span>'
-    vassert( actual == expected_html )
-
-    # Case: when the underlying input is not visible
-    fixture.field.access_rights.readable = Allowed(False)
-    fixture.field.access_rights.writable = Allowed(False)
-    actual = tester.render_html()
-    vassert( actual == '' )
 
 
 class CueInputFixture(WebFixture, InputMixin2):
@@ -547,33 +565,38 @@ def cue_behaviour(fixture):
     fixture.driver_browser.wait_for_element_not_visible(fixture.cue_xpath)
 
 
-@test(CueInputFixture)
-def basic_rendering_cue_input(fixture):
-    """What the html for a CueInput looks like."""
-    fixture.field.bind('an_attribute', fixture.model_object)
-    cue = fixture.cue
-    cue_input = fixture.cue_input
-    fixture.form.add_child(cue_input)
-    fixture.model_object.an_attribute = 'my value'
-
-    tester = WidgetTester(cue_input)
-
-    # Case: normal behaviour
-    actual = tester.render_html()
-    expected_html = '<div class="pure-g reahl-cueinput reahl-labelledinput">'\
+class BasicRenderingCueInputScenarios(CueInputFixture):
+    @scenario
+    def normal(self):
+        self.expected_html = '<div class="pure-g reahl-cueinput reahl-labelledinput">'\
                 '<div class="column-label pure-u-1-4"><label for="an_attribute">the label</label></div>' \
                 '<div class="column-input pure-u-1-2"><input name="an_attribute" form="test" type="text" value="my value" class="reahl-textinput"></div>' \
                  '<div class="column-cue pure-u-1-4 reahl-cue">' \
                  '<p hidden="true">this is your cue</p>' \
                  '</div>' \
                '</div>'
-    vassert( actual == expected_html )
 
-    # Case: when the underlying input is not visible
-    fixture.field.access_rights.readable = Allowed(False)
-    fixture.field.access_rights.writable = Allowed(False)
+    @scenario
+    def not_allowed_to_be_seen(self):
+        self.field.access_rights.readable = Allowed(False)
+        self.field.access_rights.writable = Allowed(False)
+        self.expected_html = ''
+
+
+@test(BasicRenderingCueInputScenarios)
+def rendering_cue_input(fixture):
+    """What the html for a CueInput looks like."""
+    fixture.model_object.an_attribute = 'my value'
+    fixture.field.bind('an_attribute', fixture.model_object)
+    cue = fixture.cue
+    cue_input = fixture.cue_input
+    fixture.form.add_child(cue_input)
+
+    tester = WidgetTester(cue_input)
+
     actual = tester.render_html()
-    vassert( actual == '' )
+    vassert( actual == fixture.expected_html )
+
 
 
 class FuzzyTextInputFixture(WebFixture, InputMixin2):
