@@ -29,7 +29,7 @@ from collections import OrderedDict
 import copy
 
 from reahl.web.fw import Layout, Widget
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, DerivedInputAttributes, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput, P, WrappedInput
+from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput, P, WrappedInput
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
@@ -41,7 +41,18 @@ class Form(reahl.web.ui.Form):
         return '''
         {
             errorElement: 'span',
-            errorClass: 'help-block',
+            errorClass: 'has-error',
+            validClass: 'has-success',
+            onclick: function(element, event) {
+			// click on selects, radiobuttons and checkboxes
+			if ( element.name in this.submitted ) {
+				this.element(element);
+			}
+			// or option elements, check parent select in that case
+			else if (element.parentNode.name in this.submitted) {
+				this.element(element.parentNode);
+			}
+            },
             highlight: function(element) {
                 $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
             },
@@ -49,12 +60,15 @@ class Form(reahl.web.ui.Form):
                 $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
             },
             errorPlacement: function (error, element) {
+                error.addClass('help-block')
                 if (element.parent('.input-group').length) {
                     error.insertAfter(element.parent());
                 } else if (element.prop('type') === 'checkbox') {
-                    error.insertAfter($(element).closest('.'+$(element).prop('type')));
+                    error.insertAfter($(element).closest('.checkbox'));
+                    error.insertAfter($(element).closest('.checkbox-inline'));
                 } else if (element.prop('type') === 'radio') {
-                    error.insertAfter($(element).closest('.'+$(element).prop('type')).parent());
+                    error.insertAfter($(element).closest('.radio').parent());
+                    error.insertAfter($(element).closest('.radio-inline').parent());
                 } else {
                     error.insertAfter(element);
                 }
@@ -155,38 +169,34 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
 
 
 
-class DerivedTextInputAttributes(DerivedInputAttributes):
-
-    def set_attributes(self, attributes):
-        super(DerivedTextInputAttributes, self).set_attributes(attributes)
-        attributes.add_to('class', ['form-control'])
-        attributes.set_to('placeholder', self.input_widget.value)
-
-
 class TextInput(reahl.web.ui.TextInput):
     append_error = False
-    derived_input_attributes_class = DerivedTextInputAttributes
+    add_default_attribute_source = False
+    def create_html_widget(self):
+        html_widget = super(TextInput, self).create_html_widget()
+        html_widget.append_class('form-control')
+        return html_widget
 
 
 class CheckboxInput(reahl.web.ui.CheckboxInput):
     append_error = False
-    type_class = 'checkbox'
+    add_default_attribute_source = False
 
 
 
 from reahl.web.ui import HTMLElement, TextNode, Label, Span
 class SingleRadioButton(reahl.web.ui.SingleRadioButton):
-    type_class = 'radio'
-    def create_main_widget(self, attribute_source, css_id):
-        button = self.create_button_input(attribute_source)
-        if css_id:
-            button.set_id(css_id)
-        return button
+    append_error = False
+    add_default_attribute_source = False
+
+    def create_html_widget(self):
+        return self.create_button_input()
 
 
 
 class RadioButtonInput(reahl.web.ui.RadioButtonInput):
     append_error = False
+    add_default_attribute_source = False
     def __init__(self, form, bound_field, inline=False):
         self.inline = inline
         super(RadioButtonInput, self).__init__(form, bound_field)
@@ -195,16 +205,12 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
         return super(RadioButtonInput, self).create_main_element().use_layout(ChoicesLayout())
 
     def add_button_for_choice_to(self, widget, choice):
-        button = SingleRadioButton(self, choice, attribute_source=self.html_input_attributes)
+        button = SingleRadioButton(self, choice)
         widget.layout.add_choice(button)
 
 
 
 class InputGroup(WrappedInput):
-    @property
-    def validation_error(self):
-        return self.bound_field.validation_error
-
     def __init__(self, prepend, input_widget, append):
         super(InputGroup, self).__init__(input_widget)
 
@@ -227,29 +233,26 @@ class InputGroup(WrappedInput):
 
 
 
-            
-            
 class ChoicesLayout(Layout):
     def add_choice(self, html_input, help_text=None, inline=False):
         assert isinstance(html_input, (CheckboxInput, SingleRadioButton))
  
         label_widget = Label(self.view)
-        input_type_class = html_input.type_class
 
         if inline:
-            label_widget.append_class('%s-inline' % input_type_class)
+            label_widget.append_class('%s-inline' % html_input.input_type)
             wrapper = label_widget
         else:
             outer_div = Div(self.view)
-            outer_div.append_class(input_type_class)
+            outer_div.append_class(html_input.input_type)
             outer_div.add_child(label_widget)
             wrapper = outer_div
 
         label_widget.add_child(html_input)
         label_widget.add_child(TextNode(self.view, html_input.label))
- 
+
         self.widget.add_child(wrapper)
-            
+
         return wrapper
 
 
@@ -270,8 +273,10 @@ class FormLayout(Layout):
         render_label = render_label if render_label is not None else not isinstance(html_input, CheckboxInput)
         form_group = self.widget.add_child(Div(self.view))
         form_group.append_class('form-group')
-        form_group.attribute_source = InputStateAttributes(html_input, 
-                                                           error_class='has-error', success_class='has-success')
+        form_group.add_attribute_source(InputStateAttributes(html_input, 
+                                                             error_class='has-error', 
+                                                             success_class='has-success',
+                                                             disabled_class='disabled'))
         if render_label:
             label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
             label.append_class('control-label' if render_label else 'sr-only')
@@ -285,6 +290,7 @@ class FormLayout(Layout):
         if html_input.get_input_status() == 'invalidly_entered':
             error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
             error_text.append_class('help-block')
+            error_text.append_class('has-error')
             error_text.set_attribute('for', html_input.name)
             error_text.set_attribute('generated', 'true')
 

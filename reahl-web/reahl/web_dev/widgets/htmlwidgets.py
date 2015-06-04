@@ -100,8 +100,8 @@ def dynamically_determining_attributes(fixture):
 
 @test(WebFixture)
 def delegating_setting_of_attributes(fixture):
-    """An HTMLElement can be created with an `attribute_source` -- an object which the HTMLElement
-       can use in order to let some other object modify or add to its attributes.
+    """One or more DelegatedAttributes instances can be added to an HTMLElement as `attribute_source` -- an 
+       object which the HTMLElement can use in order to let some other object modify or add to its attributes.
     """
 
     @stubclass(DelegatedAttributes)
@@ -109,9 +109,8 @@ def delegating_setting_of_attributes(fixture):
         def set_attributes(self, attributes):
             attributes.set_to('set-by-external-source', 'rhythm and poetry')
 
-    attribute_source = MyDelegatedAttributesClass()
-
-    widget = HTMLElement(fixture.view, 'x', attribute_source=attribute_source)
+    widget = HTMLElement(fixture.view, 'x')
+    widget.add_attribute_source(MyDelegatedAttributesClass())
     tester = WidgetTester(widget)
 
     # Case: dynamic attributes are supplied by the wrapper

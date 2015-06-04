@@ -130,6 +130,7 @@ class HTMLAttributeDict(dict):
         return ' '+html_snippet
 
     def add_to(self, name, values):
+        assert all(value is not None for value in values)
         attribute = self.setdefault(name, HTMLAttribute(name, []))
         attribute.add_values(values)
 
@@ -139,6 +140,7 @@ class HTMLAttributeDict(dict):
             attribute.remove_values(values)
 
     def set_to(self, name, value):
+        assert value is not None
         self[name] = HTMLAttribute(name, [value])
 
     def clear(self, name):
@@ -211,9 +213,9 @@ class HTMLElement(Widget):
     
     """
     tag_name = 'tag'
-    def __init__(self, view, tag_name, children_allowed=False, css_id=None, attribute_source=None, read_check=None, write_check=None):
+    def __init__(self, view, tag_name, children_allowed=False, css_id=None, read_check=None, write_check=None):
         super(HTMLElement, self).__init__(view, read_check=read_check, write_check=write_check)
-        self.attribute_source = attribute_source
+        self.attribute_sources = []
         self.children_allowed = children_allowed
         self.tag_name = tag_name
         self.constant_attributes = HTMLAttributeDict()
@@ -242,6 +244,9 @@ class HTMLElement(Widget):
         assert self.children_allowed, 'You cannot add children to a %s' % type(self)
         return super(HTMLElement, self).add_child(child)
 
+    def add_attribute_source(self, attribute_source):
+        self.attribute_sources.append(attribute_source)
+
     def add_to_attribute(self, name, values):
         """Ensures that the value of the attribute `name` of this HTMLElement includes the words listed in `values` 
            (a list of strings).
@@ -269,8 +274,8 @@ class HTMLElement(Widget):
             attributes.add_to('class', ['reahl-priority-secondary'])
         elif self.priority == 'primary':
             attributes.add_to('class', ['reahl-priority-primary'])
-        if self.attribute_source:
-            self.attribute_source.set_attributes(attributes)
+        for attribute_source in self.attribute_sources:
+            attribute_source.set_attributes(attributes)
         return attributes
         
     def add_hash_change_handler(self):
@@ -1218,14 +1223,19 @@ class DelegatedAttributes(object):
 
 
 class InputStateAttributes(DelegatedAttributes):
-    def __init__(self, input_widget, error_class='error', success_class=None):
+    def __init__(self, input_widget, error_class='error', success_class='valid', disabled_class=None):
         self.input_widget = input_widget
         self.error_class = error_class
         self.success_class = success_class
+        self.disabled_class = disabled_class
 
     @property
     def has_validation_error(self):
         return self.input_widget.get_input_status() == 'invalidly_entered'
+
+    @property
+    def is_validly_entered(self):
+        return self.input_widget.get_input_status() == 'validly_entered'
 
     @property
     def disabled(self):
@@ -1244,55 +1254,12 @@ class InputStateAttributes(DelegatedAttributes):
 
         if self.has_validation_error and self.error_class:
             attributes.add_to('class', [self.error_class]) 
-        elif not self.has_validation_error and self.success_class:
+        elif self.is_validly_entered and self.success_class:
             attributes.add_to('class', [self.success_class]) 
-            
-        if self.disabled:
-            attributes.set_to('disabled', 'disabled')
 
+        if self.disabled and self.disabled_class:
+            attributes.add_to('class', [self.disabled_class])
 
-class DerivedGlobalInputAttributes(InputStateAttributes):
-    def set_attributes(self, attributes):
-        super(DerivedGlobalInputAttributes, self).set_attributes(attributes)
-        attributes.set_to('name', self.input_widget.name)
-
-
-class DerivedInputAttributes(DerivedGlobalInputAttributes):
-    def set_attributes(self, attributes):
-        super(DerivedInputAttributes, self).set_attributes(attributes)
-        attributes.set_to('type', self.input_widget.input_type)
-        if 'value' not in attributes:
-            attributes.set_to('value', self.input_widget.value)
-        attributes.set_to('form', self.input_widget.form.css_id)
-        self.add_validation_constraints_to_attributes(attributes)
-
-    @property
-    def form(self):
-        return self.input_widget.form
-
-    def add_validation_constraints_to_attributes(self, attributes):
-        validation_constraints = self.input_widget.validation_constraints_to_render()
-        html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue', 'remote']
-        for validation_constraint in validation_constraints:
-            if validation_constraint.is_remote:
-                attributes.set_to(validation_constraint.name, six.text_type(self.form.field_validator.get_url()))
-            elif validation_constraint.name in html5_validations:
-                attributes.set_to(validation_constraint.name, validation_constraint.parameters)
-            elif validation_constraint.name != '':
-                attributes.set_to('data-%s' % validation_constraint.name, validation_constraint.parameters)
-        def map_name(name):
-            if name in html5_validations:
-                return name
-            else:
-                return 'data-%s' % name
-        error_messages = validation_constraints.as_json_messages(map_name, ['', RemoteConstraint.name])
-        if error_messages:
-            attributes.add_to('class', [error_messages])
-        try:
-            title = validation_constraints.get_constraint_named('pattern').message
-            attributes.set_to('title', validation_constraints.get_constraint_named('pattern').message)
-        except ConstraintNotFound:
-            pass
 
 
 class Input(Widget):
@@ -1345,15 +1312,15 @@ class WrappedInput(Input):
 
 
 class PrimitiveInput(Input):
-    input_type = None
     is_for_file = False
-    derived_input_attributes_class = DerivedInputAttributes
     append_error = True
-
+    registers_with_form = True
+    add_default_attribute_source = True
+    
     def __init__(self, form, bound_field):
         super(PrimitiveInput, self).__init__(form, bound_field)
-        self.name = form.register_input(self) # bound_field must be set for this registration to work
-        self.html_input_attributes = self.derived_input_attributes_class(self)
+        if self.registers_with_form:
+            self.name = form.register_input(self) # bound_field must be set for this registration to work
 
         self.prepare_input()
         html_widget = None
@@ -1404,7 +1371,13 @@ class PrimitiveInput(Input):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user.
            .. versionadded: 3.2
         """
-        return HTMLElement(self.view, 'input', attribute_source=self.html_input_attributes)
+        html_widget = HTMLElement(self.view, 'input')
+        if self.add_default_attribute_source:
+            html_widget.add_attribute_source(InputStateAttributes(self))
+        html_widget.set_attribute('name', self.name)
+        if self.disabled:
+            html_widget.set_attribute('disabled', 'disabled')
+        return html_widget
 
     def make_name(self, discriminator):
         return '%s%s' % (self.bound_field.variable_name, discriminator)
@@ -1416,9 +1389,6 @@ class PrimitiveInput(Input):
     @property
     def jquery_selector(self):
         return '''$('input[name=%s][form="%s"]')''' % (self.name, self.form.css_id)
-
-    def validation_constraints_to_render(self):
-        return self.bound_field.validation_constraints
 
     def validate_input(self, input_values):
         value = self.get_value_from_input(input_values)
@@ -1470,13 +1440,47 @@ class PrimitiveInput(Input):
         self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
 
 
-class TextAreaDerivedAttributes(DerivedGlobalInputAttributes):
-    def set_attributes(self, attributes):
-        super(TextAreaDerivedAttributes, self).set_attributes(attributes)
-        if self.input_widget.rows:
-            attributes.set_to('rows', six.text_type(self.input_widget.rows))
-        if self.input_widget.columns:
-            attributes.set_to('cols', six.text_type(self.input_widget.columns))
+class InputTypeInput(PrimitiveInput):
+    render_value_attribute = True
+    def __init__(self, form, bound_field, input_type):
+        self.input_type = input_type
+        super(InputTypeInput, self).__init__(form, bound_field)
+
+    def create_html_widget(self):
+        html_widget = super(InputTypeInput, self).create_html_widget()
+        html_widget.set_attribute('type', self.input_type)
+        html_widget.set_attribute('form', self.form.css_id)
+        if self.render_value_attribute:
+            html_widget.set_attribute('value', self.value)
+        self.add_validation_constraints_to(html_widget)
+        return html_widget
+
+    def validation_constraints_to_render(self):
+        return self.bound_field.validation_constraints
+
+    def add_validation_constraints_to(self, html_widget):
+        validation_constraints = self.validation_constraints_to_render()
+        html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue', 'remote']
+        for validation_constraint in validation_constraints:
+            if validation_constraint.is_remote:
+                html_widget.set_attribute(validation_constraint.name, six.text_type(self.form.field_validator.get_url()))
+            elif validation_constraint.name in html5_validations:
+                html_widget.set_attribute(validation_constraint.name, validation_constraint.parameters)
+            elif validation_constraint.name != '':
+                html_widget.set_attribute('data-%s' % validation_constraint.name, validation_constraint.parameters)
+        def map_name(name):
+            if name in html5_validations:
+                return name
+            else:
+                return 'data-%s' % name
+        error_messages = validation_constraints.as_json_messages(map_name, ['', RemoteConstraint.name])
+        if error_messages:
+            html_widget.set_attribute('class', error_messages)
+        try:
+            title = validation_constraints.get_constraint_named('pattern').message
+            html_widget.set_attribute('title', validation_constraints.get_constraint_named('pattern').message)
+        except ConstraintNotFound:
+            pass
 
 
 class TextArea(PrimitiveInput):
@@ -1491,16 +1495,27 @@ class TextArea(PrimitiveInput):
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
     """
-    derived_input_attributes_class = TextAreaDerivedAttributes
-
     def __init__(self, form, bound_field, rows=None, columns=None):
         self.rows = rows
         self.columns = columns
         super(TextArea, self).__init__(form, bound_field)
 
     def create_html_widget(self):
-        html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True, attribute_source=self.html_input_attributes)
+        html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
+        if self.add_default_attribute_source:
+            html_text_area.add_attribute_source(InputStateAttributes(self))
+        html_text_area.set_attribute('name', self.name)
+        if self.disabled:
+            html_text_area.set_attribute('disabled', 'disabled')
+
+
         self.text = html_text_area.add_child(TextNode(self.view, self.get_value))
+
+        if self.rows:
+            html_text_area.set_attribute('rows', six.text_type(self.rows))
+        if self.columns:
+            html_text_area.set_attribute('cols', six.text_type(self.columns))
+
         return html_text_area
 
     def get_value(self):
@@ -1524,14 +1539,6 @@ class OptGroup(HTMLElement):
             self.add_child(option)
 
 
-class SelectInputDerivedAttributes(DerivedGlobalInputAttributes):
-    def set_attributes(self, attributes):
-        super(SelectInputDerivedAttributes, self).set_attributes(attributes)
-        attributes.set_to('form', self.input_widget.form.css_id)
-        if self.input_widget.bound_field.allows_multiple_selections:
-            attributes.set_to('multiple', 'multiple')
-
-
 class SelectInput(PrimitiveInput):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a dropdown
        list of valid ones.
@@ -1543,20 +1550,32 @@ class SelectInput(PrimitiveInput):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
-    derived_input_attributes_class = SelectInputDerivedAttributes
-
     def create_html_widget(self):
-        html_select = HTMLElement(self.view, 'select', children_allowed=True, attribute_source=self.html_input_attributes)
+        html_select = HTMLElement(self.view, 'select', children_allowed=True)
+        if self.add_default_attribute_source:
+            html_select.add_attribute_source(InputStateAttributes(self))
+        html_select.set_attribute('name', self.name)
+        if self.disabled:
+            html_select.set_attribute('disabled', 'disabled')
+
         for choice_or_group in self.bound_field.grouped_choices:
             options = [self.make_option(choice) for choice in choice_or_group.choices]
             if isinstance(choice_or_group, Choice):
                 html_select.add_children(options)
             else:
                 html_select.add_child(OptGroup(self.view, choice_or_group.label, options))
+
+        html_select.set_attribute('form', self.form.css_id)
+        if self.bound_field.allows_multiple_selections:
+            html_select.set_attribute('multiple', 'multiple')
+
         return html_select
 
     def make_option(self, choice):
-        selected = self.bound_field.is_selected(choice)
+        if self.bound_field.allows_multiple_selections:
+            selected = choice.as_input() in self.value
+        else:
+            selected = self.value == choice.as_input()
         return Option(self.view, choice.as_input(), choice.label, selected=selected)
 
     def get_value_from_input(self, input_values):
@@ -1566,24 +1585,24 @@ class SelectInput(PrimitiveInput):
             return super(SelectInput, self).get_value_from_input(input_values)
 
 
-class SingleRadioButton(WrappedInput):
-    def __init__(self, radio_input, choice, attribute_source=None, css_id=None):
-        super(SingleRadioButton, self).__init__(radio_input)
-        self.choice = choice
-        self.add_child(self.create_main_widget(attribute_source, css_id))
+class SingleRadioButton(InputTypeInput):
+    registers_with_form = False
 
-    def create_main_widget(self, attribute_source, css_id):
-        span = Span(self.view, css_id=css_id)
+    def __init__(self, radio_button_input, choice):
+        self.choice = choice
+        self.radio_button_input = radio_button_input
+        self.name = radio_button_input.name
+        super(SingleRadioButton, self).__init__(radio_button_input.form, radio_button_input.bound_field, 'radio')
+
+    def create_html_widget(self):
+        span = Span(self.view)
         span.set_attribute('class', 'reahl-radio-button')
-        span.add_child(self.create_button_input(attribute_source))
+        span.add_child(self.create_button_input())
         span.add_child(TextNode(self.view, self.label))
         return span
 
-    def create_button_input(self, attribute_source):
-        button = HTMLElement(self.view, 'input', attribute_source=attribute_source)
-        button.set_attribute('type', 'radio')
-        button.set_attribute('value', self.choice.as_input())
-        button.set_attribute('form', self.form.css_id)
+    def create_button_input(self):
+        button = super(SingleRadioButton, self).create_html_widget()
         if self.checked:
             button.set_attribute('checked', 'checked')
         return button
@@ -1593,8 +1612,12 @@ class SingleRadioButton(WrappedInput):
         return self.choice.label
 
     @property
+    def value(self):
+        return self.choice.as_input()
+
+    @property
     def checked(self):
-        return self.bound_field.is_selected(self.choice)
+        return super(SingleRadioButton, self).value == self.value
 
 
 class RadioButtonInput(PrimitiveInput):
@@ -1611,12 +1634,9 @@ class RadioButtonInput(PrimitiveInput):
        :param bound_field: (See :class:`Input`)
     """
 
-    input_type = 'radio'
-    derived_input_attributes_class = DerivedInputAttributes
-
     def create_html_widget(self):
         main_element = self.create_main_element()
-        main_element.set_attribute('class', 'reahl-radio-button-input')
+        main_element.append_class('reahl-radio-button-input')
         for choice in self.bound_field.flattened_choices:
             self.add_button_for_choice_to(main_element, choice)
         return main_element
@@ -1628,19 +1648,12 @@ class RadioButtonInput(PrimitiveInput):
         return Div(self.view)
 
     def add_button_for_choice_to(self, widget, choice):
-        widget.add_child(SingleRadioButton(self, choice, attribute_source=self.html_input_attributes))
+        widget.add_child(SingleRadioButton(self, choice))
 
-    def validation_constraints_to_render(self):
-        applicable_constraints = ValidationConstraintList()
-        if self.required:
-            validation_constraints = super(RadioButtonInput, self).validation_constraints_to_render()
-            validation_constraint = validation_constraints.get_constraint_named('required')
-            applicable_constraints.append(validation_constraint)
-        return applicable_constraints
 
 
 # Uses: reahl/web/reahl.textinput.js
-class TextInput(PrimitiveInput):
+class TextInput(InputTypeInput):
     """A single line Input for typing plain text.
 
        .. admonition:: Styling
@@ -1656,10 +1669,11 @@ class TextInput(PrimitiveInput):
                      the system's interpretation of what the user originally typed as soon as the TextInput
                      looses focus.
     """
-    input_type = 'text'
-    def __init__(self, form, bound_field, fuzzy=False):
-        super(TextInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
+        super(TextInput, self).__init__(form, bound_field, 'text')
         self.append_class('reahl-textinput')
+        if placeholder:
+            self.set_attribute('placeholder', self.label)
 
         if fuzzy:
             self.append_class('fuzzy')
@@ -1669,13 +1683,8 @@ class TextInput(PrimitiveInput):
         return super(TextInput, self).get_js(context=context) + js
 
 
-class PasswordInputDerivedAttributes(DerivedInputAttributes):
-    def set_attributes(self, attributes):
-        super(PasswordInputDerivedAttributes, self).set_attributes(attributes)
-        attributes.clear('value')
 
-
-class PasswordInput(PrimitiveInput):
+class PasswordInput(InputTypeInput):
     """A PasswordInput is a single line text input, but it does not show what the user is typing.
 
        .. admonition:: Styling
@@ -1685,19 +1694,12 @@ class PasswordInput(PrimitiveInput):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
-    input_type = 'password'
-    derived_input_attributes_class = PasswordInputDerivedAttributes
+    render_value_attribute = False
+    def __init__(self, form, bound_field):
+        super(PasswordInput, self).__init__(form, bound_field, 'password')
 
 
-class CheckBoxDerivedAttributes(DerivedInputAttributes):
-    def set_attributes(self, attributes):
-        super(CheckBoxDerivedAttributes, self).set_attributes(attributes)
-        attributes.clear('value')
-        if self.input_widget.value == self.input_widget.bound_field.true_value:
-            attributes.set_to('checked', 'checked')
-
-
-class CheckboxInput(PrimitiveInput):
+class CheckboxInput(InputTypeInput):
     """A checkbox.
 
        .. admonition:: Styling
@@ -1707,9 +1709,16 @@ class CheckboxInput(PrimitiveInput):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`)
     """
-    input_type = 'checkbox'
-    derived_input_attributes_class = CheckBoxDerivedAttributes
+    render_value_attribute = False
+    def __init__(self, form, bound_field):
+        super(CheckboxInput, self).__init__(form, bound_field, 'checkbox')
 
+    def create_html_widget(self):
+        checkbox_widget = super(CheckboxInput, self).create_html_widget()
+        if self.value == self.bound_field.true_value:
+            checkbox_widget.set_attribute('checked', 'checked')
+        return checkbox_widget
+        
     def validation_constraints_to_render(self):
         applicable_constraints = ValidationConstraintList()
         if self.required:
@@ -1724,10 +1733,9 @@ class CheckboxInput(PrimitiveInput):
         return self.bound_field.false_value
 
 
-class ButtonInput(PrimitiveInput):
-    input_type = 'submit'
+class ButtonInput(InputTypeInput):
     def __init__(self, form, event):
-        super(ButtonInput, self).__init__(form, event)
+        super(ButtonInput, self).__init__(form, event, 'submit')
         if not self.controller.has_event_named(event.name):
             raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
@@ -2459,18 +2467,9 @@ class SlidingPanel(Panel):
         return '".reahl-slidingpanel"'
 
 
-class FileInputAttributes(DerivedInputAttributes):
-    def set_attributes(self, attributes):
-        super(FileInputAttributes, self).set_attributes(attributes)
-        if self.allow_multiple:
-            self.wrapped_html_input.set_attribute('multiple', 'multiple')
-
-    @property
-    def allow_multiple(self):
-        return self.input_widget.bound_field.allow_multiple
 
 
-class SimpleFileInput(PrimitiveInput):
+class SimpleFileInput(InputTypeInput):
     """An Input for selecting a single file which will be uploaded once the user clicks on any :class:`Button`
        associated with the same :class:`Form` as this Input.
     
@@ -2482,9 +2481,16 @@ class SimpleFileInput(PrimitiveInput):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`, must be of type :class:`reahl.component.modelinterface.FileField`
     """
-    input_type = 'file'
     is_for_file = True
-    derived_input_attributes_class = FileInputAttributes
+
+    def __init__(self, form, bound_field):
+        super(SimpleFileInput, self).__init__(form, bound_field, 'file')
+
+    def create_html_widget(self):
+        file_input = super(SimpleFileInput, self).create_html_widget()
+        if self.allow_multiple:
+            file_input.set_attribute('multiple', 'multiple')
+        return file_input
 
     def get_value_from_input(self, input_values):
         field_storages = input_values.getall(self.name)
@@ -2492,6 +2498,10 @@ class SimpleFileInput(PrimitiveInput):
         return [UploadedFile(six.text_type(field_storage.filename), field_storage.file.read(), six.text_type(field_storage.type))
                  for field_storage in field_storages
                  if field_storage not in ('', b'')]
+
+    @property
+    def allow_multiple(self):
+        return self.bound_field.allow_multiple
 
     @property
     def value(self):
@@ -2659,7 +2669,6 @@ class FileUploadInput(PrimitiveInput):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`, must be of type :class:`reahl.component.modelinterface.FileField`
     """
-
     @property
     def persisted_file_class(self):
         config = WebExecutionContext.get_context().config

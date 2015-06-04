@@ -1396,9 +1396,6 @@ class ChoiceField(Field):
         self.grouped_choices = grouped_choices
         self.init_validation_constraints()
 
-    def is_selected(self, choice):
-        return self.get_model_value() == choice.value
-        
     def init_validation_constraints(self):
         allowed_values = [choice.as_input() for choice in self.flattened_choices]
         self.add_validation_constraint(AllowedValuesConstraint(allowed_values))
@@ -1429,9 +1426,6 @@ class MultiChoiceField(ChoiceField):
     allows_multiple_selections = True
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
-
-    def is_selected(self, choice):
-        return self.get_model_value() and (choice.value in self.get_model_value())
 
     def parse_input(self, unparsed_inputs):
         selected = []
