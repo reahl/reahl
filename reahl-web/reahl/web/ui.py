@@ -1522,13 +1522,35 @@ class TextArea(PrimitiveInput):
         return self.value
 
 
-class Option(HTMLElement):
-    def __init__(self, view, value, label, selected=False, css_id=None):
-        super(Option, self).__init__(view, 'option', children_allowed=True, css_id=css_id)
-        self.add_child(TextNode(view, label))
-        self.set_attribute('value', value)
-        if selected:
-            self.set_attribute('selected', 'selected')
+class Option(PrimitiveInput):
+    def __init__(self, select_input, choice):
+        self.choice = choice
+        self.select_input = select_input
+        super(Option, self).__init__(select_input.form, select_input.bound_field)
+
+    @property
+    def label(self):
+        return self.choice.label
+
+    @property
+    def value(self):
+        return self.choice.as_input()
+
+    @property
+    def selected(self):
+        if self.bound_field.allows_multiple_selections:
+            return self.value in self.select_input.value
+        else:
+            return self.value == self.select_input.value
+    
+    def create_html_widget(self):
+        option = HTMLElement(self.view, 'option', children_allowed=True)
+        option.add_child(TextNode(self.view, self.label))
+        option.set_attribute('value', self.value)
+        if self.selected:
+            option.set_attribute('selected', 'selected')
+        return option
+
 
 
 class OptGroup(HTMLElement):
@@ -1559,7 +1581,7 @@ class SelectInput(PrimitiveInput):
             html_select.set_attribute('disabled', 'disabled')
 
         for choice_or_group in self.bound_field.grouped_choices:
-            options = [self.make_option(choice) for choice in choice_or_group.choices]
+            options = [Option(self, choice) for choice in choice_or_group.choices]
             if isinstance(choice_or_group, Choice):
                 html_select.add_children(options)
             else:
@@ -1571,12 +1593,11 @@ class SelectInput(PrimitiveInput):
 
         return html_select
 
-    def make_option(self, choice):
+    def is_selected(self, choice):
         if self.bound_field.allows_multiple_selections:
-            selected = choice.as_input() in self.value
+            return choice.as_input() in self.value
         else:
-            selected = self.value == choice.as_input()
-        return Option(self.view, choice.as_input(), choice.label, selected=selected)
+            return self.value == choice.as_input()
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
@@ -1617,7 +1638,7 @@ class SingleRadioButton(InputTypeInput):
 
     @property
     def checked(self):
-        return super(SingleRadioButton, self).value == self.value
+        return self.radio_button_input.value == self.value
 
 
 class RadioButtonInput(PrimitiveInput):
