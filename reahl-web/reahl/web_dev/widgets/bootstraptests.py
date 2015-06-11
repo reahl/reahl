@@ -141,11 +141,11 @@ def column_clearfix(fixture):
 # FormLayout
 #DONE Form can be vertical/horizontal/the other stuff?
 # Adding an input using a form layout adds the input (optionally with Some input, help text)
-# - add form-group with label and help-text
-# - form-group reacts to valid/invalidly entered input
-#    - both in js and also on the server
-#    - js can clear what server rendered
-# - label is rendered by default, except for checkboxes when its not
+# DONE- add form-group with label and help-text
+# DONE- form-group reacts to valid/invalidly entered input
+# DONE   - both in js and also on the server
+# DONE   - js can clear what server rendered
+# DONE- label is rendered by default, except for checkboxes when its not
 # ChoiceLayout
 # SingleRadioButtons and Checkboxes can be laid out inlined or not using ChoiceLayout
 # - single radio buttons in a radiobuttoninput is laid out inline or not
@@ -154,7 +154,6 @@ def column_clearfix(fixture):
 #  - An InputGroup is a composition of an input with some text before and/or after it
 #  - An InputGroup can also include Widgets in its composition
 #  - An InputGroup can also be added as Input to a form 
-# Using FormLayout, you can lay out a form as horizontal, x or y
 # Each of the PrimitiveInputs renders like X (bootstrap classes & no error labels - just plain html inputs)
 # ContainerLayout makes its widget a bootstrap container
 
@@ -324,6 +323,7 @@ class ValidationScenarios(FormLayoutFixture):
         class FormWithInput(Form):
             def __init__(self, view):
                 super(FormWithInput, self).__init__(view, 'aform')
+                self.set_attribute('novalidate','novalidate')
                 self.use_layout(FormLayout())
                 self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
                 self.layout.add_input(TextInput(self, fixture.domain_object.fields.another_attribute))
@@ -371,9 +371,33 @@ def input_validation_cues(fixture):
     vassert( not fixture.get_form_group_highlight_marks(browser, index=0) )
     vassert( not fixture.get_form_group_errors(browser, index=0) )
 
+@test(ValidationScenarios.with_javascript)
+def input_validation_cues2(fixture):
+    """The visual cues rendered server-side can subsequently be manipulated via javascript."""
+    fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=False))
 
-# server-side renders correct error/success? classes and error messages
-# js can clear/manipulate server-side rendered classes/error messages
+    browser = fixture.browser
+    browser.open('/')
+    browser.type(XPath.input_labelled('Some input'), '')
+    browser.click(XPath.button_labelled('Submit'))
+
+    vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    [error] = fixture.get_form_group_errors(browser, index=0)
+    vassert( error.text == 'Some input is required' )
+
+    fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=True))
+    browser.open('/')
+
+    vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    [error] = fixture.get_form_group_errors(browser, index=0)
+    vassert( error.text == 'Some input is required' )
+
+    browser.type(XPath.input_labelled('Some input'), 'valid value')
+    browser.click(XPath.button_labelled('Submit'))
+
+    vassert( ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    vassert( not fixture.get_form_group_errors(browser, index=0) )
+
 # disabled?
 
 
