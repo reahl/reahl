@@ -307,74 +307,61 @@ def adding_checkboxes(fixture):
     vassert( checkbox.attrib['class'] == 'checkbox' )
     
 
+class ValidationScenarios(FormLayoutFixture):
+    def new_domain_object(self):
+        class ModelObject(object):
+            @exposed
+            def fields(self, fields):
+                fields.an_attribute = Field(label='Some input', required=True)
+                fields.another_attribute = Field(label='Another input', required=True)
+            @exposed
+            def events(self, events):
+                events.submit = Event(label='Submit')
+        return ModelObject()
 
-@test(FormLayoutFixture)
-def input_validation_cues(fixture):
-    """Visible cues are inserted to indicate the current validation state and possible validation error messages to a user. """
-    class FormWithInput(Form):
-        def __init__(self, view):
-            super(FormWithInput, self).__init__(view, 'aform')
-            self.use_layout(FormLayout())
-            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
+    def new_Form(self):
+        fixture = self
+        class FormWithInput(Form):
+            def __init__(self, view):
+                super(FormWithInput, self).__init__(view, 'aform')
+                self.use_layout(FormLayout())
+                self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
+                self.layout.add_input(TextInput(self, fixture.domain_object.fields.another_attribute))
+                self.define_event_handler(fixture.domain_object.events.submit)
+                self.add_child(Button(self, fixture.domain_object.events.submit))
+        return FormWithInput
 
-    fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=FormWithInput.factory(), enable_js=True))
-    browser = fixture.driver_browser
-    browser.open('/')
-
-    vassert( not fixture.get_form_group_highlight_marks(browser) )
-    vassert( not fixture.get_form_group_errors(browser) )
-
-    vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser) )
-    [error] = fixture.get_form_group_errors(browser)
-    vassert( error.text == 'Some input is required' )
-
-    browser.type(XPath.input_labelled('Some input'), 'valid value')
-    vassert( ['has-success'] == fixture.get_form_group_highlight_marks(browser) )
-    vassert( not fixture.get_form_group_errors(browser) )
-
-
-class ServerSideValidationScenarios(FormLayoutFixture):
     @scenario
-    def invalidly_entered(self):
-        pass
+    def with_javascript(self):
+        self.reahl_server.set_app(self.new_wsgi_app(child_factory=self.Form.factory(), enable_js=True))
+        self.browser = self.driver_browser
 
-@test(FormLayoutFixture)
-def server_side_input_validation_cues(fixture):
-    """. """
-    class ModelObject(object):
-        @exposed
-        def fields(self, fields):
-            fields.an_attribute = Field(label='Some input', required=True)
-            fields.another_attribute = Field(label='Another input', required=True)
-        @exposed
-        def events(self, events):
-            events.submit = Event(label='Submit')
-            
-    fixture.domain_object = ModelObject()
+    @scenario
+    def without_javascript(self):
+        self.browser = Browser(super(ValidationScenarios, self).new_wsgi_app(child_factory=self.Form.factory()))
 
-    class FormWithInput(Form):
-        def __init__(self, view):
-            super(FormWithInput, self).__init__(view, 'aform')
-            self.use_layout(FormLayout())
-            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
-            self.layout.add_input(TextInput(self, fixture.domain_object.fields.another_attribute))
-            self.define_event_handler(fixture.domain_object.events.submit)
-            self.add_child(Button(self, fixture.domain_object.events.submit))
-            
 
-    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInput.factory()))
+@test(ValidationScenarios)
+def input_validation_cues(fixture):
+    """Visible cues are inserted to indicate the current validation state
+       and possible validation error messages to a user. """
+
+    browser = fixture.browser
     browser.open('/')
 
     vassert( not fixture.get_form_group_highlight_marks(browser, index=0) )
     vassert( not fixture.get_form_group_errors(browser, index=0) )
 
+    browser.type(XPath.input_labelled('Some input'), '')
     browser.click(XPath.button_labelled('Submit'))
+
     vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser, index=0) )
     [error] = fixture.get_form_group_errors(browser, index=0)
     vassert( error.text == 'Some input is required' )
 
     browser.type(XPath.input_labelled('Some input'), 'valid value')
     browser.click(XPath.button_labelled('Submit'))
+
     vassert( ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=0) )
     vassert( not fixture.get_form_group_errors(browser, index=0) )
 
