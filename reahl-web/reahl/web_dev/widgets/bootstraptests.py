@@ -200,10 +200,10 @@ class FormLayoutFixture(WebFixture):
         return browser.get_xpath_count(self.form_group_xpath) == 1
 
     def get_form_group_children(self, browser, index=0):
-        return browser.xpath( '%s[%s]/*' % (self.form_group_xpath, index) )
+        return browser.xpath( '%s[%s]/*' % (self.form_group_xpath, index+1) )
 
     def get_form_group_highlight_marks(self, browser, index=0):
-        form_groups = browser.xpath('%s[%s]' % (self.form_group_xpath, index))
+        form_groups = browser.xpath('%s[%s]' % (self.form_group_xpath, index+1))
         form_group = form_groups[index]
         return [mark for mark in form_group.attrib['class'].split(' ')
                      if mark.startswith('has-')]
