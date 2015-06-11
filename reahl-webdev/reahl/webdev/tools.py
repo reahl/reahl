@@ -87,6 +87,12 @@ class BasicBrowser(object):
         """Returns the `lmxl Element <http://lxml.de/>`_ found by the given `xpath`."""
         return self.lxml_html.xpath(xpath)
 
+    def get_xpath_count(self, locator):
+        """Answers the number of elements matching `locator`.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        """
+        return len(self.xpath(six.text_type(locator)))
 
 
 class WidgetTester(BasicBrowser):
