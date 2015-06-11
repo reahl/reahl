@@ -183,15 +183,12 @@ class CheckboxInput(reahl.web.ui.CheckboxInput):
     add_default_attribute_source = False
 
 
-
-from reahl.web.ui import HTMLElement, TextNode, Label, Span
 class SingleRadioButton(reahl.web.ui.SingleRadioButton):
     append_error = False
     add_default_attribute_source = False
 
     def create_html_widget(self):
         return self.create_button_input()
-
 
 
 class RadioButtonInput(reahl.web.ui.RadioButtonInput):

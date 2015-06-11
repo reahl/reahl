@@ -30,7 +30,8 @@ from reahl.web.fw import UserInterface
 from reahl.web.ui import Div, P, HTML5Page, Header, Footer
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
-from reahl.web.bootstrap import ColumnLayout, ResponsiveSize, InputGroup, Button
+from reahl.component.modelinterface import exposed, Field, BooleanField, Event
+from reahl.web.bootstrap import ColumnLayout, ResponsiveSize, InputGroup, Button, FormLayout, Form, TextInput, CheckboxInput
 
 
 
@@ -54,7 +55,7 @@ def column_layout_basics(fixture):
 
 @test(WebFixture)
 def column_layout_sizes(fixture):
-    """Is is mandatory to specify sizes for all columns."""
+    """It is mandatory to specify sizes for all columns."""
 
     with expected(ProgrammerError):
         ColumnLayout('column_a')
@@ -136,146 +137,256 @@ def column_clearfix(fixture):
     vassert( [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()] )  
 
 
-class InputStateFixture(WebFixture):
+
+# FormLayout
+#DONE Form can be vertical/horizontal/the other stuff?
+# Adding an input using a form layout adds the input (optionally with Some input, help text)
+# - add form-group with label and help-text
+# - form-group reacts to valid/invalidly entered input
+#    - both in js and also on the server
+#    - js can clear what server rendered
+# - label is rendered by default, except for checkboxes when its not
+# ChoiceLayout
+# SingleRadioButtons and Checkboxes can be laid out inlined or not using ChoiceLayout
+# - single radio buttons in a radiobuttoninput is laid out inline or not
+# - checkbox is added to form-group not inlined
+# InputGroup:
+#  - An InputGroup is a composition of an input with some text before and/or after it
+#  - An InputGroup can also include Widgets in its composition
+#  - An InputGroup can also be added as Input to a form 
+# Using FormLayout, you can lay out a form as horizontal, x or y
+# Each of the PrimitiveInputs renders like X (bootstrap classes & no error labels - just plain html inputs)
+# ContainerLayout makes its widget a bootstrap container
+
+
+class FormLayoutScenarios(WebFixture):
+    def new_widget(self):
+        return Div(self.view).use_layout(self.layout)
 
     @scenario
-    def valid_input(self):
-        self.input_email = 'defaulted'
-        self.validation_error_should_be_shown = False
+    def basic_form(self):
+        self.layout = FormLayout()
+        self.expected_html = '<div></div>'
 
     @scenario
-    def invalid_input(self):
-        self.input_email = 'piet@home.org'
-        self.validation_error_should_be_shown = True
+    def inline_form(self):
+        self.layout = FormLayout(inline=True)
+        self.expected_html = '<div class="form-inline"></div>'
+
+    @scenario
+    def horizontal_form(self):
+        self.layout = FormLayout(horizontal=True)
+        self.expected_html = '<div class="form-horizontal"></div>'
 
 
-@test(InputStateFixture)
-def adding_form_group(fixture):
-    """Wrap labels and controls in .form-group for optimum spacing."""
-    return 'TODO'
-    from reahl.web.bootstrap import Form
-    from reahl.web.bootstrap import TextInput, FormLayout
-    from reahl.component.modelinterface import EmailField, exposed
-    from reahl.stubble import EmptyStub
+@test(FormLayoutScenarios)
+def basic_form_layouts(fixture):
+    """There are three basic layouts of forms in bootstrap."""
+    tester = WidgetTester(fixture.widget)
+    actual = tester.render_html()
+    vassert( actual == fixture.expected_html )
 
-    field = EmailField()
-    field.bind('field_name', EmptyStub())
 
-    form = Form(fixture.view, 'boots').use_layout(FormLayout())
-    text_input = TextInput(form, field)
-    form_group_widget = form.layout.add_form_group(text_input)
-
-    text_input.enter_value(fixture.input_email)
-    text_input.prepare_input()
-
-    vassert( 'form-group' in form_group_widget.get_attribute('class')  )
+class FormLayoutFixture(WebFixture):
+    form_group_xpath = '//form/div[contains(@class, "form-group")]'
+    def new_domain_object(self):
+        class StubDomainObject(object):
+            @exposed
+            def fields(self, fields):
+                fields.an_attribute = Field(label='Some input', required=True)
+        return StubDomainObject()
     
-    [label, html_input] = form_group_widget.children
+    def form_contains_form_group(self, browser):
+        return browser.get_xpath_count(self.form_group_xpath) == 1
 
-    vassert( 'control-label' in label.get_attribute('class')  )
-    vassert( 'form-control' in html_input.wrapped_html_widget.get_attribute('class')  )
-    vassert( fixture.input_email in html_input.wrapped_html_widget.get_attribute('placeholder')  )
+    def get_form_group_children(self, browser, index=0):
+        return browser.xpath( '%s[%s]/*' % (self.form_group_xpath, index) )
 
-    if fixture.validation_error_should_be_shown:
-        vassert( 'field_name should be a valid email address' in form_group_div.render()  )
-
-
-@test(WebFixture)
-def mixing_formgroup_with_inputgroup(fixture):
-    return 'TODO'
-    vassert( False )
-
-
-@test(WebFixture)
-def adding_input_group(fixture):
-    return 'TODO'
-    from reahl.web.bootstrap import Form
-    from reahl.web.bootstrap import TextInput, FormLayout
-    from reahl.component.modelinterface import EmailField, exposed
-    from reahl.stubble import EmptyStub
-
-    field = EmailField()
-    field.bind('field_name', EmptyStub())
-
-    form = Form(fixture.view, 'boots').use_layout(FormLayout())
-    text_input = TextInput(form, field)
-    form_group_widget = form.layout.add_form_group(InputGroup(fixture.view, '$', text_input, '.00'))
-
-    text_input.enter_value('some email')
-    text_input.prepare_input()
-
-    [label, input_group] = form_group_widget.children
-
-    vassert( 'input-group' in input_group.get_attribute('class')  )
-
-    [prepend_addon, html_input, append_addon ] = input_group.children
-
-    vassert( 'input-group-addon' in prepend_addon.get_attribute('class')  )
-    vassert( 'input-group-addon' in append_addon.get_attribute('class')  )
+    def get_form_group_highlight_marks(self, browser, index=0):
+        form_groups = browser.xpath('%s[%s]' % (self.form_group_xpath, index))
+        form_group = form_groups[index]
+        return [mark for mark in form_group.attrib['class'].split(' ')
+                     if mark.startswith('has-')]
+        
+    def get_form_group_errors(self, browser, index=0):
+        def is_error_element(element):
+            return 'help-block' in element.attrib['class'] and 'has-error' in element.attrib['class'] 
+        def is_visible(element):
+            return not (('style' in element.attrib) and ('display: none' in element.attrib['style']))
+            
+        return [element for element in self.get_form_group_children(browser, index=index)
+                        if is_error_element(element) and is_visible(element) ]
 
 
-@test(WebFixture)
-def form(fixture):
-    return 'TODO'
-    from reahl.web.bootstrap import Form
-    from reahl.web.bootstrap import TextInput, FormLayout
-    from reahl.component.modelinterface import EmailField, exposed
-    from reahl.stubble import EmptyStub
+@test(FormLayoutFixture)
+def adding_basic_input(fixture):
+    """Adding an input to a FormLayout, adds it in a bootstrap form-group with Some input."""
+    
+    class FormWithInputAddedUsingDefaults(Form):
+        def __init__(self, view):
+            super(FormWithInputAddedUsingDefaults, self).__init__(view, 'aform')
+            self.use_layout(FormLayout())
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
 
-    field = EmailField()
-    field.bind('field_name', EmptyStub())
+    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputAddedUsingDefaults.factory()))
+    browser.open('/')
 
-    form = Form(fixture.view, 'boots').use_layout(FormLayout(horizontal=True))
-    text_input = TextInput(form, field)
-    form.layout.add_form_group(text_input, label_text='Email')
+    vassert( fixture.form_contains_form_group(browser) )
+    
+    [label, input_widget] = fixture.get_form_group_children(browser)
+    
+    # form-group has Some input, correctly set up for bootstrap
+    vassert( label.tag == 'label' )
+    vassert( label.attrib['for'] == 'an_attribute' )
+    vassert( 'control-label' in label.attrib['class'] )
+    vassert( label.text == 'Some input' )
+    
+    # form-group has an input, correctly set up for bootstrap
+    vassert( input_widget.tag == 'input' )
+    vassert( input_widget.attrib['name'] == 'an_attribute' )
 
-    text_input.enter_value('not an email address')
-    text_input.prepare_input()
 
-    expected_html = '<form id="boots" action="/__boots_method" data-formatter="/__boots_format_method" method="POST" class="form-horizontal reahl-form"><div class="form-group"><label for="field_name" class="control-label">Email</label><input name="field_name" form="boots" pattern="[^\s]+@[^\s]+\.[^\s]{2,4}" placeholder="not an email address" title="field_name should be a valid email address" type="text" value="not an email address" class="error form-control reahl-textinput {&quot;validate&quot;: {&quot;messages&quot;: {&quot;pattern&quot;: &quot;field_name should be a valid email address&quot;}}}"><span class="help-block">field_name should be a valid email address</span></div></form>'
-    #print (form.render())
-    vassert( form.render() == expected_html )
+@test(FormLayoutFixture)
+def specifying_help_text(fixture):
+    """You can optionally specify help_text when adding an input."""
+    
+    class FormWithInputAndHelp(Form):
+        def __init__(self, view):
+            super(FormWithInputAndHelp, self).__init__(view, 'aform')
+            self.use_layout(FormLayout())
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
+    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputAndHelp.factory()))
+    browser.open('/')
 
+    [label, input_widget, help_text] = fixture.get_form_group_children(browser)
 
-@test(WebFixture)
-def form2(fixture):
-    return 'TODO'
-    from reahl.web.bootstrap import Form
-    from reahl.web.bootstrap import TextInput, FormLayout
-    from reahl.component.modelinterface import EmailField, exposed, Event, Action
-    from reahl.stubble import EmptyStub
+    # form-group has help-text    
+    vassert( help_text.tag == 'p' )
+    vassert( 'help-block' in help_text.attrib['class'] )
+    vassert( help_text.text == 'some help' )
+    
 
-    field = EmailField()
-    field.bind('field_name', EmptyStub())
+@test(FormLayoutFixture)
+def omitting_label(fixture):
+    """The label will be omitted if this is explicity requested."""
+    class FormWithInputNoLabel(Form):
+        def __init__(self, view):
+            super(FormWithInputNoLabel, self).__init__(view, 'aform')
+            self.use_layout(FormLayout())
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), render_label=False)
 
-    class ModelObject(object):
-        def handle_event(self):
-            print('clicked')
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me', action=Action(self.handle_event))
+    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputNoLabel.factory()))
+    browser.open('/')
+
+    vassert( not any(child.tag == 'label' for child in fixture.get_form_group_children(browser)) )
+    
+
+@test(FormLayoutFixture)
+def adding_checkboxes(fixture):
+    """CheckboxInputs are added non-inlined, and by default without labels."""
+
+    class DomainObjectWithBoolean(object):
         @exposed
         def fields(self, fields):
-            fields.an_attribute = field
-    model_object = ModelObject()
+            fields.an_attribute = BooleanField(label='Some input', required=True)
 
-    class MyForm(Form):
-        def __init__(self, view, name):
-            super(MyForm, self).__init__(view, name)
+    fixture.domain_object = DomainObjectWithBoolean()
+    
+    class FormWithInputWithCheckbox(Form):
+        def __init__(self, view):
+            super(FormWithInputWithCheckbox, self).__init__(view, 'aform')
+            self.use_layout(FormLayout())
+            self.layout.add_input(CheckboxInput(self, fixture.domain_object.fields.an_attribute))
 
-            self.append_class('container')
-            self.set_attribute('novalidate', 'novalidate')
-            self.use_layout(FormLayout(horizontal=True))
+    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputWithCheckbox.factory()))
+    browser.open('/')
 
-            self.layout.add_form_group(TextInput(self, field), label_text='Email')
+    vassert( not any(child.tag == 'label' for child in fixture.get_form_group_children(browser)) )
+    [checkbox] = fixture.get_form_group_children(browser)
+    vassert( checkbox.attrib['class'] == 'checkbox' )
+    
 
-            self.define_event_handler(model_object.events.an_event)
-            self.add_child(Button(self, model_object.events.an_event))
 
-    wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-    fixture.reahl_server.set_app(wsgi_app)
-    fixture.driver_browser.open('/')
+@test(FormLayoutFixture)
+def input_validation_cues(fixture):
+    """Visible cues are inserted to indicate the current validation state and possible validation error messages to a user. """
+    class FormWithInput(Form):
+        def __init__(self, view):
+            super(FormWithInput, self).__init__(view, 'aform')
+            self.use_layout(FormLayout())
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
 
-    #import pdb;pdb.set_trace()
+    fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=FormWithInput.factory(), enable_js=True))
+    browser = fixture.driver_browser
+    browser.open('/')
+
+    vassert( not fixture.get_form_group_highlight_marks(browser) )
+    vassert( not fixture.get_form_group_errors(browser) )
+
+    vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser) )
+    [error] = fixture.get_form_group_errors(browser)
+    vassert( error.text == 'Some input is required' )
+
+    browser.type(XPath.input_labelled('Some input'), 'valid value')
+    vassert( ['has-success'] == fixture.get_form_group_highlight_marks(browser) )
+    vassert( not fixture.get_form_group_errors(browser) )
+
+
+class ServerSideValidationScenarios(FormLayoutFixture):
+    @scenario
+    def invalidly_entered(self):
+        pass
+
+@test(FormLayoutFixture)
+def server_side_input_validation_cues(fixture):
+    """. """
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.an_attribute = Field(label='Some input', required=True)
+            fields.another_attribute = Field(label='Another input', required=True)
+        @exposed
+        def events(self, events):
+            events.submit = Event(label='Submit')
+            
+    fixture.domain_object = ModelObject()
+
+    class FormWithInput(Form):
+        def __init__(self, view):
+            super(FormWithInput, self).__init__(view, 'aform')
+            self.use_layout(FormLayout())
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.another_attribute))
+            self.define_event_handler(fixture.domain_object.events.submit)
+            self.add_child(Button(self, fixture.domain_object.events.submit))
+            
+
+    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInput.factory()))
+    browser.open('/')
+
+    vassert( not fixture.get_form_group_highlight_marks(browser, index=0) )
+    vassert( not fixture.get_form_group_errors(browser, index=0) )
+
+    browser.click(XPath.button_labelled('Submit'))
+    vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    [error] = fixture.get_form_group_errors(browser, index=0)
+    vassert( error.text == 'Some input is required' )
+
+    browser.type(XPath.input_labelled('Some input'), 'valid value')
+    browser.click(XPath.button_labelled('Submit'))
+    vassert( ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    vassert( not fixture.get_form_group_errors(browser, index=0) )
+
+    browser.type(XPath.input_labelled('Another input'), 'valid value')
+    browser.click(XPath.button_labelled('Submit'))
+
+    vassert( not fixture.get_form_group_highlight_marks(browser, index=0) )
+    vassert( not fixture.get_form_group_errors(browser, index=0) )
+
+
+# server-side renders correct error/success? classes and error messages
+# js can clear/manipulate server-side rendered classes/error messages
+# disabled?
+
 
