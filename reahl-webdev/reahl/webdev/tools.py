@@ -94,6 +94,25 @@ class BasicBrowser(object):
         """
         return len(self.xpath(six.text_type(locator)))
 
+    def get_html_for(self, locator):
+        """Returns the HTML of the element (including its own tags) targeted by the given `locator`
+        
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        """
+        xpath = six.text_type(locator)
+        element = self.xpath(xpath)[0]
+        return html.tostring(element, encoding='unicode')
+
+    def get_inner_html_for(self, locator):
+        """Returns the HTML of the children of the element targeted by the given `locator` (excluding the 
+           element's own tags).
+        
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        """
+        xpath = six.text_type(locator)
+        element = self.xpath(xpath)[0]
+        return ''.join(html.tostring(child, encoding='unicode') for child in element.getchildren())
+
 
 class WidgetTester(BasicBrowser):
     """A WidgetTester is used to render the contents of a :class:`reahl.web.fw.Widget` instance.
@@ -235,25 +254,6 @@ class Browser(BasicBrowser):
         form_element = self.xpath('//form[@id=%s/@form]' % xpath)[0]
         patch_Field()
         return self.last_response.forms[form_element.attrib['id']]
-
-    def get_html_for(self, locator):
-        """Returns the HTML of the element (including its own tags) targeted by the given `locator`
-        
-           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-        """
-        xpath = six.text_type(locator)
-        element = self.xpath(xpath)[0]
-        return html.tostring(element, encoding='unicode')
-
-    def get_inner_html_for(self, locator):
-        """Returns the HTML of the children of the element targeted by the given `locator` (excluding the 
-           element's own tags).
-        
-           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-        """
-        xpath = six.text_type(locator)
-        element = self.xpath(xpath)[0]
-        return ''.join(html.tostring(child, encoding='unicode') for child in element.getchildren())
 
     def type(self, locator, text):
         """Types the text in `text` into the input found by the `locator`.
