@@ -203,7 +203,7 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
 
     def add_button_for_choice_to(self, widget, choice):
         button = SingleRadioButton(self, choice)
-        widget.layout.add_choice(button)
+        widget.layout.add_choice(button, inline=self.inline)
 
 
 
@@ -231,7 +231,7 @@ class InputGroup(WrappedInput):
 
 
 class ChoicesLayout(Layout):
-    def add_choice(self, html_input, help_text=None, inline=False):
+    def add_choice(self, html_input, inline=False):
         assert isinstance(html_input, (CheckboxInput, SingleRadioButton))
  
         label_widget = Label(self.view)

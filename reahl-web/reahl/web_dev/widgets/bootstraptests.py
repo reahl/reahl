@@ -29,9 +29,11 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import UserInterface
 from reahl.web.ui import Div, P, HTML5Page, Header, Footer
 
+from reahl.web_dev.inputandvalidation.inputtests import InputMixin
+
 from reahl.component.exceptions import ProgrammerError, IsInstance
-from reahl.component.modelinterface import exposed, Field, BooleanField, Event
-from reahl.web.bootstrap import ColumnLayout, ResponsiveSize, InputGroup, Button, FormLayout, Form, TextInput, CheckboxInput
+from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
+from reahl.web.bootstrap import ColumnLayout, ChoicesLayout, ResponsiveSize, InputGroup, Button, FormLayout, Form, TextInput, CheckboxInput, RadioButtonInput
 
 
 
@@ -136,26 +138,6 @@ def column_clearfix(fixture):
     [column_a, column_b] = widget.children
     vassert( [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()] )  
 
-
-
-# FormLayout
-#DONE Form can be vertical/horizontal/the other stuff?
-# Adding an input using a form layout adds the input (optionally with Some input, help text)
-# DONE- add form-group with label and help-text
-# DONE- form-group reacts to valid/invalidly entered input
-# DONE   - both in js and also on the server
-# DONE   - js can clear what server rendered
-# DONE- label is rendered by default, except for checkboxes when its not
-# ChoiceLayout
-# SingleRadioButtons and Checkboxes can be laid out inlined or not using ChoiceLayout
-# - single radio buttons in a radiobuttoninput is laid out inline or not
-# - checkbox is added to form-group not inlined
-# InputGroup:
-#  - An InputGroup is a composition of an input with some text before and/or after it
-#  - An InputGroup can also include Widgets in its composition
-#  - An InputGroup can also be added as Input to a form 
-# Each of the PrimitiveInputs renders like X (bootstrap classes & no error labels - just plain html inputs)
-# ContainerLayout makes its widget a bootstrap container
 
 
 class FormLayoutScenarios(WebFixture):
@@ -372,7 +354,7 @@ def input_validation_cues(fixture):
     vassert( not fixture.get_form_group_errors(browser, index=0) )
 
 @test(ValidationScenarios.with_javascript)
-def input_validation_cues2(fixture):
+def input_validation_cues_javascript_interaction(fixture):
     """The visual cues rendered server-side can subsequently be manipulated via javascript."""
     fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=False))
 
@@ -400,4 +382,118 @@ def input_validation_cues2(fixture):
 
 # disabled?
 
+class ChoicesLayoutFixture(WebFixture):
+    def new_form(self):
+        return Form(self.view, 'test')
+
+    def new_field(self):
+        field = BooleanField()
+        field.bind('field', self)
+        return field
+
+    def input_is_wrapped_in_label(self, tester):
+        return len(tester.xpath('//label/input')) > 0
+
+    def main_element(self, tester):
+        return tester.xpath('//div/*')[0]
+        
+
+
+@test(ChoicesLayoutFixture)
+def choices_layout(fixture):
+    """A ChoicesLayout can be used to add a CheckboxInput inlined or stacked."""
+    stacked_container = Div(fixture.view).use_layout(ChoicesLayout())
+    stacked_container.layout.add_choice(CheckboxInput(fixture.form, fixture.field))
+
+    tester = WidgetTester(stacked_container)
+    vassert( fixture.input_is_wrapped_in_label(tester) )
+    vassert( fixture.main_element(tester).tag == 'div' )
+    vassert( fixture.main_element(tester).attrib['class'] == 'checkbox' )
+
+    inlined_container = Div(fixture.view).use_layout(ChoicesLayout())
+    inlined_container.layout.add_choice(CheckboxInput(fixture.form, fixture.field), inline=True)
+
+    tester = WidgetTester(inlined_container)
+    vassert( fixture.input_is_wrapped_in_label(tester) )
+    vassert( fixture.main_element(tester).tag == 'label' )
+    vassert( fixture.main_element(tester).attrib['class'] == 'checkbox-inline' )
+
+
+class RadioButtonFixture(ChoicesLayoutFixture):
+    def new_field(self):
+        choices = [Choice(1, Field(label='One')),
+                   Choice(2, Field(label='Two'))
+                  ]
+        field = ChoiceField(choices)
+        field.bind('field', self)
+        return field
+
+
+@test(RadioButtonFixture)
+def layout_of_radio_button_input(fixture):
+    """The SingleRadioButtons inside a RadioButtonInput are also laid out using a ChoicesLayout."""
+    stacked_radio = RadioButtonInput(fixture.form, fixture.field)
+
+    tester = WidgetTester(stacked_radio)
+    vassert( fixture.input_is_wrapped_in_label(tester) )
+    vassert( fixture.main_element(tester).tag == 'div' )
+    vassert( fixture.main_element(tester).attrib['class'] == 'radio' )
+
+    inlined_radio = RadioButtonInput(fixture.form, fixture.field, inline=True)
+
+    tester = WidgetTester(inlined_radio)
+    vassert( fixture.input_is_wrapped_in_label(tester) )
+    vassert( fixture.main_element(tester).tag == 'label' )
+    vassert( fixture.main_element(tester).attrib['class'] == 'radio-inline' )
+
+
+class InputGroupFixture(WebFixture, InputMixin):
+    def new_an_input(self):
+        return TextInput(self.form, self.field)
+
+    @scenario
+    def plain_text(self):
+        self.input_group = InputGroup('before text', self.an_input, 'after text')
+        self.expects_before_html = '<span class="input-group-addon">before text</span>'
+        self.expects_after_html = '<span class="input-group-addon">after text</span>'
+
+    @scenario
+    def none_specified(self):
+        self.input_group = InputGroup(None, self.an_input, None)
+        self.expects_before_html = ''
+        self.expects_after_html = ''
+
+    @scenario
+    def widgets(self):
+        self.input_group = InputGroup(P(self.view, text='before widget'), 
+                                      self.an_input, 
+                                      P(self.view, text='after widget'))
+        self.expects_before_html = '<span class="input-group-addon"><p>before widget</p></span>'
+        self.expects_after_html = '<span class="input-group-addon"><p>after widget</p></span>'
+
+
+@test(InputGroupFixture)
+def input_group(fixture):
+    """An InputGroup is a composition of an input with some text or Widget before and/or after an input."""
+    tester = WidgetTester(fixture.input_group)
+    
+    [outer_div] = tester.xpath('//div')
+    vassert( outer_div.attrib['class'] == 'input-group' )
+    
+    if fixture.expects_before_html:
+        rendered_html = tester.get_html_for('//div/input/preceding-sibling::span')
+        vassert( rendered_html == fixture.expects_before_html )
+
+    children = tester.xpath('//div/*')
+    the_input = children[1] if fixture.expects_before_html else children[0]
+    vassert( the_input.tag == 'input' )
+    vassert( the_input.name == 'an_attribute' )
+
+    if fixture.expects_before_html:
+        rendered_html = tester.get_html_for('//div/input/following-sibling::span')
+        vassert( rendered_html == fixture.expects_after_html )
+
+    
+# Each of the PrimitiveInputs renders like X (bootstrap classes & no error labels - just plain html inputs)
+# ContainerLayout makes its widget a bootstrap container
 
