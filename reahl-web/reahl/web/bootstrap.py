@@ -194,16 +194,16 @@ class SingleRadioButton(reahl.web.ui.SingleRadioButton):
 class RadioButtonInput(reahl.web.ui.RadioButtonInput):
     append_error = False
     add_default_attribute_source = False
-    def __init__(self, form, bound_field, inline=False):
-        self.inline = inline
+    def __init__(self, form, bound_field, button_layout=None):
+        self.button_layout = button_layout or ChoicesLayout()
         super(RadioButtonInput, self).__init__(form, bound_field)
 
     def create_main_element(self):
-        return super(RadioButtonInput, self).create_main_element().use_layout(ChoicesLayout())
+        return super(RadioButtonInput, self).create_main_element().use_layout(self.button_layout)
 
     def add_button_for_choice_to(self, widget, choice):
         button = SingleRadioButton(self, choice)
-        widget.layout.add_choice(button, inline=self.inline)
+        widget.layout.add_choice(button)
 
 
 
@@ -231,12 +231,16 @@ class InputGroup(WrappedInput):
 
 
 class ChoicesLayout(Layout):
-    def add_choice(self, html_input, inline=False):
+    def __init__(self, inline=False):
+        super(ChoicesLayout, self).__init__()
+        self.inline = inline
+
+    def add_choice(self, html_input):
         assert isinstance(html_input, (CheckboxInput, SingleRadioButton))
  
         label_widget = Label(self.view)
 
-        if inline:
+        if self.inline:
             label_widget.append_class('%s-inline' % html_input.input_type)
             wrapper = label_widget
         else:
@@ -279,8 +283,8 @@ class FormLayout(Layout):
             label.append_class('control-label' if render_label else 'sr-only')
 
         if isinstance(html_input, CheckboxInput):
-            form_group.use_layout(ChoicesLayout())
-            form_group.layout.add_choice(html_input, inline=False)
+            form_group.use_layout(ChoicesLayout(inline=False))
+            form_group.layout.add_choice(html_input)
         else:
             form_group.add_child(html_input)
 

@@ -33,8 +33,24 @@ from reahl.web_dev.inputandvalidation.inputtests import InputMixin
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
-from reahl.web.bootstrap import ColumnLayout, ChoicesLayout, ResponsiveSize, InputGroup, Button, FormLayout, Form, TextInput, CheckboxInput, RadioButtonInput
+from reahl.web.bootstrap import ColumnLayout, ChoicesLayout, ResponsiveSize, InputGroup, Button, FormLayout, Form, TextInput, CheckboxInput, RadioButtonInput, Container
 
+
+@test(WebFixture)
+def containers(fixture):
+    """There are two types of Bootstrap containers:  a full width container, and a responsive (fluid) container."""
+
+    widget = Div(fixture.view).use_layout(Container())
+    tester = WidgetTester(widget)
+    
+    css_class = tester.xpath('//div')[0].attrib['class']
+    vassert( 'container' == css_class )
+
+    widget = Div(fixture.view).use_layout(Container(fluid=True))
+    tester = WidgetTester(widget)
+    
+    css_class = tester.xpath('//div')[0].attrib['class']
+    vassert( 'container-fluid' == css_class )
 
 
 @test(WebFixture)
@@ -375,12 +391,43 @@ def input_validation_cues_javascript_interaction(fixture):
     vassert( error.text == 'Some input is required' )
 
     browser.type(XPath.input_labelled('Some input'), 'valid value')
-    browser.click(XPath.button_labelled('Submit'))
+    browser.press_tab(XPath.input_labelled('Some input'))
 
     vassert( ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=0) )
     vassert( not fixture.get_form_group_errors(browser, index=0) )
 
-# disabled?
+
+class DisabledScenarios(WebFixture):
+    @scenario
+    def disabled_input(self):
+        self.field = Field(writable=lambda field: False)
+        self.expects_disabled_class = True
+
+    @scenario
+    def enabled_input(self):
+        self.field = Field(writable=lambda field: True)
+        self.expects_disabled_class = False
+
+
+@test(DisabledScenarios)
+def disabled_state(fixture):
+    """Visible cues are inserted to indicate that inputs are disabled. """
+    
+    form = Form(fixture.view, 'test').use_layout(FormLayout())
+    field = fixture.field
+    field.bind('field', fixture)
+
+    form.layout.add_input(TextInput(form, field))
+    
+    tester = WidgetTester(form)
+    
+    [form_group] = tester.xpath(FormLayoutFixture.form_group_xpath)
+    if fixture.expects_disabled_class:
+        vassert( 'disabled ' in form_group.attrib['class'] )
+    else:
+        vassert( 'disabled' not in form_group.attrib['class'] )
+
+
 
 class ChoicesLayoutFixture(WebFixture):
     def new_form(self):
@@ -398,7 +445,6 @@ class ChoicesLayoutFixture(WebFixture):
         return tester.xpath('//div/*')[0]
         
 
-
 @test(ChoicesLayoutFixture)
 def choices_layout(fixture):
     """A ChoicesLayout can be used to add a CheckboxInput inlined or stacked."""
@@ -410,8 +456,8 @@ def choices_layout(fixture):
     vassert( fixture.main_element(tester).tag == 'div' )
     vassert( fixture.main_element(tester).attrib['class'] == 'checkbox' )
 
-    inlined_container = Div(fixture.view).use_layout(ChoicesLayout())
-    inlined_container.layout.add_choice(CheckboxInput(fixture.form, fixture.field), inline=True)
+    inlined_container = Div(fixture.view).use_layout(ChoicesLayout(inline=True))
+    inlined_container.layout.add_choice(CheckboxInput(fixture.form, fixture.field))
 
     tester = WidgetTester(inlined_container)
     vassert( fixture.input_is_wrapped_in_label(tester) )
@@ -439,7 +485,7 @@ def layout_of_radio_button_input(fixture):
     vassert( fixture.main_element(tester).tag == 'div' )
     vassert( fixture.main_element(tester).attrib['class'] == 'radio' )
 
-    inlined_radio = RadioButtonInput(fixture.form, fixture.field, inline=True)
+    inlined_radio = RadioButtonInput(fixture.form, fixture.field, button_layout=ChoicesLayout(inline=True))
 
     tester = WidgetTester(inlined_radio)
     vassert( fixture.input_is_wrapped_in_label(tester) )
@@ -483,17 +529,22 @@ def input_group(fixture):
     if fixture.expects_before_html:
         rendered_html = tester.get_html_for('//div/input/preceding-sibling::span')
         vassert( rendered_html == fixture.expects_before_html )
+    else:
+        vassert( not tester.is_element_present('//div/input/preceding-sibling::span') )
 
-    children = tester.xpath('//div/*')
+    children = outer_div.getchildren()
     the_input = children[1] if fixture.expects_before_html else children[0]
     vassert( the_input.tag == 'input' )
     vassert( the_input.name == 'an_attribute' )
 
-    if fixture.expects_before_html:
+    if fixture.expects_after_html:
         rendered_html = tester.get_html_for('//div/input/following-sibling::span')
         vassert( rendered_html == fixture.expects_after_html )
+    else:
+        vassert( not tester.is_element_present('//div/input/following-sibling::span') )
 
-    
+
+
 # Each of the PrimitiveInputs renders like X (bootstrap classes & no error labels - just plain html inputs)
 # ContainerLayout makes its widget a bootstrap container
 
