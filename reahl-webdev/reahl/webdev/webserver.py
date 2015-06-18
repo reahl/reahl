@@ -120,7 +120,8 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
         if six.PY2:
             self.rfile._sock.settimeout(3)  
         else:
-            self.connection.settimeout(3)
+            #self.connection.settimeout(3000)
+            pass
 
     def handle(self):
         try:
