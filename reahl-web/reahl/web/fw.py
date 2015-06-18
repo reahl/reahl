@@ -1016,12 +1016,6 @@ class Widget(object):
     def is_refresh_enabled(self):
         return False
     
-    def children_refresh_set(self, own_refresh_set):
-        if self.is_refresh_enabled():
-            return own_refresh_set.union(set([self]))
-        else:
-            return own_refresh_set
-
     @exposed
     def query_fields(self, fields):
         """Override this method to parameterise this this Widget. The Widget will find its arguments from the current
@@ -1154,12 +1148,13 @@ class Widget(object):
 
             raise ProgrammerError(message)
 
-    def refresh_set_widget_pairs(self, own_refresh_set):
-        yield self, own_refresh_set
-        children_refresh_set = self.children_refresh_set(own_refresh_set)
+    def parent_widget_pairs(self, own_parent_set):
+        yield self, own_parent_set
+        children_parent_set = own_parent_set.union(set([self]))
+
         for child in self.children:
-            for widget, refresh_set in child.refresh_set_widget_pairs(children_refresh_set):
-                yield widget, refresh_set    
+            for widget, parent_set in child.parent_widget_pairs(children_parent_set):
+                yield widget, parent_set    
 
     is_Form = False
     is_Input = False
@@ -1167,11 +1162,11 @@ class Widget(object):
         inputs = []
         forms = {}
 
-        for widget, refresh_set in self.refresh_set_widget_pairs(self.children_refresh_set(set())):
+        for widget, parents_set in self.parent_widget_pairs(set([])):
             if widget.is_Form:
-                forms[widget] = refresh_set
+                forms[widget] = set([parent for parent in parents_set if parent.is_refresh_enabled()])
             elif widget.is_Input:
-                inputs.append((widget, refresh_set))
+                inputs.append((widget, set([parent for parent in parents_set if parent.is_refresh_enabled()])))
 
         self.check_forms_unique(forms.keys())
         self.check_all_inputs_forms_exist(forms.keys(), [i for i, refresh_set in inputs])
