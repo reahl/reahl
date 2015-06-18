@@ -1754,9 +1754,10 @@ class CheckboxInput(InputTypeInput):
         return self.bound_field.false_value
 
 
-class ButtonInput(InputTypeInput):
+
+class ButtonInput(PrimitiveInput):
     def __init__(self, form, event):
-        super(ButtonInput, self).__init__(form, event, 'submit')
+        super(ButtonInput, self).__init__(form, event)
         if not self.controller.has_event_named(event.name):
             raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
@@ -1765,6 +1766,13 @@ class ButtonInput(InputTypeInput):
             message = 'Arguments for %s are not valid: %s' % (event, ex)
             message += '\n(did you forget to call .with_arguments() on an Event sent to a ButtonInput?)'
             raise ProgrammerError(message)
+
+    def create_html_widget(self):
+        html_widget = super(ButtonInput, self).create_html_widget()
+        html_widget.set_attribute('type', 'submit')
+        html_widget.set_attribute('form', self.form.css_id)
+        html_widget.set_attribute('value', self.value)
+        return html_widget
 
     def is_event(self, input_name):
         return input_name.find('?') > 0
