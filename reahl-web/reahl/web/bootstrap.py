@@ -177,18 +177,21 @@ class TextInput(reahl.web.ui.TextInput):
         html_widget.append_class('form-control')
         return html_widget
 
+
 class PasswordInput(reahl.web.ui.PasswordInput):
     append_error = False
     add_default_attribute_source = False
 
+
 class TextArea(reahl.web.ui.TextArea):
     append_error = False
     add_default_attribute_source = False
-    
+
+
 class SelectInput(reahl.web.ui.SelectInput):
     append_error = False
     add_default_attribute_source = False
-    
+
 
 class CheckboxInput(reahl.web.ui.CheckboxInput):
     append_error = False
@@ -217,6 +220,42 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
         button = SingleRadioButton(self, choice)
         widget.layout.add_choice(button)
 
+
+class ButtonLayout(Layout):
+    def __init__(self, style=None, size=None, active=False, wide=False):
+        super(ButtonLayout, self).__init__()
+        assert style in ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link', None]
+        assert size in ['lg', 'sm', 'xs', None]
+        self.style = style
+        self.size = size
+        self.active = active
+        self.wide = wide
+        
+    def customise_widget(self):
+        self.widget.append_class('btn')
+        if self.style:
+            self.widget.append_class('btn-%s' % self.style)
+        if self.size:
+            self.widget.append_class('btn-%s' % self.size)
+        if self.active:
+            self.widget.append_class('active')
+        if self.wide:
+            self.widget.append_class('btn-block')
+
+
+class ButtonInput(reahl.web.ui.ButtonInput):
+    append_error = False
+    add_default_attribute_source = False
+    def __init__(self, form, event):
+        super(ButtonInput, self).__init__(form, event)
+        self.append_class('btn')
+
+Button = ButtonInput
+
+
+class SimpleFileInput(reahl.web.ui.SimpleFileInput):
+    append_error = False
+    add_default_attribute_source = False
 
 
 class InputGroup(WrappedInput):
@@ -315,7 +354,3 @@ class FormLayout(Layout):
 
 
 
-class Button(ButtonInput):
-    def __init__(self, form, event):
-        super(Button, self).__init__(form, event)
-        self.append_class('btn')

@@ -8,6 +8,8 @@ python-reahl (3.2.0) unstable; urgency=low
  * Introduced the InternalRedirect concept
  * Added functionality to replay_request for a MethodResult.
  * Refactored Input hierarchy to be able to handle CheckboxInput, SingleRadioButton and Input as proper Inputs and be able to deal better with Inputs wrapping other Inputs, now distinguishing between PrimitiveInputs and other types of Inputs
+ * Changed Browser/WidgetTester Hierarchy so get_html/get_inner_html can be used on WidgetTester too.
+ * Changed xpath() on BasicBrowser to be able to deal with an XPath instance.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 19 Mar 2015 13:18:00 +0200
 
