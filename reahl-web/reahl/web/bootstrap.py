@@ -177,6 +177,18 @@ class TextInput(reahl.web.ui.TextInput):
         html_widget.append_class('form-control')
         return html_widget
 
+class PasswordInput(reahl.web.ui.PasswordInput):
+    append_error = False
+    add_default_attribute_source = False
+
+class TextArea(reahl.web.ui.TextArea):
+    append_error = False
+    add_default_attribute_source = False
+    
+class SelectInput(reahl.web.ui.SelectInput):
+    append_error = False
+    add_default_attribute_source = False
+    
 
 class CheckboxInput(reahl.web.ui.CheckboxInput):
     append_error = False

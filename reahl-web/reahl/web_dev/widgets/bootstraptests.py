@@ -546,5 +546,5 @@ def input_group(fixture):
 
 
 # Each of the PrimitiveInputs renders like X (bootstrap classes & no error labels - just plain html inputs)
-# ContainerLayout makes its widget a bootstrap container
-
+# FileUploadInput?? SimpleFileInput??
+# ButtonInput (versions?)
