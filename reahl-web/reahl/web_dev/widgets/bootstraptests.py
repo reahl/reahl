@@ -26,14 +26,14 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.fw import UserInterface
-from reahl.web.ui import Div, P, HTML5Page, Header, Footer
+from reahl.web.fw import UserInterface, Url
+from reahl.web.ui import A, Div, P, HTML5Page, Header, Footer
 
 from reahl.web_dev.inputandvalidation.inputtests import InputMixin
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
-from reahl.web.bootstrap import ColumnLayout, ChoicesLayout, ResponsiveSize, InputGroup, Button, FormLayout, Form, TextInput, CheckboxInput, RadioButtonInput, Container
+from reahl.web.bootstrap import ColumnLayout, ChoicesLayout, ResponsiveSize, InputGroup, Button, FormLayout, Form, TextInput, CheckboxInput, RadioButtonInput, Container, ButtonLayout
 
 
 @test(WebFixture)
@@ -544,7 +544,43 @@ def input_group(fixture):
         vassert( not tester.is_element_present('//div/input/following-sibling::span') )
 
 
+@test(WebFixture)
+def button_layouts(fixture):
+    """A ButtonLayout can be be used on a Button to customise various visual effects."""
+
+    event = Event(label='click me')
+    event.bind('event', fixture)
+    form = Form(fixture.view, 'test')
+    form.define_event_handler(event)
+
+    # Case: the defaults
+    button = Button(form, event).use_layout(ButtonLayout())
+    
+    tester = WidgetTester(button)
+    [button] = tester.xpath(XPath.button_labelled('click me'))
+    vassert( button.attrib['class'] == 'btn' )
+
+    # Case: possible effects
+    button = Button(form, event).use_layout(ButtonLayout(style='default', size='sm', active=True, wide=True))
+    
+    tester = WidgetTester(button)
+    [button] = tester.xpath(XPath.button_labelled('click me'))
+    vassert( button.attrib['class'] == 'active btn btn-block btn-default btn-sm' )
+
+@test(WebFixture)
+def button_layouts_on_anchors(fixture):
+    """A ButtonLayout can also be used to make an A (anchor) look like a button."""
+
+    anchor = A(fixture.view, href=Url('/an/href'), description='link text').use_layout(ButtonLayout())
+    tester = WidgetTester(anchor)
+    [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
+    vassert( rendered_anchor.attrib['class'] == 'btn' )
+
+
 
 # Each of the PrimitiveInputs renders like X (bootstrap classes & no error labels - just plain html inputs)
 # FileUploadInput?? SimpleFileInput??
 # ButtonInput (versions?)
+
+
+
