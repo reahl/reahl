@@ -35,6 +35,7 @@ import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
 
 
+#-------------------------------------------------------------------------------[ Basic HTML Widgets and Inputs ]
 
 class Form(reahl.web.ui.Form):
     def get_js_options(self):
@@ -76,7 +77,106 @@ class Form(reahl.web.ui.Form):
          }
     '''
 
+class TextInput(reahl.web.ui.TextInput):
+    append_error = False
+    add_default_attribute_source = False
+    def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
+        super(TextInput, self).__init__(form, bound_field, fuzzy=fuzzy, placeholder=placeholder)
+        self.append_class('form-control')
 
+
+class PasswordInput(reahl.web.ui.PasswordInput):
+    append_error = False
+    add_default_attribute_source = False
+    def __init__(self, form, bound_field):
+        super(PasswordInput, self).__init__(form, bound_field)
+        self.append_class('form-control')
+
+
+class TextArea(reahl.web.ui.TextArea):
+    append_error = False
+    add_default_attribute_source = False
+    def __init__(self, form, bound_field, rows=None, columns=None):
+        super(TextArea, self).__init__(form, bound_field, rows=rows, columns=rows)
+        self.append_class('form-control')
+
+
+class SelectInput(reahl.web.ui.SelectInput):
+    append_error = False
+    add_default_attribute_source = False
+    def __init__(self, form, bound_field):
+        super(SelectInput, self).__init__(form, bound_field)
+        self.append_class('form-control')
+
+
+class CheckboxInput(reahl.web.ui.CheckboxInput):
+    append_error = False
+    add_default_attribute_source = False
+
+
+class SingleRadioButton(reahl.web.ui.SingleRadioButton):
+    append_error = False
+    add_default_attribute_source = False
+
+    def create_html_widget(self):
+        return self.create_button_input()
+
+
+class RadioButtonInput(reahl.web.ui.RadioButtonInput):
+    append_error = False
+    add_default_attribute_source = False
+    def __init__(self, form, bound_field, button_layout=None):
+        self.button_layout = button_layout or ChoicesLayout()
+        super(RadioButtonInput, self).__init__(form, bound_field)
+
+    def create_main_element(self):
+        return super(RadioButtonInput, self).create_main_element().use_layout(self.button_layout)
+
+    def add_button_for_choice_to(self, widget, choice):
+        button = SingleRadioButton(self, choice)
+        widget.layout.add_choice(button)
+
+class ButtonInput(reahl.web.ui.ButtonInput):
+    append_error = False
+    add_default_attribute_source = False
+    def __init__(self, form, event):
+        super(ButtonInput, self).__init__(form, event)
+        self.append_class('btn')
+
+Button = ButtonInput
+
+
+class SimpleFileInput(reahl.web.ui.SimpleFileInput):
+    append_error = False
+    add_default_attribute_source = False
+
+
+#-------------------------------------------------------------------------------[ Extra HTML Widgets and Inputs ]
+
+class InputGroup(WrappedInput):
+    def __init__(self, prepend, input_widget, append):
+        super(InputGroup, self).__init__(input_widget)
+
+        self.div = self.add_child(Div(self.view))
+        self.div.append_class('input-group')
+        if prepend:
+            self.add_as_addon(prepend)
+        self.input_widget = self.div.add_child(input_widget)
+        if append:
+            self.add_as_addon(append)
+
+    def add_as_addon(self, addon):
+        if isinstance(addon, six.string_types):
+            span = Span(self.view, text=addon)
+        else:
+            span = Span(self.view)
+            span.add_child(addon)
+        span.append_class('input-group-addon')
+        return self.div.add_child(span)
+
+
+
+#-------------------------------------------------------------------------------[ Layout & Sizing ]
 
 class Container(Layout):
     def __init__(self, fluid=False):
@@ -168,59 +268,6 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
         return column
 
 
-
-class TextInput(reahl.web.ui.TextInput):
-    append_error = False
-    add_default_attribute_source = False
-    def create_html_widget(self):
-        html_widget = super(TextInput, self).create_html_widget()
-        html_widget.append_class('form-control')
-        return html_widget
-
-
-class PasswordInput(reahl.web.ui.PasswordInput):
-    append_error = False
-    add_default_attribute_source = False
-
-
-class TextArea(reahl.web.ui.TextArea):
-    append_error = False
-    add_default_attribute_source = False
-
-
-class SelectInput(reahl.web.ui.SelectInput):
-    append_error = False
-    add_default_attribute_source = False
-
-
-class CheckboxInput(reahl.web.ui.CheckboxInput):
-    append_error = False
-    add_default_attribute_source = False
-
-
-class SingleRadioButton(reahl.web.ui.SingleRadioButton):
-    append_error = False
-    add_default_attribute_source = False
-
-    def create_html_widget(self):
-        return self.create_button_input()
-
-
-class RadioButtonInput(reahl.web.ui.RadioButtonInput):
-    append_error = False
-    add_default_attribute_source = False
-    def __init__(self, form, bound_field, button_layout=None):
-        self.button_layout = button_layout or ChoicesLayout()
-        super(RadioButtonInput, self).__init__(form, bound_field)
-
-    def create_main_element(self):
-        return super(RadioButtonInput, self).create_main_element().use_layout(self.button_layout)
-
-    def add_button_for_choice_to(self, widget, choice):
-        button = SingleRadioButton(self, choice)
-        widget.layout.add_choice(button)
-
-
 class ButtonLayout(Layout):
     def __init__(self, style=None, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
@@ -241,43 +288,6 @@ class ButtonLayout(Layout):
             self.widget.append_class('active')
         if self.wide:
             self.widget.append_class('btn-block')
-
-
-class ButtonInput(reahl.web.ui.ButtonInput):
-    append_error = False
-    add_default_attribute_source = False
-    def __init__(self, form, event):
-        super(ButtonInput, self).__init__(form, event)
-        self.append_class('btn')
-
-Button = ButtonInput
-
-
-class SimpleFileInput(reahl.web.ui.SimpleFileInput):
-    append_error = False
-    add_default_attribute_source = False
-
-
-class InputGroup(WrappedInput):
-    def __init__(self, prepend, input_widget, append):
-        super(InputGroup, self).__init__(input_widget)
-
-        self.div = self.add_child(Div(self.view))
-        self.div.append_class('input-group')
-        if prepend:
-            self.add_as_addon(prepend)
-        self.input_widget = self.div.add_child(input_widget)
-        if append:
-            self.add_as_addon(append)
-
-    def add_as_addon(self, addon):
-        if isinstance(addon, six.string_types):
-            span = Span(self.view, text=addon)
-        else:
-            span = Span(self.view)
-            span.add_child(addon)
-        span.append_class('input-group-addon')
-        return self.div.add_child(span)
 
 
 
@@ -329,6 +339,7 @@ class FormLayout(Layout):
                                                              error_class='has-error', 
                                                              success_class='has-success',
                                                              disabled_class='disabled'))
+
         if render_label:
             label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
             label.append_class('control-label' if render_label else 'sr-only')
