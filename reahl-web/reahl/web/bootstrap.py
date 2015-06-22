@@ -290,7 +290,6 @@ class ButtonLayout(Layout):
             self.widget.append_class('btn-block')
 
 
-
 class ChoicesLayout(Layout):
     def __init__(self, inline=False):
         super(ChoicesLayout, self).__init__()
