@@ -2559,7 +2559,6 @@ class FileUploadLi(Li):
         self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
         self.add_child(Span(self.view, persisted_file.filename))
 
-
     def get_js(self, context=None):
         return ['$(".reahl-file-upload-li").fileuploadli();']
 
