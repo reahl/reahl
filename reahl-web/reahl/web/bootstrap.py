@@ -363,4 +363,40 @@ class FormLayout(Layout):
         return form_group
 
 
+class Nav(reahl.web.ui.Menu):
+    css_class = 'nav'
 
+
+class NavLayout(Layout):
+    def __init__(self, justified=False):
+        super(NavLayout, self).__init__()
+        self.justified = justified
+
+    def customise_widget(self):
+        self.widget.append_class('nav')
+        if self.justified:
+            self.widget.append_class('nav-justified')
+
+
+class PillLayout(NavLayout):
+    def __init__(self, stacked=False, justified=False):
+        super(PillLayout, self).__init__(justified=justified)
+        assert not all([stacked, justified]), 'Pills must be stacked or justified, but not both'
+        self.stacked = stacked
+        self.justified = justified
+
+    def customise_widget(self):
+        super(PillLayout, self).customise_widget()
+        self.widget.append_class('nav-pills')
+        if self.stacked:
+            self.widget.append_class('nav-stacked')
+
+class TabLayout(NavLayout):
+    def customise_widget(self):
+        super(TabLayout, self).customise_widget()
+        self.widget.append_class('nav-tabs')
+    
+    
+    
+    
+    
