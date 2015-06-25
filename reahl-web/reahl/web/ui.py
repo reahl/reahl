@@ -2172,6 +2172,7 @@ class Menu(Ul):
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
+    css_class = 'reahl-menu'
     @classmethod
     def from_languages(cls, view):
         """Constructs a Menu which contains a MenuItem for each locale supported by all the components
@@ -2203,7 +2204,7 @@ class Menu(Ul):
 
     def __init__(self, view, a_list, css_id=None):
         super(Menu, self).__init__(view, css_id=css_id)
-        self.append_class('reahl-menu')
+        self.append_class(self.css_class)
         self.set_items_from(a_list)
 
     def set_items_from(self, a_list):
