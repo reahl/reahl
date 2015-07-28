@@ -15,12 +15,46 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from six.moves import input
+
+import time
+from queue import Queue
+from functools import partial
+
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand
 
 from reahl.webdev.webserver import ReahlWebServer
+
+
+class FilesChangedMonitor(FileSystemEventHandler):
+    def __init__(self, directory_to_monitor):
+        self.observer = Observer()
+        self.observer.schedule(self, directory_to_monitor, recursive=True)
+        self.observer.start()
+
+        self.filesystem_changed_queue = Queue()
+
+    def on_any_event(self, event):
+        self.filesystem_changed_queue.put(event.src_path)
+
+    def has_changes(self):
+        return not self.filesystem_changed_queue.empty()
+
+    def discard_changes(self):
+        while not self.filesystem_changed_queue.empty():
+            try:
+                self.filesystem_changed_queue.get()
+            except Empty:
+                continue
+            self.filesystem_changed_queue.task_done()
+
+    def shutdown(self):
+        self.observer.stop()
+        self.observer.join()
+
 
 class ServeCurrentProject(WorkspaceCommand):
     """Serves the project in the current directory."""
@@ -35,20 +69,38 @@ class ServeCurrentProject(WorkspaceCommand):
             config_directory = args[0]
 
         print('\nUsing config from %s\n' % config_directory)
-            
-        with project.paths_set():
-            reahl_server = self.start_server(options, config_directory)
 
-            print('\n\nServing http on port %s, https on port %s (config=%s)' % \
-                                     (options.port, int(options.port)+363, config_directory))
-            print('\nPress <Enter> to terminate\n\n')
-    
-            input()        
+        current_directory = '.'
+        with project.paths_set():
+
+            files_changed_monitor = FilesChangedMonitor('.')
+
+            server_start_command = partial(self.start_server, options, config_directory)
+            reahl_server = server_start_command()
+
+            check_for_file_changes_in_seconds = 5
+            try:
+                while True:
+                    time.sleep(check_for_file_changes_in_seconds)
+                    if files_changed_monitor.has_changes():
+                        print('\nChanges to filesystem detected, scheduling a restart...\n')
+                        reahl_server.stop()
+
+                        files_changed_monitor.discard_changes()
+
+                        reahl_server = server_start_command()
+
+            except KeyboardInterrupt:
+                print('\nShutting down...\n')
+            files_changed_monitor.shutdown()
             reahl_server.stop()
+
         return 0
 
-
-    def start_server(self, options, config_directory):  
+    def start_server(self, options, config_directory):
         reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, int(options.port))
         reahl_server.start(connect=True)
+        print('\n\nServing http on port %s, https on port %s (config=%s)' % \
+                                 (options.port, int(options.port)+363, config_directory))
+        print('\nPress Ctrl+C (*nix) or Ctrl+Break (Windows) to terminate\n\n')
         return reahl_server
