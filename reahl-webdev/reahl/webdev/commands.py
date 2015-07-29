@@ -16,8 +16,10 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import six
+
 import time
-from queue import Queue
+from six.moves.queue import Queue
 from functools import partial
 
 from watchdog.observers import Observer
@@ -57,7 +59,7 @@ class FilesChangedMonitor(FileSystemEventHandler):
 
 
 class ServeCurrentProject(WorkspaceCommand):
-    """Serves the project in the current directory."""
+    """Serves the project configures in the ./etc directory or the directory given as an arg."""
     keyword = 'serve'
 
     options = [('-p', '--port', dict(action='store', dest='port', default=8000, help='port (optional)'))]
@@ -94,7 +96,6 @@ class ServeCurrentProject(WorkspaceCommand):
                 print('\nShutting down...\n')
             files_changed_monitor.shutdown()
             reahl_server.stop()
-
         return 0
 
     def start_server(self, options, config_directory):
