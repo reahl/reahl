@@ -29,7 +29,8 @@ from collections import OrderedDict
 import copy
 
 from reahl.web.fw import Layout, Widget
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, InputStateAttributes, Span, Input, TextInput, Label, TextNode, ButtonInput, P, WrappedInput
+from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, ValidationStateAttributes, AccessRightAttributes, \
+                             Span, Input, TextInput, Label, TextNode, ButtonInput, P, WrappedInput
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
@@ -334,10 +335,10 @@ class FormLayout(Layout):
         render_label = render_label if render_label is not None else not isinstance(html_input, CheckboxInput)
         form_group = self.widget.add_child(Div(self.view))
         form_group.append_class('form-group')
-        form_group.add_attribute_source(InputStateAttributes(html_input, 
+        form_group.add_attribute_source(ValidationStateAttributes(html_input, 
                                                              error_class='has-error', 
-                                                             success_class='has-success',
-                                                             disabled_class='disabled'))
+                                                             success_class='has-success'))
+        form_group.add_attribute_source(AccessRightAttributes(html_input, disabled_class='disabled'))
 
         if render_label:
             label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
@@ -365,6 +366,21 @@ class FormLayout(Layout):
 
 class Nav(reahl.web.ui.Menu):
     css_class = 'nav'
+    
+    def add_item(self, item):
+        item.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
+        return super(Nav, self).add_item(item)
+
+class DropdownMenu(reahl.web.ui.SubMenu):
+    def __init__(self, view, title, menu, drop_up=False, align_right=False, css_id=None):
+        super(DropdownMenu, self).__init__(view, title, menu, css_id=css_id)
+        self.append_class('drop%s' % 'up' if drop_up else 'down')
+        self.a.append_class('dropdown-toggle')
+        self.a.set_attribute('data-toggle', 'dropdown')
+        self.a.add_child(Span(view)).append_class('caret')
+        menu.append_class('dropdown-menu')
+        if align_right:
+            menu.append_class('dropdown-menu-right')
 
 
 class NavLayout(Layout):
@@ -395,8 +411,8 @@ class TabLayout(NavLayout):
     def customise_widget(self):
         super(TabLayout, self).customise_widget()
         self.widget.append_class('nav-tabs')
-    
-    
-    
-    
-    
+
+
+
+
+
