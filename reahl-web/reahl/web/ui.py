@@ -1222,12 +1222,29 @@ class DelegatedAttributes(object):
         pass
 
 
-class InputStateAttributes(DelegatedAttributes):
-    def __init__(self, input_widget, error_class='error', success_class='valid', disabled_class=None):
+class AccessRightAttributes(DelegatedAttributes):
+    def __init__(self, widget, disabled_class='disabled'):
+        super(AccessRightAttributes, self).__init__()
+        self.widget = widget
+        self.disabled_class = disabled_class
+
+    @property
+    def disabled(self):
+        return self.widget.disabled
+
+    def set_attributes(self, attributes):
+        super(AccessRightAttributes, self).set_attributes(attributes)
+
+        if self.disabled and self.disabled_class:
+            attributes.add_to('class', [self.disabled_class])
+
+
+class ValidationStateAttributes(DelegatedAttributes):
+    def __init__(self, input_widget, error_class='error', success_class='valid'):
+        super(ValidationStateAttributes, self).__init__()
         self.input_widget = input_widget
         self.error_class = error_class
         self.success_class = success_class
-        self.disabled_class = disabled_class
 
     @property
     def has_validation_error(self):
@@ -1238,10 +1255,6 @@ class InputStateAttributes(DelegatedAttributes):
         return self.input_widget.get_input_status() == 'validly_entered'
 
     @property
-    def disabled(self):
-        return self.input_widget.disabled
-
-    @property
     def wrapped_html_input(self):
         return self.input_widget.wrapped_html_widget
 
@@ -1250,15 +1263,14 @@ class InputStateAttributes(DelegatedAttributes):
         return self.input_widget.view
         
     def set_attributes(self, attributes):
-        super(InputStateAttributes, self).set_attributes(attributes)
+        super(ValidationStateAttributes, self).set_attributes(attributes)
 
         if self.has_validation_error and self.error_class:
             attributes.add_to('class', [self.error_class]) 
         elif self.is_validly_entered and self.success_class:
             attributes.add_to('class', [self.success_class]) 
 
-        if self.disabled and self.disabled_class:
-            attributes.add_to('class', [self.disabled_class])
+
 
 
 
@@ -1373,7 +1385,7 @@ class PrimitiveInput(Input):
         """
         html_widget = HTMLElement(self.view, 'input')
         if self.add_default_attribute_source:
-            html_widget.add_attribute_source(InputStateAttributes(self))
+            html_widget.add_attribute_source(ValidationStateAttributes(self))
         html_widget.set_attribute('name', self.name)
         if self.disabled:
             html_widget.set_attribute('disabled', 'disabled')
@@ -1503,7 +1515,7 @@ class TextArea(PrimitiveInput):
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
         if self.add_default_attribute_source:
-            html_text_area.add_attribute_source(InputStateAttributes(self))
+            html_text_area.add_attribute_source(ValidationStateAttributes(self))
         html_text_area.set_attribute('name', self.name)
         if self.disabled:
             html_text_area.set_attribute('disabled', 'disabled')
@@ -1575,7 +1587,7 @@ class SelectInput(PrimitiveInput):
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
         if self.add_default_attribute_source:
-            html_select.add_attribute_source(InputStateAttributes(self))
+            html_select.add_attribute_source(ValidationStateAttributes(self))
         html_select.set_attribute('name', self.name)
         if self.disabled:
             html_select.set_attribute('disabled', 'disabled')
@@ -2205,17 +2217,17 @@ class Menu(Ul):
     def __init__(self, view, a_list, css_id=None):
         super(Menu, self).__init__(view, css_id=css_id)
         self.append_class(self.css_class)
+        self.menu_items = []
         self.set_items_from(a_list)
 
     def set_items_from(self, a_list):
-        self.menu_items = [MenuItem(self.view, a) for a in a_list]
-        self.add_children(self.menu_items)
+        for a in a_list:
+            self.add_item(MenuItem(self.view, a))
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu."""
         self.add_child(item)
         self.menu_items.append(item)
-
 
 
 class HorizontalLayout(Layout):
