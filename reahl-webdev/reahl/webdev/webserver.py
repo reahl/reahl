@@ -16,6 +16,10 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
+
+import os
+import time
+import subprocess
 from threading import Event
 from threading import Thread
 import select
@@ -31,6 +35,12 @@ import pkg_resources
 
 from webob import Request
 from webob.exc import HTTPInternalServerError
+
+from six.moves.queue import Queue
+
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers.polling import PollingObserver
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
@@ -250,6 +260,66 @@ class Handler(object):
         self.command_executor.execute = wrapped_execute
 
 
+class SlaveProcess(object):
+    def __init__(self):
+        self.process = None
+
+    def terminate(self):
+        self.process.terminate()
+
+    def spawn(self):
+        args = [sys.executable] + sys.argv + ['--dont-restart']
+        self.process = subprocess.Popen(args, env=os.environ.copy())
+
+    def restart(self):
+        self.process.terminate()
+        self.spawn()
+
+
+class ServerSupervisor(FileSystemEventHandler):
+    def __init__(self, min_seconds_between_restarts=3, directories_to_monitor=['.']):
+        super(ServerSupervisor, self).__init__()
+        self.min_seconds_between_restarts = min_seconds_between_restarts
+        self.directories_to_monitor = directories_to_monitor
+        self.directory_observers = []
+        self.files_changed = Event()
+
+    def start_observing_directories(self, directories):
+        self.files_changed.clear()
+        for directory in self.directories_to_monitor:
+            directory_observer = Observer()
+            directory_observer.schedule(self, directory, recursive=True)
+            directory_observer.start()
+            self.directory_observers.append(directory_observer)
+
+    def stop_observing_directories(self):
+        for directory_observer in self.directory_observers:
+            directory_observer.stop()
+            directory_observer.join()
+
+    def on_any_event(self, event):
+        self.files_changed.set()
+
+    def run(self):
+        serving_process = SlaveProcess()
+        serving_process.spawn()
+
+        self.start_observing_directories(self.directories_to_monitor)
+        running = True
+        while running:
+            try:
+                time.sleep(self.min_seconds_between_restarts)
+                if self.files_changed.is_set():
+                    print('\nChanges to filesystem detected, scheduling a restart...\n')
+                    self.files_changed.clear()
+                    serving_process.restart()
+            except:
+                running = False
+                serving_process.terminate()
+                self.stop_observing_directories()
+                raise
+
+
 class ReahlWebServer(object):
     """A web server for testing purposes. This web server runs both an HTTP and HTTPS server. It can 
        be configured to handle requests in the same thread as the test itself, but it can also be run in a
@@ -278,7 +348,8 @@ class ReahlWebServer(object):
         self.set_app(NoopApp())
 
     def __init__(self, config, port):
-        self.in_seperate_thread = None
+        super(ReahlWebServer, self).__init__()
+        self.in_separate_thread = None
         self.running = False
         self.handlers = {}
         self.httpd_thread = None
@@ -293,6 +364,7 @@ class ReahlWebServer(object):
                      +'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html' \
                       
             raise AssertionError(message)
+
 
     def main_loop(self, context):
         with context:
@@ -315,16 +387,23 @@ class ReahlWebServer(object):
                 raise ProgrammerError('Timed out after 5 seconds waiting for httpd serving thread to end')
         self.httpd_thread = None
 
-    def start(self, in_seperate_thread=True, connect=False):
+    def wait_for_server_to_complete(self):
+        try:
+            self.httpd_thread.join()
+            self.https_thread.join()
+        finally:
+            self.stop()
+
+    def start(self, in_separate_thread=True, connect=False):
         """Starts the webserver and web application.
         
-           :keyword in_seperate_thread: If False, the server handles requests in the same thread as your tests.
+           :keyword in_separate_thread: If False, the server handles requests in the same thread as your tests.
            :keyword connect: If True, also connects to the database.
         """
         self.reahl_wsgi_app.start(connect=connect)
-        if in_seperate_thread:
+        if in_separate_thread:
             self.start_thread()
-        self.in_seperate_thread = in_seperate_thread
+        self.in_separate_thread = in_separate_thread
 
     def stop(self):
         """Stops the webserver and web application from running."""
@@ -333,7 +412,7 @@ class ReahlWebServer(object):
         self.reahl_wsgi_app.stop()
         self.httpd.server_close()
         self.httpsd.server_close()
-    
+
     def requests_waiting(self, timeout):
         return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
 
