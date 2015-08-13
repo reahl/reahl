@@ -1332,7 +1332,8 @@ class PrimitiveInput(Input):
         super(PrimitiveInput, self).__init__(form, bound_field)
         if self.registers_with_form:
             self.name = form.register_input(self) # bound_field must be set for this registration to work
-            self.prepare_input()
+        
+        self.prepare_input()
 
         html_widget = None
         if (type(self) is not PrimitiveInput) and ('create_html_input' in type(self).__dict__):
@@ -1437,7 +1438,9 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name)
+        previously_entered_value = None
+        if self.registers_with_form:
+            previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name)
 
         if previously_entered_value is not None:
             self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
@@ -1445,12 +1448,12 @@ class PrimitiveInput(Input):
             self.bound_field.clear_user_input()
 
     def persist_input(self, input_values):
-        if self.registers_with_form:
-            input_value = self.get_value_from_input(input_values)
-            self.enter_value(input_value)
+        input_value = self.get_value_from_input(input_values)
+        self.enter_value(input_value)
 
     def enter_value(self, input_value):
-        self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
+        if self.registers_with_form:
+            self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
 
 
 class InputTypeInput(PrimitiveInput):
