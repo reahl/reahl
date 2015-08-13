@@ -37,8 +37,6 @@ from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
 from reahl.web.ui import MenuItem
 
 
-#-------------------------------------------------------------------------------[ Basic HTML Widgets and Inputs ]
-
 class Form(reahl.web.ui.Form):
     def get_js_options(self):
         return '''
@@ -153,123 +151,6 @@ class SimpleFileInput(reahl.web.ui.SimpleFileInput):
     add_default_attribute_source = False
 
 
-#-------------------------------------------------------------------------------[ Extra HTML Widgets and Inputs ]
-
-class InputGroup(WrappedInput):
-    def __init__(self, prepend, input_widget, append):
-        super(InputGroup, self).__init__(input_widget)
-
-        self.div = self.add_child(Div(self.view))
-        self.div.append_class('input-group')
-        if prepend:
-            self.add_as_addon(prepend)
-        self.input_widget = self.div.add_child(input_widget)
-        if append:
-            self.add_as_addon(append)
-
-    def add_as_addon(self, addon):
-        if isinstance(addon, six.string_types):
-            span = Span(self.view, text=addon)
-        else:
-            span = Span(self.view)
-            span.add_child(addon)
-        span.append_class('input-group-addon')
-        return self.div.add_child(span)
-
-
-
-#-------------------------------------------------------------------------------[ Layout & Sizing ]
-
-class Container(Layout):
-    def __init__(self, fluid=False):
-        super(Container, self).__init__()
-        self.fluid = fluid
-
-    def customise_widget(self):
-        container_class = 'container'
-        if self.fluid:
-            container_class = 'container-fluid'
-        self.widget.append_class(container_class)
-
-
-
-class ResponsiveSize(reahl.web.layout.ResponsiveSize):
-    device_classes = ['xs', 'sm', 'md', 'lg']
-    def __init__(self, xs=None, sm=None, md=None, lg=None):
-        super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg)
-        self.offsets = {}
-
-    def offset(self, xs=None, sm=None, md=None, lg=None):
-        self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg)
-        return self
-
-    def calculated_size_for(self, device_class):
-        classes_that_impact = self.device_classes[:self.device_classes.index(device_class)+1]
-        for possible_class in reversed(classes_that_impact):
-            try:
-                return self[possible_class]
-            except KeyError:
-                pass
-        return 0
-        
-    def total_width_for(self, device_class):
-        total = self.calculated_size_for(device_class)
-        if self.offsets:
-            total += self.offsets.calculated_size_for(device_class)
-        return total
-    
-    @classmethod    
-    def wraps_for_some_device_class(cls, sizes): 
-        return any(cls.wraps_for(device_class, sizes)
-                   for device_class in cls.device_classes)
-
-    @classmethod    
-    def wraps_for(cls, device_class, sizes):
-        return (cls.sum_sizes_for(device_class, sizes)) > 12
-
-    @classmethod    
-    def sum_sizes_for(cls, device_class, sizes):
-        total = 0
-        for size in sizes:
-            total += size.total_width_for(device_class)
-        return total
-
-
-
-class ColumnLayout(reahl.web.layout.ColumnLayout):
-    def __init__(self, *column_definitions):
-        if not all([isinstance(column_definition, tuple) for column_definition in column_definitions]):
-            raise ProgrammerError('All column definitions are expected a tuple of the form (name, %s), got %s' %\
-                                  (ResponsiveSize, column_definitions))
-        self.added_sizes = []
-        super(ColumnLayout, self).__init__(*column_definitions)
-
-    def customise_widget(self):
-        super(ColumnLayout, self).customise_widget()
-        self.widget.append_class('row')
-   
-    def add_clearfix(self, column_size):
-        clearfix = self.widget.add_child(Div(self.view))
-        clearfix.append_class('clearfix')
-        for device_class in column_size.device_classes:
-            if ResponsiveSize.wraps_for(device_class, self.added_sizes+[column_size]):
-                clearfix.append_class('visible-%s-block' % device_class)
-
-    def add_column(self, column_size):
-        if ResponsiveSize.wraps_for_some_device_class(self.added_sizes+[column_size]):
-            self.add_clearfix(column_size)
-            
-        column = super(ColumnLayout, self).add_column(column_size)
-
-        for device_class, value in column_size.items():
-            column.append_class('col-%s-%s' % (device_class, value))
-        for device_class, value in column_size.offsets.items():
-            column.append_class('col-%s-offset-%s' % (device_class, value))
-
-        self.added_sizes.append(column_size)
-        return column
-
-
 class ButtonLayout(Layout):
     def __init__(self, style=None, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
@@ -365,59 +246,6 @@ class FormLayout(Layout):
         return form_group
 
 
-class Nav(reahl.web.ui.Menu):
-    css_class = 'nav'
-    
-    def add_item(self, item):
-        item.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
-        return super(Nav, self).add_item(item)
-
-    def add_dropdown(self, title, menu, drop_up=False, align_right=False):
-        self.add_item(DropdownMenu(self.view, title, menu, drop_up, align_right))
-
-
-class DropdownMenu(reahl.web.ui.SubMenu):
-    def __init__(self, view, title, menu, drop_up, align_right, css_id=None):
-        super(DropdownMenu, self).__init__(view, title, menu, css_id=css_id)
-        self.append_class('drop%s' % ('up' if drop_up else 'down'))
-        self.a.append_class('dropdown-toggle')
-        self.a.set_attribute('data-toggle', 'dropdown')
-        self.a.add_child(Span(view)).append_class('caret')
-        menu.append_class('dropdown-menu')
-        if align_right:
-            menu.append_class('dropdown-menu-right')
-
-
-class NavLayout(Layout):
-    def __init__(self, justified=False):
-        super(NavLayout, self).__init__()
-        self.justified = justified
-
-    def customise_widget(self):
-        self.widget.append_class('nav')
-        if self.justified:
-            self.widget.append_class('nav-justified')
-
-
-class PillLayout(NavLayout):
-    def __init__(self, stacked=False, justified=False):
-        super(PillLayout, self).__init__(justified=justified)
-        if all([stacked, justified]):
-            raise ProgrammerError('Pills must be stacked or justified, but not both')
-        self.stacked = stacked
-        self.justified = justified
-
-    def customise_widget(self):
-        super(PillLayout, self).customise_widget()
-        self.widget.append_class('nav-pills')
-        if self.stacked:
-            self.widget.append_class('nav-stacked')
-
-
-class TabLayout(NavLayout):
-    def customise_widget(self):
-        super(TabLayout, self).customise_widget()
-        self.widget.append_class('nav-tabs')
 
 
 
