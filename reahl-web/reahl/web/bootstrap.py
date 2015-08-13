@@ -34,6 +34,7 @@ from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, ValidationS
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
+from reahl.web.ui import MenuItem
 
 
 #-------------------------------------------------------------------------------[ Basic HTML Widgets and Inputs ]
@@ -371,10 +372,14 @@ class Nav(reahl.web.ui.Menu):
         item.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return super(Nav, self).add_item(item)
 
+    def add_dropdown(self, title, menu, drop_up=False, align_right=False):
+        self.add_item(DropdownMenu(self.view, title, menu, drop_up, align_right))
+
+
 class DropdownMenu(reahl.web.ui.SubMenu):
-    def __init__(self, view, title, menu, drop_up=False, align_right=False, css_id=None):
+    def __init__(self, view, title, menu, drop_up, align_right, css_id=None):
         super(DropdownMenu, self).__init__(view, title, menu, css_id=css_id)
-        self.append_class('drop%s' % 'up' if drop_up else 'down')
+        self.append_class('drop%s' % ('up' if drop_up else 'down'))
         self.a.append_class('dropdown-toggle')
         self.a.set_attribute('data-toggle', 'dropdown')
         self.a.add_child(Span(view)).append_class('caret')
@@ -397,7 +402,8 @@ class NavLayout(Layout):
 class PillLayout(NavLayout):
     def __init__(self, stacked=False, justified=False):
         super(PillLayout, self).__init__(justified=justified)
-        assert not all([stacked, justified]), 'Pills must be stacked or justified, but not both'
+        if all([stacked, justified]):
+            raise ProgrammerError('Pills must be stacked or justified, but not both')
         self.stacked = stacked
         self.justified = justified
 
@@ -406,6 +412,7 @@ class PillLayout(NavLayout):
         self.widget.append_class('nav-pills')
         if self.stacked:
             self.widget.append_class('nav-stacked')
+
 
 class TabLayout(NavLayout):
     def customise_widget(self):

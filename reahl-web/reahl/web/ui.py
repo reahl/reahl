@@ -207,7 +207,6 @@ class HTMLElement(Widget):
                              others have an opening and closing tag. 
                              (See `HTML5 void elements <http://dev.w3.org/html5/markup/syntax.html#syntax-elements>`_.)
     :keyword css_id: If specified, the HTMLElement will have an id attribute set to this. Mandatory when a Widget has :meth:`query_fields`.
-    :keyword attribute_source: The class that will modify this widgets' list of attributes
     :keyword read_check: (See :class:`reahl.web.fw.Widget`)
     :keyword write_check: (See :class:`reahl.web.fw.Widget`)
     
@@ -1122,12 +1121,12 @@ class Form(HTMLElement):
 
     def clear_exception(self):
         self.persisted_exception_class.clear_for_form(self)
-    
+
     def persist_input(self, input_values):
         self.clear_saved_inputs()
         for input_widget in self.inputs.values():
             input_widget.persist_input(input_values)
-        
+
     def clear_saved_inputs(self):
         self.persisted_userinput_class.clear_for_form(self)
         self.persisted_exception_class.clear_for_all_inputs(self)
@@ -1333,8 +1332,8 @@ class PrimitiveInput(Input):
         super(PrimitiveInput, self).__init__(form, bound_field)
         if self.registers_with_form:
             self.name = form.register_input(self) # bound_field must be set for this registration to work
+            self.prepare_input()
 
-        self.prepare_input()
         html_widget = None
         if (type(self) is not PrimitiveInput) and ('create_html_input' in type(self).__dict__):
             warnings.warn('DEPRECATED: %s. %s' % (self.create_html_input, 'Please use .create_html_widget instead.'),
@@ -1439,14 +1438,16 @@ class PrimitiveInput(Input):
 
     def prepare_input(self):
         previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name)
+
         if previously_entered_value is not None:
             self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
         else:
             self.bound_field.clear_user_input()
 
     def persist_input(self, input_values):
-        input_value = self.get_value_from_input(input_values)
-        self.enter_value(input_value)
+        if self.registers_with_form:
+            input_value = self.get_value_from_input(input_values)
+            self.enter_value(input_value)
 
     def enter_value(self, input_value):
         self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
@@ -1535,6 +1536,7 @@ class TextArea(PrimitiveInput):
 
 
 class Option(PrimitiveInput):
+    registers_with_form = False
     def __init__(self, select_input, choice):
         self.choice = choice
         self.select_input = select_input
