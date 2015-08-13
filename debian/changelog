@@ -4,14 +4,16 @@ python-reahl (3.2.0) unstable; urgency=low
  * Added Bootstrap 3.3.4 and upgraded Jquery to 1.11.2 and jquery-blockUI to 2.70.0.
  * Added a ColumnLayout and ResponsiveSize for Bootstrap and refactored accordingly.
  * Added a layout.PageLayout to replace the pure.PageColumnLayout and can be used with bootstrap.ColumnLayout also.
- * Extract DerivedAttributes class from Input class
+ * Extract DelegatedAttributes classes from Input class
  * Introduced the InternalRedirect concept
  * Added functionality to replay_request for a MethodResult.
  * Refactored Input hierarchy to be able to handle CheckboxInput, SingleRadioButton and Input as proper Inputs and be able to deal better with Inputs wrapping other Inputs, now distinguishing between PrimitiveInputs and other types of Inputs
  * Changed Browser/WidgetTester Hierarchy so get_html/get_inner_html can be used on WidgetTester too.
  * Changed xpath() on BasicBrowser to be able to deal with an XPath instance.
+ * Changed HTMLElement to be able to have multiple attribute_source(s).
+ * Added Nav and related layouts for bootstrap.
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 19 Mar 2015 13:18:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Aug 2015 14:56:00 +0200
 
 python-reahl (3.1.0) unstable; urgency=low
 

@@ -44,8 +44,9 @@
 </node>
 </node>
 </node>
+<node CREATED="1439453215959" ID="ID_358886512" LINK="widgets/layouttests.py" MODIFIED="1439453629286" TEXT="layout"/>
 </node>
-<node CREATED="1295002540057" ID="ID_383074039" MODIFIED="1348580746548" POSITION="right" TEXT="input &amp; validation">
+<node CREATED="1295002540057" FOLDED="true" ID="ID_383074039" MODIFIED="1348580746548" POSITION="right" TEXT="input &amp; validation">
 <node CREATED="1302363589270" ID="ID_638132540" LINK="inputandvalidation/eventhandling.py" MODIFIED="1405599152920" TEXT="event handling">
 <node CREATED="1295002566110" ID="ID_76489977" MODIFIED="1302345629491" TEXT="events &amp; buttons &amp; basic event handlers">
 <font NAME="SansSerif" SIZE="12"/>
@@ -160,6 +161,14 @@
 <icon BUILTIN="stop-sign"/>
 <node CREATED="1308819985987" ID="ID_95273391" MODIFIED="1308820016969" TEXT="a session that is smart enough to be able to hold onto any (persisted or serialised) object you add to it"/>
 <node CREATED="1308820017957" ID="ID_849552372" MODIFIED="1308820044325" TEXT="or: Entities that are smart enough to hold onto the session (all persisted, of course)"/>
+</node>
+<node CREATED="1439453240980" ID="ID_1412711355" MODIFIED="1439453246163" POSITION="right" TEXT="bootstrap">
+<node CREATED="1439453981487" ID="ID_1367196664" LINK="bootstrap/gridsystemtests.py" MODIFIED="1439455157208" TEXT="grid system"/>
+<node CREATED="1439453989153" ID="ID_1580165280" LINK="bootstrap/formtests.py" MODIFIED="1439455175301" TEXT="forms"/>
+<node CREATED="1439454004393" ID="ID_1163291118" MODIFIED="1439454007932" TEXT="components">
+<node CREATED="1439454147447" ID="ID_360926336" LINK="bootstrap/components/navtests.py" MODIFIED="1439455314242" TEXT="navs"/>
+<node CREATED="1439454194323" ID="ID_1942204858" LINK="bootstrap/components/inputgrouptests.py" MODIFIED="1439455362599" TEXT="input groups"/>
+</node>
 </node>
 </node>
 </map>
