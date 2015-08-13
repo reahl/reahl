@@ -30,8 +30,6 @@ from reahl.dev.devshell import WorkspaceCommand
 from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor
 
 
-
-
 class ServeCurrentProject(WorkspaceCommand):
     """Serves the project configures in the ./etc directory or the directory given as an arg."""
     keyword = 'serve'

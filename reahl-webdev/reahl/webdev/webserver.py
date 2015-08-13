@@ -20,6 +20,7 @@ import six
 import os
 import time
 import subprocess
+import atexit
 from threading import Event
 from threading import Thread
 import select
@@ -265,15 +266,31 @@ class SlaveProcess(object):
         self.process = None
 
     def terminate(self):
-        self.process.terminate()
+        try:
+            logging.getLogger(__name__).debug('Terminating process with PID[%s]' % self.process.pid)
+            self.process.terminate()
+            self.process.wait()
+        except subprocess.TimeoutExpired:
+            self.process.kill()
 
     def spawn(self):
         args = [sys.executable] + sys.argv + ['--dont-restart']
         self.process = subprocess.Popen(args, env=os.environ.copy())
+        atexit.register(SlaveProcess.kill_orphan_on_exit, self.process)
+        logging.getLogger(__name__).debug('Starting process with PID[%s]' % self.process.pid)
 
     def restart(self):
         self.process.terminate()
         self.spawn()
+
+    @classmethod
+    def kill_orphan_on_exit(cls, possible_orphan_process):
+        logging.getLogger(__name__).debug('Cleanup: ensuring process with PID[%s] has terminated' % possible_orphan_process.pid)
+        try:
+            possible_orphan_process.kill()
+            logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
+        except ProcessLookupError:
+            logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
 
 
 class ServerSupervisor(FileSystemEventHandler):
@@ -284,7 +301,7 @@ class ServerSupervisor(FileSystemEventHandler):
         self.directory_observers = []
         self.files_changed = Event()
 
-    def start_observing_directories(self, directories):
+    def start_observing_directories(self):
         self.files_changed.clear()
         for directory in self.directories_to_monitor:
             directory_observer = Observer()
@@ -304,7 +321,7 @@ class ServerSupervisor(FileSystemEventHandler):
         serving_process = SlaveProcess()
         serving_process.spawn()
 
-        self.start_observing_directories(self.directories_to_monitor)
+        self.start_observing_directories()
         running = True
         while running:
             try:
