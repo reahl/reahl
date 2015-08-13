@@ -27,7 +27,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import Bookmark, Url
 from reahl.web.ui import A
 
-from reahl.web.bootstrap import Nav, MenuItem, PillLayout, TabLayout
+from reahl.web.bootstrap.navs import Nav, MenuItem, PillLayout, TabLayout
 
 
 @test(WebFixture)
