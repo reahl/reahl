@@ -3,7 +3,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface, Bookmark
-from reahl.web.ui import HTML5Page, P, H, Panel, Menu, HorizontalLayout
+from reahl.web.ui import HTML5Page, P, H, Div, Menu, HorizontalLayout
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import exposed, IntegerField
@@ -18,7 +18,7 @@ class WidgetRefreshUI(UserInterface):
         find.set_slot('main', HomePanel.factory())
 
 
-class HomePanel(Panel):
+class HomePanel(Div):
     def __init__(self, view):
         super(HomePanel, self).__init__(view)
 
@@ -32,7 +32,7 @@ class HomePanel(Panel):
         self.add_child(panel)
 
 
-class RefreshedPanel(Panel):
+class RefreshedPanel(Div):
     def __init__(self, view, css_id):
         super(RefreshedPanel, self).__init__(view, css_id=css_id)
         self.add_child(P(view, text='You selected link number %s' % self.selected))

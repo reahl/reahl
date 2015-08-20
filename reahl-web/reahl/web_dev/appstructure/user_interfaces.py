@@ -27,7 +27,7 @@ from reahl.stubble import stubclass
 
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
 from reahl.web.fw import Region
-from reahl.web.ui import HTML5Page, P, A, Panel, Slot
+from reahl.web.ui import HTML5Page, P, A, Div, Slot
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.webdev.tools import Browser, WidgetTester
@@ -196,7 +196,7 @@ class UserInterfaceTests(object):
 
     class LifeCycleFixture(WebFixture):
         def current_view_is_plugged_in(self, page):
-            return page.slot_contents['main_slot'].__class__ is Panel
+            return page.slot_contents['main_slot'].__class__ is Div
 
     @test(LifeCycleFixture)
     def the_lifecycle_of_a_ui(self, fixture):
@@ -209,7 +209,7 @@ class UserInterfaceTests(object):
             def assemble(self, **ui_arguments):
                 self.controller_at_assemble_time = self.controller
                 root = self.define_view('/some/path', title='A view')
-                root.set_slot('slotA', Panel.factory())
+                root.set_slot('slotA', Div.factory())
                 self.assembled = True
 
         # Phase1: specifying a user_interface and assembleing it to a site (with kwargs)

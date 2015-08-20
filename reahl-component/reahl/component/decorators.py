@@ -79,8 +79,13 @@ def deprecated(message, version='n/a'):
 
         @wrapt.decorator
         def deprecated_wrapper(wrapped, instance, args, kwargs):
-            deprecated_thing = wrapped.__self__ if is_init_or_classmethod(wrapped) else wrapped
-            warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing, message), DeprecationWarning, stacklevel=2)
+            if is_init_or_classmethod(wrapped):
+                deprecated_thing = wrapped.__self__.__class__ 
+                warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing.__class__, message), DeprecationWarning, stacklevel=2)
+            else:
+                deprecated_thing = wrapped
+                warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing, message), DeprecationWarning, stacklevel=2)
+                
             return wrapped(*args, **kwargs)
 
         if six.PY3 and f.__doc__:

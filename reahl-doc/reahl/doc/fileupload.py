@@ -22,7 +22,7 @@ from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, \
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, \
                          P, H, InputGroup, FileUploadInput, SimpleFileInput
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
@@ -73,7 +73,7 @@ class AttachedFile(Base):
     comment_id = Column(Integer, ForeignKey(Comment.id))
 
 
-class CommentPostPanel(Panel):
+class CommentPostPanel(Div):
     def __init__(self, view):
         super(CommentPostPanel, self).__init__(view)
 
@@ -100,7 +100,7 @@ class CommentForm(Form):
         buttons.add_child(Button(self, new_comment.events.submit))
 
 
-class CommentBox(Panel):
+class CommentBox(Div):
     def __init__(self, view, comment):
         super(CommentBox, self).__init__(view)
         self.add_child(P(view, text='By %s: %s' % (comment.email_address, comment.text)))

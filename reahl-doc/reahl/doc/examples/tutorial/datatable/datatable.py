@@ -8,7 +8,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
-from reahl.web.ui import Panel, P, TextInput, HTML5Page, StaticColumn, DynamicColumn
+from reahl.web.ui import Div, P, TextInput, HTML5Page, StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.web.ui import Button, Form, H, Menu, HorizontalLayout, InputGroup, LabelledBlockInput, A
@@ -69,7 +69,7 @@ class Row(object):
         return getattr(self.address, name)
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view, address_book_ui):
         super(AddressBookPanel, self).__init__(view)
         self.rows = self.initialise_rows()

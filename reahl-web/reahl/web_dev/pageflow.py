@@ -26,7 +26,8 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.ui import Form, HTML5Page, Button, A
+from reahl.web.ui import Form, HTML5Page, A
+from reahl.web.attic.layout import Button
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView

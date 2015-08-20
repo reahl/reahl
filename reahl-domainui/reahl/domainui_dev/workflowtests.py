@@ -26,7 +26,7 @@ from reahl.stubble import easter_egg
 from sqlalchemy import Column, Integer, ForeignKey
 
 from reahl.sqlalchemysupport import Session, metadata
-from reahl.web.ui import HTML5Page, Panel, P
+from reahl.web.ui import HTML5Page, Div, P
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.domain.workflowmodel import Task
@@ -83,7 +83,7 @@ class MyTask(Task):
     id = Column(Integer, ForeignKey('task.id'), primary_key=True)
 
 
-class MyTaskWidget(Panel):
+class MyTaskWidget(Div):
     @classmethod
     def displays(cls, task):
         return task.__class__ is MyTask

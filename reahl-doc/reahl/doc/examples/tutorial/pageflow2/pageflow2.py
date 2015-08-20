@@ -7,7 +7,7 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, Menu, HorizontalLayout
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, InputGroup, Menu, HorizontalLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
@@ -42,7 +42,7 @@ class AddressBookUI(UserInterface):
         self.define_transition(Address.events.save, add, addresses)
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 

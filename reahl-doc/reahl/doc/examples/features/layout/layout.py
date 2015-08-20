@@ -1,7 +1,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, P, Panel
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, P, Div
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, Field, EmailField
@@ -56,7 +56,7 @@ class CommentForm(Form):
 
         layout = ColumnLayout(('left', UnitSize(default='1/2')), 
                               ('right', UnitSize(default='1/2')))
-        row = self.add_child(Panel(view).use_layout(layout))
+        row = self.add_child(Div(view).use_layout(layout))
 
         left_p = P(view, text='This is in the left column of the row')
         row.layout.columns['left'].add_child(left_p) 

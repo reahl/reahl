@@ -18,17 +18,7 @@
 
 import reahl.web.ui
 
-class FileUploadLi(reahl.web.ui._FileUploadLi):
-    pass
-
-
-class FileUploadPanel(reahl.web.ui._FileUploadPanel):
-    pass
-
-
-class UniqueFilesConstraint(reahl.web.ui._UniqueFilesConstraint):
-    pass
-
+from reahl.web.ui import FileUploadPanel
 
 class FileUploadInput(reahl.web.ui._FileUploadInput):
     __doc__ = reahl.web.ui._FileUploadInput.__doc__

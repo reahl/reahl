@@ -17,7 +17,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Panel, P
+from reahl.web.ui import HTML5Page, Div, P
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 
@@ -31,7 +31,7 @@ class BasicHTMLWidgetsUI(UserInterface):
         home.set_slot('main', WidgetPanel.factory())
 
 
-class WidgetPanel(Panel):
+class WidgetPanel(Div):
     def __init__(self, view):
         super(WidgetPanel, self).__init__(view)
         self.add_child(P(view, text='A paragraph'))

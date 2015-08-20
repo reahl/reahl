@@ -26,16 +26,9 @@ from reahl.tofu import Fixture, test, scenario, NoException, vassert, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
 from reahl.sqlalchemysupport import Session
-from reahl.web.ui import Button
-from reahl.web.ui import Panel
-from reahl.web.ui import Form
-from reahl.web.ui import LabelledBlockInput
-from reahl.web.ui import NestedForm
-from reahl.web.ui import TextInput
-from reahl.web.ui import HTML5Page
-from reahl.web.fw import Url
-from reahl.web.fw import UserInterface
-from reahl.web.fw import ValidationException
+from reahl.web.attic.layout import Button, LabelledBlockInput
+from reahl.web.ui import Div, Form, TextInput, HTML5Page, NestedForm
+from reahl.web.fw import Url, UserInterface, ValidationException
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 
@@ -411,7 +404,7 @@ def check_input_placement(fixture):
             super(MyForm, self).__init__(view, 'my_form')
             self.add_child(RerenderableInputPanel(view, self))
             
-    class RerenderableInputPanel(Panel):
+    class RerenderableInputPanel(Div):
         def __init__(self, view, form):
             super(RerenderableInputPanel, self).__init__(view, css_id='my_refresh_id')
             self.enable_refresh()
@@ -437,7 +430,7 @@ def check_missing_form(fixture):
         def fields(self, fields):
             fields.name = Field()
            
-    class MyPanel(Panel):
+    class MyPanel(Div):
         def __init__(self, view):
             super(MyPanel, self).__init__(view)
             model_object = ModelObject()

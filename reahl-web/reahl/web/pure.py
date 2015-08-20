@@ -29,7 +29,7 @@ from fractions import Fraction
 from reahl.web.fw import Layout
 import reahl.web.layout
 
-from reahl.web.ui import Panel, Header, Footer, Slot, HTML5Page
+from reahl.web.ui import Div, Header, Footer, Slot, HTML5Page
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
 from reahl.component.decorators import deprecated
 
@@ -101,7 +101,7 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
 
            :keyword unit_size: The sizes to use for the column.
 
-           Returns a :class:`reahl.web.ui.Panel` representing the added column.
+           Returns a :class:`reahl.web.ui.Div` representing the added column.
         """
         unit_size = unit_size or UnitSize()
         unit = super(ColumnLayout, self).add_column(size=unit_size)
@@ -131,7 +131,7 @@ class PageColumnLayout(reahl.web.layout.PageLayout):
        arguments to its constructor.
     
        All of these contents are also wrapped in a
-       :class:`reahl.web.ui.Panel`, which is handy for styling.
+       :class:`reahl.web.ui.Div`, which is handy for styling.
 
        Specifying columns work exactly as for :class:`ColumnLayout`.
 

@@ -8,7 +8,7 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, A, P, H, InputGroup, Menu, HorizontalLayout,\
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, A, P, H, InputGroup, Menu, HorizontalLayout,\
                          PasswordInput, ErrorFeedbackMessage, Slot, Widget, SelectInput, CheckboxInput
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout, UnitSize
@@ -195,7 +195,7 @@ class HomePageWidget(Widget):
             self.add_child(LoginForm(view, accounts))
 
 
-class AddressBookList(Panel):
+class AddressBookList(Div):
     def __init__(self, view, address_book_ui):
         super(AddressBookList, self).__init__(view)
 
@@ -209,7 +209,7 @@ class AddressBookList(Panel):
             p.add_child(A.from_bookmark(view, bookmark))
         
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view, address_book, address_book_ui):
         self.address_book = address_book
         super(AddressBookPanel, self).__init__(view)

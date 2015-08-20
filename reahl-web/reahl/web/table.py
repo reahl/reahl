@@ -22,4 +22,4 @@ import reahl.web.attic.datatable
 
 @deprecated('Please use reahl.web.attic.datatable:DataTable instead', '3.2')
 class DataTable(reahl.web.attic.datatable.DataTable):
-    __doc__ = reahl.web.attic.datatable.DataTable__doc__
+    __doc__ = reahl.web.attic.datatable.DataTable.__doc__

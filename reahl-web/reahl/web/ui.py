@@ -568,22 +568,22 @@ class TwoColumnPage(HTML5Page):
 
     @property
     def footer(self):
-        """The Panel used as footer area."""
+        """The Div used as footer area."""
         return self.yui_page.footer
 
     @property
     def header(self):
-        """The Panel used as header area."""
+        """The Div used as header area."""
         return self.yui_page.header
 
     @property
     def main(self):
-        """The Panel used as main column."""
+        """The Div used as main column."""
         return self.yui_page.main_block
 
     @property
     def secondary(self):
-        """The Panel used as secondary column."""
+        """The Div used as secondary column."""
         return self.yui_page.secondary_block
 
 
@@ -755,7 +755,7 @@ class _ErrorFeedbackMessage(P):
     """
     @property
     def attributes(self):
-        attributes = super(ErrorFeedbackMessage, self).attributes
+        attributes = super(_ErrorFeedbackMessage, self).attributes
         attributes.add_to('class', ['error', 'feedback'])
         return attributes    
 
@@ -931,7 +931,7 @@ class YuiDoc(Div):
         self.add_children([self.hd, self.bd, self.ft])
 
 
-class YuiElement(Panel):
+class YuiElement(Div):
     yui_class = None
     
     def __init__(self, view, css_id=None):
@@ -1347,8 +1347,9 @@ class PrimitiveInput(Input):
     registers_with_form = True
     add_default_attribute_source = True
     
-    def __init__(self, form, bound_field):
+    def __init__(self, form, bound_field, name=None):
         super(PrimitiveInput, self).__init__(form, bound_field)
+        self.name = name
         if self.registers_with_form:
             self.name = form.register_input(self) # bound_field must be set for this registration to work
         
@@ -1405,7 +1406,8 @@ class PrimitiveInput(Input):
         html_widget = HTMLElement(self.view, 'input')
         if self.add_default_attribute_source:
             html_widget.add_attribute_source(ValidationStateAttributes(self))
-        html_widget.set_attribute('name', self.name)
+        if self.name:
+            html_widget.set_attribute('name', self.name)
         if self.disabled:
             html_widget.set_attribute('disabled', 'disabled')
         return html_widget
@@ -1477,9 +1479,9 @@ class PrimitiveInput(Input):
 
 class InputTypeInput(PrimitiveInput):
     render_value_attribute = True
-    def __init__(self, form, bound_field, input_type):
+    def __init__(self, form, bound_field, input_type, name=None):
         self.input_type = input_type
-        super(InputTypeInput, self).__init__(form, bound_field)
+        super(InputTypeInput, self).__init__(form, bound_field, name=name)
 
     def create_html_widget(self):
         html_widget = super(InputTypeInput, self).create_html_widget()
@@ -1648,8 +1650,8 @@ class SingleRadioButton(InputTypeInput):
     def __init__(self, radio_button_input, choice):
         self.choice = choice
         self.radio_button_input = radio_button_input
-        self.name = radio_button_input.name
-        super(SingleRadioButton, self).__init__(radio_button_input.form, radio_button_input.bound_field, 'radio')
+        super(SingleRadioButton, self).__init__(radio_button_input.form, radio_button_input.bound_field, 
+                                                'radio', name=radio_button_input.name)
 
     def create_html_widget(self):
         span = Span(self.view)
@@ -1864,12 +1866,12 @@ class _Button(Span):
 
     """
     def __init__(self, form, event, css_id=None):
-        super(Button, self).__init__(form.view, css_id=css_id)
+        super(_Button, self).__init__(form.view, css_id=css_id)
         self.html_input = self.add_child(ButtonInput(form, event))
 
     @property
     def attributes(self):
-        attributes = super(Button, self).attributes
+        attributes = super(_Button, self).attributes
         attributes.add_to('class', ['reahl-button'])
         return attributes
 
@@ -1973,7 +1975,7 @@ class _LabelledInlineInput(Span):
     """
     def __init__(self, html_input, css_id=None):
         view = html_input.view
-        super(LabelledInlineInput, self).__init__(view, css_id=css_id)
+        super(_LabelledInlineInput, self).__init__(view, css_id=css_id)
         self.label = self.add_child(self.make_label(html_input))
         self.inner_span = self.add_child(Span(view))
         self.html_input = self.inner_span.add_child(html_input)
@@ -1987,7 +1989,7 @@ class _LabelledInlineInput(Span):
 
     @property
     def attributes(self):
-        attributes = super(LabelledInlineInput, self).attributes
+        attributes = super(_LabelledInlineInput, self).attributes
         attributes.add_to('class', ['reahl-labelledinput'])
         if self.html_input.get_input_status() == 'invalidly_entered':
             attributes.add_to('class', ['reahl-state-error'])
@@ -2000,7 +2002,7 @@ class LabelledInlineInput(_LabelledInlineInput):
 
 
 # Uses: reahl/web/reahl.labelledinput.css
-class _LabelledBlockInput(Panel):
+class _LabelledBlockInput(Div):
     """A Widget that wraps around a given Input, adding a Label to the Input. Labels and their corresponding Inputs
        are arranged in columns. Successive LabelledBlockInputs are positioned underneath one another. This has the
        effect that the Labels and Inputs of successive LabelledBlockInputs line up.
@@ -2016,7 +2018,7 @@ class _LabelledBlockInput(Panel):
     """
     def __init__(self, html_input, css_id=None):
         view = html_input.view
-        super(LabelledBlockInput, self).__init__(view, css_id=css_id)
+        super(_LabelledBlockInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
 
         if YuiGridsCss.is_enabled():
@@ -2038,7 +2040,7 @@ class _LabelledBlockInput(Panel):
 
     @property
     def attributes(self):
-        attributes = super(LabelledBlockInput, self).attributes
+        attributes = super(_LabelledBlockInput, self).attributes
         attributes.add_to('class', ['reahl-labelledinput'])
         if self.html_input.get_input_status() == 'invalidly_entered':
             attributes.add_to('class', ['reahl-state-error'])
@@ -2051,7 +2053,7 @@ class LabelledBlockInput(_LabelledBlockInput):
 
 
 # Uses: reahl/web/reahl.cueinput.js
-class _CueInput(Panel):
+class _CueInput(Div):
     """A Widget that wraps around a given Input, adding a Label to the Input and a "cue" - a hint that
        appears only when the Input has focus. The intention of the cue is to give the user a hint as to
        what to input into the Input.
@@ -2070,7 +2072,7 @@ class _CueInput(Panel):
     """
     def __init__(self, html_input, cue_widget, css_id=None):
         view = html_input.view
-        super(CueInput, self).__init__(view, css_id=css_id)
+        super(_CueInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
 
         if YuiGridsCss.is_enabled():
@@ -2099,7 +2101,7 @@ class _CueInput(Panel):
 
     @property
     def attributes(self):
-        attributes = super(CueInput, self).attributes
+        attributes = super(_CueInput, self).attributes
         attributes.add_to('class', ['reahl-cueinput', 'reahl-labelledinput'])
         if self.html_input.get_input_status() == 'invalidly_entered':
             attributes.add_to('class', ['reahl-state-error'])
@@ -2107,7 +2109,7 @@ class _CueInput(Panel):
 
     def get_js(self, context=None):
         js = ['$(%s).cueinput();' % self.contextualise_selector('".reahl-cueinput"', context)]
-        return super(CueInput, self).get_js(context=context) + js
+        return super(_CueInput, self).get_js(context=context) + js
 
 
 @deprecated('Please use reahl.web.attic.layout:CueInput instead', '3.2')
@@ -2131,7 +2133,7 @@ class _LabelOverInput(LabelledInlineInput):
     """
     @property
     def attributes(self):
-        attributes = super(LabelOverInput, self).attributes
+        attributes = super(_LabelOverInput, self).attributes
         attributes.add_to('class', ['reahl-labeloverinput'])
         return attributes
 
@@ -2147,7 +2149,7 @@ class _LabelOverInput(LabelledInlineInput):
 
     def get_js(self, context=None):
         js = ['$(%s).labeloverinput();' % self.contextualise_selector('".reahl-labeloverinput"', context)]
-        return super(LabelOverInput, self).get_js(context=context) + js
+        return super(_LabelOverInput, self).get_js(context=context) + js
 
 
 @deprecated('Please use reahl.web.attic.layout:LabelOverInput instead', '3.2')
@@ -2182,7 +2184,7 @@ class _MenuItem(Li):
         return cls(view, A.from_bookmark(view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
 
     def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
-        super(MenuItem, self).__init__(view, css_id=css_id)
+        super(_MenuItem, self).__init__(view, css_id=css_id)
         self.exact_match = exact_match
         self.a = self.add_child(a)
         self.active_regex = active_regex
@@ -2195,7 +2197,7 @@ class _MenuItem(Li):
 
     @property
     def attributes(self):
-        attributes = super(MenuItem, self).attributes
+        attributes = super(_MenuItem, self).attributes
         if self.is_active:
             attributes.add_to('class', ['active'])
         return attributes
@@ -2206,7 +2208,7 @@ class MenuItem(_MenuItem):
     __doc__ = _MenuItem.__doc__
 
 
-class _SubMenu(MenuItem):
+class _SubMenu(_MenuItem):
     """A MenuItem that can contain another complete Menu itself.
 
        .. admonition:: Styling
@@ -2220,7 +2222,7 @@ class _SubMenu(MenuItem):
 
     """
     def __init__(self, view, title, menu, css_id=None):
-        super(SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id)
+        super(_SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id)
         self.add_child(menu)
 
 
@@ -2261,7 +2263,7 @@ class _Menu(Ul):
             except UnknownLocaleError:
                 language_name = locale
             a = A(view, current_url.with_new_locale(locale), description=language_name)
-            menu.add_item(MenuItem(view, a, exact_match=True))
+            menu.add_item(_MenuItem(view, a, exact_match=True))
         return menu
 
     @classmethod
@@ -2270,18 +2272,18 @@ class _Menu(Ul):
         menu = cls(view, [])
         for bookmark in bookmark_list:
             a = A.from_bookmark(view, bookmark)
-            menu.add_item(MenuItem(view, a, exact_match=bookmark.exact))
+            menu.add_item(_MenuItem(view, a, exact_match=bookmark.exact))
         return menu
 
     def __init__(self, view, a_list, css_id=None):
-        super(Menu, self).__init__(view, css_id=css_id)
+        super(_Menu, self).__init__(view, css_id=css_id)
         self.append_class(self.css_class)
         self.menu_items = []
         self.set_items_from(a_list)
 
     def set_items_from(self, a_list):
         for a in a_list:
-            self.add_item(MenuItem(self.view, a))
+            self.add_item(_MenuItem(self.view, a))
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu."""
@@ -2334,7 +2336,7 @@ class VerticalLayout(_VerticalLayout):
 
 # Uses: reahl/web/reahl.hmenu.css
 @deprecated('Please use Menu().with_layout(HorizontalLayout()) instead.', '3.1')
-class HMenu(Menu):
+class HMenu(_Menu):
     """A Menu, with items displayed next to each other.
 
        .. admonition:: Styling
@@ -2354,7 +2356,7 @@ class HMenu(Menu):
 
 
 @deprecated('Please use Menu().with_layout(VerticalLayout()) instead.', '3.1')
-class VMenu(Menu):
+class VMenu(_Menu):
     """A Menu, with items displayed underneath each other.
 
        .. admonition:: Styling
@@ -2373,7 +2375,7 @@ class VMenu(Menu):
         return attributes
 
 
-class _Tab(MenuItem):
+class _Tab(_MenuItem):
     """One Tab in a :class:`TabbedPanel`.
 
        .. admonition:: Styling
@@ -2393,7 +2395,7 @@ class _Tab(MenuItem):
         self.contents_factory = contents_factory
         self.force_active = False
         a = A.from_bookmark(view, self.get_bookmark())
-        super(Tab, self).__init__(view, a, css_id=css_id)
+        super(_Tab, self).__init__(view, a, css_id=css_id)
 
     def get_bookmark(self):
         query_arguments={'tab': self.tab_key}
@@ -2401,7 +2403,7 @@ class _Tab(MenuItem):
 
     @property
     def is_active(self):
-        return super(Tab, self).is_active or self.force_active
+        return super(_Tab, self).is_active or self.force_active
 
     def add_content_to_panel(self, panel):
         panel.add_child(self.contents_factory.create(self.view))
@@ -2412,7 +2414,7 @@ class Tab(_Tab):
     __doc__ = _Tab.__doc__
 
 
-class _MultiTab(Tab):
+class _MultiTab(_Tab):
     """A composite tab. Instead of a single choice for the user, clicking on a MultiTab
        results in a dropdown menu with more choices for the user.
 
@@ -2432,11 +2434,11 @@ class _MultiTab(Tab):
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
-        super(MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
+        super(_MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
         self.add_child(TextNode(view, '&nbsp;', html_escape=False))
         dropdown_handle = self.add_child(A(view, None, description='▼'))
         dropdown_handle.append_class('dropdown-handle')
-        self.menu = self.add_child(Menu(view, []).use_layout(VerticalLayout()))
+        self.menu = self.add_child(_Menu(view, []).use_layout(_VerticalLayout()))
 
     def add_tab(self, tab):
         self.menu.add_item(tab)
@@ -2454,14 +2456,14 @@ class _MultiTab(Tab):
         return self.first_tab
 
     def add_content_to_panel(self, panel):
-        if super(MultiTab, self).is_active:
-            super(MultiTab, self).add_content_to_panel(panel)
+        if super(_MultiTab, self).is_active:
+            super(_MultiTab, self).add_content_to_panel(panel)
         else:
             self.current_sub_tab.add_content_to_panel(panel)
 
     @property
     def is_active(self):
-        return super(MultiTab, self).is_active or self.current_sub_tab.is_active
+        return super(_MultiTab, self).is_active or self.current_sub_tab.is_active
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:MultiTab instead', '3.2')
@@ -2471,8 +2473,8 @@ class MultiTab(_MultiTab):
 
 # Uses: reahl/web/reahl.tabbedpanel.css
 # Uses: reahl/web/reahl.tabbedpanel.js
-class _TabbedPanel(Panel):
-    """A Panel sporting different Tabs which the user can select to change what is displayed. The contents
+class _TabbedPanel(Div):
+    """A Div sporting different Tabs which the user can select to change what is displayed. The contents
        of a TabbedPanel are changed when the user clicks on a different Tab without refreshing the entire
        page, provided that JavaScript is available on the user agent.
 
@@ -2486,10 +2488,10 @@ class _TabbedPanel(Panel):
        :param css_id: (See :class:`HTMLElement`)
     """
     def __init__(self, view, css_id):
-        super(TabbedPanel, self).__init__(view, css_id=css_id)
+        super(_TabbedPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-tabbedpanel')
-        self.tabs = self.add_child(Menu(view, [])).use_layout(HorizontalLayout())
-        self.content_panel = self.add_child(Panel(view))
+        self.tabs = self.add_child(_Menu(view, [])).use_layout(_HorizontalLayout())
+        self.content_panel = self.add_child(Div(view))
         self.enable_refresh()
 
     @exposed
@@ -2521,10 +2523,10 @@ class TabbedPanel(_TabbedPanel):
 
 # Uses: reahl/web/reahl.slidingpanel.css
 # Uses: reahl/web/reahl.slidingpanel.js
-class _SlidingPanel(Panel):
-    """A Panel which contains a number of other Panels, only one of which is displayed at a time.
+class _SlidingPanel(Div):
+    """A Div which contains a number of other Panels, only one of which is displayed at a time.
        It sports controls that can be clicked by a user to advance the displayed content to the
-       next or previous Panel. Advancing is done by visually sliding in the direction indicated
+       next or previous Div. Advancing is done by visually sliding in the direction indicated
        by the user if JavaScript is available. The panels advance once every 10 seconds if no
        user action is detected.
 
@@ -2533,7 +2535,7 @@ class _SlidingPanel(Panel):
           Rendered as a <div class="reahl-slidingpanel"> which contains three children: a <div class="viewport">
           flanked on either side by an <a> (the controls for forcing it to transition left or right). The
           labels passed as `next` and `prev` are embedded in <span> tags inside the <a> tags.
-          The :class:`Panel` instances added to the :class:`SlidingPanel` are marked with a ``class="contained"``.
+          The :class:`Div` instances added to the :class:`SlidingPanel` are marked with a ``class="contained"``.
 
           For a SlidingPanel to function property, you need to specify a height and width to
           ``div.reahl-slidingpanel div.viewport``.
@@ -2544,9 +2546,9 @@ class _SlidingPanel(Panel):
        :keyword prev: Text to put in the link clicked to slide to the previous panel.
     """
     def __init__(self, view, css_id=None, next='>', prev='<'):
-        super(SlidingPanel, self).__init__(view, css_id=css_id)
+        super(_SlidingPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-slidingpanel')
-        self.container = Panel(view)
+        self.container = Div(view)
         self.container.append_class('viewport')
         self.prev = self.add_child(A.from_bookmark(view, self.get_bookmark(index=self.previous_index, description='')))
         self.prev.add_child(Span(view, text=prev))
@@ -2555,7 +2557,7 @@ class _SlidingPanel(Panel):
         self.next.add_child(Span(view, text=next))
 
     def add_panel(self, panel):
-        """Adds `panel` to the list of :class:`Panel` instances that share the same visual space."""
+        """Adds `panel` to the list of :class:`Div` instances that share the same visual space."""
         panel.append_class('contained')
         self.container.add_child(panel)
         if self.max_panel_index != self.index:
@@ -2658,24 +2660,20 @@ class SimpleFileInput(InputTypeInput):
 
 
 # Uses: reahl/web/reahl.fileuploadli.js
-class _FileUploadLi(Li):
+class FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
         super(FileUploadLi, self).__init__(form.view, css_id=css_id)
         self.set_attribute('class', 'reahl-file-upload-li')
-        self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
+        self.add_child(_Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
         self.add_child(Span(self.view, persisted_file.filename))
 
     def get_js(self, context=None):
         return ['$(".reahl-file-upload-li").fileuploadli();']
 
 
-@deprecated('Please use reahl.web.attic.fileupload:FileUploadLi instead', '3.2')
-class FileUploadLi(_FileUploadLi):
-    pass
-
 
 # Uses: reahl/web/reahl.fileuploadpanel.js
-class _FileUploadPanel(Panel):
+class FileUploadPanel(Div):
     def __init__(self, file_upload_input, css_id=None):
         super(FileUploadPanel, self).__init__(file_upload_input.view, css_id=css_id)
         self.set_attribute('class', 'reahl-file-upload-panel')
@@ -2700,9 +2698,9 @@ class _FileUploadPanel(Panel):
             ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file, persisted_file))
 
     def add_upload_controls(self):
-        controls_panel = self.upload_form.add_child(Panel(self.view))
+        controls_panel = self.upload_form.add_child(Div(self.view))
         controls_panel.add_child(SimpleFileInput(self.upload_form.form, self.fields.uploaded_file))
-        controls_panel.add_child(Button(self.upload_form.form, self.events.upload_file))
+        controls_panel.add_child(_Button(self.upload_form.form, self.events.upload_file))
         
     @property
     def persisted_file_class(self):
@@ -2759,12 +2757,9 @@ class _FileUploadPanel(Panel):
             self.persisted_file_class.add_persisted_for_form(self.input_form, self.name, self.uploaded_file)
 
 
-@deprecated('Please use reahl.web.attic.fileupload:FileUploadPanel instead', '3.2')
-class FileUploadPanel(_FileUploadPanel):
-    pass
 
 
-class _UniqueFilesConstraint(ValidationConstraint):
+class UniqueFilesConstraint(ValidationConstraint):
     name = 'uniquefiles'
     def __init__(self, form=None, input_name=None, error_message=None):
         error_message = error_message or _('uploaded files should all have different names')
@@ -2787,10 +2782,7 @@ class _UniqueFilesConstraint(ValidationConstraint):
         return reduced
 
 
-@deprecated('Please use reahl.web.attic.fileupload:UniqueFilesConstraint instead', '3.2')
-class UniqueFilesConstraint(_UniqueFilesConstraint):
-    pass
-    
+
 
 class _FileUploadInput(PrimitiveInput):
     """An Input which allows a user to choose several files for uploding to a server. As each file is
@@ -2855,9 +2847,9 @@ class DialogButton(_DialogButton):
     __doc__ = _DialogButton.__doc__
 
 
-class _CheckCheckboxButton(DialogButton):
+class _CheckCheckboxButton(_DialogButton):
     def __init__(self, label, checkbox):
-        super(CheckCheckboxButton, self).__init__(label)
+        super(_CheckCheckboxButton, self).__init__(label)
         self.checkbox_to_check = checkbox
         
     def callback_js(self):
@@ -2875,13 +2867,13 @@ class _PopupA(A):
     # http://blog.nemikor.com/category/jquery-ui/jquery-ui-dialog/
     # ... with buttons added
     def __init__(self, view, target_bookmark, show_for_selector, close_button=True, css_id=None):
-        super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
+        super(_PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
         self.set_title(target_bookmark.description)
         self.append_class('reahl-popupa')
         self.show_for_selector = show_for_selector
         self.buttons = []
         if close_button:
-            self.add_button(DialogButton(_('Close')))
+            self.add_button(_DialogButton(_('Close')))
         
     def add_button(self, button):
         self.buttons.append(button)

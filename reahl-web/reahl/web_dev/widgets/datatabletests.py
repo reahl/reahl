@@ -21,10 +21,11 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath
-from reahl.web.ui import Panel, Button, StaticColumn, DynamicColumn
+from reahl.web.ui import Div, StaticColumn, DynamicColumn
+from reahl.web.attic.layout import Button
 from reahl.web_dev.widgets.tabletests import TableFixture
 
-from reahl.web.table import DataTable
+from reahl.web.attic.datatable import DataTable
 from reahl.component.modelinterface import Field, IntegerField, exposed
 
 
@@ -59,7 +60,7 @@ class DataTableFixture(TableFixture):
 
     def new_MainWidget(self):
         fixture = self
-        class MainWidget(Panel):
+        class MainWidget(Div):
             def __init__(self, view):
                 super(MainWidget, self).__init__(view)
 

@@ -28,7 +28,8 @@ from reahl.component.modelinterface import Field, EmailField, PasswordField, Boo
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, IntegerConstraint, \
                              MaxValueConstraint, MinValueConstraint, exposed
-from reahl.web.ui import InputTypeInput, Form, TextInput, Button
+from reahl.web.ui import InputTypeInput, Form, TextInput
+from reahl.web.attic.layout import Button
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.inputandvalidation.inputtests import InputMixin, InputMixin2
