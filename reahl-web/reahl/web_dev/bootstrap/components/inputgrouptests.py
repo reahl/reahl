@@ -27,14 +27,13 @@ from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
 from reahl.web.fw import UserInterface, Url
-from reahl.web.ui import A, Div, P, HTML5Page, Header, Footer
 
 from reahl.web_dev.inputandvalidation.inputtests import InputMixin
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
 from reahl.web.bootstrap.inputgroup import InputGroup
-from reahl.web.bootstrap.forms import TextInput
+from reahl.web.bootstrap.ui import A, Div, P, HTML5Page, Header, Footer, TextInput
 
 
 

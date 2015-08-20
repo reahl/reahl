@@ -25,16 +25,12 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from collections import OrderedDict
-import copy
+from reahl.web.fw import Layout
+from reahl.web.ui import AccessRightAttributes
+import reahl.web.ui
+from reahl.web.bootstrap.ui import Span
 
-from reahl.web.fw import Layout, Widget
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, ValidationStateAttributes, AccessRightAttributes, \
-                             Span, Input, TextInput, Label, TextNode, ButtonInput, P, WrappedInput
-
-import reahl.web.layout
-from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
-from reahl.web.ui import MenuItem
+from reahl.component.exceptions import ProgrammerError
 
 
 
