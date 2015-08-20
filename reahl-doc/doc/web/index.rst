@@ -15,6 +15,6 @@ Web framework
    Interfaces for persisted classes of which many implementations can exist (reahl.web.interfaces) <interfaces>
    The declarative implementation (reahl.webdeclarative) <webdeclarative>
 
-
+   Experimental Widgets and tools (reahl.web.attic) <attic/index>
 
 

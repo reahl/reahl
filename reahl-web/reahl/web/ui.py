@@ -147,7 +147,7 @@ class HTMLAttributeDict(dict):
         del self[name]        
 
 
-class PriorityGroup(object):
+class _PriorityGroup(object):
     """A PriorityGroup ensures that only one of the Widgets added to it has primary priority, 
        the others in the group can have secondary priority, or no priority specified. This 
        is used for styling Widgets based on their priority in the PriorityGroup.
@@ -172,6 +172,11 @@ class PriorityGroup(object):
         self.add(widget)
         widget.set_priority(primary=True)
         self.has_primary = True
+
+
+@deprecated('Please use reahl.web.attic.layout:PriorityGroup instead', '3.2')
+class PriorityGroup(_PriorityGroup):
+    __doc__ = _PriorityGroup.__doc__
 
 
 # Uses: reahl/web/reahl.hashchange.js
@@ -741,7 +746,7 @@ class P(HTMLElement):
         self.available_slots[name].fill(widget)
 
 
-class ErrorFeedbackMessage(P):
+class _ErrorFeedbackMessage(P):
     """A user message indicating some error condition, such as a form validation which failed.
 
        .. admonition:: Styling
@@ -753,6 +758,11 @@ class ErrorFeedbackMessage(P):
         attributes = super(ErrorFeedbackMessage, self).attributes
         attributes.add_to('class', ['error', 'feedback'])
         return attributes    
+
+
+@deprecated('Please use reahl.web.attic.layout:ErrorFeedbackMessage instead', '3.2')
+class ErrorFeedbackMessage(_ErrorFeedbackMessage):
+    __doc__ = _ErrorFeedbackMessage.__doc__
 
 
 class Div(HTMLElement):
@@ -883,6 +893,7 @@ class Img(HTMLElement):
             self.set_attribute('alt', alt)
 
 
+@deprecated('Please use reahl.web.ui:Div instead', '3.2')
 class Panel(Div):
     """A logical container for other Widgets.
 
@@ -890,6 +901,7 @@ class Panel(Div):
        
           Renders as an HTML <div> element.
     """
+    pass
 
 
 @deprecated('Please use reahl.web.layout:PageLayout instead.', '3.1')
@@ -1197,13 +1209,6 @@ class NestedForm(Div):
 
     
 class FieldSet(HTMLElement):
-    def __init__(self, view, label_text=None, css_id=None):
-        super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
-        if label_text:
-            self.label = self.add_child(Label(view, text=label_text))
-    
-
-class InputGroup(FieldSet):
     """A visual grouping of HTMLElements inside a Form.
 
        .. admonition:: Styling
@@ -1215,6 +1220,20 @@ class InputGroup(FieldSet):
        :keyword css_id: (See :class:`HTMLElement`)
        
     """
+    def __init__(self, view, label_text=None, css_id=None):
+        super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
+        if label_text:
+            self.label = self.add_child(Label(view, text=label_text))
+    
+
+class _InputGroup(FieldSet):
+    __doc__ = FieldSet.__doc__
+
+
+@deprecated('Please use reahl.web.attic.layout:InputGroup instead', '3.2')
+class InputGroup(_InputGroup):
+    __doc__ = _InputGroup.__doc__
+    
 
 class DelegatedAttributes(object):
     def set_attributes(self, attributes):
@@ -1832,7 +1851,7 @@ class ButtonInput(PrimitiveInput):
         return None
 
 
-class Button(Span):
+class _Button(Span):
     """A button.
 
        .. admonition:: Styling
@@ -1853,6 +1872,11 @@ class Button(Span):
         attributes = super(Button, self).attributes
         attributes.add_to('class', ['reahl-button'])
         return attributes
+
+
+@deprecated('Please use reahl.web.attic.layout:Button instead', '3.2')
+class Button(_Button):
+    __doc__ = _Button.__doc__
 
 
 class Label(HTMLElement):
@@ -1935,7 +1959,7 @@ class ErrorLabel(Label):
 
 
 # Uses: reahl/web/reahl.labelledinput.css
-class LabelledInlineInput(Span):
+class _LabelledInlineInput(Span):
     """A Widget that wraps around a given Input, adding a Label to the Input. Adheres to text flow.
 
        .. admonition:: Styling
@@ -1970,8 +1994,13 @@ class LabelledInlineInput(Span):
         return attributes
 
 
+@deprecated('Please use reahl.web.attic.layout:LabelledInlineInput instead', '3.2')
+class LabelledInlineInput(_LabelledInlineInput):
+    __doc__ = _LabelledInlineInput.__doc__
+
+
 # Uses: reahl/web/reahl.labelledinput.css
-class LabelledBlockInput(Panel):
+class _LabelledBlockInput(Panel):
     """A Widget that wraps around a given Input, adding a Label to the Input. Labels and their corresponding Inputs
        are arranged in columns. Successive LabelledBlockInputs are positioned underneath one another. This has the
        effect that the Labels and Inputs of successive LabelledBlockInputs line up.
@@ -2016,8 +2045,13 @@ class LabelledBlockInput(Panel):
         return attributes
 
 
+@deprecated('Please use reahl.web.attic.layout:LabelledBlockInput instead', '3.2')
+class LabelledBlockInput(_LabelledBlockInput):
+    __doc__ = _LabelledBlockInput.__doc__
+
+
 # Uses: reahl/web/reahl.cueinput.js
-class CueInput(Panel):
+class _CueInput(Panel):
     """A Widget that wraps around a given Input, adding a Label to the Input and a "cue" - a hint that
        appears only when the Input has focus. The intention of the cue is to give the user a hint as to
        what to input into the Input.
@@ -2076,10 +2110,14 @@ class CueInput(Panel):
         return super(CueInput, self).get_js(context=context) + js
 
 
+@deprecated('Please use reahl.web.attic.layout:CueInput instead', '3.2')
+class CueInput(_CueInput):
+    __doc__ = _CueInput.__doc__
+
 
 # Uses: reahl/web/reahl.labeloverinput.js
 # Uses: reahl/web/reahl.labeloverinput.css
-class LabelOverInput(LabelledInlineInput):
+class _LabelOverInput(LabelledInlineInput):
     """A :class:`LabelledInlineWidget` that shows the Label superimposed over the Input itself.
        The label is only visible while the Input is empty.
 
@@ -2112,7 +2150,12 @@ class LabelOverInput(LabelledInlineInput):
         return super(LabelOverInput, self).get_js(context=context) + js
 
 
-class MenuItem(Li):
+@deprecated('Please use reahl.web.attic.layout:LabelOverInput instead', '3.2')
+class LabelOverInput(_LabelOverInput):
+    __doc__ = _LabelOverInput.__doc__
+
+
+class _MenuItem(Li):
     """One item in a Menu.
 
        .. admonition:: Styling
@@ -2158,7 +2201,12 @@ class MenuItem(Li):
         return attributes
 
 
-class SubMenu(MenuItem):
+@deprecated('Please use reahl.web.attic.menu:MenuItem instead', '3.2')
+class MenuItem(_MenuItem):
+    __doc__ = _MenuItem.__doc__
+
+
+class _SubMenu(MenuItem):
     """A MenuItem that can contain another complete Menu itself.
 
        .. admonition:: Styling
@@ -2176,8 +2224,14 @@ class SubMenu(MenuItem):
         self.add_child(menu)
 
 
+@deprecated('Please use reahl.web.attic.menu:SubMenu instead', '3.2')
+class SubMenu(_SubMenu):
+    __doc__ = _SubMenu.__doc__
+
+
+
 # Uses: reahl/web/reahl.menu.css
-class Menu(Ul):
+class _Menu(Ul):
     """A visual menu that lists a number of Views to which the user can choose to go to.
 
        .. admonition:: Styling
@@ -2235,7 +2289,12 @@ class Menu(Ul):
         self.menu_items.append(item)
 
 
-class HorizontalLayout(Layout):
+@deprecated('Please use reahl.web.attic.menu:Menu instead', '3.2')
+class Menu(_Menu):
+    __doc__ = _Menu.__doc__
+
+
+class _HorizontalLayout(Layout):
     """A Layout that causes Widgets to be displayed horizontally.
 
        .. admonition:: Styling
@@ -2249,7 +2308,12 @@ class HorizontalLayout(Layout):
         self.widget.append_class('reahl-horizontal')
 
 
-class VerticalLayout(Layout):
+@deprecated('Please use reahl.web.attic.menu:HorizontalLayout instead', '3.2')
+class HorizontalLayout(_HorizontalLayout):
+    __doc__ = _HorizontalLayout.__doc__
+
+
+class _VerticalLayout(Layout):
     """A Layout that causes Widgets to be displayed vertically.
 
        .. admonition:: Styling
@@ -2261,6 +2325,11 @@ class VerticalLayout(Layout):
     """
     def customise_widget(self):
         self.widget.append_class('reahl-vertical')
+
+
+@deprecated('Please use reahl.web.attic.menu:VerticalLayout instead', '3.2')
+class VerticalLayout(_VerticalLayout):
+    __doc__ = _VerticalLayout.__doc__
 
 
 # Uses: reahl/web/reahl.hmenu.css
@@ -2304,7 +2373,7 @@ class VMenu(Menu):
         return attributes
 
 
-class Tab(MenuItem):
+class _Tab(MenuItem):
     """One Tab in a :class:`TabbedPanel`.
 
        .. admonition:: Styling
@@ -2338,7 +2407,12 @@ class Tab(MenuItem):
         panel.add_child(self.contents_factory.create(self.view))
 
 
-class MultiTab(Tab):
+@deprecated('Please use reahl.web.attic.tabbedpanel:Tab instead', '3.2')
+class Tab(_Tab):
+    __doc__ = _Tab.__doc__
+
+
+class _MultiTab(Tab):
     """A composite tab. Instead of a single choice for the user, clicking on a MultiTab
        results in a dropdown menu with more choices for the user.
 
@@ -2390,9 +2464,14 @@ class MultiTab(Tab):
         return super(MultiTab, self).is_active or self.current_sub_tab.is_active
 
 
+@deprecated('Please use reahl.web.attic.tabbedpanel:MultiTab instead', '3.2')
+class MultiTab(_MultiTab):
+    __doc__ = _MultiTab.__doc__
+
+
 # Uses: reahl/web/reahl.tabbedpanel.css
 # Uses: reahl/web/reahl.tabbedpanel.js
-class TabbedPanel(Panel):
+class _TabbedPanel(Panel):
     """A Panel sporting different Tabs which the user can select to change what is displayed. The contents
        of a TabbedPanel are changed when the user clicks on a different Tab without refreshing the entire
        page, provided that JavaScript is available on the user agent.
@@ -2435,9 +2514,14 @@ class TabbedPanel(Panel):
             tab.add_content_to_panel(self.content_panel)
 
 
+@deprecated('Please use reahl.web.attic.tabbedpanel:TabbedPanel instead', '3.2')
+class TabbedPanel(_TabbedPanel):
+    __doc__ = _TabbedPanel.__doc__
+
+
 # Uses: reahl/web/reahl.slidingpanel.css
 # Uses: reahl/web/reahl.slidingpanel.js
-class SlidingPanel(Panel):
+class _SlidingPanel(Panel):
     """A Panel which contains a number of other Panels, only one of which is displayed at a time.
        It sports controls that can be clicked by a user to advance the displayed content to the
        next or previous Panel. Advancing is done by visually sliding in the direction indicated
@@ -2514,6 +2598,10 @@ class SlidingPanel(Panel):
         return '".reahl-slidingpanel"'
 
 
+@deprecated('Please use reahl.web.attic.slidingpanel:SlidingPanel instead', '3.2')
+class SlidingPanel(_SlidingPanel):
+    __doc__ = _SlidingPanel.__doc__
+
 
 
 class SimpleFileInput(InputTypeInput):
@@ -2570,7 +2658,7 @@ class SimpleFileInput(InputTypeInput):
 
 
 # Uses: reahl/web/reahl.fileuploadli.js
-class FileUploadLi(Li):
+class _FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
         super(FileUploadLi, self).__init__(form.view, css_id=css_id)
         self.set_attribute('class', 'reahl-file-upload-li')
@@ -2581,8 +2669,13 @@ class FileUploadLi(Li):
         return ['$(".reahl-file-upload-li").fileuploadli();']
 
 
+@deprecated('Please use reahl.web.attic.fileupload:FileUploadLi instead', '3.2')
+class FileUploadLi(_FileUploadLi):
+    pass
+
+
 # Uses: reahl/web/reahl.fileuploadpanel.js
-class FileUploadPanel(Panel):
+class _FileUploadPanel(Panel):
     def __init__(self, file_upload_input, css_id=None):
         super(FileUploadPanel, self).__init__(file_upload_input.view, css_id=css_id)
         self.set_attribute('class', 'reahl-file-upload-panel')
@@ -2666,7 +2759,12 @@ class FileUploadPanel(Panel):
             self.persisted_file_class.add_persisted_for_form(self.input_form, self.name, self.uploaded_file)
 
 
-class UniqueFilesConstraint(ValidationConstraint):
+@deprecated('Please use reahl.web.attic.fileupload:FileUploadPanel instead', '3.2')
+class FileUploadPanel(_FileUploadPanel):
+    pass
+
+
+class _UniqueFilesConstraint(ValidationConstraint):
     name = 'uniquefiles'
     def __init__(self, form=None, input_name=None, error_message=None):
         error_message = error_message or _('uploaded files should all have different names')
@@ -2689,7 +2787,12 @@ class UniqueFilesConstraint(ValidationConstraint):
         return reduced
 
 
-class FileUploadInput(PrimitiveInput):
+@deprecated('Please use reahl.web.attic.fileupload:UniqueFilesConstraint instead', '3.2')
+class UniqueFilesConstraint(_UniqueFilesConstraint):
+    pass
+    
+
+class _FileUploadInput(PrimitiveInput):
     """An Input which allows a user to choose several files for uploding to a server. As each file is
        chosen, the file is uploaded to the server in the background (if JavaScript is enabled on the user
        agent). A file being uploaded can be cancelled and uploaded files can be removed from the list.
@@ -2731,7 +2834,12 @@ class FileUploadInput(PrimitiveInput):
         pass
 
 
-class DialogButton(object):
+@deprecated('Please use reahl.web.attic.fileupload:FileUploadInput instead', '3.2')
+class FileUploadInput(_FileUploadInput):
+    __doc__ = _FileUploadInput.__doc__
+
+
+class _DialogButton(object):
     def __init__(self, label):
         self.label = label
 
@@ -2742,7 +2850,12 @@ class DialogButton(object):
         return '"%s": function() { %s }' % (self.label, self.callback_js())
 
 
-class CheckCheckboxButton(DialogButton):
+@deprecated('Please use reahl.web.attic.clientside:DialogButton instead', '3.2')
+class DialogButton(_DialogButton):
+    __doc__ = _DialogButton.__doc__
+
+
+class _CheckCheckboxButton(DialogButton):
     def __init__(self, label, checkbox):
         super(CheckCheckboxButton, self).__init__(label)
         self.checkbox_to_check = checkbox
@@ -2750,9 +2863,14 @@ class CheckCheckboxButton(DialogButton):
     def callback_js(self):
         return '''$(%s).attr("checked", true);''' %  self.checkbox_to_check.jquery_selector
 
-        
+
+@deprecated('Please use reahl.web.attic.clientside:CheckCheckboxButton instead', '3.2')
+class CheckCheckboxButton(_CheckCheckboxButton):
+    pass
+
+
 # Uses: reahl/web/reahl.popupa.js
-class PopupA(A):
+class _PopupA(A):
     # Implements:
     # http://blog.nemikor.com/category/jquery-ui/jquery-ui-dialog/
     # ... with buttons added
@@ -2779,6 +2897,11 @@ class PopupA(A):
         selector = self.contextualise_selector(self.jquery_selector, context)
         return ['$(%s).popupa({showForSelector: "%s", buttons: { %s }  });' % \
               (selector, self.show_for_selector, self.buttons_as_jquery())]
+
+
+@deprecated('Please use reahl.web.attic.clientside:PopupA instead', '3.2')
+class PopupA(_PopupA):
+    pass
 
 
 class Caption(HTMLElement):
