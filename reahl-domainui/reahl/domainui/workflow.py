@@ -23,7 +23,8 @@ from reahl.component.i18n import Translator
 from reahl.component.decorators import deprecated
 from reahl.sqlalchemysupport import PersistedField
 from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
-from reahl.web.ui import P, Panel, Ul, Li, H, Form, Button
+from reahl.web.ui import P, Div, Ul, Li, H, Form
+from reahl.web.attic.layout import Button
 
 from reahl.domain.workflowmodel import Inbox, Task, WorkflowInterface
 from reahl.domain.systemaccountmodel import LoginSession
@@ -43,7 +44,7 @@ class TaskBox(Li):
         form.add_child(Button(form, self.user_interface.workflow_interface.events.go_to_task.with_arguments(task=self.task)))
 
 
-class InboxWidget(Panel):
+class InboxWidget(Div):
     def __init__(self, view, inbox):
         super(InboxWidget, self).__init__(view)
         self.add_child(H(view, 1, text=_('Inbox')))
@@ -53,7 +54,7 @@ class InboxWidget(Panel):
             self.list.add_child(TaskBox(view, task))
 
 
-class TaskWidget(Panel):
+class TaskWidget(Div):
     """The Widget used to display a particular :class:`reahl.workflowdomain.Task`.
     
        Programmers need to create a subclass of TaskWidget to display a particular

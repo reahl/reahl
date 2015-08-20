@@ -27,14 +27,14 @@ import six
 
 from reahl.web.fw import Layout
 from reahl.web.ui import AccessRightAttributes
-import reahl.web.ui
+import reahl.web.attic
 from reahl.web.bootstrap.ui import Span
 
 from reahl.component.exceptions import ProgrammerError
 
+from reahl.web.attic.menu import MenuItem 
 
-
-class Nav(reahl.web.ui.Menu):
+class Nav(reahl.web.attic.menu.Menu):
     css_class = 'nav'
     
     def add_item(self, item):
@@ -45,7 +45,7 @@ class Nav(reahl.web.ui.Menu):
         self.add_item(DropdownMenu(self.view, title, menu, drop_up, align_right))
 
 
-class DropdownMenu(reahl.web.ui.SubMenu):
+class DropdownMenu(reahl.web.attic.menu.SubMenu):
     def __init__(self, view, title, menu, drop_up, align_right, css_id=None):
         super(DropdownMenu, self).__init__(view, title, menu, css_id=css_id)
         self.append_class('drop%s' % ('up' if drop_up else 'down'))

@@ -27,13 +27,10 @@ from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath
 from reahl.web.ui import P
-from reahl.web.ui import Panel
-from reahl.web.pager import PageIndex
-from reahl.web.pager import PageMenu
-from reahl.web.pager import PagedPanel
+from reahl.web.ui import Div
+from reahl.web.attic.paging import PageIndex, PagedPanel, PageMenu, SequentialPageIndex, AnnualPageIndex, AnnualItemOrganiserProtocol
 from reahl.web_dev.fixtures import WebBasicsMixin
 
-from reahl.web.pager import SequentialPageIndex, AnnualPageIndex, AnnualItemOrganiserProtocol
 
 class PageMenuFixture(Fixture, WebBasicsMixin):
     def new_number_of_pages(self):
@@ -72,7 +69,7 @@ class PageMenuFixture(Fixture, WebBasicsMixin):
 
     def new_MainWidget(self):
         fixture = self
-        class MainWidget(Panel):
+        class MainWidget(Div):
             def __init__(self, view):
                 super(MainWidget, self).__init__(view)
                 page_index = fixture.PageIndexStub(fixture.max_page_links, fixture.number_of_pages)

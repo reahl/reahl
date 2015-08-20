@@ -26,6 +26,11 @@ from reahl.tofu import test
 from reahl.tofu import vassert, expected
 
 from reahl.web.ui import *
+from reahl.web.attic.layout import *
+from reahl.web.attic.menu import *
+from reahl.web.attic.tabbedpanel import *
+from reahl.web.attic.slidingpanel import *
+from reahl.web.attic.clientside import *
 from reahl.component.modelinterface import BooleanField
 from reahl.web.fw import Bookmark, Url
 from reahl.webdev.tools import WidgetTester, XPath, Browser
@@ -64,7 +69,7 @@ class BasicReahlWidgets(object):
     class Scenarios(WebFixture):
         @scenario
         def panel(self):
-            self.widget = Panel(self.view)
+            self.widget = Div(self.view)
             self.expected_html = '<div></div>'
 
         @scenario
@@ -239,7 +244,7 @@ class BasicReahlWidgets(object):
         """A Menu can also be constructed to let a user choose to view the same page in 
            another of the supported languages."""
         
-        class PanelWithMenu(Panel):
+        class PanelWithMenu(Div):
             def __init__(self, view):
                 super(PanelWithMenu, self).__init__(view)
                 self.add_child(Menu.from_languages(view))
@@ -356,7 +361,7 @@ class TabbedPanelAjaxFixture(WebFixture):
 class TabbedPanelTests(object):
     @test(WebFixture)
     def basic_rendering(self, fixture):
-        """A TabbedPanel is a Panel which contains a Horizontal Menu and a Panel."""
+        """A TabbedPanel is a Div which contains a Horizontal Menu and a Div."""
         fixture.request.query_string = 'tab=tab1'
         tabbed_panel = TabbedPanel(fixture.view, 'tabbed_name')
         tabbed_panel.add_tab(Tab(fixture.view, 'tab 1 name', 'tab1', P.factory(text='tab 1 content')))
@@ -520,11 +525,11 @@ class SlidingPanelFixture(WebFixture):
         class PopulatedSlidingPanel(SlidingPanel):
             def __init__(self, view):
                 super(PopulatedSlidingPanel, self).__init__(view, 'slide')
-                panel0 = Panel(view)
+                panel0 = Div(view)
                 panel0.add_child(P(view, text='Contents for panel 0'))
                 self.add_panel(panel0)
 
-                panel1 = Panel(view)
+                panel1 = Div(view)
                 panel1.add_child(P(view, text='Contents for panel 1'))
                 self.add_panel(panel1)
 
@@ -596,7 +601,7 @@ class PopupATests(object):
         """If you click on the A, a popupwindow opens with its contents the specified
            element on the target page."""
 
-        class PopupTestPanel(Panel):
+        class PopupTestPanel(Div):
             def __init__(self, view):
                 super(PopupTestPanel, self).__init__(view)
                 self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
@@ -621,7 +626,7 @@ class PopupATests(object):
     def customising_dialog_buttons(self, fixture):
         """The buttons of the dialog can be customised."""
         
-        class PopupTestPanel(Panel):
+        class PopupTestPanel(Div):
             def __init__(self, view):
                 super(PopupTestPanel, self).__init__(view)
                 popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
@@ -647,7 +652,7 @@ class PopupATests(object):
     def workings_of_check_checkbox_button(self, fixture):
         """A CheckCheckBoxButton checks the checkbox on the original page when clicked."""
 
-        class PopupTestPanel(Panel):
+        class PopupTestPanel(Div):
             @exposed
             def fields(self, fields):
                 fields.field = BooleanField()

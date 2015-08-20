@@ -9,7 +9,7 @@ from alembic import op
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, InputGroup
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
@@ -32,7 +32,7 @@ class AddressBookUI(UserInterface):
         find.set_slot('main', AddressBookPanel.factory())
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 

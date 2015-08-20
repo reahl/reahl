@@ -17,7 +17,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Panel, Form, TextInput, Button, Form, \
+from reahl.web.ui import HTML5Page, Div, Form, TextInput, Button, Form, \
                           LabelOverInput, CueInput, CheckboxInput, TextInput, \
                           PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
                           TextArea, SelectInput, RadioButtonInput

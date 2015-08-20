@@ -6,7 +6,7 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
 from reahl.web.ui import Button, Form, InputGroup, LabelledBlockInput
-from reahl.web.ui import HTML5Page, P, Panel, TextInput
+from reahl.web.ui import HTML5Page, P, Div, TextInput
 from reahl.component.modelinterface import exposed, EmailField, Field
 from reahl.component.modelinterface import Event, Action
 
@@ -64,7 +64,7 @@ class CommentForm(Form):
         grouped_inputs.add_child( Button(self, new_comment.events.submit) )
 
 
-class CommentBox(Panel):
+class CommentBox(Div):
     def __init__(self, view, comment):
         super(CommentBox, self).__init__(view)
         comment_text = 'By %s: %s' % (comment.email_address, comment.text)

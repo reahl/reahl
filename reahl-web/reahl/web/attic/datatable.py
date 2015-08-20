@@ -23,8 +23,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import functools
 
 from reahl.web.fw import Bookmark
-from reahl.web.ui import A, Span, Panel, Table, Widget
-from reahl.web.pager import SequentialPageIndex, PagedPanel, PageMenu
+from reahl.web.ui import A, Span, Div, Table, Widget
+from reahl.web.attic.paging import SequentialPageIndex, PagedPanel, PageMenu
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 
 
@@ -94,7 +94,7 @@ class PagedTable(PagedPanel):
         fields.sort_descending = self.page_index.fields.sort_descending
 
 
-class DataTable(Panel):
+class DataTable(Div):
     """A table containing a potentially large set of data items. DataTable does not display all its items 
        on the current page. It renders as a table spread over different pages between which a user can
        navigate, thus preventing a large data set sent back to a single page.

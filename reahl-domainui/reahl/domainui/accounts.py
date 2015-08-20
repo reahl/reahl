@@ -23,9 +23,10 @@ from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface
 from reahl.web.fw import WebExecutionContext
 from reahl.web.fw import Widget
-from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxInput, \
-                         TextInput, PasswordInput, H, P, A, Div, CueInput,\
-                         CheckCheckboxButton, PopupA, DialogButton, ErrorFeedbackMessage
+from reahl.web.ui import Form, CheckboxInput, \
+                         TextInput, PasswordInput, H, P, A, Div
+from reahl.web.attic.layout import Button, LabelledBlockInput, CueInput, ErrorFeedbackMessage, InputGroup
+from reahl.web.attic.clientside import CheckCheckboxButton, PopupA, DialogButton
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.component.decorators import deprecated

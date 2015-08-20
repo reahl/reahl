@@ -25,10 +25,12 @@ from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub
 from reahl.component.py3compat import html_escape
 
-from reahl.web.ui import HTMLElement, PrimitiveInput, TextInput, Button, Form, ValidationException, \
-                          LabelOverInput, CueInput, CheckboxInput, TextInput, Label, InputLabel, ButtonInput,\
-                          PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
+from reahl.web.ui import HTMLElement, PrimitiveInput, TextInput, Form, ValidationException, \
+                          CheckboxInput, TextInput, Label, InputLabel, ButtonInput,\
+                          PasswordInput, P,\
                           TextArea, SelectInput, RadioButtonInput
+
+from reahl.web.attic.layout import Button, LabelOverInput, CueInput, LabelledInlineInput, LabelledBlockInput
 
 from reahl.component.modelinterface import Field, EmailField, BooleanField,\
                              RequiredConstraint, MinLengthConstraint, PatternConstraint, RemoteConstraint,\

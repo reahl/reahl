@@ -29,7 +29,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.component.modelinterface import Field, exposed, IntegerField
 from reahl.web.fw import Bookmark
 from reahl.web.fw import Widget
-from reahl.web.ui import A, P, Form, TextInput, Panel
+from reahl.web.ui import A, P, Form, TextInput, Div
 
 
 
@@ -42,7 +42,7 @@ class QueryStringFixture(Fixture, WebBasicsMixin):
 
     def new_FancyWidget(self):
         fixture = self
-        class MyFancyWidget(Panel):
+        class MyFancyWidget(Div):
             def __init__(self, view):
                 super(MyFancyWidget, self).__init__(view, css_id='sedrick')
                 self.enable_refresh()
@@ -140,7 +140,7 @@ class WidgetQueryArgTests(object):
     @test(WebFixture)
     def css_id_is_mandatory(self, fixture):
         """If a Widget is enabled to to be refreshed, it must also have a css_id set."""
-        class MyFancyWidget(Panel):
+        class MyFancyWidget(Div):
             def __init__(self, view):
                 super(MyFancyWidget, self).__init__(view)
                 self.enable_refresh()

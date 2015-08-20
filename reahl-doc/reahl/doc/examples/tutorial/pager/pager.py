@@ -3,7 +3,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, P, H, Panel, HorizontalLayout
+from reahl.web.ui import HTML5Page, P, H, Div, HorizontalLayout
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.web.pager import SequentialPageIndex, PageMenu, PagedPanel
@@ -17,7 +17,7 @@ class AddressBookUI(UserInterface):
         find.set_slot('main', AddressBookPanel.factory())
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 

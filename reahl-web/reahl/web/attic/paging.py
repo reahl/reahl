@@ -30,7 +30,8 @@ from reahl.component.i18n import Translator
 from reahl.component.decorators import memoized
 from reahl.component.modelinterface import IntegerField, exposed
 from reahl.web.fw import Bookmark
-from reahl.web.ui import Menu, A, Panel
+from reahl.web.ui import A, Div
+from reahl.web.attic.menu import Menu
 
 _ = Translator('reahl-web')
 
@@ -57,8 +58,8 @@ class PageIndexProtocol(object):
     def has_previous_page(self): pass
 
 
-class PagedPanel(Panel):
-    """A :class:`Panel` whose contents change, depending on the page selected by a user from a :class:`PageMenu`.
+class PagedPanel(Div):
+    """A :class:`Div` whose contents change, depending on the page selected by a user from a :class:`PageMenu`.
        A programmer should subclass from PagedPanel, supplying an `__init__` method which populates the PagedPanel
        with appropriate contents, based on its `.current_contents`.
        

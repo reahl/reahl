@@ -7,7 +7,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from reahl.sqlalchemysupport import Session, Base
 
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, Menu, HorizontalLayout
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, InputGroup, Menu, HorizontalLayout
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
@@ -52,7 +52,7 @@ class AddressBookUI(UserInterface):
         self.define_page(AddressBookPage, bookmarks)
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 

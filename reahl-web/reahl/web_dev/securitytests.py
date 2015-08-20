@@ -26,7 +26,8 @@ from reahl.stubble import EmptyStub
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import Widget, UserInterface
-from reahl.web.ui import Form, TextInput, ButtonInput, Button, Panel, P, HTML5Page
+from reahl.web.ui import Form, TextInput, ButtonInput, Div, P, HTML5Page
+from reahl.web.attic.layout import Button
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
@@ -61,7 +62,7 @@ class SecurityTests(object):
     def serving_security_sensitive_widgets(self, fixture):
         """If the page is security sensitive, it will only be served on config.web.encrypted_http_scheme,
            else it will only be served on config.web.default_http_scheme."""
-        class TestPanel(Panel):
+        class TestPanel(Div):
             def __init__(self, view):
                 super(TestPanel, self).__init__(view)
                 widget = self.add_child(Widget(view))
@@ -253,7 +254,7 @@ class SecurityTests(object):
                 fields.field_name = Field(default='abc', writable=Allowed(False), disallowed_message='you are not allowed to write this')
         model_object = ModelObject()
 
-        class TestPanel(Panel):
+        class TestPanel(Div):
             def __init__(self, view):
                 super(TestPanel, self).__init__(view)
                 form = self.add_child(Form(view, 'some_form'))
@@ -282,7 +283,7 @@ class SecurityTests(object):
                                         disallowed_message='you cannot do this')
 
         model_object = ModelObject()
-        class TestPanel(Panel):
+        class TestPanel(Div):
             def __init__(self, view):
                 super(TestPanel, self).__init__(view)
                 form = self.add_child(Form(view, 'some_form'))

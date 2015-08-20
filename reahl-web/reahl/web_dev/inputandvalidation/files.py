@@ -31,7 +31,9 @@ from reahl.tofu import vassert
 from reahl.sqlalchemysupport import Session
 from reahl.component.exceptions import DomainException
 from reahl.component.modelinterface import FileField, exposed, Event, Action, ValidationConstraint
-from reahl.web.ui import SimpleFileInput, FileUploadInput, FileUploadPanel, Button, Form
+from reahl.web.ui import SimpleFileInput, Form
+from reahl.web.attic.fileupload import FileUploadInput, FileUploadPanel
+from reahl.web.attic.layout import Button
 from reahl.web.fw import UploadedFile
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath

@@ -23,7 +23,7 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath, WidgetTester
-from reahl.web.ui import StaticColumn, DynamicColumn, Table, Span, Panel, P
+from reahl.web.ui import StaticColumn, DynamicColumn, Table, Span, Div, P
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 from reahl.component.modelinterface import Field, BooleanField
@@ -65,7 +65,7 @@ class TableFixture(Fixture, WebBasicsMixin):
 def table_basics(fixture):
     """A Table created .from_columns() displays a list of items as defined by a list of Columns"""
 
-    class MainWidget(Panel):
+    class MainWidget(Div):
         def __init__(self, view):
             super(MainWidget, self).__init__(view)
             table = Table.from_columns(view, 
