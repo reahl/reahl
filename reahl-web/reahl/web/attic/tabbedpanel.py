@@ -16,10 +16,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.component.decorators import deprecated
-import reahl.web.attic.datatable
+import reahl.web.ui
 
 
-@deprecated('Please use reahl.web.attic.datatable:DataTable instead', '3.2')
-class DataTable(reahl.web.attic.datatable.DataTable):
-    __doc__ = reahl.web.attic.datatable.DataTable__doc__
+class Tab(reahl.web.ui._Tab):
+    __doc__ = reahl.web.ui._Tab.__doc__
+
+
+class MultiTab(reahl.web.ui._MultiTab):
+    __doc__ = reahl.web.ui._MultiTab.__doc__
+
+
+class TabbedPanel(reahl.web.ui._TabbedPanel):
+    __doc__ = reahl.web.ui._TabbedPanel.__doc__
+
+
+

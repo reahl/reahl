@@ -16,10 +16,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from reahl.component.decorators import deprecated
-import reahl.web.attic.datatable
+import reahl.web.ui
+
+class FileUploadLi(reahl.web.ui._FileUploadLi):
+    pass
 
 
-@deprecated('Please use reahl.web.attic.datatable:DataTable instead', '3.2')
-class DataTable(reahl.web.attic.datatable.DataTable):
-    __doc__ = reahl.web.attic.datatable.DataTable__doc__
+class FileUploadPanel(reahl.web.ui._FileUploadPanel):
+    pass
+
+
+class UniqueFilesConstraint(reahl.web.ui._UniqueFilesConstraint):
+    pass
+
+
+class FileUploadInput(reahl.web.ui._FileUploadInput):
+    __doc__ = reahl.web.ui._FileUploadInput.__doc__
+
+
+
+

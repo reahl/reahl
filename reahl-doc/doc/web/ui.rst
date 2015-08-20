@@ -148,6 +148,7 @@ Img
 .. autoclass:: Img
    :members:
 
+
 Widgets for Input
 ^^^^^^^^^^^^^^^^^
 
@@ -353,21 +354,6 @@ StaticColumn
 .. autoclass:: StaticColumn
    :members:
 
-DataTable
-"""""""""
-
-.. sidebar:: Examples
-
-   - tutorial.datatable
-
-   Get a copy of an example by running:
-
-   .. code-block:: bash
-
-      reahl example <examplename>
-
-.. autoclass:: reahl.web.table.DataTable
-   :members:
 
 Caption
 """""""
