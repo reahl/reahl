@@ -25,16 +25,12 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from collections import OrderedDict
-import copy
 
-from reahl.web.fw import Layout, Widget
-from reahl.web.ui import Form, Div, Header, Footer, Slot, HTML5Page, ValidationStateAttributes, AccessRightAttributes, \
-                             Span, Input, TextInput, Label, TextNode, ButtonInput, P, WrappedInput
+from reahl.web.fw import Layout
+from reahl.web.bootstrap.ui import  Div
 
 import reahl.web.layout
-from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
-from reahl.web.ui import MenuItem
+from reahl.component.exceptions import ProgrammerError
 
 
 
@@ -69,14 +65,14 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
             except KeyError:
                 pass
         return 0
-        
+
     def total_width_for(self, device_class):
         total = self.calculated_size_for(device_class)
         if self.offsets:
             total += self.offsets.calculated_size_for(device_class)
         return total
-    
-    @classmethod    
+
+    @classmethod
     def wraps_for_some_device_class(cls, sizes): 
         return any(cls.wraps_for(device_class, sizes)
                    for device_class in cls.device_classes)
@@ -105,7 +101,7 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
     def customise_widget(self):
         super(ColumnLayout, self).customise_widget()
         self.widget.append_class('row')
-   
+
     def add_clearfix(self, column_size):
         clearfix = self.widget.add_child(Div(self.view))
         clearfix.append_class('clearfix')
