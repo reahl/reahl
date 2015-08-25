@@ -306,7 +306,7 @@ class SlaveProcess(object):
 
 class ServerSupervisor(PatternMatchingEventHandler):
     def __init__(self, min_seconds_between_restarts=3, directories_to_monitor=['.']):
-        super(ServerSupervisor, self).__init__(ignore_patterns=['*.pyc','*.pyo','*__pycache__*'])
+        super(ServerSupervisor, self).__init__(ignore_patterns=['*.pyc','*.pyo','*__pycache__*']+directories_to_monitor)
         self.min_seconds_between_restarts = min_seconds_between_restarts
         self.directories_to_monitor = directories_to_monitor
         self.directory_observers = []
