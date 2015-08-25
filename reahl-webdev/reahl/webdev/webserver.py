@@ -33,6 +33,8 @@ from contextlib import contextmanager
 import logging
 import functools
 import pkg_resources
+import warnings
+import distutils
 
 from webob import Request
 from webob.exc import HTTPInternalServerError
@@ -40,7 +42,7 @@ from webob.exc import HTTPInternalServerError
 from six.moves.queue import Queue
 
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers.polling import PollingObserver
 
 from reahl.component.exceptions import ProgrammerError
@@ -274,28 +276,37 @@ class SlaveProcess(object):
             self.process.kill()
 
     def spawn(self):
-        args = [sys.executable] + sys.argv + ['--dont-restart']
+        command = self.absolute_path_to_executable(sys.argv[0])
+        other_args = sys.argv[1:]
+        args = [sys.executable] + [command] + other_args + ['--dont-restart']
         self.process = subprocess.Popen(args, env=os.environ.copy())
-        atexit.register(SlaveProcess.kill_orphan_on_exit, self.process)
+        self.kill_on_exit_if_abandoned(self.process)
         logging.getLogger(__name__).debug('Starting process with PID[%s]' % self.process.pid)
+
+    def kill_on_exit_if_abandoned(self, process):
+        def kill_orphan_on_exit(possible_orphan_process):
+            logging.getLogger(__name__).debug('Cleanup: ensuring process with PID[%s] has terminated' % possible_orphan_process.pid)
+            try:
+                possible_orphan_process.kill()
+                logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
+            except ProcessLookupError:
+                logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
+        atexit.register(kill_orphan_on_exit, process)
+
+    def absolute_path_to_executable(self, command_name):
+        #on windows os, some entrypoints installed in the virtualenv
+        #need their full path(with extension) to be able to be used as a spawn command.
+        #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
+        return distutils.spawn.find_executable(command_name)
 
     def restart(self):
         self.process.terminate()
         self.spawn()
 
-    @classmethod
-    def kill_orphan_on_exit(cls, possible_orphan_process):
-        logging.getLogger(__name__).debug('Cleanup: ensuring process with PID[%s] has terminated' % possible_orphan_process.pid)
-        try:
-            possible_orphan_process.kill()
-            logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
-        except ProcessLookupError:
-            logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
 
-
-class ServerSupervisor(FileSystemEventHandler):
+class ServerSupervisor(PatternMatchingEventHandler):
     def __init__(self, min_seconds_between_restarts=3, directories_to_monitor=['.']):
-        super(ServerSupervisor, self).__init__()
+        super(ServerSupervisor, self).__init__(ignore_patterns=['*.pyc','*.pyo','*__pycache__*'])
         self.min_seconds_between_restarts = min_seconds_between_restarts
         self.directories_to_monitor = directories_to_monitor
         self.directory_observers = []
@@ -411,16 +422,25 @@ class ReahlWebServer(object):
         finally:
             self.stop()
 
-    def start(self, in_separate_thread=True, connect=False):
+    def start(self, in_separate_thread=True,  connect=False, in_seperate_thread=None):
         """Starts the webserver and web application.
         
            :keyword in_separate_thread: If False, the server handles requests in the same thread as your tests.
+           :keyword in_seperate_thread: Deprecated: rather use in_separate_thread keyword argument
            :keyword connect: If True, also connects to the database.
         """
         self.reahl_wsgi_app.start(connect=connect)
-        if in_separate_thread:
+
+        if in_seperate_thread:
+            warnings.warn('The in_seperate_thread keyword argument is deprecated, please use in_separate_thread instead.',
+               DeprecationWarning, stacklevel=2)
+            self.in_separate_thread = in_seperate_thread
+        else:
+            self.in_separate_thread = in_separate_thread
+
+        if self.in_separate_thread:
             self.start_thread()
-        self.in_separate_thread = in_separate_thread
+
 
     def stop(self):
         """Stops the webserver and web application from running."""
