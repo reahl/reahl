@@ -1856,28 +1856,22 @@ class UserInterfaceRootRedirectView(PseudoView):
 
 
 class HeaderContent(Widget):
-    main_widget = None
     def __init__(self, page):
         super(HeaderContent, self).__init__(page.view)
         self.page = page
 
-    def header_only_material(self):
-        config = WebExecutionContext.get_context().config
-
-        result = ''
-        for library in config.web.frontend_libraries:
-            result += library.header_only_material(self.page)
-
-        result += '\n<script type="text/javascript" src="/static/reahl.js"></script>'
-        result += '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
-        return result
-
     def render(self):
-        return self.header_only_material()
+        config = WebExecutionContext.get_context().config
+        return ''.join([library.header_only_material(self.page)
+                        for library in config.web.frontend_libraries])
     
 
 
-class FooterContent(HeaderContent):
+class FooterContent(Widget):
+    def __init__(self, page):
+        super(FooterContent, self).__init__(page.view)
+        self.page = page
+
     def render(self):
         config = WebExecutionContext.get_context().config
         return ''.join([library.footer_only_material(self.page)

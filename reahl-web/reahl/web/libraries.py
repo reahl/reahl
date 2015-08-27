@@ -22,7 +22,7 @@ class LibraryIndex(object):
         return name in self.libraries_by_name
 
     def packaged_files(self):
-        return [i for i in itertools.chain(*[library.packaged_files() for library in self])]        
+        return [i for i in itertools.chain(*[library.packaged_files() for library in self])]
 
     def __iter__(self):
         return iter(self.libraries_by_name.values())
@@ -67,14 +67,15 @@ class Library(object):
 
     def header_only_material(self, rendered_page):
         result = ''
-        for file_name in self.files_of_type('.js'):
-            result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
         for file_name in self.files_of_type('.css'):
             result += '\n<link rel="stylesheet" href="/static/%s" type="text/css">' % file_name
         return result
 
     def footer_only_material(self, rendered_page):
-        return ''
+        result = ''
+        for file_name in self.files_of_type('.js'):
+            result += '\n<script type="text/javascript" src="/static/%s"></script>' % file_name
+        return result
 
 
 
@@ -96,10 +97,6 @@ class JQuery(Library):
     def add_shipped_plugin(self, file_name):
         self.files.append(file_name)
 
-    def header_only_material(self, rendered_page):
-        return super(JQuery, self).header_only_material(rendered_page) +\
-            self.document_ready_material(rendered_page)
-
     def document_ready_material(self, rendered_page):
         result = '\n<script type="text/javascript">\n'
         result += 'jQuery(document).ready(function($){\n'
@@ -113,8 +110,10 @@ class JQuery(Library):
         return result
 
     def footer_only_material(self, rendered_page):
+        result = super(JQuery, self).footer_only_material(rendered_page)
         #from http://ryanpricemedia.com/2008/03/19/jquery-broken-in-internet-explorer-put-your-documentready-at-the-bottom/
-        return '<!--[if IE 6]>' + self.document_ready_material(rendered_page) +  '<![endif]-->'
+        result += self.document_ready_material(rendered_page)
+        return result
         
         
 
@@ -159,10 +158,10 @@ class HTML5Shiv(Library):
         self.shipped_in_directory = '/reahl/web/static'
         self.files = ['html5shiv-printshiv-3.6.3.js']
 
-    def header_only_material(self, rendered_page):
+    def footer_only_material(self, rendered_page):
         # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
         result  = '\n<!--[if lt IE 9]>'
-        result  += '<script src="/static/html5shiv-printshiv-3.6.3.js" type="text/javascript"></script>'
+        result  += super(HTML5Shiv, self).footer_only_material(rendered_page)
         result  += '<![endif]-->'
         return result
 
@@ -173,13 +172,24 @@ class IE9(Library):
         self.shipped_in_directory = '/reahl/web/static'
         self.files = ['IE9.js']
 
-    def header_only_material(self, rendered_page):
+    def footer_only_material(self, rendered_page):
         # From: http://code.google.com/p/ie7-js/ 
         # Not sure if this does not perhaps interfere with Normalize reset stuff? 
-        result  = '\n<!--[if lte IE 9]>'  
-        result  += '<script src="/static/IE9.js" type="text/javascript"></script>'
-        result  += '<![endif]-->'  
+        result  = '\n<!--[if lte IE 9]>'
+        result  += super(IE9, self).footer_only_material(rendered_page)
+        result  += '<![endif]-->'
         return result
+
+
+class Reahl(Library):
+    def __init__(self):
+        super(Reahl, self).__init__('reahl')
+
+    def header_only_material(self, rendered_page):
+        return '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
+
+    def footer_only_material(self, rendered_page):
+        return '\n<script type="text/javascript" src="/static/reahl.js"></script>'
 
 
 class Bootstrap(Library):
@@ -201,4 +211,29 @@ class Bootstrap(Library):
         return '<meta http-equiv="X-UA-Compatible" content="IE=edge">'\
                '<meta name="viewport" content="width=device-width, initial-scale=1">' +\
                super(Bootstrap, self).header_only_material(rendered_page) 
+
+
+
+class Bootstrap4(Library):
+    def __init__(self):
+        super(Bootstrap4, self).__init__('bootstrap4')
+        self.shipped_in_directory = '/reahl/web/static'
+        self.files = [
+                      'bootstrap-4.0.0-alpha/css/bootstrap.css',
+                      'bootstrap-4.0.0-alpha/css/bootstrap.css.map',
+                      'bootstrap-4.0.0-alpha/js/bootstrap.js'
+                      ]
+
+
+    def header_only_material(self, rendered_page):
+        return '<meta http-equiv="x-ua-compatible" content="ie=edge">'\
+               '<meta name="viewport" content="width=device-width, initial-scale=1">' +\
+               super(Bootstrap4, self).header_only_material(rendered_page) 
+
+
+
+
+
+
+
 
