@@ -275,15 +275,18 @@ class SlaveProcess(object):
         except subprocess.TimeoutExpired:
             self.process.kill()
 
-    def spawn(self):
+    def spawn_new_process(self):
         command = self.absolute_path_to_executable(sys.argv[0])
         other_args = sys.argv[1:]
         args = [sys.executable] + [command] + other_args + ['--dont-restart']
-        self.process = subprocess.Popen(args, env=os.environ.copy())
-        self.kill_on_exit_if_abandoned(self.process)
+        return subprocess.Popen(args, env=os.environ.copy())
+
+    def spawn(self):
+        self.process = self.spawn_new_process()
+        self.kill_on_exit_if_abandoned()
         logging.getLogger(__name__).debug('Starting process with PID[%s]' % self.process.pid)
 
-    def kill_on_exit_if_abandoned(self, process):
+    def kill_on_exit_if_abandoned(self):
         def kill_orphan_on_exit(possible_orphan_process):
             logging.getLogger(__name__).debug('Cleanup: ensuring process with PID[%s] has terminated' % possible_orphan_process.pid)
             try:
@@ -291,7 +294,7 @@ class SlaveProcess(object):
                 logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
             except ProcessLookupError:
                 logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
-        atexit.register(kill_orphan_on_exit, process)
+        atexit.register(kill_orphan_on_exit, self.process)
 
     def absolute_path_to_executable(self, command_name):
         #on windows os, some entrypoints installed in the virtualenv
@@ -305,12 +308,14 @@ class SlaveProcess(object):
 
 
 class ServerSupervisor(PatternMatchingEventHandler):
-    def __init__(self, min_seconds_between_restarts=3, directories_to_monitor=['.']):
-        super(ServerSupervisor, self).__init__(ignore_patterns=['*.pyc','*.pyo','*__pycache__*']+directories_to_monitor)
+    def __init__(self, min_seconds_between_restarts=3, directories_to_monitor=['.'], slave_process_class=SlaveProcess):
+        super(ServerSupervisor, self).__init__(ignore_patterns=['*.pyc','*.pyo'], ignore_directories=True)
+        self.slave_process_class = slave_process_class
         self.min_seconds_between_restarts = min_seconds_between_restarts
         self.directories_to_monitor = directories_to_monitor
         self.directory_observers = []
         self.files_changed = Event()
+        self.stop_supervising = Event()
 
     def start_observing_directories(self):
         self.files_changed.clear()
@@ -329,7 +334,7 @@ class ServerSupervisor(PatternMatchingEventHandler):
         self.files_changed.set()
 
     def run(self):
-        serving_process = SlaveProcess()
+        serving_process = self.slave_process_class()
         serving_process.spawn()
 
         self.start_observing_directories()
@@ -341,6 +346,8 @@ class ServerSupervisor(PatternMatchingEventHandler):
                     print('\nChanges to filesystem detected, scheduling a restart...\n')
                     self.files_changed.clear()
                     serving_process.restart()
+                if self.stop_supervising.is_set():
+                    raise Exception('Requested to stop monitoring filesystem changes')
             except:
                 running = False
                 serving_process.terminate()
