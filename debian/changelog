@@ -15,6 +15,7 @@ python-reahl (3.2.0) unstable; urgency=low
  * Deprecated all non-primitive Widgets in reahl.web.ui, moved to attic lieu of bootstrap.
  * Added HTMLWidget as superclass of Input.
  * Upgraded Bootstrap to 4 alpha.
+ * Changed Menu and MenuItems to not BE Ul, Li, but HTMLWidgets with a separate html_representation.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Aug 2015 14:56:00 +0200
 

@@ -211,6 +211,7 @@ class PageMenu(Menu):
 
         self.paged_panel = paged_panel
         self.add_items()
+
         self.enable_refresh()
 
     def add_items(self):
