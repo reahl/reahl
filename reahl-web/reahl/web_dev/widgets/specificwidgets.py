@@ -130,9 +130,9 @@ class BasicReahlWidgets(object):
 
         with fixture.context:
             actual = tester.render_html()
-        rendered_children = WidgetTester(menu.children).render_html()
-        expected = '''<ul class="reahl-menu">%s</ul>''' % rendered_children
-        vassert( actual == expected )
+        rendered_children = WidgetTester(menu.children[0].children).render_html()
+        expected_html = '''<ul class="reahl-menu">%s</ul>''' % rendered_children
+        vassert( actual == expected_html )
         
         #case: using A's
         a_list = [A.from_bookmark(fixture.view, i) for i in item_specs]
@@ -140,32 +140,32 @@ class BasicReahlWidgets(object):
         tester = WidgetTester(menu)
         with fixture.context:
             actual = tester.render_html()
-        vassert( actual == expected )
+        vassert( actual == expected_html )
         
         # Case: adding already constructed menu item
         menu = Menu(fixture.view, [])
         menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[0])))
         menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[1])))
-        vassert( menu.menu_items == menu.children )
+        vassert( menu.menu_items == menu.html_representation.children )
         
         tester = WidgetTester(menu)
         with fixture.context:
             actual = tester.render_html()
-        vassert( actual == expected )
+        vassert( actual == expected_html )
         
         # Case: Menu
         menu = Menu.from_bookmarks(fixture.view, item_specs)
-        vassert( menu.attributes.v['class'] == 'reahl-menu' )
+        vassert( menu.html_representation.attributes.v['class'] == 'reahl-menu' )
 
         # Case: HMenu
         with warnings.catch_warnings(record=True):
             menu = HMenu.from_bookmarks(fixture.view, item_specs)
-        vassert( menu.attributes.v['class'] == 'reahl-horizontal reahl-menu' )
+        vassert( menu.html_representation.attributes.v['class'] == 'reahl-horizontal reahl-menu' )
 
         # Case: VMenu
         with warnings.catch_warnings(record=True):
             menu = VMenu.from_bookmarks(fixture.view, item_specs)
-        vassert( menu.attributes.v['class'] == 'reahl-menu reahl-vertical' )
+        vassert( menu.html_representation.attributes.v['class'] == 'reahl-menu reahl-vertical' )
 
     @test(WebFixture)
     def menu_can_have_submenus(self, fixture):

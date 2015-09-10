@@ -1294,6 +1294,10 @@ class HTMLWidget(Widget):
     def __init__(self, view, read_check=None, write_check=None):
         super(HTMLWidget, self).__init__(view, read_check=read_check, write_check=write_check)
         self.html_representation = None
+
+    def enable_refresh(self):
+        self.html_representation.query_fields.update(self.query_fields)
+        self.html_representation.enable_refresh()
         
     def set_html_representation(self, widget):
         self.html_representation = widget
@@ -2168,8 +2172,20 @@ class LabelOverInput(_LabelOverInput):
 
 
 
+class ActiveStateAttributes(DelegatedAttributes):
+    def __init__(self, widget, active_class='active'):
+        super(ActiveStateAttributes, self).__init__()
+        self.widget = widget
+        self.active_class = active_class
 
-class _MenuItem(Li):
+    def set_attributes(self, attributes):
+        super(ActiveStateAttributes, self).set_attributes(attributes)
+
+        if self.widget.is_active and self.active_class:
+            attributes.add_to('class', [self.active_class])
+
+
+class _MenuItem(HTMLWidget):
     """One item in a Menu.
 
        .. admonition:: Styling
@@ -2196,10 +2212,20 @@ class _MenuItem(Li):
         return cls(view, A.from_bookmark(view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
 
     def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
-        super(_MenuItem, self).__init__(view, css_id=css_id)
+        super(_MenuItem, self).__init__(view)
         self.exact_match = exact_match
-        self.a = self.add_child(a)
+        self.a = a
         self.active_regex = active_regex
+        self.create_html_representation()
+        if css_id:
+            self.set_id(css_id)
+        
+    def create_html_representation(self):
+        li = self.add_child(Li(self.view))
+        li.add_child(self.a)
+        li.add_attribute_source(ActiveStateAttributes(self))
+        self.set_html_representation(li)
+        return li
 
     @property
     def is_active(self):
@@ -2207,12 +2233,7 @@ class _MenuItem(Li):
             return self.a.href and self.a.href.is_currently_active(exact_path=self.exact_match)
         return re.match(self.active_regex, self.view.relative_path)
 
-    @property
-    def attributes(self):
-        attributes = super(_MenuItem, self).attributes
-        if self.is_active:
-            attributes.add_to('class', ['active'])
-        return attributes
+
 
 
 @deprecated('Please use reahl.web.attic.menu:MenuItem instead', '3.2')
@@ -2235,7 +2256,8 @@ class _SubMenu(_MenuItem):
     """
     def __init__(self, view, title, menu, css_id=None):
         super(_SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id)
-        self.add_child(menu)
+        self.html_representation.add_child(menu)
+
 
 
 @deprecated('Please use reahl.web.attic.menu:SubMenu instead', '3.2')
@@ -2245,7 +2267,7 @@ class SubMenu(_SubMenu):
 
 
 # Uses: reahl/web/reahl.menu.css
-class _Menu(Ul):
+class _Menu(HTMLWidget):
     """A visual menu that lists a number of Views to which the user can choose to go to.
 
        .. admonition:: Styling
@@ -2288,10 +2310,18 @@ class _Menu(Ul):
         return menu
 
     def __init__(self, view, a_list, css_id=None):
-        super(_Menu, self).__init__(view, css_id=css_id)
+        super(_Menu, self).__init__(view)
+        self.create_html_representation()
+        if css_id:
+            self.set_id(css_id)
         self.append_class(self.css_class)
         self.menu_items = []
         self.set_items_from(a_list)
+
+    def create_html_representation(self):
+        ul = self.add_child(Ul(self.view))
+        self.set_html_representation(ul)
+        return ul
 
     def set_items_from(self, a_list):
         for a in a_list:
@@ -2299,7 +2329,7 @@ class _Menu(Ul):
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu."""
-        self.add_child(item)
+        self.html_representation.add_child(item)
         self.menu_items.append(item)
         return item
 
@@ -2364,11 +2394,10 @@ class HMenu(_Menu):
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
-    @property
-    def attributes(self):
-        attributes = super(HMenu, self).attributes
-        attributes.add_to('class', ['reahl-horizontal'])
-        return attributes
+    def create_html_representation(self):
+        html_representation = super(HMenu, self).create_html_representation()
+        html_representation.append_class('reahl-horizontal')
+        return html_representation
 
 
 @deprecated('Please use Menu().with_layout(VerticalLayout()) instead.', '3.1')
@@ -2384,11 +2413,10 @@ class VMenu(_Menu):
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
-    @property
-    def attributes(self):
-        attributes = super(VMenu, self).attributes
-        attributes.add_to('class', ['reahl-vertical'])
-        return attributes
+    def create_html_representation(self):
+        html_representation = super(VMenu, self).create_html_representation()
+        html_representation.append_class('reahl-vertical')
+        return html_representation
 
 
 class _Tab(_MenuItem):
@@ -2451,10 +2479,14 @@ class _MultiTab(_Tab):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
         super(_MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
-        self.add_child(TextNode(view, '&nbsp;', html_escape=False))
-        dropdown_handle = self.add_child(A(view, None, description='▼'))
+        
+    def create_html_representation(self):
+        html_representation = super(_MultiTab, self).create_html_representation()
+        html_representation.add_child(TextNode(self.view, '&nbsp;', html_escape=False))
+        dropdown_handle = html_representation.add_child(A(self.view, None, description='▼'))
         dropdown_handle.append_class('dropdown-handle')
-        self.menu = self.add_child(_Menu(view, []).use_layout(_VerticalLayout()))
+        self.menu = html_representation.add_child(_Menu(self.view, []).use_layout(_VerticalLayout()))
+        return html_representation
 
     def add_tab(self, tab):
         self.menu.add_item(tab)
