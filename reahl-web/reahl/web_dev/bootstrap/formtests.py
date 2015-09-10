@@ -141,8 +141,8 @@ def specifying_help_text(fixture):
     [label, input_widget, help_text] = fixture.get_form_group_children(browser)
 
     # form-group has help-text    
-    vassert( help_text.tag == 'p' )
-    vassert( 'help-block' in help_text.attrib['class'] )
+    vassert( help_text.tag == 'small' )
+    vassert( 'text-muted' in help_text.attrib['class'] )
     vassert( help_text.text == 'some help' )
     
 

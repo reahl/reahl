@@ -65,7 +65,8 @@ class CleanDatabase(Fixture):
     @tear_down
     def disconnect(self):
         with self.context:
-            self.system_control.disconnect()
+            if self.system_control.connected:
+                self.system_control.disconnect()
 
 
 

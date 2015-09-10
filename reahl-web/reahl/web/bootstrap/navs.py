@@ -28,7 +28,7 @@ import six
 from reahl.web.fw import Layout
 from reahl.web.ui import AccessRightAttributes
 import reahl.web.attic
-from reahl.web.bootstrap.ui import Span
+from reahl.web.bootstrap.ui import Span, A
 
 from reahl.component.exceptions import ProgrammerError
 
@@ -42,12 +42,39 @@ class Nav(reahl.web.attic.menu.Menu):
         return super(Nav, self).add_item(item)
 
     def add_dropdown(self, title, menu, drop_up=False, align_right=False):
-        self.add_item(DropdownMenu(self.view, title, menu, drop_up, align_right))
+        dropdown = NavItem(self.view, A(self.view, None, description=title))
+        dropdown.append_class('drop%s' % ('up' if drop_up else 'down'))
+        dropdown.a.append_class('dropdown-toggle')
+        dropdown.a.set_attribute('data-toggle', 'dropdown')
+        dropdown.a.add_child(Span(self.view)).append_class('caret')
+        dropdown.add_child(menu)
+        menu.append_class('dropdown-menu')
+        if align_right:
+            menu.append_class('dropdown-menu-right')
+        return self.add_item(dropdown)
+#        self.add_item(DropdownMenu(self.view, title, menu, drop_up, align_right))
+
+    def add_as_item(self, a, exact_match):
+        return self.add_item(NavItem(self.view, a, exact_match=exact_match))
+
+
+class NavItem(reahl.web.attic.menu.MenuItem):
+    def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
+        super(NavItem, self).__init__(view, a, active_regex=active_regex, exact_match=exact_match, css_id=css_id)
+        self.append_class('nav-item')
+        self.a.append_class('nav-link')
+        if self.is_active:
+            self.a.append_class('active')
 
 
 class DropdownMenu(reahl.web.attic.menu.SubMenu):
     def __init__(self, view, title, menu, drop_up, align_right, css_id=None):
         super(DropdownMenu, self).__init__(view, title, menu, css_id=css_id)
+        self.append_class('nav-item')
+        self.a.append_class('nav-link')
+        if self.is_active:
+            self.a.append_class('active')
+
         self.append_class('drop%s' % ('up' if drop_up else 'down'))
         self.a.append_class('dropdown-toggle')
         self.a.set_attribute('data-toggle', 'dropdown')

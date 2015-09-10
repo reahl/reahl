@@ -48,13 +48,13 @@ class Container(Layout):
 
 
 class ResponsiveSize(reahl.web.layout.ResponsiveSize):
-    device_classes = ['xs', 'sm', 'md', 'lg']
-    def __init__(self, xs=None, sm=None, md=None, lg=None):
-        super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg)
+    device_classes = ['xs', 'sm', 'md', 'lg', 'xl']
+    def __init__(self, xs=None, sm=None, md=None, lg=None, xl=None):
+        super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg, xl=xl)
         self.offsets = {}
 
-    def offset(self, xs=None, sm=None, md=None, lg=None):
-        self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg)
+    def offset(self, xs=None, sm=None, md=None, lg=None, xl=None):
+        self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg, xl=None)
         return self
 
     def calculated_size_for(self, device_class):

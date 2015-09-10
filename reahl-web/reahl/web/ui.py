@@ -1290,9 +1290,42 @@ class ValidationStateAttributes(DelegatedAttributes):
 
 
 
+class HTMLWidget(Widget):
+    def __init__(self, view, read_check=None, write_check=None):
+        super(HTMLWidget, self).__init__(view, read_check=read_check, write_check=write_check)
+        self.html_representation = None
+        
+    def set_html_representation(self, widget):
+        self.html_representation = widget
+        
+    def append_class(self, css_class):
+        """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Input in HTML to the user."""
+        self.html_representation.append_class(css_class)
+
+    def set_id(self, value):
+        """Set the "id" attribute of the HTMLElement which represents this Input in HTML to the user."""
+        self.html_representation.set_id(value)
+
+    def set_title(self, value):
+        """Set the the "title" attribute of the HTMLElement which represents this Input in HTML to the user."""
+        self.html_representation.set_title(value)
+
+    def add_to_attribute(self, name, values):
+        """Ensures that the value of the attribute `name` of the HTMLElement which represents this Input in
+           HTML to the user includes the words listed in `values` (a list of strings).
+        """
+        self.html_representation.add_to_attribute(name, values)
+
+    def set_attribute(self, name, value):
+        """Sets the value of the attribute `name` of the HTMLElement which represents this Input in HTML to the user
+           to the string `value`.
+        """
+        self.html_representation.set_attribute(name, value)
 
 
-class Input(Widget):
+
+
+class Input(HTMLWidget):
     """A Widget that proxies data between a user and the web application.
 
        :param form: The :class:`Form` with which this Input is associated.
@@ -1360,7 +1393,7 @@ class PrimitiveInput(Input):
             warnings.warn('DEPRECATED: %s. %s' % (self.create_html_input, 'Please use .create_html_widget instead.'),
                           DeprecationWarning, stacklevel=5)
             html_widget = self.create_html_input()
-        self.wrapped_html_widget = self.add_child(html_widget or self.create_html_widget())
+        self.set_html_representation(self.add_child(html_widget or self.create_html_widget()))
 
         if self.append_error and (self.get_input_status() == 'invalidly_entered'):
             label = Label(self.view, text=self.validation_error.message, for_input=self)
@@ -1369,30 +1402,6 @@ class PrimitiveInput(Input):
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
-
-    def append_class(self, css_class):
-        """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Input in HTML to the user."""
-        self.wrapped_html_widget.append_class(css_class)
-
-    def set_id(self, value):
-        """Set the "id" attribute of the HTMLElement which represents this Input in HTML to the user."""
-        self.wrapped_html_widget.set_id(value)
-
-    def set_title(self, value):
-        """Set the the "title" attribute of the HTMLElement which represents this Input in HTML to the user."""
-        self.wrapped_html_widget.set_title(value)
-
-    def add_to_attribute(self, name, values):
-        """Ensures that the value of the attribute `name` of the HTMLElement which represents this Input in
-           HTML to the user includes the words listed in `values` (a list of strings).
-        """
-        self.wrapped_html_widget.add_to_attribute(name, values)
-
-    def set_attribute(self, name, value):
-        """Sets the value of the attribute `name` of the HTMLElement which represents this Input in HTML to the user
-           to the string `value`.
-        """
-        self.wrapped_html_widget.set_attribute(name, value)
 
     @deprecated('Please override create_html_widget() instead', '3.2')
     def create_html_input(self):
@@ -1738,7 +1747,7 @@ class TextInput(InputTypeInput):
             self.append_class('fuzzy')
 
     def get_js(self, context=None):
-        js = ['$(%s).textinput();' % self.wrapped_html_widget.contextualise_selector('".reahl-textinput"', context)]
+        js = ['$(%s).textinput();' % self.html_representation.contextualise_selector('".reahl-textinput"', context)]
         return super(TextInput, self).get_js(context=context) + js
 
 
@@ -2157,6 +2166,9 @@ class LabelOverInput(_LabelOverInput):
     __doc__ = _LabelOverInput.__doc__
 
 
+
+
+
 class _MenuItem(Li):
     """One item in a Menu.
 
@@ -2272,7 +2284,7 @@ class _Menu(Ul):
         menu = cls(view, [])
         for bookmark in bookmark_list:
             a = A.from_bookmark(view, bookmark)
-            menu.add_item(_MenuItem(view, a, exact_match=bookmark.exact))
+            menu.add_as_item(a, bookmark.exact)
         return menu
 
     def __init__(self, view, a_list, css_id=None):
@@ -2283,12 +2295,16 @@ class _Menu(Ul):
 
     def set_items_from(self, a_list):
         for a in a_list:
-            self.add_item(_MenuItem(self.view, a))
+            self.add_as_item(a, True)
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu."""
         self.add_child(item)
         self.menu_items.append(item)
+        return item
+
+    def add_as_item(self, a, exact_match):
+        return self.add_item(_MenuItem(self.view, a, exact_match=exact_match))
 
 
 @deprecated('Please use reahl.web.attic.menu:Menu instead', '3.2')
