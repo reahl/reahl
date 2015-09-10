@@ -1326,7 +1326,12 @@ class HTMLWidget(Widget):
         """
         self.html_representation.set_attribute(name, value)
 
+    def add_attribute_source(self, attribute_source):
+        return self.html_representation.add_attribute_source(attribute_source)
 
+    def use_layout(self, layout):
+        self.html_representation.use_layout(layout)
+        return self
 
 
 class Input(HTMLWidget):
@@ -2183,7 +2188,7 @@ class ActiveStateAttributes(DelegatedAttributes):
 
         if self.widget.is_active and self.active_class:
             attributes.add_to('class', [self.active_class])
-
+            
 
 class _MenuItem(HTMLWidget):
     """One item in a Menu.
@@ -2305,8 +2310,7 @@ class _Menu(HTMLWidget):
         """Creates a Menu with a MenuItem for each Bookmark given in `bookmark_list`."""
         menu = cls(view, [])
         for bookmark in bookmark_list:
-            a = A.from_bookmark(view, bookmark)
-            menu.add_as_item(a, bookmark.exact)
+            menu.add_item_from_bookmark(bookmark)
         return menu
 
     def __init__(self, view, a_list, css_id=None):
@@ -2329,12 +2333,15 @@ class _Menu(HTMLWidget):
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu."""
-        self.html_representation.add_child(item)
+        self.add_item_html(item)
         self.menu_items.append(item)
         return item
 
-    def add_as_item(self, a, exact_match):
-        return self.add_item(_MenuItem(self.view, a, exact_match=exact_match))
+    def add_item_html(self, item):
+        self.html_representation.add_child(item)
+
+    def add_item_from_bookmark(self, bookmark):
+        return self.add_item(_MenuItem.from_bookmark(self.view, bookmark))
 
 
 @deprecated('Please use reahl.web.attic.menu:Menu instead', '3.2')

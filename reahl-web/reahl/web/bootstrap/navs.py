@@ -26,7 +26,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.web.fw import Layout
-from reahl.web.ui import AccessRightAttributes
+from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div
 import reahl.web.attic
 from reahl.web.bootstrap.ui import Span, A
 
@@ -38,50 +38,54 @@ class Nav(reahl.web.attic.menu.Menu):
     css_class = 'nav'
     
     def add_item(self, item):
-        item.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
-        return super(Nav, self).add_item(item)
+        super(Nav, self).add_item(item)
+        item.append_class('nav-item')
+        item.a.append_class('nav-link')
+        return item
 
-    def add_dropdown(self, title, menu, drop_up=False, align_right=False):
+    def add_dropdown(self, title, dropdown_menu, drop_up=False):
         dropdown = NavItem(self.view, A(self.view, None, description=title))
         dropdown.append_class('drop%s' % ('up' if drop_up else 'down'))
         dropdown.a.append_class('dropdown-toggle')
         dropdown.a.set_attribute('data-toggle', 'dropdown')
         dropdown.a.add_child(Span(self.view)).append_class('caret')
-        dropdown.add_child(menu)
-        menu.append_class('dropdown-menu')
-        if align_right:
-            menu.append_class('dropdown-menu-right')
+        dropdown.html_representation.add_child(dropdown_menu)
         return self.add_item(dropdown)
-#        self.add_item(DropdownMenu(self.view, title, menu, drop_up, align_right))
 
-    def add_as_item(self, a, exact_match):
-        return self.add_item(NavItem(self.view, a, exact_match=exact_match))
+    def add_item_from_bookmark(self, bookmark):
+        return self.add_item(NavItem.from_bookmark(self.view, bookmark))
 
 
 class NavItem(reahl.web.attic.menu.MenuItem):
     def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
         super(NavItem, self).__init__(view, a, active_regex=active_regex, exact_match=exact_match, css_id=css_id)
-        self.append_class('nav-item')
-        self.a.append_class('nav-link')
-        if self.is_active:
-            self.a.append_class('active')
+        self.a.add_attribute_source(ActiveStateAttributes(self, active_class='active'))
+        self.a.add_attribute_source(AccessRightAttributes(self.a, disabled_class='disabled'))
 
 
-class DropdownMenu(reahl.web.attic.menu.SubMenu):
-    def __init__(self, view, title, menu, drop_up, align_right, css_id=None):
-        super(DropdownMenu, self).__init__(view, title, menu, css_id=css_id)
-        self.append_class('nav-item')
-        self.a.append_class('nav-link')
-        if self.is_active:
-            self.a.append_class('active')
 
-        self.append_class('drop%s' % ('up' if drop_up else 'down'))
-        self.a.append_class('dropdown-toggle')
-        self.a.set_attribute('data-toggle', 'dropdown')
-        self.a.add_child(Span(view)).append_class('caret')
-        menu.append_class('dropdown-menu')
+class DropdownMenu(reahl.web.attic.menu.Menu):
+    def __init__(self, view, a_list, align_right=False, css_id=None):
+        super(DropdownMenu, self).__init__(view, a_list, css_id=css_id)
+        self.append_class('dropdown-menu')
         if align_right:
-            menu.append_class('dropdown-menu-right')
+            self.append_class('dropdown-menu-right')
+
+    def create_html_representation(self):
+        div = self.add_child(Div(self.view))
+        self.set_html_representation(div)
+        return div
+
+    def add_item(self, item):
+        super(DropdownMenu, self).add_item(item)
+        item.a.append_class('dropdown-item')
+        return item
+
+    def add_item_html(self, item):
+        self.html_representation.add_child(item.a)
+
+    def add_item_from_bookmark(self, bookmark):
+        return self.add_item(NavItem.from_bookmark(self.view, bookmark))
 
 
 class NavLayout(Layout):
