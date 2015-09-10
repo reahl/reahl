@@ -32,7 +32,6 @@ from reahl.web.bootstrap.ui import Div, Span
 class InputGroup(WrappedInput):
     def __init__(self, prepend, input_widget, append):
         super(InputGroup, self).__init__(input_widget)
-
         self.div = self.add_child(Div(self.view))
         self.div.append_class('input-group')
         if prepend:
@@ -40,6 +39,7 @@ class InputGroup(WrappedInput):
         self.input_widget = self.div.add_child(input_widget)
         if append:
             self.add_as_addon(append)
+        self.set_html_representation(self.div)
 
     def add_as_addon(self, addon):
         if isinstance(addon, six.string_types):

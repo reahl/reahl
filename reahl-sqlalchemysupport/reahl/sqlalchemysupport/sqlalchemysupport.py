@@ -266,6 +266,7 @@ class SqlAlchemyControl(ORMControl):
         
     def disconnect(self):
         """Disposes the current SQLAlchemy Engine and .remove() the Session."""
+        assert self.connected
         metadata.bind.dispose()
         metadata.bind = None
         Session.remove()

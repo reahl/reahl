@@ -25,13 +25,14 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
+from copy import copy
 
 from reahl.web.fw import Layout
 from reahl.web.ui import *
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
-
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize
 
 class Form(reahl.web.ui.Form):
     def get_js_options(self):
@@ -126,11 +127,14 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
         super(RadioButtonInput, self).__init__(form, bound_field)
 
     def create_main_element(self):
-        return super(RadioButtonInput, self).create_main_element().use_layout(self.button_layout)
+        main_element = super(RadioButtonInput, self).create_main_element().use_layout(self.button_layout)
+        main_element.append_class('form-control-label')
+        return main_element
 
     def add_button_for_choice_to(self, widget, choice):
         button = SingleRadioButton(self, choice)
         widget.layout.add_choice(button)
+
 
 class ButtonInput(reahl.web.ui.ButtonInput):
     append_error = False
@@ -145,6 +149,20 @@ Button = ButtonInput
 class SimpleFileInput(reahl.web.ui.SimpleFileInput):
     append_error = False
     add_default_attribute_source = False
+
+    def __init__(self, form, bound_field):
+        super(SimpleFileInput, self).__init__(form, bound_field)
+        self.append_class('form-control-file')
+
+
+class StaticData(reahl.web.ui.Input):
+    def __init__(self, form, bound_field):
+        super(StaticData, self).__init__(form, bound_field)
+        p = self.add_child(P(self.view, text=self.value))
+        p.append_class('form-control-static')
+
+    def can_write(self):
+        return False
 
 
 class ButtonLayout(Layout):
@@ -197,53 +215,92 @@ class ChoicesLayout(Layout):
 
 
 class FormLayout(Layout):
-    def __init__(self, inline=False, horizontal=False):
-        super(FormLayout, self).__init__()
-        assert not (inline and horizontal), 'Cannot set both inline and horizontal'
-        self.inline = inline
-        self.horizontal = horizontal
-
-    def customise_widget(self):
-        if self.inline:
-            self.widget.append_class('form-inline')
-        elif self.horizontal:
-            self.widget.append_class('form-horizontal')
-
-    def add_input(self, html_input, render_label=None, help_text=None):
-        render_label = render_label if render_label is not None else not isinstance(html_input, CheckboxInput)
+    def create_form_group(self, html_input):
         form_group = self.widget.add_child(Div(self.view))
         form_group.append_class('form-group')
         form_group.add_attribute_source(ValidationStateAttributes(html_input, 
                                                              error_class='has-error', 
                                                              success_class='has-success'))
         form_group.add_attribute_source(AccessRightAttributes(html_input, disabled_class='disabled'))
+        return form_group
 
-        if render_label:
-            label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
-            label.append_class('control-label' if render_label else 'sr-only')
 
+    def add_input_to(self, parent_element, html_input):
         if isinstance(html_input, CheckboxInput):
-            form_group.use_layout(ChoicesLayout(inline=False))
-            form_group.layout.add_choice(html_input)
+            parent_element.use_layout(ChoicesLayout(inline=False))
+            return parent_element.layout.add_choice(html_input)
         else:
-            form_group.add_child(html_input)
+            return parent_element.add_child(html_input)
+
+    def add_validation_error_to(self, form_group, html_input):
+        error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
+        error_text.append_class('help-block')
+        error_text.append_class('has-error')
+        error_text.set_attribute('for', html_input.name)
+        error_text.set_attribute('generated', 'true')
+        return error_text
+
+    def add_help_text_to(self, parent_element, help_text):
+        help_text_p = parent_element.add_child(P(self.view, text=help_text))
+        help_text_p.append_class('text-muted')
+        return help_text_p
+
+    def add_label_to(self, form_group, html_input, hidden):
+        label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
+        if hidden:
+            label.append_class('sr-only')
+        return label
+
+    def should_add_label(self, html_input):
+        return not isinstance(html_input, CheckboxInput)
+        
+    def add_input(self, html_input, hide_label=False, help_text=None):
+        form_group = self.create_form_group(html_input)
+
+        if self.should_add_label(html_input):
+            self.add_label_to(form_group, html_input, hide_label)
+
+        self.add_input_to(form_group, html_input)
 
         if html_input.get_input_status() == 'invalidly_entered':
-            error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
-            error_text.append_class('help-block')
-            error_text.append_class('has-error')
-            error_text.set_attribute('for', html_input.name)
-            error_text.set_attribute('generated', 'true')
+            self.add_validation_error_to(form_group, html_input)
 
         if help_text:
-            help_text = form_group.add_child(P(self.view, text=help_text))
-            help_text.append_class('help-block')
+            self.add_help_text_to(form_group, help_text)
 
         return form_group
 
 
+class GridFormLayout(FormLayout):
+    def __init__(self, label_column_size, input_column_size):
+        super(GridFormLayout, self).__init__()
+        self.label_column_size = label_column_size
+        self.input_column_size = input_column_size
+
+    def create_form_group(self, html_input):
+        form_group = super(GridFormLayout, self).create_form_group(html_input)
+        form_group.use_layout(ColumnLayout(('label', self.label_column_size), ('input', self.input_column_size)))
+        return form_group
+
+    def add_label_to(self, form_group, html_input, hidden):
+        column = form_group.layout.columns['label']
+        label = super(GridFormLayout, self).add_label_to(column, html_input, hidden)
+        label.append_class('form-control-label')
+        return label
+
+    def add_input_to(self, parent_element, html_input):
+        input_column = parent_element.layout.columns['input']
+        return super(GridFormLayout, self).add_input_to(input_column, html_input)
+
+    def add_help_text_to(self, parent_element, help_text):
+        input_column = parent_element.layout.columns['input']
+        return super(GridFormLayout, self).add_help_text_to(input_column, help_text)
 
 
+class InlineFormLayout(FormLayout):
+    def customise_widget(self):
+        super(InlineFormLayout, self).customise_widget()
+        self.widget.append_class('form-inline')
 
 
 
