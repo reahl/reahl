@@ -111,11 +111,13 @@ class BasicReahlWidgets(object):
         href_path = '/link'
         bookmark = Bookmark('/', href_path, description)
 
+        menu = Menu(fixture.view, [])
         menu_item = MenuItem.from_bookmark(fixture.view, bookmark)
-        tester = WidgetTester(menu_item)
+        menu.add_item(menu_item)
+        tester = WidgetTester(menu)
 
         with fixture.context:
-            actual = tester.render_html()
+            actual = tester.get_html_for('//li')
             
         vassert( actual == '<li><a href="%s">%s</a></li>' % (href_path, description) )
         
@@ -144,9 +146,11 @@ class BasicReahlWidgets(object):
         
         # Case: adding already constructed menu item
         menu = Menu(fixture.view, [])
-        menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[0])))
-        menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[1])))
-        vassert( menu.menu_items == menu.html_representation.children )
+        item1 = MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[0]))
+        item2 = MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[1]))
+        menu.add_item(item1)
+        menu.add_item(item2)
+        vassert( menu.menu_items == [item1, item2] )
         
         tester = WidgetTester(menu)
         with fixture.context:
@@ -228,11 +232,13 @@ class BasicReahlWidgets(object):
     def rendering_active_menu_items(self, fixture):    
         description = 'The link'
         href = Url('/link')
-        
-        menu_item = MenuItem(fixture.view, A(fixture.view, href, description=description), active_regex=fixture.active_regex)
-        tester = WidgetTester(menu_item)
 
-        actual = tester.render_html()
+        menu = Menu(fixture.view, [])
+        menu_item = MenuItem(fixture.view, A(fixture.view, href, description=description), active_regex=fixture.active_regex)
+        menu.add_item(menu_item)
+        tester = WidgetTester(menu)
+
+        actual = tester.get_html_for('//li')
         class_str = '' if not fixture.active else ' class="active"'
         expected_menu_item_html = '<li%s><a href="/link">The link</a></li>' % (class_str)
 

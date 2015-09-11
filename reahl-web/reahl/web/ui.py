@@ -1329,9 +1329,6 @@ class HTMLWidget(Widget):
     def add_attribute_source(self, attribute_source):
         return self.html_representation.add_attribute_source(attribute_source)
 
-    def use_layout(self, layout):
-        self.html_representation.use_layout(layout)
-        return self
 
 
 class Input(HTMLWidget):
@@ -2190,7 +2187,7 @@ class ActiveStateAttributes(DelegatedAttributes):
             attributes.add_to('class', [self.active_class])
             
 
-class _MenuItem(HTMLWidget):
+class _MenuItem(object):
     """One item in a Menu.
 
        .. admonition:: Styling
@@ -2217,21 +2214,14 @@ class _MenuItem(HTMLWidget):
         return cls(view, A.from_bookmark(view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
 
     def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
-        super(_MenuItem, self).__init__(view)
+        super(_MenuItem, self).__init__()
+        self.view = view
         self.exact_match = exact_match
         self.a = a
         self.active_regex = active_regex
-        self.create_html_representation()
         if css_id:
             self.set_id(css_id)
         
-    def create_html_representation(self):
-        li = self.add_child(Li(self.view))
-        li.add_child(self.a)
-        li.add_attribute_source(ActiveStateAttributes(self))
-        self.set_html_representation(li)
-        return li
-
     @property
     def is_active(self):
         if not self.active_regex:
@@ -2261,7 +2251,8 @@ class _SubMenu(_MenuItem):
     """
     def __init__(self, view, title, menu, css_id=None):
         super(_SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id)
-        self.html_representation.add_child(menu)
+        self.menu = menu
+        self.title = title
 
 
 
@@ -2270,6 +2261,22 @@ class SubMenu(_SubMenu):
     __doc__ = _SubMenu.__doc__
 
 
+class MenuLayout(Layout):
+    def customise_widget(self):
+        self.widget.append_class('reahl-menu')
+
+    def add_item(self, item):
+        li = self.widget.html_representation.add_child(Li(self.view))
+        li.add_child(item.a)
+        li.add_attribute_source(ActiveStateAttributes(item))
+        return li
+
+    def add_submenu(self, menu, title):
+        menu_item = _MenuItem(self.view, A(self.view, None, description=title))
+        li = self.add_item(menu_item)
+        li.add_child(menu)
+        return menu_item
+        
 
 # Uses: reahl/web/reahl.menu.css
 class _Menu(HTMLWidget):
@@ -2284,7 +2291,6 @@ class _Menu(HTMLWidget):
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
-    css_class = 'reahl-menu'
     @classmethod
     def from_languages(cls, view):
         """Constructs a Menu which contains a MenuItem for each locale supported by all the components
@@ -2315,14 +2321,18 @@ class _Menu(HTMLWidget):
             menu.add_item_from_bookmark(bookmark)
         return menu
 
-    def __init__(self, view, a_list, css_id=None):
+    def __init__(self, view, a_list, menu_layout=None, css_id=None):
         super(_Menu, self).__init__(view)
         self.create_html_representation()
         if css_id:
             self.set_id(css_id)
-        self.append_class(self.css_class)
         self.menu_items = []
+        self.set_layout(menu_layout or MenuLayout())
         self.set_items_from(a_list)
+
+    def set_layout(self, menu_layout):
+        self.menu_layout = menu_layout
+        self.menu_layout.apply_to_widget(self)
 
     def create_html_representation(self):
         ul = self.add_child(Ul(self.view))
@@ -2336,8 +2346,19 @@ class _Menu(HTMLWidget):
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu."""
         self.menu_items.append(item)
-        self.html_representation.add_child(item)
+        if isinstance(item, _SubMenu):
+            #deprecate this usage
+            self.menu_layout.add_submenu(item.menu, item.title)
+        else:
+            self.menu_layout.add_item(item)
         return item
+
+    def add_submenu(self, menu, title):
+        #new
+        submenu = _SubMenu(self.view, menu, title)
+        self.menu_items.append(submenu)
+        self.menu_layout.add_submenu(menu, title)
+        return submenu
 
     def add_item_from_bookmark(self, bookmark):
         return self.add_item(_MenuItem.from_bookmark(self.view, bookmark))
@@ -2363,7 +2384,7 @@ class _HorizontalLayout(Layout):
 
     """
     def customise_widget(self):
-        self.widget.append_class('reahl-horizontal')
+        self.widget.html_representation.append_class('reahl-horizontal')
 
 
 @deprecated('Please use reahl.web.attic.menu:HorizontalLayout instead', '3.2')
@@ -2382,7 +2403,7 @@ class _VerticalLayout(Layout):
 
     """
     def customise_widget(self):
-        self.widget.append_class('reahl-vertical')
+        self.widget.html_representation.append_class('reahl-vertical')
 
 
 @deprecated('Please use reahl.web.attic.menu:VerticalLayout instead', '3.2')
@@ -2429,6 +2450,25 @@ class VMenu(_Menu):
         return html_representation
 
 
+class TabbedPanelMenuLayout(MenuLayout):
+    def customise_widget(self):
+        super(TabbedPanelMenuLayout, self).customise_widget()
+        self.widget.append_class('reahl-horizontal')
+
+    def add_item(self, item):
+        if isinstance(item, _MultiTab):
+            return self.add_multitab(item)
+        return super(TabbedPanelMenuLayout, self).add_item(item)
+
+    def add_multitab(self, multitab):
+        li = super(TabbedPanelMenuLayout, self).add_item(multitab)
+        li.add_child(TextNode(self.view, '&nbsp;', html_escape=False))
+        dropdown_handle = li.add_child(A(self.view, None, description='▼'))
+        dropdown_handle.append_class('dropdown-handle')
+        menu = li.add_child(multitab.menu)
+        return multitab
+    
+
 class _Tab(_MenuItem):
     """One Tab in a :class:`TabbedPanel`.
 
@@ -2460,7 +2500,7 @@ class _Tab(_MenuItem):
         return super(_Tab, self).is_active or self.force_active
 
     def add_content_to_panel(self, panel):
-        panel.add_child(self.contents_factory.create(self.view))
+        panel.add_child(self.contents_factory.create(panel.view))
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:Tab instead', '3.2')
@@ -2488,16 +2528,9 @@ class _MultiTab(_Tab):
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
+        self.menu = _Menu(view, []).use_layout(_VerticalLayout())
         super(_MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
         
-    def create_html_representation(self):
-        html_representation = super(_MultiTab, self).create_html_representation()
-        html_representation.add_child(TextNode(self.view, '&nbsp;', html_escape=False))
-        dropdown_handle = html_representation.add_child(A(self.view, None, description='▼'))
-        dropdown_handle.append_class('dropdown-handle')
-        self.menu = html_representation.add_child(_Menu(self.view, []).use_layout(_VerticalLayout()))
-        return html_representation
-
     def add_tab(self, tab):
         self.menu.add_item(tab)
 
@@ -2548,7 +2581,7 @@ class _TabbedPanel(Div):
     def __init__(self, view, css_id):
         super(_TabbedPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-tabbedpanel')
-        self.tabs = self.add_child(_Menu(view, [])).use_layout(_HorizontalLayout())
+        self.tabs = self.add_child(_Menu(view, [], menu_layout=TabbedPanelMenuLayout()))
         self.content_panel = self.add_child(Div(view))
         self.enable_refresh()
 
