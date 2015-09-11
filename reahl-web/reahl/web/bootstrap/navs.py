@@ -77,12 +77,11 @@ class DropdownMenu(reahl.web.attic.menu.Menu):
         return div
 
     def add_item(self, item):
-        super(DropdownMenu, self).add_item(item)
+        """Adds MenuItem `item` to this Menu."""
+        self.menu_items.append(item)
+        self.html_representation.add_child(item.a)
         item.a.append_class('dropdown-item')
         return item
-
-    def add_item_html(self, item):
-        self.html_representation.add_child(item.a)
 
     def add_item_from_bookmark(self, bookmark):
         return self.add_item(NavItem.from_bookmark(self.view, bookmark))
