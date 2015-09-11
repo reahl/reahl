@@ -21,12 +21,11 @@ import warnings
 from webob import Request
 
 from nose.tools import istest
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import test, vassert
 from reahl.stubble import stubclass
 
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
-from reahl.web.fw import Region
+from reahl.web.fw import Region, UrlBoundView
 from reahl.web.ui import HTML5Page, P, A, Div, Slot
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
@@ -165,34 +164,69 @@ class UserInterfaceTests(object):
            a Bookmark can, at run time, turn these into absolute URLs. Bookmarks also contain metadata,
            such as the title of the View it points to.
         """
+        user_interface = UserInterface(None, '/a_ui', {}, False, 'test_ui')
+        view = UrlBoundView(user_interface, '/aview', 'A View title', {})
+        bookmark = view.as_bookmark()
+
+        # What the bookmark knows
+        vassert( bookmark.href.path == '/a_ui/aview' )
+        vassert( bookmark.description == 'A View title' )
+        vassert( bookmark.base_path == '/a_ui' )
+        vassert( bookmark.relative_path == '/aview' )
+
+        # How you would use a bookmark in other views (possibly in other UserInterfaces)
+        a = A.from_bookmark(fixture.view, bookmark)
+        vassert( str(a.href) == str(bookmark.href) )
+
+
+    @test(WebFixture)
+    def bookmarks_overrides(self, fixture):
+        """Various bits of information can be overridden from the defaults when creating a bookmark from a View.
+        """
+        user_interface = UserInterface(None, '/a_ui', {}, False, 'test_ui')
+        view = UrlBoundView(user_interface, '/aview', 'A View title', {})
+        bookmark = view.as_bookmark(description='different description',
+                                    query_arguments={'arg1': 'val1'},
+                                    locale='af')
+
+        # What the bookmark knows
+        vassert( bookmark.description == 'different description' )
+        vassert( bookmark.query_arguments == {'arg1': 'val1'} )
+        vassert( bookmark.locale == 'af' )
+
+
+    @test(WebFixture)
+    def bookmarks_from_other_sources(self, fixture):
+        """Bookmarks can also be made from ViewFactories, UserInterfaces or UserInterfaceFactories. 
+        """
         class UIWithRelativeView(UserInterface):
             def assemble(self):
-                self.define_view('/aview', title='A View title')
+                view_factory = self.define_view('/aview', title='A View title')
+
+                # How you could get a bookmark from a UserInterface or ViewFactory
+                fixture.bookmark_from_view_factory = view_factory.as_bookmark(self)
+                fixture.bookmark_from_ui = self.get_bookmark(relative_path='/aview')
 
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(HTML5Page)
-                ui_factory = self.define_user_interface('/a_ui',  UIWithRelativeView,  {}, name='myui')
+                fixture.ui_factory = self.define_user_interface('/a_ui',  UIWithRelativeView,  {}, name='myui')
 
                 # How you could get a bookmark from a UserInterfaceFactory
-                fixture.bookmark = ui_factory.get_bookmark(relative_path='/aview')
+                fixture.bookmark_from_ui_factory = fixture.ui_factory.get_bookmark(relative_path='/aview')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         Browser(wsgi_app).open('/a_ui/aview') # To execute the above once
 
-        # What the bookmark knows
-        vassert( fixture.bookmark.href.path == '/a_ui/aview' )
-        vassert( fixture.bookmark.description == 'A View title' )
-        vassert( fixture.bookmark.base_path == '/a_ui' )
-        vassert( fixture.bookmark.relative_path == '/aview' )
+        for bookmark in [fixture.bookmark_from_view_factory, 
+                         fixture.bookmark_from_ui, 
+                         fixture.bookmark_from_ui_factory]:
+            # What the bookmark knows
+            vassert( bookmark.href.path == '/a_ui/aview' )
+            vassert( bookmark.description == 'A View title' )
+            vassert( bookmark.base_path == '/a_ui' )
+            vassert( bookmark.relative_path == '/aview' )
 
-        # How you would use a bookmark in other views (possibly in other UserInterfaces)
-        a = A.from_bookmark(fixture.view, fixture.bookmark)
-        
-        # .. and how the A will be rendered
-        a_etree = WidgetTester(a).render_html_tree()        
-        vassert( a_etree.attrib['href'] == '/a_ui/aview' )
-        vassert( a_etree.text == 'A View title' )
 
     class LifeCycleFixture(WebFixture):
         def current_view_is_plugged_in(self, page):

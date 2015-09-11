@@ -21,7 +21,7 @@ from reahl.tofu import Fixture, test
 from reahl.tofu import vassert
 
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.fw import UserInterface, IdentityDictionary
+from reahl.web.fw import UserInterface, IdentityDictionary, Bookmark
 from reahl.web.ui import HTML5Page
 from reahl.webdev.tools import Browser
 from reahl.component.i18n import Translator
@@ -82,3 +82,18 @@ def i18n_urls(fixture):
     
     browser.open('/en_gb/a_ui/aview')
     vassert( browser.title == 'A View' )
+
+
+@test(WebFixture)
+def bookmarks(fixture):
+    """Bookmarks normally refer to the current locale. You can override that to be a specified locale instead.
+    """
+
+    bookmark = Bookmark('/base_path', '/relative_path', 'description')
+    af_bookmark = Bookmark('/base_path', '/relative_path', 'description', locale='af')
+
+    vassert( af_bookmark.locale == 'af' )
+    vassert( af_bookmark.href.path == '/af/base_path/relative_path' )
+
+    vassert( bookmark.locale is None )
+    vassert( bookmark.href.path == '/base_path/relative_path' )
