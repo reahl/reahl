@@ -25,7 +25,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.web.fw import Layout
+from reahl.component.modelinterface import exposed, Field
+from reahl.web.fw import Layout, Bookmark
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div
 import reahl.web.attic
 from reahl.web.bootstrap.ui import Span, A
@@ -34,57 +35,99 @@ from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.attic.menu import MenuItem 
 
-class Nav(reahl.web.attic.menu.Menu):
-    css_class = 'nav'
-    
+
+class NavMenuLayout(reahl.web.ui.MenuLayout):
+    def customise_widget(self):
+        self.widget.append_class('nav')
+
     def add_item(self, item):
-        super(Nav, self).add_item(item)
-        item.append_class('nav-item')
+        li = super(NavMenuLayout, self).add_item(item)
+        li.append_class('nav-item')
         item.a.append_class('nav-link')
-        return item
+        item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
+        item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
+        return li
+
+    def add_submenu(self, dropdown, title):
+        raise ProgrammerError('You cannot add a submenu to a %s, please use .add_dropdown() instead.' % self.widget.__class__)
+
+    def get_bookmark(self, dropdown_key, title, opened):
+        if opened:
+            query_arguments={'open_dropdown': ''}
+        else:
+            query_arguments={'open_dropdown': dropdown_key}
+        return Bookmark('', '', description=title, query_arguments=query_arguments, ajax=True)
+
+    def add_dropdown(self, dropdown, title, drop_up, open_dropdown):
+        opened = open_dropdown==dropdown.key
+        menu_item = MenuItem(self.view, A.from_bookmark(self.view, self.get_bookmark(dropdown.key, title, opened)))
+        li = self.add_item(menu_item)
+        if opened:
+            li.append_class('open')
+        menu_item.a.append_class('dropdown-toggle')
+        menu_item.a.set_attribute('data-toggle', 'dropdown')
+        menu_item.a.set_attribute('data-target', '-')
+        menu_item.a.add_child(Span(self.view)).append_class('caret')
+        li.append_class('drop%s' % ('up' if drop_up else 'down'))
+        li.add_child(dropdown)
+        return menu_item
+
+
+# To test:
+#  That dropdown menus open/close when no javascript
+#  and that they do not actually break in js when JS is on.
+
+
+class Nav(reahl.web.attic.menu.Menu):
+    def __init__(self, view, css_id=None):
+        self.open_dropdown = None
+        super(Nav, self).__init__(view, [], menu_layout=NavMenuLayout(), css_id=None)
 
     def add_dropdown(self, title, dropdown_menu, drop_up=False):
-        dropdown = NavItem(self.view, A(self.view, None, description=title))
-        dropdown.append_class('drop%s' % ('up' if drop_up else 'down'))
-        dropdown.a.append_class('dropdown-toggle')
-        dropdown.a.set_attribute('data-toggle', 'dropdown')
-        dropdown.a.add_child(Span(self.view)).append_class('caret')
-        dropdown.html_representation.add_child(dropdown_menu)
-        return self.add_item(dropdown)
+        return self.menu_layout.add_dropdown(dropdown_menu, title, drop_up, self.open_dropdown)
 
-    def add_item_from_bookmark(self, bookmark):
-        return self.add_item(NavItem.from_bookmark(self.view, bookmark))
+    @exposed
+    def query_fields(self, fields):
+        fields.open_dropdown = Field(required=False, default=None)
+
 
 
 class NavItem(reahl.web.attic.menu.MenuItem):
-    def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
-        super(NavItem, self).__init__(view, a, active_regex=active_regex, exact_match=exact_match, css_id=css_id)
-        self.a.add_attribute_source(ActiveStateAttributes(self, active_class='active'))
-        self.a.add_attribute_source(AccessRightAttributes(self.a, disabled_class='disabled'))
+    pass
 
+
+class DropdownMenuLayout(reahl.web.ui.MenuLayout):
+    def __init__(self, align_right):
+        super(DropdownMenuLayout, self).__init__()
+        self.align_right = align_right
+
+    def customise_widget(self):
+        self.widget.append_class('dropdown-menu')
+        if self.align_right:
+            self.widget.append_class('dropdown-menu-right')
+
+    def add_item(self, item):
+        self.widget.html_representation.add_child(item.a)
+        item.a.append_class('dropdown-item')
+        item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
+        item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
+        return item
+
+    def add_submenu(self, dropdown, title):
+        raise ProgrammerError('You cannot add a submenu to a %s.' % self.widget.__class__)
 
 
 class DropdownMenu(reahl.web.attic.menu.Menu):
-    def __init__(self, view, a_list, align_right=False, css_id=None):
-        super(DropdownMenu, self).__init__(view, a_list, css_id=css_id)
-        self.append_class('dropdown-menu')
-        if align_right:
-            self.append_class('dropdown-menu-right')
+    key = '1'
+    def __init__(self, view, align_right=False, css_id=None):
+        super(DropdownMenu, self).__init__(view, [], menu_layout=DropdownMenuLayout(align_right), css_id=css_id)
 
     def create_html_representation(self):
         div = self.add_child(Div(self.view))
         self.set_html_representation(div)
         return div
 
-    def add_item(self, item):
-        """Adds MenuItem `item` to this Menu."""
-        self.menu_items.append(item)
-        self.html_representation.add_child(item.a)
-        item.a.append_class('dropdown-item')
-        return item
 
-    def add_item_from_bookmark(self, bookmark):
-        return self.add_item(NavItem.from_bookmark(self.view, bookmark))
 
 
 class NavLayout(Layout):
