@@ -2301,8 +2301,10 @@ class _Menu(HTMLWidget):
                 language_name = Locale.parse(locale).display_name
             except UnknownLocaleError:
                 language_name = locale
-            a = A(view, current_url.with_new_locale(locale), description=language_name)
-            menu.add_item(_MenuItem(view, a, exact_match=True))
+            
+            bookmark = view.as_bookmark(description=language_name, locale=locale)
+            bookmark.exact = True
+            menu.add_item_from_bookmark(bookmark)
         return menu
 
     @classmethod
@@ -2329,19 +2331,20 @@ class _Menu(HTMLWidget):
 
     def set_items_from(self, a_list):
         for a in a_list:
-            self.add_as_item(a, True)
+            self.add_item_from_a(a)
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu."""
-        self.add_item_html(item)
         self.menu_items.append(item)
-        return item
-
-    def add_item_html(self, item):
         self.html_representation.add_child(item)
+        return item
 
     def add_item_from_bookmark(self, bookmark):
         return self.add_item(_MenuItem.from_bookmark(self.view, bookmark))
+
+    def add_item_from_a(self, a): 
+        return self.add_item(_MenuItem(self.view, a))
+
 
 
 @deprecated('Please use reahl.web.attic.menu:Menu instead', '3.2')

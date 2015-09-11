@@ -789,8 +789,13 @@ class Bookmark(object):
        :param ajax: (not for general use).
        :param detour: Set this to True, to indicate that the target View is marked as being a detour (See :class:`UrlBoundView`).
        :param exact: (not for general use).
+       :param locale: Force the Bookmark to be for a page in the given locale, instead of using the current locale (default). 
        :param read_check: A no-args callable, usually the read_check of the target View. If it returns True, the current user will be allowed to see (but not click) links representing this Bookmark.
        :param write_check: A no-args callable, usually the write_check of the target View. If it returns True, the current user will be allowed to click links representing this Bookmark.
+
+       .. versionchanged: 3.2
+          Added the locale kwarg.
+
     """
     @classmethod
     def for_widget(cls, description, query_arguments=None, **bookmark_kwargs):
@@ -803,7 +808,7 @@ class Bookmark(object):
         """
         return Bookmark('', '', description, query_arguments=query_arguments, ajax=True, **bookmark_kwargs)
 
-    def __init__(self, base_path, relative_path, description, query_arguments=None, ajax=False, detour=False, exact=True, read_check=None, write_check=None):
+    def __init__(self, base_path, relative_path, description, query_arguments=None, ajax=False, detour=False, exact=True, locale=None, read_check=None, write_check=None):
         self.base_path = base_path
         self.relative_path = relative_path
         self.description = description
@@ -811,6 +816,7 @@ class Bookmark(object):
         self.ajax = ajax
         self.detour = detour
         self.exact = exact
+        self.locale = locale
         self.read_check = read_check
         self.write_check = write_check
 
@@ -827,7 +833,7 @@ class Bookmark(object):
             query_arguments['returnTo'] = request.url
         path = (self.base_path + self.relative_path).replace('//','/')
         url = Url(path)
-        url.make_locale_absolute()
+        url.make_locale_absolute(locale=self.locale)
         url.set_query_from(query_arguments)
         return url
 
@@ -1566,19 +1572,20 @@ class ViewFactory(FactoryFromUrlRegex):
         """Supplies a Factory for the page to be used when displaying the :class:`View` created by this ViewFactory."""
         self.page_factory = page_factory
 
-    def as_bookmark(self, user_interface, description=None, query_arguments=None, ajax=False, **url_arguments):
+    def as_bookmark(self, user_interface, description=None, query_arguments=None, ajax=False, locale=None, **url_arguments):
         """Returns a :class:`Bookmark` to the View this Factory represents.
 
            :param user_interface: The user_interface where this ViewFactory is defined.
            :param description: A textual description which will be used on links that represent the Bookmark on the user interface.
            :param query_arguments: A dictionary with (name, value) pairs to put on the query string of the Bookmark.
            :param ajax: (not for general use)
+           :param locale: (See :class:`Bookmark`.)
            :param url_arguments: Values for the arguments of the parameterised View to which the Bookmark should lead. (Just
                                  omit these if the target View is not parameterised.)
         """
         relative_path = self.get_relative_path(**url_arguments)
         view = self.create(relative_path, user_interface)
-        return view.as_bookmark(description=description, query_arguments=query_arguments, ajax=ajax)
+        return view.as_bookmark(description=description, query_arguments=query_arguments, ajax=ajax, locale=locale)
 
     def create(self, relative_path, *args, **kwargs):
         try:
@@ -1815,16 +1822,22 @@ class UrlBoundView(View):
         if not allowed:
             raise HTTPForbidden()
 
-    def as_bookmark(self, description=None, query_arguments=None, ajax=False):
+    def as_bookmark(self, description=None, query_arguments=None, ajax=False, locale=None):
         """Returns a Bookmark for this UrlBoundView.
 
            :param description: A textual description to be used by links representing this View to a user.
            :param query_arguments: A dictionary mapping names to values to be used for query string arguments.
            :param ajax: (not for general use)
+           :param locale: (See :class:`Bookmark`.)
+
+        .. versionchanged: 3.2
+           Added locale kwarg.
+
         """
         return Bookmark(self.user_interface.base_path, self.relative_path, 
                         description=description or self.title,
                         query_arguments=query_arguments, ajax=ajax, detour=self.detour,
+                        locale=locale,
                         read_check=self.read_check, write_check=self.write_check)
 
     def add_out_of_bound_form(self, out_of_bound_form):
