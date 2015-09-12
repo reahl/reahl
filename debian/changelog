@@ -23,6 +23,7 @@ python-reahl (3.2.0) unstable; urgency=low
  * Changed how submenus are added to menus: you now call add_submenu instead of having to know about SubMenu class.
  * Changed how Menus are created: don't use from_xxx methods, rather use with_xxx after construction.
  * Deprecated use of SubMenu.
+ * Changed PageMenu to be an HTMLWidget, not a Menu.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Aug 2015 14:56:00 +0200
 

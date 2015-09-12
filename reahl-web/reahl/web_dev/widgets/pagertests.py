@@ -214,7 +214,7 @@ class PageMenuTests(object):
 
     @test(LinkScenarios)
     def which_links_display(self, fixture):
-        """The menu displayes the correct range of page links, depending on the starting page in the range, the
+        """The menu displays the correct range of page links, depending on the starting page in the range, the
            total number of pages and the max number of links in a range"""
         fixture.reahl_server.set_app(fixture.wsgi_app)
 
