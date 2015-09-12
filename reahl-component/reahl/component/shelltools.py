@@ -168,9 +168,6 @@ class ReahlCommandline(object):
     def set_log_level(self, log_level):
         loglevel = getattr(logging, log_level)
         logging.getLogger('').setLevel(log_level)
-        if getattr(logging, log_level, 0) <= logging.WARN:
-            warnings.resetwarnings()
-        logging.captureWarnings(True)
         
     def execute_command(self, command, line, options, parser):
         self.set_log_level(options.loglevel)

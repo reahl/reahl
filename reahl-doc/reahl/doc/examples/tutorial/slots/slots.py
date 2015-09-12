@@ -15,8 +15,7 @@ class MyCustomPage(HTML5Page):
                                        ('main', UnitSize('3/4'))).with_slots()
         self.use_layout(PageLayout(contents_layout))
 
-        menu = Menu.from_bookmarks(view, bookmarks)
-        menu.use_layout(HorizontalLayout())
+        menu = Menu(view, [], layout=HorizontalLayout()).with_bookmarks(bookmarks)
         self.layout.header.add_child(menu)
 
 

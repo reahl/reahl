@@ -607,12 +607,16 @@ class A(HTMLElement):
     @classmethod
     def from_bookmark(cls, view, bookmark):
         """Creates an A for the given `bookmark` on `view`."""
+        if bookmark.is_page_internal:
+            raise ProgrammerError('You cannot use page-internal Bookmarks directly, first add it to a Bookmark to a View')
         return cls(view, bookmark.href, description=bookmark.description, ajax=bookmark.ajax, 
                    read_check=bookmark.read_check, write_check=bookmark.write_check)
 
     @classmethod
     def factory_from_bookmark(cls, bookmark):
         """Creates a :class:`reahl.web.fw.WidgetFactory` for creating an A for the given `bookmark`."""
+        if bookmark.is_page_internal:
+            raise ProgrammerError('You cannot use page-internal Bookmarks directly, first add it to a Bookmark to a View')
         return WidgetFactory(cls, bookmark.href, description=bookmark.description, ajax=bookmark.ajax,
                              read_check=bookmark.read_check, write_check=bookmark.write_check)
 
@@ -2263,6 +2267,10 @@ class SubMenu(_SubMenu):
 
 class MenuLayout(Layout):
     def customise_widget(self):
+        if self.widget.html_representation:
+            return # To maintain backwards compatibility with the use of .use_layout() on Menus after construction
+        ul = self.widget.add_child(Ul(self.view))
+        self.widget.set_html_representation(ul)
         self.widget.append_class('reahl-menu')
 
     def add_item(self, item):
@@ -2288,10 +2296,14 @@ class _Menu(HTMLWidget):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a_list: A list of :class:`A` instances to which each :class:`MenuItem` will lead.
+       :keyword layout: The :class:`MenuLayout` to be used whn creating this Menu.
        :keyword css_id: (See :class:`HTMLElement`)
 
+       .. versionchanged:: 3.2
+          Added the `layout` keyword argument. Menus now use your chosen :class:`Layout` during their construction.
     """
     @classmethod
+    @deprecated('Please use :meth:`with_languages` instead on an already created instance.', '3.2')
     def from_languages(cls, view):
         """Constructs a Menu which contains a MenuItem for each locale supported by all the components
            in this application.
@@ -2299,6 +2311,48 @@ class _Menu(HTMLWidget):
            :param view: (See :class:`reahl.web.fw.Widget`)
         """
         menu = cls(view, [])
+        return menu.with_languages()
+
+    @classmethod
+    @deprecated('Please use :meth:`with_bookmarks` instead on an already created instance.', '3.2')
+    def from_bookmarks(cls, view, bookmark_list):
+        """Creates a Menu with a MenuItem for each Bookmark given in `bookmark_list`."""
+        menu = cls(view, [])
+        return menu.with_bookmarks(bookmark_list)
+
+    def __init__(self, view, a_list, layout=None, css_id=None):
+        super(_Menu, self).__init__(view)
+        self.menu_items = []
+        self._use_layout(layout or MenuLayout())
+        if css_id:
+            self.set_id(css_id)
+        self.set_items_from(a_list)
+
+    @deprecated('Please use the new `layout` kwarg upon construction of a Menu to specify a layout instead.', '3.2')
+    def use_layout(self, layout):
+        self.layout = None
+        return super(_Menu, self).use_layout(layout)
+    def _use_layout(self, layout):
+        return super(_Menu, self).use_layout(layout)
+        
+    def with_bookmarks(self, bookmark_list):
+        """Populates this Menu with a MenuItem for each Bookmark given in `bookmark_list`.
+           
+           Answers the same Menu.
+
+           .. versionadded: 3.2
+        """
+        for bookmark in bookmark_list:
+            self.add_bookmark(bookmark)
+        return self
+
+    def with_languages(self):
+        """Populates this Menu with a MenuItem for each available language.
+           
+           Answers the same Menu.
+
+           .. versionadded: 3.2
+        """
         current_url = Url.get_current_url()
         context = WebExecutionContext.get_context()
         supported_locales = ReahlEgg.get_languages_supported_by_all(context.config.reahlsystem.root_egg)
@@ -2308,63 +2362,51 @@ class _Menu(HTMLWidget):
             except UnknownLocaleError:
                 language_name = locale
             
-            bookmark = view.as_bookmark(description=language_name, locale=locale)
+            bookmark = self.view.as_bookmark(description=language_name, locale=locale)
             bookmark.exact = True
-            menu.add_item_from_bookmark(bookmark)
-        return menu
-
-    @classmethod
-    def from_bookmarks(cls, view, bookmark_list):
-        """Creates a Menu with a MenuItem for each Bookmark given in `bookmark_list`."""
-        menu = cls(view, [])
-        for bookmark in bookmark_list:
-            menu.add_item_from_bookmark(bookmark)
-        return menu
-
-    def __init__(self, view, a_list, menu_layout=None, css_id=None):
-        super(_Menu, self).__init__(view)
-        self.create_html_representation()
-        if css_id:
-            self.set_id(css_id)
-        self.menu_items = []
-        self.set_layout(menu_layout or MenuLayout())
-        self.set_items_from(a_list)
-
-    def set_layout(self, menu_layout):
-        self.menu_layout = menu_layout
-        self.menu_layout.apply_to_widget(self)
-
-    def create_html_representation(self):
-        ul = self.add_child(Ul(self.view))
-        self.set_html_representation(ul)
-        return ul
+            self.add_bookmark(bookmark)
+        return self
 
     def set_items_from(self, a_list):
         for a in a_list:
-            self.add_item_from_a(a)
+            self.add_item(_MenuItem(self.view, a))
 
     def add_item(self, item):
-        """Adds MenuItem `item` to this Menu."""
+        """Adds MenuItem `item` to this Menu.
+
+           .. versionchanged:: 3.2
+              Deprecated adding submenus via this method. For sub menus, please use :meth:`add_submenu` instead.
+        """
         self.menu_items.append(item)
         if isinstance(item, _SubMenu):
-            #deprecate this usage
-            self.menu_layout.add_submenu(item.menu, item.title)
+            warnings.warn('DEPRECATED: calling add_item() with a SubMenu instance. Please use .add_submenu() instead.' % \
+                          DeprecationWarning, stacklevel=5)
+            self.layout.add_submenu(item.menu, item.title)
         else:
-            self.menu_layout.add_item(item)
+            self.layout.add_item(item)
         return item
 
     def add_submenu(self, menu, title):
-        #new
+        """Adds 'menu` as a sub menu to this menu with the given `title`.
+
+           Answers the added MenuItem.
+
+           .. versionadded: 3.2
+        """
         submenu = _SubMenu(self.view, menu, title)
         self.menu_items.append(submenu)
-        self.menu_layout.add_submenu(menu, title)
+        self.layout.add_submenu(menu, title)
         return submenu
 
-    def add_item_from_bookmark(self, bookmark):
+    def add_bookmark(self, bookmark):
+        """Adds a MenuItem for the given :class:`Bookmark` to this Menu'.
+
+           Answers the added MenuItem.
+
+           .. versionadded: 3.2
+        """
         return self.add_item(_MenuItem.from_bookmark(self.view, bookmark))
 
-    def add_item_from_a(self, a): 
-        return self.add_item(_MenuItem(self.view, a))
 
 
 
@@ -2373,7 +2415,7 @@ class Menu(_Menu):
     __doc__ = _Menu.__doc__
 
 
-class _HorizontalLayout(Layout):
+class _HorizontalLayout(MenuLayout):
     """A Layout that causes Widgets to be displayed horizontally.
 
        .. admonition:: Styling
@@ -2384,6 +2426,7 @@ class _HorizontalLayout(Layout):
 
     """
     def customise_widget(self):
+        super(_HorizontalLayout, self).customise_widget()
         self.widget.html_representation.append_class('reahl-horizontal')
 
 
@@ -2392,7 +2435,7 @@ class HorizontalLayout(_HorizontalLayout):
     __doc__ = _HorizontalLayout.__doc__
 
 
-class _VerticalLayout(Layout):
+class _VerticalLayout(MenuLayout):
     """A Layout that causes Widgets to be displayed vertically.
 
        .. admonition:: Styling
@@ -2403,6 +2446,7 @@ class _VerticalLayout(Layout):
 
     """
     def customise_widget(self):
+        super(_VerticalLayout, self).customise_widget()
         self.widget.html_representation.append_class('reahl-vertical')
 
 
@@ -2412,7 +2456,7 @@ class VerticalLayout(_VerticalLayout):
 
 
 # Uses: reahl/web/reahl.hmenu.css
-@deprecated('Please use Menu().with_layout(HorizontalLayout()) instead.', '3.1')
+@deprecated('Please use Menu(layout=HorizontalLayout()) instead.', '3.1')
 class HMenu(_Menu):
     """A Menu, with items displayed next to each other.
 
@@ -2425,13 +2469,11 @@ class HMenu(_Menu):
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
-    def create_html_representation(self):
-        html_representation = super(HMenu, self).create_html_representation()
-        html_representation.append_class('reahl-horizontal')
-        return html_representation
+    def __init__(self, view, a_list, css_id=None):
+        super(HMenu, self).__init__(view, a_list, layout=_HorizontalLayout(), css_id=css_id)
 
 
-@deprecated('Please use Menu().with_layout(VerticalLayout()) instead.', '3.1')
+@deprecated('Please use Menu(layout=VerticalLayout()) instead.', '3.1')
 class VMenu(_Menu):
     """A Menu, with items displayed underneath each other.
 
@@ -2444,16 +2486,13 @@ class VMenu(_Menu):
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
-    def create_html_representation(self):
-        html_representation = super(VMenu, self).create_html_representation()
-        html_representation.append_class('reahl-vertical')
-        return html_representation
+    def __init__(self, view, a_list, css_id=None):
+        super(VMenu, self).__init__(view, a_list, layout=_VerticalLayout(), css_id=css_id)
 
 
-class TabbedPanelMenuLayout(MenuLayout):
+class TabbedPanelMenuLayout(_HorizontalLayout):
     def customise_widget(self):
         super(TabbedPanelMenuLayout, self).customise_widget()
-        self.widget.append_class('reahl-horizontal')
 
     def add_item(self, item):
         if isinstance(item, _MultiTab):
@@ -2488,12 +2527,12 @@ class _Tab(_MenuItem):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
         self.force_active = False
-        a = A.from_bookmark(view, self.get_bookmark())
+        a = A.from_bookmark(view, self.get_bookmark(view))
         super(_Tab, self).__init__(view, a, css_id=css_id)
 
-    def get_bookmark(self):
+    def get_bookmark(self, view):
         query_arguments={'tab': self.tab_key}
-        return Bookmark('', '', description=self.title, query_arguments=query_arguments, ajax=True)
+        return Bookmark('', '', description=self.title, query_arguments=query_arguments, ajax=True).on_view(view)
 
     @property
     def is_active(self):
@@ -2528,7 +2567,7 @@ class _MultiTab(_Tab):
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
-        self.menu = _Menu(view, []).use_layout(_VerticalLayout())
+        self.menu = _Menu(view, [], layout=_VerticalLayout())
         super(_MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
         
     def add_tab(self, tab):
@@ -2581,7 +2620,7 @@ class _TabbedPanel(Div):
     def __init__(self, view, css_id):
         super(_TabbedPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-tabbedpanel')
-        self.tabs = self.add_child(_Menu(view, [], menu_layout=TabbedPanelMenuLayout()))
+        self.tabs = self.add_child(_Menu(view, [], layout=TabbedPanelMenuLayout()))
         self.content_panel = self.add_child(Div(view))
         self.enable_refresh()
 
@@ -2676,7 +2715,7 @@ class _SlidingPanel(Div):
 
     def get_bookmark(self, index=None, description=None):
         description = ('%s' % index) if description is None else description
-        return Bookmark.for_widget(description, query_arguments={'index': index})
+        return Bookmark.for_widget(description, query_arguments={'index': index}).on_view(self.view)
 
     @exposed
     def query_fields(self, fields):

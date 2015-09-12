@@ -28,7 +28,7 @@ class HomePanel(Div):
                      panel.get_bookmark(3)]
 
         self.add_child(H(view, 1, text='Refreshing widget'))
-        self.add_child(Menu.from_bookmarks(view, bookmarks).use_layout(HorizontalLayout()))
+        self.add_child(Menu(view, [], layout=HorizontalLayout()).with_bookmarks(bookmarks))
         self.add_child(panel)
 
 
@@ -43,7 +43,7 @@ class RefreshedPanel(Div):
         fields.selected = IntegerField(required=False, default=1)
         
     def get_bookmark(self, for_selected):
-        return Bookmark.for_widget('Select %s' % for_selected, query_arguments={'selected': for_selected})
+        return Bookmark.for_widget('Select %s' % for_selected, query_arguments={'selected': for_selected}).on_view(self.view)
 
 
 

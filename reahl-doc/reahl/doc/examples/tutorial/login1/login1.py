@@ -17,7 +17,7 @@ class MenuPage(HTML5Page):
         self.use_layout(PageLayout())
         contents_layout = ColumnLayout(('main', UnitSize('1/3'))).with_slots()
         self.layout.contents.use_layout(contents_layout)
-        self.layout.header.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
+        self.layout.header.add_child(Menu(view, [], layout=HorizontalLayout()).with_bookmarks(main_bookmarks))
 
 
 class LoginForm(Form):

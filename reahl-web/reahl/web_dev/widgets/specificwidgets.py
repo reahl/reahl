@@ -173,6 +173,34 @@ class BasicReahlWidgets(object):
 
     @test(WebFixture)
     def menu_can_have_submenus(self, fixture):
+        """One Menu can be added to another as submenu."""
+        # Case: a normal menu from bookmarks
+        single_item_bookmark = Bookmark('/', '/href3', 'description3')
+        item_specs = [Bookmark('/', '/href1', 'description1'),
+                      Bookmark('/', '/href2', 'description2')]
+
+        sub_menu = Menu.from_bookmarks(fixture.view, item_specs)
+        sub_menu_title = 'Subbie'
+        menu = Menu(fixture.view, [])
+        menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, single_item_bookmark)))
+        menu.add_submenu(sub_menu, sub_menu_title)
+
+        expected_html = '''<ul class="reahl-menu">'''\
+                   '''<li><a href="/href3">description3</a></li>'''\
+                   '''<li><a>Subbie</a>'''\
+                   '''<ul class="reahl-menu">'''\
+                   '''<li><a href="/href1">description1</a></li>'''\
+                   '''<li><a href="/href2">description2</a></li>'''\
+                   '''</ul>'''\
+                   '''</li>'''\
+                   '''</ul>'''
+        tester = WidgetTester(menu)
+        with fixture.context:
+            actual = tester.render_html()
+        vassert( actual == expected_html )
+
+    @test(WebFixture)
+    def menu_can_have_submenus_deprecated_interface(self, fixture):
         """Menus can have sub-menus too - when built-up using .add_item()."""
         # Case: a normal menu from bookmarks
         single_item_bookmark = Bookmark('/', '/href3', 'description3')
@@ -198,7 +226,6 @@ class BasicReahlWidgets(object):
         with fixture.context:
             actual = tester.render_html()
         vassert( actual == expected_html )
-
 
     class MenuItemScenarios(WebFixture):
         description = 'The link'
@@ -376,7 +403,7 @@ class TabbedPanelTests(object):
 
         expected_html = '''<div id="tabbed_name" class="reahl-tabbedpanel">'''\
                         '''<ul class="reahl-horizontal reahl-menu">'''\
-                        '''<li class="active"><a href="?tab=tab1" class="reahl-ajaxlink">tab 1 name</a></li>'''\
+                        '''<li class="active"><a href="/?tab=tab1" class="reahl-ajaxlink">tab 1 name</a></li>'''\
                         '''</ul>'''\
                         '''<div><p>tab 1 content</p></div>'''\
                         '''</div>'''
@@ -397,11 +424,11 @@ class TabbedPanelTests(object):
         
         expected_html = '''<div id="tabbed_name" class="reahl-tabbedpanel">'''\
                         '''<ul class="reahl-horizontal reahl-menu">'''\
-                        '''<li class="active"><a href="?tab=multitab-main" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
+                        '''<li class="active"><a href="/?tab=multitab-main" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
                         '''<a class="dropdown-handle">▼</a>'''\
                         '''<ul class="reahl-menu reahl-vertical">'''\
-                        '''<li><a href="?tab=mult1" class="reahl-ajaxlink">multi tab 1</a></li>'''\
-                        '''<li class="active"><a href="?tab=mult2" class="reahl-ajaxlink">multi tab 2</a></li>'''\
+                        '''<li><a href="/?tab=mult1" class="reahl-ajaxlink">multi tab 1</a></li>'''\
+                        '''<li class="active"><a href="/?tab=mult2" class="reahl-ajaxlink">multi tab 2</a></li>'''\
                         '''</ul>'''\
                         '''</li>'''\
                         '''</ul>'''\
