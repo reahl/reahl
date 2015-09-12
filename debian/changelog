@@ -22,6 +22,7 @@ python-reahl (3.2.0) unstable; urgency=low
  * Added a page_menu_layout kwarg to PagedPanel so you can specify the layout you want for its PageMenu.
  * Changed how submenus are added to menus: you now call add_submenu instead of having to know about SubMenu class.
  * Changed how Menus are created: don't use from_xxx methods, rather use with_xxx after construction.
+ * Deprecated use of SubMenu.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Aug 2015 14:56:00 +0200
 

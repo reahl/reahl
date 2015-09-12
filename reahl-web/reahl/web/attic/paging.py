@@ -209,7 +209,7 @@ class PageMenu(Menu):
     """
     def __init__(self, view, css_id, page_index, paged_panel, layout=None):
         self.page_index = page_index
-        super(PageMenu, self).__init__(view, [], layout=layout, css_id=css_id)
+        super(PageMenu, self).__init__(view, layout=layout, css_id=css_id)
         self.append_class('reahl-pagemenu')
 
         self.paged_panel = paged_panel
@@ -240,7 +240,7 @@ class PageMenu(Menu):
         last.set_active(self.page_index.has_next_page)
         links.extend([next, last])
 
-        self.set_items_from(links)
+        self.with_a_list(links)
 
 
     def get_bookmark(self, description=None, start_page_number=1):

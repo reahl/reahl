@@ -181,7 +181,7 @@ class AddressAppPage(HTML5Page):
             logged_in_as = 'Not logged in'
 
         self.layout.header.add_child(P(view, text=logged_in_as))
-        self.layout.header.add_child(Menu(view, [], layout=HorizontalLayout()).with_bookmarks([home_bookmark]))
+        self.layout.header.add_child(Menu(view, layout=HorizontalLayout()).with_bookmarks([home_bookmark]))
 
 
 class LoginForm(Form):
@@ -237,7 +237,7 @@ class AddressBookPanel(Div):
         super(AddressBookPanel, self).__init__(view)
         
         self.add_child(H(view, 1, text='Addresses in %s' % address_book.display_name))
-        self.add_child(Menu(view, [], layout=HorizontalLayout()).with_bookmarks(self.menu_bookmarks(address_book_ui)))
+        self.add_child(Menu(view, layout=HorizontalLayout()).with_bookmarks(self.menu_bookmarks(address_book_ui)))
         self.add_children([AddressBox(view, address) for address in address_book.addresses])
 
     def menu_bookmarks(self, address_book_ui):

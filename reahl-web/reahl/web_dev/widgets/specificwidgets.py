@@ -111,7 +111,7 @@ class BasicReahlWidgets(object):
         href_path = '/link'
         bookmark = Bookmark('/', href_path, description)
 
-        menu = Menu(fixture.view, [])
+        menu = Menu(fixture.view)
         menu_item = MenuItem.from_bookmark(fixture.view, bookmark)
         menu.add_item(menu_item)
         tester = WidgetTester(menu)
@@ -123,11 +123,11 @@ class BasicReahlWidgets(object):
         
     @test(WebFixture)
     def menu(self, fixture):
-        """Menus can be constructed from a list of A's or Bookmarks, or MenuItems can be added to them."""
+        """Menus can be populated with a list of A's or Bookmarks, or MenuItems."""
         # Case: a normal menu from bookmarks
         item_specs = [Bookmark('/', '/href1', 'description1'),
                       Bookmark('/', '/href2', 'description2')]
-        menu = Menu.from_bookmarks(fixture.view, item_specs)
+        menu = Menu(fixture.view).with_bookmarks(item_specs)
         tester = WidgetTester(menu)
 
         with fixture.context:
@@ -138,14 +138,14 @@ class BasicReahlWidgets(object):
         
         #case: using A's
         a_list = [A.from_bookmark(fixture.view, i) for i in item_specs]
-        menu = Menu(fixture.view, a_list)
+        menu = Menu(fixture.view).with_a_list(a_list)
         tester = WidgetTester(menu)
         with fixture.context:
             actual = tester.render_html()
         vassert( actual == expected_html )
         
         # Case: adding already constructed menu item
-        menu = Menu(fixture.view, [])
+        menu = Menu(fixture.view)
         item1 = MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[0]))
         item2 = MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[1]))
         menu.add_item(item1)
@@ -158,17 +158,17 @@ class BasicReahlWidgets(object):
         vassert( actual == expected_html )
         
         # Case: Menu
-        menu = Menu.from_bookmarks(fixture.view, item_specs)
+        menu = Menu(fixture.view).with_bookmarks(item_specs)
         vassert( menu.html_representation.attributes.v['class'] == 'reahl-menu' )
 
         # Case: HMenu
         with warnings.catch_warnings(record=True):
-            menu = HMenu.from_bookmarks(fixture.view, item_specs)
+            menu = HMenu(fixture.view, []).with_bookmarks(item_specs)
         vassert( menu.html_representation.attributes.v['class'] == 'reahl-horizontal reahl-menu' )
 
         # Case: VMenu
         with warnings.catch_warnings(record=True):
-            menu = VMenu.from_bookmarks(fixture.view, item_specs)
+            menu = VMenu(fixture.view, []).with_bookmarks(item_specs)
         vassert( menu.html_representation.attributes.v['class'] == 'reahl-menu reahl-vertical' )
 
     @test(WebFixture)
@@ -179,9 +179,9 @@ class BasicReahlWidgets(object):
         item_specs = [Bookmark('/', '/href1', 'description1'),
                       Bookmark('/', '/href2', 'description2')]
 
-        sub_menu = Menu.from_bookmarks(fixture.view, item_specs)
+        sub_menu = Menu(fixture.view).with_bookmarks(item_specs)
         sub_menu_title = 'Subbie'
-        menu = Menu(fixture.view, [])
+        menu = Menu(fixture.view)
         menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, single_item_bookmark)))
         menu.add_submenu(sub_menu, sub_menu_title)
 
@@ -207,9 +207,9 @@ class BasicReahlWidgets(object):
         item_specs = [Bookmark('/', '/href1', 'description1'),
                       Bookmark('/', '/href2', 'description2')]
 
-        sub_menu = Menu.from_bookmarks(fixture.view, item_specs)
+        sub_menu = Menu(fixture.view).with_bookmarks(item_specs)
         sub_menu_title = 'Subbie'
-        menu = Menu(fixture.view, [])
+        menu = Menu(fixture.view)
         menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, single_item_bookmark)))
         menu.add_item(SubMenu(fixture.view, sub_menu_title, sub_menu))
 
@@ -260,7 +260,7 @@ class BasicReahlWidgets(object):
         description = 'The link'
         href = Url('/link')
 
-        menu = Menu(fixture.view, [])
+        menu = Menu(fixture.view)
         menu_item = MenuItem(fixture.view, A(fixture.view, href, description=description), active_regex=fixture.active_regex)
         menu.add_item(menu_item)
         tester = WidgetTester(menu)
@@ -280,7 +280,7 @@ class BasicReahlWidgets(object):
         class PanelWithMenu(Div):
             def __init__(self, view):
                 super(PanelWithMenu, self).__init__(view)
-                self.add_child(Menu.from_languages(view))
+                self.add_child(Menu(view).with_languages())
                 self.add_child(P(view, text=_('This is an English sentence.')))
 
         wsgi_app = fixture.new_wsgi_app(child_factory=PanelWithMenu.factory())
