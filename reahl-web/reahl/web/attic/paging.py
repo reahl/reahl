@@ -30,8 +30,8 @@ from reahl.component.i18n import Translator
 from reahl.component.decorators import memoized
 from reahl.component.modelinterface import IntegerField, exposed
 from reahl.web.fw import Bookmark
-from reahl.web.ui import A, Div
-from reahl.web.attic.menu import Menu
+from reahl.web.ui import A, Div, HTMLWidget
+from reahl.web.attic.menu import Menu, HorizontalLayout
 
 _ = Translator('reahl-web')
 
@@ -186,7 +186,7 @@ class PageIndex(PageIndexProtocol):
         return self.start_page.number > 1
 
 
-class PageMenu(Menu):
+class PageMenu(HTMLWidget):
     """An Menu, which lists the pages of items that can be navigated by a user. If there are
        many pages, only a small subset is shown, with controls allowing the user to browse to
        the wanted page number and choose it.
@@ -202,22 +202,27 @@ class PageMenu(Menu):
        :param css_id: (See :class:`HTMLElement`)
        :param page_index: The :class:`PageIndex` whose pages are displayed by this PageMenu.
        :param page_container: The :class:`PagedPanel` in which the contents of a page is displayed.
-       :kwarg layout: (See :class:`Menu`)
+       :kwarg menu_layout: The :class:`Layout` to use for the Menu (See :class:`Menu`)
 
        .. versionchanged:: 3.2
-          Added the `layout` kwarg (see :class:`Menu`). 
+          Added the `menu_layout` kwarg (see :class:`Menu`). 
+          PageMenu is not a Menu anymore, just an HTMLWidget containing a Menu.
     """
-    def __init__(self, view, css_id, page_index, paged_panel, layout=None):
+    def __init__(self, view, css_id, page_index, paged_panel, menu_layout=None):
         self.page_index = page_index
-        super(PageMenu, self).__init__(view, layout=layout, css_id=css_id)
-        self.append_class('reahl-pagemenu')
+        super(PageMenu, self).__init__(view)
 
         self.paged_panel = paged_panel
-        self.add_items()
+        self.menu = self.add_child(Menu(view).use_layout(layout or HorizontalLayout()))
+        self.menu.with_a_list(self.get_links())
+        self.set_html_representation(self.menu)
+        if css_id:
+            self.set_id(css_id)
+        self.append_class('reahl-pagemenu')
 
         self.enable_refresh()
 
-    def add_items(self):
+    def get_links(self):
         links = []
 
         first = A.from_bookmark(self.view, self.get_bookmark(start_page_number=1, description='|<'))
@@ -240,7 +245,7 @@ class PageMenu(Menu):
         last.set_active(self.page_index.has_next_page)
         links.extend([next, last])
 
-        self.with_a_list(links)
+        return links
 
 
     def get_bookmark(self, description=None, start_page_number=1):

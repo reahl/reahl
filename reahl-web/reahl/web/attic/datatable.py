@@ -128,7 +128,7 @@ class DataTable(Div):
 
         paged_css_id = '%s_paged' % css_id
         self.paged_contents = PagedTable(view, self.page_index, columns, caption_text=caption_text, summary=summary, css_id=paged_css_id)
-        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.paged_contents, layout=page_menu_layout)
+        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.paged_contents, menu_layout=page_menu_layout)
         self.add_children([self.page_menu, self.paged_contents])
 
 
