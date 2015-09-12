@@ -89,7 +89,7 @@ class NavLayout(reahl.web.ui.MenuLayout):
 class Nav(reahl.web.attic.menu.Menu):
     def __init__(self, view, layout=None, css_id=None):
         self.open_dropdown = None
-        super(Nav, self).__init__(view, [], layout=layout or NavLayout(), css_id=None)
+        super(Nav, self).__init__(view, layout=layout or NavLayout(), css_id=None)
 
     def create_html_representation(self):
         pass

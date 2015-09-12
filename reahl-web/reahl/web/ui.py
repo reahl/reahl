@@ -2260,7 +2260,7 @@ class _SubMenu(_MenuItem):
 
 
 
-@deprecated('Please use reahl.web.attic.menu:SubMenu instead', '3.2')
+@deprecated('Please use :meth:`Menu.add_submenu()` instead', '3.2')
 class SubMenu(_SubMenu):
     __doc__ = _SubMenu.__doc__
 
@@ -2295,12 +2295,13 @@ class _Menu(HTMLWidget):
           Rendered as a <ul class="reahl-menu"> element that contains a <li> for each MenuItem.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param a_list: A list of :class:`A` instances to which each :class:`MenuItem` will lead.
+       :keyword a_list: (Deprecated) A list of :class:`A` instances to which each :class:`MenuItem` will lead.
        :keyword layout: The :class:`MenuLayout` to be used whn creating this Menu.
        :keyword css_id: (See :class:`HTMLElement`)
 
        .. versionchanged:: 3.2
           Added the `layout` keyword argument. Menus now use your chosen :class:`Layout` during their construction.
+          Deprecated use of `a_list` and changed it temporarily to a keyword argument for backwards compatibility.
     """
     @classmethod
     @deprecated('Please use :meth:`with_languages` instead on an already created instance.', '3.2')
@@ -2310,23 +2311,27 @@ class _Menu(HTMLWidget):
 
            :param view: (See :class:`reahl.web.fw.Widget`)
         """
-        menu = cls(view, [])
+        menu = cls(view)
         return menu.with_languages()
 
     @classmethod
     @deprecated('Please use :meth:`with_bookmarks` instead on an already created instance.', '3.2')
     def from_bookmarks(cls, view, bookmark_list):
         """Creates a Menu with a MenuItem for each Bookmark given in `bookmark_list`."""
-        menu = cls(view, [])
+        menu = cls(view)
         return menu.with_bookmarks(bookmark_list)
 
-    def __init__(self, view, a_list, layout=None, css_id=None):
+    def __init__(self, view, a_list=None, layout=None, css_id=None):
         super(_Menu, self).__init__(view)
         self.menu_items = []
         self._use_layout(layout or MenuLayout())
         if css_id:
             self.set_id(css_id)
-        self.set_items_from(a_list)
+        if a_list is not None:
+            warnings.warn('DEPRECATED: Passing an a_list upon construction. ' \
+                          'Please construct, then use .with_a_list() instead.',
+                          DeprecationWarning, stacklevel=2)
+            self.with_a_list(a_list)
 
     @deprecated('Please use the new `layout` kwarg upon construction of a Menu to specify a layout instead.', '3.2')
     def use_layout(self, layout):
@@ -2367,9 +2372,16 @@ class _Menu(HTMLWidget):
             self.add_bookmark(bookmark)
         return self
 
-    def set_items_from(self, a_list):
+    def with_a_list(self, a_list):
+        """Populates this Menu with a MenuItem for each :class:`A` in `a_list`.
+           
+           Answers the same Menu.
+
+           .. versionadded: 3.2
+        """
         for a in a_list:
             self.add_item(_MenuItem(self.view, a))
+        return self
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu.
@@ -2379,9 +2391,9 @@ class _Menu(HTMLWidget):
         """
         self.menu_items.append(item)
         if isinstance(item, _SubMenu):
-            warnings.warn('DEPRECATED: calling add_item() with a SubMenu instance. Please use .add_submenu() instead.' % \
-                          DeprecationWarning, stacklevel=5)
-            self.layout.add_submenu(item.menu, item.title)
+            warnings.warn('DEPRECATED: calling add_item() with a SubMenu instance. Please use .add_submenu() instead.',
+                          DeprecationWarning, stacklevel=2)
+            item = self.layout.add_submenu(item.menu, item.title)
         else:
             self.layout.add_item(item)
         return item
@@ -2393,7 +2405,7 @@ class _Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
-        submenu = _SubMenu(self.view, menu, title)
+        submenu = _MenuItem(self.view, menu, title)
         self.menu_items.append(submenu)
         self.layout.add_submenu(menu, title)
         return submenu
@@ -2456,7 +2468,7 @@ class VerticalLayout(_VerticalLayout):
 
 
 # Uses: reahl/web/reahl.hmenu.css
-@deprecated('Please use Menu(layout=HorizontalLayout()) instead.', '3.1')
+@deprecated('Please use Menu(view, layout=HorizontalLayout()) instead.', '3.1')
 class HMenu(_Menu):
     """A Menu, with items displayed next to each other.
 
@@ -2473,7 +2485,7 @@ class HMenu(_Menu):
         super(HMenu, self).__init__(view, a_list, layout=_HorizontalLayout(), css_id=css_id)
 
 
-@deprecated('Please use Menu(layout=VerticalLayout()) instead.', '3.1')
+@deprecated('Please use Menu(view, layout=VerticalLayout()) instead.', '3.1')
 class VMenu(_Menu):
     """A Menu, with items displayed underneath each other.
 
@@ -2567,7 +2579,7 @@ class _MultiTab(_Tab):
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
-        self.menu = _Menu(view, [], layout=_VerticalLayout())
+        self.menu = _Menu(view, layout=_VerticalLayout())
         super(_MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
         
     def add_tab(self, tab):
@@ -2620,7 +2632,7 @@ class _TabbedPanel(Div):
     def __init__(self, view, css_id):
         super(_TabbedPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-tabbedpanel')
-        self.tabs = self.add_child(_Menu(view, [], layout=TabbedPanelMenuLayout()))
+        self.tabs = self.add_child(_Menu(view, layout=TabbedPanelMenuLayout()))
         self.content_panel = self.add_child(Div(view))
         self.enable_refresh()
 
