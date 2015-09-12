@@ -27,7 +27,7 @@ import six
 
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark
-from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div
+from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div, Ul
 import reahl.web.attic
 from reahl.web.bootstrap.ui import Span, A
 
@@ -36,12 +36,20 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.web.attic.menu import MenuItem 
 
 
-class NavMenuLayout(reahl.web.ui.MenuLayout):
+
+class NavLayout(reahl.web.ui.MenuLayout):
+    def __init__(self, justified=False):
+        super(NavLayout, self).__init__()
+        self.justified = justified
+
     def customise_widget(self):
+        self.widget.set_html_representation(self.widget.add_child(Ul(self.view)))
         self.widget.append_class('nav')
+        if self.justified:
+            self.widget.append_class('nav-justified')
 
     def add_item(self, item):
-        li = super(NavMenuLayout, self).add_item(item)
+        li = super(NavLayout, self).add_item(item)
         li.append_class('nav-item')
         item.a.append_class('nav-link')
         item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
@@ -51,16 +59,16 @@ class NavMenuLayout(reahl.web.ui.MenuLayout):
     def add_submenu(self, dropdown, title):
         raise ProgrammerError('You cannot add a submenu to a %s, please use .add_dropdown() instead.' % self.widget.__class__)
 
-    def get_bookmark(self, dropdown_key, title, opened):
+    def get_bookmark(self, title, opened):
         if opened:
             query_arguments={'open_dropdown': ''}
         else:
-            query_arguments={'open_dropdown': dropdown_key}
-        return Bookmark('', '', description=title, query_arguments=query_arguments, ajax=True)
+            query_arguments={'open_dropdown': title}
+        return Bookmark.for_widget(title, query_arguments=query_arguments).on_view(self.view)
 
     def add_dropdown(self, dropdown, title, drop_up, open_dropdown):
-        opened = open_dropdown==dropdown.key
-        menu_item = MenuItem(self.view, A.from_bookmark(self.view, self.get_bookmark(dropdown.key, title, opened)))
+        opened = open_dropdown==title
+        menu_item = MenuItem(self.view, A.from_bookmark(self.view, self.get_bookmark(title, opened)))
         li = self.add_item(menu_item)
         if opened:
             li.append_class('open')
@@ -79,12 +87,15 @@ class NavMenuLayout(reahl.web.ui.MenuLayout):
 
 
 class Nav(reahl.web.attic.menu.Menu):
-    def __init__(self, view, css_id=None):
+    def __init__(self, view, layout=None, css_id=None):
         self.open_dropdown = None
-        super(Nav, self).__init__(view, [], menu_layout=NavMenuLayout(), css_id=None)
+        super(Nav, self).__init__(view, [], layout=layout or NavLayout(), css_id=None)
+
+    def create_html_representation(self):
+        pass
 
     def add_dropdown(self, title, dropdown_menu, drop_up=False):
-        return self.menu_layout.add_dropdown(dropdown_menu, title, drop_up, self.open_dropdown)
+        return self.layout.add_dropdown(dropdown_menu, title, drop_up, self.open_dropdown)
 
     @exposed
     def query_fields(self, fields):
@@ -102,6 +113,8 @@ class DropdownMenuLayout(reahl.web.ui.MenuLayout):
         self.align_right = align_right
 
     def customise_widget(self):
+        self.widget.set_html_representation(self.widget.add_child(Div(self.view)))
+
         self.widget.append_class('dropdown-menu')
         if self.align_right:
             self.widget.append_class('dropdown-menu-right')
@@ -118,27 +131,14 @@ class DropdownMenuLayout(reahl.web.ui.MenuLayout):
 
 
 class DropdownMenu(reahl.web.attic.menu.Menu):
-    key = '1'
     def __init__(self, view, align_right=False, css_id=None):
-        super(DropdownMenu, self).__init__(view, [], menu_layout=DropdownMenuLayout(align_right), css_id=css_id)
+        super(DropdownMenu, self).__init__(view, [], layout=DropdownMenuLayout(align_right), css_id=css_id)
 
     def create_html_representation(self):
-        div = self.add_child(Div(self.view))
-        self.set_html_representation(div)
-        return div
+        pass
 
 
 
-
-class NavLayout(Layout):
-    def __init__(self, justified=False):
-        super(NavLayout, self).__init__()
-        self.justified = justified
-
-    def customise_widget(self):
-        self.widget.append_class('nav')
-        if self.justified:
-            self.widget.append_class('nav-justified')
 
 
 class PillLayout(NavLayout):

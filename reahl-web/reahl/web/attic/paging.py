@@ -76,10 +76,9 @@ class PagedPanel(Div):
         super(PagedPanel, self).__init__(view, css_id=css_id)
         self.enable_refresh()
     
-    @classmethod
-    def get_bookmark(cls, description=None, page_number=1):
-        return Bookmark('', '', description=description or '%s' % page_number,
-                        query_arguments={'current_page_number': page_number}, ajax=True)
+    def get_bookmark(self, description=None, page_number=1):
+        return Bookmark.for_widget(description or '%s' % page_number,
+                                   query_arguments={'current_page_number': page_number}).on_view(self.view)
 
     @exposed
     def query_fields(self, fields):
@@ -203,10 +202,14 @@ class PageMenu(Menu):
        :param css_id: (See :class:`HTMLElement`)
        :param page_index: The :class:`PageIndex` whose pages are displayed by this PageMenu.
        :param page_container: The :class:`PagedPanel` in which the contents of a page is displayed.
+       :kwarg layout: (See :class:`Menu`)
+
+       .. versionchanged:: 3.2
+          Added the `layout` kwarg (see :class:`Menu`). 
     """
-    def __init__(self, view, css_id, page_index, paged_panel):
+    def __init__(self, view, css_id, page_index, paged_panel, layout=None):
         self.page_index = page_index
-        super(PageMenu, self).__init__(view, [], css_id=css_id)
+        super(PageMenu, self).__init__(view, [], layout=layout, css_id=css_id)
         self.append_class('reahl-pagemenu')
 
         self.paged_panel = paged_panel
@@ -239,10 +242,10 @@ class PageMenu(Menu):
 
         self.set_items_from(links)
 
-    @classmethod
+
     def get_bookmark(self, description=None, start_page_number=1):
         return Bookmark.for_widget(description=description or '%s' % start_page_number,
-                                   query_arguments={'start_page_number': start_page_number})
+                                   query_arguments={'start_page_number': start_page_number}).on_view(self.view)
 
     @exposed
     def query_fields(self, fields):

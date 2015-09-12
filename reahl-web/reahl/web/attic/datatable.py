@@ -76,9 +76,11 @@ class PagedTable(PagedPanel):
     def create_sorter_link(self, column_number, descending=False):
         description = '▼' if descending else '▲'
         sort_descending = 'on' if descending else 'off'
-        return A.from_bookmark(self.view, Bookmark.for_widget(description=description, 
-                                              query_arguments={'sort_column_number': column_number,
-                                                               'sort_descending': sort_descending}))
+        bookmark = Bookmark.for_widget(description=description, 
+                                       query_arguments={'sort_column_number': column_number,
+                                                        'sort_descending': sort_descending})
+        return A.from_bookmark(self.view, bookmark.on_view(self.view))
+
 
     def create_sorter_controls(self, column_number):
         sorting_controls = Span(self.view)
@@ -111,9 +113,14 @@ class DataTable(Div):
        :keyword items_per_page: The maximum number of rows allowed per page.
        :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
        :keyword summary: If given, a :class:`reahl.web.ui.Summary` is added with this text.
+       :keyword page_menu_layout: A :class:`MenuLayout` to use for this table's :class:`PageMenu`.
        :keyword css_id: (See :class:`HTMLElement`)
+
+       .. versionchanged:: 3.2
+          Added the `page_menu_layout` keyword argument.
     """
-    def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, css_id=None):
+    def __init__(self, view, columns, items, items_per_page=10, caption_text=None, summary=None, page_menu_layout=None,\
+                 css_id=None):
         super(DataTable, self).__init__(view, css_id=css_id)
         self.append_class('reahl-datatable')
 
@@ -121,7 +128,7 @@ class DataTable(Div):
 
         paged_css_id = '%s_paged' % css_id
         self.paged_contents = PagedTable(view, self.page_index, columns, caption_text=caption_text, summary=summary, css_id=paged_css_id)
-        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.paged_contents)
+        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.paged_contents, layout=page_menu_layout)
         self.add_children([self.page_menu, self.paged_contents])
 
 

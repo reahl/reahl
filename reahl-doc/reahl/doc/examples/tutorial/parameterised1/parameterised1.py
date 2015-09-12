@@ -18,7 +18,7 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
         self.use_layout(PageLayout(ColumnLayout('main').with_slots()))
-        self.layout.header.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
+        self.layout.header.add_child(Menu(view, [], layout=HorizontalLayout()).with_bookmarks(main_bookmarks))
 
 
 class EditView(UrlBoundView):

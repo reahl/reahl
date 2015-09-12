@@ -26,7 +26,7 @@ class AddressBookPage(HTML5Page):
         contents_layout = ColumnLayout(('secondary', UnitSize('1/4')), 
                                        ('main', UnitSize('3/4'))).with_slots()
         self.use_layout(PageLayout(contents_layout))
-        self.layout.columns['secondary'].add_child(Menu.from_languages(view).use_layout(VerticalLayout()))
+        self.layout.columns['secondary'].add_child(Menu(view, [], layout=VerticalLayout()).with_languages())
 
 
 class AddressBookUI(UserInterface):
