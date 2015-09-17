@@ -87,10 +87,10 @@ class Nav(reahl.web.attic.menu.Menu):
 
     def add_dropdown(self, title, dropdown_menu, drop_up=False):
         opened = self.open_dropdown==title
-        menu_item = MenuItem(self.view, A.from_bookmark(self.view, self.get_bookmark(title, opened)))
+        item = MenuItem(self.view, A.from_bookmark(self.view, self.get_bookmark(title, opened)))
         self.menu_items.append(item)
-        self.layout.add_dropdown(dropdown_menu, title, drop_up, opened)
-        return menu_item
+        self.layout.add_dropdown(item, dropdown_menu, title, drop_up, opened)
+        return item
 
     @exposed
     def query_fields(self, fields):

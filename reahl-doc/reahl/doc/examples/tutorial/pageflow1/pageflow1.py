@@ -14,7 +14,7 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, Ac
 class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
-        self.body.add_child(Menu(view, layout=HorizontalLayout()).with_bookmarks(main_bookmarks))
+        self.body.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(main_bookmarks))
 
 
 class HomePage(AddressBookPage):
