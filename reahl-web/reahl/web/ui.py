@@ -2230,7 +2230,10 @@ class _MenuItem(object):
             warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
                           'This ability will be removed in future versions.',
                           DeprecationWarning, stacklevel=2)
-        
+    
+    def as_a(self):
+        return self.a
+
     @property
     def is_active(self):
         if not self.active_regex:
@@ -2246,8 +2249,7 @@ class MenuItem(_MenuItem):
 
 
 
-@deprecated('Please use :meth:`Menu.add_submenu()` instead', '3.2')
-class SubMenu(_MenuItem):
+class _SubMenu(_MenuItem):
     """A MenuItem that can contain another complete Menu itself.
 
        .. admonition:: Styling
@@ -2261,9 +2263,14 @@ class SubMenu(_MenuItem):
 
     """
     def __init__(self, view, title, menu, css_id=None):
-        super(SubMenu, self).__init__(view, A(view, None, description=title), css_id=css_id)
+        super(_SubMenu, self).__init__(view, None, css_id=css_id)
         self.menu = menu
         self.title = title
+
+
+@deprecated('Please use :meth:`Menu.add_submenu() instead.', '3.2')
+class SubMenu(_SubMenu):
+    __doc__ = _SubMenu.__doc__
 
 
 class MenuLayout(Layout):
@@ -2281,9 +2288,10 @@ class MenuLayout(Layout):
         li.add_attribute_source(ActiveStateAttributes(item))
         return li
 
-    def add_submenu(self, item, menu, title):
-        li = self.add_item(item)
-        li.add_child(menu)
+    def add_submenu(self, submenu):
+        submenu.a = A.from_bookmark(self.view, self.widget.get_bookmark(submenu))
+        li = self.add_item(submenu)
+        li.add_child(submenu.menu)
         return li
         
 
@@ -2323,6 +2331,7 @@ class _Menu(HTMLWidget):
         return menu.with_bookmarks(bookmark_list)
 
     def __init__(self, view, a_list=None, css_id=None):
+        self.open_item = None
         super(_Menu, self).__init__(view)
         self.menu_items = []
         self.css_id = css_id
@@ -2341,7 +2350,21 @@ class _Menu(HTMLWidget):
         if self.css_id:  #TODO: for backwards compatibility
             self.set_id(css_id)
         return self
-        
+
+    @exposed
+    def query_fields(self, fields):
+        fields.open_item = Field(required=False, default=None)
+
+    def is_opened(self, submenu):
+        return self.open_item == submenu.title
+
+    def get_bookmark(self, submenu):
+        if self.is_opened(submenu):
+            query_arguments={'open_item': ''}
+        else:
+            query_arguments={'open_item': submenu.title}
+        return Bookmark.for_widget(submenu.title, query_arguments=query_arguments).on_view(self.view)
+
     def with_bookmarks(self, bookmark_list):
         """Populates this Menu with a MenuItem for each Bookmark given in `bookmark_list`.
            
@@ -2404,16 +2427,16 @@ class _Menu(HTMLWidget):
             self.layout.add_item(item)
         return item
 
-    def add_submenu(self, menu, title):
+    def add_submenu(self, title, menu, **layout_kwargs):
         """Adds 'menu` as a sub menu to this menu with the given `title`.
 
            Answers the added MenuItem.
 
            .. versionadded: 3.2
         """
-        submenu = _MenuItem(self.view, A(self.view, None, description=title))
+        submenu = _SubMenu(self.view, title, menu)
         self.menu_items.append(submenu)
-        self.layout.add_submenu(submenu, menu, title)
+        self.layout.add_submenu(submenu, **layout_kwargs)
         return submenu
 
     def add_bookmark(self, bookmark):
@@ -2554,7 +2577,7 @@ class _Tab(_MenuItem):
 
     def get_bookmark(self, view):
         query_arguments={'tab': self.tab_key}
-        return Bookmark('', '', description=self.title, query_arguments=query_arguments, ajax=True).on_view(view)
+        return Bookmark.for_widget(self.title, query_arguments=query_arguments).on_view(view)
 
     @property
     def is_active(self):
