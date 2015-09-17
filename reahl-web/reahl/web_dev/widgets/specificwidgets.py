@@ -183,11 +183,11 @@ class BasicReahlWidgets(object):
         sub_menu_title = 'Subbie'
         menu = Menu(fixture.view)
         menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, single_item_bookmark)))
-        menu.add_submenu(sub_menu, sub_menu_title)
+        menu.add_submenu(sub_menu_title, sub_menu)
 
         expected_html = '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href3">description3</a></li>'''\
-                   '''<li><a>Subbie</a>'''\
+                   '''<li><a href="/?open_item=Subbie" class="reahl-ajaxlink">Subbie</a>'''\
                    '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href1">description1</a></li>'''\
                    '''<li><a href="/href2">description2</a></li>'''\
@@ -211,11 +211,11 @@ class BasicReahlWidgets(object):
         sub_menu_title = 'Subbie'
         menu = Menu(fixture.view)
         menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, single_item_bookmark)))
-        menu.add_item(SubMenu(fixture.view, sub_menu_title, sub_menu))
+        menu.add_submenu(sub_menu_title, sub_menu)
 
         expected_html = '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href3">description3</a></li>'''\
-                   '''<li><a>Subbie</a>'''\
+                   '''<li><a href="/?open_item=Subbie" class="reahl-ajaxlink">Subbie</a>'''\
                    '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href1">description1</a></li>'''\
                    '''<li><a href="/href2">description2</a></li>'''\

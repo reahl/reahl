@@ -58,19 +58,15 @@ class NavLayout(reahl.web.ui.MenuLayout):
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
 
-    def add_submenu(self, item, menu, title):
-        raise ProgrammerError('You cannot add a submenu to a %s, please use .add_dropdown() instead.' % self.widget.__class__)
-
-    def add_dropdown(self, item, dropdown, title, drop_up, opened):
-        li = self.add_item(item)
-        if opened:
+    def add_submenu(self, submenu, drop_up=False):
+        li = super(NavLayout, self).add_submenu(submenu)
+        if self.widget.is_opened(submenu):
             li.append_class('open')
-        item.a.append_class('dropdown-toggle')
-        item.a.set_attribute('data-toggle', 'dropdown')
-        item.a.set_attribute('data-target', '-')
-        item.a.add_child(Span(self.view)).append_class('caret')
-        li.append_class('drop%s' % ('up' if drop_up else 'down'))
-        li.add_child(dropdown)
+        submenu.a.append_class('dropdown-toggle')
+        submenu.a.set_attribute('data-toggle', 'dropdown')
+        submenu.a.set_attribute('data-target', '-')
+        submenu.a.add_child(Span(self.view)).append_class('caret')
+        li.append_class('drop%s' % ('up' if submenu.drop_up else 'down'))
         return li
 
 
@@ -81,27 +77,10 @@ class NavLayout(reahl.web.ui.MenuLayout):
 
 class Nav(reahl.web.attic.menu.Menu):
     default_layout_class = NavLayout
-    def __init__(self, view):
-        self.open_dropdown = None
-        super(Nav, self).__init__(view)
 
     def add_dropdown(self, title, dropdown_menu, drop_up=False):
-        opened = self.open_dropdown==title
-        item = MenuItem(self.view, A.from_bookmark(self.view, self.get_bookmark(title, opened)))
-        self.menu_items.append(item)
-        self.layout.add_dropdown(item, dropdown_menu, title, drop_up, opened)
-        return item
+        return self.add_submenu(title, dropdown_menu, drop_up=drop_up)
 
-    @exposed
-    def query_fields(self, fields):
-        fields.open_dropdown = Field(required=False, default=None)
-
-    def get_bookmark(self, title, opened):
-        if opened:
-            query_arguments={'open_dropdown': ''}
-        else:
-            query_arguments={'open_dropdown': title}
-        return Bookmark.for_widget(title, query_arguments=query_arguments).on_view(self.view)
 
 
 

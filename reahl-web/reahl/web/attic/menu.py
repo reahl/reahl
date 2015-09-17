@@ -18,8 +18,18 @@
 
 import reahl.web.ui
 
+
+
+class MenuLayout(reahl.web.ui.MenuLayout):
+    __doc__ = reahl.web.ui.MenuLayout.__doc__
+
+
 class MenuItem(reahl.web.ui._MenuItem):
     __doc__ = reahl.web.ui._MenuItem.__doc__
+
+
+class SubMenu(reahl.web.ui._SubMenu):
+    __doc__ = reahl.web.ui._SubMenu.__doc__
 
 
 class Menu(reahl.web.ui._Menu):
