@@ -28,7 +28,7 @@ class HomePanel(Div):
                      panel.get_bookmark(3)]
 
         self.add_child(H(view, 1, text='Refreshing widget'))
-        self.add_child(Menu(view, layout=HorizontalLayout()).with_bookmarks(bookmarks))
+        self.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(bookmarks))
         self.add_child(panel)
 
 

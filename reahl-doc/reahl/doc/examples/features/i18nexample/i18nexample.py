@@ -17,7 +17,7 @@ class HomePage(HTML5Page):
     def __init__(self, view):
         super(HomePage, self).__init__(view, style='basic')
 
-        menu = Menu(self.view, layout=HorizontalLayout()).with_languages()
+        menu = Menu(self.view).use_layout(HorizontalLayout()).with_languages()
         self.body.add_child(menu)
 
         current_url = Url.get_current_url()

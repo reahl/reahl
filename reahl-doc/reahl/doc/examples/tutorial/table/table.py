@@ -19,7 +19,7 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
         self.use_layout(PageLayout(ColumnLayout('main').with_slots()))
-        menu = Menu(view, layout=HorizontalLayout()).with_bookmarks(main_bookmarks)
+        menu = Menu(view).use_layout(HorizontalLayout()).with_bookmarks(main_bookmarks)
         self.layout.header.add_child(menu)
 
 
