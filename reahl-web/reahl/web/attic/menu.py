@@ -22,10 +22,6 @@ class MenuItem(reahl.web.ui._MenuItem):
     __doc__ = reahl.web.ui._MenuItem.__doc__
 
 
-class SubMenu(reahl.web.ui._SubMenu):
-    __doc__ = reahl.web.ui._SubMenu.__doc__
-
-
 class Menu(reahl.web.ui._Menu):
     __doc__ = reahl.web.ui._Menu.__doc__
 
