@@ -43,10 +43,12 @@ class NavLayout(reahl.web.ui.MenuLayout):
         self.justified = justified
 
     def customise_widget(self):
-        self.widget.set_html_representation(self.widget.add_child(Ul(self.view)))
-        self.widget.append_class('nav')
+        super(NavLayout, self).customise_widget()
         if self.justified:
             self.widget.append_class('nav-justified')
+
+    def append_menu_class(self):
+        self.widget.append_class('nav')
 
     def add_item(self, item):
         li = super(NavLayout, self).add_item(item)
@@ -56,29 +58,20 @@ class NavLayout(reahl.web.ui.MenuLayout):
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
 
-    def add_submenu(self, dropdown, title):
+    def add_submenu(self, item, menu, title):
         raise ProgrammerError('You cannot add a submenu to a %s, please use .add_dropdown() instead.' % self.widget.__class__)
 
-    def get_bookmark(self, title, opened):
-        if opened:
-            query_arguments={'open_dropdown': ''}
-        else:
-            query_arguments={'open_dropdown': title}
-        return Bookmark.for_widget(title, query_arguments=query_arguments).on_view(self.view)
-
-    def add_dropdown(self, dropdown, title, drop_up, open_dropdown):
-        opened = open_dropdown==title
-        menu_item = MenuItem(self.view, A.from_bookmark(self.view, self.get_bookmark(title, opened)))
-        li = self.add_item(menu_item)
+    def add_dropdown(self, item, dropdown, title, drop_up, opened):
+        li = self.add_item(item)
         if opened:
             li.append_class('open')
-        menu_item.a.append_class('dropdown-toggle')
-        menu_item.a.set_attribute('data-toggle', 'dropdown')
-        menu_item.a.set_attribute('data-target', '-')
-        menu_item.a.add_child(Span(self.view)).append_class('caret')
+        item.a.append_class('dropdown-toggle')
+        item.a.set_attribute('data-toggle', 'dropdown')
+        item.a.set_attribute('data-target', '-')
+        item.a.add_child(Span(self.view)).append_class('caret')
         li.append_class('drop%s' % ('up' if drop_up else 'down'))
         li.add_child(dropdown)
-        return menu_item
+        return li
 
 
 # To test:
@@ -87,28 +80,33 @@ class NavLayout(reahl.web.ui.MenuLayout):
 
 
 class Nav(reahl.web.attic.menu.Menu):
-    def __init__(self, view, layout=None, css_id=None):
+    default_layout_class = NavLayout
+    def __init__(self, view):
         self.open_dropdown = None
-        super(Nav, self).__init__(view, layout=layout or NavLayout(), css_id=None)
-
-    def create_html_representation(self):
-        pass
+        super(Nav, self).__init__(view)
 
     def add_dropdown(self, title, dropdown_menu, drop_up=False):
-        return self.layout.add_dropdown(dropdown_menu, title, drop_up, self.open_dropdown)
+        opened = self.open_dropdown==title
+        menu_item = MenuItem(self.view, A.from_bookmark(self.view, self.get_bookmark(title, opened)))
+        self.menu_items.append(item)
+        self.layout.add_dropdown(dropdown_menu, title, drop_up, opened)
+        return menu_item
 
     @exposed
     def query_fields(self, fields):
         fields.open_dropdown = Field(required=False, default=None)
 
+    def get_bookmark(self, title, opened):
+        if opened:
+            query_arguments={'open_dropdown': ''}
+        else:
+            query_arguments={'open_dropdown': title}
+        return Bookmark.for_widget(title, query_arguments=query_arguments).on_view(self.view)
 
-
-class NavItem(reahl.web.attic.menu.MenuItem):
-    pass
 
 
 class DropdownMenuLayout(reahl.web.ui.MenuLayout):
-    def __init__(self, align_right):
+    def __init__(self, align_right=False):
         super(DropdownMenuLayout, self).__init__()
         self.align_right = align_right
 
@@ -126,19 +124,12 @@ class DropdownMenuLayout(reahl.web.ui.MenuLayout):
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return item
 
-    def add_submenu(self, dropdown, title):
+    def add_submenu(self, menu, title):
         raise ProgrammerError('You cannot add a submenu to a %s.' % self.widget.__class__)
 
 
 class DropdownMenu(reahl.web.attic.menu.Menu):
-    def __init__(self, view, align_right=False, css_id=None):
-        super(DropdownMenu, self).__init__(view, [], layout=DropdownMenuLayout(align_right), css_id=css_id)
-
-    def create_html_representation(self):
-        pass
-
-
-
+    default_layout_class = DropdownMenuLayout
 
 
 class PillLayout(NavLayout):

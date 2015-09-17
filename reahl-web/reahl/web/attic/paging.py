@@ -213,7 +213,7 @@ class PageMenu(HTMLWidget):
         super(PageMenu, self).__init__(view)
 
         self.paged_panel = paged_panel
-        self.menu = self.add_child(Menu(view).use_layout(layout or HorizontalLayout()))
+        self.menu = self.add_child(Menu(view).use_layout(menu_layout or HorizontalLayout()))
         self.menu.with_a_list(self.get_links())
         self.set_html_representation(self.menu)
         if css_id:
