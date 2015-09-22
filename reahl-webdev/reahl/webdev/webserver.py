@@ -21,8 +21,7 @@ import os
 import time
 import subprocess
 import atexit
-from threading import Event
-from threading import Thread
+from threading import Event, Thread, Timer
 import select
 from wsgiref import simple_server
 import sys
@@ -222,6 +221,7 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
         except ssl.SSLError as ex:
             pass
 
+
 class Handler(object):
     def __init__(self, command_executor):
         self.command_executor = command_executor
@@ -263,30 +263,82 @@ class Handler(object):
         self.command_executor.execute = wrapped_execute
 
 
+class TimeoutExpired(Exception):
+    pass
+
+class ProcessWaitPatch(object):
+    """
+        Needed for PY2 compatbility: subprocess.wait() in PY2 does not have timeout parameter
+    """
+    def __init__(self, terminating_process, timeout=5):
+        self.terminating_process = terminating_process
+        self.timeout = timeout
+
+    def __enter__(self):
+        self.original_wait = self.terminating_process.wait
+        self.terminating_process.wait = self.__wait
+
+    def __exit__(self, type, value, traceback):
+        self.terminating_process.wait = self.original_wait
+
+    def __wait(self):
+        thread = Thread(target=self.original_wait)
+        thread.start()
+        thread.join(self.timeout)
+        if thread.isAlive(): #timeout occurred
+            raise TimeoutExpired
+
+
+class PythonScriptCommand():
+    def __init__(self, spawn_args=[]):
+        self.spawn_args = spawn_args
+
+    @classmethod
+    def absolute_path_to_executable(self, command_name):
+        #on windows os, some entrypoints installed in the virtualenv
+        #need their full path(with extension) to be able to be used as a spawn command.
+        #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
+        return distutils.spawn.find_executable(command_name)
+
+    @property
+    def python_script(self):
+        return self.absolute_path_to_executable(self.get_system_arguments()[0])
+
+    @property
+    def script_args(self):
+        return self.get_system_arguments()[1:] + self.spawn_args
+
+    @property
+    def popen_args_to_spawn(self):
+        return [sys.executable] + [self.python_script] + self.script_args
+
+    def get_system_arguments(self):
+        return sys.argv
+
+
 class SlaveProcess(object):
-    def __init__(self):
+    def __init__(self, spawn_args=[]):
         self.process = None
+        self.script_command = PythonScriptCommand(spawn_args)
 
     def terminate(self):
+        logging.getLogger(__name__).debug('Terminating process with PID[%s]' % self.process.pid)
+        self.process.terminate()
         try:
-            logging.getLogger(__name__).debug('Terminating process with PID[%s]' % self.process.pid)
-            self.process.terminate()
-            self.process.wait()
-        except subprocess.TimeoutExpired:
+            with ProcessWaitPatch(self.process, timeout=5):
+                self.process.wait()
+        except TimeoutExpired: #Todo: only needed for PY2 compatibility
             self.process.kill()
 
     def spawn_new_process(self):
-        command = self.absolute_path_to_executable(sys.argv[0])
-        other_args = sys.argv[1:]
-        args = [sys.executable] + [command] + other_args + ['--dont-restart']
-        return subprocess.Popen(args, env=os.environ.copy())
+        return subprocess.Popen(self.script_command.popen_args_to_spawn, env=os.environ.copy())
 
     def spawn(self):
         self.process = self.spawn_new_process()
-        self.kill_on_exit_if_abandoned()
+        self.register_orphan_killer(self.create_orphan_killer(self.process))
         logging.getLogger(__name__).debug('Starting process with PID[%s]' % self.process.pid)
 
-    def kill_on_exit_if_abandoned(self):
+    def create_orphan_killer(self, process):
         def kill_orphan_on_exit(possible_orphan_process):
             logging.getLogger(__name__).debug('Cleanup: ensuring process with PID[%s] has terminated' % possible_orphan_process.pid)
             try:
@@ -294,31 +346,31 @@ class SlaveProcess(object):
                 logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
             except ProcessLookupError:
                 logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
-        atexit.register(kill_orphan_on_exit, self.process)
+        return functools.partial(kill_orphan_on_exit, process)
 
-    def absolute_path_to_executable(self, command_name):
-        #on windows os, some entrypoints installed in the virtualenv
-        #need their full path(with extension) to be able to be used as a spawn command.
-        #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-        return distutils.spawn.find_executable(command_name)
+    def register_orphan_killer(self, kill_function):
+        atexit.register(kill_function)
 
     def restart(self):
-        self.process.terminate()
+        self.terminate()
         self.spawn()
 
 
 class ServerSupervisor(PatternMatchingEventHandler):
-    def __init__(self, min_seconds_between_restarts=3, directories_to_monitor=['.'], slave_process_class=SlaveProcess):
+    def __init__(self, min_seconds_between_restarts=3, directories_to_monitor=['.'], spawn_args=[]):
         super(ServerSupervisor, self).__init__(ignore_patterns=['*.pyc','*.pyo'], ignore_directories=True)
-        self.slave_process_class = slave_process_class
+        self.serving_process = SlaveProcess(spawn_args=spawn_args)
         self.min_seconds_between_restarts = min_seconds_between_restarts
         self.directories_to_monitor = directories_to_monitor
         self.directory_observers = []
         self.files_changed = Event()
-        self.stop_supervising = Event()
+        self.request_stop_running = Event()
+
+    #override for PatternMatchingEventHandler
+    def on_any_event(self, event):
+        self.files_changed.set()
 
     def start_observing_directories(self):
-        self.files_changed.clear()
         for directory in self.directories_to_monitor:
             directory_observer = Observer()
             directory_observer.schedule(self, directory, recursive=True)
@@ -330,29 +382,31 @@ class ServerSupervisor(PatternMatchingEventHandler):
             directory_observer.stop()
             directory_observer.join()
 
-    def on_any_event(self, event):
-        self.files_changed.set()
+    def pause(self):
+        time.sleep(self.min_seconds_between_restarts)
+
+    def stop(self):
+        self.request_stop_running.set()
+
+    def stop_serving(self):
+        self.serving_process.terminate()
+        self.stop_observing_directories()
 
     def run(self):
-        serving_process = self.slave_process_class()
-        serving_process.spawn()
-
+        self.files_changed.clear()
         self.start_observing_directories()
-        running = True
-        while running:
+        self.serving_process.spawn()
+        while not self.request_stop_running.is_set():
             try:
-                time.sleep(self.min_seconds_between_restarts)
+                self.pause()
                 if self.files_changed.is_set():
-                    print('\nChanges to filesystem detected, scheduling a restart...\n')
+                    logging.getLogger(__name__).debug('Changes to filesystem detected, scheduling a restart...')
                     self.files_changed.clear()
-                    serving_process.restart()
-                if self.stop_supervising.is_set():
-                    raise Exception('Requested to stop monitoring filesystem changes')
+                    self.serving_process.restart()
             except:
-                running = False
-                serving_process.terminate()
-                self.stop_observing_directories()
+                self.stop_serving()
                 raise
+        self.stop_serving()
 
 
 class ReahlWebServer(object):
