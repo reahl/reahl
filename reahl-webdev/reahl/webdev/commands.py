@@ -35,30 +35,30 @@ class ServeCurrentProject(WorkspaceCommand):
     keyword = 'serve'
 
     options = [('-p', '--port', dict(action='store', dest='port', default=8000, help='port (optional)')),
+               ('-s', '--seconds-between-restart', dict(action='store', dest='min_seconds_between_restarts', default=3, help='restart after n seconds if there were filesystem changes (optional)')),
                ('-D', '--dont-restart', dict(action='store_false', dest='restart', default=True, help='don\'t restart the server when file changes are detected'))]
 
     def execute(self, options, args):
         project = Project.from_file(self.workspace, self.workspace.startup_directory)
         with project.paths_set():
-            if options.restart:
-                try:
-                    ServerSupervisor().run()
-                except KeyboardInterrupt:
-                    print('\nShutting down')
-            else:
-                config_directory = 'etc'
-                if args:
-                    config_directory = args[0]
+            try:
+                if options.restart:
+                    ServerSupervisor(min_seconds_between_restarts=int(options.min_seconds_between_restarts)).run()
+                else:
+                    config_directory = 'etc'
+                    if args:
+                        config_directory = args[0]
 
-                print('\nUsing config from %s\n' % config_directory)
+                    print('\nUsing config from %s\n' % config_directory)
 
-                reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, int(options.port))
-                reahl_server.start(connect=True)
-                print('\n\nServing http on port %s, https on port %s (config=%s)' % \
-                                 (options.port, int(options.port)+363, config_directory))
-                print('\nPress Ctrl+C (*nix) or Ctrl+Break (Windows) to terminate\n\n')
-                reahl_server.wait_for_server_to_complete()
-
+                    reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, int(options.port))
+                    reahl_server.start(connect=True)
+                    print('\n\nServing http on port %s, https on port %s (config=%s)' % \
+                                     (options.port, int(options.port)+363, config_directory))
+                    print('\nPress Ctrl+C (*nix) or Ctrl+Break (Windows) to terminate\n\n')
+                    reahl_server.wait_for_server_to_complete()
+            except KeyboardInterrupt:
+                print('\nShutting down')
         return 0
 
 
