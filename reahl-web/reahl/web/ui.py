@@ -2405,8 +2405,17 @@ class _Menu(HTMLWidget):
            .. versionadded: 3.2
         """
         for a in a_list:
-            self.add_item(_MenuItem(self.view, a))
+            self.add_a(a)
         return self
+
+    def add_a(self, a):
+        """Adds an :class:`A` as a MenuItem.
+           
+           Answers the added MenuItem.
+
+           .. versionadded: 3.2
+        """
+        return self.add_item(_MenuItem(self.view, a))
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu.
@@ -2434,6 +2443,9 @@ class _Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
+        if not self.layout:
+            self.use_layout(self.default_layout_class())
+
         submenu = _SubMenu(self.view, title, menu)
         self.menu_items.append(submenu)
         self.layout.add_submenu(submenu, **layout_kwargs)

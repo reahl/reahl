@@ -54,7 +54,7 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
         self.offsets = {}
 
     def offset(self, xs=None, sm=None, md=None, lg=None, xl=None):
-        self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg, xl=None)
+        self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg, xl=xl)
         return self
 
     def calculated_size_for(self, device_class):

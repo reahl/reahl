@@ -70,19 +70,11 @@ class NavLayout(reahl.web.ui.MenuLayout):
         return li
 
 
-# To test:
-#  That dropdown menus open/close when no javascript
-#  and that they do not actually break in js when JS is on.
-#  that Menu & Nav & DropdownMenu have default layouts if you never specify one
-
-
 class Nav(reahl.web.attic.menu.Menu):
     default_layout_class = NavLayout
 
     def add_dropdown(self, title, dropdown_menu, drop_up=False):
         return self.add_submenu(title, dropdown_menu, drop_up=drop_up)
-
-
 
 
 class DropdownMenuLayout(reahl.web.ui.MenuLayout):
