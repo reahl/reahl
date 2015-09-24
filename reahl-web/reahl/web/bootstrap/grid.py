@@ -27,7 +27,7 @@ import six
 
 
 from reahl.web.fw import Layout
-from reahl.web.bootstrap.ui import  Div
+from reahl.web.ui import  Div
 
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError

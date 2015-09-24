@@ -66,13 +66,14 @@ class NavLayout(reahl.web.ui.MenuLayout):
         submenu.a.set_attribute('data-toggle', 'dropdown')
         submenu.a.set_attribute('data-target', '-')
         submenu.a.add_child(Span(self.view)).append_class('caret')
-        li.append_class('drop%s' % ('up' if submenu.drop_up else 'down'))
+        li.append_class('drop%s' % ('up' if drop_up else 'down'))
         return li
 
 
 # To test:
 #  That dropdown menus open/close when no javascript
 #  and that they do not actually break in js when JS is on.
+#  that Menu & Nav & DropdownMenu have default layouts if you never specify one
 
 
 class Nav(reahl.web.attic.menu.Menu):
