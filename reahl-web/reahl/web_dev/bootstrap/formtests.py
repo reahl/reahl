@@ -33,7 +33,9 @@ from reahl.web_dev.inputandvalidation.inputtests import InputMixin
 from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
 from reahl.web.bootstrap.ui import A, Div, P, HTML5Page, Header, Footer, ChoicesLayout, Button, \
-                                   FormLayout, Form, TextInput, CheckboxInput, RadioButtonInput, ButtonLayout
+                                   FormLayout, InlineFormLayout, GridFormLayout, Form, \
+                                   TextInput, CheckboxInput, RadioButtonInput, ButtonLayout
+from reahl.web.bootstrap.grid import ResponsiveSize
 
 
 
@@ -49,13 +51,13 @@ class FormLayoutScenarios(WebFixture):
 
     @scenario
     def inline_form(self):
-        self.layout = FormLayout(inline=True)
+        self.layout = InlineFormLayout()
         self.expected_html = '<div class="form-inline"></div>'
 
     @scenario
-    def horizontal_form(self):
-        self.layout = FormLayout(horizontal=True)
-        self.expected_html = '<div class="form-horizontal"></div>'
+    def grid_form(self):
+        self.layout = GridFormLayout(ResponsiveSize(xl=4), ResponsiveSize(xl=8))
+        self.expected_html = '<div></div>'
 
 
 @test(FormLayoutScenarios)
@@ -81,15 +83,20 @@ class FormLayoutFixture(WebFixture):
     def get_form_group_children(self, browser, index=0):
         return browser.xpath( '%s[%s]/*' % (self.form_group_xpath, index+1) )
 
-    def get_form_group_highlight_marks(self, browser, index=0):
+    def get_form_group(self, browser, index=0):
         form_groups = browser.xpath('%s[%s]' % (self.form_group_xpath, index+1))
-        form_group = form_groups[index]
+        return form_groups[index]
+
+    def get_form_group_highlight_marks(self, browser, index=0):
+        form_group = self.get_form_group(browser, index=index)
         return [mark for mark in form_group.attrib['class'].split(' ')
                      if mark.startswith('has-')]
         
     def get_form_group_errors(self, browser, index=0):
         def is_error_element(element):
-            return 'help-block' in element.attrib['class'] and 'has-error' in element.attrib['class'] 
+            return 'class' in element.attrib \
+                   and 'help-block' in element.attrib['class'] \
+                   and 'has-error' in element.attrib['class'] 
         def is_visible(element):
             return not (('style' in element.attrib) and ('display: none' in element.attrib['style']))
             
@@ -114,15 +121,36 @@ def adding_basic_input(fixture):
     
     [label, input_widget] = fixture.get_form_group_children(browser)
     
-    # form-group has Some input, correctly set up for bootstrap
+    # form-group has a label, correctly set up for bootstrap
     vassert( label.tag == 'label' )
     vassert( label.attrib['for'] == 'an_attribute' )
-    vassert( 'control-label' in label.attrib['class'] )
     vassert( label.text == 'Some input' )
     
     # form-group has an input, correctly set up for bootstrap
     vassert( input_widget.tag == 'input' )
     vassert( input_widget.attrib['name'] == 'an_attribute' )
+
+
+@test(FormLayoutFixture)
+def grid_form_layouts(fixture):
+    """A GridFormLayout adds the Label and Input of each added input in separate columns sized like you specify"""
+    class FormWithGridFormLayout(Form):
+        def __init__(self, view):
+            super(FormWithGridFormLayout, self).__init__(view, 'aform')
+            self.use_layout(GridFormLayout(ResponsiveSize(lg=4), ResponsiveSize(lg=8)))
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
+
+    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithGridFormLayout.factory()))
+    browser.open('/')
+
+    [label_column, input_column] = fixture.get_form_group_children(browser)
+    vassert( label_column.tag == 'div' )
+    vassert( 'col-lg-4' in label_column.attrib['class'] )
+    vassert( 'column-label' in label_column.attrib['class'] )
+
+    vassert( input_column.tag == 'div' )
+    vassert( 'col-lg-8' in input_column.attrib['class'] )
+    vassert( 'column-input' in input_column.attrib['class'] )
 
 
 @test(FormLayoutFixture)
@@ -141,24 +169,26 @@ def specifying_help_text(fixture):
     [label, input_widget, help_text] = fixture.get_form_group_children(browser)
 
     # form-group has help-text    
-    vassert( help_text.tag == 'small' )
+    vassert( help_text.tag == 'p' )
     vassert( 'text-muted' in help_text.attrib['class'] )
     vassert( help_text.text == 'some help' )
     
 
 @test(FormLayoutFixture)
 def omitting_label(fixture):
-    """The label will be omitted if this is explicity requested."""
+    """The label will be rendered hidden (but available to screen readers) if this is explicity requested."""
     class FormWithInputNoLabel(Form):
         def __init__(self, view):
             super(FormWithInputNoLabel, self).__init__(view, 'aform')
             self.use_layout(FormLayout())
-            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), render_label=False)
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), hide_label=True)
 
     browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputNoLabel.factory()))
     browser.open('/')
 
-    vassert( not any(child.tag == 'label' for child in fixture.get_form_group_children(browser)) )
+    [label, help_text] = fixture.get_form_group_children(browser)
+    vassert( label.tag == 'label' )
+    vassert( label.attrib['class'] == 'sr-only' )
     
 
 @test(FormLayoutFixture)
@@ -294,7 +324,6 @@ class DisabledScenarios(WebFixture):
 @test(DisabledScenarios)
 def disabled_state(fixture):
     """Visible cues are inserted to indicate that inputs are disabled. """
-    
     form = Form(fixture.view, 'test').use_layout(FormLayout())
     field = fixture.field
     field.bind('field', fixture)
@@ -408,6 +437,17 @@ def button_layouts_on_anchors(fixture):
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
     vassert( rendered_anchor.attrib['class'] == 'btn' )
+
+
+@test(WebFixture)
+def button_layouts_on_disabled_anchors(fixture):
+    """Disabled A's are marked with a class so Bootstap can style them appropriately."""
+    def can_write():
+        return False
+    anchor = A(fixture.view, href=Url('/an/href'), description='link text', write_check=can_write).use_layout(ButtonLayout())
+    tester = WidgetTester(anchor)
+    [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
+    vassert( rendered_anchor.attrib['class'] == 'btn disabled' )
 
 
 

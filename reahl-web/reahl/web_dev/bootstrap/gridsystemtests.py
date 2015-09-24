@@ -96,16 +96,16 @@ def adding_columns(fixture):
 @test(WebFixture)
 def allowed_sizes(fixture):
     """The device classes for which sizes can be specified."""
-    size = ResponsiveSize(xs=1, sm=2, md=3, lg=4)
+    size = ResponsiveSize(xs=1, sm=2, md=3, lg=4, xl=5)
 
-    vassert( size == {'xs':1, 'sm':2, 'md':3, 'lg':4} )
+    vassert( size == {'xs':1, 'sm':2, 'md':3, 'lg':4, 'xl':5} )
 
 
 @test(WebFixture)
 def column_offsets(fixture):
     """You can optionally specify space to leave empty (an offset) before a column at specific device sizes."""
 
-    layout = ColumnLayout(('column_a', ResponsiveSize(lg=6).offset(xs=2, sm=4, md=6, lg=3)))
+    layout = ColumnLayout(('column_a', ResponsiveSize(lg=6).offset(xs=2, sm=4, md=6, lg=3, xl=7)))
     widget = Div(fixture.view).use_layout(layout)
 
     [column_a] = layout.columns.values()
@@ -115,6 +115,7 @@ def column_offsets(fixture):
     vassert( 'col-xs-offset-2' in column_a.get_attribute('class')  )
     vassert( 'col-sm-offset-4' in column_a.get_attribute('class')  )
     vassert( 'col-md-offset-6' in column_a.get_attribute('class')  )
+    vassert( 'col-xl-offset-7' in column_a.get_attribute('class')  )
 
 
 @test(WebFixture)

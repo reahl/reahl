@@ -177,6 +177,9 @@ class ButtonLayout(Layout):
         
     def customise_widget(self):
         self.widget.append_class('btn')
+
+        if isinstance(self.widget, A) and self.widget.disabled:
+            self.widget.append_class('disabled')
         if self.style:
             self.widget.append_class('btn-%s' % self.style)
         if self.size:
