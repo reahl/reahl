@@ -31,19 +31,20 @@ from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor
 
 
 class ServeCurrentProject(WorkspaceCommand):
-    """Serves the project configures in the ./etc directory or the directory given as an arg."""
+    """Serves the project configured in the relative etc directory or the directory given as an arg."""
     keyword = 'serve'
 
+    dont_restart_option = '--dont-restart'
     options = [('-p', '--port', dict(action='store', dest='port', default=8000, help='port (optional)')),
                ('-s', '--seconds-between-restart', dict(action='store', dest='min_seconds_between_restarts', default=3, help='restart after n seconds if there were filesystem changes (optional)')),
-               ('-D', '--dont-restart', dict(action='store_false', dest='restart', default=True, help='don\'t restart the server when file changes are detected'))]
+               ('-D', dont_restart_option, dict(action='store_false', dest='restart', default=True, help='don\'t restart the server when file changes are detected'))]
 
     def execute(self, options, args):
         project = Project.from_file(self.workspace, self.workspace.startup_directory)
         with project.paths_set():
             try:
                 if options.restart:
-                    ServerSupervisor(min_seconds_between_restarts=int(options.min_seconds_between_restarts)).run()
+                    ServerSupervisor(min_seconds_between_restarts=int(options.min_seconds_between_restarts), spawn_args=[self.dont_restart_option]).run()
                 else:
                     config_directory = 'etc'
                     if args:
