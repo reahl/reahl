@@ -48,6 +48,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
 from reahl.component.config import StoredConfiguration
 from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 
 class WrappedApp(object):
@@ -263,77 +264,41 @@ class Handler(object):
         self.command_executor.execute = wrapped_execute
 
 
-class TimeoutExpired(Exception):
+class Py2TimeoutExpired(Exception):
     pass
 
-class ProcessWaitPatch(object):
-    """
-        Needed for PY2 compatbility: subprocess.wait() in PY2 does not have timeout parameter
-    """
-    def __init__(self, terminating_process, timeout=5):
-        self.terminating_process = terminating_process
-        self.timeout = timeout
-
-    def __enter__(self):
-        self.original_wait = self.terminating_process.wait
-        self.terminating_process.wait = self.__wait
-
-    def __exit__(self, type, value, traceback):
-        self.terminating_process.wait = self.original_wait
-
-    def __wait(self):
-        thread = Thread(target=self.original_wait)
-        thread.start()
-        thread.join(self.timeout)
-        if thread.isAlive(): #timeout occurred
-            raise TimeoutExpired
-
-
-class PythonScriptCommand():
-    def __init__(self, spawn_args=[]):
-        self.spawn_args = spawn_args
-
-    @classmethod
-    def absolute_path_to_executable(self, command_name):
-        #on windows os, some entrypoints installed in the virtualenv
-        #need their full path(with extension) to be able to be used as a spawn command.
-        #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-        return distutils.spawn.find_executable(command_name)
-
-    @property
-    def python_script(self):
-        return self.absolute_path_to_executable(self.get_system_arguments()[0])
-
-    @property
-    def script_args(self):
-        return self.get_system_arguments()[1:] + self.spawn_args
-
-    @property
-    def popen_args_to_spawn(self):
-        return [sys.executable] + [self.python_script] + self.script_args
-
-    def get_system_arguments(self):
-        return sys.argv
-
-
 class SlaveProcess(object):
-    def __init__(self, spawn_args=[]):
+    def __init__(self, command, args):
         self.process = None
-        self.script_command = PythonScriptCommand(spawn_args)
+        self.args = args
+        self.executable = Executable(command)
 
-    def terminate(self):
+    def terminate(self, timeout=5):
         logging.getLogger(__name__).debug('Terminating process with PID[%s]' % self.process.pid)
         self.process.terminate()
+        self.wait_to_die(timeout=timeout)
+
+    def wait_to_die(self, timeout):
+        TimeoutExpired = Py2TimeoutExpired if six.PY2 else subprocess.TimeoutExpired
         try:
-            with ProcessWaitPatch(self.process, timeout=5):
-                self.process.wait()
-        except TimeoutExpired: #Todo: only needed for PY2 compatibility
+            if six.PY2:
+                self.py2_process_wait_within_timeout(timeout)
+            else:
+                self.process.wait(timeout=timeout)
+        except TimeoutExpired:
             self.process.kill()
 
-    def spawn_new_process(self):
-        return subprocess.Popen(self.script_command.popen_args_to_spawn, env=os.environ.copy())
+    def py2_process_wait_within_timeout(self, timeout):
+        thread = Thread(target=self.process.wait)
+        thread.start()
+        thread.join(timeout)
+        if thread.isAlive():
+            raise Py2TimeoutExpired()
 
-    def spawn(self):
+    def spawn_new_process(self):
+        return self.executable.Popen(self.args, env=os.environ.copy())
+
+    def start(self):
         self.process = self.spawn_new_process()
         self.register_orphan_killer(self.create_orphan_killer(self.process))
         logging.getLogger(__name__).debug('Starting process with PID[%s]' % self.process.pid)
@@ -344,7 +309,7 @@ class SlaveProcess(object):
             try:
                 possible_orphan_process.kill()
                 logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
-            except ProcessLookupError:
+            except (OSError if six.PY2 else ProcessLookupError):
                 logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
         return functools.partial(kill_orphan_on_exit, process)
 
@@ -353,14 +318,14 @@ class SlaveProcess(object):
 
     def restart(self):
         self.terminate()
-        self.spawn()
+        self.start()
 
 
 class ServerSupervisor(PatternMatchingEventHandler):
-    def __init__(self, min_seconds_between_restarts=3, directories_to_monitor=['.'], spawn_args=[]):
+    def __init__(self, slave_process_args, max_seconds_between_restarts, directories_to_monitor=['.']):
         super(ServerSupervisor, self).__init__(ignore_patterns=['*.pyc','*.pyo'], ignore_directories=True)
-        self.serving_process = SlaveProcess(spawn_args=spawn_args)
-        self.min_seconds_between_restarts = min_seconds_between_restarts
+        self.serving_process = SlaveProcess(sys.argv[0], slave_process_args)
+        self.max_seconds_between_restarts = max_seconds_between_restarts
         self.directories_to_monitor = directories_to_monitor
         self.directory_observers = []
         self.files_changed = Event()
@@ -383,7 +348,7 @@ class ServerSupervisor(PatternMatchingEventHandler):
             directory_observer.join()
 
     def pause(self):
-        time.sleep(self.min_seconds_between_restarts)
+        time.sleep(self.max_seconds_between_restarts)
 
     def stop(self):
         self.request_stop_running.set()
@@ -395,7 +360,7 @@ class ServerSupervisor(PatternMatchingEventHandler):
     def run(self):
         self.files_changed.clear()
         self.start_observing_directories()
-        self.serving_process.spawn()
+        self.serving_process.start()
         while not self.request_stop_running.is_set():
             try:
                 self.pause()

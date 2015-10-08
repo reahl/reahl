@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import threading
 from threading import Event
@@ -29,49 +30,19 @@ from reahl.tofu import test, Fixture
 from reahl.tofu import vassert, expected
 from reahl.tofu import temp_dir
 from reahl.tofu import temp_file_with
-from reahl.stubble import stubclass, CallMonitor, replaced, exempt
+from reahl.stubble import stubclass, CallMonitor, replaced, exempt, EmptyStub
 
-from reahl.webdev.webserver import ServerSupervisor, SlaveProcess, PythonScriptCommand, ProcessWaitPatch, TimeoutExpired
-
-"""
-
-ServeCurrentProject
-- restart when directory changes are detected option
-or standalone.
-
-Slaveprocess
-- can spawn from the current process ['--dont-restart'] is added as option to slave
-- will ensure no orphans at exit (use stubble with_replaced(atexit.register)
-- restart waits for previous process to die before spawning another one
-
-ServerSupervisor
-- restart once when py files change (not also when pyc arrives)
-- does not restart when directories change
--
-"""
-
-
-class SupervisorThread(threading.Thread):
-    def __init__(self, supervisor):
-        threading.Thread.__init__(self)
-        self.supervisor = supervisor
-        self.start()
-
-    def run(self):
-        self.supervisor.run()
-
-    def stop(self):
-        self.supervisor.stop()
-        self.join()
+from reahl.webdev.webserver import ServerSupervisor, SlaveProcess
 
 
 @stubclass(SlaveProcess)
 class SlaveProcessStartCounterStub(SlaveProcess):
     spawned = 0
     terminated = 0
-    def spawn(self): self.spawned += 1
-    def terminate(self): self.terminated += 1
-    def register_orphan_killer(self, kill_function): pass
+    def __init__(self):
+        super(SlaveProcessStartCounterStub, self).__init__(None, None)
+    def start(self): self.spawned += 1
+    def terminate(self, timeout=5): self.terminated += 1
 
     @exempt
     def started(self, count):
@@ -87,7 +58,7 @@ class SupervisorFixture(Fixture):
         return temp_dir()
 
     def new_supervisor(self):
-        supervisor = ServerSupervisor(directories_to_monitor=[self.dir_to_watch.name], min_seconds_between_restarts=0)
+        supervisor = ServerSupervisor(EmptyStub(), 0, directories_to_monitor=[self.dir_to_watch.name])
         supervisor.serving_process = SlaveProcessStartCounterStub()
         return supervisor
         
@@ -118,6 +89,7 @@ class SupervisorFixture(Fixture):
 
 @test(SupervisorFixture)
 def server_supervisor_restarts_slave_when_files_changed(fixture):
+    """The ServerSupervisor watches for changes to files, and restarts a web serving process when a file was changed."""
 
     vassert( not fixture.supervisor.serving_process.is_running() )
 
@@ -141,52 +113,41 @@ def server_supervisor_restarts_slave_when_files_changed(fixture):
 
 @stubclass(SlaveProcess)
 class SlaveProcessRegisterOrphanStub(SlaveProcess):
+    kill_orphan_callable = None
+    def __init__(self):
+        super(SlaveProcessRegisterOrphanStub, self).__init__(None, None)
+
     def spawn_new_process(self):
-        class ProcessFake(object):
-            pid=0
-            def terminate(self): pass
-            def wait(self, timeout=0): pass
-            def kill(self): raise Exception('please don\'t kill me')
-        return ProcessFake()
+        return EmptyStub(pid=123)
 
     def register_orphan_killer(self, kill_function):
         self.kill_orphan_callable = kill_function
 
-    @exempt
-    def started(self, count):
-        return True
 
 
-class SupervisorKillProcessFixture(SupervisorFixture):
-    def new_supervisor(self):
-        supervisor = super(SupervisorKillProcessFixture, self).new_supervisor()
-        supervisor.serving_process = SlaveProcessRegisterOrphanStub()
-        return supervisor
-
-
-@test(SupervisorKillProcessFixture)
+@test(Fixture)
 def slave_process_registers_process_to_kill(fixture):
+    """The SlaveProcess ensures that orphaned os processes started by it will be killed upon exit."""
+    
+    slave_process = SlaveProcessRegisterOrphanStub()
+    vassert( not slave_process.kill_orphan_callable )
+    slave_process.start()
+    vassert( callable(slave_process.kill_orphan_callable) )
 
-    fixture.start_supervisor()
-    orphan_kill_method = fixture.supervisor.serving_process.kill_orphan_callable
-    fixture.stop_supervisor()
-
-    def check_exception(ex):
-        vassert( 'please don\'t kill me' in six.text_type(ex) )
-
-    with expected(Exception, test=check_exception):
-        orphan_kill_method()
 
 
 class ProcessFake(object):
     pid=0
-    def terminate(self): pass
+    def terminate(self, timeout=5): pass
     def wait(self, timeout=0): pass
     def kill(self): pass
 
 
 @stubclass(SlaveProcess)
 class SlaveProcessStub(SlaveProcess):
+    def __init__(self):
+        super(SlaveProcessStub, self).__init__(None, None)
+
     def spawn_new_process(self):
         return ProcessFake()
 
@@ -195,88 +156,49 @@ class SlaveProcessStub(SlaveProcess):
 
 @test(Fixture)
 def slave_process_terminates_then_waits(fixture):
+    """When the SlaveProcess is terminated, it waits for the OS process to die before returning."""
 
     slave_process = SlaveProcessStub()
-    slave_process.spawn()
+    slave_process.start()
 
-
-    with CallMonitor(slave_process.process.terminate) as terminate_monitor,\
-         CallMonitor(slave_process.process.wait) as wait_monitor:
+    with CallMonitor(slave_process.process.wait) as wait_monitor:
         slave_process.terminate()
-    vassert( terminate_monitor.times_called == 1 )
     vassert( wait_monitor.times_called == 1 )
 
 
-@test(Fixture)
-def python_script_command_properties(fixture):
 
-    script_command = PythonScriptCommand(spawn_args=['--dont_restart'])
-
-    def typical_sys_argv():
-        return ['reahl', 'serve', '--some_arg']
-
-    with replaced(script_command.get_system_arguments, typical_sys_argv):
-        popen_args = script_command.popen_args_to_spawn
-
-    vassert(  len(popen_args) == 5 )
-
-    split_of_python_interpreter_path = popen_args[0].split(os.path.sep)
-    vassert(  len(split_of_python_interpreter_path) > 0 )
-    vassert(  'python' in split_of_python_interpreter_path[-1] )
-
-    split_of_script_full_path = popen_args[1].split(os.path.sep)
-    vassert(  len(split_of_script_full_path) > 0 )
-    vassert(  'reahl' in split_of_script_full_path[-1] )
-
-    vassert( popen_args[2] ==  'serve' )
-    vassert( popen_args[3] ==  '--some_arg' )
-    vassert( popen_args[4] ==  '--dont_restart' )
+@stubclass(SlaveProcess)
+class SlaveProcessThatDoesNotReallyStart(SlaveProcess):
+    def __init__(self):
+        super(SlaveProcessThatDoesNotReallyStart, self).__init__(None, None)
+    def start(self): pass
 
 
-class ProcessWaitTimeoutFake(ProcessFake):
+class ProcessThatTakesLongToDie(ProcessFake):
     pid=0
-    long_timeout = 1.0
-    def wait(self, timeout=0): time.sleep(self.long_timeout)
+    time_to_take_to_die = 1.0
+    killed = False
+    def wait(self, timeout=0):
+        if six.PY2:
+            time.sleep(self.time_to_take_to_die)
+        else: 
+            raise subprocess.TimeoutExpired('fake', 123)
+    def kill(self):
+        self.killed = True
 
 
 @test(Fixture)
 def process_wait_timeout_reached_raises_exception(fixture):
+    """If a SlaveProcess does not terminate successfully, it is forcibly killed."""
+    
+    slave_process = SlaveProcessThatDoesNotReallyStart()
+    slave_process.process = ProcessThatTakesLongToDie()
 
-    process = ProcessWaitTimeoutFake()
-    short_timeout = ProcessWaitTimeoutFake.long_timeout/10.0
-
-    with ProcessWaitPatch(process, timeout=short_timeout):
-        with expected(TimeoutExpired):
-            process.wait()
-
-
-class PopenStub(object):
-    def __call__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-        return ProcessFake()
-
-    def __enter__(self):
-        self.original_popen = subprocess.Popen
-        subprocess.Popen = self
-        return self
-
-    def __exit__(self, exception_type, value, traceback):
-        subprocess.Popen = self.original_popen
+    slave_process.start()
+    short_time = slave_process.process.time_to_take_to_die/10
+    
+    vassert( not slave_process.process.killed )
+    slave_process.terminate(short_time)
+    vassert( slave_process.process.killed )
 
 
-@test(SupervisorFixture)
-def slave_process_calls_popen_with_correct_args(fixture):
-
-    supervisor = ServerSupervisor(directories_to_monitor=[], min_seconds_between_restarts=0, spawn_args=['some_args'])
-    thread = threading.Thread(target=supervisor.run)
-    try:
-        with PopenStub() as popen_stub:
-            thread.start()
-    finally:
-        supervisor.stop()
-
-    expected_script_command = PythonScriptCommand(spawn_args=['some_args'])
-
-    vassert( set(popen_stub.args[0]) == set(expected_script_command.popen_args_to_spawn) )
-    vassert( popen_stub.kwargs['env'] == os.environ )
