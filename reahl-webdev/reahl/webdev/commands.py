@@ -35,8 +35,8 @@ class ServeCurrentProject(WorkspaceCommand):
     keyword = 'serve'
 
     dont_restart_option = '--dont-restart'
-    options = [('-p', '--port', dict(action='store', dest='port', default=8000, help='port (optional)')),
-               ('-s', '--seconds-between-restart', dict(action='store', dest='min_seconds_between_restarts', default=3, help='restart after n seconds if there were filesystem changes (optional)')),
+    options = [('-p', '--port', dict(action='store', type='int', dest='port', default=8000, help='port (optional)')),
+               ('-s', '--seconds-between-restart', dict(action='store', type='int',  dest='max_seconds_between_restarts', default=3, help='restart after n seconds if there were filesystem changes (optional)')),
                ('-D', dont_restart_option, dict(action='store_false', dest='restart', default=True, help='don\'t restart the server when file changes are detected'))]
 
     def execute(self, options, args):
@@ -44,7 +44,8 @@ class ServeCurrentProject(WorkspaceCommand):
         with project.paths_set():
             try:
                 if options.restart:
-                    ServerSupervisor(min_seconds_between_restarts=int(options.min_seconds_between_restarts), spawn_args=[self.dont_restart_option]).run()
+                    ServerSupervisor(sys.argv[1:]+[self.dont_restart_option],
+                                     options.max_seconds_between_restarts).run()
                 else:
                     config_directory = 'etc'
                     if args:
@@ -52,10 +53,10 @@ class ServeCurrentProject(WorkspaceCommand):
 
                     print('\nUsing config from %s\n' % config_directory)
 
-                    reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, int(options.port))
+                    reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, options.port)
                     reahl_server.start(connect=True)
                     print('\n\nServing http on port %s, https on port %s (config=%s)' % \
-                                     (options.port, int(options.port)+363, config_directory))
+                                     (options.port, options.port+363, config_directory))
                     print('\nPress Ctrl+C (*nix) or Ctrl+Break (Windows) to terminate\n\n')
                     reahl_server.wait_for_server_to_complete()
             except KeyboardInterrupt:
