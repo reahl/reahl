@@ -68,7 +68,7 @@ class BrowserSetup(CleanDatabase):
     def new_reahl_server(self):
         server = ReahlWebServer(self.config, 8000)
 #        with self.context:
-#            server.start(in_seperate_thread=False)
+#            server.start(in_separate_thread=False)
         return server
 
     @property 
@@ -131,7 +131,7 @@ class BrowserSetup(CleanDatabase):
     def start_servers(self):
         with self.context:
             # Create and start server
-            self.reahl_server.start(in_seperate_thread=False, connect=False)
+            self.reahl_server.start(in_separate_thread=False, connect=False)
 
     @tear_down
     def stop_servers(self):

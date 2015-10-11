@@ -24,6 +24,7 @@ import re
 import subprocess
 import os
 import warnings
+import distutils
 
 from optparse import OptionParser
 import shlex
@@ -45,25 +46,12 @@ class Executable(object):
         return self.which(self.name)
         
     def which(self, program):
-        def is_exe(fpath):
-            return os.path.exists(fpath) and os.access(fpath, os.X_OK)
-
-        def ext_candidates(fpath):
-            for ext in os.environ.get("PATHEXT", "").split(os.pathsep):
-                yield fpath + ext
-            yield fpath
-
-        fpath, fname = os.path.split(program)
-        if fpath:
-            if is_exe(program):
-                return program
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                exe_file = os.path.join(path, program)
-                for candidate in ext_candidates(exe_file):
-                    if is_exe(candidate):
-                        return candidate
-
+        #on windows os, some entrypoints installed in the virtualenv
+        #need their full path(with extension) to be able to be used as a spawn command.
+        #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
+        executable = distutils.spawn.find_executable(program)
+        if executable:
+            return executable
         raise ExecutableNotInstalledException(program)
 
     def call(self, commandline_arguments, *args, **kwargs):
