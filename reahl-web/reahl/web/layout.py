@@ -21,9 +21,15 @@ Utilities to deal with layout.
 
 """
 
+import six
+if six.PY2:
+    from collections import Mapping
+else:
+    from collections.abc import Mapping
+
 import copy
 from collections import OrderedDict
-from collections.abc import Mapping
+
 
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.web.fw import Layout
