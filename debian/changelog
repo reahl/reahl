@@ -1,6 +1,8 @@
 python-reahl (3.2) unstable; urgency=low
 
  * Changed Label to subsume what was done by InputLabel previously.
+ * Added auto restart for the reahl dev webserver on filesystem changes (blueprint: reahl-serve-with-auto-reload).
+ * Added dependency on watchdog.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 19 Mar 2015 13:18:00 +0200
 

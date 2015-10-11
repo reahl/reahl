@@ -16,8 +16,12 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-from threading import Event
-from threading import Thread
+
+import os
+import time
+import subprocess
+import atexit
+from threading import Event, Thread, Timer
 import select
 from wsgiref import simple_server
 import sys
@@ -28,14 +32,23 @@ from contextlib import contextmanager
 import logging
 import functools
 import pkg_resources
+import warnings
+import distutils
 
 from webob import Request
 from webob.exc import HTTPInternalServerError
+
+from six.moves.queue import Queue
+
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
+from watchdog.observers.polling import PollingObserver
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
 from reahl.component.config import StoredConfiguration
 from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 
 class WrappedApp(object):
@@ -208,6 +221,7 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
         except ssl.SSLError as ex:
             pass
 
+
 class Handler(object):
     def __init__(self, command_executor):
         self.command_executor = command_executor
@@ -249,6 +263,116 @@ class Handler(object):
         self.command_executor.execute = wrapped_execute
 
 
+class Py2TimeoutExpired(Exception):
+    pass
+
+class SlaveProcess(object):
+    def __init__(self, command, args):
+        self.process = None
+        self.args = args
+        self.executable = Executable(command)
+
+    def terminate(self, timeout=5):
+        logging.getLogger(__name__).debug('Terminating process with PID[%s]' % self.process.pid)
+        self.process.terminate()
+        self.wait_to_die(timeout=timeout)
+
+    def wait_to_die(self, timeout):
+        TimeoutExpired = Py2TimeoutExpired if six.PY2 else subprocess.TimeoutExpired
+        try:
+            if six.PY2:
+                self.py2_process_wait_within_timeout(timeout)
+            else:
+                self.process.wait(timeout=timeout)
+        except TimeoutExpired:
+            self.process.kill()
+
+    def py2_process_wait_within_timeout(self, timeout):
+        thread = Thread(target=self.process.wait)
+        thread.start()
+        thread.join(timeout)
+        if thread.isAlive():
+            raise Py2TimeoutExpired()
+
+    def spawn_new_process(self):
+        return self.executable.Popen(self.args, env=os.environ.copy())
+
+    def start(self):
+        self.process = self.spawn_new_process()
+        self.register_orphan_killer(self.create_orphan_killer(self.process))
+        logging.getLogger(__name__).debug('Starting process with PID[%s]' % self.process.pid)
+
+    def create_orphan_killer(self, process):
+        def kill_orphan_on_exit(possible_orphan_process):
+            logging.getLogger(__name__).debug('Cleanup: ensuring process with PID[%s] has terminated' % possible_orphan_process.pid)
+            try:
+                possible_orphan_process.kill()
+                logging.getLogger(__name__).debug('Had to kill process(orphan) with PID[%s]' % possible_orphan_process.pid)
+            except (OSError if six.PY2 else ProcessLookupError):
+                logging.getLogger(__name__).debug('Process with PID[%s] seems terminated already, no need to kill it' % possible_orphan_process.pid)
+        return functools.partial(kill_orphan_on_exit, process)
+
+    def register_orphan_killer(self, kill_function):
+        atexit.register(kill_function)
+
+    def restart(self):
+        self.terminate()
+        self.start()
+
+
+class ServerSupervisor(PatternMatchingEventHandler):
+    def __init__(self, slave_process_args, max_seconds_between_restarts, directories_to_monitor=['.']):
+        super(ServerSupervisor, self).__init__(ignore_patterns=['*.pyc','*.pyo', '*/__pycache__/*'], ignore_directories=True)
+        self.serving_process = SlaveProcess(sys.argv[0], slave_process_args)
+        self.max_seconds_between_restarts = max_seconds_between_restarts
+        self.directories_to_monitor = directories_to_monitor
+        self.directory_observers = []
+        self.files_changed = Event()
+        self.request_stop_running = Event()
+
+    #override for PatternMatchingEventHandler
+    def on_any_event(self, event):
+        self.files_changed.set()
+
+    def start_observing_directories(self):
+        for directory in self.directories_to_monitor:
+            directory_observer = Observer()
+            directory_observer.schedule(self, directory, recursive=True)
+            directory_observer.start()
+            self.directory_observers.append(directory_observer)
+
+    def stop_observing_directories(self):
+        for directory_observer in self.directory_observers:
+            directory_observer.stop()
+            directory_observer.join()
+
+    def pause(self):
+        time.sleep(self.max_seconds_between_restarts)
+
+    def stop(self):
+        self.request_stop_running.set()
+
+    def stop_serving(self):
+        self.serving_process.terminate()
+        self.stop_observing_directories()
+
+    def run(self):
+        self.files_changed.clear()
+        self.start_observing_directories()
+        self.serving_process.start()
+        while not self.request_stop_running.is_set():
+            try:
+                self.pause()
+                if self.files_changed.is_set():
+                    logging.getLogger(__name__).debug('Changes to filesystem detected, scheduling a restart...')
+                    self.files_changed.clear()
+                    self.serving_process.restart()
+            except:
+                self.stop_serving()
+                raise
+        self.stop_serving()
+
+
 class ReahlWebServer(object):
     """A web server for testing purposes. This web server runs both an HTTP and HTTPS server. It can 
        be configured to handle requests in the same thread as the test itself, but it can also be run in a
@@ -277,7 +401,8 @@ class ReahlWebServer(object):
         self.set_app(NoopApp())
 
     def __init__(self, config, port):
-        self.in_seperate_thread = None
+        super(ReahlWebServer, self).__init__()
+        self.in_separate_thread = None
         self.running = False
         self.handlers = {}
         self.httpd_thread = None
@@ -292,6 +417,7 @@ class ReahlWebServer(object):
                      +'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html' \
                       
             raise AssertionError(message)
+
 
     def main_loop(self, context):
         with context:
@@ -314,16 +440,32 @@ class ReahlWebServer(object):
                 raise ProgrammerError('Timed out after 5 seconds waiting for httpd serving thread to end')
         self.httpd_thread = None
 
-    def start(self, in_seperate_thread=True, connect=False):
+    def wait_for_server_to_complete(self):
+        try:
+            self.httpd_thread.join()
+            self.https_thread.join()
+        finally:
+            self.stop()
+
+    def start(self, in_separate_thread=True,  connect=False, in_seperate_thread=None):
         """Starts the webserver and web application.
         
-           :keyword in_seperate_thread: If False, the server handles requests in the same thread as your tests.
+           :keyword in_separate_thread: If False, the server handles requests in the same thread as your tests.
+           :keyword in_seperate_thread: Deprecated: rather use in_separate_thread keyword argument
            :keyword connect: If True, also connects to the database.
         """
         self.reahl_wsgi_app.start(connect=connect)
+
         if in_seperate_thread:
+            warnings.warn('The in_seperate_thread keyword argument is deprecated, please use in_separate_thread instead.',
+               DeprecationWarning, stacklevel=2)
+            self.in_separate_thread = in_seperate_thread
+        else:
+            self.in_separate_thread = in_separate_thread
+
+        if self.in_separate_thread:
             self.start_thread()
-        self.in_seperate_thread = in_seperate_thread
+
 
     def stop(self):
         """Stops the webserver and web application from running."""
@@ -332,7 +474,7 @@ class ReahlWebServer(object):
         self.reahl_wsgi_app.stop()
         self.httpd.server_close()
         self.httpsd.server_close()
-    
+
     def requests_waiting(self, timeout):
         return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
 
