@@ -13,6 +13,7 @@
     <thirdpartyegg name="lxml" minversion="3.3" maxversion="3.3.999"/>
     <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
     <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.42.999"/>
+    <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
   </deps>
 
   <deps purpose="build">
@@ -25,8 +26,8 @@
 
   <export entrypoint="reahl.dev.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture"/>
-  
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/webdev_dev -i'.*' -t "/>
+
   <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>

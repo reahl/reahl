@@ -24,6 +24,8 @@ python-reahl (3.2.0) unstable; urgency=low
  * Deprecated use of SubMenu.
  * Changed PageMenu to be an HTMLWidget, not a Menu.
  * Deprecated sending css_id to any Widget that is not one-to-one with an HTMLElement upon construction.
+ * Added auto restart for the reahl dev webserver on filesystem changes (blueprint: reahl-serve-with-auto-reload).
+ * Added dependency on watchdog.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Aug 2015 14:56:00 +0200
 
