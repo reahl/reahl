@@ -18,12 +18,17 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+
+import six
+import sys
+import pkg_resources
 from reahl.tofu import Fixture, set_up, tear_down
 
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
 from reahl.component.config import StoredConfiguration
 
+from reahl.webdev.webserver import CouldNotConfigureServer
 
 class CleanDatabase(Fixture):
     """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
@@ -37,7 +42,11 @@ class CleanDatabase(Fixture):
 
     def new_config(self):
         config = StoredConfiguration('etc/')
-        config.configure()
+        try:
+            config.configure()
+        except pkg_resources.DistributionNotFound as ex:
+            six.reraise(CouldNotConfigureServer, CouldNotConfigureServer(ex), sys.exc_info()[2])
+            
         return config
 
     def new_context(self, config=None, system_control=None):

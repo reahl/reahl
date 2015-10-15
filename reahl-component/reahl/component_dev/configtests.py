@@ -195,34 +195,6 @@ class ConfigTests3(object):
         with expected(ConfigurationException):
             config.configure()
 
-    class DistributionNotFoundConfig(ConfigWithFiles):
-        def new_root_egg_name(self):
-            return 'missing_root_egg'
-
-    @test(DistributionNotFoundConfig)
-    def hint_on_distribution_not_found(self, fixture):
-        """When a DistributionNotFoundException is raised - in development ONLY - for the current root_egg,
-           its message is augmented with a hint for new users."""
-
-        # Case: development
-        config = StoredConfiguration(fixture.config_dir.name, in_production=False)
-        
-        def check_exception(ex):
-            vassert( 'It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?' in six.text_type(ex) )
-
-        with expected(DistributionNotFound, test=check_exception):
-            config.configure()
-
-        # Case: production
-        config = StoredConfiguration(fixture.config_dir.name, in_production=True)
-        
-        def check_exception(ex):
-            vassert( 'missing-root-egg' in six.text_type(ex) )
-
-        with expected(DistributionNotFound, test=check_exception):
-            config.configure()
-
-
 
 
 class ConfigWithEntryPointClassList(Configuration):
