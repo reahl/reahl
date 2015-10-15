@@ -268,13 +268,7 @@ class StoredConfiguration(Configuration):
         self.read(ReahlSystemConfig)
         self.validate_required(ReahlSystemConfig)
 
-        try:
-            require(self.reahlsystem.root_egg)
-        except DistributionNotFound as ex:
-            requirement = ex.args[0]
-            if (requirement.project_name == self.reahlsystem.root_egg.replace('_','-')) and not self.in_production:
-                ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.args[0],)
-            raise
+        require(self.reahlsystem.root_egg)
 
         self.configure_components()
         if validate:

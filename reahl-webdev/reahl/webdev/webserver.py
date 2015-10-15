@@ -51,6 +51,13 @@ from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 
+
+class CouldNotConfigureServer(Exception):
+    def __init__(self, ex):
+        message = '\nCould not configure server: %s\nDid you perhaps forget to: "reahl setup -- develop -N" ?' % ex
+        super(CouldNotConfigureServer, self).__init__(message)
+
+
 class WrappedApp(object):
     """A class in which to wrap a WSGI app, allowing catching of exceptions in the wrapped app.
     """
@@ -297,6 +304,9 @@ class SlaveProcess(object):
     def spawn_new_process(self):
         return self.executable.Popen(self.args, env=os.environ.copy())
 
+    def is_running(self):
+        return self.process.poll() is None
+
     def start(self):
         self.process = self.spawn_new_process()
         self.register_orphan_killer(self.create_orphan_killer(self.process))
@@ -353,23 +363,28 @@ class ServerSupervisor(PatternMatchingEventHandler):
         self.request_stop_running.set()
 
     def stop_serving(self):
-        self.serving_process.terminate()
+        if self.serving_process.is_running():
+            self.serving_process.terminate()
         self.stop_observing_directories()
 
     def run(self):
         self.files_changed.clear()
         self.start_observing_directories()
         self.serving_process.start()
+
         while not self.request_stop_running.is_set():
             try:
                 self.pause()
                 if self.files_changed.is_set():
                     logging.getLogger(__name__).debug('Changes to filesystem detected, scheduling a restart...')
                     self.files_changed.clear()
-                    self.serving_process.restart()
-            except:
-                self.stop_serving()
-                raise
+                    if self.serving_process.is_running():
+                        self.serving_process.restart()
+                    else:
+                        self.serving_process.start()
+            except KeyboardInterrupt:
+                self.stop()
+
         self.stop_serving()
 
 
