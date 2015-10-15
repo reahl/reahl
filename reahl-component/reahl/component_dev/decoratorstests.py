@@ -16,15 +16,15 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 import six
 import warnings
 import contextlib
 from six.moves import zip_longest
 
-from nose.tools import istest
-
-from reahl.tofu import Fixture, test, scenario, expected, NoException, vassert
-from reahl.component.decorators import deprecated
+from reahl.stubble import EmptyStub
+from reahl.tofu import Fixture, test, scenario, vassert
+from reahl.component.decorators import deprecated, memoized
 from reahl.component.exceptions import arg_checks
 
 @contextlib.contextmanager
@@ -163,4 +163,74 @@ def deprecating_a_method(fixture):
         
     with expected_deprecation_warnings(['this instance method is deprecated']):
         fixture.NonDeprecatedClass().some_deprecated_instance_method()
+
+
+class MemoizeScenarios(Fixture):
+    @scenario
+    def a_method(self):
+        class SomeClass(object):
+            @memoized
+            def some_method(self):
+              return EmptyStub()
+
+        an_instance = SomeClass()
+        self.memoized_callable = an_instance.some_method
+
+    @scenario
+    def a_class_method(self):
+        class SomeClass(object):
+            @memoized
+            @classmethod
+            def some_class_method(self):
+              return EmptyStub()
+
+        self.memoized_callable = SomeClass.some_class_method
+
+    @scenario
+    def a_class_method_called_via_instance(self):
+        class SomeClass(object):
+            @memoized
+            @classmethod
+            def some_class_method(self):
+              return EmptyStub()
+
+        an_instance = SomeClass()
+        self.memoized_callable = an_instance.some_class_method
+
+    @scenario
+    def a_function(self):
+        @memoized
+        def some_function():
+          return EmptyStub()
+
+        self.memoized_callable = some_function
+
+@test(MemoizeScenarios)
+def memoize_caches_call_results(fixture):
+    """On a memoized callable, the result of the first call is cached and re-used on subsequent calls"""
+
+    first_call_result = fixture.memoized_callable()
+    next_call_result = fixture.memoized_callable()
+
+    vassert( first_call_result is next_call_result )
+
+@test(Fixture)
+def memoize_considers_method_args(fixture):
+    """The results are cached based on the arguments passed to calls."""
+
+    class SomeClass(object):
+        @memoized
+        def method_with_args(self, an_arg, a_kwarg=None):
+          return EmptyStub()
+
+    an_instance = SomeClass()
+    result_with_one_set_of_args = an_instance.method_with_args(123, a_kwarg=1)
+    result_with_different_set_of_args = an_instance.method_with_args(456, a_kwarg=1)
+
+    vassert( result_with_one_set_of_args is not result_with_different_set_of_args )
+
+    second_result_with_same_set_of_args = an_instance.method_with_args(123, a_kwarg=1)
+
+    vassert( result_with_one_set_of_args is second_result_with_same_set_of_args )
+
 
