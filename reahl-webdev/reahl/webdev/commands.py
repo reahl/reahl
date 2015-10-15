@@ -28,7 +28,7 @@ import pkg_resources
 from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand
 
-from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor
+from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor, CouldNotConfigureServer
 
 
 class ServeCurrentProject(WorkspaceCommand):
@@ -59,8 +59,14 @@ class ServeCurrentProject(WorkspaceCommand):
                         config_directory = args[0]
 
                     print('\nUsing config from %s\n' % config_directory)
+                    
+                    try:
+                        reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, options.port)
+                    except pkg_resources.DistributionNotFound as ex:
+                        terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
+                        print('\nPress %s to terminate\n\n' % terminate_keys)
+                        raise CouldNotConfigureServer(ex)
 
-                    reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, options.port)
                     reahl_server.start(connect=True)
                     print('\n\nServing http on port %s, https on port %s (config=%s)' % \
                                      (options.port, options.port+363, config_directory))
@@ -70,6 +76,8 @@ class ServeCurrentProject(WorkspaceCommand):
                     reahl_server.wait_for_server_to_complete()
             except KeyboardInterrupt:
                 print('\nShutting down')
+            except CouldNotConfigureServer as ex:
+                print(ex)
         return 0
 
 
