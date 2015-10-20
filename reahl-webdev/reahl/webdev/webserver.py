@@ -459,7 +459,6 @@ class ReahlWebServer(object):
     def wait_for_server_to_complete(self):
         try:
             self.httpd_thread.join()
-            self.https_thread.join()
         finally:
             self.stop()
 
