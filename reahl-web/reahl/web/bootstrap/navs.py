@@ -38,12 +38,20 @@ from reahl.web.attic.menu import MenuItem
 
 
 class NavLayout(reahl.web.ui.MenuLayout):
-    def __init__(self, justified=False):
+    add_reahl_styling = False
+    def __init__(self, key=None, justified=False):
         super(NavLayout, self).__init__()
         self.justified = justified
+        self.key = key
+
+    @property
+    def additional_css_class(self):
+        return 'nav-%ss' % self.key
 
     def customise_widget(self):
         super(NavLayout, self).customise_widget()
+        if self.key:
+            self.widget.append_class(self.additional_css_class)
         if self.justified:
             self.widget.append_class('nav-justified')
 
@@ -106,7 +114,7 @@ class DropdownMenu(reahl.web.attic.menu.Menu):
 
 class PillLayout(NavLayout):
     def __init__(self, stacked=False, justified=False):
-        super(PillLayout, self).__init__(justified=justified)
+        super(PillLayout, self).__init__(key='pill', justified=justified)
         if all([stacked, justified]):
             raise ProgrammerError('Pills must be stacked or justified, but not both')
         self.stacked = stacked
@@ -114,15 +122,13 @@ class PillLayout(NavLayout):
 
     def customise_widget(self):
         super(PillLayout, self).customise_widget()
-        self.widget.append_class('nav-pills')
         if self.stacked:
             self.widget.append_class('nav-stacked')
 
 
 class TabLayout(NavLayout):
-    def customise_widget(self):
-        super(TabLayout, self).customise_widget()
-        self.widget.append_class('nav-tabs')
+    def __init__(self, justified=False):
+        super(TabLayout, self).__init__(key='tab', justified=justified)
 
 
 

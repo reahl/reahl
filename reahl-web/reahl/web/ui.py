@@ -2225,6 +2225,7 @@ class _MenuItem(object):
         self.exact_match = exact_match
         self.a = a
         self.active_regex = active_regex
+        self.force_active = False
         if css_id:
             self.set_id(css_id)
             warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
@@ -2234,8 +2235,13 @@ class _MenuItem(object):
     def as_a(self):
         return self.a
 
+    def set_active(self):
+        self.force_active = True
+
     @property
     def is_active(self):
+        if self.force_active:
+            return True
         if not self.active_regex:
             return self.a.href and self.a.href.is_currently_active(exact_path=self.exact_match)
         return re.match(self.active_regex, self.view.relative_path)
@@ -2274,6 +2280,7 @@ class SubMenu(_SubMenu):
 
 
 class MenuLayout(Layout):
+    add_reahl_styling = True
     def customise_widget(self):
         ul = self.widget.add_child(Ul(self.view))
         self.widget.set_html_representation(ul)
@@ -2285,7 +2292,8 @@ class MenuLayout(Layout):
     def add_item(self, item):
         li = self.widget.html_representation.add_child(Li(self.view))
         li.add_child(item.a)
-        li.add_attribute_source(ActiveStateAttributes(item))
+        if self.add_reahl_styling:
+            li.add_attribute_source(ActiveStateAttributes(item))
         return li
 
     def add_submenu(self, submenu):
@@ -2563,7 +2571,7 @@ class TabbedPanelMenuLayout(_HorizontalLayout):
         return multitab
     
 
-class _Tab(_MenuItem):
+class _Tab(object):
     """One Tab in a :class:`TabbedPanel`.
 
        .. admonition:: Styling
@@ -2580,23 +2588,20 @@ class _Tab(_MenuItem):
           Deprecated css_id keyword argument.
     """
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
+        super(_Tab, self).__init__()
         self.title = title
         self.tab_key = tab_key
         self.contents_factory = contents_factory
-        self.force_active = False
+        self.view = view
         a = A.from_bookmark(view, self.get_bookmark(view))
-        super(_Tab, self).__init__(view, a, css_id=css_id)
 
     def get_bookmark(self, view):
         query_arguments={'tab': self.tab_key}
         return Bookmark.for_widget(self.title, query_arguments=query_arguments).on_view(view)
 
     @property
-    def is_active(self):
-        return super(_Tab, self).is_active or self.force_active
-
-    def add_content_to_panel(self, panel):
-        panel.add_child(self.contents_factory.create(panel.view))
+    def contents(self):
+        return self.contents_factory.create(self.view)
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:Tab instead', '3.2')
@@ -2624,19 +2629,20 @@ class _MultiTab(_Tab):
           Deprecated css_id keyword argument.
     """
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
-        self.menu = _Menu(view).use_layout(_VerticalLayout())
+        self.tabs = []
+###        self.menu = _Menu(view).use_layout(_VerticalLayout())
         super(_MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
         
     def add_tab(self, tab):
-        self.menu.add_item(tab)
+        self.tabs.append(tab)
 
     @property
     def first_tab(self):
-        return self.menu.menu_items[0]
+        return self.tabs[0]
 
     @property
     def current_sub_tab(self):
-        active_tab = [tab for tab in self.menu.menu_items
+        active_tab = [tab for tab in self.tabs
                       if tab.is_active]
         if len(active_tab) == 1:
             return active_tab[0]
@@ -2680,7 +2686,8 @@ class _TabbedPanel(Div):
     def __init__(self, view, css_id):
         super(_TabbedPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-tabbedpanel')
-        self.tabs = self.add_child(_Menu(view).use_layout(TabbedPanelMenuLayout()))
+        self.tabs = []
+        self.menu = self.add_child(_Menu(view).use_layout(TabbedPanelMenuLayout()))
         self.content_panel = self.add_child(Div(view))
         self.enable_refresh()
         if css_id:
@@ -2697,17 +2704,28 @@ class _TabbedPanel(Div):
         return self.tab is not None
 
     def set_active(self, tab):
-        tab.force_active = True
         self.tab = tab.tab_key
+
+    def is_active(self, tab):
+        return self.tab == tab.tab_key
 
     def add_tab(self, tab):
         """Adds the Tab `tab` to this TabbedPanel."""
-        self.tabs.add_item(tab)
-        if not self.active_tab_set:
+        if not self.active_tab_set or self.is_active(tab):
             self.set_active(tab)
 
-        if tab.is_active:
-            tab.add_content_to_panel(self.content_panel)
+        self.tabs.append(tab)
+        menu_item = self.menu.add_bookmark(tab.get_bookmark(self.view))
+        
+        if self.is_active(tab):
+            menu_item.set_active()
+
+        self.add_pane_for(tab)
+        return tab
+
+    def add_pane_for(self, tab):
+        if self.is_active(tab):
+            self.content_panel.add_child(tab.contents)
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:TabbedPanel instead', '3.2')
