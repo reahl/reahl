@@ -2268,10 +2268,24 @@ class _SubMenu(_MenuItem):
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
-    def __init__(self, view, title, menu, css_id=None):
-        super(_SubMenu, self).__init__(view, None, css_id=css_id)
-        self.menu = menu
+    def __init__(self, view, title, menu, is_open=False, query_arguments={}, css_id=None):
+        a = A.from_bookmark(view, self.get_bookmark(view, title, is_open, query_arguments))
+        super(_SubMenu, self).__init__(view, a, css_id=css_id)
+        self.is_open = is_open
         self.title = title
+        self.menu = menu
+        self.query_arguments = query_arguments
+    
+    def force_open_after_creation_for_backwards_compatibility(self):
+        self.a = A.from_bookmark(view, self.get_bookmark(self.view, self.title, True, self.query_arguments))
+        
+    def get_bookmark(self, view, title, is_open, extra_query_arguments):
+        if is_open:
+            query_arguments={'open_item': ''}
+        else:
+            query_arguments={'open_item': title}
+        query_arguments.update(extra_query_arguments)
+        return Bookmark.for_widget(title, query_arguments=query_arguments).on_view(view)
 
 
 @deprecated('Please use :meth:`Menu.add_submenu() instead.', '3.2')
@@ -2297,7 +2311,6 @@ class MenuLayout(Layout):
         return li
 
     def add_submenu(self, submenu):
-        submenu.a = A.from_bookmark(self.view, self.widget.get_bookmark(submenu))
         li = self.add_item(submenu)
         li.add_child(submenu.menu)
         return li
@@ -2363,16 +2376,6 @@ class _Menu(HTMLWidget):
     def query_fields(self, fields):
         fields.open_item = Field(required=False, default=None)
 
-    def is_opened(self, submenu):
-        return self.open_item == submenu.title
-
-    def get_bookmark(self, submenu):
-        if self.is_opened(submenu):
-            query_arguments={'open_item': ''}
-        else:
-            query_arguments={'open_item': submenu.title}
-        return Bookmark.for_widget(submenu.title, query_arguments=query_arguments).on_view(self.view)
-
     def with_bookmarks(self, bookmark_list):
         """Populates this Menu with a MenuItem for each Bookmark given in `bookmark_list`.
            
@@ -2436,15 +2439,17 @@ class _Menu(HTMLWidget):
 
         self.menu_items.append(item)
 
-        if isinstance(item, SubMenu):
+        if isinstance(item, _SubMenu):
             warnings.warn('DEPRECATED: calling add_item() with a SubMenu instance. Please use .add_submenu() instead.',
                           DeprecationWarning, stacklevel=2)
+            if self.open_item == item.title:
+                item.force_open_after_creation_for_backwards_compatibility()
             item = self.layout.add_submenu(item, item.menu, item.title)
         else:
             self.layout.add_item(item)
         return item
 
-    def add_submenu(self, title, menu, **layout_kwargs):
+    def add_submenu(self, title, menu, query_arguments={}, **layout_kwargs):
         """Adds 'menu` as a sub menu to this menu with the given `title`.
 
            Answers the added MenuItem.
@@ -2454,7 +2459,7 @@ class _Menu(HTMLWidget):
         if not self.layout:
             self.use_layout(self.default_layout_class())
 
-        submenu = _SubMenu(self.view, title, menu)
+        submenu = _SubMenu(self.view, title, menu, is_open=self.open_item == title, query_arguments=query_arguments)
         self.menu_items.append(submenu)
         self.layout.add_submenu(submenu, **layout_kwargs)
         return submenu
@@ -2557,11 +2562,6 @@ class TabbedPanelMenuLayout(_HorizontalLayout):
     def customise_widget(self):
         super(TabbedPanelMenuLayout, self).customise_widget()
 
-    def add_item(self, item):
-        if isinstance(item, _MultiTab):
-            return self.add_multitab(item)
-        return super(TabbedPanelMenuLayout, self).add_item(item)
-
     def add_multitab(self, multitab):
         li = super(TabbedPanelMenuLayout, self).add_item(multitab)
         li.add_child(TextNode(self.view, '&nbsp;', html_escape=False))
@@ -2569,7 +2569,7 @@ class TabbedPanelMenuLayout(_HorizontalLayout):
         dropdown_handle.append_class('dropdown-handle')
         menu = li.add_child(multitab.menu)
         return multitab
-    
+
 
 class _Tab(object):
     """One Tab in a :class:`TabbedPanel`.
@@ -2593,15 +2593,23 @@ class _Tab(object):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
         self.view = view
-        a = A.from_bookmark(view, self.get_bookmark(view))
 
     def get_bookmark(self, view):
-        query_arguments={'tab': self.tab_key}
-        return Bookmark.for_widget(self.title, query_arguments=query_arguments).on_view(view)
+        return Bookmark.for_widget(self.title, query_arguments=self.query_arguments).on_view(view)
+
+    @property
+    def query_arguments(self):
+        return {'tab': self.tab_key}
 
     @property
     def contents(self):
         return self.contents_factory.create(self.view)
+
+    def is_active(self, tab_key):
+        return self.tab_key == tab_key
+
+    def add_to_menu(self, menu):
+        return menu.add_bookmark(self.get_bookmark(self.view))
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:Tab instead', '3.2')
@@ -2628,35 +2636,40 @@ class _MultiTab(_Tab):
        .. versionchanged: 3.2
           Deprecated css_id keyword argument.
     """
-    def __init__(self, view, title, tab_key, contents_factory, css_id=None):
+    def __init__(self, view, title, tab_key, contents_factory):
         self.tabs = []
-###        self.menu = _Menu(view).use_layout(_VerticalLayout())
-        super(_MultiTab, self).__init__(view, title, tab_key, contents_factory, css_id=css_id)
+        self.menu = _Menu(view).use_layout(_VerticalLayout())
+        super(_MultiTab, self).__init__(view, title, tab_key, contents_factory)
         
     def add_tab(self, tab):
+        self.menu.add_bookmark(tab.get_bookmark(self.view))
         self.tabs.append(tab)
+        return tab
 
     @property
     def first_tab(self):
         return self.tabs[0]
 
-    @property
-    def current_sub_tab(self):
+    def current_sub_tab(self, tab_key):
         active_tab = [tab for tab in self.tabs
-                      if tab.is_active]
+                      if tab.is_active(tab_key)]
         if len(active_tab) == 1:
             return active_tab[0]
         return self.first_tab
 
-    def add_content_to_panel(self, panel):
-        if super(_MultiTab, self).is_active:
-            super(_MultiTab, self).add_content_to_panel(panel)
+    def contents_for(self, tab_key):
+        if super(_MultiTab, self).is_active(tab_key):
+            return super(_MultiTab, self).contents
         else:
-            self.current_sub_tab.add_content_to_panel(panel)
+            return self.current_sub_tab(tab_key).contents
 
-    @property
-    def is_active(self):
-        return super(_MultiTab, self).is_active or self.current_sub_tab.is_active
+    def is_active(self, tab_key):
+        if self.current_sub_tab(tab_key).is_active(tab_key):
+            return True
+        return super(_MultiTab, self).is_active(tab_key)
+
+    def add_to_menu(self, menu):
+        return menu.add_submenu(self.title, self.menu, query_arguments=self.query_arguments)
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:MultiTab instead', '3.2')
@@ -2706,26 +2719,26 @@ class _TabbedPanel(Div):
     def set_active(self, tab):
         self.tab = tab.tab_key
 
-    def is_active(self, tab):
-        return self.tab == tab.tab_key
-
     def add_tab(self, tab):
         """Adds the Tab `tab` to this TabbedPanel."""
-        if not self.active_tab_set or self.is_active(tab):
+        if not self.active_tab_set:
             self.set_active(tab)
 
         self.tabs.append(tab)
-        menu_item = self.menu.add_bookmark(tab.get_bookmark(self.view))
+        menu_item = tab.add_to_menu(self.menu)
         
-        if self.is_active(tab):
+        if tab.is_active(self.tab):
             menu_item.set_active()
 
         self.add_pane_for(tab)
         return tab
 
     def add_pane_for(self, tab):
-        if self.is_active(tab):
-            self.content_panel.add_child(tab.contents)
+        if tab.is_active(self.tab):
+            if isinstance(tab, _MultiTab):
+                self.content_panel.add_child(tab.contents_for(self.tab))
+            else:
+                self.content_panel.add_child(tab.contents)
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:TabbedPanel instead', '3.2')

@@ -28,15 +28,8 @@ import six
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Widget, Bookmark
 from reahl.web.ui import Div
-from reahl.web.bootstrap.navs import Nav, TabLayout
+from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
 
-"""
-1) make MenuItems smarter, so you can say what other stuff to do (attribs, etc) when creating html representation
-      MenuItem.from_bookmark(koos).with_class('asd')
-2) make Layouts smarter so you can customise them to know about what types of things yu can add
-      self.nav.layout.add_type(TabMenuItem)
-3) make MenuItems know about their html_representation so we can get to it after the the layout added their html
-"""
 
 class TabbedPanel(Widget):
     def __init__(self, view, nav_layout=None):
@@ -57,52 +50,100 @@ class TabbedPanel(Widget):
     def set_active(self, tab):
         self.tab = tab.tab_key
 
-    def is_active(self, tab):
-        return self.tab == tab.tab_key
-
     def add_tab(self, tab):
-
-        if not self.active_tab_set or self.is_active(tab):
+        if not self.active_tab_set:
             self.set_active(tab)
 
         self.tabs.append(tab)
-        menu_item = self.nav.add_bookmark(tab.get_bookmark(self.view))
-        menu_item.a.set_attribute('data-toggle', self.nav.layout.key)
-        menu_item.a.set_attribute('data-target', '#%s' % tab.css_id)
+        menu_item = tab.add_to_menu(self.nav)
 
-        if self.is_active(tab):
+        if tab.is_active(self.tab):
             menu_item.set_active()
 
         self.add_pane_for(tab)
         return tab
 
     def add_pane_for(self, tab):
-        div = self.content_panel.add_child(Div(self.view))
-        div.add_child(tab.contents)
-        div.append_class('tab-pane')
-        div.set_id(tab.css_id)
-        if tab.is_active:
-            div.append_class('active')
-        return div
+        return tab.add_contents_to(self.content_panel)
+
 
 
 class Tab(object):
-    def __init__(self, title, tab_key, contents):
+    def __init__(self, view, title, tab_key, contents_factory):
         self.title = title
         self.tab_key = tab_key
-        self.contents = contents
-        self.force_active = False
+        self.contents_factory = contents_factory
+        self.view = view
+
+    def get_bookmark(self, view):
+        return view.as_bookmark(description=self.title, query_arguments=self.query_arguments)
 
     @property
-    def is_active(self):
-        return self.force_active
+    def query_arguments(self):
+        return {'tab': self.tab_key}
+
+    @property
+    def contents(self):
+        return self.contents_factory.create(self.view)
+
+    def is_active(self, tab_key):
+        return self.tab_key == tab_key
+
+    def add_to_menu(self, menu):
+        menu_item = menu.add_bookmark(self.get_bookmark(menu.view))
+        menu_item.a.set_attribute('data-toggle', menu.layout.key)
+        menu_item.a.set_attribute('data-target', '#%s' % self.css_id)
+        return menu_item
 
     @property
     def css_id(self):
         return 'tab_%s' % self.tab_key
 
-    def get_bookmark(self, view):
-        return view.as_bookmark(description=self.title, query_arguments={'tab': self.tab_key})
+    def add_contents_to(self, content_panel):
+        self.add_pane(content_panel, self)
+
+    def add_pane(self, content_panel, tab):
+        div = content_panel.add_child(Div(self.view))
+        div.add_child(tab.contents)
+        div.append_class('tab-pane')
+        div.set_id(tab.css_id)
+#        if tab.is_active(self.tab):
+#            div.append_class('active')
+        return div
 
 
+class MultiTab(Tab):
+    def __init__(self, view, title, tab_key, contents_factory):
+        self.tabs = []
+        self.menu = DropdownMenu(view)
+        super(MultiTab, self).__init__(view, title, tab_key, contents_factory)
+        
+    def add_tab(self, tab):
+        menu_item = self.menu.add_bookmark(tab.get_bookmark(self.view))
+        menu_item.a.set_attribute('data-toggle', 'tab')#self.menu.layout.key)
+        menu_item.a.set_attribute('data-target', '#%s' % tab.css_id)
+        self.tabs.append(tab)
+        return tab
 
+    @property
+    def first_tab(self):
+        return self.tabs[0]
+
+    def current_sub_tab(self, tab_key):
+        active_tab = [tab for tab in self.tabs
+                      if tab.is_active(tab_key)]
+        if len(active_tab) == 1:
+            return active_tab[0]
+        return self.first_tab
+
+    def add_contents_to(self, content_panel):
+        for tab in [self]+self.tabs:
+            self.add_pane(content_panel, tab)
+
+    def is_active(self, tab_key):
+        if self.current_sub_tab(tab_key).is_active(tab_key):
+            return True
+        return super(MultiTab, self).is_active(tab_key)
+
+    def add_to_menu(self, menu):
+        return menu.add_dropdown(self.title, self.menu)

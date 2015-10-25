@@ -70,8 +70,7 @@ class PagedTable(PagedPanel):
         self.add_child(Table.from_columns(view, columns_with_sort_controls,
                                                 self.current_contents,
                                                 caption_text=caption_text,
-                                                summary=summary,
-                                                css_id=css_id))
+                                                summary=summary))
 
     def create_sorter_link(self, column_number, descending=False):
         description = '▼' if descending else '▲'

@@ -68,7 +68,7 @@ class NavLayout(reahl.web.ui.MenuLayout):
 
     def add_submenu(self, submenu, drop_up=False):
         li = super(NavLayout, self).add_submenu(submenu)
-        if self.widget.is_opened(submenu):
+        if submenu.is_open:
             li.append_class('open')
         submenu.a.append_class('dropdown-toggle')
         submenu.a.set_attribute('data-toggle', 'dropdown')
