@@ -38,7 +38,6 @@ from reahl.web.attic.menu import MenuItem
 
 
 class NavLayout(reahl.web.ui.MenuLayout):
-    add_reahl_styling = False
     def __init__(self, key=None, justified=False):
         super(NavLayout, self).__init__()
         self.justified = justified
@@ -55,19 +54,30 @@ class NavLayout(reahl.web.ui.MenuLayout):
         if self.justified:
             self.widget.append_class('nav-justified')
 
-    def append_menu_class(self):
-        self.widget.append_class('nav')
 
-    def add_item(self, item):
-        li = super(NavLayout, self).add_item(item)
+
+class Nav(reahl.web.attic.menu.Menu):
+    add_reahl_styling = False
+    default_layout_class = NavLayout
+
+    def create_html_representation(self):
+        li = super(Nav, self).create_html_representation()
+        li.append_class('nav')
+        return li
+    
+    def add_dropdown(self, title, dropdown_menu, drop_up=False):
+        return self.add_submenu(title, dropdown_menu, drop_up=drop_up)
+
+    def add_html_for_item(self, item):
+        li = super(Nav, self).add_html_for_item(item)
         li.append_class('nav-item')
         item.a.append_class('nav-link')
         item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
 
-    def add_submenu(self, submenu, drop_up=False):
-        li = super(NavLayout, self).add_submenu(submenu)
+    def add_html_for_submenu(self, submenu, drop_up=False):
+        li = super(Nav, self).add_html_for_submenu(submenu)
         if submenu.is_open:
             li.append_class('open')
         submenu.a.append_class('dropdown-toggle')
@@ -78,12 +88,6 @@ class NavLayout(reahl.web.ui.MenuLayout):
         return li
 
 
-class Nav(reahl.web.attic.menu.Menu):
-    default_layout_class = NavLayout
-
-    def add_dropdown(self, title, dropdown_menu, drop_up=False):
-        return self.add_submenu(title, dropdown_menu, drop_up=drop_up)
-
 
 class DropdownMenuLayout(reahl.web.ui.MenuLayout):
     def __init__(self, align_right=False):
@@ -91,25 +95,30 @@ class DropdownMenuLayout(reahl.web.ui.MenuLayout):
         self.align_right = align_right
 
     def customise_widget(self):
-        self.widget.set_html_representation(self.widget.add_child(Div(self.view)))
-
-        self.widget.append_class('dropdown-menu')
         if self.align_right:
             self.widget.append_class('dropdown-menu-right')
 
-    def add_item(self, item):
-        self.widget.html_representation.add_child(item.a)
+
+
+class DropdownMenu(reahl.web.attic.menu.Menu):
+    add_reahl_styling = False
+    default_layout_class = DropdownMenuLayout
+    def create_html_representation(self):
+        div = self.add_child(Div(self.view))
+        self.set_html_representation(div)
+        div.append_class('dropdown-menu')
+        return div
+
+    def add_html_for_item(self, item):
+        self.html_representation.add_child(item.a)
         item.a.append_class('dropdown-item')
         item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
-        return item
+        return item.a
 
     def add_submenu(self, menu, title):
         raise ProgrammerError('You cannot add a submenu to a %s.' % self.widget.__class__)
 
-
-class DropdownMenu(reahl.web.attic.menu.Menu):
-    default_layout_class = DropdownMenuLayout
 
 
 class PillLayout(NavLayout):
