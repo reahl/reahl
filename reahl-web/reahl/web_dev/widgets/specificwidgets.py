@@ -424,7 +424,7 @@ class TabbedPanelTests(object):
         
         expected_html = '''<div id="tabbed_name" class="reahl-tabbedpanel">'''\
                         '''<ul class="reahl-horizontal reahl-menu">'''\
-                        '''<li class="active"><a href="/?tab=multitab-main" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
+                        '''<li class="active"><a href="/?tab=multitab-main&amp;open_item=tab+1+name" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
                         '''<a class="dropdown-handle">▼</a>'''\
                         '''<ul class="reahl-menu reahl-vertical">'''\
                         '''<li><a href="/?tab=mult1" class="reahl-ajaxlink">multi tab 1</a></li>'''\
@@ -436,6 +436,8 @@ class TabbedPanelTests(object):
                         '''</div>'''
         actual = tester.render_html()        
         vassert( actual == expected_html )
+
+
 
     class DefaultTabScenarios(WebFixture):
         @scenario

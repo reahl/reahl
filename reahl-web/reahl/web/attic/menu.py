@@ -20,10 +20,6 @@ import reahl.web.ui
 
 
 
-class MenuLayout(reahl.web.ui.MenuLayout):
-    __doc__ = reahl.web.ui.MenuLayout.__doc__
-
-
 class MenuItem(reahl.web.ui._MenuItem):
     __doc__ = reahl.web.ui._MenuItem.__doc__
 
