@@ -37,7 +37,7 @@ from reahl.web.attic.menu import MenuItem
 
 
 
-class NavLayout(reahl.web.ui.MenuLayout):
+class NavLayout(Layout):
     def __init__(self, key=None, justified=False):
         super(NavLayout, self).__init__()
         self.justified = justified
@@ -58,7 +58,6 @@ class NavLayout(reahl.web.ui.MenuLayout):
 
 class Nav(reahl.web.attic.menu.Menu):
     add_reahl_styling = False
-    default_layout_class = NavLayout
 
     def create_html_representation(self):
         li = super(Nav, self).create_html_representation()
@@ -89,7 +88,7 @@ class Nav(reahl.web.attic.menu.Menu):
 
 
 
-class DropdownMenuLayout(reahl.web.ui.MenuLayout):
+class DropdownMenuLayout(Layout):
     def __init__(self, align_right=False):
         super(DropdownMenuLayout, self).__init__()
         self.align_right = align_right
@@ -102,7 +101,6 @@ class DropdownMenuLayout(reahl.web.ui.MenuLayout):
 
 class DropdownMenu(reahl.web.attic.menu.Menu):
     add_reahl_styling = False
-    default_layout_class = DropdownMenuLayout
     def create_html_representation(self):
         div = self.add_child(Div(self.view))
         self.set_html_representation(div)

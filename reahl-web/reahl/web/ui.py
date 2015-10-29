@@ -2232,9 +2232,6 @@ class _MenuItem(object):
                           'This ability will be removed in future versions.',
                           DeprecationWarning, stacklevel=2)
     
-    def as_a(self):
-        return self.a
-
     def set_active(self):
         self.force_active = True
 
@@ -2256,7 +2253,7 @@ class MenuItem(_MenuItem):
 
 
 class _SubMenu(_MenuItem):
-    """A MenuItem that can contain another complete Menu itself.
+    """A MenuItem that can contains another complete Menu itself.
 
        .. admonition:: Styling
 
@@ -2277,7 +2274,8 @@ class _SubMenu(_MenuItem):
         self.query_arguments = query_arguments
     
     def force_open_after_creation_for_backwards_compatibility(self):
-        self.a = A.from_bookmark(view, self.get_bookmark(self.view, self.title, True, self.query_arguments))
+        self.is_open = True
+        self.a = A.from_bookmark(view, self.get_bookmark(self.view, self.title, self.is_open, self.query_arguments))
         
     def get_bookmark(self, view, title, is_open, extra_query_arguments):
         if is_open:
@@ -2292,9 +2290,6 @@ class _SubMenu(_MenuItem):
 class SubMenu(_SubMenu):
     __doc__ = _SubMenu.__doc__
 
-
-class MenuLayout(Layout):
-    pass
 
 
 # Uses: reahl/web/reahl.menu.css
@@ -2314,7 +2309,6 @@ class _Menu(HTMLWidget):
           Deprecated use of `a_list` and changed it temporarily to a keyword argument for backwards compatibility.
           Deprecated css_id keyword argument.
     """
-    default_layout_class = MenuLayout
     @classmethod
     @deprecated('Please use :meth:`with_languages` instead on an already created instance.', '3.2')
     def from_languages(cls, view):
@@ -2350,16 +2344,16 @@ class _Menu(HTMLWidget):
                           DeprecationWarning, stacklevel=2)
             self.with_a_list(a_list)
 
+    @exposed
+    def query_fields(self, fields):
+        fields.open_item = Field(required=False, default=None)
+
     def create_html_representation(self):
         ul = self.add_child(Ul(self.view))
         self.set_html_representation(ul)
         if self.add_reahl_styling:
             ul.append_class('reahl-menu')
         return ul
-        
-    @exposed
-    def query_fields(self, fields):
-        fields.open_item = Field(required=False, default=None)
 
     def with_bookmarks(self, bookmark_list):
         """Populates this Menu with a MenuItem for each Bookmark given in `bookmark_list`.
@@ -2404,6 +2398,15 @@ class _Menu(HTMLWidget):
             self.add_a(a)
         return self
 
+    def add_bookmark(self, bookmark):
+        """Adds a MenuItem for the given :class:`Bookmark` to this Menu'.
+
+           Answers the added MenuItem.
+
+           .. versionadded: 3.2
+        """
+        return self.add_item(_MenuItem.from_bookmark(self.view, bookmark))
+
     def add_a(self, a):
         """Adds an :class:`A` as a MenuItem.
            
@@ -2419,9 +2422,6 @@ class _Menu(HTMLWidget):
            .. versionchanged:: 3.2
               Deprecated adding submenus via this method. For sub menus, please use :meth:`add_submenu` instead.
         """
-        if not self.layout:
-            self.use_layout(self.default_layout_class())
-
         self.menu_items.append(item)
 
         if isinstance(item, _SubMenu):
@@ -2441,39 +2441,26 @@ class _Menu(HTMLWidget):
             li.add_attribute_source(ActiveStateAttributes(item))
         return li
 
-    def add_submenu(self, title, menu, query_arguments={}, **layout_kwargs):
+    def add_submenu(self, title, menu, query_arguments={}, **kwargs):
         """Adds 'menu` as a sub menu to this menu with the given `title`.
 
            Answers the added MenuItem.
 
            .. versionadded: 3.2
         """
-        if not self.layout:
-            self.use_layout(self.default_layout_class())
-
         submenu = _SubMenu(self.view, title, menu, is_open=self.open_item == title, query_arguments=query_arguments)
         self.menu_items.append(submenu)
-        self.add_html_for_submenu(submenu, **layout_kwargs)
+        self.add_html_for_submenu(submenu, **kwargs)
         return submenu
 
-    def add_html_for_submenu(self, submenu):
+    def add_html_for_submenu(self, submenu, add_dropdown_handle=False):
         li = self.add_html_for_item(submenu)
-        if self.add_reahl_styling:
+        if add_dropdown_handle:
             li.add_child(TextNode(self.view, '&nbsp;', html_escape=False))
             dropdown_handle = li.add_child(A(self.view, None, description='▼'))
             dropdown_handle.append_class('dropdown-handle')
         li.add_child(submenu.menu)
         return li
-
-    def add_bookmark(self, bookmark):
-        """Adds a MenuItem for the given :class:`Bookmark` to this Menu'.
-
-           Answers the added MenuItem.
-
-           .. versionadded: 3.2
-        """
-        return self.add_item(_MenuItem.from_bookmark(self.view, bookmark))
-
 
 
 
@@ -2482,7 +2469,7 @@ class Menu(_Menu):
     __doc__ = _Menu.__doc__
 
 
-class _HorizontalLayout(MenuLayout):
+class _HorizontalLayout(Layout):
     """A Layout that causes Widgets to be displayed horizontally.
 
        .. admonition:: Styling
@@ -2502,7 +2489,7 @@ class HorizontalLayout(_HorizontalLayout):
     __doc__ = _HorizontalLayout.__doc__
 
 
-class _VerticalLayout(MenuLayout):
+class _VerticalLayout(Layout):
     """A Layout that causes Widgets to be displayed vertically.
 
        .. admonition:: Styling
@@ -2657,7 +2644,7 @@ class _MultiTab(_Tab):
         return super(_MultiTab, self).is_active(tab_key)
 
     def add_to_menu(self, menu):
-        return menu.add_submenu(self.title, self.menu, query_arguments=self.query_arguments)
+        return menu.add_submenu(self.title, self.menu, query_arguments=self.query_arguments, add_dropdown_handle=True)
 
 
 
