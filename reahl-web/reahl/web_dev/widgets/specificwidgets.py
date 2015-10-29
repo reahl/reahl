@@ -187,7 +187,7 @@ class BasicReahlWidgets(object):
 
         expected_html = '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href3">description3</a></li>'''\
-                   '''<li><a href="/?open_item=Subbie" class="reahl-ajaxlink">Subbie</a>'''\
+                   '''<li><a>Subbie</a>'''\
                    '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href1">description1</a></li>'''\
                    '''<li><a href="/href2">description2</a></li>'''\
@@ -215,7 +215,7 @@ class BasicReahlWidgets(object):
 
         expected_html = '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href3">description3</a></li>'''\
-                   '''<li><a href="/?open_item=Subbie" class="reahl-ajaxlink">Subbie</a>'''\
+                   '''<li><a>Subbie</a>'''\
                    '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href1">description1</a></li>'''\
                    '''<li><a href="/href2">description2</a></li>'''\
@@ -424,7 +424,7 @@ class TabbedPanelTests(object):
         
         expected_html = '''<div id="tabbed_name" class="reahl-tabbedpanel">'''\
                         '''<ul class="reahl-horizontal reahl-menu">'''\
-                        '''<li class="active"><a href="/?tab=multitab-main&amp;open_item=tab+1+name" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
+                        '''<li class="active"><a href="/?tab=multitab-main" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
                         '''<a class="dropdown-handle">▼</a>'''\
                         '''<ul class="reahl-menu reahl-vertical">'''\
                         '''<li><a href="/?tab=mult1" class="reahl-ajaxlink">multi tab 1</a></li>'''\
@@ -464,8 +464,9 @@ class TabbedPanelTests(object):
         tabbed_panel.add_tab(tab1)
         tabbed_panel.add_tab(tab2)
 
-        vassert( tab1.is_active == fixture.tab1_active )
-        vassert( tab2.is_active == fixture.tab2_active )
+        [menu_item1, menu_item2] = tabbed_panel.menu.menu_items
+        vassert( menu_item1.is_active == fixture.tab1_active )
+        vassert( menu_item2.is_active == fixture.tab2_active )
 
         tester = WidgetTester(tabbed_panel)
         panel_contents = tester.get_html_for('//div/div/*')
@@ -513,10 +514,13 @@ class TabbedPanelTests(object):
         tab3 = Tab(fixture.view, 'tab 3 name', 'tab3', P.factory(text='tab 3 content'))
         tabbed_panel.add_tab(tab3)
 
-        vassert( multi_tab.is_active == fixture.multi_tab_active )
-        vassert( tab1.is_active == fixture.tab1_active )
-        vassert( tab2.is_active == fixture.tab2_active )
-        vassert( tab3.is_active == fixture.tab3_active )
+        [top_level_menu_item_for_multitab, top_level_normal_menu_item] = tabbed_panel.menu.menu_items
+        [multi_tab_menu_item1, multi_tab_menu_item2] = multi_tab.menu.menu_items
+
+        vassert( top_level_menu_item_for_multitab.is_active == fixture.multi_tab_active )
+        vassert( multi_tab_menu_item1.is_active == fixture.tab1_active )
+        vassert( multi_tab_menu_item2.is_active == fixture.tab2_active )
+        vassert( top_level_normal_menu_item.is_active == fixture.tab3_active )
 
         tester = WidgetTester(tabbed_panel)
         panel_contents = tester.get_html_for('//div/div/*')
@@ -527,7 +531,7 @@ class TabbedPanelTests(object):
         """The contents registered with the TabbedPanel's active tab are displayed."""
         fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open('/')
-
+#        import pdb; pdb.set_trace()
         # by default, the first tab is active and its contents are displayed
         vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'multitab name') )
         vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>main multi tab content</p>') )
