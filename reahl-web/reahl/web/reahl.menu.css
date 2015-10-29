@@ -27,6 +27,8 @@ ul.reahl-menu > li > a {
   position: absolute;
   top: 100%;
   left: 0; 
+  margin-top: 0;
+  list-style-type: none;
 }
 
 .reahl-menu > li:hover > .reahl-menu {
