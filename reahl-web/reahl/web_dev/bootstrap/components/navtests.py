@@ -119,10 +119,10 @@ class LayoutScenarios(WebFixture):
 
 @test(LayoutScenarios)
 def nav_layouts(fixture):
-    """Navs can be laid out in different ways, and the Layout used creates the html_representation of the Nav"""
+    """Navs can be laid out in different ways."""
     menu = Nav(fixture.view)
 
-    vassert( not menu.html_representation )
+    vassert( not fixture.layout_css_class.issubset(menu.html_representation.attributes['class'].value) )
     menu.use_layout(fixture.layout)
     vassert( fixture.layout_css_class.issubset(menu.html_representation.attributes['class'].value) )
 

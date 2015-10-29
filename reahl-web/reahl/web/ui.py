@@ -2226,6 +2226,7 @@ class _MenuItem(object):
         self.a = a
         self.active_regex = active_regex
         self.force_active = False
+        self.is_active_callable = self.default_is_active
         if css_id:
             self.set_id(css_id)
             warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
@@ -2235,8 +2236,14 @@ class _MenuItem(object):
     def set_active(self):
         self.force_active = True
 
+    def determine_is_active_using(self, is_active_callable):
+        self.is_active_callable = is_active_callable
+
     @property
     def is_active(self):
+        return self.is_active_callable()
+            
+    def default_is_active(self):
         if self.force_active:
             return True
         if not self.active_regex:
@@ -2265,25 +2272,14 @@ class _SubMenu(_MenuItem):
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
-    def __init__(self, view, title, menu, is_open=False, query_arguments={}, css_id=None):
-        a = A.from_bookmark(view, self.get_bookmark(view, title, is_open, query_arguments))
+    def __init__(self, view, title, menu, query_arguments={}, css_id=None):
+        if query_arguments:
+            a = A.from_bookmark(view, Bookmark.for_widget(title, query_arguments=query_arguments).on_view(view))
+        else:
+            a = A(view, None, description=title)
         super(_SubMenu, self).__init__(view, a, css_id=css_id)
-        self.is_open = is_open
         self.title = title
         self.menu = menu
-        self.query_arguments = query_arguments
-    
-    def force_open_after_creation_for_backwards_compatibility(self):
-        self.is_open = True
-        self.a = A.from_bookmark(view, self.get_bookmark(self.view, self.title, self.is_open, self.query_arguments))
-        
-    def get_bookmark(self, view, title, is_open, extra_query_arguments):
-        if is_open:
-            query_arguments={'open_item': ''}
-        else:
-            query_arguments={'open_item': title}
-        query_arguments.update(extra_query_arguments)
-        return Bookmark.for_widget(title, query_arguments=query_arguments).on_view(view)
 
 
 @deprecated('Please use :meth:`Menu.add_submenu() instead.', '3.2')
@@ -2328,7 +2324,6 @@ class _Menu(HTMLWidget):
         return menu.with_bookmarks(bookmark_list)
 
     def __init__(self, view, a_list=None, css_id=None):
-        self.open_item = None
         super(_Menu, self).__init__(view)
         self.menu_items = []
         self.css_id = css_id
@@ -2343,10 +2338,6 @@ class _Menu(HTMLWidget):
                           'Please construct, then use .with_a_list() instead.',
                           DeprecationWarning, stacklevel=2)
             self.with_a_list(a_list)
-
-    @exposed
-    def query_fields(self, fields):
-        fields.open_item = Field(required=False, default=None)
 
     def create_html_representation(self):
         ul = self.add_child(Ul(self.view))
@@ -2427,8 +2418,6 @@ class _Menu(HTMLWidget):
         if isinstance(item, _SubMenu):
             warnings.warn('DEPRECATED: calling add_item() with a SubMenu instance. Please use .add_submenu() instead.',
                           DeprecationWarning, stacklevel=2)
-            if self.open_item == item.title:
-                item.force_open_after_creation_for_backwards_compatibility()
             item = self.add_html_for_submenu(item)
         else:
             self.add_html_for_item(item)
@@ -2448,7 +2437,7 @@ class _Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
-        submenu = _SubMenu(self.view, title, menu, is_open=self.open_item == title, query_arguments=query_arguments)
+        submenu = _SubMenu(self.view, title, menu, query_arguments=query_arguments)
         self.menu_items.append(submenu)
         self.add_html_for_submenu(submenu, **kwargs)
         return submenu
@@ -2568,6 +2557,7 @@ class _Tab(object):
         self.tab_key = tab_key
         self.contents_factory = contents_factory
         self.view = view
+        self.panel = None
 
     def get_bookmark(self, view):
         return Bookmark.for_widget(self.title, query_arguments=self.query_arguments).on_view(view)
@@ -2580,11 +2570,22 @@ class _Tab(object):
     def contents(self):
         return self.contents_factory.create(self.view)
 
-    def is_active(self, tab_key):
-        return self.tab_key == tab_key
+    def set_panel(self, tabbed_panel):
+        self.panel = tabbed_panel
+
+    @property
+    def is_open(self):
+        return self.panel.is_currently_open(self)
+
+    @property
+    def is_active(self):
+        return self.is_open
 
     def add_to_menu(self, menu):
-        return menu.add_bookmark(self.get_bookmark(self.view))
+        menu_item = menu.add_bookmark(self.get_bookmark(self.view))
+        menu_item.determine_is_active_using(lambda: self.is_active)
+        return menu_item
+
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:Tab instead', '3.2')
@@ -2617,34 +2618,44 @@ class _MultiTab(_Tab):
         super(_MultiTab, self).__init__(view, title, tab_key, contents_factory)
         
     def add_tab(self, tab):
-        self.menu.add_bookmark(tab.get_bookmark(self.view))
+        tab.add_to_menu(self.menu)
         self.tabs.append(tab)
+        tab.set_panel(self.panel)
         return tab
 
     @property
     def first_tab(self):
         return self.tabs[0]
 
-    def current_sub_tab(self, tab_key):
-        active_tab = [tab for tab in self.tabs
-                      if tab.is_active(tab_key)]
-        if len(active_tab) == 1:
-            return active_tab[0]
+    @property
+    def current_sub_tab(self):
+        open_tab = [tab for tab in self.tabs
+                      if tab.is_open]
+        if len(open_tab) == 1:
+            return open_tab[0]
         return self.first_tab
 
-    def contents_for(self, tab_key):
-        if super(_MultiTab, self).is_active(tab_key):
+    @property
+    def is_active(self):
+        return self.is_open or self.current_sub_tab.is_open
+
+    @property
+    def contents(self):
+        if self.is_open:
             return super(_MultiTab, self).contents
         else:
-            return self.current_sub_tab(tab_key).contents
+            return self.current_sub_tab.contents
 
-    def is_active(self, tab_key):
-        if self.current_sub_tab(tab_key).is_active(tab_key):
-            return True
-        return super(_MultiTab, self).is_active(tab_key)
+    def set_panel(self, tabbed_panel):
+        super(_MultiTab, self).set_panel(tabbed_panel)
+        for tab in self.tabs:
+            tab.set_panel(tabbed_panel)
 
     def add_to_menu(self, menu):
-        return menu.add_submenu(self.title, self.menu, query_arguments=self.query_arguments, add_dropdown_handle=True)
+        menu_item = menu.add_submenu(self.title, self.menu, query_arguments=self.query_arguments, add_dropdown_handle=True)
+        menu_item.determine_is_active_using(lambda: self.is_active)
+        return menu_item
+
 
 
 
@@ -2695,26 +2706,24 @@ class _TabbedPanel(Div):
     def set_active(self, tab):
         self.tab = tab.tab_key
 
+    def is_currently_open(self, tab):
+        return tab.tab_key == self.tab
+
     def add_tab(self, tab):
         """Adds the Tab `tab` to this TabbedPanel."""
         if not self.active_tab_set:
             self.set_active(tab)
+        tab.set_panel(self)
 
         self.tabs.append(tab)
-        menu_item = tab.add_to_menu(self.menu)
-        
-        if tab.is_active(self.tab):
-            menu_item.set_active()
+        tab.add_to_menu(self.menu)
 
         self.add_pane_for(tab)
         return tab
 
     def add_pane_for(self, tab):
-        if tab.is_active(self.tab):
-            if isinstance(tab, _MultiTab):
-                self.content_panel.add_child(tab.contents_for(self.tab))
-            else:
-                self.content_panel.add_child(tab.contents)
+        if tab.is_active:
+            self.content_panel.add_child(tab.contents)
 
 
 @deprecated('Please use reahl.web.attic.tabbedpanel:TabbedPanel instead', '3.2')

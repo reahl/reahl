@@ -59,6 +59,14 @@ class NavLayout(Layout):
 class Nav(reahl.web.attic.menu.Menu):
     add_reahl_styling = False
 
+    def __init__(self, view, a_list=None, css_id=None):
+        super(Nav, self).__init__(view, a_list=None, css_id=None)
+        self.open_item = None
+
+    @exposed
+    def query_fields(self, fields):
+        fields.open_item = Field(required=False, default=None)
+
     def create_html_representation(self):
         li = super(Nav, self).create_html_representation()
         li.append_class('nav')
@@ -75,9 +83,18 @@ class Nav(reahl.web.attic.menu.Menu):
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
 
+    def add_submenu(self, title, menu, extra_query_arguments={}, **kwargs):
+        if self.open_item == title:
+            query_arguments={'open_item': ''}
+        else:
+            query_arguments={'open_item': title}
+        query_arguments.update(extra_query_arguments)
+        submenu = super(Nav, self).add_submenu(title, menu, query_arguments=query_arguments, **kwargs)
+        return submenu
+    
     def add_html_for_submenu(self, submenu, drop_up=False):
         li = super(Nav, self).add_html_for_submenu(submenu)
-        if submenu.is_open:
+        if self.open_item == submenu.title:
             li.append_class('open')
         submenu.a.append_class('dropdown-toggle')
         submenu.a.set_attribute('data-toggle', 'dropdown')
