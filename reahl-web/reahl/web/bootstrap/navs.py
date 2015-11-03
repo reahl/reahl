@@ -60,8 +60,8 @@ class Nav(reahl.web.attic.menu.Menu):
     add_reahl_styling = False
 
     def __init__(self, view, a_list=None, css_id=None):
-        super(Nav, self).__init__(view, a_list=None, css_id=None)
         self.open_item = None
+        super(Nav, self).__init__(view, a_list=None, css_id=None)
 
     @exposed
     def query_fields(self, fields):
