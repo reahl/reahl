@@ -31,6 +31,9 @@ from reahl.web.ui import Div
 from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
 
 
+
+assert None, 'TODO: open_item does not work w/o javascript & MultiTab should not have content & bring in here the ideas of Tabs holding on to their TabbedPanel & deciding on the fly whether they are active; the additions to MenuItem'
+
 class TabbedPanel(Widget):
     def __init__(self, view, nav_layout=None):
         super(TabbedPanel, self).__init__(view)
