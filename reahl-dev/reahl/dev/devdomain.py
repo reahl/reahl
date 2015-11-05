@@ -43,7 +43,7 @@ from reahl.bzrsupport import Bzr
 from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, EntryPointKeyEncodedAttachmentName
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
 from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotBuiltException, NotAValidProjectException, \
@@ -806,6 +806,7 @@ class MigrationList(OrderedClassesList):
 
 
 class FileList(list):
+    attachment_label = 'any'
     @property
     def entry_point(self):
         return 'reahl.attachments.any'
@@ -824,6 +825,10 @@ class AttachmentList(list):
         super(AttachmentList, self).__init__()
         self.file_type = file_type
     
+    @property
+    def attachment_label(self):
+        return self.file_type
+
     @classmethod
     def get_xml_registration_info(cls):
         return ('attachedfiles', cls, None)
@@ -844,15 +849,17 @@ class AttachmentList(list):
 
 
 class ShippedFile(object):
-    def __init__(self, path, order, entry_point):
+
+    def __init__(self, path, order, entry_point, label):
         self.entry_point = entry_point
         self.path = path
         self.order = order
+        self.label = label
 
     @property
     def name(self):
-        return '%s:%s' % (self.order, self.path)
-        
+        return EntryPointKeyEncodedAttachmentName(path=self.path, order=self.order).as_encoded_key()
+
     @property
     def locator(self):
         return EntryPointLocator('reahl')
@@ -863,7 +870,7 @@ class ShippedFile(object):
 
     def inflate_attributes(self, reader, attributes, parent):
         assert 'path' in attributes, 'No path specified'
-        self.__init__(attributes['path'], len(parent), parent.entry_point)
+        self.__init__(attributes['path'], len(parent), parent.entry_point, parent.attachment_label)
 
 
 class EntryPointLocator(object):
