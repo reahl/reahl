@@ -2155,7 +2155,7 @@ class ActiveStateAttributes(DelegatedAttributes):
 
         if self.widget.is_active and self.active_class:
             attributes.add_to('class', [self.active_class])
-            
+
 
 #cs@deprecated('Please use reahl.web.attic.menu:MenuItem instead', '3.2')
 class MenuItem(object):
@@ -2216,6 +2216,7 @@ class MenuItem(object):
         if not self.active_regex:
             return self.a.href and self.a.href.is_currently_active(exact_path=self.exact_match)
         return re.match(self.active_regex, self.view.relative_path)
+
 
 #cs@deprecated('Please use :meth:`Menu.add_submenu() instead.', '3.2')
 class SubMenu(MenuItem):
