@@ -34,7 +34,7 @@ class TablePageIndex(SequentialPageIndex):
         self.sort_column_number = 0
         self.sort_descending = False
         self.columns = columns
-        
+
     @property
     def sorting_keys(self):
         return [column.sort_key for column in self.columns]
@@ -53,7 +53,7 @@ class TablePageIndex(SequentialPageIndex):
 
 class PagedTable(PagedPanel):
     def __init__(self, view, page_index, columns, caption_text=None, summary=None, css_id=None):
-        super(PagedTable, self).__init__(view, page_index, css_id=css_id)  
+        super(PagedTable, self).__init__(view, page_index, css_id=css_id)
 
         def make_heading_with_sort_controls(column_number, sort_key, old_make_heading_widget, view):
             heading_widget = Widget(view)
@@ -75,7 +75,7 @@ class PagedTable(PagedPanel):
     def create_sorter_link(self, column_number, descending=False):
         description = '▼' if descending else '▲'
         sort_descending = 'on' if descending else 'off'
-        bookmark = Bookmark.for_widget(description=description, 
+        bookmark = Bookmark.for_widget(description=description,
                                        query_arguments={'sort_column_number': column_number,
                                                         'sort_descending': sort_descending})
         return A.from_bookmark(self.view, bookmark.on_view(self.view))
@@ -96,7 +96,7 @@ class PagedTable(PagedPanel):
 
 
 class DataTable(Div):
-    """A table containing a potentially large set of data items. DataTable does not display all its items 
+    """A table containing a potentially large set of data items. DataTable does not display all its items
        on the current page. It renders as a table spread over different pages between which a user can
        navigate, thus preventing a large data set sent back to a single page.
 

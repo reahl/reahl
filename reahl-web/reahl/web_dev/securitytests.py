@@ -27,7 +27,7 @@ from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, TextInput, ButtonInput, Div, P, HTML5Page
-from reahl.web.attic.layout import Button
+from reahl.web.ui import Button
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed

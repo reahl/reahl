@@ -27,13 +27,11 @@ import six
 
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark
-from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div, Ul
-import reahl.web.attic
+from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div, Menu
 from reahl.web.bootstrap.ui import Span, A
 
 from reahl.component.exceptions import ProgrammerError
 
-from reahl.web.attic.menu import MenuItem 
 
 
 
@@ -56,7 +54,7 @@ class NavLayout(Layout):
 
 
 
-class Nav(reahl.web.attic.menu.Menu):
+class Nav(Menu):
     add_reahl_styling = False
 
     def __init__(self, view, a_list=None, css_id=None):
@@ -116,7 +114,7 @@ class DropdownMenuLayout(Layout):
 
 
 
-class DropdownMenu(reahl.web.attic.menu.Menu):
+class DropdownMenu(Menu):
     add_reahl_styling = False
     def create_html_representation(self):
         div = self.add_child(Div(self.view))
