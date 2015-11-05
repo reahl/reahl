@@ -252,6 +252,7 @@ class BasicReahlWidgets(object):
 
     @test(MenuItemScenarios)
     def rendering_active_menu_items(self, fixture):    
+        """A MenuItem is marked as active based on its active_regex or the A it represents."""
         description = 'The link'
         href = Url('/link')
 
@@ -266,6 +267,51 @@ class BasicReahlWidgets(object):
 
         vassert( actual == expected_menu_item_html )
 
+
+    class CustomMenuItemFixture(WebFixture):
+        def new_href(self):
+            return Url('/link')
+
+        def new_menu_item(self):
+            description = 'The link'
+            href = Url('/link')
+        
+            menu_item = MenuItem(self.view, A(self.view, self.href, description=description))
+            return menu_item
+
+        def new_menu(self):
+            menu = Menu(self.view)
+            menu.add_item(self.menu_item)
+            return menu
+        
+        def new_tester(self):
+            return WidgetTester(self.menu)
+
+        def item_displays_as_active(self):
+            actual = self.tester.get_html_for('//li')
+            class_str = ' class="active"'
+            expected_menu_item_html = '<li%s><a href="/link">The link</a></li>' % (class_str)
+            return actual == expected_menu_item_html
+
+        def set_request_url(self, href):
+            self.request.environ['PATH_INFO'] = str(href)
+    
+    @test(CustomMenuItemFixture)
+    def custom_active_menu_items(self, fixture):
+        """You can specify a custom method by which a MenuItem determines its active state."""
+
+        # The default behaviour happens when no custom method is supplied
+        fixture.set_request_url(fixture.href)
+        vassert( fixture.item_displays_as_active() )
+        
+        # Overriding behaviour happens when supplied
+        fixture.menu_item.determine_is_active_using(lambda: False)
+        vassert( not fixture.item_displays_as_active() )
+
+        url_on_which_item_is_usually_inactive = Url('/another_href')
+        fixture.set_request_url(url_on_which_item_is_usually_inactive)
+        fixture.menu_item.determine_is_active_using(lambda: True)
+        vassert( fixture.item_displays_as_active() )
 
     @test(WebFixture)
     def language_menu(self, fixture):

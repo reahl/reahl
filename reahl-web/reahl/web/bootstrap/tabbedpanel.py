@@ -32,7 +32,13 @@ from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
 
 
 
-assert None, 'TODO: open_item does not work w/o javascript & MultiTab should not have content & bring in here the ideas of Tabs holding on to their TabbedPanel & deciding on the fly whether they are active; the additions to MenuItem'
+assert None, '''TODO: open_item does not work w/o javascript & MultiTab should not have content & bring in here the ideas of Tabs holding on to their TabbedPanel & deciding on the fly whether they are active; the additions to MenuItem;
+
+
+set_active (self.force_active is dead on menuitem?)
+and the active_regex & exact_match - so... delete them and always delagate to the a unless determine_is_active_using is used...
+
+'''
 
 class TabbedPanel(Widget):
     def __init__(self, view, nav_layout=None):
