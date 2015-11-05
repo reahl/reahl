@@ -12,7 +12,7 @@ from reahl.web.ui import Div, P, TextInput, HTML5Page, StaticColumn, DynamicColu
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.web.ui import Button, Form, H, Menu, HorizontalLayout, InputGroup, LabelledBlockInput, A
-from reahl.web.table import DataTable
+from reahl.web.datatable import DataTable
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action, BooleanField
 
 

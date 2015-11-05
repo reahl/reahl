@@ -30,7 +30,7 @@ from reahl.web.ui import HTMLElement, PrimitiveInput, TextInput, Form, Validatio
                           PasswordInput, P,\
                           TextArea, SelectInput, RadioButtonInput
 
-from reahl.web.attic.layout import Button, LabelOverInput, CueInput, LabelledInlineInput, LabelledBlockInput
+from reahl.web.ui import Button, LabelOverInput, CueInput, LabelledInlineInput, LabelledBlockInput
 
 from reahl.component.modelinterface import Field, EmailField, BooleanField,\
                              RequiredConstraint, MinLengthConstraint, PatternConstraint, RemoteConstraint,\

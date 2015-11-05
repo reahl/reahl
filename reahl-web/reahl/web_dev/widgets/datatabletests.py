@@ -21,11 +21,10 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath
-from reahl.web.ui import Div, StaticColumn, DynamicColumn
-from reahl.web.attic.layout import Button
+from reahl.web.ui import Div, StaticColumn
 from reahl.web_dev.widgets.tabletests import TableFixture
 
-from reahl.web.attic.datatable import DataTable
+from reahl.web.datatable import DataTable
 from reahl.component.modelinterface import Field, IntegerField, exposed
 
 

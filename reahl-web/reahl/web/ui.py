@@ -147,7 +147,8 @@ class HTMLAttributeDict(dict):
         del self[name]        
 
 
-class _PriorityGroup(object):
+#cs@deprecated('Please use reahl.web.attic.layout:PriorityGroup instead', '3.2')
+class PriorityGroup(object):
     """A PriorityGroup ensures that only one of the Widgets added to it has primary priority, 
        the others in the group can have secondary priority, or no priority specified. This 
        is used for styling Widgets based on their priority in the PriorityGroup.
@@ -172,11 +173,6 @@ class _PriorityGroup(object):
         self.add(widget)
         widget.set_priority(primary=True)
         self.has_primary = True
-
-
-@deprecated('Please use reahl.web.attic.layout:PriorityGroup instead', '3.2')
-class PriorityGroup(_PriorityGroup):
-    __doc__ = _PriorityGroup.__doc__
 
 
 # Uses: reahl/web/reahl.hashchange.js
@@ -750,7 +746,8 @@ class P(HTMLElement):
         self.available_slots[name].fill(widget)
 
 
-class _ErrorFeedbackMessage(P):
+#cs@deprecated('Please use reahl.web.attic.layout:ErrorFeedbackMessage instead', '3.2')
+class ErrorFeedbackMessage(P):
     """A user message indicating some error condition, such as a form validation which failed.
 
        .. admonition:: Styling
@@ -759,14 +756,9 @@ class _ErrorFeedbackMessage(P):
     """
     @property
     def attributes(self):
-        attributes = super(_ErrorFeedbackMessage, self).attributes
+        attributes = super(ErrorFeedbackMessage, self).attributes
         attributes.add_to('class', ['error', 'feedback'])
         return attributes    
-
-
-@deprecated('Please use reahl.web.attic.layout:ErrorFeedbackMessage instead', '3.2')
-class ErrorFeedbackMessage(_ErrorFeedbackMessage):
-    __doc__ = _ErrorFeedbackMessage.__doc__
 
 
 class Div(HTMLElement):
@@ -1230,14 +1222,10 @@ class FieldSet(HTMLElement):
             self.label = self.add_child(Label(view, text=label_text))
     
 
-class _InputGroup(FieldSet):
+#cs@deprecated('Please use reahl.web.attic.layout:InputGroup instead', '3.2')
+class InputGroup(FieldSet):
     __doc__ = FieldSet.__doc__
 
-
-@deprecated('Please use reahl.web.attic.layout:InputGroup instead', '3.2')
-class InputGroup(_InputGroup):
-    __doc__ = _InputGroup.__doc__
-    
 
 class DelegatedAttributes(object):
     def set_attributes(self, attributes):
@@ -1872,7 +1860,8 @@ class ButtonInput(PrimitiveInput):
         return None
 
 
-class _Button(Span):
+#cs@deprecated('Please use reahl.web.attic.layout:Button instead', '3.2')
+class Button(Span):
     """A button.
 
        .. admonition:: Styling
@@ -1885,19 +1874,14 @@ class _Button(Span):
 
     """
     def __init__(self, form, event, css_id=None):
-        super(_Button, self).__init__(form.view, css_id=css_id)
+        super(Button, self).__init__(form.view, css_id=css_id)
         self.html_input = self.add_child(ButtonInput(form, event))
 
     @property
     def attributes(self):
-        attributes = super(_Button, self).attributes
+        attributes = super(Button, self).attributes
         attributes.add_to('class', ['reahl-button'])
         return attributes
-
-
-@deprecated('Please use reahl.web.attic.layout:Button instead', '3.2')
-class Button(_Button):
-    __doc__ = _Button.__doc__
 
 
 class Label(HTMLElement):
@@ -1979,8 +1963,9 @@ class ErrorLabel(Label):
         return attributes
 
 
+#cs@deprecated('Please use reahl.web.attic.layout:LabelledInlineInput instead', '3.2')
 # Uses: reahl/web/reahl.labelledinput.css
-class _LabelledInlineInput(Span):
+class LabelledInlineInput(Span):
     """A Widget that wraps around a given Input, adding a Label to the Input. Adheres to text flow.
 
        .. admonition:: Styling
@@ -1994,7 +1979,7 @@ class _LabelledInlineInput(Span):
     """
     def __init__(self, html_input, css_id=None):
         view = html_input.view
-        super(_LabelledInlineInput, self).__init__(view, css_id=css_id)
+        super(LabelledInlineInput, self).__init__(view, css_id=css_id)
         self.label = self.add_child(self.make_label(html_input))
         self.inner_span = self.add_child(Span(view))
         self.html_input = self.inner_span.add_child(html_input)
@@ -2008,20 +1993,16 @@ class _LabelledInlineInput(Span):
 
     @property
     def attributes(self):
-        attributes = super(_LabelledInlineInput, self).attributes
+        attributes = super(LabelledInlineInput, self).attributes
         attributes.add_to('class', ['reahl-labelledinput'])
         if self.html_input.get_input_status() == 'invalidly_entered':
             attributes.add_to('class', ['reahl-state-error'])
         return attributes
 
 
-@deprecated('Please use reahl.web.attic.layout:LabelledInlineInput instead', '3.2')
-class LabelledInlineInput(_LabelledInlineInput):
-    __doc__ = _LabelledInlineInput.__doc__
-
-
+#cs@deprecated('Please use reahl.web.attic.layout:LabelledBlockInput instead', '3.2')
 # Uses: reahl/web/reahl.labelledinput.css
-class _LabelledBlockInput(Div):
+class LabelledBlockInput(Div):
     """A Widget that wraps around a given Input, adding a Label to the Input. Labels and their corresponding Inputs
        are arranged in columns. Successive LabelledBlockInputs are positioned underneath one another. This has the
        effect that the Labels and Inputs of successive LabelledBlockInputs line up.
@@ -2037,7 +2018,7 @@ class _LabelledBlockInput(Div):
     """
     def __init__(self, html_input, css_id=None):
         view = html_input.view
-        super(_LabelledBlockInput, self).__init__(view, css_id=css_id)
+        super(LabelledBlockInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
 
         if YuiGridsCss.is_enabled():
@@ -2059,20 +2040,16 @@ class _LabelledBlockInput(Div):
 
     @property
     def attributes(self):
-        attributes = super(_LabelledBlockInput, self).attributes
+        attributes = super(LabelledBlockInput, self).attributes
         attributes.add_to('class', ['reahl-labelledinput'])
         if self.html_input.get_input_status() == 'invalidly_entered':
             attributes.add_to('class', ['reahl-state-error'])
         return attributes
 
 
-@deprecated('Please use reahl.web.attic.layout:LabelledBlockInput instead', '3.2')
-class LabelledBlockInput(_LabelledBlockInput):
-    __doc__ = _LabelledBlockInput.__doc__
-
-
+#cs@deprecated('Please use reahl.web.attic.layout:CueInput instead', '3.2')
 # Uses: reahl/web/reahl.cueinput.js
-class _CueInput(Div):
+class CueInput(Div):
     """A Widget that wraps around a given Input, adding a Label to the Input and a "cue" - a hint that
        appears only when the Input has focus. The intention of the cue is to give the user a hint as to
        what to input into the Input.
@@ -2091,7 +2068,7 @@ class _CueInput(Div):
     """
     def __init__(self, html_input, cue_widget, css_id=None):
         view = html_input.view
-        super(_CueInput, self).__init__(view, css_id=css_id)
+        super(CueInput, self).__init__(view, css_id=css_id)
         self.html_input = html_input
 
         if YuiGridsCss.is_enabled():
@@ -2120,7 +2097,7 @@ class _CueInput(Div):
 
     @property
     def attributes(self):
-        attributes = super(_CueInput, self).attributes
+        attributes = super(CueInput, self).attributes
         attributes.add_to('class', ['reahl-cueinput', 'reahl-labelledinput'])
         if self.html_input.get_input_status() == 'invalidly_entered':
             attributes.add_to('class', ['reahl-state-error'])
@@ -2128,17 +2105,13 @@ class _CueInput(Div):
 
     def get_js(self, context=None):
         js = ['$(%s).cueinput();' % self.contextualise_selector('".reahl-cueinput"', context)]
-        return super(_CueInput, self).get_js(context=context) + js
+        return super(CueInput, self).get_js(context=context) + js
 
 
-@deprecated('Please use reahl.web.attic.layout:CueInput instead', '3.2')
-class CueInput(_CueInput):
-    __doc__ = _CueInput.__doc__
-
-
+#cs@deprecated('Please use reahl.web.attic.layout:LabelOverInput instead', '3.2')
 # Uses: reahl/web/reahl.labeloverinput.js
 # Uses: reahl/web/reahl.labeloverinput.css
-class _LabelOverInput(LabelledInlineInput):
+class LabelOverInput(LabelledInlineInput):
     """A :class:`LabelledInlineWidget` that shows the Label superimposed over the Input itself.
        The label is only visible while the Input is empty.
 
@@ -2152,7 +2125,7 @@ class _LabelOverInput(LabelledInlineInput):
     """
     @property
     def attributes(self):
-        attributes = super(_LabelOverInput, self).attributes
+        attributes = super(LabelOverInput, self).attributes
         attributes.add_to('class', ['reahl-labeloverinput'])
         return attributes
 
@@ -2168,14 +2141,7 @@ class _LabelOverInput(LabelledInlineInput):
 
     def get_js(self, context=None):
         js = ['$(%s).labeloverinput();' % self.contextualise_selector('".reahl-labeloverinput"', context)]
-        return super(_LabelOverInput, self).get_js(context=context) + js
-
-
-@deprecated('Please use reahl.web.attic.layout:LabelOverInput instead', '3.2')
-class LabelOverInput(_LabelOverInput):
-    __doc__ = _LabelOverInput.__doc__
-
-
+        return super(LabelOverInput, self).get_js(context=context) + js
 
 
 class ActiveStateAttributes(DelegatedAttributes):
@@ -2191,7 +2157,8 @@ class ActiveStateAttributes(DelegatedAttributes):
             attributes.add_to('class', [self.active_class])
             
 
-class _MenuItem(object):
+#cs@deprecated('Please use reahl.web.attic.menu:MenuItem instead', '3.2')
+class MenuItem(object):
     """One item in a Menu.
 
        .. admonition:: Styling
@@ -2220,7 +2187,7 @@ class _MenuItem(object):
         return cls(view, A.from_bookmark(view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
 
     def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
-        super(_MenuItem, self).__init__()
+        super(MenuItem, self).__init__()
         self.view = view
         self.exact_match = exact_match
         self.a = a
@@ -2250,16 +2217,8 @@ class _MenuItem(object):
             return self.a.href and self.a.href.is_currently_active(exact_path=self.exact_match)
         return re.match(self.active_regex, self.view.relative_path)
 
-
-
-
-@deprecated('Please use reahl.web.attic.menu:MenuItem instead', '3.2')
-class MenuItem(_MenuItem):
-    __doc__ = _MenuItem.__doc__
-
-
-
-class _SubMenu(_MenuItem):
+#cs@deprecated('Please use :meth:`Menu.add_submenu() instead.', '3.2')
+class SubMenu(MenuItem):
     """A MenuItem that can contains another complete Menu itself.
 
        .. admonition:: Styling
@@ -2277,19 +2236,13 @@ class _SubMenu(_MenuItem):
             a = A.from_bookmark(view, Bookmark.for_widget(title, query_arguments=query_arguments).on_view(view))
         else:
             a = A(view, None, description=title)
-        super(_SubMenu, self).__init__(view, a, css_id=css_id)
+        super(SubMenu, self).__init__(view, a, css_id=css_id)
         self.title = title
         self.menu = menu
 
-
-@deprecated('Please use :meth:`Menu.add_submenu() instead.', '3.2')
-class SubMenu(_SubMenu):
-    __doc__ = _SubMenu.__doc__
-
-
-
+#cs@deprecated('Please use reahl.web.attic.menu:Menu instead', '3.2')
 # Uses: reahl/web/reahl.menu.css
-class _Menu(HTMLWidget):
+class Menu(HTMLWidget):
     add_reahl_styling = True
     """A visual menu that lists a number of Views to which the user can choose to go to.
 
@@ -2324,7 +2277,7 @@ class _Menu(HTMLWidget):
         return menu.with_bookmarks(bookmark_list)
 
     def __init__(self, view, a_list=None, css_id=None):
-        super(_Menu, self).__init__(view)
+        super(Menu, self).__init__(view)
         self.menu_items = []
         self.css_id = css_id
         self.create_html_representation()
@@ -2396,7 +2349,7 @@ class _Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
-        return self.add_item(_MenuItem.from_bookmark(self.view, bookmark))
+        return self.add_item(MenuItem.from_bookmark(self.view, bookmark))
 
     def add_a(self, a):
         """Adds an :class:`A` as a MenuItem.
@@ -2405,7 +2358,7 @@ class _Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
-        return self.add_item(_MenuItem(self.view, a))
+        return self.add_item(MenuItem(self.view, a))
 
     def add_item(self, item):
         """Adds MenuItem `item` to this Menu.
@@ -2415,7 +2368,7 @@ class _Menu(HTMLWidget):
         """
         self.menu_items.append(item)
 
-        if isinstance(item, _SubMenu):
+        if isinstance(item, SubMenu):
             warnings.warn('DEPRECATED: calling add_item() with a SubMenu instance. Please use .add_submenu() instead.',
                           DeprecationWarning, stacklevel=2)
             item = self.add_html_for_submenu(item)
@@ -2437,7 +2390,7 @@ class _Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
-        submenu = _SubMenu(self.view, title, menu, query_arguments=query_arguments)
+        submenu = SubMenu(self.view, title, menu, query_arguments=query_arguments)
         self.menu_items.append(submenu)
         self.add_html_for_submenu(submenu, **kwargs)
         return submenu
@@ -2452,13 +2405,8 @@ class _Menu(HTMLWidget):
         return li
 
 
-
-@deprecated('Please use reahl.web.attic.menu:Menu instead', '3.2')
-class Menu(_Menu):
-    __doc__ = _Menu.__doc__
-
-
-class _HorizontalLayout(Layout):
+#cs@deprecated('Please use reahl.web.attic.menu:HorizontalLayout instead', '3.2')
+class HorizontalLayout(Layout):
     """A Layout that causes Widgets to be displayed horizontally.
 
        .. admonition:: Styling
@@ -2469,16 +2417,12 @@ class _HorizontalLayout(Layout):
 
     """
     def customise_widget(self):
-        super(_HorizontalLayout, self).customise_widget()
+        super(HorizontalLayout, self).customise_widget()
         self.widget.html_representation.append_class('reahl-horizontal')
 
 
-@deprecated('Please use reahl.web.attic.menu:HorizontalLayout instead', '3.2')
-class HorizontalLayout(_HorizontalLayout):
-    __doc__ = _HorizontalLayout.__doc__
-
-
-class _VerticalLayout(Layout):
+#cs@deprecated('Please use reahl.web.attic.menu:VerticalLayout instead', '3.2')
+class VerticalLayout(Layout):
     """A Layout that causes Widgets to be displayed vertically.
 
        .. admonition:: Styling
@@ -2489,18 +2433,13 @@ class _VerticalLayout(Layout):
 
     """
     def customise_widget(self):
-        super(_VerticalLayout, self).customise_widget()
+        super(VerticalLayout, self).customise_widget()
         self.widget.html_representation.append_class('reahl-vertical')
-
-
-@deprecated('Please use reahl.web.attic.menu:VerticalLayout instead', '3.2')
-class VerticalLayout(_VerticalLayout):
-    __doc__ = _VerticalLayout.__doc__
 
 
 # Uses: reahl/web/reahl.hmenu.css
 @deprecated('Please use Menu(view, layout=HorizontalLayout()) instead.', '3.1')
-class HMenu(_Menu):
+class HMenu(Menu):
     """A Menu, with items displayed next to each other.
 
        .. admonition:: Styling
@@ -2514,11 +2453,11 @@ class HMenu(_Menu):
     """
     def __init__(self, view, a_list, css_id=None):
         super(HMenu, self).__init__(view, a_list, css_id=css_id)
-        self.use_layout(_HorizontalLayout())
+        self.use_layout(HorizontalLayout())
 
 
 @deprecated('Please use Menu(view, layout=VerticalLayout()) instead.', '3.1')
-class VMenu(_Menu):
+class VMenu(Menu):
     """A Menu, with items displayed underneath each other.
 
        .. admonition:: Styling
@@ -2532,10 +2471,11 @@ class VMenu(_Menu):
     """
     def __init__(self, view, a_list, css_id=None):
         super(VMenu, self).__init__(view, a_list, css_id=css_id)
-        self.use_layout(_VerticalLayout())
+        self.use_layout(VerticalLayout())
 
 
-class _Tab(object):
+#cs@deprecated('Please use reahl.web.attic.tabbedpanel:Tab instead', '3.2')
+class Tab(object):
     """One Tab in a :class:`TabbedPanel`.
 
        .. admonition:: Styling
@@ -2552,7 +2492,7 @@ class _Tab(object):
           Deprecated css_id keyword argument.
     """
     def __init__(self, view, title, tab_key, contents_factory, css_id=None):
-        super(_Tab, self).__init__()
+        super(Tab, self).__init__()
         self.title = title
         self.tab_key = tab_key
         self.contents_factory = contents_factory
@@ -2587,13 +2527,8 @@ class _Tab(object):
         return menu_item
 
 
-
-@deprecated('Please use reahl.web.attic.tabbedpanel:Tab instead', '3.2')
-class Tab(_Tab):
-    __doc__ = _Tab.__doc__
-
-
-class _MultiTab(_Tab):
+#cs@deprecated('Please use reahl.web.attic.tabbedpanel:MultiTab instead', '3.2')
+class MultiTab(Tab):
     """A composite tab. Instead of a single choice for the user, clicking on a MultiTab
        results in a dropdown menu with more choices for the user.
 
@@ -2614,8 +2549,8 @@ class _MultiTab(_Tab):
     """
     def __init__(self, view, title, tab_key, contents_factory):
         self.tabs = []
-        self.menu = _Menu(view).use_layout(_VerticalLayout())
-        super(_MultiTab, self).__init__(view, title, tab_key, contents_factory)
+        self.menu = Menu(view).use_layout(VerticalLayout())
+        super(MultiTab, self).__init__(view, title, tab_key, contents_factory)
         
     def add_tab(self, tab):
         tab.add_to_menu(self.menu)
@@ -2642,12 +2577,12 @@ class _MultiTab(_Tab):
     @property
     def contents(self):
         if self.is_open:
-            return super(_MultiTab, self).contents
+            return super(MultiTab, self).contents
         else:
             return self.current_sub_tab.contents
 
     def set_panel(self, tabbed_panel):
-        super(_MultiTab, self).set_panel(tabbed_panel)
+        super(MultiTab, self).set_panel(tabbed_panel)
         for tab in self.tabs:
             tab.set_panel(tabbed_panel)
 
@@ -2657,16 +2592,10 @@ class _MultiTab(_Tab):
         return menu_item
 
 
-
-
-@deprecated('Please use reahl.web.attic.tabbedpanel:MultiTab instead', '3.2')
-class MultiTab(_MultiTab):
-    __doc__ = _MultiTab.__doc__
-
-
+#cs@deprecated('Please use reahl.web.attic.tabbedpanel:TabbedPanel instead', '3.2')
 # Uses: reahl/web/reahl.tabbedpanel.css
 # Uses: reahl/web/reahl.tabbedpanel.js
-class _TabbedPanel(Div):
+class TabbedPanel(Div):
     """A Div sporting different Tabs which the user can select to change what is displayed. The contents
        of a TabbedPanel are changed when the user clicks on a different Tab without refreshing the entire
        page, provided that JavaScript is available on the user agent.
@@ -2684,10 +2613,10 @@ class _TabbedPanel(Div):
           Deprecated use css_id keyword argument.
     """
     def __init__(self, view, css_id):
-        super(_TabbedPanel, self).__init__(view, css_id=css_id)
+        super(TabbedPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-tabbedpanel')
         self.tabs = []
-        self.menu = self.add_child(_Menu(view).use_layout(_HorizontalLayout()))
+        self.menu = self.add_child(Menu(view).use_layout(HorizontalLayout()))
         self.content_panel = self.add_child(Div(view))
         self.enable_refresh()
         if css_id:
@@ -2726,14 +2655,10 @@ class _TabbedPanel(Div):
             self.content_panel.add_child(tab.contents)
 
 
-@deprecated('Please use reahl.web.attic.tabbedpanel:TabbedPanel instead', '3.2')
-class TabbedPanel(_TabbedPanel):
-    __doc__ = _TabbedPanel.__doc__
-
-
+#cs@deprecated('Please use reahl.web.attic.slidingpanel:SlidingPanel instead', '3.2')
 # Uses: reahl/web/reahl.slidingpanel.css
 # Uses: reahl/web/reahl.slidingpanel.js
-class _SlidingPanel(Div):
+class SlidingPanel(Div):
     """A Div which contains a number of other Panels, only one of which is displayed at a time.
        It sports controls that can be clicked by a user to advance the displayed content to the
        next or previous Div. Advancing is done by visually sliding in the direction indicated
@@ -2756,7 +2681,7 @@ class _SlidingPanel(Div):
        :keyword prev: Text to put in the link clicked to slide to the previous panel.
     """
     def __init__(self, view, css_id=None, next='>', prev='<'):
-        super(_SlidingPanel, self).__init__(view, css_id=css_id)
+        super(SlidingPanel, self).__init__(view, css_id=css_id)
         self.append_class('reahl-slidingpanel')
         self.container = Div(view)
         self.container.append_class('viewport')
@@ -2808,12 +2733,6 @@ class _SlidingPanel(Div):
     @property
     def jquery_selector(self):
         return '".reahl-slidingpanel"'
-
-
-@deprecated('Please use reahl.web.attic.slidingpanel:SlidingPanel instead', '3.2')
-class SlidingPanel(_SlidingPanel):
-    __doc__ = _SlidingPanel.__doc__
-
 
 
 class SimpleFileInput(InputTypeInput):
@@ -2874,7 +2793,7 @@ class FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
         super(FileUploadLi, self).__init__(form.view, css_id=css_id)
         self.set_attribute('class', 'reahl-file-upload-li')
-        self.add_child(_Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
+        self.add_child(Button(form, remove_event.with_arguments(filename=persisted_file.filename)))
         self.add_child(Span(self.view, persisted_file.filename))
 
     def get_js(self, context=None):
@@ -2910,7 +2829,7 @@ class FileUploadPanel(Div):
     def add_upload_controls(self):
         controls_panel = self.upload_form.add_child(Div(self.view))
         controls_panel.add_child(SimpleFileInput(self.upload_form.form, self.fields.uploaded_file))
-        controls_panel.add_child(_Button(self.upload_form.form, self.events.upload_file))
+        controls_panel.add_child(Button(self.upload_form.form, self.events.upload_file))
         
     @property
     def persisted_file_class(self):
@@ -2992,9 +2911,8 @@ class UniqueFilesConstraint(ValidationConstraint):
         return reduced
 
 
-
-
-class _FileUploadInput(PrimitiveInput):
+#cs@deprecated('Please use reahl.web.attic.fileupload:FileUploadInput instead', '3.2')
+class FileUploadInput(PrimitiveInput):
     """An Input which allows a user to choose several files for uploding to a server. As each file is
        chosen, the file is uploaded to the server in the background (if JavaScript is enabled on the user
        agent). A file being uploaded can be cancelled and uploaded files can be removed from the list.
@@ -3036,12 +2954,8 @@ class _FileUploadInput(PrimitiveInput):
         pass
 
 
-@deprecated('Please use reahl.web.attic.fileupload:FileUploadInput instead', '3.2')
-class FileUploadInput(_FileUploadInput):
-    __doc__ = _FileUploadInput.__doc__
-
-
-class _DialogButton(object):
+#cs@deprecated('Please use reahl.web.attic.clientside:DialogButton instead', '3.2')
+class DialogButton(object):
     def __init__(self, label):
         self.label = label
 
@@ -3052,38 +2966,30 @@ class _DialogButton(object):
         return '"%s": function() { %s }' % (self.label, self.callback_js())
 
 
-@deprecated('Please use reahl.web.attic.clientside:DialogButton instead', '3.2')
-class DialogButton(_DialogButton):
-    __doc__ = _DialogButton.__doc__
-
-
-class _CheckCheckboxButton(_DialogButton):
+#cs@deprecated('Please use reahl.web.attic.clientside:CheckCheckboxButton instead', '3.2')
+class CheckCheckboxButton(DialogButton):
     def __init__(self, label, checkbox):
-        super(_CheckCheckboxButton, self).__init__(label)
+        super(CheckCheckboxButton, self).__init__(label)
         self.checkbox_to_check = checkbox
         
     def callback_js(self):
         return '''$(%s).attr("checked", true);''' %  self.checkbox_to_check.jquery_selector
 
 
-@deprecated('Please use reahl.web.attic.clientside:CheckCheckboxButton instead', '3.2')
-class CheckCheckboxButton(_CheckCheckboxButton):
-    pass
-
-
+#cs@deprecated('Please use reahl.web.attic.clientside:PopupA instead', '3.2')
 # Uses: reahl/web/reahl.popupa.js
-class _PopupA(A):
+class PopupA(A):
     # Implements:
     # http://blog.nemikor.com/category/jquery-ui/jquery-ui-dialog/
     # ... with buttons added
     def __init__(self, view, target_bookmark, show_for_selector, close_button=True, css_id=None):
-        super(_PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
+        super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
         self.set_title(target_bookmark.description)
         self.append_class('reahl-popupa')
         self.show_for_selector = show_for_selector
         self.buttons = []
         if close_button:
-            self.add_button(_DialogButton(_('Close')))
+            self.add_button(DialogButton(_('Close')))
         
     def add_button(self, button):
         self.buttons.append(button)
@@ -3099,11 +3005,6 @@ class _PopupA(A):
         selector = self.contextualise_selector(self.jquery_selector, context)
         return ['$(%s).popupa({showForSelector: "%s", buttons: { %s }  });' % \
               (selector, self.show_for_selector, self.buttons_as_jquery())]
-
-
-@deprecated('Please use reahl.web.attic.clientside:PopupA instead', '3.2')
-class PopupA(_PopupA):
-    pass
 
 
 class Caption(HTMLElement):

@@ -26,11 +26,6 @@ from reahl.tofu import test
 from reahl.tofu import vassert, expected
 
 from reahl.web.ui import *
-from reahl.web.attic.layout import *
-from reahl.web.attic.menu import *
-from reahl.web.attic.tabbedpanel import *
-from reahl.web.attic.slidingpanel import *
-from reahl.web.attic.clientside import *
 from reahl.component.modelinterface import BooleanField
 from reahl.web.fw import Bookmark, Url
 from reahl.webdev.tools import WidgetTester, XPath, Browser

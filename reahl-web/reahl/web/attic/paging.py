@@ -31,7 +31,7 @@ from reahl.component.decorators import memoized
 from reahl.component.modelinterface import IntegerField, exposed
 from reahl.web.fw import Bookmark
 from reahl.web.ui import A, Div, HTMLWidget
-from reahl.web.attic.menu import Menu, HorizontalLayout
+from reahl.web.ui import Menu, HorizontalLayout
 
 _ = Translator('reahl-web')
 
