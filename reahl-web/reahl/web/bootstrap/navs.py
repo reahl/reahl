@@ -27,7 +27,7 @@ import six
 
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark
-from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div, Menu
+from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div, Menu, MenuItem
 from reahl.web.bootstrap.ui import Span, A
 
 from reahl.component.exceptions import ProgrammerError
@@ -70,8 +70,8 @@ class Nav(Menu):
         li.append_class('nav')
         return li
     
-    def add_dropdown(self, title, dropdown_menu, drop_up=False):
-        return self.add_submenu(title, dropdown_menu, drop_up=drop_up)
+    def add_dropdown(self, title, dropdown_menu, drop_up=False, query_arguments={}):
+        return self.add_submenu(title, dropdown_menu, extra_query_arguments=query_arguments, drop_up=drop_up)
 
     def add_html_for_item(self, item):
         li = super(Nav, self).add_html_for_item(item)
