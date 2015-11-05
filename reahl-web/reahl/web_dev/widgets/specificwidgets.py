@@ -572,7 +572,7 @@ class TabbedPanelTests(object):
         """The contents registered with the TabbedPanel's active tab are displayed."""
         fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open('/')
-#        import pdb; pdb.set_trace()
+
         # by default, the first tab is active and its contents are displayed
         vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'multitab name') )
         vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>main multi tab content</p>') )

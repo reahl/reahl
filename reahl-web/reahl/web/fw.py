@@ -41,6 +41,7 @@ import logging
 from contextlib import contextmanager
 from pkg_resources import Requirement
 import warnings
+from collections import OrderedDict
 
 from webob import Request, Response
 from webob.exc import HTTPException
@@ -827,7 +828,7 @@ class Bookmark(object):
 
     @property
     def href(self):
-        query_arguments = dict(self.query_arguments)
+        query_arguments = OrderedDict(sorted(self.query_arguments.items()))
         if self.detour:
             request = WebExecutionContext.get_context().request
             query_arguments['returnTo'] = request.url
@@ -840,8 +841,8 @@ class Bookmark(object):
     @property
     def is_page_internal(self):
         """Answers whether this Bookmark is for a Widget on the current page only."""
-#        return self.ajax and not (self.base_path or self.relative_path)
-        return not (self.base_path or self.relative_path)
+        return self.ajax and not (self.base_path or self.relative_path)
+#iwan        return not (self.base_path or self.relative_path)
 
     def on_view(self, view):
         """For page-internal Bookmarks, answers a new Bookmark which is to the current Bookmark, but on the given View.
