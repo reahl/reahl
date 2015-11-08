@@ -459,8 +459,8 @@ class ProjectReadingTests(object):
                     'entrypoint name 2': ['name2 = locator2'],
                     'reahl.eggs':        ['Egg = reahl.component.eggs:ReahlEgg'], 
                     'entrypoint name 1': ['name1 = locator1'],
-                    'reahl.attachments.js': ['0:file/one.js = reahl', '1:file/two.js = reahl'],
-                    'reahl.attachments.css': ['0:file/one.css = reahl', '1:file/two.css = reahl']
+                    'reahl.attachments.js': ['0-file+one.js = reahl', '1-file+two.js = reahl'],
+                    'reahl.attachments.css': ['0-file+one.css = reahl', '1-file+two.css = reahl']
                     }
 
         vassert( project.entry_points_for_setup() == expected_value )
