@@ -43,7 +43,7 @@ from reahl.bzrsupport import Bzr
 from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import ReahlEgg
+from reahl.component.eggs import ReahlEgg, EntryPointKeyEncodedAttachmentName
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
 from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotBuiltException, NotAValidProjectException, \
@@ -844,6 +844,7 @@ class AttachmentList(list):
 
 
 class ShippedFile(object):
+
     def __init__(self, path, order, entry_point):
         self.entry_point = entry_point
         self.path = path
@@ -851,8 +852,8 @@ class ShippedFile(object):
 
     @property
     def name(self):
-        return '%s:%s' % (self.order, self.path)
-        
+        return EntryPointKeyEncodedAttachmentName(path=self.path, order=self.order).as_encoded_key()
+
     @property
     def locator(self):
         return EntryPointLocator('reahl')
