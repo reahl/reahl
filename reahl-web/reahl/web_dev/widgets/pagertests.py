@@ -28,7 +28,7 @@ from reahl.tofu import vassert
 from reahl.webdev.tools import XPath
 from reahl.web.ui import P
 from reahl.web.ui import Div
-from reahl.web.attic.paging import PageIndex, PagedPanel, PageMenu, SequentialPageIndex, AnnualPageIndex, AnnualItemOrganiserProtocol
+from reahl.web.pager import PageIndex, PagedPanel, PageMenu, SequentialPageIndex, AnnualPageIndex, AnnualItemOrganiserProtocol
 from reahl.web_dev.fixtures import WebBasicsMixin
 
 
