@@ -12,7 +12,6 @@ python-reahl (3.2.0) unstable; urgency=low
  * Changed xpath() on BasicBrowser to be able to deal with an XPath instance.
  * Changed HTMLElement to be able to have multiple attribute_source(s).
  * Added Nav and related layouts for bootstrap.
- * Deprecated all non-primitive Widgets in reahl.web.ui, moved to attic lieu of bootstrap.
  * Added HTMLWidget as superclass of Input.
  * Upgraded Bootstrap to 4 alpha.
  * Changed Menu and MenuItems to not BE Ul, Li, but HTMLWidgets with a separate html_representation.
