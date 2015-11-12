@@ -8,13 +8,14 @@ Web framework
 
    Core web framework functionality (reahl.web.fw) <fw>
    Widgets -- user interface elements (reahl.web.ui) <ui>
-   General layout utilities (reahl.web.layout) <layout>
+   Widgets and other classes that help with layout (reahl.web.layout) <layout>
+
    Layout using Pure (reahl.web.pure) <pure>
    Paging long lists (reahl.web.pager) <pager>
+   Tables with multiple pages (reahl.web.datatable) <datatable>
    Including not-quite-static static content (reahl.web.dhtml) <dhtml>
    Interfaces for persisted classes of which many implementations can exist (reahl.web.interfaces) <interfaces>
    The declarative implementation (reahl.webdeclarative) <webdeclarative>
 
-   Experimental Widgets and tools (reahl.web.attic) <attic/index>
 
 

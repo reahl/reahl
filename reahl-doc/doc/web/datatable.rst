@@ -1,9 +1,9 @@
 .. Copyright 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Module reahl.web.attic.datatable
---------------------------------
+Module reahl.web.datatable
+--------------------------
 
-.. automodule:: reahl.web.attic.datatable
+.. automodule:: reahl.web.datatable
 
 
 DataTable

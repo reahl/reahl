@@ -129,7 +129,8 @@ class DefaultTabScenarios(WebFixture):
         self.expected_contents = '<p>tab 1 content</p>'
         self.tab1_active = True
         self.tab2_active = False
-        
+
+
 @test(DefaultTabScenarios)
 def default_active_tab(fixture):
     """The first tab is active by default (if the active tab is not indicated in the query_string)."""
@@ -147,6 +148,7 @@ def default_active_tab(fixture):
     tester = WidgetTester(tabbed_panel)
     panel_contents = tester.get_html_for('//div[@class="tab-content"]/div[contains(@class, "active")]/*')
     vassert( panel_contents == fixture.expected_contents )
+
 
 class DefaultMultiTabScenarios(WebFixture):
     @scenario
@@ -176,6 +178,7 @@ class DefaultMultiTabScenarios(WebFixture):
         self.tab2_active = False
         self.tab3_active = True
 
+
 @test(DefaultMultiTabScenarios)
 def default_active_multi_tab(fixture):
     """The first item of the first tab is active by default (if the active tab is not indicated in the query_string)."""
@@ -201,6 +204,7 @@ def default_active_multi_tab(fixture):
     tester = WidgetTester(tabbed_panel)
     panel_contents = tester.get_html_for('//div[@class="tab-content"]/div[contains(@class, "active")]/*')
     vassert( panel_contents == fixture.expected_contents )
+
 
 @test(TabbedPanelAjaxFixture)
 def switching_panels(fixture):
