@@ -27,13 +27,12 @@ import six
 
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Widget, Bookmark
-from reahl.web.ui import Div, ActiveStateAttributes
+from reahl.web.ui import Div, ActiveStateAttributes, DelegatedAttributes
 from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
 
 
 
-assert True, '''TODO: open_item does not work w/o javascript & MultiTab should not have content & bring in here the ideas of Tabs holding on to their TabbedPanel & deciding on the fly whether they are active; the additions to MenuItem;
-
+assert True, '''TODO:
 
 set_active (self.force_active is dead on menuitem?)
 and the active_regex & exact_match - so... delete them and always delagate to the a unless determine_is_active_using is used...
@@ -57,7 +56,7 @@ class TabbedPanel(Widget):
         return self.tab is not None
 
     def set_active(self, tab):
-        self.tab = tab.tab_key
+        self.tab = tab.default_active_tab_key
 
     def is_currently_open(self, tab):
         return tab.tab_key == self.tab
@@ -77,6 +76,17 @@ class TabbedPanel(Widget):
         return tab.add_contents_to(self.content_panel)
 
 
+class TabJavaScriptAttributes(DelegatedAttributes):
+    def __init__(self, tab):
+        super(TabJavaScriptAttributes, self).__init__()
+        self.tab = tab
+
+    def set_attributes(self, attributes):
+        super(TabJavaScriptAttributes, self).set_attributes(attributes)
+
+        attributes.set_to('data-toggle', self.tab.data_toggle)
+        attributes.set_to('data-target', '#%s' % self.tab.css_id)
+
 
 class Tab(object):
     def __init__(self, view, title, tab_key, contents_factory):
@@ -88,6 +98,18 @@ class Tab(object):
 
     def get_bookmark(self, view):
         return view.as_bookmark(description=self.title, query_arguments=self.query_arguments)
+
+    @property
+    def top_level_nav(self):
+        return self.panel.nav
+
+    @property
+    def data_toggle(self):
+        return self.top_level_nav.layout.key
+
+    @property
+    def default_active_tab_key(self):
+        return self.tab_key
 
     @property
     def query_arguments(self):
@@ -111,8 +133,7 @@ class Tab(object):
     def add_to_menu(self, menu):
         menu_item = menu.add_bookmark(self.get_bookmark(menu.view))
         menu_item.determine_is_active_using(lambda: self.is_active)
-        menu_item.a.set_attribute('data-toggle', menu.layout.key)
-        menu_item.a.set_attribute('data-target', '#%s' % self.css_id)
+        menu_item.a.add_attribute_source(TabJavaScriptAttributes(self))
         return menu_item
 
     @property
@@ -138,9 +159,7 @@ class MultiTab(Tab):
         super(MultiTab, self).__init__(view, title, tab_key, None)
         
     def add_tab(self, tab):
-        menu_item = self.menu.add_bookmark(tab.get_bookmark(self.view))
-        menu_item.a.set_attribute('data-toggle', 'tab')#self.menu.layout.key)
-        menu_item.a.set_attribute('data-target', '#%s' % tab.css_id)
+        menu_item = tab.add_to_menu(self.menu)
         tab.set_panel(self.panel)
         self.tabs.append(tab)
         return tab
@@ -169,6 +188,10 @@ class MultiTab(Tab):
         super(MultiTab, self).set_panel(tabbed_panel)
         for tab in self.tabs:
             tab.set_panel(tabbed_panel)
+
+    @property
+    def default_active_tab_key(self):
+        return self.first_tab.tab_key
 
     @property
     def is_active(self):
