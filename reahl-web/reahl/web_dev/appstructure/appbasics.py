@@ -123,7 +123,7 @@ def basic_assembly(fixture):
         vassert( expected_message in caught )
 
     if fixture.content_includes_p:
-        [message] = browser.lxml_html.xpath('//p')
+        [message] = browser.xpath('//p')
         vassert( message.text == 'Hello world!' )
 
     # The headers are set correctly
@@ -216,7 +216,7 @@ def slots(fixture):
     
     browser.open('/')
     vassert( browser.title == 'Hello' )
-    [main_p, footer_p] = browser.lxml_html.xpath('//p')
+    [main_p, footer_p] = browser.xpath('//p')
     vassert( main_p.text == 'Hello world' )
     vassert( footer_p.text == 'I am the footer' )
 
@@ -258,10 +258,10 @@ def slot_defaults(fixture):
     browser.open('/')
 
     # The default widget for the main slot is used
-    [p] = browser.lxml_html.xpath('//p')
+    [p] = browser.xpath('//p')
     vassert( p.text == 'defaulted slot contents' )
 
     # The header slot has no default, and is thus left empty
-    header_contents = browser.lxml_html.xpath('//header/*')
+    header_contents = browser.xpath('//header/*')
     vassert( not header_contents )
 

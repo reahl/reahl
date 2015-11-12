@@ -27,6 +27,7 @@ from reahl.webdev.tools import WidgetTester, XPath
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import Bookmark, Url
 from reahl.web.ui import A, Div, P
+from reahl.web.libraries import Bootstrap4
 
 from reahl.web.bootstrap.navs import Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 from reahl.web.bootstrap.tabbedpanel import TabbedPanel, MultiTab, Tab
@@ -48,16 +49,25 @@ class TabbedPanelAjaxFixture(WebFixture):
 
                 tab3 = Tab(fixture.view, 'tab 3 name', 'tab3', P.factory(text='tab 3 content'))
                 self.add_tab(tab3)
+                tab4 = Tab(fixture.view, 'tab 4 name', 'tab4', P.factory(text='tab 4 content'))
+                self.add_tab(tab4)
         return PopulatedTabbedPanel
 
-    def new_wsgi_app(self):
-        return super(TabbedPanelAjaxFixture, self).new_wsgi_app(enable_js=True,
+    def new_webconfig(self):
+        web = super(TabbedPanelAjaxFixture, self).new_webconfig()
+        web.frontend_libraries.add(Bootstrap4())
+        return web
+
+    def new_wsgi_app(self, enable_js=True):
+        return super(TabbedPanelAjaxFixture, self).new_wsgi_app(enable_js=enable_js,
                                                    child_factory=self.PopulatedTabbedPanel.factory())
     def tab_is_active(self, tab_name):
-        return self.driver_browser.execute_script('return window.jQuery("a:contains(\'%s\')").hasClass("active")' % tab_name)
+        element = self.driver_browser.find_element('//a[contains(text(), "%s")]' % tab_name)
+        return 'active' in element.get_attribute('class')
 
     def tab_contents_equals(self, expected_contents):
-        return self.driver_browser.execute_script('return window.jQuery("div.active").html() == "%s"' % expected_contents)
+        current_contents = self.driver_browser.get_inner_html_for('//div[contains(@class, "active")]')
+        return current_contents == expected_contents
 
 
 @test(WebFixture)
@@ -78,7 +88,7 @@ def basic_rendering(fixture):
       '''<div class="tab-content">'''\
        '''<div id="tab_tab1" class="active tab-pane"><p>tab 1 content</p></div>'''\
       '''</div>'''\
-    
+
     actual = tester.render_html()
     vassert( actual == expected_html )
 
@@ -94,7 +104,7 @@ def tabs_with_sub_options(fixture):
     tabbed_panel.add_tab(multi_tab)
 
     tester = WidgetTester(tabbed_panel)
-    
+
     expected_html = \
      '''<ul class="nav nav-tabs">'''\
      '''<li class="dropdown nav-item">'''\
@@ -150,10 +160,10 @@ def default_active_tab(fixture):
     vassert( panel_contents == fixture.expected_contents )
 
 
-class DefaultMultiTabScenarios(WebFixture):
+class DefaultMultiTabScenarios(TabbedPanelAjaxFixture):
     @scenario
     def specified_on_query_string(self):
-        self.request.query_string = 'tab=multi2'
+        self.query_args = {'tab':'multi2'}
         self.expected_contents = '<p>tab 1/2 content</p>'
         self.multi_tab_active = True
         self.tab1_active = False
@@ -162,16 +172,16 @@ class DefaultMultiTabScenarios(WebFixture):
         
     @scenario
     def defaulted(self):
-        self.request.query_string = ''
-        self.expected_contents = '<p>multi tab main content</p>'
+        self.query_args = {}
+        self.expected_contents = '<p>tab 1/1 content</p>'
         self.multi_tab_active = True
-        self.tab1_active = False
+        self.tab1_active = True
         self.tab2_active = False
         self.tab3_active = False
 
     @scenario
     def specified_to_other_tab(self):
-        self.request.query_string = 'tab=tab3'
+        self.query_args = {'tab':'tab3'}
         self.expected_contents = '<p>tab 3 content</p>'
         self.multi_tab_active = False
         self.tab1_active = False
@@ -182,57 +192,118 @@ class DefaultMultiTabScenarios(WebFixture):
 @test(DefaultMultiTabScenarios)
 def default_active_multi_tab(fixture):
     """The first item of the first tab is active by default (if the active tab is not indicated in the query_string)."""
-    tabbed_panel = TabbedPanel(fixture.view)
-    multi_tab = MultiTab(fixture.view, 'tab 1 name', 'multi-tab')
-    tab1 = Tab(fixture.view, 'tab 1 name', 'multi1', P.factory(text='tab 1/1 content'))
-    tab2 = Tab(fixture.view, 'tab 2 name', 'multi2', P.factory(text='tab 1/2 content'))
-    multi_tab.add_tab(tab1)
-    multi_tab.add_tab(tab2)
-    tabbed_panel.add_tab(multi_tab)
+    fixture.reahl_server.set_app(fixture.wsgi_app)
+    url = Url('/')
+    url.set_query_from(fixture.query_args)
+    fixture.driver_browser.open(str(url))
 
-    tab3 = Tab(fixture.view, 'tab 3 name', 'tab3', P.factory(text='tab 3 content'))
-    tabbed_panel.add_tab(tab3)
-
-    [top_level_menu_item_for_multitab, top_level_normal_menu_item] = tabbed_panel.nav.menu_items
-    [multi_tab_menu_item1, multi_tab_menu_item2] = multi_tab.menu.menu_items
-
-    vassert( top_level_menu_item_for_multitab.is_active == fixture.multi_tab_active )
-    vassert( multi_tab_menu_item1.is_active == fixture.tab1_active )
-    vassert( multi_tab_menu_item2.is_active == fixture.tab2_active )
-    vassert( top_level_normal_menu_item.is_active == fixture.tab3_active )
-
-    tester = WidgetTester(tabbed_panel)
-    panel_contents = tester.get_html_for('//div[@class="tab-content"]/div[contains(@class, "active")]/*')
-    vassert( panel_contents == fixture.expected_contents )
+    vassert( fixture.tab_contents_equals(fixture.expected_contents) )
+    
+    vassert( (not fixture.multi_tab_active) or fixture.tab_is_active('multitab name') )
+    vassert( (not fixture.tab1_active) or fixture.tab_is_active('tab 1 name') )
+    vassert( (not fixture.tab2_active) or fixture.tab_is_active('tab 2 name') )
+    vassert( (not fixture.tab3_active) or fixture.tab_is_active('tab 3 name') )
 
 
-@test(TabbedPanelAjaxFixture)
-def switching_panels(fixture):
-    """The contents registered with the TabbedPanel's active tab are displayed."""
+class PanelSwitchFixture(TabbedPanelAjaxFixture):
+    def new_wsgi_app(self):
+        return super(PanelSwitchFixture, self).new_wsgi_app(enable_js=self.enable_js)
+
+    def ensure_disabled_js_files_not_cached(self):
+        if self.run_fixture.is_instantiated('chrome_driver'):
+            assert self.chrome_driver is self.web_driver
+            self.run_fixture.restart_session(self.chrome_driver)
+
+    @scenario
+    def without_js(self):
+        self.enable_js = False
+
+    @scenario
+    def with_js(self):
+        self.enable_js = True
+
+
+@test(PanelSwitchFixture)
+def clicking_on_different_tabs_switch(fixture):
+    """Clicking on tabs change the contents that are displayed as well as the active tab."""
     fixture.reahl_server.set_app(fixture.wsgi_app)
     fixture.driver_browser.open('/')
 
-    # by default, the first tab is active and its contents are displayed
-    import pdb; pdb.set_trace()
-    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'tab 1 name') )
-    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>tab 1/1 content</p>') )
+    # Clicking on 3 (a normal tab), changes the current tab
+    vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 3 name') )
+    vassert( fixture.driver_browser.wait_for_not(fixture.tab_contents_equals, '<p>tab 3 content</p>') )
 
     fixture.driver_browser.click(XPath.link_with_text('tab 3 name'))
-    # tab3 is active and its contents are shown
+
     vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'tab 3 name') )
     vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>tab 3 content</p>') )
 
+    fixture.driver_browser.click(XPath.link_with_text('tab 4 name'))
+
+    vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 3 name') )
+    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'tab 4 name') )
+    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>tab 4 content</p>') )
+
+
+@test(PanelSwitchFixture)
+def clicking_on_multi_tab(fixture):
+    """Clicking on a multitab just opens and closes its dropdown without affecting the current open tab."""
+    fixture.reahl_server.set_app(fixture.wsgi_app)
+    fixture.driver_browser.open('/')
+
+    # Make tab 3 the active one
+    fixture.driver_browser.click(XPath.link_with_text('tab 3 name'))
+    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'tab 3 name') )
+    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>tab 3 content</p>') )
+
+    # Clicking on the multitab toggles the dropdown
+    vassert( fixture.driver_browser.wait_for_element_not_visible(XPath.link_with_text('tab 2 name')) )
+    fixture.driver_browser.click(XPath.link_with_text('multitab name'))
+    vassert( fixture.driver_browser.wait_for_element_visible(XPath.link_with_text('tab 2 name')) )
+
+    # - current active tab not changed
+    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'tab 3 name') )
+    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>tab 3 content</p>') )
+    
+    # Clicking on the multitab toggles the dropdown again
+    fixture.driver_browser.click(XPath.link_with_text('multitab name'))
+
+    # - current active tab not changed
+    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'tab 3 name') )
+    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>tab 3 content</p>') )
+
+
+@test(PanelSwitchFixture)
+def clicking_on_sub_tab_switches(fixture):
+    """Clicking on a sub tab also changes the contents that are displayed as well as the active tab."""
+    if not fixture.enable_js:
+        fixture.ensure_disabled_js_files_not_cached()
+    
+    fixture.reahl_server.set_app(fixture.wsgi_app)
+    fixture.driver_browser.open('/')
+
+    fixture.driver_browser.click(XPath.link_with_text('tab 3 name'))
+    vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'tab 3 name') )
+    vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>tab 3 content</p>') )
+
+    vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 2 name') )
+    vassert( fixture.driver_browser.wait_for_not(fixture.tab_contents_equals, '<p>tab 1/2 content</p>') )
+
     fixture.driver_browser.click(XPath.link_with_text('multitab name'))
     fixture.driver_browser.click(XPath.link_with_text('tab 2 name'))
-    # tab2 is active and its contents are shown
+
+    # - active status removed from previous
+    vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 3 name') )
+    
+    # - new status and contents set
     vassert( fixture.driver_browser.wait_for(fixture.tab_is_active, 'tab 2 name') )
     vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, '<p>tab 1/2 content</p>') )
 
+    # Clicking away from the multitab sub-tab removes its active status
     fixture.driver_browser.click(XPath.link_with_text('tab 3 name'))
     # tab2 is not active anymore
+    if fixture.enable_js:
+        assert None, 'This is a bug in bootstrap v4.0 alpha javascript'
     vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 2 name') )
-
-
-
 
 

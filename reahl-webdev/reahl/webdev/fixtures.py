@@ -133,18 +133,23 @@ class BrowserSetup(CleanDatabase):
             # Create and start server
             self.reahl_server.start(in_separate_thread=False, connect=False)
 
+    def restart_session(self, web_driver):
+        web_driver.close()
+        web_driver.start_session(web_driver.desired_capabilities)
+
+    def is_instantiated(self, name):
+        return name in self.__dict__
+
     @tear_down
     def stop_servers(self):
-        if 'reahl_server' in self.__dict__:
+        if self.is_instantiated('reahl_server'):
             self.reahl_server.set_noop_app() # selenium.stop() hits the application its opened on again.
             self.reahl_server.restore_handlers()
-        if 'firefox_driver' in self.__dict__:
-#            self.firefox_driver.close()
+        if self.is_instantiated('firefox_driver'):
             self.firefox_driver.quit()
-        if 'chrome_driver' in self.__dict__:
-#            self.chrome_driver.close()
+        if self.is_instantiated('chrome_driver'):
             self.chrome_driver.quit()
-        if 'reahl_server' in self.__dict__:
+        if self.is_instantiated('reahl_server'):
             self.reahl_server.stop()
 
     def new_test_dependencies(self):
