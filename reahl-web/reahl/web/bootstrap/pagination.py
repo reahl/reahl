@@ -1,0 +1,118 @@
+# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# -*- encoding: utf-8 -*-
+#
+#    This file is part of Reahl.
+#
+#    Reahl is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation; version 3 of the License.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import print_function, unicode_literals, absolute_import, division
+import six
+
+# How to show disabled/not items
+# How to show current item/not
+# Generating the html for each kind of element, including classes
+# is_active means different things for A than for menuitem
+# Will have to add js to remove & set .active on menu because it does not refresh, only the panel
+# next/prev like others do it..?
+# always refresh pagemenu & always refresh contents together?
+
+from abc import ABCMeta, abstractmethod, abstractproperty
+from functools import partial
+
+from reahl.component.i18n import Translator
+from reahl.component.decorators import memoized
+from reahl.component.modelinterface import IntegerField, exposed
+from reahl.web.fw import Bookmark
+from reahl.web.ui import A, Div, HTMLWidget, Span
+from reahl.web.ui import Menu, HorizontalLayout, AccessRightAttributes, ActiveStateAttributes
+from reahl.component.decorators import deprecated
+
+_ = Translator('reahl-web')
+
+
+#cs@deprecated('Please use reahl.web.attic.paging:PageMenu instead', '3.2')
+class PageMenu(HTMLWidget):
+    """An Menu, which lists the pages of items that can be navigated by a user. If there are
+       many pages, only a small subset is shown, with controls allowing the user to browse to
+       the wanted page number and choose it.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :param css_id: (See :class:`HTMLElement`)
+       :param page_index: The :class:`PageIndex` whose pages are displayed by this PageMenu.
+       :param page_container: The :class:`PagedPanel` in which the contents of a page is displayed.
+
+    """
+    def __init__(self, view, css_id, page_index, paged_panel):
+        self.page_index = page_index
+        self.paged_panel = paged_panel
+        super(PageMenu, self).__init__(view)
+
+        self.menu = self.add_child(Menu(view, add_reahl_styling=False))
+        self.create_items(self.menu)
+        self.set_html_representation(self.menu)
+        self.set_id(css_id)
+        self.append_class('pagination')
+
+        self.enable_refresh()
+
+    def create_items(self, menu):
+        links = []
+
+        self.create_bordering_link(menu, '←', 'First', 1,
+                                   not self.page_index.has_previous_page)
+        self.create_bordering_link(menu, '«', 'Prev', self.page_index.previous_page.number, 
+                                   not self.page_index.has_previous_page)
+
+        for page in self.page_index.pages_in_range:
+            link = A.from_bookmark(self.view, self.paged_panel.get_bookmark(page_number=page.number, description=page.description))
+            item = menu.add_a(link)
+            item.widget.add_attribute_source(ActiveStateAttributes(item))
+            if self.page_index.current_page_number == page.number:
+                item.set_active()
+
+        self.create_bordering_link(menu, '»', 'Next', self.page_index.next_page.number, 
+                                   not self.page_index.has_next_page)
+        self.create_bordering_link(menu, '→', 'Last', self.page_index.last_page.number, 
+                                   not self.page_index.has_next_page)
+
+
+    def create_bordering_link(self, menu, short_description, long_description, start_page_number, disabled):
+        link = A.from_bookmark(self.view, self.get_bookmark(start_page_number=start_page_number, 
+                                                            disabled=disabled))
+
+        link.add_child(Span(self.view, text=short_description)).set_attribute('aria-hidden', 'true');
+        link.add_child(Span(self.view, text=long_description)).append_class('sr-only');
+        link.set_attribute('aria-label', long_description);
+        link.set_active(not disabled)
+        item = menu.add_a(link)
+        item.widget.add_attribute_source(AccessRightAttributes(link))
+        
+    def get_bookmark(self, start_page_number=1, disabled=False):
+        bookmark = Bookmark.for_widget(description=None,
+                                       query_arguments={'start_page_number': start_page_number,
+                                                        'current_page_number': self.page_index.current_page_number},
+                                       write_check=lambda: not disabled).on_view(self.view)
+        return bookmark
+    
+
+    @exposed
+    def query_fields(self, fields):
+        fields.start_page_number = self.page_index.fields.start_page_number
+        fields.current_page_number = self.paged_panel.query_fields.current_page_number
+
+
+
+
+
+
+

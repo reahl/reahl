@@ -851,6 +851,13 @@ class Bookmark(object):
         """
         return view.as_bookmark() + self
         
+    def combine_checks(self, own_check, other_check):
+        def combined_check():
+            own_passes = not own_check or own_check()
+            other_passes = not other_check or other_check()
+            return all([own_passes, other_passes])
+        return combined_check
+
     def __add__(self, other):
         """You can add a page-internal Bookmark to the Bookmark for a View."""
         if not other.is_page_internal:
@@ -859,8 +866,9 @@ class Bookmark(object):
         query_arguments.update(self.query_arguments)
         query_arguments.update(other.query_arguments)
         return Bookmark(self.base_path, self.relative_path, other.description, query_arguments=query_arguments,
-                        ajax=other.ajax, detour=self.detour, read_check=self.read_check, write_check=self.write_check)
-
+                        ajax=other.ajax, detour=self.detour, 
+                        read_check=self.combine_checks(self.read_check, other.read_check), 
+                        write_check=self.combine_checks(self.write_check, other.write_check))
 
 class RedirectToScheme(HTTPSeeOther):
     def __init__(self, scheme):

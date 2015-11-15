@@ -183,7 +183,7 @@ class PageIndex(PageIndexProtocol):
     @property
     @memoized
     def has_previous_page(self):
-        return self.start_page.number > 1
+        return self.start_page_number - self.max_page_links > 0
 
 
 #cs@deprecated('Please use reahl.web.attic.paging:SequentialPageIndex instead', '3.2')
@@ -285,6 +285,7 @@ class PageMenu(HTMLWidget):
     @exposed
     def query_fields(self, fields):
         fields.start_page_number = self.page_index.fields.start_page_number
+        fields.current_page_number = self.paged_panel.query_fields.current_page_number
 
 
 

@@ -18,7 +18,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from nose.tools import istest
-from reahl.tofu import Fixture, test, vassert, expected
+from reahl.tofu import Fixture, test, vassert, expected, scenario
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.webdev.tools import Browser
@@ -160,8 +160,7 @@ class WidgetQueryArgTests(object):
            url on which the argument has been removed from the querystring and changed on the hash.
         """
 
-        internal_bookmark = Bookmark('', '', 'an ajax bookmark', query_arguments={'fancy_state':2}, ajax=True)
-#        internal_bookmark = fixture.MyFancyWidget.get_bookmark(fancy_state=2)
+        internal_bookmark = Bookmark.for_widget('an ajax bookmark', query_arguments={'fancy_state':2})
         normal_bookmark = Bookmark('/', '', 'a normal bookmark')
 
         # You can query whether a bookmark is page_internal or not
@@ -192,3 +191,53 @@ class WidgetQueryArgTests(object):
         vassert(     fixture.driver_browser.is_element_present("//a[@href='/#fancy_state=2']") )
 
 
+    class RightsScenarios(QueryStringFixture):
+        def allowed(self):
+            return True
+        def not_allowed(self):
+            return False
+
+        @scenario
+        def all_allowed(self):
+            self.internal_readable = self.allowed
+            self.normal_readable = self.allowed
+            self.expected_readable = True
+            self.internal_writable = self.allowed
+            self.normal_writable = self.allowed
+            self.expected_writable = True
+
+        @scenario
+        def internal_disallowed(self):
+            self.internal_readable = self.not_allowed
+            self.normal_readable = self.allowed
+            self.expected_readable = False
+            self.internal_writable = self.not_allowed
+            self.normal_writable = self.allowed
+            self.expected_writable = False
+
+        @scenario
+        def normal_disallowed(self):
+            self.internal_readable = self.allowed
+            self.normal_readable = self.not_allowed
+            self.expected_readable = False
+            self.internal_writable = self.allowed
+            self.normal_writable = self.not_allowed
+            self.expected_writable = False
+
+    @test(RightsScenarios)
+    def bookmark_rights_when_adding(self, fixture):
+        """When adding two Bookmarks, access rights of both are taken into account.
+
+        """
+
+        internal_bookmark = Bookmark.for_widget('an ajax bookmark', 
+                                                query_arguments={'fancy_state':2},
+                                                read_check=fixture.internal_readable,
+                                                write_check=fixture.internal_writable)
+        normal_bookmark = Bookmark('/', '', 'a normal bookmark',
+                                   read_check=fixture.normal_readable,
+                                   write_check=fixture.normal_writable)
+
+        usable_bookmark = normal_bookmark+internal_bookmark
+        vassert( usable_bookmark.read_check() is fixture.expected_readable )
+        vassert( usable_bookmark.write_check() is fixture.expected_writable )
