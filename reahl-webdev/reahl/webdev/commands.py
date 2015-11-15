@@ -27,6 +27,7 @@ import pkg_resources
 
 from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand
+from reahl.component.shelltools import Executable
 
 from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor, CouldNotConfigureServer
 
@@ -72,6 +73,12 @@ class ServeCurrentProject(WorkspaceCommand):
                                      (options.port, options.port+363, config_directory))
                     terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
                     print('\nPress %s to terminate\n\n' % terminate_keys)
+
+                    notify = Executable('notify-send')
+                    try:
+                        notify.call(['Reahl', 'Server restarted'])
+                    except:
+                        pass
 
                     reahl_server.wait_for_server_to_complete()
             except KeyboardInterrupt:

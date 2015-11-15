@@ -987,7 +987,7 @@ class Span(HTMLElement):
        
     """
 
-    def __init__(self, view, text=None, css_id=None):
+    def __init__(self, view, text=None, html_escape=True, css_id=None):
         super(Span, self).__init__(view, 'span', children_allowed=True, css_id=css_id)
         if text:
             self.add_child(TextNode(view, text))
@@ -2145,16 +2145,19 @@ class LabelOverInput(LabelledInlineInput):
 
 
 class ActiveStateAttributes(DelegatedAttributes):
-    def __init__(self, widget, active_class='active'):
+    def __init__(self, widget, active_class='active', inactive_class=None):
         super(ActiveStateAttributes, self).__init__()
         self.widget = widget
         self.active_class = active_class
+        self.inactive_class = inactive_class
 
     def set_attributes(self, attributes):
         super(ActiveStateAttributes, self).set_attributes(attributes)
 
         if self.widget.is_active and self.active_class:
             attributes.add_to('class', [self.active_class])
+        elif not self.widget.is_active and self.inactive_class:
+            attributes.add_to('class', [self.inactive_class])
 
 
 #cs@deprecated('Please use reahl.web.attic.menu:MenuItem instead', '3.2')
@@ -2191,6 +2194,7 @@ class MenuItem(object):
         self.view = view
         self.exact_match = exact_match
         self.a = a
+        self.widget = None
         self.active_regex = active_regex
         self.force_active = False
         self.is_active_callable = self.default_is_active
@@ -2277,8 +2281,10 @@ class Menu(HTMLWidget):
         menu = cls(view)
         return menu.with_bookmarks(bookmark_list)
 
-    def __init__(self, view, a_list=None, css_id=None):
+    def __init__(self, view, a_list=None, add_reahl_styling=None, css_id=None):
         super(Menu, self).__init__(view)
+        if add_reahl_styling is not None:
+            self.add_reahl_styling = add_reahl_styling
         self.menu_items = []
         self.css_id = css_id
         self.create_html_representation()
@@ -2382,6 +2388,7 @@ class Menu(HTMLWidget):
         li.add_child(item.a)
         if self.add_reahl_styling:
             li.add_attribute_source(ActiveStateAttributes(item))
+        item.widget = li
         return li
 
     def add_submenu(self, title, menu, query_arguments={}, **kwargs):
@@ -2403,6 +2410,7 @@ class Menu(HTMLWidget):
             dropdown_handle = li.add_child(A(self.view, None, description='▼'))
             dropdown_handle.append_class('dropdown-handle')
         li.add_child(submenu.menu)
+        submenu.widget = li
         return li
 
 
