@@ -22,7 +22,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 
 from reahl.component.config import Configuration, ConfigSetting
-from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Pure, HTML5Shiv, IE9, YuiGridsCss, Bootstrap, Reahl
+from reahl.web.libraries import LibraryIndex, JQuery, JQueryUI, Pure, HTML5Shiv, IE9, YuiGridsCss, Bootstrap, Reahl, Holder
 
 class WebConfig(Configuration):
     filename = 'web.config.py'
@@ -74,5 +74,5 @@ class WebConfig(Configuration):
     def __init__(self):
         super(WebConfig, self).__init__()
         # We create it here, so that each instance of a WebConfig will have its own LibraryIndex instance
-        self.frontend_libraries = LibraryIndex(JQuery(), JQueryUI(), Pure(), HTML5Shiv(), IE9(), Reahl())
+        self.frontend_libraries = LibraryIndex(JQuery(), JQueryUI(), Pure(), HTML5Shiv(), IE9(), Reahl(), Holder())
         
