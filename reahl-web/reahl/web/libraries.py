@@ -214,6 +214,13 @@ class Bootstrap(Library):
 
 
 
+class Holder(Library):
+    def __init__(self):
+        super(Holder, self).__init__('holder')
+        self.shipped_in_directory = '/reahl/web/holder'
+        self.files = ['holder-2.9.0.js']
+
+
 
 
 
