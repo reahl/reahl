@@ -869,7 +869,21 @@ class Ul(HTMLElement):
         super(Ul, self).__init__(view, 'ul', children_allowed=True, css_id=css_id)
 
 
-    
+class Ol(HTMLElement):
+    """An ordered list.
+
+       .. admonition:: Styling
+
+          Renders as an HTML <ol> element.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`HTMLElement`)
+
+    """
+    def __init__(self, view, css_id=None):
+        super(Ol, self).__init__(view, 'ol', children_allowed=True, css_id=css_id)
+
+
 class Img(HTMLElement):
     """An embedded image. 
 
@@ -884,9 +898,10 @@ class Img(HTMLElement):
        :keyword css_id: (See :class:`HTMLElement`)
        
     """
-    def __init__(self, view, src, alt=None, css_id=None):
+    def __init__(self, view, src=None, alt=None, css_id=None):
         super(Img, self).__init__(view, 'img', css_id=css_id)
-        self.set_attribute('src', six.text_type(src))
+        if src is not None:
+            self.set_attribute('src', six.text_type(src))
         if alt:
             self.set_attribute('alt', alt)
 
