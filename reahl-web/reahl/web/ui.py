@@ -42,7 +42,7 @@ from reahl.web.libraries import YuiGridsCss
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
                                      PatternConstraint, RemoteConstraint,\
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
-                                     Event, Action, FileField, UploadedFile, InputParseException
+                                     Event, Action, FileField, UploadedFile, InputParseException, StandaloneFieldIndex
 import collections
                                      
 
@@ -177,10 +177,11 @@ class PriorityGroup(object):
 
 # Uses: reahl/web/reahl.hashchange.js
 class HashChangeHandler(object):
-    def __init__(self, widget):
+    def __init__(self, widget, for_fields):
         self.error_message = _('An error occurred when contacting the server. Please try again later.')
         self.timeout_message = _('The server took too long to respond. Please try again later.')
         self.widget = widget
+        self.for_fields = for_fields
         result = WidgetResult(widget)
         method_name = 'refresh_%s' % widget.css_id
         callable_object = lambda *args, **kwargs: None
@@ -189,7 +190,9 @@ class HashChangeHandler(object):
 
     @property
     def argument_defaults(self):
-        field_defaults = self.widget.query_fields.as_kwargs()
+        i = StandaloneFieldIndex()
+        i.update(dict([(field.name, field) for field in self.for_fields]))
+        field_defaults = i.as_kwargs()
         argument_defaults = ['%s: "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
         return '{%s}' % ','.join(argument_defaults)
@@ -219,7 +222,7 @@ class HTMLElement(Widget):
         self.children_allowed = children_allowed
         self.tag_name = tag_name
         self.constant_attributes = HTMLAttributeDict()
-        self.ajax_handlers = []
+        self.ajax_handler = None
         if css_id:
             self.set_id(css_id)
 
@@ -229,16 +232,18 @@ class HTMLElement(Widget):
             css_id_part = self.css_id
         return '<%s %s %s>' % (self.__class__.__name__, self.tag_name, 'id=%s' % css_id_part)
 
-    def enable_refresh(self):
+    def enable_refresh(self, *for_fields):
         """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that 
            one of its `query_fields` have changed.
         """
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
-        self.add_hash_change_handler()
+        assert all([(field in self.query_fields.values()) for field in for_fields])
+        
+        self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
         
     def is_refresh_enabled(self):
-        return len(self.ajax_handlers) > 0
+        return self.ajax_handler is not None
 
     def add_child(self, child):
         assert self.children_allowed, 'You cannot add children to a %s' % type(self)
@@ -278,9 +283,9 @@ class HTMLElement(Widget):
             attribute_source.set_attributes(attributes)
         return attributes
         
-    def add_hash_change_handler(self):
-        handler = HashChangeHandler(self)
-        self.ajax_handlers.append( handler )
+    def add_hash_change_handler(self, for_fields):
+        assert not self.ajax_handler
+        self.ajax_handler = HashChangeHandler(self, for_fields)
         
     def render(self):
         if self.visible:
@@ -318,15 +323,12 @@ class HTMLElement(Widget):
         """
         return '"#%s"' % (self.css_id)
 
-    def handlers_as_jquery(self):
-        return '[%s]' % (','.join(handler.as_jquery_parameter() for handler in self.ajax_handlers))
-
     def get_js(self, context=None):
         js = []
-        if self.ajax_handlers:
-            js = ['$(%s).hashchange({hashChangeHandlers: %s});' % \
+        if self.is_refresh_enabled():
+            js = ['$(%s).hashchange(%s);' % \
                   (self.contextualise_selector(self.jquery_selector, context),
-                   self.handlers_as_jquery())]
+                   self.ajax_handler.as_jquery_parameter())]
         return super(HTMLElement, self).get_js(context=context) + js
 
     def set_title(self, title):
@@ -1287,9 +1289,9 @@ class HTMLWidget(Widget):
         super(HTMLWidget, self).__init__(view, read_check=read_check, write_check=write_check)
         self.html_representation = None
 
-    def enable_refresh(self):
+    def enable_refresh(self, *for_fields):
         self.html_representation.query_fields.update(self.query_fields)
-        self.html_representation.enable_refresh()
+        self.html_representation.enable_refresh(*for_fields)
         
     def set_html_representation(self, widget):
         self.html_representation = widget

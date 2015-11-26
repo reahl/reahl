@@ -27,7 +27,7 @@ from reahl.webdev.tools import WidgetTester, XPath
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import Bookmark, Url
 from reahl.web.ui import A, Div, P
-from reahl.web.libraries import Bootstrap4
+from reahl.web.bootstrap.libraries import Bootstrap4
 
 from reahl.web.bootstrap.navs import Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 from reahl.web.bootstrap.tabbedpanel import TabbedPanel, MultiTab, Tab
