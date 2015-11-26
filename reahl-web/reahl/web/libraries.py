@@ -231,6 +231,13 @@ class Bootstrap4(Library):
                super(Bootstrap4, self).header_only_material(rendered_page) 
 
 
+class Holder(Library):
+    def __init__(self):
+        super(Holder, self).__init__('holder')
+        self.shipped_in_directory = '/reahl/web/holder'
+        self.files = ['holder-2.9.0.js']
+
+
 
 
 
