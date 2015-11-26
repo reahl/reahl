@@ -14,7 +14,7 @@
     <thirdpartyegg name="cssmin" minversion="0.2" maxversion="0.2.999"/>
     <thirdpartyegg name="BeautifulSoup4" minversion="4.3" maxversion="4.3.999"/>
     <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
-    <thirdpartyegg name="Babel" minversion="1.3" maxversion="1.3.999"/> 
+    <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 
   </deps>
 
   <deps purpose="test">
