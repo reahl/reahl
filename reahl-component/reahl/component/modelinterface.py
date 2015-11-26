@@ -89,6 +89,9 @@ class FieldIndex(object):
     def keys(self):
         return self.fields.keys()
 
+    def values(self):
+        return self.fields.values()
+
     def items(self):
         return self.fields.items()
 

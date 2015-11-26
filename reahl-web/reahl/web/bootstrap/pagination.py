@@ -40,7 +40,6 @@ from reahl.component.decorators import deprecated
 _ = Translator('reahl-web')
 
 
-#cs@deprecated('Please use reahl.web.attic.paging:PageMenu instead', '3.2')
 class PageMenu(HTMLWidget):
     """An Menu, which lists the pages of items that can be navigated by a user. If there are
        many pages, only a small subset is shown, with controls allowing the user to browse to
@@ -63,30 +62,32 @@ class PageMenu(HTMLWidget):
         self.set_id(css_id)
         self.append_class('pagination')
 
-        self.enable_refresh()
+        self.enable_refresh(self.query_fields.start_page_number)
 
     def create_items(self, menu):
         links = []
 
-        self.create_bordering_link(menu, '←', 'First', 1,
+        self.add_bordering_link_for(menu, '←', 'First', 1,
                                    not self.page_index.has_previous_page)
-        self.create_bordering_link(menu, '«', 'Prev', self.page_index.previous_page.number, 
+        self.add_bordering_link_for(menu, '«', 'Prev', self.page_index.previous_page.number, 
                                    not self.page_index.has_previous_page)
 
         for page in self.page_index.pages_in_range:
-            link = A.from_bookmark(self.view, self.paged_panel.get_bookmark(page_number=page.number, description=page.description))
+            bookmark = self.paged_panel.get_bookmark(page_number=page.number, description=page.description)
+            bookmark.query_arguments['start_page_number'] = self.page_index.start_page_number
+            link = A.from_bookmark(self.view, bookmark)
             item = menu.add_a(link)
             item.widget.add_attribute_source(ActiveStateAttributes(item))
             if self.page_index.current_page_number == page.number:
                 item.set_active()
 
-        self.create_bordering_link(menu, '»', 'Next', self.page_index.next_page.number, 
+        self.add_bordering_link_for(menu, '»', 'Next', self.page_index.next_page.number, 
                                    not self.page_index.has_next_page)
-        self.create_bordering_link(menu, '→', 'Last', self.page_index.last_page.number, 
+        self.add_bordering_link_for(menu, '→', 'Last', self.page_index.last_page.number, 
                                    not self.page_index.has_next_page)
 
 
-    def create_bordering_link(self, menu, short_description, long_description, start_page_number, disabled):
+    def add_bordering_link_for(self, menu, short_description, long_description, start_page_number, disabled):
         link = A.from_bookmark(self.view, self.get_bookmark(start_page_number=start_page_number, 
                                                             disabled=disabled))
 
@@ -110,6 +111,13 @@ class PageMenu(HTMLWidget):
         fields.start_page_number = self.page_index.fields.start_page_number
         fields.current_page_number = self.paged_panel.query_fields.current_page_number
 
+    @property
+    def jquery_selector(self):
+        return '"ul.pagination"'
+
+    def get_js(self, context=None):
+        js = ['$(%s).bootstrappagemenu({});' % self.jquery_selector]
+        return super(PageMenu, self).get_js(context=context) + js 
 
 
 
