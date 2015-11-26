@@ -2,6 +2,7 @@
 .reahlproject
 COPYING
 LICENSE
+reahl
 tox.ini
 reahl/__init__.py
 reahl/dev/__init__.py
