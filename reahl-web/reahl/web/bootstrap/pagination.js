@@ -23,8 +23,8 @@
       _create: function() {
           var _this = this;
           $(this.element).on('click', 'a', function(event) {
-              if ($.isNumeric($(event.target).text())) {
-                  _this.changeCurrentPage($(event.target).text())
+              if ($(event.target).is(_this.allPageLinks())) {
+                  _this.changeCurrentPage(_this.pageNumberOf(event.target))
               }
           });
           $(window).bind('hashchange', function(e) {
@@ -54,12 +54,21 @@
       changeCurrentPage: function(number) {
           var _this = this;
           _this.allPageLinks().parent().toggleClass('active', false);
-          var active_a = _this.allPageLinks().filter(function(index) {
-              return $(this).text() == number;
-          });
+          var active_a = _this.linkForPage(number);
           active_a.parent().toggleClass('active', true);
           _this.allBoundaryLinks().filter('[href]').each(function(index, link) {
               _this.updateCurrentPageNumber(link, number)
+          });
+      },
+      pageNumberOf: function(link) {
+          var href = $(link).attr('href');
+          var current_fragment = $.deparam.fragment(href);
+          return current_fragment['current_page_number'];
+      },
+      linkForPage: function(number) {
+	  var _this = this;
+          return _this.allPageLinks().filter(function(index) {
+              return _this.pageNumberOf(this) == number;
           });
       }
   });
