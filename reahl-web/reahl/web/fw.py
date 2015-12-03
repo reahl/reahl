@@ -2690,7 +2690,6 @@ class ReahlWSGIApplication(object):
         new_context.set_config(self.config)
         new_context.set_request(request)
         new_context.set_system_control(self.system_control)
-
         return new_context.handle_wsgi_call(self, environ, start_response)
 
 
