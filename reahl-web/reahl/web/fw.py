@@ -327,7 +327,7 @@ class FactoryDict(set):
             if rating > best_rating:
                 best_rating = rating
                 found_factory = factory
-        logging.debug('Found factory: %s for "%s"' % (found_factory, key))
+        logging.getLogger(__name__).debug('Found factory: %s for "%s"' % (found_factory, key))
         return found_factory
 
     def __getitem__(self, key):
@@ -2479,7 +2479,7 @@ class DiskDirectory(FileFactory):
         static_root = context.config.web.static_root
         relative_path = self.root_path.split('/')+path.split('/')
         full_path = os.path.join(static_root, *relative_path)
-        logging.debug('Request is for static file "%s"' % full_path)
+        logging.getLogger(__name__).debug('Request is for static file "%s"' % full_path)
         if os.path.isfile(full_path):
             return FileOnDisk(full_path, relative_path)
         raise NoMatchingFactoryFound(relative_path)
@@ -2633,13 +2633,13 @@ class ReahlWSGIApplication(object):
 
     def resource_for(self, request):
         url = Url.get_current_url(request=request)
-        logging.debug('Finding Resource for URL: %s' % url.path)
+        logging.getLogger(__name__).debug('Finding Resource for URL: %s' % url.path)
         url.make_locale_relative()
         target_ui, page_factory = self.get_target_ui(url.path)
         # TODO: FEATURE ENVY BELOW:
-        logging.debug('Found UserInterface %s' % target_ui)
+        logging.getLogger(__name__).debug('Found UserInterface %s' % target_ui)
         current_view = target_ui.get_view_for_full_path(url.path)
-        logging.debug('Found View %s' % current_view)
+        logging.getLogger(__name__).debug('Found View %s' % current_view)
         current_view.check_precondition()
         current_view.check_rights(request.method)
         if current_view.is_dynamic:
