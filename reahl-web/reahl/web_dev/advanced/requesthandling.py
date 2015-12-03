@@ -20,8 +20,7 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from nose.tools import istest
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import test, expected, vassert
 from reahl.stubble import stubclass, CallMonitor
 
 from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext
@@ -140,7 +139,7 @@ class RequestHandlingTests(object):
 
     @test(WebFixture)
     def handling_HTTPError_exceptions(self, fixture):
-        """If an HTTPError exception is raised, it is used ad response."""
+        """If an HTTPError exception is raised, it is used as response."""
         @stubclass(ReahlWSGIApplication)
         class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
             def resource_for(self, request):
@@ -149,3 +148,21 @@ class RequestHandlingTests(object):
         browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
 
         browser.open('/', status=404)
+
+    @test(WebFixture)
+    def handling_uncaught_exceptions(self, fixture):
+        """If an uncaught exception is raised, the session is closed properly."""
+
+        @stubclass(ReahlWSGIApplication)
+        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
+            def resource_for(self, request):
+                raise AssertionError('this an unknown breakage')
+        
+        app = ReahlWSGIApplicationStub2(fixture.config)
+        browser = Browser(app)
+
+        with CallMonitor(app.system_control.finalise_session) as monitor:
+            vassert( monitor.times_called == 0 )
+            with expected(AssertionError):
+                browser.open('/')
+            vassert( monitor.times_called == 1 )
