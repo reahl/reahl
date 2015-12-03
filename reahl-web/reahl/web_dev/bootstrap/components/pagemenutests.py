@@ -33,6 +33,7 @@ from reahl.web.pager import PageIndex, PagedPanel, SequentialPageIndex, AnnualPa
 from reahl.web.bootstrap.pagination import PageMenu
 from reahl.web_dev.fixtures import WebBasicsMixin
 
+#assert None, 'Need to test enable_refresh() with only certain params instead of the default'
 
 class PageMenuFixture(Fixture, WebBasicsMixin):
     def new_number_of_pages(self):
