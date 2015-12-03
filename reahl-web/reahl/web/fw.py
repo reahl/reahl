@@ -254,17 +254,21 @@ class WebExecutionContext(ExecutionContext):
                 with self.system_control.nested_transaction():
                     self.initialise_web_session()
                 try:
-                    resource = wsgi_app.resource_for(self.request)
-                    response = resource.handle_request(self.request) 
-                except HTTPException as e:
-                    response = e
-                except DisconnectionError as e:
-                    response = HTTPInternalServerError(unicode_body=six.text_type(e))
-                self.session.set_session_key(response)
-                for chunk in response(environ, start_response):
-                    yield chunk
-                self.session.set_last_activity_time()
-                self.system_control.finalise_session()
+                    try:
+                        resource = wsgi_app.resource_for(self.request)
+                        response = resource.handle_request(self.request) 
+                    except HTTPException as e:
+                        response = e
+                    except DisconnectionError as e:
+                        response = HTTPInternalServerError(unicode_body=six.text_type(e))
+
+                    self.session.set_session_key(response)
+                    for chunk in response(environ, start_response):
+                        yield chunk
+                    self.session.set_last_activity_time()
+                finally:
+                    self.system_control.finalise_session()
+
 
 
 class EventHandler(object):
