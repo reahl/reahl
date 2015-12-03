@@ -77,17 +77,10 @@ class WrappedApp(object):
             to_return = b''
             for i in app(environ, start_response):
                 to_return += i 
-        except socket.error:
-            to_return = b''
-            for i in HTTPInternalServerError(charset=ascii_as_bytes_or_str('utf-8'))(environ, start_response):
-                to_return += i
         except:
             to_return = b''
             (_, self.exception, self.traceback) = sys.exc_info()
-            try:
-                traceback_html = six.text_type(traceback.format_exc(self.traceback))
-            except Exception as ex:
-                traceback_html = 'Exception happened while trying to render traceback: %s' % ex
+            traceback_html = six.text_type(traceback.format_exc())
             for i in HTTPInternalServerError(content_type=ascii_as_bytes_or_str('text/plain'), charset=ascii_as_bytes_or_str('utf-8'), unicode_body=traceback_html)(environ, start_response):
                 to_return += i
         yield to_return
@@ -143,14 +136,17 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
             #self.connection.settimeout(3000)
             pass
 
+    def patched_super_call_to_handle(self):
+        simple_server.WSGIRequestHandler.handle(self)
+
     def handle(self):
         try:
-            simple_server.WSGIRequestHandler.handle(self)
+            self.patched_super_call_to_handle()
         except socket.timeout:
             message = 'Server socket timed out waiting to receive the request. This may happen if the server mistakenly deduced that there were requests waiting for it when there were not. Such as when chrome prefetches things, etc.'
-            logging.getLogger(__name__).warn(message)
+            logging.getLogger(__name__).warning(message)
 
-    def finish_response(self):
+    def finish_response(self):  
         simple_server.WSGIRequestHandler.finish_response()
 
 
@@ -159,6 +155,31 @@ class SSLWSGIRequestHandler(LoggingRequestHandler):
         env = simple_server.WSGIRequestHandler.get_environ(self)
         env['HTTPS']='on'
         return env
+
+    # Copied from wsgiref/simple_server.py ServerHandler.handle
+    def patched_super_call_to_handle(self):
+        """Handle a single HTTP request"""
+
+        self.raw_requestline = self.rfile.readline()
+        if not self.parse_request(): # An error code has been sent, just exit
+            return
+
+        handler = simple_server.ServerHandler(
+            self.rfile, self.wfile, self.get_stderr(), self.get_environ()
+        )
+        #------ BEGIN here is our patch        
+        original_write = handler.write
+        def patched_write(data):
+            try:
+                original_write(data)
+            except ssl.SSLError as ex:
+                message = 'Browser stopped reading our response, ignoring the resulting exception: %s' % ex
+                logging.getLogger(__name__).debug(message)
+        handler.write = patched_write
+        #------ END here is our patch
+        
+        handler.request_handler = self      # backpointer for logging
+        handler.run(self.server.get_app())
 
 
 class ReahlWSGIServer(simple_server.WSGIServer):
@@ -438,8 +459,15 @@ class ReahlWebServer(object):
     def main_loop(self, context):
         with context:
             while self.running:
-                self.httpd.serve_async()
-                self.httpsd.serve_async()
+                try:
+                    self.httpd.serve_async()
+                    self.httpsd.serve_async()
+                except:  
+                    # When running as a standalone server, we keep the server running, but else break so tests break
+                    if self.in_separate_thread and self.running:
+                        print(traceback.format_exc(), file=sys.stderr)
+                    else:
+                        raise
 
     def start_thread(self):
         assert not self.running

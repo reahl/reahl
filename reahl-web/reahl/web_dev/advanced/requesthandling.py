@@ -20,8 +20,7 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from nose.tools import istest
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import test, expected, vassert
 from reahl.stubble import stubclass, CallMonitor
 
 from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext, InternalRedirect
@@ -181,4 +180,23 @@ class RequestHandlingTests(object):
         vassert( browser.raw_html == 'response given after internal redirect' )
         vassert( fixture.requests_handled[0] is fixture.requests_handled[1] )
         vassert( fixture.handling_resources[0] is not fixture.handling_resources[1] )
+
+
+    @test(WebFixture)
+    def handling_uncaught_exceptions(self, fixture):
+        """If an uncaught exception is raised, the session is closed properly."""
+
+        @stubclass(ReahlWSGIApplication)
+        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
+            def resource_for(self, request):
+                raise AssertionError('this an unknown breakage')
+        
+        app = ReahlWSGIApplicationStub2(fixture.config)
+        browser = Browser(app)
+
+        with CallMonitor(app.system_control.finalise_session) as monitor:
+            vassert( monitor.times_called == 0 )
+            with expected(AssertionError):
+                browser.open('/')
+            vassert( monitor.times_called == 1 )
 
