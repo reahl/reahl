@@ -135,12 +135,6 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
         else:
             self.connection.settimeout(3)
 
-    def error_output(self, environ, start_response):
-        try:
-            return super(LoggingRequestHandler, self).error_output(environ, start_response)
-        except:
-            return None
-
     def patched_super_call_to_handle(self):
         simple_server.WSGIRequestHandler.handle(self)
 
