@@ -1180,8 +1180,11 @@ class Form(HTMLElement):
         if exception:
             raise ValidationException()
         events -= {None}
-        if not len(events) == 1:
-            raise ProgrammerError('there should always be one and only one event per form submission. Inputs submitted: %s Events detected: %s' % (list(input_values.keys()), list(events)))
+        input_detail = 'Inputs submitted: %s Events detected: %s' % (list(input_values.keys()), list(events))
+        if len(events) == 0:
+            raise ProgrammerError('Could not detect event. Did the browser submit the button? %s' % input_detail)
+        if len(events) > 1:
+            raise ProgrammerError('More than one event detected in form submission. %s' % input_detail)
         return events.pop()
        
     def get_js(self, context=None):
