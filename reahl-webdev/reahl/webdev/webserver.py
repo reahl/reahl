@@ -57,14 +57,9 @@ class WrappedApp(object):
             to_return = b''
             for i in app(environ, start_response):
                 to_return += i 
-        except socket.error:
-            to_return = b''
-            for i in HTTPInternalServerError(charset=ascii_as_bytes_or_str('utf-8'))(environ, start_response):
-                to_return += i
         except:
             to_return = b''
             (_, self.exception, self.traceback) = sys.exc_info()
-            print(traceback.format_exc(), file=sys.stderr)
             traceback_html = six.text_type(traceback.format_exc())
             for i in HTTPInternalServerError(content_type=ascii_as_bytes_or_str('text/plain'), charset=ascii_as_bytes_or_str('utf-8'), unicode_body=traceback_html)(environ, start_response):
                 to_return += i
@@ -328,8 +323,15 @@ class ReahlWebServer(object):
     def main_loop(self, context):
         with context:
             while self.running:
-                self.httpd.serve_async()
-                self.httpsd.serve_async()
+                try:
+                    self.httpd.serve_async()
+                    self.httpsd.serve_async()
+                except:  
+                    # When running as a standalone server, we keep the server running, but else break so tests break
+                    if self.in_seperate_thread and self.running:
+                        print(traceback.format_exc(), file=sys.stderr)
+                    else:
+                        raise
 
     def start_thread(self):
         assert not self.running
