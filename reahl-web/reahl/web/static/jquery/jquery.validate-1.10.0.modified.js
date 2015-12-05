@@ -786,7 +786,10 @@ $.extend($.validator, {
 			}
 			delete this.pending[element.name];
 			if ( valid && this.pendingRequest === 0 && this.formSubmitted && this.form() ) {
-				$(this.currentForm).submit();
+// Patched, see: https://github.com/jzaefferer/jquery-validation/issues/1559
+// This is the solution offered: https://github.com/jzaefferer/jquery-validation/issues/309#issuecomment-18968797
+//				$(this.currentForm).submit();
+			        $(this.currentForm).find(':submit').not('.cancel').click();
 				this.formSubmitted = false;
 			} else if (!valid && this.pendingRequest === 0 && this.formSubmitted) {
 				$(this.currentForm).triggerHandler("invalid-form", [this]);
