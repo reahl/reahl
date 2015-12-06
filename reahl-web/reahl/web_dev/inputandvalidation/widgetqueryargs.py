@@ -21,7 +21,7 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test, vassert, expected, scenario
 from reahl.component.exceptions import ProgrammerError
 
-from reahl.webdev.tools import Browser
+from reahl.webdev.tools import Browser, XPath
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.fixtures import WebFixture
 
@@ -34,8 +34,11 @@ from reahl.web.ui import A, P, Form, TextInput, Div
 
 
 class QueryStringFixture(Fixture, WebBasicsMixin):
+    def is_state_labelled_now(self, label, state):
+        return self.driver_browser.is_element_present(XPath.paragraph_containing('%s is now %s' % (label, state)))
+
     def is_state_now(self, state):
-        return self.driver_browser.execute_script('return (window.jQuery("p").html() == "My state is now %s")' % state)
+        return self.is_state_labelled_now('My state', state)
 
     def change_fragment(self, fragment):
         self.driver_browser.execute_script('return (window.location.hash="%s")' % fragment)
@@ -148,6 +151,48 @@ class WidgetQueryArgTests(object):
         with expected(ProgrammerError):
             MyFancyWidget(fixture.view)
 
+    class PartialRefreshFixture(QueryStringFixture):
+        def new_FancyWidget(self):
+            fixture = self
+            class MyFancyWidget(Div):
+                def __init__(self, view):
+                    super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+                    self.enable_refresh(self.query_fields.refreshing_state)
+                    self.add_child(P(self.view, text='My refreshing state is now %s' % self.refreshing_state))
+                    self.add_child(P(self.view, text='My non-refreshing state is now %s' % self.non_refreshing_state))
+                    fixture.widget = self
+
+                @exposed
+                def query_fields(self, fields):
+                    fields.refreshing_state = IntegerField(required=False, default=1)
+                    fields.non_refreshing_state = IntegerField(required=False, default=2)
+
+            return MyFancyWidget
+
+
+    @test(PartialRefreshFixture)
+    def refreshing_only_for_specific_args(self, fixture):
+        """Calling `.enable_refresh()` only with specific query_fields has the effect that
+           the Widget is only refreshed automatically for the particular fields passed, not
+           for any of its query_fields.
+        """
+
+        fixture.reahl_server.set_app(fixture.wsgi_app)
+        fixture.driver_browser.open('/')
+
+        # Case: the default
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 1) )
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2) )
+
+        # Case: changing the specified field only
+        fixture.change_fragment('#refreshing_state=3')
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3) )
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2) )
+
+        # Case: changing the other field only
+        fixture.change_fragment('#non_refreshing_state=4')
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3) )
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2) )
 
     @test(QueryStringFixture)
     def bookmarks_support_such_fragments(self, fixture):
