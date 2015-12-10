@@ -27,12 +27,9 @@ import six
 
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark
-from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Div, Menu, MenuItem
-from reahl.web.bootstrap.ui import Span, A
+from reahl.web.bootstrap.ui import AccessRightAttributes, ActiveStateAttributes, Div, Menu, MenuItem, Span, A
 
 from reahl.component.exceptions import ProgrammerError
-
-
 
 
 class NavLayout(Layout):
@@ -66,9 +63,9 @@ class Nav(Menu):
         fields.open_item = Field(required=False, default=None)
 
     def create_html_representation(self):
-        li = super(Nav, self).create_html_representation()
-        li.append_class('nav')
-        return li
+        ul = super(Nav, self).create_html_representation()
+        ul.append_class('nav')
+        return ul
     
     def add_dropdown(self, title, dropdown_menu, drop_up=False, query_arguments={}):
         return self.add_submenu(title, dropdown_menu, extra_query_arguments=query_arguments, drop_up=drop_up)
@@ -151,8 +148,4 @@ class PillLayout(NavLayout):
 class TabLayout(NavLayout):
     def __init__(self, justified=False):
         super(TabLayout, self).__init__(key='tab', justified=justified)
-
-
-
-
 
