@@ -86,6 +86,11 @@ class Carousel(Widget):
         return inner
 
     def add_item(self, image, caption_widget=None):
+        """
+        :param image: An image to display for example :class:`reahl.web.fw.Widget` or :class:`reahl.web.holder.holder.PlaceholderImage`
+        :param caption_widget:
+        :return:
+        """
         item = self.inner.add_child(CarouselItem(self.view, image, caption_widget, len(self.items)))
 
         self.items.append(item)
