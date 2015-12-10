@@ -479,8 +479,13 @@ class XPath(object):
         return cls('//label[@class="error" and contains(node(),"%s")]' % text)
 
 
-class UnexpectedPageLoad(Exception):
-    pass
+class UnexpectedLoadOf(Exception):
+    def __init__(self, jquery_selector):
+        super(UnexpectedLoadOf, self).__init__()
+        self.jquery_selector = jquery_selector
+
+    def __str__(self):
+        return self.jquery_selector
 
 
 class DriverBrowser(BasicBrowser):
@@ -884,13 +889,22 @@ class DriverBrowser(BasicBrowser):
            while code executes within the context managed by this context manager. Useful for testing
            JavaScript code that should change a page without refreshing it.
         """
-        self.web_driver.execute_script('$("html").addClass("page_load_flag")')
+        with self.no_load_expected_for('html'):
+             yield
+
+    @contextlib.contextmanager
+    def no_load_expected_for(self, jquery_selector):
+        """Returns a context manager that would raise an exception should the element indicated
+           by the given jquery selector be reloaded/replaced during execution of its context.
+           Useful for testing JavaScript code that should change an element without replacing it.
+        """
+        self.web_driver.execute_script('$("%s").addClass("load_flag")' % jquery_selector)
         try:
             yield
         finally:
             self.wait_for_page_to_load()
-            new_page_loaded = not self.web_driver.execute_script('return $("html").hasClass("page_load_flag")') 
-            if new_page_loaded:
-                raise UnexpectedPageLoad()
+            new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % jquery_selector) 
+            if new_element_loaded:
+                raise UnexpectedLoadOf(jquery_selector)
         
 
