@@ -240,9 +240,9 @@ class PageMenu(HTMLWidget):
     """
     def __init__(self, view, css_id, page_index, paged_panel, menu_layout=None):
         self.page_index = page_index
+        self.paged_panel = paged_panel
         super(PageMenu, self).__init__(view)
 
-        self.paged_panel = paged_panel
         self.menu = self.add_child(Menu(view).use_layout(menu_layout or HorizontalLayout()))
         self.menu.with_a_list(self.get_links())
         self.set_html_representation(self.menu)

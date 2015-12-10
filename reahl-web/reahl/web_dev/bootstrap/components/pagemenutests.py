@@ -85,9 +85,9 @@ class PageMenuFixture(Fixture, WebBasicsMixin):
     def page_range_links_match(self, link_labels):
         return self.driver_browser.execute_script('return window.jQuery(".pagination a").slice(2,-2).map(function(){return window.jQuery(this).html();}).toArray() == "%s"' % link_labels)
 
-    def is_marked_active(self, link_label):
-        [li] = self.driver_browser.xpath('%s/..' % XPath.link_with_text(link_label))
-        return 'active' in li.attrib.get('class', '')
+    def is_marked_active(self, link_label, nth=1):
+        [li] = self.driver_browser.xpath('%s/..' % (XPath.link_with_text(link_label, nth=nth)))
+        return 'active' in li.attrib.get('class', '') 
 
     def new_wsgi_app(self):
         return super(PageMenuFixture, self).new_wsgi_app(enable_js=True, 
@@ -158,11 +158,33 @@ class PageMenuTests(object):
         fixture.max_page_links = 5
         fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open('/')
+        
+        with fixture.driver_browser.no_load_expected_for('.pagination>*'):
+            vassert( not fixture.is_marked_active('p2') )
+            fixture.driver_browser.click(XPath.link_with_text('p2'))
+            fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2')
 
-        vassert( not fixture.is_marked_active('p2') )
+    @test(PageMenuFixture)
+    def active_state_on_multiple_menus(self, fixture):
+        """If there's more than one PageMenu on the page, the active page is switched for both of them"""
+        class MainWidget(Div):
+            def __init__(self, view):
+                super(MainWidget, self).__init__(view)
+                page_index = fixture.PageIndexStub(fixture.max_page_links, fixture.number_of_pages)
+                page_container = self.add_child(fixture.PageContainer(self.view, page_index))
+                self.add_child(PageMenu(self.view, 'page_menu_widget', page_index, page_container))
+                self.add_child(PageMenu(self.view, 'page_menu_widget2', page_index, page_container))
+        fixture.MainWidget = MainWidget
+
+        fixture.reahl_server.set_app(fixture.wsgi_app)
+        fixture.driver_browser.open('/')
+
+        vassert( not fixture.is_marked_active('p2', nth=1) )
+        vassert( not fixture.is_marked_active('p2', nth=2) )
         fixture.driver_browser.click(XPath.link_with_text('p2'))
-        fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2')
-
+        fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2', 1)
+        fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2', 2)
+        
 
     @test(PageMenuFixture)
     def active_state_of_next_prev_links(self, fixture):
