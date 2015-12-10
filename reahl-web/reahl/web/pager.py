@@ -183,7 +183,7 @@ class PageIndex(PageIndexProtocol):
     @property
     @memoized
     def has_previous_page(self):
-        return self.start_page_number - self.max_page_links > 0
+        return self.start_page_number > 1
 
 
 #cs@deprecated('Please use reahl.web.attic.paging:SequentialPageIndex instead', '3.2')
