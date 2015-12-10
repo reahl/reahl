@@ -38,7 +38,7 @@ class SQLiteControl(DatabaseControl):
         super(SQLiteControl, self).__init__(url, config)
         if not config.reahlsystem.serialise_parallel_requests:
             config.reahlsystem.serialise_parallel_requests = True
-            logging.getLogger(__name__).warning('Overriding config setting[reahlsystem.serialise_parallel_requests] to True.')
+            logging.getLogger(__name__).info('Overriding config setting[reahlsystem.serialise_parallel_requests] to True for Sqlite.')
     
     def get_dbapi_connection_creator(self):
         # See: http://stackoverflow.com/questions/2182591/python-sqlite-3-roll-back-to-save-point-fails
