@@ -78,6 +78,7 @@ class DemoFixture(AccessFixture):
         Address(address_book=someone_else_book, email_address='friend23@some.org', name='Friend23').save()
         Address(address_book=someone_else_book, email_address='friend24@some.org', name='Friend24').save()
         Session.flush()
+        Session.commit()
 
 
 

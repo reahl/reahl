@@ -226,7 +226,7 @@ class ReahlSystemConfig(Configuration):
     root_egg = ConfigSetting(description='The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
     connection_uri = ConfigSetting(description='The database connection URI', default='sqlite:///%s' % os.path.join(tempfile.gettempdir(), 'reahl.db'), dangerous=True)
     orm_control = ConfigSetting(default=NullORMControl(), description='The ORM control object to be used', automatic=True)
-    debug = ConfigSetting(default=False, description='Enables more verbose logging')
+    debug = ConfigSetting(default=True, description='Enables more verbose logging', dangerous=True)
     databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
     translation_packages = EntryPointClassList('reahl.translations', description='All available packages containing translation messages')
     serialise_parallel_requests = ConfigSetting(default=False, description='Whether concurrent requests to the web application should be forcibly serialised')
