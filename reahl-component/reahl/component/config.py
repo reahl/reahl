@@ -273,8 +273,16 @@ class StoredConfiguration(Configuration):
         except DistributionNotFound as ex:
             requirement = ex.args[0]
             if (requirement.project_name == self.reahlsystem.root_egg.replace('_','-')) and not self.in_production:
-                ex.args = ('%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % ex.args[0],)
-            raise
+                class PatchedDistributionNotFound(DistributionNotFound):
+                    def __init__(self, other):
+                        super(PatchedDistributionNotFound, self).__init__(*other.args)
+                        
+                    def __str__(self):
+                        return '%s (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' % super(PatchedDistributionNotFound, self).__str__()
+                _, _, tb = sys.exc_info()
+                six.reraise(PatchedDistributionNotFound, PatchedDistributionNotFound(ex), tb)
+            else:
+                raise
 
         self.configure_components()
         if validate:

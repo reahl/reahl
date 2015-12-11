@@ -45,6 +45,7 @@ class ConfigWithFiles(Fixture):
         contents = """
 reahlsystem.root_egg = '%s'
 reahlsystem.connection_uri = None
+reahlsystem.debug = False
 """ % self.root_egg_name
         return self.new_config_file(filename='reahl.config.py', contents=contents)
 
@@ -208,7 +209,7 @@ class ConfigTests3(object):
         config = StoredConfiguration(fixture.config_dir.name, in_production=False)
         
         def check_exception(ex):
-            vassert( six.text_type(ex) == 'missing-root-egg (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' )
+            vassert( six.text_type(ex) == 'The \'missing-root-egg\' distribution was not found and is required by the application (It looks like you are in a development environment. Did you run "reahl setup -- develop -N"?)' )
 
         with expected(DistributionNotFound, test=check_exception):
             config.configure()
@@ -217,7 +218,7 @@ class ConfigTests3(object):
         config = StoredConfiguration(fixture.config_dir.name, in_production=True)
         
         def check_exception(ex):
-            vassert( six.text_type(ex) == 'missing-root-egg' )
+            vassert( six.text_type(ex) == 'The \'missing-root-egg\' distribution was not found and is required by the application' )
 
         with expected(DistributionNotFound, test=check_exception):
             config.configure()
