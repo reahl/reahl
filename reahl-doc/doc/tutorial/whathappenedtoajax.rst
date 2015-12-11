@@ -1,4 +1,4 @@
-.. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 What ever happened to Ajax?
 ===========================
