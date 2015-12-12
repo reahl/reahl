@@ -396,14 +396,14 @@ class SshRepository(RemoteRepository):
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent.project.workspace,
                       six.text_type(attributes['host']), 
-                      six.text_type(attributes.get('login', os.environ['USER'])) or None,
+                      six.text_type(attributes.get('login', os.environ.get('USER', ''))) or None,
                       six.text_type(attributes['destination']) or None)
 
     def __init__(self, workspace, host, login, destination):
         super(SshRepository, self).__init__()
         self.workspace = workspace
         self.host = host
-        self.login = login
+        self.login = login or ''
         self.destination = destination
 
     @property
