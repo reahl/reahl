@@ -77,7 +77,7 @@ class RepositoryUploadFixture(Fixture):
         return WorkspaceStub()
 
     def new_debian_repository(self):
-        user = os.environ['USER']
+        user = os.environ.get('USER', None)
         return SshRepository(self.workspace, 'localhost', user, self.incoming_directory.name)
 
 
@@ -321,7 +321,7 @@ class ProjectReadingTests(object):
 
         [repository1, repository2] = package.repositories
         vassert( repository1.host == 'localhost1' )
-        vassert( repository1.login == os.environ['USER'] )
+        vassert( repository1.login == os.environ.get('USER','') )
         vassert( repository1.destination == '/a/b' )
         vassert( repository2.host == 'localhost2' )
         vassert( repository2.login == 'someusername' )
@@ -502,7 +502,7 @@ class ProjectReadingTests(object):
 
         [repository1, repository2] = package.repositories
         vassert( repository1.host == 'localhost1' )
-        vassert( repository1.login == os.environ['USER'] )
+        vassert( repository1.login == os.environ.get('USER', '') )
         vassert( repository1.destination == '/a/b' )
         vassert( repository2.host == 'localhost2' )
         vassert( repository2.login == 'someusername' )
