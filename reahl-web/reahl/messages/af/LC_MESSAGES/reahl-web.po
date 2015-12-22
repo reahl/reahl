@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights
+# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights
 # reserved.
 #
 # Afrikaans translations for reahl-web.
@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2015-11-26 11:22+0200\n"
+"POT-Creation-Date: 2015-12-10 15:31+0200\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/web/dhtml.py:60 reahl/web/fw.py:568
+#: reahl/web/dhtml.py:60 reahl/web/fw.py:563
 msgid "Untitled"
 msgstr "Ongetiteld"
 
@@ -37,33 +37,33 @@ msgstr ""
 "Die bediener het te lank gevat om te antwoord. Probeer asseblief later "
 "weer."
 
-#: reahl/web/ui.py:2872
+#: reahl/web/ui.py:2458
 msgid "Upload"
 msgstr "Laai op"
 
-#: reahl/web/ui.py:2873
+#: reahl/web/ui.py:2459
 msgid "Remove"
 msgstr "Neem weg"
 
-#: reahl/web/ui.py:2898
+#: reahl/web/ui.py:2484
 msgid "an error occurred, please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:2900
+#: reahl/web/ui.py:2486
 msgid "Cancel"
 msgstr "Kanselleer"
 
-#: reahl/web/ui.py:2902
+#: reahl/web/ui.py:2488
 msgid "Please try again when all files have finished uploading."
 msgstr "Probeer asseblief weer nadat alle lêers opgelaai het."
 
-#: reahl/web/ui.py:2918
+#: reahl/web/ui.py:2502
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
-#: reahl/web/ui.py:3016
+#: reahl/web/ui.py:2597
 msgid "Close"
 msgstr "Maak toe"
 
@@ -79,7 +79,7 @@ msgstr "Volgende"
 msgid "A View"
 msgstr "'n Oogpunt"
 
-#: reahl/web_dev/widgets/specificwidgets.py:325
+#: reahl/web_dev/widgets/specificwidgets.py:246
 msgid "This is an English sentence."
 msgstr "Hierdie is 'n sin in Afrikaans."
 

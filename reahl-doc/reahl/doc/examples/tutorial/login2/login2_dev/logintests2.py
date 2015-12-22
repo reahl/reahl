@@ -30,6 +30,7 @@ class DemoFixture(LoginFixture):
     @set_up
     def do_demo_setup(self):
         self.account
+        Session.commit()
 
 
 @test(LoginFixture)

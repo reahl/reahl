@@ -45,6 +45,7 @@ class ConfigWithFiles(Fixture):
         contents = """
 reahlsystem.root_egg = '%s'
 reahlsystem.connection_uri = None
+reahlsystem.debug = False
 """ % self.root_egg_name
         return self.new_config_file(filename='reahl.config.py', contents=contents)
 
