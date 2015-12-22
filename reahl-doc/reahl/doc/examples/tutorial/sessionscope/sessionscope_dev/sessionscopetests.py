@@ -27,6 +27,7 @@ class DemoFixture(SessionScopeFixture):
     @set_up
     def make_stuff(self):
         self.user
+        Session.commit()
 
 
 @test(SessionScopeFixture)

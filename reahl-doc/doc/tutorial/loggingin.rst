@@ -171,6 +171,23 @@ been modified to include some more items in its :class:`~reahl.web.ui.Menu`:
 Excercising the lazier application
 ----------------------------------
 
+.. warning::
+
+   You have to start our test email server before running this app.
+   
+   This application may try to send out email -- when you register, for
+   example. And since you do not have an email server running on your
+   development machine that will probably break. To solve this, run the
+   following (in a different terminal):
+
+   .. code-block:: bash
+
+      reahl servesmtp
+
+   This command runs a simple email server which just shows every email
+   it receives in the terminal where it is running.
+
+
 Of course, some tests are included for our lazy application. The tests once
 again include a :class:`~reahl.tofu.Fixture` for setting up the application database as before:
 
@@ -178,17 +195,6 @@ again include a :class:`~reahl.tofu.Fixture` for setting up the application data
    
    nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.example.tutorial.login2.login2_dev.logintests2:DemoFixture
 
-This application may try to send out email -- when you register, for
-example. And since you do not have an email server running on your
-development machine that will probably break. To solve this, run the
-following (in a different terminal):
-
-.. code-block:: bash
-
-   reahl servesmtp
-
-This command runs a simple email server which just shows every email
-it receives in the terminal where it is running.
 
 Finally, and for completeness, here is the test code:
 

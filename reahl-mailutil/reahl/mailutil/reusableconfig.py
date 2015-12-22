@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -23,5 +23,5 @@ class MailConfig(Configuration):
     filename = 'mailutil.config.py'
     config_key = 'mail'
     smtp_host = ConfigSetting(default='localhost', description='The hostname used for sending SMTP email')
-    smtp_port = ConfigSetting(default='8025', description='The port used for sending SMTP email', dangerous=True)
+    smtp_port = ConfigSetting(default=8025, description='The port used for sending SMTP email', dangerous=True)
 

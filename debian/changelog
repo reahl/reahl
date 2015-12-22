@@ -6,6 +6,23 @@ python-reahl (3.2) unstable; urgency=low
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 19 Mar 2015 13:18:00 +0200
 
+python-reahl (3.1.1) unstable; urgency=low
+
+ * Fixed #1440067 memoized not caching classmethods.
+ * Fixed #1442104 SetupMonitor breaks pdb under nose.
+ * Fixed #1504194 Newer setuptools entrypoint metadata disallows some current usages.
+ * Fixed #1520170 reahl mergetranslations gives "TypeError: must be str, not bytes" on Python3.
+ * Fixed #1521576 Strange error message on form submission.
+ * Fixed #1521869 Incorrect default for mail.smtp_port.
+ * Fixed #1522304 Database connections are not closed upon unhandled exceptions.
+ * Fixed #1523085 RemoteConstraint prevents button from being submitted.
+ * Fixed #1522368 When a browser prematurely ends a SSL connection, ugly exceptions are printed.
+ * Fixed #1445804 features.slidingpanel renders oddly.
+ * Fixed #1446818 Article not rendered as a header in docs.
+ * Fixed #1511241 Sub-menu items of vertical menus cannot be clicked.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 10 Dec 2015 10:22:00 +0200
+
 python-reahl (3.1.0) unstable; urgency=low
 
  * Split the login functionality out of UserSession to LoginSession (Blueprint: login-session-split).
