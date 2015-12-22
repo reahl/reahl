@@ -1,4 +1,4 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 A persistent model
 ==================
