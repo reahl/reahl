@@ -124,17 +124,20 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
         logging.getLogger(__name__).info(message)
 
     def setup(self):
-        simple_server.WSGIRequestHandler.setup(self)
         # The server will get here if requests_waiting() returned True.
-        # In some cases (ref: chrome prefetching/preconnecting) requests_waiting() will return True,
-        #   but there really is nothing to read on the socket, and our server will block here.
-        # All this timeout stuff justs safeguards against that eventuality - which is a hard thing
-        #   to debug if it happens.
-        if six.PY2:
-            self.rfile._sock.settimeout(3)  
-        else:
-            #self.connection.settimeout(3000)
-            pass
+        # In some cases (we don't know why) requests_waiting() will return True,
+        #   but there really is nothing to read on the socket the request handler gets.
+        #   If this happens our server will block in .handle() trying to read from the socket.
+        # 1) If we timeout here, sending long files (such as .js/css) over an actual network breaks halfway.
+        # 2) But, if we do not, our server blocks forever trying to read nothing.
+        #
+        # (1) only occurs when the server runs standalone (in_separate_thread=True)
+        # (2) only occurs when the server runs embedded in a test run (in_separate_thread=False)
+        if not self.server.in_separate_thread:
+            self.timeout = 0.1
+            if six.PY2:
+                self.rfile._sock.settimeout(0.2)  
+        simple_server.WSGIRequestHandler.setup(self)
 
     def patched_super_call_to_handle(self):
         simple_server.WSGIRequestHandler.handle(self)
@@ -142,8 +145,8 @@ class LoggingRequestHandler(simple_server.WSGIRequestHandler):
     def handle(self):
         try:
             self.patched_super_call_to_handle()
-        except socket.timeout:
-            message = 'Server socket timed out waiting to receive the request. This may happen if the server mistakenly deduced that there were requests waiting for it when there were not. Such as when chrome prefetches things, etc.'
+        except socket.timeout:  # See comments in setup()
+            message = 'Server socket timed out waiting to receive the request. This may happen if the server mistakenly deduced that there were requests waiting for it when there were not.'
             logging.getLogger(__name__).warning(message)
 
     def finish_response(self):  
@@ -193,11 +196,12 @@ class ReahlWSGIServer(simple_server.WSGIServer):
         simple_server.WSGIServer.__init__(self, server_address, RequestHandlerClass)
         self.allow_reuse_address = True
         
-    def serve_async(self):
+    def serve_async(self, in_separate_thread=False):
         if self.requests_waiting(0.01):
-            self.handle_waiting_request()
+            self.handle_waiting_request(in_separate_thread)
 
-    def handle_waiting_request(self):
+    def handle_waiting_request(self, in_separate_thread):
+        self.in_separate_thread = in_separate_thread
         self.handle_request()
         try:
             self.get_app().report_exception()
@@ -460,8 +464,8 @@ class ReahlWebServer(object):
         with context:
             while self.running:
                 try:
-                    self.httpd.serve_async()
-                    self.httpsd.serve_async()
+                    self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
+                    self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
                 except:  
                     # When running as a standalone server, we keep the server running, but else break so tests break
                     if self.in_separate_thread and self.running:
@@ -523,8 +527,8 @@ class ReahlWebServer(object):
 
     def serve_until(self, done):
         while not (done() or self.reahl_wsgi_app.has_uncaught_exception()):
-            self.httpd.serve_async()
-            self.httpsd.serve_async()
+            self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
+            self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
 
     def serve(self, timeout=0.01):
         """Call this method once to have the server handle all waiting requests in the calling thread."""

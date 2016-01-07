@@ -27,7 +27,7 @@ from reahl.webdev.tools import WidgetTester, XPath
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import Bookmark, Url
 from reahl.web.ui import A, Div, P
-from reahl.web.bootstrap.libraries import Bootstrap4
+from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 
 from reahl.web.bootstrap.navs import Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 from reahl.web.bootstrap.tabbedpanel import TabbedPanel, MultiTab, Tab
@@ -56,6 +56,7 @@ class TabbedPanelAjaxFixture(WebFixture):
     def new_webconfig(self):
         web = super(TabbedPanelAjaxFixture, self).new_webconfig()
         web.frontend_libraries.add(Bootstrap4())
+        web.frontend_libraries.add(ReahlBootstrap4Additions())
         return web
 
     def new_wsgi_app(self, enable_js=True):
