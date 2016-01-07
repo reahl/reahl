@@ -10,9 +10,9 @@ class Bootstrap4(Library):
         super(Bootstrap4, self).__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.0.0-alpha/css/bootstrap.css',
-                      'bootstrap-4.0.0-alpha/css/bootstrap.css.map',
-                      'bootstrap-4.0.0-alpha/js/bootstrap.js'
+                      'bootstrap-4.0.0-alpha.2/css/bootstrap.css',
+                      'bootstrap-4.0.0-alpha.2/css/bootstrap.css.map',
+                      'bootstrap-4.0.0-alpha.2/js/bootstrap.js'
                       ]
 
 

@@ -39,7 +39,7 @@ class Form(reahl.web.ui.Form):
         return '''
         {
             errorElement: 'span',
-            errorClass: 'has-error',
+            errorClass: 'has-danger',
             validClass: 'has-success',
             onclick: function(element, event) {
 			// click on selects, radiobuttons and checkboxes
@@ -52,13 +52,13 @@ class Form(reahl.web.ui.Form):
 			}
             },
             highlight: function(element) {
-                $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+                $(element).closest('.form-group').removeClass('has-success').addClass('has-danger');
             },
             unhighlight: function(element) {
-                $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+                $(element).closest('.form-group').removeClass('has-danger').addClass('has-success');
             },
             errorPlacement: function (error, element) {
-                error.addClass('help-block')
+                error.addClass('text-help')
                 if (element.parent('.input-group').length) {
                     error.insertAfter(element.parent());
                 } else if (element.prop('type') === 'checkbox') {
@@ -222,7 +222,7 @@ class FormLayout(Layout):
         form_group = self.widget.add_child(Div(self.view))
         form_group.append_class('form-group')
         form_group.add_attribute_source(ValidationStateAttributes(html_input, 
-                                                             error_class='has-error', 
+                                                             error_class='has-danger', 
                                                              success_class='has-success'))
         form_group.add_attribute_source(AccessRightAttributes(html_input, disabled_class='disabled'))
         return form_group
@@ -237,8 +237,8 @@ class FormLayout(Layout):
 
     def add_validation_error_to(self, form_group, html_input):
         error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
-        error_text.append_class('help-block')
-        error_text.append_class('has-error')
+        error_text.append_class('text-help')
+        error_text.append_class('has-danger')
         error_text.set_attribute('for', html_input.name)
         error_text.set_attribute('generated', 'true')
         return error_text

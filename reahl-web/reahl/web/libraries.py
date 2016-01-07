@@ -192,26 +192,6 @@ class Reahl(Library):
         return '\n<script type="text/javascript" src="/static/reahl.js"></script>'
 
 
-class Bootstrap(Library):
-    def __init__(self):
-        super(Bootstrap, self).__init__('bootstrap')
-        self.shipped_in_directory = '/reahl/web/static'
-        self.files = ['bootstrap-3.3.4/css/bootstrap-theme.css',
-                      'bootstrap-3.3.4/css/bootstrap-theme.css.map',
-                      'bootstrap-3.3.4/css/bootstrap.css',
-                      'bootstrap-3.3.4/css/bootstrap.css.map',
-                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.eot',
-                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.svg',
-                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.ttf',
-                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.woff',
-                      'bootstrap-3.3.4/fonts/glyphicons-halflings-regular.woff2',
-                      'bootstrap-3.3.4/js/bootstrap.js']
-
-    def header_only_material(self, rendered_page):
-        return '<meta http-equiv="X-UA-Compatible" content="IE=edge">'\
-               '<meta name="viewport" content="width=device-width, initial-scale=1">' +\
-               super(Bootstrap, self).header_only_material(rendered_page) 
-
 
 class Holder(Library):
     def __init__(self):
