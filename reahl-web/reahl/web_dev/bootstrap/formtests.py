@@ -95,8 +95,8 @@ class FormLayoutFixture(WebFixture):
     def get_form_group_errors(self, browser, index=0):
         def is_error_element(element):
             return 'class' in element.attrib \
-                   and 'help-block' in element.attrib['class'] \
-                   and 'has-error' in element.attrib['class'] 
+                   and 'text-help' in element.attrib['class'] \
+                   and 'has-danger' in element.attrib['class'] 
         def is_visible(element):
             return not (('style' in element.attrib) and ('display: none' in element.attrib['style']))
             
@@ -265,7 +265,7 @@ def input_validation_cues(fixture):
     browser.type(XPath.input_labelled('Some input'), '')
     browser.click(XPath.button_labelled('Submit'))
 
-    vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    vassert( ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0) )
     [error] = fixture.get_form_group_errors(browser, index=0)
     vassert( error.text == 'Some input is required' )
 
@@ -291,14 +291,14 @@ def input_validation_cues_javascript_interaction(fixture):
     browser.type(XPath.input_labelled('Some input'), '')
     browser.click(XPath.button_labelled('Submit'))
 
-    vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    vassert( ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0) )
     [error] = fixture.get_form_group_errors(browser, index=0)
     vassert( error.text == 'Some input is required' )
 
     fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=True))
     browser.open('/')
 
-    vassert( ['has-error'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    vassert( ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0) )
     [error] = fixture.get_form_group_errors(browser, index=0)
     vassert( error.text == 'Some input is required' )
 
