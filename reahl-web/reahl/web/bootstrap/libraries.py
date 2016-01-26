@@ -31,7 +31,17 @@ class ReahlBootstrap4Additions(Library):
                       'pagination.js'
                       ]
 
-
+class Tether(Library):
+    def __init__(self):
+        super(Tether, self).__init__('tether')
+        self.shipped_in_directory = '/reahl/web/static'
+        self.files = [
+                      'tether.1.1.1/css/tether.css',
+                      'tether.1.1.1/css/tether-theme-arrows.css',
+                      'tether.1.1.1/css/tether-theme-arrows-dark.css',
+                      'tether.1.1.1/css/tether-theme-basic.css',
+                      'tether.1.1.1/js/tether.js'
+                      ]
 
 
 
