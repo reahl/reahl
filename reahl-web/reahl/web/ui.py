@@ -1315,25 +1315,35 @@ class HTMLWidget(Widget):
         self.html_representation = widget
         
     def append_class(self, css_class):
-        """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Input in HTML to the user."""
+        """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Widget in HTML to the user."""
         self.html_representation.append_class(css_class)
 
+    @property
+    def css_id_is_set(self):
+        """Returns True if the "id" attribute of the HTMLElement which represents this Widget in HTML is set."""
+        return self.html_representation.css_id_is_set
+        
+    @property
+    def css_id(self):
+        """Returns the "id" attribute of the HTMLElement which represents this Widget in HTML."""
+        return self.html_representation.css_id
+
     def set_id(self, value):
-        """Set the "id" attribute of the HTMLElement which represents this Input in HTML to the user."""
+        """Set the "id" attribute of the HTMLElement which represents this Widget in HTML to the user."""
         self.html_representation.set_id(value)
 
     def set_title(self, value):
-        """Set the the "title" attribute of the HTMLElement which represents this Input in HTML to the user."""
+        """Set the the "title" attribute of the HTMLElement which represents this Widget in HTML to the user."""
         self.html_representation.set_title(value)
 
     def add_to_attribute(self, name, values):
-        """Ensures that the value of the attribute `name` of the HTMLElement which represents this Input in
+        """Ensures that the value of the attribute `name` of the HTMLElement which represents this Widget in
            HTML to the user includes the words listed in `values` (a list of strings).
         """
         self.html_representation.add_to_attribute(name, values)
 
     def set_attribute(self, name, value):
-        """Sets the value of the attribute `name` of the HTMLElement which represents this Input in HTML to the user
+        """Sets the value of the attribute `name` of the HTMLElement which represents this Widget in HTML to the user
            to the string `value`.
         """
         self.html_representation.set_attribute(name, value)
@@ -2306,7 +2316,6 @@ class Menu(HTMLWidget):
         if add_reahl_styling is not None:
             self.add_reahl_styling = add_reahl_styling
         self.menu_items = []
-        self.css_id = css_id
         self.create_html_representation()
         if css_id:
             warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
