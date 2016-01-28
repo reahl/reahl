@@ -112,7 +112,7 @@ class NavbarLayout(Layout):
         self.brand = brand_html_element
 
     def add(self, widget, left=None, right=None):
-        assert isinstance(widget, reahl.web.bootstrap.navs.Nav) or isinstance(widget, Form), 'You can only add Navs or Forms to a Navbar'
+        assert isinstance(widget, reahl.web.bootstrap.navs.Nav) or isinstance(widget, Form), 'You may only add Navs or Forms to a Navbar'
         css_class = 'navbar-nav' if isinstance(widget, reahl.web.bootstrap.navs.Nav) else 'navbar-form'
         child = widget
         child.append_class(css_class)
