@@ -113,14 +113,15 @@ class NavbarLayout(Layout):
 
     def add(self, widget, left=None, right=None):
         assert isinstance(widget, reahl.web.bootstrap.navs.Nav) or isinstance(widget, Form), 'You may only add Navs or Forms to a Navbar'
-        css_class = 'navbar-nav' if isinstance(widget, reahl.web.bootstrap.navs.Nav) else 'navbar-form'
-        child = widget
-        child.append_class(css_class)
+        if isinstance(widget, reahl.web.bootstrap.navs.Nav):
+            widget.append_class('navbar-nav')
         if left or right:
             child = Div(self.view).use_layout(ResponsiveFloat(left=left, right=right))
             child.add_child(widget)
+        else:
+            child = widget
         self.widget.contents_container.add_child(child)
-        return child
+        return widget
 
     def add_toggle(self, target_html_element, text=None):
         assert target_html_element.css_id_is_set, 'To add a toggle to %s, you must set its css_id' % target_html_element

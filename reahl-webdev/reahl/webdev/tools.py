@@ -576,10 +576,22 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param value: The (text) value to match.
         """
+        return self.does_element_have_attribute(locator, 'value', value=value)
+
+    def does_element_have_attribute(self, locator, attribute, value=None):
+        """Answers whether the element found by `locator` has the given attribute, with the given value
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :param attribute: The name of the attribute to check for.
+           :keyword value: The value the attribute should have (if any)
+
+           .. versionadded:: 3.2
+        """
         xpath = six.text_type(locator)
         el = self.web_driver.find_element_by_xpath(xpath)
-        if el and el.get_attribute('value') == value:
-            return el
+        if el and el.get_attribute(attribute) is not None:   # el is present and has attribute
+            if (value is not None or el.get_attribute(attribute) == value):  # attribute has specified value if specified
+               return el
         return False
     
     def wait_for(self, condition, *args, **kwargs):
