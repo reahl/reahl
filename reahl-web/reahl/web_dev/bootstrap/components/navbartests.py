@@ -18,18 +18,23 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import six
-
+import time
 
 
 # brand link to home page of site, in correct language
 # When collapsed, internal nav should stack like on bs3 examples
 
-#see things below scenarioify
+#collapse looks like a bootsrap component, not necessarily a navbar thing
+#--- see things below scenarioify
 #file upload multiple files
 #dialog button and friends (popupA etc)
+# PopupA - "Modal" in Bootstrap / or Popover / or Card?
+#
+
 #paged table
 #reahl-domainui - bootstrap"ify" worklow, register user
 
+#thhrow ProgrammerError instead of assertion
 
 from reahl.tofu import vassert, scenario, expected, test, Fixture
 from reahl.stubble import stubclass
@@ -89,7 +94,6 @@ def navbar_basics(fixture):
     vassert( 'navbar-nav' in ul.get_attribute('class') )
 
     vassert( isinstance(form, Form))
-    vassert( 'navbar-form' in form.get_attribute('class') )
 
 
 
@@ -160,122 +164,48 @@ def adding_brand_widget(fixture):
 
 class SpecifyPlacementScenarios(NavbarFixture):
     @scenario
-    def adding_nav_left(self):
-        self.navbar = self.navbar.use_layout(NavbarLayout())
-        self.widget_to_add = self.nav
-        self.expected_navbar_class = 'navbar-nav'
-        self.widget_to_check_expected_navbar_class = self.widget_to_add.children[0]
-
-        self.left_expected_device = True
-        self.right_expected_device = None
+    def adding_left(self):
         self.side = 'left'
 
     @scenario
-    def adding_nav_left_for_device(self):
-        self.navbar = self.navbar.use_layout(NavbarLayout())
-        self.widget_to_add = self.nav
-        self.expected_navbar_class = 'navbar-nav'
-        self.widget_to_check_expected_navbar_class = self.widget_to_add.children[0]
-
-        self.left_expected_device = 'lg'
-        self.right_expected_device = None
-        self.side = 'left'
-
-
-    @scenario
-    def adding_form_left(self):
-        self.navbar = self.navbar.use_layout(NavbarLayout())
-        self.widget_to_add = self.form
-        self.expected_navbar_class = 'navbar-form'
-        self.widget_to_check_expected_navbar_class = self.widget_to_add
-
-        self.left_expected_device = True
-        self.right_expected_device = None
-        self.side = 'left'
-
-    @scenario
-    def adding_form_left_for_device(self):
-        self.navbar = self.navbar.use_layout(NavbarLayout())
-        self.widget_to_add = self.form
-        self.expected_navbar_class = 'navbar-form'
-        self.widget_to_check_expected_navbar_class = self.widget_to_add
-
-        self.left_expected_device = 'sm'
-        self.right_expected_device = None
-        self.side = 'left'
-
-    @scenario
-    def adding_nav_right(self):
-        self.navbar = self.navbar.use_layout(NavbarLayout())
-        self.widget_to_add = self.nav
-        self.expected_navbar_class = 'navbar-nav'
-        self.widget_to_check_expected_navbar_class = self.widget_to_add.children[0]
-
-        self.right_expected_device = True
-        self.left_expected_device = None
-        self.side = 'right'
-
-    @scenario
-    def adding_nav_right_for_device(self):
-        self.navbar = self.navbar.use_layout(NavbarLayout())
-        self.widget_to_add = self.nav
-        self.expected_navbar_class = 'navbar-nav'
-        self.widget_to_check_expected_navbar_class = self.widget_to_add.children[0]
-
-        self.right_expected_device = 'md'
-        self.left_expected_device = None
-        self.side = 'right'
-
-
-    @scenario
-    def adding_form_right(self):
-        self.navbar = self.navbar.use_layout(NavbarLayout())
-        self.widget_to_add = self.form
-        self.expected_navbar_class = 'navbar-form'
-        self.widget_to_check_expected_navbar_class = self.widget_to_add
-
-        self.right_expected_device = True
-        self.left_expected_device = None
-        self.side = 'right'
-
-    @scenario
-    def adding_form_right_for_device(self):
-        self.navbar = self.navbar.use_layout(NavbarLayout())
-        self.widget_to_add = self.form
-        self.expected_navbar_class = 'navbar-form'
-        self.widget_to_check_expected_navbar_class = self.widget_to_add
-
-        self.right_expected_device = 'xs'
-        self.left_expected_device = None
+    def adding_right(self):
         self.side = 'right'
 
 
 @test(SpecifyPlacementScenarios)
-def adding_to_navbar_with_specific_alignment(fixture):
-    """ Forms and Navs can be added to a Navbar floating right or left depending on device size or not."""
+def adding_to_navbar_with_specific_placement(fixture):
+    """Widgets can be added to a Navbar placed right or left in the NavBar."""
+    navbar = fixture.navbar.use_layout(NavbarLayout())
 
-    fixture.navbar.layout.add(fixture.widget_to_add, left=fixture.left_expected_device, right=fixture.right_expected_device)
+    if fixture.side == 'left':
+        added_widget = navbar.layout.add(fixture.nav, left=True)
+    else:
+        added_widget = navbar.layout.add(fixture.nav, right=True)
+
+    [wrapping_div] = navbar.children[0].children
+
+    vassert( 'pull-%s' % fixture.side in wrapping_div.get_attribute('class') )
+    vassert( added_widget is fixture.nav )
+    vassert( [added_widget] == wrapping_div.children )
+
+
+@test(SpecifyPlacementScenarios)
+def adding_to_navbar_placement_for_device(fixture):
+    """Placement of an added Widget can be specified to apply below a certain device size only."""
+    fixture.navbar.use_layout(NavbarLayout())
+
+    if fixture.side == 'left':
+        fixture.navbar.layout.add(fixture.nav, left='md')
+    else:
+        fixture.navbar.layout.add(fixture.nav, right='md')
     
-    [added_widget] = fixture.navbar.children[0].children
-
-    if fixture.left_expected_device or fixture.right_expected_device:
-        wrapping_div = added_widget
-        [added_widget] = wrapping_div.children
-
-        for expected_device in [fixture.left_expected_device, fixture.right_expected_device]:
-            if expected_device:
-                if expected_device is True:
-                    vassert( 'pull-%s' % fixture.side in wrapping_div.get_attribute('class') )
-                else:
-                    vassert( 'pull-%s-%s' % (expected_device, fixture.side) in wrapping_div.get_attribute('class') )
-
-    vassert( added_widget is fixture.widget_to_add )
-    vassert( fixture.expected_navbar_class in fixture.widget_to_check_expected_navbar_class.get_attribute('class').split(' ') )
+    [wrapping_div] = fixture.navbar.children[0].children
+    vassert( 'pull-md-%s' % fixture.side in wrapping_div.get_attribute('class') )
 
 
 @test(NavbarFixture)
 def adding_to_navbar_with_both_left_and_right_alignment_not_allowed(fixture):
-
+    """You cannot place an added Widget to both left and right sides."""
     navbar = fixture.navbar.use_layout(NavbarLayout())
 
     def check_ex(ex):
@@ -298,6 +228,20 @@ def adding_other_than_form_or_nav_is_not_allowed(fixture):
     with expected(AssertionError, test=check_ex):
         navbar.layout.add(not_a_form_or_nav)
 
+    # Case: Form
+    navbar = fixture.new_navbar().use_layout(NavbarLayout())
+    navbar.layout.add(fixture.form)
+    [added_widget] = navbar.children[0].children
+    vassert( added_widget is fixture.form )
+
+    # Case: Nav
+    navbar = fixture.new_navbar().use_layout(NavbarLayout())
+    vassert( 'navbar-nav' not in fixture.nav.html_representation.get_attribute('class').split(' ') )
+    navbar.layout.add(fixture.nav)
+    [added_widget] = navbar.children[0].children
+    vassert( added_widget is fixture.nav )
+    vassert( 'navbar-nav' in fixture.nav.html_representation.get_attribute('class').split(' ') )
+
 
 @test(NavbarFixture)
 def navbar_with_centered_contents(fixture):
@@ -317,11 +261,16 @@ def navbar_with_centered_contents(fixture):
 
 class NavbarToggleFixture(Fixture, WebBasicsMixin):
 
-    def panel_is_visible(self):
-        return self.driver_browser.wait_for_element_visible(XPath.paragraph_containing('Peek-A-Boo'))
+    def is_expanded(self, locator):
+        return self.driver_browser.is_visible(locator) and \
+               self.driver_browser.does_element_have_attribute(locator, 'aria-expanded', value='true') and\
+               self.driver_browser.does_element_have_attribute(locator, 'class', value='collapse in') 
 
-    def panel_is_not_visible(self):
-        return self.driver_browser.wait_for_element_not_visible(XPath.paragraph_containing('Peek-A-Boo'))
+    def panel_is_expanded(self):
+        return self.is_expanded(XPath.paragraph_containing('Peek-A-Boo'))
+
+    def panel_is_visible(self):
+        return self.driver_browser.is_visible(XPath.paragraph_containing('Peek-A-Boo'))
 
     def xpath_to_locate_toggle(self):
         return XPath('//button[contains(node(), "%s")]' % '☰')
@@ -360,22 +309,22 @@ def navbar_toggle_collapses_html_element(fixture):
     browser = fixture.driver_browser
     browser.open('/')
 
-    #case: be default, the element to hide is not visible
-    vassert( fixture.panel_is_not_visible() )
+    #case: by default, the element to hide is not visible
+    vassert( browser.wait_for_not(fixture.panel_is_visible) )
 
     #case: clicking on the toggle, causes the panel to appear
     browser.click(fixture.xpath_to_locate_toggle())
-    browser.wait_for(fixture.panel_is_visible)
-    import time
-    time.sleep(2)
+    browser.wait_for(fixture.panel_is_expanded)
+
     #case: clicking on the toggle again, causes the panel to disappear
+    time.sleep(0.5)
     browser.click(fixture.xpath_to_locate_toggle())
-    browser.wait_for(fixture.panel_is_not_visible)
+    browser.wait_for_not(fixture.panel_is_visible)
 
 
 @test(NavbarFixture)
 def navbar_toggle_requires_target_id(fixture):
-    """To be able to hide an element, it needs to have an id"""
+    """To be able to hide an element, it is required to have an id"""
 
     navbar = fixture.navbar
     navbar.use_layout(NavbarLayout())
