@@ -74,6 +74,70 @@ class Attachment(object):
         self.label = label
 
 
+class NoDependencyPathFound(Exception):
+    def __init__(self, from_vertex, to_vertex):
+        self.from_vertex = from_vertex
+        self.to_vertex = to_vertex
+
+    def str(self):
+        return 'No dependency path found from %s to %s' % (self.from_vertex, to_vertex)
+
+
+class CircularDependencyDetected(Exception):
+    def __init__(self, cycle):
+        self.cycle = cycle
+
+    def __str__(self):
+        return ' -> '.join([str(i) for i in self.cycle])
+
+    
+class DepthFirstSearch(object):
+    def __init__(self, graph):
+        self.graph = graph
+        self.discovered = {}
+        self.entered = {}
+        self.exited = {}
+        self.count = 0
+        self.topological_order = []
+        self.parents = {}
+
+    def path(self, from_vertex, to_vertex):
+        path = []
+        i = to_vertex
+        path.append(i)
+        while i in self.parents and i is not from_vertex:
+            i = self.parents[i]
+            path.append(i)
+        if i is not from_vertex:
+            raise NoDependencyPathFound(from_vertex, to_vertex)
+        path.reverse()
+        return path
+
+    def search(self, from_vertex):
+        self.discovered[from_vertex] = True
+        self.entered[from_vertex] = self.count
+        self.count += 1
+        for i in self.graph[from_vertex]:
+            if i not in self.discovered:
+                self.parents[i] = from_vertex
+                self.search(i)
+            elif self.entered[i] < self.entered[from_vertex] and i not in self.exited:
+                raise CircularDependencyDetected(self.path(i, from_vertex)+[i])
+            elif i not in self.parents:
+                self.parents[i] = from_vertex
+
+        self.exited[from_vertex] = self.count
+        self.count += 1
+        self.topological_order.append(from_vertex)
+
+    def topological_sort(self):
+        for i in self.graph.keys():
+            if i not in self.discovered:
+                self.search(i)
+        return reversed(self.topological_order)
+
+
+
 class ReahlEgg(object):
     interface_cache = {}
 
@@ -235,9 +299,6 @@ class ReahlEgg(object):
 
     @classmethod
     def topological_sort(cls, distributions):
-    # Algorithm from: http://www.logarithmic.net/pfh-files/blog/01208083168/sort.py
-    # See also: http://en.wikipedia.org/wiki/Topological_sorting
-        
         graph = {}
         for dist in distributions:
             dependencies = [working_set.find(i) for i in dist.requires()]
@@ -249,28 +310,9 @@ class ReahlEgg(object):
                 dependencies.extend([working_set.find(Requirement.parse(i)) for i in basket.extras])
                 
             graph[dist] = dependencies
-        
-        count = { }
-        for node in graph:
-            count[node] = 0
-        for node in graph:
-            for successor in graph[node]:
-                count[successor] += 1
 
-        ready = [ node for node in graph if count[node] == 0 ]
-        
-        result = []
-        while ready:
-            node = ready.pop(-1)
-            result.append(node)
-            
-            for successor in graph[node]:
-                count[successor] -= 1
-                if count[successor] == 0:
-                    ready.append(successor)
-        
-        assert set(distributions) == set(result)
-        return result
+        return DepthFirstSearch(graph).topological_sort()
+
 
     @classmethod 
     def get_eggs_for(cls, main_egg):
