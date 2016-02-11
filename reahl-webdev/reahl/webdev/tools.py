@@ -471,7 +471,9 @@ class XPath(object):
         else:
             argument_selector = ''
         value_selector = '[normalize-space(@value)=normalize-space("%s")]'  % label
-        return cls('//input%s%s' % (argument_selector, value_selector))
+        inputButtonXPath = '//input%s%s' % (argument_selector, value_selector)
+        buttonTagXPath = '//button[normalize-space(node())=normalize-space("%s")]' % label
+        return cls('%s | %s' % (inputButtonXPath, buttonTagXPath))
 
     @classmethod
     def error_label_containing(cls, text):
