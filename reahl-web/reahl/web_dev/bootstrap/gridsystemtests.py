@@ -21,19 +21,13 @@ import six
 
 from reahl.tofu import vassert, scenario, expected, test
 
-from reahl.webdev.tools import XPath, Browser
-
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.fw import UserInterface, Url
-from reahl.web.ui import A, Div, P, HTML5Page, Header, Footer
+from reahl.web.bootstrap.ui import Div
 
-from reahl.web_dev.inputandvalidation.inputtests import InputMixin
-
-from reahl.component.exceptions import ProgrammerError, IsInstance
-from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
+from reahl.component.exceptions import ProgrammerError
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass
 
 
 @test(WebFixture)
@@ -158,3 +152,54 @@ def column_clearfix(fixture):
 
 
 
+@test(WebFixture)
+def all_device_classes(fixture):
+    """There is a specific list of supported DeviceClasses, in order of device size."""
+    device_classes = [ i.class_label for i in DeviceClass.all_classes()]
+
+    vassert( device_classes == ['xs', 'sm', 'md', 'lg', 'xl'] )
+
+
+@test(WebFixture)
+def device_class_identity(fixture):
+    """Each supported DeviceClass is identified by a string; you cannot create one that is not supported."""
+
+    device_class = DeviceClass('lg')
+
+    vassert( device_class.class_label == 'lg' )
+
+    def check_ex(ex):
+        vassert( six.text_type(ex).startswith('unsupported is not a supported DeviceClass. Should be one of: xs,sm,md,lg,xl'))
+
+    with expected(AssertionError, test=check_ex):
+        DeviceClass('unsupported')
+
+
+
+@test(WebFixture)
+def previous_device_class(fixture):
+    """You can find the supported DeviceClass smaller than a given one."""
+
+    device_class = DeviceClass('sm')
+    vassert( device_class.one_smaller.class_label == 'xs' )
+
+    # Case: when there is no class smaller than given
+
+    device_class = DeviceClass('xs')
+    vassert( device_class.one_smaller == None )
+
+
+@test(WebFixture)
+def previous_device_classes(fixture):
+    """You can find the ordered list of all supported DeviceClasses smaller than a given one."""
+
+    device_class = DeviceClass('md')
+
+    previous_device_classes = [ i.class_label for i in device_class.all_smaller]
+    vassert( previous_device_classes == ['xs', 'sm'] )
+
+    # Case: when there is no class smaller than given
+    device_class = DeviceClass('xs')
+
+    previous_device_classes = device_class.all_smaller
+    vassert( previous_device_classes == [] )
