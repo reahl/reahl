@@ -282,8 +282,10 @@ class ValidationConstraint(Exception):
         Exception.__init__(self)
         self.error_message = Template(error_message)
         self.field = None
+        self.prepared_error_message = ''
     
     def __reduce__(self):
+        self.prepared_error_message = self.label
         reduced = super(ValidationConstraint, self).__reduce__()
         pickle_dict = reduced[2]
         del pickle_dict['field']
@@ -333,7 +335,7 @@ class ValidationConstraint(Exception):
     @property
     def label(self):
         """The textual label displayed to users for the Field to which this ValidationConstraint is linked."""
-        return self.field.label
+        return self.prepared_error_message or (self.field.label if self.field else '')
 
     @property
     def value(self):
@@ -1547,7 +1549,7 @@ class MimeTypeConstraint(ValidationConstraint):
     
     def __reduce__(self):
         reduced = super(MimeTypeConstraint, self).__reduce__()
-        return (reduced[0], (self.self.accept,))+reduced[2:]
+        return (reduced[0], (self.accept,))+reduced[2:]
 
     @property
     def human_accepted_types(self):

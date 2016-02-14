@@ -514,6 +514,10 @@ class HTML5Page(HTMLElement):
     @arg_checks(title=IsInstance(six.string_types))
     def __init__(self, view, title='$current_title', style=None, css_id=None):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
+        self.append_class('no-js')
+        script = self.add_child(HTMLElement(self.view, 'script', children_allowed=True))
+        script.add_child(TextNode(self.view, '(function(e){var r=e.querySelectorAll("html")[0];r.className=r.className.replace(/(^|\s)no-js(\s|$)/,"$1js$2")})(document);'))
+
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 

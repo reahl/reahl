@@ -1,0 +1,18 @@
+
+.js .reahl-bootstrapfileinputbutton > input {
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+    position: absolute;
+    z-index: -1;
+    overflow: hidden;
+}
+
+
+.no-js .reahl-bootstrapfileinputbutton > span {
+    display: none;
+}
+
+.no-js .reahl-bootstrapfileinput > span + span {
+    display: none;
+}
