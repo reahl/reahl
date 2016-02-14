@@ -34,6 +34,8 @@ import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
 from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize
 
+_ = Translator('reahl-web')
+
 class Form(reahl.web.ui.Form):
     def get_js_options(self):
         return '''
@@ -299,4 +301,29 @@ class InlineFormLayout(FormLayout):
         self.widget.append_class('form-inline')
 
 
+class PopupA(A):
+    def __init__(self, view, target_bookmark, show_for_selector, close_button=True, css_id=None):
+        super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
+        self.set_title(target_bookmark.description)
+        self.title = target_bookmark.description
+        self.append_class('reahl-bootstrappopupa')
+        self.show_for_selector = show_for_selector
+        self.buttons = []
+        if close_button:
+            self.add_button(DialogButton(_('Close')))
+
+    def add_button(self, button):
+        self.buttons.append(button)
+
+    def buttons_as_jquery(self):
+        return ', '.join([button.as_jquery() for button in self.buttons])
+
+    @property
+    def jquery_selector(self):
+        return '"a.reahl-bootstrappopupa[href=\'%s\']"' % self.href
+
+    def get_js(self, context=None):
+        selector = self.contextualise_selector(self.jquery_selector, context)
+        return ['$(%s).bootstrappopupa({showForSelector: "%s", buttons: { %s } , title: "%s" });' % \
+              (selector, self.show_for_selector, self.buttons_as_jquery(), self.title)]
 
