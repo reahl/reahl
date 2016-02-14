@@ -52,3 +52,5 @@ reahl-doc/reahl/doc/examples/tutorial/hellonginx/hellonginx.egg-info
 *~
 */.eggs
 
+.floo
+.flooignore

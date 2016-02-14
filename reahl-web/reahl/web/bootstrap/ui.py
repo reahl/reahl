@@ -59,20 +59,13 @@ class Form(reahl.web.ui.Form):
             },
             errorPlacement: function (error, element) {
                 error.addClass('text-help')
-                if (element.parent('.input-group').length) {
-                    error.insertAfter(element.parent());
-                } else if (element.prop('type') === 'checkbox') {
-                    error.insertAfter($(element).closest('.checkbox'));
-                    error.insertAfter($(element).closest('.checkbox-inline'));
-                } else if (element.prop('type') === 'radio') {
-                    error.insertAfter($(element).closest('.radio').parent());
-                    error.insertAfter($(element).closest('.radio-inline').parent());
-                } else {
-                    error.insertAfter(element);
-                }
+                element.closest('.form-group').append(error);
             }
          }
     '''
+
+class SimpleFileInput(reahl.web.ui.SimpleFileInput):
+    append_error = False
 
 class TextInput(reahl.web.ui.TextInput):
     append_error = False

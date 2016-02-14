@@ -78,7 +78,7 @@ class Library(object):
         return result
 
 
-
+    
 class JQuery(Library):
     def __init__(self):
         super(JQuery, self).__init__('jquery')
