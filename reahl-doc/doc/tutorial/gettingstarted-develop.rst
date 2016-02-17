@@ -71,7 +71,7 @@ To do that, create a directory (for example called
      The Reahl web framework itself.
 
    reahl-web-declarative
-     An implementation of technology-dependent bits of Reahl, using
+     An implementation of technology-dependent bits of Reahl,
      using `SqlAlchemy <http://sqlalchemy.org>`__.
 
    reahl-sqlalchemysupport
