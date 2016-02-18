@@ -1,14 +1,14 @@
 # Translations template for reahl-web.
-# Copyright (C) 2015 ORGANIZATION
+# Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the reahl-web project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 3.2.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-12-10 15:31+0200\n"
+"POT-Creation-Date: 2016-02-16 12:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/web/dhtml.py:60 reahl/web/fw.py:563
+#: reahl/web/dhtml.py:60 reahl/web/fw.py:571
 msgid "Untitled"
 msgstr ""
 
@@ -33,47 +33,59 @@ msgstr ""
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 
-#: reahl/web/ui.py:2458
+#: reahl/web/ui.py:2890
 msgid "Upload"
 msgstr ""
 
-#: reahl/web/ui.py:2459
+#: reahl/web/ui.py:2891
 msgid "Remove"
 msgstr ""
 
-#: reahl/web/ui.py:2484
+#: reahl/web/ui.py:2916
 msgid "an error occurred, please try again later."
 msgstr ""
 
-#: reahl/web/ui.py:2486
+#: reahl/web/ui.py:2918
 msgid "Cancel"
 msgstr ""
 
-#: reahl/web/ui.py:2488
+#: reahl/web/ui.py:2920
 msgid "Please try again when all files have finished uploading."
 msgstr ""
 
-#: reahl/web/ui.py:2502
+#: reahl/web/ui.py:2936
 msgid "uploaded files should all have different names"
 msgstr ""
 
-#: reahl/web/ui.py:2597
+#: reahl/web/ui.py:3034 reahl/web/bootstrap/ui.py:313
 msgid "Close"
 msgstr ""
 
-#: reahl/web/bootstrap/carousel.py:113
+#: reahl/web/bootstrap/carousel.py:118
 msgid "Previous"
 msgstr ""
 
-#: reahl/web/bootstrap/carousel.py:113
+#: reahl/web/bootstrap/carousel.py:118
 msgid "Next"
+msgstr ""
+
+#: reahl/web/bootstrap/files.py:40
+msgid "Choose file(s)"
+msgstr ""
+
+#: reahl/web/bootstrap/files.py:68 reahl/web/bootstrap/files.py:86
+msgid "No files chosen"
+msgstr ""
+
+#: reahl/web/bootstrap/files.py:86
+msgid "files chosen"
 msgstr ""
 
 #: reahl/web_dev/i18ntests.py:63
 msgid "A View"
 msgstr ""
 
-#: reahl/web_dev/widgets/specificwidgets.py:246
+#: reahl/web_dev/widgets/specificwidgets.py:325
 msgid "This is an English sentence."
 msgstr ""
 

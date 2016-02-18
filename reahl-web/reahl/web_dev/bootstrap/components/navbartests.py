@@ -42,12 +42,11 @@ from reahl.stubble import stubclass
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin
 
-from reahl.component.modelinterface import exposed, Field, Event
-from reahl.web.fw import Bookmark, Widget
+from reahl.web.fw import Bookmark
 
 from reahl.web.bootstrap.navbar import Navbar, ColourScheme, NavbarLayout, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
-from reahl.web.bootstrap.ui import A, Form, InlineFormLayout, TextInput, Button, Div, P
+from reahl.web.bootstrap.ui import A, Form, Div, P
 from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 
 from reahl.component.exceptions import ProgrammerError
@@ -295,10 +294,10 @@ class NavbarToggleFixture(Fixture, WebBasicsMixin):
         return super(NavbarToggleFixture, self).new_wsgi_app(enable_js=True,
                                                        child_factory=self.MainWidget.factory())
     def new_webconfig(self):
-        web = super(NavbarToggleFixture, self).new_webconfig()
-        web.frontend_libraries.add(Bootstrap4())
-        web.frontend_libraries.add(ReahlBootstrap4Additions())
-        return web
+        webconfig = super(NavbarToggleFixture, self).new_webconfig()
+        webconfig.frontend_libraries.add(Bootstrap4())
+        webconfig.frontend_libraries.add(ReahlBootstrap4Additions())
+        return webconfig
 
 
 @test(NavbarToggleFixture)
