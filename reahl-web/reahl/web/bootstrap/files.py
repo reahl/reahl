@@ -31,20 +31,13 @@ from reahl.web.bootstrap.ui import SimpleFileInput
 
 _ = Translator('reahl-web')
 
-
-#TOTEST
-# Focus, blur
-# What shows in js and what without
-# Filling in the filename when chosen (scenario for more than one file)
-# i18n
-
     
 class FileInputButton(WrappedInput):
     def __init__(self, form, bound_field):
         label = Label(form.view)
         self.simple_input = label.add_child(SimpleFileInput(form, bound_field))
         self.simple_input.html_representation.append_class('btn-secondary')
-        label.add_child(Span(form.view, text='Choose file'))
+        label.add_child(Span(form.view, text=_('Choose file(s)')))
         super(FileInputButton, self).__init__(self.simple_input)
         self.add_child(label)
 
