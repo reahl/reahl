@@ -266,7 +266,7 @@ class FormLayout(Layout):
         if help_text:
             self.add_help_text_to(form_group, help_text)
 
-        return form_group
+        return html_input
 
 
 class GridFormLayout(FormLayout):
