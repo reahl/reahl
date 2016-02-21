@@ -251,7 +251,8 @@ class Browser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         xpath = six.text_type(locator)
-        form_element = self.xpath('//form[@id=%s/@form]' % xpath)[0]
+        form_id = self.xpath('%s[@form]' % xpath)[0].attrib['form']
+        form_element = self.xpath('//form[@id=\'%s\']' % form_id)[0]
         patch_Field()
         return self.last_response.forms[form_element.attrib['id']]
 
@@ -440,7 +441,9 @@ class XPath(object):
     @classmethod
     def input_labelled(cls, label):
         """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
-        return cls('//input[@name=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
+        for_based_xpath = '//input[@name=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label
+        nested_xpath = '//label[normalize-space()=normalize-space("%s")]//input' % label
+        return cls('%s|%s' % (for_based_xpath, nested_xpath))
 
     @classmethod
     def select_labelled(cls, label):
@@ -686,21 +689,28 @@ class DriverBrowser(BasicBrowser):
         """Clicks on the element found by `locator`.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-           :keyword wait: If False, first waits for the element to become interactible (visible and enabled).
+           :keyword wait: If False, don't wait_for_page_to_load after having typed into the input.
         """
         self.wait_for_element_interactable(locator)
         self.find_element(locator).click()
         if wait:
             self.wait_for_page_to_load()
 
-    def type(self, locator, text, wait=True):
+    def type(self, locator, text, wait=True, even_if_invisible=False):
         """Types the text in `value` into the input found by the `locator`.
         
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
-           :keyword wait: If False, first waits for the element to become interactible (visible and enabled).
+           :keyword wait: If False, don't wait_for_page_to_load after having typed into the input.
+           :keyword even_if_invisible: If True, only wait for the element to become enabled before typing into it (by default, wait for te elemnt to also be visible).
+           
+           .. versionchanged: 3.2:
+              Added even_if_invisible keyword argument.
         """
-        self.wait_for_element_interactable(locator)
+        if even_if_invisible:
+            self.wait_for_element_enabled(locator)
+        else:
+            self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         if el.get_attribute('type') != 'file':
             el.clear()
@@ -718,7 +728,19 @@ class DriverBrowser(BasicBrowser):
         actions = ActionChains(self.web_driver)
         actions.move_to_element(el)
         actions.perform()
-        
+
+    def focus_on(self, locator):
+        """Puts the tab-focus at the element found by the `locator`.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+
+           ..versionadded:: 3.2
+
+        """
+        xpath = six.text_type(locator)
+        el = self.find_element(xpath)
+        return self.web_driver.execute_script('$(arguments[0]).focus()', el)
+
     @property
     def current_url(self):
         """Returns the :class:`reahl.web.fw.Url` of the current location."""

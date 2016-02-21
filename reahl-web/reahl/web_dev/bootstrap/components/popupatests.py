@@ -118,7 +118,7 @@ class PopupAFixtureWithCheckBox(PopupAFixture):
         class PopupTestPanel(Div):
             @exposed
             def fields(self, fields):
-                fields.field = BooleanField()
+                fields.field = BooleanField(label='a checkbox')
 
             def __init__(self, view):
                 super(PopupTestPanel, self).__init__(view)
@@ -126,7 +126,7 @@ class PopupAFixtureWithCheckBox(PopupAFixture):
                 popup_contents = self.add_child(P(view, text='this is the content of the popup'))
                 popup_contents.set_id('contents')
                 form = self.add_child(Form(view, 'aform')).use_layout(FormLayout())
-                checkbox = form.add_child(CheckboxInput(form, self.fields.field))
+                checkbox = form.layout.add_input(CheckboxInput(form, self.fields.field))
 
                 popup_a.add_button(CheckCheckboxButton('Checkit', checkbox))
 
@@ -144,8 +144,7 @@ def workings_of_check_checkbox_button(fixture):
     browser.click(XPath.link_with_text('Home page'))
     browser.wait_for_element_visible(fixture.poppedup_contents)
 
-    import pdb;pdb.set_trace()
     browser.click(XPath.button_labelled('Checkit'))
     browser.wait_for_element_not_visible(fixture.poppedup_contents)
 
-    vassert( fixture.driver_browser.is_checked("//input[@type='checkbox']") )
+    vassert( fixture.driver_browser.is_checked(XPath.input_labelled('a checkbox')) )

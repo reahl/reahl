@@ -67,18 +67,6 @@ class FileInput(WrappedInput):
 
         filename_input = self.input_group.add_child(Span(self.view, text=_('No files chosen')))
         filename_input.append_class('form-control')
-#        filename_input = self.input_group.add_child(HTMLElement(self.view, 'input'))
-#        filename_input.set_attribute('type', 'text')
-#        filename_input.append_class('form-control')
-#        filename_input.set_attribute('readonly', 'readonly')
-
-#        filename_input = self.input_group.add_child(TextInput(form, self.fields.filename))
-#        filename_input.html_representation.set_attribute('readonly', 'readonly')
-
-
-#    @exposed
-#    def fields(self, fields):
-#        fields.filename = Field()
 
 
     def get_js(self, context=None):
