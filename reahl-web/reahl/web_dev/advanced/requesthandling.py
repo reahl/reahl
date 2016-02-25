@@ -16,6 +16,8 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+import re
+
 from webob import Request, Response
 from webob.exc import HTTPNotFound
 
@@ -35,7 +37,7 @@ class RequestHandlingTests(object):
         status = None
         headers = None
         def result_is_valid(self, result):
-            return result.startswith('<!DOCTYPE html><html>') and result.endswith('</html>')
+            return result.startswith('<!DOCTYPE html><html class="no-js">') and result.endswith('</html>')
         def some_headers_are_set(self, headers):
             return dict(headers)['Content-Type'] == 'text/html; charset=utf-8'
 

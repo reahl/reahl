@@ -75,17 +75,26 @@ class BrowserSetup(CleanDatabase):
     def web_driver(self):
         return self.chrome_driver
 
-    def new_firefox_driver(self):
-        from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.max-connections-per-server'] = '1'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.max-persistent-connections-per-server'] = '1'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.spdy.enabled'] = 'false'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.pipelining'] = 'true'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.pipelining.maxrequests'] = '8'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.pipelining.ssl'] = 'true'
-        FirefoxProfile.DEFAULT_PREFERENCES['html5.offmainthread'] = 'false'
+    def new_firefox_driver(self, javascript_enabled=True):
+        assert javascript_enabled, 'Cannot disable javascript anymore, see: https://github.com/seleniumhq/selenium/issues/635'
+        from selenium.webdriver import FirefoxProfile, DesiredCapabilities
 
-        wd = webdriver.Firefox()
+        fp = FirefoxProfile()
+        fp.set_preference('network.http.max-connections-per-server', 1)
+        fp.set_preference('network.http.max-persistent-connections-per-server', 1)
+        fp.set_preference('network.http.spdy.enabled', False)
+        fp.set_preference('network.http.pipelining', True)
+        fp.set_preference('network.http.pipelining.maxrequests', 8)
+        fp.set_preference('network.http.pipelining.ssl', True)
+        fp.set_preference('html5.offmainthread', False)
+
+        dc = DesiredCapabilities.FIREFOX.copy() 
+
+        if not javascript_enabled:
+            fp.set_preference('javascript.enabled', False)
+            dc['javascriptEnabled'] = False
+
+        wd = webdriver.Firefox(firefox_profile=fp, capabilities=dc)
         self.reahl_server.install_handler(wd)
         return wd
 

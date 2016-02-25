@@ -516,7 +516,13 @@ class HTML5Page(HTMLElement):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.append_class('no-js')
         script = self.add_child(HTMLElement(self.view, 'script', children_allowed=True))
-        script.add_child(TextNode(self.view, '(function(e){var r=e.querySelectorAll("html")[0];r.className=r.className.replace(/(^|\s)no-js(\s|$)/,"$1js$2")})(document);'))
+        script.add_child(TextNode(self.view, '''
+          function switchJSStyle(d, fromStyle, toStyle) {
+              var r=d.querySelectorAll("html")[0];
+              r.className=r.className.replace(new RegExp("\\\\b" + fromStyle + "\\\\b", "g"),toStyle)
+          };
+          (function(e){switchJSStyle(e, "no-js", "js")})(document);
+        '''))
 
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page

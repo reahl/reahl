@@ -26,8 +26,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 from reahl.web.fw import Widget, Url
 from reahl.web.ui import Div, A, Span, Li, Img, HTMLElement, Ol, WrappedInput, Label
+import reahl.web.ui
 from reahl.component.i18n import Translator
-from reahl.web.bootstrap.ui import SimpleFileInput
 
 _ = Translator('reahl-web')
 
@@ -35,7 +35,7 @@ _ = Translator('reahl-web')
 class FileInputButton(WrappedInput):
     def __init__(self, form, bound_field):
         label = Label(form.view)
-        self.simple_input = label.add_child(SimpleFileInput(form, bound_field))
+        self.simple_input = label.add_child(reahl.web.ui.SimpleFileInput(form, bound_field))
         self.simple_input.html_representation.append_class('btn-secondary')
         label.add_child(Span(form.view, text=_('Choose file(s)')))
         super(FileInputButton, self).__init__(self.simple_input)
@@ -51,10 +51,10 @@ class FileInputButton(WrappedInput):
         return super(FileInputButton, self).get_js(context=context) + js
 
 
-class FileInput(WrappedInput):
+class SimpleFileInput(WrappedInput):
     def __init__(self, form, bound_field):
         file_input = FileInputButton(form, bound_field)
-        super(FileInput, self).__init__(file_input)
+        super(SimpleFileInput, self).__init__(file_input)
 
         self.input_group = self.add_child(Div(self.view))
         self.input_group.append_class('input-group')
@@ -72,4 +72,4 @@ class FileInput(WrappedInput):
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapfileinput").bootstrapfileinput({nfilesMessage: "%s", nofilesMessage: "%s"});' % \
               (_('files chosen'), _('No files chosen'))]
-        return super(FileInput, self).get_js(context=context) + js
+        return super(SimpleFileInput, self).get_js(context=context) + js

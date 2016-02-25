@@ -19,6 +19,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import warnings
+import re
 
 from nose.tools import istest
 from reahl.tofu import scenario
@@ -94,7 +95,8 @@ class BasicReahlWidgets(object):
         
         rendered_html = tester.render_html()
         head = '<head><title>It: %s</title></head>' % fixture.view.title
-        vassert( rendered_html == '<!DOCTYPE html><html>%s<body></body></html>' % head)
+        expected_regex = '<!DOCTYPE html><html class="no-js"><script>.*</script>%s<body></body></html>' % head
+        vassert( re.match(expected_regex, rendered_html.replace('\n', '')) )
         
         vassert( list(widget.default_slot_definitions.keys()) == ['slot1'] )
 
@@ -390,8 +392,8 @@ class BasicReahlWidgets(object):
         tester = WidgetTester(widget)
         
         rendered_html = tester.render_html()
-        expected = '<!DOCTYPE html><html><head><title>It: A view</title></head><body><div id="doc" class="yui-t2"><div id="hd" class="yui-g"><header></header></div><div id="bd" role="main"><div id="yui-main"><div class="yui-b"></div></div><div class="yui-b"></div></div><div id="ft"><footer></footer></div></div></body></html>'
-        vassert( rendered_html == expected )
+        expected_regex = '<!DOCTYPE html><html class="no-js"><script>.*</script><head><title>It: A view</title></head><body><div id="doc" class="yui-t2"><div id="hd" class="yui-g"><header></header></div><div id="bd" role="main"><div id="yui-main"><div class="yui-b"></div></div><div class="yui-b"></div></div><div id="ft"><footer></footer></div></div></body></html>'
+        vassert( re.match(expected_regex, rendered_html.replace('\n','') ))
         
         vassert( list(widget.default_slot_definitions.keys()) == ['slot1'] )
         

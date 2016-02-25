@@ -35,21 +35,13 @@ from reahl.component.modelinterface import exposed, Field, Event, FileField, Act
 from reahl.web.fw import WebExecutionContext
 
 from reahl.web.bootstrap.ui import Form, Span, Label, Div, P, SimpleFileInput, Button, TextNode
-from reahl.web.bootstrap.files import FileInput, FileInputButton
+from reahl.web.bootstrap.files import SimpleFileInput, FileInputButton
 from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions, Tether
 
-#TOTEST
-# Focus, blur
-# What shows in js and what without
-# Filling in the filename when chosen (scenario for more than one file)
-# i18n
-# Showing validation error messages
-# test for js/no-js
 
 #TODO:
-# js/css files to be named reahl.xxx for consistency
-# Names of FileInputButton/FileInput to be rethought
-#typing filenames in input
+# Names of FileInputButton/SimpleFileInput to be rethought
+
 
 
 
@@ -106,7 +98,8 @@ def file_upload_button(fixture):
     browser.open('/')
     
     file_to_upload = temp_file_with('some content')
-    browser.type(XPath.input_labelled('Choose file(s)'), file_to_upload.name, even_if_invisible=True)
+
+    browser.type(XPath.input_labelled('Choose file(s)'), file_to_upload.name)
     
     vassert( len(fixture.domain_object.files) == 0 )
     browser.click(XPath.button_labelled('Submit'))
@@ -144,27 +137,34 @@ class FileInputFixture(FileInputButtonFixture):
         class FileUploadForm(Form):
             def __init__(self, view):
                 super(FileUploadForm, self).__init__(view, 'test')
-                self.add_child(FileInput(self, fixture.domain_object.fields.files))
+                self.add_child(SimpleFileInput(self, fixture.domain_object.fields.files))
         return FileUploadForm   
 
+    message_span_xpath = '//div[contains(@class, "reahl-bootstrapfileinput")]//span[2]'
     def message_displayed_is(self, message):
-        message_span = '//div[contains(@class, "reahl-bootstrapfileinput")]//span[2]'
-        return message == self.driver_browser.get_inner_html_for(message_span)
+        return message == self.driver_browser.get_inner_html_for(self.message_span_xpath)
+
+    def message_is_visible(self):
+        return self.driver_browser.is_visible(self.message_span_xpath)
+
+    def standard_file_input_is_visible(self):
+        input_element = self.driver_browser.find_element(XPath.input_labelled('Choose file(s)'))
+        return not input_element.value_of_css_property('width').startswith('0.')
 
 
 @test(FileInputFixture)
-def file_input_basics2(fixture):
-    """A FileInput is a FileInputButton combined with a area where the chosen file name is displayed."""
+def file_input_basics(fixture):
+    """A SimpleFileInput is a FileInputButton combined with a area where the chosen file name is displayed."""
     fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = fixture.driver_browser
     browser.open('/')
 
     browser.wait_for(fixture.message_displayed_is, 'No files chosen')
-    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html', even_if_invisible=True)
+    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html')
     browser.wait_for(fixture.message_displayed_is, 'koos.html')
 
-    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html,/tmp/jannie.html', even_if_invisible=True)
-    browser.wait_for(fixture.message_displayed_is, '2 files')
+    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.wait_for(fixture.message_displayed_is, '2 files chosen')
 
 
 @test(FileInputFixture)
@@ -176,3 +176,25 @@ def i18n(fixture):
 
     browser.wait_for(fixture.message_displayed_is, 'Geen lêers gekies')
     browser.wait_for_element_present(XPath.input_labelled('Kies lêer(s)'))
+
+    browser.type(XPath.input_labelled('Kies lêer(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.wait_for(fixture.message_displayed_is, '2 gekose lêers')
+
+
+@test(FileInputFixture)
+def file_input_without_js(fixture):
+    """If JS available, we display a bootstrap-styled button, and associated span that look like a pretty version of a standard file input; otherwise we degrade to displaying only the standard file input"""
+    fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    browser = fixture.driver_browser
+    browser.open('/')
+
+    browser.wait_for(fixture.message_is_visible)
+    browser.wait_for_not(fixture.standard_file_input_is_visible)
+    
+    browser.switch_styling(javascript=False)
+
+    browser.wait_for_not(fixture.message_is_visible)
+    browser.wait_for(fixture.standard_file_input_is_visible)
+
+
+
