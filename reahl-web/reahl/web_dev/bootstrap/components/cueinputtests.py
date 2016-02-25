@@ -91,6 +91,7 @@ def cue_is_visible_when_js_disabled(fixture):
     fixture.reahl_server.set_app(wsgi_app)
     browser = fixture.driver_browser
     browser.open('/')
+    browser.refresh() # To prevent flipper we don't understand
 
     #the cue is visible when JS is disbled
     browser.wait_for_element_visible(fixture.cue_element_xpath)

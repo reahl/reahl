@@ -696,21 +696,15 @@ class DriverBrowser(BasicBrowser):
         if wait:
             self.wait_for_page_to_load()
 
-    def type(self, locator, text, wait=True, even_if_invisible=False):
+    def type(self, locator, text, wait=True):
         """Types the text in `value` into the input found by the `locator`.
         
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
            :keyword wait: If False, don't wait_for_page_to_load after having typed into the input.
-           :keyword even_if_invisible: If True, only wait for the element to become enabled before typing into it (by default, wait for te elemnt to also be visible).
            
-           .. versionchanged: 3.2:
-              Added even_if_invisible keyword argument.
         """
-        if even_if_invisible:
-            self.wait_for_element_enabled(locator)
-        else:
-            self.wait_for_element_interactable(locator)
+        self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         if el.get_attribute('type') != 'file':
             el.clear()
@@ -778,7 +772,18 @@ class DriverBrowser(BasicBrowser):
            :param script: A string containing the JavaScript to be executed.
         """
         return self.web_driver.execute_script(script)
-        
+
+    def switch_styling(self, javascript=True):
+        """Switches styling for javascript enabled or javascript disabled.
+
+           .. versionadded:: 3.2
+        """
+        if javascript:
+            script = '''switchJSStyle(document, "js", "no-js"); switchJSStyle(document, "no-js", "js")'''
+        else:
+            script = '''switchJSStyle(document, "no-js", "js"); switchJSStyle(document, "js", "no-js")'''
+        self.execute_script(script)
+
     def get_text(self, locator):
         """Returns the contents of the element found by `locator`, as plain text.
 

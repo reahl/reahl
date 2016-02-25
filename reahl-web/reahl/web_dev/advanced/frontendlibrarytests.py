@@ -99,7 +99,7 @@ def library_files(fixture):
     vassert( browser.raw_html == 'contents - css' )
 
     browser.open('/')
-    script_added = browser.get_html_for('//script')
+    script_added = browser.get_html_for('//script[@src]')
     vassert( script_added == '<script type="text/javascript" src="/static/somefile.js"></script>' )
 
     link_added = browser.get_html_for('//link')
