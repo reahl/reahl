@@ -160,6 +160,23 @@ class StaticData(reahl.web.ui.Input):
         return False
 
 
+class CueInput(WrappedInput):
+    def __init__(self, html_input, cue_widget):
+        super(CueInput, self).__init__(html_input)
+        div = self.add_child(Div(self.view))
+        self.set_html_representation(div)
+
+        div.append_class('reahl-bootstrapcueinput')
+        cue_widget.append_class('reahl-bootstrapcue')
+
+        div.add_child(html_input)
+        div.add_child(cue_widget)
+
+    def get_js(self, context=None):
+        js = ['$(".reahl-bootstrapcueinput").bootstrapcueinput();']
+        return super(CueInput, self).get_js(context=context) + js
+
+
 class ButtonLayout(Layout):
     def __init__(self, style=None, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
