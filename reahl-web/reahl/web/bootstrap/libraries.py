@@ -31,7 +31,8 @@ class ReahlBootstrap4Additions(Library):
                       'reahl.pagination.js',
                       'reahl.files.js',
                       'reahl.files.css',
-                      'reahl.bootstrappopupa.js'
+                      'reahl.bootstrappopupa.js',
+                      'reahl.bootstrapcueinput.js'
                       ]
 
 class Tether(Library):
