@@ -141,12 +141,12 @@ class ButtonInput(reahl.web.ui.ButtonInput):
 Button = ButtonInput
 
 
-class SimpleFileInput(reahl.web.ui.SimpleFileInput):
+class _SimpleFileInput(reahl.web.ui.SimpleFileInput):
     append_error = False
     add_default_attribute_source = False
 
     def __init__(self, form, bound_field):
-        super(SimpleFileInput, self).__init__(form, bound_field)
+        super(_SimpleFileInput, self).__init__(form, bound_field)
         self.append_class('form-control-file')
 
 
