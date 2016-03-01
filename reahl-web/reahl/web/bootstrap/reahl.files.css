@@ -8,11 +8,36 @@
     overflow: hidden;
 }
 
+label.reahl-bootstrapfileinputbutton {
+    margin: 0;
+}
 
 .no-js .reahl-bootstrapfileinputbutton > span {
     display: none;
 }
 
-.no-js .reahl-bootstrapfileinput > span + span {
+.no-js .reahl-bootstrapfileinput > span.form-control {
     display: none;
 }
+
+
+
+/* Added for FileUploadInput (panel) */
+.reahl-bootstrap-file-upload-panel ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.reahl-bootstrap-file-upload-li > span {
+    padding-left: 1em;
+}
+
+.no-js .reahl-bootstrapfileinput > .input-group-btn {
+    display: inline;
+}
+
+.no-js label.reahl-bootstrapfileinputbutton {
+    background-color: inherit;
+    border: none;
+}
+
