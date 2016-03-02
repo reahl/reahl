@@ -20,6 +20,9 @@ label.reahl-bootstrapfileinputbutton {
     display: none;
 }
 
+.reahl-bootstrapfileinput > span.form-control {
+    white-space: nowrap;
+}
 
 
 /* Added for FileUploadInput (panel) */
