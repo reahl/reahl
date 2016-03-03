@@ -24,7 +24,7 @@ Widgets for uploading files.
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import six
-from reahl.web.bootstrap.ui import Div, Span, Li, WrappedInput, Label, _SimpleFileInput, Button, NestedForm, Ul, UniqueFilesConstraint, PrimitiveInput, ButtonLayout
+from reahl.web.bootstrap.ui import Div, Span, Li, WrappedInput, Label, _SimpleFileInput, Button, NestedForm, Ul, UniqueFilesConstraint, PrimitiveInput, ButtonLayout, FormLayout
 from reahl.web.fw import WebExecutionContext
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
@@ -75,6 +75,7 @@ class SimpleFileInput(WrappedInput):
         return super(SimpleFileInput, self).get_js(context=context) + js
 
 
+
 # Uses: reahl/web/reahl.fileuploadli.js
 class FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
@@ -103,6 +104,7 @@ class FileUploadPanel(Div):
         self.upload_form = self.add_child(NestedForm(self.view, '%s-%s-upload' % (self.input_form.css_id, self.bound_field.name)))
         self.upload_form.define_event_handler(self.events.upload_file)
         self.upload_form.define_event_handler(self.events.remove_file)
+        self.upload_form.form.set_attribute('novalidate','novalidate')
 
     @property
     def name(self):
@@ -114,11 +116,13 @@ class FileUploadPanel(Div):
             ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file, persisted_file))
 
     def add_upload_controls(self):
-        controls_panel = self.upload_form.add_child(Div(self.view))
-        file_input = controls_panel.add_child(SimpleFileInput(self.upload_form.form, self.fields.uploaded_file))
+        controls_panel = self.upload_form.add_child(Div(self.view)).use_layout(FormLayout())
+        file_input = controls_panel.layout.add_input(SimpleFileInput(self.upload_form.form, self.fields.uploaded_file), hide_label=True)
+
         button_addon = file_input.html_representation.add_child(Span(self.view))
         button_addon.append_class('input-group-btn')
         button_addon.add_child(Button(self.upload_form.form, self.events.upload_file)).use_layout(ButtonLayout(style='primary'))
+
 
     @property
     def persisted_file_class(self):
@@ -143,6 +147,8 @@ class FileUploadPanel(Div):
     def fields(self, fields):
         fields.uploaded_file = self.bound_field.unbound_copy()
         fields.uploaded_file.disallow_multiple()
+        fields.uploaded_file.label = _('Add file')
+        fields.uploaded_file.make_optional()
         fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name))
 
     def attach_jq_widget(self, selector, widget_name, **options):
@@ -177,7 +183,6 @@ class FileUploadPanel(Div):
 
 
 
-#cs@deprecated('Please use reahl.web.attic.fileupload:FileUploadInput instead', '3.2')
 class FileUploadInput(PrimitiveInput):
     """An Input which allows a user to choose several files for uploding to a server. As each file is
        chosen, the file is uploaded to the server in the background (if JavaScript is enabled on the user
@@ -204,6 +209,9 @@ class FileUploadInput(PrimitiveInput):
        :param form: (See :class:`Input`)
        :param bound_field: (See :class:`Input`, must be of type :class:`reahl.component.modelinterface.FileField`
     """
+    append_error = False
+    add_default_attribute_source = False
+
     @property
     def persisted_file_class(self):
         config = WebExecutionContext.get_context().config

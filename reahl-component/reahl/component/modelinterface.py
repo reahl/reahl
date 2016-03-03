@@ -388,7 +388,7 @@ class ValidationConstraintList(list):
         for validation_constraint in self:
             if isinstance(validation_constraint, cls):
                 return validation_constraint
-        raise ConstraintNotFound(name)
+        raise ConstraintNotFound(cls)
 
     def get_constraint_named(self, name):
         for validation_constraint in self:

@@ -1223,7 +1223,7 @@ class NestedForm(Div):
        
     """
     def __init__(self, view, unique_name, css_id=None):
-        self.out_of_bound_form = Form(view, unique_name, rendered_form=self)
+        self.out_of_bound_form = self.create_out_of_bound_form(view, unique_name)
         super(NestedForm, self).__init__(view, css_id='%s_nested' % self.out_of_bound_form.css_id)
         self.add_to_attribute('class', ['reahl-nested-form'])
         self.set_id(self.css_id)
@@ -1232,6 +1232,9 @@ class NestedForm(Div):
     @property
     def form(self):
         return self.out_of_bound_form
+
+    def create_out_of_bound_form(self, view, unique_name):
+        return Form(view, unique_name, rendered_form=self)
 
     
 class FieldSet(HTMLElement):
@@ -2902,6 +2905,8 @@ class FileUploadPanel(Div):
     def fields(self, fields):
         fields.uploaded_file = self.bound_field.unbound_copy()
         fields.uploaded_file.disallow_multiple()
+        fields.uploaded_file.make_optional()
+        fields.uploaded_file.label = _('Add file')
         fields.uploaded_file.add_validation_constraint(UniqueFilesConstraint(self.input_form, self.bound_field.name))
 
     def attach_jq_widget(self, selector, widget_name, **options):

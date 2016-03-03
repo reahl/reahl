@@ -105,12 +105,22 @@ $.widget('reahl.bootstrapfileuploadli', {
             beforeSubmit: function(a, form, options) {
             },
             success: function(data){
-                this_.element.remove();
+                if (data.success) {
+                    this_.element.remove();
+                } else {
+                    this_.replaceNestedFormContents(data.widget);
+                }
             },
             error: function(jqXHR, textStatus, errorThrown){
                 this_.changeToFailed(this_.getErrorMessage());
             }
         });
+    },
+    replaceNestedFormContents: function(newContents) {
+        var this_ = this;
+        var nestedForm = $('#'+this_.getNestedFormId());
+        nestedForm.empty();
+        nestedForm.append(newContents);
     },
     startUpload: function(submitName, ajaxOptions) {
         $(this.element).append(this.createCancelButton());
@@ -134,9 +144,7 @@ $.widget('reahl.bootstrapfileuploadli', {
                     if (data.success) {
                         this_.changeToUploaded();
                     } else {
-                        var nestedForm = $('#'+this_.getNestedFormId());
-                        nestedForm.empty();
-                        nestedForm.append(data.widget);
+                        this_.replaceNestedFormContents(data.widget);
                         this_.getFileInputPanel().uploadFinished();
                     }
                 },
@@ -172,10 +180,12 @@ $.widget('reahl.bootstrapfileuploadli', {
     },
     changeToFailed: function(errorMessage){
         this.getFileInputPanel().uploadFinished();
-        var errorLabel = $('<label class="error">'+errorMessage+'</label>');
+        var errorLabel = $('<span class="has-danger text-help">errorMessage</span>');
+        var formGroup = $(this.element).closest('.form-group');
 
+        formGroup.addClass('has-danger');
         if (this.state === 'uploaded' ) {
-            $(this.element).append(errorLabel);
+            formGroup.append(errorLabel);
             this.getRemoveButton().prop('disabled', true);
         } else {
             this.getProgressBar().replaceWith(errorLabel);
