@@ -65,7 +65,7 @@ class FileUploadInputFixture(WebFixture):
                
             @exposed
             def fields(self, fields):
-                fields.files = FileField(allow_multiple=True, label='Attached files')
+                fields.files = FileField(allow_multiple=True, label='Attached files', required=True)
 
             @exposed
             def events(self, events):

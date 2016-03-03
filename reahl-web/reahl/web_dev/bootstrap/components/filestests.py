@@ -231,7 +231,7 @@ class FileUploadInputFixture(WebFixture):
                
             @exposed
             def fields(self, fields):
-                fields.files = FileField(allow_multiple=True, label='Attached files')
+                fields.files = FileField(allow_multiple=True, label='Attached files', required=True)
 
             @exposed
             def events(self, events):
@@ -253,6 +253,7 @@ class FileUploadInputFixture(WebFixture):
         class FileUploadForm(Form):
             def __init__(self, view):
                 super(FileUploadForm, self).__init__(view, 'test')
+                self.set_attribute('novalidate','novalidate')
                 self.use_layout(FormLayout())
                 self.layout.add_input(FileUploadInput(self, fixture.domain_object.fields.files))
                 self.define_event_handler(fixture.domain_object.events.submit)
@@ -537,7 +538,7 @@ def file_upload_input_double_uploads(fixture):
     browser.click(XPath.button_labelled('Upload'))
 
     # Expect an validation error message
-    vassert( browser.is_element_present('//label[text()="uploaded files should all have different names"]') )
+    vassert( browser.is_element_present('//span[text()="uploaded files should all have different names"]') )
     vassert( fixture.file_was_uploaded(fixture.file_to_upload1.name) )
 
 @test(FileUploadInputFixture)

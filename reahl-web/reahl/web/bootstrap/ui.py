@@ -66,6 +66,12 @@ class Form(reahl.web.ui.Form):
          }
     '''
 
+
+class NestedForm(reahl.web.ui.NestedForm):
+    def create_out_of_bound_form(self, view, unique_name):
+        return Form(view, unique_name, rendered_form=self)
+
+
 class SimpleFileInput(reahl.web.ui.SimpleFileInput):
     append_error = False
 

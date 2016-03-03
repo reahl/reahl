@@ -287,7 +287,9 @@ $.extend($.validator, {
 
 		init: function() {
 			this.labelContainer = $(this.settings.errorLabelContainer);
-			this.errorContext = this.labelContainer.length && this.labelContainer || $(this.currentForm);
+// Iwan: to be able to find and clear errors inside a NestedForm
+//			this.errorContext = this.labelContainer.length && this.labelContainer || $(this.currentForm);
+			this.errorContext = this.labelContainer.length && this.labelContainer || $('html')
 			this.containers = $(this.settings.errorContainer).add( this.settings.errorLabelContainer );
 			this.submitted = {};
 			this.valueCache = {};

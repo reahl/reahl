@@ -58,7 +58,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         return $(this.element).find('input[type="file"]');
     },
     getValidationError: function() {
-        return $(this.element).find('label[for="'+this.fileInputName+'"][class~="error"]');
+        return $(this.element).find('span[for="'+this.fileInputName+'"][class~="has-danger"]');
     },
     getNumberOfUploadedFiles: function() {
         return $(this.element).find('li').length;
@@ -69,7 +69,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         this.queuedUploads = [];
         this.uploadInputName = this.getUploadInput().attr('name');
         this.fileInputName = this.getFileInput().attr('name');
-        this.duplicateValidationError = $('<label for="'+this.fileInputName+'" class="error">'+this.options.duplicateValidationErrorMessage+'</label>');
+        this.duplicateValidationError = $('<span for="'+this.fileInputName+'" class="has-danger text-help">'+this.options.duplicateValidationErrorMessage+'</span>');
         this.uploadCounter = 0;
 
         $(this.element).on('click', 'input[name="'+this_.uploadInputName+'"]', function(e){
@@ -119,12 +119,14 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         return filenames.length > 0;
     },
     showValidationError: function(filename) {
-        this.getFileInput().after(this.duplicateValidationError);
-        this.getFileInput().addClass('error');
+        var formGroup = this.getFileInput().closest('.form-group');
+        formGroup.append(this.duplicateValidationError);
+        formGroup.addClass('has-danger');
     },
     clearValidationError: function(filename) {
+        var formGroup = this.getFileInput().closest('.form-group');
         this.getValidationError().remove();
-        this.getFileInput().removeClass('error');
+        formGroup.removeClass('has-danger');
     },
     createFileUpload: function(file) {
         var uploadLi = $('<li></li>').bootstrapfileuploadli({file: file, fileInputPanel: this}).data('reahl-bootstrapfileuploadli');
