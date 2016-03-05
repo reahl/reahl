@@ -287,7 +287,7 @@ $.extend($.validator, {
 
 		init: function() {
 			this.labelContainer = $(this.settings.errorLabelContainer);
-// Iwan: to be able to find and clear errors inside a NestedForm
+// Iwan: to be able to find and clear errors that are not physically children of their form (ie, are form-associated)
 //			this.errorContext = this.labelContainer.length && this.labelContainer || $(this.currentForm);
 			this.errorContext = this.labelContainer.length && this.labelContainer || $('html')
 			this.containers = $(this.settings.errorContainer).add( this.settings.errorLabelContainer );
