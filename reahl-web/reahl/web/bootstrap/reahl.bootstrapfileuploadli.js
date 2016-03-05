@@ -182,7 +182,7 @@ $.widget('reahl.bootstrapfileuploadli', {
     },
     changeToFailed: function(errorMessage){
         this.getFileInputPanel().uploadFinished();
-        var errorLabel = $('<span class="has-danger text-help">errorMessage</span>');
+        var errorLabel = $('<span class="has-danger text-help">'+errorMessage+'</span>');
         var formGroup = $(this.element).closest('.form-group');
 
         formGroup.addClass('has-danger');

@@ -664,6 +664,7 @@ class FileTests(object):
         vassert( progress2 == '0' )
 
         fixture.simulate_large_file_upload_done()
+        fixture.reahl_server.serve(timeout=1)
 
         vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
         vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) )
