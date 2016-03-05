@@ -343,13 +343,13 @@ class ToggleValidationFixture(FileUploadInputFixture):
                                 
         return DomainObject()
 
-    check_script = 'return $(".reahl-bootstrap-file-upload-panel").find(".reload_flag").length > 0'
-    def mark_panel(self):
-        self.driver_browser.execute_script('$(".reahl-bootstrap-file-upload-panel").children().addClass("reload_flag")')
+    check_script = 'return $(".reahl-nested-form").find(".reload_flag").length > 0'
+    def mark_nested_form(self):
+        self.driver_browser.execute_script('$(".reahl-nested-form").children().addClass("reload_flag")')
         has_class = self.driver_browser.execute_script(self.check_script)
-        assert has_class, 'Something is wrong, could not place flags for checking reloading of panel'
+        assert has_class, 'Something is wrong, could not place flags for checking reloading of form'
 
-    def panel_was_reloaded(self):
+    def nested_form_was_reloaded(self):
         has_class = self.driver_browser.execute_script(self.check_script)
         return not has_class  # ie, the UploadPanel has been reloaded
 
@@ -595,24 +595,23 @@ def prevent_duplicate_upload_js(fixture):
 
     error_locator = XPath.span_containing('uploaded files should all have different names')
     def error_is_visible():
-        return browser.is_element_present(error_locator)
+        return browser.is_visible(error_locator)
 
     fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = fixture.driver_browser
     browser.open('/')
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-    vassert( not error_is_visible() )
+    browser.wait_for_not(error_is_visible)
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    vassert( not error_is_visible() )
+    browser.wait_for_not(error_is_visible)
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-    vassert( error_is_visible() )
+    browser.wait_for(error_is_visible)
 
     browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
-    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    vassert( not error_is_visible() )
+    browser.wait_for_not(error_is_visible)
 
 
 @test(LargeFileUploadInputFixture)
@@ -681,8 +680,7 @@ def async_upload_error(fixture):
     with expected(Exception):
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
 
-    import pdb;pdb.set_trace()
-    vassert( browser.wait_for_element_present(XPath.label_with_text('an error occurred, please try again later.')) )
+    vassert( browser.wait_for_element_present(XPath.span_containing('an error occurred, please try again later.')) )
     vassert( not browser.is_element_enabled(XPath.button_labelled('Cancel')) )
 
 @test(ToggleValidationFixture)
@@ -698,19 +696,19 @@ def async_upload_domain_exception(fixture):
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
 
     fixture.make_validation_fail = True
-    fixture.mark_panel()
+    fixture.mark_nested_form()
     with browser.no_page_load_expected():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    vassert(fixture.panel_was_reloaded())
+    vassert(fixture.nested_form_was_reloaded())
 
     # JS Stuff on re-rendered form still work
 
     # 1: Server-rendered validation message has been cleared
-    vassert( browser.is_element_present(XPath.label_with_text('test validation message')) )
+    vassert( browser.is_visible(XPath.span_containing('test validation message')) )
     fixture.make_validation_fail = False
     with browser.no_page_load_expected():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    vassert( not browser.is_element_present(XPath.label_with_text('test validation message')) )
+    browser.wait_for_not(browser.is_visible, XPath.span_containing('test validation message'))
 
     # 2: The remove button still happens via ajax
     with browser.no_page_load_expected():
@@ -740,6 +738,7 @@ def queueing_async_uploads(fixture):
     vassert( progress2 == '0' )
 
     fixture.simulate_large_file_upload_done()
+    fixture.reahl_server.serve(timeout=1)
 
     vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
     vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) )
@@ -788,8 +787,7 @@ def async_number_files_validation(fixture):
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
     vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) )
-    vassert( browser.is_element_present(XPath.label_with_text('a maximum of 1 files may be uploaded')) )
+    vassert( browser.wait_for(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) )
 
     browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
-    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    vassert( not browser.is_element_present(XPath.label_with_text('a maximum of 1 files may be uploaded')) )
+    vassert( browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) )
