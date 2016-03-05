@@ -592,23 +592,27 @@ def async_in_progress(fixture):
 def prevent_duplicate_upload_js(fixture):
     """The user is prevented from uploading more than one file with the same name on the client side.
     """
-    fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
+    error_locator = XPath.span_containing('uploaded files should all have different names')
+    def error_is_visible():
+        return browser.is_element_present(error_locator)
+
+    fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = fixture.driver_browser
     browser.open('/')
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-    vassert( not browser.is_element_present('//label[text()="uploaded files should all have different names"]') )
+    vassert( not error_is_visible() )
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    vassert( not browser.is_element_present('//label[text()="uploaded files should all have different names"]') )
+    vassert( not error_is_visible() )
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-    vassert( browser.is_element_present('//label[text()="uploaded files should all have different names"]') )
+    vassert( error_is_visible() )
 
     browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-    vassert( not browser.is_element_present('//label[text()="uploaded files should all have different names"]') )
+    vassert( not error_is_visible() )
 
 
 @test(LargeFileUploadInputFixture)
@@ -677,6 +681,7 @@ def async_upload_error(fixture):
     with expected(Exception):
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
 
+    import pdb;pdb.set_trace()
     vassert( browser.wait_for_element_present(XPath.label_with_text('an error occurred, please try again later.')) )
     vassert( not browser.is_element_enabled(XPath.button_labelled('Cancel')) )
 
@@ -758,7 +763,7 @@ def async_validation(fixture):
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.invalid_file.name)
     vassert( not fixture.uploaded_file_is_listed( fixture.invalid_file.name ) )
-    vassert( browser.is_element_present(XPath.label_with_text(fixture.validation_error_message)) )
+    vassert( browser.is_element_present(XPath.span_containing(fixture.validation_error_message)) )
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.valid_file.name)
     vassert( fixture.uploaded_file_is_listed( fixture.valid_file.name ) )
