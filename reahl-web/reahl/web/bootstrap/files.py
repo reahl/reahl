@@ -24,7 +24,8 @@ Widgets for uploading files.
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import six
-from reahl.web.bootstrap.ui import Div, Span, Li, WrappedInput, Label, _SimpleFileInput, Button, NestedForm, Ul, UniqueFilesConstraint, PrimitiveInput, ButtonLayout, FormLayout
+from reahl.web.bootstrap.ui import Div, Span, Li, WrappedInput, Label, _SimpleFileInput, Button, NestedForm, Ul, PrimitiveInput, ButtonLayout, FormLayout
+import reahl.web.ui
 from reahl.web.fw import WebExecutionContext
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
@@ -87,6 +88,9 @@ class FileUploadLi(Li):
     def get_js(self, context=None):
         return ['$(".reahl-bootstrap-file-upload-li").bootstrapfileuploadli();']
 
+
+class UniqueFilesConstraint(reahl.web.ui.UniqueFilesConstraint):
+    name = 'bootstrapuniquefiles'
 
 
 # Uses: reahl/web/reahl.fileuploadpanel.js

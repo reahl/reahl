@@ -74,8 +74,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
 
         $(this.element).on('click', 'input[name="'+this_.uploadInputName+'"]', function(e){
             var clickedInput = this;
-            this_.clearValidationError();
-            if ($('#'+this_.getFormId()).valid() ) {
+            if ($('#'+this_.getFormId()).validate().form() ) {
                 var files = this_.getFileInput()[0].files;
                 for (var fileIdx=0; fileIdx<files.length; fileIdx+=1) {
                     var fileUpload = this_.createFileUpload(files[fileIdx]);
@@ -117,16 +116,6 @@ $.widget('reahl.bootstrapfileuploadpanel', {
             return $(this).text() === filename;
         });
         return filenames.length > 0;
-    },
-    showValidationError: function(filename) {
-        var formGroup = this.getFileInput().closest('.form-group');
-        formGroup.append(this.duplicateValidationError);
-        formGroup.addClass('has-danger');
-    },
-    clearValidationError: function(filename) {
-        var formGroup = this.getFileInput().closest('.form-group');
-        this.getValidationError().remove();
-        formGroup.removeClass('has-danger');
     },
     createFileUpload: function(file) {
         var uploadLi = $('<li></li>').bootstrapfileuploadli({file: file, fileInputPanel: this}).data('reahl-bootstrapfileuploadli');
@@ -176,7 +165,7 @@ jQuery.validator.addMethod("data-maxfiles", function(value, element, param) {
     return true;
 });
 
-jQuery.validator.addMethod("data-uniquefiles", function(value, element, param) {
+jQuery.validator.addMethod("data-bootstrapuniquefiles", function(value, element, param) {
     var fileUploadPanel = $(element).closest('.reahl-bootstrap-file-upload-panel').data('reahl-bootstrapfileuploadpanel');
 
     var files = fileUploadPanel.getFileInput()[0].files;

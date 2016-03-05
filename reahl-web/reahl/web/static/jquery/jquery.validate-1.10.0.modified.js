@@ -457,11 +457,16 @@ $.extend($.validator, {
 
 			// select all valid inputs inside the form (no submit or reset buttons)
 //			return $(this.currentForm)
-			return $('html')
-			.find("input, select, textarea")
-			.filter( function(index) {  // Iwan: to ignore form-associated elements from another form 
-			    return $(this).prop('form')===validator.currentForm; 
-			})
+		        var formInputs = $(validator.currentForm.elements);
+		        if (formInputs.length == 0) { /* in case of not html5 */
+			    formInput = $('html')
+				.find("input, select, textarea")
+				.filter( function(index) {  // Iwan: to ignore form-associated elements from another form 
+				    return $(this).prop('form')===validator.currentForm; 
+				});
+			};
+
+		        return formInputs
 			.not(":submit, :reset, :image, [disabled]")
 			.not( this.settings.ignore )
 			.filter(function() {

@@ -20,7 +20,7 @@
 "use strict";
 
 $.widget('reahl.form', {
-    options: $.extend(true, {ignore: false, meta: 'validate'}, $.validator.defaults),
+    options: $.extend(true, {meta: 'validate'}, $.validator.defaults),
 
     _create: function() {
         $(this.element).validate(this.options);

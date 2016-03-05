@@ -2,7 +2,7 @@
 .js .reahl-bootstrapfileinputbutton > input {
     opacity: 0.1;
     width: 0.1px;
-    height: 0.1px;
+    height: 1px; /* is has to be :visible according to jquery, yet not visible to the eye, else things break! */
     position: absolute;
     z-index: -1;
     overflow: hidden;

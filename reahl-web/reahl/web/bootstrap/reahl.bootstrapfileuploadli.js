@@ -106,7 +106,9 @@ $.widget('reahl.bootstrapfileuploadli', {
             },
             success: function(data){
                 if (data.success) {
+		    var fileInput = this_.getFileInputPanel().getFileInput(); /* has to be found before element is removed */
                     this_.element.remove();
+		    fileInput.focusout().focus(); /* to revalidate the input after removal */
                 } else {
                     this_.replaceNestedFormContents(data.widget);
                 }
