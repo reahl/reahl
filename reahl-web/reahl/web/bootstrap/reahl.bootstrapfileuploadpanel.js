@@ -79,6 +79,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
                 for (var fileIdx=0; fileIdx<files.length; fileIdx+=1) {
                     var fileUpload = this_.createFileUpload(files[fileIdx]);
                     fileUpload.startUpload(clickedInput.name, this_.options);
+                   /* this_.clearFileInput(); */
                 }
             }
             return false;
