@@ -1,8 +1,9 @@
 
 .js .reahl-bootstrapfileinputbutton > input {
-    opacity: 0.1;
+    /* opacity, width & height are set to visually hide the element, yet keep it :visible to jquery and to selenium */
+    opacity: 0.1; /* must be > 0 for selenium to see it as visible */
     width: 0.1px;
-    height: 1px; /* is has to be :visible according to jquery, yet not visible to the eye, else things break! */
+    height: 1px; /* it has to be :visible according to jquery, yet not visible to the eye, else things break! */
     position: absolute;
     z-index: -1;
     overflow: hidden;
