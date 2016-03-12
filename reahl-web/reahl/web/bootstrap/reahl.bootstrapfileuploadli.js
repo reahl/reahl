@@ -158,12 +158,11 @@ $.widget('reahl.bootstrapfileuploadli', {
                 },
                 success: function(data){
                     if (data.success) {
-                        this_.getFileInputPanel().uploadFinished();
                         this_.changeToUploaded();
                     } else {
                         this_.replaceNestedFormContents(data.widget);
-                        this_.getFileInputPanel().uploadFinished();
                     }
+                    this_.getFileInputPanel().uploadFinished();
                 },
                 error: function(jqXHR, textStatus, errorThrown){
                     this_.getFileInputPanel().uploadFinished();
