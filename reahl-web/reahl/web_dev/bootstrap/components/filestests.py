@@ -45,8 +45,11 @@ from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions, 
 
 #TODO:
 # Names of FileInputButton/SimpleFileInput to be rethought
-
-
+# - (TEST DONE) Break in JS on duplicate filename upload before actually uploading
+# - Clearing of fileinput before retuning from starting ajax call to start upload
+#   + with max_files = 1, upload, then error is not cleared
+# - (TEST DONE) Cancelling only works for the upload that is currently busy. No way to remove the correct
+#    scheduled startUpload function from the queue + cancel button now submits. Should never
 
 
 
@@ -265,7 +268,10 @@ class FileUploadInputFixture(WebFixture):
         return super(FileUploadInputFixture, self).new_wsgi_app(child_factory=self.FileUploadForm.factory(), enable_js=enable_js)
 
     def uploaded_file_is_listed(self, filename):
-        return self.driver_browser.is_element_present('//ul/li/span[text()="%s"]' % os.path.basename(filename))
+        return self.driver_browser.is_element_present('//ul/li/span[text()="%s"]/../input[@value="Remove"]' % os.path.basename(filename))
+
+    def upload_file_is_queued(self, filename):
+        return self.driver_browser.is_element_present('//ul/li/span[text()="%s"]/../input[@value="Cancel"]' % os.path.basename(filename))
 
     def new_webconfig(self):
         web = super(FileUploadInputFixture, self).new_webconfig()
@@ -365,6 +371,7 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
             
         class FileUploadPanelStub(FileUploadPanel):
             def upload_file(self):
+                import pdb; pdb.set_trace()
                 if fixture.run_hook_before:
                     fixture.file_upload_hook()
                 super(FileUploadPanelStub, self).upload_file()
@@ -383,6 +390,7 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
 
 class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
     def file_upload_hook(self):
+        import pdb; pdb.set_trace()
         self.simulate_large_file_upload()
 
     def simulate_large_file_upload(self):
@@ -588,6 +596,41 @@ def async_in_progress(fixture):
     vassert( not fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
 
 
+@test(LargeFileUploadInputFixture)
+def cancelling_queued_upload(fixture):
+    """Cancelling an upload that is still queued (upload not started yet) removes the file from the list
+       and removed it from the queue of uploads.
+    """
+    fixture.run_hook_before = True
+    fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+
+    browser = fixture.driver_browser
+    browser.open('/')
+
+    vassert( not fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
+    vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
+    vassert( not fixture.file_was_uploaded( fixture.file_to_upload2.name ) )
+    vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) )
+
+    with fixture.reahl_server.in_background(wait_till_done_serving=False):
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name) # Upload will block, see fixture
+
+    browser.wait_for(fixture.upload_file_is_queued, fixture.file_to_upload1.name)
+    browser.wait_for(fixture.upload_file_is_queued, fixture.file_to_upload2.name)
+
+    browser.click(XPath.button_labelled('Cancel', filename=fixture.file_to_upload2_name))
+
+    browser.wait_for_not(fixture.upload_file_is_queued, fixture.file_to_upload2.name)
+    fixture.simulate_large_file_upload_done()
+    browser.wait_for(fixture.uploaded_file_is_listed, fixture.file_to_upload1.name)
+
+    vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
+    vassert( fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
+    vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
+    vassert( not fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
+
+
 @test(FileUploadInputFixture)
 def prevent_duplicate_upload_js(fixture):
     """The user is prevented from uploading more than one file with the same name on the client side.
@@ -607,8 +650,10 @@ def prevent_duplicate_upload_js(fixture):
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
     browser.wait_for_not(error_is_visible)
 
-    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-    browser.wait_for(error_is_visible)
+    with fixture.reahl_server.paused():
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+        vassert( not fixture.upload_file_is_queued(fixture.file_to_upload1.name) )
+        browser.wait_for(error_is_visible)
 
     browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
     browser.wait_for_not(error_is_visible)
@@ -725,25 +770,25 @@ def queueing_async_uploads(fixture):
     browser = fixture.driver_browser
     browser.open('/')
 
-    vassert( not fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
-    vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
+    vassert( not fixture.file_was_uploaded(fixture.file_to_upload1.name) )
+    vassert( not fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) )
 
     with fixture.reahl_server.in_background(wait_till_done_serving=False):
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name) # Upload will block, see fixture
 
     progress1 = browser.get_attribute('//ul/li[1]/progress', 'value')
+    vassert(progress1 == '100')
     progress2 = browser.get_attribute('//ul/li[2]/progress', 'value')
-    vassert( progress1 == '100' )
-    vassert( progress2 == '0' )
+    vassert(progress2 == '0')
 
     fixture.simulate_large_file_upload_done()
-    fixture.reahl_server.serve(timeout=1)
+    browser.wait_for( fixture.uploaded_file_is_listed, fixture.file_to_upload2.name )
 
-    vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
-    vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) )
-    vassert( fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
-    vassert( fixture.file_was_uploaded( fixture.file_to_upload2.name ) )
+    vassert( fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) )
+    vassert( fixture.uploaded_file_is_listed(fixture.file_to_upload2.name) )
+    vassert( fixture.file_was_uploaded(fixture.file_to_upload1.name) )
+    vassert( fixture.file_was_uploaded(fixture.file_to_upload2.name) )
 
 @test(PerFileConstrainedFileUploadInputFixture)
 def async_validation(fixture):
