@@ -553,6 +553,18 @@ class ReahlWebServer(object):
             handler.reinstall()
 
     @contextmanager
+    def paused(self, wait_till_done_serving=True):
+        self.restore_handlers()
+        try:
+            yield
+        finally:
+            try:
+                if wait_till_done_serving:
+                    self.serve()
+            finally:
+                self.reinstall_handlers()
+
+    @contextmanager
     def in_background(self, wait_till_done_serving=True):
         """Returns a context manager. Within the context of this context manager, the webserver is temporarily run
            in a separate thread. After the context managed by this context manager is exited, the server reverts to 

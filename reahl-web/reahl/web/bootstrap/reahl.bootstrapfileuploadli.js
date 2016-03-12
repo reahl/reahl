@@ -43,7 +43,7 @@ $.widget('reahl.bootstrapfileuploadli', {
     getFileInputPanel: function() {
         return this.options.fileInputPanel || $(this.element).closest('.reahl-bootstrap-file-upload-panel').data('reahl-bootstrapfileuploadpanel');
     },
-    
+
     getFormId: function() {
         return this.getFileInputPanel().getFormId();
     },
@@ -51,12 +51,12 @@ $.widget('reahl.bootstrapfileuploadli', {
     getNestedFormId: function() {
         return this.getFileInputPanel().getNestedFormId();
     },
-    
+
     getFilename: function() {
         // See http://blog.new-bamboo.co.uk/2010/7/30/html5-powered-ajax-file-uploads - Firefox comments.
-        return this.options.file.name || this.options.file.fileName; 
+        return this.options.file.name || this.options.file.fileName;
     },
-    
+
     getAjaxOptions: function() {
         return this.getFileInputPanel().options;
     },
@@ -89,10 +89,11 @@ $.widget('reahl.bootstrapfileuploadli', {
         return $(this.element).find('progress');
     },
     createCancelButton: function() {
-        return $(renderButton('cancel', this.getCancelLabel(), this.getFormId()));
+        var cancelName = 'cancel?filename='+encodeURIComponent(this.getFilename());
+        return $(renderButton(cancelName, this.getCancelLabel(), this.getFormId()));
     },
     getCancelButton: function() {
-        return $(this.element).find('input[name="cancel"]');
+        return $(this.element).find('input[name^="cancel"]');
     },
     removeUploaded: function(ajaxOptions) {
         var this_ = this;
@@ -106,9 +107,9 @@ $.widget('reahl.bootstrapfileuploadli', {
             },
             success: function(data){
                 if (data.success) {
-		    var fileInput = this_.getFileInputPanel().getFileInput(); /* has to be found before element is removed */
+                    var fileInput = this_.getFileInputPanel().getFileInput(); /* has to be found before element is removed */
                     this_.element.remove();
-		    fileInput.focusout().focus(); /* to revalidate the input after removal */
+		            fileInput.focusout().focus(); /* to revalidate the input after removal */
                 } else {
                     this_.replaceNestedFormContents(data.widget);
                 }
@@ -144,6 +145,7 @@ $.widget('reahl.bootstrapfileuploadli', {
                 },
                 success: function(data){
                     if (data.success) {
+                        this_.getFileInputPanel().uploadFinished();
                         this_.changeToUploaded();
                     } else {
                         this_.replaceNestedFormContents(data.widget);
@@ -151,6 +153,7 @@ $.widget('reahl.bootstrapfileuploadli', {
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown){
+                    this_.getFileInputPanel().uploadFinished();
                     this_.changeToFailed(this_.getErrorMessage());
                 },
                 uploadProgress: function(event, position, total, percentComplete){
@@ -168,20 +171,18 @@ $.widget('reahl.bootstrapfileuploadli', {
     },
     saveJqXhr: function(jqXhr) {
         var this_ = this;
-        this.getCancelButton().click(function(){
+        this.getCancelButton().click(function(e){
             jqXhr.abort();
             $(this_.element).remove();
             return false;
         });
     },
     changeToUploaded: function(){
-        this.getFileInputPanel().uploadFinished();
         this.getProgressBar().replaceWith('');
         this.getCancelButton().replaceWith(this.createRemoveButton());
         this.state = 'uploaded';
     },
     changeToFailed: function(errorMessage){
-        this.getFileInputPanel().uploadFinished();
         var errorLabel = $('<span class="has-danger text-help">'+errorMessage+'</span>');
         var formGroup = $(this.element).closest('.form-group');
 
