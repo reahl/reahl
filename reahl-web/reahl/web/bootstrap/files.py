@@ -92,7 +92,6 @@ class FileUploadLi(Li):
 class UniqueFilesConstraint(reahl.web.ui.UniqueFilesConstraint):
     name = 'bootstrapuniquefiles'
 
-
 # Uses: reahl/web/reahl.fileuploadpanel.js
 class FileUploadPanel(Div):
     def __init__(self, file_upload_input, css_id=None):

@@ -79,17 +79,17 @@ $.widget('reahl.bootstrapfileuploadpanel', {
                 for (var fileIdx=0; fileIdx<files.length; fileIdx+=1) {
                     var fileUpload = this_.createFileUpload(files[fileIdx]);
                     fileUpload.startUpload(clickedInput.name, this_.options);
-                   /* this_.clearFileInput(); */
+                    this_.clearFileInput();  
                 }
             }
-            return false;
+            e.preventDefault();
         });
         
         $(this.element).on('click', 'input[name^="event.remove_file"]', function(e) {
             var clickedInput = this;
             var fileUpload = $(clickedInput).closest('li').data('reahl-bootstrapfileuploadli');
             fileUpload.removeUploaded();
-            return false;
+            e.preventDefault();
         });
 
 /* This is necessary iff multiple="multiple" on an input with type="file". If that's on,
@@ -124,17 +124,28 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         return uploadLi;
     },
     processUploadQueue: function() {
-        var startUpload = this.queuedUploads.shift();
-        if (startUpload) {
-            startUpload();
+        var upload = this.queuedUploads.shift();
+        if (upload) {
+            upload.start();
         }
     },
-    uploadStarted: function(startFunction) {
-        this.queuedUploads.push(startFunction);
+    uploadStarted: function(filename, startFunction) {
+        this.queuedUploads.push({name:filename, start:startFunction});
         if (this.uploadCounter === 0) {
             this.processUploadQueue();
         }
         this.uploadCounter += 1;
+    },
+    cancelUpload: function(filename) {
+        var newUploadQueue = [];
+        for (var i=0; i<this.queuedUploads.length; i+=1) {
+            var upload = this.queuedUploads[i];
+            if (upload.name != filename) {
+                newUploadQueue.push(upload);
+            }
+        };
+        this.queuedUploads = newUploadQueue;
+        this.uploadCounter -= 1;
     },
     uploadFinished: function() {
         this.uploadCounter -= 1;
@@ -154,16 +165,12 @@ $.extend($.reahl.bootstrapfileuploadpanel, {
 
 jQuery.validator.addMethod("data-maxfiles", function(value, element, param) {
     var maxFiles = param;
-    if (element.files.length > maxFiles) {
-        return false;
-    }
-
+    var startedUploads = 0;
     var fileUploadPanel = $(element).closest('.reahl-bootstrap-file-upload-panel').data('reahl-bootstrapfileuploadpanel');
     if (fileUploadPanel) {
-        return fileUploadPanel.getNumberOfUploadedFiles() + 1 <= maxFiles;
+	startedUploads = fileUploadPanel.getNumberOfUploadedFiles();
     }
-    
-    return true;
+    return startedUploads + element.files.length <= maxFiles;
 });
 
 jQuery.validator.addMethod("data-bootstrapuniquefiles", function(value, element, param) {
