@@ -1554,7 +1554,7 @@ class InputTypeInput(PrimitiveInput):
             elif validation_constraint.name in html5_validations:
                 html_widget.set_attribute(validation_constraint.name, validation_constraint.parameters)
             elif validation_constraint.name != '':
-                html_widget.set_attribute('data-%s' % validation_constraint.name, validation_constraint.parameters)
+                html_widget.set_attribute('data-%s' % validation_constraint.name, validation_constraint.parameters or 'true')
         def map_name(name):
             if name in html5_validations:
                 return name

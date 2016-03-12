@@ -45,11 +45,6 @@ from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions, 
 
 #TODO:
 # Names of FileInputButton/SimpleFileInput to be rethought
-# - (TEST DONE) Break in JS on duplicate filename upload before actually uploading
-# - Clearing of fileinput before retuning from starting ajax call to start upload
-#   + with max_files = 1, upload, then error is not cleared
-# - (TEST DONE) Cancelling only works for the upload that is currently busy. No way to remove the correct
-#    scheduled startUpload function from the queue + cancel button now submits. Should never
 
 
 
@@ -371,7 +366,6 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
             
         class FileUploadPanelStub(FileUploadPanel):
             def upload_file(self):
-                import pdb; pdb.set_trace()
                 if fixture.run_hook_before:
                     fixture.file_upload_hook()
                 super(FileUploadPanelStub, self).upload_file()
@@ -390,7 +384,6 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
 
 class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
     def file_upload_hook(self):
-        import pdb; pdb.set_trace()
         self.simulate_large_file_upload()
 
     def simulate_large_file_upload(self):
@@ -566,6 +559,7 @@ def async_upload(fixture):
     with browser.no_page_load_expected():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
 
+    vassert( browser.get_value(XPath.input_labelled('Choose file(s)')) == '' )  # Input is cleared for next file to be input
     vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
     vassert( fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
 
@@ -627,8 +621,8 @@ def cancelling_queued_upload(fixture):
 
     vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
     vassert( fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
-    vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
-    vassert( not fixture.file_was_uploaded( fixture.file_to_upload1.name ) )
+    vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) )
+    vassert( not fixture.file_was_uploaded( fixture.file_to_upload2.name ) )
 
 
 @test(FileUploadInputFixture)
@@ -829,7 +823,10 @@ def async_number_files_validation(fixture):
 
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
     vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
+    # Corner case: max are uploaded, but you've not asked to add to them yet:
+    vassert( browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) )
 
+    # Normal case: max are uploaded, and you're asking to upload another:
     browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
     vassert( not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) )
     vassert( browser.wait_for(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) )
