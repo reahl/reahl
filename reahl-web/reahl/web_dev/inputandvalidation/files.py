@@ -536,7 +536,7 @@ class FileTests(object):
 
         browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
         browser.type(XPath.input_of_type('file'), fixture.file_to_upload2.name)
-        vassert( not browser.is_element_present('//label[text()="uploaded files should all have different names"]') )
+        vassert( not browser.is_visible('//label[text()="uploaded files should all have different names"]') )
 
         
     @test(LargeFileUploadInputFixture)
@@ -628,13 +628,12 @@ class FileTests(object):
         vassert( not has_class ) # ie, the UploadPanel has been reloaded
 
         # JS Stuff on re-rendered form still work
-        
         # 1: Server-rendered validation message has been cleared
         vassert( browser.is_element_present(XPath.label_with_text('test validation message')) )
         fixture.make_validation_fail = False
         with browser.no_page_load_expected():
             browser.type(XPath.input_of_type('file'), fixture.file_to_upload2.name)
-        vassert( not browser.is_element_present(XPath.label_with_text('test validation message')) )
+        browser.wait_for_not(browser.is_visible, XPath.label_with_text('test validation message'))
 
         # 2: The remove button still happens via ajax
         with browser.no_page_load_expected():
@@ -717,5 +716,5 @@ class FileTests(object):
 
         browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
         browser.type(XPath.input_of_type('file'), fixture.file_to_upload2.name)
-        vassert( not browser.is_element_present(XPath.label_with_text('a maximum of 1 files may be uploaded')) )
+        browser.wait_for_not(browser.is_visible, XPath.label_with_text('a maximum of 1 files may be uploaded'))
 

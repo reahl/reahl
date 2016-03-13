@@ -74,22 +74,22 @@ $.widget('reahl.fileuploadpanel', {
 
         $(this.element).on('click', 'input[name="'+this_.uploadInputName+'"]', function(e){
             var clickedInput = this;
-            this_.clearValidationError();
-            if ($('#'+this_.getFormId()).valid() ) {
+            if ($('#'+this_.getFormId()).validate().form() ) {
                 var files = this_.getFileInput()[0].files;
                 for (var fileIdx=0; fileIdx<files.length; fileIdx+=1) {
                     var fileUpload = this_.createFileUpload(files[fileIdx]);
                     fileUpload.startUpload(clickedInput.name, this_.options);
+                    this_.clearFileInput();  
                 };
             };
-            return false;
+            e.preventDefault();
         });
         
         $(this.element).on('click', 'input[name^="event.remove_file"]', function(e) {
             var clickedInput = this;
             var fileUpload = $(clickedInput).closest('li').data('reahl-fileuploadli');
             fileUpload.removeUploaded();
-            return false;
+            e.preventDefault();
         });
 
 /* This is necessary iff multiple="multiple" on an input with type="file". If that's on,
@@ -118,38 +118,41 @@ $.widget('reahl.fileuploadpanel', {
         });
         return filenames.length > 0;
     },
-    showValidationError: function(filename) {
-        this.getFileInput().after(this.duplicateValidationError);
-        this.getFileInput().addClass('error');
-    },
-    clearValidationError: function(filename) {
-        this.getValidationError().remove();
-        this.getFileInput().removeClass('error');
-    },
     createFileUpload: function(file) {
         var uploadLi = $('<li></li>').fileuploadli({file: file, fileInputPanel: this}).data('reahl-fileuploadli');
         $(this.element).find('ul').append(uploadLi.element);
         return uploadLi;
     },
     processUploadQueue: function() {
-        var startUpload = this.queuedUploads.shift();
-        if (startUpload) {
-            startUpload();
+        var upload = this.queuedUploads.shift();
+        if (upload) {
+            upload.start();
         }
     },
-    uploadStarted: function(startFunction) {
-        this.queuedUploads.push(startFunction);
+    uploadStarted: function(filename, startFunction) {
+        this.queuedUploads.push({name:filename, start:startFunction});
         if (this.uploadCounter === 0) {
             this.processUploadQueue();
         }
         this.uploadCounter += 1;
+    },
+    cancelUpload: function(filename) {
+        var newUploadQueue = [];
+        for (var i=0; i<this.queuedUploads.length; i+=1) {
+            var upload = this.queuedUploads[i];
+            if (upload.name != filename) {
+                newUploadQueue.push(upload);
+            }
+        };
+        this.queuedUploads = newUploadQueue;
+        this.uploadCounter -= 1;
     },
     uploadFinished: function() {
         this.uploadCounter -= 1;
         this.processUploadQueue();
     },
     clearFileInput: function() {
-        this.getFileInput()[0].value = '';
+        this.getFileInput().val('').change();
     }
 });
 
@@ -162,16 +165,12 @@ $.extend($.reahl.fileuploadpanel, {
 
 jQuery.validator.addMethod("data-maxfiles", function(value, element, param) {
     var maxFiles = param;
-    if (element.files.length > maxFiles) {
-        return false
-    };
-
+    var startedUploads = 0;
     var fileUploadPanel = $(element).closest('.reahl-file-upload-panel').data('reahl-fileuploadpanel');
     if (fileUploadPanel) {
-        return fileUploadPanel.getNumberOfUploadedFiles() + 1 <= maxFiles;
-    };
-    
-    return true;
+	startedUploads = fileUploadPanel.getNumberOfUploadedFiles();
+    }
+    return startedUploads + element.files.length <= maxFiles;
 });
 
 jQuery.validator.addMethod("data-uniquefiles", function(value, element, param) {

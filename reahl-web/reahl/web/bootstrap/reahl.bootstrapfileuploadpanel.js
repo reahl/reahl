@@ -173,7 +173,7 @@ jQuery.validator.addMethod("data-maxfiles", function(value, element, param) {
     return startedUploads + element.files.length <= maxFiles;
 });
 
-jQuery.validator.addMethod("data-bootstrapuniquefiles", function(value, element, param) {
+jQuery.validator.addMethod("data-uniquefiles", function(value, element, param) {
     var fileUploadPanel = $(element).closest('.reahl-bootstrap-file-upload-panel').data('reahl-bootstrapfileuploadpanel');
 
     var files = fileUploadPanel.getFileInput()[0].files;
