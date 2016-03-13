@@ -89,8 +89,7 @@ class FileUploadLi(Li):
         return ['$(".reahl-bootstrap-file-upload-li").bootstrapfileuploadli();']
 
 
-class UniqueFilesConstraint(reahl.web.ui.UniqueFilesConstraint):
-    name = 'bootstrapuniquefiles'
+from reahl.web.ui import UniqueFilesConstraint
 
 # Uses: reahl/web/reahl.fileuploadpanel.js
 class FileUploadPanel(Div):
