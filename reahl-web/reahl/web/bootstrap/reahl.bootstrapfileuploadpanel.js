@@ -136,7 +136,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         }
         this.uploadCounter += 1;
     },
-    cancelUpload: function(filename) {
+    cancelQueuedUpload: function(filename) {
         var newUploadQueue = [];
         for (var i=0; i<this.queuedUploads.length; i+=1) {
             var upload = this.queuedUploads[i];
@@ -146,6 +146,9 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         };
         this.queuedUploads = newUploadQueue;
         this.uploadCounter -= 1;
+    },
+    cancelCurrentlyUploading: function() {
+        this.uploadFinished();
     },
     uploadFinished: function() {
         this.uploadCounter -= 1;

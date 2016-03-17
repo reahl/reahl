@@ -24,56 +24,15 @@ Widgets for uploading files.
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import six
-from reahl.web.bootstrap.ui import Div, Span, Li, WrappedInput, Label, _SimpleFileInput, Button, NestedForm, Ul, PrimitiveInput, ButtonLayout, FormLayout
-import reahl.web.ui
-from reahl.web.fw import WebExecutionContext
+
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
+from reahl.web.fw import WebExecutionContext
+from reahl.web.ui import PrimitiveInput
+from reahl.web.bootstrap.ui import Div, Span, Li, Button, NestedForm, Ul, ButtonLayout, FormLayout, FileInput
 
 _ = Translator('reahl-web')
 
-
-class FileInputButton(WrappedInput):
-    def __init__(self, form, bound_field):
-        label = Label(form.view)
-        self.simple_input = label.add_child(_SimpleFileInput(form, bound_field))
-        self.simple_input.html_representation.append_class('btn-secondary')
-        label.add_child(Span(form.view, text=_('Choose file(s)')))
-        super(FileInputButton, self).__init__(self.simple_input)
-        self.add_child(label)
-
-        label.append_class('reahl-bootstrapfileinputbutton')
-        label.append_class('btn')
-        label.append_class('btn-primary')
-        self.set_html_representation(label)
-
-    def get_js(self, context=None):
-        js = ['$(".reahl-bootstrapfileinputbutton").bootstrapfileinputbutton({});']
-        return super(FileInputButton, self).get_js(context=context) + js
-
-
-class SimpleFileInput(WrappedInput):
-    def __init__(self, form, bound_field):
-        file_input = FileInputButton(form, bound_field)
-        super(SimpleFileInput, self).__init__(file_input)
-
-        self.input_group = self.add_child(Div(self.view))
-        self.input_group.append_class('input-group')
-        self.input_group.append_class('reahl-bootstrapfileinput')
-        self.set_html_representation(self.input_group)
-
-        span = self.input_group.add_child(Span(form.view))
-        span.append_class('input-group-btn')
-        span.add_child(file_input)
-
-        filename_input = self.input_group.add_child(Span(self.view, text=_('No files chosen')))
-        filename_input.append_class('form-control')
-
-
-    def get_js(self, context=None):
-        js = ['$(".reahl-bootstrapfileinput").bootstrapfileinput({nfilesMessage: "%s", nofilesMessage: "%s"});' % \
-              (_('files chosen'), _('No files chosen'))]
-        return super(SimpleFileInput, self).get_js(context=context) + js
 
 
 
@@ -119,7 +78,7 @@ class FileUploadPanel(Div):
 
     def add_upload_controls(self):
         controls_panel = self.upload_form.add_child(Div(self.view)).use_layout(FormLayout())
-        file_input = controls_panel.layout.add_input(SimpleFileInput(self.upload_form.form, self.fields.uploaded_file), hide_label=True)
+        file_input = controls_panel.layout.add_input(FileInput(self.upload_form.form, self.fields.uploaded_file), hide_label=True)
 
         button_addon = file_input.html_representation.add_child(Span(self.view))
         button_addon.append_class('input-group-btn')
@@ -186,31 +145,7 @@ class FileUploadPanel(Div):
 
 
 class FileUploadInput(PrimitiveInput):
-    """An Input which allows a user to choose several files for uploding to a server. As each file is
-       chosen, the file is uploaded to the server in the background (if JavaScript is enabled on the user
-       agent). A file being uploaded can be cancelled and uploaded files can be removed from the list.
-
-       .. admonition:: Styling
-
-          Represented in HTML by a <div class="reahl-file-upload-panel"> with three children:
-           - a :class:`NestedForm`,
-           - an <ul> which contains a <li class="reahl-file-upload-li"> for each file that was uploaded
-             (or is still being uploaded), and
-           - a <div> which contains a :class:`SimpleFileInput` and a :class:`Button`.
-
-          While a file is being uploaded, its <li class="reahl-file-upload-li"> contains a cancel button
-          of type :class:`Button`, and a <span> containing the name of the file. These elements are followed
-          by a <progress> element.
-
-          Once a file has been uploaded, its <li class="reahl-file-upload-li"> is changed. The <progress>
-          element is removed, and cancel button is replaced with a Remove button.
-
-          Should an error occur while uploading the file, the <progress> element is replaced with a
-          <label class="error> containing an error message.
-
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`, must be of type :class:`reahl.component.modelinterface.FileField`
-    """
+    """ """
     append_error = False
     add_default_attribute_source = False
 

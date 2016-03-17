@@ -27,7 +27,8 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.component.modelinterface import exposed, BooleanField
 
 from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
-from reahl.web.bootstrap.ui import PopupA, P, Div, DialogButton, Form, FormLayout, CheckboxInput, CheckCheckboxButton
+from reahl.web.bootstrap.ui import Div, Form, FormLayout, P, CheckboxInput
+from reahl.web.bootstrap.popups import PopupA, CheckCheckboxButton, DialogButton
 
 class PopupAFixture(WebFixture):
     # (note that this xpath ensures that the p is the ONLY content of the dialog)

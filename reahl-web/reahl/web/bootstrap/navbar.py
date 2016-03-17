@@ -24,10 +24,11 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.web.bootstrap.ui import Div, Form, Nav, A, Url, HTMLElement, TextNode, ResponsiveSize, HTMLWidget
+from reahl.web.fw import Layout, Widget
+from reahl.web.ui import Url, HTMLElement, HTMLWidget
+from reahl.web.bootstrap.ui import Div, Form, Nav, A, TextNode, ResponsiveSize
 import reahl.web.bootstrap.navs
 from reahl.web.bootstrap.grid import Container, DeviceClass
-from reahl.web.fw import Layout, Widget
 
 
 class CollapseToggle(HTMLElement):

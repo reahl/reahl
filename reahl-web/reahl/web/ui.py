@@ -3092,7 +3092,7 @@ class Col(HTMLElement):
             self.set_attribute('span', span)
 
 
-class Colgroup(HTMLElement):
+class ColGroup(HTMLElement):
     """An HTML colgroup element, defines a group of columns in a table.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
@@ -3101,10 +3101,11 @@ class Colgroup(HTMLElement):
        
     """
     def __init__(self, view, span=None, css_id=None):
-        super(Colgroup, self).__init__(view, 'colgroup', children_allowed=True, css_id=css_id)
+        super(ColGroup, self).__init__(view, 'colgroup', children_allowed=True, css_id=css_id)
         if span:
             self.set_attribute('span', span)
 
+Colgroup = ColGroup
 
 class Thead(HTMLElement):
     """An HTML thead element. Contains the header of the table columns.

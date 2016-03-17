@@ -38,13 +38,9 @@ from reahl.component.modelinterface import exposed, Field, Event, FileField, Act
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import WebExecutionContext
 
-from reahl.web.bootstrap.ui import Form, Span, Label, Div, P, Button, TextNode, FormLayout
-from reahl.web.bootstrap.files import SimpleFileInput, FileInputButton, FileUploadInput, FileUploadPanel
+from reahl.web.bootstrap.ui import Form, Span, Label, Div, P, Button, TextNode, FormLayout, FileInput, FileInputButton
+from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel
 from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions, Tether
-
-
-#TODO:
-# Names of FileInputButton/SimpleFileInput to be rethought
 
 
 
@@ -139,7 +135,7 @@ class FileInputFixture(FileInputButtonFixture):
         class FileUploadForm(Form):
             def __init__(self, view):
                 super(FileUploadForm, self).__init__(view, 'test')
-                self.add_child(SimpleFileInput(self, fixture.domain_object.fields.files))
+                self.add_child(FileInput(self, fixture.domain_object.fields.files))
         return FileUploadForm   
 
     message_span_xpath = '//div[contains(@class, "reahl-bootstrapfileinput")]//span[2]'
@@ -156,7 +152,7 @@ class FileInputFixture(FileInputButtonFixture):
 
 @test(FileInputFixture)
 def file_input_basics(fixture):
-    """A SimpleFileInput is a FileInputButton combined with a area where the chosen file name is displayed."""
+    """A FileInput is a FileInputButton combined with a area where the chosen file name is displayed."""
     fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = fixture.driver_browser
     browser.open('/')
@@ -788,7 +784,7 @@ def queueing_async_uploads(fixture):
 def async_validation(fixture):
     """Validations are checked in JavaScript before uploading.
     """
-    # Only tested for the FileUploadInput, as it uses the SimpleFileInput
+    # Only tested for the FileUploadInput, as it uses the FileInput
     # in its own implementation, in a NestedForm, and has to pass on the
     # filesize constraint all the way. This way, we test all of that.
     fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
@@ -810,7 +806,7 @@ def async_validation(fixture):
 def async_number_files_validation(fixture):
     """A Field set to only allow a maximum number of files is checked for validity before uploading in JS.
     """
-    # Only tested for the FileUploadInput, as it uses the SimpleFileInput
+    # Only tested for the FileUploadInput, as it uses the FileInput
     # in its own implementation, in a NestedForm, and has to pass on the
     # filesize constraint all the way. This way, we test all of that.
     fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
