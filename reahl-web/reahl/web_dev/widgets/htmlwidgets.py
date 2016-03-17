@@ -292,7 +292,7 @@ class Scenarios(WebFixture):
 
     @scenario
     def colgroup(self):
-        self.widget = Colgroup(self.view, span='2')
+        self.widget = ColGroup(self.view, span='2')
         self.expected_html = '<colgroup span="2"></colgroup>'
 
     @scenario

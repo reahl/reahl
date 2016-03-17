@@ -27,12 +27,16 @@ import six
 
 from copy import copy
 
-from reahl.web.fw import Layout
-from reahl.web.ui import *
-
-import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
+from reahl.component.i18n import Translator
+
+import reahl.web.ui
+from reahl.web.ui import A, Article, Body, Br, Caption, Col, ColGroup, Div, FieldSet, Footer, H, Head, Header, Img, \
+    Label, Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, Table, Tbody, Td, TextNode, \
+    Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page
+
 from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize
+
 
 _ = Translator('reahl-web')
 
@@ -71,9 +75,6 @@ class NestedForm(reahl.web.ui.NestedForm):
     def create_out_of_bound_form(self, view, unique_name):
         return Form(view, unique_name, rendered_form=self)
 
-
-class SimpleFileInput(reahl.web.ui.SimpleFileInput):
-    append_error = False
 
 class TextInput(reahl.web.ui.TextInput):
     append_error = False
@@ -147,13 +148,57 @@ class ButtonInput(reahl.web.ui.ButtonInput):
 Button = ButtonInput
 
 
-class _SimpleFileInput(reahl.web.ui.SimpleFileInput):
+class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):
     append_error = False
     add_default_attribute_source = False
 
     def __init__(self, form, bound_field):
-        super(_SimpleFileInput, self).__init__(form, bound_field)
+        super(_UnstyledHTMLFileInput, self).__init__(form, bound_field)
         self.append_class('form-control-file')
+
+
+class FileInputButton(reahl.web.ui.WrappedInput):
+    def __init__(self, form, bound_field):
+        label = Label(form.view)
+        self.simple_input = label.add_child(_UnstyledHTMLFileInput(form, bound_field))
+        self.simple_input.html_representation.append_class('btn-secondary')
+        label.add_child(Span(form.view, text=_('Choose file(s)')))
+        super(FileInputButton, self).__init__(self.simple_input)
+        self.add_child(label)
+
+        label.append_class('reahl-bootstrapfileinputbutton')
+        label.append_class('btn')
+        label.append_class('btn-primary')
+        self.set_html_representation(label)
+
+    def get_js(self, context=None):
+        js = ['$(".reahl-bootstrapfileinputbutton").bootstrapfileinputbutton({});']
+        return super(FileInputButton, self).get_js(context=context) + js
+
+
+class FileInput(reahl.web.ui.WrappedInput):
+    def __init__(self, form, bound_field):
+        file_input = FileInputButton(form, bound_field)
+        super(FileInput, self).__init__(file_input)
+
+        self.input_group = self.add_child(Div(self.view))
+        self.input_group.append_class('input-group')
+        self.input_group.append_class('reahl-bootstrapfileinput')
+        self.set_html_representation(self.input_group)
+
+        span = self.input_group.add_child(Span(form.view))
+        span.append_class('input-group-btn')
+        span.add_child(file_input)
+
+        filename_input = self.input_group.add_child(Span(self.view, text=_('No files chosen')))
+        filename_input.append_class('form-control')
+
+
+    def get_js(self, context=None):
+        js = ['$(".reahl-bootstrapfileinput").bootstrapfileinput({nfilesMessage: "%s", nofilesMessage: "%s"});' % \
+              (_('files chosen'), _('No files chosen'))]
+        return super(FileInput, self).get_js(context=context) + js
+
 
 
 class StaticData(reahl.web.ui.Input):
@@ -166,7 +211,7 @@ class StaticData(reahl.web.ui.Input):
         return False
 
 
-class CueInput(WrappedInput):
+class CueInput(reahl.web.ui.WrappedInput):
     def __init__(self, html_input, cue_widget):
         super(CueInput, self).__init__(html_input)
         div = self.add_child(Div(self.view))
@@ -183,7 +228,7 @@ class CueInput(WrappedInput):
         return super(CueInput, self).get_js(context=context) + js
 
 
-class ButtonLayout(Layout):
+class ButtonLayout(reahl.web.ui.Layout):
     def __init__(self, style=None, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
         assert style in ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link', None]
@@ -208,7 +253,7 @@ class ButtonLayout(Layout):
             self.widget.append_class('btn-block')
 
 
-class ChoicesLayout(Layout):
+class ChoicesLayout(reahl.web.ui.Layout):
     def __init__(self, inline=False):
         super(ChoicesLayout, self).__init__()
         self.inline = inline
@@ -235,14 +280,14 @@ class ChoicesLayout(Layout):
         return wrapper
 
 
-class FormLayout(Layout):
+class FormLayout(reahl.web.ui.Layout):
     def create_form_group(self, html_input):
         form_group = self.widget.add_child(Div(self.view))
         form_group.append_class('form-group')
-        form_group.add_attribute_source(ValidationStateAttributes(html_input, 
+        form_group.add_attribute_source(reahl.web.ui.ValidationStateAttributes(html_input, 
                                                              error_class='has-danger', 
                                                              success_class='has-success'))
-        form_group.add_attribute_source(AccessRightAttributes(html_input, disabled_class='disabled'))
+        form_group.add_attribute_source(reahl.web.ui.AccessRightAttributes(html_input, disabled_class='disabled'))
         return form_group
 
 
@@ -323,30 +368,4 @@ class InlineFormLayout(FormLayout):
         super(InlineFormLayout, self).customise_widget()
         self.widget.append_class('form-inline')
 
-
-class PopupA(A):
-    def __init__(self, view, target_bookmark, show_for_selector, close_button=True, css_id=None):
-        super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
-        self.set_title(target_bookmark.description)
-        self.title = target_bookmark.description
-        self.append_class('reahl-bootstrappopupa')
-        self.show_for_selector = show_for_selector
-        self.buttons = []
-        if close_button:
-            self.add_button(DialogButton(_('Close')))
-
-    def add_button(self, button):
-        self.buttons.append(button)
-
-    def buttons_as_jquery(self):
-        return ', '.join([button.as_jquery() for button in self.buttons])
-
-    @property
-    def jquery_selector(self):
-        return '"a.reahl-bootstrappopupa[href=\'%s\']"' % self.href
-
-    def get_js(self, context=None):
-        selector = self.contextualise_selector(self.jquery_selector, context)
-        return ['$(%s).bootstrappopupa({showForSelector: "%s", buttons: { %s } , title: "%s" });' % \
-              (selector, self.show_for_selector, self.buttons_as_jquery(), self.title)]
 

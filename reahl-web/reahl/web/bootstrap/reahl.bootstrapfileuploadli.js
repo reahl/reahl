@@ -131,8 +131,9 @@ $.widget('reahl.bootstrapfileuploadli', {
         if (this_.jqXhr) {
             this_.jqXhr.abort();
 	    this_.jqXhr = undefined;
+	    this_.getFileInputPanel().cancelCurrentlyUploading();
         } else {
-	    this_.getFileInputPanel().cancelUpload(this_.getFilename())
+	    this_.getFileInputPanel().cancelQueuedUpload(this_.getFilename())
         }
         $(this_.element).remove();
     },
