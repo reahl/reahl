@@ -107,14 +107,13 @@ class DataTable(Div):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param columns: The :class:`reahl.web.ui.DynamicColumn` instances that define the contents of the table.
        :param items: A list containing objects represented in each row of the table.
+       :param css_id: (See :class:`HTMLElement`)
 
        :keyword items_per_page: The maximum number of rows allowed per page.
        :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
        :keyword summary: If given, a :class:`reahl.web.ui.Summary` is added with this text.
-       :keyword css_id: (See :class:`HTMLElement`)
+       :keyword table_layout: If given, the layout is applied to the contained :class:`reahl.web.ui.Table`.
 
-       .. versionchanged:: 3.2
-          Added the `page_menu_layout` keyword argument.
     """
     def __init__(self, view, columns, items, css_id, items_per_page=10, caption_text=None, summary=None, table_layout=None):
         super(DataTable, self).__init__(view, css_id=css_id)
