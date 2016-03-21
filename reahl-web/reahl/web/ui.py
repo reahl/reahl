@@ -44,7 +44,8 @@ from reahl.component.modelinterface import ValidationConstraintList, ValidationC
                                      Field, BooleanField, IntegerField, exposed, ConstraintNotFound, Choice, ChoiceGroup, \
                                      Event, Action, FileField, UploadedFile, InputParseException, StandaloneFieldIndex
 import collections
-                                     
+
+
 
 _ = Translator('reahl-web')
 
@@ -3283,9 +3284,13 @@ class Table(HTMLElement):
         for column_number, column in enumerate(columns):
             column_th = header_tr.add_child(Th(self.view))
             column_th.add_child(column.heading_as_widget(self.view))
-            
-    def heading_widget(self, heading_text):
-        return Span(self.view, text=column.heading)
+
+    @property
+    def thead(self):
+        for child in self.contained_widgets():
+            if isinstance(child, Thead):
+                return child
+        return None
 
     def create_rows(self, columns, items):
         body = self.add_child(Tbody(self.view))

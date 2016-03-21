@@ -1,4 +1,4 @@
-# Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -18,12 +18,15 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import functools
+import re
+
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath, WidgetTester
-from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P
+from reahl.web.bootstrap.ui import StaticColumn, DynamicColumn, Table, TableLayout, Span, Div, P
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 from reahl.component.modelinterface import Field, BooleanField
@@ -59,6 +62,9 @@ class TableFixture(Fixture, WebBasicsMixin):
 
     def table_number_rows(self):
         return len(self.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
+
+    def table_with_class_attribute_containing(self, css_class):
+        return self.driver_browser.web_driver.find_element_by_xpath("//table[contains(@class,'%s')]" % css_class)
 
 
 @test(TableFixture)
@@ -96,6 +102,8 @@ def table_basics(fixture):
     vassert( fixture.get_table_row(1) == ['1' ,'T'] )
     vassert( fixture.get_table_row(2) == ['2' ,'H'] )
     vassert( fixture.get_table_row(3) == ['3' ,'E'] )
+
+    vassert( fixture.table_with_class_attribute_containing('table') )
 
 
 class ColumnFixture(WebFixture):
@@ -153,12 +161,53 @@ def different_kinds_of_columns(fixture):
     vassert( actual == fixture.expected_cell_html )
 
 
-@test(TableFixture)
-def table_thead(fixture):
-    """Table can find its Thead element"""
+class LayoutScenarios(WebFixture):
+    @scenario
+    def header_inverse(self):
+        self.option = 'inverse'
+        self.expected_css_class = 'table-inverse'
 
-    table = Table(fixture.view)
-    thead = table.add_child(Thead(fixture.view))
+    @scenario
+    def border(self):
+        self.option = 'border'
+        self.expected_css_class = 'table-bordered'
 
-    vassert( table.thead is thead )
+    @scenario
+    def striped_rows(self):
+        self.option = 'striped'
+        self.expected_css_class = 'table-striped'
 
+    @scenario
+    def hovered_rows(self):
+        self.option = 'highlight_hovered'
+        self.expected_css_class = 'table-hover'
+
+    @scenario
+    def compacted_cells(self):
+        self.option = 'compact'
+        self.expected_css_class = 'table-sm'
+
+    @scenario
+    def transposed(self):
+        self.option = 'transposed'
+        self.expected_css_class = 'table-reflow'
+
+    @scenario
+    def transposed(self):
+        self.option = 'responsive'
+        self.expected_css_class = 'table-responsive'
+
+
+@test(LayoutScenarios)
+def table_layout_options(fixture):
+    """TableLayout uses Bootstrap to implement many table layout options."""
+
+    def whole_word_is_in_string(text_to_look_for, text_to_look_in):
+        return re.search(r'\b%s\b' % text_to_look_for, text_to_look_in) is not None
+
+    layout_partial = functools.partial(TableLayout)
+
+    for switched_on in [True, False]:
+        layout = layout_partial(**({fixture.option:switched_on}))
+        Table(fixture.view).use_layout(layout)
+        vassert( switched_on == whole_word_is_in_string(fixture.expected_css_class, layout.widget.get_attribute('class')) )
