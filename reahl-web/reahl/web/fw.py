@@ -1182,6 +1182,12 @@ class Widget(object):
             for widget, parent_set in child.parent_widget_pairs(children_parent_set):
                 yield widget, parent_set    
 
+    def contained_widgets(self):
+        for child in self.children:
+            yield child
+            for widget in child.contained_widgets():
+                yield widget
+
     is_Form = False
     is_Input = False
     def check_form_related_programmer_errors(self):

@@ -18,6 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
+# TODO:
 # How to show disabled/not items
 # How to show current item/not
 # Generating the html for each kind of element, including classes
@@ -26,16 +27,11 @@ import six
 # next/prev like others do it..?
 # always refresh pagemenu & always refresh contents together?
 
-from abc import ABCMeta, abstractmethod, abstractproperty
-from functools import partial
-
 from reahl.component.i18n import Translator
-from reahl.component.decorators import memoized
-from reahl.component.modelinterface import IntegerField, exposed
+from reahl.component.modelinterface import exposed
 from reahl.web.fw import Bookmark
-from reahl.web.ui import A, Div, HTMLWidget, Span
-from reahl.web.ui import Menu, HorizontalLayout, AccessRightAttributes, ActiveStateAttributes
-from reahl.component.decorators import deprecated
+from reahl.web.ui import HTMLWidget, Menu, AccessRightAttributes, ActiveStateAttributes
+from reahl.web.bootstrap.ui import A, Span
 
 _ = Translator('reahl-web')
 

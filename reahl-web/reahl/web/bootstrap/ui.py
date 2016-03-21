@@ -32,8 +32,8 @@ from reahl.component.i18n import Translator
 
 import reahl.web.ui
 from reahl.web.ui import A, Article, Body, Br, Caption, Col, ColGroup, Div, FieldSet, Footer, H, Head, Header, Img, \
-    Label, Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, Table, Tbody, Td, TextNode, \
-    Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page
+    Label, Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, Tbody, Td, TextNode, \
+    Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page, DynamicColumn, StaticColumn
 
 from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize
 
@@ -368,4 +368,40 @@ class InlineFormLayout(FormLayout):
         super(InlineFormLayout, self).customise_widget()
         self.widget.append_class('form-inline')
 
+
+class Table(reahl.web.ui.Table):
+    def __init__(self, view, caption_text=None, summary=None, css_id=None):
+        super(Table, self).__init__(view, caption_text=caption_text, summary=summary, css_id=css_id)
+        self.append_class('table')
+
+
+class TableLayout(reahl.web.ui.Layout):
+    def __init__(self,
+                  inverse=False, border=False, compact=False,
+                  striped=False, highlight_hovered=False, transposed=False, responsive=False,
+                  heading_theme=None):
+        assert heading_theme in [None, 'inverse', 'default'], 'Not a valid heading theme: %s' % heading_theme
+        super(TableLayout, self).__init__()
+        self.table_properties = {'inverse': inverse,
+                                 'striped': striped,
+                                 'bordered': border,
+                                 'hover': highlight_hovered,
+                                 'sm': compact,
+                                 'reflow': transposed,
+                                 'responsive': responsive}
+        self.heading_theme = heading_theme
+
+    def customise_widget(self):
+        super(TableLayout, self).customise_widget()
+
+        for table_property, is_selected in self.table_properties.items():
+            if is_selected:
+                self.widget.append_class('table-%s' % table_property)
+        self.style_heading()
+
+    def style_heading(self):
+        if self.heading_theme:
+            if not self.widget.thead:
+                raise ProgrammerError('No Thead found on %s, but you asked to style is using heading_theme' % self.widget)
+            self.widget.thead.append_class('thead-%s' % self.heading_theme)
 
