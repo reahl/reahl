@@ -18,14 +18,6 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
-# TODO:
-# How to show disabled/not items
-# How to show current item/not
-# Generating the html for each kind of element, including classes
-# is_active means different things for A than for menuitem
-# Will have to add js to remove & set .active on menu because it does not refresh, only the panel
-# next/prev like others do it..?
-# always refresh pagemenu & always refresh contents together?
 
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import exposed

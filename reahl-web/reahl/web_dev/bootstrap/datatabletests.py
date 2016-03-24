@@ -29,21 +29,21 @@ from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 
 from reahl.web.bootstrap.datatable import DataTable
 
-import reahl.web_dev.bootstrap.components.tabletests
+import reahl.web_dev.widgets.tabletests
 
 #TODO: when using a RowItem that is not naturally ordered, and not providing a sort_key, error thrown could be better
 #TODO: sorting arrows need change? see https://datatables.net/examples/styling/bootstrap.html
 #TODO: Clicking anywhere on header changes sort order
 
 
-class DataItem(reahl.web_dev.bootstrap.components.tabletests.DataItem):
+class DataItem(reahl.web_dev.widgets.tabletests.DataItem):
     @exposed
     def fields(self, fields):
         fields.row = IntegerField(label='Row', required=True, default=self.row)
         fields.alpha = Field(label='Alpha', required=True, default=self.alpha)
 
 
-class DataTableFixture(reahl.web_dev.bootstrap.components.tabletests.TableFixture):
+class DataTableFixture(reahl.web_dev.widgets.tabletests.TableFixture):
 
     items_per_page = 3
         
@@ -171,18 +171,10 @@ def which_columns_can_cause_sorting(fixture):
 
 
 @test(DataTableFixture)
-def datatable_widget_contains_a_table(fixture):
-    """"""
-    data_table = DataTable(fixture.view, fixture.columns, fixture.data, 'my_css_id')
-    vassert( isinstance(data_table.table, Table) )
-
-
-@test(DataTableFixture)
-def datatable_forwards_layout_to_contained_table(fixture):
-    """DataTable with layout"""
+def layout_for_contained_table(fixture):
+    """You can specify a Layout to use for the actual table inside the DataTable"""
 
     layout = TableLayout()
     data_table = DataTable(fixture.view, fixture.columns, fixture.data, 'my_css_id', table_layout=layout)
 
-    #this means the the layout applies to the table html element
-    vassert( layout.widget is data_table.table )
+    vassert( data_table.table.layout is layout )
