@@ -34,7 +34,8 @@ class ReahlBootstrap4Additions(Library):
                       'reahl.bootstrappopupa.js',
                       'reahl.bootstrapcueinput.js',
                       'reahl.bootstrapfileuploadli.js',
-                      'reahl.bootstrapfileuploadpanel.js'
+                      'reahl.bootstrapfileuploadpanel.js',
+                      'reahl.datatable.css'                      
                       ]
 
 class Tether(Library):

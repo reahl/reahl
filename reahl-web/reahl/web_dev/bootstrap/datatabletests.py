@@ -81,17 +81,22 @@ class DataTableFixture(reahl.web_dev.widgets.tabletests.TableFixture):
         webconfig.frontend_libraries.add(ReahlBootstrap4Additions())
         return webconfig
 
-    def xpath_for_ascending_link_for_column(self, column_number):
-        return '(((//table/thead/tr/th)[%s]/span)[2]/a)[1]' % column_number
+    def xpath_for_sort_link_for_column(self, column_number):
+        return '(//table/thead/tr/th)[%s]/a' % column_number
 
-    def xpath_for_descending_link_for_column(self, column_number):
-        return '(((//table/thead/tr/th)[%s]/span)[2]/a)[2]' % column_number
+    def does_column_have_sort_link(self, column_number):
+        column_header = self.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]' % (column_number))
+        return len(column_header.find_elements_by_tag_name('a')) == 1
+        
+    def is_column_sorted(self, column_number, direction):
+        header_link = self.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]/a' % (column_number))
+        if direction:
+            expected_class = 'sorted-%s' % direction
+            return expected_class in header_link.get_attribute('class').split(' ')
+        else:
+            return all([expected_class not in header_link.get_attribute('class').split(' ') 
+                        for expected_class in ['sorted-ascending','sorted-descending']])
 
-    def get_table_header(self):
-        header_data = []
-        for column_number in list(range(1, len(self.columns)+1)):
-            header_data.append(self.driver_browser.web_driver.find_element_by_xpath('(//table/thead/tr/th)[%s]' % (column_number)).text)
-        return header_data
 
 
 @test(DataTableFixture)
@@ -125,19 +130,24 @@ def sorting(fixture):
     fixture.driver_browser.open('/')
 
     #----- by default, not sorted
+    vassert( fixture.is_column_sorted(1, 'ascending') )
     vassert( fixture.get_table_row(1) == ['1' ,'T'] )
     vassert( fixture.get_table_row(2) == ['2' ,'H'] )
     vassert( fixture.get_table_row(3) == ['3' ,'E'] )
     
     #----- sort ascending on alpha, the second column
-    fixture.driver_browser.click(fixture.xpath_for_ascending_link_for_column(2))
+    vassert( fixture.is_column_sorted(2, None) )
+    fixture.driver_browser.click(fixture.xpath_for_sort_link_for_column(2))
+    vassert( fixture.is_column_sorted(2, 'ascending') )
+    vassert( fixture.is_column_sorted(1, None) )
     
     vassert( fixture.get_table_row(1) == ['22' ,'A'] )
     vassert( fixture.get_table_row(2) == ['9' ,'B'] )
     vassert( fixture.get_table_row(3) == ['7' ,'C'] )
 
     #----- sort descending on alpha, the second column
-    fixture.driver_browser.click(fixture.xpath_for_descending_link_for_column(2))
+    fixture.driver_browser.click(fixture.xpath_for_sort_link_for_column(2))
+    vassert( fixture.is_column_sorted(2, 'descending') )
     
     vassert( fixture.get_table_row(1) == ['23' ,'Z'] )
     vassert( fixture.get_table_row(2) == ['24' ,'Y'] )
@@ -151,7 +161,7 @@ def sorting(fixture):
     vassert( fixture.get_table_row(3) == ['11' ,'O'] )
 
     #----- contents of the page you are on changes according to a new sort order
-    fixture.driver_browser.click(fixture.xpath_for_ascending_link_for_column(1))
+    fixture.driver_browser.click(fixture.xpath_for_sort_link_for_column(1))
     
     vassert( fixture.get_table_row(1) == ['10' ,'R'] )
     vassert( fixture.get_table_row(2) == ['11' ,'O'] )
@@ -167,7 +177,9 @@ def which_columns_can_cause_sorting(fixture):
     fixture.reahl_server.set_app(fixture.wsgi_app)
     fixture.driver_browser.open('/')
 
-    vassert( fixture.get_table_header() == ['Row Number▲▼', 'Alpha▲▼', 'Not sortable'] )
+    vassert( fixture.does_column_have_sort_link(1) )
+    vassert( fixture.does_column_have_sort_link(2) )
+    vassert( not fixture.does_column_have_sort_link(3) )
 
 
 @test(DataTableFixture)
