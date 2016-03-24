@@ -21,7 +21,7 @@ import functools
 
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 from reahl.web.fw import Bookmark, Widget
-from reahl.web.bootstrap.ui import A, Span, Div, Table
+from reahl.web.bootstrap.ui import A, Span, Div, Table, TextNode
 from reahl.web.bootstrap.pagination import PageMenu
 from reahl.web.pager import SequentialPageIndex, PagedPanel
 
@@ -52,16 +52,19 @@ class PagedTable(PagedPanel):
     def __init__(self, view, page_index, columns, caption_text=None, summary=None, css_id=None):
         super(PagedTable, self).__init__(view, page_index, css_id=css_id)
 
-        def make_heading_with_sort_controls(column_number, sort_key, old_make_heading_widget, view):
+        def make_heading_with_sort_controls(column_number, column, view):
             heading_widget = Widget(view)
-            heading_widget.add_child(old_make_heading_widget(view))
-            if sort_key:
-                heading_widget.add_child(self.create_sorter_controls(column_number))
+            if column.sort_key:
+                heading = self.create_sorter_link(column_number, column.make_heading_widget(view))
+            else:
+                heading = column.make_heading_widget(view)
+            heading_widget.add_child(heading)
+
             return heading_widget
 
         columns_with_sort_controls = []
         for i, column in enumerate(columns):
-            make_heading_partial = functools.partial(make_heading_with_sort_controls, i, column.sort_key, column.make_heading_widget)
+            make_heading_partial = functools.partial(make_heading_with_sort_controls, i, column)
             columns_with_sort_controls.append(column.with_overridden_heading_widget(make_heading_partial))
 
         self.table = self.add_child(Table.from_columns(view, columns_with_sort_controls,
@@ -69,22 +72,23 @@ class PagedTable(PagedPanel):
                                                   caption_text=caption_text,
                                                   summary=summary))
 
+    def create_sorter_link(self, column_number, heading_widget):
+        show_control = (column_number == self.page_index.sort_column_number)
+        if show_control:
+            sort_descending = 'off' if self.page_index.sort_descending else 'on'
+            link_class = 'sorted-descending' if sort_descending=='off' else 'sorted-ascending'
+        else:
+            sort_descending = 'off'
+            link_class = None
 
-    def create_sorter_link(self, column_number, descending=False):
-        description = '▼' if descending else '▲'
-        sort_descending = 'on' if descending else 'off'
-        bookmark = Bookmark.for_widget(description=description,
+        bookmark = Bookmark.for_widget(None,
                                        query_arguments={'sort_column_number': column_number,
                                                         'sort_descending': sort_descending})
-        return A.from_bookmark(self.view, bookmark.on_view(self.view))
-
-
-    def create_sorter_controls(self, column_number):
-        sorting_controls = Span(self.view)
-        sorting_controls.append_class('reahl-column-sort')
-        sorting_controls.add_child(self.create_sorter_link(column_number))
-        sorting_controls.add_child(self.create_sorter_link(column_number, descending=True))
-        return sorting_controls
+        link = A.from_bookmark(self.view, bookmark.on_view(self.view))
+        link.add_child(heading_widget)
+        if link_class:
+            link.append_class(link_class)
+        return link
 
     @exposed
     def query_fields(self, fields):
