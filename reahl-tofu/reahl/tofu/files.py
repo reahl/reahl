@@ -36,6 +36,11 @@ class AutomaticallyDeletedFile:
         if os.path.exists(self.name):
             os.remove(self.name)
 
+    def change_contents(self, contents):
+        with open(self.name, 'w') as f:
+            f.write(contents)
+        
+
 def file_with(name, contents, mode='w+'):
     """Creates a file with the given `name` and `contents`. The file will be deleted
        automatically when it is garbage collected. The file is opened after creation, ready to be read.
@@ -115,6 +120,15 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
         self.entries.append(d)
         return d
 
+    @contextmanager
+    def as_cwd(self):
+        pwd = os.getcwd()
+        os.chdir(self.name)
+        try:
+            yield
+        finally:
+            os.chdir(pwd)
+        
 
 class AutomaticallyDeletedTempDirectory(AutomaticallyDeletedDirectory):
     def __init__(self, dir=None):
@@ -169,3 +183,4 @@ def preserved_sys_modules():
         added_modules = set(final_modules)-set(saved_modules)
         for i in added_modules:
             del sys.modules[i]
+
