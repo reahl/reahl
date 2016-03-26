@@ -13,6 +13,7 @@
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
+    <thirdpartyegg name="nose"/>
   </deps>
 
   <extras name="pillow">

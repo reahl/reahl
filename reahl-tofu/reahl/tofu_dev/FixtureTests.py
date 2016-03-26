@@ -66,6 +66,37 @@ class FixtureTests(object):
         assert fixture.new_thing(a=123) == 123
 
     @istest
+    def test_automaticsingletons_tear_down(self):
+        """Singletons set up automatically via new_ methods can be torn down automatically via
+           corresponding del_ methods, in reverse order of being created."""
+        class Stub(object): pass
+
+        torn_down_things = []
+
+        class TestFixture(Fixture):
+            def new_thing_last_accessed(self):
+                return Stub()
+
+            def del_thing_last_accessed(self, thing):
+                thing.torn_down = True
+                torn_down_things.append(thing)
+
+            def new_thing_first_accessed(self):
+                return Stub()
+
+            def del_thing_first_accessed(self, thing):
+                thing.torn_down = True
+                torn_down_things.append(thing)
+
+        with TestFixture(None) as fixture:
+            fixture.thing_first_accessed.torn_down = False
+            fixture.thing_last_accessed.torn_down = False
+
+        assert fixture.thing_first_accessed.torn_down
+        assert fixture.thing_last_accessed.torn_down
+        assert torn_down_things == [fixture.thing_last_accessed, fixture.thing_first_accessed]
+
+    @istest
     def test_overriding_automatic_context(self):
         class TestFixture(Fixture):
             def new_context(self):

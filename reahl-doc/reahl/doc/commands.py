@@ -16,6 +16,9 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+
+import six
+
 import os
 import shutil
 import pkg_resources
@@ -33,7 +36,7 @@ class Example(object):
         for dirpath, dirnames, filenames in os.walk(parent): 
             current_package = dirpath[len(parent)+1:].replace(os.sep, '.')
             if '.reahlproject' in filenames:
-                examples.append(Example(current_package))
+                examples.append(Example('reahl.doc.examples', current_package))
                 dirnames[:] = []
             else:
                 for module in [os.path.splitext(f)[0] for f in filenames
@@ -42,11 +45,12 @@ class Example(object):
                         module_path = '%s.%s' % (current_package, module)
                     else:
                         module_path = module
-                    examples.append(Example(module_path))
+                    examples.append(Example('reahl.doc.examples', module_path))
         return examples
 
-    def __init__(self, name):
+    def __init__(self, containing_package, name):
         self.name = name
+        self.containing_package = containing_package
 
     def is_package(self):
         name_as_path = self.name.replace('.', os.sep)
@@ -54,7 +58,7 @@ class Example(object):
 
     @property
     def abs_path_to_package(self):
-        return pkg_resources.resource_filename('.'.join(['reahl.doc.examples', self.name]), '')
+        return pkg_resources.resource_filename('.'.join([self.containing_package, self.name]), '')
 
     @property
     def module_name(self):
@@ -70,7 +74,7 @@ class Example(object):
 
     @property
     def relative_path(self):
-        root_path = pkg_resources.resource_filename('reahl.doc.examples', '')
+        root_path = pkg_resources.resource_filename(self.containing_package, '')
         return self.absolute_path[len(root_path):]
 
     @property
@@ -80,9 +84,13 @@ class Example(object):
     @property
     def exists(self):
         try:
-            return pkg_resources.resource_exists('reahl.doc.examples', self.relative_path.replace(os.sep, '/'))
-        except ImportError:
-            return False
+            return pkg_resources.resource_exists(self.containing_package, self.relative_path.replace(os.sep, '/'))
+        except ImportError as ex:
+            if six.PY2 and str(ex).endswith(self.name):
+                return False
+            elif six.PY3 and ex.name == '.'.join([self.containing_package, self.name]):
+                return False
+            raise
 
     @property
     def checkout_dest(self):
@@ -155,11 +163,11 @@ class GetExample(WorkspaceCommand):
     def verify_commandline(self, options, args):
         if len(args) != 1:
             self.parser.error('You need to specify one and only one example name as argument')
-        if not Example(args[0]).exists:
+        if not self.create_example(args[0]).exists:
             self.parser.error('Could not find example %s' % args[0])
 
     def execute(self, options, args):
-        example = Example(args[0])
+        example = self.create_example(args[0])
 
         if example.is_checked_out:
             if options.force:
@@ -170,3 +178,12 @@ class GetExample(WorkspaceCommand):
                 return 3
         print('Checking out to %s' % os.path.abspath(example.checkout_dest))
         example.check_out()
+
+    def create_example(self, name):
+        return Example('reahl.doc.examples', name)
+        
+        
+        
+        
+        
+        
