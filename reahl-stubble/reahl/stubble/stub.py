@@ -103,28 +103,7 @@ class Impostor(object):
         if name == '__class__':
             return _stubbed_class
         return super(Impostor, self).__getattribute__(name)
-
-
                         
-#------------------------------------------------[ FileSystemResourceProvider ]
-class FileSystemResourceProvider(pkg_resources.NullProvider):
-    def __init__(self):
-        self.module_path = os.getcwd()
-
-    def _has(self, path):
-        return os.path.exists(path)
-
-    def _isdir(self, path):
-        return os.path.isdir(path)
-
-    def _listdir(self, path):
-        return os.listdir(path)
-
-    def _fn(self, base, resource_name):
-        return os.path.join(base, *resource_name.split('/'))
-
-    def _get(self, path):
-        return open(path, 'rb').read()
 
 
 #------------------------------------------------[ Delegate ]
