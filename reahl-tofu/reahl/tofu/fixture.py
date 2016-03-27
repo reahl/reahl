@@ -17,6 +17,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
+from collections import OrderedDict 
 
 import six
 
@@ -131,15 +132,20 @@ class Fixture(object):
         return cls(run_fixture, scenario)
     
     def __init__(self, fixture, scenario=DefaultScenario()):
-        self.attributes_set = []
+        self.attributes_set = OrderedDict()
         self.run_fixture = fixture
         self.scenario = scenario
 
+    def tear_down_attributes(self):
+        for name, instance in reversed(list(self.attributes_set.items())):
+            self.get_tear_down_method_for(name)(instance)
+
     def clear(self):
-        """Clears all existing singleton objects."""
-        for name in self.attributes_set:
+        """Clears all existing singleton objects"""
+        self.tear_down_attributes()
+        for name in self.attributes_set.keys():
             delattr(self, name)
-        self.attributes_set = []
+        self.attributes_set = OrderedDict()
 
     def __getattr__(self, name):
         if name.startswith(self.factory_method_prefix):
@@ -152,7 +158,7 @@ class Fixture(object):
         except AttributeError as ex:
             six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
         setattr(self, name, instance)
-        self.attributes_set.append(name)
+        self.attributes_set[name] = instance
         return instance
 
     def create_default_context(self):
@@ -180,12 +186,21 @@ class Fixture(object):
 
     def get_factory_method_for(self, name):
         try:
-            factory_method_name = '%s_%s' % (self.factory_method_prefix, name)
-            return getattr(self, factory_method_name)
+            return self.get_prefixed_method_for(name, 'new')
         except AttributeError:
             if name == 'context':
                 return self.create_default_context
             raise
+
+    def get_tear_down_method_for(self, name):
+        try:
+            return self.get_prefixed_method_for(name, 'del')
+        except AttributeError:
+            return lambda i: None
+
+    def get_prefixed_method_for(self, name, prefix):
+        method_name = '%s_%s' % (prefix, name)
+        return getattr(self, method_name)
 
     def __repr__(self):
         return '%s[%s]' % (self.__class__.__name__, self.scenario.name)
@@ -193,9 +208,9 @@ class Fixture(object):
     def __enter__(self):
         self.context.__enter__()
         try:
+            self.scenario.method_for(self)()
             self.set_up()
             self.run_marked_methods(SetUp, order=reversed)
-            self.scenario.method_for(self)()
         except:
             self.__exit__(*sys.exc_info())
             raise
@@ -203,6 +218,7 @@ class Fixture(object):
 
     def __exit__(self, exception_type, value, traceback):
         self.context.__exit__(exception_type, value, traceback)
+        self.tear_down_attributes()
         self.run_marked_methods(TearDown)
         self.tear_down()
 

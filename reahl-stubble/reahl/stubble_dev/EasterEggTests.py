@@ -72,7 +72,8 @@ class EasterEggTests(object):
         test_file = NamedTemporaryFile(mode='wb+')
         dirname, file_name = os.path.split(test_file.name)
 
-        self.stub_egg.set_module_path(dirname)
+        self.stub_egg.location = dirname
+        self.stub_egg.activate()
 
         assert pkg_resources.resource_exists(self.stub_egg.as_requirement(), file_name)
         assert not pkg_resources.resource_exists(self.stub_egg.as_requirement(), 'IDoNotExist')
@@ -87,3 +88,14 @@ class EasterEggTests(object):
         as_file = pkg_resources.resource_stream(self.stub_egg.as_requirement(), file_name)
         assert as_file.read() == contents
 
+    @istest
+    def test_resource_api_from_module_name(self):
+        test_file = NamedTemporaryFile(mode='wb+', suffix='.py')
+        dirname, file_name = os.path.split(test_file.name)
+
+        self.stub_egg.location = dirname
+        self.stub_egg.activate()
+
+        module_name = file_name.split('.')[0]
+        assert pkg_resources.resource_exists(module_name, '')
+        assert pkg_resources.resource_filename(module_name, '') == dirname
