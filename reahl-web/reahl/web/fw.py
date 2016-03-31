@@ -852,7 +852,12 @@ class Bookmark(object):
         
         .. versionadded: 3.2
         """
-        return view.as_bookmark() + self
+        if view is view.user_interface.current_view:
+            request = WebExecutionContext.get_context().request
+            query_arguments = request.GET
+        else:
+            query_arguments = {}
+        return view.as_bookmark(query_arguments=query_arguments) + self
         
     def combine_checks(self, own_check, other_check):
         def combined_check():

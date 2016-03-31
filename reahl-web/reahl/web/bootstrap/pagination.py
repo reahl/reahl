@@ -93,7 +93,7 @@ class PageMenu(HTMLWidget):
         self.add_styling_to_menu_item(item)
         
     def get_bookmark(self, start_page_number=1, disabled=False):
-        bookmark = Bookmark.for_widget(description=None,
+        bookmark = Bookmark.for_widget(None,
                                        query_arguments={'start_page_number': start_page_number,
                                                         'current_page_number': self.page_index.current_page_number},
                                        write_check=lambda: not disabled).on_view(self.view)

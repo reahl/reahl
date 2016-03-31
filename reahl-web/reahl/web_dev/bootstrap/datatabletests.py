@@ -17,24 +17,28 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import test
-from reahl.tofu import vassert
+import six
+
+from reahl.tofu import test, vassert, expected, scenario
 
 from reahl.webdev.tools import XPath
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import Field, IntegerField, exposed
 
+from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.bootstrap.ui import Div, StaticColumn, TableLayout, Table
+from reahl.web.bootstrap.ui import Div, StaticColumn, TableLayout
 from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 
 from reahl.web.bootstrap.datatable import DataTable
 
 import reahl.web_dev.widgets.tabletests
 
-#TODO: when using a RowItem that is not naturally ordered, and not providing a sort_key, error thrown could be better
-#TODO: sorting arrows need change? see https://datatables.net/examples/styling/bootstrap.html
-#TODO: Clicking anywhere on header changes sort order
+#TODO: sorting - is in column(ui.py), but tested here in datatable?
+#TODO: is all the javascript trickery with hashes still necessary now that the nonjs version is right?(we added the qyery args in on_view bookmark)
 
+#TODO: js test for ajaxlink/hashchange: if you click on an ajaxlink, it changes the hash in such a way that the other hashes that do not belong to it are preserved - HOWEVER, its own href is not changed.
+#TODO: same preservation of other's context(query string) in non-js version
 
 class DataItem(reahl.web_dev.widgets.tabletests.DataItem):
     @exposed
@@ -72,7 +76,7 @@ class DataTableFixture(reahl.web_dev.widgets.tabletests.TableFixture):
         return MainWidget
 
     def new_wsgi_app(self):
-        return super(DataTableFixture, self).new_wsgi_app(enable_js=True,
+        return super(DataTableFixture, self).new_wsgi_app(enable_js=False,
                                                       child_factory=self.MainWidget.factory())
 
     def new_webconfig(self):
@@ -130,6 +134,13 @@ def sorting(fixture):
     fixture.driver_browser.open('/')
 
     #----- by default, not sorted
+    vassert( not fixture.is_column_sorted(1, 'ascending') )
+    vassert( not fixture.is_column_sorted(1, 'descending') )
+    vassert( not fixture.is_column_sorted(2, 'ascending') )
+    vassert( not fixture.is_column_sorted(2, 'descending') )
+
+    #----- first click on column sorts ascending
+    fixture.driver_browser.click(fixture.xpath_for_sort_link_for_column(1))
     vassert( fixture.is_column_sorted(1, 'ascending') )
     vassert( fixture.get_table_row(1) == ['1' ,'T'] )
     vassert( fixture.get_table_row(2) == ['2' ,'H'] )
@@ -170,7 +181,7 @@ def sorting(fixture):
 
 @test(DataTableFixture)
 def which_columns_can_cause_sorting(fixture):
-    """Only columns with sort_key specified are sortable"""
+    """Only columns with sort_key specified are sortable."""
 
     fixture.columns.append(StaticColumn(Field(label='Not sortable'), 'alpha'))
 
@@ -184,9 +195,13 @@ def which_columns_can_cause_sorting(fixture):
 
 @test(DataTableFixture)
 def layout_for_contained_table(fixture):
-    """You can specify a Layout to use for the actual table inside the DataTable"""
+    """You can specify a Layout to use for the actual table inside the DataTable."""
 
     layout = TableLayout()
     data_table = DataTable(fixture.view, fixture.columns, fixture.data, 'my_css_id', table_layout=layout)
 
     vassert( data_table.table.layout is layout )
+
+
+
+
