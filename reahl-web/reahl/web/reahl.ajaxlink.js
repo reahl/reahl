@@ -46,6 +46,7 @@ $.widget('reahl.ajaxlink', {
                     var current_href = _this.element.attr('href');
                     var newHref = $.param.fragment(current_href, current_state, 1);
                     element.attr('href', newHref);
+                    setTimeout(function(){ element.attr('href', current_href);}, 0);
                 });
             };
         };
