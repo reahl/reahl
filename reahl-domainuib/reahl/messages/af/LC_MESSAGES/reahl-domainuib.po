@@ -1,0 +1,357 @@
+# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights
+# reserved.
+#
+# Afrikaans translations for reahl-domainubi.
+msgid ""
+msgstr ""
+"Project-Id-Version: reahl-domainuib 2.0.0a1\n"
+"Report-Msgid-Bugs-To: info@reahl.org\n"
+"POT-Creation-Date: 2015-12-10 15:31+0200\n"
+"PO-Revision-Date: 2012-05-31 12:07+0200\n"
+"Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
+"Language: af\n"
+"Language-Team: af <info@reahl.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.1.1\n"
+
+#: reahl/domainuib/accounts.py:58
+msgid "Please specify:"
+msgstr "Spesifiseer asseblief:"
+
+#: reahl/domainuib/accounts.py:59
+msgid "The email address you used to register here."
+msgstr "Die epos adres wat jy gebruik het om hier te registreer."
+
+#: reahl/domainuib/accounts.py:62
+msgid "The secret password you supplied upon registration."
+msgstr "Die geheime wagwoord wat jy gegee het tydens registrasie."
+
+#: reahl/domainuib/accounts.py:65
+msgid "Forgot your password?"
+msgstr "Jou wagwoord vergeet?"
+
+#: reahl/domainuib/accounts.py:68
+msgid "If selected, you will stay logged in for longer."
+msgstr "As gekies, sal jy vir langer aangeteken bly."
+
+#: reahl/domainuib/accounts.py:109
+msgid "How will you identify yourself?"
+msgstr "Hoe sal jy jouself identifiseer?"
+
+#: reahl/domainuib/accounts.py:111
+msgid ""
+"You identify yourself to us by your email address.This information is not"
+" divulged to others."
+msgstr ""
+"Jy identifiseer jouself aan ons deur middel van jou epos adres.  Hierdie "
+"inligting word nie aan ander bekendgestel nie."
+
+#: reahl/domainuib/accounts.py:113
+msgid ""
+"Sorry, you can only register once per email address and someone is "
+"already registered as $value. Did you perhaps register long ago?"
+msgstr ""
+"Jammer, jy kan slegs eenkeer registreer per epos adres. Iemand het reeds "
+"geregistreer as $value. Het jy miskien lank terug al geregistreer?"
+
+#: reahl/domainuib/accounts.py:119
+msgid ""
+"Upon logging in, you will be asked for your password. Your password "
+"should be a secret, known only to yourself, and be difficult to guess."
+msgstr ""
+"Wanneer jy aanteken sal jy gevra word vir jou wagwoord. Jou wagwoord moet"
+" 'n geheim wees, net aan jouself bekend, en moeilik om te raai."
+
+#: reahl/domainuib/accounts.py:123
+msgid ""
+"By typing the same password again you help us to make sure you did not "
+"make any typing mistakes."
+msgstr ""
+"Deur dieselfde wagwoord weer in te tik help jy ons om seker te maak dat "
+"jy nie per ongeluk 'n tikfout gemaak het nie."
+
+#: reahl/domainuib/accounts.py:128
+msgid "Terms and conditions"
+msgstr "Terme en kondisies"
+
+#: reahl/domainuib/accounts.py:130
+msgid ""
+"Please read and accept our {terms}. You may also be interested to read "
+"our {privacypolicy} and our {disclaimer}."
+msgstr ""
+"Lees asseblief ons {terms} en aanvaar dit. Jy mag ook geïnteresseerd wees"
+" om ons {privacypolicy} en {disclaimer} te lees."
+
+#: reahl/domainuib/accounts.py:137
+msgid "You can only register if you agree to the terms and conditions."
+msgstr "Jy kan slegs registreer as jy instem tot die terme en kondisies."
+
+#: reahl/domainuib/accounts.py:141
+msgid "Accept"
+msgstr "Aanvaar"
+
+#: reahl/domainuib/accounts.py:142
+msgid "Cancel"
+msgstr "Kanselleer"
+
+#: reahl/domainuib/accounts.py:163
+msgid "Please supply the following details"
+msgstr "Verskaf asseblief die volgende inligting"
+
+#: reahl/domainuib/accounts.py:189
+msgid "Please supply the email address you tried to register with."
+msgstr "Verskaf asseblief die epos adres waarmee jy probeer het om te registreer."
+
+#: reahl/domainuib/accounts.py:199
+#, python-format
+msgid "You are trying to register using the email address \"%s\""
+msgstr "Jy probeer registreer met die epos adres \"%s\""
+
+#: reahl/domainuib/accounts.py:200
+msgid ""
+"That address is already registered and active on the system.This means "
+"that you (or someone else) must have registered using that email address "
+"previously."
+msgstr ""
+"Daardie adres is reeds regisistreer en is aktief op die stelsel. Dit "
+"beteken dat jy (of iemand anders) reeds voorheen geregistreer het met "
+"daardie epos adres."
+
+#: reahl/domainuib/accounts.py:205
+msgid "You can gain access to this account by following our {procedure}."
+msgstr "Jy kan toegang verkry tot hierdie rekening deur ons {procedure}."
+
+#: reahl/domainuib/accounts.py:206
+msgid " password reset procedure"
+msgstr " wagwoord veranderings prosedure te volg"
+
+#: reahl/domainuib/accounts.py:213
+#, python-format
+msgid "There is a registration pending for email address \"%s\"."
+msgstr "Daar is 'n registrasie hangende vir epos adres \"%s\"."
+
+#: reahl/domainuib/accounts.py:214
+msgid ""
+"Before you can log in using it, you need to act on the automated email "
+"sent to that address. It looks like you did not do that."
+msgstr ""
+"Voordat jy kan aanteken daarmee, moet jy eers die instruksies uitvoer wat"
+" ons gestuur het in 'n outomatiese epos na daardie adres. Dit wil voorkom"
+" dat jy dit nog nie gedoen het nie."
+
+#: reahl/domainuib/accounts.py:216
+msgid ""
+"You should receive the automated email anything between a minute to an "
+"hour after registration. Sometimes though, your email software may "
+"mistakenly identify our email as junk email. If this happens it will be "
+"hidden away in a \"junk email\" folder or just not shown to you."
+msgstr ""
+"Jy behoort die outomatise epos te ontvang enigiets tussen 'n minuut en 'n"
+" uur na registrasie.  Pasop tog, partymaal kan jou eie epos sagteware "
+"verkeerdelik ons outomatiese epos aansien as onwenslike epos. Sou dit "
+"gebeur, sal die epos dalk iewers in 'n spesiale leêr vir daardie doel  "
+"weggesteek word."
+
+#: reahl/domainuib/accounts.py:220
+msgid "You can have the email re-sent to you by clicking on the button below."
+msgstr "As jy op die knoppie hieronder kliek, sal ons die epos weer oor stuur."
+
+#: reahl/domainuib/accounts.py:221
+#, python-format
+msgid ""
+"Before you do that, however, please make sure that your email system will"
+" allow emails from \"%s\" through to you."
+msgstr ""
+"Maar, voordat jy dit doen, maak tog asseblief seker dat jou epos "
+"sagteware eposse van \"%s\" af sal deurlaat na jou toe."
+
+#: reahl/domainuib/accounts.py:234
+msgid "Re-send registration email"
+msgstr "Stuur registrasie epos weer"
+
+#: reahl/domainuib/accounts.py:241
+#, python-format
+msgid "There is no record of someone trying to register the email address \"%s\"."
+msgstr ""
+"Daar is geen rekord dat enigeen probeer het om die epos adres \"%s\" "
+"probeer registreer het nie."
+
+#: reahl/domainuib/accounts.py:242
+msgid ""
+"Perhaps you mistyped your email address when registering? The system also"
+" removes such a registration request if you take a long time to get "
+"around to verifying it."
+msgstr ""
+"Miskien het jy 'n tikfout gemaak met jou epos tydens registrasie? Die "
+"stelsel verwyder versoeke om te registreer as die versoeker baie lank "
+"neem om dit te verifiëer."
+
+#: reahl/domainuib/accounts.py:246
+msgid "Whatever the case, please {register} to rectify the problem."
+msgstr "Watookal die geval, {register} om die probleem op te los."
+
+#: reahl/domainuib/accounts.py:247
+msgid "register again"
+msgstr "registreer asseblief weer"
+
+#: reahl/domainuib/accounts.py:253
+#, python-format
+msgid "A new registration email was sent to \"%s\""
+msgstr "'n Nuwe registrasie epos is aan \"%s\" gestuur"
+
+#: reahl/domainuib/accounts.py:254
+msgid "Please watch your inbox and follow the instructions in the email."
+msgstr "Hou asseblief jou epos posbus dop en volg die instruksies in die epos."
+
+#: reahl/domainuib/accounts.py:261
+msgid "Thank you for verifying your email address."
+msgstr "Dankie dat jy jou epos geverifiëer het."
+
+#: reahl/domainuib/accounts.py:262
+msgid ""
+"Your account is now active, and you can proceed to log in using the "
+"details you provided."
+msgstr ""
+"Jou rekening is nou aktief, en jy kan maar voortgaan on aan te teken met "
+"die besonderhede verskaf."
+
+#: reahl/domainuib/accounts.py:268
+msgid "You have successfully registered."
+msgstr "Jy het suksesvol geregistreer."
+
+#: reahl/domainuib/accounts.py:269
+#, python-format
+msgid ""
+"Before we can allow you to log in, however, you need to prove to us that "
+"you are indeed the owner of %s."
+msgstr ""
+"Voordat ons jou kan toelaat om aan te teken, moet jy net eers bewys dat "
+"jy regtig die eienaar is van %s."
+
+#: reahl/domainuib/accounts.py:270
+msgid "You can do that by following instructions just emailed to that address."
+msgstr "Jy kan dit doen deur die instruksies te volg in ons epos na daardie adres."
+
+#: reahl/domainuib/accounts.py:271
+msgid "Sometimes these emails arrive immediately, but they may also be delayed."
+msgstr ""
+"Partymaal arriveer hierdie eposse dadelik, maar hulle kan ook vertraag "
+"word."
+
+#: reahl/domainuib/accounts.py:272
+msgid ""
+"If you do not receive the email within an hour or so, please follow "
+"{trouble}."
+msgstr ""
+"As jy die epos nie so binne 'n uur of wat ontvang nie, volg asseblief "
+"{trouble}."
+
+#: reahl/domainuib/accounts.py:273
+msgid "our troubleshooting procedure"
+msgstr "ons prosedure om die fout te soek"
+
+#: reahl/domainuib/accounts.py:279
+msgid ""
+"To ensure you are not an impostor, resetting your password is a two step "
+"process: First, we send a \"secret key\" to your registered email "
+"address. Then, {choose_password}. But you need that secret key for the "
+"last step in order to prove that you are indeed the owner of the "
+"registered email address."
+msgstr ""
+"Om seker te maak jy is nie 'n indringer nie, is twee stappe nodig om jou "
+"wagwoord te herwin: Eerstens stuur ons 'n \"geheime kodewoord\" aan jou "
+"geregistreerde epos adres. Daarna {choose_password}. Maar jy het die "
+"geheime kodewoord wat ons vir jou gestuur het nodig in die laaste stap om"
+" te bewys jy is wel die eienaar van die geregistreerde adres."
+
+#: reahl/domainuib/accounts.py:283
+msgid "you can choose a new password"
+msgstr "kan jy 'n nuwe wagwoord kies"
+
+#: reahl/domainuib/accounts.py:296
+msgid "Request a secret key"
+msgstr "Vra 'n geheime kodewoord aan"
+
+#: reahl/domainuib/accounts.py:306
+msgid ""
+"Do you have your secret key? You can only choose a new password if you "
+"{reset_password}."
+msgstr ""
+"Het jy jou geheime kodewoord? Jy kan slegs 'n nuwe wagwoord kies as jy "
+"{reset_password}."
+
+#: reahl/domainuib/accounts.py:308
+msgid ""
+"previously requested a secret key to be sent to your registered email "
+"address"
+msgstr ""
+"voorheen aangevra het dat ons 'n geheime wagwoord stuur na jou "
+"geregistreerde epos adres"
+
+#: reahl/domainuib/accounts.py:323
+msgid "Choose a new password"
+msgstr "Kies 'n nuwe wagwoord"
+
+#: reahl/domainuib/accounts.py:341
+msgid "Thank you, your password has been changed successfully."
+msgstr "Dankie. Jou wagwoord is verander."
+
+#: reahl/domainuib/accounts.py:387
+msgid "Log in with email and password"
+msgstr "Teken aan met jou epos adres en wagwoord"
+
+#: reahl/domainuib/accounts.py:394
+msgid "Reset a password: Step 1"
+msgstr "Herwin 'n wagwoord: Stap 1"
+
+#: reahl/domainuib/accounts.py:397
+msgid "Reset a password: Step 2"
+msgstr "Herwin 'n wagwoord: Stap 2"
+
+#: reahl/domainuib/accounts.py:400
+msgid "Password change complete"
+msgstr "Wagwoord verandering klaar"
+
+#: reahl/domainuib/accounts.py:410
+msgid "Problems registering?"
+msgstr "Registrasieprobleme?"
+
+#: reahl/domainuib/accounts.py:413
+msgid "Address already registered"
+msgstr "Adres reeds regegistreer"
+
+#: reahl/domainuib/accounts.py:416
+msgid "Registration still pending"
+msgstr "Registrasie nog hangende"
+
+#: reahl/domainuib/accounts.py:419
+msgid "Registration not found"
+msgstr "Kon nie registrasie vind nie "
+
+#: reahl/domainuib/accounts.py:422
+msgid "Registration email sent"
+msgstr "Registrasie epos gestuur"
+
+#: reahl/domainuib/accounts.py:441
+msgid "Register with us"
+msgstr "Registreer by ons"
+
+#: reahl/domainuib/accounts.py:444
+msgid "Congratulations"
+msgstr "Geluk"
+
+#: reahl/domainuib/accounts.py:447
+msgid "Verify pending registration"
+msgstr "Verifiëer hangende registrasie"
+
+#: reahl/domainuib/accounts.py:450
+msgid "Thanks for all your troubles"
+msgstr "Dankie vir jou moeite"
+
+#: reahl/domainuib/workflow.py:49 reahl/domainuib/workflow.py:125
+msgid "Inbox"
+msgstr "Taak leêr"
+
