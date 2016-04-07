@@ -292,7 +292,7 @@ class FormLayout(reahl.web.ui.Layout):
 
 
     def add_input_to(self, parent_element, html_input):
-        if isinstance(html_input, CheckboxInput):
+        if not self.should_add_label(html_input):
             parent_element.use_layout(ChoicesLayout(inline=False))
             return parent_element.layout.add_choice(html_input)
         else:
