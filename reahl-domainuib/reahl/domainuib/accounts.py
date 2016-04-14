@@ -24,18 +24,16 @@ from reahl.web.fw import UserInterface
 from reahl.web.fw import WebExecutionContext
 from reahl.web.fw import Widget
 from reahl.web.bootstrap.ui import Form, FormLayout, CheckboxInput, \
-                         TextInput, PasswordInput, H, P, A
+                         TextInput, PasswordInput, H, P, A, FieldSet, Alert
 from reahl.web.bootstrap.ui import Button, ButtonLayout, CueInput
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxButton, DialogButton
-#    ErrorFeedbackMessage, InputGroup
-#from reahl.web.bootstrap.ui import CheckCheckboxButton, PopupA, DialogButtonCheckCheckboxButton, DialogButton
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.component.decorators import deprecated
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
      AccountManagementInterface
 
-_ = Translator('reahl-domainui')
+_ = Translator('reahl-domainuib')
 
 
 class TitledWidget(Widget):
@@ -44,51 +42,36 @@ class TitledWidget(Widget):
         self.add_child(H(view, 1, text=view.title))
 
 
-# class ActionButtonGroup(InputGroup):
-#     def __init__(self, view, label_text=None):
-#         super(ActionButtonGroup, self).__init__(view, label_text=label_text)
-#         self.add_to_attribute('class', ['action_buttons'])
+class ActionButtonGroup(FieldSet):
+    def __init__(self, view, label_text=None):
+        super(ActionButtonGroup, self).__init__(view, label_text=label_text)
+        self.add_to_attribute('class', ['action_buttons'])
 
 
 class LoginForm(Form):
     def __init__(self, view, event_channel_name, account_management_interface):
         super(LoginForm, self).__init__(view, event_channel_name)
-        self.use_layout(FormLayout())
-
         self.account_management_interface = account_management_interface
 
-        # if self.exception:
-        #     self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
-        
-        # login_inputs = self.add_child(InputGroup(view, label_text=_('Please specify:')))
-        self.add_child(H(view, 2, text=_('Please specify:')))
+        if self.exception:
+            self.add_child(Alert(view, self.exception.as_user_message()))
 
+        login_inputs = self.add_child(FieldSet(view, label_text=_('Please specify:'))).use_layout(FormLayout())
         email_cue = P(view, _('The email address you used to register here.'))
-        # login_inputs.add_child(CueInput(TextInput(self, self.account_management_interface.fields.email), email_cue))
-        email_input = TextInput(self, self.account_management_interface.fields.email, placeholder=True)
-        self.layout.add_input(CueInput(email_input, email_cue))
+        login_inputs.layout.add_input(CueInput(TextInput(self, self.account_management_interface.fields.email, placeholder=True), email_cue))
 
         password_cue = P(view, _('The secret password you supplied upon registration.') )
-        password_input = PasswordInput(self, self.account_management_interface.fields.password)
-        # password_cue_input.input_part.add_child(A.from_bookmark(view, forgot_password_bookmark))
-        # login_inputs.add_child(password_cue_input)
-        self.layout.add_input(CueInput(password_input, password_cue))
-
+        password_cue_input = CueInput(PasswordInput(self, self.account_management_interface.fields.password), password_cue)
         forgot_password_bookmark = self.user_interface.get_bookmark(relative_path='/resetPassword',
                                                             description=_('Forgot your password?'))
-        self.add_child(A.from_bookmark(view, forgot_password_bookmark))
-
-
+        password_cue_input.input_part.add_child(A.from_bookmark(view, forgot_password_bookmark))
+        login_inputs.layout.add_input(password_cue_input)
         stay_cue = P(view, _('If selected, you will stay logged in for longer.'))
-        # login_inputs.add_child(CueInput(CheckboxInput(self, self.account_management_interface.fields.stay_logged_in), stay_cue))
-        stay_checkbox = CheckboxInput(self, self.account_management_interface.fields.stay_logged_in)
-        self.layout.add_input(CueInput(stay_checkbox, stay_cue))
+        login_inputs.layout.add_input(CueInput(CheckboxInput(self, self.account_management_interface.fields.stay_logged_in), stay_cue))
 
-        #login_buttons = self.add_child(ActionButtonGroup(view))
-        #login_buttons.add_child(Button(self, account_management_interface.events.login_event))
-        btn = self.add_child(Button(self, account_management_interface.events.login_event))
+        login_buttons = self.add_child(ActionButtonGroup(view))
+        btn = login_buttons.add_child(Button(self, account_management_interface.events.login_event))
         btn.use_layout(ButtonLayout(style='primary'))
-
 
 
 class LoginWidget(TitledWidget):
@@ -114,64 +97,56 @@ class RegisterWidget(TitledWidget):
 class RegisterForm(Form):
     def __init__(self, view, event_channel_name, bookmarks, account_management_interface):
         super(RegisterForm, self).__init__(view, event_channel_name)
-        self.use_layout(FormLayout())
         self.bookmarks = bookmarks
         self.account_management_interface = account_management_interface
 
-        # if self.exception:
-        #     self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
-        
+        if self.exception:
+            self.add_child(Alert(view, self.exception.as_user_message()))
+
         self.create_identification_inputs()
         self.create_terms_inputs()
         self.create_action_buttons()
-        
+
     def create_identification_inputs(self):
-        #identification_inputs = self.add_child(InputGroup(self.view, label_text=_('How will you identify yourself?')))
-        self.add_child(H(self.view, 2, text=_('How will you identify yourself?')))
-        
+        identification_inputs = self.add_child(FieldSet(self.view, label_text=_('How will you identify yourself?'))).use_layout(FormLayout())
+
         email_cue = P(self.view, _('You identify yourself to us by your email address.' \
-                                    'This information is not divulged to others.'))
-        error_message = _('Sorry, you can only register once per email address and someone is ' \
+                                   'This information is not divulged to others.'))
+        error_message=_('Sorry, you can only register once per email address and someone is ' \
                         'already registered as $value. Did you perhaps register long ago?')
-                        
+
         unique_email_field = self.account_management_interface.fields.email.as_with_validation_constraint(UniqueEmailConstraint(error_message))
-        #identification_inputs.add_child(CueInput(TextInput(self, unique_email_field), email_cue))
-        self.layout.add_input(CueInput(TextInput(self, unique_email_field), email_cue))
+        identification_inputs.layout.add_input(CueInput(TextInput(self, unique_email_field), email_cue))
 
         password_cue = P(self.view, _('Upon logging in, you will be asked for your password. Your password should be a '\
-                                  'secret, known only to yourself, and be difficult to guess.') )
-        #identification_inputs.add_child(CueInput(PasswordInput(self, self.account_management_interface.fields.password), password_cue))
-        self.layout.add_input(CueInput(PasswordInput(self, self.account_management_interface.fields.password), password_cue))
-
+                                 'secret, known only to yourself, and be difficult to guess.') )
+        identification_inputs.layout.add_input(CueInput(PasswordInput(self, self.account_management_interface.fields.password),
+                                           password_cue))
         repeat_password_cue = P(self.view, _('By typing the same password again you help us to make sure you did not make any typing mistakes.'))
-        # identification_inputs.add_child(CueInput(PasswordInput(self, self.account_management_interface.fields.repeat_password),
-        #                                    repeat_password_cue))
-        self.layout.add_input(CueInput(PasswordInput(self, self.account_management_interface.fields.repeat_password),
-                                       repeat_password_cue))
+        identification_inputs.layout.add_input(CueInput(PasswordInput(self, self.account_management_interface.fields.repeat_password),
+                                           repeat_password_cue))
 
     def create_terms_inputs(self):
-        # terms_inputs = self.add_child(InputGroup(self.view, label_text=_('Terms and conditions')))
-        self.add_child(H(self.view, 2, text=_('Terms and conditions')))
+        terms_inputs = self.add_child(FieldSet(self.view, label_text=_('Terms and conditions'))).use_layout(FormLayout())
 
         terms_prompt = P(self.view, text=_('Please read and accept our {terms}. You may also be interested '
                                            'to read our {privacypolicy} and our {disclaimer}.'))
         popup = PopupA(self.view, self.bookmarks.terms_bookmark, '#terms', close_button=False)
-        self.add_child(terms_prompt.format(terms=popup,
-                                           privacypolicy=PopupA(self.view, self.bookmarks.privacy_bookmark, '#privacypolicy'),
-                                           disclaimer=PopupA(self.view, self.bookmarks.disclaimer_bookmark, '#disclaimer')))
-        
+        terms_inputs.add_child(terms_prompt.format(terms=popup,
+                                                   privacypolicy=PopupA(self.view, self.bookmarks.privacy_bookmark, '#privacypolicy'),
+                                                   disclaimer=PopupA(self.view, self.bookmarks.disclaimer_bookmark, '#disclaimer')))
+
         terms_cue = P(self.view, _('You can only register if you agree to the terms and conditions.'))
         accept_checkbox = CheckboxInput(self, self.account_management_interface.fields.accept_terms)
-        self.layout.add_input(CueInput(accept_checkbox, terms_cue))
+        terms_inputs.layout.add_input(CueInput(accept_checkbox, terms_cue))
 
-        popup.add_button(CheckCheckboxButton(_('Accept'), accept_checkbox))
-        popup.add_button(DialogButton(_('Cancel')))
-
+        popup.add_button(CheckCheckboxButton(_('Accept'), accept_checkbox)) #TODO:.use_layout(ButtonLayout(style='primary'))
+        popup.add_button(DialogButton(_('Cancel')))#TODO:.use_layout(ButtonLayout(style='primary'))
 
     def create_action_buttons(self):
-        # actions = self.add_child(ActionButtonGroup(self.view))
-        # actions.add_child(Button(self, self.account_management_interface.events.register_event))
-        self.add_child(Button(self, self.account_management_interface.events.register_event))
+        actions = self.add_child(ActionButtonGroup(self.view))
+        btn = actions.add_child(Button(self, self.account_management_interface.events.register_event))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class VerifyEmailWidget(TitledWidget):
@@ -184,24 +159,19 @@ class VerifyForm(Form):
     def __init__(self, view, event_channel_name, account_management_interface):
         self.account_management_interface = account_management_interface
         super(VerifyForm, self).__init__(view, event_channel_name)
-        self.use_layout(FormLayout())
 
-        # if self.exception:
-        #     self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
+        if self.exception:
+            self.add_child(Alert(view, self.exception.as_user_message()))
 
-        # identification_inputs = self.add_child(InputGroup(view, label_text=_('Please supply the following details')))
-        self.add_child(H(self.view, 2, text=_('Please supply the following details')))
+        identification_inputs = self.add_child(FieldSet(view, label_text=_('Please supply the following details'))).use_layout(FormLayout())
 
-        # identification_inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.email)))
-        self.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True))
+        identification_inputs.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True))
+        identification_inputs.layout.add_input(TextInput(self, account_management_interface.fields.secret, placeholder=True))
+        identification_inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.password))
 
-        # identification_inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.secret)))
-        self.layout.add_input(TextInput(self, account_management_interface.fields.secret, placeholder=True))
-        # identification_inputs.add_child(LabelledBlockInput(PasswordInput(self, account_management_interface.fields.password)))
-        self.layout.add_input(PasswordInput(self, account_management_interface.fields.password))
-
-        # actions = self.add_child(ActionButtonGroup(view))
-        self.add_child(Button(self, account_management_interface.events.verify_event))
+        actions = self.add_child(ActionButtonGroup(view))
+        btn = actions.add_child(Button(self, account_management_interface.events.verify_event))
+        btn.use_layout(ButtonLayout(style='primary'))
 
     @exposed
     def query_fields(self, fields):
@@ -218,17 +188,17 @@ class RegisterHelpWidget(TitledWidget):
 class RegisterHelpForm(Form):
     def __init__(self, view, account_management_interface):
         super(RegisterHelpForm, self).__init__(view, 'register_help')
-        self.use_layout(FormLayout())
-        # if self.exception:
-        #     self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
+
+        if self.exception:
+            self.add_child(Alert(view, self.exception.as_user_message()))
         
-        # inputs = self.add_child(InputGroup(view, label_text=_('Please supply the email address you tried to register with.')))
-        # inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.email)))
-        self.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True),
+        inputs = self.add_child(FieldSet(view, label_text=_('Please supply the email address you tried to register with.'))).use_layout(FormLayout())
+        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True),
                               help_text=_('Please supply the email address you tried to register with.'))
 
-        # actions = self.add_child(ActionButtonGroup(view))
-        self.add_child(Button(self, account_management_interface.events.investigate_event))
+        actions = self.add_child(ActionButtonGroup(view))
+        btn = actions.add_child(Button(self, account_management_interface.events.investigate_event))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class RegistrationDuplicatedWidget(TitledWidget):
@@ -265,14 +235,13 @@ class RegistrationPendingWidget(TitledWidget):
 class RegistrationPendingForm(Form):
     def __init__(self, view):
         super(RegistrationPendingForm, self).__init__(view, 'register_pending')
-        self.use_layout(FormLayout())
 
-        # if self.exception:
-        #     self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
+        if self.exception:
+            self.add_child(Alert(view, self.exception.as_user_message()))
         
-        # actions = self.add_child(ActionButtonGroup(view, label_text=_('Re-send registration email')))
-        self.add_child(P(view, text=_('Re-send registration email')))
-        self.add_child(Button(self, self.user_interface.account_management_interface.events.resend_event))
+        actions = self.add_child(ActionButtonGroup(view, label_text=_('Re-send registration email')))
+        btn = actions.add_child(Button(self, self.user_interface.account_management_interface.events.resend_event))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class RegistrationNotFoundWidget(TitledWidget):
@@ -329,19 +298,16 @@ class ResetPasswordWidget(TitledWidget):
 class ResetPasswordForm(Form):
     def __init__(self, view, account_management_interface):
         super(ResetPasswordForm, self).__init__(view, 'reset_password')
-        self.use_layout(FormLayout())
 
-        # if self.exception:
-        #     self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
+        if self.exception:
+            self.add_child(Alert(view, self.exception.as_user_message()))
 
-        # inputs = self.add_child(InputGroup(view, label_text=_('Request a secret key')))
-        # inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.email)))
-        self.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True),
-                              help_text=_('Request a secret key'))
+        inputs = self.add_child(FieldSet(view, label_text=_('Request a secret key'))).use_layout(FormLayout())
+        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True))
 
-
-        # actions = self.add_child(ActionButtonGroup(view))
-        self.add_child(Button(self, account_management_interface.events.reset_password_event))
+        actions = self.add_child(ActionButtonGroup(view))
+        btn = actions.add_child(Button(self, account_management_interface.events.reset_password_event))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class ChoosePasswordWidget(TitledWidget):
@@ -360,29 +326,19 @@ class ChoosePasswordForm(Form):
     def __init__(self, view, account_management_interface):
         self.account_management_interface = account_management_interface
         super(ChoosePasswordForm, self).__init__(view, 'choose_password')
-        self.use_layout(FormLayout())
 
-        # if self.exception:
-        #     self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
+        if self.exception:
+            self.add_child(Alert(view, self.exception.as_user_message()))
 
-        # inputs = self.add_child(InputGroup(view, label_text=_('Choose a new password')))
-        self.add_child(H(self.view, 2, text=_('Choose a new password')))
+        inputs = self.add_child(FieldSet(view, label_text=_('Choose a new password'))).use_layout(FormLayout())
+        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True))
+        inputs.layout.add_input(TextInput(self, account_management_interface.fields.secret, placeholder=True))
+        inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.password))
+        inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.repeat_password))
 
-        # inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.email)))
-        self.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True))
-
-        # inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.secret)))
-        self.layout.add_input(TextInput(self, account_management_interface.fields.secret, placeholder=True))
-
-        # inputs.add_child(LabelledBlockInput(PasswordInput(self, account_management_interface.fields.password)))
-        self.layout.add_input(TextInput(self, account_management_interface.fields.password))
-
-        # inputs.add_child(LabelledBlockInput(PasswordInput(self, account_management_interface.fields.repeat_password)))
-        self.layout.add_input(TextInput(self, account_management_interface.fields.repeat_password))
-
-
-        # actions = self.add_child(ActionButtonGroup(view))
-        self.add_child(Button(self, account_management_interface.events.choose_password_event))
+        actions = self.add_child(ActionButtonGroup(view))
+        btn = actions.add_child(Button(self, account_management_interface.events.choose_password_event))
+        btn.use_layout(ButtonLayout(style='primary'))
 
     @exposed
     def query_fields(self, fields):

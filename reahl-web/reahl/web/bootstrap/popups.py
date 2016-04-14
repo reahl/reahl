@@ -26,10 +26,31 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 from reahl.component.i18n import Translator
 
+import reahl.web.ui
 from reahl.web.bootstrap.ui import A
-from reahl.web.ui import DialogButton, CheckCheckboxButton
 
 _ = Translator('reahl-web')
+
+
+class DialogButton(reahl.web.ui.DialogButton):
+    def __init__(self, label):
+        super(DialogButton, self).__init__(label)
+        self.css_classes = []
+
+    def append_class(self, css_class):
+        self.css_classes.append(css_class)
+
+    def as_jquery(self):
+        return '"%s": function() { %s }' % (self.label, self.callback_js())
+
+
+class CheckCheckboxButton(DialogButton):
+    def __init__(self, label, checkbox):
+        super(CheckCheckboxButton, self).__init__(label)
+        self.checkbox_to_check = checkbox
+
+    def callback_js(self):
+        return '''$(%s).attr("checked", true);''' %  self.checkbox_to_check.jquery_selector
 
 
 
@@ -46,6 +67,7 @@ class PopupA(A):
 
     def add_button(self, button):
         self.buttons.append(button)
+        return button
 
     def buttons_as_jquery(self):
         return ', '.join([button.as_jquery() for button in self.buttons])

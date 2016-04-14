@@ -22,7 +22,7 @@ from reahl.component.config import Configuration, EntryPointClassList
 class DomainUiConfig(Configuration):
     filename = 'domainuib.config.py'
     config_key = 'workflowui'
-    task_widgets = EntryPointClassList('reahl.workflowui.task_widgets', description='All available Widgets for displaying workflow tasks')
+    task_widgets = EntryPointClassList('reahl.workflowuib.task_widgets', description='All available Widgets for displaying workflow tasks')
 
 
 
