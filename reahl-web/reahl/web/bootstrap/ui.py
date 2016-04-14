@@ -35,7 +35,7 @@ from reahl.web.ui import A, Article, Body, Br, Caption, Col, ColGroup, Div, Fiel
     Label, Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, Tbody, Td, TextNode, \
     Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page, DynamicColumn, StaticColumn, WrappedInput, FieldSet
 
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, HTMLAttributeValueOption
 
 
 _ = Translator('reahl-web')
@@ -256,29 +256,37 @@ class CueInput(reahl.web.ui.WrappedInput):
         return CueInput(labelled_input, self.cue_widget)
 
 
+
+class ButtonStyle(HTMLAttributeValueOption):
+    def __init__(self, name):
+        valid_options = ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link']
+        super(ButtonStyle, self).__init__(name, name is not None, prefix='btn', constrain_value_to=valid_options)
+
+
+class ButtonSize(HTMLAttributeValueOption):
+    def __init__(self, size_string):
+        valid_options = ['lg', 'sm', 'xs']
+        super(ButtonSize, self).__init__(size_string, size_string is not None, prefix='btn', constrain_value_to=valid_options)
+
+
+
 class ButtonLayout(reahl.web.ui.Layout):
     def __init__(self, style=None, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
-        assert style in ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link', None]
-        assert size in ['lg', 'sm', 'xs', None]
-        self.style = style
-        self.size = size
-        self.active = active
-        self.wide = wide
-        
+        self.style = ButtonStyle(style)
+        self.size = ButtonSize(size)
+        self.active = HTMLAttributeValueOption('active', active)
+        self.wide = HTMLAttributeValueOption('btn-block', wide)
+
     def customise_widget(self):
         self.widget.append_class('btn')
 
         if isinstance(self.widget, A) and self.widget.disabled:
             self.widget.append_class('disabled')
-        if self.style:
-            self.widget.append_class('btn-%s' % self.style)
-        if self.size:
-            self.widget.append_class('btn-%s' % self.size)
-        if self.active:
-            self.widget.append_class('active')
-        if self.wide:
-            self.widget.append_class('btn-block')
+        for option in [self.style, self.size, self.active, self.wide]:
+            if option.is_set: 
+                self.widget.append_class(option.as_html_snippet())
+        
 
 
 class ChoicesLayout(reahl.web.ui.Layout):
@@ -400,32 +408,36 @@ class Table(reahl.web.ui.Table):
         self.append_class('table')
 
 
+class HeadingTheme(HTMLAttributeValueOption):
+    def __init__(self, name):
+        super(HeadingTheme, self).__init__(name, name is not None, constrain_value_to=['inverse', 'default'])
+
+
 class TableLayout(reahl.web.ui.Layout):
     def __init__(self,
                   inverse=False, border=False, compact=False,
                   striped=False, highlight_hovered=False, transposed=False, responsive=False,
                   heading_theme=None):
-        assert heading_theme in [None, 'inverse', 'default'], 'Not a valid heading theme: %s' % heading_theme
         super(TableLayout, self).__init__()
-        self.table_properties = {'inverse': inverse,
-                                 'striped': striped,
-                                 'bordered': border,
-                                 'hover': highlight_hovered,
-                                 'sm': compact,
-                                 'reflow': transposed,
-                                 'responsive': responsive}
-        self.heading_theme = heading_theme
+        self.table_properties = [HTMLAttributeValueOption('inverse', inverse, prefix='table'),
+                                 HTMLAttributeValueOption('striped', striped, prefix='table'),
+                                 HTMLAttributeValueOption('bordered', border, prefix='table'),
+                                 HTMLAttributeValueOption('hover', highlight_hovered, prefix='table'),
+                                 HTMLAttributeValueOption('sm', compact, prefix='table'),
+                                 HTMLAttributeValueOption('reflow', transposed, prefix='table'),
+                                 HTMLAttributeValueOption('responsive', responsive, prefix='table')]
+        self.heading_theme = HeadingTheme(heading_theme)
 
     def customise_widget(self):
         super(TableLayout, self).customise_widget()
 
-        for table_property, is_selected in self.table_properties.items():
-            if is_selected:
-                self.widget.append_class('table-%s' % table_property)
+        for table_property in self.table_properties:
+            if table_property.is_set:
+                self.widget.append_class(table_property.as_html_snippet())
         self.style_heading()
 
     def style_heading(self):
-        if self.heading_theme:
+        if self.heading_theme.is_set:
             if not self.widget.thead:
                 raise ProgrammerError('No Thead found on %s, but you asked to style is using heading_theme' % self.widget)
             self.widget.thead.append_class('thead-%s' % self.heading_theme)

@@ -24,34 +24,50 @@ Client-side popups and related utilities.
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import six
+import json
+
 from reahl.component.i18n import Translator
 
 import reahl.web.ui
-from reahl.web.bootstrap.ui import A
+from reahl.web.bootstrap.ui import A, ButtonLayout, ButtonStyle, ButtonSize
 
 _ = Translator('reahl-web')
 
 
-class DialogButton(reahl.web.ui.DialogButton):
-    def __init__(self, label):
-        super(DialogButton, self).__init__(label)
-        self.css_classes = []
+class JsObject(object):
+    def __init__(self, **attributes):
+        self.attributes = attributes
 
-    def append_class(self, css_class):
-        self.css_classes.append(css_class)
+    def as_html_snippet(self):
+        return '{%s}' % (','.join(['%s: %s' % (name, self.translate_to_js(value)) 
+                                   for name, value in self.attributes.items()]))
 
-    def as_jquery(self):
-        return '"%s": function() { %s }' % (self.label, self.callback_js())
+    def translate_to_js(self, value):
+        if hasattr(value, 'as_html_snippet'):
+            return value.as_html_snippet()
+        return json.dumps(value)
+
+    def __setitem__(self, key, value):
+        self.attributes[key] = value
+
+    def __getitem__(self, key):
+        return self.attributes[key]
 
 
-class CheckCheckboxButton(DialogButton):
-    def __init__(self, label, checkbox):
-        super(CheckCheckboxButton, self).__init__(label)
-        self.checkbox_to_check = checkbox
+class JsFunction(object):
+    def __init__(self, *args, body_text=''):
+        self.args = args
+        self.body_text = body_text
+        
+    def as_html_snippet(self):
+        return 'function(%s){%s}' % (','.join(self.args), self.body_text)
 
-    def callback_js(self):
-        return '''$(%s).attr("checked", true);''' %  self.checkbox_to_check.jquery_selector
 
+class CheckCheckboxScript(JsFunction):
+    def __init__(self, checkbox):
+        self.checkbox = checkbox
+        body_text = '''$(%s).attr("checked", true);''' %  self.checkbox.jquery_selector
+        super(CheckCheckboxScript, self).__init__(body_text=body_text)
 
 
 class PopupA(A):
@@ -61,16 +77,20 @@ class PopupA(A):
         self.title = target_bookmark.description
         self.append_class('reahl-bootstrappopupa')
         self.show_for_selector = show_for_selector
-        self.buttons = []
+        self.buttons = JsObject()
         if close_button:
-            self.add_button(DialogButton(_('Close')))
+            self.add_js_button(_('Close'))
 
-    def add_button(self, button):
-        self.buttons.append(button)
-        return button
+    def add_js_button(self, label, js_function=None, style=None, size=None):
+        options = [ButtonStyle(style) if style else None, ButtonSize(size) if size else None]
+
+        js_function = js_function or JsFunction()
+        css_classes = [option.as_html_snippet() for option in options if option]
+        self.buttons[label] = JsObject(function=js_function, css_classes=css_classes)
+        return self.buttons[label]
 
     def buttons_as_jquery(self):
-        return ', '.join([button.as_jquery() for button in self.buttons])
+        return self.buttons.as_html_snippet()
 
     @property
     def jquery_selector(self):
@@ -78,7 +98,7 @@ class PopupA(A):
 
     def get_js(self, context=None):
         selector = self.contextualise_selector(self.jquery_selector, context)
-        return ['$(%s).bootstrappopupa({showForSelector: "%s", buttons: { %s } , title: "%s" });' % \
+        return ['$(%s).bootstrappopupa({showForSelector: "%s", buttons: %s, title: "%s" });' % \
               (selector, self.show_for_selector, self.buttons_as_jquery(), self.title)]
 
 

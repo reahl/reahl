@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, expected, test
+from reahl.tofu import vassert, scenario, expected, test, NoException
 
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
@@ -27,7 +27,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.web.bootstrap.ui import Div
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass, HTMLAttributeValueOption
 
 
 @test(WebFixture)
@@ -150,6 +150,24 @@ def column_clearfix(fixture):
     vassert( [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()] )  
 
 
+@test(Fixture)
+def allowed_string_options(fixture):
+    """The value of an HTMLAttributeValueOption is constrained to one of its stated valid options if it is set."""
+    with expected(NoException):
+        HTMLAttributeValueOption('validoption', True, constrain_value_to=['anoption', 'anotheroption', 'validoption'])
+
+    with expected(NoException):
+        HTMLAttributeValueOption('invalidoption', False, constrain_value_to=['anoption', 'anotheroption', 'validoption'])
+
+    with expected(ProgrammerError):
+        HTMLAttributeValueOption('invalidoption', True, constrain_value_to=['anoption', 'anotheroption', 'validoption'])
+
+
+@test(Fixture)
+def composed_class_string(fixture):
+    """A HTMLAttributeValueOption be made into as a css class string."""
+    style_class = HTMLAttributeValueOption('validoption', True, prefix='pre', valid_options=['validoption'])
+    vassert( style_class == 'pre-validoption' )
 
 
 @test(WebFixture)
