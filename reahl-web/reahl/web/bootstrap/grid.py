@@ -46,12 +46,29 @@ class Container(Layout):
         self.widget.append_class(container_class)
 
 
-class DeviceClass(object):
+class HTMLAttributeValueOption(object):
+    def __init__(self, option_string, is_set, prefix='', constrain_value_to=None):
+        if is_set and (constrain_value_to and option_string not in constrain_value_to):
+            raise ProgrammerError('"%s" should be one of %s' % (option_string, valid_options))
+        self.is_set = is_set
+        self.prefix = prefix
+        self.option_string = option_string
+    
+    def as_html_snippet(self):
+        if not self.is_set:
+            raise ProgrammerError('Attempt to add %s to html despite it not being set' % self)
+        return '%s-%s' % (self.prefix, self.option_string)
+
+
+class DeviceClass(HTMLAttributeValueOption):
     device_classes = ['xs', 'sm', 'md', 'lg', 'xl']
 
     def __init__(self, class_label):
-        assert class_label in self.device_classes, '%s is not a supported DeviceClass. Should be one of: %s' % (class_label, ','.join(self.device_classes))
-        self.class_label = class_label
+        super(DeviceClass, self).__init__(class_label, class_label is not None, constrain_value_to=self.device_classes)
+
+    @property
+    def class_label(self):
+        return self.option_string
 
     @property
     def one_smaller(self):

@@ -26,7 +26,7 @@ from reahl.web.fw import Widget
 from reahl.web.bootstrap.ui import Form, FormLayout, CheckboxInput, \
                          TextInput, PasswordInput, H, P, A, FieldSet, Alert
 from reahl.web.bootstrap.ui import Button, ButtonLayout, CueInput
-from reahl.web.bootstrap.popups import PopupA, CheckCheckboxButton, DialogButton
+from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.component.decorators import deprecated
@@ -140,8 +140,8 @@ class RegisterForm(Form):
         accept_checkbox = CheckboxInput(self, self.account_management_interface.fields.accept_terms)
         terms_inputs.layout.add_input(CueInput(accept_checkbox, terms_cue))
 
-        popup.add_button(CheckCheckboxButton(_('Accept'), accept_checkbox)) #TODO:.use_layout(ButtonLayout(style='primary'))
-        popup.add_button(DialogButton(_('Cancel')))#TODO:.use_layout(ButtonLayout(style='primary'))
+        popup.add_js_button(_('Accept'), CheckCheckboxScript(accept_checkbox), style='primary')
+        popup.add_js_button(_('Cancel'))
 
     def create_action_buttons(self):
         actions = self.add_child(ActionButtonGroup(self.view))
