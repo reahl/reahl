@@ -33,12 +33,22 @@ from reahl.component.i18n import Translator
 import reahl.web.ui
 from reahl.web.ui import A, Article, Body, Br, Caption, Col, ColGroup, Div, FieldSet, Footer, H, Head, Header, Img, \
     Label, Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, Tbody, Td, TextNode, \
-    Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page, DynamicColumn, StaticColumn
+    Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page, DynamicColumn, StaticColumn, WrappedInput, FieldSet
 
 from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize
 
 
 _ = Translator('reahl-web')
+
+
+class Alert(Div):
+    def __init__(self, view, message, alert_class='alert-danger'):
+        super(Alert, self).__init__(view)
+        self.add_child(TextNode(view, message))
+        self.append_class('alert')
+        self.append_class(alert_class)
+        self.set_attribute('role', 'alert')
+
 
 class Form(reahl.web.ui.Form):
     def get_js_options(self):
@@ -111,6 +121,14 @@ class SelectInput(reahl.web.ui.SelectInput):
 class CheckboxInput(reahl.web.ui.CheckboxInput):
     append_error = False
     add_default_attribute_source = False
+
+    def with_customised_label(self):
+        wrapper = Div(self.view).use_layout(ChoicesLayout(inline=False))
+        wrapper.layout.add_choice(self)
+        wrapped_input = WrappedInput(self)
+        wrapped_input.add_child(wrapper)
+        wrapped_input.set_html_representation(wrapper)
+        return wrapped_input
 
 
 class SingleRadioButton(reahl.web.ui.SingleRadioButton):
@@ -221,11 +239,21 @@ class CueInput(reahl.web.ui.WrappedInput):
         cue_widget.append_class('reahl-bootstrapcue')
 
         div.add_child(html_input)
-        div.add_child(cue_widget)
+        self.cue_widget = div.add_child(cue_widget)
+        self.cue_widget.append_class('text-muted')#TODO: usually the layout has a method add_help_text_to, or the add_input(...) has help_text_kwarg
+        self.input_part = html_input #TODO: the origial CueInput had this set, is this ok?
 
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapcueinput").bootstrapcueinput();']
         return super(CueInput, self).get_js(context=context) + js
+
+    @property
+    def customises_label(self):
+        return self.input_widget.customises_label
+
+    def with_customised_label(self):
+        labelled_input = self.input_widget.with_customised_label()
+        return CueInput(labelled_input, self.cue_widget)
 
 
 class ButtonLayout(reahl.web.ui.Layout):
@@ -292,11 +320,7 @@ class FormLayout(reahl.web.ui.Layout):
 
 
     def add_input_to(self, parent_element, html_input):
-        if not self.should_add_label(html_input):
-            parent_element.use_layout(ChoicesLayout(inline=False))
-            return parent_element.layout.add_choice(html_input)
-        else:
-            return parent_element.add_child(html_input)
+        return parent_element.add_child(html_input)
 
     def add_validation_error_to(self, form_group, html_input):
         error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
@@ -323,10 +347,11 @@ class FormLayout(reahl.web.ui.Layout):
     def add_input(self, html_input, hide_label=False, help_text=None):
         form_group = self.create_form_group(html_input)
 
-        if self.should_add_label(html_input):
+        labelled_input = html_input.with_customised_label()
+        if not html_input.customises_label:
             self.add_label_to(form_group, html_input, hide_label)
 
-        self.add_input_to(form_group, html_input)
+        self.add_input_to(form_group, labelled_input)
 
         if html_input.get_input_status() == 'invalidly_entered':
             self.add_validation_error_to(form_group, html_input)
