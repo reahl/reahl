@@ -212,7 +212,8 @@ def adding_checkboxes(fixture):
     browser.open('/')
 
     vassert( not any(child.tag == 'label' for child in fixture.get_form_group_children(browser)) )
-    [checkbox] = fixture.get_form_group_children(browser)
+    [div] = fixture.get_form_group_children(browser)
+    [checkbox] = div.getchildren()
     vassert( checkbox.attrib['class'] == 'checkbox' )
     
 
