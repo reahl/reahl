@@ -51,7 +51,7 @@ $.widget("reahl.bootstrappopupa", {
             $( "body" ).append( this_.$dialog ); 
             this_.$dialog.find(".modal-body")
                 .load($link.attr("href") + " "+o.showForSelector, function(){
-                    $.each(o.buttons, function(label, f) { this_.add_button(label, f) });
+                    $.each(o.buttons, function(label, opts) { this_.add_button(label, opts) });
                     this_.$dialog.modal({});
 
                     $link.click(function(e) {
@@ -63,9 +63,12 @@ $.widget("reahl.bootstrappopupa", {
             e.preventDefault();
         });
     },
-    add_button: function(label, f) {
+    add_button: function(label, opts) {
         var button = $("<button type='button' class='btn' data-dismiss='modal'>"+label+"</button>");
-        button.click(f);
+        button.click(opts.function);
+        for (var i = 0; i < opts.css_classes.length; i+=1) {
+            button.addClass(opts.css_classes[i])
+        };
         this.$footer.append(button);
     }
 });

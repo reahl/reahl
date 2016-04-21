@@ -28,7 +28,7 @@ from reahl.web.fw import Layout, Widget
 from reahl.web.ui import Url, HTMLElement, HTMLWidget
 from reahl.web.bootstrap.ui import Div, Form, Nav, A, TextNode, ResponsiveSize
 import reahl.web.bootstrap.navs
-from reahl.web.bootstrap.grid import Container, DeviceClass
+from reahl.web.bootstrap.grid import Container, DeviceClass, HTMLAttributeValueOption
 
 
 class CollapseToggle(HTMLElement):
@@ -48,40 +48,60 @@ class CollapseToggle(HTMLElement):
         self.add_child(TextNode(view, text))
 
 
+class ResponsivePull(HTMLAttributeValueOption):
+    def __init__(self, side, device_class):
+        is_set = True if device_class else False
+        self.device_class_label = device_class if (is_set and device_class is not True) else None
+        super(ResponsivePull, self).__init__(side, is_set, prefix='pull')
+
+    @property
+    def side(self):
+        return self.option_string
+
+    def as_html_snippet(self):
+        if self.device_class_label:
+            return '-'.join([self.prefix, self.device_class_label, self.side])
+        return super(ResponsivePull, self).as_html_snippet()
+
+
 class ResponsiveFloat(Layout):
     def __init__(self, left=None, right=None):
         super(ResponsiveFloat, self).__init__()
         assert (left or right) and not (left and right), 'You should specify left or right, not both'
-        self.left = left if (left is True) or not left else DeviceClass(left)
-        self.right = right if (right is True) or not right else DeviceClass(right)
+        self.left = ResponsivePull('left', left)
+        self.right = ResponsivePull('right', right)
 
-    @property
-    def side(self):
-        return 'left' if self.left else 'right'
-
-    @property
-    def for_device_class(self):
-        device_class_spec = self.left if self.left else self.right
-        return None if device_class_spec is True else device_class_spec
-        
     def customise_widget(self):
         super(ResponsiveFloat, self).customise_widget()
-        parts = ['pull', self.side]
-        if self.for_device_class:
-            parts.insert(1, self.for_device_class.class_label)
+        for responsive_pull in [self.left, self.right]:
+            if responsive_pull.is_set:
+                self.widget.append_class(responsive_pull.as_html_snippet())
 
-        self.widget.append_class('-'.join(parts))
 
+class NavbarFixed(HTMLAttributeValueOption):
+    def __init__(self, fixed_to):
+        super(NavbarFixed, self).__init__(fixed_to, fixed_to is not None, 
+                                          prefix='navbar-fixed', constrain_value_to=['top', 'bottom'])
+
+class ColourTheme(HTMLAttributeValueOption):
+    def __init__(self, name):
+        super(ColourTheme, self).__init__(name, name is not None, 
+                                          prefix='navbar', constrain_value_to=['light', 'dark'])
+
+class BackgroundScheme(HTMLAttributeValueOption):
+    def __init__(self, name):
+        super(BackgroundScheme, self).__init__(name, name is not None, 
+                                               prefix='bg', constrain_value_to=['primary', 'inverse', 'faded']) 
 
 class NavbarLayout(Layout):
-    def __init__(self, fixed_top=False, fixed_bottom=False, full=False, center_contents=False, colour_scheme=None):
+    def __init__(self, fixed_to=None, full=False, center_contents=False, colour_theme=None, bg_scheme=None):
         super(NavbarLayout, self).__init__()
-        assert [fixed_top, fixed_bottom, full].count(True) <= 1, 'Only one should be set'
-        self.fixed_top = fixed_top
-        self.fixed_bottom = fixed_bottom
-        self.full = full
+        assert [fixed_to, full].count(True) <= 1, 'Only one should be set'
+        self.fixed = NavbarFixed(fixed_to)
+        self.full = HTMLAttributeValueOption('navbar-full', full)
         self.center_contents = center_contents
-        self.colour_scheme = colour_scheme
+        self.colour_theme = ColourTheme(colour_theme)
+        self.bg_scheme = BackgroundScheme(bg_scheme)
         self.brand = None
 
     def customise_widget(self):
@@ -91,16 +111,13 @@ class NavbarLayout(Layout):
             centering_div = nav.add_child(Div(self.view).use_layout(Container()))
             self.widget.set_contents_container(centering_div)
 
-        if self.fixed_top:
-            nav.append_class('navbar-fixed-top')
-        if self.fixed_bottom:
-            nav.append_class('navbar-fixed-bottom')
-        if self.full:
-            nav.append_class('navbar-full')
+        for option in [self.fixed, self.full]:
+            if option.is_set:
+                self.widget.append_class(option.as_html_snippet())
             
-        if self.colour_scheme:
-            for css_class in self.colour_scheme.as_css_classes():
-                nav.append_class(css_class)
+        for option in [self.colour_theme, self.bg_scheme]:
+            if option.is_set:
+                nav.append_class(option.as_html_snippet())
 
     def set_brand_text(self, brand_text):
         brand_a = A(self.view, Url('#'), description=brand_text)
@@ -133,8 +150,8 @@ class NavbarLayout(Layout):
 
 
 class ResponsiveLayout(NavbarLayout):
-    def __init__(self, collapse_below_device_class, fixed_top=False, fixed_bottom=False, full=False, center_contents=False, colour_scheme=None, text=None):
-        super(ResponsiveLayout, self).__init__(fixed_top=fixed_top, fixed_bottom=fixed_bottom, full=full, center_contents=center_contents, colour_scheme=colour_scheme)
+    def __init__(self, collapse_below_device_class, fixed_to=None, full=False, center_contents=False, colour_theme=None, bg_scheme=None, text=None):
+        super(ResponsiveLayout, self).__init__(fixed_to=fixed_to, full=full, center_contents=center_contents, colour_theme=colour_theme, bg_scheme=bg_scheme)
         self.collapse_below_device_class = DeviceClass(collapse_below_device_class)
         assert self.collapse_below_device_class.one_smaller, 'It does not make sense to collapse only smaller than smallest devices'
         self.text = text
@@ -152,22 +169,6 @@ class ResponsiveLayout(NavbarLayout):
         self.widget.contents_container.add_child(toggle_widget)
         self.widget.contents_container.add_child(collapsable)
         self.widget.set_contents_container(collapsable)
-
-
-class ColourScheme(object):
-    def __init__(self, colour_theme=None, bg_scheme=None):
-        assert colour_theme in [None, 'light', 'dark'], 'Not a valid colour theme: %s' % colour_theme
-        assert bg_scheme in [None, 'primary', 'inverse', 'faded'], 'Not a valid bg scheme: %s' % bg_scheme
-        self.colour_theme = colour_theme
-        self.bg_scheme = bg_scheme
-
-    def as_css_classes(self):
-        classes = []
-        if self.colour_theme:
-            classes.append('navbar-%s' % self.colour_theme)
-        if self.bg_scheme:
-            classes.append('bg-%s' % self.bg_scheme)
-        return classes
 
 
 

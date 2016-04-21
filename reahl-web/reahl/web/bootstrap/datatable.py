@@ -17,8 +17,11 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import six
+
 import functools
 
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 from reahl.web.fw import Bookmark, Widget
 from reahl.web.bootstrap.ui import A, Span, Div, Table, TextNode
@@ -28,7 +31,7 @@ from reahl.web.pager import SequentialPageIndex, PagedPanel
 class TablePageIndex(SequentialPageIndex):
     def __init__(self, columns, items, items_per_page=10, current_page_number=1, start_page_number=1, max_page_links=5):
         super(TablePageIndex, self).__init__(items, items_per_page=items_per_page, current_page_number=current_page_number, start_page_number=start_page_number, max_page_links=max_page_links)
-        self.sort_column_number = 0
+        self.sort_column_number = None
         self.sort_descending = False
         self.columns = columns
 
@@ -37,8 +40,10 @@ class TablePageIndex(SequentialPageIndex):
         return [column.sort_key for column in self.columns]
 
     def get_contents_for_page(self, page_number):
-        sorting_key = self.sorting_keys[self.sort_column_number]
-        self.items.sort(key=sorting_key, reverse=self.sort_descending)
+        if self.sort_column_number is not None:
+            sorting_key = self.sorting_keys[self.sort_column_number]
+            self.items.sort(key=sorting_key, reverse=self.sort_descending)
+
         return super(TablePageIndex, self).get_contents_for_page(page_number)
 
     @exposed

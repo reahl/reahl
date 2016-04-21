@@ -1,5 +1,7 @@
 python-reahl (3.2.0) unstable; urgency=low
 
+
+ * Dropped support for elixir.
  * Changed Label to subsume what was done by InputLabel previously.
  * Added Bootstrap 3.3.4 and upgraded Jquery to 1.11.2 and jquery-blockUI to 2.70.0.
  * Added a ColumnLayout and ResponsiveSize for Bootstrap and refactored accordingly.
@@ -26,6 +28,7 @@ python-reahl (3.2.0) unstable; urgency=low
  * Added auto restart for the reahl dev webserver on filesystem changes (blueprint: reahl-serve-with-auto-reload).
  * Added dependency on watchdog.
  * Changed refresh() so that it takes args in order to enable one to specify which of your query_arguments trigger an ajax update (instead of the default, which is all of them).
+ * Added bootstrap flavour of Javascript Dialog and its Buttons. This works differently, there are no Button objects, rather JsFunction and add_js_button.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Aug 2015 14:56:00 +0200
 

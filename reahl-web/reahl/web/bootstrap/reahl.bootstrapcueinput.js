@@ -24,18 +24,18 @@ $.widget("reahl.bootstrapcueinput", {
 	    var o = this.options;
 	    this.element.addClass("reahl-bootstrapcueinput");
 
-		var input = this.element.find('input');;
+		var input = this.element.find('input');
 	    var cue = this.element.find('.reahl-bootstrapcue');
 
         cue.attr('hidden', 'true');
 
         input
-            .bind("focus", function(){ 
+            .focus(function(ev){
                 cue.removeAttr('hidden');
             })
-            .bind("blur", function(){
+            .blur(function(ev){
                 cue.attr('hidden', 'true');
-			});
+			}); 
 	}
 });
 

@@ -33,12 +33,22 @@ from reahl.component.i18n import Translator
 import reahl.web.ui
 from reahl.web.ui import A, Article, Body, Br, Caption, Col, ColGroup, Div, FieldSet, Footer, H, Head, Header, Img, \
     Label, Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, Tbody, Td, TextNode, \
-    Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page, DynamicColumn, StaticColumn
+    Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page, DynamicColumn, StaticColumn, WrappedInput, FieldSet
 
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, HTMLAttributeValueOption
 
 
 _ = Translator('reahl-web')
+
+
+class Alert(Div):
+    def __init__(self, view, message, alert_class='alert-danger'):
+        super(Alert, self).__init__(view)
+        self.add_child(TextNode(view, message))
+        self.append_class('alert')
+        self.append_class(alert_class)
+        self.set_attribute('role', 'alert')
+
 
 class Form(reahl.web.ui.Form):
     def get_js_options(self):
@@ -111,6 +121,14 @@ class SelectInput(reahl.web.ui.SelectInput):
 class CheckboxInput(reahl.web.ui.CheckboxInput):
     append_error = False
     add_default_attribute_source = False
+
+    def with_customised_label(self):
+        wrapper = Div(self.view).use_layout(ChoicesLayout(inline=False))
+        wrapper.layout.add_choice(self)
+        wrapped_input = WrappedInput(self)
+        wrapped_input.add_child(wrapper)
+        wrapped_input.set_html_representation(wrapper)
+        return wrapped_input
 
 
 class SingleRadioButton(reahl.web.ui.SingleRadioButton):
@@ -221,36 +239,56 @@ class CueInput(reahl.web.ui.WrappedInput):
         cue_widget.append_class('reahl-bootstrapcue')
 
         div.add_child(html_input)
-        div.add_child(cue_widget)
+        self.cue_widget = div.add_child(cue_widget)
 
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapcueinput").bootstrapcueinput();']
         return super(CueInput, self).get_js(context=context) + js
 
+    @property
+    def customises_label(self):
+        return self.input_widget.customises_label
+
+    def with_customised_label(self):
+        labelled_input = self.input_widget.with_customised_label()
+        self.input_widget = labelled_input
+        del self.children[0].children[0]
+        self.children[0].insert_child(0, labelled_input)
+        return self
+#        return CueInput(labelled_input, self.cue_widget)
+
+
+
+class ButtonStyle(HTMLAttributeValueOption):
+    def __init__(self, name):
+        valid_options = ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link']
+        super(ButtonStyle, self).__init__(name, name is not None, prefix='btn', constrain_value_to=valid_options)
+
+
+class ButtonSize(HTMLAttributeValueOption):
+    def __init__(self, size_string):
+        valid_options = ['lg', 'sm', 'xs']
+        super(ButtonSize, self).__init__(size_string, size_string is not None, prefix='btn', constrain_value_to=valid_options)
+
+
 
 class ButtonLayout(reahl.web.ui.Layout):
     def __init__(self, style=None, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
-        assert style in ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link', None]
-        assert size in ['lg', 'sm', 'xs', None]
-        self.style = style
-        self.size = size
-        self.active = active
-        self.wide = wide
-        
+        self.style = ButtonStyle(style)
+        self.size = ButtonSize(size)
+        self.active = HTMLAttributeValueOption('active', active)
+        self.wide = HTMLAttributeValueOption('btn-block', wide)
+
     def customise_widget(self):
         self.widget.append_class('btn')
 
         if isinstance(self.widget, A) and self.widget.disabled:
             self.widget.append_class('disabled')
-        if self.style:
-            self.widget.append_class('btn-%s' % self.style)
-        if self.size:
-            self.widget.append_class('btn-%s' % self.size)
-        if self.active:
-            self.widget.append_class('active')
-        if self.wide:
-            self.widget.append_class('btn-block')
+        for option in [self.style, self.size, self.active, self.wide]:
+            if option.is_set: 
+                self.widget.append_class(option.as_html_snippet())
+        
 
 
 class ChoicesLayout(reahl.web.ui.Layout):
@@ -292,11 +330,7 @@ class FormLayout(reahl.web.ui.Layout):
 
 
     def add_input_to(self, parent_element, html_input):
-        if isinstance(html_input, CheckboxInput):
-            parent_element.use_layout(ChoicesLayout(inline=False))
-            return parent_element.layout.add_choice(html_input)
-        else:
-            return parent_element.add_child(html_input)
+        return parent_element.add_child(html_input)
 
     def add_validation_error_to(self, form_group, html_input):
         error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
@@ -323,10 +357,11 @@ class FormLayout(reahl.web.ui.Layout):
     def add_input(self, html_input, hide_label=False, help_text=None):
         form_group = self.create_form_group(html_input)
 
-        if self.should_add_label(html_input):
+        labelled_input = html_input.with_customised_label()
+        if not html_input.customises_label:
             self.add_label_to(form_group, html_input, hide_label)
 
-        self.add_input_to(form_group, html_input)
+        self.add_input_to(form_group, labelled_input)
 
         if html_input.get_input_status() == 'invalidly_entered':
             self.add_validation_error_to(form_group, html_input)
@@ -375,32 +410,36 @@ class Table(reahl.web.ui.Table):
         self.append_class('table')
 
 
+class HeadingTheme(HTMLAttributeValueOption):
+    def __init__(self, name):
+        super(HeadingTheme, self).__init__(name, name is not None, constrain_value_to=['inverse', 'default'])
+
+
 class TableLayout(reahl.web.ui.Layout):
     def __init__(self,
                   inverse=False, border=False, compact=False,
                   striped=False, highlight_hovered=False, transposed=False, responsive=False,
                   heading_theme=None):
-        assert heading_theme in [None, 'inverse', 'default'], 'Not a valid heading theme: %s' % heading_theme
         super(TableLayout, self).__init__()
-        self.table_properties = {'inverse': inverse,
-                                 'striped': striped,
-                                 'bordered': border,
-                                 'hover': highlight_hovered,
-                                 'sm': compact,
-                                 'reflow': transposed,
-                                 'responsive': responsive}
-        self.heading_theme = heading_theme
+        self.table_properties = [HTMLAttributeValueOption('inverse', inverse, prefix='table'),
+                                 HTMLAttributeValueOption('striped', striped, prefix='table'),
+                                 HTMLAttributeValueOption('bordered', border, prefix='table'),
+                                 HTMLAttributeValueOption('hover', highlight_hovered, prefix='table'),
+                                 HTMLAttributeValueOption('sm', compact, prefix='table'),
+                                 HTMLAttributeValueOption('reflow', transposed, prefix='table'),
+                                 HTMLAttributeValueOption('responsive', responsive, prefix='table')]
+        self.heading_theme = HeadingTheme(heading_theme)
 
     def customise_widget(self):
         super(TableLayout, self).customise_widget()
 
-        for table_property, is_selected in self.table_properties.items():
-            if is_selected:
-                self.widget.append_class('table-%s' % table_property)
+        for table_property in self.table_properties:
+            if table_property.is_set:
+                self.widget.append_class(table_property.as_html_snippet())
         self.style_heading()
 
     def style_heading(self):
-        if self.heading_theme:
+        if self.heading_theme.is_set:
             if not self.widget.thead:
                 raise ProgrammerError('No Thead found on %s, but you asked to style is using heading_theme' % self.widget)
             self.widget.thead.append_class('thead-%s' % self.heading_theme)
