@@ -54,5 +54,3 @@ reahl-doc/reahl/doc/examples/tutorial/hellonginx/hellonginx.egg-info
 
 .floo
 .flooignore
-debian/python-reahl-domainuib
-reahl-domainuib/reahl_domainuib.egg-info

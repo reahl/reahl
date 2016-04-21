@@ -10,7 +10,6 @@
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
-    <egg name="reahl-domainuib"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-sqlitesupport"/>
     <egg name="reahl-dev"/>
@@ -39,16 +38,6 @@
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
-    <egg name="reahl-domainuib"/>
-  </extras>  
-
-  <extras name="elixir">
-    <egg name="reahl-sqlalchemysupport" version="2.1"/>
-    <egg name="reahl-domain" version="2.1"/>
-    <egg name="reahl-domainui" version="2.1"/>
-    <egg name="reahl-domainuib" version="2.1"/>
-    <egg name="reahl-web-elixirimpl" version="2.1"/>
-    <egg name="reahl-web-elixirimpl"/>
   </extras>  
 
   <extras name="dev">

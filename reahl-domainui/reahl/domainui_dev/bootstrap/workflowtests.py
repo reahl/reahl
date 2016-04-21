@@ -30,14 +30,14 @@ from reahl.web.ui import HTML5Page, Div, P
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.domain.workflowmodel import Task
-from reahl.domainuib.workflow import InboxUI
+from reahl.domainui.bootstrap.workflow import InboxUI, TaskWidget
 from reahl.web.fw import UserInterface, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
-from reahl.domainuib_dev.fixtures import BookmarkStub
-from reahl.domainuib.accounts import AccountUI
-from reahl.domainuibegg import DomainUiConfig
+from reahl.domainui_dev.fixtures import BookmarkStub
+from reahl.domainui.bootstrap.accounts import AccountUI
+from reahl.domainuiegg import DomainUiConfig
 
 class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
     def new_queues(self):
@@ -83,14 +83,13 @@ class MyTask(Task):
     id = Column(Integer, ForeignKey('task.id'), primary_key=True)
 
 
-class MyTaskWidget(Div):
+class MyTaskWidget(TaskWidget):
     @classmethod
     def displays(cls, task):
         return task.__class__ is MyTask
 
-    def __init__(self, view, task):
-        super(MyTaskWidget, self).__init__(view)
-        self.add_child(P(view, text='my task widget'))
+    def create_contents(self):
+        self.add_child(P(self.view, text='my task widget'))
 
 
 @istest
@@ -137,8 +136,8 @@ class Tests(object):
     def widgets_for_tasks(self, fixture):
         """The widget to use for displaying a particular type of task can be set via an entry point."""
         pkg_resources.working_set.add(easter_egg)
-        line = 'MyTaskWidget = reahl.domainuib_dev.workflowtests:MyTaskWidget'
-        easter_egg.add_entry_point_from_line('reahl.workflowuib.task_widgets', line)
+        line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.workflowtests:MyTaskWidget'
+        easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
 
         with fixture.persistent_test_classes(MyTask):
             task = MyTask(queue=fixture.queue, title='a task')
