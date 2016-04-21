@@ -58,7 +58,7 @@ class LoginForm(Form):
 
         login_inputs = self.add_child(FieldSet(view, label_text=_('Please specify:'))).use_layout(FormLayout())
         email_cue = P(view, _('The email address you used to register here.'))
-        login_inputs.layout.add_input(CueInput(TextInput(self, self.account_management_interface.fields.email, placeholder=True), email_cue))
+        login_inputs.layout.add_input(CueInput(TextInput(self, self.account_management_interface.fields.email), email_cue))
 
         password_cue = P(view, _('The secret password you supplied upon registration.') )
         password_cue_input = CueInput(PasswordInput(self, self.account_management_interface.fields.password), password_cue)

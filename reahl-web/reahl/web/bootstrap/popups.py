@@ -66,7 +66,9 @@ class JsFunction(object):
 class CheckCheckboxScript(JsFunction):
     def __init__(self, checkbox):
         self.checkbox = checkbox
-        body_text = '''$(%s).attr("checked", true);''' %  self.checkbox.jquery_selector
+        selector = self.checkbox.jquery_selector
+        body_text = '''$(%s).filter("input").attr("checked", true);$(%s).find("input").attr("checked", true);''' % \
+                               (selector, selector)
         super(CheckCheckboxScript, self).__init__(body_text=body_text)
 
 

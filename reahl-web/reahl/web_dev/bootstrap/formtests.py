@@ -34,7 +34,7 @@ from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
 from reahl.web.bootstrap.ui import A, Div, P, HTML5Page, Header, Footer, ChoicesLayout, Button, \
                                    FormLayout, InlineFormLayout, GridFormLayout, Form, \
-                                   TextInput, CheckboxInput, RadioButtonInput, ButtonLayout
+                                   TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonInput, ButtonLayout
 from reahl.web.bootstrap.grid import ResponsiveSize
 
 
@@ -359,9 +359,9 @@ class ChoicesLayoutFixture(WebFixture):
 
 @test(ChoicesLayoutFixture)
 def choices_layout(fixture):
-    """A ChoicesLayout can be used to add a CheckboxInput inlined or stacked."""
+    """A ChoicesLayout can be used to add a PrimitiveCheckboxInput inlined or stacked."""
     stacked_container = Div(fixture.view).use_layout(ChoicesLayout())
-    stacked_container.layout.add_choice(CheckboxInput(fixture.form, fixture.field))
+    stacked_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
 
     tester = WidgetTester(stacked_container)
     vassert( fixture.input_is_wrapped_in_label(tester) )
@@ -369,7 +369,7 @@ def choices_layout(fixture):
     vassert( fixture.main_element(tester).attrib['class'] == 'checkbox' )
 
     inlined_container = Div(fixture.view).use_layout(ChoicesLayout(inline=True))
-    inlined_container.layout.add_choice(CheckboxInput(fixture.form, fixture.field))
+    inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
 
     tester = WidgetTester(inlined_container)
     vassert( fixture.input_is_wrapped_in_label(tester) )
@@ -389,7 +389,7 @@ class RadioButtonFixture(ChoicesLayoutFixture):
 
 @test(RadioButtonFixture)
 def layout_of_radio_button_input(fixture):
-    """The SingleRadioButtons inside a RadioButtonInput are also laid out using a ChoicesLayout."""
+    """The PrimitiveRadioButtons inside a RadioButtonInput are also laid out using a ChoicesLayout."""
     stacked_radio = RadioButtonInput(fixture.form, fixture.field)
 
     tester = WidgetTester(stacked_radio)

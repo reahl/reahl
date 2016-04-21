@@ -118,20 +118,29 @@ class SelectInput(reahl.web.ui.SelectInput):
         self.append_class('form-control')
 
 
-class CheckboxInput(reahl.web.ui.CheckboxInput):
+class PrimitiveCheckboxInput(reahl.web.ui.CheckboxInput):
     append_error = False
     add_default_attribute_source = False
 
-    def with_customised_label(self):
-        wrapper = Div(self.view).use_layout(ChoicesLayout(inline=False))
-        wrapper.layout.add_choice(self)
-        wrapped_input = WrappedInput(self)
-        wrapped_input.add_child(wrapper)
-        wrapped_input.set_html_representation(wrapper)
-        return wrapped_input
 
+class CheckboxInput(WrappedInput):
+    def __init__(self, form, bound_field):
+        super(CheckboxInput, self).__init__(PrimitiveCheckboxInput(form, bound_field))
+        div = Div(self.view).use_layout(ChoicesLayout(inline=False))
+        div.layout.add_choice(self.input_widget)
+        self.add_child(div)
+        self.set_html_representation(div)
 
-class SingleRadioButton(reahl.web.ui.SingleRadioButton):
+    @property
+    def includes_label(self):
+        return True
+        
+    @property
+    def jquery_selector(self):
+        return '%s.closest("div")' % (self.input_widget.jquery_selector)
+        
+
+class PrimitiveRadioButton(reahl.web.ui.SingleRadioButton):
     append_error = False
     add_default_attribute_source = False
 
@@ -152,8 +161,12 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
         return main_element
 
     def add_button_for_choice_to(self, widget, choice):
-        button = SingleRadioButton(self, choice)
+        button = PrimitiveRadioButton(self, choice)
         widget.layout.add_choice(button)
+
+    @property
+    def includes_label(self):
+        return True
 
 
 class ButtonInput(reahl.web.ui.ButtonInput):
@@ -246,16 +259,8 @@ class CueInput(reahl.web.ui.WrappedInput):
         return super(CueInput, self).get_js(context=context) + js
 
     @property
-    def customises_label(self):
-        return self.input_widget.customises_label
-
-    def with_customised_label(self):
-        labelled_input = self.input_widget.with_customised_label()
-        self.input_widget = labelled_input
-        del self.children[0].children[0]
-        self.children[0].insert_child(0, labelled_input)
-        return self
-#        return CueInput(labelled_input, self.cue_widget)
+    def includes_label(self):
+        return self.input_widget.includes_label
 
 
 
@@ -297,7 +302,7 @@ class ChoicesLayout(reahl.web.ui.Layout):
         self.inline = inline
 
     def add_choice(self, html_input):
-        assert isinstance(html_input, (CheckboxInput, SingleRadioButton))
+        assert isinstance(html_input, (PrimitiveCheckboxInput, PrimitiveRadioButton))
  
         label_widget = Label(self.view)
 
@@ -328,7 +333,6 @@ class FormLayout(reahl.web.ui.Layout):
         form_group.add_attribute_source(reahl.web.ui.AccessRightAttributes(html_input, disabled_class='disabled'))
         return form_group
 
-
     def add_input_to(self, parent_element, html_input):
         return parent_element.add_child(html_input)
 
@@ -357,11 +361,10 @@ class FormLayout(reahl.web.ui.Layout):
     def add_input(self, html_input, hide_label=False, help_text=None):
         form_group = self.create_form_group(html_input)
 
-        labelled_input = html_input.with_customised_label()
-        if not html_input.customises_label:
+        if not html_input.includes_label:
             self.add_label_to(form_group, html_input, hide_label)
 
-        self.add_input_to(form_group, labelled_input)
+        self.add_input_to(form_group, html_input)
 
         if html_input.get_input_status() == 'invalidly_entered':
             self.add_validation_error_to(form_group, html_input)
