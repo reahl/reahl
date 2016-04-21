@@ -23,8 +23,9 @@ from reahl.component.i18n import Translator
 from reahl.component.decorators import deprecated
 from reahl.sqlalchemysupport import PersistedField
 from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
-from reahl.web.ui import P, Div, Ul, Li, H, Form, HTMLWidget
-from reahl.web.ui import Button
+from reahl.web.ui import HTMLWidget
+from reahl.web.bootstrap.ui import P, Div, Ul, Li, H, Form
+from reahl.web.bootstrap.ui import Button, ButtonLayout, FormLayout
 
 from reahl.domain.workflowmodel import Inbox, Task, WorkflowInterface
 from reahl.domain.systemaccountmodel import LoginSession
@@ -40,8 +41,11 @@ class TaskBox(Li):
         self.task = task
         self.add_child(P(view, text=self.task.title))
         form = self.add_child(Form(view, 'task_%s' % task.id))
-        form.add_child(Button(form, self.user_interface.workflow_interface.events.take_task.with_arguments(task=self.task)))
-        form.add_child(Button(form, self.user_interface.workflow_interface.events.go_to_task.with_arguments(task=self.task)))
+        form.use_layout(FormLayout())
+        take_btn = form.layout.add_input(Button(form, self.user_interface.workflow_interface.events.take_task.with_arguments(task=self.task)), hide_label=True)
+        take_btn.use_layout(ButtonLayout(style='primary'))
+        go_to_btn = form.layout.add_input(Button(form, self.user_interface.workflow_interface.events.go_to_task.with_arguments(task=self.task)), hide_label=True)
+        go_to_btn.use_layout(ButtonLayout(style='primary'))
 
 
 class InboxWidget(Div):
@@ -88,8 +92,12 @@ class TaskWidget(HTMLWidget):
         self.set_html_representation(div)
         div.add_child(P(self.view, text=self.task.title))
         form = div.add_child(Form(self.view, 'task_form'))
-        form.add_child(Button(form, self.user_interface.workflow_interface.events.defer_task))
-        form.add_child(Button(form, self.user_interface.workflow_interface.events.release_task.with_arguments(task=self.task)))
+        form.use_layout(FormLayout())
+        defer_btn = form.add_child(Button(form, self.user_interface.workflow_interface.events.defer_task))
+        defer_btn.use_layout(ButtonLayout(style='primary'))
+        release_btn = form.add_child(Button(form, self.user_interface.workflow_interface.events.release_task.with_arguments(task=self.task)))
+        release_btn.use_layout(ButtonLayout(style='primary'))
+
 
 
 class TaskView(UrlBoundView):

@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, expected, test
+from reahl.tofu import vassert, scenario, expected, test, NoException, Fixture
 
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
@@ -27,7 +27,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.web.bootstrap.ui import Div
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass, HTMLAttributeValueOption
 
 
 @test(WebFixture)
@@ -150,6 +150,24 @@ def column_clearfix(fixture):
     vassert( [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()] )  
 
 
+@test(Fixture)
+def allowed_string_options(fixture):
+    """The value of an HTMLAttributeValueOption is constrained to one of its stated valid options if it is set."""
+    with expected(NoException):
+        HTMLAttributeValueOption('validoption', True, constrain_value_to=['anoption', 'anotheroption', 'validoption'])
+
+    with expected(NoException):
+        HTMLAttributeValueOption('invalidoption', False, constrain_value_to=['anoption', 'anotheroption', 'validoption'])
+
+    with expected(ProgrammerError):
+        HTMLAttributeValueOption('invalidoption', True, constrain_value_to=['anoption', 'anotheroption', 'validoption'])
+
+
+@test(Fixture)
+def composed_class_string(fixture):
+    """A HTMLAttributeValueOption be made into as a css class string."""
+    style_class = HTMLAttributeValueOption('validoption', True, prefix='pre', constrain_value_to=['validoption'])
+    vassert( style_class.as_html_snippet() == 'pre-validoption' )
 
 
 @test(WebFixture)
@@ -169,9 +187,9 @@ def device_class_identity(fixture):
     vassert( device_class.class_label == 'lg' )
 
     def check_ex(ex):
-        vassert( six.text_type(ex).startswith('unsupported is not a supported DeviceClass. Should be one of: xs,sm,md,lg,xl'))
+        vassert( six.text_type(ex).startswith("\"unsupported\" should be one of ['xs', 'sm', 'md', 'lg', 'xl']"))
 
-    with expected(AssertionError, test=check_ex):
+    with expected(ProgrammerError, test=check_ex):
         DeviceClass('unsupported')
 
 

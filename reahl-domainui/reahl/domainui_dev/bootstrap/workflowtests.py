@@ -30,13 +30,13 @@ from reahl.web.ui import HTML5Page, Div, P
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.domain.workflowmodel import Task
-from reahl.domainui.workflow import InboxUI, TaskWidget
+from reahl.domainui.bootstrap.workflow import InboxUI, TaskWidget
 from reahl.web.fw import UserInterface, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
-from reahl.domainui.accounts import AccountUI
+from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domainuiegg import DomainUiConfig
 
 class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
@@ -78,7 +78,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
 
 
 class MyTask(Task):
-    __tablename__ = 'mytask_a'
+    __tablename__ = 'mytask'
     __mapper_args__ = {'polymorphic_identity': 'mytask'}
     id = Column(Integer, ForeignKey('task.id'), primary_key=True)
 
@@ -136,7 +136,7 @@ class Tests(object):
     def widgets_for_tasks(self, fixture):
         """The widget to use for displaying a particular type of task can be set via an entry point."""
         pkg_resources.working_set.add(easter_egg)
-        line = 'MyTaskWidget = reahl.domainui_dev.workflowtests:MyTaskWidget' 
+        line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.workflowtests:MyTaskWidget'
         easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
 
         with fixture.persistent_test_classes(MyTask):

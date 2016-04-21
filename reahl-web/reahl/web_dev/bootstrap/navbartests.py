@@ -44,7 +44,7 @@ from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin
 
 from reahl.web.fw import Bookmark
 
-from reahl.web.bootstrap.navbar import Navbar, ColourScheme, NavbarLayout, ResponsiveLayout
+from reahl.web.bootstrap.navbar import Navbar, NavbarLayout, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
 from reahl.web.bootstrap.ui import A, Form, Div, P
 from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
@@ -99,12 +99,12 @@ def navbar_basics(fixture):
 class LayoutScenarios(NavbarFixture):
     @scenario
     def fixed_top(self):
-        self.layout = NavbarLayout(fixed_top=True)
+        self.layout = NavbarLayout(fixed_to='top')
         self.expected_css_class = 'navbar-fixed-top'
 
     @scenario
     def fixed_bottom(self):
-        self.layout = NavbarLayout(fixed_bottom=True)
+        self.layout = NavbarLayout(fixed_to='bottom')
         self.expected_css_class = 'navbar-fixed-bottom'
 
     @scenario
@@ -137,7 +137,7 @@ def navbar_can_have_layout(fixture):
 def customised_colour_scheme(fixture):
     """A ColourScheme is used to determine link colours and/or optionally a standard bootstrap background color."""
 
-    layout = NavbarLayout(colour_scheme=ColourScheme(colour_theme='light', bg_scheme='inverse'))
+    layout = NavbarLayout(colour_theme='light', bg_scheme='inverse')
     widget = Navbar(fixture.view).use_layout(layout)
 
     [navbar] = widget.children
