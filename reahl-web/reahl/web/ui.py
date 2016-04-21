@@ -1375,6 +1375,7 @@ class Input(HTMLWidget):
                      input given via this Input.
     """
     is_Input = True
+
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field):
         self.form = form
@@ -1405,6 +1406,15 @@ class Input(HTMLWidget):
     def get_input_status(self):
         return self.bound_field.input_status
 
+    @property
+    def customises_label(self):
+        """If True, this Input customises how its label is displayed using its .with_customised_label()"""
+        return False
+
+    def with_customised_label(self):
+        return self
+
+
 
 class WrappedInput(Input):
     def __init__(self, input_widget):
@@ -1414,6 +1424,10 @@ class WrappedInput(Input):
     @property
     def name(self):
         return self.input_widget.name
+
+    @property
+    def customises_label(self):
+        return self.input_widget.customises_label
 
 
 class PrimitiveInput(Input):
@@ -1729,6 +1743,10 @@ class SingleRadioButton(InputTypeInput):
     def checked(self):
         return self.radio_button_input.value == self.value
 
+    @property
+    def customises_label(self):
+        return True
+
 
 class RadioButtonInput(PrimitiveInput):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a list of valid ones
@@ -1841,6 +1859,10 @@ class CheckboxInput(InputTypeInput):
         if self.name in input_values:
             return self.bound_field.true_value
         return self.bound_field.false_value
+
+    @property
+    def customises_label(self):
+        return True
 
 
 
