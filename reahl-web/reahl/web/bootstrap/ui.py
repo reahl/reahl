@@ -251,7 +251,11 @@ class CueInput(reahl.web.ui.WrappedInput):
 
     def with_customised_label(self):
         labelled_input = self.input_widget.with_customised_label()
-        return CueInput(labelled_input, self.cue_widget)
+        self.input_widget = labelled_input
+        del self.children[0].children[0]
+        self.children[0].insert_child(0, labelled_input)
+        return self
+#        return CueInput(labelled_input, self.cue_widget)
 
 
 

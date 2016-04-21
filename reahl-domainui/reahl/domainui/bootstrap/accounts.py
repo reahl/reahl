@@ -64,7 +64,8 @@ class LoginForm(Form):
         password_cue_input = CueInput(PasswordInput(self, self.account_management_interface.fields.password), password_cue)
         forgot_password_bookmark = self.user_interface.get_bookmark(relative_path='/resetPassword',
                                                             description=_('Forgot your password?'))
-        password_cue_input.input_part.add_child(A.from_bookmark(view, forgot_password_bookmark))
+#        import pdb; pdb.set_trace()
+        password_cue_input.add_child(A.from_bookmark(view, forgot_password_bookmark))
         login_inputs.layout.add_input(password_cue_input)
         stay_cue = P(view, _('If selected, you will stay logged in for longer.'))
         login_inputs.layout.add_input(CueInput(CheckboxInput(self, self.account_management_interface.fields.stay_logged_in), stay_cue))

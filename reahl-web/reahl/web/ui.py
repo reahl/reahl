@@ -1425,6 +1425,10 @@ class WrappedInput(Input):
     def name(self):
         return self.input_widget.name
 
+    @property
+    def customises_label(self):
+        return self.input_widget.customises_label
+
 
 class PrimitiveInput(Input):
     is_for_file = False
