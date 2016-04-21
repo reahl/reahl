@@ -240,8 +240,6 @@ class CueInput(reahl.web.ui.WrappedInput):
 
         div.add_child(html_input)
         self.cue_widget = div.add_child(cue_widget)
-        self.cue_widget.append_class('text-muted') #TODO: usually the layout has a method add_help_text_to, or the add_input(...) has help_text_kwarg
-        self.input_part = html_input #TODO: the origial CueInput had this set, is this ok?
 
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapcueinput").bootstrapcueinput();']
