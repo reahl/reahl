@@ -34,11 +34,6 @@ from reahl.web.bootstrap.datatable import DataTable
 
 import reahl.web_dev.widgets.tabletests
 
-#TODO: sorting - is in column(ui.py), but tested here in datatable?
-#TODO: is all the javascript trickery with hashes still necessary now that the nonjs version is right?(we added the qyery args in on_view bookmark)
-
-#TODO: js test for ajaxlink/hashchange: if you click on an ajaxlink, it changes the hash in such a way that the other hashes that do not belong to it are preserved - HOWEVER, its own href is not changed.
-#TODO: same preservation of other's context(query string) in non-js version
 
 class DataItem(reahl.web_dev.widgets.tabletests.DataItem):
     @exposed
