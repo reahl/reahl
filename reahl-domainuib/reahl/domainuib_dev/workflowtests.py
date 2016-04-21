@@ -138,7 +138,7 @@ class Tests(object):
         """The widget to use for displaying a particular type of task can be set via an entry point."""
         pkg_resources.working_set.add(easter_egg)
         line = 'MyTaskWidget = reahl.domainuib_dev.workflowtests:MyTaskWidget'
-        easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
+        easter_egg.add_entry_point_from_line('reahl.workflowuib.task_widgets', line)
 
         with fixture.persistent_test_classes(MyTask):
             task = MyTask(queue=fixture.queue, title='a task')

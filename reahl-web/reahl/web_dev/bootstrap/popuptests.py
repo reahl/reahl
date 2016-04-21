@@ -28,7 +28,7 @@ from reahl.component.modelinterface import exposed, BooleanField
 
 from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 from reahl.web.bootstrap.ui import Div, Form, FormLayout, P, CheckboxInput
-from reahl.web.bootstrap.popups import PopupA, CheckCheckboxButton, DialogButton
+from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
 class PopupAFixture(WebFixture):
     # (note that this xpath ensures that the p is the ONLY content of the dialog)
@@ -85,8 +85,8 @@ class PopupAFixtureWithCustomButtons(PopupAFixture):
             def __init__(self, view):
                 super(PopupTestPanel, self).__init__(view)
                 popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
-                popup_a.add_button(DialogButton('Butt1'))
-                popup_a.add_button(DialogButton('Butt2'))
+                popup_a.add_js_button('Butt1')
+                popup_a.add_js_button('Butt2')
                 popup_contents = self.add_child(P(view, text='this is the content of the popup'))
                 popup_contents.set_id('contents')
 
@@ -129,7 +129,7 @@ class PopupAFixtureWithCheckBox(PopupAFixture):
                 form = self.add_child(Form(view, 'aform')).use_layout(FormLayout())
                 checkbox = form.layout.add_input(CheckboxInput(form, self.fields.field))
 
-                popup_a.add_button(CheckCheckboxButton('Checkit', checkbox))
+                popup_a.add_js_button('Checkit', CheckCheckboxScript(checkbox))
 
         return PopupTestPanel
 

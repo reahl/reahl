@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, expected, test, NoException
+from reahl.tofu import vassert, scenario, expected, test, NoException, Fixture
 
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
@@ -166,8 +166,8 @@ def allowed_string_options(fixture):
 @test(Fixture)
 def composed_class_string(fixture):
     """A HTMLAttributeValueOption be made into as a css class string."""
-    style_class = HTMLAttributeValueOption('validoption', True, prefix='pre', valid_options=['validoption'])
-    vassert( style_class == 'pre-validoption' )
+    style_class = HTMLAttributeValueOption('validoption', True, prefix='pre', constrain_value_to=['validoption'])
+    vassert( style_class.as_html_snippet() == 'pre-validoption' )
 
 
 @test(WebFixture)
@@ -187,9 +187,9 @@ def device_class_identity(fixture):
     vassert( device_class.class_label == 'lg' )
 
     def check_ex(ex):
-        vassert( six.text_type(ex).startswith('unsupported is not a supported DeviceClass. Should be one of: xs,sm,md,lg,xl'))
+        vassert( six.text_type(ex).startswith("\"unsupported\" should be one of ['xs', 'sm', 'md', 'lg', 'xl']"))
 
-    with expected(AssertionError, test=check_ex):
+    with expected(ProgrammerError, test=check_ex):
         DeviceClass('unsupported')
 
 

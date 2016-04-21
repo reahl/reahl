@@ -49,7 +49,7 @@ class Container(Layout):
 class HTMLAttributeValueOption(object):
     def __init__(self, option_string, is_set, prefix='', constrain_value_to=None):
         if is_set and (constrain_value_to and option_string not in constrain_value_to):
-            raise ProgrammerError('"%s" should be one of %s' % (option_string, valid_options))
+            raise ProgrammerError('"%s" should be one of %s' % (option_string, constrain_value_to))
         self.is_set = is_set
         self.prefix = prefix
         self.option_string = option_string
@@ -57,7 +57,8 @@ class HTMLAttributeValueOption(object):
     def as_html_snippet(self):
         if not self.is_set:
             raise ProgrammerError('Attempt to add %s to html despite it not being set' % self)
-        return '%s-%s' % (self.prefix, self.option_string)
+        prefix_with_delimiter = '%s-' % self.prefix if self.prefix else ''
+        return '%s%s' % (prefix_with_delimiter, self.option_string)
 
 
 class DeviceClass(HTMLAttributeValueOption):
@@ -127,7 +128,6 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
         for size in sizes:
             total += size.total_width_for(device_class)
         return total
-
 
 
 class ColumnLayout(reahl.web.layout.ColumnLayout):
