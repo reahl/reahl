@@ -62,7 +62,8 @@ class SqlAlchemyTestMixin(object):
         for entity in entities:
             if hasattr(entity, '__table__'):
                 entity.__table__.metadata.remove(entity.__table__)
-                del entity._decl_class_registry[entity.__name__]
+                if entity.__name__ in entity._decl_class_registry:
+                    del entity._decl_class_registry[entity.__name__]
 
     def new_reahlsystem(self, root_egg=None, connection_uri=None, orm_control=None):
         reahlsystem = ReahlSystemConfig()

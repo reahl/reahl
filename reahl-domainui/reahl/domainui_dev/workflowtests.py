@@ -30,7 +30,7 @@ from reahl.web.ui import HTML5Page, Div, P
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.domain.workflowmodel import Task
-from reahl.domainui.workflow import InboxUI
+from reahl.domainui.workflow import InboxUI, TaskWidget
 from reahl.web.fw import UserInterface, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
@@ -78,19 +78,18 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
 
 
 class MyTask(Task):
-    __tablename__ = 'mytask'
+    __tablename__ = 'mytask_a'
     __mapper_args__ = {'polymorphic_identity': 'mytask'}
     id = Column(Integer, ForeignKey('task.id'), primary_key=True)
 
 
-class MyTaskWidget(Div):
+class MyTaskWidget(TaskWidget):
     @classmethod
     def displays(cls, task):
         return task.__class__ is MyTask
 
-    def __init__(self, view, task):
-        super(MyTaskWidget, self).__init__(view)
-        self.add_child(P(view, text='my task widget'))
+    def create_contents(self):
+        self.add_child(P(self.view, text='my task widget'))
 
 
 @istest

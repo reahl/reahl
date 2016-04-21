@@ -30,9 +30,9 @@ from reahl.web.fw import Url
 from reahl.web.fw import UserInterface
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
-from reahl.domainuib_dev.fixtures import BookmarkStub
+from reahl.domainui_dev.fixtures import BookmarkStub
 from reahl.domain_dev.fixtures import PartyModelZooMixin
-from reahl.domainuib.accounts import AccountUI
+from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
 
 class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):

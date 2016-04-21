@@ -23,6 +23,7 @@ from reahl.component.i18n import Translator
 from reahl.component.decorators import deprecated
 from reahl.sqlalchemysupport import PersistedField
 from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
+from reahl.web.ui import HTMLWidget
 from reahl.web.bootstrap.ui import P, Div, Ul, Li, H, Form
 from reahl.web.bootstrap.ui import Button, ButtonLayout, FormLayout
 
@@ -30,7 +31,7 @@ from reahl.domain.workflowmodel import Inbox, Task, WorkflowInterface
 from reahl.domain.systemaccountmodel import LoginSession
 
 
-_ = Translator('reahl-domainuib')
+_ = Translator('reahl-domainui')
 
 
 
@@ -57,7 +58,7 @@ class InboxWidget(Div):
             self.list.add_child(TaskBox(view, task))
 
 
-class TaskWidget(Div):
+class TaskWidget(HTMLWidget):
     """The Widget used to display a particular :class:`reahl.workflowdomain.Task`.
     
        Programmers need to create a subclass of TaskWidget to display a particular
@@ -72,7 +73,7 @@ class TaskWidget(Div):
 
         <export entrypoint="reahl.workflowui.task_widgets" 
                 name="TaskWidget" 
-                locator="reahl.domainuib.workflow:TaskWidget"/>
+                locator="reahl.domainui.workflow:TaskWidget"/>
 
     """
     @classmethod
@@ -84,8 +85,13 @@ class TaskWidget(Div):
     def __init__(self, view, task):
         super(TaskWidget, self).__init__(view)
         self.task = task
-        self.add_child(P(view, text=self.task.title))
-        form = self.add_child(Form(view, 'task_form'))
+        self.create_contents()
+
+    def create_contents(self):
+        div = self.add_child(Div(self.view))
+        self.set_html_representation(div)
+        div.add_child(P(self.view, text=self.task.title))
+        form = div.add_child(Form(self.view, 'task_form'))
         form.use_layout(FormLayout())
         defer_btn = form.add_child(Button(form, self.user_interface.workflow_interface.events.defer_task))
         defer_btn.use_layout(ButtonLayout(style='primary'))
@@ -103,7 +109,7 @@ class TaskView(UrlBoundView):
     def get_widget_class_for(self, task):
         config = WebExecutionContext.get_context().config
         for widget_class in config.workflowui.task_widgets:
-            if widget_class.displays(task):
+            if issubclass(widget_class, TaskWidget) and widget_class.displays(task):
                 return widget_class
         raise ProgrammerError('no Widget found to display %s' % task)
 

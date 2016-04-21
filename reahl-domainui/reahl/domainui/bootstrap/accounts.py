@@ -33,7 +33,7 @@ from reahl.component.decorators import deprecated
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
      AccountManagementInterface
 
-_ = Translator('reahl-domainuib')
+_ = Translator('reahl-domainui')
 
 
 class TitledWidget(Widget):
