@@ -1407,12 +1407,10 @@ class Input(HTMLWidget):
         return self.bound_field.input_status
 
     @property
-    def customises_label(self):
-        """If True, this Input customises how its label is displayed using its .with_customised_label()"""
+    def includes_label(self):
+        """If True, the Label of this Input forms part of the input itself."""
         return False
 
-    def with_customised_label(self):
-        return self
 
 
 
@@ -1426,8 +1424,8 @@ class WrappedInput(Input):
         return self.input_widget.name
 
     @property
-    def customises_label(self):
-        return self.input_widget.customises_label
+    def includes_label(self):
+        return self.input_widget.includes_label
 
 
 class PrimitiveInput(Input):
@@ -1743,9 +1741,6 @@ class SingleRadioButton(InputTypeInput):
     def checked(self):
         return self.radio_button_input.value == self.value
 
-    @property
-    def customises_label(self):
-        return True
 
 
 class RadioButtonInput(PrimitiveInput):
@@ -1860,9 +1855,6 @@ class CheckboxInput(InputTypeInput):
             return self.bound_field.true_value
         return self.bound_field.false_value
 
-    @property
-    def customises_label(self):
-        return True
 
 
 
