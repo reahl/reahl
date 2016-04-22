@@ -140,7 +140,7 @@ class CheckboxInput(WrappedInput):
         return '%s.closest("div")' % (self.input_widget.jquery_selector)
         
 
-class PrimitiveRadioButton(reahl.web.ui.SingleRadioButton):
+class PrimitiveRadioButtonInput(reahl.web.ui.SingleRadioButton):
     append_error = False
     add_default_attribute_source = False
 
@@ -161,7 +161,7 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
         return main_element
 
     def add_button_for_choice_to(self, widget, choice):
-        button = PrimitiveRadioButton(self, choice)
+        button = PrimitiveRadioButtonInput(self, choice)
         widget.layout.add_choice(button)
 
     @property
@@ -302,7 +302,7 @@ class ChoicesLayout(reahl.web.ui.Layout):
         self.inline = inline
 
     def add_choice(self, html_input):
-        assert isinstance(html_input, (PrimitiveCheckboxInput, PrimitiveRadioButton))
+        assert isinstance(html_input, (PrimitiveCheckboxInput, PrimitiveRadioButtonInput))
  
         label_widget = Label(self.view)
 
@@ -355,9 +355,6 @@ class FormLayout(reahl.web.ui.Layout):
             label.append_class('sr-only')
         return label
 
-    def should_add_label(self, html_input):
-        return not isinstance(html_input, CheckboxInput)
-        
     def add_input(self, html_input, hide_label=False, help_text=None):
         form_group = self.create_form_group(html_input)
 
