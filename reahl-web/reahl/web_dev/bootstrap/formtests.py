@@ -389,7 +389,7 @@ class RadioButtonFixture(ChoicesLayoutFixture):
 
 @test(RadioButtonFixture)
 def layout_of_radio_button_input(fixture):
-    """The PrimitiveRadioButtons inside a RadioButtonInput are also laid out using a ChoicesLayout."""
+    """The PrimitiveRadioButtonInputs inside a RadioButtonInput are also laid out using a ChoicesLayout."""
     stacked_radio = RadioButtonInput(fixture.form, fixture.field)
 
     tester = WidgetTester(stacked_radio)
