@@ -32,7 +32,7 @@ Reahl itself is installed via pip, using extras in [] to select what you want:
    pip install reahl[declarative,sqlite,dev,doc]  
 
 On platforms other than Windows, some dependencies pulled in during installation
-will also need to be compiled, needing:
+will also need to be compiled. To be able to compile these, you will also need:
 
    - Libxml, libxslt
    - Libsqlite   
@@ -63,7 +63,7 @@ to platform -- please follow the instructions for your platform:
 Create a virtualenv and install Reahl inside it
 -----------------------------------------------
 
-If you followed the instructions above, virtualenv should have been
+Once you completed the instructions above for your platform, virtualenv should be
 installed along with other required packages. You need to now create a
 virtual environment using virtualenv.
 

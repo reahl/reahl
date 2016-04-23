@@ -30,7 +30,7 @@ To do this, use the `@exposed` decorator as before, this time to
 define the `events` on your object. An
 :class:`~reahl.component.modelinterface.Event` can optionally be
 passed an :class:`~reahl.component.modelinterface.Action`. This is
-just a wrapper around any callable -- the callable that will get called if
+just a wrapper around any callable -- the callable that will get called when
 a user triggers this :class:`~reahl.component.modelinterface.Event`:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py

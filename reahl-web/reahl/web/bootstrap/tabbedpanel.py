@@ -32,7 +32,7 @@ from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
 
 
 
-assert True, '''TODO:
+assert False, '''TODO:
 
 set_active (self.force_active is dead on menuitem?)
 and the active_regex & exact_match - so... delete them and always delagate to the a unless determine_is_active_using is used...
