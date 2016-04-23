@@ -7,7 +7,7 @@ This chapter explains the very basics necessary to run a Reahl
 application, at the hand of a simple "Hello World" example. These are
 things like: the layout of the source code making up an
 application; dealing with Python eggs in development; Reahl
-configuration or how to manage the database that underlies your
+configuration; or how to manage the database that underlies your
 application.
 
 This explanation assumes :ref:`that you have installed Reahl in a
@@ -28,9 +28,7 @@ says "Hello World!". Let's start by examining its Python source code:
 .. literalinclude:: ../../reahl/doc/examples/tutorial/hello/hello.py
 
 The application consists of only one
-:class:`~reahl.web.fw.UserInterface`, which contains a single
-:class:`~reahl.web.fw.View`, defined on its ``/`` URL. The contents of
-the :class:`~reahl.web.fw.UserInterface` are defined in its
+:class:`~reahl.web.fw.UserInterface`: HelloUI. HelloUI contains a single :class:`~reahl.web.fw.View`, tied to the ''/'' URL. The URLs (and thus :class:`~reahl.web.fw.View`\s) defined by a :class:`~reahl.web.fw.UserInterface` are created in its
 ``.assemble()`` method.
 
 To give the :class:`~reahl.web.fw.View` itself some contents,
@@ -38,9 +36,11 @@ HelloPage is derived from :class:`~reahl.web.ui.HTML5Page`.
 In this case, we just add a paragraph of text
 (:class:`~reahl.web.ui.P`) to the `.body` of the page.
 
-Each URL a user can visit is defined by a :class:`~reahl.web.fw.View`,
-and a bunch of related :class:`~reahl.web.fw.View`\ s are organised
-into a :class:`~reahl.web.fw.UserInterface`.
+
+In Reahl, each URL a user can visit is defined by a
+:class:`~reahl.web.fw.View`, and a bunch of related
+:class:`~reahl.web.fw.View`\ s are organised into a
+:class:`~reahl.web.fw.UserInterface`.
 
 
 .. _create-component:
@@ -48,11 +48,14 @@ into a :class:`~reahl.web.fw.UserInterface`.
 Create a Reahl component
 ------------------------
 
-In Reahl, everything -- even your web application -- is a component
-(and, Reahl components are Python eggs). The very first thing to do in
-order to create a web application is thus to create a component
-containing your source code, including some metadata about the new
-component.
+A Reahl component is a bunch of related Python source code files that
+are distributed together in the form of a Python egg. A Reahl
+component has a version number and can make use of other components.
+
+In Reahl, your web application is a component too. The very first
+thing to do in order to create a web application is thus to create a
+component containing your source code, including some metadata about
+the new component.
 
 To do that, create a directory (for example called
 `hello`) and add two files and one directory to it::
@@ -78,11 +81,10 @@ To do that, create a directory (for example called
      The necessary glue for using `SqlAlchemy <http://www.sqlalchemy.org/>`__ 
      with a Reahl program.
 
-The presence of the .reahlproject file in a directory alerts the
-`reahl` script (a tool used while in development) that the directory
-contains the source code of a Reahl component. The contents of
-`.reahlproject` is XML which, in its most basic form, merely lists the
-other components that this one depends on.  The following example
+The presence of the .reahlproject file in a directory states that the
+directory contains the source code of a Reahl component. The contents
+of `.reahlproject` is XML which, in its most basic form, merely lists
+the other components that this one depends on. The following example
 contains a list of all the Reahl components needed for a basic web
 application (go ahead and copy this into your `.reahlproject`):
 
@@ -102,9 +104,17 @@ application (go ahead and copy this into your `.reahlproject`):
 Prepare the component for development
 -------------------------------------
 
-Before you can do anything with a new component, you need to register
-it with your development environment. This is done by executing the
-following from *within* the newly created `hello` directory::
+Components are Python Eggs: little distribution packages of source
+code. These need to be installed before you can use their contents.
+
+When you are still busy developing an egg, you must install it
+in "development mode". This does not actually install the component in
+your virtualenv, it merely points your Python installation to where
+your source code lives, so it is able to import it and read the
+relevant meta information about that component.
+
+This is done by executing the following from *within* the newly
+created `hello` directory::
 
   reahl setup -- develop -N
 

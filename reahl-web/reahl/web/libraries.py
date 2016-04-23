@@ -32,6 +32,14 @@ class LibraryIndex(object):
             del self.libraries_by_name['pure']
         if 'yuigridscss' not in self:
             self.add(YuiGridsCss())
+
+    def enable_experimental_bootstrap(self):
+        from reahl.web.bootstrap.libraries import Tether, Bootstrap4, ReahlBootstrap4Additions
+        if 'pure' in self:
+            del self.libraries_by_name['pure']
+        self.add(Tether())
+        self.add(Bootstrap4())
+        self.add(ReahlBootstrap4Additions())
         
 
 class Library(object):

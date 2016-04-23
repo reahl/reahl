@@ -88,6 +88,26 @@ class DeviceClass(HTMLAttributeValueOption):
 
 
 class ResponsiveSize(reahl.web.layout.ResponsiveSize):
+    """A size used for layouts that can adapt depending on how big the user device is.
+
+    Sizes kwargs for each device class are given as integers that denote a number of 12ths
+    of the size of the container of the element being sized. Eg: 6 would mean 6 12ths, or 
+    1/2 the size of the container.
+
+    If you specify a size for a device class, that size will be used for all devices of that
+    class or bigger.
+
+    It is not necessary to specify a size for every device class. By default, if a device
+    class is omitted, it is assumed to be sized as per the nearest specified smaller device 
+    class. If there is no smaller device class, a value of 12/12ths is assumed.
+
+    :keyword xs: Size to use if the device is extra small.
+    :keyword sm: Size to use if the device is small.
+    :keyword md: Size to use if the device is medium.
+    :keyword lg: Size to use if the device is large.
+    :keyword xl: Size to use if the device is extra large.
+
+    """
     def __init__(self, xs=None, sm=None, md=None, lg=None, xl=None):
         super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg, xl=xl)
         self.offsets = {}
@@ -131,6 +151,11 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
 
 
 class ColumnLayout(reahl.web.layout.ColumnLayout):
+    """A Layout that divides an element into a number of columns.
+
+       Works like :class:`reahl.web.layout.ColumnLayout` except that it
+       expects bootstrap :class:`ResponsiveSize`\s for its columns.
+    """
     def __init__(self, *column_definitions):
         if not all([isinstance(column_definition, tuple) for column_definition in column_definitions]):
             raise ProgrammerError('All column definitions are expected a tuple of the form (name, %s), got %s' %\

@@ -3,6 +3,7 @@
 What changed in version 3.2
 ===========================
 
+
 Added support for Bootstrap
 ---------------------------
 
@@ -46,8 +47,8 @@ A :class:`reahl.web.layout.PageLayout` is subtly different from a
 :class:`reahl.web.pure.PageColumnLayout` so that any Layout can be
 used to lay out its contents area. The older
 :class:`reahl.web.pure.PageColumnLayout` hard-coded the use of a
-:class:`reahl.web.pure.ColumnLayout` and we wanted to be able to use a
-:class:`reahl.web.bootstrap.ColumnLayout` instead. This new
+:class:`reahl.web.pure.ColumnLayout` and we wanted to be able to also use it with a
+:class:`reahl.web.bootstrap.grid.ColumnLayout`. This new
 arrangement allows for that, but also for other possibilities.
 
 :class:`reahl.web.layout.ColumnLayout` is merely a generic version in

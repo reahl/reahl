@@ -11,13 +11,13 @@ Layout and styling
 Styling is probably not the first thing a programmer wants
 to worry about. That is why Reahl comes with some styling you can use
 when starting a project -- perhaps to be replaced by a
-graphic designer later.  (We hope to improve on this in future.)
+graphic designer later.
 
-Layout you can't completely get away from though, and Reahl has
-concepts to help with this. Let us detour to introduce layout and
-styling ideas because that will allow us to use better layout
-further on in the tutorial to make our examples look just a little bit
-better.
+Let us detour to introduce layout and styling ideas because that will
+allow us to to make the rest of the examples in the tutorial look just
+a little bit better.
+
+
 
 Layout
 ------

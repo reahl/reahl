@@ -6,7 +6,7 @@ An application that actually does something
 We introduce the Reahl basics by explaining the development of a
 simple address book application: it has a single page showing a list
 of names of people and their associated email addresses. Below the
-list of addresses is a means where you can add a new email address.
+list of addresses is a means by which you can add a new email address.
 
    .. figure:: addressuischematic.png
       :align: center
@@ -19,10 +19,10 @@ list of addresses is a means where you can add a new email address.
 This application, simple as it may seem, spans a number of development
 concerns that will be explained along the way:
 
- - It has a design, and an object oriented one at that.
+ - It has a design, and an object oriented one at that;
  - It persists objects from its design into a relational database, and thus must 
-   do some form of object relational mapping.
- - It displays stuff on the screen.
+   do some form of object relational mapping;
+ - It displays stuff on the screen;
  - It validates that input received from a user is legal; and
  - It executes actions on the server in response to user actions.
 

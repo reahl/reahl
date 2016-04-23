@@ -42,7 +42,12 @@ The extra stuff needed by dependencies of Reahl itself are installed by issuing:
 The first two of these packages (libxml2-dev and libxslt-dev) are used by some of our testing
 infrastructure, and sqlite is the database used by the tutorial examples.
 
-Remember to go back and :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`!
+Installing chromedriver (below) is not necessary for a first
+installation or to follow the tutorial. (We just include the
+instructions for completeness.)
+
+The next step is to :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`.
+
 
 Chromedriver
 ------------

@@ -22,6 +22,7 @@ Contents:
    buttonwidgets
 
    styling
+   bootstrap/index
    connectingviews
    slots
    parameterised

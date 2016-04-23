@@ -59,7 +59,7 @@ current user with regard to the given :class:`~reahl.web.fw.View`. The meta-info
 The example below shows the application designed above with its two
 :class:`~reahl.web.fw.View`\ s , and a :class:`~reahl.web.ui.Menu` which is created from :class:`~reahl.web.fw.Bookmark`\ s.  Note how the
 :class:`~reahl.web.fw.Bookmark`\ s are obtained: using the :class:`~reahl.web.fw.View` and the :class:`~reahl.web.fw.UserInterface` of which the
-:class:`~reahl.web.fw.View` forms part.  (Layout, such as the use of :class:`~reahl.web.ui.HorizontalLayout` :doc:`is discussed in the next section<styling>`.)
+:class:`~reahl.web.fw.View` forms part.  
 
 The :class:`~reahl.web.ui.Menu` should be on every page. We accomplish
 this by creating AddressBookPage, and letting the page for each

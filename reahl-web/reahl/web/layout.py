@@ -120,7 +120,9 @@ class PageLayout(Layout):
        a content area between the header and footer areas.
     
        All of these contents are also wrapped in a
-       :class:`reahl.web.ui.Div`, which is handy for styling.
+       :class:`~reahl.web.ui.Div`, which is handy for styling.
+
+       :keyword contents_layout: A :class:`~reahl.web.ui.Layout` that will be applied to the content area.
 
        .. admonition:: Styling
        

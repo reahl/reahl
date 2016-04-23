@@ -48,4 +48,4 @@ Wheel support and virtualenv
        pip install -U virtualenv
 
 
-Remember to go back and :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`!
+The next (and last) step is to :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`.
