@@ -306,7 +306,9 @@ def input_validation_cues_javascript_interaction(fixture):
     browser.type(XPath.input_labelled('Some input'), 'valid value')
     browser.press_tab(XPath.input_labelled('Some input'))
 
-    vassert( ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    def form_group_is_marked_success(index):
+        return ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=index)
+    vassert( fixture.driver_browser.wait_for(form_group_is_marked_success, 0) )
     vassert( not fixture.get_form_group_errors(browser, index=0) )
 
 

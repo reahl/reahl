@@ -40,7 +40,6 @@ from reahl.web.fw import WebExecutionContext
 
 from reahl.web.bootstrap.ui import Form, Span, Label, Div, P, Button, TextNode, FormLayout, FileInput, FileInputButton
 from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel
-from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions, Tether
 
 
 
@@ -81,9 +80,7 @@ class FileInputButtonFixture(Fixture, WebBasicsMixin):
 
     def new_webconfig(self):
         web = super(FileInputButtonFixture, self).new_webconfig()
-        web.frontend_libraries.add(Tether())
-        web.frontend_libraries.add(Bootstrap4())
-        web.frontend_libraries.add(ReahlBootstrap4Additions())
+        web.frontend_libraries.enable_experimental_bootstrap()
         return web
 
 
@@ -266,9 +263,7 @@ class FileUploadInputFixture(WebFixture):
 
     def new_webconfig(self):
         web = super(FileUploadInputFixture, self).new_webconfig()
-        web.frontend_libraries.add(Tether())
-        web.frontend_libraries.add(Bootstrap4())
-        web.frontend_libraries.add(ReahlBootstrap4Additions())
+        web.frontend_libraries.enable_experimental_bootstrap()
         return web
 
 

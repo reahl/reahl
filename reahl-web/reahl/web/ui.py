@@ -1197,9 +1197,10 @@ class Form(HTMLElement):
         if len(events) > 1:
             raise ProgrammerError('More than one event detected in form submission. %s' % input_detail)
         return events.pop()
-       
+
+    javascript_widget_name = 'form'
     def get_js(self, context=None):
-        js = ['$(%s).form(%s);' % (self.jquery_selector, self.get_js_options())]
+        js = ['$(%s).%s(%s);' % (self.jquery_selector, self.javascript_widget_name, self.get_js_options())]
         return super(Form, self).get_js(context=context) + js 
 
     def get_js_options(self):

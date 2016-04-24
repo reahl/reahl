@@ -33,7 +33,7 @@ from reahl.component.i18n import Translator
 import reahl.web.ui
 from reahl.web.ui import A, Article, Body, Br, Caption, Col, ColGroup, Div, FieldSet, Footer, H, Head, Header, Img, \
     Label, Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, Tbody, Td, TextNode, \
-    Tfoot, Th, Thead, Title, Tr, Ul, HTML5Page, DynamicColumn, StaticColumn, WrappedInput, FieldSet
+    Tfoot, Th, Thead, Title, Tr, Ul, DynamicColumn, StaticColumn, WrappedInput, FieldSet
 
 from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, HTMLAttributeValueOption
 
@@ -41,44 +41,28 @@ from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, HTMLAttribute
 _ = Translator('reahl-web')
 
 
-class Alert(Div):
-    def __init__(self, view, message, alert_class='alert-danger'):
-        super(Alert, self).__init__(view)
-        self.add_child(TextNode(view, message))
-        self.append_class('alert')
-        self.append_class(alert_class)
-        self.set_attribute('role', 'alert')
+
+
+class HTML5Page(reahl.web.ui.HTML5Page):
+    """A web page that may be used as the page of a web application. It ensures that everything needed by
+       the framework (linked CSS and JavaScript, etc) is available on such a page.
+
+       .. admonition:: Styling
+       
+          Renders as an HTML5 page with customised <head> and an empty <body>.
+       
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword title: (See :class:`reahl.web.ui.HTML5Page`)
+       :keyword style: (See :class:`reahl.web.ui.HTML5Page`)
+       :keyword css_id: (See :class:`HTMLElement`)
+       
+    """
+    def __init__(self, view, title='$current_title', css_id=None):
+        super(HTML5Page, self).__init__(view, title=title, css_id=css_id)
 
 
 class Form(reahl.web.ui.Form):
-    def get_js_options(self):
-        return '''
-        {
-            errorElement: 'span',
-            errorClass: 'has-danger',
-            validClass: 'has-success',
-            onclick: function(element, event) {
-			// click on selects, radiobuttons and checkboxes
-			if ( element.name in this.submitted ) {
-				this.element(element);
-			}
-			// or option elements, check parent select in that case
-			else if (element.parentNode.name in this.submitted) {
-				this.element(element.parentNode);
-			}
-            },
-            highlight: function(element) {
-                $(element).closest('.form-group').removeClass('has-success').addClass('has-danger');
-            },
-            unhighlight: function(element) {
-                $(element).closest('.form-group').removeClass('has-danger').addClass('has-success');
-            },
-            errorPlacement: function (error, element) {
-                error.addClass('text-help')
-                element.closest('.form-group').append(error);
-            }
-         }
-    '''
+    javascript_widget_name = 'bootstrapform'
 
 
 class NestedForm(reahl.web.ui.NestedForm):
@@ -240,6 +224,15 @@ class StaticData(reahl.web.ui.Input):
 
     def can_write(self):
         return False
+
+
+class Alert(Div):
+    def __init__(self, view, message, alert_class='alert-danger'):
+        super(Alert, self).__init__(view)
+        self.add_child(TextNode(view, message))
+        self.append_class('alert')
+        self.append_class(alert_class)
+        self.set_attribute('role', 'alert')
 
 
 class CueInput(reahl.web.ui.WrappedInput):
