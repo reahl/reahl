@@ -22,8 +22,11 @@ Below follows a more detailed breakdown of changes.
 Basic Widgets
 -------------
 
-Widgets representing HTML or simple Inputs (but styled with Bootstrap)
-are located in :mod:`reahl.web.bootstrap.ui`\.
+The most basic Widgets are located in
+:mod:`reahl.web.bootstrap.ui`\. These include Widgets that represent
+HTML (but styled versions) and a very small number of equally simple
+basic Widgets.
+
 
 The following changes happened here:
 
@@ -51,10 +54,6 @@ The following changes happened here:
          - :class:`~reahl.web.bootstrap.ui.ButtonLayout` 
 	    (for :class:`~reahl.web.bootstrap.ui.Button` or
 	    :class:`~reahl.web.bootstrap.ui.A`).
-         - :class:`~reahl.web.bootstrap.ui.ChoicesLayout`
-	    (for :class:`~reahl.web.bootstrap.ui.PrimitiveCheckboxInput` or
-	    :class:`~reahl.web.bootstrap.ui.PrimitiveRadioButtonInput`).
-            TODO: perhaps nuke this? At any rate it is not meant for user consumption
          - :class:`~reahl.web.bootstrap.ui.TableLayout`
 	    (for :class:`~reahl.web.bootstrap.ui.Table`)
 
@@ -79,13 +78,6 @@ The following changes happened here:
          - :class:`~reahl.web.bootstrap.ui.CheckboxInput`
 	    (a checkbox wrapped in a label)
 
-     - SingleRadioButton has been renamed/split as follows:
-         - :class:`~reahl.web.bootstrap.ui.PrimitiveRadioButtonInput`
-	    (just a single dot, meant for use in the implementation 
-	     of :class:`~reahl.web.bootstrap.ui.RadioButtonInput`)
-         - :class:`~reahl.web.bootstrap.ui.RadioButtonInput`
-	    (just like the previous :class:`~reahl.web.ui.RadioButtonInput`)
-
      
 List of equivalent Widgets
 --------------------------
@@ -101,8 +93,8 @@ List of equivalent Widgets
    :class:`reahl.web.ui.SlidingPanel`           :class:`reahl.web.bootstrap.carousel.Carousel` 
    :class:`reahl.web.ui.TabbedPanel`            :class:`reahl.web.bootstrap.tabbedpanel.TabbedPanel` 
    :class:`reahl.web.ui.Menu`                   :class:`reahl.web.bootstrap.navs.Nav` (and related classes) 
-   :class:`reahl.web.ui.CueInput`               :class:`reahl.web.bootstrap.ui.CueInput` | TODO: to be moved out of ui
-   :class:`reahl.web.ui.ErrorFeedbackMessage`   :class:`reahl.web.bootstrap.ui.Alert` | TODO: needs to be moved
+   :class:`reahl.web.ui.CueInput`               :class:`reahl.web.bootstrap.ui.CueInput` 
+   :class:`reahl.web.ui.ErrorFeedbackMessage`   :class:`reahl.web.bootstrap.ui.Alert` 
    :class:`reahl.web.ui.PopupA`                 :class:`reahl.web.bootstrap.popups.PopupA` (works differently) 
    :mod:`reahl.web.datatable`                   :mod:`reahl.web.bootstrap.datatable` 
    :mod:`reahl.web.layout`                      :mod:`reahl.web.bootstrap.grid` 
@@ -148,6 +140,7 @@ Added in (or for) Bootstrap
    Class or package or module                    Contents
   ============================================= ==============================================
    :class:`reahl.web.bootstrap.navbar.Navbar`   A more elaborate header for a site.
+   :class:`reahl.web.bootstrap.ui.StaticData`   An :class:`~reahl.web.ui.Input` that can only be used for output.
    :mod:`reahl.web.bootstrap.inputgroup`        Bootstrap input groups.
    :mod:`reahl.web.holder`                      Creates placeholder background images.
   ============================================= ==============================================

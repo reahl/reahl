@@ -32,13 +32,6 @@ from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
 
 
 
-assert False, '''TODO:
-
-set_active (self.force_active is dead on menuitem?)
-and the active_regex & exact_match - so... delete them and always delagate to the a unless determine_is_active_using is used...
-
-'''
-
 class TabbedPanel(Widget):
     def __init__(self, view, nav_layout=None):
         super(TabbedPanel, self).__init__(view)

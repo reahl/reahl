@@ -28,6 +28,7 @@ class ReahlBootstrap4Additions(Library):
         super(ReahlBootstrap4Additions, self).__init__('bootstrap4.reahladditions')
         self.shipped_in_directory = '/reahl/web/bootstrap'
         self.files = [
+                      'reahl.bootstrapform.js',
                       'reahl.pagination.js',
                       'reahl.files.js',
                       'reahl.files.css',
