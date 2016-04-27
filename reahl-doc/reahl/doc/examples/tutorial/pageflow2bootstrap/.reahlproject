@@ -1,0 +1,22 @@
+<project type="egg">
+  <deps purpose="run">
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-declarative"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+  <persisted>
+    <class locator="reahl.doc.examples.tutorial.pageflow2bootstrap.pageflow2bootstrap:Address"/>
+  </persisted>
+  
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=pageflow2bootstrap_dev -t -i '.*'"/>
+  
+</project>

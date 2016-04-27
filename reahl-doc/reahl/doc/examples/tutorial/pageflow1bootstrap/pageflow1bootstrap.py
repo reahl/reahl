@@ -2,25 +2,47 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+
 from sqlalchemy import Column, Integer, UnicodeText
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, Div, P, H, FieldSet, FormLayout, ButtonLayout
+from reahl.web.ui import InputGroup
+from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, Div, P, H, FormLayout, ButtonLayout
+from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
-class AddressBookUI(UserInterface):
-    def assemble(self):
-        self.define_view('/', title='Addresses', page=AddressBookPage.factory())
-
-
 class AddressBookPage(HTML5Page):
-    def __init__(self, view):
+    def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view)
         self.body.use_layout(Container())
+        self.body.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(main_bookmarks))
+
+
+class HomePage(AddressBookPage):
+    def __init__(self, view, main_bookmarks):
+        super(HomePage, self).__init__(view, main_bookmarks)
         self.body.add_child(AddressBookPanel(view))
+
+
+class AddPage(AddressBookPage):
+    def __init__(self, view, main_bookmarks):
+        super(AddPage, self).__init__(view, main_bookmarks)
+        self.body.add_child(AddAddressForm(view))
+
+
+class AddressBookUI(UserInterface):
+    def assemble(self):
+        addresses = self.define_view('/', title='Addresses')
+        add = self.define_view('/add', title='Add an address')
+        
+        bookmarks = [v.as_bookmark(self) for v in [addresses, add]]
+
+        addresses.set_page(HomePage.factory(bookmarks))
+        add.set_page(AddPage.factory(bookmarks))
+
 
 
 class AddressBookPanel(Div):
@@ -32,8 +54,6 @@ class AddressBookPanel(Div):
         for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address))
 
-        self.add_child(AddAddressForm(view))
-
 
 class AddAddressForm(Form):
     def __init__(self, view):
@@ -41,10 +61,10 @@ class AddAddressForm(Form):
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(FieldSet(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
         grouped_inputs.use_layout(FormLayout())
-        grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
-        grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
+        grouped_inputs.layout.add_input( TextInput(self, new_address.fields.name) )
+        grouped_inputs.layout.add_input( TextInput(self, new_address.fields.email_address) )
 
         self.define_event_handler(new_address.events.save)
         btn = grouped_inputs.add_child(Button(self, new_address.events.save))
@@ -58,8 +78,8 @@ class AddressBox(Widget):
 
 
 class Address(Base):
-    __tablename__ = 'addressbook2bootstrap_address'
-
+    __tablename__ = 'pageflow1bootstrap_address'
+    
     id            = Column(Integer, primary_key=True)
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
@@ -75,4 +95,5 @@ class Address(Base):
     @exposed
     def events(self, events):
         events.save = Event(label='Save', action=Action(self.save))
+
 

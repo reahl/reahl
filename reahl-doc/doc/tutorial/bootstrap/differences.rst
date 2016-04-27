@@ -51,32 +51,23 @@ The following changes happened here:
          - :class:`~reahl.web.bootstrap.ui.InlineFormLayout`
 
     - Other Layouts have been added for these basic Widgets:
-         - :class:`~reahl.web.bootstrap.ui.ButtonLayout` 
-	    (for :class:`~reahl.web.bootstrap.ui.Button` or
-	    :class:`~reahl.web.bootstrap.ui.A`).
-         - :class:`~reahl.web.bootstrap.ui.TableLayout`
-	    (for :class:`~reahl.web.bootstrap.ui.Table`)
+         - :class:`~reahl.web.bootstrap.ui.ButtonLayout` (for :class:`~reahl.web.bootstrap.ui.Button` or :class:`~reahl.web.bootstrap.ui.A`).
+         - :class:`~reahl.web.bootstrap.ui.TableLayout` (for :class:`~reahl.web.bootstrap.ui.Table`)
 
-     - Some other Widgets that attempted to deal with styling, or that 
-       were mere aliases for HTML elements were removed:
+     - Some other Widgets that attempted to deal with styling, or that were mere aliases for HTML elements were removed:
          - :class:`~reahl.web.ui.InputGroup`
          - :class:`~reahl.web.ui.PriorityGroup`
          - :class:`~reahl.web.ui.Panel`
          - :class:`~reahl.web.ui.ErrorLabel`
          - :class:`~reahl.web.ui.LabelOverInput`
 
-     - Instead of a SimpleFileInput, there are two simple kinds of 
-       file input:
-         - :class:`~reahl.web.bootstrap.ui.FileInputButton`
-            (just a button which behaves like a file input)
-         - :class:`~reahl.web.bootstrap.ui.FileInput`
-            (a stylized version of a standard browser file input)
+     - Instead of a SimpleFileInput, there are two simple kinds of file input:
+         - :class:`~reahl.web.bootstrap.ui.FileInputButton` (just a button which behaves like a file input)
+         - :class:`~reahl.web.bootstrap.ui.FileInput` (a stylized version of a standard browser file input)
 
      - CheckboxInput has been split into two versions:
-         - :class:`~reahl.web.bootstrap.ui.PrimitiveCheckboxInput`
-	    (just a checkbox)
-         - :class:`~reahl.web.bootstrap.ui.CheckboxInput`
-	    (a checkbox wrapped in a label)
+         - :class:`~reahl.web.bootstrap.ui.PrimitiveCheckboxInput` (just a checkbox)
+         - :class:`~reahl.web.bootstrap.ui.CheckboxInput` (a checkbox wrapped in a label)
 
      
 List of equivalent Widgets
@@ -110,7 +101,7 @@ be achieved by using a :class:`reahl.web.layout.PageLayout` that uses
 a :class:`reahl.web.pure.ColumnLayout` for its contents area.
 
 This new arrangement works for the Bootstrap versions as well, but
-with :class:`reahl.web.pure.ColumnLayout` used instead of
+with :class:`reahl.web.bootstrap.grid.ColumnLayout` used instead of
 :class:`reahl.web.pure.ColumnLayout`.
 
 Bootstrap's :class:`reahl.web.bootstrap.grid.ResponsiveSize` works
@@ -125,7 +116,7 @@ stated as integers and their meaning is always "how many 1/12ths". Ie:
    :class:`reahl.web.pure.PageColumnLayout`     Deprecated. Use :class:`reahl.web.layout.PageLayout` instead
 
    :class:`reahl.web.layout.PageLayout`         :class:`reahl.web.layout.PageLayout`
-   :class:`reahl.web.pure.ColumnLayout`         :class:`reahl.web.bootstrap.ColumnLayout`
+   :class:`reahl.web.pure.ColumnLayout`         :class:`reahl.web.bootstrap.grid.ColumnLayout`
 
    :class:`reahl.web.pure.UnitSize`             :class:`reahl.web.bootstrap.grid.ResponsiveSize` 
   ============================================  ======================================================

@@ -488,6 +488,11 @@ class XPath(object):
         """Returns an XPath to find a Span containing the message in `text`."""
         return cls('//span[contains(node(),"%s")]' % text)
 
+    @classmethod
+    def div_containing(cls, text):
+        """Returns an XPath to find a Div containing the message in `text`."""
+        return cls('//div[contains(text(),"%s")]' % text)
+
 
 class UnexpectedLoadOf(Exception):
     def __init__(self, jquery_selector):
