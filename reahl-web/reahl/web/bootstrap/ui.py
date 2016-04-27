@@ -53,7 +53,6 @@ class HTML5Page(reahl.web.ui.HTML5Page):
        
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword title: (See :class:`reahl.web.ui.HTML5Page`)
-       :keyword style: (See :class:`reahl.web.ui.HTML5Page`)
        :keyword css_id: (See :class:`HTMLElement`)
        
     """

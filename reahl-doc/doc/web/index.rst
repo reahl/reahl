@@ -8,6 +8,7 @@ Web framework
 
    Core web framework functionality (reahl.web.fw) <fw>
    Widgets -- user interface elements (reahl.web.ui) <ui>
+   Widgets(bootstrap) -- user interface elements (reahl.web.bootstrap.ui) <bootstrap>
    Widgets and other classes that help with layout (reahl.web.layout) <layout>
 
    Layout using Pure (reahl.web.pure) <pure>
