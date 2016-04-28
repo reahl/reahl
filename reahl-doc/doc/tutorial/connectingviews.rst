@@ -7,6 +7,8 @@ Moving between Views
 
    - tutorial.pageflow1
    - tutorial.pageflow2
+   - tutorial.pageflow1bootstrap
+   - tutorial.pageflow2bootstrap
 
    Get a copy of an example by running:
 
@@ -104,7 +106,7 @@ first defines each :class:`~reahl.web.fw.View` of the :class:`~reahl.web.fw.User
 In previous examples an :class:`~reahl.web.fw.EventHandler` was defined before a :class:`~reahl.web.ui.Button` is
 placed that needed to trigger an :class:`~reahl.component.modelinterface.Event`. That plan works well for
 simple examples -- where a user stays on the same page after an
-:class:`~reahl.component.modelinterface.Event`. Where users are moved around in an application, it makes more
+:class:`~reahl.component.modelinterface.Event`. Where users are moved around by the application, it makes more
 sense to show such navigation more explicitly. :class:`~reahl.web.fw.Transition`\ s are special
 :class:`~reahl.web.fw.EventHandler`\ s used for this purpose.
 
@@ -149,12 +151,12 @@ more than one :class:`~reahl.web.fw.Transition` for a particular :class:`~reahl.
 at runtime which one should be followed.
 
 In order to allow such an arrangement, a :class:`~reahl.web.fw.Transition` can be accompanied
-by a guard. A guard is an :class:`~reahl.component.modelinterface.Action` which wraps a method which will
-always return True or False.  Usually, the framework just picks the
+by a guard. A guard is an :class:`~reahl.component.modelinterface.Action` which wraps a method that
+returns True or False.  Usually, the framework just picks the
 first :class:`~reahl.web.fw.Transition` it can find when needed and follows it. Augmenting
 :class:`~reahl.web.fw.Transition`\ s with guards changes this scheme.
 
-When a :class:`~reahl.web.fw.Transition` is found that can be followed, he guard of the
+When a :class:`~reahl.web.fw.Transition` is found that can be followed, the guard of the
 :class:`~reahl.web.fw.Transition` is first executed. That :class:`~reahl.web.fw.Transition` is the only followed if
 its guard returns True. If a guard returns False, the search is
 continued non-deterministically for the next suitable :class:`~reahl.web.fw.Transition` (with

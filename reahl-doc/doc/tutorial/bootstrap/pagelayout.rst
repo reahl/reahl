@@ -14,7 +14,7 @@ Layout of pages
       reahl example <examplename>
 
 
-The :mod:`reahl.web.bootstrap.grids` module provides tools with which
+The :mod:`reahl.web.bootstrap.grid` module provides tools with which
 you can control the basic layout of a page. Layout is responsive,
 meaning that it adapts depending on the size of the device used to
 view the page.
@@ -23,30 +23,30 @@ Grid basics
 -----------
 
 The basic tools for laying out a page are
-:class:`reahl.web.bootstrap.grids.Container`,
-:class:`reahl.web.bootstrap.grids.ColumnLayout` and
-:class:`reahl.web.bootstrap.grids.ResponsiveSize`.
+:class:`reahl.web.bootstrap.grid.Container`,
+:class:`reahl.web.bootstrap.grid.ColumnLayout` and
+:class:`reahl.web.bootstrap.grid.ResponsiveSize`.
 
-A :class:`reahl.web.bootstrap.grids.Container` sets up a
+A :class:`reahl.web.bootstrap.grid.Container` sets up a
 :class:`~reahl.web.ui.HTMLElement` for pleasing display should it hold
 contents. (It gets padding, for example.)
 
-A :class:`~reahl.web.bootstrap.grids.ColumnLayout` is used to turn an
+A :class:`~reahl.web.bootstrap.grid.ColumnLayout` is used to turn an
 :class:`~reahl.web.ui.HTMLElement` such as a
 :class:`~reahl.web.bootstrap.ui.Div` into one row of a grid with a
 number of columns inside that one row. 
 
 Bootstrap requires that all Widgets laid out with a
-:class:`~reahl.web.bootstrap.grids.ColumnLayout` be nested somewhere
-(not matter how deep) in another laid out by a
-:class:`reahl.web.bootstrap.grids.Container`.
+:class:`~reahl.web.bootstrap.grid.ColumnLayout` be nested somewhere
+(no matter how deeply) in another which is laid out by a
+:class:`reahl.web.bootstrap.grid.Container`.
 
 When adding a column, you need to specify the size of that
 column. This is done using a
-:class:`~reahl.web.bootstrap.grids.ResponsiveSize`. A
-:class:`~reahl.web.bootstrap.grids.ResponsiveSize` lets you specify how
+:class:`~reahl.web.bootstrap.grid.ResponsiveSize`. A
+:class:`~reahl.web.bootstrap.grid.ResponsiveSize` lets you specify how
 wide the column should be on each possible size of user device. User
-devices sizes (called device classes) can be one of:
+device sizes (called device classes) can be one of:
 
  - xs (extra small)
  - sm (small)
@@ -71,10 +71,9 @@ A :class:`~reahl.web.bootstrap.grid.ColumnLayout` can also be constructed with a
    :pyobject: GridBasicsPage.add_two
 
 In order to really appreciate the power of
-:class:`~reahl.web.bootstrap.grids.ResponsiveSize`, you will really
+:class:`~reahl.web.bootstrap.grid.ResponsiveSize`, you will 
 have to fire up the example and play around with it. The example here
-includes different pages -- this page is the first called "Stacked to
-Hirozontal".
+includes different Views -- this View is the first called "Grid basics".
 
 TODO: we need at least on screenshot here - of the large window.
 
@@ -88,7 +87,7 @@ change, however: All the columns now stack on top of one another and
 fill the whole width of the screen to make them more usable on the
 smaller sized screen.
 
-With :class:`~reahl.web.bootstrap.grids.ResponsiveSize`, you can set
+With :class:`~reahl.web.bootstrap.grid.ResponsiveSize`, you can set
 up different breakpoints where the layout should adapt and specify
 specific widths depending on device class.
 
@@ -102,7 +101,7 @@ area is also often divided into different columns.
 
 You can layout a page in this fasion by using
 :class:`reahl.web.layout.PageLayout` in conjunction with a suitable
-:class:`reahl.web.bootstrap.grids.ColumnLayout` to be used for its
+:class:`reahl.web.bootstrap.grid.ColumnLayout` to be used for its
 content area.
 
 The "Page layout" view in our example shows how this works:
@@ -114,7 +113,7 @@ The "Page layout" view in our example shows how this works:
 Notice how the same responsive properties hold for such pages too -- go ahead and make your browser window smaller on this example.
 
 You can nest the usage of a
-:class:`reahl.web.bootstrap.grids.ColumnLayout` inside others (like
+:class:`reahl.web.bootstrap.grid.ColumnLayout` inside others (like
 the columns on this page), thereby creating complex grid structures
 that resize on all levels.
 

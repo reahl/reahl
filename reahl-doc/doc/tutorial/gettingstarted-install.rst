@@ -19,30 +19,27 @@ restricted users to install all the extra Python packages when
 developing.
 
 
-The bottom line
----------------
+.. sidebar:: The bottom line
 
-If you are a seasoned Python developer here is the quick summary. More detailed 
-installation instructions follow below this section.
+   If you are a seasoned Python developer here is the quick summary of the more detailed 
+   instructions.
 
-Reahl itself is installed via pip, using extras in [] to select what you want:
+   Reahl itself is installed via pip, using extras in [] to select what you want:
    
-.. code-block:: bash
+   .. code-block:: bash
    
-   pip install reahl[declarative,sqlite,dev,doc]  
+      pip install reahl[declarative,sqlite,dev,doc]  
 
-On platforms other than Windows, some dependencies pulled in during installation
-will also need to be compiled. To be able to compile these, you will also need:
+   On platforms other than Windows, some dependencies pulled in during installation
+   will also need to be compiled. To be able to compile these, you will also need:
 
-   - Libxml, libxslt
-   - Libsqlite   
+     - Libxml, libxslt
+     - Libsqlite   
    
-   - Python headers for compiling the above
-   - A C/C++ compiler (such as gcc) 
-   - Cython
+     - Python headers for compiling the above
+     - A C/C++ compiler (such as gcc) 
+     - Cython
 
-
-Read on for detailed instructions.
 
 .. _prep_install:
 
@@ -58,14 +55,15 @@ to platform -- please follow the instructions for your platform:
 - :doc:`Mac OS/X <install-mac>`
 - :doc:`Windows <install-win>`
 
+Once you have prepared your system, install Reahl itself in a virtualenv:
+
 .. _install-reahl-itself:
 
 Create a virtualenv and install Reahl inside it
 -----------------------------------------------
 
-Once you completed the instructions above for your platform, virtualenv should be
-installed along with other required packages. You need to now create a
-virtual environment using virtualenv.
+Next, you need to create a virtual environment using virtualenv and
+install Reahl inside it.
 
 On Linux or Mac, do:
 
