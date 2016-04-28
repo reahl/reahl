@@ -93,11 +93,11 @@ two different pages.
 Declaring the LoginSession
 --------------------------
 
-In Reahl, if you want to persist an object just for the lifetime of a
-UserSession, that object should be persisted via the same persistence
-mechanism used by your other persistent objects. It should also hold
-onto the UserSession so that it is discoverable for a particular
-UserSession.
+In Reahl, if you want to persist an object in session scope, that
+object should be persisted via the same persistence mechanism used by
+your other persistent objects. Your session-scoped object should also
+hold onto the UserSession so that the session-scoped object can be
+discovered from the UserSession it is a part of.
 
 When using SqlAlchemy, creating an object that has a `session scoped` lifetime is really
 easy: just use the `@session_scoped` class decorator:
@@ -122,8 +122,10 @@ user interface.  (The same goes for the `log_in` :class:`~reahl.component.modeli
 
 To complete the model itself, here is the implementation of
 User. Because only the paranoid survive, we've done the right thing
-and refrained from storing our User passwords in clear text. Besides
-that, there's really nothing much unexpected to the User class:
+and refrained from storing our User passwords in clear
+text. (Actually... for a real-life application password hashes should
+be salted as well.) Besides that, there's really nothing much
+unexpected to the User class:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
    :pyobject: User

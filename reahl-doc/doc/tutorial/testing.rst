@@ -37,6 +37,7 @@ Fixtures
 
    - tutorial.testbasics
    - tutorial.parameterised2
+   - tutorial.parameterised2bootstrap
 
    Get a copy of an example by running:
 

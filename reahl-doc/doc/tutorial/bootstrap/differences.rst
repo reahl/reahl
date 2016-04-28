@@ -22,10 +22,9 @@ Below follows a more detailed breakdown of changes.
 Basic Widgets
 -------------
 
-The most basic Widgets are located in
-:mod:`reahl.web.bootstrap.ui`\. These include Widgets that represent
-HTML (but styled versions) and a very small number of equally simple
-basic Widgets.
+Simple Widgets are located in :mod:`reahl.web.bootstrap.ui`\. These
+include Widgets that represent HTML (but styled versions) and a very
+small number of equally basic Widgets.
 
 
 The following changes happened here:
@@ -36,8 +35,10 @@ The following changes happened here:
       how and where error messages are displayed can differ, hence the
       Input cannot determine this by itself any longer.
 
-    - The :mod:`~reahl.web.bootstrap.ui` module now only contains Widgets corresponding to similar
-      basic HTML elements. Fancier Widgets are split out into separate modules.
+    - The :mod:`~reahl.web.bootstrap.ui` module now only contains
+      Widgets corresponding to basic HTML elements or elements that
+      are as simple as basic HTML elements in bootstrap-world. More
+      complex Widgets are split out into separate modules.
 
     - Widgets that dealt with Layout of Forms, such as
       :class:`reahl.web.ui.LabelledBlockInput` and
@@ -54,18 +55,19 @@ The following changes happened here:
          - :class:`~reahl.web.bootstrap.ui.ButtonLayout` (for :class:`~reahl.web.bootstrap.ui.Button` or :class:`~reahl.web.bootstrap.ui.A`).
          - :class:`~reahl.web.bootstrap.ui.TableLayout` (for :class:`~reahl.web.bootstrap.ui.Table`)
 
-     - Some other Widgets that attempted to deal with styling, or that were mere aliases for HTML elements were removed:
+    
+    - Some other Widgets that attempted to deal with styling, or that were mere aliases for HTML elements were removed:
          - :class:`~reahl.web.ui.InputGroup`
          - :class:`~reahl.web.ui.PriorityGroup`
          - :class:`~reahl.web.ui.Panel`
          - :class:`~reahl.web.ui.ErrorLabel`
          - :class:`~reahl.web.ui.LabelOverInput`
 
-     - Instead of a SimpleFileInput, there are two simple kinds of file input:
+    - Instead of a SimpleFileInput, there are two simple kinds of file input:
          - :class:`~reahl.web.bootstrap.ui.FileInputButton` (just a button which behaves like a file input)
          - :class:`~reahl.web.bootstrap.ui.FileInput` (a stylized version of a standard browser file input)
 
-     - CheckboxInput has been split into two versions:
+    - CheckboxInput has been split into two versions:
          - :class:`~reahl.web.bootstrap.ui.PrimitiveCheckboxInput` (just a checkbox)
          - :class:`~reahl.web.bootstrap.ui.CheckboxInput` (a checkbox wrapped in a label)
 

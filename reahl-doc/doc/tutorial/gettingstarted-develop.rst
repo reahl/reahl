@@ -48,8 +48,16 @@ In Reahl, each URL a user can visit is defined by a
 Create a Reahl component
 ------------------------
 
+.. sidebar:: Beware of terminology
+
+   The word *component* is used by different people for different
+   things. In Reahl every user interface element is a
+   :class:`~reahl.web.fw.Widget` and the word *component* refers to a
+   `installable collection of Python
+   code called a Distribution <http://pythonhosted.org/setuptools/setuptools.html>`_.
+
 A Reahl component is a bunch of related Python source code files that
-are distributed together in the form of a Python egg. A Reahl
+are distributed together in the form of a Python egg (or wheel). A Reahl
 component has a version number and can make use of other components.
 
 In Reahl, your web application is a component too. The very first

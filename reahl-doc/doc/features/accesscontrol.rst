@@ -3,6 +3,9 @@
 Access control example
 ======================
 
+:doc:`As explained previously <validation>`, objects are annotated to
+state which Fields or Events they expose to a user interface. Fields
+and Events supply extra information that is useful to user interfaces.
 Fields are not only used for validation -- amongst other things they
 are also used to declare who is allowed to see or change the data
 items they represent. This information is used to automatically adapt
