@@ -21,26 +21,12 @@ import six
 import time
 
 
-# brand link to home page of site, in correct language
-# When collapsed, internal nav should stack like on bs3 examples
-
-#collapse looks like a bootsrap component, not necessarily a navbar thing
-#--- see things below scenarioify
-#file upload multiple files
-#dialog button and friends (popupA etc)
-# PopupA - "Modal" in Bootstrap / or Popover / or Card?
-#
-
-#paged table
-#reahl-domainui - bootstrap"ify" worklow, register user
-
-#thhrow ProgrammerError instead of assertion
-
 from reahl.tofu import vassert, scenario, expected, test, Fixture
 from reahl.stubble import stubclass
 
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin
+from reahl.component.exceptions import IsInstance
 
 from reahl.web.fw import Bookmark
 
@@ -208,9 +194,9 @@ def adding_to_navbar_with_both_left_and_right_alignment_not_allowed(fixture):
     navbar = fixture.navbar.use_layout(NavbarLayout())
 
     def check_ex(ex):
-        vassert( six.text_type(ex).startswith('You should specify left or right, not both'))
+        vassert( six.text_type(ex).startswith('Both left= and right= have been given. Specify left or right, not both'))
 
-    with expected(AssertionError, test=check_ex):
+    with expected(ProgrammerError, test=check_ex):
         navbar.layout.add(fixture.nav, left=True, right=True)
 
 
@@ -221,10 +207,7 @@ def adding_other_than_form_or_nav_is_not_allowed(fixture):
     navbar = fixture.navbar.use_layout(NavbarLayout())
     not_a_form_or_nav = Div(fixture.view)
 
-    def check_ex(ex):
-        vassert( six.text_type(ex).startswith('You may only add Navs or Forms to a Navbar'))
-
-    with expected(AssertionError, test=check_ex):
+    with expected(IsInstance):
         navbar.layout.add(not_a_form_or_nav)
 
     # Case: Form
@@ -330,9 +313,9 @@ def navbar_toggle_requires_target_id(fixture):
     element_without_id = P(fixture.view, text='Peek-A-Boo')
 
     def check_ex(ex):
-        vassert( 'you must set its css_id' in six.text_type(ex))
+        vassert( 'has no css_id set' in six.text_type(ex))
 
-    with expected(AssertionError, test=check_ex):
+    with expected(ProgrammerError, test=check_ex):
         navbar.layout.add_toggle(element_without_id)
 
 

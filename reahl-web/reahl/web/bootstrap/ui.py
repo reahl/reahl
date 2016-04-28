@@ -60,7 +60,7 @@ class HTML5Page(reahl.web.ui.HTML5Page):
         super(HTML5Page, self).__init__(view, title=title, css_id=css_id)
 
     def check_form_related_programmer_errors(self):
-        super(HTML5Page, self).check_form_related_programmer_errors(view)
+        super(HTML5Page, self).check_form_related_programmer_errors()
         self.check_grids_nesting()
         
     def check_grids_nesting(self):

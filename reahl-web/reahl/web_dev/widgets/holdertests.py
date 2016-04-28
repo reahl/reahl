@@ -23,6 +23,7 @@ from reahl.tofu import vassert, expected, test
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import WidgetTester
+from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.holder.holder import PlaceholderImage, PredefinedTheme, CustomTheme
 
@@ -101,6 +102,6 @@ def custom_theme_text_align_valid_values(fixture):
     CustomTheme(text_align=None)
 
     #invalid
-    with expected(AssertionError):
+    with expected(ProgrammerError):
         invalid_value = 'somewhere'
         CustomTheme(text_align=invalid_value)

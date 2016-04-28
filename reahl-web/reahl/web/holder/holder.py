@@ -57,7 +57,7 @@ class CustomTheme(Theme):
 
         super(CustomTheme, self).__init__()
         if text_align not in ['left', 'right', None]:
-            raise ProgrammerError('text_align cannot be "%s", it should be one of %s' % (text_align, ','.join(['left', 'right', None])
+            raise ProgrammerError('text_align cannot be "%s", it should be one of %s' % (text_align, ','.join(['left', 'right', 'None'])))
 
         if bg is not None:
             self['bg'] = bg
