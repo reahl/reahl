@@ -8,6 +8,15 @@ Layout example
    Reahl implements layout-related functionality in terms of the
    `Pure.css framework <http://purecss.io/>`_.
 
+.. sidebar:: Moving towards Bootstrap
+   
+   In an effort to improve support for styling and layout, Reahl
+   is gradually moving towards Widgets and Layouts based on
+   `the Bootstrap frontend framework <http://getbootstrap.com>`_.
+
+   :doc:`Read more about the experimental Bootstrap-based stuff
+   <../tutorial/bootstrap/index>` included in this release.
+
 A Widget can use a predefined (but configurable) Layout to change what
 it looks like. Different Layouts could be used with the same Widget on
 different apps or different contexts.
