@@ -12,10 +12,9 @@ Layout and styling using Bootstrap (experimental)
 In this version of Reahl, we introduce Widgets and Layouts that are
 based on `Bootstrap <http://getbootstrap.com/>`_\.
 
-At the time of release of Reahl 3.2 Bootstrap version 4 was still in
-alpha and under heavy development. For this reason, and also to keep
-Reahl 3.2 backwards compatible, the bootstrap support here is *not*
-enabled by default and is seen as experimental.
+At the time of release of Reahl 3.2, Bootstrap version 4 was still in
+alpha and under heavy development. For this reason, the bootstrap
+support here is *not* enabled by default and is seen as experimental.
 
 In Reahl 4.0, these Bootstrap versions of Widgets and Layouts will
 become the only out-of-the-box styled Widgets supported -- our current

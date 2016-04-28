@@ -28,9 +28,7 @@ class GridBasicsPage(HTML5Page):
         div.layout.columns['right'].add_child(P(self.view, text='8/12ths on md and larger'))
 
     def add_twelve(self):
-        layout = ColumnLayout()
-
-        div = Div(self.view).use_layout(layout)
+        div = Div(self.view).use_layout(ColumnLayout())
         self.body.add_child(div)
 
         for i in range(1, 13):
@@ -71,7 +69,7 @@ class HomePage(HTML5Page):
 
 class BootstrapGridsUI(UserInterface):
     def assemble(self):
-        basics = self.define_view('/stackedToHorizontal', title='Grid basics', page=GridBasicsPage.factory())
+        basics = self.define_view('/gridBasics', title='Grid basics', page=GridBasicsPage.factory())
         page_layout = self.define_view('/pageLayout', title='Page layout', page=PageLayoutPage.factory())
 
         bookmarks = [

@@ -1,5 +1,12 @@
 .. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 
+.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
+.. |Layout| replace:: :class:`~reahl.web.fw.Layout`
+.. |HTML5Page| replace:: :class:`~reahl.web.ui.HTML5Page`
+.. |pure.ColumnLayout| replace:: :class:`~reahl.web.pure.ColumnLayout`
+.. |PageLayout| replace:: :class:`~reahl.web.layout.PageLayout`
+.. |UnitSize| replace:: :class:`~reahl.web.pure.UnitSize`
+
 Layout and styling
 ==================
 
@@ -22,18 +29,17 @@ a little bit better.
 Layout
 ------
 
-A :class:`~reahl.web.fw.Layout` is used to change what a
-:class:`~reahl.web.fw.Widget` looks like, what css classes are attached to it for styling, or even how
-children :class:`~reahl.web.fw.Widget`\ s are added to it -- all for
-the purpose of influencing look and layout.
+A |Layout| is used to change what a |Widget| looks like, what css
+classes are attached to it for styling, or even how children |Widget|\
+s are added to it -- all for the purpose of influencing look and
+layout.
 
-A :class:`~reahl.web.fw.Widget` is configured to use a particular
-:class:`~reahl.web.fw.Layout` by calling
-:meth:`~reahl.web.fw.Widget.use_layout` on the
-:class:`~reahl.web.fw.Widget` after construction. (You can also call
-:meth:`~reahl.web.fw.WidgetFactory.use_layout` where you construct only
-a :class:`~reahl.web.fw.WidgetFactory` for later use.)
-For example, the :class:`~reahl.web.ui.HorizontalLayout` or
+A |Widget| is configured to use a particular |Layout| by calling
+:meth:`reahl.web.fw.Widget.use_layout` on the |Widget| after
+construction. (You can also call
+:meth:`reahl.web.fw.WidgetFactory.use_layout` where you construct only
+a :class:`~reahl.web.fw.WidgetFactory` for later use.)  For example,
+the :class:`~reahl.web.ui.HorizontalLayout` or
 :class:`~reahl.web.ui.VerticalLayout` can be used to make a
 :class:`~reahl.web.ui.Menu` appear with its items horizontally next to
 each other or stacked vertically.
@@ -42,28 +48,25 @@ Some layout concepts are implemented in terms of some frontend
 library, others are generally applicable.
 
 The :mod:`~reahl.web.pure` module includes some layouts based on the
-`Pure.css framework <http://purecss.io/>`_. The
-:class:`~reahl.web.pure.ColumnLayout` changes a
-:class:`~reahl.web.fw.Widget` by adding several
-:class:`~reahl.web.ui.Div`\ s to it that are arranged in columns next
-to each other. You can specify the size of these columns, and in such
-a way that the size can change, depending on the size of the device
-used for viewing. See the documentation for
-:class:`~reahl.web.pure.ColumnLayout` and
-:class:`~reahl.web.pure.UnitSize` for more details.
-(See the :mod:`~reahl.web.bootstrap` module for Layouts and Widgets
-built using the Bootstrap library.)
+`Pure.css framework <http://purecss.io/>`_. The |pure.ColumnLayout|
+changes a |Widget| by adding several :class:`~reahl.web.ui.Div`\ s to
+it that are arranged as columns next to each other. You can specify
+the size of these columns, and in such a way that the size can change,
+depending on the size of the device used for viewing. See the
+documentation for |pure.ColumnLayout| and |UnitSize| for more details.
+(See :doc:`../web/bootstrap` for Layouts and Widgets built using the
+Bootstrap library.)
 
 The :mod:`~reahl.web.layout` module houses generically applicable concepts.
-:class:`~reahl.web.layout.PageLayout` is meant to be used with an
-:class:`~reahl.web.ui.HTML5Page`. It changes the page to have a header
-and footer with a content area inbetween. If a :class:`~reahl.web.pure.ColumnLayout`
-(for example) is passed to the :class:`~reahl.web.layout.PageLayout` constuctor, 
+|PageLayout| is meant to be used with an
+HTML5Page. It changes the page to have a header
+and footer with a content area inbetween. If a |pure.ColumnLayout|
+(for example) is passed to the |PageLayout| constuctor, 
 it will automatically be used as the layout of the content area of the page.
 
 
-Here is an example of how :class:`~reahl.web.layout.PageLayout` and
-:class:`~reahl.web.pure.ColumnLayout` can be used in conjunction to
+Here is an example of how |PageLayout| and
+|pure.ColumnLayout| can be used in conjunction to
 create a page with some structure. In the example,
 :class:`~reahl.web.ui.HorizontalLayout` is also used to specify how
 the :class:`~reahl.web.ui.Menu` is presented.
@@ -76,11 +79,11 @@ the :class:`~reahl.web.ui.Menu` is presented.
 Special Widgets
 ---------------
 
-There are also some :class:`~reahl.web.fw.Widget`\ s with special behaviour that relate to
+There are also some |Widget|\ s with special behaviour that relate to
 layout and styling:
 
 :class:`~reahl.web.ui.LabelledBlockInput`
- This :class:`~reahl.web.fw.Widget` wraps around an :class:`~reahl.web.ui.Input`, and adds a :class:`~reahl.web.ui.Label`
+ This |Widget| wraps around an :class:`~reahl.web.ui.Input`, and adds a :class:`~reahl.web.ui.Label`
  to it. The combination of the :class:`~reahl.web.ui.Input` and its :class:`~reahl.web.ui.Label` are then arranged
  in two columns next to each other. Successive :class:`~reahl.web.ui.LabelledBlockInput`\ s
  appear underneath each other, with all the :class:`~reahl.web.ui.Label`\s aligned and all the
@@ -92,23 +95,23 @@ layout and styling:
  part of a paragraph (:class:`~reahl.web.ui.P`\ ), for example.
 
 :class:`~reahl.web.ui.PriorityGroup`
- Sometimes it is useful to visually highlight certain :class:`~reahl.web.fw.Widget`\ s to make
+ Sometimes it is useful to visually highlight certain |Widget|\ s to make
  them stand out amongst their peers. This concept is called the
- "priority" of a :class:`~reahl.web.fw.Widget`. Normally, you would not specify the priority
- of a :class:`~reahl.web.fw.Widget`. But, amongst chosen grouping of :class:`~reahl.web.fw.Widget`\ s, you may set one
- :class:`~reahl.web.fw.Widget` as having "primary" priority, with the others having
+ "priority" of a |Widget|. Normally, you would not specify the priority
+ of a |Widget|. But, amongst chosen grouping of |Widget|\ s, you may set one
+ |Widget| as having "primary" priority, with the others having
  "secondary" priority. 
 
- A :class:`~reahl.web.fw.Widget` with "secondary" priority will have a CSS class
+ A |Widget| with "secondary" priority will have a CSS class
  `reahl-priority-secondary` attached to it, which is normally styled
  such that it fades a bit into the background (perhaps lighter, or
- slightly greyed out). A :class:`~reahl.web.fw.Widget` with "primary" priority will have CSS
+ slightly greyed out). A |Widget| with "primary" priority will have CSS
  class `reahl-priority-primary` which is normally styled such that it
  stands out visually.
 
- The :class:`~reahl.web.ui.PriorityGroup` is an object to which you can add :class:`~reahl.web.fw.Widget`\ s, stating
+ The :class:`~reahl.web.ui.PriorityGroup` is an object to which you can add |Widget|\ s, stating
  their priority (or lack of it). The :class:`~reahl.web.ui.PriorityGroup` will ensure that
- only one of the :class:`~reahl.web.fw.Widget`\ s added to it will ever have primary
+ only one of the |Widget|\ s added to it will ever have primary
  priority. (Many could have no priority set, and many could be
  secondary.)
 
@@ -117,30 +120,30 @@ layout and styling:
 Styling
 -------
 
-Complex :class:`~reahl.web.fw.Widget`\ s in Reahl are written such that the :class:`~reahl.web.fw.Widget` has an
-identifiable HTML element that represents the :class:`~reahl.web.fw.Widget`. Identifiable
+Complex |Widget|\ s in Reahl are written such that the |Widget| has an
+identifiable HTML element that represents the |Widget|. Identifiable
 means that the HTML element has an id or class attribute which can be
 used as target of CSS selectors. This allows for CSS to be attached to
-each :class:`~reahl.web.fw.Widget` (or its contents). For example, the TabbedPanel is in a
-`<div class="reahl-tabbedpanel">`. :class:`~reahl.web.fw.Widget`\ s that map one-to-one to HTML
+each |Widget| (or its contents). For example, the TabbedPanel is in a
+`<div class="reahl-tabbedpanel">`. |Widget|\ s that map one-to-one to HTML
 tags do not have special classes -- they can be targeted in CSS by just
-using the HTML tag name they represent: the :class:`reahl.web.ui.P` :class:`~reahl.web.fw.Widget` is just a `<p>`,
+using the HTML tag name they represent: the :class:`reahl.web.ui.P` |Widget| is just a `<p>`,
 for example.
 
-Any :class:`~reahl.web.fw.Layout` can also add CSS classes to a
-:class:`~reahl.web.fw.Widget` or change how contents is added to it.
+Any |Layout| can add additional CSS classes to a
+|Widget| or change how content is added to it.
 
-Given these ways to be able to target a :class:`~reahl.web.fw.Widget`
-(possibly modified by a apecific :class:`~reahl.web.fw.Layout`) via
+Given these ways to be able to target a |Widget|
+(possibly modified by a apecific |Layout|) via
 CSS, you can write normal CSS to provide your own look and feel for
-Reahl :class:`~reahl.web.fw.Widget`\ s (if you really want to). In the
-reference documentation for each :class:`~reahl.web.fw.Widget` an
+Reahl |Widget|\ s (if you really want to). In the
+reference documentation for each |Widget| an
 explanation is given of what the HTML for that
-:class:`~reahl.web.fw.Widget` looks like, for this purpose. (Similar
-documentation is provided with :class:`~reahl.web.fw.Layout`\ s.)
+|Widget| looks like, for this purpose. (Similar
+documentation is provided with |Layout|\ s.)
 
 In order to use your own CSS on a page, you need to add a link to it on
-your :class:`~reahl.web.ui.HTML5Page` subclass. For example in the `__init__`
+your HTML5Page subclass. For example in the `__init__`
 of your class, you can write:
 
 .. code-block:: python
@@ -148,18 +151,18 @@ of your class, you can write:
    self.head.add_css(Url('/link/to/my/own.css'))
 
 
-The minutae of what :class:`~reahl.web.fw.Widget`\ s look like is probably not the first thing on a
+The minutae of what |Widget|\ s look like is probably not the first thing on a
 programmer's mind however. It is useful just to start programming using *some*
-look for the :class:`~reahl.web.fw.Widget`\ s, and later customise this look to your
+look for the |Widget|\ s, and later customise this look to your
 liking. For this reason, a stylesheet is provided which includes
-styling for all the standard Reahl :class:`~reahl.web.fw.Widget`\ s. You can include this style
-by adding it to the Head of your :class:`~reahl.web.ui.HTML5Page`:
+styling for all the standard Reahl |Widget|\ s. You can include this style
+by adding it to the Head of your HTML5Page:
 
 .. code-block:: python
 
    self.head.add_css(Url('/styles/basic.css'))
 
-If you are using the :class:`~reahl.web.ui.HTML5Page` as a page, the same effect
+If you are using the HTML5Page as a page, the same effect
 can be accomplished by merely passing ``style='basic'`` to its
 constructor (as can be seen in almost all of our code examples so
 far).
