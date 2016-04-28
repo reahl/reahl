@@ -13,7 +13,7 @@ class SessionScopeFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=SessionScopeUI))
         
-    password = 'bobbejaan'
+    password = 'topsecret'
 
     def new_user(self):
         user = User(name='John Doe', email_address='johndoe@some.org')
@@ -42,7 +42,7 @@ def logging_in(fixture):
     browser.click(XPath.link_with_text('Log in'))
 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-    browser.type(XPath.input_labelled('Password'), 'bobbejaan')
+    browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
 
     browser.click(XPath.link_with_text('Home'))
@@ -59,7 +59,7 @@ def email_retained(fixture):
     browser.click(XPath.link_with_text('Log in'))
 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-    browser.type(XPath.input_labelled('Password'), 'bobbejaan')
+    browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
 
     # Go away from the page, then back

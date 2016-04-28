@@ -14,7 +14,7 @@ from reahl.doc.examples.tutorial.access1.access1 import AddressBook, Address
 
 
 class AccessFixture(WebFixture):
-    password = 'bobbejaan'
+    password = 'topsecret'
 
     def new_account(self, email='johndoe@some.org'):
         account = EmailAndPasswordSystemAccount(email=email)
