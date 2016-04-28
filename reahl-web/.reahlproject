@@ -47,14 +47,10 @@
     <file path="reahl/web/reahl.menu.css"/>
     <file path="reahl/web/reahl.hmenu.css"/>
     <file path="reahl/web/reahl.slidingpanel.css"/>
-    <file path="reahl/web/reahl.runningonbadge.css"/>
   </attachedfiles>
 
   <attachedfiles filetype="js">
-    <file path="reahl/web/reahl.hashchange.js"/>
-    <file path="reahl/web/reahl.ajaxlink.js"/>
     <file path="reahl/web/reahl.form.js"/>
-    <file path="reahl/web/reahl.textinput.js"/>
     <file path="reahl/web/reahl.cueinput.js"/>
     <file path="reahl/web/reahl.labeloverinput.js"/>
     <file path="reahl/web/reahl.fileuploadli.js"/>

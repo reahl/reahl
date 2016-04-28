@@ -1792,12 +1792,16 @@ class TextInput(InputTypeInput):
                      such "fuzzy input". If fuzzy=True, the typed value will be changed on the fly to
                      the system's interpretation of what the user originally typed as soon as the TextInput
                      looses focus.
+       :param placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput 
+                     is empty in order to provide a hint to the user of what may be entered into the TextInput. 
+                     If given True instead of a string, the label of the TextInput is used.
     """
     def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
         super(TextInput, self).__init__(form, bound_field, 'text')
         self.append_class('reahl-textinput')
         if placeholder:
-            self.set_attribute('placeholder', self.label)
+            placeholder_text = self.label if placeholder is True else placeholder
+            self.set_attribute('placeholder', placeholder_text)
 
         if fuzzy:
             self.append_class('fuzzy')

@@ -35,7 +35,7 @@ from reahl.web.ui import A, Article, Body, Br, Caption, Col, ColGroup, Div, Fiel
     Label, Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, Tbody, Td, TextNode, \
     Tfoot, Th, Thead, Title, Tr, Ul, DynamicColumn, StaticColumn, WrappedInput, FieldSet
 
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, HTMLAttributeValueOption
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize, HTMLAttributeValueOption
 
 
 _ = Translator('reahl-web')
@@ -58,6 +58,18 @@ class HTML5Page(reahl.web.ui.HTML5Page):
     """
     def __init__(self, view, title='$current_title', css_id=None):
         super(HTML5Page, self).__init__(view, title=title, css_id=css_id)
+
+    def check_form_related_programmer_errors(self):
+        super(HTML5Page, self).check_form_related_programmer_errors(view)
+        self.check_grids_nesting()
+        
+    def check_grids_nesting(self):
+        for widget, parents_set in self.parent_widget_pairs(set([])):
+            if isinstance(widget.layout, ColumnLayout):
+                if not any(isinstance(parent.layout, Container) for parent in parents_set):
+                    raise ProgrammerError(('%s does not have a parent with Layout of type %s.' % widget)+\
+                      ' %s has a ColumnLayout, and thus needs to have an anchestor with a Container Layout.' % widget)
+
 
 
 class Form(reahl.web.ui.Form):
@@ -293,9 +305,8 @@ class ChoicesLayout(reahl.web.ui.Layout):
         super(ChoicesLayout, self).__init__()
         self.inline = inline
 
-    def add_choice(self, html_input):
-        assert isinstance(html_input, (PrimitiveCheckboxInput, PrimitiveRadioButtonInput))
- 
+    @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, PrimitiveRadioButtonInput)))
+    def add_choice(self, html_input): 
         label_widget = Label(self.view)
 
         if self.inline:

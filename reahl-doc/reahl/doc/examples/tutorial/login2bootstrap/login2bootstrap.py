@@ -22,11 +22,10 @@ class MenuPage(HTML5Page):
         self.layout.header.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(main_bookmarks))
 
 
-class LegalSecuredWidget(Widget):
-    def __init__(self, view, text, css_id_for_text):
-        super(LegalSecuredWidget, self).__init__(view)
+class LegalNotice(P):
+    def __init__(self, view, text, name):
+        super(LegalNotice, self).__init__(view, text=text, css_id=name)
         self.set_as_security_sensitive()
-        self.add_child(P(view, text=text, css_id=css_id_for_text))
 
 
 class LoginUI(UserInterface):
@@ -40,19 +39,19 @@ class LoginUI(UserInterface):
         home = self.define_view('/', title='Home')
         home.set_slot('main', P.factory(text='Welcome %s' % logged_in_as))
 
-        terms_of_service = self.define_view('/terms_of_service', title='Terms Of Service')
-        terms_of_service.set_slot('main', LegalSecuredWidget.factory('The terms of services defined as ...', 'terms'))
+        terms_of_service = self.define_view('/terms_of_service', title='Terms of service')
+        terms_of_service.set_slot('main', LegalNotice.factory('The terms of services defined as ...', 'terms'))
 
-        privacy_policy = self.define_view('/privacy_policy', title='Privacy Policy')
-        privacy_policy.set_slot('main', LegalSecuredWidget.factory('You have the right to remain silent ...', 'privacypolicy'))
+        privacy_policy = self.define_view('/privacy_policy', title='Privacy policy')
+        privacy_policy.set_slot('main', LegalNotice.factory('You have the right to remain silent ...', 'privacypolicy'))
 
         disclaimer = self.define_view('/disclaimer', title='Disclaimer')
-        disclaimer.set_slot('main', LegalSecuredWidget.factory('Disclaim ourselves from negligence ...', 'disclaimer'))
+        disclaimer.set_slot('main', LegalNotice.factory('Disclaim ourselves from negligence ...', 'disclaimer'))
 
         class LegalBookmarks(object):
-            terms_bookmark = terms_of_service.as_bookmark(self, description='Terms of service')
-            privacy_bookmark = privacy_policy.as_bookmark(self, description='Privacy policy')
-            disclaimer_bookmark = disclaimer.as_bookmark(self, description='Disclaimer')
+            terms_bookmark = terms_of_service.as_bookmark(self)
+            privacy_bookmark = privacy_policy.as_bookmark(self)
+            disclaimer_bookmark = disclaimer.as_bookmark(self)
 
         accounts = self.define_user_interface('/accounts', AccountUI,
                                       {'main_slot': 'main'},

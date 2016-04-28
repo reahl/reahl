@@ -20,6 +20,8 @@ import six
 
 from collections import OrderedDict
 
+from reahl.component.exceptions import ProgrammerError
+
 from reahl.web.fw import Url
 from reahl.web.ui import Img
 
@@ -54,7 +56,8 @@ class CustomTheme(Theme):
     def __init__(self, bg=None, fg=None, text_size=None, text_font=None, text_align=None, outline=None, line_wrap=None):
 
         super(CustomTheme, self).__init__()
-        assert text_align in ['left', 'right', None]
+        if text_align not in ['left', 'right', None]:
+            raise ProgrammerError('text_align cannot be "%s", it should be one of %s' % (text_align, ','.join(['left', 'right', None])
 
         if bg is not None:
             self['bg'] = bg

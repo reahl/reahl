@@ -24,6 +24,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
+from reahl.component.exceptions import arg_checks, IsInstance, ProgrammerError
+
 from reahl.web.fw import Layout, Widget
 from reahl.web.ui import Url, HTMLElement, HTMLWidget
 from reahl.web.bootstrap.ui import Div, Form, Nav, A, TextNode, ResponsiveSize
@@ -67,7 +69,9 @@ class ResponsivePull(HTMLAttributeValueOption):
 class ResponsiveFloat(Layout):
     def __init__(self, left=None, right=None):
         super(ResponsiveFloat, self).__init__()
-        assert (left or right) and not (left and right), 'You should specify left or right, not both'
+        if left and right:
+            raise ProgrammerError('Both left= and right= have been given. Specify left or right, not both.')
+
         self.left = ResponsivePull('left', left)
         self.right = ResponsivePull('right', right)
 
@@ -96,20 +100,25 @@ class BackgroundScheme(HTMLAttributeValueOption):
 class NavbarLayout(Layout):
     def __init__(self, fixed_to=None, full=False, center_contents=False, colour_theme=None, bg_scheme=None):
         super(NavbarLayout, self).__init__()
-        assert [fixed_to, full].count(True) <= 1, 'Only one should be set'
+        if fixed_to and full:
+            raise ProgrammerError('Both fixed_to and full are given. Give fixed_to or full, but not both')
+        
         self.fixed = NavbarFixed(fixed_to)
         self.full = HTMLAttributeValueOption('navbar-full', full)
         self.center_contents = center_contents
         self.colour_theme = ColourTheme(colour_theme)
         self.bg_scheme = BackgroundScheme(bg_scheme)
         self.brand = None
+        self.contents_container = None
 
     def customise_widget(self):
         super(NavbarLayout, self).customise_widget()
-        nav = self.widget.contents_container
+        nav = self.widget.html_representation
         if self.center_contents:
             centering_div = nav.add_child(Div(self.view).use_layout(Container()))
-            self.widget.set_contents_container(centering_div)
+            self.contents_container = centering_div
+        else:
+            self.contents_container = nav
 
         for option in [self.fixed, self.full]:
             if option.is_set:
@@ -123,14 +132,17 @@ class NavbarLayout(Layout):
         brand_a = A(self.view, Url('#'), description=brand_text)
         self.set_brand(brand_a)
 
+    @arg_checks(brand_html_element=IsInstance(HTMLElement))
     def set_brand(self, brand_html_element):
-        assert not self.brand and isinstance(brand_html_element, HTMLElement)
-        self.widget.contents_container.insert_child(0, brand_html_element)
+        if self.brand:
+            raise ProgrammerError('Brand has already been set to: %s' % self.brand)
+
+        self.contents_container.insert_child(0, brand_html_element)
         brand_html_element.append_class('navbar-brand')
         self.brand = brand_html_element
 
+    @arg_checks(brand_html_element=IsInstance((reahl.web.bootstrap.navs.Nav, Form)))
     def add(self, widget, left=None, right=None):
-        assert isinstance(widget, reahl.web.bootstrap.navs.Nav) or isinstance(widget, Form), 'You may only add Navs or Forms to a Navbar'
         if isinstance(widget, reahl.web.bootstrap.navs.Nav):
             widget.append_class('navbar-nav')
         if left or right:
@@ -138,14 +150,15 @@ class NavbarLayout(Layout):
             child.add_child(widget)
         else:
             child = widget
-        self.widget.contents_container.add_child(child)
+        self.contents_container.add_child(child)
         return widget
 
     def add_toggle(self, target_html_element, text=None):
-        assert target_html_element.css_id_is_set, 'To add a toggle to %s, you must set its css_id' % target_html_element
+        if not target_html_element.css_id_is_set:
+            raise ProgrammerError('%s has no css_id set. A toggle is required to have a css_id' % target_html_element)
         target_html_element.append_class('collapse')
         toggle = CollapseToggle(self.view, target_html_element, text=text)
-        self.widget.contents_container.add_child(toggle)
+        self.contents_container.add_child(toggle)
         return toggle
 
 
@@ -153,12 +166,16 @@ class ResponsiveLayout(NavbarLayout):
     def __init__(self, collapse_below_device_class, fixed_to=None, full=False, center_contents=False, colour_theme=None, bg_scheme=None, text=None):
         super(ResponsiveLayout, self).__init__(fixed_to=fixed_to, full=full, center_contents=center_contents, colour_theme=colour_theme, bg_scheme=bg_scheme)
         self.collapse_below_device_class = DeviceClass(collapse_below_device_class)
-        assert self.collapse_below_device_class.one_smaller, 'It does not make sense to collapse only smaller than smallest devices'
+        if not self.collapse_below_device_class.one_smaller:
+            raise ProgrammerError(('There is no device class smaller than %s' % self.collapse_below_device_class)+\
+                                  ' It does not make sense to collapse only if the viewport is smaller than the smallest device')
         self.text = text
 
     def customise_widget(self):
         super(ResponsiveLayout, self).customise_widget()
-        assert self.widget.css_id_is_set, 'To use a %s, you must set the css_id on %s' % (self.__class__, self.widget)
+        if not target_html_element.css_id_is_set:
+            raise ProgrammerError('%s has no css_id set. A %s can only be used with a Widget that has a css_id' % \
+                                (self.widget, self.__class__))
 
         collapsable = Div(self.view, css_id='%s_collapsable' % self.widget.css_id)
         collapsable.append_class('collapse')
@@ -166,11 +183,9 @@ class ResponsiveLayout(NavbarLayout):
         toggle_size = self.collapse_below_device_class.one_smaller
         collapsable.append_class('navbar-toggleable-%s' % toggle_size.class_label)
         
-        self.widget.contents_container.add_child(toggle_widget)
-        self.widget.contents_container.add_child(collapsable)
-        self.widget.set_contents_container(collapsable)
-
-
+        self.contents_container.add_child(toggle_widget)
+        self.contents_container.add_child(collapsable)
+        self.contents_container = collapsable
 
 
 class Navbar(HTMLWidget):
@@ -179,11 +194,8 @@ class Navbar(HTMLWidget):
 
         self.navbar = self.add_child(Nav(view))
         self.navbar.append_class('navbar')
-        self.set_contents_container(self.navbar)
         self.set_html_representation(self.navbar)
 
-    def set_contents_container(self, container):
-        self.contents_container = container
 
 
 
