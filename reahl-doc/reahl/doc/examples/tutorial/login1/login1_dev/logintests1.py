@@ -14,7 +14,7 @@ class LoginFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=LoginUI))
         
-    password = 'bobbejaan'
+    password = 'topsecret'
 
     def new_account(self):
         account = EmailAndPasswordSystemAccount(email='johndoe@some.org')
@@ -44,7 +44,7 @@ def logging_in(fixture):
     browser.click(XPath.link_with_text('Log in'))
 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-    browser.type(XPath.input_labelled('Password'), 'bobbejaan')
+    browser.type(XPath.input_labelled('Password'), 'topsecret')
     browser.click(XPath.button_labelled('Log in'))
 
     browser.click(XPath.link_with_text('Home'))

@@ -23,7 +23,7 @@ class AccessFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
         
-    password = 'bobbejaan'
+    password = 'topsecret'
 
     def new_account(self, email='johndoe@some.org'):
         account = EmailAndPasswordSystemAccount(email=email)
