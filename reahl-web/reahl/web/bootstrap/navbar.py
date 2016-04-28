@@ -141,7 +141,7 @@ class NavbarLayout(Layout):
         brand_html_element.append_class('navbar-brand')
         self.brand = brand_html_element
 
-    @arg_checks(brand_html_element=IsInstance((reahl.web.bootstrap.navs.Nav, Form)))
+    @arg_checks(widget=IsInstance((reahl.web.bootstrap.navs.Nav, Form)))
     def add(self, widget, left=None, right=None):
         if isinstance(widget, reahl.web.bootstrap.navs.Nav):
             widget.append_class('navbar-nav')
@@ -173,7 +173,7 @@ class ResponsiveLayout(NavbarLayout):
 
     def customise_widget(self):
         super(ResponsiveLayout, self).customise_widget()
-        if not target_html_element.css_id_is_set:
+        if not self.widget.css_id_is_set:
             raise ProgrammerError('%s has no css_id set. A %s can only be used with a Widget that has a css_id' % \
                                 (self.widget, self.__class__))
 
