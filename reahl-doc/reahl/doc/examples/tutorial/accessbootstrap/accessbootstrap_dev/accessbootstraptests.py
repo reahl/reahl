@@ -22,7 +22,7 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 class AccessFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
-        
+
     password = 'topsecret'
 
     def new_account(self, email='johndoe@some.org'):

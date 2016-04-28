@@ -192,13 +192,19 @@ class IE9(Library):
 class Reahl(Library):
     def __init__(self):
         super(Reahl, self).__init__('reahl')
+        self.shipped_in_directory = '/reahl/web'
+        self.files = ['reahl.hashchange.js',
+                      'reahl.ajaxlink.js',
+                      'reahl.textinput.js',
+                      'reahl.runningonbadge.css']
 
     def header_only_material(self, rendered_page):
-        return '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
+        return super(Reahl, self).header_only_material(rendered_page) + \
+               '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
 
     def footer_only_material(self, rendered_page):
-        return '\n<script type="text/javascript" src="/static/reahl.js"></script>'
-
+        return super(Reahl, self).footer_only_material(rendered_page) + \
+               '\n<script type="text/javascript" src="/static/reahl.js"></script>'
 
 
 class Holder(Library):

@@ -313,7 +313,7 @@ class AddCollaboratorForm(Form):
 
         grouped_inputs = self.add_child(FieldSet(view, label_text='Add a collaborator'))
         grouped_inputs.use_layout(FormLayout())
-        grouped_inputs.add_child(SelectInput(self, address_book.fields.chosen_collaborator))
+        grouped_inputs.layout.add_input(SelectInput(self, address_book.fields.chosen_collaborator))
 
         rights_inputs = grouped_inputs.add_child(FieldSet(view, label_text='Rights'))
         rights_inputs.use_layout(FormLayout())

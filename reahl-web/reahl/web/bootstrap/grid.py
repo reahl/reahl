@@ -117,7 +117,6 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
         return self
 
     def calculated_size_for(self, device_class):
-        assert isinstance(device_class, DeviceClass), 'Incorrect type %s, expected %s' % (type(device_class), type(DeviceClass))
         classes_that_impact = [device_class]+device_class.all_smaller
         for possible_class in reversed(classes_that_impact):
             try:
@@ -127,7 +126,6 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
         return 0
 
     def total_width_for(self, device_class):
-        assert isinstance(device_class, DeviceClass), 'Incorrect type %s, expected %s' % (type(device_class), type(DeviceClass))
         total = self.calculated_size_for(device_class)
         if self.offsets:
             total += self.offsets.calculated_size_for(device_class)
@@ -179,8 +177,7 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
             self.add_clearfix(column_size)
             
         column = super(ColumnLayout, self).add_column(column_size)
-
-        #TODO: these device_class'es are strings - need to ensure they are valid device classes
+        
         for device_class, value in column_size.items():
             column.append_class('col-%s-%s' % (device_class, value))
         for device_class, value in column_size.offsets.items():
