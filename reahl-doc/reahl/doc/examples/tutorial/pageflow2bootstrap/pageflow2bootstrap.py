@@ -7,8 +7,7 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import InputGroup
-from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, Div, P, H, FormLayout, ButtonLayout
+from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, Div, P, H, FormLayout, ButtonLayout, FieldSet
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
@@ -62,7 +61,7 @@ class AddAddressForm(Form):
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, label_text='Add an address'))
         grouped_inputs.use_layout(FormLayout())
         grouped_inputs.layout.add_input( TextInput(self, new_address.fields.name) )
         grouped_inputs.layout.add_input( TextInput(self, new_address.fields.email_address) )

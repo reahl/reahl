@@ -163,13 +163,6 @@ class SqlAlchemyControl(ORMControl):
     @contextmanager
     def nested_transaction(self):
         """A context manager for code that needs to run in a nested transaction."""
-#        Session.flush() # TODO, nuke this with alchemy 0.5.
-                        #       see http://www.sqlalchemy.org/docs/05/session.html#using-savepoint
-                        #       This does not seem to happen in sqlalchemy < 0.5
-                        # Note: this first was necessary due to what seens to be a bug in sqlalchemy 0.4:
-                        #       if you delete stuff before starting a savepoint, then rollback
-                        #       the savepoint, the delete is flushed to the DB INSIDE the savepoint
-                        #       and thus also rolled back.
         transaction = Session.begin_nested()
         try:
             yield transaction

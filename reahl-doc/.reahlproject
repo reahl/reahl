@@ -35,35 +35,47 @@
     <egg name="reahl-bzrsupport"/>
   </deps>
 
- <persisted>
-    <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
-    <class locator="reahl.doc.fileupload:Comment"/>
-    <class locator="reahl.doc.fileupload:AttachedFile"/>
-    <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
-    <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
-    <class locator="reahl.doc.examples.tutorial.pageflow2.pageflow2:Address"/>
-    <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
-    <class locator="reahl.doc.examples.tutorial.parameterised1.parameterised1:Address"/>
-    <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
-    <class locator="reahl.doc.examples.tutorial.sessionscope.sessionscope:User"/>
-    <class locator="reahl.doc.examples.tutorial.sessionscope.sessionscope:LoginSession"/>
-    <class locator="reahl.doc.examples.tutorial.access1.access1:AddressBook"/>
-    <class locator="reahl.doc.examples.tutorial.access1.access1:Collaborator"/>
-    <class locator="reahl.doc.examples.tutorial.access1.access1:Address"/>
 
-    <class locator="reahl.doc.examples.tutorial.access2.access2:AddressBook"/>
-    <class locator="reahl.doc.examples.tutorial.access2.access2:Collaborator"/>
-    <class locator="reahl.doc.examples.tutorial.access2.access2:Address"/>
-    <class locator="reahl.doc.examples.tutorial.access.access:AddressBook"/>
-    <class locator="reahl.doc.examples.tutorial.access.access:Collaborator"/>
-    <class locator="reahl.doc.examples.tutorial.access.access:Address"/>
 
-    <class locator="reahl.doc.examples.tutorial.i18nexample.i18nexample:Address"/>
-    <class locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:Address"/>
-    <class locator="reahl.doc.examples.tutorial.migrationexample.migrationexample:Address"/>
-    <class locator="reahl.doc.examples.tutorial.jobs.jobs:Address"/>
-    <class locator="reahl.doc.examples.tutorial.table.table:Address"/>
-    <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
+    <persisted>
+        <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
+        <class locator="reahl.doc.fileupload:Comment"/>
+        <class locator="reahl.doc.fileupload:AttachedFile"/>
+        <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
+        <class locator="reahl.doc.examples.tutorial.addressbook2bootstrap.addressbook2bootstrap:Address"/>
+        <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
+        <class locator="reahl.doc.examples.tutorial.pageflow2.pageflow2:Address"/>
+        <class locator="reahl.doc.examples.tutorial.pageflow2bootstrap.pageflow2bootstrap:Address"/>
+        <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
+        <class locator="reahl.doc.examples.tutorial.pageflow1bootstrap.pageflow1bootstrap:Address"/>
+        <class locator="reahl.doc.examples.tutorial.parameterised1.parameterised1:Address"/>
+        <class locator="reahl.doc.examples.tutorial.parameterised1bootstrap.parameterised1bootstrap:Address"/>
+        <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
+        <class locator="reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap:Address"/>
+        <class locator="reahl.doc.examples.tutorial.sessionscope.sessionscope:User"/>
+        <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
+        <class locator="reahl.doc.examples.tutorial.sessionscope.sessionscope:LoginSession"/>
+        <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:LoginSession"/>
+        <class locator="reahl.doc.examples.tutorial.access1.access1:AddressBook"/>
+        <class locator="reahl.doc.examples.tutorial.access1.access1:Collaborator"/>
+        <class locator="reahl.doc.examples.tutorial.access1.access1:Address"/>
+
+        <class locator="reahl.doc.examples.tutorial.access2.access2:AddressBook"/>
+        <class locator="reahl.doc.examples.tutorial.access2.access2:Collaborator"/>
+        <class locator="reahl.doc.examples.tutorial.access2.access2:Address"/>
+        <class locator="reahl.doc.examples.tutorial.access.access:AddressBook"/>
+        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:AddressBook"/>
+        <class locator="reahl.doc.examples.tutorial.access.access:Collaborator"/>
+        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Collaborator"/>
+        <class locator="reahl.doc.examples.tutorial.access.access:Address"/>
+        <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Address"/>
+
+        <class locator="reahl.doc.examples.tutorial.i18nexample.i18nexample:Address"/>
+        <class locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:Address"/>
+        <class locator="reahl.doc.examples.tutorial.migrationexample.migrationexample:Address"/>
+        <class locator="reahl.doc.examples.tutorial.jobs.jobs:Address"/>
+        <class locator="reahl.doc.examples.tutorial.table.table:Address"/>
+        <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
   </persisted>
 
   <schedule locator="reahl.doc.examples.tutorial.jobs.jobs:Address.clear_added_flags"/>

@@ -1,0 +1,67 @@
+
+
+
+from __future__ import print_function, unicode_literals, absolute_import, division
+from reahl.web.fw import UserInterface, Widget
+from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.navs import Nav, TabLayout
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
+from reahl.web.layout import PageLayout
+from reahl.domain.systemaccountmodel import LoginSession
+from reahl.domainui.bootstrap.accounts import AccountUI
+
+
+
+class MenuPage(HTML5Page):
+    def __init__(self, view, main_bookmarks):
+        super(MenuPage, self).__init__(view)
+        self.body.use_layout(Container())
+        self.use_layout(PageLayout())
+        contents_layout = ColumnLayout(('main', ResponsiveSize(md=4))).with_slots()
+        self.layout.contents.use_layout(contents_layout)
+        self.layout.header.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(main_bookmarks))
+
+
+class LegalSecuredWidget(Widget):
+    def __init__(self, view, text, css_id_for_text):
+        super(LegalSecuredWidget, self).__init__(view)
+        self.set_as_security_sensitive()
+        self.add_child(P(view, text=text, css_id=css_id_for_text))
+
+
+class LoginUI(UserInterface):
+    def assemble(self):
+        login_session = LoginSession.for_current_session()
+        if login_session.account:
+            logged_in_as = login_session.account.email
+        else:
+            logged_in_as = 'Guest'
+
+        home = self.define_view('/', title='Home')
+        home.set_slot('main', P.factory(text='Welcome %s' % logged_in_as))
+
+        terms_of_service = self.define_view('/terms_of_service', title='Terms Of Service')
+        terms_of_service.set_slot('main', LegalSecuredWidget.factory('The terms of services defined as ...', 'terms'))
+
+        privacy_policy = self.define_view('/privacy_policy', title='Privacy Policy')
+        privacy_policy.set_slot('main', LegalSecuredWidget.factory('You have the right to remain silent ...', 'privacypolicy'))
+
+        disclaimer = self.define_view('/disclaimer', title='Disclaimer')
+        disclaimer.set_slot('main', LegalSecuredWidget.factory('Disclaim ourselves from negligence ...', 'disclaimer'))
+
+        class LegalBookmarks(object):
+            terms_bookmark = terms_of_service.as_bookmark(self, description='Terms of service')
+            privacy_bookmark = privacy_policy.as_bookmark(self, description='Privacy policy')
+            disclaimer_bookmark = disclaimer.as_bookmark(self, description='Disclaimer')
+
+        accounts = self.define_user_interface('/accounts', AccountUI,
+                                      {'main_slot': 'main'},
+                                      name='accounts', bookmarks=LegalBookmarks)
+
+        account_bookmarks = [accounts.get_bookmark(relative_path=relative_path) 
+                             for relative_path in ['/login', '/register']]
+        bookmarks = [home.as_bookmark(self)]+account_bookmarks
+        self.define_page(MenuPage, bookmarks)
+
+
+
