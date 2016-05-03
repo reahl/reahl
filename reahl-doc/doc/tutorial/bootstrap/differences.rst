@@ -1,17 +1,18 @@
 .. Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-How Bootstrap-based Widgets and Layouts differ from previous versions
-=====================================================================
+
+Summary of Bootstrap differences
+================================
 
 This section is intended as a quick reference for someone who knows
 the previous Widgets and Layouts and who needs to figure out how to
 map an older tool to its Bootstrap equivalent.
 
-If that's not you, you can safely skip to :doc:`forms`.
+If that's not you, you can safely skip this section.
 
 
-The :mod:`reahl.web.bootstrap` package contains Layouts and
-Widgets equivalent to all of the Widgets previously supported. The new
+The :mod:`reahl.web.bootstrap` package contains equivalent Layouts and
+Widgets for all of the Widgets previously supported. The new
 Widgets essentially do similar tasks but may look and behave
 differently to previous counterparts. In many cases the Widgets also
 have a different programming interface and the means by which their
@@ -25,7 +26,6 @@ Basic Widgets
 Simple Widgets are located in :mod:`reahl.web.bootstrap.ui`\. These
 include Widgets that represent HTML (but styled versions) and a very
 small number of equally basic Widgets.
-
 
 The following changes happened here:
 
@@ -127,7 +127,7 @@ stated as integers and their meaning is always "how many 1/12ths". Ie:
 Added in (or for) Bootstrap
 ---------------------------
 
-  A small number of classes/modules were added for Bootstrap that do not have simple equivalents:
+A small number of classes/modules were added for Bootstrap that do not have simple equivalents:
 
   ============================================= ==============================================
    Class or package or module                    Contents

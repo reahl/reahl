@@ -15,7 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""A Bootstrap Navbar can serve as a header for a web application
+with all manner of useful content, including a navigation menu.
 
 .. versionadded:: 3.2
 
@@ -98,6 +99,14 @@ class BackgroundScheme(HTMLAttributeValueOption):
                                                prefix='bg', constrain_value_to=['primary', 'inverse', 'faded']) 
 
 class NavbarLayout(Layout):
+    """Used to populate a Navbar.
+
+    :keyword fixed_to: If one of 'top' or 'bottom', the Navbar will stick to the top or bottom of the viewport.
+    :keyword full: If True, the Navbar fills the available width.
+    :keyword center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
+    :keyword colour_theme: Whether the Navbar has a 'dark' or 'light' background.
+    :keyword bg_scheme: Whether the Navbar should use 'primary' colors, an 'inverse' (light on dark) scheme or a 'faded' background.
+    """
     def __init__(self, fixed_to=None, full=False, center_contents=False, colour_theme=None, bg_scheme=None):
         super(NavbarLayout, self).__init__()
         if fixed_to and full:
@@ -129,11 +138,19 @@ class NavbarLayout(Layout):
                 nav.append_class(option.as_html_snippet())
 
     def set_brand_text(self, brand_text):
-        brand_a = A(self.view, Url('#'), description=brand_text)
+        """Sets the brand to be a link to the home page that contains the given text.
+
+        :param brand_text: Text to use for branding.
+        """
+        brand_a = A(self.view, Url('/#'), description=brand_text)
         self.set_brand(brand_a)
 
     @arg_checks(brand_html_element=IsInstance(HTMLElement))
     def set_brand(self, brand_html_element):
+        """Sets `brand_html_element` to be used as branding.
+
+        :param brand_html_element: An :class:`~reahl.web.ui.HTMLElement` to be used as branding.
+        """
         if self.brand:
             raise ProgrammerError('Brand has already been set to: %s' % self.brand)
 
@@ -143,6 +160,12 @@ class NavbarLayout(Layout):
 
     @arg_checks(widget=IsInstance((reahl.web.bootstrap.navs.Nav, Form)))
     def add(self, widget, left=None, right=None):
+        """Adds the given Form or Nav `widget` to the Navbar.
+
+        :param widget: A :class:`~reahl.web.bootstrap.navs.Nav` or :class:`~reahl.web.bootstrap.ui.Form` to add.
+        :keyword left: If True, `widget` is aligned to the left of the Navbar.
+        :keyword right: If True, `widget` is aligned to the right of the Navbar.
+        """
         if isinstance(widget, reahl.web.bootstrap.navs.Nav):
             widget.append_class('navbar-nav')
         if left or right:
@@ -154,6 +177,11 @@ class NavbarLayout(Layout):
         return widget
 
     def add_toggle(self, target_html_element, text=None):
+        """Adds a link that toggles the display of the given `target_html_element`.
+
+        :param target_html_element: A :class:`~reahl.web.ui.HTMLElement`
+        :keyword text: Text to be used on the toggle link.
+        """
         if not target_html_element.css_id_is_set:
             raise ProgrammerError('%s has no css_id set. A toggle is required to have a css_id' % target_html_element)
         target_html_element.append_class('collapse')
@@ -189,6 +217,17 @@ class ResponsiveLayout(NavbarLayout):
 
 
 class Navbar(HTMLWidget):
+    """A bootstrap Navbar can be used as page header in a web
+    application. A Navbar can contain some branding text, a
+    :class:`~reahl.web.bootstrap.navs.Nav` and a small
+    :class:`~reahl.web.bootstrap.ui.Form`.
+
+    You populate a Navbar using a NavbarLayout for complete control
+    over how the Navbar is laid out, which of its possible elements 
+    are present and how they are composed themselves.
+
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    """
     def __init__(self, view):
         super(Navbar, self).__init__(view)
 

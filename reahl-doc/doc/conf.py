@@ -230,3 +230,4 @@ man_pages = [
 ]
 
 autodoc_member_order = 'bysource'
+autodoc_default_flags = ['show-inheritance']

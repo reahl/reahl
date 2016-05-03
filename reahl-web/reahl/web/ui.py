@@ -235,7 +235,14 @@ class HTMLElement(Widget):
 
     def enable_refresh(self, *for_fields):
         """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that 
-           one of its `query_fields` have changed.
+           one of the given `query_fields` have changed. If no Fields are specified here, the HTMLElement
+           is refreshed when any of its `query_fields` change.
+
+           :arg for_fields: A selection of the `.query_fields` defined on this HTMLElement.
+
+           .. versionchanged:: 3.2
+              The `for_fields` arguments were added to allow control over which of an 
+              HTMLElement's `query_fields` trigger a refresh.
         """
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
@@ -423,7 +430,21 @@ class Link(HTMLElement):
 
 
 class Slot(Widget):
-    """A Slot is a placeholder into which Views can plug Widgets on the fly."""
+    """A Slot is a placeholder area on a page into which different Views can plug different Widgets on the fly.
+
+    Using Slots, one can create a single HTML5page which can be
+    re-used by different Views instead of having to create
+    similar-looking HTML5Pages for each View in an application. 
+
+    A Slot is added to an HTML5Page to represent an area that will be
+    populated later by a View. When a View is served up the framework
+    can then populate this empty area with Widgets specific to the
+    current View.
+
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    :param name: A name for this Slot (must be unique on the page)
+
+    """
     def __init__(self, view, name):
         super(Slot, self).__init__(view)
         self.name = name
@@ -738,8 +759,8 @@ class P(HTMLElement):
 
     def format(self, *args, **kwargs):
         """A complicated paragraph may consist of many TextNodes interspersed with other Widgets. Creating such a
-           paragraph programmatically can be cumbersome. Instead, the `text` of a P can be a template resembling
-           a `PEP-292 <http://www.python.org/dev/peps/pep-0292/>` template. This `format` method works analogously to
+           paragraph programmatically is cumbersome. Instead, the `text` of a P can be a template resembling
+           a `PEP-292 <http://www.python.org/dev/peps/pep-0292/>`_ template. This `format` method works analogously to
            :meth:`string.format`, except that Widgets can be passed in to be substituted into the original P.
            
            :param args: Positional arguments for substituting into the "template P"
@@ -930,7 +951,7 @@ class Panel(Div):
 
 @deprecated('Please use reahl.web.layout:PageLayout instead.', '3.1')
 class YuiDoc(Div):
-    """A Yui 2 #doc div: the container of the #hd, #bd and #ft ( see http://developer.yahoo.com/yui/grids/#start )"""
+    """A Yui 2 #doc div: the container of the #hd, #bd and #ft (see http://developer.yahoo.com/yui/grids/#start)"""
     def __init__(self, view, doc_id, doc_class, css_id=None):
         super(YuiDoc, self).__init__(view, css_id=css_id)
         YuiGridsCss.check_enabled(self)
@@ -1024,9 +1045,10 @@ class Span(HTMLElement):
 
 # Uses: reahl/web/reahl.form.js
 class Form(HTMLElement):
-    """All Inputs have to belong to a Form. When a user clicks on a Button associated with a Form, 
-       the Event to which the Button is linked occurs at the server. All the values of the Inputs 
-       that are associated with the Form are sent with the Event to the server.
+    """A Form is a container for Inputs. Any Input has to belong to a Form. When a user clicks on
+       a Button associated with a Form, the Event to which the Button is linked occurs at the 
+       server. The value of every Input that is associated with the Form is sent along with the 
+       Event to the server.
 
        .. admonition:: Styling
        
@@ -1212,8 +1234,9 @@ class Form(HTMLElement):
 
 
 class NestedForm(Div):
-    """Forms may not be children of other Forms. A NestedForm may be the child of another Form, which
-       means that visually, it will be rendered inside the other Form.
+    """A NestedForm can create the appearance of one Form being visually contained in
+       another. Forms are not allowed to be children of other Forms but this restriction does 
+       not apply to NestedForms. 
 
        .. admonition:: Styling
        
@@ -1591,8 +1614,8 @@ class TextArea(PrimitiveInput):
 
           Represented in HTML as a <textarea> element.
 
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`)
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
     """
@@ -1671,8 +1694,8 @@ class SelectInput(PrimitiveInput):
 
           Represented in HTML as a <select> element which can contain <option> and <optgroup> children.
 
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`)
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
@@ -1754,8 +1777,8 @@ class RadioButtonInput(PrimitiveInput):
           contains an <input type="radio">, wrapped in a <span class="reahl-radio-button"> for each valid
           :class:`reahl.component.modelinterface.Choice`.
 
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`)
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
 
     def create_html_widget(self):
@@ -1784,17 +1807,20 @@ class TextInput(InputTypeInput):
 
           Represented in HTML by an <input type="text" class="reahl-textinput"> element.
 
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`)
-       :param fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
                      when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
                      such "fuzzy input". If fuzzy=True, the typed value will be changed on the fly to
                      the system's interpretation of what the user originally typed as soon as the TextInput
                      looses focus.
-       :param placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput 
+       :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput 
                      is empty in order to provide a hint to the user of what may be entered into the TextInput. 
                      If given True instead of a string, the label of the TextInput is used.
+
+       .. versionchanged:: 3.2
+          Added `placeholder`.
     """
     def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
         super(TextInput, self).__init__(form, bound_field, 'text')
@@ -1819,8 +1845,8 @@ class PasswordInput(InputTypeInput):
 
           Represented in HTML by a <input type="password"> element.
 
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`)
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     render_value_attribute = False
     def __init__(self, form, bound_field):
@@ -1834,8 +1860,8 @@ class CheckboxInput(InputTypeInput):
 
           Represented in HTML by an <input type="checkbox"> element.
 
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`)
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     render_value_attribute = False
     def __init__(self, form, bound_field):
@@ -1931,8 +1957,8 @@ class Button(Span):
 
           Represented in HTML by an <input type="submit"> element, wrapped in a <span class="reahl-button">.
 
-       :param form: (See :class:`Input`)
-       :param event: The :class:`reahl.web.fw.Event` that will fire when the user clicks on this ButtonInput.
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param event: The :class:`~reahl.web.component.modelinterface.Event` that will fire when the user clicks on this ButtonInput.
        :keyword css_id: (See :class:`HTMLElement`)
 
     """
@@ -1958,7 +1984,7 @@ class Label(HTMLElement):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword text: If given, used as the text for the label.
-       :keyword for_input: If given, the :class:`Input` to which this Label applies (its `.label` is also used as text).
+       :keyword for_input: If given, the :class:`~reahl.web.ui.Input` to which this Label applies (its `.label` is also used as text).
        :keyword css_id: (See :class:`HTMLElement`)
 
        .. versionchanged:: 3.2
@@ -1993,7 +2019,7 @@ class InputLabel(Label):
 
           Rendered as an HTML <label> element.
 
-       :param html_input: The :class:`Input` labelled by this Label.
+       :param html_input: The :class:`~reahl.web.ui.Input` labelled by this Label.
        :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
        :keyword css_id: (See :class:`HTMLElement`)
 
@@ -2007,14 +2033,14 @@ class InputLabel(Label):
 class ErrorLabel(Label):
     def __init__(self, html_input, text=None, css_id=None):
         super(ErrorLabel, self).__init__(html_input.view, text=text, for_input=html_input, css_id=css_id)
-    """If an :class:`Input` fails validation, an ErrorLabel is automatically rendered after it containing
+    """If an :class:`~reahl.web.ui.Input` fails validation, an ErrorLabel is automatically rendered after it containing
        the specific validation error message.
 
        .. admonition:: Styling
 
           Rendered as an HTML <label class="error"> element.
 
-       :param html_input: The :class:`Input` labelled by this Label.
+       :param html_input: The :class:`~reahl.web.ui.Input` labelled by this Label.
        :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
        :keyword css_id: (See :class:`HTMLElement`)
 
@@ -2325,7 +2351,27 @@ class Menu(HTMLWidget):
        .. versionchanged:: 3.2
           Deprecated use of `a_list` and changed it temporarily to a keyword argument for backwards compatibility.
           Deprecated css_id keyword argument.
+          Deprecated the `from_xxx` methods and added `with_xxx` replacements to be used after construction.
+          Deprecated `add_item` and replaced it with `add_submenu`.
+          Added a number of `add_xxx` methods for adding items from different sources.
     """
+    def __init__(self, view, a_list=None, add_reahl_styling=None, css_id=None):
+        super(Menu, self).__init__(view)
+        if add_reahl_styling is not None:
+            self.add_reahl_styling = add_reahl_styling
+        self.menu_items = []
+        self.create_html_representation()
+        if css_id:
+            warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
+                          'Instead, please construct, supply a layout and THEN do .set_id().',
+                          DeprecationWarning, stacklevel=2)
+            self.set_id(css_id)
+        if a_list is not None:
+            warnings.warn('DEPRECATED: Passing an a_list upon construction. ' \
+                          'Please construct, then use .with_a_list() instead.',
+                          DeprecationWarning, stacklevel=2)
+            self.with_a_list(a_list)
+
     @classmethod
     @deprecated('Please use :meth:`with_languages` instead on an already created instance.', '3.2')
     def from_languages(cls, view):
@@ -2344,22 +2390,6 @@ class Menu(HTMLWidget):
         menu = cls(view)
         return menu.with_bookmarks(bookmark_list)
 
-    def __init__(self, view, a_list=None, add_reahl_styling=None, css_id=None):
-        super(Menu, self).__init__(view)
-        if add_reahl_styling is not None:
-            self.add_reahl_styling = add_reahl_styling
-        self.menu_items = []
-        self.create_html_representation()
-        if css_id:
-            warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
-                          'Instead, please construct, supply a layout and THEN do .set_id().',
-                          DeprecationWarning, stacklevel=2)
-            self.set_id(css_id)
-        if a_list is not None:
-            warnings.warn('DEPRECATED: Passing an a_list upon construction. ' \
-                          'Please construct, then use .with_a_list() instead.',
-                          DeprecationWarning, stacklevel=2)
-            self.with_a_list(a_list)
 
     def create_html_representation(self):
         ul = self.add_child(Ul(self.view))
@@ -2815,8 +2845,8 @@ class SimpleFileInput(InputTypeInput):
           Represented in HTML by an <input type="file"> element. Can have attribute multiple set,
           if allowed by the `bound_field`.
 
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`, must be of type :class:`reahl.component.modelinterface.FileField`
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of type :class:`reahl.component.modelinterface.FileField`
     """
     is_for_file = True
 
@@ -3008,8 +3038,8 @@ class FileUploadInput(PrimitiveInput):
           Should an error occur while uploading the file, the <progress> element is replaced with a
           <label class="error> containing an error message.
 
-       :param form: (See :class:`Input`)
-       :param bound_field: (See :class:`Input`, must be of type :class:`reahl.component.modelinterface.FileField`
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of type :class:`reahl.component.modelinterface.FileField`
     """
     @property
     def persisted_file_class(self):
