@@ -15,10 +15,29 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Widgets and Layouts that provide an abstraction on top of Bootstrap (http://getbootstrap.com/)
+"""This module contains tools for laying out a page or part of a page
+using a grid which resizes depending on the size of the device being
+used to browse.
 
 .. versionadded:: 3.2
+
+When creating a visual layout it is often useful to arrange elements
+on an invisible grid. The tools here allows building such a grid, but
+with a twist: the grid can resize depending on the size of the device
+that is used to view it.
+
+User devices come in a wide range of sizes. In order to be able
+to change a layout depending on the size of a device, devices are classified
+into several device classes: 'xs' (extra small), 'sm' (small), 'md'(medium),
+'lg' (large), 'xl' (extra large).
+
+Whenever you need to specify a size for Bootstrap grid element, you 
+can specify the size that element should have *for each class of device*.
+
+Bootstrap's grid system works on units of 1/12th the size of a given
+parent width. A size for a particular device class is thus an integer
+denoting a size in 1/12ths of its container's width.
+
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -35,6 +54,17 @@ from reahl.component.exceptions import ProgrammerError
 
 
 class Container(Layout):
+    """A Container Layout sets up the HTMLElement it is used with with
+    padding and margins. It is mostly used only once on a page -- for
+    the entire page, but can be nested too.
+
+    Using a Container is compulsory if you want to make use of a
+    ColumnLayout.
+
+    :keyword fluid: If True, the container will fill the entire available width, else 
+         it will be a fixed size adjusted only when the size of the current browser 
+         changes past a device class threshhold.
+    """
     def __init__(self, fluid=False):
         super(Container, self).__init__()
         self.fluid = fluid
@@ -151,8 +181,27 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
 class ColumnLayout(reahl.web.layout.ColumnLayout):
     """A Layout that divides an element into a number of columns.
 
-       Works like :class:`reahl.web.layout.ColumnLayout` except that it
-       expects bootstrap :class:`ResponsiveSize`\s for its columns.
+    Each argument passed to the constructor defines a column. Columns
+    are added to the element using this Layout in the order they
+    are passed to the constructor. Columns can also be added to the
+    Widget later, by calling :meth:`ColumnLayout.add_column`.
+
+    To define a column with a given :class:`ResponsiveSize`, pass a tuple of which
+    the first element is the column name, and the second an
+    instance of :class:`ResponsiveSize`.
+
+    If an element is divided into a number of columns whose current 
+    combined width is wider than 12/12ths, the overrun flows to make
+    an additional row.
+
+    It is customary, for example to specify smaller sizes (ito 12ths)
+    for bigger devices where you want the columns to fit in next to each
+    other, but use BIGGER sizes (such as 12/12ths) for the columns for
+    smaller sized devices. This has the effect that what was displayed
+    as columns next to each other on the bigger device is displayed
+    as "stacked" cells on a smaller device.
+
+    By default, the smallest device classes are sized 12/12ths.
     """
     def __init__(self, *column_definitions):
         if not all([isinstance(column_definition, tuple) for column_definition in column_definitions]):
@@ -173,6 +222,10 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
                 clearfix.append_class('visible-%s-block' % device_class.class_label)
 
     def add_column(self, column_size):
+        """Called to add a column of given size.
+
+        :param column_size: A :class:`ResponsiveSize`, used to size the column.
+        """
         if ResponsiveSize.wraps_for_some_device_class(self.added_sizes+[column_size]):
             self.add_clearfix(column_size)
             

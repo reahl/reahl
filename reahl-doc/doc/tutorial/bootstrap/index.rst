@@ -24,14 +24,23 @@ The experimental support for Bootstrap 4 is included here so that we
 can gain experience with these ideas so long, and so that you can
 start using them to see how they work.
 
+The version of Bootstrap included in this version is a vanilla version
+of Bootstrap 4 alpha. There is no supported way to change Bootstrap
+variables and recompile using Sass. That will change in future. There
+are ways around this limitation if you know what you're doing. Please
+`talk to us on the mailing list
+<https://groups.google.com/forum/?#!forum/reahl-discuss>`_ if you want
+to push past this boundary.
 
-Contents:
+
+Details:
 
 .. toctree::
    :maxdepth: 1
 
    enabling
-   differences
    forms   
    pagelayout
+   differences
+
 

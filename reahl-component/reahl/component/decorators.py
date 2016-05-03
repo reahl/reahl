@@ -88,7 +88,7 @@ def deprecated(message, version='n/a'):
             return wrapped(*args, **kwargs)
 
         if six.PY3 and f.__doc__:
-            f.__doc__ = '%s\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
+            f.__doc__ = '%s\n\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
 
         if inspect.isclass(f):
             for name, method in inspect.getmembers(f, predicate=is_init_or_classmethod):
