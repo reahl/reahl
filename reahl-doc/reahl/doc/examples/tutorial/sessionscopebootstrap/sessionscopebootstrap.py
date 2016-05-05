@@ -12,8 +12,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.ui import HTML5Page, P, Alert
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, ButtonLayout, FormLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize, PageLayout
 from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, exposed
 
 

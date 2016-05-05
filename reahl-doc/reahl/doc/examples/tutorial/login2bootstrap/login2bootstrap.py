@@ -2,11 +2,10 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.web.fw import UserInterface, Widget
+from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
-from reahl.web.layout import PageLayout
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize, PageLayout
 from reahl.domain.systemaccountmodel import LoginSession
 from reahl.domainui.bootstrap.accounts import AccountUI
 

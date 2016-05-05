@@ -29,7 +29,7 @@ from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceF
 
 class BasicHTMLInputsUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageLayout(ColumnLayout('main').with_slots()))  
+        self.define_page(HTML5Page, style='basic').use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
 
         home = self.define_view('/', title='Basic HTML Inputs demo')
         home.set_slot('main', ExampleForm.factory('myform'))

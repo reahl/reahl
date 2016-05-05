@@ -329,7 +329,7 @@ class SecurityTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 home = self.define_view('/a_view', 'Title', write_check=disallowed)
                 home.set_slot('main', MyForm.factory())
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

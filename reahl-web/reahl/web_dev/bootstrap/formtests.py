@@ -242,6 +242,11 @@ class ValidationScenarios(FormLayoutFixture):
                 self.add_child(Button(self, fixture.domain_object.events.submit))
         return FormWithInput
 
+    def new_webconfig(self):
+        web = super(ValidationScenarios, self).new_webconfig()
+        web.frontend_libraries.enable_experimental_bootstrap()
+        return web
+
     @scenario
     def with_javascript(self):
         self.reahl_server.set_app(self.new_wsgi_app(child_factory=self.Form.factory(), enable_js=True))
@@ -298,6 +303,8 @@ def input_validation_cues_javascript_interaction(fixture):
 
     fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=True))
     browser.open('/')
+
+    browser.click(XPath.button_labelled('Submit'))
 
     vassert( ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0) )
     [error] = fixture.get_form_group_errors(browser, index=0)

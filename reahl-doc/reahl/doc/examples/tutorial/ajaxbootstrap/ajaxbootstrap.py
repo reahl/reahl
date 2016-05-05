@@ -1,19 +1,18 @@
 
-
-
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 from reahl.web.fw import UserInterface, Bookmark
-from reahl.web.ui import HTML5Page, P, H, Div, Menu, HorizontalLayout
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
+from reahl.web.bootstrap.ui import HTML5Page, P, H, Div
+from reahl.web.bootstrap.navs import Nav, TabLayout
+from reahl.web.bootstrap.grid import ColumnLayout, PageLayout, ResponsiveSize
 from reahl.component.modelinterface import exposed, IntegerField
 
 
 
 class WidgetRefreshUI(UserInterface):
     def assemble(self):
-        page_layout = PageLayout(contents_layout=ColumnLayout('main').with_slots())
-        self.define_page(HTML5Page, style='basic').use_layout(page_layout)
+        page_layout = PageLayout(contents_layout=ColumnLayout(('main', ResponsiveSize(md=6))).with_slots())
+        self.define_page(HTML5Page).use_layout(page_layout)
         find = self.define_view('/', title='Refreshing widget')
         find.set_slot('main', HomePanel.factory())
 
@@ -28,7 +27,7 @@ class HomePanel(Div):
                      panel.get_bookmark(3)]
 
         self.add_child(H(view, 1, text='Refreshing widget'))
-        self.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(bookmarks))
+        self.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(bookmarks))
         self.add_child(panel)
 
 

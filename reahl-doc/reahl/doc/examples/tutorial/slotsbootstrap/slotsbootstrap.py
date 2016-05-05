@@ -4,8 +4,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
-from reahl.web.layout import PageLayout
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize, PageLayout
 
 
 class MyCustomPage(HTML5Page):
@@ -15,7 +14,7 @@ class MyCustomPage(HTML5Page):
 
         contents_layout = ColumnLayout(('secondary', ResponsiveSize(md=3)),
                                        ('main', ResponsiveSize(md=9))).with_slots()
-        self.use_layout(PageLayout(contents_layout))
+        self.use_layout(PageLayout(contents_layout=contents_layout))
 
         menu = Nav(view).use_layout(TabLayout()).with_bookmarks(bookmarks)
         self.layout.header.add_child(menu)

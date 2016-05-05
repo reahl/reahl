@@ -30,7 +30,6 @@ from reahl.component.exceptions import IsInstance
 
 from reahl.web.fw import Bookmark
 
-from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 from reahl.web.bootstrap.ui import A, Div, P
 from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.navbar import Navbar, NavbarLayout, ResponsiveLayout

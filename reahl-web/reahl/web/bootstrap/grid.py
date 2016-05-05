@@ -44,13 +44,11 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-
+from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.web.fw import Layout
 from reahl.web.ui import  Div
-
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError
-
 
 
 class Container(Layout):
@@ -74,6 +72,17 @@ class Container(Layout):
         if self.fluid:
             container_class = 'container-fluid'
         self.widget.append_class(container_class)
+
+
+class PageLayout(reahl.web.layout.PageLayout):
+    @arg_checks(fluid=IsInstance(bool), contents_layout=IsInstance(Layout, allow_none=True))
+    def __init__(self, fluid=False, contents_layout=None):
+        super(PageLayout, self).__init__(contents_layout=contents_layout)
+        self.fluid = fluid
+
+    def customise_widget(self):
+        super(PageLayout, self).customise_widget()
+        self.document.use_layout(Container(fluid=self.fluid))
 
 
 class HTMLAttributeValueOption(object):

@@ -271,7 +271,7 @@ def page_layout_content_layout(fixture):
     """A PageLayout can be given a Layout it should use to lay out its contents Div."""
 
     contents_layout = Layout()
-    widget = HTML5Page(fixture.view).use_layout(PageLayout(contents_layout))
+    widget = HTML5Page(fixture.view).use_layout(PageLayout(contents_layout=contents_layout))
     
     vassert( widget.layout.contents.layout is contents_layout )
 

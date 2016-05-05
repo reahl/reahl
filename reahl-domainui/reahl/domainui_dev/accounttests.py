@@ -44,8 +44,8 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
-                account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui', 
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+                account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui',
                                                             bookmarks=fixture.bookmarks)
                 fixture.account_user_interface_factory = account_user_interface_factory
         return MainUI

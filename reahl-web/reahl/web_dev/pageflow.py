@@ -57,7 +57,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithTwoViews,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -98,7 +98,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -135,7 +135,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithAView,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -181,7 +181,7 @@ class ControlledUserInterfacesTests(object):
                 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 home = self.define_view('/', title='Home page')
 
                 other_view = self.define_view('/page2', title='Page 2', 
@@ -231,7 +231,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -251,7 +251,7 @@ class ControlledUserInterfacesTests(object):
             
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 slot_definitions = {'main': Form.factory('the_form')}
                 view = self.define_view('/', title='Hello', slot_definitions=slot_definitions)
                 failing_precondition = ViewPreCondition(lambda: False, exception=SomeException)
@@ -331,7 +331,7 @@ class ControlledUserInterfacesTests(object):
             
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -372,7 +372,7 @@ class ControlledUserInterfacesTests(object):
             
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -474,7 +474,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 detour_ui = self.define_user_interface('/uiWithDetour',  UIWithDetour,  IdentityDictionary(), name='second_ui')
                 bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
                 self.define_user_interface('/uiWithLink',  UIWithLink,  IdentityDictionary(), name='first_ui', bookmark=bookmark)
