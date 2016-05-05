@@ -38,7 +38,7 @@ Because it is valuable to play with a running application too, a
 DemoFixture is also added to the tests that sets up a few
 SystemAccounts and adds some Addresses to their AddressBooks:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access2/access2_dev/accesstests2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/access2/access2_dev/access2tests.py
 
 Code
 ----

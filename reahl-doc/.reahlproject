@@ -59,10 +59,16 @@
         <class locator="reahl.doc.examples.tutorial.access1.access1:AddressBook"/>
         <class locator="reahl.doc.examples.tutorial.access1.access1:Collaborator"/>
         <class locator="reahl.doc.examples.tutorial.access1.access1:Address"/>
+        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:AddressBook"/>
+        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:Collaborator"/>
+        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:Address"/>
 
         <class locator="reahl.doc.examples.tutorial.access2.access2:AddressBook"/>
         <class locator="reahl.doc.examples.tutorial.access2.access2:Collaborator"/>
         <class locator="reahl.doc.examples.tutorial.access2.access2:Address"/>
+        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:AddressBook"/>
+        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:Collaborator"/>
+        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.access.access:AddressBook"/>
         <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:AddressBook"/>
         <class locator="reahl.doc.examples.tutorial.access.access:Collaborator"/>

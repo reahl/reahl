@@ -33,7 +33,6 @@ from reahl.web.fw import Bookmark
 from reahl.web.bootstrap.navbar import Navbar, NavbarLayout, ResponsiveLayout
 from reahl.web.bootstrap.navs import Nav
 from reahl.web.bootstrap.ui import A, Form, Div, P
-from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 
 from reahl.component.exceptions import ProgrammerError
 
@@ -278,8 +277,7 @@ class NavbarToggleFixture(Fixture, WebBasicsMixin):
                                                        child_factory=self.MainWidget.factory())
     def new_webconfig(self):
         webconfig = super(NavbarToggleFixture, self).new_webconfig()
-        webconfig.frontend_libraries.add(Bootstrap4())
-        webconfig.frontend_libraries.add(ReahlBootstrap4Additions())
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
         return webconfig
 
 
