@@ -70,7 +70,7 @@ class HTML5Page(reahl.web.ui.HTML5Page):
         for widget, parents_set in self.parent_widget_pairs(set([])):
             if isinstance(widget.layout, ColumnLayout):
                 if not any(isinstance(parent.layout, Container) for parent in parents_set):
-                    raise ProgrammerError(('%s does not have a parent with Layout of type %s.' % widget)+\
+                    raise ProgrammerError(('%s does not have a parent with Layout of type %s.' % (widget, Container))+\
                       ' %s has a ColumnLayout, and thus needs to have an anchestor with a Container Layout.' % widget)
 
 
