@@ -24,9 +24,77 @@ import functools
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 from reahl.web.fw import Bookmark, Widget
-from reahl.web.bootstrap.ui import A, Span, Div, Table, TextNode
+
+from reahl.web.ui import Caption, Col, ColGroup, Tbody, Td, Tfoot, Th, Thead, Tr, DynamicColumn, StaticColumn
+
+import reahl.web.ui
+from reahl.web.bootstrap.grid import HTMLAttributeValueOption
+from reahl.web.bootstrap.ui import A, Span, Div, TextNode
 from reahl.web.bootstrap.pagination import PageMenu
 from reahl.web.pager import SequentialPageIndex, PagedPanel
+
+
+class Table(reahl.web.ui.Table):
+    """Tabular data displayed as rows broken into columns.
+
+       :param view: (See :class:`~reahl.web.fw.Widget`)
+       :keyword caption_text: If text is given here, a caption will be added to the table containing the caption text.
+       :keyword summary:  A textual summary of the contents of the table which is not displayed visually, \
+                but may be used by a user agent for accessibility purposes.
+       :keyword css_id: (See :class:`~reahl.web.ui.HTMLElement`)
+       
+    """
+    def __init__(self, view, caption_text=None, summary=None, css_id=None):
+        super(Table, self).__init__(view, caption_text=caption_text, summary=summary, css_id=css_id)
+        self.append_class('table')
+
+
+class HeadingTheme(HTMLAttributeValueOption):
+    def __init__(self, name):
+        super(HeadingTheme, self).__init__(name, name is not None, constrain_value_to=['inverse', 'default'])
+
+
+class TableLayout(reahl.web.ui.Layout):
+    """A Layout for customising details of hoe a Table is displayed.
+
+    :keyword inverse: If True, table text is light text on dark background.
+    :keyword border: If True, a border is rendered around the table and each cell.
+    :keyword compact: If True, make the table more compact by cutting cell padding in half.
+    :keyword striped: If True, colour successive rows lighter and darker.
+    :keyword highlight_hovered: If True, a row is highlighted when the mouse hovers over it.
+    :keyword transposed: If True, each row is displayed as a column instead, with its heading in the first cell.
+    :keyword responsive: If True, the table will scroll horizontally on smaller devices.
+    :keyword heading_theme: One of 'inverse' or 'default'. An inverse heading is one with light text on a darker background.
+    """
+    def __init__(self,
+                  inverse=False, border=False, compact=False,
+                  striped=False, highlight_hovered=False, transposed=False, responsive=False,
+                  heading_theme=None):
+        super(TableLayout, self).__init__()
+        self.table_properties = [HTMLAttributeValueOption('inverse', inverse, prefix='table'),
+                                 HTMLAttributeValueOption('striped', striped, prefix='table'),
+                                 HTMLAttributeValueOption('bordered', border, prefix='table'),
+                                 HTMLAttributeValueOption('hover', highlight_hovered, prefix='table'),
+                                 HTMLAttributeValueOption('sm', compact, prefix='table'),
+                                 HTMLAttributeValueOption('reflow', transposed, prefix='table'),
+                                 HTMLAttributeValueOption('responsive', responsive, prefix='table')]
+        self.heading_theme = HeadingTheme(heading_theme)
+
+    def customise_widget(self):
+        super(TableLayout, self).customise_widget()
+
+        for table_property in self.table_properties:
+            if table_property.is_set:
+                self.widget.append_class(table_property.as_html_snippet())
+        self.style_heading()
+
+    def style_heading(self):
+        if self.heading_theme.is_set:
+            if not self.widget.thead:
+                raise ProgrammerError('No Thead found on %s, but you asked to style is using heading_theme' % self.widget)
+            self.widget.thead.append_class('thead-%s' % self.heading_theme)
+
+
 
 class TablePageIndex(SequentialPageIndex):
     def __init__(self, columns, items, items_per_page=10, current_page_number=1, start_page_number=1, max_page_links=5):

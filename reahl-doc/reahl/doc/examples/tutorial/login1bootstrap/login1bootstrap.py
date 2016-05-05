@@ -3,7 +3,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, P, FormLayout, ButtonLayout, Alert, PasswordInput
+from reahl.web.bootstrap.ui import HTML5Page, P, Alert
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, PasswordInput
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
 from reahl.web.layout import PageLayout
@@ -28,7 +29,7 @@ class LoginForm(Form):
         accounts = AccountManagementInterface.for_current_session()
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
         self.layout.add_input(TextInput(self, accounts.fields.email))
         self.layout.add_input(PasswordInput(self, accounts.fields.password))

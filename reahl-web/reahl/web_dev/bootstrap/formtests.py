@@ -32,8 +32,8 @@ from reahl.web_dev.inputandvalidation.inputtests import InputMixin
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
-from reahl.web.bootstrap.ui import A, Div, P, HTML5Page, Header, Footer, ChoicesLayout, Button, \
-                                   FormLayout, InlineFormLayout, GridFormLayout, Form, \
+from reahl.web.bootstrap.ui import A, Div, P, HTML5Page, Header, Footer
+from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
                                    TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonInput, ButtonLayout
 from reahl.web.bootstrap.grid import ResponsiveSize
 

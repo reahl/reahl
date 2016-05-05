@@ -24,8 +24,10 @@ from reahl.tofu import test, vassert, expected, scenario
 from reahl.webdev.tools import XPath
 from reahl.component.modelinterface import Field, IntegerField, exposed
 
-from reahl.web.bootstrap.ui import Div, StaticColumn, TableLayout
-from reahl.web.bootstrap.datatable import DataTable
+from reahl.web_dev.fixtures import WebFixture
+
+from reahl.web.bootstrap.ui import Div
+from reahl.web.bootstrap.tables import StaticColumn, TableLayout, DataTable
 
 import reahl.web_dev.widgets.tabletests
 

@@ -23,9 +23,9 @@ from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface
 from reahl.web.fw import WebExecutionContext
 from reahl.web.fw import Widget
-from reahl.web.bootstrap.ui import Form, FormLayout, CheckboxInput, \
-                         TextInput, PasswordInput, H, P, A, FieldSet, Alert
-from reahl.web.bootstrap.ui import Button, ButtonLayout, CueInput
+from reahl.web.bootstrap.ui import H, P, A, Alert
+from reahl.web.bootstrap.forms import Button, ButtonLayout, CueInput, TextInput, PasswordInput, \
+    FieldSet, Form, FormLayout, CheckboxInput
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed

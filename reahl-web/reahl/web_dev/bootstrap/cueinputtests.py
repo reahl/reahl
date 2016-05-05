@@ -26,7 +26,8 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import exposed, Field
 
-from reahl.web.bootstrap.ui import Form, FormLayout, CueInput, TextInput, P
+from reahl.web.bootstrap.ui import P
+from reahl.web.bootstrap.forms import Form, FormLayout, CueInput, TextInput
 
 
 class CueInputFixture(WebFixture):
