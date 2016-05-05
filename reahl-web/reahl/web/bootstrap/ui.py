@@ -350,8 +350,8 @@ class Alert(Div):
     """
     def __init__(self, view, message, severity):
         super(Alert, self).__init__(view)
-        severity_option = HTMLAttributeOption(severity, severity, prefix='alert', 
-                                              constrain_value_to=['success', 'info', 'warning', 'danger'])
+        severity_option = HTMLAttributeValueOption(severity, severity, prefix='alert', 
+                                                   constrain_value_to=['success', 'info', 'warning', 'danger'])
         self.add_child(TextNode(view, message))
         self.append_class('alert')
         self.append_class(severity_option.as_html_snippet())
