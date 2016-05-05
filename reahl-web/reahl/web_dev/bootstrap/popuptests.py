@@ -26,7 +26,8 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import exposed, BooleanField
 
-from reahl.web.bootstrap.ui import Div, Form, FormLayout, P, CheckboxInput
+from reahl.web.bootstrap.ui import Div, P
+from reahl.web.bootstrap.forms import Form, FormLayout, CheckboxInput
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
 class PopupAFixture(WebFixture):

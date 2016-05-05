@@ -9,7 +9,8 @@ from reahl.sqlalchemysupport import Session, Base, session_scoped
 
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
-from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, P, PasswordInput, Alert, ButtonLayout, FormLayout
+from reahl.web.bootstrap.ui import HTML5Page, P, Alert
+from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, ButtonLayout, FormLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
@@ -83,7 +84,7 @@ class LoginForm(Form):
         super(LoginForm, self).__init__(view, 'login')
         self.use_layout(FormLayout())
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
         self.layout.add_input(TextInput(self, login_session.fields.email_address))
         self.layout.add_input(PasswordInput(self, login_session.fields.password))

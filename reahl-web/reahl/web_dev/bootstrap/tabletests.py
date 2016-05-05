@@ -22,7 +22,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.tofu import test, scenario
 from reahl.tofu import vassert
 
-from reahl.web.bootstrap.ui import Table, TableLayout
+from reahl.web.bootstrap.tables import Table, TableLayout
 from reahl.web_dev.fixtures import WebFixture
 
 

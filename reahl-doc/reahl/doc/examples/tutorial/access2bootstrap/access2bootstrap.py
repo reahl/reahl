@@ -9,8 +9,9 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate, Widget
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
-from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, Div, P, H, A,\
-                         PasswordInput, Alert, SelectInput, CheckboxInput, FieldSet, FormLayout, ButtonLayout
+from reahl.web.bootstrap.ui import HTML5Page, H, Alert, Div, P, A
+from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, SelectInput,\
+    CheckboxInput, FieldSet, FormLayout, ButtonLayout
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 from reahl.web.layout import PageLayout
