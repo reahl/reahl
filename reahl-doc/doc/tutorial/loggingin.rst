@@ -97,11 +97,11 @@ it, execute:
 
 .. code-block:: bash
 
-   nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.login1.login1_dev.logintests1:DemoFixture
+   nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.login1.login1_dev.login1tests:DemoFixture
 
 Here is all the code of the test itself:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/login1/login1_dev/logintests1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/login1/login1_dev/login1tests.py
 
 
 
@@ -193,9 +193,9 @@ again include a :class:`~reahl.tofu.Fixture` for setting up the application data
 
 .. code-block:: bash
    
-   nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.example.tutorial.login2.login2_dev.logintests2:DemoFixture
+   nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.example.tutorial.login2.login2_dev.login2tests:DemoFixture
 
 
 Finally, and for completeness, here is the test code:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/login2/login2_dev/logintests2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/login2/login2_dev/login2tests.py
