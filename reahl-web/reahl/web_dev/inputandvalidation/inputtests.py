@@ -155,6 +155,24 @@ def the_states_of_an_input(fixture):
 
 class Scenarios(WebFixture, InputMixin):
     @scenario
+    def text_input(self):
+        self.widget = TextInput(self.form, self.field)
+        self.expected_html = '<input name="an_attribute" form="test" type="text" value="field value" class="reahl-textinput">'
+        self.field_controls_visibility = True
+
+    @scenario
+    def text_input_placeholder_default(self):
+        self.widget = TextInput(self.form, self.field, placeholder=True)
+        self.expected_html = '<input name="an_attribute" form="test" placeholder="the label" type="text" value="field value" class="reahl-textinput">'
+        self.field_controls_visibility = True
+
+    @scenario
+    def text_input_placeholder_specified(self):
+        self.widget = TextInput(self.form, self.field, placeholder="some text")
+        self.expected_html = '<input name="an_attribute" form="test" placeholder="some text" type="text" value="field value" class="reahl-textinput">'
+        self.field_controls_visibility = True
+
+    @scenario
     def input_label_deprecated_interface(self):
         html_input = TextInput(self.form, self.field)
         with warnings.catch_warnings(record=True):
