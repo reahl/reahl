@@ -100,7 +100,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {'main': 'main'}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -162,7 +162,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -208,7 +208,7 @@ class ParameterisedTests(object):
 
         class MainUI(Region):
             def assemble(self):
-                self.define_main_window(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_main_window(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_region('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -270,7 +270,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

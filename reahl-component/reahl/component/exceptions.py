@@ -114,7 +114,7 @@ class ArgumentCheck(Exception):
             else:
                 return
 
-        if not value:
+        if value is None:
             if not self.allow_none:
                 self.raise_with(func, name, value)
             else:

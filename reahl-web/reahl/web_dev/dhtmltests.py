@@ -70,7 +70,7 @@ class BasicTests(object):
         
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
                                 name='test_ui', static_div_name='astatic')
 
@@ -106,7 +106,7 @@ class BasicTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
                                    name='test_ui', static_div_name='astatic')
 

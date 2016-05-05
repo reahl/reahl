@@ -13,7 +13,7 @@ class MyCustomPage(HTML5Page):
 
         contents_layout = ColumnLayout(('secondary', UnitSize('1/4')), 
                                        ('main', UnitSize('3/4'))).with_slots()
-        self.use_layout(PageLayout(contents_layout))
+        self.use_layout(PageLayout(contents_layout=contents_layout))
 
         menu = Menu(view).use_layout(HorizontalLayout()).with_bookmarks(bookmarks)
         self.layout.header.add_child(menu)

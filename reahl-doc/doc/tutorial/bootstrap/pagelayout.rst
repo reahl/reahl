@@ -101,7 +101,7 @@ top, a footer at the bottom, and a content area inbetween. The content
 area is also often divided into different columns.
 
 You can layout a page in this fasion by using
-:class:`reahl.web.layout.PageLayout` in conjunction with a suitable
+:class:`reahl.web.bootstrap.grid.PageLayout` in conjunction with a suitable
 :class:`reahl.web.bootstrap.grid.ColumnLayout` to be used for its
 content area.
 

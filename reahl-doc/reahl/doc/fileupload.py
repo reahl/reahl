@@ -31,7 +31,7 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, Ac
 
 class FileUploadUI(UserInterface):
     def assemble(self):
-        page_layout = PageLayout(ColumnLayout('main').with_slots())
+        page_layout = PageLayout(contents_layout=ColumnLayout('main').with_slots())
         self.define_page(HTML5Page, style='basic').use_layout(page_layout)
         home = self.define_view('/', title='File upload demo')
         home.set_slot('main', CommentPostPanel.factory())

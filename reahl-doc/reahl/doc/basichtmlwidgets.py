@@ -24,7 +24,7 @@ from reahl.web.pure import ColumnLayout
 
 class BasicHTMLWidgetsUI(UserInterface):
     def assemble(self):
-        page_layout = PageLayout(ColumnLayout('main').with_slots())
+        page_layout = PageLayout(contents_layout=ColumnLayout('main').with_slots())
         self.define_page(HTML5Page, style='basic').use_layout(page_layout)
 
         home = self.define_view('/', title='Basic HTML Widgets demo')

@@ -23,17 +23,16 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 
 from reahl.sqlalchemysupport import Session
-from reahl.web.ui import HTML5Page
-from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout
 from reahl.web.fw import Url
 from reahl.web.fw import UserInterface
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
+from reahl.web.bootstrap.ui import HTML5Page
+from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, PageLayout
+from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
+from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domainui_dev.fixtures import BookmarkStub
 from reahl.domain_dev.fixtures import PartyModelZooMixin
-from reahl.domainui.bootstrap.accounts import AccountUI
-from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
 
 class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
     def new_login_bookmark(self, request=None):
@@ -44,7 +43,8 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout(('main', ResponsiveSize(md=6))).with_slots()))
+                page_layout = PageLayout(contents_layout=ColumnLayout(('main', ResponsiveSize(md=6))).with_slots())
+                self.define_page(HTML5Page).use_layout(page_layout)
                 account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui', 
                                                             bookmarks=fixture.bookmarks)
                 fixture.account_user_interface_factory = account_user_interface_factory

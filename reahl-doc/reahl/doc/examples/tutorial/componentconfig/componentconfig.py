@@ -25,7 +25,7 @@ class AddressConfig(Configuration):
 class AddressBookUI(UserInterface):
     def assemble(self):
         contents_layout = ColumnLayout(('main', UnitSize('1/3'))).with_slots()
-        page_layout = PageLayout(contents_layout)
+        page_layout = PageLayout(contents_layout=contents_layout)
         self.define_page(HTML5Page, style='basic').use_layout(page_layout)
 
         find = self.define_view('/', title='Addresses')

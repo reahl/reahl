@@ -119,7 +119,7 @@ class WebBasicsMixin(PartyModelZooMixin):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout(*view_slots.keys()).with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout(*view_slots.keys()).with_slots()))
                 self.define_view('/', title='Home page', slot_definitions=view_slots)
 
         site_root = site_root or MainUI
