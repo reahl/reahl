@@ -23,9 +23,20 @@ Below follows a more detailed breakdown of changes.
 Basic Widgets
 -------------
 
-Simple Widgets are located in :mod:`reahl.web.bootstrap.ui`\. These
+.. |ui| replace:: :mod:`reahl.web.bootstrap.ui`
+
+Simple Widgets are located in |ui|\. These
 include Widgets that represent HTML (but styled versions) and a very
-small number of equally basic Widgets.
+small number of equally basic Widgets. 
+
+Whereas the standard :mod:`reahl.web.ui` module includes all basic Widgets, |ui|
+excludes basic Widgets that pertain to larger topics that were split out into 
+their own modules:
+
+    - :mod:`reahl.web.bootstrap.forms` contains Inputs, Form and related Layouts
+    - :mod:`reahl.web.bootstrap.files` contains Inputs for uploading files
+    - :mod:`reahl.web.bootstrap.tables` contains Tables and related Widgets and Layouts
+
 
 The following changes happened here:
 
@@ -35,7 +46,7 @@ The following changes happened here:
       how and where error messages are displayed can differ, hence the
       Input cannot determine this by itself any longer.
 
-    - The :mod:`~reahl.web.bootstrap.ui` module now only contains
+    - The |ui| module now only contains
       Widgets corresponding to basic HTML elements or elements that
       are as simple as basic HTML elements in bootstrap-world. More
       complex Widgets are split out into separate modules.
@@ -45,15 +56,15 @@ The following changes happened here:
       :class:`reahl.web.ui.LabelledInlineInput` have been
       axed. Instead, when using Bootstrap the layout of Forms are
       controlled using the new
-      :class:`~reahl.web.bootstrap.ui.FormLayout` and its subclasses:
+      :class:`~reahl.web.bootstrap.forms.FormLayout` and its subclasses:
 
-         - :class:`~reahl.web.bootstrap.ui.FormLayout`
-         - :class:`~reahl.web.bootstrap.ui.GridFormLayout`
-         - :class:`~reahl.web.bootstrap.ui.InlineFormLayout`
+         - :class:`~reahl.web.bootstrap.forms.FormLayout`
+         - :class:`~reahl.web.bootstrap.forms.GridFormLayout`
+         - :class:`~reahl.web.bootstrap.forms.InlineFormLayout`
 
     - Other Layouts have been added for these basic Widgets:
-         - :class:`~reahl.web.bootstrap.ui.ButtonLayout` (for :class:`~reahl.web.bootstrap.ui.Button` or :class:`~reahl.web.bootstrap.ui.A`).
-         - :class:`~reahl.web.bootstrap.ui.TableLayout` (for :class:`~reahl.web.bootstrap.ui.Table`)
+         - :class:`~reahl.web.bootstrap.forms.ButtonLayout` (for :class:`~reahl.web.bootstrap.forms.Button` or :class:`~reahl.web.bootstrap.ui.A`).
+         - :class:`~reahl.web.bootstrap.forms.TableLayout` (for :class:`~reahl.web.bootstrap.tables.Table`)
 
     
     - Some other Widgets that attempted to deal with styling, or that were mere aliases for HTML elements were removed:
@@ -64,12 +75,12 @@ The following changes happened here:
          - :class:`~reahl.web.ui.LabelOverInput`
 
     - Instead of a SimpleFileInput, there are two simple kinds of file input:
-         - :class:`~reahl.web.bootstrap.ui.FileInputButton` (just a button which behaves like a file input)
-         - :class:`~reahl.web.bootstrap.ui.FileInput` (a stylized version of a standard browser file input)
+         - :class:`~reahl.web.bootstrap.files.FileInputButton` (just a button which behaves like a file input)
+         - :class:`~reahl.web.bootstrap.files.FileInput` (a stylized version of a standard browser file input)
 
     - CheckboxInput has been split into two versions:
-         - :class:`~reahl.web.bootstrap.ui.PrimitiveCheckboxInput` (just a checkbox)
-         - :class:`~reahl.web.bootstrap.ui.CheckboxInput` (a checkbox wrapped in a label)
+         - :class:`~reahl.web.bootstrap.forms.PrimitiveCheckboxInput` (just a checkbox)
+         - :class:`~reahl.web.bootstrap.forms.CheckboxInput` (a checkbox wrapped in a label)
 
      
 List of equivalent Widgets
@@ -86,10 +97,10 @@ List of equivalent Widgets
    :class:`reahl.web.ui.SlidingPanel`           :class:`reahl.web.bootstrap.carousel.Carousel` 
    :class:`reahl.web.ui.TabbedPanel`            :class:`reahl.web.bootstrap.tabbedpanel.TabbedPanel` 
    :class:`reahl.web.ui.Menu`                   :class:`reahl.web.bootstrap.navs.Nav` (and related classes) 
-   :class:`reahl.web.ui.CueInput`               :class:`reahl.web.bootstrap.ui.CueInput` 
+   :class:`reahl.web.ui.CueInput`               :class:`reahl.web.bootstrap.forms.CueInput` 
    :class:`reahl.web.ui.ErrorFeedbackMessage`   :class:`reahl.web.bootstrap.ui.Alert` 
    :class:`reahl.web.ui.PopupA`                 :class:`reahl.web.bootstrap.popups.PopupA` (works differently) 
-   :mod:`reahl.web.datatable`                   :mod:`reahl.web.bootstrap.datatable` 
+   :mod:`reahl.web.datatable`                   :mod:`reahl.web.bootstrap.tables` 
    :mod:`reahl.web.layout`                      :mod:`reahl.web.bootstrap.grid` 
    :mod:`reahl.web.pager`                       :mod:`reahl.web.bootstrap.pagination` 
   ============================================  ======================================================
@@ -129,12 +140,12 @@ Added in (or for) Bootstrap
 
 A small number of classes/modules were added for Bootstrap that do not have simple equivalents:
 
-  ============================================= ==============================================
-   Class or package or module                    Contents
-  ============================================= ==============================================
-   :class:`reahl.web.bootstrap.navbar.Navbar`   A more elaborate header for a site.
-   :class:`reahl.web.bootstrap.ui.StaticData`   An :class:`~reahl.web.ui.Input` that can only be used for output.
-   :mod:`reahl.web.bootstrap.inputgroup`        Bootstrap input groups.
-   :mod:`reahl.web.holder`                      Creates placeholder background images.
+  =============================================  ==============================================
+   Class or package or module                     Contents
+  =============================================  ==============================================
+   :class:`reahl.web.bootstrap.navbar.Navbar`    A more elaborate header for a site.
+   :class:`reahl.web.bootstrap.forms.StaticData` An :class:`~reahl.web.ui.Input` that can only be used for output.
+   :mod:`reahl.web.bootstrap.inputgroup`         Bootstrap input groups.
+   :mod:`reahl.web.holder`                       Creates placeholder background images.
   ============================================= ==============================================
 

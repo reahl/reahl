@@ -8,7 +8,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface, Widget
-from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, Div, P, H, FormLayout, ButtonLayout, A, FieldSet
+from reahl.web.bootstrap.ui import HTML5Page, Div, P, H, A
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, FieldSet
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
 from reahl.web.layout import PageLayout

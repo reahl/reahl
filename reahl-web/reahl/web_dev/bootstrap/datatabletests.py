@@ -27,10 +27,9 @@ from reahl.component.modelinterface import Field, IntegerField, exposed
 
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.bootstrap.ui import Div, StaticColumn, TableLayout
+from reahl.web.bootstrap.ui import Div
 from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
-
-from reahl.web.bootstrap.datatable import DataTable
+from reahl.web.bootstrap.tables import StaticColumn, TableLayout, DataTable
 
 import reahl.web_dev.widgets.tabletests
 
