@@ -28,7 +28,7 @@ from sqlalchemy import Column, Integer, ForeignKey
 from reahl.sqlalchemysupport import Session, metadata
 from reahl.web.ui import HTML5Page, Div, P
 from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
+from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout
 from reahl.domain.workflowmodel import Task
 from reahl.domainui.bootstrap.workflow import InboxUI, TaskWidget
 from reahl.web.fw import UserInterface, Url
@@ -56,7 +56,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
             return fixture.queues
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout('main').with_slots()))
+                self.define_page(HTML5Page).use_layout(PageLayout(ColumnLayout(('main', ResponsiveSize(md=6))).with_slots()))
                 accounts = self.define_user_interface('/accounts', AccountUI, {'main_slot': 'main'},
                                               name='test_ui', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
