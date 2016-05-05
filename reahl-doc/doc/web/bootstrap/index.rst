@@ -9,15 +9,16 @@ Package reahl.web.bootstrap
 .. toctree::
    :maxdepth: 1
 
-   Basic Widgets and Layouts <ui>
+   Basic Widgets <ui>
+   Forms and user input <forms>
    Grid layout and responsive sizing <grid>
+   Uploading files <files>
+   Tables <table>
    General navigation <navs>
    Navbars <navbar>
    Pagination of long lists <pagination>
-   Sortable, pageable tables of data <datatable>
    Tabbed panel <tabbedpanel>
    Carousel <carousel>
-   Uploading files <files>
    Input groups <inputgroup>
 
    libraries

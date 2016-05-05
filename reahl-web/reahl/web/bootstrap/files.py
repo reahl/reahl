@@ -30,8 +30,8 @@ from reahl.component.modelinterface import exposed, Action, Event, Field, Upload
 from reahl.web.fw import WebExecutionContext
 import reahl.web.ui
 from reahl.web.ui import PrimitiveInput, UniqueFilesConstraint
-from reahl.web.bootstrap.ui import Div, Span, Li, Ul, Label
-from reahl.web.bootstrap.forms import Button, NestedForm, ButtonLayout, FormLayout
+from reahl.web.bootstrap.ui import Div, Span, Li, Ul
+from reahl.web.bootstrap.forms import Button, NestedForm, ButtonLayout, FormLayout, Label
 
 
 _ = Translator('reahl-web')
