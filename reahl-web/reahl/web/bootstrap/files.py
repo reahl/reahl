@@ -28,15 +28,90 @@ import six
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
 from reahl.web.fw import WebExecutionContext
-from reahl.web.ui import PrimitiveInput
-from reahl.web.bootstrap.ui import Div, Span, Li, Button, NestedForm, Ul, ButtonLayout, FormLayout, FileInput
+import reahl.web.ui
+from reahl.web.ui import PrimitiveInput, UniqueFilesConstraint
+from reahl.web.bootstrap.ui import Div, Span, Li, Ul, Label
+from reahl.web.bootstrap.forms import Button, NestedForm, ButtonLayout, FormLayout
+
 
 _ = Translator('reahl-web')
 
 
 
+class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):
+    append_error = False
+    add_default_attribute_source = False
 
-# Uses: reahl/web/reahl.fileuploadli.js
+    def __init__(self, form, bound_field):
+        super(_UnstyledHTMLFileInput, self).__init__(form, bound_field)
+        self.append_class('form-control-file')
+
+
+class FileInputButton(reahl.web.ui.WrappedInput):
+    """A single button which activated the browser's file choice dialog when clicked. The chosen file
+       will be uploaded once the user clicks on any :class:`Button` associated with the same :class:`Form`
+       as this Input.
+
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
+              type :class:`reahl.component.modelinterface.FileField`)
+    """
+    def __init__(self, form, bound_field):
+        label = Label(form.view)
+        self.simple_input = label.add_child(_UnstyledHTMLFileInput(form, bound_field))
+        self.simple_input.html_representation.append_class('btn-secondary')
+        label.add_child(Span(form.view, text=_('Choose file(s)')))
+        super(FileInputButton, self).__init__(self.simple_input)
+        self.add_child(label)
+
+        label.append_class('reahl-bootstrapfileinputbutton')
+        label.append_class('btn')
+        label.append_class('btn-primary')
+        self.set_html_representation(label)
+
+    def get_js(self, context=None):
+        js = ['$(".reahl-bootstrapfileinputbutton").bootstrapfileinputbutton({});']
+        return super(FileInputButton, self).get_js(context=context) + js
+
+
+class FileInput(reahl.web.ui.WrappedInput):
+    """A visual combination of a two buttons and a status area. When the
+    user clicks on the 'Choose file' button, the browser's file choice
+    dialog is activated. Once chosen the file name that was chosen is
+    shown in the status area. The last button will upload this file
+    when clicked (it is automatically clicked is the user's JavaScript
+    is enabled).
+
+    :param form: (See :class:`~reahl.web.ui.Input`)
+    :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
+           type :class:`reahl.component.modelinterface.FileField`)
+
+    """
+    def __init__(self, form, bound_field):
+        file_input = FileInputButton(form, bound_field)
+        super(FileInput, self).__init__(file_input)
+
+        self.input_group = self.add_child(Div(self.view))
+        self.input_group.append_class('input-group')
+        self.input_group.append_class('reahl-bootstrapfileinput')
+        self.set_html_representation(self.input_group)
+
+        span = self.input_group.add_child(Span(form.view))
+        span.append_class('input-group-btn')
+        span.add_child(file_input)
+
+        filename_input = self.input_group.add_child(Span(self.view, text=_('No files chosen')))
+        filename_input.append_class('form-control')
+
+
+    def get_js(self, context=None):
+        js = ['$(".reahl-bootstrapfileinput").bootstrapfileinput({nfilesMessage: "%s", nofilesMessage: "%s"});' % \
+              (_('files chosen'), _('No files chosen'))]
+        return super(FileInput, self).get_js(context=context) + js
+
+
+
+# Uses: reahl/web/reahl.files.js
 class FileUploadLi(Li):
     def __init__(self, form, remove_event, persisted_file, css_id=None):
         super(FileUploadLi, self).__init__(form.view, css_id=css_id)
@@ -48,9 +123,8 @@ class FileUploadLi(Li):
         return ['$(".reahl-bootstrap-file-upload-li").bootstrapfileuploadli();']
 
 
-from reahl.web.ui import UniqueFilesConstraint
 
-# Uses: reahl/web/reahl.fileuploadpanel.js
+# Uses: reahl/web/reahl.files.js
 class FileUploadPanel(Div):
     def __init__(self, file_upload_input, css_id=None):
         super(FileUploadPanel, self).__init__(file_upload_input.view, css_id=css_id)

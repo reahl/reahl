@@ -38,8 +38,9 @@ from reahl.component.modelinterface import exposed, Field, Event, FileField, Act
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import WebExecutionContext
 
-from reahl.web.bootstrap.ui import Form, Span, Label, Div, P, Button, TextNode, FormLayout, FileInput, FileInputButton
-from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel
+from reahl.web.bootstrap.ui import Span, Label, Div, P, TextNode
+from reahl.web.bootstrap.forms import Form
+from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel, Button, FormLayout, FileInput, FileInputButton
 
 
 

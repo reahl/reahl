@@ -9,7 +9,8 @@ from reahl.sqlalchemysupport import Session, Base, session_scoped
 
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
-from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, P, PasswordInput, Alert, ButtonLayout, FormLayout
+from reahl.web.bootstrap.ui import HTML5Page, P, Alert
+from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, ButtonLayout, FormLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize

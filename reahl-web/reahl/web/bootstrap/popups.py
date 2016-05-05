@@ -29,7 +29,8 @@ import json
 from reahl.component.i18n import Translator
 
 import reahl.web.ui
-from reahl.web.bootstrap.ui import A, ButtonLayout, ButtonStyle, ButtonSize
+from reahl.web.bootstrap.ui import A
+from reahl.web.bootstrap.forms import ButtonLayout, ButtonStyle, ButtonSize
 
 _ = Translator('reahl-web')
 
