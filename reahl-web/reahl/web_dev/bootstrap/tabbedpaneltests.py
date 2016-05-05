@@ -24,12 +24,9 @@ from reahl.tofu import vassert, scenario, expected, test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import WidgetTester, XPath
 
-from reahl.component.exceptions import ProgrammerError
-from reahl.web.fw import Bookmark, Url
-from reahl.web.ui import A, Div, P
-from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
+from reahl.web.fw import Url
+from reahl.web.ui import P
 
-from reahl.web.bootstrap.navs import Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 from reahl.web.bootstrap.tabbedpanel import TabbedPanel, MultiTab, Tab
 
 
@@ -54,10 +51,9 @@ class TabbedPanelAjaxFixture(WebFixture):
         return PopulatedTabbedPanel
 
     def new_webconfig(self):
-        web = super(TabbedPanelAjaxFixture, self).new_webconfig()
-        web.frontend_libraries.add(Bootstrap4())
-        web.frontend_libraries.add(ReahlBootstrap4Additions())
-        return web
+        webconfig = super(TabbedPanelAjaxFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
 
     def new_wsgi_app(self, enable_js=True):
         return super(TabbedPanelAjaxFixture, self).new_wsgi_app(enable_js=enable_js,

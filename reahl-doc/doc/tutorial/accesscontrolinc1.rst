@@ -28,7 +28,7 @@ itself. This time around each Address belongs to a specific
 AddressBook, so the concept of an AddressBook has to be mentioned in
 our new tests:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access1/access1_dev/accesstests1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/access1/access1_dev/access1tests.py
 
 After writing the test (and copying some code from the previous
 examples), we're ready to write the model code that make the tests pass.

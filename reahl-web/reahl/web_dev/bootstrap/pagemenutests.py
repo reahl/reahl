@@ -26,7 +26,6 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath
-from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 from reahl.web.ui import P
 from reahl.web.ui import Div
 from reahl.web.pager import PageIndex, PagedPanel, SequentialPageIndex, AnnualPageIndex, AnnualItemOrganiserProtocol
@@ -93,10 +92,9 @@ class PageMenuFixture(Fixture, WebBasicsMixin):
         return super(PageMenuFixture, self).new_wsgi_app(enable_js=True, 
                                                        child_factory=self.MainWidget.factory())
     def new_webconfig(self):
-        web = super(PageMenuFixture, self).new_webconfig()
-        web.frontend_libraries.add(Bootstrap4())
-        web.frontend_libraries.add(ReahlBootstrap4Additions())
-        return web
+        webconfig = super(PageMenuFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
 
 
 @istest

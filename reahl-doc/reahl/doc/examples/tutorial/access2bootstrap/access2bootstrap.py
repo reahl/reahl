@@ -1,29 +1,27 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-
 from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, Boolean
 from sqlalchemy.orm import relationship
 
 from reahl.sqlalchemysupport import Session, Base
-
-from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, InputGroup, Menu, \
-                         HorizontalLayout,\
-                         PasswordInput, ErrorFeedbackMessage, Slot, MenuItem, A, Widget, SelectInput, CheckboxInput
-from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.exceptions import ProgrammerError
+from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate, Widget
+from reahl.web.bootstrap.navs import Nav, TabLayout
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
+from reahl.web.bootstrap.ui import HTML5Page, Form, TextInput, Button, Div, P, H, A,\
+                         PasswordInput, Alert, SelectInput, CheckboxInput, FieldSet, FormLayout, ButtonLayout
+from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout, UnitSize
 
 
 class Address(Base):
-    __tablename__ = 'access_address'
+    __tablename__ = 'access2bootstrap_address'
 
     id              = Column(Integer, primary_key=True)    
-    address_book_id = Column(Integer, ForeignKey('access_address_book.id'))
-    address_book    = relationship('reahl.doc.examples.tutorial.access.access.AddressBook')
+    address_book_id = Column(Integer, ForeignKey('access2bootstrap_address_book.id'))
+    address_book    = relationship('reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap.AddressBook')
     email_address   = Column(UnicodeText)
     name            = Column(UnicodeText)
 
@@ -36,35 +34,27 @@ class Address(Base):
 
     @exposed
     def fields(self, fields):
-        fields.name = Field(label='Name', required=self.can_be_added(), writable=Action(self.can_be_added))
-        fields.email_address = EmailField(label='Email', required=True, writable=Action(self.can_be_edited))
+        fields.name = Field(label='Name')
+        fields.email_address = EmailField(label='Email', required=True)
 
     @exposed('save', 'update', 'edit')
     def events(self, events):
         events.save = Event(label='Save', action=Action(self.save))
         events.update = Event(label='Update')
-        events.edit = Event(label='Edit', writable=Action(self.can_be_edited))
+        events.edit = Event(label='Edit')
 
     def save(self):
         Session.add(self)
 
-    def can_be_edited(self):
-        current_account = LoginSession.for_current_session().account
-        return self.address_book.can_be_edited_by(current_account)
-
-    def can_be_added(self):
-        current_account = LoginSession.for_current_session().account
-        return self.address_book.can_be_added_to_by(current_account)
-
 
 class AddressBook(Base):
-    __tablename__ = 'access_address_book'
+    __tablename__ = 'access2bootstrap_address_book'
 
     id              = Column(Integer, primary_key=True)
 
     owner_id   = Column(Integer, ForeignKey(EmailAndPasswordSystemAccount.id), nullable=False)
     owner      = relationship(EmailAndPasswordSystemAccount)
-    collaborators = relationship('reahl.doc.examples.tutorial.access.access.Collaborator', lazy='dynamic',
+    collaborators = relationship('reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap.Collaborator', lazy='dynamic',
                                  backref='address_book')
 
     @classmethod
@@ -127,24 +117,12 @@ class AddressBook(Base):
         collaborator = self.get_collaborator(account)
         return collaborator and collaborator.can_add_addresses
         
-    def can_be_added_to(self):
-        account = LoginSession.for_current_session().account
-        return self.can_be_added_to_by(account)
-
     def collaborators_can_be_added_by(self, account):
         return self.owner is account
-
-    def collaborators_can_be_added(self):
-        account = LoginSession.for_current_session().account
-        return self.collaborators_can_be_added_by(account)
 
     def is_visible_to(self, account):
         return self in self.address_books_visible_to(account)
 
-    def is_visible(self):
-        account = LoginSession.for_current_session().account
-        return self.is_visible_to(account)
-        
     def get_collaborator(self, account):            
         collaborators = self.collaborators.filter_by(account=account)
         count = collaborators.count()
@@ -156,7 +134,7 @@ class AddressBook(Base):
 
 
 class Collaborator(Base):
-    __tablename__ = 'access_collaborator'
+    __tablename__ = 'access2bootstrap_collaborator'
     id      = Column(Integer, primary_key=True)
 
     address_book_id = Column(Integer, ForeignKey(AddressBook.id))
@@ -170,9 +148,10 @@ class Collaborator(Base):
 
 class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
-        super(AddressAppPage, self).__init__(view, style='basic')
+        super(AddressAppPage, self).__init__(view)
+        self.body.use_layout(Container())
         self.use_layout(PageLayout())
-        contents_layout = ColumnLayout(('main', UnitSize('1/2'))).with_slots()
+        contents_layout = ColumnLayout(('main', ResponsiveSize(md=6))).with_slots()
         self.layout.contents.use_layout(contents_layout)
 
         login_session = LoginSession.for_current_session()
@@ -182,28 +161,31 @@ class AddressAppPage(HTML5Page):
             logged_in_as = 'Not logged in'
 
         self.layout.header.add_child(P(view, text=logged_in_as))
-        self.layout.header.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks([home_bookmark]))
+        self.layout.header.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks([home_bookmark]))
 
 
 class LoginForm(Form):
     def __init__(self, view, accounts):
         super(LoginForm, self).__init__(view, 'login')
-        
-        if self.exception:
-            self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
+        self.use_layout(FormLayout())
 
-        self.add_child(LabelledBlockInput(TextInput(self, accounts.fields.email)))
-        self.add_child(LabelledBlockInput(PasswordInput(self, accounts.fields.password)))
+        if self.exception:
+            self.add_child(Alert(view, self.exception.as_user_message()))
+
+        self.layout.add_input(TextInput(self, accounts.fields.email))
+        self.layout.add_input(PasswordInput(self, accounts.fields.password))
 
         self.define_event_handler(accounts.events.login_event)
-        self.add_child(Button(self, accounts.events.login_event))
+        btn = self.add_child(Button(self, accounts.events.login_event))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class LogoutForm(Form):
     def __init__(self, view, accounts):
         super(LogoutForm, self).__init__(view, 'logout')
         self.define_event_handler(accounts.events.log_out_event)
-        self.add_child(Button(self, accounts.events.log_out_event))
+        btn = self.add_child(Button(self, accounts.events.log_out_event))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class HomePageWidget(Widget):
@@ -238,7 +220,7 @@ class AddressBookPanel(Div):
         super(AddressBookPanel, self).__init__(view)
         
         self.add_child(H(view, 1, text='Addresses in %s' % address_book.display_name))
-        self.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(self.menu_bookmarks(address_book_ui)))
+        self.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(self.menu_bookmarks(address_book_ui)))
         self.add_children([AddressBox(view, address) for address in address_book.addresses])
 
     def menu_bookmarks(self, address_book_ui):
@@ -250,11 +232,13 @@ class EditAddressForm(Form):
     def __init__(self, view, address):
         super(EditAddressForm, self).__init__(view, 'edit_form')
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Edit address'))
-        grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.name)))
-        grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.email_address)))
+        grouped_inputs = self.add_child(FieldSet(view, label_text='Edit address'))
+        grouped_inputs.use_layout(FormLayout())
+        grouped_inputs.layout.add_input(TextInput(self, address.fields.name))
+        grouped_inputs.layout.add_input(TextInput(self, address.fields.email_address))
 
-        grouped_inputs.add_child(Button(self, address.events.update.with_arguments(address_book_id=address.address_book.id)))
+        btn = grouped_inputs.add_child(Button(self, address.events.update.with_arguments(address_book_id=address.address_book.id)))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class AddAddressForm(Form):
@@ -263,20 +247,24 @@ class AddAddressForm(Form):
 
         new_address = Address(address_book=address_book)
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
-        grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.name)))
-        grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.email_address)))
+        grouped_inputs = self.add_child(FieldSet(view, label_text='Add an address'))
+        grouped_inputs.use_layout(FormLayout())
+        grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
+        grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
-        grouped_inputs.add_child(Button(self, new_address.events.save.with_arguments(address_book_id=address_book.id)))
+        btn = grouped_inputs.add_child(Button(self, new_address.events.save.with_arguments(address_book_id=address_book.id)))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class AddressBox(Form):
     def __init__(self, view, address):
         form_name = 'address_%s' % address.id
         super(AddressBox, self).__init__(view, form_name)
+        self.use_layout(FormLayout())
 
         par = self.add_child(P(view, text='%s: %s ' % (address.name, address.email_address)))
-        par.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))
+        btn = par.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class AddressBookView(UrlBoundView):
@@ -285,7 +273,6 @@ class AddressBookView(UrlBoundView):
 
         self.title = address_book.display_name
         self.set_slot('main', AddressBookPanel.factory(address_book, address_book_ui))
-        self.read_check = address_book.is_visible
 
 
 class AddAddressView(UrlBoundView):
@@ -294,21 +281,23 @@ class AddAddressView(UrlBoundView):
 
         self.title = 'Add to %s' % address_book.display_name
         self.set_slot('main', AddAddressForm.factory(address_book))
-        self.write_check = address_book.can_be_added_to
 
 
 class AddCollaboratorForm(Form):
     def __init__(self, view, address_book):
         super(AddCollaboratorForm, self).__init__(view, 'add_collaborator_form')
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add a collaborator'))
-        grouped_inputs.add_child(LabelledBlockInput(SelectInput(self, address_book.fields.chosen_collaborator)))
+        grouped_inputs = self.add_child(FieldSet(view, label_text='Add a collaborator'))
+        grouped_inputs.use_layout(FormLayout())
+        grouped_inputs.layout.add_input(SelectInput(self, address_book.fields.chosen_collaborator))
 
-        rights_inputs = grouped_inputs.add_child(InputGroup(view, label_text='Rights'))
-        rights_inputs.add_child(LabelledBlockInput(CheckboxInput(self, address_book.fields.may_edit_address)))
-        rights_inputs.add_child(LabelledBlockInput(CheckboxInput(self, address_book.fields.may_add_address)))
+        rights_inputs = grouped_inputs.add_child(FieldSet(view, label_text='Rights'))
+        rights_inputs.use_layout(FormLayout())
+        rights_inputs.layout.add_input(CheckboxInput(self, address_book.fields.may_edit_address))
+        rights_inputs.layout.add_input(CheckboxInput(self, address_book.fields.may_add_address))
 
-        grouped_inputs.add_child(Button(self, address_book.events.add_collaborator.with_arguments(address_book_id=address_book.id)))
+        btn = grouped_inputs.add_child(Button(self, address_book.events.add_collaborator.with_arguments(address_book_id=address_book.id)))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class AddCollaboratorView(UrlBoundView):
@@ -317,7 +306,6 @@ class AddCollaboratorView(UrlBoundView):
 
         self.title = 'Add collaborator to %s' % address_book.display_name
         self.set_slot('main', AddCollaboratorForm.factory(address_book))
-        self.read_check = address_book.collaborators_can_be_added
 
 
 class EditAddressView(UrlBoundView):
@@ -326,7 +314,6 @@ class EditAddressView(UrlBoundView):
 
         self.title = 'Edit Address for %s' % address.name
         self.set_slot('main', EditAddressForm.factory(address))
-        self.read_check = address.can_be_edited
 
 
 class AddressBookUI(UserInterface):

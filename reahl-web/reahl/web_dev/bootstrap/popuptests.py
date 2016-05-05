@@ -26,7 +26,6 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import exposed, BooleanField
 
-from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 from reahl.web.bootstrap.ui import Div, Form, FormLayout, P, CheckboxInput
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
@@ -38,10 +37,9 @@ class PopupAFixture(WebFixture):
         return super(PopupAFixture, self).new_wsgi_app(enable_js=True,
                                                        child_factory=self.MainWidget.factory())
     def new_webconfig(self):
-        web = super(PopupAFixture, self).new_webconfig()
-        web.frontend_libraries.add(Bootstrap4())
-        web.frontend_libraries.add(ReahlBootstrap4Additions())
-        return web
+        webconfig = super(PopupAFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
 
 
 class PopupAFixtureWithContent(PopupAFixture):

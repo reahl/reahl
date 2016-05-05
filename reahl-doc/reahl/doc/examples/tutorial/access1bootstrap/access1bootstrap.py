@@ -10,11 +10,11 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 
 class Address(Base):
-    __tablename__ = 'access1_address'
+    __tablename__ = 'access1bootstrap_address'
 
     id              = Column(Integer, primary_key=True)    
-    address_book_id = Column(Integer, ForeignKey('access1_address_book.id'))
-    address_book    = relationship('reahl.doc.examples.tutorial.access1.access1.AddressBook')
+    address_book_id = Column(Integer, ForeignKey('access1bootstrap_address_book.id'))
+    address_book    = relationship('reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap.AddressBook')
     email_address   = Column(UnicodeText)
     name            = Column(UnicodeText)
 
@@ -23,13 +23,13 @@ class Address(Base):
 
 
 class AddressBook(Base):
-    __tablename__ = 'access1_address_book'
+    __tablename__ = 'access1bootstrap_address_book'
 
     id              = Column(Integer, primary_key=True)
 
     owner_id   = Column(Integer, ForeignKey(EmailAndPasswordSystemAccount.id), nullable=False)
     owner      = relationship(EmailAndPasswordSystemAccount)
-    collaborators = relationship('reahl.doc.examples.tutorial.access1.access1.Collaborator', lazy='dynamic',
+    collaborators = relationship('reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap.Collaborator', lazy='dynamic',
                                  backref='address_book')
 
     @classmethod
@@ -83,7 +83,7 @@ class AddressBook(Base):
 
 
 class Collaborator(Base):
-    __tablename__ = 'access1_collaborator'
+    __tablename__ = 'access1bootstrap_collaborator'
     id      = Column(Integer, primary_key=True)
 
     address_book_id = Column(Integer, ForeignKey(AddressBook.id))

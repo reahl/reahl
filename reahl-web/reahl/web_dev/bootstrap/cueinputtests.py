@@ -26,7 +26,6 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import exposed, Field
 
-from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
 from reahl.web.bootstrap.ui import Form, FormLayout, CueInput, TextInput, P
 
 
@@ -34,10 +33,9 @@ class CueInputFixture(WebFixture):
     cue_element_xpath = "//p"
 
     def new_webconfig(self):
-        web = super(CueInputFixture, self).new_webconfig()
-        web.frontend_libraries.add(Bootstrap4())
-        web.frontend_libraries.add(ReahlBootstrap4Additions())
-        return web
+        webconfig = super(CueInputFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
 
     def new_domain_object(self):
         class DomainObject(object):

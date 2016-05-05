@@ -1,16 +1,16 @@
 
 # To run this test do:
-# nosetests reahl.doc.examples.tutorial.access1.access1_dev.accesstests1
+# nosetests reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap_dev.access1bootstraptests
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import test
+from reahl.tofu import test, set_up
 from reahl.web_dev.fixtures import WebFixture
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.sqlalchemysupport import Session
 
-from reahl.doc.examples.tutorial.access1.access1 import AddressBook, Address
+from reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap import AddressBook, Address
 
 
 class AccessFixture(WebFixture):
@@ -35,6 +35,18 @@ class AccessFixture(WebFixture):
     def new_other_address_book(self):
         return self.new_address_book(owner=self.other_account)
 
+
+class DemoFixture(AccessFixture):
+    commit=True
+    @set_up
+    def do_demo_setup(self):
+        self.address_book
+        self.account
+        self.other_account
+        self.other_address_book
+
+        Session.flush()
+        Session.commit()
 
 
 @test(AccessFixture)

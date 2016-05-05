@@ -345,12 +345,12 @@ class Alert(Div):
 
     :param view: (See :class:`reahl.web.fw.Widget`)
     :param message: The message to display inside the Alert.
-    :param severity: One of 'success', 'info', 'warning', 'danger' to indicate the color scheme to be used for the Alert.
+    :keyword severity: One of 'success', 'info', 'warning', 'danger' to indicate the color scheme to be used for the Alert.
 
     """
-    def __init__(self, view, message, severity):
+    def __init__(self, view, message, severity='danger'):
         super(Alert, self).__init__(view)
-        severity_option = HTMLAttributeOption(severity, severity, prefix='alert', 
+        severity_option = HTMLAttributeValueOption(severity, severity, prefix='alert',
                                               constrain_value_to=['success', 'info', 'warning', 'danger'])
         self.add_child(TextNode(view, message))
         self.append_class('alert')

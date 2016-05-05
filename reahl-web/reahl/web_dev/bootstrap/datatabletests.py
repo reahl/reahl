@@ -22,14 +22,9 @@ import six
 from reahl.tofu import test, vassert, expected, scenario
 
 from reahl.webdev.tools import XPath
-from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import Field, IntegerField, exposed
 
-from reahl.web_dev.fixtures import WebFixture
-
 from reahl.web.bootstrap.ui import Div, StaticColumn, TableLayout
-from reahl.web.bootstrap.libraries import Bootstrap4, ReahlBootstrap4Additions
-
 from reahl.web.bootstrap.datatable import DataTable
 
 import reahl.web_dev.widgets.tabletests
@@ -76,8 +71,7 @@ class DataTableFixture(reahl.web_dev.widgets.tabletests.TableFixture):
 
     def new_webconfig(self):
         webconfig = super(DataTableFixture, self).new_webconfig()
-        webconfig.frontend_libraries.add(Bootstrap4())
-        webconfig.frontend_libraries.add(ReahlBootstrap4Additions())
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
         return webconfig
 
     def xpath_for_sort_link_for_column(self, column_number):
