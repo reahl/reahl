@@ -19,5 +19,6 @@ Web framework
    Interfaces for persisted classes of which many implementations can exist (reahl.web.interfaces) <interfaces>
    The declarative implementation (reahl.webdeclarative) <webdeclarative>
 
+   Dealing with JavaScript and CSS code and external libraries (reahl.web.libraries) <libraries>
 
 

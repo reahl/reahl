@@ -100,7 +100,7 @@ class PlaceholderImage(Img):
     """
     def __init__(self, view, x, y, alt=None, text=None, theme=None):
 
-        super(PlaceholderImage, self).__init__(view, alt=alt, css_id=css_id)
+        super(PlaceholderImage, self).__init__(view, alt=alt)
         image_url = Url('holder.js/%sx%s' % (x, y))
         options = theme or Theme()
         if text is not None:

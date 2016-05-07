@@ -15,7 +15,15 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A user interface for logging in, registering, etc using :class:`~reahl.systemaccountmodel.EmailAndPasswordSystemAccount`."""
+""".. versionadded: 3.2
+
+A user interface for logging in, registering, etc using
+:class:`~reahl.domain.systemaccountmodel.EmailAndPasswordSystemAccount`.
+
+This (still experimental) version is based on the new bootstrap-based
+Widgets (:mod:`reahl.web.bootstrap`).
+
+"""
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division

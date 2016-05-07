@@ -7,7 +7,7 @@ Malicious attackers can try to bypass any access control (or even
 validation) that a programmer may have put in place. Reahl safeguards
 against such attacks -- in most places without your having to worry
 about it. Even so, a careful programmer would like to know what
-happens under the hood to protect against breaches, and would want to
+happens under the covers to protect against breaches, and would want to
 be able to direct the underlying mechanisms.
 
 One form of attack concerns :class:`~reahl.web.ui.Button`\ s and Inputs. The server may have

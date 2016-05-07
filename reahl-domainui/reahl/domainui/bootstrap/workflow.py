@@ -14,7 +14,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A User interface that allows a user to monitor tasks allocated to the user's queues and to complete those tasks.
+""".. versionadded:: 3.2
+
+A User interface that allows a user to monitor tasks allocated to the
+user's queues and to complete those tasks.
+
+This (experimental) version is based on the new bootstrap-based Widgets (:mod:`reahl.web.bootstrap`).
+
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -24,8 +30,8 @@ from reahl.component.decorators import deprecated
 from reahl.sqlalchemysupport import PersistedField
 from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
 from reahl.web.ui import HTMLWidget
-from reahl.web.bootstrap.ui import P, Div, Ul, Li, H, Form
-from reahl.web.bootstrap.ui import Button, ButtonLayout, FormLayout
+from reahl.web.bootstrap.ui import P, Div, Ul, Li, H
+from reahl.web.bootstrap.forms import Form, Button, ButtonLayout, FormLayout
 
 from reahl.domain.workflowmodel import Inbox, Task, WorkflowInterface
 from reahl.domain.systemaccountmodel import LoginSession
