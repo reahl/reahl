@@ -14,6 +14,15 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+.. versionadded:: 3.2
+
+
+Widgets related to Tables and their contents.
+
+
+
+"""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 

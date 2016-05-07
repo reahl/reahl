@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Widgets and Layouts that provide an abstraction on top of Bootstrap (http://getbootstrap.com/)
-
 .. versionadded:: 3.2
+
+Carousel provides a slideshow of images with captions on each slide.
+
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -31,9 +32,9 @@ from reahl.component.i18n import Translator
 _ = Translator('reahl-web')
 
 
-class CarouselItem(Div):
+class Slide(Div):
     def __init__(self, view, image, caption_widget, index):
-        super(CarouselItem, self).__init__(view)
+        super(Slide, self).__init__(view)
         self.index = index
         self.append_class('carousel-item')
         self.add_child(image)
@@ -55,20 +56,32 @@ class CarouselItem(Div):
 
 
 class Carousel(Widget):
-    def __init__(self, view, css_id, show_indicators=True, interval=None, pause=None, wrap=False, keyboard=False):
+    """A Widget that appears as having multiple panels of content of which
+    only one panel is visible at a time. The visible panel is
+    exchanged for another panel of content when prompted or
+    automatically, at regular intervals, by visually sliding the new
+    panel into position thus creating a slideshow effect.
+
+    :param view: (See :class:`~reahl.web.fw.Widget`)
+    :param css_id: ((See :class:`~reahl.web.ui.HTMLElement`)
+    :keyword show_indicators: If True (the default), includes indicators showing the number of slides and which one is visible.
+    :keyword interval: The number (an int) of milliseconds to delay between cycling content. If not given (the default), the Carousel will not cycle automatically.
+    :keyword pause: A string stating when to pause the cycling. Currently only 'hover' is supported.
+    :keyword wrap: If True, the Carousel cycles contiuously, else it stops at the last slide.
+    :keyword keyboard:If True, the Carousel reacts to keyboard events.
+
+    """
+    def __init__(self, view, css_id, show_indicators=True, interval=5000, pause='hover', wrap=True, keyboard=True):
         super(Carousel, self).__init__(view)
         self.carousel_panel = self.add_child(Div(view, css_id=css_id))
         self.carousel_panel.append_class('carousel')
         self.carousel_panel.append_class('slide')
         self.carousel_panel.set_attribute('data-ride', 'carousel')
-        if interval:
-            self.carousel_panel.set_attribute('data-interval', six.text_type(interval))
-        if pause:
-            self.carousel_panel.set_attribute('data-pause', six.text_type(pause))
-        if wrap:
-            self.carousel_panel.set_attribute('data-wrap', 'true' if wrap else 'false')
-        if keyboard:
-            self.carousel_panel.set_attribute('data-keyboard', 'true' if keyboard else 'false')
+
+        self.carousel_panel.set_attribute('data-interval', six.text_type(interval))
+        self.carousel_panel.set_attribute('data-pause', six.text_type(pause or 'false'))
+        self.carousel_panel.set_attribute('data-wrap', 'true' if wrap else 'false')
+        self.carousel_panel.set_attribute('data-keyboard', 'true' if keyboard else 'false')
 
         self.show_indicators = show_indicators
         if self.show_indicators:
@@ -85,13 +98,15 @@ class Carousel(Widget):
         inner.set_attribute('role', 'listbox')
         return inner
 
-    def add_item(self, image, caption_widget=None):
+    def add_slide(self, image, caption_widget=None):
         """
-        :param image: An image to display for example :class:`reahl.web.fw.Widget` or :class:`reahl.web.holder.holder.PlaceholderImage`
-        :param caption_widget:
+        Adds a Slide for the given image.
+
+        :param image: An image to display (See also :class:`~reahl.web.holder.holder.PlaceholderImage`)
+        :param caption_widget: The :class:`~reahl.web.fw.Widget` to use as caption for the slide.
         :return:
         """
-        item = self.inner.add_child(CarouselItem(self.view, image, caption_widget, len(self.items)))
+        item = self.inner.add_child(Slide(self.view, image, caption_widget, len(self.items)))
 
         self.items.append(item)
 

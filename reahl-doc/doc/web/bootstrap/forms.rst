@@ -1,8 +1,13 @@
+.. Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+ 
+Module reahl.web.bootstrap.forms
+--------------------------------
+
+.. automodule:: reahl.web.bootstrap.forms
 
 
-
-Widgets for Input
-^^^^^^^^^^^^^^^^^
+Forms and their layout
+^^^^^^^^^^^^^^^^^^^^^^
 
 Form
 """"
@@ -38,13 +43,15 @@ GridFormLayout
    :members:
 
 
-
 FieldSet
 """"""""
 
 .. autoclass:: FieldSet
    :members:
 
+
+Inputs
+^^^^^^
 
 TextArea
 """"""""
@@ -121,4 +128,11 @@ CueInput
 """"""""
 
 .. autoclass:: CueInput
+   :members:
+
+
+InputGroup
+""""""""""
+
+.. autoclass:: InputGroup
    :members:

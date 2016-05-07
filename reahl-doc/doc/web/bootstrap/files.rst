@@ -1,6 +1,10 @@
+.. Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+ 
+Package reahl.web.bootstrap.files
+---------------------------------
 
-Files
-^^^^^
+.. automodule:: reahl.web.bootstrap.files
+
 
 FileInputButton
 """""""""""""""
@@ -13,4 +17,11 @@ FileInput
 """""""""
 
 .. autoclass:: FileInput
+   :members:
+
+
+FileUploadInput
+"""""""""""""""
+
+.. autoclass:: FileUploadInput
    :members:

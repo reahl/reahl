@@ -14,7 +14,19 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
+.. sidebar:: Behind the scenes
+
+   This module uses `Holder.js <http://imsky.github.io/holder/>`_ to
+   provide its functionality.
+
+.. versionadded:: 3.2
+
+Generate images on the fly.
+
+
+"""
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
@@ -27,16 +39,15 @@ from reahl.web.ui import Img
 
 
 class Theme(OrderedDict):
-    """A :class:`Theme` is used as argument to :class:`Placeholder` that influences what the placeholder will look like.
-        Refer: https://github.com/imsky/holder
-    """
     def __init__(self):
         super(Theme, self).__init__()
 
 
 class PredefinedTheme(Theme):
-    """
-        :param theme_name:
+    """There are a few named, :class:`PredefinedTheme`\s you can choose from to
+    control the look of a :class:`Placeholder` image.
+
+    :param theme_name: One of: 'sky', 'vine', 'lava', 'gray', 'industrial', or 'social'.
     """
     def __init__(self, theme_name):
         super(PredefinedTheme, self).__init__()
@@ -44,16 +55,18 @@ class PredefinedTheme(Theme):
 
 
 class CustomTheme(Theme):
+    """A :class:`CustomTheme` allows one to control all the details of
+    what a :class:`Placeholder` should look like.
+
+    :keyword bg: The background-colour (a string in CSS notation)
+    :keyword fg: The foreground-colour (a string in CSS notation)
+    :keyword text_size: The size of generated text (an int, denoted in pts)
+    :keyword text_font: The name of the font to use for generated text.
+    :keyword text_align: How to align the generated text (one of 'left' or 'right')
+    :keyword line_wrap: A ratio (line length to image width) at which generated text should wrap.
+    :keyword outline: Draws a border and diagonals in the image.
     """
-        :keyword bg:
-        :keyword fg:
-        :keyword text_size:
-        :keyword text_font:
-        :keyword text_align:
-        :keyword outline:
-        :keyword line_wrap:
-    """
-    def __init__(self, bg=None, fg=None, text_size=None, text_font=None, text_align=None, outline=None, line_wrap=None):
+    def __init__(self, bg=None, fg=None, text_size=None, text_font=None, text_align=None, line_wrap=None, outline=None):
 
         super(CustomTheme, self).__init__()
         if text_align not in ['left', 'right', None]:
@@ -76,17 +89,16 @@ class CustomTheme(Theme):
 
 
 class PlaceholderImage(Img):
-    """A :class:`PlaceholderImage` renders image placeholders on the client side using SVG.
-        Refer: https://github.com/imsky/holder
+    """A :class:`PlaceholderImage` is an image generated on the client browser using SVG.
 
-        :param x:
-        :param y:
-        :keyword alt:
-        :keyword css_id:
-        :keyword text:
-        :keyword theme:
+    :param view: (See :class:`~reahl.web.fw.Widget`)
+    :param x: The width of the image (defaults to pixels, can be a string using CSS notation).
+    :param y: The height of the image (defaults to pixels, can be a string using CSS notation).
+    :keyword alt: Text to be displayed when the browser cannot handle images.
+    :keyword text: Text to be generated on the image itself.
+    :keyword theme: A :class:`PredefinedTheme` or :class:`CustomTheme` to control what the image should look like.
     """
-    def __init__(self, view, x, y, alt=None, css_id=None, text=None, theme=None):
+    def __init__(self, view, x, y, alt=None, text=None, theme=None):
 
         super(PlaceholderImage, self).__init__(view, alt=alt, css_id=css_id)
         image_url = Url('holder.js/%sx%s' % (x, y))

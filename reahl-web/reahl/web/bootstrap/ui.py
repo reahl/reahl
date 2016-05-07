@@ -16,11 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+.. versionadded:: 3.2
+
 This module houses stylised versions of very basic user interface
 elements -- user interface elements that have a one-to-one
 correspondence to HTML elements (or are of similar simplicity).
 
-.. versionadded:: 3.2
 
 
 """

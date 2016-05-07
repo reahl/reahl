@@ -15,7 +15,10 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A Bootstrap "Nav" is a navigation menu: a list of items that are
+"""
+.. versionadded:: 3.2
+
+A Bootstrap "Nav" is a navigation menu: a list of items that are
 links to other Views. Navs can also have a second level so that if you
 click on an item, a dropdown list of vertically stacked options
 appear.
@@ -23,7 +26,6 @@ appear.
 This module contains the necessary Widgets and Layouts to create and
 style Bootstrap Navs.
 
-.. versionadded:: 3.2
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division

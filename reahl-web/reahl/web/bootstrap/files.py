@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Widgets for uploading files.
-
 .. versionadded:: 3.2
+
+
+Styled Inputs that allow a user to choose or upload files.
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -48,13 +49,15 @@ class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):
 
 
 class FileInputButton(reahl.web.ui.WrappedInput):
-    """A single button which activated the browser's file choice dialog when clicked. The chosen file
-       will be uploaded once the user clicks on any :class:`Button` associated with the same :class:`Form`
-       as this Input.
+    """A single button which activated the browser's file choice dialog
+       when clicked. The chosen file will only be uploaded once the
+       user clicks on any :class:`Button` associated with the same
+       :class:`Form` as this Input.
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
+
     """
     def __init__(self, form, bound_field):
         label = Label(form.view)
@@ -219,7 +222,19 @@ class FileUploadPanel(Div):
 
 
 class FileUploadInput(PrimitiveInput):
-    """ """
+    """A Widget that allows the user to upload several files.  FileUploadInput
+    makes use of JavaScript to save a user some time: once you choose a file, 
+    it is immediately uploaded to the server in the background so that you can
+    continue choosing more files.
+
+    Controls are provided so you can cancel uploads that are in
+    progress or remove ones that have finished. While a file is
+    uploading a progress bar is also shown.
+
+    :param form: (See :class:`~reahl.web.ui.Input`)
+    :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
+              type :class:`reahl.component.modelinterface.FileField`)
+    """
     append_error = False
     add_default_attribute_source = False
 

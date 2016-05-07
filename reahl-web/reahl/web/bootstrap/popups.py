@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+.. versionadded:: 3.2
+
 Client-side popups and related utilities.
 
-.. versionadded:: 3.2
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
