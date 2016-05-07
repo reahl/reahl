@@ -89,6 +89,22 @@ The :mod:`reahl.web.holder.holder` module was added to be able to use
 the fly in a client browser.
 
 
+Dealing with front-end libraries
+--------------------------------
+
+Reahl is written in Python, but it has a lot of JavaScript and CSS
+code under the covers. Reahl also makes use of other "front-end
+libraries" (projects that live in the JavaScript/CSS world).
+
+The :mod:`reahl.web.libraries` module was added for dealing with such
+front-end libraries. The same mechanism is now also used internally by
+Reahl to ship its own JavaScript and CSS. 
+
+If you develop your own Widgets that include CSS of JavaScript code,
+you should also now use this mechanism to distribute such front-end
+code.
+
+
 Miscellaneous 
 -------------
 

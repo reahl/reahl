@@ -124,14 +124,6 @@ def carousel_has_options(fixture):
     vassert( main_div.get_attribute('data-wrap') == 'true' )
     vassert( main_div.get_attribute('data-keyboard') == 'true' )
 
-    #when options are 'empty'
-    carousel = Carousel(fixture.view, 'my_carousel_id')
-    main_div = fixture.get_main_div_for(carousel)
-
-    vassert( not main_div.has_attribute('data-interval') )
-    vassert( not main_div.has_attribute('data-pause') )
-    vassert( not main_div.has_attribute('data-wrap') )
-    vassert( not main_div.has_attribute('data-keyboard') )
 
 
 @test(CarouselFixture)
@@ -148,7 +140,7 @@ def adding_items_to_carousel(fixture):
     vassert( fixture.get_indicator_list_for(carousel) == [] )
 
     image = Img(fixture.view)
-    added_item = carousel.add_item(image)
+    added_item = carousel.add_slide(image)
 
     # A carousel item was added for the image
     [carousel_item] = carousel_inner.children
@@ -170,8 +162,8 @@ def active_state_of_items(fixture):
     """The first item added is marked as active, and also its corresponding indicator."""
     
     carousel = Carousel(fixture.view, 'my_carousel_id')
-    carousel.add_item(Img(fixture.view))
-    carousel.add_item(Img(fixture.view))
+    carousel.add_slide(Img(fixture.view))
+    carousel.add_slide(Img(fixture.view))
 
     main_div = fixture.get_main_div_for(carousel)
     [indicator_list, carousel_inner, left_control, right_control] = main_div.children
@@ -197,7 +189,7 @@ def item_indicators_are_optional(fixture):
 
     vassert( not fixture.carousel_indicators_present(carousel) )
 
-    carousel.add_item(Img(fixture.view))
+    carousel.add_slide(Img(fixture.view))
 
     #after adding the item, indicators shouldn't appear
     vassert( not fixture.carousel_indicators_present(carousel) )
@@ -209,7 +201,7 @@ def adding_items_with_captions(fixture):
     carousel = Carousel(fixture.view, 'my_carousel_id')
 
     caption_widget = Widget(fixture.view)
-    carousel_item = carousel.add_item(Img(fixture.view), caption_widget=caption_widget)
+    carousel_item = carousel.add_slide(Img(fixture.view), caption_widget=caption_widget)
 
     [image, div_containing_caption] = carousel_item.children
     vassert( div_containing_caption.get_attribute('class') == 'carousel-caption' )
