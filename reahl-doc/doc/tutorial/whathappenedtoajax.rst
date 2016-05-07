@@ -6,7 +6,9 @@ What ever happened to Ajax?
 .. sidebar:: Examples in this section
 
    - tutorial.ajax
+   - tutorial.ajaxbootstrap
    - tutorial.pager
+   - tutorial.pagerbootstrap
 
    Get a copy of an example by running:
 

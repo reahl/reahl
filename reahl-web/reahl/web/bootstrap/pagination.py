@@ -14,6 +14,19 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+.. versionadded:: 3.2
+
+Sometimes you need to display a long list of items. Displaying such a list on a single
+page is not a good idea, because the page will take forever to load.
+
+This module provides a few classes you can use to build a single View that displays
+only one "pageful" of the list. You can then also include a :class:`PageMenu` -- a
+menu on which a user can choose to navigate to another section (or page) of the list.
+
+
+
+"""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
@@ -24,6 +37,8 @@ from reahl.component.modelinterface import exposed
 from reahl.web.fw import Bookmark
 from reahl.web.ui import HTMLWidget, Menu, AccessRightAttributes, ActiveStateAttributes
 from reahl.web.bootstrap.ui import A, Span
+from reahl.web.pager import PagedPanel, PageIndex, SequentialPageIndex, AnnualItemOrganiserProtocol, AnnualPageIndex
+
 
 _ = Translator('reahl-web')
 

@@ -15,10 +15,12 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Widgets and Layouts that provide an abstraction on top of Bootstrap (http://getbootstrap.com/)
+""".. versionadded:: 3.2
 
-.. versionadded:: 3.2
+TabbedPanels are used to save space by stacking different panels on
+top of one another. While each panel has its own contents only the
+top panel is visible, thus taking up visual space of only one such
+panel.
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -33,6 +35,21 @@ from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
 
 
 class TabbedPanel(Widget):
+    """A Widget that appears as having multiple panels of content stacked 
+    on top of one another -- with only one panel visible at a time.
+
+    Each content panel appears to have a label sticking out (its
+    "tab").  When the user clicks on a different Tab, its panel is
+    raised to the top and thus made visible. This is done without
+    refreshing the entire page, provided that JavaScript is available
+    on the user agent.
+
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    :keyword nav_layout: Optionally, an :class:`~reahl.web.bootstrap.navs.PillLayout` or 
+                  :class:`~reahl.web.bootstrap.navs.TabLayout` for fine-grained control over 
+                  how the :class:`~reahl.web.bootstrap.navs.Nav` which represents the tabs is
+                  displayed.
+    """
     def __init__(self, view, nav_layout=None):
         super(TabbedPanel, self).__init__(view)
         self.tabs = []
@@ -55,6 +72,10 @@ class TabbedPanel(Widget):
         return tab.tab_key == self.tab
 
     def add_tab(self, tab):
+        """Add a panel for the given :class:`Tab` to this TabbedPanel.
+
+        :param tab: The :class:`Tab` to be added.
+        """
         if not self.active_tab_set:
             self.set_active(tab)
         tab.set_panel(self)
@@ -82,6 +103,14 @@ class TabJavaScriptAttributes(DelegatedAttributes):
 
 
 class Tab(object):
+    """
+    One Tab in a :class:`TabbedPanel`, including the contents that should be displayed for it.
+
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    :param title: The label Text that is displayed inside the Tab itself.
+    :param tab_key: A name for this tag identifying it uniquely amongst other Tabs in the same :class:`TabbedPanel`.
+    :param contents_factory: A :class:`WidgetFactory` specifying how to create the contents of this Tab, once selected.
+    """
     def __init__(self, view, title, tab_key, contents_factory):
         self.title = title
         self.tab_key = tab_key
@@ -146,6 +175,15 @@ class Tab(object):
 
 
 class MultiTab(Tab):
+    """
+    A composite tab. Instead of a single choice for the user, clicking on a MultiTab
+    results in a dropdown menu with more choices for the user. These second-level
+    choices are navigable tabs.
+
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    :param title: (See :class:`Tab`)
+    :param tab_key: (See :class:`Tab`)
+    """
     def __init__(self, view, title, tab_key):
         self.tabs = []
         self.menu = DropdownMenu(view)

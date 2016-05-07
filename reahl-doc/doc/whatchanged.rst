@@ -80,6 +80,15 @@ See:
 
    reahl serve -h
 
+
+Holder
+------
+
+The :mod:`reahl.web.holder.holder` module was added to be able to use
+`holder.js <http://imsky.github.io/holder/>`_ to generate images on
+the fly in a client browser.
+
+
 Miscellaneous 
 -------------
 

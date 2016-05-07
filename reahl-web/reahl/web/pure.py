@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+.. versionadded:: 3.1
+
 Layout tools based on Pure (http://purecss.io/)
 
-.. versionadded:: 3.1
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division

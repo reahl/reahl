@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+.. versionadded:: 3.2
+
 Bootstrap-styled versions of Forms, Inputs and related Layouts.
 
-.. versionadded:: 3.2
 
 
 """
@@ -443,3 +444,29 @@ class InlineFormLayout(FormLayout):
         self.widget.append_class('form-inline')
 
 
+class InputGroup(reahl.web.ui.WrappedInput):
+    """A composition of an Input with something preceding and/or following it.
+
+    :param prepend: A :class:`~reahl.web.fw.Widget` to prepend to the :class:`~reahl.web.ui.Input`.
+    :param input_widget: The :class:`~reahl.web.ui.Input` to use.
+    :param append: A :class:`~reahl.web.fw.Widget` to append to the :class:`~reahl.web.ui.Input`.
+    """
+    def __init__(self, prepend, input_widget, append):
+        super(InputGroup, self).__init__(input_widget)
+        self.div = self.add_child(Div(self.view))
+        self.div.append_class('input-group')
+        if prepend:
+            self.add_as_addon(prepend)
+        self.input_widget = self.div.add_child(input_widget)
+        if append:
+            self.add_as_addon(append)
+        self.set_html_representation(self.div)
+
+    def add_as_addon(self, addon):
+        if isinstance(addon, six.string_types):
+            span = Span(self.view, text=addon)
+        else:
+            span = Span(self.view)
+            span.add_child(addon)
+        span.append_class('input-group-addon')
+        return self.div.add_child(span)

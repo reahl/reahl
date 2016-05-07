@@ -15,11 +15,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module contains tools for laying out a page or part of a page
+"""
+.. versionadded:: 3.2
+
+This module contains tools for laying out a page or part of a page
 using a grid which resizes depending on the size of the device being
 used to browse.
 
-.. versionadded:: 3.2
 
 When creating a visual layout it is often useful to arrange elements
 on an invisible grid. The tools here allows building such a grid, but
@@ -52,9 +54,9 @@ from reahl.component.exceptions import ProgrammerError
 
 
 class Container(Layout):
-    """A Container Layout sets up the HTMLElement it is used with with
-    padding and margins. It is mostly used only once on a page -- for
-    the entire page, but can be nested too.
+    """A Container Layout sets up the HTMLElement it is used with to be
+    centered and have some padding. It is mostly used only once on a
+    page -- for the entire page, but can be nested too.
 
     Using a Container is compulsory if you want to make use of a
     ColumnLayout.
@@ -75,6 +77,26 @@ class Container(Layout):
 
 
 class PageLayout(reahl.web.layout.PageLayout):
+    """A PageLayout adds a header and footer area to an
+    :class:`reahl.web.ui.HTML5Page`, as well as a content area between
+    the header and footer areas.  All of these contents are also
+    wrapped in a :class:`~reahl.web.ui.Div`, which is handy for
+    styling.
+
+    This is a styled version of :class:`reahl.web.layout.PageLayout` which
+    additionally ensures the containing
+    :attr:`~reahl.web.bootstrap.grid.HTML5Page.document` is set up to
+    use a :class:`Container` layout.
+
+    See :class:`reahl.web.ui.HTML5Page` for the names of these stored
+    as attributes.
+
+    :keyword fluid: If True, the page will be take up all available width. (See :class:`Container`)
+    :keyword contents_layout: A :class:`~reahl.web.ui.Layout` that will be applied to the content area.
+
+    .. versionadded:: 3.2
+
+    """
     @arg_checks(fluid=IsInstance(bool), contents_layout=IsInstance(Layout, allow_none=True))
     def __init__(self, fluid=False, contents_layout=None):
         super(PageLayout, self).__init__(contents_layout=contents_layout)

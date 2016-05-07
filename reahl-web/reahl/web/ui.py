@@ -2648,7 +2648,12 @@ class MultiTab(Tab):
        .. versionchanged: 3.2
           Deprecated css_id keyword argument.
     """
-    def __init__(self, view, title, tab_key, contents_factory):
+    def __init__(self, view, title, tab_key, contents_factory, css_id=None):
+        if css_id:
+            self.set_id(css_id)
+            warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
+                          'This ability will be removed in future versions.',
+                          DeprecationWarning, stacklevel=2)
         self.tabs = []
         self.menu = Menu(view).use_layout(VerticalLayout())
         super(MultiTab, self).__init__(view, title, tab_key, contents_factory)

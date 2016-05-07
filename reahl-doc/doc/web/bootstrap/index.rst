@@ -11,17 +11,14 @@ Package reahl.web.bootstrap
 
    Basic Widgets <ui>
    Forms and user input <forms>
-   Grid layout and responsive sizing <grid>
+   Layout and responsive sizing <grid>
    Uploading files <files>
-   Tables <table>
-   General navigation <navs>
+   Tables <tables>
+   Navs <navs>
    Navbars <navbar>
    Pagination of long lists <pagination>
    Tabbed panel <tabbedpanel>
    Carousel <carousel>
-   Input groups <inputgroup>
 
-   libraries
-   popups
    
    

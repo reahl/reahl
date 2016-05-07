@@ -1,5 +1,10 @@
-Tables
-^^^^^^
+.. Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+ 
+Package reahl.web.bootstrap.tables
+----------------------------------
+
+.. automodule:: reahl.web.bootstrap.tables
+
 
 Table
 """""
@@ -76,5 +81,17 @@ Th
 ""
 
 .. autoclass:: Th
+   :members:
+
+Col
+"""
+
+.. autoclass:: Col
+   :members:
+
+ColGroup
+""""""""
+
+.. autoclass:: ColGroup
    :members:
 

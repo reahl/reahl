@@ -10,6 +10,7 @@ Web framework
    Widgets -- user interface elements (reahl.web.ui) <ui>
    Widgets and other classes that help with layout (reahl.web.layout) <layout>
    Widgets and Layouts (bootstrap) -- bootstrap-styled Widgets and Layouts (reahl.web.bootstrap) <bootstrap/index>
+   Holder -- on-the-fly placeholder images (reahl.web.holder) <holder>
 
    Layout using Pure (reahl.web.pure) <pure>
    Paging long lists (reahl.web.pager) <pager>
