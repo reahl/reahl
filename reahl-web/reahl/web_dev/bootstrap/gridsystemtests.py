@@ -24,10 +24,11 @@ from reahl.tofu import vassert, scenario, expected, test, NoException, Fixture
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.bootstrap.ui import Div
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass, HTMLAttributeValueOption
+from reahl.web.ui import HTMLAttributeValueOption
+from reahl.web.bootstrap.ui import Div
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass
 
 
 @test(WebFixture)

@@ -28,6 +28,8 @@ import copy
 from collections import OrderedDict
 
 from babel import Locale, UnknownLocaleError
+
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
@@ -65,6 +67,21 @@ class LiteralHTML(Widget):
 
     def render(self):
         return self.transform(self.contents)
+
+
+class HTMLAttributeValueOption(object):
+    def __init__(self, option_string, is_set, prefix='', constrain_value_to=None):
+        if is_set and (constrain_value_to and option_string not in constrain_value_to):
+            raise ProgrammerError('"%s" should be one of %s' % (option_string, constrain_value_to))
+        self.is_set = is_set
+        self.prefix = prefix
+        self.option_string = option_string
+
+    def as_html_snippet(self):
+        if not self.is_set:
+            raise ProgrammerError('Attempt to add %s to html despite it not being set' % self)
+        prefix_with_delimiter = '%s-' % self.prefix if self.prefix else ''
+        return '%s%s' % (prefix_with_delimiter, self.option_string)
 
 
 class HTMLAttribute(object):
@@ -3353,8 +3370,4 @@ class Table(HTMLElement):
             for column in columns:
                 row_td = row.add_child(Td(self.view))
                 row_td.add_child(column.as_widget(self.view, item))
-
-
-
-
 

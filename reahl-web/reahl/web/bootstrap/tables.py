@@ -34,10 +34,10 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 from reahl.web.fw import Bookmark, Widget
 
-from reahl.web.ui import Caption, Col, ColGroup, Tbody, Td, Tfoot, Th, Thead, Tr, DynamicColumn, StaticColumn
+from reahl.web.ui import Caption, Col, ColGroup, Tbody, Td, Tfoot, Th, Thead, Tr, DynamicColumn, StaticColumn, \
+    HTMLAttributeValueOption
 
 import reahl.web.ui
-from reahl.web.bootstrap.grid import HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import A, Span, Div, TextNode
 from reahl.web.bootstrap.pagination import PageMenu
 from reahl.web.pager import SequentialPageIndex, PagedPanel

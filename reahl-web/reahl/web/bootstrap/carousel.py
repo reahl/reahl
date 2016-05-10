@@ -26,8 +26,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 from reahl.web.fw import Widget, Url
+from reahl.web.ui import HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div, A, Span, Li, Ol
-from reahl.web.bootstrap.grid import HTMLAttributeValueOption
 from reahl.component.i18n import Translator
 
 _ = Translator('reahl-web')
