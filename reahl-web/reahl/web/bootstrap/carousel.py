@@ -26,7 +26,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 from reahl.web.fw import Widget, Url
-from reahl.web.ui import Div, A, Span, Li, Img, HTMLElement, Ol
+from reahl.web.bootstrap.ui import Div, A, Span, Li, Ol
+from reahl.web.bootstrap.grid import HTMLAttributeValueOption
 from reahl.component.i18n import Translator
 
 _ = Translator('reahl-web')
@@ -79,7 +80,8 @@ class Carousel(Widget):
         self.carousel_panel.set_attribute('data-ride', 'carousel')
 
         self.carousel_panel.set_attribute('data-interval', six.text_type(interval))
-        self.carousel_panel.set_attribute('data-pause', six.text_type(pause or 'false'))
+        pause_option = HTMLAttributeValueOption(pause, pause is not None, constrain_value_to=['true', 'false', 'hover'])
+        self.carousel_panel.set_attribute('data-pause', pause_option.as_html_snippet())
         self.carousel_panel.set_attribute('data-wrap', 'true' if wrap else 'false')
         self.carousel_panel.set_attribute('data-keyboard', 'true' if keyboard else 'false')
 
