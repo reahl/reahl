@@ -18,6 +18,11 @@ class RefreshFixture(WebFixture):
     def new_wsgi_app(self):
         return super(RefreshFixture, self).new_wsgi_app(site_root=WidgetRefreshUI, enable_js=True)
 
+    def new_webconfig(self):
+        webconfig = super(RefreshFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
+
     def text_shows_selected(self, expected_selected):
         return self.browser.is_element_present(XPath.paragraph_containing('You selected link number %s' % expected_selected))
 

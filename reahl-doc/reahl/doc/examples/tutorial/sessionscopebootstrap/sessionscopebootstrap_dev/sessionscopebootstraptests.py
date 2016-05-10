@@ -13,11 +13,6 @@ class SessionScopeFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=SessionScopeUI))
 
-    def new_webconfig(self):
-        webconfig = super(SessionScopeFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
-
     password = 'topsecret'
 
     def new_user(self):
