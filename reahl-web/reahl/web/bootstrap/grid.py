@@ -44,13 +44,11 @@ denoting a size in 1/12ths of its container's width.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
-
-from reahl.component.exceptions import arg_checks, IsInstance
-from reahl.web.fw import Layout
-from reahl.web.ui import  Div
 import reahl.web.layout
 from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import arg_checks, IsInstance
+from reahl.web.fw import Layout
+from reahl.web.ui import Div, HTMLAttributeValueOption
 
 
 class Container(Layout):
@@ -105,21 +103,6 @@ class PageLayout(reahl.web.layout.PageLayout):
     def customise_widget(self):
         super(PageLayout, self).customise_widget()
         self.document.use_layout(Container(fluid=self.fluid))
-
-
-class HTMLAttributeValueOption(object):
-    def __init__(self, option_string, is_set, prefix='', constrain_value_to=None):
-        if is_set and (constrain_value_to and option_string not in constrain_value_to):
-            raise ProgrammerError('"%s" should be one of %s' % (option_string, constrain_value_to))
-        self.is_set = is_set
-        self.prefix = prefix
-        self.option_string = option_string
-    
-    def as_html_snippet(self):
-        if not self.is_set:
-            raise ProgrammerError('Attempt to add %s to html despite it not being set' % self)
-        prefix_with_delimiter = '%s-' % self.prefix if self.prefix else ''
-        return '%s%s' % (prefix_with_delimiter, self.option_string)
 
 
 class DeviceClass(HTMLAttributeValueOption):

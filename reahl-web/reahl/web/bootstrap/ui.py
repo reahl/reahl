@@ -37,9 +37,9 @@ from reahl.component.i18n import Translator
 import reahl.web.ui
 from reahl.web.ui import A, Article, Body, Br, Div, Footer, H, Head, Header, Img, \
     Li, Link, LiteralHTML, Meta, Nav, Ol, OptGroup, P, RunningOnBadge, Slot, Span, TextNode, \
-    Title, Ul, WrappedInput, FieldSet
+    Title, Ul, WrappedInput, FieldSet, HTMLAttributeValueOption
 
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize, HTMLAttributeValueOption
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
 
 
 _ = Translator('reahl-web')
