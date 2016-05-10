@@ -51,6 +51,7 @@ class PredefinedTheme(Theme):
     """
     def __init__(self, theme_name):
         super(PredefinedTheme, self).__init__()
+
         self['theme'] = theme_name
 
 
