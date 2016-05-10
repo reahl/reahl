@@ -18,7 +18,7 @@ from reahl.doc.examples.tutorial.addressbook2bootstrap.addressbook2bootstrap imp
 class AddressFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
-        
+
     def do_demo_setup(self):
         DemoFixture().do_demo_setup()
 

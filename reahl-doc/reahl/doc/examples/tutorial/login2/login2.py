@@ -20,6 +20,12 @@ class MenuPage(HTML5Page):
         self.layout.header.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(main_bookmarks))
 
 
+class LegalNotice(P):
+    def __init__(self, view, text, name):
+        super(LegalNotice, self).__init__(view, text=text, css_id=name)
+        self.set_as_security_sensitive()
+
+
 class LoginUI(UserInterface):
     def assemble(self):
         login_session = LoginSession.for_current_session()
@@ -31,10 +37,19 @@ class LoginUI(UserInterface):
         home = self.define_view('/', title='Home')
         home.set_slot('main', P.factory(text='Welcome %s' % logged_in_as))
 
+        terms_of_service = self.define_view('/terms_of_service', title='Terms of service')
+        terms_of_service.set_slot('main', LegalNotice.factory('The terms of services defined as ...', 'terms'))
+
+        privacy_policy = self.define_view('/privacy_policy', title='Privacy policy')
+        privacy_policy.set_slot('main', LegalNotice.factory('You have the right to remain silent ...', 'privacypolicy'))
+
+        disclaimer = self.define_view('/disclaimer', title='Disclaimer')
+        disclaimer.set_slot('main', LegalNotice.factory('Disclaim ourselves from negligence ...', 'disclaimer'))
+
         class LegalBookmarks(object):
-            terms_bookmark = home.as_bookmark(self, description='Terms of service')
-            privacy_bookmark = home.as_bookmark(self, description='Privacy policy')
-            disclaimer_bookmark = home.as_bookmark(self, description='Disclaimer')
+            terms_bookmark = terms_of_service.as_bookmark(self)
+            privacy_bookmark = privacy_policy.as_bookmark(self)
+            disclaimer_bookmark = disclaimer.as_bookmark(self)
 
         accounts = self.define_user_interface('/accounts', AccountUI,
                                       {'main_slot': 'main'},

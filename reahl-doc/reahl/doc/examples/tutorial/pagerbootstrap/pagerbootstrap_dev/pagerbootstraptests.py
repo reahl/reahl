@@ -17,6 +17,11 @@ class PagingFixture(WebFixture):
     def new_wsgi_app(self):
         return super(PagingFixture, self).new_wsgi_app(site_root=AddressBookUI, enable_js=True)
 
+    def new_webconfig(self):
+        webconfig = super(PagingFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
+
     def is_email_listed(self, email):
         return self.browser.is_element_present(XPath.paragraph_containing(email))
 

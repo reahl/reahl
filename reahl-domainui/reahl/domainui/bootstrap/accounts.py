@@ -174,8 +174,8 @@ class VerifyForm(Form):
 
         identification_inputs = self.add_child(FieldSet(view, label_text=_('Please supply the following details'))).use_layout(FormLayout())
 
-        identification_inputs.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True))
-        identification_inputs.layout.add_input(TextInput(self, account_management_interface.fields.secret, placeholder=True))
+        identification_inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
+        identification_inputs.layout.add_input(TextInput(self, account_management_interface.fields.secret))
         identification_inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.password))
 
         actions = self.add_child(ActionButtonGroup(view))
@@ -202,8 +202,8 @@ class RegisterHelpForm(Form):
             self.add_child(Alert(view, self.exception.as_user_message()))
         
         inputs = self.add_child(FieldSet(view, label_text=_('Please supply the email address you tried to register with.'))).use_layout(FormLayout())
-        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True),
-                              help_text=_('Please supply the email address you tried to register with.'))
+        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email),
+                                help_text=_('Please supply the email address you tried to register with.'))
 
         actions = self.add_child(ActionButtonGroup(view))
         btn = actions.add_child(Button(self, account_management_interface.events.investigate_event))
@@ -312,7 +312,7 @@ class ResetPasswordForm(Form):
             self.add_child(Alert(view, self.exception.as_user_message()))
 
         inputs = self.add_child(FieldSet(view, label_text=_('Request a secret key'))).use_layout(FormLayout())
-        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True))
+        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
 
         actions = self.add_child(ActionButtonGroup(view))
         btn = actions.add_child(Button(self, account_management_interface.events.reset_password_event))
@@ -340,8 +340,8 @@ class ChoosePasswordForm(Form):
             self.add_child(Alert(view, self.exception.as_user_message()))
 
         inputs = self.add_child(FieldSet(view, label_text=_('Choose a new password'))).use_layout(FormLayout())
-        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email, placeholder=True))
-        inputs.layout.add_input(TextInput(self, account_management_interface.fields.secret, placeholder=True))
+        inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
+        inputs.layout.add_input(TextInput(self, account_management_interface.fields.secret))
         inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.password))
         inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.repeat_password))
 
