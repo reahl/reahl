@@ -14,7 +14,12 @@ from reahl.doc.examples.tutorial.login1bootstrap.login1bootstrap import LoginUI
 class LoginFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=LoginUI))
-        
+
+    def new_webconfig(self):
+        webconfig = super(LoginFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
+
     password = 'topsecret'
 
     def new_account(self):

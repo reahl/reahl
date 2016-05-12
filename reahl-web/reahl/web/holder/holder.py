@@ -35,7 +35,7 @@ from collections import OrderedDict
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.fw import Url
-from reahl.web.ui import Img
+from reahl.web.ui import Img, HTMLAttributeValueOption
 
 
 class Theme(OrderedDict):
@@ -51,8 +51,9 @@ class PredefinedTheme(Theme):
     """
     def __init__(self, theme_name):
         super(PredefinedTheme, self).__init__()
-
-        self['theme'] = theme_name
+        theme_name_option = HTMLAttributeValueOption(theme_name, theme_name is not None,
+                                                     constrain_value_to=['sky', 'vine', 'lava', 'gray', 'industrial', 'social'])
+        self['theme'] = theme_name_option.as_html_snippet()
 
 
 class CustomTheme(Theme):
@@ -70,8 +71,6 @@ class CustomTheme(Theme):
     def __init__(self, bg=None, fg=None, text_size=None, text_font=None, text_align=None, line_wrap=None, outline=None):
 
         super(CustomTheme, self).__init__()
-        if text_align not in ['left', 'right', None]:
-            raise ProgrammerError('text_align cannot be "%s", it should be one of %s' % (text_align, ','.join(['left', 'right', 'None'])))
 
         if bg is not None:
             self['bg'] = bg
@@ -82,7 +81,9 @@ class CustomTheme(Theme):
         if text_font is not None:
             self['font'] = text_font
         if text_align is not None:
-            self['align'] = text_align
+            text_align_option = HTMLAttributeValueOption(text_align,  text_align is not None,
+                                                         constrain_value_to=['left', 'right'])
+            self['align'] = text_align_option.as_html_snippet()
         if outline is not None:
             self['outline'] = outline
         if line_wrap is not None:

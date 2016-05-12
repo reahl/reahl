@@ -67,7 +67,7 @@ class Carousel(Widget):
     :param css_id: ((See :class:`~reahl.web.ui.HTMLElement`)
     :keyword show_indicators: If True (the default), includes indicators showing the number of slides and which one is visible.
     :keyword interval: The number (an int) of milliseconds to delay between cycling content. If not given (the default), the Carousel will not cycle automatically.
-    :keyword pause: A string stating when to pause the cycling. Currently only 'hover' is supported.
+    :keyword pause: If not None, a string stating when to pause the cycling. Currently only 'hover' is supported.
     :keyword wrap: If True, the Carousel cycles contiuously, else it stops at the last slide.
     :keyword keyboard:If True, the Carousel reacts to keyboard events.
 
@@ -80,7 +80,7 @@ class Carousel(Widget):
         self.carousel_panel.set_attribute('data-ride', 'carousel')
 
         self.carousel_panel.set_attribute('data-interval', six.text_type(interval))
-        pause_option = HTMLAttributeValueOption(pause, pause is not None, constrain_value_to=['true', 'false', 'hover'])
+        pause_option = HTMLAttributeValueOption(pause or 'false', True, constrain_value_to=['hover','false'])
         self.carousel_panel.set_attribute('data-pause', pause_option.as_html_snippet())
         self.carousel_panel.set_attribute('data-wrap', 'true' if wrap else 'false')
         self.carousel_panel.set_attribute('data-keyboard', 'true' if keyboard else 'false')

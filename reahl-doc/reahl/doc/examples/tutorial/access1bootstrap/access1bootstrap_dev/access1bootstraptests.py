@@ -16,6 +16,11 @@ from reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap import Addres
 class AccessFixture(WebFixture):
     password = 'topsecret'
 
+    def new_webconfig(self):
+        webconfig = super(AccessFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
+
     def new_account(self, email='johndoe@some.org'):
         account = EmailAndPasswordSystemAccount(email=email)
         Session.add(account)
