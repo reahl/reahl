@@ -38,8 +38,8 @@ from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.component.decorators import deprecated
-from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException, NewPasswordRequest, \
-     AccountManagementInterface
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException,\
+    AccountManagementInterface
 
 _ = Translator('reahl-domainui')
 
@@ -62,7 +62,7 @@ class LoginForm(Form):
         self.account_management_interface = account_management_interface
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
         login_inputs = self.add_child(FieldSet(view, label_text=_('Please specify:'))).use_layout(FormLayout())
         email_cue = P(view, _('The email address you used to register here.'))
@@ -110,7 +110,7 @@ class RegisterForm(Form):
         self.account_management_interface = account_management_interface
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
         self.create_identification_inputs()
         self.create_terms_inputs()
@@ -170,7 +170,7 @@ class VerifyForm(Form):
         super(VerifyForm, self).__init__(view, event_channel_name)
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
         identification_inputs = self.add_child(FieldSet(view, label_text=_('Please supply the following details'))).use_layout(FormLayout())
 
@@ -199,7 +199,7 @@ class RegisterHelpForm(Form):
         super(RegisterHelpForm, self).__init__(view, 'register_help')
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
         
         inputs = self.add_child(FieldSet(view, label_text=_('Please supply the email address you tried to register with.'))).use_layout(FormLayout())
         inputs.layout.add_input(TextInput(self, account_management_interface.fields.email),
@@ -246,7 +246,7 @@ class RegistrationPendingForm(Form):
         super(RegistrationPendingForm, self).__init__(view, 'register_pending')
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
         
         actions = self.add_child(ActionButtonGroup(view, label_text=_('Re-send registration email')))
         btn = actions.add_child(Button(self, self.user_interface.account_management_interface.events.resend_event))
@@ -309,7 +309,7 @@ class ResetPasswordForm(Form):
         super(ResetPasswordForm, self).__init__(view, 'reset_password')
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
         inputs = self.add_child(FieldSet(view, label_text=_('Request a secret key'))).use_layout(FormLayout())
         inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
@@ -337,7 +337,7 @@ class ChoosePasswordForm(Form):
         super(ChoosePasswordForm, self).__init__(view, 'choose_password')
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
         inputs = self.add_child(FieldSet(view, label_text=_('Choose a new password'))).use_layout(FormLayout())
         inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
