@@ -7,14 +7,23 @@ from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap import AddressBookUI
 
+class AddressAppFixture(WebFixture):
+    def new_browser(self):
+        return Browser(self.new_wsgi_app(site_root=AddressBookUI))
 
-@test(WebFixture)
+    def new_webconfig(self):
+        webconfig = super(AddressAppFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
+
+
+@test(AddressAppFixture)
 def adding_an_address(fixture):
     """To add a new address, a user clicks on "Add Address" link on the menu, then supplies the 
        information for the new address and clicks the Save button. Upon successful addition of the
        address, the user is returned to the home page where the new address is now listed."""
 
-    browser = Browser(fixture.new_wsgi_app(site_root=AddressBookUI))
+    browser = fixture.browser
 
     browser.open('/')
     browser.click(XPath.link_with_text('Add an address'))
