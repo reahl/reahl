@@ -140,14 +140,14 @@ Added in (or for) Bootstrap
 
 A small number of classes/modules were added for Bootstrap that do not have simple equivalents:
 
-  =============================================  ==============================================
-   Class or package or module                     Contents
-  =============================================  ==============================================
-   :class:`reahl.web.bootstrap.navbar.Navbar`    A more elaborate header for a site.
-   :class:`reahl.web.bootstrap.forms.StaticData` An :class:`~reahl.web.ui.Input` that can only be used for output.
-   :mod:`reahl.web.bootstrap.forms.InputGroup`   A composed Input with Widgets before and after it.
-   :mod:`reahl.web.holder`                       Creates placeholder background images.
-  =============================================  ==============================================
+  ==============================================  =================================================================
+   Class or package or module                      Contents
+  ==============================================  =================================================================
+   :class:`reahl.web.bootstrap.navbar.Navbar`     A more elaborate header for a site.
+   :class:`reahl.web.bootstrap.forms.StaticData`  An :class:`~reahl.web.ui.Input` that can only be used for output.
+   :mod:`reahl.web.bootstrap.forms.InputGroup`    A composed Input with Widgets before and after it.
+   :mod:`reahl.web.holder`                        Creates placeholder background images.
+  ==============================================  =================================================================
 
 
 

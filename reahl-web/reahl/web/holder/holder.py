@@ -105,9 +105,12 @@ class PlaceholderImage(Img):
         super(PlaceholderImage, self).__init__(view, alt=alt)
         image_url = Url('holder.js/%sx%s' % (x, y))
         options = theme or Theme()
-        if text is not None:
-            options['text'] = text
+        #if text is not None:
+        #    options['text'] = text
         image_url.set_query_from(options)
+        koos = str(image_url)
+        if text is not None:
+            image_url = koos + '?&text=%s' % text
         self.set_attribute('data-src', str(image_url))
 
 

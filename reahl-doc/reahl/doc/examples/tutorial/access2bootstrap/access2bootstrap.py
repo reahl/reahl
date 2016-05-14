@@ -170,7 +170,7 @@ class LoginForm(Form):
         self.use_layout(FormLayout())
 
         if self.exception:
-            self.add_child(Alert(view, self.exception.as_user_message()))
+            self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
         self.layout.add_input(TextInput(self, accounts.fields.email))
         self.layout.add_input(PasswordInput(self, accounts.fields.password))
