@@ -53,8 +53,12 @@ user input by changing the colour of the relevant Input.
 :class:`~reahl.web.bootstrap.ui.FormLayout.add_input()` has a number
 of options to help you control how Inputs are added.
 
-TODO: we need a test that produces a screenshot here... to show what it looks like
+Here is a screenshot of the form:
 
+.. figure:: ../../_build/screenshots/bootstrapform.png
+  :align: center
+  :width: 70%
+  :alt: A screenshot of the form.
 
 Other ways of laying out forms
 ------------------------------
