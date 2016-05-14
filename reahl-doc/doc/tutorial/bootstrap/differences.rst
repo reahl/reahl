@@ -150,19 +150,4 @@ A small number of classes/modules were added for Bootstrap that do not have simp
   =============================================  ==============================================
 
 
-Removed functionality
----------------------
-
-.. |Carousel| replace:: :class:`~reahl.web.bootstrap.carousel.Carousel` 
-.. |SlidingPanel| replace:: :class:`~reahl.web.ui.SlidingPanel`
-
-For the most part the Bootstrap world provides equivalent
-functionality to what existed in Reahl 3.1, but there is one
-exception.
-
-Bootstrap's |Carousel| is not quite as versatile as the old
-|SlidingPanel|. Each sliding panel in a |SlidingPanel| can contain any
-contents. A |Carousel| is meant to slide different images past the
-user. You can supply a :class:`~reahl.web.ui.Widget` to be used as the
-caption of each image.
 

@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """.. versionadded:: 3.2
 
-Reahl uses CSS and JavaScript that are separate projects. The CSS and JavaScript world
+Reahl uses CSS and JavaScript from other projects. The CSS and JavaScript world
 has its own ecosystem of tools that allow you to do various things, for example:
 
  - Compile your own customised CSS using a CSS preprocessor like `Sass <http://sass-lang.com/>`_\.
@@ -50,14 +50,15 @@ class LibraryIndex(object):
     """An ordered collection of :class:`Library` instances.
 
     A LibraryIndex instance is available in the configuration as
-    `web.config.frontend_libraries`. This particular instance contains
-    all :class:`Library` instances to include on any
-    :class:`~reahl.web.ui.HTML5Page`.
+    `web.config.frontend_libraries`. All the :class:`Library`
+    instances contained in `web.config.frontend_libraries` are
+    included on any :class:`~reahl.web.ui.HTML5Page`.
 
     Libraries in a LibraryIndex are included on a page in the order
     that they appear in the LibraryIndex.
 
     :param libraries: :class:`Library` instances (in order) to initialise this LibraryIndex with.
+
     """
     def __init__(self, *libraries):
         self.libraries_by_name = OrderedDict()

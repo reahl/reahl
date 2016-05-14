@@ -18,7 +18,7 @@
 """
 .. versionadded:: 3.2
 
-Carousel provides a slideshow of images with captions on each slide.
+Carousel presents a slideshow of Widgets with captions on each slide.
 
 
 """
