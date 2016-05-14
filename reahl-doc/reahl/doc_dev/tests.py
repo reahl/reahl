@@ -53,12 +53,13 @@ from reahl.doc.basichtmlinputs import BasicHTMLInputsUI
 
 from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
+from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootstrap
 from reahl.doc.examples.tutorial.pageflow1 import pageflow1
 from reahl.doc.examples.tutorial.pageflow2 import pageflow2
 from reahl.doc.examples.tutorial.parameterised1 import parameterised1
 
 
-class ExampleFixture(Fixture, WebBasicsMixin):
+class ExampleBasicFixture(Fixture, WebBasicsMixin):
     def start_example_app(self):
         self.reahl_server.set_app(self.wsgi_app)
 
@@ -70,7 +71,7 @@ class ExampleFixture(Fixture, WebBasicsMixin):
 
     def new_screenshot_path(self, filename='screenshot.png'):
         return os.path.join(os.getcwd(), self.screenshot_directory, filename)
-    
+
     def tab_is_active(self, tab_name):
         return self.driver_browser.execute_script('return window.jQuery("a:contains(\'%s\')").parent().hasClass("active")' % tab_name)
 
@@ -97,6 +98,9 @@ class ExampleFixture(Fixture, WebBasicsMixin):
 
     def uploaded_file_is_listed(self, filename):
         return self.driver_browser.is_element_present('//ul/li/span[text()="%s"]' % os.path.basename(filename))
+
+
+class ExampleFixture(ExampleBasicFixture):
 
     @scenario
     def hello(self):
@@ -178,6 +182,18 @@ class ExampleFixture(Fixture, WebBasicsMixin):
     @scenario
     def parameterised1(self):
         self.wsgi_app = self.new_wsgi_app(site_root=parameterised1.AddressBookUI)
+
+
+
+class ExampleBootstrapFixture(ExampleBasicFixture):
+    def new_webconfig(self):
+        webconfig = super(ExampleBootstrapFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
+
+    @scenario
+    def addressbook2bootstrap(self):
+        self.wsgi_app = self.new_wsgi_app(site_root=addressbook2bootstrap.AddressBookUI, enable_js=True)
 
 
 @test(ExampleFixture)
@@ -412,6 +428,17 @@ def test_addressbook2(fixture):
     browser.click(XPath.button_labelled('Save'))
     
     vassert( browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) )
+
+
+@test(ExampleBootstrapFixture.addressbook2bootstrap)
+def test_addressbook2bootstrap(fixture):
+    fixture.start_example_app()
+    fixture.driver_browser.open('/')
+
+    fixture.driver_browser.type(XPath.input_labelled('Name'), 'John')
+    fixture.driver_browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('bootstrapform.png'))
 
 
 @test(ExampleFixture.pageflow1)

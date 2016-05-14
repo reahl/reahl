@@ -34,11 +34,11 @@ _ = Translator('reahl-web')
 
 
 class Slide(Div):
-    def __init__(self, view, image, caption_widget, index):
+    def __init__(self, view, widget, caption_widget, index):
         super(Slide, self).__init__(view)
         self.index = index
         self.append_class('carousel-item')
-        self.add_child(image)
+        self.add_child(widget)
         if self.is_active:
             self.append_class('active')
 
@@ -57,7 +57,8 @@ class Slide(Div):
 
 
 class Carousel(Widget):
-    """A Widget that appears as having multiple panels of content of which
+    """
+    A Widget that appears as having multiple panels of content of which
     only one panel is visible at a time. The visible panel is
     exchanged for another panel of content when prompted or
     automatically, at regular intervals, by visually sliding the new
@@ -69,7 +70,7 @@ class Carousel(Widget):
     :keyword interval: The number (an int) of milliseconds to delay between cycling content. If not given (the default), the Carousel will not cycle automatically.
     :keyword pause: If not None, a string stating when to pause the cycling. Currently only 'hover' is supported.
     :keyword wrap: If True, the Carousel cycles contiuously, else it stops at the last slide.
-    :keyword keyboard:If True, the Carousel reacts to keyboard events.
+    :keyword keyboard: If True, the Carousel reacts to keyboard events.
 
     """
     def __init__(self, view, css_id, show_indicators=True, interval=5000, pause='hover', wrap=True, keyboard=True):
@@ -80,7 +81,7 @@ class Carousel(Widget):
         self.carousel_panel.set_attribute('data-ride', 'carousel')
 
         self.carousel_panel.set_attribute('data-interval', six.text_type(interval))
-        pause_option = HTMLAttributeValueOption(pause or 'false', True, constrain_value_to=['hover','false'])
+        pause_option = HTMLAttributeValueOption(pause or 'false', True, constrain_value_to=['hover', 'false'])
         self.carousel_panel.set_attribute('data-pause', pause_option.as_html_snippet())
         self.carousel_panel.set_attribute('data-wrap', 'true' if wrap else 'false')
         self.carousel_panel.set_attribute('data-keyboard', 'true' if keyboard else 'false')
@@ -89,7 +90,7 @@ class Carousel(Widget):
         if self.show_indicators:
             self.indicator_list = self.carousel_panel.add_child(self.create_indicator_list())
         self.inner = self.carousel_panel.add_child(self.create_inner())
-        self.items = []
+        self.slides = []
 
         self.add_control(left=True)
         self.add_control()
@@ -100,22 +101,22 @@ class Carousel(Widget):
         inner.set_attribute('role', 'listbox')
         return inner
 
-    def add_slide(self, image, caption_widget=None):
+    def add_slide(self, widget, caption_widget=None):
         """
-        Adds a Slide for the given image.
+        Adds a Slide for the given :class:`~reahl.web.fw.Widget`.
 
-        :param image: An image to display (See also :class:`~reahl.web.holder.holder.PlaceholderImage`)
+        :param widget: A :class:`~reahl.web.fw.Widget` to display in this slide. (See also :class:`~reahl.web.holder.holder.PlaceholderImage`)
         :param caption_widget: The :class:`~reahl.web.fw.Widget` to use as caption for the slide.
-        :return:
-        """
-        item = self.inner.add_child(Slide(self.view, image, caption_widget, len(self.items)))
 
-        self.items.append(item)
+        """
+        slide = self.inner.add_child(Slide(self.view, widget, caption_widget, len(self.slides)))
+
+        self.slides.append(slide)
 
         if self.show_indicators:
-            self.add_indicator_for(item)
+            self.add_indicator_for(slide)
 
-        return item
+        return slide
 
     @property
     def url(self):
