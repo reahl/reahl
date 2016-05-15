@@ -3,6 +3,16 @@
 Module reahl.web.bootstrap.navs
 -------------------------------
 
+.. sidebar:: Examples in this section
+
+   - tutorial.pageflow2bootstrap
+
+   Get a copy of an example by running:
+
+   .. code-block:: bash
+
+      reahl example <examplename>
+
 .. automodule:: reahl.web.bootstrap.navs
 
 

@@ -3,6 +3,16 @@
 Module reahl.web.bootstrap.forms
 --------------------------------
 
+.. sidebar:: Examples in this section
+
+   - tutorial.addressbook2bootstrap
+
+   Get a copy of an example by running:
+
+   .. code-block:: bash
+
+      reahl example <examplename>
+
 .. automodule:: reahl.web.bootstrap.forms
 
 
@@ -83,6 +93,12 @@ PasswordInput
 """""""""""""
 
 .. autoclass:: PasswordInput
+   :members:
+
+PrimitiveCheckboxInput
+""""""""""""""""""""""
+
+.. autoclass:: PrimitiveCheckboxInput
    :members:
 
 CheckboxInput

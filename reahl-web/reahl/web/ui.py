@@ -55,10 +55,16 @@ _ = Translator('reahl-web')
 
 
 class LiteralHTML(Widget):
-    """The LiteralHTML Widget renders a chunk of HTML as given in `contents`. If a single-argument
-       callable is given as `transform`, `contents` will first be passed to that callable to possibly
-       change the HTML on-the-fly before rendering (the callable should return the changed HTML to be
-       rendered).
+    """The LiteralHTML Widget renders a chunk of HTML as given in
+    `contents`. If a single-argument callable is given as `transform`,
+    `contents` will first be passed to that callable to possibly
+    change the HTML on-the-fly before rendering (the callable should
+    return the changed HTML to be rendered).
+
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    :param contents: Some literal HTML.
+    :keyword transform: If given, it is called passing `contents` to possibly transform contents before rendering.
+             The callable should return the final HTML to be rendered.
     """
     def __init__(self, view, contents, transform=(lambda i: i)):
         super(LiteralHTML, self).__init__(view)

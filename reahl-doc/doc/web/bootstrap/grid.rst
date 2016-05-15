@@ -3,6 +3,16 @@
 Module reahl.web.bootstrap.grid
 -------------------------------
 
+.. sidebar:: Examples in this section
+
+   - tutorial.bootstrapgrids
+
+   Get a copy of an example by running:
+
+   .. code-block:: bash
+
+      reahl example <examplename>
+
 .. automodule:: reahl.web.bootstrap.grid
 
 
