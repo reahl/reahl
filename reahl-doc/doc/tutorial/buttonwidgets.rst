@@ -1,4 +1,4 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Buttons allow users to act
 ==========================
