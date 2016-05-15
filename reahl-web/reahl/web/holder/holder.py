@@ -15,12 +15,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-
-.. sidebar:: Behind the scenes
-
-   This module uses `Holder.js <http://imsky.github.io/holder/>`_ to
-   provide its functionality.
-
 .. versionadded:: 3.2
 
 Generate images on the fly.
@@ -110,7 +104,7 @@ class PlaceholderImage(Img):
             # Our query string will url-escape text. Text often has spaces 
             # that would now become +. Holder does not do the reverse, so 
             # we have to add the text as an un-escaped query string argument 
-            image_url = '%s%s&text=%s' % (str(image_url), '?' if not options else: '', text)
+            image_url = '%s%s&text=%s' % (str(image_url), '?' if not options else '', text)
         self.set_attribute('data-src', str(image_url))
 
 

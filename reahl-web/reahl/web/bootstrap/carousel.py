@@ -26,8 +26,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 from reahl.web.fw import Widget, Url
-from reahl.web.ui import HTMLAttributeValueOption
-from reahl.web.bootstrap.ui import Div, A, Span, Li, Ol
+from reahl.web.ui import HTMLAttributeValueOption, HTMLElement
+from reahl.web.bootstrap.ui import Div, A, Span, Li, Ol, TextNode
 from reahl.component.i18n import Translator
 
 _ = Translator('reahl-web')
@@ -65,15 +65,17 @@ class Carousel(Widget):
     panel into position thus creating a slideshow effect.
 
     :param view: (See :class:`~reahl.web.fw.Widget`)
-    :param css_id: ((See :class:`~reahl.web.ui.HTMLElement`)
+    :param css_id: (See :class:`~reahl.web.ui.HTMLElement`)
     :keyword show_indicators: If True (the default), includes indicators showing the number of slides and which one is visible.
     :keyword interval: The number (an int) of milliseconds to delay between cycling content. If not given (the default), the Carousel will not cycle automatically.
     :keyword pause: If not None, a string stating when to pause the cycling. Currently only 'hover' is supported.
     :keyword wrap: If True, the Carousel cycles contiuously, else it stops at the last slide.
     :keyword keyboard: If True, the Carousel reacts to keyboard events.
-
+    :keyword min_height: If given, force slides to be at least this high (useful to prevent
+             resizing of the Carousel between slides that are unequal in height). The value 
+             is an int denoting a height in terms of the size of the font of the contents (em). 
     """
-    def __init__(self, view, css_id, show_indicators=True, interval=5000, pause='hover', wrap=True, keyboard=True):
+    def __init__(self, view, css_id, show_indicators=True, interval=5000, pause='hover', wrap=True, keyboard=True, min_height=None):
         super(Carousel, self).__init__(view)
         self.carousel_panel = self.add_child(Div(view, css_id=css_id))
         self.carousel_panel.append_class('carousel')
@@ -85,6 +87,10 @@ class Carousel(Widget):
         self.carousel_panel.set_attribute('data-pause', pause_option.as_html_snippet())
         self.carousel_panel.set_attribute('data-wrap', 'true' if wrap else 'false')
         self.carousel_panel.set_attribute('data-keyboard', 'true' if keyboard else 'false')
+        if min_height:
+            style = self.carousel_panel.add_child(HTMLElement(self.view, 'style', children_allowed=True))
+            css_id = self.carousel_panel.css_id
+            style.add_child(TextNode(self.view, '#%s .carousel-item { min-height: %sem; }' % (css_id, min_height)))
 
         self.show_indicators = show_indicators
         if self.show_indicators:

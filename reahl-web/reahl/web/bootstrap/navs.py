@@ -48,8 +48,8 @@ class Nav(Menu):
 
     .. note:: Don't be confused
 
-       This, the :class:`~reahl.web.bootstrap.navs.Nav` is not the same thing as a simple
-       HTML-level :class:`~reahl.web.bootstrap.ui.Nav`!
+       This, the :class:`reahl.web.bootstrap.navs.Nav` is not the same thing as a simple
+       HTML-level :class:`reahl.web.bootstrap.ui.Nav`!
 
     :param view: (See :class:`~reahl.web.fw.Widget`)
     :keyword a_list: A list of :class:`~reahl.web.bootstrap.ui.A`\s representing the items.
