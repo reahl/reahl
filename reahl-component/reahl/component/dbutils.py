@@ -128,6 +128,7 @@ class SystemControl(object):
 
 
 class DatabaseControl(object):
+    control_matching_regex = r'^$'
     def __init__(self, url, config):
         self.config = config
         self.connection_uri = url
@@ -148,11 +149,7 @@ class DatabaseControl(object):
 
     @classmethod
     def matches_uri(cls, url):
-        try:
-            cls.parse_connection_uri(url)
-            return True
-        except InvalidConnectionURIException:
-            return False
+        return re.match(cls.control_matching_regex, url) is not None
     
     @classmethod
     def parse_connection_uri(cls, url):
@@ -164,6 +161,7 @@ class DatabaseControl(object):
 
 class NullDatabaseControl(DatabaseControl):
     uri_regex_string = r''
+    control_matching_regex = r'^$'
     @classmethod
     def parse_connection_uri(self, url):
         if not url:
