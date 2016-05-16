@@ -31,6 +31,7 @@ from reahl.component.dbutils import DatabaseControl
 
 class SQLiteControl(DatabaseControl):
     """A DatabaseControl implementation for SQLite."""
+    control_matching_regex = r'^sqlite:'
     uri_regex_string = r'sqlite:///' + \
         r'(?P<database>.*)(?P<user>)(?P<password>)(?P<host>)(?P<port>)$'
 
