@@ -54,7 +54,7 @@ it that are arranged as columns next to each other. You can specify
 the size of these columns, and in such a way that the size can change,
 depending on the size of the device used for viewing. See the
 documentation for |pure.ColumnLayout| and |UnitSize| for more details.
-(See :doc:`../../web/bootstrap` for Layouts and Widgets built using the
+(See :doc:`../web/bootstrap/index` for Layouts and Widgets built using the
 Bootstrap library.)
 
 The :mod:`~reahl.web.layout` module houses generically applicable concepts.

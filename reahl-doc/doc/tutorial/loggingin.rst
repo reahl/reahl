@@ -75,8 +75,8 @@ correct database schema for all components that are listed as
 dependencies in your `.reahlproject`. Once again, refer back to
 :doc:`models` if you forgot how this works.
 
-Excercising the application
----------------------------
+Exercising the application
+--------------------------
 
 Our example application would be difficult to fire up and play with,
 because it has no user interface for registering new user accounts!
@@ -168,8 +168,8 @@ been modified to include some more items in its :class:`~reahl.web.ui.Menu`:
 .. literalinclude:: ../../reahl/doc/examples/tutorial/login2/login2.py
 
 
-Excercising the lazier application
-----------------------------------
+Exercising the lazier application
+---------------------------------
 
 .. warning::
 
