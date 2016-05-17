@@ -89,7 +89,7 @@ Dependency injection
 As explained at the beginning of this section, the `reahl-web`
 component needs a number of classes that are provided by a different
 component. The Declarative-based implementation of these classes live in
-the `reahl-web-declarative` component. Diagramatically this is the scenario:
+the `reahl-web-declarative` component. Diagrammatically this is the scenario:
 
 .. figure:: depinjection.png
    :align: center
@@ -145,7 +145,7 @@ Here is the :class:`~reahl.component.config.Configuration` of the
 
 (The classes assigned here are defined higher up in the same file.)
 
-One caviat remains: the configuration of each component is checked and
+One caveat remains: the configuration of each component is checked and
 verified as soon as it has been read, but *before* the configuration
 for the next component is read. If any required setting has not been
 supplied by this point an error will be raised. Settings that are
