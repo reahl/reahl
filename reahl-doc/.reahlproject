@@ -4,6 +4,7 @@
   </namespaces>
 
   <translations locator="reahl.doc.examples.tutorial.i18nexample.i18nexamplemessages"/>
+  <translations locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrapmessages"/>
   <configuration locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:AddressConfig"/>
 
   <deps purpose="run">
@@ -77,9 +78,13 @@
         <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Address"/>
 
         <class locator="reahl.doc.examples.tutorial.i18nexample.i18nexample:Address"/>
+        <class locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:Address"/>
+        <class locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.migrationexample.migrationexample:Address"/>
+        <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.jobs.jobs:Address"/>
+        <class locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.table.table:Address"/>
         <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
   </persisted>

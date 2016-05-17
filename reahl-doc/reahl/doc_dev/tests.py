@@ -54,6 +54,7 @@ from reahl.doc.basichtmlinputs import BasicHTMLInputsUI
 from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
 from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootstrap
+from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
 from reahl.doc.examples.tutorial.pageflow1 import pageflow1
 from reahl.doc.examples.tutorial.pageflow2 import pageflow2
 from reahl.doc.examples.tutorial.parameterised1 import parameterised1
@@ -194,6 +195,10 @@ class ExampleBootstrapFixture(ExampleBasicFixture):
     @scenario
     def addressbook2bootstrap(self):
         self.wsgi_app = self.new_wsgi_app(site_root=addressbook2bootstrap.AddressBookUI, enable_js=True)
+
+    @scenario
+    def bootstrapgrids(self):
+        self.wsgi_app = self.new_wsgi_app(site_root=bootstrapgrids.BootstrapGridsUI, enable_js=True)
 
 
 @test(ExampleFixture)
@@ -440,6 +445,12 @@ def test_addressbook2bootstrap(fixture):
 
     fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('bootstrapform.png'))
 
+@test(ExampleBootstrapFixture.bootstrapgrids)
+def test_bootstrapgrids(fixture):
+    fixture.start_example_app()
+    fixture.driver_browser.open('/gridBasics')
+
+    fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('bootstrapgrids.png'))
 
 @test(ExampleFixture.pageflow1)
 def test_pageflow1(fixture):
