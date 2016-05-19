@@ -6,6 +6,8 @@
   <translations locator="reahl.doc.examples.tutorial.i18nexample.i18nexamplemessages"/>
   <translations locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrapmessages"/>
   <configuration locator="reahl.doc.examples.tutorial.componentconfig.componentconfig:AddressConfig"/>
+  <!-- Trick alert: reahl-doc may only have a single config... luckily both examples use the same config without realising. -->
+  <!-- <configuration locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:AddressConfig"/> -->
 
   <deps purpose="run">
     <egg name="reahl-web"/>
@@ -90,6 +92,7 @@
   </persisted>
 
   <schedule locator="reahl.doc.examples.tutorial.jobs.jobs:Address.clear_added_flags"/>
+  <schedule locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address.clear_added_flags"/>
 
   <export entrypoint="reahl.dev.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.dev.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
