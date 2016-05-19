@@ -488,6 +488,9 @@ class EntryPointExport(object):
         assert 'locator' in attributes, 'No locator specified'
         self.__init__(attributes['entrypoint'], attributes['name'], attributes['locator'])
 
+    def __str__(self):
+        return '%s %s:%s' % (self.__class__.__name__, self.name, self.locator.string_spec)
+
 
 class ScriptExport(EntryPointExport):
     @classmethod
@@ -742,8 +745,7 @@ class ConfigurationSpec(EntryPointExport):
 
 class ScheduledJobSpec(EntryPointExport):
     def __init__(self, locator_string):
-        super(ScheduledJobSpec, self).__init__('reahl.scheduled_jobs', None, locator_string)
-        self.name = self.locator.class_name
+        super(ScheduledJobSpec, self).__init__('reahl.scheduled_jobs', locator_string, locator_string)
 
     @classmethod
     def get_xml_registration_info(cls):
@@ -1704,6 +1706,10 @@ class EggProject(Project):
             self.namespaces = child
         elif isinstance(child, TranslationPackage):
             self.translation_package = child
+        elif isinstance(child, ConfigurationSpec):
+            if any([isinstance(i, ConfigurationSpec) for i in self.explicitly_specified_entry_points]):
+                raise ProgrammerError('%s is a duplicate <configuration> for egg %s. Each egg may only have one <configuration>.' % (child, self.project_name))
+            self.explicitly_specified_entry_points.append(child)
         elif isinstance(child, EntryPointExport):
             self.explicitly_specified_entry_points.append(child)
         elif isinstance(child, PersistedClassesList):

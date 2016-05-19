@@ -33,7 +33,7 @@ class ConfigFixture(WebFixture):
 def add_address(fixture):
     """A user can add an address, after which the address is listed."""
     browser = fixture.browser
-    
+
     browser.open('/')
     browser.type(XPath.input_labelled('Name'), 'John')
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
