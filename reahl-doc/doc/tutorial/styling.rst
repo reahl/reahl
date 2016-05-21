@@ -54,14 +54,14 @@ it that are arranged as columns next to each other. You can specify
 the size of these columns, and in such a way that the size can change,
 depending on the size of the device used for viewing. See the
 documentation for |pure.ColumnLayout| and |UnitSize| for more details.
-(See :doc:`../web/bootstrap` for Layouts and Widgets built using the
+(See :doc:`../web/bootstrap/index` for Layouts and Widgets built using the
 Bootstrap library.)
 
 The :mod:`~reahl.web.layout` module houses generically applicable concepts.
 |PageLayout| is meant to be used with an
 HTML5Page. It changes the page to have a header
 and footer with a content area inbetween. If a |pure.ColumnLayout|
-(for example) is passed to the |PageLayout| constuctor, 
+(for example) is passed to the |PageLayout| constructor,
 it will automatically be used as the layout of the content area of the page.
 
 
@@ -134,7 +134,7 @@ Any |Layout| can add additional CSS classes to a
 |Widget| or change how content is added to it.
 
 Given these ways to be able to target a |Widget|
-(possibly modified by a apecific |Layout|) via
+(possibly modified by a specific |Layout|) via
 CSS, you can write normal CSS to provide your own look and feel for
 Reahl |Widget|\ s (if you really want to). In the
 reference documentation for each |Widget| an
@@ -151,7 +151,7 @@ of your class, you can write:
    self.head.add_css(Url('/link/to/my/own.css'))
 
 
-The minutae of what |Widget|\ s look like is probably not the first thing on a
+The minutiae of what |Widget|\ s look like is probably not the first thing on a
 programmer's mind however. It is useful just to start programming using *some*
 look for the |Widget|\ s, and later customise this look to your
 liking. For this reason, a stylesheet is provided which includes

@@ -76,9 +76,14 @@ In order to really appreciate the power of
 have to fire up the example and play around with it. The example here
 includes different Views -- this View is the first called "Grid basics".
 
-TODO: we need at least on screenshot here - of the large window.
+Here is a screenshot of what the page looks like:
 
-See how the layout changes if you change the size of the window. On
+.. figure:: ../../_build/screenshots/bootstrapgrids.png
+  :align: center
+  :width: 70%
+  :alt: A screenshot of the page.
+
+See how the layout changes if you change the size of the window when running the example yourself. On
 displays that are medium sized or larger (with your browser
 maximised), you will see two rows: one with 12 equal sized columns,
 and another with two columns that are not equally sized.
@@ -100,7 +105,7 @@ It is often useful to layout an entire page with a header area at the
 top, a footer at the bottom, and a content area inbetween. The content
 area is also often divided into different columns.
 
-You can layout a page in this fasion by using
+You can layout a page in this fashion by using
 :class:`reahl.web.bootstrap.grid.PageLayout` in conjunction with a suitable
 :class:`reahl.web.bootstrap.grid.ColumnLayout` to be used for its
 content area.

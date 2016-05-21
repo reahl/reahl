@@ -21,7 +21,7 @@ the way.
 Tests
 -----
 
-Let us add three user stories to the tests that would excercise the
+Let us add three user stories to the tests that would exercise the
 functionality of the user interface, but sidestep the finer grained
 access control. That will force us to build the entire application,
 but allow us to ignore any access control related code for the

@@ -67,7 +67,7 @@ Below is the source code for an application that demonstrates these
 ideas.
 
 The application has two  |View|\ s . Its page (a CustomPage) contains
-an :class:`~reahl.web.ui.HMenu` (a horisontal menu) which allows one to navigate between the
+an :class:`~reahl.web.ui.HMenu` (a horizontal menu) which allows one to navigate between the
 two  |View|\ s  of the application.
 
 The home page looks as follows:

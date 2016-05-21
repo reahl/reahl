@@ -4,18 +4,22 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import test, set_up
 
-
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.sqlalchemysupport import Session
 
-from reahl.doc.examples.tutorial.migrationexample.migrationexample import AddressBookUI, Address
+from reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap import AddressBookUI, Address
 
 
-class MigrateFixture(WebFixture):
+class JobsFixture(WebFixture):
     def new_wsgi_app(self):
-        return super(MigrateFixture, self).new_wsgi_app(site_root=AddressBookUI)
-        
+        return super(JobsFixture, self).new_wsgi_app(site_root=AddressBookUI)
+
+    def new_webconfig(self):
+        webconfig = super(JobsFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
+
     def new_existing_address(self):
         address = Address(name='John Doe', email_address='johndoe@some.org')
         address.save()
@@ -24,25 +28,39 @@ class MigrateFixture(WebFixture):
     def new_browser(self):
         return Browser(self.wsgi_app)
 
-    def address_is_listed_as(self, name, email_address):
-        return self.browser.is_element_present(XPath.paragraph_containing('%s: %s' % (name, email_address)))
+    def address_is_listed_as(self, name, email_address, is_new):
+        new = ' (new)' if is_new else ''
+        return self.browser.is_element_present(XPath.paragraph_containing('%s: %s%s' % (name, email_address, new)))
 
 
-@test(MigrateFixture)
+@test(JobsFixture)
 def add_address(fixture):
     """A user can add an address, after which the address is listed."""
     browser = fixture.browser
-    
+
     browser.open('/')
     browser.type(XPath.input_labelled('Name'), 'John')
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
 
     browser.click(XPath.button_labelled('Save'))
-    
-    assert fixture.address_is_listed_as('John', 'johndoe@some.org')
+
+    assert fixture.address_is_listed_as('John', 'johndoe@some.org', True)
 
 
-class DemoFixture(MigrateFixture):
+@test(JobsFixture)
+def daily_maintenance(fixture):
+    """When daily maintenance is run, all addresses are set to be old."""
+
+    fixture.existing_address
+    Session.flush()
+    assert fixture.existing_address.added_today
+
+    fixture.context.system_control.do_daily_maintenance()
+
+    assert not fixture.existing_address.added_today
+
+
+class DemoFixture(JobsFixture):
     commit=True
     @set_up
     def do_demo_setup(self):
