@@ -149,9 +149,15 @@ class SingleWSGIRequestHandler(simple_server.WSGIRequestHandler):
         #
         # We first check if there really IS something to read on the socket
         # because for some reason ReahlWSGIServer.requests_waiting sometimes
-        # tells us that there are requests waiting but then com and blocks
+        # tells us that there are requests waiting but then come and blocks
         # here trying to read from the socket. We can't figure out why, so
         # we check for that condition here using a temp timeout on the socket.
+        # (Best guess: in requests_waiting we can only detect that the browser
+        #  is trying to connect, not that it actually sent something. It may be
+        #  that the browser connects eagerly before it has a request to send
+        #  in order to gain a speed benefit.
+        #  It would be nice if we can test via HTTP1.1 with keepalive on, but
+        #  the wsgiref stuff do not support this.)
         #
         # We also use this override to use our PatchedServerHandler instead of
         # ServerHandler to handle HTTP requests.
