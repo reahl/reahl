@@ -81,7 +81,7 @@ class BrowserSetup(CleanDatabase):
 
         fp = FirefoxProfile()
         fp.set_preference('network.http.max-connections-per-server', 1)
-        fp.set_preference('network.http.max-persistent-connections-per-server', 1)
+        fp.set_preference('network.http.max-persistent-connections-per-server', 0)
         fp.set_preference('network.http.spdy.enabled', False)
         fp.set_preference('network.http.pipelining', True)
         fp.set_preference('network.http.pipelining.maxrequests', 8)
