@@ -48,7 +48,7 @@ def placeholder_with_text(fixture):
 
     placeholder = PlaceholderImage(fixture.view, 20, 30, text='My banner')
 
-    expected_value = 'holder.js/20x30?text=My+banner'
+    expected_value = 'holder.js/20x30?text=My banner'
     actual_value = placeholder.get_attribute('data-src')
     vassert( actual_value == expected_value )
 
@@ -70,7 +70,7 @@ def text_and_theme_options_are_encoded(fixture):
     my_theme = CustomTheme(bg='white', fg='red')
     placeholder = PlaceholderImage(fixture.view, 20, 30, text='My sê goed', theme=my_theme)
 
-    expected_value = 'holder.js/20x30?bg=white&fg=red&text=My+s%C3%AA+goed'
+    expected_value = 'holder.js/20x30?bg=white&fg=red&text=My sê goed'
     actual_value = placeholder.get_attribute('data-src')
     vassert( actual_value == expected_value )
 

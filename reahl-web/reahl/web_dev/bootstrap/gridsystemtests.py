@@ -188,7 +188,7 @@ def device_class_identity(fixture):
     vassert( device_class.class_label == 'lg' )
 
     def check_ex(ex):
-        vassert( six.text_type(ex).startswith("\"unsupported\" should be one of ['xs', 'sm', 'md', 'lg', 'xl']"))
+        vassert( six.text_type(ex).startswith('"unsupported" should be one of: "xs","sm","md","lg","xl"') )
 
     with expected(ProgrammerError, test=check_ex):
         DeviceClass('unsupported')

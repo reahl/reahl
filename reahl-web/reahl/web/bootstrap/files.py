@@ -159,7 +159,7 @@ class FileUploadPanel(Div):
 
         button_addon = file_input.html_representation.add_child(Span(self.view))
         button_addon.append_class('input-group-btn')
-        button_addon.add_child(Button(self.upload_form.form, self.events.upload_file)).use_layout(ButtonLayout(style='primary'))
+        button_addon.add_child(Button(self.upload_form.form, self.events.upload_file))
 
 
     @property

@@ -57,7 +57,7 @@ class JsObject(object):
 
 
 class JsFunction(object):
-    def __init__(self, *args, body_text=''):
+    def __init__(self, body_text='', *args):
         self.args = args
         self.body_text = body_text
         
