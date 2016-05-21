@@ -52,7 +52,7 @@ relevant Input.
 :class:`~reahl.web.bootstrap.forms.FormLayout.add_input()` has a number
 of options to help you control how Inputs are added.
 
-Here is a screenshot of the form:
+Here is a screen shot of the form:
 
 .. figure:: ../../_build/screenshots/bootstrapform.png
   :align: center

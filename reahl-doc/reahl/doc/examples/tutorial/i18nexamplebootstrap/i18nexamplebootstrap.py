@@ -8,10 +8,11 @@ from sqlalchemy import Column, Integer, UnicodeText, Date
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, InputGroup, \
-                         Menu, VerticalLayout
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout, UnitSize
+from reahl.web.bootstrap.ui import HTML5Page, Div, P, H
+from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, FormLayout, ButtonLayout
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize, PageLayout
+from reahl.web.bootstrap.navs import Nav, PillLayout
+
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.i18n import Translator
 import babel.dates 
@@ -22,11 +23,13 @@ _ = Translator('reahl-doc')
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
-        super(AddressBookPage, self).__init__(view, style='basic')
-        contents_layout = ColumnLayout(('secondary', UnitSize('1/4')), 
-                                       ('main', UnitSize('3/4'))).with_slots()
+        super(AddressBookPage, self).__init__(view)
+        self.body.use_layout(Container())
+        contents_layout = ColumnLayout(('secondary', ResponsiveSize(md=3)),
+                                       ('main', ResponsiveSize(md=9))).with_slots()
         self.use_layout(PageLayout(contents_layout=contents_layout))
-        contents_layout.columns['secondary'].add_child(Menu(view).use_layout(VerticalLayout()).with_languages())
+        nav = Nav(view).use_layout(PillLayout(stacked=True))
+        contents_layout.columns['secondary'].add_child(nav.with_languages())
 
 
 class AddressBookUI(UserInterface):
@@ -55,12 +58,14 @@ class AddAddressForm(Form):
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text=_('Add an address')))
-        grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.name)) )
-        grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.email_address)) )
+        grouped_inputs = self.add_child(FieldSet(view, label_text='Add an address'))
+        grouped_inputs.use_layout(FormLayout())
+        grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
+        grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
         self.define_event_handler(new_address.events.save)
-        grouped_inputs.add_child(Button(self, new_address.events.save))
+        btn = grouped_inputs.add_child(Button(self, new_address.events.save))
+        btn.use_layout(ButtonLayout(style='primary'))
 
 
 class AddressBox(Widget):
@@ -71,7 +76,7 @@ class AddressBox(Widget):
 
 
 class Address(Base):
-    __tablename__ = 'i18nexample_address'
+    __tablename__ = 'i18nexamplebootstrap_address'
     id            = Column(Integer, primary_key=True)
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)

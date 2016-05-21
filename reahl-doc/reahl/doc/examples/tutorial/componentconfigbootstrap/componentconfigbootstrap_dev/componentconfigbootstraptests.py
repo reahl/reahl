@@ -7,13 +7,18 @@ from reahl.tofu import test
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.componentconfig.componentconfig import AddressBookUI, Address, AddressConfig
+from reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap import AddressBookUI, Address, AddressConfig
 
 
 class ConfigFixture(WebFixture):
     def new_wsgi_app(self):
         return super(ConfigFixture, self).new_wsgi_app(site_root=AddressBookUI)
-        
+
+    def new_webconfig(self):
+        webconfig = super(ConfigFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
+
     def new_existing_address(self):
         address = Address(name='John Doe', email_address='johndoe@some.org')
         address.save()
@@ -33,7 +38,7 @@ class ConfigFixture(WebFixture):
 def add_address(fixture):
     """A user can add an address, after which the address is listed."""
     browser = fixture.browser
-
+    
     browser.open('/')
     browser.type(XPath.input_labelled('Name'), 'John')
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')

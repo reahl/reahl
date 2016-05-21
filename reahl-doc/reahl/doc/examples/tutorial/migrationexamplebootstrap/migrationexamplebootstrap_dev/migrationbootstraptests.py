@@ -4,17 +4,21 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import test, set_up
 
-
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.sqlalchemysupport import Session
 
-from reahl.doc.examples.tutorial.migrationexample.migrationexample import AddressBookUI, Address
+from reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap import AddressBookUI, Address
 
 
 class MigrateFixture(WebFixture):
     def new_wsgi_app(self):
         return super(MigrateFixture, self).new_wsgi_app(site_root=AddressBookUI)
+
+    def new_webconfig(self):
+        webconfig = super(MigrateFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
         
     def new_existing_address(self):
         address = Address(name='John Doe', email_address='johndoe@some.org')
