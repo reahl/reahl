@@ -67,7 +67,7 @@ class PagedPanel(Div):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param page_index: The :class:`PageIndex` to use to supply contents to the pages displayed by this PagedPanel.
-       :param css_id: (See :class:`HTMLElement`)
+       :param css_id: (See :class:`reahl.web.ui.HTMLElement`)
     """
     def __init__(self, view, page_index, css_id):
         self.page_index = page_index
@@ -229,10 +229,10 @@ class PageMenu(HTMLWidget):
 
 
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param css_id: (See :class:`HTMLElement`)
+       :param css_id: (See :class:`reahl.web.ui.HTMLElement`)
        :param page_index: The :class:`PageIndex` whose pages are displayed by this PageMenu.
        :param page_container: The :class:`PagedPanel` in which the contents of a page is displayed.
-       :kwarg menu_layout: The :class:`Layout` to use for the Menu (See :class:`Menu`)
+       :kwarg menu_layout: The :class:`reahl.web.ui.Layout` to use for the Menu (See :class:`Menu`)
 
        .. versionchanged:: 3.2
           Added the `menu_layout` kwarg (see :class:`Menu`).

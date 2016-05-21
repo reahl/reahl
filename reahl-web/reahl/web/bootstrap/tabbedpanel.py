@@ -109,7 +109,7 @@ class Tab(object):
     :param view: (See :class:`reahl.web.fw.Widget`)
     :param title: The label Text that is displayed inside the Tab itself.
     :param tab_key: A name for this tag identifying it uniquely amongst other Tabs in the same :class:`TabbedPanel`.
-    :param contents_factory: A :class:`WidgetFactory` specifying how to create the contents of this Tab, once selected.
+    :param contents_factory: A :class:`reahl.web.fw.WidgetFactory` specifying how to create the contents of this Tab, once selected.
     """
     def __init__(self, view, title, tab_key, contents_factory):
         self.title = title
