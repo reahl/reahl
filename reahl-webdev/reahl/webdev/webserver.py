@@ -148,16 +148,15 @@ class SingleWSGIRequestHandler(simple_server.WSGIRequestHandler):
         # A modified copy of simple_server.WSGIRequestHandler.handle
         #
         # We first check if there really IS something to read on the socket
-        # because for some reason ReahlWSGIServer.requests_waiting sometimes
-        # tells us that there are requests waiting but then come and blocks
-        # here trying to read from the socket. We can't figure out why, so
-        # we check for that condition here using a temp timeout on the socket.
-        # (Best guess: in requests_waiting we can only detect that the browser
-        #  is trying to connect, not that it actually sent something. It may be
-        #  that the browser connects eagerly before it has a request to send
-        #  in order to gain a speed benefit.
-        #  It would be nice if we can test via HTTP1.1 with keepalive on, but
-        #  the wsgiref stuff do not support this.)
+        # because as soon as ReahlWSGIServer.connection_is_pending becomes
+        # true, A SingleWSGIRequestHandler is created already. However, the
+        # fact that the browser made a connection does not mean it has sent
+        # HTTP requests yet. So, we cannot really serve yet.
+        #
+        # We first check whether something has actually arrived here by
+        # temporarily setting a timeout on the socket to read the first byte.
+        # We suspect that the browser connects eagerly (pre-connect) before it
+        # has a request to send in order to gain a speed benefit. 
         #
         # We also use this override to use our PatchedServerHandler instead of
         # ServerHandler to handle HTTP requests.
@@ -206,7 +205,7 @@ class ReahlWSGIServer(simple_server.WSGIServer):
         self.allow_reuse_address = True
         
     def serve_async(self, in_separate_thread=False):
-        if self.requests_waiting(0.01):
+        if self.connection_is_pending(0.01):
             self.handle_waiting_request(in_separate_thread)
 
     def handle_waiting_request(self, in_separate_thread):
@@ -217,7 +216,7 @@ class ReahlWSGIServer(simple_server.WSGIServer):
         finally:
             self.get_app().clear_exception()
     
-    def requests_waiting(self, timeout):
+    def connection_is_pending(self, timeout):
         i, o, w = select.select([self],[],[],timeout)
         return i
 
@@ -269,7 +268,7 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
 
 
 
-class Handler(object):
+class WebDriverHandler(object):
     def __init__(self, command_executor):
         self.command_executor = command_executor
         self.original_execute = command_executor.execute
@@ -536,8 +535,8 @@ class ReahlWebServer(object):
         self.httpd.server_close()
         self.httpsd.server_close()
 
-    def requests_waiting(self, timeout):
-        return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
+    def connection_is_pending(self, timeout):
+        return self.httpd.connection_is_pending(timeout) or self.httpsd.connection_is_pending(timeout/10)
 
     def serve_until(self, done):
         while not (done() or self.reahl_wsgi_app.has_uncaught_exception()):
@@ -547,14 +546,14 @@ class ReahlWebServer(object):
     def serve(self, timeout=0.01):
         """Call this method once to have the server handle all waiting requests in the calling thread."""
         def done():
-            return not self.requests_waiting(timeout)
+            return not self.connection_is_pending(timeout)
         self.serve_until(done)
 
     def install_handler(self, web_driver):
         """Installs this server's request handler into the given `web_driver`. This enables the
            server to serve requests from the web_driver in the current thread."""
-        assert web_driver not in self.handlers.keys(), 'Handler already installed into %s' % web_driver
-        new_handler = Handler(web_driver.command_executor)
+        assert web_driver not in self.handlers.keys(), 'WebDriverHandler already installed into %s' % web_driver
+        new_handler = WebDriverHandler(web_driver.command_executor)
         self.handlers[web_driver] = new_handler
         new_handler.install(self)
 
