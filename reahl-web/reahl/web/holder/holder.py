@@ -104,7 +104,7 @@ class PlaceholderImage(Img):
             # Our query string will url-escape text. Text often has spaces 
             # that would now become +. Holder does not do the reverse, so 
             # we have to add the text as an un-escaped query string argument 
-            image_url = '%s%s&text=%s' % (str(image_url), '?' if not options else '', text)
+            image_url = '%s%stext=%s' % (str(image_url), '?' if not options else '&', text)
         self.set_attribute('data-src', str(image_url))
 
 

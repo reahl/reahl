@@ -116,7 +116,7 @@ class EasterEgg(pkg_resources.Distribution):
         self.location = path
 
     def activate(self):
-        saved_path = sys.path.copy()
+        saved_path = sys.path[:]
         super(EasterEgg, self).activate()
         self.added_paths = set(sys.path) - set(saved_path)
 
