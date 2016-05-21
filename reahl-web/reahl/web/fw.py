@@ -782,9 +782,10 @@ class Bookmark(object):
        Bookmark should not generally be constructed directly by a programmer, use one of the following to
        obtain a Bookmark:
        
-       - `View.as_bookmark`
-       - `UserInterface.get_bookmark`
-       - `Bookmark.for_widget`
+       - :meth:`UrlBoundView.as_bookmark`
+       - :meth:`ViewFactory.as_bookmark`
+       - :meth:`UserInterface.get_bookmark`
+       - :meth:`Bookmark.for_widget`
        
        :param base_path: The entire path of the UserInterface to which the target View belongs.
        :param relative_path: The path of the target View, relative to its UserInterface.
@@ -1530,12 +1531,17 @@ class SubResourceFactory(FactoryFromUrlRegex):
 
 
 class ViewFactory(FactoryFromUrlRegex):
-    """Used to specify to the framework how it should create a :class:`View`, once needed. This class should not be
-       instantiated directly. Programmers should use `UserInterface.define_view` and related methods to specify what Views
-       a UserInterface should have. These methods return the ViewFactory so created.
+    """Used to specify to the framework how it should create a
 
-       In the `.assemble()` of a UserInterface, ViewFactories are passed around to denote Views as the targets of Events
-       or the source and target of Transitions.
+    :class:`View`, once needed. This class should not be instantiated
+    directly. Programmers should use
+    :meth:`UserInterface.define_view` and related methods to specify
+    what Views a UserInterface should have. These methods return the
+    ViewFactory so created.
+
+    In the `.assemble()` of a UserInterface, ViewFactories are passed
+    around to denote Views as the targets of Events or the source and
+    target of Transitions.
     """
     def __init__(self, regex_path, title, slot_definitions, page_factory=None, detour=False, view_class=None, factory_method=None, read_check=None, write_check=None, cacheable=False, view_kwargs=None):
         self.detour = detour

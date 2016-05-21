@@ -46,7 +46,7 @@ HTMLElement
 TextNode
 """"""""
 
-.. autoclass:: Title
+.. autoclass:: TextNode 
    :members:
 
 Title

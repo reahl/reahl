@@ -221,7 +221,7 @@ class Navbar(HTMLWidget):
     """A bootstrap Navbar can be used as page header in a web
     application. A Navbar can contain some branding text, a
     :class:`~reahl.web.bootstrap.navs.Nav` and a small
-    :class:`~reahl.web.bootstrap.ui.Form`.
+    :class:`~reahl.web.bootstrap.forms.Form`.
 
     You populate a Navbar using a NavbarLayout for complete control
     over how the Navbar is laid out, which of its possible elements 

@@ -39,7 +39,7 @@ class Theme(OrderedDict):
 
 class PredefinedTheme(Theme):
     """There are a few named, :class:`PredefinedTheme`\s you can choose from to
-    control the look of a :class:`Placeholder` image.
+    control the look of a :class:`PlaceholderImage` .
 
     :param theme_name: One of: 'sky', 'vine', 'lava', 'gray', 'industrial', or 'social'.
     """
@@ -52,7 +52,7 @@ class PredefinedTheme(Theme):
 
 class CustomTheme(Theme):
     """A :class:`CustomTheme` allows one to control all the details of
-    what a :class:`Placeholder` should look like.
+    what a :class:`PlaceholderImage` should look like.
 
     :keyword bg: The background-colour (a string in CSS notation)
     :keyword fg: The foreground-colour (a string in CSS notation)

@@ -156,7 +156,7 @@ class SingleWSGIRequestHandler(simple_server.WSGIRequestHandler):
         # We also use this override to use our PatchedServerHandler instead of
         # ServerHandler to handle HTTP requests.
         try:
-            self.request.settimeout(0.01)
+            self.request.settimeout(0.1)
             self.raw_requestline = self.rfile.read(1)
         except (socket.timeout, ssl.SSLError):
             return

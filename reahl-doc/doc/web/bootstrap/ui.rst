@@ -35,7 +35,7 @@ Very low-level Widgets that correspond to HTML
 TextNode
 """"""""
 
-.. autoclass:: Title
+.. autoclass:: TextNode
    :members:
 
 Title
