@@ -8,7 +8,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, A, InputGroup, Menu, HorizontalLayout
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, A, FieldSet, Menu, HorizontalLayout
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
@@ -70,7 +70,7 @@ class EditAddressForm(Form):
     def __init__(self, view, address):
         super(EditAddressForm, self).__init__(view, 'edit_form')
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Edit address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Edit address'))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.name)))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.email_address)))
 
@@ -82,7 +82,7 @@ class AddAddressForm(Form):
         super(AddAddressForm, self).__init__(view, 'add_form')
 
         new_address = Address()
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.name)))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.email_address)))
 

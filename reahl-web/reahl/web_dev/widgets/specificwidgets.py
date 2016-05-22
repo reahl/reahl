@@ -78,6 +78,7 @@ class BasicReahlWidgets(object):
             self.widget = InputGroup(self.view, label_text='text')
             self.expected_html = '<fieldset><label>text</label></fieldset>'
 
+
                                 
     @test(Scenarios)
     def aliassed_widgets(self, fixture):

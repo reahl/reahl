@@ -8,7 +8,7 @@ from sqlalchemy import Column, Integer, UnicodeText, Date
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, InputGroup, \
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, FieldSet, \
                          Menu, VerticalLayout
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout, UnitSize
@@ -55,7 +55,7 @@ class AddAddressForm(Form):
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text=_('Add an address')))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text=_('Add an address')))
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.email_address)) )
 

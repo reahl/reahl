@@ -1295,14 +1295,41 @@ class FieldSet(HTMLElement):
     
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword label_text: If given, the FieldSet will have a label containing this text.
+       :keyword legend_text: If given, the FieldSet will have a Legend containing this text.
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
-       
+
+       .. versionchanged: 3.2
+          Deprecated label_text and instead added legend_text: FieldSets should have Legends, not Labels.
     """
-    def __init__(self, view, label_text=None, css_id=None):
+    def __init__(self, view, legend_text=None, label_text=None, css_id=None):
         super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
         if label_text:
+            warnings.warn('DEPRECATED: label_text=. Please use legend_text= instead.',
+                          DeprecationWarning, stacklevel=1)
             self.label = self.add_child(Label(view, text=label_text))
+        if legend_text:
+            self.legend = self.add_child(Legend(view, text=legend_text))
+
+
+class Legend(HTMLElement):
+    """A caption for an :class:`reahl.web.ui.HTMLElement`.
+
+    .. versionadded: 3.2
+
+    .. admonition:: Styling
+
+       Rendered as an HTML <legend> element.
     
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    :keyword text: If given, the Legend containing this text.
+    :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
+       
+    """
+    def __init__(self, view, text=None, css_id=None):
+        super(Legend, self).__init__(view, 'legend', children_allowed=True, css_id=css_id)
+        if text:
+            self.text_node = self.add_child(TextNode(view, text))
+            
 
 #cs@deprecated('Please use reahl.web.attic.layout:InputGroup instead', '3.2')
 class InputGroup(FieldSet):

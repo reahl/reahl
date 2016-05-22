@@ -23,7 +23,7 @@ from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, \
-                         P, H, InputGroup, FileUploadInput, SimpleFileInput
+                         P, H, FieldSet, FileUploadInput, SimpleFileInput
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
@@ -92,11 +92,11 @@ class CommentForm(Form):
         self.add_child(LabelledBlockInput(TextInput(self, new_comment.fields.email_address)))
         self.add_child(LabelledBlockInput(TextInput(self, new_comment.fields.text)))
 
-        attachments = self.add_child(InputGroup(view, label_text='Attach files'))
+        attachments = self.add_child(FieldSet(view, legend_text='Attach files'))
         attachments.add_child(FileUploadInput(self, new_comment.fields.uploaded_files))
 
         self.define_event_handler(new_comment.events.submit)
-        buttons = self.add_child(InputGroup(view, label_text=' '))
+        buttons = self.add_child(FieldSet(view, legend_text=' '))
         buttons.add_child(Button(self, new_comment.events.submit))
 
 

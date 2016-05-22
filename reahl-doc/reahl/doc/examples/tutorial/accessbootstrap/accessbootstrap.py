@@ -253,7 +253,7 @@ class EditAddressForm(Form):
     def __init__(self, view, address):
         super(EditAddressForm, self).__init__(view, 'edit_form')
 
-        grouped_inputs = self.add_child(FieldSet(view, label_text='Edit address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Edit address'))
         grouped_inputs.use_layout(FormLayout())
         grouped_inputs.layout.add_input(TextInput(self, address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, address.fields.email_address))
@@ -269,7 +269,7 @@ class AddAddressForm(Form):
 
         new_address = Address(address_book=address_book)
 
-        grouped_inputs = self.add_child(FieldSet(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.use_layout(FormLayout())
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
@@ -311,11 +311,11 @@ class AddCollaboratorForm(Form):
     def __init__(self, view, address_book):
         super(AddCollaboratorForm, self).__init__(view, 'add_collaborator_form')
 
-        grouped_inputs = self.add_child(FieldSet(view, label_text='Add a collaborator'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add a collaborator'))
         grouped_inputs.use_layout(FormLayout())
         grouped_inputs.layout.add_input(SelectInput(self, address_book.fields.chosen_collaborator))
 
-        rights_inputs = grouped_inputs.add_child(FieldSet(view, label_text='Rights'))
+        rights_inputs = grouped_inputs.add_child(FieldSet(view, legend_text='Rights'))
         rights_inputs.use_layout(FormLayout())
         rights_inputs.layout.add_input(CheckboxInput(self, address_book.fields.may_edit_address))
         rights_inputs.layout.add_input(CheckboxInput(self, address_book.fields.may_add_address))

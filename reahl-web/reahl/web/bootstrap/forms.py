@@ -32,7 +32,7 @@ from reahl.component.i18n import Translator
 
 import reahl.web.ui
 from reahl.web.ui import WrappedInput, Label, HTMLAttributeValueOption
-from reahl.web.bootstrap.ui import Div, P, FieldSet, WrappedInput, A, TextNode, Span
+from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span
 from reahl.web.bootstrap.grid import ColumnLayout
 
 
@@ -85,6 +85,18 @@ class TextInput(reahl.web.ui.TextInput):
     def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
         super(TextInput, self).__init__(form, bound_field, fuzzy=fuzzy, placeholder=placeholder)
         self.append_class('form-control')
+
+
+class FieldSet(reahl.web.ui.FieldSet):
+    """A visual grouping of HTMLElements inside a Form.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword legend_text: If given, the FieldSet will have a Legend containing this text.
+       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
+
+    """
+    def __init__(self, view, legend_text=None, css_id=None):
+        super(FieldSet, self).__init__(view, legend_text=legend_text, css_id=css_id)
 
 
 class PasswordInput(reahl.web.ui.PasswordInput):
