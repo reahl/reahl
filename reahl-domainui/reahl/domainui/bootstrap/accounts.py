@@ -51,8 +51,8 @@ class TitledWidget(Widget):
 
 
 class ActionButtonGroup(FieldSet):
-    def __init__(self, view, label_text=None):
-        super(ActionButtonGroup, self).__init__(view, label_text=label_text)
+    def __init__(self, view, legend_text=None):
+        super(ActionButtonGroup, self).__init__(view, legend_text=legend_text)
         self.add_to_attribute('class', ['action_buttons'])
 
 
@@ -64,7 +64,7 @@ class LoginForm(Form):
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
-        login_inputs = self.add_child(FieldSet(view, label_text=_('Please specify:'))).use_layout(FormLayout())
+        login_inputs = self.add_child(FieldSet(view, legend_text=_('Please specify'))).use_layout(FormLayout())
         email_cue = P(view, _('The email address you used to register here.'))
         login_inputs.layout.add_input(CueInput(TextInput(self, self.account_management_interface.fields.email), email_cue))
 
@@ -117,7 +117,7 @@ class RegisterForm(Form):
         self.create_action_buttons()
 
     def create_identification_inputs(self):
-        identification_inputs = self.add_child(FieldSet(self.view, label_text=_('How will you identify yourself?'))).use_layout(FormLayout())
+        identification_inputs = self.add_child(FieldSet(self.view, legend_text=_('How will you identify yourself?'))).use_layout(FormLayout())
 
         email_cue = P(self.view, _('You identify yourself to us by your email address.' \
                                    'This information is not divulged to others.'))
@@ -136,7 +136,7 @@ class RegisterForm(Form):
                                            repeat_password_cue))
 
     def create_terms_inputs(self):
-        terms_inputs = self.add_child(FieldSet(self.view, label_text=_('Terms and conditions'))).use_layout(FormLayout())
+        terms_inputs = self.add_child(FieldSet(self.view, legend_text=_('Terms and conditions'))).use_layout(FormLayout())
 
         terms_prompt = P(self.view, text=_('Please read and accept our {terms}. You may also be interested '
                                            'to read our {privacypolicy} and our {disclaimer}.'))
@@ -172,7 +172,7 @@ class VerifyForm(Form):
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
-        identification_inputs = self.add_child(FieldSet(view, label_text=_('Please supply the following details'))).use_layout(FormLayout())
+        identification_inputs = self.add_child(FieldSet(view, legend_text=_('Please supply the following details'))).use_layout(FormLayout())
 
         identification_inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
         identification_inputs.layout.add_input(TextInput(self, account_management_interface.fields.secret))
@@ -201,7 +201,7 @@ class RegisterHelpForm(Form):
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
         
-        inputs = self.add_child(FieldSet(view, label_text=_('Please supply the email address you tried to register with.'))).use_layout(FormLayout())
+        inputs = self.add_child(FieldSet(view, legend_text=_('Please supply the email address you tried to register with.'))).use_layout(FormLayout())
         inputs.layout.add_input(TextInput(self, account_management_interface.fields.email),
                                 help_text=_('Please supply the email address you tried to register with.'))
 
@@ -248,7 +248,7 @@ class RegistrationPendingForm(Form):
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
         
-        actions = self.add_child(ActionButtonGroup(view, label_text=_('Re-send registration email')))
+        actions = self.add_child(ActionButtonGroup(view, legend_text=_('Re-send registration email')))
         btn = actions.add_child(Button(self, self.user_interface.account_management_interface.events.resend_event))
         btn.use_layout(ButtonLayout(style='primary'))
 
@@ -311,7 +311,7 @@ class ResetPasswordForm(Form):
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
-        inputs = self.add_child(FieldSet(view, label_text=_('Request a secret key'))).use_layout(FormLayout())
+        inputs = self.add_child(FieldSet(view, legend_text=_('Request a secret key'))).use_layout(FormLayout())
         inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
 
         actions = self.add_child(ActionButtonGroup(view))
@@ -339,7 +339,7 @@ class ChoosePasswordForm(Form):
         if self.exception:
             self.add_child(Alert(view, self.exception.as_user_message(), 'warning'))
 
-        inputs = self.add_child(FieldSet(view, label_text=_('Choose a new password'))).use_layout(FormLayout())
+        inputs = self.add_child(FieldSet(view, legend_text=_('Choose a new password'))).use_layout(FormLayout())
         inputs.layout.add_input(TextInput(self, account_management_interface.fields.email))
         inputs.layout.add_input(TextInput(self, account_management_interface.fields.secret))
         inputs.layout.add_input(PasswordInput(self, account_management_interface.fields.password))

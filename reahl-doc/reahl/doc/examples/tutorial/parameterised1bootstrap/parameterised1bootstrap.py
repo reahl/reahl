@@ -72,7 +72,7 @@ class EditAddressForm(Form):
     def __init__(self, view, address):
         super(EditAddressForm, self).__init__(view, 'edit_form')
 
-        grouped_inputs = self.add_child(FieldSet(view, label_text='Edit address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Edit address'))
         grouped_inputs.use_layout(FormLayout())
         grouped_inputs.layout.add_input(TextInput(self, address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, address.fields.email_address))
@@ -86,7 +86,7 @@ class AddAddressForm(Form):
         super(AddAddressForm, self).__init__(view, 'add_form')
 
         new_address = Address()
-        grouped_inputs = self.add_child(FieldSet(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.use_layout(FormLayout())
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))

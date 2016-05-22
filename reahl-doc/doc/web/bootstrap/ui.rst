@@ -149,6 +149,11 @@ Img
 .. autoclass:: Img
    :members:
 
+Legend
+""""""
+
+.. autoclass:: Legend
+   :members:
 
 Alert
 """""

@@ -58,7 +58,7 @@ class AddAddressForm(Form):
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(FieldSet(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.use_layout(FormLayout())
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.name))
         grouped_inputs.layout.add_input(TextInput(self, new_address.fields.email_address))

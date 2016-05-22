@@ -8,7 +8,7 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, A, P, H, InputGroup, Menu, HorizontalLayout,\
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, A, P, H, FieldSet, Menu, HorizontalLayout,\
                          PasswordInput, ErrorFeedbackMessage, Slot, Widget, SelectInput, CheckboxInput
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout, UnitSize
@@ -227,7 +227,7 @@ class EditAddressForm(Form):
     def __init__(self, view, address):
         super(EditAddressForm, self).__init__(view, 'edit_form')
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Edit address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Edit address'))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.name)))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.email_address)))
 
@@ -240,7 +240,7 @@ class AddAddressForm(Form):
 
         new_address = Address(address_book=address_book)
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.name)))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.email_address)))
 
@@ -276,10 +276,10 @@ class AddCollaboratorForm(Form):
     def __init__(self, view, address_book):
         super(AddCollaboratorForm, self).__init__(view, 'add_collaborator_form')
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add a collaborator'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add a collaborator'))
         grouped_inputs.add_child(LabelledBlockInput(SelectInput(self, address_book.fields.chosen_collaborator)))
 
-        rights_inputs = grouped_inputs.add_child(InputGroup(view, label_text='Rights'))
+        rights_inputs = grouped_inputs.add_child(FieldSet(view, legend_text='Rights'))
         rights_inputs.add_child(LabelledBlockInput(CheckboxInput(self, address_book.fields.may_edit_address)))
         rights_inputs.add_child(LabelledBlockInput(CheckboxInput(self, address_book.fields.may_add_address)))
 

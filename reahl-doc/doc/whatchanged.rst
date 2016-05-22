@@ -150,6 +150,22 @@ Label
    argument: `for_input` to indicate which |Input| it labels.
 
 
+FieldSet
+~~~~~~~~
+
+   .. |FieldSet| replace:: :class:`~reahl.web.ui.FieldSet`
+   .. |Label| replace:: :class:`~reahl.web.ui.Label`
+
+   A |FieldSet| could be constructed with the keyword argument `label_text`
+   in which case a :class:`~reahl.web.ui.Label` would be added at the 
+   start of the |FieldSet|. This is an incorrect usage of |Label|
+   according to the HTML specification, hence this usage is now deprecated.
+
+   Instead, a `legend_text` keyword argument was added. If `legend_text` is
+   given, a :class:`~reahl.web.ui.Legend` will be added to the |FieldSet|
+   with the given text.
+
+
 Menu
 ~~~~
 

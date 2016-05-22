@@ -182,6 +182,12 @@ FieldSet
 .. autoclass:: FieldSet
    :members:
 
+Legend
+""""""
+
+.. autoclass:: Legend
+   :members:
+
 Input
 """""
 
