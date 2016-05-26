@@ -35,12 +35,13 @@ The extra stuff needed by dependencies of Reahl itself are installed by issuing:
 
 .. code-block:: bash
 
-   sudo apt-get install libxml2-dev libxslt-dev libsqlite3-0
+   sudo apt-get install libxml2-dev libxslt-dev zlib1g-dev libsqlite3-0
 
 
 
-The first two of these packages (libxml2-dev and libxslt-dev) are used by some of our testing
-infrastructure, and sqlite is the database used by the tutorial examples.
+The first three of these packages (libxml2-dev, libxslt-dev and
+zlib1g-dev) are used by some of our testing infrastructure, and sqlite
+is the database used by the tutorial examples.
 
 Installing chromedriver (below) is not necessary for a first
 installation or to follow the tutorial. (We just include the

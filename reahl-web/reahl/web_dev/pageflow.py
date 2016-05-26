@@ -17,6 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+from six.moves.urllib import parse as urllib_parse
+
 from nose.tools import istest
 from reahl.tofu import test
 from reahl.tofu import expected
@@ -495,3 +497,36 @@ class ControlledUserInterfacesTests(object):
 
         # The query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == '' )
+
+    @test(WebFixture)
+    def detour_is_non_reentrant(self, fixture):
+        """Once detoured to a View marked as the start of a Detour, a Bookmark to that View itself
+        will not re-enter the detour.
+        """
+
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+
+                step1 = self.define_view('/firstStepOfDetour', title='Step 1', detour=True)
+                step1.set_slot('main', A.factory_from_bookmark(step1.as_bookmark(self)))
+
+                home = self.define_view('/initial', title='View a')
+                home.set_slot('main', A.factory_from_bookmark(step1.as_bookmark(self)))
+
+                
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
+
+        def locationIsSetToReturnTo(url_path):
+            return urllib_parse.parse_qs(browser.location_query_string)['returnTo'] == [url_path]
+
+        browser.open('/initial')
+        browser.click(XPath.link_with_text('Step 1'))
+        vassert( browser.location_path == '/firstStepOfDetour' )
+        vassert( locationIsSetToReturnTo('http://localhost/initial') )
+                
+        browser.click(XPath.link_with_text('Step 1'))
+        vassert( browser.location_path == '/firstStepOfDetour' )
+        vassert( locationIsSetToReturnTo('http://localhost/initial') )
+

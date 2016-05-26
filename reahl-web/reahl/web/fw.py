@@ -129,6 +129,9 @@ class Url(object):
         """Sets the query string of this Url from a dictionary."""
         self.query = urllib_parse.urlencode(value_dict)
 
+    def get_query_dict(self):
+        return urllib_parse.parse_qs(self.query)
+    
     @property
     def netloc(self):
         """Returns the `authority part of the URl as per RFC3968 <http://tools.ietf.org/html/rfc3986#section-3.2>`_, 
@@ -230,12 +233,16 @@ class Url(object):
     def query_is_subset(self, other_url):
         """Answers whether name=value pairs present in this Url's query string is a subset
            of those present in `other_url`."""
-        other_args = urllib_parse.parse_qs(other_url.query)
-        self_args = urllib_parse.parse_qs(self.query)
+        other_args = other_url.get_query_dict()
+        self_args = self.get_query_dict()
 
         if not set(self_args).issubset(set(other_args)):
             return False
 
+        if 'returnTo' in self_args:
+            del self_args['returnTo']
+        if 'returnTo' in other_args:
+            del other_args['returnTo']
         other_values = dict([(key, other_args[key]) for key in self_args])
         return other_values == self_args
 
@@ -559,7 +566,8 @@ class UserInterface(object):
            :param title: The title to be used for the :class:`View`.
            :param page: A :class:`WidgetFactory` that will be used as the page to be rendered for this :class:`View` (if specified).
            :param slot_definitions: A dictionary stating which :class:`WidgetFactory` to use for plugging in which :class:`Slot`.
-           :param detour: Specifies whether this :class:`View` is a :class:`Detour` or not.
+           :param detour: If True, marks this :class:`View` as the start of a detour (A series of
+             :class:`View`\s which can return the user to where the detour was first entered from). 
            :param view_class: The class of :class:`View` to be constructed (in the case of parameterised :class:`View` s).
            :param read_check: A no-arg function returning a boolean value. It will be called to determine whether the current 
              user is allowed to see this :class:`View` or not.
@@ -832,12 +840,17 @@ class Bookmark(object):
 
     @property
     def href(self):
-        query_arguments = OrderedDict(sorted(self.query_arguments.items()))
-        if self.detour:
-            request = WebExecutionContext.get_context().request
-            query_arguments['returnTo'] = request.url
         path = (self.base_path + self.relative_path).replace('//','/')
         url = Url(path)
+        query_arguments = OrderedDict(sorted(self.query_arguments.items()))
+        url.set_query_from(query_arguments)
+        if self.detour:
+            request = WebExecutionContext.get_context().request
+            if not url.is_currently_active(exact_path=True):
+                query_arguments['returnTo'] = request.url
+            elif 'returnTo' in request.params:
+                query_arguments['returnTo'] = request.params['returnTo']
+                
         url.make_locale_absolute(locale=self.locale)
         url.set_query_from(query_arguments)
         return url
@@ -1858,6 +1871,10 @@ class UrlBoundView(View):
             allowed = self.write_check()
         if not allowed:
             raise HTTPForbidden()
+
+    @property
+    def is_current_view(self):
+        return self.relative_path == self.user_interface.current_view.relative_path and self.user_interface is self.user_interface.current_view.user_interface
 
     def as_bookmark(self, description=None, query_arguments=None, ajax=False, locale=None):
         """Returns a Bookmark for this UrlBoundView.
