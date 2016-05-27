@@ -72,6 +72,10 @@ class FileInputButton(reahl.web.ui.WrappedInput):
         label.append_class('btn-primary')
         self.set_html_representation(label)
 
+    @property
+    def html_control(self):
+        return self.simple_input.html_control
+
     def get_js(self, context=None):
         js = ['$(".reahl-bootstrapfileinputbutton").bootstrapfileinputbutton({});']
         return super(FileInputButton, self).get_js(context=context) + js
@@ -245,6 +249,10 @@ class FileUploadInput(PrimitiveInput):
 
     def create_html_widget(self):
         return FileUploadPanel(self)
+
+    @property
+    def html_control(self):
+        return None
 
     def get_value_from_input(self, input_values):
         return [UploadedFile(f.filename, f.file_obj.read(), f.mime_type)

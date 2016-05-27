@@ -24,6 +24,7 @@ import six
 from string import Template
 import warnings
 import re
+import time
 import copy
 from collections import OrderedDict
 
@@ -339,7 +340,7 @@ class HTMLElement(Widget):
         self._css_id = value
         self.set_attribute('id', value)
     css_id = property(get_css_id, set_css_id)
-     
+    
     def contextualise_selector(self, selector, context):
         """Returns a JQuery selector for finding `selector` within the elements matched by `context` (another selector)."""
         context_str = ', "%s"' % context if context else ''
@@ -1502,6 +1503,10 @@ class WrappedInput(Input):
     def includes_label(self):
         return self.input_widget.includes_label
 
+    @property
+    def html_control(self):
+        return self.input_widget.html_control
+        
 
 class PrimitiveInput(Input):
     is_for_file = False
@@ -1531,6 +1536,10 @@ class PrimitiveInput(Input):
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
+
+    @property
+    def html_control(self):
+        return self.html_representation
 
     @deprecated('Please override create_html_widget() instead', '3.2')
     def create_html_input(self):
@@ -1798,6 +1807,10 @@ class SingleRadioButton(InputTypeInput):
         span.add_child(TextNode(self.view, self.label))
         return span
 
+    @property
+    def html_control(self):
+        return self.html_representation.children[0]
+
     def create_button_input(self):
         button = super(SingleRadioButton, self).create_html_widget()
         if self.checked:
@@ -1838,6 +1851,10 @@ class RadioButtonInput(PrimitiveInput):
         for choice in self.bound_field.flattened_choices:
             self.add_button_for_choice_to(main_element, choice)
         return main_element
+
+    @property
+    def html_control(self):
+        return None
 
     def get_value_from_input(self, input_values):
         return input_values.get(self.name, '')
@@ -2044,6 +2061,8 @@ class Label(HTMLElement):
     def __init__(self, view, text=None, for_input=None, css_id=None):
         super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
         self.for_input = for_input
+        if self.for_input and self.for_input.html_control and not self.for_input.html_control.css_id_is_set:
+            self.for_input.html_control.set_id('tmpid-%s-%s' % (id(self), time.time()))
         if text or for_input:
             self.text_node = self.add_child(TextNode(view, text or for_input.label))
 
@@ -2057,8 +2076,8 @@ class Label(HTMLElement):
     @property
     def attributes(self):
         attributes = super(Label, self).attributes
-        if self.for_input:
-            attributes.set_to('for', self.for_input.name)
+        if self.for_input and self.for_input.html_control:
+            attributes.set_to('for', self.for_input.html_control.css_id)
         return attributes
 
 
@@ -3101,6 +3120,10 @@ class FileUploadInput(PrimitiveInput):
     def persisted_file_class(self):
         config = WebExecutionContext.get_context().config
         return config.web.persisted_file_class
+
+    @property
+    def html_control(self):
+        return None
 
     def create_html_widget(self):
         return FileUploadPanel(self)

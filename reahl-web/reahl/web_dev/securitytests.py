@@ -297,8 +297,9 @@ class SecurityTests(object):
 
         browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':''})
         browser.follow_response()
+        input_id = browser.get_id_of('//input[@name="event.an_event?"]')
         error_label = browser.get_html_for('//label')
-        vassert( error_label == '<label for="event.an_event?" class="error">you cannot do this</label>' )
+        vassert( error_label == '<label for="%s" class="error">you cannot do this</label>' % input_id )
 
     @test(WebFixture)
     def getting_view(self, fixture):
