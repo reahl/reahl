@@ -113,6 +113,11 @@ class BasicBrowser(object):
         element = self.xpath(xpath)[0]
         return ''.join(html.tostring(child, encoding='unicode') for child in element.getchildren())
 
+    def get_id_of(self, locator):
+        xpath = six.text_type(locator)
+        element = self.xpath(xpath)[0]
+        return element.attrib['id']
+        
 
 class WidgetTester(BasicBrowser):
     """A WidgetTester is used to render the contents of a :class:`reahl.web.fw.Widget` instance.
@@ -441,24 +446,33 @@ class XPath(object):
     @classmethod
     def input_labelled(cls, label):
         """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
-        for_based_xpath = '//input[@name=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label
+        for_based_xpath = '//input[@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label
         nested_xpath = '//label[normalize-space()=normalize-space("%s")]//input' % label
         return cls('%s|%s' % (for_based_xpath, nested_xpath))
 
     @classmethod
     def select_labelled(cls, label):
         """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
-        return cls('//select[@name=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
+        return cls('//select[@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
 
     @classmethod
     def input_of_type(cls, input_type):
         """Returns an XPath to find an HTML <input> with type attribute `input_type`."""
         return '//input[@type="%s"]' % input_type
 
+    @deprecated('Please use fieldset_with_legend() instead.', '3.2')
     @classmethod
     def inputgroup_labelled(cls, label):
         """Returns an XPath to find an InputGroup with label text `label`."""
         return cls('//fieldset[label[normalize-space(node())=normalize-space("%s")]]' % label)
+
+    @classmethod
+    def fieldset_with_legend(cls, legend_text):
+        """Returns an XPath to find a FieldSet with the given `legend_text`.
+
+        .. versionadded:: 3.2
+        """
+        return cls('//fieldset[legend[normalize-space(node())=normalize-space("%s")]]' % legend_text)
 
     @classmethod
     def button_labelled(cls, label, **arguments):

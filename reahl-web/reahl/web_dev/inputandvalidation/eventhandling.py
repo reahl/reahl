@@ -560,7 +560,8 @@ def form_input_validation(fixture):
     browser.click('//input[@type="submit"]')
     vassert( not hasattr(model_object, 'field_name') )        
     label = browser.get_html_for('//label')
-    vassert( label == '<label for="field_name" class="error">field_name should be a valid email address</label>' )
+    input_id = browser.get_id_of('//input[@type="text"]')
+    vassert( label == '<label for="%s" class="error">field_name should be a valid email address</label>' % input_id )
 
     vassert( Session.query(UserInput).filter_by(key='field_name').count() == 1 ) # The invalid input was persisted
     exception = Session.query(PersistedException).one().exception

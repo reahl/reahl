@@ -123,7 +123,7 @@ def adding_basic_input(fixture):
     
     # form-group has a label, correctly set up for bootstrap
     vassert( label.tag == 'label' )
-    vassert( label.attrib['for'] == 'an_attribute' )
+    vassert( label.attrib['for'] == input_widget.attrib['id'] )
     vassert( label.text == 'Some input' )
     
     # form-group has an input, correctly set up for bootstrap
