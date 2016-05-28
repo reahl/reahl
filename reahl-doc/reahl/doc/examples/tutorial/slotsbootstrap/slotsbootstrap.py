@@ -4,13 +4,12 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize, PageLayout
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, PageLayout
 
 
 class MyCustomPage(HTML5Page):
     def __init__(self, view, bookmarks):
         super(MyCustomPage, self).__init__(view)
-        self.body.use_layout(Container())
 
         contents_layout = ColumnLayout(('secondary', ResponsiveSize(md=3)),
                                        ('main', ResponsiveSize(md=9))).with_slots()

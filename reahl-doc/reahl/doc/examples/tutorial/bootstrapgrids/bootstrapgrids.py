@@ -10,7 +10,7 @@ class GridBasicsPage(HTML5Page):
     def __init__(self, view):
         super(GridBasicsPage, self).__init__(view)
 
-        self.body.use_layout(Container())
+        self.body.use_layout(Container())    
 
         self.add_twelve()
         self.add_two()
@@ -37,8 +37,6 @@ class GridBasicsPage(HTML5Page):
 class PageLayoutPage(HTML5Page):
     def __init__(self, view):
         super(PageLayoutPage, self).__init__(view)
-
-        self.body.use_layout(Container())
 
         column_layout = ColumnLayout(('left', ResponsiveSize(md=4)), 
                                      ('right', ResponsiveSize(md=8)))

@@ -3,9 +3,11 @@
 .. |ColumnLayout| replace:: :class:`~reahl.web.bootstrap.grid.ColumnLayout`
 .. |Div| replace:: :class:`~reahl.web.bootstrap.ui.Div`
 .. |HTMLElement| replace:: :class:`~reahl.web.ui.HTMLElement`
+.. |HTML5Page| replace:: :class:`~reahl.web.bootstrap.ui.HTML5Page`
 .. |ResponsiveSize| replace:: :class:`~reahl.web.bootstrap.grid.ResponsiveSize`
 .. |Container| replace:: :class:`~reahl.web.bootstrap.grid.Container`
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
+.. |PageLayout| replace:: :class:`~reahl.web.bootstrap.grid.PageLayout`
 
 Layout of pages
 ===============
@@ -65,9 +67,9 @@ corresponding to the second example above where the contents of the
 |HTMLElement| will fill the available width.
 
 Different areas of a site may be laid out using different
-|Container|\s. For example, you might want your pages to have, a
+|Container|\s. For example, you might want your pages to have a
 header and footer that both stretch the entire viewport width, but
-with a content area inbetween that has a fixed width, and is centered.
+with a content area inbetween that has a fixed width and is centered.
 
 Bootstrap requires that all Widgets laid out with a |ColumnLayout| be
 nested somewhere (no matter how deeply) in another which is laid out
@@ -135,7 +137,7 @@ larger (with your browser maximised), you will see two rows: one with
 equally sized.
 
 As soon as you make the browser window smaller than "md" size, things
-change, however: All the columns now stack on top of one another and
+change: All the columns now stack on top of one another and
 fill the whole width of the screen to make them more usable on the
 smaller sized screen.
 
@@ -148,9 +150,10 @@ It is often useful to layout an entire page with a header area at the
 top, a footer at the bottom, and a content area inbetween. The content
 area is also often divided into different columns.
 
-You can layout a page in this fashion by using
-:class:`~reahl.web.bootstrap.grid.PageLayout` in conjunction with a
-suitable |ColumnLayout| to be used for its content area.
+You can layout a page in this fashion by using |PageLayout| in
+conjunction with a suitable |ColumnLayout| to be used for its content
+area. A |PageLayout| additionally adds a |Container| to the body of
+the |HTML5Page| you apply it to.
 
 The "Page layout" view in our example shows how this works:
 
