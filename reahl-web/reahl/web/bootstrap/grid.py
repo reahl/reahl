@@ -15,13 +15,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-.. versionadded:: 3.2
+""".. versionadded:: 3.2
 
-This module contains tools for laying out a page or part of a page
-using a grid which resizes depending on the size of the device being
-used to browse.
+This module contains tools for controlling how elements are positioned.
 
+The main tool here is an invisible layout grid which changes depending
+on the size of the device being used to browse. The module also contains
+several other related tools.
 
 When creating a visual layout it is often useful to arrange elements
 on an invisible grid. The tools here allows building such a grid, but
@@ -39,8 +39,6 @@ can specify the size that element should have *for each class of device*.
 Bootstrap's grid system works on units of 1/12th the size of a given
 parent width. A size for a particular device class is thus an integer
 denoting a size in 1/12ths of its container's width.
-
-
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
@@ -52,16 +50,16 @@ from reahl.web.ui import Div, HTMLAttributeValueOption
 
 
 class Container(Layout):
-    """A Container Layout sets up the HTMLElement it is used with to be
-    centered and have some padding. It is mostly used only once on a
-    page -- for the entire page, but can be nested too.
-
+    """A Container Layout manages the positioning of the main areas of
+    a page. By default it ensures that the HTMLElement it is used with to be
+    has a size that stays at a fixed width per device class and that it stays
+    centered in the horizontal.
+    
     Using a Container is compulsory if you want to make use of a
     ColumnLayout.
 
-    :keyword fluid: If True, the container will fill the entire available width, else 
-         it will be a fixed size adjusted only when the size of the current browser 
-         changes past a device class threshhold.
+    :keyword fluid: If True, the container fills the entire available width.
+
     """
     def __init__(self, fluid=False):
         super(Container, self).__init__()
@@ -76,24 +74,23 @@ class Container(Layout):
 
 class PageLayout(reahl.web.layout.PageLayout):
     """A PageLayout adds a header and footer area to an
-    :class:`reahl.web.ui.HTML5Page`, as well as a content area between
-    the header and footer areas.  All of these contents are also
+    :class:`reahl.web.bootstrap.ui.HTML5Page`, as well as a content area
+    between the header and footer areas.  All of these contents are also
     wrapped in a :class:`~reahl.web.ui.Div`, which is handy for
     styling.
+
+    See :class:`reahl.web.ui.HTML5Page` for the names of these stored
+    as attributes.
 
     This is a styled version of :class:`reahl.web.layout.PageLayout` which
     additionally ensures the containing
     :attr:`~reahl.web.bootstrap.grid.HTML5Page.document` is set up to
     use a :class:`Container` layout.
 
-    See :class:`reahl.web.ui.HTML5Page` for the names of these stored
-    as attributes.
-
     :keyword fluid: If True, the page will be take up all available width. (See :class:`Container`)
     :keyword contents_layout: A :class:`~reahl.web.ui.Layout` that will be applied to the content area.
 
     .. versionadded:: 3.2
-
     """
     @arg_checks(fluid=IsInstance(bool), contents_layout=IsInstance(Layout, allow_none=True))
     def __init__(self, fluid=False, contents_layout=None):

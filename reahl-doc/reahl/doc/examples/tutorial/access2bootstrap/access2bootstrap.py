@@ -8,7 +8,7 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate, Widget
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize, PageLayout
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, H, Alert, Div, P, A
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, SelectInput,\
     CheckboxInput, FieldSet, FormLayout, ButtonLayout
@@ -149,7 +149,6 @@ class Collaborator(Base):
 class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
         super(AddressAppPage, self).__init__(view)
-        self.body.use_layout(Container())
         self.use_layout(PageLayout())
         contents_layout = ColumnLayout(('main', ResponsiveSize(md=6))).with_slots()
         self.layout.contents.use_layout(contents_layout)

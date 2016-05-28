@@ -154,7 +154,6 @@ FieldSet
 ~~~~~~~~
 
    .. |FieldSet| replace:: :class:`~reahl.web.ui.FieldSet`
-   .. |Label| replace:: :class:`~reahl.web.ui.Label`
 
    A |FieldSet| could be constructed with the keyword argument `label_text`
    in which case a :class:`~reahl.web.ui.Label` would be added at the 
