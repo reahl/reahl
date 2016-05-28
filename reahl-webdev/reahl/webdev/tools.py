@@ -33,6 +33,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.component.decorators import deprecated
 from reahl.web.fw import Url
 
 
