@@ -6,6 +6,7 @@ The user interface -- without access control
 .. sidebar:: Examples in this section
 
    - tutorial.access2
+   - tutorial.access2bootstrap
 
    Get a copy of an example by running:
 

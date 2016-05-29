@@ -14,8 +14,11 @@ Security and access control
 .. sidebar:: Examples in this section
 
    - tutorial.access1
+   - tutorial.access1bootstrap
    - tutorial.access2
+   - tutorial.access2bootstrap
    - tutorial.access
+   - tutorial.accessbootstrap
 
    Get a copy of an example by running:
 

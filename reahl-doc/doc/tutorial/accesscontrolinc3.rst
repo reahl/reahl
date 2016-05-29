@@ -6,6 +6,7 @@ Adding the access control
 .. sidebar:: Examples in this section
 
    - tutorial.access
+   - tutorial.accessbootstrap
 
    Get a copy of an example by running:
 

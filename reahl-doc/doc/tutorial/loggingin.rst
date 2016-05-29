@@ -6,7 +6,9 @@ Re-use: Allowing users to log in to your system
 .. sidebar:: Examples in this section
 
    - tutorial.login1
+   - tutorial.login1bootstrap
    - tutorial.login2
+   - tutorial.login2bootstrap
 
    Get a copy of an example by running:
 
