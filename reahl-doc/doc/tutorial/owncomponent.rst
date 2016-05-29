@@ -6,8 +6,11 @@ Developing your own component
 .. sidebar:: Examples in this section
 
    - tutorial.componentconfig
+   - tutorial.componentconfigbootstrap
    - tutorial.migrationexample
+   - tutorial.migrationexamplebootstrap
    - tutorial.jobs
+   - tutorial.jobsbootstrap
 
    Get a copy of an example by running:
 

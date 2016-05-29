@@ -6,6 +6,7 @@ Internationalised applications
 .. sidebar:: Examples in this section
 
    - tutorial.i18nexample
+   - tutorial.i18nexamplebootstrap
 
    Get a copy of an example by running:
 

@@ -6,6 +6,7 @@ A basic model
 .. sidebar:: Examples in this section
 
    - tutorial.access1
+   - tutorial.access1bootstrap
 
    Get a copy of an example by running:
 

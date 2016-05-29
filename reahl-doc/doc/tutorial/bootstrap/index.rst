@@ -21,11 +21,11 @@ become the only out-of-the-box styled Widgets supported -- our current
 home-grown styled Widgets will disappear.
 
 The experimental support for Bootstrap 4 is included here so that we
-can gain experience with these ideas so long, and so that you can
+can gain experience with these ideas in the meantime, and so that you can
 start using them to see how they work.
 
-The version of Bootstrap included in this version is a vanilla version
-of Bootstrap 4 alpha. There is no supported way to change Bootstrap
+The version of Bootstrap included here is a vanilla version
+of Bootstrap 4 alpha 2. There is no supported way to change Bootstrap
 variables and recompile using Sass. That will change in future. There
 are ways around this limitation if you know what you're doing. Please
 `talk to us on the mailing list

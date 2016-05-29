@@ -60,7 +60,7 @@ Bootstrap library.)
 The :mod:`~reahl.web.layout` module houses generically applicable concepts.
 |PageLayout| is meant to be used with an
 HTML5Page. It changes the page to have a header
-and footer with a content area inbetween. If a |pure.ColumnLayout|
+and footer with a content area in between. If a |pure.ColumnLayout|
 (for example) is passed to the |PageLayout| constructor,
 it will automatically be used as the layout of the content area of the page.
 

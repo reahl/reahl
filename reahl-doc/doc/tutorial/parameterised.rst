@@ -14,8 +14,8 @@ Parameterised  Views
 .. sidebar:: Examples in this section
 
    - tutorial.parameterised1
-   - tutorial.parameterised2
    - tutorial.parameterised1bootstrap
+   - tutorial.parameterised2
    - tutorial.parameterised2bootstrap
 
    Get a copy of an example by running:

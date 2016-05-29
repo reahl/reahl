@@ -6,6 +6,7 @@ The web session problem
 .. sidebar:: Examples in this section
 
    - tutorial.sessionscope
+   - tutorial.sessionscopebootstrap
 
    Get a copy of an example by running:
 

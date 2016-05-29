@@ -6,8 +6,8 @@ Moving between Views
 .. sidebar:: Examples in this section
 
    - tutorial.pageflow1
-   - tutorial.pageflow2
    - tutorial.pageflow1bootstrap
+   - tutorial.pageflow2
    - tutorial.pageflow2bootstrap
 
    Get a copy of an example by running:
