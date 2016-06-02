@@ -7,9 +7,10 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
+from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, FieldSet
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, PageLayout
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.context import ExecutionContext
@@ -31,7 +32,7 @@ class AddressBookUI(UserInterface):
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view)
-        self.use_layout(PageLayout())
+        self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(('main', ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
 

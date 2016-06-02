@@ -2,11 +2,13 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 from reahl.web.fw import UserInterface
+from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P, Alert
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, PasswordInput
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, PageLayout
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
 from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSession
 
 
@@ -14,7 +16,7 @@ from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSes
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(MenuPage, self).__init__(view)
-        self.use_layout(PageLayout())
+        self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(('main', ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
         self.layout.header.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(main_bookmarks))
