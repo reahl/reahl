@@ -12,8 +12,8 @@ def lots_of(message):
 class LayoutUI(UserInterface):
     def assemble(self):
         contents_layout = ColumnLayout(('secondary', UnitSize(default='1/3')), 
-                                       ('main', UnitSize(default='2/3')))
-        page_layout = PageLayout(contents_layout=contents_layout.with_slots())
+                                       ('main', UnitSize(default='2/3'))).with_slots()
+        page_layout = PageLayout(contents_layout=contents_layout)
         self.define_page(HTML5Page, style='basic').use_layout(page_layout)  
 
         home = self.define_view('/', title='Layout demo')

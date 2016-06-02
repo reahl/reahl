@@ -88,7 +88,9 @@
         <class locator="reahl.doc.examples.tutorial.jobs.jobs:Address"/>
         <class locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.table.table:Address"/>
+        <class locator="reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
+        <class locator="reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap:Address"/>
   </persisted>
 
   <schedule locator="reahl.doc.examples.tutorial.jobs.jobs:Address.clear_added_flags"/>
