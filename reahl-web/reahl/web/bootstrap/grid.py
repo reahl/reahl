@@ -72,36 +72,6 @@ class Container(Layout):
         self.widget.append_class(container_class)
 
 
-class PageLayout(reahl.web.layout.PageLayout):
-    """A PageLayout adds a header and footer area to an
-    :class:`reahl.web.bootstrap.ui.HTML5Page`, as well as a content area
-    between the header and footer areas.  All of these contents are also
-    wrapped in a :class:`~reahl.web.ui.Div`, which is handy for
-    styling.
-
-    See :class:`reahl.web.ui.HTML5Page` for the names of these stored
-    as attributes.
-
-    This is a styled version of :class:`reahl.web.layout.PageLayout` which
-    additionally ensures the containing
-    :attr:`~reahl.web.bootstrap.grid.HTML5Page.document` is set up to
-    use a :class:`Container` layout.
-
-    :keyword fluid: If True, the page will be take up all available width. (See :class:`Container`)
-    :keyword contents_layout: A :class:`~reahl.web.ui.Layout` that will be applied to the content area.
-
-    .. versionadded:: 3.2
-    """
-    @arg_checks(fluid=IsInstance(bool), contents_layout=IsInstance(Layout, allow_none=True))
-    def __init__(self, fluid=False, contents_layout=None):
-        super(PageLayout, self).__init__(contents_layout=contents_layout)
-        self.fluid = fluid
-
-    def customise_widget(self):
-        super(PageLayout, self).customise_widget()
-        self.document.use_layout(Container(fluid=self.fluid))
-
-
 class DeviceClass(HTMLAttributeValueOption):
     device_classes = ['xs', 'sm', 'md', 'lg', 'xl']
 
