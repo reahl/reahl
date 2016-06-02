@@ -24,9 +24,10 @@ _ = Translator('reahl-doc')
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view)
+        self.use_layout(PageLayout())
         contents_layout = ColumnLayout(('secondary', ResponsiveSize(md=3)),
                                        ('main', ResponsiveSize(md=9))).with_slots()
-        self.use_layout(PageLayout(contents_layout=contents_layout))
+        self.layout.contents.use_layout(contents_layout)
         nav = Nav(view).use_layout(PillLayout(stacked=True))
         contents_layout.columns['secondary'].add_child(nav.with_languages())
 

@@ -3388,6 +3388,7 @@ class Table(HTMLElement):
         if summary:
             self.set_attribute('summary', '%s' % summary)
 
+    @deprecated('Please use with_data instead.', '3.2')
     @classmethod
     def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
         """Creates a table populated with rows, columns, header and footer, with one row per provided item. The table is
@@ -3405,6 +3406,19 @@ class Table(HTMLElement):
         table.create_header_columns(columns)
         table.create_rows(columns, items)
         return table
+
+    def with_data(self, columns, items):
+        """Populate the table with the given data. Data is arranged into columns as
+           defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.  
+
+           :param columns: The :class:`reahl.web.ui.DynamicColumn` instances that define the contents of the table.
+           :param items: A list containing objects represented in each row of the table.
+        """
+        if self.thead:
+            raise ProgrammerError('This table has already been populated.')
+        self.create_header_columns(columns)
+        self.create_rows(columns, items)
+        return self
 
     def create_header_columns(self, columns):
         table_header = self.add_child(Thead(self.view))
