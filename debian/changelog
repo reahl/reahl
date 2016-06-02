@@ -31,6 +31,8 @@ python-reahl (3.2.0) unstable; urgency=low
  * Added bootstrap flavour of Javascript Dialog and its Buttons. This works differently, there are no Button objects, rather JsFunction and add_js_button.
  * Changed FieldSets to have Legends instead of Labels.
  * Changed the for= attribute on an Input's Label to refer to the Input control css_id.
+ * Changed the way tables are filled with data: use with_data() instead of from_columns().
+ * Changed QueryAsSequence to deal properly with mapped items and slicing.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Aug 2015 14:56:00 +0200
 

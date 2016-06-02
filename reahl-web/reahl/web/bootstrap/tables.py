@@ -131,7 +131,7 @@ class TablePageIndex(SequentialPageIndex):
 
 
 class PagedTable(PagedPanel):
-    def __init__(self, view, page_index, columns, caption_text=None, summary=None, css_id=None):
+    def __init__(self, view, page_index, columns, caption_text=None, summary=None, table_layout=None, css_id=None):
         super(PagedTable, self).__init__(view, page_index, css_id=css_id)
 
         def make_heading_with_sort_controls(column_number, column, view):
@@ -149,10 +149,10 @@ class PagedTable(PagedPanel):
             make_heading_partial = functools.partial(make_heading_with_sort_controls, i, column)
             columns_with_sort_controls.append(column.with_overridden_heading_widget(make_heading_partial))
 
-        self.table = self.add_child(Table.from_columns(view, columns_with_sort_controls,
-                                                  self.current_contents,
-                                                  caption_text=caption_text,
-                                                  summary=summary))
+        self.table = self.add_child(Table(view, caption_text=caption_text, summary=summary))
+        if table_layout:
+            self.table.use_layout(table_layout)
+        self.table.with_data(columns_with_sort_controls, self.current_contents)
 
     def create_sorter_link(self, column_number, heading_widget):
         show_control = (column_number == self.page_index.sort_column_number)
@@ -209,11 +209,10 @@ class DataTable(Div):
         self.page_index = TablePageIndex(columns, items, items_per_page=items_per_page)
 
         paged_css_id = '%s_paged' % css_id
-        self.paged_contents = PagedTable(view, self.page_index, columns, caption_text=caption_text, summary=summary, css_id=paged_css_id)
+        self.paged_contents = PagedTable(view, self.page_index, columns, caption_text=caption_text, summary=summary, 
+                                         table_layout=table_layout, css_id=paged_css_id)
         self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.paged_contents)
         self.add_children([self.page_menu, self.paged_contents])
-        if table_layout:
-            self.table.use_layout(table_layout)
 
     @property
     def table(self):

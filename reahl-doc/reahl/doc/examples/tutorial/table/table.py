@@ -18,7 +18,8 @@ from reahl.component.modelinterface import exposed, EmailField, Field, Event, In
 class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
-        self.use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+        self.use_layout(PageLayout())
+        self.layout.contents.use_layout(ColumnLayout('main').with_slots())
         menu = Menu(view).use_layout(HorizontalLayout()).with_bookmarks(main_bookmarks)
         self.layout.header.add_child(menu)
 
@@ -92,12 +93,8 @@ class AddressBookPanel(Div):
                    DynamicColumn('', make_link_widget),
                    DynamicColumn(make_delete_selected_button, make_checkbox_widget)]
 
-        table = Table.from_columns(view,
-                                columns,
-                                self.rows,
-                                caption_text='All my friends',
-                                summary='Summary for screen reader',
-                                css_id='address_data')
+        table = Table(view, caption_text='All my friends', summary='Summary for screen reader')
+        table.with_data(columns, self.rows)
 
         form.add_child(table)
 
