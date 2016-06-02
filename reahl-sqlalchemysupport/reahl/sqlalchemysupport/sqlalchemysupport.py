@@ -111,19 +111,26 @@ Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=m
 
 class QueryAsSequence(Sequence):
     """Used to wrap a SqlAlchemy Query so that it looks like a normal Python :class:`Sequence`."""
-    def __init__(self, query):
+    def __init__(self, query, wrap_instance=lambda instance: instance):
         self.original_query = query
         self.query = query
+        self.wrap_instance = wrap_instance
+
     def __len__(self):
         return self.query.count()
+
     def __getitem__(self, key):
-        return self.query[key]
+        if isinstance(key, slice):
+            return [self.wrap_instance(i) for i in self.query[key]]
+        else:
+            return self.wrap_instance(self.query[key])
+
     def sort(self, key=None, reverse=False):
         if key:
             if not reverse:
-                self.query = self.original_query.order_by(key)
+                self.query = self.original_query.order_by(None).order_by(key)
             else:
-                self.query = self.original_query.order_by(key.desc())
+                self.query = self.original_query.order_by(None).order_by(key.desc())
         else:
             self.query = self.original_query
 

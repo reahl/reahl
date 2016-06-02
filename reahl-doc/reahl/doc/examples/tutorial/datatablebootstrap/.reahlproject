@@ -1,0 +1,23 @@
+<project type="egg">
+  <deps purpose="run">
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-declarative"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+  <persisted>
+    <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
+  </persisted>
+  
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=datatablebootstrap_dev -t -i'.*'"/>
+  <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap_dev.datatablebootstraptests:DemoSetup" />
+
+</project>

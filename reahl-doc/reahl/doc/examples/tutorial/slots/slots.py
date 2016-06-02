@@ -11,9 +11,10 @@ class MyCustomPage(HTML5Page):
     def __init__(self, view, bookmarks):
         super(MyCustomPage, self).__init__(view, style='basic')
 
+        self.use_layout(PageLayout())
         contents_layout = ColumnLayout(('secondary', UnitSize('1/4')), 
                                        ('main', UnitSize('3/4'))).with_slots()
-        self.use_layout(PageLayout(contents_layout=contents_layout))
+        self.layout.contents.use_layout(contents_layout)
 
         menu = Menu(view).use_layout(HorizontalLayout()).with_bookmarks(bookmarks)
         self.layout.header.add_child(menu)

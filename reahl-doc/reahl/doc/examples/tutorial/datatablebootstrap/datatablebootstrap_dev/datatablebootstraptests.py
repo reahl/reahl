@@ -6,13 +6,18 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.doc.examples.tutorial.datatable.datatable import AddressBookUI, Address
+from reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap import AddressBookUI, Address
 
 
 class DataTableExampleFixture(WebFixture):
 
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
+
+    def new_webconfig(self):
+        webconfig = super(DataTableExampleFixture, self).new_webconfig()
+        webconfig.frontend_libraries.enable_experimental_bootstrap()
+        return webconfig
 
     def new_addresses(self):
         addresses = [Address(name='friend %s' % i, email_address='friend%s@some.org' % i, zip_code=i) for i in list(range(1, 201))]
@@ -29,8 +34,8 @@ class DataTableExampleFixture(WebFixture):
     def number_of_rows_in_table(self):
         return len(self.browser.xpath('//table/tbody/tr'))
 
-    def sort_descending_link_for_column(self, column_heading):
-        return '//table/thead/tr/th/span[1][text()="%s"]/../span[2]/a[2]' % column_heading
+    def heading_link_for_column(self, column_heading):
+        return '//table/thead/tr/th/a/span[text()="%s"]/..' % column_heading
 
 
 class DemoSetup(DataTableExampleFixture):
@@ -50,17 +55,17 @@ def editing_an_address(fixture):
 
     all_addresses = fixture.addresses    #create some data to play with
 
-    original_address_name = 'friend 104'   #choose the seventh address to edit
+    original_address_name = 'friend 7'   #choose the seventh address to edit
 
     fixture.browser.open('/')
     fixture.browser.click(XPath.link_with_text('Edit', nth=7))
 
     assert fixture.is_on_edit_page_for(original_address_name)
-    fixture.browser.type(XPath.input_labelled('Name'), 'friend 104-changed')
+    fixture.browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
     fixture.browser.type(XPath.input_labelled('Email'), 'johndoe@some.changed.org')
     fixture.browser.click(XPath.button_labelled('Update'))
 
-    assert fixture.address_is_listed_as('friend 104-changed')
+    assert fixture.address_is_listed_as('John Doe-changed')
     assert fixture.address_is_listed_as('johndoe@some.changed.org')
     assert not fixture.address_is_listed_as(original_address_name)
 
@@ -76,13 +81,13 @@ def pageable_table(fixture):
 
     assert fixture.number_of_rows_in_table() == 10
     assert fixture.address_is_listed_as('friend 1')
-    assert not fixture.address_is_listed_as('friend 108')
+    assert not fixture.address_is_listed_as('friend 11')
 
     fixture.browser.click(XPath.link_with_text('2'))
 
     assert fixture.number_of_rows_in_table() == 10
-    assert fixture.address_is_listed_as('friend 108')
-    assert not fixture.address_is_listed_as('friend 118')
+    assert fixture.address_is_listed_as('friend 11')
+    assert not fixture.address_is_listed_as('friend 21')
 
 
 @test(DataTableExampleFixture)
@@ -94,18 +99,19 @@ def sorting_by_column(fixture):
 
     fixture.browser.open('/')
 
-    assert fixture.address_is_listed_as('friend 1')
+    assert fixture.address_is_listed_as('friend 1') # Initially data is sorted in the order given
+    assert fixture.address_is_listed_as('friend 2')
+    assert fixture.address_is_listed_as('friend 3')
+    assert fixture.address_is_listed_as('friend 4')
+    assert fixture.address_is_listed_as('friend 5')
+    assert fixture.address_is_listed_as('friend 6')
+    assert fixture.address_is_listed_as('friend 7')
+    assert fixture.address_is_listed_as('friend 8')
+    assert fixture.address_is_listed_as('friend 9')
     assert fixture.address_is_listed_as('friend 10')
-    assert fixture.address_is_listed_as('friend 100')
-    assert fixture.address_is_listed_as('friend 101')
-    assert fixture.address_is_listed_as('friend 102')
-    assert fixture.address_is_listed_as('friend 103')
-    assert fixture.address_is_listed_as('friend 104')
-    assert fixture.address_is_listed_as('friend 105')
-    assert fixture.address_is_listed_as('friend 106')
-    assert fixture.address_is_listed_as('friend 107')
 
-    fixture.browser.click(fixture.sort_descending_link_for_column('Zip'))
+    fixture.browser.click(fixture.heading_link_for_column('Zip'))# Ascending sort
+    fixture.browser.click(fixture.heading_link_for_column('Zip'))# Another click sorts it descending
 
     assert fixture.address_is_listed_as('friend 200')
     assert fixture.address_is_listed_as('friend 199')
