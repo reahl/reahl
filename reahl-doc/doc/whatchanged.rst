@@ -195,5 +195,20 @@ Menu
     - :meth:`~reahl.web.ui.Menu.add_a`
     - :meth:`~reahl.web.ui.Menu.add_submenu`
 
+Table
+~~~~~
 
+   .. |Table| replace:: :class:`~reahl.web.ui.Table`
 
+   A |Table| could previously be created pre-populated with a set of
+   defined columns and a bunch of rows generated from given data by
+   using :meth:`~reahl.web.ui.Table.from_columns`.
+
+   This method has now been deprecated. The same effect can now be 
+   achieved by calling :meth:`~reahl.web.ui.Table.with_data` on an
+   already created |Table|\.
+   
+   This was done to allow one to use a |Layout| on the |Table|\, which
+   would not be possible before. (A |Layout| has to be attached
+   to its |Table| before data is added to the |Table| so that the 
+   added rows adhere to the |Layout|.)
