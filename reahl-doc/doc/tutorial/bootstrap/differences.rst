@@ -25,9 +25,9 @@ Basic Widgets
 
 .. |ui| replace:: :mod:`reahl.web.bootstrap.ui`
 
-Simple Widgets are located in |ui|\. These
-include Widgets that represent HTML (but styled versions) and a very
-small number of equally basic Widgets. 
+Simple Widgets are located in |ui|\. These include Widgets that
+represent HTML (but styled versions) and a very small number of
+equally basic Widgets.
 
 Whereas the standard :mod:`reahl.web.ui` module includes all basic Widgets, |ui|
 excludes basic Widgets that pertain to larger topics that were split out into 

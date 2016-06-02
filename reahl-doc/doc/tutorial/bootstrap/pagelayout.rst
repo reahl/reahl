@@ -147,7 +147,7 @@ Laying out a whole page
 -----------------------
 
 It is often useful to layout an entire page with a header area at the
-top, a footer at the bottom, and a content area inbetween. The content
+top, a footer at the bottom, and a content area in between. The content
 area is also often divided into different columns.
 
 You can layout a page in this fashion by using |PageLayout| in
