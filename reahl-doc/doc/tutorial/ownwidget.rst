@@ -68,19 +68,18 @@ There are two aspects to this problem:
     You need a way to include CSS/JavaScript files to be packaged with your Python egg.
 
  inclusion on a web page:
-    You need a way to include each file on every :class:`~reahl.web.ui.HTML5Page` of your app.
+    You need a way to include each CSS/JS file on every :class:`~reahl.web.ui.HTML5Page` of your app.
 
 The :mod:`reahl.web.libraries` module includes the tools you need to
 fulfill these tasks.
 
-In short, you just put your JavaScript or CSS files somewhere
-in the directory of one of your Python packages. Then you create a
-:class:`~reahl.web.libraries.Library` subclass which represents your
-project's JavaScript and CSS code. (The frontend-code of your project.)
+In short, you just put your JavaScript or CSS files somewhere in the
+directory of one of your Python packages. Then you create a |Library|
+subclass which represents your project's JavaScript and CSS code. (The
+frontend-code of your project.)
 
 Lastly, you need to change your configuration to include your new
-:class:`~reahl.web.libraries.Library`. This is done in file file
-`web.config.py`:
+|Library|. This is done in file file `web.config.py`:
 
 .. code:: Python
 
@@ -142,17 +141,17 @@ Well, it turns out you can.
 
 There are three steps to this: 
 
- #. creating a JavaScript widget (the code re-used by each instance); 
+ #. write the code for a JavaScript widget (the code re-used by each instance); 
 
- #. including that code on your pages; and
+ #. include that code on your pages; and
 
- #. creating a JavaScript instance for each instance of your |Widget| on page load.
+ #. instantiate a JavaScript instance for each rendered instance of your |Widget| on page load.
 
 Since we've already covered distributing and including JavaScript code
 on your pages, let's skip that middle step here. As for the other two:
 
-Creating a JavaScript widget
-""""""""""""""""""""""""""""
+Write code for a JavaScript widget
+""""""""""""""""""""""""""""""""""
 
 .. sidebar:: A word about terminology
 
@@ -160,11 +159,11 @@ Creating a JavaScript widget
    called a "widget" in JQuery UI parlance. It makes sense in their
    world, because a JQuery UI widget is written in JavaScript
    only. Reahl uses this infrastructure to let you build the
-   JavaScript side of a Reahl |Widget|.
+   JavaScript *side* of a Reahl |Widget|.
 
 What works quite well with such code is to put the JavaScript half of
 your |Widget| into what JQuery UI calls a "JavaScript widget". This is
-something that is very much like class in JavaScript that is attached
+something that is very much like a class in JavaScript that is attached
 to an |HTMLElement| which represents your |Widget| in the browser DOM.
 
 Here is an example of how we do it:
@@ -202,8 +201,8 @@ Here is an example of how we do it:
    })(jQuery);
 
 
-Creating JavaScript instances
-"""""""""""""""""""""""""""""
+Instantiating JavaScript instances
+""""""""""""""""""""""""""""""""""
 
 Your |Widget| must be represented in HTML by some |HTMLElement|. Let's
 assume it is a :class:`~reahl.web.ui.Div` for argument's sake.
@@ -216,7 +215,7 @@ JavaScript like this:
 
    $("div.mywidget").mywidgetjs("{message:'Hello there'}")
 
-Reahl has a mechanism by which a |Widget| can register such such a
+Reahl has a mechanism by which a |Widget| can register such a
 small JavaScript snippet for execution on page load. The Python class
 of your |Widget| only needs to implement a
 :meth:`reahl.web.fw.Widget.get_js` method. Reahl collects all such
