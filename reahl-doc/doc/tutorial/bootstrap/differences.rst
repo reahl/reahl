@@ -113,9 +113,9 @@ create a page with several columns. In Reahl 3.2 the same results can
 be achieved by using a :class:`reahl.web.layout.PageLayout` that uses
 a :class:`reahl.web.pure.ColumnLayout` for its contents area.
 
-This new arrangement has a Bootstrap equivalent: use 
-:class:`reahl.web.bootstrap.grid.PageLayout` in conjunction with a
-with :class:`reahl.web.bootstrap.grid.ColumnLayout` for its contents.
+This new arrangement works with Bootstrap as well: use
+:class:`reahl.web.layout.PageLayout` in conjunction with a with
+:class:`reahl.web.bootstrap.grid.ColumnLayout` for its contents.
 
 Bootstrap's :class:`reahl.web.bootstrap.grid.ResponsiveSize` works
 differently to Pure's :class:`reahl.web.pure.UnitSize`: with Pure, you
@@ -128,7 +128,7 @@ stated as integers and their meaning is always "how many 1/12ths". Ie:
   ============================================  ======================================================
    :class:`reahl.web.pure.PageColumnLayout`     Deprecated
 
-   :class:`reahl.web.layout.PageLayout`         :class:`reahl.web.bootstrap.grid.PageLayout`
+   :class:`reahl.web.layout.PageLayout`         :class:`reahl.web.layout.PageLayout`
    :class:`reahl.web.pure.ColumnLayout`         :class:`reahl.web.bootstrap.grid.ColumnLayout`
 
    :class:`reahl.web.pure.UnitSize`             :class:`reahl.web.bootstrap.grid.ResponsiveSize` 

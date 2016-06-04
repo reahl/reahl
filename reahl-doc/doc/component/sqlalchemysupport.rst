@@ -31,7 +31,8 @@ QueryAsSequence
 
 .. autoclass:: QueryAsSequence
    :members:
-
+   :special-members:
+   :exclude-members: __weakref__
 
 PersistedField
 """"""""""""""

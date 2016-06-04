@@ -3395,7 +3395,7 @@ class Table(HTMLElement):
            defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.  
 
            :param view: (See :class:`reahl.web.fw.Widget`)
-           :param columns: The :class:`reahl.web.ui.DynamicColumn` instances that define the contents of the table.
+           :param columns: The :class:`DynamicColumn` instances that define the contents of the table.
            :param items: A list containing objects represented in each row of the table.
            :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
            :keyword summary: If given, a `summary` attribute is added to the table containing this text.
@@ -3411,7 +3411,7 @@ class Table(HTMLElement):
         """Populate the table with the given data. Data is arranged into columns as
            defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.  
 
-           :param columns: The :class:`reahl.web.ui.DynamicColumn` instances that define the contents of the table.
+           :param columns: The :class:`DynamicColumn` instances that define the contents of the table.
            :param items: A list containing objects represented in each row of the table.
         """
         if self.thead:

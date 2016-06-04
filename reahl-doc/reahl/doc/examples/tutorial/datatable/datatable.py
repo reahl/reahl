@@ -73,7 +73,7 @@ class Row(object):
 class AddressBookPanel(Div):
     def __init__(self, view, address_book_ui):
         super(AddressBookPanel, self).__init__(view)
-        self.rows = QueryAsSequence(Session.query(Address).order_by(Address.id), wrap_instance=lambda address: Row(address))
+        self.rows = QueryAsSequence(Session.query(Address).order_by(Address.id), map_function=lambda address: Row(address))
 
         self.add_child(H(view, 1, text='Addresses'))
         

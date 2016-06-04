@@ -16,13 +16,6 @@ Module reahl.web.bootstrap.grid
 .. automodule:: reahl.web.bootstrap.grid
 
 
-PageLayout
-""""""""""
-
-.. autoclass:: PageLayout
-   :members:
-
-
 Container
 """""""""
 

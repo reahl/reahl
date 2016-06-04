@@ -23,7 +23,6 @@ import six
 import weakref
 from contextlib import contextmanager
 import logging
-from collections import Sequence
 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
@@ -109,31 +108,45 @@ class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
 Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
 
 
-class QueryAsSequence(Sequence):
-    """Used to wrap a SqlAlchemy Query so that it looks like a normal Python :class:`Sequence`."""
-    def __init__(self, query, wrap_instance=lambda instance: instance):
+class QueryAsSequence(object):
+    """Used to adapt a SqlAlchemy Query to behave like a normal
+      `Python sequence type <https://docs.python.org/3/glossary.html#term-sequence>`_.
+
+      QueryAsSequence only implements a few useful methods, not the full
+      :class:`collections.abc.Sequence` protocol.
+      
+      :param query: The :class:`Query` object to adapt.
+      :keyword map_function: An optional function to map each instance returned (similar to `function` in the standard :meth:`map` function).
+    """
+    def __init__(self, query, map_function=lambda instance: instance):
         self.original_query = query
         self.query = query
-        self.wrap_instance = wrap_instance
+        self.map_function = map_function
 
     def __len__(self):
+        """Returns the number of items that would be returned by executing the query."""
         return self.query.count()
 
     def __getitem__(self, key):
+        """Returns the items requested by executing an modifed query representing only the requested slice."""
         if isinstance(key, slice):
-            return [self.wrap_instance(i) for i in self.query[key]]
+            return [self.map_function(i) for i in self.query[key]]
         else:
-            return self.wrap_instance(self.query[key])
+            return self.map_function(self.query[key])
 
     def sort(self, key=None, reverse=False):
+        """Modifies the query to be ordered as requested.
+
+        :keyword key: A SqlAlchemy `order_by criterion <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.order_by>`_ to be used for sorting.
+        :keyword reverse: If True, use descending order.
+        """
         if key:
-            if not reverse:
-                self.query = self.original_query.order_by(None).order_by(key)
-            else:
+            if reverse:
                 self.query = self.original_query.order_by(None).order_by(key.desc())
+            else:
+                self.query = self.original_query.order_by(None).order_by(key)
         else:
             self.query = self.original_query
-
 
 
 

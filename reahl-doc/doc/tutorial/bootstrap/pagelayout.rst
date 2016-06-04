@@ -62,8 +62,8 @@ size of this fixed-size area does change if a browser is resized --
 but it changes only at fixed intervals and stays centered on the
 viewport.
 
-When constructing a |Container| it can be set to be "fluid",
-corresponding to the second example above where the contents of the
+When constructing a |Container| it can be set to be "fluid" in order
+to make it behave like the second example above where the contents of the
 |HTMLElement| will fill the available width.
 
 Different areas of a site may be laid out using different
@@ -152,8 +152,7 @@ area is also often divided into different columns.
 
 You can layout a page in this fashion by using |PageLayout| in
 conjunction with a suitable |ColumnLayout| to be used for its content
-area. A |PageLayout| additionally adds a |Container| to the body of
-the |HTML5Page| you apply it to.
+area. 
 
 The "Page layout" view in our example shows how this works:
 
