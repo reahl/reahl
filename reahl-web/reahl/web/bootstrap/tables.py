@@ -14,13 +14,18 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-.. versionadded:: 3.2
+""".. versionadded:: 3.2
 
+Tables are Widgets that show data items in rows arranged into aligned columns.
+This module includes tools to help transform data for display in a Table.
 
-Widgets related to Tables and their contents.
+You can also display a Widget (such as a Button or Input) in a Table cell by using
+DynamicColumn.
 
-
+The number of data items displayed in a Table can potentially be very large. DataTable
+solves this problem by only displaying a small portion of the data, allowing a user
+to page to different pages, each containing a suitably-sized smaller list. DataTable
+can also be set up to let a user sort data according to different columns.
 
 """
 
@@ -32,7 +37,7 @@ import functools
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
-from reahl.web.fw import Bookmark, Widget
+from reahl.web.fw import Bookmark, Widget, Layout
 
 from reahl.web.ui import Caption, Col, ColGroup, Tbody, Td, Tfoot, Th, Thead, Tr, DynamicColumn, StaticColumn, \
     HTMLAttributeValueOption
@@ -51,7 +56,7 @@ class Table(reahl.web.ui.Table):
        :keyword summary:  A textual summary of the contents of the table which is not displayed visually, \
                 but may be used by a user agent for accessibility purposes.
        :keyword css_id: (See :class:`~reahl.web.ui.HTMLElement`)
-       
+
     """
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
         super(Table, self).__init__(view, caption_text=caption_text, summary=summary, css_id=css_id)
@@ -63,8 +68,8 @@ class HeadingTheme(HTMLAttributeValueOption):
         super(HeadingTheme, self).__init__(name, name is not None, constrain_value_to=['inverse', 'default'])
 
 
-class TableLayout(reahl.web.ui.Layout):
-    """A Layout for customising details of hoe a Table is displayed.
+class TableLayout(Layout):
+    """A Layout for customising details of how a Table is displayed.
 
     :keyword inverse: If True, table text is light text on dark background.
     :keyword border: If True, a border is rendered around the table and each cell.
@@ -191,14 +196,14 @@ class DataTable(Div):
        sees a subset of that data.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :param columns: The :class:`reahl.web.ui.DynamicColumn` instances that define the contents of the table.
+       :param columns: The :class:`DynamicColumn` instances that define the contents of the table.
        :param items: A list containing objects represented in each row of the table.
        :param css_id: (See :class:`HTMLElement`)
 
        :keyword items_per_page: The maximum number of rows allowed per page.
-       :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
-       :keyword summary: If given, a :class:`reahl.web.ui.Summary` is added with this text.
-       :keyword table_layout: If given, the layout is applied to the contained :class:`reahl.web.ui.Table`.
+       :keyword caption_text: If given, a :class:`Caption` is added with this text.
+       :keyword summary: If given, this text will be set as the summary of the contained :class:`Table` (See :class:`Table`).
+       :keyword table_layout: If given, the layout is applied to the contained :class:`Table`.
 
     """
     def __init__(self, view, columns, items, css_id, items_per_page=10, caption_text=None, summary=None, table_layout=None):

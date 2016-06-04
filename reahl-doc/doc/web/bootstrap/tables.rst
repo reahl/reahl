@@ -19,7 +19,7 @@ Table
       reahl example <examplename>
 
 .. autoclass:: Table
-   :members: from_columns
+   :members: with_data
 
 DynamicColumn
 """""""""""""
@@ -33,6 +33,11 @@ StaticColumn
 .. autoclass:: StaticColumn
    :members:
 
+DataTable
+"""""""""
+
+.. autoclass:: DataTable
+   :members:
 
 TableLayout
 """""""""""

@@ -109,7 +109,7 @@ class DataTable(Div):
 
        :keyword items_per_page: The maximum number of rows allowed per page.
        :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
-       :keyword summary: If given, a :class:`reahl.web.ui.Summary` is added with this text.
+       :keyword summary: If given, this text will be set as the summary of the table (See :class:`Table`).
        :keyword page_menu_layout: A :class:`MenuLayout` to use for this table's :class:`PageMenu`.
        :keyword css_id: (See :class:`HTMLElement`)
 

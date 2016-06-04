@@ -109,6 +109,16 @@ class Fixture(object):
        `new_` method is called, and the resulting object cached as a singleton for
        future accesses.
 
+       If a corresponding `del_` method exists for a given `new_`
+       method, it will be called when the Fixture is torn down. This
+       mechanism exists so you can dispose of the singleton created by
+       the `new_` method. These `del_` methods are called only for singleton
+       instances that were actually created, and in reverse order of creation
+       of each instance. Singleton instances are also torn down before any other
+       tear down logic happens (because, presumably the instances are all
+       created after all other setup occurs).
+       
+
        A Fixture instance can be used as a context manager. It is set up before 
        entering the block of code it manages, and torn down upon exiting it.
 
@@ -119,6 +129,10 @@ class Fixture(object):
        creating a method named `new_context` on a subclass. If no custom
        context is given and the fixture has a run_fixture, the run_fixture.context
        is used.
+
+       .. versionchanged:: 3.2
+          Added support for `del_` methods.
+       
     """
     factory_method_prefix = 'new'
 

@@ -120,7 +120,7 @@ class PageLayout(Layout):
     """A PageLayout creates a basic skeleton inside an :class:`reahl.web.ui.HTML5Page`, and optionally
        applies specified :class:`~reahl.web.ui.Layout`\s to parts of this skeleton.
 
-       The skeleton consists of a :class:`~reahl.web.ui.Div`, the `document` of the page, which
+       The skeleton consists of a :class:`~reahl.web.ui.Div` called the `document` of the page, which
        contains three sub-sections inside of it:
        
          - the `.header` -- the page header area where menus and banners go;
