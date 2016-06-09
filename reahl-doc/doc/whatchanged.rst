@@ -27,6 +27,13 @@ enable it are all :doc:`discussed in the tutorial
 <tutorial/bootstrap/index>` and won't be repeated here.
 
 
+Elixir
+------
+
+The Reahl 3.1 series allowed use of the `reahl-web-elixirimpl` egg which was distributed 
+with Reahl 2.x to ease transition from the 2 to 3 series. In Reahl 3.2 this usage of some
+older 2.x version eggs is no longer supported.
+
 Changes to existing layout tools
 --------------------------------
 

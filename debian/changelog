@@ -1,41 +1,31 @@
 python-reahl (3.2.0) unstable; urgency=low
 
-
+ * Added auto restart for the reahl dev webserver on filesystem changes (blueprint: reahl-serve-with-auto-reload).
+ * Added support for Bootstrap 4 alpha 2 Widgets and Layouts (blueprint: bootstrap)
  * Dropped support for elixir.
- * Changed Label to subsume what was done by InputLabel previously.
- * Added Bootstrap 3.3.4 and upgraded Jquery to 1.11.2 and jquery-blockUI to 2.70.0.
- * Added a ColumnLayout and ResponsiveSize for Bootstrap and refactored accordingly.
- * Added a layout.PageLayout to replace the pure.PageColumnLayout and can be used with bootstrap.ColumnLayout also.
- * Extract DelegatedAttributes classes from Input class
- * Introduced the InternalRedirect concept
- * Added functionality to replay_request for a MethodResult.
- * Refactored Input hierarchy to be able to handle CheckboxInput, SingleRadioButton and Input as proper Inputs and be able to deal better with Inputs wrapping other Inputs, now distinguishing between PrimitiveInputs and other types of Inputs
+ * Changed versions of Jquery to 1.11.2 and jquery-blockUI to 2.70.0.
  * Changed Browser/WidgetTester Hierarchy so get_html/get_inner_html can be used on WidgetTester too.
  * Changed xpath() on BasicBrowser to be able to deal with an XPath instance.
- * Changed HTMLElement to be able to have multiple attribute_source(s).
- * Added Nav and related layouts for bootstrap.
- * Added HTMLWidget as superclass of Input.
- * Upgraded Bootstrap to 4 alpha.
+ * Added support for del_ methods on Fixtures to tear down singleton instances created with corresponding new_ methods.
+ * Changed Label to subsume what was done by InputLabel previously.
+ * Introduced the InternalRedirect concept and functionality to replay_request for a MethodResult.
+ * Refactored Input hierarchy to be able to model WrappedInputs and other types of Inputs better.
  * Changed Menu and MenuItems to not BE Ul, Li, but HTMLWidgets with a separate html_representation.
  * Added locale kwarg to Bookmark constructor.
  * Changed reahl script to NOT override python's default behaviour re showing deprecation warnings.
- * Added a page_menu_layout kwarg to PagedPanel so you can specify the layout you want for its PageMenu; and added menu_layout to PageMenu to pass this on.
+ * Changed PageMenu to be an HTMLWidget, not a Menu.
+ * Added menu_layout kwarg to PageMenu for laying out the Menu it contains.
  * Changed how submenus are added to menus: you now call add_submenu instead of having to know about SubMenu class.
  * Changed how Menus are created: don't use from_xxx methods, rather use with_xxx after construction.
- * Deprecated use of SubMenu.
- * Changed PageMenu to be an HTMLWidget, not a Menu.
  * Deprecated sending css_id to any Widget that is not one-to-one with an HTMLElement upon construction.
- * Added auto restart for the reahl dev webserver on filesystem changes (blueprint: reahl-serve-with-auto-reload).
- * Added dependency on watchdog.
- * Changed refresh() so that it takes args in order to enable one to specify which of your query_arguments trigger an ajax update (instead of the default, which is all of them).
- * Added bootstrap flavour of Javascript Dialog and its Buttons. This works differently, there are no Button objects, rather JsFunction and add_js_button.
+ * Changed refresh() to be able to specify specific query_arguments to refresh on (instead of all).
  * Changed FieldSets to have Legends instead of Labels.
  * Changed the for= attribute on an Input's Label to refer to the Input control css_id.
  * Changed the way tables are filled with data: use with_data() instead of from_columns().
- * Changed QueryAsSequence to deal properly with mapped items and slicing.
- * Added support for del_ methods on Fixtures to tear down singleton instances created with corresponding new_ methods.
+ * Changed QueryAsSequence to deal properly with mapped items and slicing and sorting.
+ * Added a layout.PageLayout to replace the pure.PageColumnLayout and can be used with bootstrap.ColumnLayout also.
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 13 Aug 2015 14:56:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 9 Jun 2016 13:47:00 +0200
 
 python-reahl (3.1.1) unstable; urgency=low
 

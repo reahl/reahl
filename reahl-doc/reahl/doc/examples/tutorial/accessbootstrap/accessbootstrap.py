@@ -285,8 +285,7 @@ class AddressBox(Form):
         self.use_layout(FormLayout())
 
         par = self.add_child(P(view, text='%s: %s ' % (address.name, address.email_address)))
-        btn = par.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))
-        btn.use_layout(ButtonLayout(style='primary'))
+        par.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))
 
 
 class AddressBookView(UrlBoundView):
