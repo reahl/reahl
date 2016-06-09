@@ -44,7 +44,7 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
         class MainUI(UserInterface):
             def assemble(self):
                 page_layout = PageLayout(document_layout=Container(),
-                                         contents_layout=ColumnLayout(('main', ResponsiveSize(md=6))).with_slots())
+                                         contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots())
                 self.define_page(HTML5Page).use_layout(page_layout)
                 account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui', 
                                                             bookmarks=fixture.bookmarks)

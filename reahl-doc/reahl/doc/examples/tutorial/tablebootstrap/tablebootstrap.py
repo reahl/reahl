@@ -22,7 +22,7 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout = ColumnLayout(('main', ResponsiveSize(md=6))).with_slots()
+        contents_layout = ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots()
         self.layout.contents.use_layout(contents_layout)
         menu = Nav(view).use_layout(TabLayout()).with_bookmarks(main_bookmarks)
         self.layout.header.add_child(menu)

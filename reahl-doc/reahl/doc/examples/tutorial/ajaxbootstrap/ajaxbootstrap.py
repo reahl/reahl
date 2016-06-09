@@ -12,7 +12,8 @@ from reahl.component.modelinterface import exposed, IntegerField
 
 class WidgetRefreshUI(UserInterface):
     def assemble(self):
-        page_layout = PageLayout(document_layout=Container(), contents_layout=ColumnLayout(('main', ResponsiveSize(md=6))).with_slots())
+        page_layout = PageLayout(document_layout=Container(),
+                                 contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots())
         self.define_page(HTML5Page).use_layout(page_layout)
         find = self.define_view('/', title='Refreshing widget')
         find.set_slot('main', HomePanel.factory())
