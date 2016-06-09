@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2016-02-16 12:08+0200\n"
+"POT-Creation-Date: 2016-06-09 11:57+0200\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/web/dhtml.py:60 reahl/web/fw.py:571
+#: reahl/web/dhtml.py:60 reahl/web/fw.py:579
 msgid "Untitled"
 msgstr "Ongetiteld"
 
@@ -25,65 +25,69 @@ msgstr "Ongetiteld"
 msgid "Invalid data supplied"
 msgstr "Ongeldige data verskaf"
 
-#: reahl/web/ui.py:181
+#: reahl/web/ui.py:207
 msgid "An error occurred when contacting the server. Please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:182
+#: reahl/web/ui.py:208
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 "Die bediener het te lank gevat om te antwoord. Probeer asseblief later "
 "weer."
 
-#: reahl/web/ui.py:2890
+#: reahl/web/ui.py:3026 reahl/web/bootstrap/files.py:183
 msgid "Upload"
 msgstr "Laai op"
 
-#: reahl/web/ui.py:2891
+#: reahl/web/ui.py:3027 reahl/web/bootstrap/files.py:184
 msgid "Remove"
 msgstr "Neem weg"
 
-#: reahl/web/ui.py:2916
+#: reahl/web/ui.py:3036 reahl/web/bootstrap/files.py:192
+msgid "Add file"
+msgstr "Voeg lêer by"
+
+#: reahl/web/ui.py:3054 reahl/web/bootstrap/files.py:211
 msgid "an error occurred, please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:2918
+#: reahl/web/ui.py:3056 reahl/web/bootstrap/files.py:213
 msgid "Cancel"
 msgstr "Kanselleer"
 
-#: reahl/web/ui.py:2920
+#: reahl/web/ui.py:3058 reahl/web/bootstrap/files.py:215
 msgid "Please try again when all files have finished uploading."
 msgstr "Probeer asseblief weer nadat alle lêers opgelaai het."
 
-#: reahl/web/ui.py:2936
+#: reahl/web/ui.py:3074
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
-#: reahl/web/ui.py:3034 reahl/web/bootstrap/ui.py:313
+#: reahl/web/ui.py:3176 reahl/web/bootstrap/popups.py:86
 msgid "Close"
 msgstr "Maak toe"
 
-#: reahl/web/bootstrap/carousel.py:118
+#: reahl/web/bootstrap/carousel.py:142
 msgid "Previous"
 msgstr "Vorige"
 
-#: reahl/web/bootstrap/carousel.py:118
+#: reahl/web/bootstrap/carousel.py:142
 msgid "Next"
 msgstr "Volgende"
 
-#: reahl/web/bootstrap/files.py:40
+#: reahl/web/bootstrap/files.py:66
 msgid "Choose file(s)"
 msgstr "Kies lêer(s)"
 
-#: reahl/web/bootstrap/files.py:68 reahl/web/bootstrap/files.py:86
+#: reahl/web/bootstrap/files.py:110 reahl/web/bootstrap/files.py:116
 msgid "No files chosen"
 msgstr "Geen lêers gekies"
 
-#: reahl/web/bootstrap/files.py:86
+#: reahl/web/bootstrap/files.py:116
 msgid "files chosen"
 msgstr "gekose lêers"
 
@@ -91,7 +95,7 @@ msgstr "gekose lêers"
 msgid "A View"
 msgstr "'n Oogpunt"
 
-#: reahl/web_dev/widgets/specificwidgets.py:325
+#: reahl/web_dev/widgets/specificwidgets.py:328
 msgid "This is an English sentence."
 msgstr "Hierdie is 'n sin in Afrikaans."
 
