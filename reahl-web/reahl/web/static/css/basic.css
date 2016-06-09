@@ -51,6 +51,7 @@ p.feedback { font-size: 85%; }
 /* -- inputs -- */
 [required]:before { content: "*" }
 [required] { background: #fefeeb; }
+input { background: #fbfbf2; }
 input.error { background: red; }
 label.error { 
   display: block; 
