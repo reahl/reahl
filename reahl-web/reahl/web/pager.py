@@ -231,7 +231,7 @@ class PageMenu(HTMLWidget):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param css_id: (See :class:`reahl.web.ui.HTMLElement`)
        :param page_index: The :class:`PageIndex` whose pages are displayed by this PageMenu.
-       :param page_container: The :class:`PagedPanel` in which the contents of a page is displayed.
+       :param paged_panel: The :class:`PagedPanel` in which the contents of a page is displayed.
        :kwarg menu_layout: The :class:`reahl.web.ui.Layout` to use for the Menu (See :class:`Menu`)
 
        .. versionchanged:: 3.2
