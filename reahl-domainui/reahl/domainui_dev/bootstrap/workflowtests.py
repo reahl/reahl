@@ -56,7 +56,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
-                                                                  contents_layout=ColumnLayout(('main', ResponsiveSize(md=6))).with_slots()))
+                                                                  contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots()))
                 accounts = self.define_user_interface('/accounts', AccountUI, {'main_slot': 'main'},
                                               name='test_ui', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')

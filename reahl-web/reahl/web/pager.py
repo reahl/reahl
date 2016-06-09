@@ -55,7 +55,7 @@ class PageIndexProtocol(object):
     def has_previous_page(self): pass
 
 
-#cs@deprecated('Please use reahl.web.attic.paging:PagedPanel instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.paging:PagedPanel
 class PagedPanel(Div):
     """A :class:`Div` whose contents change, depending on the page selected by a user from a :class:`PageMenu`.
        A programmer should subclass from PagedPanel, supplying an `__init__` method which populates the PagedPanel
@@ -88,7 +88,7 @@ class PagedPanel(Div):
         return self.page_index.current_page.contents
 
 
-#cs@deprecated('Please use reahl.web.attic.paging:Page instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.paging:Page instead
 class Page(object):
     def __init__(self, number, description, contents_getter):
         self.number = number
@@ -100,7 +100,7 @@ class Page(object):
         return self.contents_getter()
 
 
-#cs@deprecated('Please use reahl.web.attic.paging:PageIndex instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.paging:PageIndex instead
 class PageIndex(PageIndexProtocol):
     """An object responsible for breaking a long list of items up into shorter lists for display. Each such
        shorter list is referred to as a page. Different ways of breaking long lists into smaller lists
@@ -186,21 +186,21 @@ class PageIndex(PageIndexProtocol):
         return self.start_page_number > 1
 
 
-#cs@deprecated('Please use reahl.web.attic.paging:SequentialPageIndex instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.paging:SequentialPageIndex
 class SequentialPageIndex(PageIndex):
     """A PageIndex that breaks a list of items up into smaller lists, by cutting the original list
-       into sections that have a maximum number of items per page.
+           into sections that have a maximum number of items per page.
 
-       :param items: The long list of items.
-       :keyword items_per_page: The maximum number of items to allow on a page.
-       :keyword current_page_number: (See :class:`PageIndex`)
-       :keyword start_page_number: (See :class:`PageIndex`)
-       :keyword max_page_links: (See :class:`PageIndex`)
-    """
+           :param items: The long list of items.
+           :keyword items_per_page: The maximum number of items to allow on a page.
+           :keyword current_page_number: (See :class:`PageIndex`)
+           :keyword start_page_number: (See :class:`PageIndex`)
+           :keyword max_page_links: (See :class:`PageIndex`)
+        """
     def __init__(self, items, items_per_page=5, current_page_number=1, start_page_number=1, max_page_links=4):
         super(SequentialPageIndex, self).__init__(current_page_number=current_page_number,
-                                              start_page_number=start_page_number,
-                                              max_page_links=max_page_links)
+                                                  start_page_number=start_page_number,
+                                                  max_page_links=max_page_links)
         self.items = items
         self.items_per_page = items_per_page
 
@@ -215,7 +215,7 @@ class SequentialPageIndex(PageIndex):
         return ((len(self.items)-1) // (self.items_per_page))+1
 
 
-#cs@deprecated('Please use reahl.web.attic.paging:PageMenu instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.paging:PageMenu
 class PageMenu(HTMLWidget):
     """An Menu, which lists the pages of items that can be navigated by a user. If there are
        many pages, only a small subset is shown, with controls allowing the user to browse to
@@ -289,7 +289,7 @@ class PageMenu(HTMLWidget):
 
 
 
-#cs@deprecated('Please use reahl.web.attic.paging:AnnualItemOrganiserProtocol instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.paging:AnnualItemOrganiserProtocol
 @six.add_metaclass(ABCMeta)
 class AnnualItemOrganiserProtocol(object):
     """Manages a list of items, each of which is seen to be for a particular year.
@@ -304,7 +304,7 @@ class AnnualItemOrganiserProtocol(object):
 
 
 
-#cs@deprecated('Please use reahl.web.attic.paging:AnnualPageIndex instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.paging:AnnualPageIndex instead
 class AnnualPageIndex(PageIndex):
     """A PageIndex that breaks a list of items up into smaller lists, by arranging all items
        that have the same year on the same page.

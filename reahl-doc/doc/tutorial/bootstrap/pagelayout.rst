@@ -42,7 +42,7 @@ with the entire "content area" itself centered on the browser viewport.
 
 .. figure:: container-fixed.png
   :align: center
-  :width: 70%
+  :width: 40%
   :alt: A site with fixed container showing how the contents are centered on the viewport.
 
 On other sites, the contents of the site span the entire width of the
@@ -50,7 +50,7 @@ viewport instead:
 
 .. figure:: container-fluid.png
   :align: center
-  :width: 70%
+  :width: 40%
   :alt: A site with fluid container showing how the contents stretch to fill the viewport.
 
 A |Container| manages the layout of an |HTMLElement| and its contents

@@ -173,7 +173,7 @@ class HTMLAttributeDict(dict):
         del self[name]        
 
 
-#cs@deprecated('Please use reahl.web.attic.layout:PriorityGroup instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.layout:PriorityGroup instead
 class PriorityGroup(object):
     """A PriorityGroup ensures that only one of the Widgets added to it has primary priority, 
        the others in the group can have secondary priority, or no priority specified. This 
@@ -443,15 +443,18 @@ class Link(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param rel: The value of the "rel" attribute of this HTMLElement.
        :param href: The value of the "href" attribute of this HTMLElement.
-       :param _type: The value of the "type" attribute of this HTMLElement.
+       :keyword _type: The value of the "type" attribute of this HTMLElement.
        :keyword css_id:  (See :class:`reahl.web.ui.HTMLElement`)
        
+       .. versionchanged:: 3.2
+          Changed _type to be an optional, keyword argument instead of a positional argument.
     """
-    def __init__(self, view, rel, href, _type, css_id=None):
+    def __init__(self, view, rel, href, _type=None, css_id=None):
         super(Link, self).__init__(view, 'link', css_id=css_id)
         self.set_attribute('rel', rel)
         self.set_attribute('href', six.text_type(href))
-        self.set_attribute('type', _type)
+        if _type is not None:
+            self.set_attribute('type', _type)
 
 
 class Slot(Widget):
@@ -805,7 +808,7 @@ class P(HTMLElement):
         self.available_slots[name].fill(widget)
 
 
-#cs@deprecated('Please use reahl.web.attic.layout:ErrorFeedbackMessage instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.layout:ErrorFeedbackMessage
 class ErrorFeedbackMessage(P):
     """A user message indicating some error condition, such as a form validation which failed.
 
@@ -1332,7 +1335,7 @@ class Legend(HTMLElement):
             self.text_node = self.add_child(TextNode(view, text))
             
 
-#cs@deprecated('Please use reahl.web.attic.layout:InputGroup instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.layout:InputGroup
 class InputGroup(FieldSet):
     __doc__ = FieldSet.__doc__
 
@@ -2017,7 +2020,7 @@ class ButtonInput(PrimitiveInput):
         return None
 
 
-#cs@deprecated('Please use reahl.web.attic.layout:Button instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.layout:Button instead
 class Button(Span):
     """A button.
 
@@ -2122,7 +2125,7 @@ class ErrorLabel(Label):
         return attributes
 
 
-#cs@deprecated('Please use reahl.web.attic.layout:LabelledInlineInput instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.layout:LabelledInlineInput instead
 # Uses: reahl/web/reahl.labelledinput.css
 class LabelledInlineInput(Span):
     """A Widget that wraps around a given Input, adding a Label to the Input. Adheres to text flow.
@@ -2159,7 +2162,7 @@ class LabelledInlineInput(Span):
         return attributes
 
 
-#cs@deprecated('Please use reahl.web.attic.layout:LabelledBlockInput instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.layout:LabelledBlockInput
 # Uses: reahl/web/reahl.labelledinput.css
 class LabelledBlockInput(Div):
     """A Widget that wraps around a given Input, adding a Label to the Input. Labels and their corresponding Inputs
@@ -2206,7 +2209,7 @@ class LabelledBlockInput(Div):
         return attributes
 
 
-#cs@deprecated('Please use reahl.web.attic.layout:CueInput instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.layout:CueInput instead
 # Uses: reahl/web/reahl.cueinput.js
 class CueInput(Div):
     """A Widget that wraps around a given Input, adding a Label to the Input and a "cue" - a hint that
@@ -2267,7 +2270,7 @@ class CueInput(Div):
         return super(CueInput, self).get_js(context=context) + js
 
 
-#cs@deprecated('Please use reahl.web.attic.layout:LabelOverInput instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.layout:LabelOverInput instead
 # Uses: reahl/web/reahl.labeloverinput.js
 # Uses: reahl/web/reahl.labeloverinput.css
 class LabelOverInput(LabelledInlineInput):
@@ -2319,7 +2322,7 @@ class ActiveStateAttributes(DelegatedAttributes):
             attributes.add_to('class', [self.inactive_class])
 
 
-#cs@deprecated('Please use reahl.web.attic.menu:MenuItem instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.menu:MenuItem instead
 class MenuItem(object):
     """One item in a Menu.
 
@@ -2381,7 +2384,6 @@ class MenuItem(object):
         return re.match(self.active_regex, self.view.relative_path)
 
 
-#cs@deprecated('Please use :meth:`Menu.add_submenu() instead.', '3.2')
 class SubMenu(MenuItem):
     """A MenuItem that can contains another complete Menu itself.
 
@@ -2404,7 +2406,7 @@ class SubMenu(MenuItem):
         self.title = title
         self.menu = menu
 
-#cs@deprecated('Please use reahl.web.attic.menu:Menu instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.menu:Menu instead
 # Uses: reahl/web/reahl.menu.css
 class Menu(HTMLWidget):
     add_reahl_styling = True
@@ -2576,7 +2578,7 @@ class Menu(HTMLWidget):
         return li
 
 
-#cs@deprecated('Please use reahl.web.attic.menu:HorizontalLayout instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.menu:HorizontalLayout
 class HorizontalLayout(Layout):
     """A Layout that causes Widgets to be displayed horizontally.
 
@@ -2592,7 +2594,7 @@ class HorizontalLayout(Layout):
         self.widget.html_representation.append_class('reahl-horizontal')
 
 
-#cs@deprecated('Please use reahl.web.attic.menu:VerticalLayout instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.menu:VerticalLayout
 class VerticalLayout(Layout):
     """A Layout that causes Widgets to be displayed vertically.
 
@@ -2645,7 +2647,7 @@ class VMenu(Menu):
         self.use_layout(VerticalLayout())
 
 
-#cs@deprecated('Please use reahl.web.attic.tabbedpanel:Tab instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.tabbedpanel:Tab
 class Tab(object):
     """One Tab in a :class:`TabbedPanel`.
 
@@ -2698,7 +2700,7 @@ class Tab(object):
         return menu_item
 
 
-#cs@deprecated('Please use reahl.web.attic.tabbedpanel:MultiTab instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.tabbedpanel:MultiTab
 class MultiTab(Tab):
     """A composite tab. Instead of a single choice for the user, clicking on a MultiTab
        results in a dropdown menu with more choices for the user.
@@ -2768,7 +2770,7 @@ class MultiTab(Tab):
         return menu_item
 
 
-#cs@deprecated('Please use reahl.web.attic.tabbedpanel:TabbedPanel instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.tabbedpanel:TabbedPanel
 # Uses: reahl/web/reahl.tabbedpanel.css
 # Uses: reahl/web/reahl.tabbedpanel.js
 class TabbedPanel(Div):
@@ -2831,7 +2833,7 @@ class TabbedPanel(Div):
             self.content_panel.add_child(tab.contents)
 
 
-#cs@deprecated('Please use reahl.web.attic.slidingpanel:SlidingPanel instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.slidingpanel:SlidingPanel
 # Uses: reahl/web/reahl.slidingpanel.css
 # Uses: reahl/web/reahl.slidingpanel.js
 class SlidingPanel(Div):
@@ -3089,7 +3091,7 @@ class UniqueFilesConstraint(ValidationConstraint):
         return reduced
 
 
-#cs@deprecated('Please use reahl.web.attic.fileupload:FileUploadInput instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.fileupload:FileUploadInput
 class FileUploadInput(PrimitiveInput):
     """An Input which allows a user to choose several files for uploding to a server. As each file is
        chosen, the file is uploaded to the server in the background (if JavaScript is enabled on the user
@@ -3136,7 +3138,7 @@ class FileUploadInput(PrimitiveInput):
         pass
 
 
-#cs@deprecated('Please use reahl.web.attic.clientside:DialogButton instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.clientside:DialogButton
 class DialogButton(object):
     def __init__(self, label):
         self.label = label
@@ -3148,7 +3150,7 @@ class DialogButton(object):
         return '"%s": function() { %s }' % (self.label, self.callback_js())
 
 
-#cs@deprecated('Please use reahl.web.attic.clientside:CheckCheckboxButton instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.clientside:CheckCheckboxButton
 class CheckCheckboxButton(DialogButton):
     def __init__(self, label, checkbox):
         super(CheckCheckboxButton, self).__init__(label)
@@ -3158,7 +3160,7 @@ class CheckCheckboxButton(DialogButton):
         return '''$(%s).attr("checked", true);''' %  self.checkbox_to_check.jquery_selector
 
 
-#cs@deprecated('Please use reahl.web.attic.clientside:PopupA instead', '3.2')
+#PendingMove: In future this class may be renamed to: reahl.web.attic.clientside:PopupA
 # Uses: reahl/web/reahl.popupa.js
 class PopupA(A):
     # Implements:
