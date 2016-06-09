@@ -1,4 +1,4 @@
-.. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Adding the access control
 =========================
