@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -88,6 +88,9 @@ class FieldIndex(object):
 
     def keys(self):
         return self.fields.keys()
+
+    def values(self):
+        return self.fields.values()
 
     def items(self):
         return self.fields.items()
@@ -279,8 +282,10 @@ class ValidationConstraint(Exception):
         Exception.__init__(self)
         self.error_message = Template(error_message)
         self.field = None
+        self.prepared_error_message = ''
     
     def __reduce__(self):
+        self.prepared_error_message = self.label
         reduced = super(ValidationConstraint, self).__reduce__()
         pickle_dict = reduced[2]
         del pickle_dict['field']
@@ -330,7 +335,7 @@ class ValidationConstraint(Exception):
     @property
     def label(self):
         """The textual label displayed to users for the Field to which this ValidationConstraint is linked."""
-        return self.field.label
+        return self.prepared_error_message or (self.field.label if self.field else '')
 
     @property
     def value(self):
@@ -383,7 +388,7 @@ class ValidationConstraintList(list):
         for validation_constraint in self:
             if isinstance(validation_constraint, cls):
                 return validation_constraint
-        raise ConstraintNotFound(name)
+        raise ConstraintNotFound(cls)
 
     def get_constraint_named(self, name):
         for validation_constraint in self:
@@ -1396,9 +1401,6 @@ class ChoiceField(Field):
         self.grouped_choices = grouped_choices
         self.init_validation_constraints()
 
-    def is_selected(self, choice):
-        return self.get_model_value() == choice.value
-        
     def init_validation_constraints(self):
         allowed_values = [choice.as_input() for choice in self.flattened_choices]
         self.add_validation_constraint(AllowedValuesConstraint(allowed_values))
@@ -1429,9 +1431,6 @@ class MultiChoiceField(ChoiceField):
     allows_multiple_selections = True
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
-
-    def is_selected(self, choice):
-        return self.get_model_value() and (choice.value in self.get_model_value())
 
     def parse_input(self, unparsed_inputs):
         selected = []
@@ -1550,7 +1549,7 @@ class MimeTypeConstraint(ValidationConstraint):
     
     def __reduce__(self):
         reduced = super(MimeTypeConstraint, self).__reduce__()
-        return (reduced[0], (self.self.accept,))+reduced[2:]
+        return (reduced[0], (self.accept,))+reduced[2:]
 
     @property
     def human_accepted_types(self):

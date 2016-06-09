@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -31,7 +31,9 @@ from reahl.tofu import vassert
 from reahl.sqlalchemysupport import Session
 from reahl.component.exceptions import DomainException
 from reahl.component.modelinterface import FileField, exposed, Event, Action, ValidationConstraint
-from reahl.web.ui import SimpleFileInput, FileUploadInput, FileUploadPanel, Button, Form
+from reahl.web.ui import SimpleFileInput, Form
+from reahl.web.ui import FileUploadInput, FileUploadPanel
+from reahl.web.ui import Button
 from reahl.web.fw import UploadedFile
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
@@ -63,7 +65,7 @@ class FileUploadInputFixture(WebFixture):
                
             @exposed
             def fields(self, fields):
-                fields.files = FileField(allow_multiple=True, label='Attached files')
+                fields.files = FileField(allow_multiple=True, label='Attached files', required=True)
 
             @exposed
             def events(self, events):
@@ -173,7 +175,7 @@ class StubbedFileUploadInputFixture(FileUploadInputFixture):
     def new_FileUploadForm(self):
         fixture = self
         class FileUploadInputStub(FileUploadInput):
-            def create_html_input(self):
+            def create_html_widget(self):
                 return FileUploadPanelStub(self)
             
         class FileUploadPanelStub(FileUploadPanel):
@@ -534,7 +536,7 @@ class FileTests(object):
 
         browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
         browser.type(XPath.input_of_type('file'), fixture.file_to_upload2.name)
-        vassert( not browser.is_element_present('//label[text()="uploaded files should all have different names"]') )
+        vassert( not browser.is_visible('//label[text()="uploaded files should all have different names"]') )
 
         
     @test(LargeFileUploadInputFixture)
@@ -626,13 +628,12 @@ class FileTests(object):
         vassert( not has_class ) # ie, the UploadPanel has been reloaded
 
         # JS Stuff on re-rendered form still work
-        
         # 1: Server-rendered validation message has been cleared
         vassert( browser.is_element_present(XPath.label_with_text('test validation message')) )
         fixture.make_validation_fail = False
         with browser.no_page_load_expected():
             browser.type(XPath.input_of_type('file'), fixture.file_to_upload2.name)
-        vassert( not browser.is_element_present(XPath.label_with_text('test validation message')) )
+        browser.wait_for_not(browser.is_visible, XPath.label_with_text('test validation message'))
 
         # 2: The remove button still happens via ajax
         with browser.no_page_load_expected():
@@ -662,6 +663,7 @@ class FileTests(object):
         vassert( progress2 == '0' )
 
         fixture.simulate_large_file_upload_done()
+        fixture.reahl_server.serve(timeout=1)
 
         vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) )
         vassert( fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) )
@@ -714,5 +716,5 @@ class FileTests(object):
 
         browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
         browser.type(XPath.input_of_type('file'), fixture.file_to_upload2.name)
-        vassert( not browser.is_element_present(XPath.label_with_text('a maximum of 1 files may be uploaded')) )
+        browser.wait_for_not(browser.is_visible, XPath.label_with_text('a maximum of 1 files may be uploaded'))
 

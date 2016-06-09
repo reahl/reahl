@@ -1,4 +1,4 @@
-# Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -23,7 +23,7 @@ from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath, WidgetTester
-from reahl.web.ui import StaticColumn, DynamicColumn, Table, Span, Panel, P
+from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 from reahl.component.modelinterface import Field, BooleanField
@@ -65,7 +65,7 @@ class TableFixture(Fixture, WebBasicsMixin):
 def table_basics(fixture):
     """A Table created .from_columns() displays a list of items as defined by a list of Columns"""
 
-    class MainWidget(Panel):
+    class MainWidget(Div):
         def __init__(self, view):
             super(MainWidget, self).__init__(view)
             table = Table.from_columns(view, 
@@ -153,4 +153,12 @@ def different_kinds_of_columns(fixture):
     vassert( actual == fixture.expected_cell_html )
 
 
-    
+@test(TableFixture)
+def table_thead(fixture):
+    """Table can find its Thead element"""
+
+    table = Table(fixture.view)
+    thead = table.add_child(Thead(fixture.view))
+
+    vassert( table.thead is thead )
+

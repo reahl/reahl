@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -33,6 +33,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.component.decorators import deprecated
 from reahl.web.fw import Url
 
 
@@ -85,9 +86,39 @@ class BasicBrowser(object):
 
     def xpath(self, xpath):
         """Returns the `lmxl Element <http://lxml.de/>`_ found by the given `xpath`."""
-        return self.lxml_html.xpath(xpath)
+        return self.lxml_html.xpath(six.text_type(xpath))
 
+    def get_xpath_count(self, locator):
+        """Answers the number of elements matching `locator`.
 
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        """
+        return len(self.xpath(six.text_type(locator)))
+
+    def get_html_for(self, locator):
+        """Returns the HTML of the element (including its own tags) targeted by the given `locator`
+        
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        """
+        xpath = six.text_type(locator)
+        element = self.xpath(xpath)[0]
+        return html.tostring(element, encoding='unicode')
+
+    def get_inner_html_for(self, locator):
+        """Returns the HTML of the children of the element targeted by the given `locator` (excluding the 
+           element's own tags).
+        
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        """
+        xpath = six.text_type(locator)
+        element = self.xpath(xpath)[0]
+        return ''.join(html.tostring(child, encoding='unicode') for child in element.getchildren())
+
+    def get_id_of(self, locator):
+        xpath = six.text_type(locator)
+        element = self.xpath(xpath)[0]
+        return element.attrib['id']
+        
 
 class WidgetTester(BasicBrowser):
     """A WidgetTester is used to render the contents of a :class:`reahl.web.fw.Widget` instance.
@@ -226,28 +257,10 @@ class Browser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         xpath = six.text_type(locator)
-        form_element = self.xpath('//form[@id=%s/@form]' % xpath)[0]
+        form_id = self.xpath('%s[@form]' % xpath)[0].attrib['form']
+        form_element = self.xpath('//form[@id=\'%s\']' % form_id)[0]
         patch_Field()
         return self.last_response.forms[form_element.attrib['id']]
-
-    def get_html_for(self, locator):
-        """Returns the HTML of the element (including its own tags) targeted by the given `locator`
-        
-           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-        """
-        xpath = six.text_type(locator)
-        element = self.xpath(xpath)[0]
-        return html.tostring(element, encoding='unicode')
-
-    def get_inner_html_for(self, locator):
-        """Returns the HTML of the children of the element targeted by the given `locator` (excluding the 
-           element's own tags).
-        
-           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-        """
-        xpath = six.text_type(locator)
-        element = self.xpath(xpath)[0]
-        return ''.join(html.tostring(child, encoding='unicode') for child in element.getchildren())
 
     def type(self, locator, text):
         """Types the text in `text` into the input found by the `locator`.
@@ -434,22 +447,33 @@ class XPath(object):
     @classmethod
     def input_labelled(cls, label):
         """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
-        return cls('//input[@name=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
+        for_based_xpath = '//input[@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label
+        nested_xpath = '//label[normalize-space()=normalize-space("%s")]//input' % label
+        return cls('%s|%s' % (for_based_xpath, nested_xpath))
 
     @classmethod
     def select_labelled(cls, label):
         """Returns an XPath to find an HTML <select> referred to by a <label> that contains the text in `label`."""
-        return cls('//select[@name=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
+        return cls('//select[@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label)
 
     @classmethod
     def input_of_type(cls, input_type):
         """Returns an XPath to find an HTML <input> with type attribute `input_type`."""
         return '//input[@type="%s"]' % input_type
 
+    @deprecated('Please use fieldset_with_legend() instead.', '3.2')
     @classmethod
     def inputgroup_labelled(cls, label):
         """Returns an XPath to find an InputGroup with label text `label`."""
         return cls('//fieldset[label[normalize-space(node())=normalize-space("%s")]]' % label)
+
+    @classmethod
+    def fieldset_with_legend(cls, legend_text):
+        """Returns an XPath to find a FieldSet with the given `legend_text`.
+
+        .. versionadded:: 3.2
+        """
+        return cls('//fieldset[legend[normalize-space(node())=normalize-space("%s")]]' % legend_text)
 
     @classmethod
     def button_labelled(cls, label, **arguments):
@@ -465,16 +489,33 @@ class XPath(object):
         else:
             argument_selector = ''
         value_selector = '[normalize-space(@value)=normalize-space("%s")]'  % label
-        return cls('//input%s%s' % (argument_selector, value_selector))
+        inputButtonXPath = '//input%s%s' % (argument_selector, value_selector)
+        buttonTagXPath = '//button[normalize-space(node())=normalize-space("%s")]' % label
+        return cls('%s | %s' % (inputButtonXPath, buttonTagXPath))
 
     @classmethod
     def error_label_containing(cls, text):
-        """Returns an XPath to find an ErrorLabel containing the text in `text`."""
+        """Returns an XPath to find a Label containing the error message in `text`."""
         return cls('//label[@class="error" and contains(node(),"%s")]' % text)
 
+    @classmethod
+    def span_containing(cls, text):
+        """Returns an XPath to find a Span containing the message in `text`."""
+        return cls('//span[contains(node(),"%s")]' % text)
 
-class UnexpectedPageLoad(Exception):
-    pass
+    @classmethod
+    def div_containing(cls, text):
+        """Returns an XPath to find a Div containing the message in `text`."""
+        return cls('//div[contains(text(),"%s")]' % text)
+
+
+class UnexpectedLoadOf(Exception):
+    def __init__(self, jquery_selector):
+        super(UnexpectedLoadOf, self).__init__()
+        self.jquery_selector = jquery_selector
+
+    def __str__(self):
+        return self.jquery_selector
 
 
 class DriverBrowser(BasicBrowser):
@@ -565,10 +606,22 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param value: The (text) value to match.
         """
+        return self.does_element_have_attribute(locator, 'value', value=value)
+
+    def does_element_have_attribute(self, locator, attribute, value=None):
+        """Answers whether the element found by `locator` has the given attribute, with the given value
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :param attribute: The name of the attribute to check for.
+           :keyword value: The value the attribute should have (if any)
+
+           .. versionadded:: 3.2
+        """
         xpath = six.text_type(locator)
         el = self.web_driver.find_element_by_xpath(xpath)
-        if el and el.get_attribute('value') == value:
-            return el
+        if el and el.get_attribute(attribute) is not None:   # el is present and has attribute
+            if (value is not None or el.get_attribute(attribute) == value):  # attribute has specified value if specified
+               return el
         return False
     
     def wait_for(self, condition, *args, **kwargs):
@@ -661,7 +714,7 @@ class DriverBrowser(BasicBrowser):
         """Clicks on the element found by `locator`.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-           :keyword wait: If False, first waits for the element to become interactible (visible and enabled).
+           :keyword wait: If False, don't wait_for_page_to_load after having typed into the input.
         """
         self.wait_for_element_interactable(locator)
         self.find_element(locator).click()
@@ -673,7 +726,8 @@ class DriverBrowser(BasicBrowser):
         
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
-           :keyword wait: If False, first waits for the element to become interactible (visible and enabled).
+           :keyword wait: If False, don't wait_for_page_to_load after having typed into the input.
+           
         """
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
@@ -693,7 +747,19 @@ class DriverBrowser(BasicBrowser):
         actions = ActionChains(self.web_driver)
         actions.move_to_element(el)
         actions.perform()
-        
+
+    def focus_on(self, locator):
+        """Puts the tab-focus at the element found by the `locator`.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+
+           ..versionadded:: 3.2
+
+        """
+        xpath = six.text_type(locator)
+        el = self.find_element(xpath)
+        return self.web_driver.execute_script('$(arguments[0]).focus()', el)
+
     @property
     def current_url(self):
         """Returns the :class:`reahl.web.fw.Url` of the current location."""
@@ -731,7 +797,18 @@ class DriverBrowser(BasicBrowser):
            :param script: A string containing the JavaScript to be executed.
         """
         return self.web_driver.execute_script(script)
-        
+
+    def switch_styling(self, javascript=True):
+        """Switches styling for javascript enabled or javascript disabled.
+
+           .. versionadded:: 3.2
+        """
+        if javascript:
+            script = '''switchJSStyle(document, "js", "no-js"); switchJSStyle(document, "no-js", "js")'''
+        else:
+            script = '''switchJSStyle(document, "no-js", "js"); switchJSStyle(document, "js", "no-js")'''
+        self.execute_script(script)
+
     def get_text(self, locator):
         """Returns the contents of the element found by `locator`, as plain text.
 
@@ -878,13 +955,22 @@ class DriverBrowser(BasicBrowser):
            while code executes within the context managed by this context manager. Useful for testing
            JavaScript code that should change a page without refreshing it.
         """
-        self.web_driver.execute_script('$("html").addClass("page_load_flag")')
+        with self.no_load_expected_for('html'):
+             yield
+
+    @contextlib.contextmanager
+    def no_load_expected_for(self, jquery_selector):
+        """Returns a context manager that would raise an exception should the element indicated
+           by the given jquery selector be reloaded/replaced during execution of its context.
+           Useful for testing JavaScript code that should change an element without replacing it.
+        """
+        self.web_driver.execute_script('$("%s").addClass("load_flag")' % jquery_selector)
         try:
             yield
         finally:
             self.wait_for_page_to_load()
-            new_page_loaded = not self.web_driver.execute_script('return $("html").hasClass("page_load_flag")') 
-            if new_page_loaded:
-                raise UnexpectedPageLoad()
+            new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % jquery_selector) 
+            if new_element_loaded:
+                raise UnexpectedLoadOf(jquery_selector)
         
 

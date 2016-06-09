@@ -1,4 +1,4 @@
-.. Copyright 2013 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Hidden security features
 ========================
@@ -7,7 +7,7 @@ Malicious attackers can try to bypass any access control (or even
 validation) that a programmer may have put in place. Reahl safeguards
 against such attacks -- in most places without your having to worry
 about it. Even so, a careful programmer would like to know what
-happens under the hood to protect against breaches, and would want to
+happens under the covers to protect against breaches, and would want to
 be able to direct the underlying mechanisms.
 
 One form of attack concerns :class:`~reahl.web.ui.Button`\ s and Inputs. The server may have
@@ -15,7 +15,7 @@ served a page containing a :class:`~reahl.web.ui.Button` or :class:`~reahl.web.u
 to prevent the user from invoking an :class:`~reahl.component.modelinterface.Action` or from supplying input
 via the :class:`~reahl.web.ui.Input` (respectively). A user could edit the HTML that was
 served to make these elements active again, and in this way try to
-forcebly click on a :class:`~reahl.web.ui.Button` or supply input.
+forcibly click on a :class:`~reahl.web.ui.Button` or supply input.
 
 This sort of attack is automatically stopped on the server side. Since
 all the access control rules are available on the server, each

@@ -1,4 +1,4 @@
-.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Preparing for installation on Windows
 =====================================
@@ -48,4 +48,4 @@ Wheel support and virtualenv
        pip install -U virtualenv
 
 
-Remember to go back and :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`!
+The next (and last) step is to :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`.

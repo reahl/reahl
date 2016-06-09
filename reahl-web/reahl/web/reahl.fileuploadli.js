@@ -1,4 +1,4 @@
-/* Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved. */
+/* Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved. */
 /*
     This file is part of Reahl.
 
@@ -62,6 +62,7 @@ $.widget('reahl.fileuploadli', {
     },
 
     _create: function() {
+	this.jqXhr = undefined;
         $(this.element).addClass('reahl-file-upload-li');
         if ( !$(this.element).children().length ) {
             this.state = 'file chosen';
@@ -89,10 +90,11 @@ $.widget('reahl.fileuploadli', {
         return $(this.element).find('progress');
     },
     createCancelButton: function() {
-        return $(renderButton('cancel', this.getCancelLabel(), this.getFormId()));
+        var cancelName = 'cancel?filename='+encodeURIComponent(this.getFilename());
+        return $(renderButton(cancelName, this.getCancelLabel(), this.getFormId()));
     },
     getCancelButton: function() {
-        return $(this.element).find('input[name="cancel"]').parent();
+        return $(this.element).find('input[name^="cancel"]').parent();
     },
     removeUploaded: function(ajaxOptions) {
         var this_ = this;
@@ -105,18 +107,42 @@ $.widget('reahl.fileuploadli', {
             beforeSubmit: function(a, form, options) {
             },
             success: function(data){
-                this_.element.remove();
+                if (data.success) {
+                    var fileInput = this_.getFileInputPanel().getFileInput(); /* has to be found before element is removed */
+                    this_.element.remove();
+                    fileInput.focusout().focus(); /* to revalidate the input after removal */
+                } else {
+                    this_.replaceNestedFormContents(data.widget);
+                }
             },
             error: function(jqXHR, textStatus, errorThrown){
                 this_.changeToFailed(this_.getErrorMessage());
             }
         });
     },
+    replaceNestedFormContents: function(newContents) {
+        var this_ = this;
+        var nestedForm = $('#'+this_.getNestedFormId());
+        nestedForm.empty();
+        nestedForm.append(newContents);
+    },
+    cancelUpload: function() {
+        var this_ = this;
+        if (this_.jqXhr) {
+            this_.jqXhr.abort();
+            this_.jqXhr = undefined;
+        } else {
+            this_.getFileInputPanel().cancelUpload(this_.getFilename())
+        }
+        $(this_.element).remove();
+    },
     startUpload: function(submitName, ajaxOptions) {
-        $(this.element).append(this.createCancelButton());
+        var this_ = this;
+        $(this.element).append(this.createCancelButton().click(function(){
+	    this_.cancelUpload();
+	}));
         $(this.element).append(this.createFileNameSpan());
         $(this.element).append(this.createProgressBar());
-        var this_ = this;
         var startThisUpload = function() {
             var data = {'_noredirect':''};
             data[submitName] = '';
@@ -131,17 +157,15 @@ $.widget('reahl.fileuploadli', {
                     this_.saveJqXhr(jqXHR);
                 },
                 success: function(data){
-                    var result = $.parseJSON(data);
-                    if (result.success) {
+                    if (data.success) {
                         this_.changeToUploaded();
                     } else {
-                        var nestedForm = $('#'+this_.getNestedFormId());
-                        nestedForm.empty();
-                        nestedForm.append(result.widget);
-                        this_.getFileInputPanel().uploadFinished();
+                        this_.replaceNestedFormContents(data.widget);
                     }
+                    this_.getFileInputPanel().uploadFinished();
                 },
                 error: function(jqXHR, textStatus, errorThrown){
+                    this_.getFileInputPanel().uploadFinished();
                     this_.changeToFailed(this_.getErrorMessage());
                 },
                 uploadProgress: function(event, position, total, percentComplete){
@@ -149,7 +173,7 @@ $.widget('reahl.fileuploadli', {
                 }
             });
         };
-        this_.getFileInputPanel().uploadStarted(startThisUpload);
+        this_.getFileInputPanel().uploadStarted(this_.getFilename(), startThisUpload);
     },
     changeFileInputToSingle: function(array, file) {
         if (array.length > 0) {
@@ -158,21 +182,14 @@ $.widget('reahl.fileuploadli', {
         };
     },
     saveJqXhr: function(jqXhr) {
-        var this_ = this;
-        this.getCancelButton().find('input').click(function(){
-            jqXhr.abort();
-            $(this_.element).remove();
-            return false;
-        });
+	this.jqXhr = jqXhr
     },
     changeToUploaded: function(){
-        this.getFileInputPanel().uploadFinished();
         this.getProgressBar().replaceWith('');
         this.getCancelButton().replaceWith(this.createRemoveButton());
         this.state = 'uploaded';
     },
     changeToFailed: function(errorMessage){
-        this.getFileInputPanel().uploadFinished();
         var errorLabel = $('<label class="error">'+errorMessage+'</label>');
 
         if (this.state === 'uploaded' ) {

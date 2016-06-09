@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -89,13 +89,13 @@ def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
     for line in io.open(requires_file, 'r'):
         if not line.startswith('reahl-'):
             non_reahl_requirements.append(line)
-    missing = []
+    missing = set()
     for i in non_reahl_requirements:
         try:
             pkg_resources.require(i)
         except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
-            missing.append(i)
-    return missing
+            missing.add(i.strip())
+    return list(missing)
 
 def install_prerequisites(missing):
   print('----------------------------------------------------------------------------------')
@@ -112,7 +112,9 @@ def install_prerequisites(missing):
   print('')
   if ask('Enter "yes" or "no"   : '):
       import pip
-      pip.main(['install']+missing)
+      if pip.main(['install']+missing) != 0:
+          print('Failed to install %s - (see pip errors above)' % (' '.join(missing)) )
+          exit(1)
   else:
       print('Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0])))
       exit(1)
@@ -205,9 +207,11 @@ clean_egg_info_dirs()
 
 remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
-missing = find_missing_prerequisites(reahl_dev_requires_file, ['six','wrapt','setuptools>11'])
+missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six','wrapt','setuptools>11'])
 if missing:
     install_prerequisites(missing)
+    print('Successfully installed prerequisites - please re-run')
+    exit(0)
 
 workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
 run_setup(workspace, core_projects)

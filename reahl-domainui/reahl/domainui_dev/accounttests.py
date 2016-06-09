@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -24,7 +24,8 @@ from reahl.tofu import vassert
 
 from reahl.sqlalchemysupport import Session
 from reahl.web.ui import HTML5Page
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.web.fw import Url
 from reahl.web.fw import UserInterface
 from reahl.web_dev.fixtures import WebBasicsMixin
@@ -43,8 +44,8 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
         fixture = self
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
-                account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui', 
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+                account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui',
                                                             bookmarks=fixture.bookmarks)
                 fixture.account_user_interface_factory = account_user_interface_factory
         return MainUI

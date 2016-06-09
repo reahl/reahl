@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -31,7 +31,8 @@ from reahl.stubble import EmptyStub
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page, P
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
@@ -51,7 +52,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello', page=SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 1602
+        self.expected_content_length = 2224
         self.content_includes_p = True
 
     @scenario
@@ -67,7 +68,7 @@ class BasicScenarios(WebFixture):
                 home.set_page(SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 1602
+        self.expected_content_length = 2224
         self.content_includes_p = True
 
     @scenario
@@ -78,7 +79,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 1583
+        self.expected_content_length = 2205
         self.content_includes_p = False
 
     @scenario
@@ -89,7 +90,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 1583
+        self.expected_content_length = 2205
         self.content_includes_p = False
 
         self.expected_warnings = ['Region has been renamed to UserInterface, please use UserInterface instead',
@@ -122,7 +123,7 @@ def basic_assembly(fixture):
         vassert( expected_message in caught )
 
     if fixture.content_includes_p:
-        [message] = browser.lxml_html.xpath('//p')
+        [message] = browser.xpath('//p')
         vassert( message.text == 'Hello world!' )
 
     # The headers are set correctly
@@ -190,7 +191,7 @@ class SlotScenarios(WebFixture):
     def page_on_ui(self):
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 home = self.define_view('/', title='Hello')
                 home.set_slot('main', P.factory(text='Hello world'))
                 home.set_slot('footer', P.factory(text='I am the footer'))
@@ -201,7 +202,7 @@ class SlotScenarios(WebFixture):
         class MainUI(UserInterface):
             def assemble(self):
                 home = self.define_view('/', title='Hello')
-                home.set_page(HTML5Page.factory().use_layout(PageColumnLayout('main')))
+                home.set_page(HTML5Page.factory().use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots())))
                 home.set_slot('main', P.factory(text='Hello world'))
                 home.set_slot('footer', P.factory(text='I am the footer'))
         self.MainUI = MainUI
@@ -215,7 +216,7 @@ def slots(fixture):
     
     browser.open('/')
     vassert( browser.title == 'Hello' )
-    [main_p, footer_p] = browser.lxml_html.xpath('//p')
+    [main_p, footer_p] = browser.xpath('//p')
     vassert( main_p.text == 'Hello world' )
     vassert( footer_p.text == 'I am the footer' )
 
@@ -225,7 +226,7 @@ def slot_error(fixture):
     """Supplying contents for a slot that does not exist results in s sensible error."""
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             home = self.define_view('/', title='Hello')
             home.set_slot('main', P.factory(text='Hello world'))
             home.set_slot('nonexistantslotname', P.factory(text='I am breaking'))
@@ -247,7 +248,7 @@ def slot_defaults(fixture):
     """
     class MainUI(UserInterface):
         def assemble(self):
-            main = self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+            main = self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             main.add_default_slot('main', P.factory(text='defaulted slot contents'))
             self.define_view('/', title='Hello')
 
@@ -257,10 +258,10 @@ def slot_defaults(fixture):
     browser.open('/')
 
     # The default widget for the main slot is used
-    [p] = browser.lxml_html.xpath('//p')
+    [p] = browser.xpath('//p')
     vassert( p.text == 'defaulted slot contents' )
 
     # The header slot has no default, and is thus left empty
-    header_contents = browser.lxml_html.xpath('//header/*')
+    header_contents = browser.xpath('//header/*')
     vassert( not header_contents )
 

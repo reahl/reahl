@@ -1,7 +1,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, SlidingPanel, Panel, P
+from reahl.web.ui import HTML5Page, SlidingPanel, Div, P
 
 class MyPage(HTML5Page):
     def __init__(self, view):
@@ -10,11 +10,11 @@ class MyPage(HTML5Page):
         sliding_panel = SlidingPanel(view)
         self.body.add_child(sliding_panel)
 
-        panel1 = Panel(view)
+        panel1 = Div(view)
         panel1.add_child(P(view, text='a paragraph with text'))
         sliding_panel.add_panel(panel1)
 
-        panel2 = Panel(view)
+        panel2 = Div(view)
         panel2.add_child(P(view, text='a different paragraph'))
         sliding_panel.add_panel(panel2)
 

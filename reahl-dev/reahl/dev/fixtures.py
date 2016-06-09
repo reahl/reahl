@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -74,7 +74,8 @@ class CleanDatabase(Fixture):
     @tear_down
     def disconnect(self):
         with self.context:
-            self.system_control.disconnect()
+            if self.system_control.connected:
+                self.system_control.disconnect()
 
 
 

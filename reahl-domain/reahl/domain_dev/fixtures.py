@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -92,7 +92,7 @@ class BasicModelZooMixin(SqlAlchemyTestMixin):
     
 class PartyModelZooMixin(BasicModelZooMixin):
     def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
-        password = 'bobbejaan'
+        password = 'topsecret'
         system_account = EmailAndPasswordSystemAccount(owner=party or self.party, email=email)
         system_account.set_new_password(email, password)
         system_account.password = password # The unencrypted version for use in tests

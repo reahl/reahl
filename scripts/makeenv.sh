@@ -27,7 +27,17 @@ sudo apt-get install postgresql-server-dev-9.1   # Header files for compiling ps
 sudo apt-get install zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms1-dev   # Headers for compiling PIL
 # END non-python packages for PILLOW
 
+# non-python packages for lxml
 sudo apt-get install zlib1g-dev   # Headers for compiling lxml
+# END non-python packages for lxml
+
+# chromium and chromiumdriver for use in tests
+# (You need > 48.0 of these packages)
+sudo apt-get install chromium-browser chromium-chromedriver
+echo /usr/lib/chromium-browser/libs > /etc/ld.so.conf.d/chrome_lib.conf
+sudo ldconfig
+[ -z "$(which chromedriver)" ] && echo "Cannot find chromedriver binary. Please ensure /usr/lib/chromium-browser is in your PATH"
+# END chromium and chromiumdriver for use in tests
 
 virtualenv --no-site-packages $SITE_ENV
 

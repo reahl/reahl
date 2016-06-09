@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -27,13 +27,10 @@ from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath
 from reahl.web.ui import P
-from reahl.web.ui import Panel
-from reahl.web.pager import PageIndex
-from reahl.web.pager import PageMenu
-from reahl.web.pager import PagedPanel
+from reahl.web.ui import Div
+from reahl.web.pager import PageIndex, PagedPanel, PageMenu, SequentialPageIndex, AnnualPageIndex, AnnualItemOrganiserProtocol
 from reahl.web_dev.fixtures import WebBasicsMixin
 
-from reahl.web.pager import SequentialPageIndex, AnnualPageIndex, AnnualItemOrganiserProtocol
 
 class PageMenuFixture(Fixture, WebBasicsMixin):
     def new_number_of_pages(self):
@@ -72,7 +69,7 @@ class PageMenuFixture(Fixture, WebBasicsMixin):
 
     def new_MainWidget(self):
         fixture = self
-        class MainWidget(Panel):
+        class MainWidget(Div):
             def __init__(self, view):
                 super(MainWidget, self).__init__(view)
                 page_index = fixture.PageIndexStub(fixture.max_page_links, fixture.number_of_pages)
@@ -217,7 +214,7 @@ class PageMenuTests(object):
 
     @test(LinkScenarios)
     def which_links_display(self, fixture):
-        """The menu displayes the correct range of page links, depending on the starting page in the range, the
+        """The menu displays the correct range of page links, depending on the starting page in the range, the
            total number of pages and the max number of links in a range"""
         fixture.reahl_server.set_app(fixture.wsgi_app)
 

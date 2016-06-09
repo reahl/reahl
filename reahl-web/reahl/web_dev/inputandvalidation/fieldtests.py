@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -28,7 +28,8 @@ from reahl.component.modelinterface import Field, EmailField, PasswordField, Boo
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, IntegerConstraint, \
                              MaxValueConstraint, MinValueConstraint, exposed
-from reahl.web.ui import Input, Form, TextInput, Button
+from reahl.web.ui import InputTypeInput, Form, TextInput
+from reahl.web.ui import Button
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.inputandvalidation.inputtests import InputMixin, InputMixin2
@@ -50,16 +51,14 @@ class ConstraintRenderingFixture(Fixture, WebBasicsMixin, InputMixin2):
         return text == self.driver_browser.get_text(self.error_xpath)
 
     def new_input(self, field=None):
-        the_input = Input(self.form, field or self.field)
-        the_input.input_type = 'inputtype'
-        return the_input
+        return InputTypeInput(self.form, field or self.field, 'inputtype')
 
 
 @istest
 class FieldTests(object):
     @test(ConstraintRenderingFixture)
     def rendering_of_constraints(self, fixture):
-        """The constraints of the Field of an Input are rendered in html as html attributes of an Input
+        """The constraints of the Field of an PrimitiveInput are rendered in html as html attributes of an Input
            which corresponds with the name of each validation_constraint and has value the parameters of the validation_constraint.
            The error message of each validation_constraint is also put in a json object inside the class attribute.
            These measures make it possible to write constraints that are checked on the browser either by
@@ -87,7 +86,7 @@ class FieldTests(object):
 
         actual = tester.render_html()
         escaped_json = html_escape('{"validate": {"messages": {"data-one": "validation_constraint 1 message", "data-two": "validation_constraint 2 message with apostrophe\\\\\'s"}}}')
-        expected_html = '''<input name="an_attribute" data-one="" data-two="a parameter" form="test" type="inputtype" value="field value" class="%s">''' % escaped_json
+        expected_html = '''<input name="an_attribute" data-one="true" data-two="a parameter" form="test" type="inputtype" value="field value" class="%s">''' % escaped_json
         vassert( actual == expected_html )
 
     @test(ConstraintRenderingFixture)

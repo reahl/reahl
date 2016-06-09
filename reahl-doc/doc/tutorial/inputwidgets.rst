@@ -1,4 +1,4 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Getting input from a user
 =========================
@@ -59,13 +59,16 @@ Here is a what we need in the address book application:
 Reahl models use makeup
 -----------------------
 
-The first step towards allowing a user to input anything, is to
+The first step towards allowing a user to input anything is to
 augment the model with :class:`~reahl.component.modelinterface.Field`\
-s that represent each attribute accessible from the user interface of
+s -- one for each of its attributes that will be accessible from the user interface of
 the application. In our example, the `name` and `email_address` attributes of
 an Address are exposed to the user.
 
-To augment our Address class with :class:`~reahl.component.modelinterface.Field`\ s, create a special method `fields()` on the class, and annotate it with the `@exposed` decorator. Such a method should take one argument: `fields` on which you can set each :class:`~reahl.component.modelinterface.Field` needed. Take care though -- each :class:`~reahl.component.modelinterface.Field` you create will eventually manipulate an attribute of the same name on instances of your class:
+To augment our Address class with :class:`~reahl.component.modelinterface.Field`\ s, you create a special method `fields()` on the class, and annotate it with the `@exposed` decorator. Such a method should take one argument: `fields` on which you can set each :class:`~reahl.component.modelinterface.Field` needed. 
+
+The name of each :class:`~reahl.component.modelinterface.Field` you set here should match the name of a normal Python attribute on your class. Reahl uses this information to set the attribute value on your object upon receiving user input for that :class:`~reahl.component.modelinterface.Field`. 
+
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :prepend: class Address(Base):
@@ -82,13 +85,13 @@ attribute on that Address which can be accessed via a user
 interface. We will need it in a moment when we start creating
 :class:`~reahl.web.ui.Input`\ s.
 
-.. note:: Fields vs Fields
+.. note:: Fields vs Columns
 
-   One thing that may be confusing is that Elixir Fields are added to
+   One thing that may be confusing is that SQLAlchemy Columns are added to
    Address, but Reahl :class:`~reahl.component.modelinterface.Field`\ s are added as well.
 
-   You have to keep in mind that Elixir has the job of persisting data
-   in a database.  The Elixir Field for `email_address` specifies that
+   You have to keep in mind that SQLAlchemy has the job of persisting data
+   in a database.  The SQLAlchemy Column for `email_address` specifies that
    the `email_address` attribute of an Address object will be saved to
    a database column that can deal with unicode text.
 
@@ -99,7 +102,7 @@ interface. We will need it in a moment when we start creating
    users.
 
    Reahl :class:`~reahl.component.modelinterface.Field`\ s could happily describe an attribute which does not get
-   persisted at all. Similarly, an Elixir :class:`~reahl.component.modelinterface.Field` could happily
+   persisted at all. Similarly, an SQLAlchemy Column could happily
    describe an attribute that is not `exposed` to a user interface.
 
 

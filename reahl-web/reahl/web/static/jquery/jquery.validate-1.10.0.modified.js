@@ -287,7 +287,9 @@ $.extend($.validator, {
 
 		init: function() {
 			this.labelContainer = $(this.settings.errorLabelContainer);
-			this.errorContext = this.labelContainer.length && this.labelContainer || $(this.currentForm);
+// Iwan: to be able to find and clear errors that are not physically children of their form (ie, are form-associated)
+//			this.errorContext = this.labelContainer.length && this.labelContainer || $(this.currentForm);
+			this.errorContext = this.labelContainer.length && this.labelContainer || $('html')
 			this.containers = $(this.settings.errorContainer).add( this.settings.errorLabelContainer );
 			this.submitted = {};
 			this.valueCache = {};
@@ -455,11 +457,16 @@ $.extend($.validator, {
 
 			// select all valid inputs inside the form (no submit or reset buttons)
 //			return $(this.currentForm)
-			return $('html')
-			.find("input, select, textarea")
-			.filter( function(index) {  // Iwan: to ignore form-associated elements from another form 
-			    return $(this).prop('form')===validator.currentForm; 
-			})
+		        var formInputs = $(validator.currentForm.elements);
+		        if (!formInputs) { /* in case of not html5 */
+			    formInput = $('html')
+				.find("input, select, textarea")
+				.filter( function(index) {  // Iwan: to ignore form-associated elements from another form 
+				    return $(this).prop('form')===validator.currentForm; 
+				});
+			};
+
+		        return formInputs
 			.not(":submit, :reset, :image, [disabled]")
 			.not( this.settings.ignore )
 			.filter(function() {

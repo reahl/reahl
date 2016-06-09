@@ -8,12 +8,14 @@ from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, Menu, \
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, FieldSet, Menu, \
                          HorizontalLayout,\
                          PasswordInput, ErrorFeedbackMessage, Slot, MenuItem, A, Widget, SelectInput, CheckboxInput
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField
-from reahl.web.pure import PageColumnLayout, UnitSize
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 
 
 class Address(Base):
@@ -169,7 +171,9 @@ class Collaborator(Base):
 class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
         super(AddressAppPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout(('main', UnitSize('1/2'))))
+        self.use_layout(PageLayout())
+        contents_layout = ColumnLayout(('main', UnitSize('1/2'))).with_slots()
+        self.layout.contents.use_layout(contents_layout)
 
         login_session = LoginSession.for_current_session()
         if login_session.is_logged_in():
@@ -178,7 +182,7 @@ class AddressAppPage(HTML5Page):
             logged_in_as = 'Not logged in'
 
         self.layout.header.add_child(P(view, text=logged_in_as))
-        self.layout.header.add_child(Menu.from_bookmarks(view, [home_bookmark]).use_layout(HorizontalLayout()))
+        self.layout.header.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks([home_bookmark]))
 
 
 class LoginForm(Form):
@@ -214,7 +218,7 @@ class HomePageWidget(Widget):
             self.add_child(LoginForm(view, accounts))
 
 
-class AddressBookList(Panel):
+class AddressBookList(Div):
     def __init__(self, view, address_book_ui):
         super(AddressBookList, self).__init__(view)
 
@@ -228,13 +232,13 @@ class AddressBookList(Panel):
             p.add_child(A.from_bookmark(view, bookmark))
         
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view, address_book, address_book_ui):
         self.address_book = address_book
         super(AddressBookPanel, self).__init__(view)
         
         self.add_child(H(view, 1, text='Addresses in %s' % address_book.display_name))
-        self.add_child(Menu.from_bookmarks(view, self.menu_bookmarks(address_book_ui)).use_layout(HorizontalLayout()))
+        self.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(self.menu_bookmarks(address_book_ui)))
         self.add_children([AddressBox(view, address) for address in address_book.addresses])
 
     def menu_bookmarks(self, address_book_ui):
@@ -246,7 +250,7 @@ class EditAddressForm(Form):
     def __init__(self, view, address):
         super(EditAddressForm, self).__init__(view, 'edit_form')
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Edit address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Edit address'))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.name)))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, address.fields.email_address)))
 
@@ -259,7 +263,7 @@ class AddAddressForm(Form):
 
         new_address = Address(address_book=address_book)
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.name)))
         grouped_inputs.add_child(LabelledBlockInput(TextInput(self, new_address.fields.email_address)))
 
@@ -297,10 +301,10 @@ class AddCollaboratorForm(Form):
     def __init__(self, view, address_book):
         super(AddCollaboratorForm, self).__init__(view, 'add_collaborator_form')
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add a collaborator'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add a collaborator'))
         grouped_inputs.add_child(LabelledBlockInput(SelectInput(self, address_book.fields.chosen_collaborator)))
 
-        rights_inputs = grouped_inputs.add_child(InputGroup(view, label_text='Rights'))
+        rights_inputs = grouped_inputs.add_child(FieldSet(view, legend_text='Rights'))
         rights_inputs.add_child(LabelledBlockInput(CheckboxInput(self, address_book.fields.may_edit_address)))
         rights_inputs.add_child(LabelledBlockInput(CheckboxInput(self, address_book.fields.may_add_address)))
 

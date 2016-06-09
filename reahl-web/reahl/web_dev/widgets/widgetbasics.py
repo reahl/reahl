@@ -217,7 +217,7 @@ class WidgetBasics(object):
     @test(WebFixture)
     def activating_javascript(self, fixture):
         """The JavaScript snippets of all Widgets are collected in a jQuery.ready() function by"""
-        """ an automatically inserted Widget in the slot named reahl_header.  Duplicate snippets are removed."""
+        """ an automatically inserted Widget in the slot named reahl_footer.  Duplicate snippets are removed."""
         @stubclass(Widget)
         class WidgetWithJavaScript(Widget):
             def __init__(self, view, fake_js):
@@ -230,10 +230,10 @@ class WidgetBasics(object):
         class MyPage(Widget):
             def __init__(self, view):
                 super(MyPage, self).__init__(view)
-                self.add_child(Slot(view, 'reahl_header'))
                 self.add_child(WidgetWithJavaScript(view, 'js1'))
                 self.add_child(WidgetWithJavaScript(view, 'js2'))
                 self.add_child(WidgetWithJavaScript(view, 'js1'))
+                self.add_child(Slot(view, 'reahl_footer'))
 
         class MainUI(UserInterface):
             def assemble(self):

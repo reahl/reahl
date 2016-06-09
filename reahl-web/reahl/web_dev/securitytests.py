@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -26,8 +26,10 @@ from reahl.stubble import EmptyStub
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.fw import Widget, UserInterface
-from reahl.web.ui import Form, TextInput, ButtonInput, Button, Panel, P, HTML5Page
-from reahl.web.pure import PageColumnLayout
+from reahl.web.ui import Form, TextInput, ButtonInput, Div, P, HTML5Page
+from reahl.web.ui import Button
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
 
 
@@ -60,7 +62,7 @@ class SecurityTests(object):
     def serving_security_sensitive_widgets(self, fixture):
         """If the page is security sensitive, it will only be served on config.web.encrypted_http_scheme,
            else it will only be served on config.web.default_http_scheme."""
-        class TestPanel(Panel):
+        class TestPanel(Div):
             def __init__(self, view):
                 super(TestPanel, self).__init__(view)
                 widget = self.add_child(Widget(view))
@@ -252,7 +254,7 @@ class SecurityTests(object):
                 fields.field_name = Field(default='abc', writable=Allowed(False), disallowed_message='you are not allowed to write this')
         model_object = ModelObject()
 
-        class TestPanel(Panel):
+        class TestPanel(Div):
             def __init__(self, view):
                 super(TestPanel, self).__init__(view)
                 form = self.add_child(Form(view, 'some_form'))
@@ -281,7 +283,7 @@ class SecurityTests(object):
                                         disallowed_message='you cannot do this')
 
         model_object = ModelObject()
-        class TestPanel(Panel):
+        class TestPanel(Div):
             def __init__(self, view):
                 super(TestPanel, self).__init__(view)
                 form = self.add_child(Form(view, 'some_form'))
@@ -295,8 +297,9 @@ class SecurityTests(object):
 
         browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':''})
         browser.follow_response()
+        input_id = browser.get_id_of('//input[@name="event.an_event?"]')
         error_label = browser.get_html_for('//label')
-        vassert( error_label == '<label for="event.an_event?" class="error">you cannot do this</label>' )
+        vassert( error_label == '<label for="%s" class="error">you cannot do this</label>' % input_id )
 
     @test(WebFixture)
     def getting_view(self, fixture):
@@ -327,7 +330,7 @@ class SecurityTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 home = self.define_view('/a_view', 'Title', write_check=disallowed)
                 home.set_slot('main', MyForm.factory())
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

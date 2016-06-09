@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -20,7 +20,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.tofu import scenario
 from reahl.tofu import test
 from reahl.tofu import vassert, expected
-from reahl.stubble import EmptyStub
+from reahl.stubble import EmptyStub, stubclass
 
 from reahl.web.ui import *
 from reahl.webdev.tools import WidgetTester
@@ -98,35 +98,24 @@ def dynamically_determining_attributes(fixture):
     rendered = tester.render_html()
     vassert( rendered == '<x dynamic="2" dynamiclist="2" fixed="value1">' )
 
-
 @test(WebFixture)
-def wrapper_widgets(fixture):
-    """Sometimes, a HTMLElement is "wrapped" by an Input which represents the HTMLElement. In this case,
-       dynamic as well as static attributes for the wrapped HTMLElement are obtained from its Input wrapper."""
+def delegating_setting_of_attributes(fixture):
+    """One or more DelegatedAttributes instances can be added to an HTMLElement as `attribute_source` -- an 
+       object which the HTMLElement can use in order to let some other object modify or add to its attributes.
+    """
 
-    class WrapperWidget(Input):
-        def get_wrapped_html_attributes(self, attributes):
-            attributes.set_to('set-by-wrapper', 'rhythm and poetry')
-            return attributes
+    @stubclass(DelegatedAttributes)
+    class MyDelegatedAttributesClass(DelegatedAttributes):
+        def set_attributes(self, attributes):
+            attributes.set_to('set-by-external-source', 'rhythm and poetry')
 
-    field = Field()
-    field.bind('aname', field)
-    wrapper = WrapperWidget(Form(fixture.view, 'formname'), field)
-    widget = HTMLElement(fixture.view, 'x', wrapper_widget=wrapper)
+    widget = HTMLElement(fixture.view, 'x')
+    widget.add_attribute_source(MyDelegatedAttributesClass())
     tester = WidgetTester(widget)
 
     # Case: dynamic attributes are supplied by the wrapper
     rendered = tester.render_html()
-    vassert( rendered == '<x set-by-wrapper="rhythm and poetry">' )
-
-    # Case:several methods to set static attributes are delegated from the wrapper
-    wrapper.set_id('myid')
-    wrapper.set_title('mytitle')
-    wrapper.add_to_attribute('list-attribute', ['one', 'two'])
-    wrapper.set_attribute('an-attribute', 'a value')
-
-    rendered = tester.render_html()
-    vassert( rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" set-by-wrapper="rhythm and poetry" title="mytitle">' )
+    vassert( rendered == '<x set-by-external-source="rhythm and poetry">' )
 
 @test(WebFixture)
 def all_html_widgets_have_css_ids(fixture):
@@ -303,7 +292,7 @@ class Scenarios(WebFixture):
 
     @scenario
     def colgroup(self):
-        self.widget = Colgroup(self.view, span='2')
+        self.widget = ColGroup(self.view, span='2')
         self.expected_html = '<colgroup span="2"></colgroup>'
 
     @scenario
@@ -367,9 +356,15 @@ class Scenarios(WebFixture):
         self.expected_html = '<fieldset></fieldset>'
         
     @scenario
-    def fieldset2(self):
+    def fieldset2deprecated(self):
         self.widget = FieldSet(self.view, label_text='text')
         self.expected_html = '<fieldset><label>text</label></fieldset>'
+
+    @scenario
+    def fieldset2(self):
+        self.widget = FieldSet(self.view, legend_text='text')
+        self.expected_html = '<fieldset><legend>text</legend></fieldset>'
+
 
 @test(Scenarios)
 def basic_html_widgets(fixture):

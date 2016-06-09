@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -26,10 +26,11 @@ from reahl.stubble import easter_egg
 from sqlalchemy import Column, Integer, ForeignKey
 
 from reahl.sqlalchemysupport import Session, metadata
-from reahl.web.ui import HTML5Page, Panel, P
-from reahl.web.pure import PageColumnLayout
+from reahl.web.ui import HTML5Page, Div, P
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.domain.workflowmodel import Task
-from reahl.domainui.workflow import InboxUI
+from reahl.domainui.workflow import InboxUI, TaskWidget
 from reahl.web.fw import UserInterface, Url
 from reahl.domain_dev.workflowtests import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
@@ -55,7 +56,7 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
             return fixture.queues
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 accounts = self.define_user_interface('/accounts', AccountUI, {'main_slot': 'main'},
                                               name='test_ui', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
@@ -77,19 +78,18 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
 
 
 class MyTask(Task):
-    __tablename__ = 'mytask'
+    __tablename__ = 'mytask_a'
     __mapper_args__ = {'polymorphic_identity': 'mytask'}
     id = Column(Integer, ForeignKey('task.id'), primary_key=True)
 
 
-class MyTaskWidget(Panel):
+class MyTaskWidget(TaskWidget):
     @classmethod
     def displays(cls, task):
         return task.__class__ is MyTask
 
-    def __init__(self, view, task):
-        super(MyTaskWidget, self).__init__(view)
-        self.add_child(P(view, text='my task widget'))
+    def create_contents(self):
+        self.add_child(P(self.view, text='my task widget'))
 
 
 @istest

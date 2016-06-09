@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
  
 Getting started with Reahl
@@ -12,8 +12,8 @@ Getting started with Reahl
 
    You probably know the important ones already:
 
-    - `virtualenv <http://pypi.python.org/pypi/virtualenv>`_
-    - `distribute <http://pypi.python.org/pypi/distribute>`_
+    - `virtualenv <https://pypi.python.org/pypi/virtualenv>`_
+    - `setuptools <https://pypi.python.org/pypi/setuptools/>`_
     - `nosetests <https://nose.readthedocs.org/en/latest/>`_
     - `SqlAlchemy <http://www.sqlalchemy.org/>`_; and
     - `Alembic <https://pypi.python.org/pypi/alembic/>`_.

@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Re-use: Allowing users to log in to your system
 ===============================================
@@ -6,7 +6,9 @@ Re-use: Allowing users to log in to your system
 .. sidebar:: Examples in this section
 
    - tutorial.login1
+   - tutorial.login1bootstrap
    - tutorial.login2
+   - tutorial.login2bootstrap
 
    Get a copy of an example by running:
 
@@ -75,8 +77,8 @@ correct database schema for all components that are listed as
 dependencies in your `.reahlproject`. Once again, refer back to
 :doc:`models` if you forgot how this works.
 
-Excercising the application
----------------------------
+Exercising the application
+--------------------------
 
 Our example application would be difficult to fire up and play with,
 because it has no user interface for registering new user accounts!
@@ -97,11 +99,11 @@ it, execute:
 
 .. code-block:: bash
 
-   nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.login1.login1_dev.logintests1:DemoFixture
+   nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.login1.login1_dev.login1tests:DemoFixture
 
 Here is all the code of the test itself:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/login1/login1_dev/logintests1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/login1/login1_dev/login1tests.py
 
 
 
@@ -148,7 +150,7 @@ programmer who wrote it. You can call that method from many different
 places, passing in different values for those arguments. Specifying
 the :class:`~reahl.web.ui.Slot`\ s when re-using a :class:`~reahl.web.fw.UserInterface` is similar.
 
-In this example, we used the :class:`~reahl.web.pure.PageColumnLayout` to add a :class:`~reahl.web.ui.Slot` named `main` to our MenuPage.  The :class:`~reahl.domainui.accounts.AccountUI` in turn has a :class:`~reahl.web.ui.Slot` named `main_slot`. Hence, it is necessary to
+In this example, we used a :class:`~reahl.web.layout.PageLayout` with a :class:`~reahl.web.pure.ColumnLayout` to add a :class:`~reahl.web.ui.Slot` named `main` to our MenuPage.  The :class:`~reahl.domainui.accounts.AccountUI` in turn has a :class:`~reahl.web.ui.Slot` named `main_slot`. Hence, it is necessary to
 state that `main_slot` of :class:`~reahl.domainui.accounts.AccountUI` plugs into `main` of our MenuPage.
 
 :class:`~reahl.domainui.accounts.AccountUI` also has its own requirements: it needs a number of
@@ -168,8 +170,8 @@ been modified to include some more items in its :class:`~reahl.web.ui.Menu`:
 .. literalinclude:: ../../reahl/doc/examples/tutorial/login2/login2.py
 
 
-Excercising the lazier application
-----------------------------------
+Exercising the lazier application
+---------------------------------
 
 .. warning::
 
@@ -193,9 +195,9 @@ again include a :class:`~reahl.tofu.Fixture` for setting up the application data
 
 .. code-block:: bash
    
-   nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.example.tutorial.login2.login2_dev.logintests2:DemoFixture
+   nosetests --with-run-fixture=reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.example.tutorial.login2.login2_dev.login2tests:DemoFixture
 
 
 Finally, and for completeness, here is the test code:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/login2/login2_dev/logintests2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/login2/login2_dev/login2tests.py

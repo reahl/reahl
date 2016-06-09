@@ -2,8 +2,9 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, Boolean
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
+from reahl.component.exceptions import ProgrammerError
 from reahl.sqlalchemysupport import Session, Base
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 

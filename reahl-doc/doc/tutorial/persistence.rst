@@ -1,4 +1,4 @@
-.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 A persistent model
 ==================
@@ -60,13 +60,14 @@ are some pointers to readers unfamiliar with SqlAlchemy:
 In order to map Address to a relational database table, we use SqlALchemy's
 Declarative extension:
 
-  * __tablename__ states which relational table Address instances go into
+  * __tablename__ states which relational table Address instances go into;
   * The assignment of `Column` instances to
     `email_address` and `name` states that those attributes of Address
-    are to be inserted in similarly named columns on the relational database
-    that are defined as per the Columns stated.
+    are to be inserted in similarly named columns on the relational database;
+  * The underlying database table columns will have types as indicated 
+    when constructing each Column object;
   * The id `Column` provides a unique identifier for each Address instance 
-    (and is also its primary key in the database)
+    (and is also its primary key in the database); and
   * To actually persist an Address instance to the database, 
     `Session.add()` is called.
 

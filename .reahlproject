@@ -40,14 +40,6 @@
     <egg name="reahl-domainui"/>
   </extras>  
 
-  <extras name="elixir">
-    <egg name="reahl-sqlalchemysupport" version="2.1"/>
-    <egg name="reahl-domain" version="2.1"/>
-    <egg name="reahl-domainui" version="2.1"/>
-    <egg name="reahl-web-elixirimpl" version="2.1"/>
-    <egg name="reahl-web-elixirimpl"/>
-  </extras>  
-
   <extras name="dev">
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>

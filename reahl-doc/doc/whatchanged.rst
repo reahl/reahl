@@ -1,255 +1,287 @@
-.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-What changed in version 3.1
+What changed in version 3.2
 ===========================
 
-Improved support for layout
----------------------------
-
-The main feature of this release is changes related to dealing more efficiently with 
-layout of Widgets.
-
-Using Pure instead of Yui
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The Yui 2 CSS grids project has quite a while ago been succeeded by
-Yui3, and more recently Yui3 has been succeeded by the Pure CSS
-library. In this release of Reahl, we switched to using Pure CSS
-instead.
-
-Backwards compatibility (for Widgets dependend on Yui2) is maintained, but not the default.
-Using Yui2 and thus Widgets depending on it, requires the following line of code to be
-added in your `reahl.web.config.py` file:
-
-.. code-block:: python
-
-   web.frontend_libraries.use_deprecated_yui()
-
-Yui2 and Pure cannot be used concurrently in the same project, and the
-default library used is Pure.
-
-Several Widgets are deprecated for this reason because their
-functionality is now provided in a slightly different way (see the
-next section), via :mod:`reahl.web.pure`::
-
- - :class:`reahl.web.ui.YuiDoc`
- - :class:`reahl.web.ui.YuiGrid`
- - :class:`reahl.web.ui.YuiBlock`
- - :class:`reahl.web.ui.YuiUnit`
- - :class:`reahl.web.ui.TwoColumnPage`:
-
-Switching over to Pure also changed the look of a site slightly. This
-change has to do with Pure's reliance on Modernize.js which only
-selectively clears styling of elements instead of Yui2's approach of
-clearing all styling from elements. 
-
-A new Layout concept
-~~~~~~~~~~~~~~~~~~~~
-
-A simple, yet powerful new concept was introduced to help deal with
-the issue of layout. This makes it possible for us to wrap the
-functionality of advanced layout engines in Python in future.
-
-Any :class:`reahl.web.fw.Widget` can now optionally use a :class:`reahl.web.fw.Layout`. 
-
-The Layout is attached to its Widget immediately after the Widget is
-constructed, by means of the :meth:`reahl.web.fw.Widget.use_layout` method.
-
-For example:
-
-.. code-block:: python
-
-   menu = Menu.from_bookmarks(view, bookmarks).use_layout(HorizontalLayout())
-
-The Layout is responsible for changing the Widget in subtle ways (such
-as adding CSS classes to it which would make it render in a particular
-way.  The Layout can also add children Widgets to its Widget, either
-just after construction of the Widget, or by special methods a
-programmer can call on a Widget.
-
-For example:
-
-It is possible to build, say a StackedFormLayout which allows a
-programmer to add inputs that stack on top of one another inside any
-Form using this Layout. Here is how that would look:
-
-.. code-block:: python
-
-   form = Form(view).use_layout(StackedFormLayout())
-   form.layout.add_stacked(TextInput(view, address.fields.name))
+.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 
 
-The concept of a Layout has made the following classes unnecessary, and thus deprecated:
+Bootstrap
+---------
 
- - :class:`reahl.web.ui.TwoColumnPage`:
+This release extends Reahl with (experimental) `Bootstrap <http://getbootstrap.com>`_ support.
 
-   This class was nothing more than an :class:`reahl.web.ui.HTML5Page`
-   to which certain children were added with CSS that made it display
-   in columns. The much more powerful
-   :class:`reahl.web.pure.PageColumnLayout` was added which can be
-   applied to an
-   :class:`reahl.web.ui.HTML5Page`. :class:`reahl.web.pure.PageColumnLayout`
-   is more flexible than :class:`reahl.web.ui.TwoColumnPage`, allowing
-   you more control over the number of columns.
+Going forward (Reahl 4.0 onwards) we will base all our Widgets and
+styling on `the Bootstrap web frontend library
+<http://getbootstrap.com>`_ with the aim of sporting a better look and
+better layout tools.
 
- - :class:`reahl.web.ui.HMenu` and :class:`reahl.web.ui.VMenu`:
+This release is a transitional release: it has Bootstrap based Widgets 
+and Layouts added side-by-side to what already exists. However, since 
+Bootstrap 4 was still in alpha at the time of this release, this support
+is labelled as experimental and it is not enabled by default.
 
-   These classes were made obsolete by the new
-   :class:`reahl.web.ui.HorizontalLayout` and
-   :class:`reahl.web.ui.VerticalLayout` classes that can be applied to
-   any :class:`reahl.web.ui.Menu` or one of its subclasses.
-
-
-
-LoginSession and related dependencies
--------------------------------------
-
-The Reahl web framework (reahl-web) is dependent on a small number
-of classes that are implemented using a specific persistence
-technology. The reahl-web-declarative component contains our current
-implementation of these -- done using SqlAlchemy's declarative layer.
-
-These classes are kept separate in order to minimize the work needed
-to use the framework in conjunction with a different persistence
-technology.  Previously one of these classes, the UserSession,
-contained functionality regarding the logging in of users, and keeping track
-of who is logged in. This functionality in turn was dependent on a
-whole host of other code in reahl-domain, defeating the purpose of
-keeping the implementation separate: to provide the implementation of
-the framework on a different technology, one had to implement a large
-body of code.
-
-For this reason, functionality pertaining to logging users into the
-system is now split out into its own class, :class:`reahl.domain.systemaccountmodel.LoginSession`. 
-LoginSession is part of reahl-domain, meaning it is part of extra niceties
-that are not needed for the core framework to work. As a result, 
-UserSession is no longer dependent on reahl-domain, and the
-reahl-web-declarative implementation as a whole is no longer dependent
-on the functionality of reahl-domain.
-
-Some repercussions:
-
-  - This change impacts the interface one needs to provide in order to
-    provide an implementation of the framework using a different
-    persistence technology (now only reahl.web.interfaces). As a result, 
-    this version of Reahl cannot be used with the older
-    Elixir implementation anymore. The Elixir implementation implements
-    the older interface.
-
-  - :class:`reahl.domain.systemaccountmodel.LoginSession` is
-    introduced, which keeps track of who is currently logged on, but does
-    not form part of the core web framework any longer.
-
-  - The following methods on :class:`reahl.web.interfaces.UserSessionProtocol` have changed:
-
-      - :meth:`reahl.web.interfaces.UserSessionProtocol.is_secured` was added. It answers whether the user is communicationg 
-        via secure channel without considering whether a user is logged in or not.
-
-      - UserSessionProtocol.is_logged_in() was moved to
-        :class:`reahl.domain.systemaccountmodel.LoginSession`.  A
-        version of UserSession.is_logged_in() was left on UserSession,
-        but deprecated in order to maintain backwards compatibility
-        for the 3.x series.
-
-      - The functionality previously provided by
-        UserSession.is_secure() was moved to
-        :meth:`reahl.domain.systemaccountmodel.LoginSession.is_logged_in`,
-        when used with secured=True.  With secured=True, is_logged_in
-        checks whether the user is logged in *while* connected via
-        secure channel. A version of UserSession.is_secure() was left
-        on UserSession, but deprecated in order to maintain backwards
-        compatibility for the 3.x series.
+The addition of Bootstrap-based |Widget|\s is the major change
+prompting this release. How it works, how its different and how you can
+enable it are all :doc:`discussed in the tutorial
+<tutorial/bootstrap/index>` and won't be repeated here.
 
 
-Wheels
+Elixir
 ------
 
-We now build and distribute packages using Python Wheels instead of a source 
-distribution. While Reahl packages at present are all pure Python packages, many
-of the projects that Reahl depends on need compiling. Using wheels sets us on the
-path to easier installation of these packages once they provide wheels too.
+The Reahl 3.1 series allowed use of the `reahl-web-elixirimpl` egg which was distributed 
+with Reahl 2.x to ease transition from the 2 to 3 series. In Reahl 3.2 this usage of some
+older 2.x version eggs is no longer supported.
+
+Changes to existing layout tools
+--------------------------------
+
+.. |PageColumnLayout| replace:: :class:`~reahl.web.pure.PageColumnLayout`
+.. |pure.ColumnLayout| replace:: :class:`reahl.web.pure.ColumnLayout`
+.. |grid.ColumnLayout| replace:: :class:`reahl.web.bootstrap.grid.ColumnLayout`
+.. |Layout| replace:: :class:`~reahl.web.fw.Layout`
+.. |PageLayout| replace:: :class:`~reahl.web.layout.PageLayout`
+
+In the process of having to support Bootstrap, our existing concept of
+|PageColumnLayout| has grown too. 
+
+|PageColumnLayout| has too much responsibility. It structures a page
+with header, footer etc but it also structures the content area of the
+page into columns. In order to do this, |PageColumnLayout|
+hard-codes the use of a |pure.ColumnLayout| and we wanted to be able
+to use it with a |grid.ColumnLayout| too.
+
+The new :class:`reahl.web.layout.PageLayout` solves this problem by
+only taking responsibility for the page itself (header, content,
+footer). You can optionally also set up a |PageLayout| with a separate
+|Layout| for each of it parts (header, document, content,
+footer). Detailed layout of each part is thus decoupled from the
+|PageLayout| itself and delegated to whatever |Layout| you specify for
+that part.
+
+This arrangement makes it possible to use |PageLayout| with either a
+|pure.ColumnLayout| or the new |grid.ColumnLayout| in addition to
+other possibilities.
+
+Updated dependencies
+--------------------
+
+Some thirdparty JavaScript libraries were updated:
+
+  - jQuery from 1.8.1 to 1.11.2 (with jquery-migrate 1.2.1 added)
+  - jquery-blockui to 2.70.0
+
+The versions of some external dependencies were updated:
+
+  - Babel from 1.3 to 2.1
+  - docutils max version 1.12 to < 1.13
+  - selenium max version from < 2.43 to < 3
 
 
-Other changed dependencies
---------------------------
+Development web server
+----------------------
 
-The reahl-tofu component used to be dependent on reahl-component on
-nose. These dependencies were unnecessary and forced someone who only
-wanted to install reahl-tofu to also install reahl-component and
-nose. These dependencies have been removed.
+The development web server (invoked with ``reahl serve``) now has the
+ability to watch for file changes in multiple directories, and restart
+itself when a change is detected. 
+
+See:
+
+.. code:: bash
+
+   reahl serve -h
+
+
+Holder
+------
+
+The :mod:`reahl.web.holder.holder` module was added to be able to use
+`holder.js <http://imsky.github.io/holder/>`_ to generate images on
+the fly in a client browser.
+
+
+Dealing with front-end libraries
+--------------------------------
+
+Reahl is written in Python, but it has a lot of JavaScript and CSS
+code under the covers. Reahl also makes use of other "front-end
+libraries" (projects that live in the JavaScript/CSS world).
+
+The :mod:`reahl.web.libraries` module was added for dealing with such
+front-end libraries. The same mechanism is now also used internally by
+Reahl to ship its own JavaScript and CSS. 
+
+If you develop your own Widgets that include CSS of JavaScript code,
+you should now use this mechanism to distribute such front-end
+code as your own front-end library.
+
+
+Miscellaneous 
+-------------
+
+
+Bookmark
+~~~~~~~~
+
+.. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
+
+For |Bookmark|, a `locale` argument was added to force the created
+|Bookmark| to be in a specific locale, possibly different from the
+current one.
+
+Widget
+~~~~~~
+
+.. |HTMLElement| replace:: :class:`~reahl.web.ui.HTMLElement`
+
+Many |Widget|\s inconsistently could receive a `css_id` kwarg upon
+construction. This is now deprecated. Instead only simple |Widget|\s
+that are subclasses from |HTMLElement| now support this interface.
+
+HTMLElement
+~~~~~~~~~~~
+
+.. |enable_refresh| replace:: :meth:`~reahl.web.ui.HTMLElement.enable_refresh`
+.. |query_fields| replace:: :meth:`~reahl.web.fw.Widget.query_fields`
+
+Previously, an |HTMLElement| could be set up so that it is refreshed
+via ajax if any of its |query_fields| changed. This was done by
+calling |enable_refresh|. These ideas were refined a little:
+|enable_refresh| can now be given a list of the |query_fields| so that
+the |HTMLElement| will only be refreshed if the changing `query_field` 
+is included in the list sent to |enable_refresh|. Others are ignored.
+
+Label
+~~~~~
+
+.. |Label| replace:: :class:`~reahl.web.ui.Label`
+.. |Input| replace:: :class:`~reahl.web.ui.Input`
+
+The constructor of |Label| now takes an additional optional keyword
+argument: `for_input` to indicate which |Input| it labels.
+
+
+FieldSet
+~~~~~~~~
+
+.. |FieldSet| replace:: :class:`~reahl.web.ui.FieldSet`
+
+A |FieldSet| could be constructed with the keyword argument `label_text`
+in which case a :class:`~reahl.web.ui.Label` would be added at the 
+start of the |FieldSet|. This is an incorrect usage of |Label|
+according to the HTML specification, hence this usage is now deprecated.
+
+Instead, a `legend_text` keyword argument was added. If `legend_text` is
+given, a :class:`~reahl.web.ui.Legend` will be added to the |FieldSet|
+with the given text.
+
+
+Menu
+~~~~
+
+.. |Menu| replace:: :class:`~reahl.web.ui.Menu`
+
+The way one creates a |Menu| has been changed. Instead of creating
+a |Menu| from certain sources, it should now be created empty and
+then populated using a set of new methods.
+
+For example, a |Menu| could previously be created to contain items
+for a given list of |Bookmark|\s by using the class method
+:meth:`~reahl.web.ui.Menu.from_bookmarks`\. A |Menu| could also be
+created for all supported locales with
+:meth:`~reahl.web.ui.Menu.from_languages`.
+
+These methods have been deprecated in favour of a new interface
+by which you first create an empty |Menu| and then populate it using
+one of:
+
+ - :meth:`~reahl.web.ui.Menu.with_bookmarks`
+ - :meth:`~reahl.web.ui.Menu.with_a_list`
+ - :meth:`~reahl.web.ui.Menu.with_languages`
+
+Several methods also let you add items individually from similar 
+sources:
+
+ - :meth:`~reahl.web.ui.Menu.add_bookmark`
+ - :meth:`~reahl.web.ui.Menu.add_a`
+ - :meth:`~reahl.web.ui.Menu.add_submenu`
+
+Table
+~~~~~
+
+.. |Table| replace:: :class:`~reahl.web.ui.Table`
+
+A |Table| could previously be created pre-populated with a set of
+defined columns and a bunch of rows generated from given data by
+using :meth:`~reahl.web.ui.Table.from_columns`.
+
+This method has now been deprecated. The same effect can now be 
+achieved by calling :meth:`~reahl.web.ui.Table.with_data` on an
+already created |Table|\.
+   
+This was done to allow one to use a |Layout| on the |Table|\, which
+would not be possible before. (A |Layout| has to be attached
+to its |Table| before data is added to the |Table| so that the 
+added rows adhere to the |Layout|.)
+
+
+Tofu
+----
+
+.. |Fixture| replace:: :class:`~reahl.tofu.Fixture`
+
+One of the defining features of a |Fixture| is that it can have
+methods for creating new objects for use in the test. All the
+arguments of these methods are keyword arguments with default values
+so that you can easily create a new object with default setup or
+choose to create a instance that only customises values important to
+the test.
+
+For example:
+
+.. code:: python
+
+   def new_person(self, name='Jane', surname='Doe):
+       return Person(name, surname)
+
+Such a method can be called in different ways:
+
+.. code:: python
+
+   jane = fixture.new_person()
+   john = fixture.new_person(name=John)
+
+If you access an attribute on a |Fixture| with the `new_` prefix
+chopped off, the corresponding `new_` method is called without
+arguments to create and instance to be returned.  This instance is
+then stored so that subsequent calls keep returning that same
+"singleton" instance:
+
+.. code:: python
+
+   assert fixture.person is fixture.person
+
+In the past, singleton instances created like this were never torn
+down. In most cases it is not necessary to tear them down because the
+entire |Fixture| is thrown away after a test. We also abort the
+database between each of our tests, so that database-persisted
+instances are also cleaned up.
+
+Sometimes (albeit rarely) it is useful to be able to tear down some of
+these singleton instances explicitly when the |Fixture| itself is
+being torn down. In order to do this, you can now have a corresponding
+method prefixed with `del_` which will be called at |Fixture| tear
+down time:
+
+.. code:: python
+
+   def del_person(self, person): # do stuff to clean up after person
+
+The `del_` methods are called when tearing down the |Fixture| before
+any other tear down mechanisms are invoked, and in reverse order of
+creation of each singleton instance.
 
 
 
-Development infrastructure
---------------------------
-
-Several internal changes were made internally, and so some development infrastructure
-to be able to use tools such as devpi and tox, which were not available when we started 
-out. These resulted in a number of small changes that are visible to users:
-
-  - The `reahl upload` command has two new options:
-    `--ignore-release-checks` and `--ignore-upload-check`. The
-    `--ignore-release-checks` option allows one to upload a package
-    even if some release check (such as it not being committed) fails.
-    The `--ignore-upload-check` allows an upload even when the package has
-    already been uploaded previously.
-
-    These switches make it possible to upload packages repeatedly to a devpi
-    staging server before an actual release.
-
-  - The `reahl upload` command now also does a register before it uploads to a pypi-like
-    repository, so that a separate register step is not necessary anymore.
-
-  - The `reahl shell` command gained the `--generate-setup-py` option. The `setup.py`
-    file of a Reahl project is generated from its `.reahlproject` file. Sometimes
-    one needs to execute a command (tox is an example) which is dependent on the
-    `setup.py`. This switch allows execution via `reahl shell`. For example, the
-    following command generates an up-to-date `setup.py`, runs tox, and then removes
-    the generated `setup.py` again:
-
-    .. code-block:: bash
-
-       reahl shell --generate-setup-py -- tox
-
-  - Two commands were added to the `reahl` script: `devpitest` and `devpipush`. These run
-    `devpi test` and `devpi push` on the current project, respectively, but with suitable
-    arguments for the exact version of the current project. The `devpi test` command, for 
-    example, needs to be passed an spec, such as: `reahl-doc==3.1.0` to test the exact version
-    that is under development. We need to be able to run such a command for all components
-    making up Reahl, each with a different spec. This is now possible via, for example:
-
-    .. code-block:: bash
-
-       reahl devpitest -sX
-
-    or:
-
-    .. code-block:: bash
-
-       reahl devpipush -sX -- pypi:pypi
-
-  - In order to use nosetests in a more natural way (from a nose perspective), we have
-    added two features to reahl.tofu.nosesupport:
-
-    - We like to do tests slightly differently to how they are done
-      generally: we put all tests in a single directory and we do not
-      want to use naming conventions for test discovery. The :class:`reahl.tofu.nosesupport.MarkedTestsPlugin` 
-      (`--with-marked-tests`) allows this. It changes nose test discovery
-      to apply the naming conventions to *files only*, and inside those files
-      it only sees something as a test if it has been marked with the @istest, or 
-      tofu's @test() decorators.
-
-      `--with-marked-tests` plays well with other nose plugins, and supercedes the 
-      older `--with-test-directory` which does not play well with other nose plugins.
-
-    - Using a run fixture per project (via the `--with-run-fixture`
-      plugin) is not very "nose". The "nose" way of doing things is to
-      have a setup and teardown methods in, say the `__init__.py` of
-      the package where such batch setup should apply.
-
-      The function :func:`reahl.tofu.nosesupport.set_run_fixture`
-      was added to deal with this situation. It can be called in an
-      `__init__.py` to add setup and teardown methods there as nose
-      expects.  The effect of this is to make the run fixture apply
-      for the duration of tests in that package.
 

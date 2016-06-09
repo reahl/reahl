@@ -1,0 +1,19 @@
+
+.reahl-datatable th > a {
+    display: inline-block;
+    width: 100%;
+}
+
+
+.reahl-datatable th > a:after {
+    float: right;
+}
+
+.reahl-datatable th > a.sorted-descending:after {
+    content: '▼';
+}
+
+.reahl-datatable th > a.sorted-ascending:after {
+    content: '▲';
+}
+

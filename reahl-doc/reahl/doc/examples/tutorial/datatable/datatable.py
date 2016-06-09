@@ -5,21 +5,23 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from sqlalchemy import Column, Integer, UnicodeText
 from sqlalchemy.orm.exc import NoResultFound
 
-from reahl.sqlalchemysupport import Session, Base
+from reahl.sqlalchemysupport import Session, Base, QueryAsSequence
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
-from reahl.web.ui import Panel, P, TextInput, HTML5Page, StaticColumn, DynamicColumn
-from reahl.web.pure import PageColumnLayout
-from reahl.web.ui import Button, Form, H, Menu, HorizontalLayout, InputGroup, LabelledBlockInput, A
-from reahl.web.table import DataTable
+from reahl.web.ui import Div, P, TextInput, HTML5Page, StaticColumn, DynamicColumn
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
+from reahl.web.ui import Button, Form, H, Menu, HorizontalLayout, FieldSet, LabelledBlockInput, A
+from reahl.web.datatable import DataTable
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action, BooleanField
 
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout('main'))
-        menu = Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout())
+        self.use_layout(PageLayout())
+        self.layout.contents.use_layout(ColumnLayout('main').with_slots())
+        menu = Menu(view).use_layout(HorizontalLayout()).with_bookmarks(main_bookmarks)
         self.layout.header.add_child(menu)
 
 
@@ -68,19 +70,19 @@ class Row(object):
         return getattr(self.address, name)
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view, address_book_ui):
         super(AddressBookPanel, self).__init__(view)
-        self.rows = self.initialise_rows()
+        self.rows = QueryAsSequence(Session.query(Address).order_by(Address.id), map_function=lambda address: Row(address))
 
         self.add_child(H(view, 1, text='Addresses'))
         
         def make_link_widget(view, row):
             return A.from_bookmark(view, address_book_ui.get_edit_bookmark(row.address, description='Edit'))
 
-        columns = [StaticColumn(Field(label='Name'), 'name', sort_key=lambda x: x.address.name),
-                   StaticColumn(EmailField(label='Email'), 'email_address', sort_key=lambda x: x.address.email_address),
-                   StaticColumn(IntegerField(label='Zip'), 'zip_code', sort_key=lambda x: x.address.zip_code),
+        columns = [StaticColumn(Field(label='Name'), 'name', sort_key=Address.name),
+                   StaticColumn(EmailField(label='Email'), 'email_address', sort_key=Address.email_address),
+                   StaticColumn(IntegerField(label='Zip'), 'zip_code', sort_key=Address.zip_code),
                    DynamicColumn('', make_link_widget)]
 
         data_table = DataTable(view,
@@ -91,15 +93,13 @@ class AddressBookPanel(Panel):
                                 css_id='address_data')
         self.add_child(data_table)
 
-    def initialise_rows(self):
-        return [Row(address) for address in Session.query(Address).all()]
 
 
 class EditAddressForm(Form):
     def __init__(self, view, address):
         super(EditAddressForm, self).__init__(view, 'edit_form')
 
-        grouped_inputs = InputGroup(view, label_text='Edit address')
+        grouped_inputs = FieldSet(view, legend_text='Edit address')
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, address.fields.email_address)) )
         self.add_child(grouped_inputs)
@@ -112,7 +112,7 @@ class AddAddressForm(Form):
         super(AddAddressForm, self).__init__(view, 'add_form')
 
         new_address = Address()
-        grouped_inputs = InputGroup(view, label_text='Add an address')
+        grouped_inputs = FieldSet(view, legend_text='Add an address')
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.email_address)) )
         self.add_child(grouped_inputs)

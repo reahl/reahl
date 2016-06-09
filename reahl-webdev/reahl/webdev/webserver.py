@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -117,95 +117,117 @@ class NoopApp(object):
     def clear_exception(self):
         pass
 
+from wsgiref.simple_server import ServerHandler
 
-class LoggingRequestHandler(simple_server.WSGIRequestHandler):
+class PatchedServerHandler(ServerHandler):
+    # We modify simple_server.ServerHandler to work around some
+    # problems experienced with it.
+    def finish_response(self):
+        # If the browser closes the connection while we still want to sen stuff back,
+        # we want to fail silently and give up. This often happens in tests where the
+        # browser may want to request embedded links (like stylesheets) too, yet the
+        # test has already clicked on the next link.
+        if six.PY3:
+            ssl_eof_error = ssl.SSLEOFError
+            broken_pipe_error = BrokenPipeError
+        else:
+            ssl_eof_error = ssl.SSLError
+            broken_pipe_error = socket.error
+            
+        try:
+            ServerHandler.finish_response(self)
+        except (ssl_eof_error,  broken_pipe_error):
+            # Silently ignore it if it looks like the client browser closed the connection.
+            pass
+
+
+class SingleWSGIRequestHandler(simple_server.WSGIRequestHandler):
+    # We modify simple_server.WSGIRequestHandler slightly to work around some
+    # problems experienced with it.
+    def handle(self):
+        # A modified copy of simple_server.WSGIRequestHandler.handle
+        #
+        # We first check if there really IS something to read on the socket
+        # because as soon as ReahlWSGIServer.connection_is_pending becomes
+        # true, A SingleWSGIRequestHandler is created already. However, the
+        # fact that the browser made a connection does not mean it has sent
+        # HTTP requests yet. So, we cannot really serve yet.
+        #
+        # We first check whether something has actually arrived here by
+        # temporarily setting a timeout on the socket to read the first byte.
+        # We suspect that the browser connects eagerly (pre-connect) before it
+        # has a request to send in order to gain a speed benefit. 
+        #
+        # We also use this override to use our PatchedServerHandler instead of
+        # ServerHandler to handle HTTP requests.
+        try:
+            self.request.settimeout(0.1)
+            self.raw_requestline = self.rfile.read(1)
+        except (socket.timeout, ssl.SSLError):
+            return
+        finally:
+            self.request.settimeout(None)
+            
+        self.raw_requestline = self.raw_requestline + self.rfile.readline(65536)
+        if len(self.raw_requestline) > 65536:
+            self.requestline = ''
+            self.request_version = ''
+            self.command = ''
+            self.send_error(414)
+            return
+
+        if not self.parse_request(): # An error code has been sent, just exit
+            return
+
+        handler = PatchedServerHandler(
+            self.rfile, self.wfile, self.get_stderr(), self.get_environ()
+        )
+        handler.request_handler = self      # backpointer for logging
+        handler.run(self.server.get_app())
+
+        
     def log_message(self, format, *args):
         message = format % args
         logging.getLogger(__name__).info(message)
 
-    def setup(self):
-        simple_server.WSGIRequestHandler.setup(self)
-        # The server will get here if requests_waiting() returned True.
-        # In some cases (ref: chrome prefetching/preconnecting) requests_waiting() will return True,
-        #   but there really is nothing to read on the socket, and our server will block here.
-        # All this timeout stuff justs safeguards against that eventuality - which is a hard thing
-        #   to debug if it happens.
-        if six.PY2:
-            self.rfile._sock.settimeout(3)  
-        else:
-            self.connection.settimeout(3)
 
-    def patched_super_call_to_handle(self):
-        simple_server.WSGIRequestHandler.handle(self)
-
-    def handle(self):
-        try:
-            self.patched_super_call_to_handle()
-        except socket.timeout:
-            message = 'Server socket timed out waiting to receive the request. This may happen if the server mistakenly deduced that there were requests waiting for it when there were not. Such as when chrome prefetches things, etc.'
-            logging.getLogger(__name__).warning(message)
-
-    def finish_response(self):  
-        simple_server.WSGIRequestHandler.finish_response()
-
-
-class SSLWSGIRequestHandler(LoggingRequestHandler):
-    def get_environ(self):
-        env = simple_server.WSGIRequestHandler.get_environ(self)
-        env['HTTPS']='on'
-        return env
-
-    # Copied from wsgiref/simple_server.py ServerHandler.handle
-    def patched_super_call_to_handle(self):
-        """Handle a single HTTP request"""
-
-        self.raw_requestline = self.rfile.readline()
-        if not self.parse_request(): # An error code has been sent, just exit
-            return
-
-        handler = simple_server.ServerHandler(
-            self.rfile, self.wfile, self.get_stderr(), self.get_environ()
-        )
-        #------ BEGIN here is our patch        
-        original_write = handler.write
-        def patched_write(data):
-            try:
-                original_write(data)
-            except ssl.SSLError as ex:
-                message = 'Browser stopped reading our response, ignoring the resulting exception: %s' % ex
-                logging.getLogger(__name__).debug(message)
-        handler.write = patched_write
-        #------ END here is our patch
-        
-        handler.request_handler = self      # backpointer for logging
-        handler.run(self.server.get_app())
 
 
 class ReahlWSGIServer(simple_server.WSGIServer):
     @classmethod
     def make_server(cls, host, port, reahl_wsgi_app):
         httpd = simple_server.make_server(host, port, reahl_wsgi_app, server_class=cls, 
-                                          handler_class=LoggingRequestHandler)
+                                          handler_class=SingleWSGIRequestHandler)
         return httpd
 
     def __init__(self, server_address, RequestHandlerClass):
         simple_server.WSGIServer.__init__(self, server_address, RequestHandlerClass)
         self.allow_reuse_address = True
         
-    def serve_async(self):
-        if self.requests_waiting(0.01):
-            self.handle_waiting_request()
+    def serve_async(self, in_separate_thread=False):
+        if self.connection_is_pending(0.01):
+            self.handle_waiting_request(in_separate_thread)
 
-    def handle_waiting_request(self):
+    def handle_waiting_request(self, in_separate_thread):
+        self.in_separate_thread = in_separate_thread
         self.handle_request()
         try:
             self.get_app().report_exception()
         finally:
             self.get_app().clear_exception()
     
-    def requests_waiting(self, timeout):
-        i, o, w = select.select([self.socket],[],[],timeout)
+    def connection_is_pending(self, timeout):
+        i, o, w = select.select([self],[],[],timeout)
         return i
+
+    def handle_error(self, request, client_address):
+        exc_type, exc, tb = sys.exc_info()
+        if isinstance(exc, socket.error) and exc.errno == 32:
+            # PY2: Silently ignore it if it looks like the client browser closed the socket.
+            pass
+        else:
+            simple_server.WSGIServer.handle_error(self, request, client_address)
+                
 
 
 class SSLCapableWSGIServer(ReahlWSGIServer):
@@ -213,14 +235,15 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
     def make_server(cls, host, port, certfile, reahl_wsgi_app):
         cls.certfile = certfile
         httpd = simple_server.make_server(host, port, reahl_wsgi_app, server_class=cls, 
-                                          handler_class=SSLWSGIRequestHandler)
+                                          handler_class=SingleWSGIRequestHandler)
         return httpd
 
-    def __init__(self, server_address, RequestHandlerClass):
-        ReahlWSGIServer.__init__(self, server_address, RequestHandlerClass)
-        self.socket = ssl.wrap_socket(self.socket, certfile=self.certfile)
-        
-    def get_request(self):
+    def setup_environ(self):
+        ReahlWSGIServer.setup_environ(self)
+        self.base_environ['HTTPS']='on'
+
+    def server_bind(self):
+        self.socket = ssl.wrap_socket(self.socket, server_side=True, certfile=self.certfile)
         if six.PY2:
             #This method is shamelessly copied from WerkZeug (and changed)
             class _SSLConnectionFix(object):
@@ -235,22 +258,17 @@ class SSLCapableWSGIServer(ReahlWSGIServer):
 
                 def __getattr__(self, attrib):
                     return getattr(self._con, attrib)
-
-            con, info = self.socket.accept()
-            con = _SSLConnectionFix(con)
-        else:
-            con, info = self.socket.accept()
-        
-        return con, info
-
-    def finish_request(self, request, client_address):
-        try:
-            ReahlWSGIServer.finish_request(self, request, client_address)
-        except ssl.SSLError as ex:
-            pass
+                
+            old_accept = self.socket.accept
+            def patched_accept():
+                con, info = old_accept()
+                return _SSLConnectionFix(con), info
+            self.socket.accept = patched_accept
+        ReahlWSGIServer.server_bind(self)
 
 
-class Handler(object):
+
+class WebDriverHandler(object):
     def __init__(self, command_executor):
         self.command_executor = command_executor
         self.original_execute = command_executor.execute
@@ -459,8 +477,8 @@ class ReahlWebServer(object):
         with context:
             while self.running:
                 try:
-                    self.httpd.serve_async()
-                    self.httpsd.serve_async()
+                    self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
+                    self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
                 except:  
                     # When running as a standalone server, we keep the server running, but else break so tests break
                     if self.in_separate_thread and self.running:
@@ -486,7 +504,6 @@ class ReahlWebServer(object):
     def wait_for_server_to_complete(self):
         try:
             self.httpd_thread.join()
-            self.https_thread.join()
         finally:
             self.stop()
 
@@ -518,25 +535,25 @@ class ReahlWebServer(object):
         self.httpd.server_close()
         self.httpsd.server_close()
 
-    def requests_waiting(self, timeout):
-        return self.httpd.requests_waiting(timeout) or self.httpsd.requests_waiting(timeout/10)
+    def connection_is_pending(self, timeout):
+        return self.httpd.connection_is_pending(timeout) or self.httpsd.connection_is_pending(timeout/10)
 
     def serve_until(self, done):
         while not (done() or self.reahl_wsgi_app.has_uncaught_exception()):
-            self.httpd.serve_async()
-            self.httpsd.serve_async()
+            self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
+            self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
 
     def serve(self, timeout=0.01):
         """Call this method once to have the server handle all waiting requests in the calling thread."""
         def done():
-            return not self.requests_waiting(timeout)
+            return not self.connection_is_pending(timeout)
         self.serve_until(done)
 
     def install_handler(self, web_driver):
         """Installs this server's request handler into the given `web_driver`. This enables the
            server to serve requests from the web_driver in the current thread."""
-        assert web_driver not in self.handlers.keys(), 'Handler already installed into %s' % web_driver
-        new_handler = Handler(web_driver.command_executor)
+        assert web_driver not in self.handlers.keys(), 'WebDriverHandler already installed into %s' % web_driver
+        new_handler = WebDriverHandler(web_driver.command_executor)
         self.handlers[web_driver] = new_handler
         new_handler.install(self)
 
@@ -547,6 +564,18 @@ class ReahlWebServer(object):
     def reinstall_handlers(self):
         for handler in self.handlers.values():
             handler.reinstall()
+
+    @contextmanager
+    def paused(self, wait_till_done_serving=True):
+        self.restore_handlers()
+        try:
+            yield
+        finally:
+            try:
+                if wait_till_done_serving:
+                    self.serve()
+            finally:
+                self.reinstall_handlers()
 
     @contextmanager
     def in_background(self, wait_till_done_serving=True):

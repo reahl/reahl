@@ -7,14 +7,14 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, Menu, HorizontalLayout
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, FieldSet, Menu, HorizontalLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view, style='basic')
-        self.body.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
+        self.body.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(main_bookmarks))
 
 
 class HomePage(AddressBookPage):
@@ -42,7 +42,7 @@ class AddressBookUI(UserInterface):
         self.define_transition(Address.events.save, add, addresses)
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 
@@ -58,7 +58,7 @@ class AddAddressForm(Form):
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.email_address)) )
 

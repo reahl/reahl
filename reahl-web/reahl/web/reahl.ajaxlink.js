@@ -1,4 +1,4 @@
-/* Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved. */
+/* Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved. */
 /*
     This file is part of Reahl.
 
@@ -25,6 +25,7 @@ $.widget('reahl.ajaxlink', {
 
     _create: function() {
         var o = this.options;
+        var _this = this;
         this.element.addClass('reahl-ajaxlink');
 
         var href = this.element.attr('href');
@@ -42,8 +43,10 @@ $.widget('reahl.ajaxlink', {
                 var element = this.element;
                 this.element.click( function() {
                     var current_state = $.deparam.fragment();
-                    var newHref = $.param.fragment(ajaxHref, current_state, 1);
+                    var current_href = _this.element.attr('href');
+                    var newHref = $.param.fragment(current_href, current_state, 1);
                     element.attr('href', newHref);
+                    setTimeout(function(){ element.attr('href', current_href);}, 0);
                 });
             };
         };

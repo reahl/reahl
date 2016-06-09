@@ -7,19 +7,22 @@ from sqlalchemy import Column, Integer, UnicodeText, Boolean
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup
-from reahl.web.pure import PageColumnLayout, UnitSize
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, FieldSet
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout(('main', UnitSize('1/3'))))
+        contents_layout = ColumnLayout(('main', UnitSize('1/3'))).with_slots()
+        page_layout = PageLayout(contents_layout=contents_layout)
+        self.define_page(HTML5Page, style='basic').use_layout(page_layout)
         find = self.define_view('/', title='Addresses')
         find.set_slot('main', AddressBookPanel.factory())
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 
@@ -37,7 +40,7 @@ class AddAddressForm(Form):
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text='Add an address'))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.email_address)) )
 

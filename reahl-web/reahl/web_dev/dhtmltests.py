@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -25,7 +25,8 @@ from reahl.stubble import stubclass, replaced
 from reahl.web.dhtml import DhtmlUI, DHTMLFile
 from reahl.web.fw import WebExecutionContext, UserInterface
 from reahl.web.ui import HTML5Page
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 
@@ -69,7 +70,7 @@ class BasicTests(object):
         
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
                                 name='test_ui', static_div_name='astatic')
 
@@ -105,7 +106,7 @@ class BasicTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
                                    name='test_ui', static_div_name='astatic')
 

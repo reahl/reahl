@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -19,6 +19,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import warnings
+import re
 
 from nose.tools import istest
 from reahl.tofu import scenario
@@ -64,7 +65,7 @@ class BasicReahlWidgets(object):
     class Scenarios(WebFixture):
         @scenario
         def panel(self):
-            self.widget = Panel(self.view)
+            self.widget = Div(self.view)
             self.expected_html = '<div></div>'
 
         @scenario
@@ -76,6 +77,7 @@ class BasicReahlWidgets(object):
         def input_group2(self):
             self.widget = InputGroup(self.view, label_text='text')
             self.expected_html = '<fieldset><label>text</label></fieldset>'
+
 
                                 
     @test(Scenarios)
@@ -94,7 +96,8 @@ class BasicReahlWidgets(object):
         
         rendered_html = tester.render_html()
         head = '<head><title>It: %s</title></head>' % fixture.view.title
-        vassert( rendered_html == '<!DOCTYPE html><html>%s<body></body></html>' % head)
+        expected_regex = '<!DOCTYPE html><html class="no-js"><script>.*</script>%s<body></body></html>' % head
+        vassert( re.match(expected_regex, rendered_html.replace('\n', '')) )
         
         vassert( list(widget.default_slot_definitions.keys()) == ['slot1'] )
 
@@ -106,75 +109,79 @@ class BasicReahlWidgets(object):
         href_path = '/link'
         bookmark = Bookmark('/', href_path, description)
 
+        menu = Menu(fixture.view)
         menu_item = MenuItem.from_bookmark(fixture.view, bookmark)
-        tester = WidgetTester(menu_item)
+        menu.add_item(menu_item)
+        tester = WidgetTester(menu)
 
         with fixture.context:
-            actual = tester.render_html()
+            actual = tester.get_html_for('//li')
             
         vassert( actual == '<li><a href="%s">%s</a></li>' % (href_path, description) )
         
     @test(WebFixture)
     def menu(self, fixture):
-        """Menus can be constructed from a list of A's or Bookmarks, or MenuItems can be added to them."""
+        """Menus can be populated with a list of A's or Bookmarks, or MenuItems."""
         # Case: a normal menu from bookmarks
         item_specs = [Bookmark('/', '/href1', 'description1'),
                       Bookmark('/', '/href2', 'description2')]
-        menu = Menu.from_bookmarks(fixture.view, item_specs)
+        menu = Menu(fixture.view).with_bookmarks(item_specs)
         tester = WidgetTester(menu)
 
         with fixture.context:
             actual = tester.render_html()
-        rendered_children = WidgetTester(menu.children).render_html()
-        expected = '''<ul class="reahl-menu">%s</ul>''' % rendered_children
-        vassert( actual == expected )
+        rendered_children = WidgetTester(menu.children[0].children).render_html()
+        expected_html = '''<ul class="reahl-menu">%s</ul>''' % rendered_children
+        vassert( actual == expected_html )
         
         #case: using A's
         a_list = [A.from_bookmark(fixture.view, i) for i in item_specs]
-        menu = Menu(fixture.view, a_list)
+        menu = Menu(fixture.view).with_a_list(a_list)
         tester = WidgetTester(menu)
         with fixture.context:
             actual = tester.render_html()
-        vassert( actual == expected )
+        vassert( actual == expected_html )
         
         # Case: adding already constructed menu item
-        menu = Menu(fixture.view, [])
-        menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[0])))
-        menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[1])))
-        vassert( menu.menu_items == menu.children )
+        menu = Menu(fixture.view)
+        item1 = MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[0]))
+        item2 = MenuItem(fixture.view, A.from_bookmark(fixture.view, item_specs[1]))
+        menu.add_item(item1)
+        menu.add_item(item2)
+        vassert( menu.menu_items == [item1, item2] )
         
         tester = WidgetTester(menu)
         with fixture.context:
             actual = tester.render_html()
-        vassert( actual == expected )
+        vassert( actual == expected_html )
         
-        # Case: HMenu
-        menu = Menu.from_bookmarks(fixture.view, item_specs)
-        vassert( menu.attributes.v['class'] == 'reahl-menu' )
+        # Case: Menu
+        menu = Menu(fixture.view).with_bookmarks(item_specs)
+        vassert( menu.html_representation.attributes.v['class'] == 'reahl-menu' )
 
         # Case: HMenu
         with warnings.catch_warnings(record=True):
-            menu = HMenu.from_bookmarks(fixture.view, item_specs)
-        vassert( menu.attributes.v['class'] == 'reahl-horizontal reahl-menu' )
+            menu = HMenu(fixture.view, []).with_bookmarks(item_specs)
+        vassert( menu.html_representation.attributes.v['class'] == 'reahl-horizontal reahl-menu' )
 
         # Case: VMenu
         with warnings.catch_warnings(record=True):
-            menu = VMenu.from_bookmarks(fixture.view, item_specs)
-        vassert( menu.attributes.v['class'] == 'reahl-menu reahl-vertical' )
+            menu = VMenu(fixture.view, []).with_bookmarks(item_specs)
+        vassert( menu.html_representation.attributes.v['class'] == 'reahl-menu reahl-vertical' )
 
     @test(WebFixture)
     def menu_can_have_submenus(self, fixture):
-        """Menus can have sub-menus too - when built-up using .add_item()."""
+        """One Menu can be added to another as submenu."""
         # Case: a normal menu from bookmarks
         single_item_bookmark = Bookmark('/', '/href3', 'description3')
         item_specs = [Bookmark('/', '/href1', 'description1'),
                       Bookmark('/', '/href2', 'description2')]
 
-        sub_menu = Menu.from_bookmarks(fixture.view, item_specs)
+        sub_menu = Menu(fixture.view).with_bookmarks(item_specs)
         sub_menu_title = 'Subbie'
-        menu = Menu(fixture.view, [])
+        menu = Menu(fixture.view)
         menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, single_item_bookmark)))
-        menu.add_item(SubMenu(fixture.view, sub_menu_title, sub_menu))
+        menu.add_submenu(sub_menu_title, sub_menu)
 
         expected_html = '''<ul class="reahl-menu">'''\
                    '''<li><a href="/href3">description3</a></li>'''\
@@ -190,6 +197,33 @@ class BasicReahlWidgets(object):
             actual = tester.render_html()
         vassert( actual == expected_html )
 
+    @test(WebFixture)
+    def menu_can_have_submenus_deprecated_interface(self, fixture):
+        """Menus can have sub-menus too - when built-up using .add_item()."""
+        # Case: a normal menu from bookmarks
+        single_item_bookmark = Bookmark('/', '/href3', 'description3')
+        item_specs = [Bookmark('/', '/href1', 'description1'),
+                      Bookmark('/', '/href2', 'description2')]
+
+        sub_menu = Menu(fixture.view).with_bookmarks(item_specs)
+        sub_menu_title = 'Subbie'
+        menu = Menu(fixture.view)
+        menu.add_item(MenuItem(fixture.view, A.from_bookmark(fixture.view, single_item_bookmark)))
+        menu.add_submenu(sub_menu_title, sub_menu)
+
+        expected_html = '''<ul class="reahl-menu">'''\
+                   '''<li><a href="/href3">description3</a></li>'''\
+                   '''<li><a>Subbie</a>'''\
+                   '''<ul class="reahl-menu">'''\
+                   '''<li><a href="/href1">description1</a></li>'''\
+                   '''<li><a href="/href2">description2</a></li>'''\
+                   '''</ul>'''\
+                   '''</li>'''\
+                   '''</ul>'''
+        tester = WidgetTester(menu)
+        with fixture.context:
+            actual = tester.render_html()
+        vassert( actual == expected_html )
 
     class MenuItemScenarios(WebFixture):
         description = 'The link'
@@ -221,28 +255,76 @@ class BasicReahlWidgets(object):
 
     @test(MenuItemScenarios)
     def rendering_active_menu_items(self, fixture):    
+        """A MenuItem is marked as active based on its active_regex or the A it represents."""
         description = 'The link'
         href = Url('/link')
-        
-        menu_item = MenuItem(fixture.view, A(fixture.view, href, description=description), active_regex=fixture.active_regex)
-        tester = WidgetTester(menu_item)
 
-        actual = tester.render_html()
+        menu = Menu(fixture.view)
+        menu_item = MenuItem(fixture.view, A(fixture.view, href, description=description), active_regex=fixture.active_regex)
+        menu.add_item(menu_item)
+        tester = WidgetTester(menu)
+
+        actual = tester.get_html_for('//li')
         class_str = '' if not fixture.active else ' class="active"'
         expected_menu_item_html = '<li%s><a href="/link">The link</a></li>' % (class_str)
 
         vassert( actual == expected_menu_item_html )
 
 
+    class CustomMenuItemFixture(WebFixture):
+        def new_href(self):
+            return Url('/link')
+
+        def new_menu_item(self):
+            description = 'The link'
+            href = Url('/link')
+        
+            menu_item = MenuItem(self.view, A(self.view, self.href, description=description))
+            return menu_item
+
+        def new_menu(self):
+            menu = Menu(self.view)
+            menu.add_item(self.menu_item)
+            return menu
+        
+        def new_tester(self):
+            return WidgetTester(self.menu)
+
+        def item_displays_as_active(self):
+            actual = self.tester.get_html_for('//li')
+            class_str = ' class="active"'
+            expected_menu_item_html = '<li%s><a href="/link">The link</a></li>' % (class_str)
+            return actual == expected_menu_item_html
+
+        def set_request_url(self, href):
+            self.request.environ['PATH_INFO'] = str(href)
+    
+    @test(CustomMenuItemFixture)
+    def custom_active_menu_items(self, fixture):
+        """You can specify a custom method by which a MenuItem determines its active state."""
+
+        # The default behaviour happens when no custom method is supplied
+        fixture.set_request_url(fixture.href)
+        vassert( fixture.item_displays_as_active() )
+        
+        # Overriding behaviour happens when supplied
+        fixture.menu_item.determine_is_active_using(lambda: False)
+        vassert( not fixture.item_displays_as_active() )
+
+        url_on_which_item_is_usually_inactive = Url('/another_href')
+        fixture.set_request_url(url_on_which_item_is_usually_inactive)
+        fixture.menu_item.determine_is_active_using(lambda: True)
+        vassert( fixture.item_displays_as_active() )
+
     @test(WebFixture)
     def language_menu(self, fixture):
         """A Menu can also be constructed to let a user choose to view the same page in 
            another of the supported languages."""
         
-        class PanelWithMenu(Panel):
+        class PanelWithMenu(Div):
             def __init__(self, view):
                 super(PanelWithMenu, self).__init__(view)
-                self.add_child(Menu.from_languages(view))
+                self.add_child(Menu(view).with_languages())
                 self.add_child(P(view, text=_('This is an English sentence.')))
 
         wsgi_app = fixture.new_wsgi_app(child_factory=PanelWithMenu.factory())
@@ -311,8 +393,8 @@ class BasicReahlWidgets(object):
         tester = WidgetTester(widget)
         
         rendered_html = tester.render_html()
-        expected = '<!DOCTYPE html><html><head><title>It: A view</title></head><body><div id="doc" class="yui-t2"><div id="hd" class="yui-g"><header></header></div><div id="bd" role="main"><div id="yui-main"><div class="yui-b"></div></div><div class="yui-b"></div></div><div id="ft"><footer></footer></div></div></body></html>'
-        vassert( rendered_html == expected )
+        expected_regex = '<!DOCTYPE html><html class="no-js"><script>.*</script><head><title>It: A view</title></head><body><div id="doc" class="yui-t2"><div id="hd" class="yui-g"><header></header></div><div id="bd" role="main"><div id="yui-main"><div class="yui-b"></div></div><div class="yui-b"></div></div><div id="ft"><footer></footer></div></div></body></html>'
+        vassert( re.match(expected_regex, rendered_html.replace('\n','') ))
         
         vassert( list(widget.default_slot_definitions.keys()) == ['slot1'] )
         
@@ -356,7 +438,7 @@ class TabbedPanelAjaxFixture(WebFixture):
 class TabbedPanelTests(object):
     @test(WebFixture)
     def basic_rendering(self, fixture):
-        """A TabbedPanel is a Panel which contains a Horizontal Menu and a Panel."""
+        """A TabbedPanel is a Div which contains a Horizontal Menu and a Div."""
         fixture.request.query_string = 'tab=tab1'
         tabbed_panel = TabbedPanel(fixture.view, 'tabbed_name')
         tabbed_panel.add_tab(Tab(fixture.view, 'tab 1 name', 'tab1', P.factory(text='tab 1 content')))
@@ -365,7 +447,7 @@ class TabbedPanelTests(object):
 
         expected_html = '''<div id="tabbed_name" class="reahl-tabbedpanel">'''\
                         '''<ul class="reahl-horizontal reahl-menu">'''\
-                        '''<li class="active"><a href="?tab=tab1" class="reahl-ajaxlink">tab 1 name</a></li>'''\
+                        '''<li class="active"><a href="/?tab=tab1" class="reahl-ajaxlink">tab 1 name</a></li>'''\
                         '''</ul>'''\
                         '''<div><p>tab 1 content</p></div>'''\
                         '''</div>'''
@@ -386,11 +468,11 @@ class TabbedPanelTests(object):
         
         expected_html = '''<div id="tabbed_name" class="reahl-tabbedpanel">'''\
                         '''<ul class="reahl-horizontal reahl-menu">'''\
-                        '''<li class="active"><a href="?tab=multitab-main" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
+                        '''<li class="active"><a href="/?tab=multitab-main" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
                         '''<a class="dropdown-handle">▼</a>'''\
                         '''<ul class="reahl-menu reahl-vertical">'''\
-                        '''<li><a href="?tab=mult1" class="reahl-ajaxlink">multi tab 1</a></li>'''\
-                        '''<li class="active"><a href="?tab=mult2" class="reahl-ajaxlink">multi tab 2</a></li>'''\
+                        '''<li><a href="/?tab=mult1" class="reahl-ajaxlink">multi tab 1</a></li>'''\
+                        '''<li class="active"><a href="/?tab=mult2" class="reahl-ajaxlink">multi tab 2</a></li>'''\
                         '''</ul>'''\
                         '''</li>'''\
                         '''</ul>'''\
@@ -398,6 +480,8 @@ class TabbedPanelTests(object):
                         '''</div>'''
         actual = tester.render_html()        
         vassert( actual == expected_html )
+
+
 
     class DefaultTabScenarios(WebFixture):
         @scenario
@@ -424,8 +508,9 @@ class TabbedPanelTests(object):
         tabbed_panel.add_tab(tab1)
         tabbed_panel.add_tab(tab2)
 
-        vassert( tab1.is_active == fixture.tab1_active )
-        vassert( tab2.is_active == fixture.tab2_active )
+        [menu_item1, menu_item2] = tabbed_panel.menu.menu_items
+        vassert( menu_item1.is_active == fixture.tab1_active )
+        vassert( menu_item2.is_active == fixture.tab2_active )
 
         tester = WidgetTester(tabbed_panel)
         panel_contents = tester.get_html_for('//div/div/*')
@@ -473,10 +558,13 @@ class TabbedPanelTests(object):
         tab3 = Tab(fixture.view, 'tab 3 name', 'tab3', P.factory(text='tab 3 content'))
         tabbed_panel.add_tab(tab3)
 
-        vassert( multi_tab.is_active == fixture.multi_tab_active )
-        vassert( tab1.is_active == fixture.tab1_active )
-        vassert( tab2.is_active == fixture.tab2_active )
-        vassert( tab3.is_active == fixture.tab3_active )
+        [top_level_menu_item_for_multitab, top_level_normal_menu_item] = tabbed_panel.menu.menu_items
+        [multi_tab_menu_item1, multi_tab_menu_item2] = multi_tab.menu.menu_items
+
+        vassert( top_level_menu_item_for_multitab.is_active == fixture.multi_tab_active )
+        vassert( multi_tab_menu_item1.is_active == fixture.tab1_active )
+        vassert( multi_tab_menu_item2.is_active == fixture.tab2_active )
+        vassert( top_level_normal_menu_item.is_active == fixture.tab3_active )
 
         tester = WidgetTester(tabbed_panel)
         panel_contents = tester.get_html_for('//div/div/*')
@@ -520,11 +608,11 @@ class SlidingPanelFixture(WebFixture):
         class PopulatedSlidingPanel(SlidingPanel):
             def __init__(self, view):
                 super(PopulatedSlidingPanel, self).__init__(view, 'slide')
-                panel0 = Panel(view)
+                panel0 = Div(view)
                 panel0.add_child(P(view, text='Contents for panel 0'))
                 self.add_panel(panel0)
 
-                panel1 = Panel(view)
+                panel1 = Div(view)
                 panel1.add_child(P(view, text='Contents for panel 1'))
                 self.add_panel(panel1)
 
@@ -596,7 +684,7 @@ class PopupATests(object):
         """If you click on the A, a popupwindow opens with its contents the specified
            element on the target page."""
 
-        class PopupTestPanel(Panel):
+        class PopupTestPanel(Div):
             def __init__(self, view):
                 super(PopupTestPanel, self).__init__(view)
                 self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
@@ -621,7 +709,7 @@ class PopupATests(object):
     def customising_dialog_buttons(self, fixture):
         """The buttons of the dialog can be customised."""
         
-        class PopupTestPanel(Panel):
+        class PopupTestPanel(Div):
             def __init__(self, view):
                 super(PopupTestPanel, self).__init__(view)
                 popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
@@ -647,7 +735,7 @@ class PopupATests(object):
     def workings_of_check_checkbox_button(self, fixture):
         """A CheckCheckBoxButton checks the checkbox on the original page when clicked."""
 
-        class PopupTestPanel(Panel):
+        class PopupTestPanel(Div):
             @exposed
             def fields(self, fields):
                 fields.field = BooleanField()

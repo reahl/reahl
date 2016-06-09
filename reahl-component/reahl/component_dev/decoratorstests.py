@@ -1,4 +1,4 @@
-# Copyright 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -99,8 +99,8 @@ def deprecating_a_class(fixture):
             """another"""
             pass
 
-    vassert( six.PY2 or (ClassWithDocstring.__doc__ == 'A docstring.\n.. deprecated:: 1.2\n   this is deprecated') )
-    vassert( six.PY2 or (ClassWithDocstring().do_something.__doc__ == 'another\n.. deprecated:: 0.0\n   this also') )
+    vassert( six.PY2 or (ClassWithDocstring.__doc__ == 'A docstring.\n\n.. deprecated:: 1.2\n   this is deprecated') )
+    vassert( six.PY2 or (ClassWithDocstring().do_something.__doc__ == 'another\n\n.. deprecated:: 0.0\n   this also') )
 
     @deprecated('this is deprecated', '1.2')
     class ClassWithoutDocstring(object):

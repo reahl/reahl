@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -78,12 +78,17 @@ def deprecated(message, version='n/a'):
 
         @wrapt.decorator
         def deprecated_wrapper(wrapped, instance, args, kwargs):
-            deprecated_thing = wrapped.__self__ if is_init_or_classmethod(wrapped) else wrapped
-            warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing, message), DeprecationWarning, stacklevel=2)
+            if is_init_or_classmethod(wrapped):
+                deprecated_thing = wrapped.__self__.__class__ 
+                warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing.__class__, message), DeprecationWarning, stacklevel=2)
+            else:
+                deprecated_thing = wrapped
+                warnings.warn('DEPRECATED: %s. %s' % (deprecated_thing, message), DeprecationWarning, stacklevel=2)
+                
             return wrapped(*args, **kwargs)
 
         if six.PY3 and f.__doc__:
-            f.__doc__ = '%s\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
+            f.__doc__ = '%s\n\n.. deprecated:: %s\n   %s' % (f.__doc__, version, message)
 
         if inspect.isclass(f):
             for name, method in inspect.getmembers(f, predicate=is_init_or_classmethod):

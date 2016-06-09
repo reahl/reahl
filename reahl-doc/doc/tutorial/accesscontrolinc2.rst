@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 The user interface -- without access control
 ============================================
@@ -6,6 +6,7 @@ The user interface -- without access control
 .. sidebar:: Examples in this section
 
    - tutorial.access2
+   - tutorial.access2bootstrap
 
    Get a copy of an example by running:
 
@@ -21,7 +22,7 @@ the way.
 Tests
 -----
 
-Let us add three user stories to the tests that would excercise the
+Let us add three user stories to the tests that would exercise the
 functionality of the user interface, but sidestep the finer grained
 access control. That will force us to build the entire application,
 but allow us to ignore any access control related code for the
@@ -38,7 +39,7 @@ Because it is valuable to play with a running application too, a
 DemoFixture is also added to the tests that sets up a few
 SystemAccounts and adds some Addresses to their AddressBooks:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access2/access2_dev/accesstests2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/access2/access2_dev/access2tests.py
 
 Code
 ----

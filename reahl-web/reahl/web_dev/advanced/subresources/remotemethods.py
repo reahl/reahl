@@ -17,18 +17,21 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import re
+import json
+from webob import Response
 
-from reahl.stubble import stubclass
+from reahl.stubble import stubclass, CallMonitor
 from nose.tools import istest
 from reahl.tofu import scenario
 from reahl.tofu import test
 from reahl.tofu import vassert, expected
 
 from reahl.webdev.tools import Browser
+from reahl.component.exceptions import DomainException
 from reahl.web.fw import CheckedRemoteMethod
 from reahl.web.fw import JsonResult
 from reahl.web.fw import MethodResult
-from reahl.web.fw import RemoteMethod
+from reahl.web.fw import RemoteMethod, RegenerateMethodResult
 from reahl.web.fw import Widget
 from reahl.web.fw import WidgetResult
 from reahl.component.modelinterface import Field, IntegerField
@@ -173,21 +176,35 @@ class RemoteMethodTests(object):
             self.exception_response = '"exception text"'
             self.expected_charset = self.method_result.encoding
             self.expected_content_type = 'application/json'
+            self.results_match = lambda x, y: x == y
+
+        @stubclass(Widget)
+        class WidgetStub(object):
+            css_id = 'someid'
+            def render_contents(self): return '<the widget contents>'
+            def get_contents_js(self, context=None): return ['some', 'some', 'javascript']
 
         @scenario
         def widget(self):
-            @stubclass(Widget)
-            class WidgetStub(object):
-                css_id = 'someid'
-                def render_contents(self): return '<the widget contents>'
-                def get_contents_js(self, context=None): return ['some', 'some', 'javascript']
-
-            self.method_result = WidgetResult(WidgetStub())
+            self.method_result = WidgetResult(self.WidgetStub())
             self.value_to_return = 'ignored in this case'
             self.expected_response = '<the widget contents><script type="text/javascript">javascriptsome</script>'
             self.exception_response = Exception
             self.expected_charset = self.method_result.encoding
             self.expected_content_type = 'text/html'
+            self.results_match = lambda x, y: x == y
+
+        @scenario
+        def widget_as_json(self):
+            self.method_result = WidgetResult(self.WidgetStub(), as_json_and_result=True)
+            self.value_to_return = 'ignored in this case'
+            self.expected_response = {'widget': '<the widget contents><script type="text/javascript">javascriptsome</script>',
+                                      'success': True}
+            self.expected_charset = self.method_result.encoding
+            self.expected_content_type = 'application/json'
+            def results_match(expected, actual):
+                return json.loads(actual) == expected
+            self.results_match = results_match
             
     @test(ResultScenarios)
     def different_kinds_of_result(self, fixture):
@@ -201,7 +218,7 @@ class RemoteMethodTests(object):
         browser = Browser(wsgi_app)
         
         browser.post('/_amethod_method', {})
-        vassert( re.match(fixture.expected_response, browser.raw_html) )
+        vassert( fixture.results_match(fixture.expected_response, browser.raw_html) )
         vassert( browser.last_response.charset == fixture.expected_charset )
         vassert( browser.last_response.content_type == fixture.expected_content_type )
 
@@ -235,3 +252,115 @@ class RemoteMethodTests(object):
         with expected(Exception):
             browser.post('/_amethod_method', {})
 
+    class RegenerateMethodResultScenarios(RemoteMethodFixture):
+        method_called = 0
+        def new_method_result(self):
+            fixture = self
+            @stubclass(MethodResult)
+            class ResultThatDependsOnExecutionOfMethod(MethodResult):
+                def create_response(self, return_value):
+                    return Response(body='success: method was called %s times' % fixture.method_called)
+
+                def create_exception_response(self, exception):
+                    return Response(body='exception: method was called %s times' % fixture.method_called)
+            return ResultThatDependsOnExecutionOfMethod(catch_exception=DomainException, replay_request=True)
+
+        def new_remote_method(self):
+            fixture = self
+            def callable_to_call():
+                fixture.method_called += 1
+                if fixture.exception:
+                    raise DomainException('ex')
+            return RemoteMethod('amethod', callable_to_call, self.method_result, immutable=False)
+
+        @scenario
+        def success(self):
+            self.exception = False
+            self.expected_response = 'success: method was called 1 times'
+
+        @scenario
+        def exception(self):
+            self.exception = True
+            self.expected_response = 'exception: method was called 1 times'
+
+    @test(RegenerateMethodResultScenarios)
+    def regenerating_method_results(self, fixture):
+        """If a MethodResult is set up to replay_request=True, the view it is part of (and thus itself) is recreated
+           before the (new incarnation of the) MethodResult generates its actual response. Replaying the request means recreating
+           all Widgets on the current View as well as the MethodResult itself. The construction of any of these 
+           objects may happen differently because of the changes made during the RemoteMethod's execution. Replaying
+           the request ensures that the MethodResult reflects such changes, yet ensures that the RemoteMethod
+           is not executed twice.
+        """
+
+        wsgi_app = fixture.new_wsgi_app(remote_method=fixture.remote_method)
+        browser = Browser(wsgi_app)
+        
+        with CallMonitor(fixture.system_control.orm_control.commit) as monitor:
+            browser.post('/_amethod_method', {})
+        vassert( browser.raw_html == fixture.expected_response )
+        vassert( monitor.times_called == 2 )
+
+
+    class WidgetResultScenarios(WebFixture):
+        changes_made = False
+        @stubclass(Widget)
+        class WidgetChildStub(object):
+            is_Widget = True
+            def __init__(self, text):
+                self.text = text
+            def render(self): return '<%s>' % self.text
+            def get_js(self, context=None): return ['js(%s)' % self.text]
+            
+        def new_WidgetStub(self):
+            fixture = self
+            @stubclass(Widget)
+            class WidgetStub(Widget):
+                css_id = 'an_id'
+                def __init__(self, view):
+                    super(WidgetStub, self).__init__(view)
+                    message = 'changed contents' if fixture.changes_made else 'initial contents'
+                    self.add_child(fixture.WidgetChildStub(message))
+            return WidgetStub
+
+        def new_WidgetWithRemoteMethod(self):
+            fixture = self
+            @stubclass(Widget)
+            class WidgetWithRemoteMethod(Widget):
+                def __init__(self, view):
+                    super(WidgetWithRemoteMethod, self).__init__(view)
+                    method_result = WidgetResult(fixture.WidgetStub(view), as_json_and_result=True)
+                    def change_something():
+                        fixture.changes_made = True
+                        if fixture.exception:
+                            raise DomainException('ex')
+                    remote_method = RemoteMethod('amethod', change_something, default_result=method_result,
+                                                 immutable=False)
+                    view.add_resource(remote_method)
+            return WidgetWithRemoteMethod
+
+        @scenario
+        def success(self):
+            self.exception = False
+            self.expected_response = {'success': True, 
+                                      'widget': '<changed contents><script type="text/javascript">js(changed contents)</script>'}
+
+        @scenario
+        def exception(self):
+            self.exception = True
+            self.expected_response = {'success': False, 
+                                      'widget': '<changed contents><script type="text/javascript">js(changed contents)</script>'}
+
+    @test(WidgetResultScenarios)
+    def widgets_that_change_during_method_processing(self, fixture):
+        """The Widget rendered by WidgetResult reflects its Widget as it would have
+           looked if it were constructed AFTER the changes effected by executing 
+           its RemoteMethod have been committed.
+        """
+    
+        wsgi_app = fixture.new_wsgi_app(child_factory=fixture.WidgetWithRemoteMethod.factory())
+        browser = Browser(wsgi_app)
+        
+        browser.post('/_amethod_method', {})
+        json_response = json.loads(browser.raw_html)
+        vassert( json_response == fixture.expected_response )

@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -31,7 +31,8 @@ from reahl.web.fw import UserInterface
 from reahl.web.fw import Region
 from reahl.web.ui import HTML5Page
 from reahl.web.ui import P
-from reahl.web.pure import PageColumnLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture
@@ -99,7 +100,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {'main': 'main'}, name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -161,7 +162,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -207,7 +208,7 @@ class ParameterisedTests(object):
 
         class MainUI(Region):
             def assemble(self):
-                self.define_main_window(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_main_window(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_region('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -269,7 +270,7 @@ class ParameterisedTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)

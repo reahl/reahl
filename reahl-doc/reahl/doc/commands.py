@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -26,6 +26,32 @@ import codecs
 import re
 
 from reahl.dev.devshell import WorkspaceCommand
+
+
+class CheckoutChanges(object):
+    def __init__(self, example):
+        self.example = example
+        self.source_text_replacements = {}
+        self.files_to_rename = {}
+        
+        full_module_name = 'reahl.doc.examples.%s' % self.example.name
+        self.add_replace_text('%s.' % full_module_name, '')
+
+    def add_replace_text(self, from_text, to_text):
+        self.source_text_replacements[from_text] = to_text
+
+    def add_file_rename(self, from_name, to_name):
+        self.files_to_rename[from_name] = to_name
+
+    def get_output_filename(self, source_file_path, dest_dirname):
+        filename = os.path.basename(source_file_path)
+        return os.path.join(dest_dirname, self.files_to_rename.get(filename, filename))
+
+    def get_output_line(self, source_line):
+        output_line = source_line
+        for source_text, replacement_text in self.source_text_replacements.items():
+            output_line = output_line.replace(source_text, replacement_text)
+        return output_line
 
 
 class Example(object):
@@ -107,22 +133,23 @@ class Example(object):
             self.sed_file_to(self.absolute_path, self.checkout_dest)
 
     @property
-    def is_i18n_example(self):
-        return self.name == 'tutorial.i18nexample'
-
-    def sed_file_to(self, source_filename, dest_filename):
-        full_module_name = 'reahl.doc.examples.%s' % self.name
-        print(dest_filename)
-        with codecs.open(source_filename, 'r', 'utf-8') as source_file:
-            with codecs.open(dest_filename, 'w', 'utf-8') as dest_file:
-                for source_line in source_file:
-                    if self.is_i18n_example:
-                        source_line = source_line.replace('Translator(u\'reahl-doc\')', 'Translator(u\'i18nexample\')')
-                    dest_file.write(source_line.replace('%s.' % full_module_name, ''))
+    def checkout_changes(self):    
+        if self.name == 'tutorial.i18nexample':
+            changes = CheckoutChanges(self)
+            changes.add_replace_text('Translator(u\'reahl-doc\')', 'Translator(u\'i18nexample\')')
+            changes.add_file_rename('reahl-doc.po', 'i18nexample.po')
+            changes.add_file_rename('reahl-doc', 'i18nexample')
+            return changes
+        elif self.name == 'tutorial.i18nexamplebootstrap':
+            changes = CheckoutChanges(self)
+            changes.add_replace_text('Translator(u\'reahl-doc\')', 'Translator(u\'i18nexamplebootstrap\')')
+            changes.add_file_rename('reahl-doc.po', 'i18nexamplebootstrap.po')
+            changes.add_file_rename('reahl-doc', 'i18nexamplebootstrap')
+            return changes        
+        else:
+            return CheckoutChanges(self)
 
     def checkout_dir(self, source, dest):
-        files_to_rename = {'reahl-doc.po': 'i18nexample.po',
-                           'reahl-doc':    'i18nexample'}
         for dirpath, dirnames, filenames in os.walk(source):
             relative_dirpath = dirpath[len(source)+1:]
             if re.match('.idea$', relative_dirpath):
@@ -131,19 +158,24 @@ class Example(object):
                 dest_dirname = os.path.join(dest, relative_dirpath)
                 os.mkdir(dest_dirname)
                 for filename in [f for f in filenames if not re.match('.*(.pyc|~|.mo|.noseids)$', f)]:
-                    source_filename = os.path.join(dirpath, filename)
-                    dest_filename = os.path.join(dest_dirname, filename)
-                    if self.is_i18n_example and filename in files_to_rename:
-                        dest_filename = os.path.join(dest_dirname, files_to_rename[filename])
-                    if source_filename != os.path.join(source, '__init__.py'):
-                        self.sed_file_to(source_filename, dest_filename)
-                        
+                    source_file_path = os.path.join(dirpath, filename)
+                    if source_file_path != os.path.join(source, '__init__.py'):
+                        dest_file_path = self.checkout_changes.get_output_filename(source_file_path, dest_dirname)
+                        self.sed_file_to(source_file_path, dest_file_path)
+
+    def sed_file_to(self, source_file_path, dest_file_path):
+        print(dest_file_path)
+        with codecs.open(source_file_path, 'r', 'utf-8') as source_file:
+            with codecs.open(dest_file_path, 'w', 'utf-8') as dest_file:
+                for source_line in source_file:
+                    dest_file.write(self.checkout_changes.get_output_line(source_line))
+
     def delete(self):
         if os.path.isdir(self.checkout_dest):
             shutil.rmtree(self.checkout_dest)
         elif os.path.isfile(self.checkout_dest):
             os.remove(self.checkout_dest)
-           
+
 
 class ListExamples(WorkspaceCommand):
     """Lists available examples."""

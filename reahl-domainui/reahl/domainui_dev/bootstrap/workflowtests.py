@@ -1,0 +1,150 @@
+# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+#
+#    This file is part of Reahl.
+#
+#    Reahl is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation; version 3 of the License.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import print_function, unicode_literals, absolute_import, division
+import pkg_resources
+
+
+from nose.tools import istest
+from reahl.tofu import Fixture
+from reahl.tofu import test
+from reahl.tofu import vassert
+from reahl.stubble import easter_egg
+from sqlalchemy import Column, Integer, ForeignKey
+
+from reahl.web.fw import UserInterface, Url
+from reahl.web.ui import HTML5Page, Div, P
+from reahl.web.layout import PageLayout
+from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
+from reahl.domain.workflowmodel import Task
+from reahl.domainui.bootstrap.workflow import InboxUI, TaskWidget
+from reahl.domain_dev.workflowtests import TaskQueueZooMixin
+from reahl.web_dev.fixtures import WebBasicsMixin
+from reahl.webdev.tools import Browser
+from reahl.domainui_dev.fixtures import BookmarkStub
+from reahl.domainui.bootstrap.accounts import AccountUI
+from reahl.domainuiegg import DomainUiConfig
+
+class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
+    def new_queues(self):
+        return [self.queue]
+    
+    def new_account_bookmarks(self):
+        class Bookmarks(object):
+            terms_bookmark = BookmarkStub(Url('/#terms'), 'Terms')
+            privacy_bookmark = BookmarkStub(Url('/#privacy'), 'Privacy Policy')
+            disclaimer_bookmark = BookmarkStub(Url('/#disclaimer'), 'Disclaimer')
+        return Bookmarks()
+
+    def new_wsgi_app(self, enable_js=False):
+        fixture = self
+        def get_queues():
+            return fixture.queues
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
+                                                                  contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots()))
+                accounts = self.define_user_interface('/accounts', AccountUI, {'main_slot': 'main'},
+                                              name='test_ui', bookmarks=fixture.account_bookmarks)
+                login_bookmark = accounts.get_bookmark(relative_path='/login')
+                self.define_user_interface('/inbox',  InboxUI,  {'main_slot': 'main'}, 
+                                   name='test_ui', login_bookmark=login_bookmark, get_queues=get_queues)
+        return super(WorkflowWebFixture, self).new_wsgi_app(enable_js=enable_js,
+                                                         site_root=MainUI)
+
+    def new_system_account(self):
+        account = super(WorkflowWebFixture, self).new_system_account()
+        account.party = self.party
+        return account
+
+    def new_config(self):
+        config = super(WorkflowWebFixture, self).new_config()
+        config.workflowui = DomainUiConfig()
+        return config
+
+
+
+class MyTask(Task):
+    __tablename__ = 'mytask'
+    __mapper_args__ = {'polymorphic_identity': 'mytask'}
+    id = Column(Integer, ForeignKey('task.id'), primary_key=True)
+
+
+class MyTaskWidget(TaskWidget):
+    @classmethod
+    def displays(cls, task):
+        return task.__class__ is MyTask
+
+    def create_contents(self):
+        self.add_child(P(self.view, text='my task widget'))
+
+
+@istest
+class Tests(object):
+    @test(WorkflowWebFixture)
+    def detour_to_login(self, fixture):
+        browser = Browser(fixture.wsgi_app)
+
+        browser.open('/inbox/')
+        vassert( browser.location_path == '/accounts/login' )
+        browser.type('//input[@name="email"]', fixture.system_account.email)
+        browser.type('//input[@name="password"]', fixture.system_account.password)
+        browser.click('//input[@value="Log in"]')
+        vassert( browser.location_path == '/inbox/' )
+        
+        
+
+    @test(WorkflowWebFixture)
+    def take_and_release_task(self, fixture):
+        browser = Browser(fixture.wsgi_app)
+        task = fixture.task
+
+        take_task_button = '//input[@value="Take"]'
+        defer_task_button = '//input[@value="Defer"]'
+        release_task_button = '//input[@value="Release"]'
+        go_to_task_button = '//input[@value="Go to"]'
+
+        fixture.log_in(browser=browser)
+        browser.open('/inbox/')
+    
+        browser.click(take_task_button)
+        vassert( browser.location_path == '/inbox/task/%s' % task.id )
+
+        browser.click(defer_task_button)
+        vassert( browser.location_path == '/inbox/' )
+        
+        browser.click(go_to_task_button)
+        vassert( browser.location_path == '/inbox/task/%s' % task.id )
+
+        browser.click(release_task_button)
+        vassert( browser.location_path == '/inbox/' )
+
+    @test(WorkflowWebFixture)
+    def widgets_for_tasks(self, fixture):
+        """The widget to use for displaying a particular type of task can be set via an entry point."""
+        pkg_resources.working_set.add(easter_egg)
+        line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.workflowtests:MyTaskWidget'
+        easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
+
+        with fixture.persistent_test_classes(MyTask):
+            task = MyTask(queue=fixture.queue, title='a task')
+
+            browser = Browser(fixture.wsgi_app)
+            fixture.log_in(browser=browser)
+            browser.open('/inbox/task/%s' % task.id )
+            html = browser.get_html_for('//div/p')
+            vassert( html == '<p>my task widget</p>' )
+
