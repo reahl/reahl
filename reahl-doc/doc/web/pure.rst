@@ -17,6 +17,7 @@ ColumnLayout
 
 .. autoclass:: ColumnLayout
    :members:
+   :show-inheritance:
 
 PageColumnLayout
 """"""""""""""""

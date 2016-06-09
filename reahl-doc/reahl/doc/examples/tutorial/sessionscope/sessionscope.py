@@ -9,14 +9,11 @@ from reahl.sqlalchemysupport import Session, Base, session_scoped
 
 from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, Menu,\
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, InputGroup, Menu,\
                          HorizontalLayout, PasswordInput, ErrorFeedbackMessage
-from reahl.web.pure import PageColumnLayout, UnitSize
-from reahl.component.modelinterface import Action
-from reahl.component.modelinterface import EmailField
-from reahl.component.modelinterface import Event
-from reahl.component.modelinterface import PasswordField
-from reahl.component.modelinterface import exposed
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
+from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, exposed
 
 
 
@@ -68,8 +65,10 @@ class LoginSession(Base):
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(MenuPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout(('main', UnitSize('1/2'))))
-        self.layout.header.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
+        self.use_layout(PageLayout())
+        contents_layout = ColumnLayout(('main', UnitSize('1/2'))).with_slots()
+        self.layout.contents.use_layout(contents_layout)
+        self.layout.header.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(main_bookmarks))
 
 
 class InvalidPassword(DomainException):

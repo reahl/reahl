@@ -1,4 +1,4 @@
-.. Copyright 2013, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 What ever happened to Ajax?
 ===========================
@@ -6,7 +6,9 @@ What ever happened to Ajax?
 .. sidebar:: Examples in this section
 
    - tutorial.ajax
+   - tutorial.ajaxbootstrap
    - tutorial.pager
+   - tutorial.pagerbootstrap
 
    Get a copy of an example by running:
 

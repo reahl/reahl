@@ -1,4 +1,4 @@
-/* Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved. */
+/* Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved. */
 /*
     This file is part of Reahl.
 
@@ -25,9 +25,9 @@ $.widget("reahl.labeloverinput", {
 	    this.element.addClass("reahl-labeloverinput");
 	    this.element.children().filter("label").each( function() {
 		    var label = $(this);
-		    //		    var input = label.siblings('*[name=' + label.attr("for") +']');
+		    //		    var input = label.siblings('*[id=' + label.attr("for") +']');
 		    var span = label.siblings('span:first');
-		    var input = span.find('*[name=' + label.attr("for") +']');
+		    var input = $(this.control);
 		    label.bind("click", function() {
 			    input.focus();
 			});

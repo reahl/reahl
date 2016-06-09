@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -22,15 +22,17 @@ from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, \
-                         P, H, InputGroup, FileUploadInput, SimpleFileInput
-from reahl.web.pure import PageColumnLayout
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, \
+                         P, H, FieldSet, FileUploadInput, SimpleFileInput
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField
 
 
 class FileUploadUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))
+        page_layout = PageLayout(contents_layout=ColumnLayout('main').with_slots())
+        self.define_page(HTML5Page, style='basic').use_layout(page_layout)
         home = self.define_view('/', title='File upload demo')
         home.set_slot('main', CommentPostPanel.factory())
 
@@ -71,7 +73,7 @@ class AttachedFile(Base):
     comment_id = Column(Integer, ForeignKey(Comment.id))
 
 
-class CommentPostPanel(Panel):
+class CommentPostPanel(Div):
     def __init__(self, view):
         super(CommentPostPanel, self).__init__(view)
 
@@ -90,15 +92,15 @@ class CommentForm(Form):
         self.add_child(LabelledBlockInput(TextInput(self, new_comment.fields.email_address)))
         self.add_child(LabelledBlockInput(TextInput(self, new_comment.fields.text)))
 
-        attachments = self.add_child(InputGroup(view, label_text='Attach files'))
+        attachments = self.add_child(FieldSet(view, legend_text='Attach files'))
         attachments.add_child(FileUploadInput(self, new_comment.fields.uploaded_files))
 
         self.define_event_handler(new_comment.events.submit)
-        buttons = self.add_child(InputGroup(view, label_text=' '))
+        buttons = self.add_child(FieldSet(view, legend_text=' '))
         buttons.add_child(Button(self, new_comment.events.submit))
 
 
-class CommentBox(Panel):
+class CommentBox(Div):
     def __init__(self, view, comment):
         super(CommentBox, self).__init__(view)
         self.add_child(P(view, text='By %s: %s' % (comment.email_address, comment.text)))

@@ -3,19 +3,21 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, P, H, Panel, HorizontalLayout
-from reahl.web.pure import PageColumnLayout
+from reahl.web.ui import HTML5Page, P, H, Div, HorizontalLayout
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.web.pager import SequentialPageIndex, PageMenu, PagedPanel
 
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_page(HTML5Page, style='basic').use_layout(PageColumnLayout('main'))
+        page_layout = PageLayout(contents_layout=ColumnLayout('main').with_slots())
+        self.define_page(HTML5Page, style='basic').use_layout(page_layout)
         find = self.define_view('/', title='Addresses')
         find.set_slot('main', AddressBookPanel.factory())
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 
@@ -23,7 +25,7 @@ class AddressBookPanel(Panel):
 
         self.page_index = SequentialPageIndex(Address.all_addresses(), items_per_page=5)
         self.address_list = AddressList(view, self.page_index)
-        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.address_list).use_layout(HorizontalLayout())
+        self.page_menu = PageMenu(view, 'page_menu', self.page_index, self.address_list, menu_layout=HorizontalLayout())
         self.add_children([self.page_menu, self.address_list])
 
 

@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Layout example
 ==============
@@ -7,6 +7,15 @@ Layout example
 
    Reahl implements layout-related functionality in terms of the
    `Pure.css framework <http://purecss.io/>`_.
+
+.. sidebar:: Moving towards Bootstrap
+   
+   In an effort to improve support for styling and layout, Reahl
+   is gradually moving towards Widgets and Layouts based on
+   `the Bootstrap frontend framework <http://getbootstrap.com>`_.
+
+   :doc:`Read more about the experimental Bootstrap-based stuff
+   <../tutorial/bootstrap/index>` included in this release.
 
 A Widget can use a predefined (but configurable) Layout to change what
 it looks like. Different Layouts could be used with the same Widget on
@@ -31,12 +40,12 @@ In this example, the page used is not specified per View, but a single
 one here) just specifies some contents for the named Slots provided by
 that page. (See :doc:`../tutorial/slots` for an explanation.)
 
-PageColumnLayout is used in this example to change the HTMLPage of the
+PageLayout is used in this example to change the HTMLPage of the
 application to have a header and footer with a content area inbetween
-the two, that is itself split into columns. Each column created by the
-PageColumnLayout contains a Slot with the same name as the column.
+the two, that is itself split into columns using ColumnLayout. A
+Slot is inserted in the header, footer and each column.
 
-The `row` variable is a Panel split into columns using a simpler ColumnLayout.
+The `row` variable is a Panel split into columns using another ColumnLayout.
 
 Widgets like the LabelledBlockInput can be used to do the internal
 layout of elements of a form. A LabelledBlockInput wraps around any

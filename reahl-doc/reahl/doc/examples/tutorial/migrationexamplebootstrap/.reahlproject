@@ -1,0 +1,36 @@
+<project type="egg">
+  <metadata type="reahlproject">
+    <info name="version">0.0</info>
+    <info name="description">Migration example</info>
+    <info name="long_description">An example to show how migration works in Reahl</info>
+    <info name="maintainer_name">Reahl (Pty) Ltd</info>
+    <info name="maintainer_email">info@reahl.org</info>
+    <info name="url">http://www.reahl.org</info>
+  </metadata>
+
+  <deps purpose="run">
+    <egg name="reahl-web"/>
+    <egg name="reahl-component"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-declarative"/>
+  </deps>
+
+  <deps purpose="test">
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+    <egg name="reahl-webdev"/>
+  </deps>
+
+  <persisted>
+    <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:Address"/>
+  </persisted>
+
+  <migrations>
+    <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"/>
+  </migrations>
+
+  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=migrationexamplebootstrap_dev -t -i '.*'"/>
+  <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap_dev.migrationbootstraptests:DemoFixture"/>
+
+</project>

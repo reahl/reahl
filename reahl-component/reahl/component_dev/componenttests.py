@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -37,7 +37,16 @@ class ComponentTests(object):
         # All eggs for a root egg can be found in dependency order
         components_in_order = ReahlEgg.compute_ordered_dependent_distributions(easter_egg.as_requirement_string())
         component_names_in_order = [i.project_name for i in components_in_order]
-        vassert( component_names_in_order == [easter_egg.project_name, 'reahl-component', 'wrapt', 'python-dateutil', 'six', 'Babel', 'pytz'] )
+        # (many valid topological sorts are possible and the algorithm is nondeterministic in some aspects that
+        #  do not matter, hence many possible valid orderings are possible for this dependency tree)
+        #  We assert here only what matters, else this test becomes a flipper:
+        def is_ordered_before(higher, lower):
+            return component_names_in_order.index(higher) < component_names_in_order.index(lower)
+
+        vassert( component_names_in_order[:2] == [easter_egg.project_name, 'reahl-component'] )
+        vassert( is_ordered_before('Babel', 'pytz') )
+        vassert( is_ordered_before('python-dateutil', 'six') )
+
 
     @test(Fixture)
     def interface_with_meta_info(self, fixture):

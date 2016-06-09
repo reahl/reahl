@@ -1,7 +1,7 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1295008794901" ID="ID_1471398770" MODIFIED="1345548293271" TEXT="web">
-<node CREATED="1295002997680" ID="ID_507513275" MODIFIED="1353662059148" POSITION="right" TEXT="widgets">
+<node CREATED="1295002997680" FOLDED="true" ID="ID_507513275" MODIFIED="1353662059148" POSITION="right" TEXT="widgets">
 <node CREATED="1295003954222" FOLDED="true" ID="ID_811909881" LINK="widgets/widgetbasics.py" MODIFIED="1353662299238" TEXT="widget basics">
 <node CREATED="1295343473979" ID="ID_1582240824" MODIFIED="1295343496686" TEXT="creating and rendering a basic widget"/>
 <node CREATED="1345551688719" ID="ID_618115281" MODIFIED="1345551693077" TEXT="widget visibility"/>
@@ -44,8 +44,9 @@
 </node>
 </node>
 </node>
+<node CREATED="1439453215959" ID="ID_358886512" LINK="widgets/layouttests.py" MODIFIED="1439453629286" TEXT="layout"/>
 </node>
-<node CREATED="1295002540057" ID="ID_383074039" MODIFIED="1348580746548" POSITION="right" TEXT="input &amp; validation">
+<node CREATED="1295002540057" FOLDED="true" ID="ID_383074039" MODIFIED="1348580746548" POSITION="right" TEXT="input &amp; validation">
 <node CREATED="1302363589270" ID="ID_638132540" LINK="inputandvalidation/eventhandling.py" MODIFIED="1405599152920" TEXT="event handling">
 <node CREATED="1295002566110" ID="ID_76489977" MODIFIED="1302345629491" TEXT="events &amp; buttons &amp; basic event handlers">
 <font NAME="SansSerif" SIZE="12"/>
@@ -106,6 +107,7 @@
 <node CREATED="1304068595508" ID="ID_956773680" MODIFIED="1304068600850" TEXT="return transition"/>
 <node CREATED="1304068574509" ID="ID_1032725731" MODIFIED="1304068580217" TEXT="return"/>
 </node>
+<node CREATED="1464267844323" ID="ID_672279824" MODIFIED="1464267855071" TEXT="views marked as detours"/>
 </node>
 <node CREATED="1307014006894" FOLDED="true" ID="ID_1375284764" LINK="securitytests.py" MODIFIED="1339572717286" POSITION="right" TEXT="security">
 <node CREATED="1307695124863" FOLDED="true" ID="ID_1759702703" MODIFIED="1327391328717" TEXT="scheme">
@@ -160,6 +162,21 @@
 <icon BUILTIN="stop-sign"/>
 <node CREATED="1308819985987" ID="ID_95273391" MODIFIED="1308820016969" TEXT="a session that is smart enough to be able to hold onto any (persisted or serialised) object you add to it"/>
 <node CREATED="1308820017957" ID="ID_849552372" MODIFIED="1308820044325" TEXT="or: Entities that are smart enough to hold onto the session (all persisted, of course)"/>
+</node>
+<node CREATED="1439453240980" FOLDED="true" ID="ID_1412711355" MODIFIED="1439453246163" POSITION="right" TEXT="bootstrap">
+<node CREATED="1464267987816" ID="ID_515566871" LINK="bootstrap/basicwidgettests.py" MODIFIED="1464268610367" TEXT="basic bootstrap widgets"/>
+<node CREATED="1439453981487" ID="ID_1367196664" LINK="bootstrap/gridsystemtests.py" MODIFIED="1439455157208" TEXT="grid system"/>
+<node CREATED="1439453989153" ID="ID_1580165280" LINK="bootstrap/formtests.py" MODIFIED="1439455175301" TEXT="forms"/>
+<node CREATED="1439454194323" ID="ID_1942204858" LINK="bootstrap/inputgrouptests.py" MODIFIED="1464268967323" TEXT="input groups"/>
+<node CREATED="1464268702400" ID="ID_1798537267" LINK="bootstrap/cueinputtests.py" MODIFIED="1464268729729" TEXT="cue inputs"/>
+<node CREATED="1464268865232" ID="ID_814107279" LINK="bootstrap/filestests.py" MODIFIED="1464268887133" TEXT="uploading files"/>
+<node CREATED="1439454147447" ID="ID_360926336" LINK="bootstrap/components/navtests.py" MODIFIED="1464268956010" TEXT="navs"/>
+<node CREATED="1464269011222" ID="ID_606170619" LINK="bootstrap/navbartests.py" MODIFIED="1464269143810" TEXT="navbars"/>
+<node CREATED="1464268756631" ID="ID_695032297" LINK="bootstrap/tabletests.py" MODIFIED="1464269432179" TEXT="table &amp; paged/sorted table"/>
+<node CREATED="1464269232275" ID="ID_391081631" LINK="bootstrap/tabbedpaneltests.py" MODIFIED="1464269249390" TEXT="tabbed panel"/>
+<node CREATED="1464269146639" ID="ID_554306020" LINK="bootstrap/paginationtests.py" MODIFIED="1464269162611" TEXT="pagination"/>
+<node CREATED="1464268627122" ID="ID_699614453" LINK="bootstrap/carouseltests.py" MODIFIED="1464268666703" TEXT="carousel"/>
+<node CREATED="1464269175219" ID="ID_821391738" LINK="bootstrap/popuptests.py" MODIFIED="1464269194390" TEXT="popup dialogs"/>
 </node>
 </node>
 </map>

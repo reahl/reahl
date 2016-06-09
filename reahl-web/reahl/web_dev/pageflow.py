@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -17,6 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+from six.moves.urllib import parse as urllib_parse
+
 from nose.tools import istest
 from reahl.tofu import test
 from reahl.tofu import expected
@@ -26,8 +28,10 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.ui import Form, HTML5Page, Button, A
-from reahl.web.pure import PageColumnLayout
+from reahl.web.ui import Form, HTML5Page, A
+from reahl.web.ui import Button
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView
 
 
@@ -55,7 +59,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithTwoViews,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -96,7 +100,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -133,7 +137,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithAView,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -179,7 +183,7 @@ class ControlledUserInterfacesTests(object):
                 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 home = self.define_view('/', title='Home page')
 
                 other_view = self.define_view('/page2', title='Page 2', 
@@ -229,7 +233,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -249,7 +253,7 @@ class ControlledUserInterfacesTests(object):
             
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 slot_definitions = {'main': Form.factory('the_form')}
                 view = self.define_view('/', title='Hello', slot_definitions=slot_definitions)
                 failing_precondition = ViewPreCondition(lambda: False, exception=SomeException)
@@ -329,7 +333,7 @@ class ControlledUserInterfacesTests(object):
             
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -370,7 +374,7 @@ class ControlledUserInterfacesTests(object):
             
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
@@ -472,7 +476,7 @@ class ControlledUserInterfacesTests(object):
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageColumnLayout('main'))
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
                 detour_ui = self.define_user_interface('/uiWithDetour',  UIWithDetour,  IdentityDictionary(), name='second_ui')
                 bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
                 self.define_user_interface('/uiWithLink',  UIWithLink,  IdentityDictionary(), name='first_ui', bookmark=bookmark)
@@ -493,3 +497,36 @@ class ControlledUserInterfacesTests(object):
 
         # The query string is cleared after such a return (it is used to remember where to return to)
         vassert( browser.location_query_string == '' )
+
+    @test(WebFixture)
+    def detour_is_non_reentrant(self, fixture):
+        """Once detoured to a View marked as the start of a Detour, a Bookmark to that View itself
+        will not re-enter the detour.
+        """
+
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+
+                step1 = self.define_view('/firstStepOfDetour', title='Step 1', detour=True)
+                step1.set_slot('main', A.factory_from_bookmark(step1.as_bookmark(self)))
+
+                home = self.define_view('/initial', title='View a')
+                home.set_slot('main', A.factory_from_bookmark(step1.as_bookmark(self)))
+
+                
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        browser = Browser(wsgi_app)
+
+        def locationIsSetToReturnTo(url_path):
+            return urllib_parse.parse_qs(browser.location_query_string)['returnTo'] == [url_path]
+
+        browser.open('/initial')
+        browser.click(XPath.link_with_text('Step 1'))
+        vassert( browser.location_path == '/firstStepOfDetour' )
+        vassert( locationIsSetToReturnTo('http://localhost/initial') )
+                
+        browser.click(XPath.link_with_text('Step 1'))
+        vassert( browser.location_path == '/firstStepOfDetour' )
+        vassert( locationIsSetToReturnTo('http://localhost/initial') )
+

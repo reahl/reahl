@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -23,7 +23,6 @@ import six
 import weakref
 from contextlib import contextmanager
 import logging
-from collections import Sequence
 
 from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
@@ -109,24 +108,45 @@ class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
 Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
 
 
-class QueryAsSequence(Sequence):
-    """Used to wrap a SqlAlchemy Query so that it looks like a normal Python :class:`Sequence`."""
-    def __init__(self, query):
+class QueryAsSequence(object):
+    """Used to adapt a SqlAlchemy Query to behave like a normal
+      `Python sequence type <https://docs.python.org/3/glossary.html#term-sequence>`_.
+
+      QueryAsSequence only implements a few useful methods, not the full
+      :class:`collections.abc.Sequence` protocol.
+      
+      :param query: The :class:`Query` object to adapt.
+      :keyword map_function: An optional function to map each instance returned (similar to `function` in the standard :meth:`map` function).
+    """
+    def __init__(self, query, map_function=lambda instance: instance):
         self.original_query = query
         self.query = query
+        self.map_function = map_function
+
     def __len__(self):
+        """Returns the number of items that would be returned by executing the query."""
         return self.query.count()
+
     def __getitem__(self, key):
-        return self.query[key]
+        """Returns the items requested by executing an modifed query representing only the requested slice."""
+        if isinstance(key, slice):
+            return [self.map_function(i) for i in self.query[key]]
+        else:
+            return self.map_function(self.query[key])
+
     def sort(self, key=None, reverse=False):
+        """Modifies the query to be ordered as requested.
+
+        :keyword key: A SqlAlchemy `order_by criterion <http://docs.sqlalchemy.org/en/latest/orm/query.html#sqlalchemy.orm.query.Query.order_by>`_ to be used for sorting.
+        :keyword reverse: If True, use descending order.
+        """
         if key:
-            if not reverse:
-                self.query = self.original_query.order_by(key)
+            if reverse:
+                self.query = self.original_query.order_by(None).order_by(key.desc())
             else:
-                self.query = self.original_query.order_by(key.desc())
+                self.query = self.original_query.order_by(None).order_by(key)
         else:
             self.query = self.original_query
-
 
 
 
@@ -163,13 +183,6 @@ class SqlAlchemyControl(ORMControl):
     @contextmanager
     def nested_transaction(self):
         """A context manager for code that needs to run in a nested transaction."""
-        Session.flush() # TODO, nuke this with alchemy 0.5.
-                        #       see http://www.sqlalchemy.org/docs/05/session.html#using-savepoint
-                        #       This does not seem to happen in sqlalchemy < 0.5
-                        # Note: this first was necessary due to what seens to be a bug in sqlalchemy 0.4:
-                        #       if you delete stuff before starting a savepoint, then rollback
-                        #       the savepoint, the delete is flushed to the DB INSIDE the savepoint
-                        #       and thus also rolled back.
         transaction = Session.begin_nested()
         try:
             yield transaction
@@ -266,6 +279,7 @@ class SqlAlchemyControl(ORMControl):
         
     def disconnect(self):
         """Disposes the current SQLAlchemy Engine and .remove() the Session."""
+        assert self.connected
         metadata.bind.dispose()
         metadata.bind = None
         Session.remove()

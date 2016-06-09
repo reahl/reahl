@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -41,6 +41,7 @@ import logging
 from contextlib import contextmanager
 from pkg_resources import Requirement
 import warnings
+from collections import OrderedDict
 
 from webob import Request, Response
 from webob.exc import HTTPException
@@ -128,6 +129,9 @@ class Url(object):
         """Sets the query string of this Url from a dictionary."""
         self.query = urllib_parse.urlencode(value_dict)
 
+    def get_query_dict(self):
+        return urllib_parse.parse_qs(self.query)
+    
     @property
     def netloc(self):
         """Returns the `authority part of the URl as per RFC3968 <http://tools.ietf.org/html/rfc3986#section-3.2>`_, 
@@ -229,15 +233,22 @@ class Url(object):
     def query_is_subset(self, other_url):
         """Answers whether name=value pairs present in this Url's query string is a subset
            of those present in `other_url`."""
-        other_args = urllib_parse.parse_qs(other_url.query)
-        self_args = urllib_parse.parse_qs(self.query)
+        other_args = other_url.get_query_dict()
+        self_args = self.get_query_dict()
 
         if not set(self_args).issubset(set(other_args)):
             return False
 
+        if 'returnTo' in self_args:
+            del self_args['returnTo']
+        if 'returnTo' in other_args:
+            del other_args['returnTo']
         other_values = dict([(key, other_args[key]) for key in self_args])
         return other_values == self_args
 
+
+class InternalRedirect(Exception):
+    pass
 
 class WebExecutionContext(ExecutionContext):
     def set_request(self, request):
@@ -255,8 +266,13 @@ class WebExecutionContext(ExecutionContext):
                     self.initialise_web_session()
                 try:
                     try:
-                        resource = wsgi_app.resource_for(self.request)
-                        response = resource.handle_request(self.request) 
+                        try:
+                            resource = wsgi_app.resource_for(self.request)
+                            response = resource.handle_request(self.request) 
+                        except InternalRedirect as e:
+                            self.request.internal_redirect = e
+                            resource = wsgi_app.resource_for(self.request)
+                            response = resource.handle_request(self.request)
                     except HTTPException as e:
                         response = e
                     except DisconnectionError as e:
@@ -268,7 +284,6 @@ class WebExecutionContext(ExecutionContext):
                     self.session.set_last_activity_time()
                 finally:
                     self.system_control.finalise_session()
-
 
 
 class EventHandler(object):
@@ -551,7 +566,8 @@ class UserInterface(object):
            :param title: The title to be used for the :class:`View`.
            :param page: A :class:`WidgetFactory` that will be used as the page to be rendered for this :class:`View` (if specified).
            :param slot_definitions: A dictionary stating which :class:`WidgetFactory` to use for plugging in which :class:`Slot`.
-           :param detour: Specifies whether this :class:`View` is a :class:`Detour` or not.
+           :param detour: If True, marks this :class:`View` as the start of a detour (A series of
+             :class:`View`\s which can return the user to where the detour was first entered from). 
            :param view_class: The class of :class:`View` to be constructed (in the case of parameterised :class:`View` s).
            :param read_check: A no-arg function returning a boolean value. It will be called to determine whether the current 
              user is allowed to see this :class:`View` or not.
@@ -774,9 +790,10 @@ class Bookmark(object):
        Bookmark should not generally be constructed directly by a programmer, use one of the following to
        obtain a Bookmark:
        
-       - `View.as_bookmark`
-       - `UserInterface.get_bookmark`
-       - `Bookmark.for_widget`
+       - :meth:`UrlBoundView.as_bookmark`
+       - :meth:`ViewFactory.as_bookmark`
+       - :meth:`UserInterface.get_bookmark`
+       - :meth:`Bookmark.for_widget`
        
        :param base_path: The entire path of the UserInterface to which the target View belongs.
        :param relative_path: The path of the target View, relative to its UserInterface.
@@ -785,8 +802,13 @@ class Bookmark(object):
        :param ajax: (not for general use).
        :param detour: Set this to True, to indicate that the target View is marked as being a detour (See :class:`UrlBoundView`).
        :param exact: (not for general use).
+       :param locale: Force the Bookmark to be for a page in the given locale, instead of using the current locale (default). 
        :param read_check: A no-args callable, usually the read_check of the target View. If it returns True, the current user will be allowed to see (but not click) links representing this Bookmark.
        :param write_check: A no-args callable, usually the write_check of the target View. If it returns True, the current user will be allowed to click links representing this Bookmark.
+
+       .. versionchanged: 3.2
+          Added the locale kwarg.
+
     """
     @classmethod
     def for_widget(cls, description, query_arguments=None, **bookmark_kwargs):
@@ -799,7 +821,7 @@ class Bookmark(object):
         """
         return Bookmark('', '', description, query_arguments=query_arguments, ajax=True, **bookmark_kwargs)
 
-    def __init__(self, base_path, relative_path, description, query_arguments=None, ajax=False, detour=False, exact=True, read_check=None, write_check=None):
+    def __init__(self, base_path, relative_path, description, query_arguments=None, ajax=False, detour=False, exact=True, locale=None, read_check=None, write_check=None):
         self.base_path = base_path
         self.relative_path = relative_path
         self.description = description
@@ -807,6 +829,7 @@ class Bookmark(object):
         self.ajax = ajax
         self.detour = detour
         self.exact = exact
+        self.locale = locale
         self.read_check = read_check
         self.write_check = write_check
 
@@ -817,13 +840,18 @@ class Bookmark(object):
 
     @property
     def href(self):
-        query_arguments = dict(self.query_arguments)
-        if self.detour:
-            request = WebExecutionContext.get_context().request
-            query_arguments['returnTo'] = request.url
         path = (self.base_path + self.relative_path).replace('//','/')
         url = Url(path)
-        url.make_locale_absolute()
+        query_arguments = OrderedDict(sorted(self.query_arguments.items()))
+        url.set_query_from(query_arguments)
+        if self.detour:
+            request = WebExecutionContext.get_context().request
+            if not url.is_currently_active(exact_path=True):
+                query_arguments['returnTo'] = request.url
+            elif 'returnTo' in request.params:
+                query_arguments['returnTo'] = request.params['returnTo']
+                
+        url.make_locale_absolute(locale=self.locale)
         url.set_query_from(query_arguments)
         return url
 
@@ -831,6 +859,26 @@ class Bookmark(object):
     def is_page_internal(self):
         """Answers whether this Bookmark is for a Widget on the current page only."""
         return self.ajax and not (self.base_path or self.relative_path)
+#iwan        return not (self.base_path or self.relative_path)
+
+    def on_view(self, view):
+        """For page-internal Bookmarks, answers a new Bookmark which is to the current Bookmark, but on the given View.
+        
+        .. versionadded: 3.2
+        """
+        if view is view.user_interface.current_view:
+            request = WebExecutionContext.get_context().request
+            query_arguments = request.GET
+        else:
+            query_arguments = {}
+        return view.as_bookmark(query_arguments=query_arguments) + self
+        
+    def combine_checks(self, own_check, other_check):
+        def combined_check():
+            own_passes = not own_check or own_check()
+            other_passes = not other_check or other_check()
+            return all([own_passes, other_passes])
+        return combined_check
 
     def __add__(self, other):
         """You can add a page-internal Bookmark to the Bookmark for a View."""
@@ -840,8 +888,9 @@ class Bookmark(object):
         query_arguments.update(self.query_arguments)
         query_arguments.update(other.query_arguments)
         return Bookmark(self.base_path, self.relative_path, other.description, query_arguments=query_arguments,
-                        ajax=other.ajax, detour=self.detour, read_check=self.read_check, write_check=self.write_check)
-
+                        ajax=other.ajax, detour=self.detour, 
+                        read_check=self.combine_checks(self.read_check, other.read_check), 
+                        write_check=self.combine_checks(self.write_check, other.write_check))
 
 class RedirectToScheme(HTTPSeeOther):
     def __init__(self, scheme):
@@ -972,7 +1021,7 @@ class Widget(object):
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
-        
+
     @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
     def _get_charset(self):
         return self.encoding
@@ -1012,12 +1061,6 @@ class Widget(object):
     def is_refresh_enabled(self):
         return False
     
-    def children_refresh_set(self, own_refresh_set):
-        if self.is_refresh_enabled():
-            return own_refresh_set.union(set([self]))
-        else:
-            return own_refresh_set
-
     @exposed
     def query_fields(self, fields):
         """Override this method to parameterise this this Widget. The Widget will find its arguments from the current
@@ -1150,12 +1193,19 @@ class Widget(object):
 
             raise ProgrammerError(message)
 
-    def refresh_set_widget_pairs(self, own_refresh_set):
-        yield self, own_refresh_set
-        children_refresh_set = self.children_refresh_set(own_refresh_set)
+    def parent_widget_pairs(self, own_parent_set):
+        yield self, own_parent_set
+        children_parent_set = own_parent_set.union(set([self]))
+
         for child in self.children:
-            for widget, refresh_set in child.refresh_set_widget_pairs(children_refresh_set):
-                yield widget, refresh_set    
+            for widget, parent_set in child.parent_widget_pairs(children_parent_set):
+                yield widget, parent_set    
+
+    def contained_widgets(self):
+        for child in self.children:
+            yield child
+            for widget in child.contained_widgets():
+                yield widget
 
     is_Form = False
     is_Input = False
@@ -1163,11 +1213,11 @@ class Widget(object):
         inputs = []
         forms = {}
 
-        for widget, refresh_set in self.refresh_set_widget_pairs(self.children_refresh_set(set())):
+        for widget, parents_set in self.parent_widget_pairs(set([])):
             if widget.is_Form:
-                forms[widget] = refresh_set
+                forms[widget] = set([parent for parent in parents_set if parent.is_refresh_enabled()])
             elif widget.is_Input:
-                inputs.append((widget, refresh_set))
+                inputs.append((widget, set([parent for parent in parents_set if parent.is_refresh_enabled()])))
 
         self.check_forms_unique(forms.keys())
         self.check_all_inputs_forms_exist(forms.keys(), [i for i, refresh_set in inputs])
@@ -1494,12 +1544,17 @@ class SubResourceFactory(FactoryFromUrlRegex):
 
 
 class ViewFactory(FactoryFromUrlRegex):
-    """Used to specify to the framework how it should create a :class:`View`, once needed. This class should not be
-       instantiated directly. Programmers should use `UserInterface.define_view` and related methods to specify what Views
-       a UserInterface should have. These methods return the ViewFactory so created.
+    """Used to specify to the framework how it should create a
 
-       In the `.assemble()` of a UserInterface, ViewFactories are passed around to denote Views as the targets of Events
-       or the source and target of Transitions.
+    :class:`View`, once needed. This class should not be instantiated
+    directly. Programmers should use
+    :meth:`UserInterface.define_view` and related methods to specify
+    what Views a UserInterface should have. These methods return the
+    ViewFactory so created.
+
+    In the `.assemble()` of a UserInterface, ViewFactories are passed
+    around to denote Views as the targets of Events or the source and
+    target of Transitions.
     """
     def __init__(self, regex_path, title, slot_definitions, page_factory=None, detour=False, view_class=None, factory_method=None, read_check=None, write_check=None, cacheable=False, view_kwargs=None):
         self.detour = detour
@@ -1567,19 +1622,20 @@ class ViewFactory(FactoryFromUrlRegex):
         """Supplies a Factory for the page to be used when displaying the :class:`View` created by this ViewFactory."""
         self.page_factory = page_factory
 
-    def as_bookmark(self, user_interface, description=None, query_arguments=None, ajax=False, **url_arguments):
+    def as_bookmark(self, user_interface, description=None, query_arguments=None, ajax=False, locale=None, **url_arguments):
         """Returns a :class:`Bookmark` to the View this Factory represents.
 
            :param user_interface: The user_interface where this ViewFactory is defined.
            :param description: A textual description which will be used on links that represent the Bookmark on the user interface.
            :param query_arguments: A dictionary with (name, value) pairs to put on the query string of the Bookmark.
            :param ajax: (not for general use)
+           :param locale: (See :class:`Bookmark`.)
            :param url_arguments: Values for the arguments of the parameterised View to which the Bookmark should lead. (Just
                                  omit these if the target View is not parameterised.)
         """
         relative_path = self.get_relative_path(**url_arguments)
         view = self.create(relative_path, user_interface)
-        return view.as_bookmark(description=description, query_arguments=query_arguments, ajax=ajax)
+        return view.as_bookmark(description=description, query_arguments=query_arguments, ajax=ajax, locale=locale)
 
     def create(self, relative_path, *args, **kwargs):
         try:
@@ -1816,16 +1872,26 @@ class UrlBoundView(View):
         if not allowed:
             raise HTTPForbidden()
 
-    def as_bookmark(self, description=None, query_arguments=None, ajax=False):
+    @property
+    def is_current_view(self):
+        return self.relative_path == self.user_interface.current_view.relative_path and self.user_interface is self.user_interface.current_view.user_interface
+
+    def as_bookmark(self, description=None, query_arguments=None, ajax=False, locale=None):
         """Returns a Bookmark for this UrlBoundView.
 
            :param description: A textual description to be used by links representing this View to a user.
            :param query_arguments: A dictionary mapping names to values to be used for query string arguments.
            :param ajax: (not for general use)
+           :param locale: (See :class:`Bookmark`.)
+
+        .. versionchanged: 3.2
+           Added locale kwarg.
+
         """
         return Bookmark(self.user_interface.base_path, self.relative_path, 
                         description=description or self.title,
                         query_arguments=query_arguments, ajax=ajax, detour=self.detour,
+                        locale=locale,
                         read_check=self.read_check, write_check=self.write_check)
 
     def add_out_of_bound_form(self, out_of_bound_form):
@@ -1857,28 +1923,22 @@ class UserInterfaceRootRedirectView(PseudoView):
 
 
 class HeaderContent(Widget):
-    main_widget = None
     def __init__(self, page):
         super(HeaderContent, self).__init__(page.view)
         self.page = page
 
-    def header_only_material(self):
-        config = WebExecutionContext.get_context().config
-
-        result = ''
-        for library in config.web.frontend_libraries:
-            result += library.header_only_material(self.page)
-
-        result += '\n<script type="text/javascript" src="/static/reahl.js"></script>'
-        result += '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
-        return result
-
     def render(self):
-        return self.header_only_material()
+        config = WebExecutionContext.get_context().config
+        return ''.join([library.header_only_material(self.page)
+                        for library in config.web.frontend_libraries])
     
 
 
-class FooterContent(HeaderContent):
+class FooterContent(Widget):
+    def __init__(self, page):
+        super(FooterContent, self).__init__(page.view)
+        self.page = page
+
     def render(self):
         config = WebExecutionContext.get_context().config
         return ''.join([library.footer_only_material(self.page)
@@ -1902,6 +1962,7 @@ class Resource(object):
 
         method_handler = getattr(self, 'handle_%s' % request.method.lower())
         return method_handler(request)
+
 
 
 class SubResource(Resource):
@@ -2007,11 +2068,20 @@ class MethodResult(object):
     """A :class:`RemoteMethod` can be constructed to yield its results back to a browser in different 
        ways. MethodResult is the superclass of all such different kinds of results.
 
-       :param catch_exception: The class of Exeption to catch if thrown while the :class:`RemoteMethod` executes.
-       :param mime_type: The mime type to use as html content type when sending this MethodResult back to a browser.
-       :param encoding: The encoding to use when sending this MethodResult back to a browser.
+       :keyword catch_exception: The class of Exeption for which this MethodResult will generate an exceptional Response\
+                                 if thrown while the :class:`RemoteMethod` executes \
+                                 (default: :class:`~reahl.component.exceptions.DomainException`).
+       :keyword mime_type: The mime type to use as html content type when sending this MethodResult back to a browser.
+       :keyword encoding: The encoding to use when sending this MethodResult back to a browser.
+       :keyword replay_request: If True, first recreate everything (including this MethodResult) before generating \
+            the final response in order to take possible changes made by the execution of the RemoteMethod into account.
+            
+       .. versionchanged: 3.2
+          Added the replay_request functionality.
+          Set the default for catch_exception to DomainException
     """
-    def __init__(self, catch_exception=None, content_type=None, mime_type='text/html', charset=None, encoding='utf-8'):
+    redirects_internally = False
+    def __init__(self, catch_exception=DomainException, content_type=None, mime_type='text/html', charset=None, encoding='utf-8', replay_request=False):
         if charset:
             warnings.warn('The charset keyword argument is deprecated, please use encoding instead.', 
                           DeprecationWarning, stacklevel=2)
@@ -2021,6 +2091,7 @@ class MethodResult(object):
         self.catch_exception = catch_exception
         self.mime_type = content_type or mime_type
         self.encoding = charset or encoding
+        self.replay_request = replay_request
 
     def create_response(self, return_value):
         """Override this in your subclass to create a :class:`webob.Response` for the given `return_value` which
@@ -2049,19 +2120,23 @@ class MethodResult(object):
            this method can be overridden instead, supplying only the body of a normal 200 Response."""
         return six.text_type(exception)
 
-    def get_response(self, return_value):
+    def get_response(self, return_value, is_internal_redirect):
+        if self.redirects_internally and not is_internal_redirect:
+            raise RegenerateMethodResult(return_value, None)
         response = self.create_response(return_value)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
         response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
-    def get_exception_response(self, exception):
+    def get_exception_response(self, exception, is_internal_redirect):
+        if self.redirects_internally and not is_internal_redirect:
+            raise RegenerateMethodResult(None, exception)
         response = self.create_exception_response(exception)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
         response.charset = ascii_as_bytes_or_str(self.encoding)
         return response
 
-    
+
 class RedirectAfterPost(MethodResult):
     """A MethodResult which will cause the browser to be redirected to the Url returned by the called
        RemoteMethod instead of actually returning the result for display. A RedirectAfterPost is meant to be
@@ -2092,17 +2167,28 @@ class JsonResult(MethodResult):
                             for outputting the return value of the RemoteMethod as a string.
        :param kwargs: Other keyword arguments are sent to MethodResult, see :class:`MethodResult`.
     """
+    redirects_internally = True
     def __init__(self, result_field, **kwargs):
         super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
-        
+
     def render(self, return_value):
         self.result = return_value
         return self.fields.result.as_input()
 
     def render_exception(self, exception):
         return '"%s"' % six.text_type(exception)
+
+
+class RegenerateMethodResult(InternalRedirect):
+    def __init__(self, return_value, exception):
+        super(RegenerateMethodResult, self).__init__()
+        self.return_value = return_value
+        self.exception = exception
+
+    def get_results(self):
+        return (self.return_value, self.exception)
 
 
 class WidgetResult(MethodResult):
@@ -2114,12 +2200,15 @@ class WidgetResult(MethodResult):
        A JavaScript `<script>` tag is rendered also, containing the JavaScript activating code for the 
        new contents of this refreshed Widget.
     """
+    redirects_internally = True
 
-    def __init__(self, result_widget):
-        super(WidgetResult, self).__init__(mime_type='text/html', encoding='utf-8', catch_exception=DomainException)
+    def __init__(self, result_widget, as_json_and_result=False):
+        mime_type = 'application/json' if as_json_and_result else 'text/html'
+        super(WidgetResult, self).__init__(mime_type=mime_type, encoding='utf-8', catch_exception=DomainException, replay_request=True)
         self.result_widget = result_widget
+        self.as_json_and_result = as_json_and_result
 
-    def render(self, return_value):
+    def render_html(self, return_value):
         result = self.result_widget.render_contents()
         js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
         result += '<script type="text/javascript">' 
@@ -2127,18 +2216,20 @@ class WidgetResult(MethodResult):
         result += '</script>'
         return result
 
-
-class NoRedirectAfterPost(WidgetResult):
     def render_as_json(self, exception):
-        rendered_widget = super(NoRedirectAfterPost, self).render(None)
+        rendered_widget = self.render_html(None)
         success = exception is None
         return json.dumps({ 'success': success, 'widget': rendered_widget })
-    
+
     def render(self, return_value):
-        return self.render_as_json(None)
-    
+        if self.as_json_and_result:
+            return self.render_as_json(None)
+        return self.render_html(None)
+
     def render_exception(self, exception):
-        return self.render_as_json(exception)
+        if self.as_json_and_result:
+            return self.render_as_json(exception)
+        return super(WidgetResult, self).render_exception(exception)
 
 
 class RemoteMethod(SubResource): 
@@ -2183,37 +2274,51 @@ class RemoteMethod(SubResource):
         """Override this method in a subclass to trigger custom behaviour after the method
            completed successfully."""
 
-    def call_with_input(self, input_values):
-        return self.callable_object(**self.parse_arguments(input_values))
+    def call_with_input(self, input_values, catch_exception):
+        context = ExecutionContext.get_context()
+        caught_exception = None
+        return_value = None
+        try:
+            with context.system_control.nested_transaction():
+                return_value = self.callable_object(**self.parse_arguments(input_values))
+        except catch_exception as ex:
+            context.initialise_web_session()  # Because the rollback above nuked it
+            self.cleanup_after_exception(input_values, ex)
+            caught_exception = ex
+        else:
+            self.cleanup_after_success()
+        return (return_value, caught_exception)
 
     def make_result(self, input_values):
         """Override this method to be able to determine (at run time) what MethodResult to use
            for this method. The default implementation merely uses the `default_result` given
-           during construction of the RemoteMethod."""
+           during construction of the RemoteMethod.
+
+           :param input_values: The current request.GET or request.POST depending on the request.method.
+        """
         return self.default_result
 
-    def handle_get_or_post(self, input_values):
+    def handle_get_or_post(self, request, input_values):
         result = self.make_result(input_values)
-        context = ExecutionContext.get_context()
-        response = None
-        try:
-            with context.system_control.nested_transaction():
-                return_value = self.call_with_input(input_values)
-                response = result.get_response(return_value)
-        except result.catch_exception as ex:
-            context.initialise_web_session()  # Because the rollback above nuked it
-            self.cleanup_after_exception(input_values, ex)
-            response = result.get_exception_response(ex)
+
+        internal_redirect = getattr(request, 'internal_redirect', None)
+        if internal_redirect:
+            return_value, caught_exception = internal_redirect.get_results()
         else:
-            self.cleanup_after_success()
+            return_value, caught_exception = self.call_with_input(input_values, result.catch_exception)
+
+        if caught_exception:
+            response = result.get_exception_response(caught_exception, internal_redirect is not None)
+        else:
+            response = result.get_response(return_value, internal_redirect is not None)
 
         return response
 
     def handle_post(self, request):
-        return self.handle_get_or_post(request.POST)
+        return self.handle_get_or_post(request, request.POST)
 
     def handle_get(self, request):
-        return self.handle_get_or_post(request.GET)
+        return self.handle_get_or_post(request, request.GET)
 
 
 class CheckedRemoteMethod(RemoteMethod): 
@@ -2255,7 +2360,7 @@ class EventChannel(RemoteMethod):
 
     def make_result(self, input_values):
         if '_noredirect' in input_values.keys():
-            return NoRedirectAfterPost(self.form.rendered_form)
+            return WidgetResult(self.form.rendered_form, as_json_and_result=True)
         else:
             return RedirectAfterPost()
 

@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -114,7 +114,7 @@ class ArgumentCheck(Exception):
             else:
                 return
 
-        if not value:
+        if value is None:
             if not self.allow_none:
                 self.raise_with(func, name, value)
             else:

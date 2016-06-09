@@ -1,4 +1,4 @@
-.. Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Preparing for installation on Mac OS/X
 ======================================
@@ -57,4 +57,4 @@ Reahl will need a few additional packages to be installed. To install them, simp
 The first two (libxml2 and libxslt) are used by some of our testing
 infrastructure, and sqlite is the database used by the tutorial examples.
 
-Remember to go back and :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`!
+The next (and last step) is to :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`.

@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Testing
 =======
@@ -37,6 +37,7 @@ Fixtures
 
    - tutorial.testbasics
    - tutorial.parameterised2
+   - tutorial.parameterised2bootstrap
 
    Get a copy of an example by running:
 

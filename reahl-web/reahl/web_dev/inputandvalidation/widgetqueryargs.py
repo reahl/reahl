@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -18,10 +18,10 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from nose.tools import istest
-from reahl.tofu import Fixture, test, vassert, expected
+from reahl.tofu import Fixture, test, vassert, expected, scenario
 from reahl.component.exceptions import ProgrammerError
 
-from reahl.webdev.tools import Browser
+from reahl.webdev.tools import Browser, XPath
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.fixtures import WebFixture
 
@@ -29,20 +29,23 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.component.modelinterface import Field, exposed, IntegerField
 from reahl.web.fw import Bookmark
 from reahl.web.fw import Widget
-from reahl.web.ui import A, P, Form, TextInput, Panel
+from reahl.web.ui import A, P, Form, TextInput, Div
 
 
 
 class QueryStringFixture(Fixture, WebBasicsMixin):
+    def is_state_labelled_now(self, label, state):
+        return self.driver_browser.is_element_present(XPath.paragraph_containing('%s is now %s' % (label, state)))
+
     def is_state_now(self, state):
-        return self.driver_browser.execute_script('return (window.jQuery("p").html() == "My state is now %s")' % state)
+        return self.is_state_labelled_now('My state', state)
 
     def change_fragment(self, fragment):
         self.driver_browser.execute_script('return (window.location.hash="%s")' % fragment)
 
     def new_FancyWidget(self):
         fixture = self
-        class MyFancyWidget(Panel):
+        class MyFancyWidget(Div):
             def __init__(self, view):
                 super(MyFancyWidget, self).__init__(view, css_id='sedrick')
                 self.enable_refresh()
@@ -140,7 +143,7 @@ class WidgetQueryArgTests(object):
     @test(WebFixture)
     def css_id_is_mandatory(self, fixture):
         """If a Widget is enabled to to be refreshed, it must also have a css_id set."""
-        class MyFancyWidget(Panel):
+        class MyFancyWidget(Div):
             def __init__(self, view):
                 super(MyFancyWidget, self).__init__(view)
                 self.enable_refresh()
@@ -148,6 +151,48 @@ class WidgetQueryArgTests(object):
         with expected(ProgrammerError):
             MyFancyWidget(fixture.view)
 
+    class PartialRefreshFixture(QueryStringFixture):
+        def new_FancyWidget(self):
+            fixture = self
+            class MyFancyWidget(Div):
+                def __init__(self, view):
+                    super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+                    self.enable_refresh(self.query_fields.refreshing_state)
+                    self.add_child(P(self.view, text='My refreshing state is now %s' % self.refreshing_state))
+                    self.add_child(P(self.view, text='My non-refreshing state is now %s' % self.non_refreshing_state))
+                    fixture.widget = self
+
+                @exposed
+                def query_fields(self, fields):
+                    fields.refreshing_state = IntegerField(required=False, default=1)
+                    fields.non_refreshing_state = IntegerField(required=False, default=2)
+
+            return MyFancyWidget
+
+
+    @test(PartialRefreshFixture)
+    def refreshing_only_for_specific_args(self, fixture):
+        """Calling `.enable_refresh()` only with specific query_fields has the effect that
+           the Widget is only refreshed automatically for the particular fields passed, not
+           for any of its query_fields.
+        """
+
+        fixture.reahl_server.set_app(fixture.wsgi_app)
+        fixture.driver_browser.open('/')
+
+        # Case: the default
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 1) )
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2) )
+
+        # Case: changing the specified field only
+        fixture.change_fragment('#refreshing_state=3')
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3) )
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2) )
+
+        # Case: changing the other field only
+        fixture.change_fragment('#non_refreshing_state=4')
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3) )
+        vassert( fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2) )
 
     @test(QueryStringFixture)
     def bookmarks_support_such_fragments(self, fixture):
@@ -160,8 +205,7 @@ class WidgetQueryArgTests(object):
            url on which the argument has been removed from the querystring and changed on the hash.
         """
 
-        internal_bookmark = Bookmark('', '', 'an ajax bookmark', query_arguments={'fancy_state':2}, ajax=True)
-#        internal_bookmark = fixture.MyFancyWidget.get_bookmark(fancy_state=2)
+        internal_bookmark = Bookmark.for_widget('an ajax bookmark', query_arguments={'fancy_state':2})
         normal_bookmark = Bookmark('/', '', 'a normal bookmark')
 
         # You can query whether a bookmark is page_internal or not
@@ -192,3 +236,53 @@ class WidgetQueryArgTests(object):
         vassert(     fixture.driver_browser.is_element_present("//a[@href='/#fancy_state=2']") )
 
 
+    class RightsScenarios(QueryStringFixture):
+        def allowed(self):
+            return True
+        def not_allowed(self):
+            return False
+
+        @scenario
+        def all_allowed(self):
+            self.internal_readable = self.allowed
+            self.normal_readable = self.allowed
+            self.expected_readable = True
+            self.internal_writable = self.allowed
+            self.normal_writable = self.allowed
+            self.expected_writable = True
+
+        @scenario
+        def internal_disallowed(self):
+            self.internal_readable = self.not_allowed
+            self.normal_readable = self.allowed
+            self.expected_readable = False
+            self.internal_writable = self.not_allowed
+            self.normal_writable = self.allowed
+            self.expected_writable = False
+
+        @scenario
+        def normal_disallowed(self):
+            self.internal_readable = self.allowed
+            self.normal_readable = self.not_allowed
+            self.expected_readable = False
+            self.internal_writable = self.allowed
+            self.normal_writable = self.not_allowed
+            self.expected_writable = False
+
+    @test(RightsScenarios)
+    def bookmark_rights_when_adding(self, fixture):
+        """When adding two Bookmarks, access rights of both are taken into account.
+
+        """
+
+        internal_bookmark = Bookmark.for_widget('an ajax bookmark', 
+                                                query_arguments={'fancy_state':2},
+                                                read_check=fixture.internal_readable,
+                                                write_check=fixture.internal_writable)
+        normal_bookmark = Bookmark('/', '', 'a normal bookmark',
+                                   read_check=fixture.normal_readable,
+                                   write_check=fixture.normal_writable)
+
+        usable_bookmark = normal_bookmark+internal_bookmark
+        vassert( usable_bookmark.read_check() is fixture.expected_readable )
+        vassert( usable_bookmark.write_check() is fixture.expected_writable )

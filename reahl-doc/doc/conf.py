@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -230,3 +230,4 @@ man_pages = [
 ]
 
 autodoc_member_order = 'bysource'
+autodoc_default_flags = ['show-inheritance']

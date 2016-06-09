@@ -16,6 +16,6 @@
   </deps>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=login2_dev -t -i'.*'"/>
-  <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.login2.login2_dev.logintests2:DemoFixture"/>
+  <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.login2.login2_dev.login2tests:DemoFixture"/>
 
 </project>

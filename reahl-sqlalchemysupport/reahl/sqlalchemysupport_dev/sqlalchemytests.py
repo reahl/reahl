@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -101,6 +101,15 @@ def query_as_sequence(fixture):
         sorted_items_in_reverse = [item for item in fixture.query_as_sequence]
         vassert( sorted_items_in_reverse == [object3, object1, object2] )
 
+        #can slice
+        natural_ordered_items = [item for item in fixture.query_as_sequence]
+        [object1, object2, object3] = fixture.query_as_sequence[:]
+        vassert([object1, object2, object3] == natural_ordered_items)
+
+        #can slice some more
+        [sliced_item] = fixture.query_as_sequence[1:2]
+        vassert(sliced_item == natural_ordered_items[1])
+
 
 @test(QueryFixture)
 def query_as_sequence_last_sort_wins(fixture):
@@ -115,7 +124,19 @@ def query_as_sequence_last_sort_wins(fixture):
         vassert( sorted_items == [object3, object1, object2] )
 
 
+@test(QueryFixture)
+def query_as_sequence_chained_sorts(fixture):
+    """A QueryAsSequence constructed with a query that already has an order_by clause,
+       should be able to chain additional sort(order_by) requirements"""
 
+    with fixture.persistent_test_classes(fixture.MyObject):
+        [object1, object2, object3] = fixture.objects
 
+        native_query_with_sort = Session.query(fixture.MyObject).order_by(fixture.MyObject.name)
+        query_as_sequence = QueryAsSequence(native_query_with_sort)
 
+        # another sort(order_by) requirement
+        query_as_sequence.sort(key=fixture.MyObject.name, reverse=True)
+        sorted_items = [item for item in query_as_sequence]
+        vassert( sorted_items == [object3, object1, object2] )
 

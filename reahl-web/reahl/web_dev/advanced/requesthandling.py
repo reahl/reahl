@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -16,6 +16,8 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+import re
+
 from webob import Request, Response
 from webob.exc import HTTPNotFound
 
@@ -23,7 +25,7 @@ from nose.tools import istest
 from reahl.tofu import test, expected, vassert
 from reahl.stubble import stubclass, CallMonitor
 
-from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext
+from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext, InternalRedirect
 from reahl.web.interfaces import UserSessionProtocol
 from reahl.web_dev.fixtures import WebFixture, ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
@@ -35,7 +37,7 @@ class RequestHandlingTests(object):
         status = None
         headers = None
         def result_is_valid(self, result):
-            return result.startswith('<!DOCTYPE html><html>') and result.endswith('</html>')
+            return result.startswith('<!DOCTYPE html><html class="no-js">') and result.endswith('</html>')
         def some_headers_are_set(self, headers):
             return dict(headers)['Content-Type'] == 'text/html; charset=utf-8'
 
@@ -150,6 +152,39 @@ class RequestHandlingTests(object):
         browser.open('/', status=404)
 
     @test(WebFixture)
+    def internal_redirects(self, fixture):
+        """During request handling, an InternalRedirect exception can be thrown. This is handled by
+           restarting the request loop from scratch to handle the same request again, using a freshly
+           constructed resource just as though the request was submitted again by the browser
+           save for the browser round trip."""
+
+        fixture.requests_handled = []
+        fixture.handling_resources = []
+
+        @stubclass(Resource)
+        class ResourceStub(object):
+            def handle_request(self, request):
+                fixture.requests_handled.append(request)
+                fixture.handling_resources.append(self)
+                if hasattr(request, 'internal_redirect'):
+                    return Response(body='response given after internal redirect')
+                raise InternalRedirect(None, None)
+
+        @stubclass(ReahlWSGIApplication)
+        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
+            def resource_for(self, request):
+                return ResourceStub()
+
+        browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
+
+        browser.open('/')
+
+        vassert( browser.raw_html == 'response given after internal redirect' )
+        vassert( fixture.requests_handled[0] is fixture.requests_handled[1] )
+        vassert( fixture.handling_resources[0] is not fixture.handling_resources[1] )
+
+
+    @test(WebFixture)
     def handling_uncaught_exceptions(self, fixture):
         """If an uncaught exception is raised, the session is closed properly."""
 
@@ -166,3 +201,4 @@ class RequestHandlingTests(object):
             with expected(AssertionError):
                 browser.open('/')
             vassert( monitor.times_called == 1 )
+

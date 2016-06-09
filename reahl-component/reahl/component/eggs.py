@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -72,6 +72,85 @@ class Attachment(object):
     def __init__(self, filename, label):
         self.filename = filename
         self.label = label
+
+
+class NoDependencyPathFound(Exception):
+    def __init__(self, from_vertex, to_vertex):
+        self.from_vertex = from_vertex
+        self.to_vertex = to_vertex
+
+    def str(self):
+        return 'No dependency path found from %s to %s' % (self.from_vertex, to_vertex)
+
+
+class CircularDependencyDetected(Exception):
+    def __init__(self, cycle):
+        self.cycle = cycle
+
+    def __str__(self):
+        return ' -> '.join([str(i) for i in self.cycle])
+
+
+    
+class DependencyGraph(object):
+    def __init__(self, distributions):
+        self.graph = self.read_from_distributions(distributions)
+        self.discovered = {}
+        self.entered = {}
+        self.exited = {}
+        self.count = 0
+        self.topological_order = []
+        self.parents = {}
+
+    def read_from_distributions(self, distributions):
+        graph = {}
+        for dist in distributions:
+            dependencies = [working_set.find(i) for i in dist.requires()]
+            my_requirements =  dist.requires()
+            #we want the subset of stuff in the basket we actually depend on, not just the basket itself
+            basket_requirements = [i for i in my_requirements
+                                   if i.extras]
+            for basket in basket_requirements:
+                dependencies.extend([working_set.find(Requirement.parse(i)) for i in basket.extras])
+                
+            graph[dist] = dependencies
+        return graph
+        
+    def path(self, from_vertex, to_vertex):
+        path = []
+        i = to_vertex
+        path.append(i)
+        while i in self.parents and i is not from_vertex:
+            i = self.parents[i]
+            path.append(i)
+        if i is not from_vertex:
+            raise NoDependencyPathFound(from_vertex, to_vertex)
+        path.reverse()
+        return path
+
+    def search(self, from_vertex):
+        self.discovered[from_vertex] = True
+        self.entered[from_vertex] = self.count
+        self.count += 1
+        for i in self.graph[from_vertex]:
+            if i not in self.discovered:
+                self.parents[i] = from_vertex
+                self.search(i)
+            elif self.entered[i] < self.entered[from_vertex] and i not in self.exited:
+                raise CircularDependencyDetected(self.path(i, from_vertex)+[i])
+            elif i not in self.parents:
+                self.parents[i] = from_vertex
+
+        self.exited[from_vertex] = self.count
+        self.count += 1
+        self.topological_order.append(from_vertex)
+
+    def topological_sort(self):
+        for i in self.graph.keys():
+            if i not in self.discovered:
+                self.search(i)
+        return reversed(self.topological_order)
+
 
 
 class ReahlEgg(object):
@@ -235,42 +314,8 @@ class ReahlEgg(object):
 
     @classmethod
     def topological_sort(cls, distributions):
-    # Algorithm from: http://www.logarithmic.net/pfh-files/blog/01208083168/sort.py
-    # See also: http://en.wikipedia.org/wiki/Topological_sorting
-        
-        graph = {}
-        for dist in distributions:
-            dependencies = [working_set.find(i) for i in dist.requires()]
-            my_requirements =  dist.requires()
-            #we want the subset of stuff in the basket we actually depend on, not just the basket itself
-            basket_requirements = [i for i in my_requirements
-                                   if i.extras]
-            for basket in basket_requirements:
-                dependencies.extend([working_set.find(Requirement.parse(i)) for i in basket.extras])
-                
-            graph[dist] = dependencies
-        
-        count = { }
-        for node in graph:
-            count[node] = 0
-        for node in graph:
-            for successor in graph[node]:
-                count[successor] += 1
+        return DependencyGraph(distributions).topological_sort()
 
-        ready = [ node for node in graph if count[node] == 0 ]
-        
-        result = []
-        while ready:
-            node = ready.pop(-1)
-            result.append(node)
-            
-            for successor in graph[node]:
-                count[successor] -= 1
-                if count[successor] == 0:
-                    ready.append(successor)
-        
-        assert set(distributions) == set(result)
-        return result
 
     @classmethod 
     def get_eggs_for(cls, main_egg):

@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 XML reference for .reahlproject
 ===============================
@@ -100,6 +100,8 @@ locator attribute
 
 <attachedfiles>
 """""""""""""""
+  .. deprecated:: 3.2
+     Please distribute your JavaScript and CSS code using a :class:`reahl.web.libraries.Library` instead.
 
   Use this element to list a number of JavaScript or CSS files that are shipped inside this component.
   These files are concatenated at runtime into one big JavaScript or CSS file. Each file is listed

@@ -2,10 +2,12 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import test
+from reahl.tofu import test, set_up
+
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
+from reahl.sqlalchemysupport import Session
 
 from reahl.doc.examples.tutorial.migrationexample.migrationexample import AddressBookUI, Address
 
@@ -40,4 +42,14 @@ def add_address(fixture):
     assert fixture.address_is_listed_as('John', 'johndoe@some.org')
 
 
+class DemoFixture(MigrateFixture):
+    commit=True
+    @set_up
+    def do_demo_setup(self):
+        Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
+        Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
+        Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
+
+        Session.flush()
+        Session.commit()
 

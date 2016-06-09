@@ -1,0 +1,60 @@
+# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights
+# reserved.
+#
+# Afrikaans translations for reahl-doc.
+msgid ""
+msgstr ""
+"Project-Id-Version: reahl-doc 2.0.0a1\n"
+"Report-Msgid-Bugs-To: info@reahl.org\n"
+"POT-Creation-Date: 2016-06-09 11:57+0200\n"
+"PO-Revision-Date: 2012-05-31 12:02+0200\n"
+"Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
+"Language: af\n"
+"Language-Team: af <info@reahl.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.1.1\n"
+
+#: reahl/doc/examples/features/i18nexample/i18nexample.py:12
+msgid "Translated example"
+msgstr "Vertaalde voorbeeld"
+
+#: reahl/doc/examples/features/i18nexample/i18nexample.py:24
+#, python-format
+msgid "This is a translated string. The current URL is \"%s\"."
+msgstr "Hierdie is 'n vertaalde string. Die huidige URL is \"%s\"."
+
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:36
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:39
+msgid "Address Book"
+msgstr "Adres Boek"
+
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:44
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:47
+msgid "Address"
+msgid_plural "Addresses"
+msgstr[0] "Adres"
+msgstr[1] "Adresse"
+
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:59
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:62
+msgid "Add an address"
+msgstr "Voeg 'n adres by"
+
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:83
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:88
+msgid "Name"
+msgstr "Naam"
+
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:84
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:89
+msgid "Email"
+msgstr "E-pos"
+
+#: reahl/doc/examples/tutorial/i18nexample/i18nexample.py:92
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:97
+msgid "Save"
+msgstr "Stoor"
+

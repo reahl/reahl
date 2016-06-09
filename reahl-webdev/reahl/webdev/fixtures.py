@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -75,17 +75,26 @@ class BrowserSetup(CleanDatabase):
     def web_driver(self):
         return self.chrome_driver
 
-    def new_firefox_driver(self):
-        from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.max-connections-per-server'] = '1'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.max-persistent-connections-per-server'] = '1'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.spdy.enabled'] = 'false'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.pipelining'] = 'true'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.pipelining.maxrequests'] = '8'
-        FirefoxProfile.DEFAULT_PREFERENCES['network.http.pipelining.ssl'] = 'true'
-        FirefoxProfile.DEFAULT_PREFERENCES['html5.offmainthread'] = 'false'
+    def new_firefox_driver(self, javascript_enabled=True):
+        assert javascript_enabled, 'Cannot disable javascript anymore, see: https://github.com/seleniumhq/selenium/issues/635'
+        from selenium.webdriver import FirefoxProfile, DesiredCapabilities
 
-        wd = webdriver.Firefox()
+        fp = FirefoxProfile()
+        fp.set_preference('network.http.max-connections-per-server', 1)
+        fp.set_preference('network.http.max-persistent-connections-per-server', 0)
+        fp.set_preference('network.http.spdy.enabled', False)
+        fp.set_preference('network.http.pipelining', True)
+        fp.set_preference('network.http.pipelining.maxrequests', 8)
+        fp.set_preference('network.http.pipelining.ssl', True)
+        fp.set_preference('html5.offmainthread', False)
+
+        dc = DesiredCapabilities.FIREFOX.copy() 
+
+        if not javascript_enabled:
+            fp.set_preference('javascript.enabled', False)
+            dc['javascriptEnabled'] = False
+
+        wd = webdriver.Firefox(firefox_profile=fp, capabilities=dc)
         self.reahl_server.install_handler(wd)
         return wd
 
@@ -133,18 +142,23 @@ class BrowserSetup(CleanDatabase):
             # Create and start server
             self.reahl_server.start(in_separate_thread=False, connect=False)
 
+    def restart_session(self, web_driver):
+        web_driver.close()
+        web_driver.start_session(web_driver.desired_capabilities)
+
+    def is_instantiated(self, name):
+        return name in self.__dict__
+
     @tear_down
     def stop_servers(self):
-        if 'reahl_server' in self.__dict__:
+        if self.is_instantiated('reahl_server'):
             self.reahl_server.set_noop_app() # selenium.stop() hits the application its opened on again.
             self.reahl_server.restore_handlers()
-        if 'firefox_driver' in self.__dict__:
-#            self.firefox_driver.close()
+        if self.is_instantiated('firefox_driver'):
             self.firefox_driver.quit()
-        if 'chrome_driver' in self.__dict__:
-#            self.chrome_driver.close()
+        if self.is_instantiated('chrome_driver'):
             self.chrome_driver.quit()
-        if 'reahl_server' in self.__dict__:
+        if self.is_instantiated('reahl_server'):
             self.reahl_server.stop()
 
     def new_test_dependencies(self):

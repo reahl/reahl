@@ -1,4 +1,4 @@
-.. Copyright 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 Models live in components
 =========================
@@ -32,12 +32,14 @@ our model in there. We'll skip testing further :doc:`until a bit later
 Register the models that live there
 -----------------------------------
 
-A model should live in a Reahl component -- like any other code. The Reahl
-component infrastructure needs to be made aware of the classes that
-can be persisted in each component. This is necessary because the command 
-line tools perform certain tasks that need this information as input. 
-These tasks include creating the database schema or creating or dropping
-tables, for example.
+A model lives in a Reahl component -- like any other class. Models
+that are mapped via SqlAlchemy to underlying database tables require
+one more step though. You have to inform Reahl as to which of the
+classes in a particular component map to relational database
+tables. This is necessary because the command line tools perform
+certain tasks that need this information as input.  These tasks
+include creating the database schema or creating or dropping tables,
+for example.
 
 To make the Reahl infrastructure aware of the
 persisted classes in a component, you must add a list of `<class>` tags

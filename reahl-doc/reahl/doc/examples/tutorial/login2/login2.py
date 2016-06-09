@@ -4,7 +4,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page, P, Menu, HorizontalLayout
-from reahl.web.pure import PageColumnLayout, UnitSize
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.domain.systemaccountmodel import LoginSession
 from reahl.domainui.accounts import AccountUI
 
@@ -13,8 +14,16 @@ from reahl.domainui.accounts import AccountUI
 class MenuPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(MenuPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout(('main', UnitSize('1/3'))))
-        self.layout.header.add_child(Menu.from_bookmarks(view, main_bookmarks).use_layout(HorizontalLayout()))
+        self.use_layout(PageLayout())
+        contents_layout = ColumnLayout(('main', UnitSize('1/3'))).with_slots()
+        self.layout.contents.use_layout(contents_layout)
+        self.layout.header.add_child(Menu(view).use_layout(HorizontalLayout()).with_bookmarks(main_bookmarks))
+
+
+class LegalNotice(P):
+    def __init__(self, view, text, name):
+        super(LegalNotice, self).__init__(view, text=text, css_id=name)
+        self.set_as_security_sensitive()
 
 
 class LoginUI(UserInterface):
@@ -28,10 +37,19 @@ class LoginUI(UserInterface):
         home = self.define_view('/', title='Home')
         home.set_slot('main', P.factory(text='Welcome %s' % logged_in_as))
 
+        terms_of_service = self.define_view('/terms_of_service', title='Terms of service')
+        terms_of_service.set_slot('main', LegalNotice.factory('The terms of services defined as ...', 'terms'))
+
+        privacy_policy = self.define_view('/privacy_policy', title='Privacy policy')
+        privacy_policy.set_slot('main', LegalNotice.factory('You have the right to remain silent ...', 'privacypolicy'))
+
+        disclaimer = self.define_view('/disclaimer', title='Disclaimer')
+        disclaimer.set_slot('main', LegalNotice.factory('Disclaim ourselves from negligence ...', 'disclaimer'))
+
         class LegalBookmarks(object):
-            terms_bookmark = home.as_bookmark(self, description='Terms of service')
-            privacy_bookmark = home.as_bookmark(self, description='Privacy policy')
-            disclaimer_bookmark = home.as_bookmark(self, description='Disclaimer')
+            terms_bookmark = terms_of_service.as_bookmark(self)
+            privacy_bookmark = privacy_policy.as_bookmark(self)
+            disclaimer_bookmark = disclaimer.as_bookmark(self)
 
         accounts = self.define_user_interface('/accounts', AccountUI,
                                       {'main_slot': 'main'},

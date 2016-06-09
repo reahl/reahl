@@ -8,9 +8,10 @@ from sqlalchemy import Column, Integer, UnicodeText, Date
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Panel, P, H, InputGroup, \
+from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, FieldSet, \
                          Menu, VerticalLayout
-from reahl.web.pure import PageColumnLayout, UnitSize
+from reahl.web.layout import PageLayout
+from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.i18n import Translator
 import babel.dates 
@@ -22,8 +23,11 @@ _ = Translator('reahl-doc')
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view, style='basic')
-        self.use_layout(PageColumnLayout(('secondary', UnitSize('1/4')), ('main', UnitSize('3/4'))))
-        self.layout.columns['secondary'].add_child(Menu.from_languages(view).use_layout(VerticalLayout()))
+        contents_layout = ColumnLayout(('secondary', UnitSize('1/4')), 
+                                       ('main', UnitSize('3/4'))).with_slots()
+        self.use_layout(PageLayout())
+        self.layout.contents.use_layout(contents_layout)
+        contents_layout.columns['secondary'].add_child(Menu(view).use_layout(VerticalLayout()).with_languages())
 
 
 class AddressBookUI(UserInterface):
@@ -33,7 +37,7 @@ class AddressBookUI(UserInterface):
         find.set_slot('main', AddressBookPanel.factory())
 
 
-class AddressBookPanel(Panel):
+class AddressBookPanel(Div):
     def __init__(self, view):
         super(AddressBookPanel, self).__init__(view)
 
@@ -52,7 +56,7 @@ class AddAddressForm(Form):
 
         new_address = Address()
 
-        grouped_inputs = self.add_child(InputGroup(view, label_text=_('Add an address')))
+        grouped_inputs = self.add_child(FieldSet(view, legend_text=_('Add an address')))
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.name)) )
         grouped_inputs.add_child( LabelledBlockInput(TextInput(self, new_address.fields.email_address)) )
 

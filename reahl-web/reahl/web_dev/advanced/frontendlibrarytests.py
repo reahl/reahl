@@ -1,4 +1,4 @@
-
+    
 # Copyright 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
@@ -99,11 +99,11 @@ def library_files(fixture):
     vassert( browser.raw_html == 'contents - css' )
 
     browser.open('/')
-    script_added = browser.get_html_for('//script')
-    vassert( script_added == '<script type="text/javascript" src="/static/somefile.js"></script>\n' )
+    script_added = browser.get_html_for('//script[@src]')
+    vassert( script_added == '<script type="text/javascript" src="/static/somefile.js"></script>' )
 
     link_added = browser.get_html_for('//link')
-    vassert( link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">\n' )
+    vassert( link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">' )
 
 @test(WebFixture)
 def standard_reahl_files(fixture):

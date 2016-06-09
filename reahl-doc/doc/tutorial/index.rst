@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Tutorial
 ========
@@ -22,6 +22,7 @@ Contents:
    buttonwidgets
 
    styling
+   bootstrap/index
    connectingviews
    slots
    parameterised

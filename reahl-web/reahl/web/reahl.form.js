@@ -1,4 +1,4 @@
-/* Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved. */
+/* Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved. */
 /*
     This file is part of Reahl.
 
@@ -20,11 +20,10 @@
 "use strict";
 
 $.widget('reahl.form', {
-    options: {
-    },
+    options: $.extend(true, {meta: 'validate'}, $.validator.defaults),
 
     _create: function() {
-        $(this.element).validate({meta: 'validate'});
+        $(this.element).validate(this.options);
     }
 });
 

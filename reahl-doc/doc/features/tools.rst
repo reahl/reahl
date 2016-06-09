@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Tool support
 ============
@@ -36,7 +36,7 @@ would respond with a listing of each configuration setting used by the
 application configured in ``./reahl/doc/examples/features/widgets/etc`` (the
 :doc:`tabbed panel example<tabbedpanel>`). 
 
-For each configuration setting the tool will list which file it whould
+For each configuration setting the tool will list which file it would
 be configured in (`-f`), and give information about what the setting is for
 (`-i`).  (Note that not all configuration files need to be present in
 that directory, most configuration settings have sensible defaults

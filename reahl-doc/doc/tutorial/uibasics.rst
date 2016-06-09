@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 User interface basics
 =====================
@@ -43,14 +43,14 @@ let's string together two :class:`~reahl.web.ui.P`\ (aragraph)s onto a :class:`~
 To use an instance of the ReahllyBadPoem
 :class:`~reahl.web.fw.Widget`, you add it as a child of another
 :class:`~reahl.web.fw.Widget`. For example you can add it to the
-``main`` column of the page used in our "hello" example like this:
+``body`` of the page used in our "hello" example like this:
 
 .. code-block:: python
 
    class HelloPage(HTML5Page):
        def __init__(self, view):
            super(HelloPage, self).__init__(view)
-           self.main.add_child(ReahllyBadPoem(view))
+           self.body.add_child(ReahllyBadPoem(view))
 
 
 When rendered to a web browser, the resulting HTML would be:
@@ -59,12 +59,14 @@ When rendered to a web browser, the resulting HTML would be:
 
    <div><p>Reahl is for real.</p><p>You can use it in the real world.</p></div>
 
-:class:`~reahl.web.fw.Widget`\ s with complicated behaviour have a complicated
-implementation. This implementation is, of course, hidden from the
-programmer using such :class:`~reahl.web.fw.Widget`\ s. This makes using a complicated :class:`~reahl.web.fw.Widget`
-just as simple as using the simple :class:`~reahl.web.fw.Widget`\ s in this example. Have a
-look at the :doc:`tabbed panel example <../features/tabbedpanel>` to
-see a more complicated :class:`~reahl.web.fw.Widget` in use.
+:class:`~reahl.web.fw.Widget`\ s with complicated behaviour have a
+complicated implementation. This implementation is, of course, hidden
+from the programmer who is merely **using** such
+:class:`~reahl.web.fw.Widget`\ s. Using a complicated
+:class:`~reahl.web.fw.Widget` is just as simple as using the simple
+:class:`~reahl.web.fw.Widget`\ s in this example. Have a look at the
+:doc:`tabbed panel example <../features/tabbedpanel>` to see a more
+complicated :class:`~reahl.web.fw.Widget` in use.
 
 
 A first-cut UserInterface for the address book application
@@ -111,7 +113,7 @@ sticking to a habit here.
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
    :pyobject: AddressBookPanel
 
-Note how AddressBookPanel is composed by adding children :class:`~reahl.web.fw.Widget`\ s to it in its constructor: first the heading, and then an AddressBox for each address in our database. An AddressBox, in turn only contains a :class:`~reahl.web.ui.P` with text gathered from the address it is meant to display:
+Note how AddressBookPanel is composed by adding children :class:`~reahl.web.fw.Widget`\ s to it in its constructor: first the heading, and then an AddressBox for each address in our database. An AddressBox, in turn, only contains a :class:`~reahl.web.ui.P` with text gathered from the address it is meant to display:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
    :pyobject: AddressBox
@@ -140,8 +142,11 @@ far, instead of just constructing the widget?
 
 A web application has to be very economical about when it creates
 what. A :class:`~reahl.web.fw.Factory` is merely an object that can be
-used at a later time (if necessary) to create something -- using the
-arguments passed when the :class:`~reahl.web.fw.Factory` was created.
+used at a later time (if necessary) to create something like a
+:class:`~reahl.web.fw.Widget` or a :class:`~reahl.web.fw.View`. The
+actual :class:`~reahl.web.fw.Widget` will be created (eventually)
+using the arguments passed when the :class:`~reahl.web.fw.Factory` was
+created initially.
 
 When creating a :class:`~reahl.web.fw.UserInterface`, for example, it
 does not make sense to create all the

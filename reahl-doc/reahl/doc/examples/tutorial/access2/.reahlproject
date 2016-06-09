@@ -21,5 +21,6 @@
   </persisted>
   
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=access2_dev -t -i '.*'"/>
-  
+  <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.access2.access2_dev.access2tests:DemoFixture"/>
+
 </project>

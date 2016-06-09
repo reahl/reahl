@@ -21,53 +21,69 @@
 
 $.widget('reahl.hashchange', {
     options: {
-        hashChangeHandlers: [{
             url: '',
             cache: true,
             errorMessage: 'Ajax error',
             timeoutMessage: 'Ajax timeout',
             params: []
-        }]
     },
 
     _create: function() {
         var o = this.options;
         var element = this.element;
+        var _this = this;
+        
+        _this.options.previousHashValues = $.extend(true, {}, _this.options.params);
+        $(window).bind( 'hashchange', function(e) {
+            var allCurrentHashValues = e.getState();
+            var changedRelevantHashValues = _this.calculateChangedRelevantHashValues(allCurrentHashValues);
 
-        for (var x in o.hashChangeHandlers) {
-            var hashChangeHandler = o.hashChangeHandlers[x];
-            $(window).bind( 'hashchange', function(e) {
-                var currentHashValues = e.getState();
-                var changed = false;
-                var changedParams = $.extend(true, {}, hashChangeHandler.params);
-
-                for (var name in changedParams) {
-                    if (currentHashValues[name] && currentHashValues[name] != changedParams[name]) {
-                        changed = true;
-                        changedParams[name] = currentHashValues[name];
-                    }
-                }
-                if (changed) {
-                    var loading = element.block({message: ''});
-                    $.ajax({url:     hashChangeHandler.url,
-                            cache:   hashChangeHandler.cache,
-                            data:    changedParams,
-                            success: function(data){
-/*                                element.fadeOut('fast', function(){element.html(data).fadeIn();}); */
-                                element.html(data);
-                                hashChangeHandler.params = changedParams;
-                            },
-                            complete: function(data){
-                                element.unblock();
-                            }
-                    });
-                };
-                return true;
-            });
-        }
-
+            if (_this.hasChanged(changedRelevantHashValues)) {
+                _this.triggerChange(allCurrentHashValues, changedRelevantHashValues);
+            };
+            return true;
+        });
+        
         $(window).trigger( 'hashchange' );
-    }
+    },
+    triggerChange: function(allCurrentHashValues, changedRelevantHashValues) {
+        var _this = this;
+        var allNewHashValues = $.extend(true, {}, _this.options.previousHashValues, allCurrentHashValues);
+        var loading = _this.element.block({message: ''});
+        $.ajax({url:     _this.options.url,
+                cache:   _this.options.cache,
+                data:    allNewHashValues,
+                success: function(data){
+                    _this.element.html(data);
+                    _this.options.previousHashValues = changedRelevantHashValues;
+                },
+                complete: function(data){
+                    _this.element.unblock();
+                }
+        });
+    },
+    hasChanged: function(newRelevantHashValues){
+        var _this = this;
+        var changed = false;
+        for (var name in _this.options.previousHashValues) {
+            if (newRelevantHashValues[name] != _this.options.previousHashValues[name]) {
+                changed = true;
+            };
+        };
+        return changed;
+    },
+    calculateChangedRelevantHashValues: function(allCurrentHashValues) {
+        var _this = this;
+        var changedRelevantHashValues = {};
+        for (var name in _this.options.previousHashValues) {
+            if (allCurrentHashValues[name]) {
+                changedRelevantHashValues[name]=allCurrentHashValues[name];
+            } else {
+                changedRelevantHashValues[name]=_this.options.previousHashValues[name];
+            }
+        };
+        return changedRelevantHashValues;
+    },
 });
 
 $.extend($.reahl.hashchange, {

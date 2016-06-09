@@ -5,8 +5,8 @@ from sqlalchemy import Column, UnicodeText, Integer
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import Button, Form, InputGroup, LabelledBlockInput
-from reahl.web.ui import HTML5Page, P, Panel, TextInput
+from reahl.web.ui import Button, Form, FieldSet, LabelledBlockInput
+from reahl.web.ui import HTML5Page, P, Div, TextInput
 from reahl.component.modelinterface import exposed, EmailField, Field
 from reahl.component.modelinterface import Event, Action
 
@@ -51,7 +51,7 @@ class CommentForm(Form):
         super(CommentForm, self).__init__(view, 'myform')
 
         new_comment = Comment()
-        grouped_inputs = InputGroup(view, label_text='Leave a comment')
+        grouped_inputs = FieldSet(view, legend_text='Leave a comment')
         self.add_child(grouped_inputs)
 
         email_input = TextInput(self, new_comment.fields.email_address)
@@ -64,7 +64,7 @@ class CommentForm(Form):
         grouped_inputs.add_child( Button(self, new_comment.events.submit) )
 
 
-class CommentBox(Panel):
+class CommentBox(Div):
     def __init__(self, view, comment):
         super(CommentBox, self).__init__(view)
         comment_text = 'By %s: %s' % (comment.email_address, comment.text)

@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Module reahl.web.ui
 -------------------
@@ -46,7 +46,7 @@ HTMLElement
 TextNode
 """"""""
 
-.. autoclass:: Title
+.. autoclass:: TextNode 
    :members:
 
 Title
@@ -142,11 +142,18 @@ Ul
 .. autoclass:: Ul
    :members:
 
+Ol
+""
+
+.. autoclass:: Ol
+   :members:
+
 Img
 """
 
 .. autoclass:: Img
    :members:
+
 
 Widgets for Input
 ^^^^^^^^^^^^^^^^^
@@ -173,6 +180,12 @@ FieldSet
 """"""""
 
 .. autoclass:: FieldSet
+   :members:
+
+Legend
+""""""
+
+.. autoclass:: Legend
    :members:
 
 Input
@@ -353,21 +366,6 @@ StaticColumn
 .. autoclass:: StaticColumn
    :members:
 
-DataTable
-"""""""""
-
-.. sidebar:: Examples
-
-   - tutorial.datatable
-
-   Get a copy of an example by running:
-
-   .. code-block:: bash
-
-      reahl example <examplename>
-
-.. autoclass:: reahl.web.table.DataTable
-   :members:
 
 Caption
 """""""

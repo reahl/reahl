@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -15,7 +15,10 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A user interface for logging in, registering, etc using :class:`~reahl.systemaccountmodel.EmailAndPasswordSystemAccount`."""
+"""A user interface for logging in, registering, etc using
+:class:`~reahl.domain.systemaccountmodel.EmailAndPasswordSystemAccount`.
+
+"""
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -23,9 +26,10 @@ from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface
 from reahl.web.fw import WebExecutionContext
 from reahl.web.fw import Widget
-from reahl.web.ui import Form, InputGroup, LabelledBlockInput, Button, CheckboxInput, \
-                         TextInput, PasswordInput, H, P, A, Div, CueInput,\
-                         CheckCheckboxButton, PopupA, DialogButton, ErrorFeedbackMessage
+from reahl.web.ui import Form, CheckboxInput, \
+                         TextInput, PasswordInput, H, P, A, Div
+from reahl.web.ui import Button, LabelledBlockInput, CueInput, ErrorFeedbackMessage, FieldSet
+from reahl.web.ui import CheckCheckboxButton, PopupA, DialogButton
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.component.decorators import deprecated
@@ -41,7 +45,7 @@ class TitledWidget(Widget):
         self.add_child(H(view, 1, text=view.title))
 
 
-class ActionButtonGroup(InputGroup):
+class ActionButtonGroup(FieldSet):
     def __init__(self, view, label_text=None):
         super(ActionButtonGroup, self).__init__(view, label_text=label_text)
         self.add_to_attribute('class', ['action_buttons'])
@@ -55,7 +59,7 @@ class LoginForm(Form):
         if self.exception:
             self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
         
-        login_inputs = self.add_child(InputGroup(view, label_text=_('Please specify:')))
+        login_inputs = self.add_child(FieldSet(view, label_text=_('Please specify:')))
         email_cue = P(view, _('The email address you used to register here.'))
         login_inputs.add_child(CueInput(TextInput(self, self.account_management_interface.fields.email), email_cue))
         
@@ -106,7 +110,7 @@ class RegisterForm(Form):
         self.create_action_buttons()
         
     def create_identification_inputs(self):
-        identification_inputs = self.add_child(InputGroup(self.view, label_text=_('How will you identify yourself?')))
+        identification_inputs = self.add_child(FieldSet(self.view, label_text=_('How will you identify yourself?')))
         
         email_cue = P(self.view, _('You identify yourself to us by your email address.' \
                                    'This information is not divulged to others.'))
@@ -125,7 +129,7 @@ class RegisterForm(Form):
                                            repeat_password_cue))
 
     def create_terms_inputs(self):
-        terms_inputs = self.add_child(InputGroup(self.view, label_text=_('Terms and conditions')))
+        terms_inputs = self.add_child(FieldSet(self.view, label_text=_('Terms and conditions')))
 
         terms_prompt = P(self.view, text=_('Please read and accept our {terms}. You may also be interested '
                                            'to read our {privacypolicy} and our {disclaimer}.'))
@@ -160,7 +164,7 @@ class VerifyForm(Form):
         if self.exception:
             self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
 
-        identification_inputs = self.add_child(InputGroup(view, label_text=_('Please supply the following details')))
+        identification_inputs = self.add_child(FieldSet(view, label_text=_('Please supply the following details')))
         identification_inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.email)))
         identification_inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.secret)))
         identification_inputs.add_child(LabelledBlockInput(PasswordInput(self, account_management_interface.fields.password)))
@@ -186,7 +190,7 @@ class RegisterHelpForm(Form):
         if self.exception:
             self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
         
-        inputs = self.add_child(InputGroup(view, label_text=_('Please supply the email address you tried to register with.')))
+        inputs = self.add_child(FieldSet(view, label_text=_('Please supply the email address you tried to register with.')))
         inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.email)))
         
         actions = self.add_child(ActionButtonGroup(view))
@@ -293,7 +297,7 @@ class ResetPasswordForm(Form):
         if self.exception:
             self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
 
-        inputs = self.add_child(InputGroup(view, label_text=_('Request a secret key')))
+        inputs = self.add_child(FieldSet(view, label_text=_('Request a secret key')))
         inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.email)))
 
         actions = self.add_child(ActionButtonGroup(view))
@@ -320,7 +324,7 @@ class ChoosePasswordForm(Form):
         if self.exception:
             self.add_child(ErrorFeedbackMessage(view, self.exception.as_user_message()))
 
-        inputs = self.add_child(InputGroup(view, label_text=_('Choose a new password')))
+        inputs = self.add_child(FieldSet(view, label_text=_('Choose a new password')))
         inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.email)))
         inputs.add_child(LabelledBlockInput(TextInput(self, account_management_interface.fields.secret)))
         inputs.add_child(LabelledBlockInput(PasswordInput(self, account_management_interface.fields.password)))

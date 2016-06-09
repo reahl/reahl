@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -31,7 +31,9 @@ from reahl.domain.workflowmodel import DeferredAction, Requirement, WorkflowInte
 from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
-from reahl.web_dev.fixtures import WebBasicsMixin 
+from reahl.web_dev.fixtures import WebBasicsMixin
+
+
 class DeferredActionFixture(Fixture, BasicModelZooMixin):
     def new_SomeObject(self):
         class SomeObject(Base):

@@ -1,4 +1,4 @@
-.. Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+.. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
 Persistence
 ===========
@@ -15,12 +15,13 @@ recommended, but not strictly necessary to use Reahl), we provide glue
 to the object relational mapping tools provided by `SqlAlchemy
 <http://www.sqlalchemy.org/>`_.
 
-Reahl allows you :doc:`to build and distribute parts of your
-program as reusable components<enduserfunctionality>`. Existing tools
-for the task of migrating an existing database to a newer schema do
-not take our components into account. Hence, Reahl adds some
-additional infrastructure to help with database migration. (:ref:`See
-the tutorial for more on this topic <database-schema-evolution>`.)
+Reahl allows you :doc:`to build and distribute parts of your program
+as reusable components<enduserfunctionality>` that do not contain knowledge
+about the web application such components will be used in. Reahl 
+extends existing database migration tools to make it possible to write
+database migrations per component regardless of where that component
+will be used. (:ref:`See the tutorial for more on this topic
+<database-schema-evolution>`.)
 
 Here is an example showing the use of SqlAlchemy. Reahl merely
 provides versions of SqlAlchemy's `Session`, `Base` and `metadata`
@@ -42,7 +43,7 @@ but a list of all the comments in the database is shown below it:
       :align: center
       :alt: A screenshot of a form with input for a user's email, and also a list of previously entered email addresses.
 
-Read the *complete* example source code:
+In the example's source code (below), the Comment class is persisted via SqlAlchemy's declarative:
 
 
 .. literalinclude:: ../../reahl/doc/examples/features/persistence/persistence.py

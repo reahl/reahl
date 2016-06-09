@@ -1,4 +1,4 @@
-# Copyright 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -21,10 +21,10 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath
-from reahl.web.ui import Panel, Button, StaticColumn, DynamicColumn
+from reahl.web.ui import Div, StaticColumn
 from reahl.web_dev.widgets.tabletests import TableFixture
 
-from reahl.web.table import DataTable
+from reahl.web.datatable import DataTable
 from reahl.component.modelinterface import Field, IntegerField, exposed
 
 
@@ -59,7 +59,7 @@ class DataTableFixture(TableFixture):
 
     def new_MainWidget(self):
         fixture = self
-        class MainWidget(Panel):
+        class MainWidget(Div):
             def __init__(self, view):
                 super(MainWidget, self).__init__(view)
 

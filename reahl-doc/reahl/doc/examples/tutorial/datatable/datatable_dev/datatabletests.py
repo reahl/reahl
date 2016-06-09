@@ -56,11 +56,11 @@ def editing_an_address(fixture):
     fixture.browser.click(XPath.link_with_text('Edit', nth=7))
 
     assert fixture.is_on_edit_page_for(original_address_name)
-    fixture.browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
+    fixture.browser.type(XPath.input_labelled('Name'), 'friend 104-changed')
     fixture.browser.type(XPath.input_labelled('Email'), 'johndoe@some.changed.org')
     fixture.browser.click(XPath.button_labelled('Update'))
 
-    assert fixture.address_is_listed_as('John Doe-changed')
+    assert fixture.address_is_listed_as('friend 104-changed')
     assert fixture.address_is_listed_as('johndoe@some.changed.org')
     assert not fixture.address_is_listed_as(original_address_name)
 
