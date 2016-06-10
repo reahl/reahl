@@ -20,6 +20,12 @@
     <egg name="reahl-bzrsupport"/>
   </deps>
 
+  <deps purpose="test">
+    <thirdpartyegg name="nose"/>
+    <egg name="reahl-postgresqlsupport"/>
+    <egg name="reahl-stubble"/>
+  </deps>
+
   <extras name="pillow">
     <thirdpartyegg name="pillow" minversion="2.5" maxversion="2.5.999"/>
   </extras>
