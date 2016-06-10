@@ -28,7 +28,7 @@ from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
 from reahl.component.config import StoredConfiguration
 
-from reahl.webdev.webserver import CouldNotConfigureServer
+from reahl.dev.exceptions import CouldNotConfigureServer
 
 class CleanDatabase(Fixture):
     """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
