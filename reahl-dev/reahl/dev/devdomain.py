@@ -1813,8 +1813,6 @@ class EggProject(Project):
             setup_file.write('class InstallTestDependencies(Command):\n')
             setup_file.write('    user_options = []\n')
             setup_file.write('    def run(self):\n')
-            setup_file.write('        build_deps = (%s)\n' % (','.join(['"%s"' % i for i in self.build_deps_for_setup()])))
-            setup_file.write('        if build_deps: require(build_deps)\n'  )
             setup_file.write('        from setuptools.command import easy_install\n')
             setup_file.write('        if self.distribution.tests_require: easy_install.main(self.distribution.tests_require)\n')
             setup_file.write('\n')
