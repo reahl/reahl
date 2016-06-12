@@ -27,6 +27,37 @@ enable it are all :doc:`discussed in the tutorial
 <tutorial/bootstrap/index>` and won't be repeated here.
 
 
+Configuration and DANGEROUS defaults
+------------------------------------
+
+Some configuration settings in Reahl are defaulted. This means that you can easily
+run a development server without having to create lots of configuration files because
+these default settings will be used instead.
+
+Defaults are thus chosen to work in a development environment. Some of these defaults
+do not make sense in a production environment. For this reason, when a Reahl server
+starts up, it warns about such "Dangerous defaults"--values that are defaulted for
+a development environment. The idea is that in a production system, you are expected
+to set these explicitly, and *not* rely on the defaulted value.
+
+In Reahl 3.2 when you run a system in production it will fail to start up if any such
+dangerous default value is not set explicitly. Previously it would start, but with a 
+warning.
+
+Furthermore, some important configuration settings that previously were not defaulted
+are now defaulted:
+
+===================== ======================== ===================
+ Setting               Config file              Dangerous default
+===================== ======================== ===================
+ reahlsystem.debug     reahl.config.py          True
+ mail.smtp_port        mailutil.config.py       8025
+===================== ======================== ===================
+
+If you are running a production system, you will have to explicitly set these after
+upgrading before your system will start again.
+
+
 Elixir
 ------
 
