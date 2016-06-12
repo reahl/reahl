@@ -7,6 +7,10 @@
     <egg name="reahl-bzrsupport"/>
   </deps>
 
+  <deps purpose="test">
+    <thirdpartyegg name="nose"/>
+  </deps>
+
   <export entrypoint="setuptools.file_finders" name="reahl_finder" locator="reahl.bzrsupport:find_files"/> 
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/bzrsupport_dev -i '.*' -t"/>

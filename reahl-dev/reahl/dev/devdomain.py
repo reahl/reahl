@@ -1809,11 +1809,12 @@ class EggProject(Project):
     def generate_setup_py(self):
         with io.open(self.setup_py_filename, 'w') as setup_file:
             setup_file.write('from setuptools import setup, Command\n')
+            setup_file.write('from pkg_resources import require\n')
             setup_file.write('class InstallTestDependencies(Command):\n')
             setup_file.write('    user_options = []\n')
             setup_file.write('    def run(self):\n')
             setup_file.write('        from setuptools.command import easy_install\n')
-            setup_file.write('        easy_install.main(self.distribution.tests_require)\n')
+            setup_file.write('        if self.distribution.tests_require: easy_install.main(self.distribution.tests_require)\n')
             setup_file.write('\n')
             setup_file.write('    def initialize_options(self):\n')
             setup_file.write('        pass\n')

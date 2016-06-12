@@ -52,12 +52,6 @@ from reahl.component.shelltools import Executable
 from reahl.web.fw import ReahlWSGIApplication
 
 
-class CouldNotConfigureServer(Exception):
-    def __init__(self, ex):
-        message = '\nCould not configure server: %s\nDid you perhaps forget to: "reahl setup -- develop -N" ?' % ex
-        super(CouldNotConfigureServer, self).__init__(message)
-
-
 class WrappedApp(object):
     """A class in which to wrap a WSGI app, allowing catching of exceptions in the wrapped app.
     """

@@ -56,11 +56,6 @@ def navs(fixture):
         vassert( a.children[0].value ==  expected_description )
         vassert( a.get_attribute('class') == 'nav-link' )
 
-# To test:
-#  That dropdown menus open/close when no javascript
-#  and that they do not actually break in js when JS is on.
-#  that Menu & Nav & DropdownMenu have default layouts if you never specify one
-
 
 class VisualFeedbackScenarios(WebFixture):
     @scenario

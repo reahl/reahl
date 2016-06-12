@@ -29,7 +29,8 @@ from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand
 from reahl.component.shelltools import Executable
 
-from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor, CouldNotConfigureServer
+from reahl.dev.exceptions import CouldNotConfigureServer
+from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor
 
 
 class ServeCurrentProject(WorkspaceCommand):
