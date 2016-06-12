@@ -24,8 +24,10 @@ python-reahl (3.2.0) unstable; urgency=low
  * Changed the way tables are filled with data: use with_data() instead of from_columns().
  * Changed QueryAsSequence to deal properly with mapped items and slicing and sorting.
  * Added a layout.PageLayout to replace the pure.PageColumnLayout and can be used with bootstrap.ColumnLayout also.
+ * Fixed #1559434 PostgresqlControl's regex does not allow enough chars for password field.
+ * Fixed #1561366 reahl example: Could not find example tutorial.modeltests3.
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 9 Jun 2016 13:47:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Jun 2016 08:47:00 +0200
 
 python-reahl (3.1.1) unstable; urgency=low
 
