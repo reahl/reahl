@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -121,4 +121,8 @@ class NoSuchProjectException(Exception):
         return 'There is no such project (%s) in the workspace' % self.args[0]
 
 
+class CouldNotConfigureServer(Exception):
+    def __init__(self, ex):
+        message = '\nCould not configure server: %s\nDid you perhaps forget to: "reahl setup -- develop -N" ?' % ex
+        super(CouldNotConfigureServer, self).__init__(message)
     
