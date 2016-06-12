@@ -19,6 +19,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 import pprint
+import six
 
 from pkg_resources import DistributionNotFound
 
@@ -93,7 +94,7 @@ class ListConfig(ProductionCommand):
                     to_print += '\t%s' % value
                 if options.print_defaults:
                     if setting.defaulted:
-                        message = setting.default
+                        message = six.text_type(setting.default)
                         if setting.dangerous:
                             message += ' (DANGEROUS DEFAULT)'
                     elif setting.automatic:

@@ -136,7 +136,7 @@ class EntryPointClassList(ConfigSetting):
 
 class MissingValue(object):
     def __repr__(self):
-        return _('MISSING!!')
+        return 'MISSING!!'
 
     
 class Configuration(object):
