@@ -54,3 +54,4 @@ reahl-doc/reahl/doc/examples/tutorial/hellonginx/hellonginx.egg-info
 
 .floo
 .flooignore
+.cache
