@@ -32,7 +32,7 @@ from reahl.web.ui import InputTypeInput, Form, TextInput
 from reahl.web.ui import Button
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebBasicsMixin
-from reahl.web_dev.inputandvalidation.inputtests import InputMixin, InputMixin2
+from reahl.web_dev.inputandvalidation.test_input import InputMixin, InputMixin2
 
 
 class FieldFixture(Fixture, InputMixin):

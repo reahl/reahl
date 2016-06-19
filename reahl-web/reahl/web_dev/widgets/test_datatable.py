@@ -22,7 +22,7 @@ from reahl.tofu import vassert
 
 from reahl.webdev.tools import XPath
 from reahl.web.ui import Div, StaticColumn
-from reahl.web_dev.widgets.tabletests import TableFixture
+from reahl.web_dev.widgets.test_table import TableFixture
 
 from reahl.web.datatable import DataTable
 from reahl.component.modelinterface import Field, IntegerField, exposed
