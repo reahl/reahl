@@ -26,7 +26,7 @@ from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput
 from reahl.component.modelinterface import EmailField, exposed
 
-from reahl.web_dev.inputandvalidation.eventhandling import FormFixture
+from reahl.web_dev.inputandvalidation.test_eventhandling import FormFixture
 from reahl.webdev.tools import Browser
 
 
