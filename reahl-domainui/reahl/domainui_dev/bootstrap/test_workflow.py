@@ -31,7 +31,7 @@ from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
 from reahl.domain.workflowmodel import Task
 from reahl.domainui.bootstrap.workflow import InboxUI, TaskWidget
-from reahl.domain_dev.workflowtests import TaskQueueZooMixin
+from reahl.domain_dev.test_workflow import TaskQueueZooMixin
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.domainui_dev.fixtures import BookmarkStub
@@ -136,7 +136,7 @@ class Tests(object):
     def widgets_for_tasks(self, fixture):
         """The widget to use for displaying a particular type of task can be set via an entry point."""
         pkg_resources.working_set.add(easter_egg)
-        line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.workflowtests:MyTaskWidget'
+        line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.test_workflow:MyTaskWidget'
         easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
 
         with fixture.persistent_test_classes(MyTask):
