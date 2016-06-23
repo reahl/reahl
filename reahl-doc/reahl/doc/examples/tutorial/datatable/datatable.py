@@ -11,7 +11,9 @@ from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.ui import Div, P, TextInput, HTML5Page, StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
-from reahl.web.ui import Button, Form, H, Menu, HorizontalLayout, FieldSet, LabelledBlockInput, A
+from reahl.web.ui import Form, H, FieldSet, A
+from reahl.web.attic.menu import Menu
+from reahl.web.attic.layout import LabelledBlockInput, HorizontalLayout, Button
 from reahl.web.datatable import DataTable
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action, BooleanField
 

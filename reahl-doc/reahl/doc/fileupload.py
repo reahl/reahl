@@ -22,8 +22,10 @@ from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, \
-                         P, H, FieldSet, FileUploadInput, SimpleFileInput
+from reahl.web.ui import HTML5Page, Form, TextInput, Div, \
+                         P, H, FieldSet, SimpleFileInput
+from reahl.web.attic.fileupload import FileUploadInput
+from reahl.web.attic.layout import LabelledBlockInput, Button
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField

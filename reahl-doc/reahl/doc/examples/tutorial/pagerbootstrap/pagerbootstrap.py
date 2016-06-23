@@ -5,7 +5,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P, H, Div
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
-from reahl.web.pager import SequentialPageIndex, PagedPanel
+from reahl.web.attic.paging import PagedPanel, SequentialPageIndex
 from reahl.web.bootstrap.pagination import PageMenu
 
 

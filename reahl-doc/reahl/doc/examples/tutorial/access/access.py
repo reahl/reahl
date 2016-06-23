@@ -8,9 +8,10 @@ from sqlalchemy.orm import relationship
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, FieldSet, Menu, \
-                         HorizontalLayout,\
-                         PasswordInput, ErrorFeedbackMessage, Slot, MenuItem, A, Widget, SelectInput, CheckboxInput
+from reahl.web.ui import HTML5Page, Form, TextInput, Div, P, H, FieldSet, \
+                         PasswordInput, A, Widget, SelectInput, CheckboxInput
+from reahl.web.attic.menu import Menu
+from reahl.web.attic.layout import LabelledBlockInput, HorizontalLayout, ErrorFeedbackMessage, Button
 from reahl.domain.systemaccountmodel import AccountManagementInterface, EmailAndPasswordSystemAccount, LoginSession
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField, Field, EmailField, Event, Action, Choice, ChoiceField

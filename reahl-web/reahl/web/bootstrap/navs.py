@@ -34,7 +34,8 @@ import six
 
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark
-from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, Menu, MenuItem
+from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes
+from reahl.web.attic.menu import MenuItem, Menu
 from reahl.web.bootstrap.ui import Div, Span, A
 
 from reahl.component.exceptions import ProgrammerError

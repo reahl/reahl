@@ -23,12 +23,12 @@ from reahl.stubble import stubclass, EmptyStub
 
 from reahl.component.exceptions import ProgrammerError
 
-from reahl.webdev.tools import WidgetTester, Browser
+from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.exceptions import IsInstance
-from reahl.web.fw import UserInterface
-from reahl.web.ui import P, HTML5Page, Layout, Div, Widget, Header, Footer
+from reahl.web.fw import UserInterface, Layout
+from reahl.web.ui import P, HTML5Page, Div, Header, Footer
 from reahl.web.layout import ResponsiveSize, ColumnLayout, PageLayout
 
 @test(WebFixture)

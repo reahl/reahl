@@ -1,7 +1,9 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, SlidingPanel, Div, P
+from reahl.web.ui import HTML5Page, Div, P
+from reahl.web.attic.slidingpanel import SlidingPanel
+
 
 class MyPage(HTML5Page):
     def __init__(self, view):

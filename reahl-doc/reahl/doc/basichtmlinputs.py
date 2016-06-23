@@ -17,15 +17,14 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Div, Form, TextInput, Button, Form, \
-                          LabelOverInput, CueInput, CheckboxInput, TextInput, \
-                          PasswordInput, Button, LabelledInlineInput, LabelledBlockInput, P,\
+from reahl.web.attic.layout import LabelledInlineInput, LabelledBlockInput, CueInput, LabelOverInput, Button
+from reahl.web.ui import HTML5Page, Form, CheckboxInput, TextInput, PasswordInput, P,\
                           TextArea, SelectInput, RadioButtonInput
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
 
 from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceField, Choice, ChoiceGroup, \
-                                           IntegerField, Event, MultiChoiceField, Action, DateField
+                                           IntegerField, Event, MultiChoiceField, DateField
 
 class BasicHTMLInputsUI(UserInterface):
     def assemble(self):

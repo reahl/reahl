@@ -30,12 +30,8 @@ from reahl.stubble import EmptyStub, stubclass
 
 from reahl.component.exceptions import IncorrectArgumentError, IsInstance, ProgrammerError
 from reahl.component.eggs import ReahlEgg
-from reahl.web.fw import UrlBoundView
-from reahl.web.fw import UserInterface
-from reahl.web.fw import Widget, Layout
-from reahl.web.ui import Div
-from reahl.web.ui import P
-from reahl.web.ui import Slot
+from reahl.web.fw import UrlBoundView, UserInterface, Widget, Layout
+from reahl.web.ui import Div, P, Slot
 from reahl.webdev.tools import WidgetTester, Browser
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 

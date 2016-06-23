@@ -1,7 +1,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import Button, Form, LabelledBlockInput, P, TextInput, HTML5Page
+from reahl.web.ui import Form, P, TextInput, HTML5Page
+from reahl.web.attic.layout import LabelledBlockInput, Button
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.component.modelinterface import exposed, EmailField, Field

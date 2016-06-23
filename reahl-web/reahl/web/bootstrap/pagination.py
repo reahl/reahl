@@ -35,10 +35,9 @@ import six
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import exposed
 from reahl.web.fw import Bookmark
-from reahl.web.ui import HTMLWidget, Menu, AccessRightAttributes, ActiveStateAttributes
+from reahl.web.ui import HTMLWidget, AccessRightAttributes, ActiveStateAttributes
+from reahl.web.attic.menu import Menu
 from reahl.web.bootstrap.ui import A, Span
-from reahl.web.pager import PagedPanel, PageIndex, SequentialPageIndex, AnnualItemOrganiserProtocol, AnnualPageIndex
-
 
 _ = Translator('reahl-web')
 

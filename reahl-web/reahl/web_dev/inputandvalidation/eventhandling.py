@@ -26,7 +26,7 @@ from reahl.tofu import Fixture, test, scenario, NoException, vassert, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
 from reahl.sqlalchemysupport import Session
-from reahl.web.ui import Button, LabelledBlockInput
+from reahl.web.attic.layout import LabelledBlockInput, Button
 from reahl.web.ui import Div, Form, TextInput, HTML5Page, NestedForm
 from reahl.web.fw import Url, UserInterface, ValidationException
 from reahl.web.layout import PageLayout
