@@ -18,19 +18,21 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import warnings
-import re
-
 from nose.tools import istest
+
 from reahl.tofu import scenario
 from reahl.tofu import test
 from reahl.tofu import vassert, expected
-
+from reahl.component.modelinterface import exposed
+from reahl.web.fw import Bookmark
+from reahl.web.attic.clientside import DialogButton, CheckCheckboxButton, PopupA
+from reahl.web.attic.layout import PriorityGroup, InputGroup
+from reahl.web.attic.menu import MenuItem, Menu, HMenu, VMenu
+from reahl.web.attic.slidingpanel import SlidingPanel
+from reahl.web.attic.tabbedpanel import Tab, MultiTab, TabbedPanel
 from reahl.web.ui import *
-from reahl.component.modelinterface import BooleanField
-from reahl.web.fw import Bookmark, Url
-from reahl.webdev.tools import WidgetTester, XPath, Browser
 from reahl.web_dev.fixtures import WebFixture
+from reahl.webdev.tools import WidgetTester, XPath, Browser
 
 _ = Translator('reahl-web')
 

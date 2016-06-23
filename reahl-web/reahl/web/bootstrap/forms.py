@@ -289,7 +289,7 @@ class ButtonSize(HTMLAttributeValueOption):
 
 
 
-class ButtonLayout(reahl.web.ui.Layout):
+class ButtonLayout(reahl.web.fw.Layout):
     """A ButtonLayout can be used to make something (like an :class:`A`) look like
        a :class:`Button`. It has a few options controlling specifics of that look, 
        and can be used to change the default look of a :class:`Button` as well.
@@ -321,7 +321,7 @@ class ButtonLayout(reahl.web.ui.Layout):
         
 
 
-class ChoicesLayout(reahl.web.ui.Layout):
+class ChoicesLayout(reahl.web.fw.Layout):
     def __init__(self, inline=False):
         super(ChoicesLayout, self).__init__()
         self.inline = inline
@@ -347,7 +347,7 @@ class ChoicesLayout(reahl.web.ui.Layout):
         return wrapper
 
 
-class FormLayout(reahl.web.ui.Layout):
+class FormLayout(reahl.web.fw.Layout):
     """A FormLayout is used to create Forms that have a consistent look by arranging 
        all its Inputs, their Labels and possible validation error messages in a 
        certain way.

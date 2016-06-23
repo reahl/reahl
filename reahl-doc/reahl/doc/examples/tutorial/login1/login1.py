@@ -3,8 +3,9 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, InputGroup, Menu, HorizontalLayout,\
-                         PasswordInput, ErrorFeedbackMessage
+from reahl.web.ui import HTML5Page, Form, TextInput, P, PasswordInput
+from reahl.web.attic.menu import Menu
+from reahl.web.attic.layout import LabelledBlockInput, HorizontalLayout, ErrorFeedbackMessage, Button
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout, UnitSize
 from reahl.domain.systemaccountmodel import AccountManagementInterface, LoginSession

@@ -7,7 +7,9 @@ from sqlalchemy import Column, Integer, UnicodeText
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, Button, Div, P, H, FieldSet, Menu, HorizontalLayout
+from reahl.web.ui import HTML5Page, Form, TextInput, Div, P, H, FieldSet
+from reahl.web.attic.menu import Menu
+from reahl.web.attic.layout import LabelledBlockInput, HorizontalLayout, Button
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 

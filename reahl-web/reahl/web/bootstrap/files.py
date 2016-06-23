@@ -32,7 +32,7 @@ from reahl.web.fw import WebExecutionContext
 import reahl.web.ui
 from reahl.web.ui import PrimitiveInput, UniqueFilesConstraint
 from reahl.web.bootstrap.ui import Div, Span, Li, Ul
-from reahl.web.bootstrap.forms import Button, NestedForm, ButtonLayout, FormLayout, Label
+from reahl.web.bootstrap.forms import Button, NestedForm, FormLayout, Label
 
 
 _ = Translator('reahl-web')

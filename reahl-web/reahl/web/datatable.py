@@ -24,7 +24,7 @@ import functools
 
 from reahl.web.fw import Bookmark
 from reahl.web.ui import A, Span, Div, Table, Widget
-from reahl.web.pager import SequentialPageIndex, PagedPanel, PageMenu
+from reahl.web.attic.paging import PagedPanel, SequentialPageIndex, PageMenu
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 
 

@@ -18,31 +18,34 @@
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-import six
-import sys
-import io
+
 import atexit
-import locale
-import tempfile
-import mimetypes
 import inspect
+import json
+import logging
+import mimetypes
+import string
+import sys
+import threading
+from contextlib import contextmanager
 from datetime import datetime
-import pkg_resources
+
+import cssmin
+import functools
+import io
+import locale
 import os
 import os.path
+import pkg_resources
 import re
-import json
-import string
-import threading
-from six.moves.urllib import parse as urllib_parse
-import functools
-from six.moves import cStringIO
-import logging
-from contextlib import contextmanager
-from pkg_resources import Requirement
+import six
+import slimit
+import tempfile
 import warnings
 from collections import OrderedDict
-
+from pkg_resources import Requirement
+from six.moves import cStringIO
+from six.moves.urllib import parse as urllib_parse
 from webob import Request, Response
 from webob.exc import HTTPException
 from webob.exc import HTTPForbidden
@@ -52,24 +55,21 @@ from webob.exc import HTTPNotFound
 from webob.exc import HTTPSeeOther
 from webob.request import DisconnectionError
 
-import slimit
-import cssmin
-
+from reahl.component.config import StoredConfiguration
+from reahl.component.context import ExecutionContext
+from reahl.component.dbutils import SystemControl
+from reahl.component.decorators import deprecated
+from reahl.component.eggs import ReahlEgg
+from reahl.component.exceptions import ArgumentCheckedCallable
 from reahl.component.exceptions import DomainException
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import IsSubclass
 from reahl.component.exceptions import NotYetAvailable
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
-from reahl.component.exceptions import ArgumentCheckedCallable
-from reahl.component.context import ExecutionContext
-from reahl.component.dbutils import SystemControl
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
-                                             Allowed, exposed, UploadedFile, Event
-from reahl.component.config import StoredConfiguration                                             
-from reahl.component.decorators import deprecated
-from reahl.component.eggs import ReahlEgg
+                                             Allowed, exposed, Event
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
 _ = Translator('reahl-web')
@@ -960,13 +960,13 @@ class WidgetList(list):
 
 
 class Layout(object):
-    """A Layout is used to change what a Widget looks like by (e.g.) changing what css classes are used 
+    """A Layout is used to change what a Widget looks like by (e.g.) changing what css classes are used
        by the Widget, or by letting you add children to a Widget in customised ways.
     """
-    
+
     def __init__(self):
         self.widget = None
-        
+
     @property
     def view(self):
         return self.widget.view
@@ -2494,7 +2494,6 @@ class ConcatenatedFile(FileOnDisk):
                 # Current version of ply (used by slimit) has a bug in Py3
                 # See https://github.com/rspivak/slimit/issues/64
                 from ply import yacc
-                import slimit
 
                 def __getitem__(self,n):
                     if isinstance(n, slice):

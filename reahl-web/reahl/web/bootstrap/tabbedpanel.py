@@ -30,8 +30,8 @@ import six
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Widget, Bookmark
 from reahl.web.ui import Div, ActiveStateAttributes, DelegatedAttributes
-from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
-
+from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu
+from reahl.web.attic.menu import MenuItem
 
 
 class TabbedPanel(Widget):

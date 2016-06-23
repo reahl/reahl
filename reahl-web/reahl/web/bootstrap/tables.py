@@ -39,13 +39,13 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 from reahl.web.fw import Bookmark, Widget, Layout
 
-from reahl.web.ui import Caption, Col, ColGroup, Tbody, Td, Tfoot, Th, Thead, Tr, DynamicColumn, StaticColumn, \
-    HTMLAttributeValueOption
+from reahl.web.ui import HTMLAttributeValueOption
+from reahl.web.ui import StaticColumn
 
 import reahl.web.ui
-from reahl.web.bootstrap.ui import A, Span, Div, TextNode
+from reahl.web.bootstrap.ui import A, Div
 from reahl.web.bootstrap.pagination import PageMenu
-from reahl.web.pager import SequentialPageIndex, PagedPanel
+from reahl.web.attic.paging import PagedPanel, SequentialPageIndex
 
 
 class Table(reahl.web.ui.Table):

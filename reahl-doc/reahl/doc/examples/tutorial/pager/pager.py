@@ -3,10 +3,11 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, P, H, Div, HorizontalLayout
+from reahl.web.ui import HTML5Page, P, H, Div
+from reahl.web.attic.layout import HorizontalLayout
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
-from reahl.web.pager import SequentialPageIndex, PageMenu, PagedPanel
+from reahl.web.attic.paging import PagedPanel, SequentialPageIndex, PageMenu
 
 
 class AddressBookUI(UserInterface):

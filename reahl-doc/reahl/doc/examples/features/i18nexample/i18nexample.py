@@ -1,7 +1,9 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface, Url
-from reahl.web.ui import Menu, HorizontalLayout, P, HTML5Page
+from reahl.web.ui import P, HTML5Page
+from reahl.web.attic.layout import HorizontalLayout
+from reahl.web.attic.menu import Menu
 from reahl.component.i18n import Translator
 
 _ = Translator('reahl-doc')

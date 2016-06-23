@@ -8,7 +8,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
-from reahl.web.ui import Button, Form, H, Menu, HorizontalLayout, FieldSet, LabelledBlockInput, A, CheckboxInput
+from reahl.web.ui import Form, H, FieldSet, A, CheckboxInput
+from reahl.web.attic.menu import Menu
+from reahl.web.attic.layout import LabelledBlockInput, HorizontalLayout, Button
 from reahl.web.ui import Div, P, TextInput, HTML5Page, StaticColumn, DynamicColumn, Table
 from reahl.web.layout import PageLayout
 from reahl.web.pure import ColumnLayout
