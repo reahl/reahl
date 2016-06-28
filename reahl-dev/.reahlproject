@@ -52,9 +52,6 @@
   <export entrypoint="reahl.dev.xmlclasses" name="NamespaceEntry" locator="reahl.dev.devdomain:NamespaceEntry"/>
   <export entrypoint="reahl.dev.xmlclasses" name="PersistedClassesList" locator="reahl.dev.devdomain:PersistedClassesList"/>
   <export entrypoint="reahl.dev.xmlclasses" name="OrderedPersistedClass" locator="reahl.dev.devdomain:OrderedPersistedClass"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="FileList" locator="reahl.dev.devdomain:FileList"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="AttachmentList" locator="reahl.dev.devdomain:AttachmentList"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="ShippedFile" locator="reahl.dev.devdomain:ShippedFile"/>
   <export entrypoint="reahl.dev.xmlclasses" name="MigrationList" locator="reahl.dev.devdomain:MigrationList"/>
   <export entrypoint="reahl.dev.xmlclasses" name="ConfigurationSpec" locator="reahl.dev.devdomain:ConfigurationSpec"/>
   <export entrypoint="reahl.dev.xmlclasses" name="ScheduledJobSpec" locator="reahl.dev.devdomain:ScheduledJobSpec"/>

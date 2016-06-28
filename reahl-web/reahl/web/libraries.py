@@ -316,20 +316,18 @@ class Reahl(Library):
     """
     def __init__(self):
         super(Reahl, self).__init__('reahl')
-        self.shipped_in_directory = '/reahl/web'
+        self.shipped_in_directory = '/reahl/web/static'
         self.files = ['reahl.hashchange.js',
                       'reahl.ajaxlink.js',
                       'reahl.textinput.js',
                       'reahl.form.js',
-                      'reahl.runningonbadge.css']
-
-    def header_only_material(self, rendered_page):
-        return super(Reahl, self).header_only_material(rendered_page) + \
-               '\n<link rel="stylesheet" href="/static/reahl.css" type="text/css">' 
-
-    def footer_only_material(self, rendered_page):
-        return super(Reahl, self).footer_only_material(rendered_page) + \
-               '\n<script type="text/javascript" src="/static/reahl.js"></script>'
+                      'reahl.validate.js',
+                      'reahl.modaldialog.js',
+                      'basic.css',
+                      'reahl.css',
+                      'reahl.runningonbadge.css',
+                      'runningon.png'
+                      ]
 
 
 class Holder(Library):

@@ -405,16 +405,6 @@ class ProjectReadingTests(object):
   <pythonpath path="stuff"/>
   <pythonpath path="stuff2"/>
 
-  <attachedfiles filetype="css">
-    <file path="file/one.css"/>
-    <file path="file/two.css"/>
-  </attachedfiles>
-
-  <attachedfiles filetype="js">
-    <file path="file/one.js"/>
-    <file path="file/two.js"/>
-  </attachedfiles>
-
 </project>
 ''')
         project = Project.from_file(workspace, project_dir.name)
@@ -458,9 +448,7 @@ class ProjectReadingTests(object):
         expected_value = {'console_scripts':   ['script1 = some script', 'script2 = some other script'],
                     'entrypoint name 2': ['name2 = locator2'],
                     'reahl.eggs':        ['Egg = reahl.component.eggs:ReahlEgg'], 
-                    'entrypoint name 1': ['name1 = locator1'],
-                    'reahl.attachments.js': ['0-file+one.js = reahl', '1-file+two.js = reahl'],
-                    'reahl.attachments.css': ['0-file+one.css = reahl', '1-file+two.css = reahl']
+                    'entrypoint name 1': ['name1 = locator1']
                     }
 
         vassert( project.entry_points_for_setup() == expected_value )

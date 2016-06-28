@@ -247,44 +247,6 @@ class WidgetBasics(object):
         vassert( number_of_duplicates == 0 )
 
 
-    class AttachmentScenarios(WebFixture):
-        @scenario
-        def javascript(self):
-            self.static_file = '/static/reahl.js'
-            self.attachment_label = 'js'
-
-        @scenario
-        def css(self):
-            self.static_file = '/static/reahl.css'
-            self.attachment_label = 'css'
-
-    @test(AttachmentScenarios)
-    def shipping_attachments(self, fixture):
-        """The JavaScript and CSS files listed in the .reahlproject are discovered when the webserver starts up, and put into one file
-           for inclusion on each page of a Reahl web application."""
-
-        wsgi_app = fixture.new_wsgi_app(enable_js=True)
-        browser = Browser(wsgi_app)
-        browser.open(fixture.static_file)
-
-        def broken_but_comparable_minify(some_js):
-            minified = re.sub('/\*.*\*/', '', some_js)
-            minified = re.sub('//.*\n', '', minified)
-            minified = re.sub('\n', '', minified)
-            minified = re.sub('\t', '', minified)
-            minified = re.sub(' ', '', minified)
-            return minified
-
-        reahl_egg = ReahlEgg(pkg_resources.require('reahl-web')[0])
-        attachments = reahl_egg.find_attachments(fixture.attachment_label)
-
-        # Only the js/css of one widget is checked to check the mechanism...
-        with io.open(attachments[0].filename, 'r') as snippet_file:
-            snippet = broken_but_comparable_minify(snippet_file.read())
-
-        served_statics = broken_but_comparable_minify(browser.raw_html)
-
-        vassert( served_statics.find(snippet) > 0 )
 
 
 
