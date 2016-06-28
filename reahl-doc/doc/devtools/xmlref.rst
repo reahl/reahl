@@ -98,25 +98,6 @@ locator attribute
   Used to indicate a function or class method to be called every time ``reahl-control runjobs``
   is run. It requires a :ref:`locator-attribute` for the relevant function or class method.
 
-<attachedfiles>
-"""""""""""""""
-  .. deprecated:: 3.2
-     Please distribute your JavaScript and CSS code using a :class:`reahl.web.libraries.Library` instead.
-
-  Use this element to list a number of JavaScript or CSS files that are shipped inside this component.
-  These files are concatenated at runtime into one big JavaScript or CSS file. Each file is listed
-  using the `<file>` element.
-  
-  It requires an attribute named `filetype` which can only be the string "js" or "css" to indicate the
-  types of files listed.
-
-<file>
-""""""
-
-  Used to list a single file in an `<attachedfiles>` list.  It requires a single attribute, `path`: the 
-  filename of the file, relative to the root of this module. Always use '/' as directory separator,
-  regardless of the platform you are on.
-
 <namespace>
 """""""""""
 

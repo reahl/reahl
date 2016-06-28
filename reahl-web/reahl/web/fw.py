@@ -2677,33 +2677,15 @@ class ReahlWSGIApplication(object):
             self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
             self.add_reahl_static_files()
 
-    def find_packaged_files(self, labelled):
-        found_files = []
-        eggs_in_order = ReahlEgg.get_all_relevant_interfaces(self.config.reahlsystem.root_egg)
-        for egg in eggs_in_order:
-            snippets = egg.find_attachments(labelled)
-            for snippet in snippets:
-                found_files.append(PackagedFile(egg.distribution.project_name, os.path.dirname(snippet.filename), os.path.basename(snippet.filename)))
-        return found_files
-
     def add_reahl_static_files(self):
-        css_files = [PackagedFile('reahl-web', 'reahl/web/static', 'reahl.css')]
-        css_files += self.find_packaged_files('css')
-        js_files = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
-                                   [
-                                   'reahl.validate.js',
-                                   'reahl.modaldialog.js',
-                                   ]]
-        js_files += self.find_packaged_files('js')
-
-        static_files = self.config.web.frontend_libraries.packaged_files() +\
-                       [ConcatenatedFile('reahl.js', js_files),
-                        ConcatenatedFile('reahl.css', css_files)]
-        static_files += self.find_packaged_files('any')
+        static_files = self.config.web.frontend_libraries.packaged_files()
         self.define_static_files('/static', static_files)
 
-        shipped_style_files = [PackagedFile('reahl-web', 'reahl/web/static/css', 'basic.css')]
-        self.define_static_files('/styles', shipped_style_files)
+    def define_static_files(self, path, files):
+        ui_name = 'static_%s' % path
+        ui_factory = UserInterfaceFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
+        self.root_user_interface_factory.predefine_user_interface(ui_factory)
+        return ui_factory
 
     def start(self, connect=True):
         """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
@@ -2723,12 +2705,6 @@ class ReahlWSGIApplication(object):
             context.set_system_control(self.system_control)
             if self.should_disconnect:
                 self.system_control.disconnect()
-
-    def define_static_files(self, path, files):
-        ui_name = 'static_%s' % path
-        ui_factory = UserInterfaceFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
-        self.root_user_interface_factory.predefine_user_interface(ui_factory)
-        return ui_factory
 
     def get_target_ui(self, full_path):
         root_ui = self.root_user_interface_factory.create(full_path)

@@ -68,12 +68,6 @@ class EntryPointKeyEncodedAttachmentName(object):
         return '%s%s%s' % (self.order, self.order_delimeter, self.encoded_path)
 
 
-class Attachment(object):
-    def __init__(self, filename, label):
-        self.filename = filename
-        self.label = label
-
-
 class NoDependencyPathFound(Exception):
     def __init__(self, from_vertex, to_vertex):
         self.from_vertex = from_vertex
@@ -188,7 +182,7 @@ class ReahlEgg(object):
 
     def get_persisted_classes_in_order(self, orm_control):
         return self.get_ordered_classes_exported_on('reahl.persistlist')
-        
+
     def find_attachments(self, label):
         entry_point = 'reahl.attachments.%s' % label
         entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
