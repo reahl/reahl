@@ -453,7 +453,7 @@ class TabbedPanelTests(object):
                         '''</ul>'''\
                         '''<div><p>tab 1 content</p></div>'''\
                         '''</div>'''
-        actual = tester.render_html()        
+        actual = tester.render_html()
         vassert( actual == expected_html )
 
     @test(WebFixture)
@@ -467,7 +467,7 @@ class TabbedPanelTests(object):
         tabbed_panel.add_tab(multi_tab)
 
         tester = WidgetTester(tabbed_panel)
-        
+
         expected_html = '''<div id="tabbed_name" class="reahl-tabbedpanel">'''\
                         '''<ul class="reahl-horizontal reahl-menu">'''\
                         '''<li class="active"><a href="/?tab=multitab-main" class="reahl-ajaxlink">tab 1 name</a>&nbsp;'''\
@@ -480,7 +480,7 @@ class TabbedPanelTests(object):
                         '''</ul>'''\
                         '''<div><p>tab 1/2 content</p></div>'''\
                         '''</div>'''
-        actual = tester.render_html()        
+        actual = tester.render_html()
         vassert( actual == expected_html )
 
 
@@ -492,14 +492,14 @@ class TabbedPanelTests(object):
             self.expected_contents = '<p>tab 2 content</p>'
             self.tab1_active = False
             self.tab2_active = True
-            
+
         @scenario
         def defaulted(self):
             self.request.query_string = ''
             self.expected_contents = '<p>tab 1 content</p>'
             self.tab1_active = True
             self.tab2_active = False
-            
+
     @test(DefaultTabScenarios)
     def default_active_tab(self, fixture):
         """The first tab is active by default (if the active tab is not indicated in the query_string)."""
@@ -527,7 +527,7 @@ class TabbedPanelTests(object):
             self.tab1_active = False
             self.tab2_active = True
             self.tab3_active = False
-            
+
         @scenario
         def defaulted(self):
             self.request.query_string = ''
@@ -635,10 +635,10 @@ class SlidingPanelFixture(WebFixture):
 def opens_on_selected_index(fixture):
     fixture.reahl_server.set_app(fixture.wsgi_app)
     browser = fixture.driver_browser
-    
+
     browser.open('/?index=1')
     vassert( fixture.panel_is_visible(1) )
-    
+
 
 @test(SlidingPanelFixture)
 def slide_right(fixture):
@@ -677,7 +677,7 @@ def slide_left(fixture):
 class PopupAFixture(WebFixture):
     # (note that this xpath ensures that the p is the ONLY content of the dialog)
     poppedup_contents = "//div[@class='reahl-dialogcontent' and count(*)=1]/p[@id='contents']"
-    
+
 
 @istest
 class PopupATests(object):
@@ -696,21 +696,21 @@ class PopupATests(object):
         wsgi_app = fixture.new_wsgi_app(child_factory=PopupTestPanel.factory(), enable_js=True)
         fixture.reahl_server.set_app(wsgi_app)
         fixture.driver_browser.open('/')
-        
+
         # The A is rendered correctly
         fixture.driver_browser.is_element_present("//a[@title='Home page' and text()='Home page' and @href='/']")
 
         # subsequent behaviour
         fixture.driver_browser.click(XPath.link_with_text('Home page'))
         fixture.driver_browser.wait_for_element_visible(fixture.poppedup_contents)
-        
+
         fixture.driver_browser.click(XPath.button_labelled('Close'))
         fixture.driver_browser.wait_for_element_not_visible(fixture.poppedup_contents)
 
     @test(PopupAFixture)
     def customising_dialog_buttons(self, fixture):
         """The buttons of the dialog can be customised."""
-        
+
         class PopupTestPanel(Div):
             def __init__(self, view):
                 super(PopupTestPanel, self).__init__(view)
@@ -741,7 +741,7 @@ class PopupATests(object):
             @exposed
             def fields(self, fields):
                 fields.field = BooleanField()
-                
+
             def __init__(self, view):
                 super(PopupTestPanel, self).__init__(view)
                 popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
