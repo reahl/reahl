@@ -17,36 +17,23 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
-import time
 import os
 import threading 
 
-import webob
-
-
 from reahl.tofu import vassert, scenario, expected, test, Fixture, temp_file_with
-from reahl.stubble import stubclass
-
 
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin
 
 from reahl.sqlalchemysupport import Session
 from reahl.webdeclarative.webdeclarative import PersistedFile
-from reahl.component.modelinterface import exposed, Field, Event, FileField, Action, ValidationConstraint
+from reahl.component.modelinterface import exposed, Event, FileField, Action, ValidationConstraint
 from reahl.component.exceptions import DomainException
-from reahl.web.fw import WebExecutionContext
 
-from reahl.web.bootstrap.ui import Span, Div, P, TextNode
-from reahl.web.bootstrap.forms import Form, Label
+from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel, Button, FormLayout, FileInput, FileInputButton
 
 
-
-
-
-#----------------------------------
 class FileInputButtonFixture(Fixture, WebBasicsMixin):
 
     def upload_button_indicates_focus(self):
@@ -191,11 +178,6 @@ def file_input_without_js(fixture):
 
     browser.wait_for_not(fixture.message_is_visible)
     browser.wait_for(fixture.standard_file_input_is_visible)
-
-
-
-
-
 
 
 class FileUploadInputFixture(WebFixture):
