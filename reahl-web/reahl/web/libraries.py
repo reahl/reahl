@@ -320,6 +320,7 @@ class Reahl(Library):
         self.files = ['reahl.hashchange.js',
                       'reahl.ajaxlink.js',
                       'reahl.textinput.js',
+                      'reahl.form.js',
                       'reahl.runningonbadge.css']
 
     def header_only_material(self, rendered_page):

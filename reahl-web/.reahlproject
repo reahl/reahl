@@ -50,7 +50,6 @@
   </attachedfiles>
 
   <attachedfiles filetype="js">
-    <file path="reahl/web/reahl.form.js"/>
     <file path="reahl/web/attic/reahl.cueinput.js"/>
     <file path="reahl/web/attic/reahl.labeloverinput.js"/>
     <file path="reahl/web/attic/reahl.fileuploadli.js"/>
