@@ -28,7 +28,7 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.web.fw import UserInterface, Url
 
-from reahl.web_dev.inputandvalidation.inputtests import InputMixin
+from reahl.web_dev.inputandvalidation.test_input import InputMixin
 
 from reahl.component.exceptions import ProgrammerError, IsInstance
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField

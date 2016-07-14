@@ -42,7 +42,7 @@ from reahl.component.exceptions import IsInstance
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import WidgetTester
 from reahl.webdev.tools import XPath
-from reahl.component_dev.fieldtests import FieldMixin
+from reahl.component_dev.test_field import FieldMixin
 
 
 class InputMixin(FieldMixin):

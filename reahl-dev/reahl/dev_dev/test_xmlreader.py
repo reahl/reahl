@@ -73,9 +73,9 @@ class ConfiguredReader(BasicObjectSetup):
 
     def new_reader(self):
         easter_egg.add_entry_point_from_line('reahl.dev.xmlclasses',
-                                     'test1 = reahl.dev_dev.xmlreadertests:ConfiguredReader.TestClass1')
+                                     'test1 = reahl.dev_dev.test_xmlreader:ConfiguredReader.TestClass1')
         easter_egg.add_entry_point_from_line('reahl.dev.xmlclasses',
-                                     'test2 = reahl.dev_dev.xmlreadertests:ConfiguredReader.TestClass2')
+                                     'test2 = reahl.dev_dev.test_xmlreader:ConfiguredReader.TestClass2')
 
         @stubclass(XMLReader)
         class XMLReaderStub(XMLReader):

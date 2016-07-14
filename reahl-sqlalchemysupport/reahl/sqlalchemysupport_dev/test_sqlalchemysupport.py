@@ -24,7 +24,7 @@ from reahl.tofu import Fixture, test, vassert
 from reahl.sqlalchemysupport import SqlAlchemyControl, QueryAsSequence, Session, Base, metadata
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
 
-from reahl.component_dev.migrationtests import ReahlEggStub
+from reahl.component_dev.test_migration import ReahlEggStub
 
 
 
