@@ -29,7 +29,7 @@ from reahl.web.bootstrap.tables import Table, TableLayout, StaticColumn, TableLa
 from reahl.web.bootstrap.ui import Div
 from reahl.web_dev.fixtures import WebFixture
 
-import reahl.web_dev.widgets.tabletests
+import reahl.web_dev.widgets.test_table
 
 
 
@@ -82,14 +82,14 @@ def table_layout_options(fixture):
 
 
 
-class DataItem(reahl.web_dev.widgets.tabletests.DataItem):
+class DataItem(reahl.web_dev.widgets.test_table.DataItem):
     @exposed
     def fields(self, fields):
         fields.row = IntegerField(label='Row', required=True, default=self.row)
         fields.alpha = Field(label='Alpha', required=True, default=self.alpha)
 
 
-class DataTableFixture(reahl.web_dev.widgets.tabletests.TableFixture):
+class DataTableFixture(reahl.web_dev.widgets.test_table.TableFixture):
 
     items_per_page = 3
         
