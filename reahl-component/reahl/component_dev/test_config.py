@@ -87,7 +87,7 @@ class ConfigTests1(object):
 
         config_file = fixture.new_config_file(filename=ConfigWithSetting.filename, 
                                               contents='some_key.some_setting = 3')
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWithSetting')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
 
         # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
         config = StoredConfiguration(fixture.config_dir.name)
@@ -100,7 +100,7 @@ class ConfigTests1(object):
     def missing_settings(self, fixture):
         """An exception is raised if setting do not have values set."""
 
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWithSetting')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
 
         # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
         config = StoredConfiguration(fixture.config_dir.name)
@@ -114,7 +114,7 @@ class ConfigTests1(object):
 
         config_file = fixture.new_config_file(filename=ConfigWithSetting.filename, 
                                               contents='some_key.some_wrong_name = 3')
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWithSetting')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
 
         # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
         config = StoredConfiguration(fixture.config_dir.name)
@@ -128,7 +128,7 @@ class ConfigTests1(object):
 
         config_file = fixture.new_config_file(filename=ConfigWithSetting.filename, 
                                               contents='from reahl.component.config import Configuration; some_key = Configuration()')
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWithSetting')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithSetting')
 
         # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
         config = StoredConfiguration(fixture.config_dir.name)
@@ -148,7 +148,7 @@ class ConfigTests2(object):
     def config_defaults(self, fixture):
         """If a default is specified for the ConfigSetting, it need not be set in the file."""
 
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWithDefaultedSetting')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDefaultedSetting')
 
         # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
         config = StoredConfiguration(fixture.config_dir.name)
@@ -171,7 +171,7 @@ class ConfigTests3(object):
         """Defaults that are dangerous to leave at their at their settings can be marked as such. 
            This will result in a logged warning."""
 
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWithDangerousDefaultedSetting')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDangerousDefaultedSetting')
 
         # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
         config = StoredConfiguration(fixture.config_dir.name)
@@ -190,7 +190,7 @@ class ConfigTests3(object):
     def config_in_production(self, fixture):
         """When a Configuration is created as in_production, dangerous defaulted config is not allowed."""
 
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWithDangerousDefaultedSetting')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDangerousDefaultedSetting')
 
         config = StoredConfiguration(fixture.config_dir.name, in_production=True)
         with expected(ConfigurationException):
@@ -218,12 +218,12 @@ class ConfigTests4(object):
         with expected(pkg_resources.DistributionNotFound):
             pkg_resources.require('test-inject')  
             
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWithEntryPointClassList')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithEntryPointClassList')
 
         # Publish some classes on the entry point being tested
-        line = 'ListedClass1 = reahl.component_dev.configtests:ListedClass1'
+        line = 'ListedClass1 = reahl.component_dev.test_config:ListedClass1'
         easter_egg.add_entry_point_from_line('some.test.entrypoint', line)
-        line = 'ListedClass2 = reahl.component_dev.configtests:ListedClass2'
+        line = 'ListedClass2 = reahl.component_dev.test_config:ListedClass2'
         easter_egg.add_entry_point_from_line('some.test.entrypoint', line)
 
         # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
@@ -255,10 +255,10 @@ class ConfigTests5(object):
            another egg on which it depends."""
 
         egg_needing_injection = EasterEgg('test-inject')
-        fixture.set_config_spec(egg_needing_injection, 'reahl.component_dev.configtests:ConfigWithInjectedSetting')
+        fixture.set_config_spec(egg_needing_injection, 'reahl.component_dev.test_config:ConfigWithInjectedSetting')
         pkg_resources.working_set.add(egg_needing_injection)
 
-        fixture.set_config_spec(easter_egg, 'reahl.component_dev.configtests:ConfigWhichInjectsSetting')
+        fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWhichInjectsSetting')
 
         easter_egg.add_dependency(egg_needing_injection.as_requirement_string())
 

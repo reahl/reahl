@@ -4,7 +4,6 @@ COPYING
 LICENSE
 MANIFEST.in
 reahl
-setup.py
 tox.ini
 reahl/__init__.py
 reahl/dev/__init__.py
@@ -16,8 +15,8 @@ reahl/dev/mailtest.py
 reahl/dev/tools.py
 reahl/dev/xmlreader.py
 reahl/dev_dev/__init__.py
-reahl/dev_dev/domaintests.py
-reahl/dev_dev/xmlreadertests.py
+reahl/dev_dev/test_domain.py
+reahl/dev_dev/test_xmlreader.py
 reahl_dev.egg-info/PKG-INFO
 reahl_dev.egg-info/SOURCES.txt
 reahl_dev.egg-info/dependency_links.txt

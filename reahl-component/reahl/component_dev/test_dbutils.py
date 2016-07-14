@@ -33,7 +33,7 @@ class TestDatabaseControl(DatabaseControl):
 
 class DBControlFixture(Fixture):
     def new_config(self):
-        line = 'TestDatabaseControl = reahl.component_dev.dbutilstests:TestDatabaseControl'
+        line = 'TestDatabaseControl = reahl.component_dev.test_dbutils:TestDatabaseControl'
         easter_egg.add_entry_point_from_line('reahl.component.databasecontrols', line)
 
         config = Configuration()

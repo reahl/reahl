@@ -1,7 +1,7 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1305786169025" ID="ID_870144914" MODIFIED="1341422137801" TEXT="component">
-<node CREATED="1305786274465" FOLDED="true" ID="ID_1828490331" LINK="componenttests.py" MODIFIED="1353660160257" POSITION="right" TEXT="components">
+<node CREATED="1305786274465" FOLDED="true" ID="ID_1828490331" LINK="test_component.py" MODIFIED="1353660160257" POSITION="right" TEXT="components">
 <node CREATED="1305786297487" ID="ID_704257817" MODIFIED="1305789780963" TEXT="dependency tree per application"/>
 <node CREATED="1305786316647" ID="ID_1884592944" MODIFIED="1305789933255" TEXT="component metadata">
 <node CREATED="1305789833989" ID="ID_3425795" MODIFIED="1305789839972" TEXT="config"/>
@@ -10,7 +10,7 @@
 <node CREATED="1305789861059" ID="ID_1258229837" MODIFIED="1305789870884" TEXT="daily maintenance"/>
 </node>
 </node>
-<node CREATED="1305786282238" FOLDED="true" ID="ID_508990258" LINK="configtests.py" MODIFIED="1353660742322" POSITION="right" TEXT="configuration">
+<node CREATED="1305786282238" FOLDED="true" ID="ID_508990258" LINK="test_config.py" MODIFIED="1353660742322" POSITION="right" TEXT="configuration">
 <node CREATED="1305786347721" ID="ID_643747967" MODIFIED="1305794716118" TEXT="reading config">
 <node CREATED="1305787768804" ID="ID_442226081" MODIFIED="1305787777297" TEXT="config file per component"/>
 <node CREATED="1305787505951" ID="ID_1046590928" MODIFIED="1305787517097" TEXT="hierarchical settings in python"/>
@@ -22,7 +22,7 @@
 </node>
 <node CREATED="1305786437058" ID="ID_1070318308" MODIFIED="1305786441177" TEXT="dependency injection"/>
 </node>
-<node CREATED="1305786449998" FOLDED="true" ID="ID_181334973" LINK="contexttests.py" MODIFIED="1353660951042" POSITION="right" TEXT="execution context">
+<node CREATED="1305786449998" FOLDED="true" ID="ID_181334973" LINK="test_context.py" MODIFIED="1353660951042" POSITION="right" TEXT="execution context">
 <node CREATED="1305787979437" ID="ID_1027085526" MODIFIED="1305787992143" TEXT="definition and use"/>
 <node CREATED="1305786568944" ID="ID_1660901145" MODIFIED="1305788018985" TEXT="(user) session"/>
 <node CREATED="1305786573111" ID="ID_1287954513" MODIFIED="1306151972348" TEXT="systemcontrol">
@@ -31,11 +31,11 @@
 <node CREATED="1305788131520" ID="ID_579936124" MODIFIED="1305788188710" TEXT="ORM tools"/>
 </node>
 </node>
-<node CREATED="1330091175012" FOLDED="true" ID="ID_368075494" LINK="domainaccesscontrol.py" MODIFIED="1353661033604" POSITION="right" TEXT="access control for methods">
+<node CREATED="1330091175012" FOLDED="true" ID="ID_368075494" LINK="test_domainaccesscontrol.py" MODIFIED="1353661033604" POSITION="right" TEXT="access control for methods">
 <node CREATED="1330091223813" ID="ID_1110577110" MODIFIED="1330435655557" TEXT="securing methods with @secured "/>
 <node CREATED="1330091258100" ID="ID_1279948121" MODIFIED="1330435638019" TEXT="check_methods with signatures different from the protected method"/>
 </node>
-<node CREATED="1295004289597" FOLDED="true" ID="ID_1760236938" LINK="fieldtests.py" MODIFIED="1353661891750" POSITION="right" TEXT="interfacing with domain code">
+<node CREATED="1295004289597" FOLDED="true" ID="ID_1760236938" LINK="test_field.py" MODIFIED="1353661891750" POSITION="right" TEXT="interfacing with domain code">
 <node CREATED="1330435497073" ID="ID_921991686" MODIFIED="1330435693101" TEXT="input and output of data items">
 <node CREATED="1295007498016" ID="ID_1318708645" MODIFIED="1330091498665" TEXT="basic field infrastructure">
 <node CREATED="1295007545457" ID="ID_1609822230" MODIFIED="1295007577315" TEXT="marshalling &amp; validation mechanics"/>
@@ -54,7 +54,7 @@
 <node CREATED="1330436422738" ID="ID_243955961" MODIFIED="1330436429101" TEXT="firing Events"/>
 </node>
 </node>
-<node CREATED="1334063775251" FOLDED="true" ID="ID_526677068" LINK="i18ntests.py" MODIFIED="1353661919484" POSITION="right" TEXT="i18n">
+<node CREATED="1334063775251" FOLDED="true" ID="ID_526677068" LINK="test_i18n.py" MODIFIED="1353661919484" POSITION="right" TEXT="i18n">
 <node CREATED="1334063780808" ID="ID_618557293" MODIFIED="1334063834016" TEXT="using i18n in code (_)"/>
 <node CREATED="1334063849870" ID="ID_91304821" MODIFIED="1334063877403" TEXT="working with extracted messages">
 <node CREATED="1334063897635" ID="ID_1673792895" MODIFIED="1334063904723" TEXT="in-egg translations"/>
@@ -62,12 +62,12 @@
 </node>
 <node CREATED="1334063999144" ID="ID_435933419" MODIFIED="1334064004740" TEXT="i18n of config"/>
 </node>
-<node CREATED="1344330589137" FOLDED="true" ID="ID_287389361" LINK="attachmenttests.py" MODIFIED="1353662006229" POSITION="right" TEXT="file attachments to classes">
+<node CREATED="1344330589137" FOLDED="true" ID="ID_287389361" LINK="test_attachment.py" MODIFIED="1353662006229" POSITION="right" TEXT="file attachments to classes">
 <node CREATED="1344330703487" ID="ID_1323060400" MODIFIED="1344330706593" TEXT="attaching"/>
 <node CREATED="1344330707084" ID="ID_1113792349" MODIFIED="1344330711637" TEXT="finding attachments"/>
 </node>
 <node CREATED="1358256525163" FOLDED="true" ID="ID_250072863" MODIFIED="1358256692335" POSITION="right" TEXT="exceptions">
-<node CREATED="1358256535320" ID="ID_59646480" LINK="argumentchecks.py" MODIFIED="1358256669097" TEXT="argument checks attached to methods"/>
+<node CREATED="1358256535320" ID="ID_59646480" LINK="test_argumentchecks.py" MODIFIED="1358256669097" TEXT="argument checks attached to methods"/>
 </node>
 <node CREATED="1316162637471" ID="ID_1973662550" MODIFIED="1316162640023" POSITION="right" TEXT="interfaces"/>
 <node CREATED="1305788212656" ID="ID_86247854" MODIFIED="1305788217754" POSITION="right" TEXT="database migration"/>
