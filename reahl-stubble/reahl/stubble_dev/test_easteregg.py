@@ -47,7 +47,7 @@ class EasterEggTests(object):
     @istest
     def test_adding_entry_points_affect_entry_point_map(self):
         self.stub_egg.add_entry_point_from_line(self.group_name,
-                          'test1 = reahl.stubble_dev.EasterEggTests:EasterEggTests.TestClass1')
+                          'test1 = reahl.stubble_dev.test_easteregg:EasterEggTests.TestClass1')
 
         self.stub_egg.add_entry_point(self.group_name, 'test2', TestClass2)
 

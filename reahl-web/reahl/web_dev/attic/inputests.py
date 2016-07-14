@@ -28,7 +28,7 @@ from reahl.web.attic.layout import LabelledInlineInput, LabelledBlockInput, CueI
 from reahl.component.modelinterface import Allowed, Event, Field, Action, exposed
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import WidgetTester
-from reahl.component_dev.fieldtests import FieldMixin
+from reahl.component_dev.test_field import FieldMixin
 
 class InputMixin(FieldMixin):
     def new_form(self):

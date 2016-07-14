@@ -225,7 +225,7 @@ def version_of_migration_not_set_error(fixture):
     fixture.orm_control.set_currently_installed_version_for(egg, '0.0')
 
     def check_exception(ex):
-        vassert( re.match('Migration <class \'reahl\.component_dev\.migrationtests\..*TestMigration\'> does not have a version set', six.text_type(ex) ))
+        vassert( re.match('Migration <class \'reahl\.component_dev\.test_migration\..*TestMigration\'> does not have a version set', six.text_type(ex) ))
 
     with expected(ProgrammerError, test=check_exception):
         fixture.orm_control.migrate_db([egg])
