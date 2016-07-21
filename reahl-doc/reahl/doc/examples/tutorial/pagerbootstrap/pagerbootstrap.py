@@ -5,8 +5,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P, H, Div
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
-from reahl.web.attic.paging import PagedPanel, SequentialPageIndex
-from reahl.web.bootstrap.pagination import PageMenu
+from reahl.web.bootstrap.pagination import PagedPanel, SequentialPageIndex, PageMenu
 
 
 class AddressBookUI(UserInterface):

@@ -121,10 +121,6 @@ class DataTableFixture(reahl.web_dev.widgets.test_table.TableFixture):
         return super(DataTableFixture, self).new_wsgi_app(enable_js=False,
                                                       child_factory=self.MainWidget.factory())
 
-    def new_webconfig(self):
-        webconfig = super(DataTableFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
     def xpath_for_sort_link_for_column(self, column_number):
         return '(//table/thead/tr/th)[%s]/a' % column_number
@@ -242,4 +238,3 @@ def layout_for_contained_table(fixture):
     data_table = DataTable(fixture.view, fixture.columns, fixture.data, 'my_css_id', table_layout=layout)
 
     vassert( data_table.table.layout is layout )
-

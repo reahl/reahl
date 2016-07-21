@@ -148,7 +148,7 @@ a test per explained fact; other times it is useful to write a test
 for a little scenario illustrating a "user story". This test is an
 example of the latter:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2_dev/parameterised2tests1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/parameterised2bootstraptests1.py
 
 The test should be run with nosetests,
 using ``--with-run-fixture=reahl.webdev.fixtures:BrowserSetup``.
@@ -212,7 +212,7 @@ couple of things we'd like to assert about the application, as well as
 some objects used by the tests.  (Compare this implementation of
 `.adding_an_address()` to the previous implementation.)
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2_dev/parameterised2tests2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/parameterised2bootstraptests2.py
 
 Testing JavaScript
 ------------------
@@ -263,6 +263,6 @@ Selenium used to test that the validation provided by :class:`~reahl.component.m
 in javascript as expected. Note also how javascript is enabled for the
 web application upon creation:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2_dev/parameterised2tests3.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/parameterised2bootstraptests3.py
 
 

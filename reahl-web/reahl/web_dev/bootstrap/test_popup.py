@@ -37,10 +37,6 @@ class PopupAFixture(WebFixture):
     def new_wsgi_app(self):
         return super(PopupAFixture, self).new_wsgi_app(enable_js=True,
                                                        child_factory=self.MainWidget.factory())
-    def new_webconfig(self):
-        webconfig = super(PopupAFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
 
 class PopupAFixtureWithContent(PopupAFixture):

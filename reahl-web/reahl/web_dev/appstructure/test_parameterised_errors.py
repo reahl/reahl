@@ -23,13 +23,13 @@ from nose.tools import istest
 from reahl.tofu import test
 from reahl.tofu import expected
 
-from reahl.component.modelinterface import Field, RequiredConstraint
-from reahl.component.exceptions import ProgrammerError
-from reahl.web.fw import UrlBoundView
-from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
+
+from reahl.component.modelinterface import Field, RequiredConstraint
+from reahl.component.exceptions import ProgrammerError
+from reahl.web.fw import UrlBoundView, UserInterface
+from reahl.web.ui import HTML5Page
 
 @istest
 class ParameterisedViewErrors(object):

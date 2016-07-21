@@ -23,19 +23,15 @@ from reahl.tofu import scenario
 from reahl.tofu import test
 from reahl.tofu import vassert
 
-from reahl.component.modelinterface import Field
-from reahl.web.fw import CannotCreate
-from reahl.web.fw import IdentityDictionary
-from reahl.web.fw import UrlBoundView
-from reahl.web.fw import UserInterface
-from reahl.web.fw import Region
-from reahl.web.ui import HTML5Page
-from reahl.web.ui import P
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture
+
+from reahl.component.modelinterface import Field
+from reahl.web.fw import CannotCreate, IdentityDictionary, UrlBoundView, UserInterface, Region
+from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.layout import PageLayout
+from reahl.web.bootstrap.grid import ColumnLayout
 
 
 @istest

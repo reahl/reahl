@@ -4,5 +4,5 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap import AddressBookUI
 
 web.site_root = AddressBookUI
-web.frontend_libraries.enable_experimental_bootstrap()
+
 

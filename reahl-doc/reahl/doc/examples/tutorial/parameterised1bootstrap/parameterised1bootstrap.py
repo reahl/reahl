@@ -108,7 +108,7 @@ class AddressBox(Widget):
 
 
 class Address(Base):
-    __tablename__ = 'tutorial_parameterised1boostrap_address'
+    __tablename__ = 'tutorial_parameterised1bootstrap_address'
     
     id            = Column(Integer, primary_key=True)
     email_address = Column(UnicodeText)

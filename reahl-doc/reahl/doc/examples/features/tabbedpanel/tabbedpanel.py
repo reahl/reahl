@@ -1,15 +1,14 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, P
-from reahl.web.attic.tabbedpanel import Tab, TabbedPanel
-
+from reahl.web.bootstrap.ui import HTML5Page, P
+from reahl.web.bootstrap.tabbedpanel import TabbedPanel, Tab
 
 class MyPage(HTML5Page):
     def __init__(self, view):
-        super(MyPage, self).__init__(view, style='basic')
+        super(MyPage, self).__init__(view)
 
-        tabbed_panel = self.body.add_child(TabbedPanel(view, 'mytabbedpanel'))
+        tabbed_panel = self.body.add_child(TabbedPanel(view))
 
         contents1 = P.factory(text='A paragraph to give content to the first tab.')
         tabbed_panel.add_tab(Tab(view, 'Tab 1', '1', contents1))

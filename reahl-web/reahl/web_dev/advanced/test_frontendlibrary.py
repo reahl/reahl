@@ -22,18 +22,16 @@ import pkg_resources
 
 from reahl.tofu import test
 from reahl.tofu import temp_dir
-from reahl.tofu import temp_file_with
 from reahl.tofu import vassert
-from reahl.stubble import easter_egg, stubclass
+from reahl.stubble import easter_egg
 
-from reahl.web.fw import ReahlWSGIApplication, UserInterface
-from reahl.web.ui import HTML5Page
-from reahl.web.libraries import Library, Reahl, HTML5Shiv, IE9
-from reahl.web.egg import WebConfig
-from reahl.component.config import Configuration, ReahlSystemConfig
-from reahl.sqlalchemysupport import SqlAlchemyControl
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
+
+from reahl.component.config import Configuration
+from reahl.web.fw import ReahlWSGIApplication, UserInterface
+from reahl.web.ui import HTML5Page
+from reahl.web.libraries import Library
 
 
 class LibraryFixture(WebFixture):
@@ -119,18 +117,14 @@ def standard_reahl_files(fixture):
     browser.open('/static/IE9.js')
     vassert( browser.last_response.content_length > 0 )
 
-    browser.open('/static/reahl.modaldialog.js')
-    vassert( browser.last_response.content_length > 0 )
-
     browser.open('/static/reahl.validate.js')
     vassert( browser.last_response.content_length > 0 )
 
     browser.open('/static/reahl.css')
     vassert( browser.last_response.content_length > 0 )
 
-    browser.open('/static/basic.css')
-    vassert( browser.last_response.content_length > 0 )
-
     browser.open('/static/runningon.png')
     vassert( browser.last_response.content_length > 0 )
 
+    browser.open('/static/runningonbadge.css')
+    vassert(browser.last_response.content_length > 0)

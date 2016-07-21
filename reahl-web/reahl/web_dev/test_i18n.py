@@ -32,6 +32,7 @@ from reahl.web.fw import UrlBoundView, Url
 from reahl.component.context import ExecutionContext
 from reahl.webdev.tools import WidgetTester
 
+
 class XXFixture(Fixture, WebBasicsMixin):
     def new_view(self):
         current_path = Url(ExecutionContext.get_context().request.url).path
@@ -49,8 +50,6 @@ class XXTests(object):
         rendered_html = tester.render_html()
         vassert( rendered_html == '<p></p>' )
 
-
-        
     
 @test(WebFixture)
 def i18n_urls(fixture):

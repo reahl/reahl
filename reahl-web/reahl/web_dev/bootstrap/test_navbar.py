@@ -276,10 +276,6 @@ class NavbarToggleFixture(Fixture, WebBasicsMixin):
     def new_wsgi_app(self):
         return super(NavbarToggleFixture, self).new_wsgi_app(enable_js=True,
                                                        child_factory=self.MainWidget.factory())
-    def new_webconfig(self):
-        webconfig = super(NavbarToggleFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
 
 @test(NavbarToggleFixture)

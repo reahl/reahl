@@ -36,7 +36,7 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
-from reahl.doc.examples.tutorial.slots.slots import SlotsUI
+from reahl.doc.examples.tutorial.slotsbootstrap.slotsbootstrap import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 from reahl.doc.examples.features.slidingpanel.slidingpanel import SlidingPanelUI
 from reahl.doc.examples.features.validation.validation import ValidationUI
@@ -46,18 +46,18 @@ from reahl.doc.examples.features.persistence.persistence import PersistenceUI
 from reahl.doc.examples.features.access.access import AccessUI
 from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
 
-from reahl.doc.fileupload import FileUploadUI, AttachedFile
+from reahl.doc.examples.features.fileupload.fileupload import FileUploadUI, AttachedFile
 
-from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsUI
-from reahl.doc.basichtmlinputs import BasicHTMLInputsUI
+from reahl.doc.examples.features.basichtmlwidgets.basichtmlwidgets import BasicHTMLWidgetsUI
+from reahl.doc.examples.features.basichtmlinputs.basichtmlinputs import BasicHTMLInputsUI
 
 from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
 from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootstrap
 from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
-from reahl.doc.examples.tutorial.pageflow1 import pageflow1
-from reahl.doc.examples.tutorial.pageflow2 import pageflow2
-from reahl.doc.examples.tutorial.parameterised1 import parameterised1
+from reahl.doc.examples.tutorial.pageflow1bootstrap import pageflow1bootstrap
+from reahl.doc.examples.tutorial.pageflow2bootstrap import pageflow2bootstrap
+from reahl.doc.examples.tutorial.parameterised1bootstrap import parameterised1bootstrap
 
 
 class ExampleBasicFixture(Fixture, WebBasicsMixin):
@@ -174,23 +174,20 @@ class ExampleFixture(ExampleBasicFixture):
 
     @scenario
     def pageflow1(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=pageflow1.AddressBookUI)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow1bootstrap.AddressBookUI)
 
     @scenario
     def pageflow2(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=pageflow2.AddressBookUI)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow2bootstrap.AddressBookUI)
 
     @scenario
     def parameterised1(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=parameterised1.AddressBookUI)
+        self.wsgi_app = self.new_wsgi_app(site_root=parameterised1bootstrap.AddressBookUI)
 
 
 
 class ExampleBootstrapFixture(ExampleBasicFixture):
-    def new_webconfig(self):
-        webconfig = super(ExampleBootstrapFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
+
 
     @scenario
     def addressbook2bootstrap(self):
@@ -504,7 +501,7 @@ def test_parameterised1(fixture):
     vassert( browser.location_path == '/' )
     browser.click(XPath.link_with_text('edit'))
 
-    john = Session.query(parameterised1.Address).one()
+    john = Session.query(parameterised1bootstrap.Address).one()
     vassert( browser.location_path == '/edit/%s' % john.id )
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')

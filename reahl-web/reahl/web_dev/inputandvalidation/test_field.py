@@ -23,13 +23,10 @@ from reahl.stubble import stubclass
 from reahl.tofu import vassert
 from reahl.component.py3compat import html_escape
 
-from reahl.component.modelinterface import Field, EmailField, PasswordField, BooleanField, IntegerField, \
-                             ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
+from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
-                             EqualToConstraint, RemoteConstraint, IntegerConstraint, \
-                             MaxValueConstraint, MinValueConstraint, exposed
-from reahl.web.ui import InputTypeInput, Form, TextInput
-from reahl.web.attic.layout import Button
+                             EqualToConstraint, RemoteConstraint, exposed
+from reahl.web.ui import InputTypeInput, Form, TextInput, ButtonInput
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.inputandvalidation.test_input import InputMixin, InputMixin2
@@ -111,7 +108,7 @@ class FieldTests(object):
                 field = model_object.fields.an_attribute
                 self.add_child(TextInput(self, model_object.fields.an_attribute))
                 self.define_event_handler(model_object.events.an_event)
-                self.add_child(Button(self, model_object.events.an_event))
+                self.add_child(ButtonInput(self, model_object.events.an_event))
 
         wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
         fixture.reahl_server.set_app(wsgi_app)

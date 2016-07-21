@@ -13,11 +13,6 @@ class AddressAppFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
 
-    def new_webconfig(self):
-        webconfig = super(AddressAppFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
-
     def new_existing_address(self):
         address = Address(name='John Doe', email_address='johndoe@some.org')
         address.save()

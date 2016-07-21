@@ -5,6 +5,16 @@ Package reahl.web.bootstrap.files
 
 .. automodule:: reahl.web.bootstrap.files
 
+.. sidebar:: Examples
+
+   - tutorial.fileuploadbootstrap
+
+   Get a copy of an example by running:
+
+   .. code-block:: bash
+
+      reahl example <examplename>
+
 
 FileInputButton
 """""""""""""""

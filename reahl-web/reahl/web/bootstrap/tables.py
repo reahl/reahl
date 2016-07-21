@@ -44,8 +44,7 @@ from reahl.web.ui import StaticColumn
 
 import reahl.web.ui
 from reahl.web.bootstrap.ui import A, Div
-from reahl.web.bootstrap.pagination import PageMenu
-from reahl.web.attic.paging import PagedPanel, SequentialPageIndex
+from reahl.web.bootstrap.pagination import PageMenu, PagedPanel, SequentialPageIndex
 
 
 class Table(reahl.web.ui.Table):

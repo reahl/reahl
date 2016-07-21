@@ -64,7 +64,7 @@ class AddressBox(Widget):
 
 
 class Address(Base):
-    __tablename__ = 'jobsboostrap_address'
+    __tablename__ = 'jobsbootstrap_address'
 
     id            = Column(Integer, primary_key=True)
     email_address = Column(UnicodeText)

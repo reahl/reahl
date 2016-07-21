@@ -144,7 +144,7 @@ class PageLayout(Layout):
        .. versionadded:: 3.2
 
     """
-    @arg_checks(document_layout=IsInstance(Layout, allow_none=True), contents_layout=IsInstance(Layout, allow_none=True), 
+    @arg_checks(document_layout=IsInstance(Layout, allow_none=True), contents_layout=IsInstance(Layout, allow_none=True),
                 header_layout=IsInstance(Layout, allow_none=True), footer_layout=IsInstance(Layout, allow_none=True))
     def __init__(self, document_layout=None, contents_layout=None, header_layout=None, footer_layout=None):
         super(PageLayout, self).__init__()

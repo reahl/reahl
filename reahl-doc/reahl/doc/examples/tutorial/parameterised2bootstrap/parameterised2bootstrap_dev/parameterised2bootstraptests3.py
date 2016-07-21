@@ -12,11 +12,6 @@ class AddressAppErrorFixture(WebFixture):
     def new_wsgi_app(self):
         return super(AddressAppErrorFixture, self).new_wsgi_app(site_root=AddressBookUI, enable_js=True)
 
-    def new_webconfig(self):
-        webconfig = super(AddressAppErrorFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
-
     def new_existing_address(self):
         address = Address(name='John Doe', email_address='johndoe@some.org')
         address.save()

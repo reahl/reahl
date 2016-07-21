@@ -103,7 +103,7 @@ discovered from the UserSession it is a part of.
 When using SqlAlchemy, creating an object that has a `session scoped` lifetime is really
 easy: just use the `@session_scoped` class decorator:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
    :pyobject: LoginSession
    :prepend: @session_scoped
 
@@ -128,7 +128,7 @@ text. (Actually... for a real-life application password hashes should
 be salted as well.) Besides that, there's really nothing much
 unexpected to the User class:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
    :pyobject: User
 
 
@@ -149,7 +149,7 @@ for this purpose. `LoginSession.for_current_session()` will check
 whether there is a LoginSession for the current UserSession and create
 one if necessary. Either way it returns what you expect:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
    :pyobject: SessionScopeUI
 
 
@@ -194,7 +194,7 @@ Reahl programmer should check whether there is currently an exception
 and render its messsage if need be. See how this is done in the
 implementation of LoginForm below.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
    :pyobject: LoginForm
 
 Can you spot the UserSession at work here? The input values and an
@@ -221,6 +221,6 @@ The final example
 Here is the complete code for the example, and a test putting it
 through its paces:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscope/sessionscope_dev/sessionscopetests.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap_dev/sessionscopebootstraptests.py

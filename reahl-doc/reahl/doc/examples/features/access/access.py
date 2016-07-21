@@ -1,11 +1,10 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput
-from reahl.web.attic.layout import LabelledBlockInput, Button
+from reahl.web.bootstrap.ui import HTML5Page
+from reahl.web.bootstrap.forms import Form, TextInput, FormLayout, Button
 from reahl.component.modelinterface import secured, Action, Event
 from reahl.component.modelinterface import exposed, EmailField
-
 
 
 class AccessUI(UserInterface):
@@ -16,7 +15,7 @@ class AccessUI(UserInterface):
 
 class HomePage(HTML5Page):
     def __init__(self, view):
-        super(HomePage, self).__init__(view, style='basic')
+        super(HomePage, self).__init__(view)
         self.body.add_child(CommentForm(view))
 
 
@@ -47,10 +46,11 @@ class Comment(object):
 class CommentForm(Form):
     def __init__(self, view):
         super(CommentForm, self).__init__(view, 'myform')
-
         comment = Comment()
-        text_input = TextInput(self, comment.fields.greyed_out_field)
-        self.add_child(LabelledBlockInput(text_input))
+
+        self.use_layout(FormLayout())
+
+        self.layout.add_input(TextInput(self, comment.fields.greyed_out_field))
 
         self.define_event_handler(comment.events.greyed_out_event)
         self.add_child( Button(self, comment.events.greyed_out_event) )

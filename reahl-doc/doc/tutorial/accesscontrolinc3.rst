@@ -58,7 +58,7 @@ above are useful for explaining the implementation, but not so useful
 to explain the requirements of the application itself. Tests should
 elucidate the latter. Hence, the following tests were added:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access/access_dev/accesstests.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap_dev/accessbootstraptests.py
    :start-after: # ------- Tests added for access control
 
 
@@ -96,17 +96,17 @@ whether the :class:`~reahl.component.modelinterface.Field` is readable or writab
 
 This is what it looks like in the code of Address:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access/access.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
    :pyobject: Address.fields
 
 Note how the `name` :class:`~reahl.component.modelinterface.Field` is required, but only when writable. Of
 course, to be able specify access rights, these no-arg methods needed
 to added to Address as well:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access/access.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
    :pyobject: Address.can_be_added
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access/access.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
    :pyobject: Address.can_be_edited
 
 Any :class:`~reahl.web.ui.Input` anywhere in our application which uses these :class:`~reahl.component.modelinterface.Field`\ s will now
@@ -115,7 +115,7 @@ have the correct access control applied to it.
 The same principle applies to the `edit` :class:`~reahl.component.modelinterface.Event` of an
 Address, and the :class:`~reahl.web.ui.Button`\ s created for it:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access/access.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
    :pyobject: Address.fields
 
 Easy, isn't it?
@@ -170,7 +170,7 @@ needing access control). For parameterised  :class:`~reahl.web.fw.View`\ s , the
 necessary information is available at this point to check access. See
 what it looks like for EditAddressView:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access/access.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
    :pyobject: EditAddressView
 
 
@@ -181,4 +181,4 @@ Below is the complete code for this example. A few methods needed to
 be added here and there in order to be able to specify the necessary
 rights:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access/access.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py

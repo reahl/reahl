@@ -64,7 +64,7 @@ children that will appear in is body. The novel
 thing here is how the :class:`~reahl.web.ui.Menu` is constructed: by using the
 :meth:`~reahl.web.ui.Menu.from_languages` class method:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexample/i18nexample.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py
    :pyobject: AddressBookPage
 
 
@@ -93,7 +93,7 @@ code, you need to declare it at the top of each module.
 
 Here is the top of the file containing this example:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexample/i18nexample.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py
    :end-before: class AddressBookPage
 
 When a human translates messages, the messages of a particular
@@ -112,7 +112,7 @@ developed this example independently of the Reahl documentation.
 The Address class contains some examples of strings meant for human
 consumption that are passed through ``_`` for translation:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexample/i18nexample.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py
    :pyobject: Address
 
 .. note::
@@ -140,7 +140,7 @@ In order to show how this is done, we have customised the heading in
 AddressBookPanel to use a plural form if there is more than one
 Address listed:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexample/i18nexample.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py
    :pyobject: AddressBookPanel
 
 
@@ -156,7 +156,7 @@ program.
 AddressBox provides an example where the date is formatted according
 to locale:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexample/i18nexample.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py
    :pyobject: AddressBox
 
 
