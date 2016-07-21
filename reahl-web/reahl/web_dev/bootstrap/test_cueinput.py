@@ -33,10 +33,6 @@ from reahl.web.bootstrap.forms import Form, FormLayout, CueInput, TextInput
 class CueInputFixture(WebFixture):
     cue_element_xpath = "//p"
 
-    def new_webconfig(self):
-        webconfig = super(CueInputFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
     def new_domain_object(self):
         class DomainObject(object):

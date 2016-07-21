@@ -445,6 +445,11 @@ class XPath(object):
         return cls('//p[contains(node(), "%s")]' % text)
 
     @classmethod
+    def input_named(cls, name):
+        """Returns an XPath to find an HTML <input> with the given name."""
+        return '//input[@name="%s"]' % name
+
+    @classmethod
     def input_labelled(cls, label):
         """Returns an XPath to find an HTML <input> referred to by a <label> that contains the text in `label`."""
         for_based_xpath = '//input[@id=//label[normalize-space(node())=normalize-space("%s")]/@for]' % label

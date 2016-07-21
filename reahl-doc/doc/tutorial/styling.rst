@@ -3,16 +3,16 @@
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |Layout| replace:: :class:`~reahl.web.fw.Layout`
 .. |HTML5Page| replace:: :class:`~reahl.web.ui.HTML5Page`
-.. |pure.ColumnLayout| replace:: :class:`~reahl.web.pure.ColumnLayout`
+.. |grid.ColumnLayout| replace:: :class:`~reahl.web.bootstrap.grid.ColumnLayout`
 .. |PageLayout| replace:: :class:`~reahl.web.layout.PageLayout`
-.. |UnitSize| replace:: :class:`~reahl.web.pure.UnitSize`
+.. |ResponsiveSize| replace:: :class:`~reahl.web.bootstrap.grid.ResponsiveSize`
 
 Layout and styling
 ==================
 
 .. sidebar:: Behind the scenes
 
-   Reahl uses the `Pure.css framework <http://purecss.io/>`_ to deal
+   Reahl uses `Bootstrap <http://getbootstrap.com/>`_ to deal
    with layout issues.
 
 Styling is probably not the first thing a programmer wants
@@ -39,39 +39,38 @@ A |Widget| is configured to use a particular |Layout| by calling
 construction. (You can also call
 :meth:`reahl.web.fw.WidgetFactory.use_layout` where you construct only
 a :class:`~reahl.web.fw.WidgetFactory` for later use.)  For example,
-the :class:`~reahl.web.ui.HorizontalLayout` or
-:class:`~reahl.web.ui.VerticalLayout` can be used to make a
-:class:`~reahl.web.ui.Menu` appear with its items horizontally next to
-each other or stacked vertically.
+the :class:`~reahl.web.bootstrap.navs.PillLayout` can be used to make a
+:class:`~reahl.web.bootstrap.navs.Nav` appear with its items horizontally next to
+each other or stacked vertically using only parameters.
 
 Some layout concepts are implemented in terms of some frontend
 library, others are generally applicable.
 
-The :mod:`~reahl.web.pure` module includes some layouts based on the
-`Pure.css framework <http://purecss.io/>`_. The |pure.ColumnLayout|
+The :mod:`~reahl.web.bootstrap.grid` module includes some layouts based on
+`Bootstrap <http://getbootstrap.com/>`_. The |grid.ColumnLayout|
 changes a |Widget| by adding several :class:`~reahl.web.ui.Div`\ s to
 it that are arranged as columns next to each other. You can specify
 the size of these columns, and in such a way that the size can change,
 depending on the size of the device used for viewing. See the
-documentation for |pure.ColumnLayout| and |UnitSize| for more details.
+documentation for |grid.ColumnLayout| and |ResponsiveSize| for more details.
 (See :doc:`../web/bootstrap/index` for Layouts and Widgets built using the
 Bootstrap library.)
 
 The :mod:`~reahl.web.layout` module houses generically applicable concepts.
 |PageLayout| is meant to be used with an
 HTML5Page. It changes the page to have a header
-and footer with a content area in between. If a |pure.ColumnLayout|
+and footer with a content area in between. If a |grid.ColumnLayout|
 (for example) is passed to the |PageLayout| constructor,
 it will automatically be used as the layout of the content area of the page.
 
 
 Here is an example of how |PageLayout| and
-|pure.ColumnLayout| can be used in conjunction to
+|grid.ColumnLayout| can be used in conjunction to
 create a page with some structure. In the example,
-:class:`~reahl.web.ui.HorizontalLayout` is also used to specify how
+:class:`~reahl.web.bootstrap.navs.TabLayout` is also used to specify how
 the :class:`~reahl.web.ui.Menu` is presented.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/slots/slots.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/slotsbootstrap/slotsbootstrap.py
    :pyobject: MyCustomPage
 
 

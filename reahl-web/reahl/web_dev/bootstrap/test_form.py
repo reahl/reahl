@@ -242,11 +242,6 @@ class ValidationScenarios(FormLayoutFixture):
                 self.add_child(Button(self, fixture.domain_object.events.submit))
         return FormWithInput
 
-    def new_webconfig(self):
-        web = super(ValidationScenarios, self).new_webconfig()
-        web.frontend_libraries.enable_experimental_bootstrap()
-        return web
-
     @scenario
     def with_javascript(self):
         self.reahl_server.set_app(self.new_wsgi_app(child_factory=self.Form.factory(), enable_js=True))

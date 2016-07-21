@@ -66,11 +66,6 @@ class FileInputButtonFixture(Fixture, WebBasicsMixin):
     def new_wsgi_app(self, enable_js=False):
         return super(FileInputButtonFixture, self).new_wsgi_app(child_factory=self.FileUploadForm.factory(), enable_js=enable_js)
 
-    def new_webconfig(self):
-        web = super(FileInputButtonFixture, self).new_webconfig()
-        web.frontend_libraries.enable_experimental_bootstrap()
-        return web
-
 
 @test(FileInputButtonFixture)
 def file_upload_button(fixture):
@@ -244,10 +239,6 @@ class FileUploadInputFixture(WebFixture):
     def upload_file_is_queued(self, filename):
         return self.driver_browser.is_element_present('//ul/li/span[text()="%s"]/../input[@value="Cancel"]' % os.path.basename(filename))
 
-    def new_webconfig(self):
-        web = super(FileUploadInputFixture, self).new_webconfig()
-        web.frontend_libraries.enable_experimental_bootstrap()
-        return web
 
 
 class ConstrainedFileUploadInputFixture(FileUploadInputFixture):

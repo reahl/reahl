@@ -14,10 +14,6 @@ class TableExampleFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
 
-    def new_webconfig(self):
-        webconfig = super(TableExampleFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
     def new_addresses(self):
         addresses = [Address(name='friend %s' % i, email_address='friend%s@some.org' % i) for i in list(range(1, 21))]

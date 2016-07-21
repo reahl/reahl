@@ -28,8 +28,7 @@ from reahl.tofu import vassert
 from reahl.webdev.tools import XPath
 from reahl.web.ui import P
 from reahl.web.ui import Div
-from reahl.web.attic.paging import PagedPanel, PageIndex, SequentialPageIndex, AnnualItemOrganiserProtocol, AnnualPageIndex
-from reahl.web.bootstrap.pagination import PageMenu
+from reahl.web.bootstrap.pagination import PageMenu, PagedPanel, PageIndex, SequentialPageIndex, AnnualItemOrganiserProtocol, AnnualPageIndex
 from reahl.web_dev.fixtures import WebBasicsMixin
 
 
@@ -91,10 +90,6 @@ class PageMenuFixture(Fixture, WebBasicsMixin):
     def new_wsgi_app(self):
         return super(PageMenuFixture, self).new_wsgi_app(enable_js=True, 
                                                        child_factory=self.MainWidget.factory())
-    def new_webconfig(self):
-        webconfig = super(PageMenuFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
 
 @istest

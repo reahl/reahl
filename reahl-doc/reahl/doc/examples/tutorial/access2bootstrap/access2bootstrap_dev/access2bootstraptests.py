@@ -21,10 +21,6 @@ class AccessFixture(WebFixture):
     def new_browser(self):
         return Browser(self.new_wsgi_app(site_root=AddressBookUI))
 
-    def new_webconfig(self):
-        webconfig = super(AccessFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
     password = 'topsecret'
 

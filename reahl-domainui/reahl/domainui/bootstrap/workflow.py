@@ -79,7 +79,7 @@ class TaskWidget(HTMLWidget):
 
         <export entrypoint="reahl.workflowui.task_widgets" 
                 name="TaskWidget" 
-                locator="reahl.domainui.workflow:TaskWidget"/>
+                locator="reahl.domainui.bootstrap.workflow:TaskWidget"/>
 
     """
     @classmethod

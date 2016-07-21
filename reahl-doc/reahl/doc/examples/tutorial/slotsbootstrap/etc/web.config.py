@@ -3,4 +3,3 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.doc.examples.tutorial.slotsbootstrap.slotsbootstrap import SlotsUI
 
 web.site_root = SlotsUI
-web.frontend_libraries.enable_experimental_bootstrap()

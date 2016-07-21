@@ -3,4 +3,4 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.doc.examples.features.carousel.carousel import CarouselUI
 
 web.site_root = CarouselUI
-web.frontend_libraries.enable_experimental_bootstrap()
+

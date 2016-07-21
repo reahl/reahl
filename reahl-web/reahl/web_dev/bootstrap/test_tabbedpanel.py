@@ -50,10 +50,6 @@ class TabbedPanelAjaxFixture(WebFixture):
                 self.add_tab(tab4)
         return PopulatedTabbedPanel
 
-    def new_webconfig(self):
-        webconfig = super(TabbedPanelAjaxFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
     def new_wsgi_app(self, enable_js=True):
         return super(TabbedPanelAjaxFixture, self).new_wsgi_app(enable_js=enable_js,

@@ -40,7 +40,6 @@ from reahl.component.modelinterface import ValidationConstraintList, ValidationC
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
-from reahl.web.libraries import YuiGridsCss
 
 _ = Translator('reahl-web')
 
@@ -521,12 +520,13 @@ class HTML5Page(HTMLElement):
        
        :param view: (See :class:`reahl.web.fw.Widget`)
        :keyword title: Text for a template to be used as document Title (See also :class:`Title`).
-       :keyword style: Pass a string denoting a predifined set of css styles.
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
        
+       .. versionchanged:: 4.0
+          Removed style= keyword
     """
     @arg_checks(title=IsInstance(six.string_types))
-    def __init__(self, view, title='$current_title', style=None, css_id=None):
+    def __init__(self, view, title='$current_title', css_id=None):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.append_class('no-js')
         script = self.add_child(HTMLElement(self.view, 'script', children_allowed=True))
@@ -541,72 +541,9 @@ class HTML5Page(HTMLElement):
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 
-        if style:
-            self.head.add_css(Url('/styles/%s.css' % style))
 
     def render(self):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
-
-
-@deprecated('Please use reahl.web.layout:PageLayout instead.', '3.1')
-class TwoColumnPage(HTML5Page):
-    """An HTML5Page with a basic layout: It has a header area which displays at top of two columns. A footer area
-       displays below the two columns. The main column is to the right, and larger. The secondary column is to 
-       the left, and smaller.
-       
-       .. admonition:: Styling
-
-          Renders as a page structured using Yui 2, with two template preset columns 
-           (main and secondary).
-
-       The TwoColumnPage has the following Slots:
-
-       main
-         Used by Views to plug content into the main column.
-       secondary
-         Used by Views to plug content into the secondary column.
-       header
-         Used by Views to plug content into the header area.
-       footer
-         Used by Views to plug content into the footer area.
-
-       :param view: (See :class:`reahl.web.fw.Widget`)
-       :param title: Text for a template to be used as document Title (See also :class:`Title`).
-       :param style: (See :class:`reahl.web.ui.HTML5Page`)
-       :param css_id: (See :class:`reahl.web.ui.HTMLElement`)
-    """
-    @arg_checks(title=IsInstance(six.string_types))
-    def __init__(self, view, title='$current_title', style=None, css_id=None):
-        super(TwoColumnPage, self).__init__(view, title=title, style=style, css_id=css_id)
-        YuiGridsCss.check_enabled(self)
-            
-        self.yui_page = self.body.add_child(YuiDoc(view, 'doc', 'yui-t2'))
-        self.main.add_child(Slot(view, 'main'))
-        self.secondary.add_child(Slot(view, 'secondary'))
-        self.header.add_child(Slot(view, 'header'))
-        self.footer.add_child(Slot(view, 'footer'))
-
-    tag_name = 'html'  # So deprecation warning does not break
-
-    @property
-    def footer(self):
-        """The Div used as footer area."""
-        return self.yui_page.footer
-
-    @property
-    def header(self):
-        """The Div used as header area."""
-        return self.yui_page.header
-
-    @property
-    def main(self):
-        """The Div used as main column."""
-        return self.yui_page.main_block
-
-    @property
-    def secondary(self):
-        """The Div used as secondary column."""
-        return self.yui_page.secondary_block
 
 
 # Uses: reahl/web/reahl.ajaxlink.js
@@ -924,80 +861,6 @@ class Panel(Div):
           Renders as an HTML <div> element.
     """
     pass
-
-
-@deprecated('Please use reahl.web.layout:PageLayout instead.', '3.1')
-class YuiDoc(Div):
-    """A Yui 2 #doc div: the container of the #hd, #bd and #ft (see http://developer.yahoo.com/yui/grids/#start)"""
-    def __init__(self, view, doc_id, doc_class, css_id=None):
-        super(YuiDoc, self).__init__(view, css_id=css_id)
-        YuiGridsCss.check_enabled(self)
-        self.set_id(doc_id)
-        self.append_class(doc_class)
-        self.hd = YuiGrid(view)   #:
-        self.hd.set_id('hd')
-        self.header = self.hd.add_child(Header(view))
-
-        self.bd = Div(view)    #:
-        self.bd.set_id('bd')
-        self.bd.set_attribute('role', 'main')
-        yui_main_wrapper  = self.bd.add_child(Div(view))
-        self.secondary_block = self.bd.add_child(YuiBlock(view))    #: the secondary div (see Yui 2 template presents)
-        yui_main_wrapper.set_id('yui-main')
-        self.main_block = yui_main_wrapper.add_child(YuiBlock(view)) #: the #yui-main div (see Yui 2 template presents)
-
-        self.ft = Div(view)    #:
-        self.ft.set_id('ft')
-        self.footer = self.ft.add_child(Footer(view))
-
-        self.add_children([self.hd, self.bd, self.ft])
-
-
-class YuiElement(Div):
-    yui_class = None
-    
-    def __init__(self, view, css_id=None):
-        YuiGridsCss.check_enabled(self)
-        super (YuiElement, self).__init__(view, css_id=css_id)
-
-
-    @property
-    def attributes(self):
-        attributes = super(YuiElement, self).attributes
-        attributes.add_to('class', [self.yui_class])
-        return attributes
-
-
-@deprecated('Please use reahl.web.pure:ColumnLayout instead.', '3.1')
-class YuiBlock(YuiElement):
-    """A Yui 2 block: see http://developer.yahoo.com/yui/grids/#start """
-    yui_class = 'yui-b'
-
-
-@deprecated('Please use reahl.web.pure:ColumnLayout instead.', '3.1')
-class YuiGrid(YuiElement):
-    """A Yui 2 grid: see http://developer.yahoo.com/yui/grids/#start """
-    yui_class = 'yui-g'
-
-
-@deprecated('Please use reahl.web.pure:ColumnLayout instead.', '3.1')
-class YuiUnit(YuiElement):
-    """A Yui 2 unit: see http://developer.yahoo.com/yui/grids/#start 
-    
-       :param view: (See :class:`reahl.web.fw.Widget`)
-       :param first: Pass True for the first YuiUnit in a YuiGrid
-    """
-    yui_class = 'yui-u'
-    def __init__(self, view, first=False):
-        super(YuiUnit, self).__init__(view)
-        self.first = first
-
-    @property
-    def attributes(self):
-        attributes = super(YuiUnit, self).attributes
-        if self.first:
-            attributes.add_to('class', ['first'])
-        return attributes
 
 
 class Span(HTMLElement):

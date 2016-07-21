@@ -460,5 +460,19 @@ def body(fixture):
     vassert( rendered_html == '<body><p></p></body>' )
 
 
+@test(WebFixture)
+def html5_page(fixture):
+    """An HTML5Page is an empty HTML 5 document using the header and body widgets."""
+    widget = HTML5Page(fixture.view, title='It: $current_title')
+    widget.add_default_slot('slot1', P.factory())
+    tester = WidgetTester(widget)
+    
+    rendered_html = tester.render_html()
+    head = '<head><title>It: %s</title></head>' % fixture.view.title
+    expected_regex = '<!DOCTYPE html><html class="no-js"><script>.*</script>%s<body></body></html>' % head
+    vassert( re.match(expected_regex, rendered_html.replace('\n', '')) )
+    
+    vassert( list(widget.default_slot_definitions.keys()) == ['slot1'] )
+
 
 

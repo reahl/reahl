@@ -58,9 +58,6 @@ class HTML5Page(reahl.web.ui.HTML5Page):
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
        
     """
-    def __init__(self, view, title='$current_title', css_id=None):
-        super(HTML5Page, self).__init__(view, title=title, css_id=css_id)
-
     def check_form_related_programmer_errors(self):
         super(HTML5Page, self).check_form_related_programmer_errors()
         self.check_grids_nesting()

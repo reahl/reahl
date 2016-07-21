@@ -5,9 +5,8 @@ from sqlalchemy import Column, UnicodeText, Integer
 from reahl.sqlalchemysupport import Session, Base
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import Form, FieldSet
-from reahl.web.attic.layout import LabelledBlockInput, Button
-from reahl.web.ui import HTML5Page, P, Div, TextInput
+from reahl.web.bootstrap.forms import Form, FieldSet, TextInput, FormLayout, ButtonInput
+from reahl.web.bootstrap.ui import HTML5Page, P, Div
 from reahl.component.modelinterface import exposed, EmailField, Field
 from reahl.component.modelinterface import Event, Action
 
@@ -19,7 +18,7 @@ class PersistenceUI(UserInterface):
 
 class HomePage(HTML5Page):
     def __init__(self, view):
-        super(HomePage, self).__init__(view, style='basic')
+        super(HomePage, self).__init__(view)
 
         self.body.add_child(CommentForm(view))
 
@@ -53,16 +52,18 @@ class CommentForm(Form):
 
         new_comment = Comment()
         grouped_inputs = FieldSet(view, legend_text='Leave a comment')
+        grouped_inputs.use_layout(FormLayout())
         self.add_child(grouped_inputs)
 
+
         email_input = TextInput(self, new_comment.fields.email_address)
-        grouped_inputs.add_child( LabelledBlockInput(email_input) )
+        grouped_inputs.layout.add_input( email_input )
 
         text_input = TextInput(self, new_comment.fields.text)
-        grouped_inputs.add_child( LabelledBlockInput(text_input) )
+        grouped_inputs.layout.add_input( text_input )
 
         self.define_event_handler(new_comment.events.submit)
-        grouped_inputs.add_child( Button(self, new_comment.events.submit) )
+        grouped_inputs.layout.add_input( ButtonInput(self, new_comment.events.submit) )
 
 
 class CommentBox(Div):

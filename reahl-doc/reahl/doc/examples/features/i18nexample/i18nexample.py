@@ -1,10 +1,9 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.web.fw import UserInterface, Url
-from reahl.web.ui import P, HTML5Page
-from reahl.web.attic.layout import HorizontalLayout
-from reahl.web.attic.menu import Menu
 from reahl.component.i18n import Translator
+from reahl.web.fw import UserInterface, Url
+from reahl.web.bootstrap.ui import P, HTML5Page
+from reahl.web.bootstrap.navs import Nav, PillLayout
 
 _ = Translator('reahl-doc')
 
@@ -17,9 +16,9 @@ class TranslatedUI(UserInterface):
 
 class HomePage(HTML5Page):
     def __init__(self, view):
-        super(HomePage, self).__init__(view, style='basic')
+        super(HomePage, self).__init__(view)
 
-        menu = Menu(self.view).use_layout(HorizontalLayout()).with_languages()
+        menu = Nav(self.view).use_layout(PillLayout(stacked=True)).with_languages()
         self.body.add_child(menu)
 
         current_url = Url.get_current_url()

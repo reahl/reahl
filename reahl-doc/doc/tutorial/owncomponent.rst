@@ -84,7 +84,7 @@ config settings for your component are also defined here.
 The configuration class itself inherits from :class:`~reahl.component.config.Configuration` (in
 `reahl.component.config`). Here is AddressConfig:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/componentconfig/componentconfig.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/componentconfigbootstrap/componentconfigbootstrap.py
    :pyobject: AddressConfig
 
 As you can see, `filename` and `config_key` respectively specify the
@@ -113,7 +113,7 @@ on this global config for each `config_key` of each :class:`~reahl.component.con
 read, so that reading the config looks pretty much similar to setting
 it. See how it is done in this example:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/componentconfig/componentconfig.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/componentconfigbootstrap/componentconfigbootstrap.py
    :pyobject: AddressBookPanel
 
 .. _database-schema-evolution:
@@ -170,7 +170,7 @@ with a database schema that does not include `added_date` at first. A
 new schema will be needed when the actual `added_date` is uncommented,
 without the need for other code changes:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexample/migrationexample.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/migrationexamplebootstrap.py
    :pyobject: Address
 
 Migration basics
@@ -230,7 +230,7 @@ Before an explanation of that, here is the
 :class:`~reahl.component.migration.Migration` for adding our
 `added_date` column:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexample/migrationexample.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/migrationexamplebootstrap/migrationexamplebootstrap.py
    :pyobject: AddDate
 
 The code doing the changes to the schema is written in terms of
@@ -364,7 +364,7 @@ True. Address also has a class method, `.clear_added_flags()` which
 sets all flags back to False. If this method is run once every day,
 the flag would be True on newly added Addresses only.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/jobs/jobs.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/jobsbootstrap/jobsbootstrap.py
    :pyobject: Address
 
 To register this job with the Reahl component infrastructure, add a

@@ -87,26 +87,6 @@ class LibraryIndex(object):
     def __iter__(self):
         return iter(self.libraries_by_name.values())
         
-    def use_deprecated_yui(self):
-        """A convenience method for modifying the standard LibraryIndex to
-        switch on the deprecated yuigridscss Library.
-        """
-        if 'pure' in self:
-            del self.libraries_by_name['pure']
-        if 'yuigridscss' not in self:
-            self.add(YuiGridsCss())
-
-    def enable_experimental_bootstrap(self):
-        """A convenience method for modifying the standard LibraryIndex to
-        switch on experimental Bootstrap Library and its
-        dependencies.
-        """
-        if 'pure' in self:
-            del self.libraries_by_name['pure']
-        self.add(Tether())
-        self.add(Bootstrap4())
-        self.add(ReahlBootstrap4Additions())
-        
 
 class Library(object):
     """A frontend-library: a collection of CSS and JavaScript code that can be used with Reahl.
@@ -235,48 +215,6 @@ class JQueryUI(Library):
 
 
 
-class Pure(Library):
-    """Version 0.5.0 of `Pure UI <http://purecss.io>`_.
-    
-    .. warning:: This Library will be removed in future versions as part of our intended move to Bootstrap.
-    """
-    def __init__(self):
-        super(Pure, self).__init__('pure')
-        self.shipped_in_directory = '/reahl/web/static/pure-release-0.5.0'
-        self.files = ['base.css', 'grids.css', 'grids-responsive.css']
-
-
-class YuiGridsCss(Library):
-    """A customised version of `Yui Grids CSS <http://yuilibrary.com/yui/docs/cssgrids/>`_.
-
-    .. deprecated:: 3.1
-
-    .. warning:: 
-
-       This Library is not enabled by default. It is currently still
-       here to provide backwards compatibility. Note that it will be
-       removed in future versions as part of our intended move to
-       Bootstrap.
-
-    """
-    @classmethod
-    def is_enabled(cls):
-        frontend_libraries = ExecutionContext.get_context().config.web.frontend_libraries
-        return 'yuigridscss' in frontend_libraries
-
-    @classmethod
-    def check_enabled(cls, calling_object):
-        if not cls.is_enabled():
-            raise ProgrammerError('YuiGridsCss not enabled in current configuration. For %s to work, add the line: \n'\
-                                  '"web.frontend_libraries.use_deprecated_yui()"\n in your web.config.py'\
-                                   % calling_object.__class__.__name__)
-
-    def __init__(self):
-        super(YuiGridsCss, self).__init__('yuigridscss')
-        self.shipped_in_directory = '/reahl/web/static'
-        self.files = ['reset-fonts-grids.css']
-
-
 class HTML5Shiv(Library):
     """Version 3.6.3 of `html5shiv <https://github.com/aFarkas/html5shiv>`_.
     
@@ -320,10 +258,7 @@ class Reahl(Library):
         self.files = ['reahl.hashchange.js',
                       'reahl.ajaxlink.js',
                       'reahl.textinput.js',
-                      'reahl.form.js',
                       'reahl.validate.js',
-                      'reahl.modaldialog.js',
-                      'basic.css',
                       'reahl.css',
                       'reahl.runningonbadge.css',
                       'runningon.png'
