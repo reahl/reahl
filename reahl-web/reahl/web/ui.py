@@ -852,17 +852,6 @@ class Img(HTMLElement):
             self.set_attribute('alt', alt)
 
 
-@deprecated('Please use reahl.web.ui:Div instead', '3.2')
-class Panel(Div):
-    """A logical container for other Widgets.
-
-       .. admonition:: Styling
-       
-          Renders as an HTML <div> element.
-    """
-    pass
-
-
 class Span(HTMLElement):
     """A logical grouping of other HTMLElements which fits in with text flow.
 
@@ -1332,7 +1321,6 @@ class WrappedInput(Input):
 
 class PrimitiveInput(Input):
     is_for_file = False
-    append_error = True
     registers_with_form = True
     add_default_attribute_source = True
     
@@ -1351,22 +1339,12 @@ class PrimitiveInput(Input):
             html_widget = self.create_html_input()
         self.set_html_representation(self.add_child(html_widget or self.create_html_widget()))
 
-        if self.append_error and (self.get_input_status() == 'invalidly_entered'):
-            label = Label(self.view, text=self.validation_error.message, for_input=self)
-            label.append_class('error')
-            self.add_child(label)
-
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
 
     @property
     def html_control(self):
         return self.html_representation
-
-    @deprecated('Please override create_html_widget() instead', '3.2')
-    def create_html_input(self):
-        """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user."""
-        pass
 
     def create_html_widget(self):
         """Override this in subclasses to create the HTMLElement that represents this Input in HTML to the user.
@@ -1879,46 +1857,6 @@ class Label(HTMLElement):
         return attributes
 
 
-@deprecated('Please use Label(for_input=) instead.', '3.2')
-class InputLabel(Label):
-    """A label for the Input given in `html_input`.
-
-       .. admonition:: Styling
-
-          Rendered as an HTML <label> element.
-
-       :param html_input: The :class:`~reahl.web.ui.Input` labelled by this Label.
-       :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
-
-    """
-    def __init__(self, html_input, text=None, css_id=None):
-        super(InputLabel, self).__init__(html_input.view, text=text, for_input=html_input, css_id=css_id)
-
-
-@deprecated('Please use Label() instead, and add css class error', '3.2')
-class ErrorLabel(Label):
-    def __init__(self, html_input, text=None, css_id=None):
-        super(ErrorLabel, self).__init__(html_input.view, text=text, for_input=html_input, css_id=css_id)
-    """If an :class:`~reahl.web.ui.Input` fails validation, an ErrorLabel is automatically rendered after it containing
-       the specific validation error message.
-
-       .. admonition:: Styling
-
-          Rendered as an HTML <label class="error"> element.
-
-       :param html_input: The :class:`~reahl.web.ui.Input` labelled by this Label.
-       :keyword text: If given, used as the text for the label rather than the default value (`html_input.label`).
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
-
-    """
-    @property
-    def attributes(self):
-        attributes = super(ErrorLabel, self).attributes
-        attributes.add_to('class', ['error'])
-        return attributes
-
-
 class ActiveStateAttributes(DelegatedAttributes):
     def __init__(self, widget, active_class='active', inactive_class=None):
         super(ActiveStateAttributes, self).__init__()
@@ -2209,25 +2147,6 @@ class Table(HTMLElement):
             self.add_child(Caption(view, text=caption_text))
         if summary:
             self.set_attribute('summary', '%s' % summary)
-
-    @deprecated('Please use with_data instead.', '3.2')
-    @classmethod
-    def from_columns(cls, view, columns, items, caption_text=None, summary=None, css_id=None):
-        """Creates a table populated with rows, columns, header and footer, with one row per provided item. The table is
-           defined by the list of :class:`DynamicColumn` or :class:`StaticColumn` instances passed in.  
-
-           :param view: (See :class:`reahl.web.fw.Widget`)
-           :param columns: The :class:`DynamicColumn` instances that define the contents of the table.
-           :param items: A list containing objects represented in each row of the table.
-           :keyword caption_text: If given, a :class:`reahl.web.ui.Caption` is added with this text.
-           :keyword summary: If given, a `summary` attribute is added to the table containing this text.
-           :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
-           
-        """
-        table = cls(view, caption_text=caption_text, summary=summary, css_id=css_id)
-        table.create_header_columns(columns)
-        table.create_rows(columns, items)
-        return table
 
     def with_data(self, columns, items):
         """Populate the table with the given data. Data is arranged into columns as

@@ -466,12 +466,6 @@ class XPath(object):
         """Returns an XPath to find an HTML <input> with type attribute `input_type`."""
         return '//input[@type="%s"]' % input_type
 
-    @deprecated('Please use fieldset_with_legend() instead.', '3.2')
-    @classmethod
-    def inputgroup_labelled(cls, label):
-        """Returns an XPath to find an InputGroup with label text `label`."""
-        return cls('//fieldset[label[normalize-space(node())=normalize-space("%s")]]' % label)
-
     @classmethod
     def fieldset_with_legend(cls, legend_text):
         """Returns an XPath to find a FieldSet with the given `legend_text`.

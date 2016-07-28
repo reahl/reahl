@@ -83,25 +83,6 @@ class Menu(HTMLWidget):
                           DeprecationWarning, stacklevel=2)
             self.with_a_list(a_list)
 
-    @classmethod
-    @deprecated('Please use :meth:`with_languages` instead on an already created instance.', '3.2')
-    def from_languages(cls, view):
-        """Constructs a Menu which contains a MenuItem for each locale supported by all the components
-           in this application.
-
-           :param view: (See :class:`reahl.web.fw.Widget`)
-        """
-        menu = cls(view)
-        return menu.with_languages()
-
-    @classmethod
-    @deprecated('Please use :meth:`with_bookmarks` instead on an already created instance.', '3.2')
-    def from_bookmarks(cls, view, bookmark_list):
-        """Creates a Menu with a MenuItem for each Bookmark given in `bookmark_list`."""
-        menu = cls(view)
-        return menu.with_bookmarks(bookmark_list)
-
-
     def create_html_representation(self):
         ul = self.add_child(Ul(self.view))
         self.set_html_representation(ul)

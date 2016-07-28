@@ -46,10 +46,10 @@ from reahl.doc.examples.features.persistence.persistence import PersistenceUI
 from reahl.doc.examples.features.access.access import AccessUI
 from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
 
-from reahl.doc.examples.features.fileupload.fileupload import FileUploadUI, AttachedFile
+from reahl.doc.examples.web.fileupload.fileupload import FileUploadUI, AttachedFile
 
-from reahl.doc.examples.features.basichtmlwidgets.basichtmlwidgets import BasicHTMLWidgetsUI
-from reahl.doc.examples.features.basichtmlinputs.basichtmlinputs import BasicHTMLInputsUI
+from reahl.doc.examples.web.basichtmlwidgets.basichtmlwidgets import BasicHTMLWidgetsUI
+from reahl.doc.examples.web.basichtmlinputs.basichtmlinputs import BasicHTMLInputsUI
 
 from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
@@ -158,7 +158,6 @@ class ExampleFixture(ExampleBasicFixture):
     @scenario
     def fileupload(self):
         self.wsgi_app = self.new_wsgi_app(site_root=FileUploadUI, enable_js=True)
-#        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadUI, enable_js=False)
 
     @scenario
     def slots(self):

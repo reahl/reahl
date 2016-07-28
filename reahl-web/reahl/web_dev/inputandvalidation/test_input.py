@@ -24,7 +24,7 @@ from reahl.tofu import scenario, test, vassert, expected
 from reahl.stubble import EmptyStub
 from reahl.component.py3compat import html_escape
 
-from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, InputLabel, ButtonInput,\
+from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
                           PasswordInput, TextArea, SelectInput, RadioButtonInput
 
 from reahl.component.modelinterface import Field, EmailField, BooleanField, Event, Allowed, exposed, \
@@ -163,15 +163,6 @@ class Scenarios(WebFixture, InputMixin):
     def text_input_placeholder_specified(self):
         self.widget = TextInput(self.form, self.field, placeholder="some text")
         self.expected_html = r'<input name="an_attribute" form="test" placeholder="some text" type="text" value="field value" class="reahl-textinput">'
-        self.field_controls_visibility = True
-
-    @scenario
-    def input_label_deprecated_interface(self):
-        html_input = TextInput(self.form, self.field)
-        with warnings.catch_warnings(record=True):
-            warnings.simplefilter('always')
-            self.widget = InputLabel(html_input)
-        self.expected_html = r'<label for="%s">the label</label>' % html_input.css_id
         self.field_controls_visibility = True
 
     @scenario

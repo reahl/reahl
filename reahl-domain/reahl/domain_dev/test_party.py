@@ -528,22 +528,4 @@ class LoginSessionTests(object):
         vassert( not login_session.is_logged_in() )
         vassert( not login_session.is_logged_in(secured=True) )
 
-    @test(WebLoginFixture)
-    def backwards_compatibility(self, fixture):
-        """"""
-        
-        user_session = fixture.context.session
-        login_session = LoginSession.for_session(fixture.context.session)
-        system_account = fixture.system_account
-        config = fixture.context.config
-        context = fixture.context
-        fixture.request.scheme = 'https'
-        context.request.cookies[context.config.web.secure_key_name] = user_session.secure_salt
-        vassert( config.web.idle_secure_lifetime < config.web.idle_lifetime )
-        vassert( config.web.idle_lifetime < config.web.idle_lifetime_max )
-        login_session.set_as_logged_in(system_account, False)
-
-        # Case: user logs in
-        vassert( user_session.is_logged_in() )
-        vassert( user_session.is_secure() )
 

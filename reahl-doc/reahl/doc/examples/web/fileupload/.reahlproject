@@ -13,8 +13,8 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.doc.examples.features.fileupload.fileupload:Comment"/>
-    <class locator="reahl.doc.examples.features.fileupload.fileupload:AttachedFile"/>
+    <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
+    <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
   </persisted>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=fileupload_dev/ -t -i '.*'"/>
