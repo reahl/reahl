@@ -106,7 +106,7 @@ class Tab(object):
     One Tab in a :class:`TabbedPanel`, including the contents that should be displayed for it.
 
     :param view: (See :class:`reahl.web.fw.Widget`)
-    :param title: The label Text that is displayed inside the Tab itself.
+    :param title: The label Text that is displayed inside the Tab itself.                          Equ
     :param tab_key: A name for this tag identifying it uniquely amongst other Tabs in the same :class:`TabbedPanel`.
     :param contents_factory: A :class:`reahl.web.fw.WidgetFactory` specifying how to create the contents of this Tab, once selected.
     """

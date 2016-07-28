@@ -259,6 +259,7 @@ class Reahl(Library):
                       'reahl.ajaxlink.js',
                       'reahl.textinput.js',
                       'reahl.validate.js',
+                      'reahl.form.js',
                       'reahl.css',
                       'reahl.runningonbadge.css',
                       'runningon.png'

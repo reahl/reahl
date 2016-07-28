@@ -23,7 +23,7 @@ from reahl.tofu import vassert, scenario, expected, test
 
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.bootstrap.ui import Alert, HTML5Page
+from reahl.web.bootstrap.ui import Alert
 
 
 

@@ -25,8 +25,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import WidgetTester, XPath
 
 from reahl.web.fw import Url
-from reahl.web.ui import P
-
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.tabbedpanel import TabbedPanel, MultiTab, Tab
 
 

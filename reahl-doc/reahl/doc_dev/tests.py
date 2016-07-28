@@ -38,7 +38,7 @@ from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
 from reahl.doc.examples.tutorial.slotsbootstrap.slotsbootstrap import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
-from reahl.doc.examples.features.slidingpanel.slidingpanel import SlidingPanelUI
+from reahl.doc.examples.features.carousel.carousel import CarouselUI
 from reahl.doc.examples.features.validation.validation import ValidationUI
 from reahl.doc.examples.features.layout.layout import LayoutUI
 from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
@@ -74,19 +74,19 @@ class ExampleBasicFixture(Fixture, WebBasicsMixin):
         return os.path.join(os.getcwd(), self.screenshot_directory, filename)
 
     def tab_is_active(self, tab_name):
-        return self.driver_browser.execute_script('return window.jQuery("a:contains(\'%s\')").parent().hasClass("active")' % tab_name)
+        return self.driver_browser.execute_script('return window.jQuery("a:contains(\'%s\')").hasClass("active")' % tab_name)
 
     def tab_contents_equals(self, expected_contents):
-        return self.driver_browser.execute_script('return window.jQuery("div.reahl-tabbedpanel div p").html() == "%s"' % expected_contents)
+        return self.driver_browser.execute_script('return window.jQuery("div.tab-content div.active p").html() == "%s"' % expected_contents)
 
-    def sliding_contents_equals(self, expected_contents):
-        return self.driver_browser.execute_script('return window.jQuery("div.contained:visible p").html() == "%s"' % expected_contents)
+    def carousel_caption_equals(self, expected_contents):
+        return self.driver_browser.execute_script('return window.jQuery("div.carousel-caption:visible p").html() == "%s"' % expected_contents)
 
     def error_is_visible(self):
-        return self.driver_browser.execute_script('return window.jQuery(".reahl-form label.error").is(":visible")')
+        return self.driver_browser.execute_script('return window.jQuery(".reahl-form span.has-danger").is(":visible")')
 
     def is_error_text(self, text):
-        return text == self.driver_browser.get_text("//form/label[@class='error']")
+        return text == self.driver_browser.get_text("//form//span[contains(@class,'has-danger')]")
 
     def get_text_in_p(self):
         return self.driver_browser.get_text('//p')
@@ -120,8 +120,8 @@ class ExampleFixture(ExampleBasicFixture):
         self.wsgi_app = self.new_wsgi_app(site_root=TabbedPanelUI, enable_js=True)
 
     @scenario
-    def sliding_panel(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=SlidingPanelUI, enable_js=True)
+    def carousel_panel(self):
+        self.wsgi_app = self.new_wsgi_app(site_root=CarouselUI, enable_js=True)
 
     @scenario
     def validation(self):
@@ -216,13 +216,13 @@ def widgets_using_factories(fixture):
     vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'And another ...  to give content to the second tab.') )
     fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
 
-@test(ExampleFixture.sliding_panel)
+@test(ExampleFixture.carousel_panel)
 def widgets(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/')
-    vassert( fixture.driver_browser.wait_for(fixture.sliding_contents_equals, 'a paragraph with text') )
-    fixture.driver_browser.click(XPath.link_with_text('>'))
-    vassert( fixture.driver_browser.wait_for(fixture.sliding_contents_equals, 'a different paragraph') )
+    vassert( fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a paragraph with text') )
+    fixture.driver_browser.click(XPath.link_with_text('Next'))
+    vassert( fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a different paragraph') )
 
 
 @test(ExampleFixture.validation)
@@ -454,7 +454,7 @@ def test_pageflow1(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
-    vassert( browser.is_element_present('//ul[contains(@class,"reahl-menu")]') )
+    vassert( browser.is_element_present('//ul[contains(@class,"nav")]') )
 
     browser.click(XPath.link_with_text('Add an address'))
     vassert( browser.location_path == '/add' )
@@ -475,7 +475,7 @@ def test_pageflow2(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
-    vassert( browser.is_element_present('//ul[contains(@class,"reahl-menu")]') )
+    vassert( browser.is_element_present('//ul[contains(@class,"nav")]') )
 
     browser.click(XPath.link_with_text('Add an address'))
     vassert( browser.location_path == '/add' )

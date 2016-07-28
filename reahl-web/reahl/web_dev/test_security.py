@@ -28,11 +28,9 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
 from reahl.web.fw import Widget, UserInterface
-from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import Div, P, HTML5Page
-from reahl.web.bootstrap.forms import Form, TextInput, ButtonInput
-from reahl.web.bootstrap.grid import ColumnLayout
-
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import Div, P, HTML5Page
+from reahl.web.ui import Form, TextInput, ButtonInput
 
     
 @istest

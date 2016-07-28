@@ -897,6 +897,8 @@ class Form(HTMLElement):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: A name for this form, unique in the UserInterface where it is used.
        
+       .. versionchanged: 4.0
+          Added create_error_label.
     """
     is_Form = True
     def __init__(self, view, unique_name, rendered_form=None):
@@ -1007,7 +1009,13 @@ class Form(HTMLElement):
     def persisted_file_class(self):
         config = WebExecutionContext.get_context().config
         return config.web.persisted_file_class
-        
+
+    def create_error_label(self, input_widget):
+        """Creates a label containing the current validation error message for the given Input."""
+        label = Label(self.view, text=input_widget.validation_error.message, for_input=input_widget)
+        label.append_class('error')
+        return label
+
     @property 
     def exception(self):
         """The :class:`reahl.component.exceptions.DomainException` which occurred, if any."""
@@ -1259,6 +1267,9 @@ class Input(HTMLWidget):
        :param form: The :class:`Form` with which this Input is associated.
        :param bound_field: The :class:`reahl.component.modelinterface.Field` which validates and marshalls user
                      input given via this Input.
+
+       .. versionchanged:: 4.0
+          Made .validation_error part of the public API of Input.
     """
     is_Input = True
 
@@ -1270,10 +1281,6 @@ class Input(HTMLWidget):
 
     def can_write(self):
         return (not self.write_check) or self.write_check()
-
-    @property
-    def validation_error(self):
-        return self.bound_field.validation_error
 
     @property
     def label(self):
@@ -1291,6 +1298,11 @@ class Input(HTMLWidget):
 
     def get_input_status(self):
         return self.bound_field.input_status
+
+    @property
+    def validation_error(self):
+        """The failing ValidationConstraint if the current value entered into this Input is invalid, else None."""
+        return self.bound_field.validation_error
 
     @property
     def includes_label(self):

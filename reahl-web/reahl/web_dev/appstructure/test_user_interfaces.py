@@ -27,10 +27,9 @@ from reahl.stubble import stubclass
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath
-from reahl.web.fw import Region, UrlBoundView
-from reahl.web.bootstrap.ui import HTML5Page, P, A, Div, Slot
-from reahl.web.bootstrap.grid import ColumnLayout
+from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath, Region, UrlBoundView
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page, P, A, Div, Slot
 
 
 @istest

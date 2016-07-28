@@ -22,14 +22,13 @@ import threading
 
 from reahl.tofu import vassert, scenario, expected, test, Fixture, temp_file_with
 
-from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin
+from reahl.webdev.tools import XPath
 
 from reahl.sqlalchemysupport import Session
 from reahl.webdeclarative.webdeclarative import PersistedFile
 from reahl.component.modelinterface import exposed, Event, FileField, Action, ValidationConstraint
 from reahl.component.exceptions import DomainException
-
 from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel, Button, FormLayout, FileInput, FileInputButton
 

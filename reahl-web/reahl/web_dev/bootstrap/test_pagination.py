@@ -20,14 +20,10 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 from reahl.stubble import stubclass
 from nose.tools import istest
-from reahl.tofu import Fixture
-from reahl.tofu import scenario
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import Fixture, scenario, test, vassert
 
 from reahl.webdev.tools import XPath
-from reahl.web.ui import P
-from reahl.web.ui import Div
+from reahl.web.bootstrap.ui import P, Div
 from reahl.web.bootstrap.pagination import PageMenu, PagedPanel, PageIndex, SequentialPageIndex, AnnualItemOrganiserProtocol, AnnualPageIndex
 from reahl.web_dev.fixtures import WebBasicsMixin
 
@@ -114,21 +110,21 @@ class PageMenuTests(object):
         fixture.driver_browser.open('/')
 
         # Case: next link
-        fixture.driver_browser.click(XPath.link_with_text('»'))
+        fixture.driver_browser.click(XPath.link_starting_with_text('»'))
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10') )
-        fixture.driver_browser.click(XPath.link_with_text('»'))
+        fixture.driver_browser.click(XPath.link_starting_with_text('»'))
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p11,p12,p13,p14,p15') )
 
         # Case: prev link
-        fixture.driver_browser.click(XPath.link_with_text('«'))
+        fixture.driver_browser.click(XPath.link_starting_with_text('«'))
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10') )
 
         # Case: last link
-        fixture.driver_browser.click(XPath.link_with_text('→'))
+        fixture.driver_browser.click(XPath.link_starting_with_text('→'))
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p26,p27,p28,p29,p30') )
 
         # Case: first link
-        fixture.driver_browser.click(XPath.link_with_text('←'))
+        fixture.driver_browser.click(XPath.link_starting_with_text('←'))
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, 'p1,p2,p3,p4,p5') )
 
     @test(PageMenuFixture)
@@ -141,7 +137,7 @@ class PageMenuTests(object):
 
         fixture.driver_browser.click(XPath.link_with_text('p2'))
         fixture.driver_browser.wait_for(fixture.container_contents_is, 'contents of page 2')
-        fixture.driver_browser.click(XPath.link_with_text('»'))
+        fixture.driver_browser.click(XPath.link_starting_with_text('»'))
         fixture.driver_browser.wait_for(fixture.container_contents_is, 'contents of page 2')
 
     @test(PageMenuFixture)
@@ -189,26 +185,26 @@ class PageMenuTests(object):
         fixture.driver_browser.open('/')
 
         # Case: when you are on the left of the page range        
-        vassert( not fixture.driver_browser.is_active(XPath.link_with_text('←')) )
-        vassert( not fixture.driver_browser.is_active(XPath.link_with_text('«')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text('»')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text('→')) )
+        vassert( not fixture.driver_browser.is_active(XPath.link_starting_with_text('←')) )
+        vassert( not fixture.driver_browser.is_active(XPath.link_starting_with_text('«')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('»')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('→')) )
 
         # Case: when you are in the middle of the page range        
-        fixture.driver_browser.click(XPath.link_with_text('»'))
+        fixture.driver_browser.click(XPath.link_starting_with_text('»'))
         fixture.driver_browser.wait_for_element_present(XPath.link_with_text('p6'))
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text('←')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text('«')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text('»')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text('→')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('←')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('«')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('»')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('→')) )
         
         # Case: when you are at the end of the page range        
-        fixture.driver_browser.click(XPath.link_with_text('»'))
+        fixture.driver_browser.click(XPath.link_starting_with_text('»'))
         fixture.driver_browser.wait_for_element_present(XPath.link_with_text('p11'))
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text('←')) )
-        vassert( fixture.driver_browser.is_active(XPath.link_with_text('«')) )
-        vassert( not fixture.driver_browser.is_active(XPath.link_with_text('»')) )
-        vassert( not fixture.driver_browser.is_active(XPath.link_with_text('→')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('←')) )
+        vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('«')) )
+        vassert( not fixture.driver_browser.is_active(XPath.link_starting_with_text('»')) )
+        vassert( not fixture.driver_browser.is_active(XPath.link_starting_with_text('→')) )
 
     class LinkScenarios(PageMenuFixture):
         @scenario
@@ -261,7 +257,7 @@ class PageMenuTests(object):
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, fixture.visible_page_descriptions) )
 
         if fixture.goto_last_range:
-            fixture.driver_browser.click(XPath.link_with_text('→'))
+            fixture.driver_browser.click(XPath.link_starting_with_text('→'))
 
         vassert( fixture.driver_browser.wait_for(fixture.page_range_links_match, fixture.visible_last_page_descriptions) )
 
