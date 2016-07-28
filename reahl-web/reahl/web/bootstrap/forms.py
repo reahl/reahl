@@ -80,7 +80,6 @@ class TextInput(reahl.web.ui.TextInput):
                      is empty in order to provide a hint to the user of what may be entered into the TextInput. 
                      If given True instead of a string, the label of the TextInput is used.
     """
-    append_error = False
     add_default_attribute_source = False
     def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
         super(TextInput, self).__init__(form, bound_field, fuzzy=fuzzy, placeholder=placeholder)
@@ -105,7 +104,6 @@ class PasswordInput(reahl.web.ui.PasswordInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
-    append_error = False
     add_default_attribute_source = False
     def __init__(self, form, bound_field):
         super(PasswordInput, self).__init__(form, bound_field)
@@ -120,7 +118,6 @@ class TextArea(reahl.web.ui.TextArea):
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
     """
-    append_error = False
     add_default_attribute_source = False
     def __init__(self, form, bound_field, rows=None, columns=None):
         super(TextArea, self).__init__(form, bound_field, rows=rows, columns=rows)
@@ -134,7 +131,6 @@ class SelectInput(reahl.web.ui.SelectInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
-    append_error = False
     add_default_attribute_source = False
     def __init__(self, form, bound_field):
         super(SelectInput, self).__init__(form, bound_field)
@@ -147,7 +143,6 @@ class PrimitiveCheckboxInput(reahl.web.ui.CheckboxInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
-    append_error = False
     add_default_attribute_source = False
 
 
@@ -174,7 +169,6 @@ class CheckboxInput(WrappedInput):
         
 
 class PrimitiveRadioButtonInput(reahl.web.ui.SingleRadioButton):
-    append_error = False
     add_default_attribute_source = False
 
     def create_html_widget(self):
@@ -188,7 +182,6 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
-    append_error = False
     add_default_attribute_source = False
     def __init__(self, form, bound_field, button_layout=None):
         self.button_layout = button_layout or ChoicesLayout()
@@ -215,7 +208,6 @@ class ButtonInput(reahl.web.ui.ButtonInput):
        :param event: The :class:`~reahl.web.component.modelinterface.Event` that will fire when the user clicks on this ButtonInput.
        :keyword css_id: (See :class:`HTMLElement`)
     """
-    append_error = False
     add_default_attribute_source = False
     def __init__(self, form, event):
         super(ButtonInput, self).__init__(form, event)
@@ -340,6 +332,7 @@ class ChoicesLayout(reahl.web.fw.Layout):
             wrapper = outer_div
 
         label_widget.add_child(html_input)
+        label_widget.add_child(TextNode(self.view, ' '))
         label_widget.add_child(TextNode(self.view, html_input.label))
 
         self.widget.add_child(wrapper)

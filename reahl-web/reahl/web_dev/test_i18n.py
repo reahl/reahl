@@ -30,24 +30,6 @@ from reahl.web.ui import HTML5Page
 from reahl.webdev.tools import Browser, WidgetTester
 
 
-class XXFixture(Fixture, WebBasicsMixin):
-    def new_view(self):
-        current_path = Url(ExecutionContext.get_context().request.url).path
-        view = UrlBoundView(None, current_path, 'Harness view', {})
-        return view
-
-@istest
-class XXTests(object):
-    @test(XXFixture)
-    def test(self, fixture):
-        from reahl.web.ui import P
-
-        p = P(fixture.view)
-        tester = WidgetTester(p)
-        rendered_html = tester.render_html()
-        vassert( rendered_html == '<p></p>' )
-
-    
 @test(WebFixture)
 def i18n_urls(fixture):
     """The current locale is determined by reading the first segment of the path. If the locale is not present in the

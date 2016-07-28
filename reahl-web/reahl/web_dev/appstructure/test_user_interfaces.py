@@ -27,7 +27,7 @@ from reahl.stubble import stubclass
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath, Region, UrlBoundView
+from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath, UrlBoundView
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, P, A, Div, Slot
 
@@ -58,33 +58,6 @@ class UserInterfaceTests(object):
 
         browser.open('/a_ui/other')
         vassert( browser.title == 'UserInterface other view' )
-
-    @test(WebFixture)
-    def backwards_compatibility(self, fixture):
-        """For backwards compatibility, there are aliases for new names:
-             
-             - UserInterface is Region
-             - .define_user_interface() is define_region()
-             - .define_page() is define_main_window()
-        """
-        class UIWithAView(UserInterface):
-            def assemble(self):
-                self.define_view('/aview', title='UserInterface view')
-
-        class MainUI(Region):
-            def assemble(self):
-                self.define_main_window(HTML5Page)
-                self.define_region('/a_ui',  UIWithAView,  {}, name='myui')
-
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
-
-        with warnings.catch_warnings(record=True) as caught_warnings:
-            warnings.simplefilter("always")
-            browser.open('/a_ui/aview')
-            vassert( browser.title == 'UserInterface view' )
-
-        vassert( caught_warnings )
 
     @test(WebFixture)
     def ui_slots_map_to_window(self, fixture):

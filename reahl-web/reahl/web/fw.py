@@ -532,10 +532,6 @@ class UserInterface(object):
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
 
-    @deprecated('Please use .define_page() instead.', '2.1')
-    def define_main_window(self, *args, **kwargs):
-        return self.define_page(*args, **kwargs)
-
     def page_slot_for(self, view, page, local_slot_name):
         if page.created_by is self.page_factory:
             return local_slot_name
@@ -676,10 +672,6 @@ class UserInterface(object):
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    @deprecated('Please use .define_user_interface() instead', '2.1')
-    def define_region(self, *args, **kwargs):
-        return self.define_user_interface(*args, **kwargs)
-
     def define_regex_user_interface(self, path_regex, path_template, ui_class, slot_map, name=None, **assemble_args):
         """Called from `assemble` to create a :class:`UserInterfaceFactory` for a parameterised :class:`UserInterface` that will 
            be created when an URL is requested that matches `path_regex`. See also `define_regex_view`.
@@ -696,10 +688,6 @@ class UserInterface(object):
         ui_factory = UserInterfaceFactory(self, regex_path, slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
-
-    @deprecated('Please use .define_regex_user_interface() instead', '2.1')
-    def define_regex_region(self, *args, **kwargs):
-        return self.define_regex_user_interface(*args, **kwargs)
 
     def get_user_interface_for_full_path(self, full_path):
         relative_path = self.get_relative_path_for(full_path)
@@ -766,12 +754,6 @@ class UserInterface(object):
 
     def view_for(self, relative_path, for_bookmark=False):
         return self.controller.view_for(relative_path, for_bookmark=for_bookmark)
-
-
-@deprecated('Region has been renamed to UserInterface, please use UserInterface instead', '2.1')
-class Region(UserInterface):
-    pass
-
 
 
 class StaticUI(UserInterface):
@@ -1021,24 +1003,6 @@ class Widget(object):
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
-
-    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
-    def _get_charset(self):
-        return self.encoding
-    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
-    def _set_charset(self, value):
-        self.encoding = value
-
-    charset = property(_get_charset, _set_charset)
-
-    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.', '3.1')
-    def _get_content_type(self):
-        return self.mime_type
-    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.', '3.1')
-    def _set_content_type(self, value):
-        self.mime_type = value
-
-    content_type = property(_get_content_type, _set_content_type)
 
         
     def use_layout(self, layout):
@@ -2771,11 +2735,6 @@ class ReahlWSGIApplication(object):
         new_context.set_request(request)
         new_context.set_system_control(self.system_control)
         return new_context.handle_wsgi_call(self, environ, start_response)
-
-
-@deprecated('ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead', '2.1')
-class ReahlWebApplication(ReahlWSGIApplication):
-    pass
 
 
 

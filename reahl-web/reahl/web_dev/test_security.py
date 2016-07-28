@@ -287,7 +287,9 @@ class SecurityTests(object):
                 super(TestPanel, self).__init__(view)
                 form = self.add_child(Form(view, 'some_form'))
                 form.define_event_handler(model_object.events.an_event)
-                form.add_child(ButtonInput(form, model_object.events.an_event))
+                button = form.add_child(ButtonInput(form, model_object.events.an_event))
+                if button.validation_error:
+                    form.add_child(form.create_error_label(button))
                 fixture.form = form
 
         wsgi_app = fixture.new_wsgi_app(child_factory=TestPanel.factory())
