@@ -36,7 +36,7 @@ class FieldFixture(Fixture, InputMixin):
     pass
 
 class ConstraintRenderingFixture(Fixture, WebBasicsMixin, InputMixin2):
-    def new_field(self, name='an_attribute', label='the label'):
+    def new_field(self, name='an_attribute', label='an attribute'):
         field = super(ConstraintRenderingFixture, self).new_field(label=label)
         field.bind(name, self.model_object)
         return field
@@ -123,7 +123,7 @@ class FieldTests(object):
         fixture.driver_browser.press_tab('//input')
         fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
         error_text = fixture.driver_browser.get_text("//form/label[@class='error']")
-        vassert( fixture.is_error_text('the label is invalid') )
+        vassert( fixture.is_error_text('an attribute is invalid') )
 
         # A passing value causes an ajax call resulting in clearing of any previous errors
         fixture.driver_browser.type('//input[@type="text"]', 'passing value')
@@ -135,7 +135,7 @@ class FieldTests(object):
         fixture.driver_browser.press_tab('//input')
         fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
         error_text = fixture.driver_browser.get_text("//form/label[@class='error']")
-        vassert( fixture.is_error_text('the label is invalid') )
+        vassert( fixture.is_error_text('an attribute is invalid') )
         
 
 @istest
@@ -254,8 +254,8 @@ class SpecificConstraintTests(object):
         class ModelObject(object):
             @exposed
             def fields(self, fields):
-                fields.an_attribute = Field(label='the label')
-                fields.other = Field(label='other label')
+                fields.an_attribute = Field(label='an attribute')
+                fields.other = Field(label='other attribute')
 
         model_object = ModelObject()
         other_field = model_object.fields.other
@@ -280,7 +280,7 @@ class SpecificConstraintTests(object):
         fixture.driver_browser.type('//input[@id="other"]', 'something')
         fixture.driver_browser.press_tab('//input[@id="one"]')
         fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-        vassert( fixture.is_error_text('the label, other label') )
+        vassert( fixture.is_error_text('an attribute, other attribute') )
 
         fixture.driver_browser.type('//input[@id="one"]', 'something')
         fixture.driver_browser.press_tab('//input[@id="one"]')

@@ -27,11 +27,12 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.web.fw import Bookmark, Url
-from reahl.web.ui import A, Div, P
-
+from reahl.web.bootstrap.ui import A, Div, P
 from reahl.web.bootstrap.navs import Menu, Nav, MenuItem, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 
+
 _ = Translator('reahl-web')
+
 
 @test(WebFixture)
 def navs(fixture):

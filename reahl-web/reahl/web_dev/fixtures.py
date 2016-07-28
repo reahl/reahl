@@ -34,9 +34,8 @@ from reahl.sqlalchemysupport import Session
 from reahl.component.i18n import Translator
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.web.fw import ReahlWSGIApplication, WebExecutionContext, UrlBoundView, UserInterface, Url, Widget
-from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page
-from reahl.web.bootstrap.grid import ColumnLayout
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page
 
 
 _ = Translator('reahl-webdev')

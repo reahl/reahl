@@ -21,7 +21,6 @@ import json
 
 from webob import Request
 
-from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario, NoException, vassert, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
@@ -35,10 +34,8 @@ from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
 from reahl.sqlalchemysupport import Session
 from reahl.web.fw import Url, UserInterface, ValidationException
-from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page, Div
-from reahl.web.bootstrap.forms import Form, TextInput, ButtonInput, NestedForm
-from reahl.web.bootstrap.grid import ColumnLayout
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm
 
 
 class FormFixture(Fixture, WebBasicsMixin):
@@ -525,7 +522,10 @@ def form_input_validation(fixture):
             super(MyForm, self).__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
             self.add_child(ButtonInput(self, model_object.events.an_event))
-            self.add_child(TextInput(self, model_object.fields.field_name))
+            text_input = self.add_child(TextInput(self, model_object.fields.field_name))
+            if text_input.validation_error:
+                self.add_child(self.create_error_label(text_input))
+
 
     class MainUI(UserInterface):
         def assemble(self):

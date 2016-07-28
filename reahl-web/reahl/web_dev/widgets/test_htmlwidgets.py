@@ -26,6 +26,7 @@ from reahl.web.ui import *
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
 
+
 @test(WebFixture)
 def basic_fixed_attributes(fixture):
     """How the static attributes of a Widget can be manipulated, queried and rendered."""

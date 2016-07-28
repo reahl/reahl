@@ -25,10 +25,8 @@ from reahl.webdev.tools import Browser, XPath
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.fixtures import WebFixture
 
-
 from reahl.component.modelinterface import Field, exposed, IntegerField
-from reahl.web.fw import Bookmark
-from reahl.web.fw import Widget
+from reahl.web.fw import Bookmark, Widget
 from reahl.web.ui import A, P, Form, TextInput, Div
 
 

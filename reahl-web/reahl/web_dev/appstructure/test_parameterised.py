@@ -29,10 +29,8 @@ from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import Field
 from reahl.web.fw import CannotCreate, IdentityDictionary, UrlBoundView, UserInterface, Region
-from reahl.web.bootstrap.ui import HTML5Page, P
-from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.grid import ColumnLayout
-
+from reahl.web.ui import HTML5Page, P
+from reahl.web.layout import PageLayout, ColumnLayout
 
 @istest
 class ParameterisedTests(object):

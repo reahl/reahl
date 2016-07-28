@@ -126,5 +126,5 @@ def standard_reahl_files(fixture):
     browser.open('/static/runningon.png')
     vassert( browser.last_response.content_length > 0 )
 
-    browser.open('/static/runningonbadge.css')
+    browser.open('/static/reahl.runningonbadge.css')
     vassert(browser.last_response.content_length > 0)

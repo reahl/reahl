@@ -30,10 +30,8 @@ from reahl.component.modelinterface import Event, Field, Action, exposed, Intege
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView
-from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import HTML5Page
-from reahl.web.bootstrap.forms import Form, ButtonInput
-from reahl.web.bootstrap.grid import ColumnLayout
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page, Form, ButtonInput, A
 
 
 class FormWithButton(Form):

@@ -18,22 +18,18 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-import re
-import io
-import pkg_resources
-
 
 from nose.tools import istest
-from reahl.tofu import Fixture, test, scenario
+from reahl.tofu import Fixture, test
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub, stubclass
 
-from reahl.component.exceptions import IncorrectArgumentError, IsInstance, ProgrammerError
-from reahl.component.eggs import ReahlEgg
-from reahl.web.fw import UrlBoundView, UserInterface, Widget, Layout
-from reahl.web.ui import Div, P, Slot
 from reahl.webdev.tools import WidgetTester, Browser
 from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
+
+from reahl.component.exceptions import IncorrectArgumentError, IsInstance
+from reahl.web.fw import UrlBoundView, UserInterface, Widget
+from reahl.web.ui import Div, P, Slot
 
 
 class WidgetFixture(Fixture, WebBasicsMixin):

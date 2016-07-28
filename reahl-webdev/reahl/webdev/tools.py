@@ -432,7 +432,7 @@ class XPath(object):
     @classmethod
     def link_with_text(cls, text, nth=1):
         """Returns an XPath to find an HTML <a> containing the text in `text`."""
-        return cls('(//a[normalize-space(node())=normalize-space("%s")])[%s]' % (text, nth))
+        return cls('(//a[normalize-space(.)=normalize-space("%s")])[%s]' % (text, nth))
 
     @classmethod
     def link_starting_with_text(cls, text):
