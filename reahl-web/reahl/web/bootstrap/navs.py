@@ -27,6 +27,10 @@ This module contains the necessary Widgets and Layouts to create and
 style Bootstrap Navs.
 
 
+.. versionchanged:: 4.0
+   Moved Menu here from reahl.web.ui.
+   Removed the .add_item and add_submenu methods in favour of .add_a,.add_bookmark,.add_dropdown methods.
+
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
@@ -147,22 +151,15 @@ class Menu(HTMLWidget):
 
 
 class MenuItem(HTMLWidget):
-    """One item in a Menu.
-
-       .. admonition:: Styling
-
-          Rendered as a <li> element. When active, includes class="active".
-
-       Normally, a programmer would not instantiate this class directly, rather use :meth:`MenuItem.from_bookmark`.
+    """One item in a Menu. Different kinds of Menu render their items differently.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param a: The :class:`A` to use as link.
        :keyword active_regex: If the href of `a` matches this regex, the MenuItem is deemed active.
        :keyword exact_match: (See :meth:`reahl.web.fw.Url.is_currently_active`)
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
        .. versionchanged:: 4.0
-          Removed from_bookmark.
+          Removed from_bookmark and css_id keyword argument.
     """
     def __init__(self, view, a, active_regex=None, exact_match=False):
         super(MenuItem, self).__init__(view)
@@ -189,29 +186,6 @@ class MenuItem(HTMLWidget):
         if not self.active_regex:
             return self.a.href and self.a.href.is_currently_active(exact_path=self.exact_match)
         return re.match(self.active_regex, self.view.relative_path)
-
-
-class SubMenu(MenuItem):
-    """A MenuItem that can contains another complete Menu itself.
-
-       .. admonition:: Styling
-
-          Rendered as a <li> element that contains a :class:`Menu` (see the latter for how it is rendered).
-
-       :param view: (See :class:`reahl.web.fw.Widget`)
-       :param title: Text to use as a title for this SubMenu.
-       :param menu: The :class:`Menu` contained inside this SubMenu.
-
-    """
-    def __init__(self, view, title, menu, query_arguments={}):
-        if query_arguments:
-            a = A.from_bookmark(view, Bookmark.for_widget(title, query_arguments=query_arguments).on_view(view))
-        else:
-            a = A(view, None, description=title)
-        super(SubMenu, self).__init__(view, a)
-        self.title = title
-        self.menu = menu
-
 
 
 class Nav(Menu):
@@ -251,9 +225,21 @@ class Nav(Menu):
         else:
             extra_query_arguments={'open_item': title}
         extra_query_arguments.update(query_arguments)
-        submenu = SubMenu(self.view, title, dropdown_menu, query_arguments=extra_query_arguments)
+
+        bookmark = Bookmark.for_widget(title, query_arguments=extra_query_arguments).on_view(self.view)
+        submenu = MenuItem(self.view, A.from_bookmark(self.view, bookmark))
         self.menu_items.append(submenu)
-        self.add_html_for_submenu(submenu, drop_up=drop_up)
+
+        li = self.add_html_for_item(submenu)
+        li.add_child(dropdown_menu)
+
+        if self.open_item == title:
+            li.append_class('open')
+        submenu.a.append_class('dropdown-toggle')
+        submenu.a.set_attribute('data-toggle', 'dropdown')
+        submenu.a.set_attribute('data-target', '-')
+        submenu.a.add_child(Span(self.view)).append_class('caret')
+        li.append_class('drop%s' % ('up' if drop_up else 'down'))
         return submenu
 
 
@@ -265,18 +251,6 @@ class Nav(Menu):
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
 
-    def add_html_for_submenu(self, submenu, drop_up=False):
-        li = self.add_html_for_item(submenu)
-        li.add_child(submenu.menu)
-
-        if self.open_item == submenu.title:
-            li.append_class('open')
-        submenu.a.append_class('dropdown-toggle')
-        submenu.a.set_attribute('data-toggle', 'dropdown')
-        submenu.a.set_attribute('data-target', '-')
-        submenu.a.add_child(Span(self.view)).append_class('caret')
-        li.append_class('drop%s' % ('up' if drop_up else 'down'))
-        return li
 
 
 

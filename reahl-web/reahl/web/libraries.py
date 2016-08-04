@@ -201,17 +201,14 @@ class JQuery(Library):
 
         
 class JQueryUI(Library):
-    """A heavily customised subset of version 1.10.3 of `JQuery UI <https://jqueryui.com>`_.
+    """A heavily customised subset of version 1.12.0 of `JQuery UI <https://jqueryui.com>`_.
     
-    .. warning:: 
-    
-       This Library will be trimmed in future to only contain
-       the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_.
+   Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_.
     """
     def __init__(self):
         super(JQueryUI, self).__init__('jqueryui')
         self.shipped_in_directory = '/reahl/web/static'
-        self.files = ['jquery-ui-1.10.3.custom.js']
+        self.files = ['jquery-ui-1.12.0.custom/jquery-ui.js']
 
 
 
