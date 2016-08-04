@@ -38,12 +38,11 @@ from babel import UnknownLocaleError, Locale
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.decorators import deprecated
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark, Url, WebExecutionContext
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget
 from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li, TextNode
-
-from reahl.component.exceptions import ProgrammerError
 
 
 
@@ -119,37 +118,35 @@ class Menu(HTMLWidget):
             self.add_a(a)
         return self
 
-    def add_bookmark(self, bookmark):
+    def add_bookmark(self, bookmark, active_regex=None):
         """Adds a MenuItem for the given :class:`Bookmark` to this Menu'.
 
            Answers the added MenuItem.
 
            .. versionadded: 3.2
         """
-        return self.add_item(MenuItem.from_bookmark(self.view, bookmark))
+        return self.add_a(A.from_bookmark(self.view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
 
-    def add_a(self, a):
+    def add_a(self, a, active_regex=None, exact_match=None):
         """Adds an :class:`A` as a MenuItem.
 
            Answers the added MenuItem.
 
            .. versionadded: 3.2
         """
-        return self.add_item(MenuItem(self.view, a))
-
-    def add_item(self, item):
-        self.menu_items.append(item)
-        self.add_html_for_item(item)
-        return item
+        menu_item = MenuItem(self.view, a, active_regex=active_regex, exact_match=exact_match)
+        self.menu_items.append(menu_item)
+        self.add_html_for_item(menu_item)
+        return menu_item
 
     def add_html_for_item(self, item):
         li = self.html_representation.add_child(Li(self.view))
         li.add_child(item.a)
-        item.widget = li
+        item.set_html_representation(li)
         return li
 
 
-class MenuItem(object):
+class MenuItem(HTMLWidget):
     """One item in a Menu.
 
        .. admonition:: Styling
@@ -164,25 +161,14 @@ class MenuItem(object):
        :keyword exact_match: (See :meth:`reahl.web.fw.Url.is_currently_active`)
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
-       .. versionchanged:: 3.2
-          Deprecated css_id keyword argument.
+       .. versionchanged:: 4.0
+          Removed from_bookmark.
     """
-    @classmethod
-    def from_bookmark(cls, view, bookmark, active_regex=None):
-        """Creates a MenuItem from a given Bookmark.
-
-          :param view: (See :class:`reahl.web.fw.Widget`)
-          :param bookmark: The :class:`reahl.web.fw.Bookmark` for which to create the MenuItem.
-          :param active_regex: (See :class:`MenuItem`)
-        """
-        return cls(view, A.from_bookmark(view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
-
     def __init__(self, view, a, active_regex=None, exact_match=False):
-        super(MenuItem, self).__init__()
+        super(MenuItem, self).__init__(view)
         self.view = view
         self.exact_match = exact_match
         self.a = a
-        self.widget = None
         self.active_regex = active_regex
         self.force_active = False
         self.is_active_callable = self.default_is_active
@@ -260,7 +246,16 @@ class Nav(Menu):
         :keyword drop_up: If True, the dropdown will drop upwards from its item, instead of down.
         :keyword query_arguments: (For internal use)
         """
-        return self.add_submenu(title, dropdown_menu, extra_query_arguments=query_arguments, drop_up=drop_up)
+        if self.open_item == title:
+            extra_query_arguments={'open_item': ''}
+        else:
+            extra_query_arguments={'open_item': title}
+        extra_query_arguments.update(query_arguments)
+        submenu = SubMenu(self.view, title, dropdown_menu, query_arguments=extra_query_arguments)
+        self.menu_items.append(submenu)
+        self.add_html_for_submenu(submenu, drop_up=drop_up)
+        return submenu
+
 
     def add_html_for_item(self, item):
         li = super(Nav, self).add_html_for_item(item)
@@ -270,21 +265,9 @@ class Nav(Menu):
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
 
-    def add_submenu(self, title, menu, extra_query_arguments={}, **kwargs):
-        if self.open_item == title:
-            query_arguments={'open_item': ''}
-        else:
-            query_arguments={'open_item': title}
-        query_arguments.update(extra_query_arguments)
-        submenu = SubMenu(self.view, title, menu, query_arguments=query_arguments)
-        self.menu_items.append(submenu)
-        self.add_html_for_submenu(submenu, **kwargs)
-        return submenu
-
     def add_html_for_submenu(self, submenu, drop_up=False):
         li = self.add_html_for_item(submenu)
         li.add_child(submenu.menu)
-        submenu.widget = li
 
         if self.open_item == submenu.title:
             li.append_class('open')
@@ -358,6 +341,7 @@ class DropdownMenu(Menu):
         item.a.append_class('dropdown-item')
         item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
+        item.set_html_representation(item.a)
         return item.a
 
 

@@ -152,8 +152,8 @@ def rendering_active_menu_items(fixture):
     href = Url('/link')
 
     menu = Nav(fixture.view)
-    menu_item = MenuItem(fixture.view, A(fixture.view, href, description=description), active_regex=fixture.active_regex)
-    menu.add_item(menu_item)
+    menu_item_a = A(fixture.view, href, description=description)
+    menu.add_a(menu_item_a, active_regex=fixture.active_regex)
     tester = WidgetTester(menu)
 
     actual = tester.get_html_for('//li')
@@ -166,18 +166,22 @@ class CustomMenuItemFixture(WebFixture):
     def new_href(self):
         return Url('/link')
 
-    def new_menu_item(self):
+    def new_menu_item_a(self):
         description = 'The link'
         href = Url('/link')
     
-        menu_item = MenuItem(self.view, A(self.view, self.href, description=description))
-        return menu_item
+        menu_item_a = A(self.view, self.href, description=description)
+        return menu_item_a
 
     def new_menu(self):
         menu = Nav(self.view)
-        menu.add_item(self.menu_item)
+        menu.add_a(self.menu_item_a)
         return menu
     
+    @property
+    def menu_item(self):
+        return self.menu.menu_items[0]
+
     def new_tester(self):
         return WidgetTester(self.menu)
 
