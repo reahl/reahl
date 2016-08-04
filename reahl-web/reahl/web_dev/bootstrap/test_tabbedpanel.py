@@ -72,7 +72,7 @@ def basic_rendering(fixture):
     tester = WidgetTester(tabbed_panel)
 
     expected_html = \
-      '''<ul class="nav nav-tabs">'''\
+      '''<ul class="nav nav-tabs reahl-menu">'''\
        '''<li class="nav-item">'''\
        '''<a data-target="#tab_tab1" data-toggle="tab" href="/?tab=tab1" class="active nav-link">tab 1 name</a>'''\
        '''</li>'''\
@@ -98,7 +98,7 @@ def tabs_with_sub_options(fixture):
     tester = WidgetTester(tabbed_panel)
 
     expected_html = \
-     '''<ul class="nav nav-tabs">'''\
+     '''<ul class="nav nav-tabs reahl-menu">'''\
      '''<li class="dropdown nav-item">'''\
       '''<a data-target="-" data-toggle="dropdown" href="/?open_item=tab+1+name&amp;tab=mult2" class="active dropdown-toggle nav-link reahl-ajaxlink">tab 1 name<span class="caret"></span></a>'''\
       '''<div class="dropdown-menu">'''\
