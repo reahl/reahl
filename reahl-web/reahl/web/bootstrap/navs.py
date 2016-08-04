@@ -48,7 +48,6 @@ from reahl.component.exceptions import ProgrammerError
 
 
 class Menu(HTMLWidget):
-    add_reahl_styling = True
     """A visual menu that lists a number of Views to which the user can choose to go to.
 
        .. admonition:: Styling
@@ -66,28 +65,15 @@ class Menu(HTMLWidget):
           Deprecated `add_item` and replaced it with `add_submenu`.
           Added a number of `add_xxx` methods for adding items from different sources.
     """
-    def __init__(self, view, a_list=None, add_reahl_styling=None, css_id=None):
+    def __init__(self, view):
         super(Menu, self).__init__(view)
-        if add_reahl_styling is not None:
-            self.add_reahl_styling = add_reahl_styling
         self.menu_items = []
         self.create_html_representation()
-        if css_id:
-            warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
-                          'Instead, please construct, supply a layout and THEN do .set_id().',
-                          DeprecationWarning, stacklevel=2)
-            self.set_id(css_id)
-        if a_list is not None:
-            warnings.warn('DEPRECATED: Passing an a_list upon construction. ' \
-                          'Please construct, then use .with_a_list() instead.',
-                          DeprecationWarning, stacklevel=2)
-            self.with_a_list(a_list)
 
     def create_html_representation(self):
         ul = self.add_child(Ul(self.view))
         self.set_html_representation(ul)
-        if self.add_reahl_styling:
-            ul.append_class('reahl-menu')
+        ul.append_class('reahl-menu')
         return ul
 
     def with_bookmarks(self, bookmark_list):
@@ -152,49 +138,14 @@ class Menu(HTMLWidget):
         return self.add_item(MenuItem(self.view, a))
 
     def add_item(self, item):
-        """Adds MenuItem `item` to this Menu.
-
-           .. versionchanged:: 3.2
-              Deprecated adding submenus via this method. For sub menus, please use :meth:`add_submenu` instead.
-        """
         self.menu_items.append(item)
-
-        if isinstance(item, SubMenu):
-            warnings.warn('DEPRECATED: calling add_item() with a SubMenu instance. Please use .add_submenu() instead.',
-                          DeprecationWarning, stacklevel=2)
-            item = self.add_html_for_submenu(item)
-        else:
-            self.add_html_for_item(item)
+        self.add_html_for_item(item)
         return item
 
     def add_html_for_item(self, item):
         li = self.html_representation.add_child(Li(self.view))
         li.add_child(item.a)
-        if self.add_reahl_styling:
-            li.add_attribute_source(ActiveStateAttributes(item))
         item.widget = li
-        return li
-
-    def add_submenu(self, title, menu, query_arguments={}, **kwargs):
-        """Adds 'menu` as a sub menu to this menu with the given `title`.
-
-           Answers the added MenuItem.
-
-           .. versionadded: 3.2
-        """
-        submenu = SubMenu(self.view, title, menu, query_arguments=query_arguments)
-        self.menu_items.append(submenu)
-        self.add_html_for_submenu(submenu, **kwargs)
-        return submenu
-
-    def add_html_for_submenu(self, submenu, add_dropdown_handle=False):
-        li = self.add_html_for_item(submenu)
-        if add_dropdown_handle:
-            li.add_child(TextNode(self.view, '&nbsp;', html_escape=False))
-            dropdown_handle = li.add_child(A(self.view, None, description='▼'))
-            dropdown_handle.append_class('dropdown-handle')
-        li.add_child(submenu.menu)
-        submenu.widget = li
         return li
 
 
@@ -226,7 +177,7 @@ class MenuItem(object):
         """
         return cls(view, A.from_bookmark(view, bookmark), active_regex=active_regex, exact_match=bookmark.exact)
 
-    def __init__(self, view, a, active_regex=None, exact_match=False, css_id=None):
+    def __init__(self, view, a, active_regex=None, exact_match=False):
         super(MenuItem, self).__init__()
         self.view = view
         self.exact_match = exact_match
@@ -235,11 +186,6 @@ class MenuItem(object):
         self.active_regex = active_regex
         self.force_active = False
         self.is_active_callable = self.default_is_active
-        if css_id:
-            self.set_id(css_id)
-            warnings.warn('DEPRECATED: Passing a css_id upon construction. ' \
-                          'This ability will be removed in future versions.',
-                          DeprecationWarning, stacklevel=2)
 
     def set_active(self):
         self.force_active = True
@@ -269,15 +215,14 @@ class SubMenu(MenuItem):
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param title: Text to use as a title for this SubMenu.
        :param menu: The :class:`Menu` contained inside this SubMenu.
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
     """
-    def __init__(self, view, title, menu, query_arguments={}, css_id=None):
+    def __init__(self, view, title, menu, query_arguments={}):
         if query_arguments:
             a = A.from_bookmark(view, Bookmark.for_widget(title, query_arguments=query_arguments).on_view(view))
         else:
             a = A(view, None, description=title)
-        super(SubMenu, self).__init__(view, a, css_id=css_id)
+        super(SubMenu, self).__init__(view, a)
         self.title = title
         self.menu = menu
 
@@ -294,14 +239,10 @@ class Nav(Menu):
        HTML-level :class:`reahl.web.bootstrap.ui.Nav`!
 
     :param view: (See :class:`~reahl.web.fw.Widget`)
-    :keyword a_list: A list of :class:`~reahl.web.bootstrap.ui.A`\s representing the items.
-    :keyword css_id: (See :class:`~reahl.web.ui.HTMLElement`)
     """
-    add_reahl_styling = False
-
-    def __init__(self, view, a_list=None, css_id=None):
+    def __init__(self, view):
         self.open_item = None
-        super(Nav, self).__init__(view, a_list=None, css_id=None)
+        super(Nav, self).__init__(view)
 
     @exposed
     def query_fields(self, fields):
@@ -335,11 +276,16 @@ class Nav(Menu):
         else:
             query_arguments={'open_item': title}
         query_arguments.update(extra_query_arguments)
-        submenu = super(Nav, self).add_submenu(title, menu, query_arguments=query_arguments, **kwargs)
+        submenu = SubMenu(self.view, title, menu, query_arguments=query_arguments)
+        self.menu_items.append(submenu)
+        self.add_html_for_submenu(submenu, **kwargs)
         return submenu
-    
+
     def add_html_for_submenu(self, submenu, drop_up=False):
-        li = super(Nav, self).add_html_for_submenu(submenu)
+        li = self.add_html_for_item(submenu)
+        li.add_child(submenu.menu)
+        submenu.widget = li
+
         if self.open_item == submenu.title:
             li.append_class('open')
         submenu.a.append_class('dropdown-toggle')
@@ -401,7 +347,6 @@ class TabLayout(NavLayout):
 
 class DropdownMenu(Menu):
     """A second-level menu that can be added to a Nav."""
-    add_reahl_styling = False
     def create_html_representation(self):
         div = self.add_child(Div(self.view))
         self.set_html_representation(div)
@@ -414,9 +359,6 @@ class DropdownMenu(Menu):
         item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return item.a
-
-    def add_submenu(self, menu, title):
-        raise ProgrammerError('You cannot add a submenu to a %s.' % self.widget.__class__)
 
 
 

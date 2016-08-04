@@ -104,7 +104,7 @@ class VisualFeedbackScenarios(WebFixture):
 @test(VisualFeedbackScenarios)
 def visual_feedback_on_items(fixture):
     """The state of a MenuItem is visually indicated to a user."""
-    menu = Nav(fixture.view, [])
+    menu = Nav(fixture.view)
     menu.add_a(A(fixture.view, Url('/an_url')))
     menu.add_a(fixture.menu_item_with_state)
 

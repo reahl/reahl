@@ -285,7 +285,7 @@ class PageMenu(HTMLWidget):
         self.paged_panel = paged_panel
         super(PageMenu, self).__init__(view)
 
-        self.menu = self.add_child(Menu(view, add_reahl_styling=False))
+        self.menu = self.add_child(Menu(view))
         self.create_items(self.menu)
         self.set_html_representation(self.menu)
         self.set_id(css_id)
@@ -353,7 +353,6 @@ class PageMenu(HTMLWidget):
     def get_js(self, context=None):
         js = ['$(%s).bootstrappagemenu({});' % self.jquery_selector]
         return super(PageMenu, self).get_js(context=context) + js 
-
 
 
 

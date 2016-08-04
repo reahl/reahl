@@ -150,19 +150,3 @@ of your class, you can write:
    self.head.add_css(Url('/link/to/my/own.css'))
 
 
-The minutiae of what |Widget|\ s look like is probably not the first thing on a
-programmer's mind however. It is useful just to start programming using *some*
-look for the |Widget|\ s, and later customise this look to your
-liking. For this reason, a stylesheet is provided which includes
-styling for all the standard Reahl |Widget|\ s. You can include this style
-by adding it to the Head of your HTML5Page:
-
-.. code-block:: python
-
-   self.head.add_css(Url('/styles/basic.css'))
-
-If you are using the HTML5Page as a page, the same effect
-can be accomplished by merely passing ``style='basic'`` to its
-constructor (as can be seen in almost all of our code examples so
-far).
-
