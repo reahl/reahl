@@ -295,7 +295,7 @@ class PageMenu(HTMLWidget):
 
     def add_styling_to_menu_item(self, item):
         item.a.append_class('page-link')
-        item.widget.append_class('page-item')
+        item.html_representation.append_class('page-item')
 
     def create_items(self, menu):
         links = []
@@ -310,7 +310,7 @@ class PageMenu(HTMLWidget):
             bookmark.query_arguments['start_page_number'] = self.page_index.start_page_number
             link = A.from_bookmark(self.view, bookmark)
             item = menu.add_a(link)
-            item.widget.add_attribute_source(ActiveStateAttributes(item))
+            item.html_representation.add_attribute_source(ActiveStateAttributes(item))
             self.add_styling_to_menu_item(item)
             if self.page_index.current_page_number == page.number:
                 item.set_active()
@@ -330,7 +330,7 @@ class PageMenu(HTMLWidget):
         link.set_attribute('aria-label', long_description);
         link.set_active(not disabled)
         item = menu.add_a(link)
-        item.widget.add_attribute_source(AccessRightAttributes(link))
+        item.html_representation.add_attribute_source(AccessRightAttributes(link))
         self.add_styling_to_menu_item(item)
         
     def get_bookmark(self, start_page_number=1, disabled=False):
