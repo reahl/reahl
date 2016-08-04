@@ -5,6 +5,7 @@ python-reahl (4.0.0) unstable; urgency=low
  * Removed a_list argument to Menu constructor.
  * Moved Menu.add_submenu down to Nav, and removed it from public API.
  * Removed Menu.add_item, made MenuItem class hierachy private.
+ * Upgraded JQueryUI to 1.12.0, but trimmed it down to only the widget factory.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Jun 2016 08:47:00 +0200
 
