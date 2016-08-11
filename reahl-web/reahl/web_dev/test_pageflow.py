@@ -28,17 +28,16 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
 from reahl.component.exceptions import ProgrammerError
-from reahl.web.ui import Form, HTML5Page, A
-from reahl.web.ui import Button
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
+
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page, Form, ButtonInput, A
 
 
 class FormWithButton(Form):
     def __init__(self, view, event):
         super(FormWithButton, self).__init__(view, 'test_events')
-        self.add_child(Button(self, event))
+        self.add_child(ButtonInput(self, event))
                 
 @istest
 class ControlledUserInterfacesTests(object):
@@ -174,7 +173,7 @@ class ControlledUserInterfacesTests(object):
             def __init__(self, view, name):
                 super(MyForm, self).__init__(view, name)
                 event = model_object.events.an_event.with_arguments(event_argument1=1, event_argument2=2, view_argument=3)
-                self.add_child(Button(self, event))
+                self.add_child(ButtonInput(self, event))
 
         class ParameterisedView(UrlBoundView):
             def assemble(self, event_argument1=None, view_argument=None):
@@ -218,7 +217,7 @@ class ControlledUserInterfacesTests(object):
         class FormWithIncorrectButtonToParameterisedView(Form):
             def __init__(self, view):
                 super(FormWithIncorrectButtonToParameterisedView, self).__init__(view, 'test_events')
-                self.add_child(Button(self, model_object.events.an_event.with_arguments(arg1='1', arg2='2')))
+                self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(arg1='1', arg2='2')))
 
         class ParameterisedView(UrlBoundView):
             def assemble(self, object_key=None):

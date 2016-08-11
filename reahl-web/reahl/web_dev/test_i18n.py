@@ -20,38 +20,16 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test
 from reahl.tofu import vassert
 
-from reahl.web_dev.fixtures import WebFixture
-from reahl.web.fw import UserInterface, IdentityDictionary, Bookmark
-from reahl.web.ui import HTML5Page
-from reahl.webdev.tools import Browser
-from reahl.component.i18n import Translator
-
-
 from reahl.web_dev.fixtures import WebBasicsMixin
-from reahl.web.fw import UrlBoundView, Url
+from reahl.web_dev.fixtures import WebFixture
+
 from reahl.component.context import ExecutionContext
-from reahl.webdev.tools import WidgetTester
-
-class XXFixture(Fixture, WebBasicsMixin):
-    def new_view(self):
-        current_path = Url(ExecutionContext.get_context().request.url).path
-        view = UrlBoundView(None, current_path, 'Harness view', {})
-        return view
-
-@istest
-class XXTests(object):
-    @test(XXFixture)
-    def test(self, fixture):
-        from reahl.web.ui import P
-
-        p = P(fixture.view)
-        tester = WidgetTester(p)
-        rendered_html = tester.render_html()
-        vassert( rendered_html == '<p></p>' )
+from reahl.component.i18n import Translator
+from reahl.web.fw import UserInterface, IdentityDictionary, Bookmark, UrlBoundView, Url
+from reahl.web.ui import HTML5Page
+from reahl.webdev.tools import Browser, WidgetTester
 
 
-        
-    
 @test(WebFixture)
 def i18n_urls(fixture):
     """The current locale is determined by reading the first segment of the path. If the locale is not present in the

@@ -5,7 +5,7 @@ Package reahl.web.bootstrap.tabbedpanel
 
 .. sidebar:: Examples in this section
 
-   - features.tabbedpanelbootstrap
+   - features.tabbedpanel
 
    Get a copy of an example by running:
 

@@ -28,14 +28,13 @@ from reahl.tofu import test
 from reahl.tofu import vassert
 from reahl.stubble import EmptyStub
 
-from reahl.web.fw import UserInterface
-from reahl.web.fw import Region
-from reahl.web.ui import HTML5Page, P
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
+
 from reahl.component.exceptions import ProgrammerError, IncorrectArgumentError, IsSubclass
+from reahl.web.fw import UserInterface
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page, P
 
 
 class BasicScenarios(WebFixture):
@@ -52,7 +51,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello', page=SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 2224
+        self.expected_content_length = 3656
         self.content_includes_p = True
 
     @scenario
@@ -68,7 +67,7 @@ class BasicScenarios(WebFixture):
                 home.set_page(SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 2224
+        self.expected_content_length = 3656
         self.content_includes_p = True
 
     @scenario
@@ -79,25 +78,8 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 2205
+        self.expected_content_length = 3637
         self.content_includes_p = False
-
-    @scenario
-    def backwards_compatibility(self):
-        class MainUI(Region):
-            def assemble(self):
-                self.define_main_window(HTML5Page)
-                self.define_view('/', title='Hello')
-
-        self.MainUI = MainUI
-        self.expected_content_length = 2205
-        self.content_includes_p = False
-
-        self.expected_warnings = ['Region has been renamed to UserInterface, please use UserInterface instead',
-                                  'Region has been renamed to UserInterface, please use UserInterface instead', 
-                                  'Please use .define_page() instead',
-                                  'Region has been renamed to UserInterface, please use UserInterface instead',
-                                  'Region has been renamed to UserInterface, please use UserInterface instead']
 
 
 @test(BasicScenarios)

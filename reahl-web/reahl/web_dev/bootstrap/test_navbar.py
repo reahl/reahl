@@ -22,14 +22,12 @@ import time
 
 
 from reahl.tofu import vassert, scenario, expected, test, Fixture
-from reahl.stubble import stubclass
 
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin
 from reahl.component.exceptions import IsInstance
 
 from reahl.web.fw import Bookmark
-
 from reahl.web.bootstrap.ui import A, Div, P
 from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.navbar import Navbar, NavbarLayout, ResponsiveLayout
@@ -276,10 +274,6 @@ class NavbarToggleFixture(Fixture, WebBasicsMixin):
     def new_wsgi_app(self):
         return super(NavbarToggleFixture, self).new_wsgi_app(enable_js=True,
                                                        child_factory=self.MainWidget.factory())
-    def new_webconfig(self):
-        webconfig = super(NavbarToggleFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
 
 @test(NavbarToggleFixture)

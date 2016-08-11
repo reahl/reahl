@@ -22,18 +22,16 @@ import pkg_resources
 
 from reahl.tofu import test
 from reahl.tofu import temp_dir
-from reahl.tofu import temp_file_with
 from reahl.tofu import vassert
-from reahl.stubble import easter_egg, stubclass
+from reahl.stubble import easter_egg
 
+from reahl.webdev.tools import Browser
+from reahl.web_dev.fixtures import WebFixture
+
+from reahl.component.config import Configuration
 from reahl.web.fw import ReahlWSGIApplication, UserInterface
 from reahl.web.ui import HTML5Page
 from reahl.web.libraries import Library
-from reahl.web.egg import WebConfig
-from reahl.component.config import Configuration, ReahlSystemConfig
-from reahl.sqlalchemysupport import SqlAlchemyControl
-from reahl.webdev.tools import Browser
-from reahl.web_dev.fixtures import WebFixture
 
 
 class LibraryFixture(WebFixture):
@@ -105,9 +103,11 @@ def library_files(fixture):
     link_added = browser.get_html_for('//link')
     vassert( link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">' )
 
+
 @test(WebFixture)
 def standard_reahl_files(fixture):
     """The framework includes certain frontent frameworks by default."""
+
     wsgi_app = ReahlWSGIApplication(fixture.config)
     browser = Browser(wsgi_app)
 
@@ -117,7 +117,7 @@ def standard_reahl_files(fixture):
     browser.open('/static/IE9.js')
     vassert( browser.last_response.content_length > 0 )
 
-    browser.open('/static/reahl.js')
+    browser.open('/static/reahl.validate.js')
     vassert( browser.last_response.content_length > 0 )
 
     browser.open('/static/reahl.css')
@@ -126,3 +126,5 @@ def standard_reahl_files(fixture):
     browser.open('/static/runningon.png')
     vassert( browser.last_response.content_length > 0 )
 
+    browser.open('/static/reahl.runningonbadge.css')
+    vassert(browser.last_response.content_length > 0)

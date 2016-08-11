@@ -19,20 +19,13 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, expected, test
-
-from reahl.webdev.tools import XPath, Browser
+from reahl.tofu import vassert, scenario, test
 
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
-
-from reahl.web.fw import UserInterface, Url
-
 from reahl.web_dev.inputandvalidation.test_input import InputMixin
 
-from reahl.component.exceptions import ProgrammerError, IsInstance
-from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
-from reahl.web.bootstrap.ui import A, Div, P, HTML5Page, Header, Footer
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import TextInput, InputGroup
 
 

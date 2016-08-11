@@ -39,7 +39,7 @@ Because it is valuable to play with a running application too, a
 DemoFixture is also added to the tests that sets up a few
 SystemAccounts and adds some Addresses to their AddressBooks:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access2/access2_dev/access2tests.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/access2bootstrap/access2bootstrap_dev/access2tests.py
 
 Code
 ----
@@ -84,4 +84,4 @@ visual diagram than others. This code mirrors our schematic diagram.
 
 Please take your time to study the code below:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/access2/access2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/access2bootstrap/access2bootstrap.py

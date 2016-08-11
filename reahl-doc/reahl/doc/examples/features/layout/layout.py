@@ -1,9 +1,10 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput, LabelledBlockInput, P, Div
 from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout, UnitSize
+from reahl.web.bootstrap.ui import HTML5Page, P, Div
+from reahl.web.bootstrap.forms import Form, TextInput, FormLayout
+from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, Field, EmailField
 
 def lots_of(message):
@@ -11,10 +12,11 @@ def lots_of(message):
 
 class LayoutUI(UserInterface):
     def assemble(self):
-        contents_layout = ColumnLayout(('secondary', UnitSize(default='1/3')), 
-                                       ('main', UnitSize(default='2/3'))).with_slots()
-        page_layout = PageLayout(contents_layout=contents_layout)
-        self.define_page(HTML5Page, style='basic').use_layout(page_layout)  
+        contents_layout = ColumnLayout( ('secondary', ResponsiveSize(lg=4)),
+                                        ('main', ResponsiveSize(lg=8))).with_slots()
+
+        self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
+                                                          contents_layout=contents_layout))
 
         home = self.define_view('/', title='Layout demo')
         home.set_slot('main', CommentForm.factory())
@@ -36,26 +38,26 @@ class LayoutUI(UserInterface):
         home.set_slot('footer', P.factory(text=footer_text))
 
 
-
 class Comment(object):
     @exposed
     def fields(self, fields):
         fields.email_address = EmailField(label='Email address', required=True)
         fields.text = Field(label='Comment text')
 
+
 class CommentForm(Form):
     def __init__(self, view):
         super(CommentForm, self).__init__(view, 'myform')
-
+        self.use_layout(FormLayout())
         comment = Comment()
         email_input = TextInput(self, comment.fields.email_address)
-        self.add_child(LabelledBlockInput(email_input))
+        self.layout.add_input(email_input)
 
         text_input = TextInput(self, comment.fields.text)
-        self.add_child(LabelledBlockInput(text_input))
+        self.layout.add_input(text_input)
 
-        layout = ColumnLayout(('left', UnitSize(default='1/2')), 
-                              ('right', UnitSize(default='1/2')))
+        layout = ColumnLayout(('left', ResponsiveSize(lg=6)),
+                              ('right', ResponsiveSize(lg=6)))
         row = self.add_child(Div(view).use_layout(layout))
 
         left_p = P(view, text='This is in the left column of the row')

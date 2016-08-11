@@ -20,18 +20,15 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import test, vassert, expected, scenario
+from reahl.tofu import test, vassert, scenario
 
 from reahl.webdev.tools import XPath
-from reahl.component.modelinterface import Field, IntegerField, exposed
-
-from reahl.web.bootstrap.tables import Table, TableLayout, StaticColumn, TableLayout, DataTable
-from reahl.web.bootstrap.ui import Div
+import reahl.web_dev.widgets.test_table
 from reahl.web_dev.fixtures import WebFixture
 
-import reahl.web_dev.widgets.test_table
-
-
+from reahl.component.modelinterface import Field, IntegerField, exposed
+from reahl.web.bootstrap.ui import Div
+from reahl.web.bootstrap.tables import Table, StaticColumn, TableLayout, DataTable
 
 
 class LayoutScenarios(WebFixture):
@@ -121,10 +118,6 @@ class DataTableFixture(reahl.web_dev.widgets.test_table.TableFixture):
         return super(DataTableFixture, self).new_wsgi_app(enable_js=False,
                                                       child_factory=self.MainWidget.factory())
 
-    def new_webconfig(self):
-        webconfig = super(DataTableFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
     def xpath_for_sort_link_for_column(self, column_number):
         return '(//table/thead/tr/th)[%s]/a' % column_number
@@ -151,7 +144,7 @@ def paging_through_data(fixture):
     fixture.driver_browser.open('/')
 
     #click to last page
-    fixture.driver_browser.click(XPath.link_with_text('→'))
+    fixture.driver_browser.click(XPath.link_starting_with_text('→'))
     fixture.driver_browser.click(XPath.link_with_text('9'))
     
     vassert( fixture.table_number_rows() == 2 )
@@ -159,7 +152,7 @@ def paging_through_data(fixture):
     vassert( fixture.get_table_row(2) == ['26' ,'G'] )
 
     #click to page 4
-    fixture.driver_browser.click(XPath.link_with_text('←'))
+    fixture.driver_browser.click(XPath.link_starting_with_text('←'))
     fixture.driver_browser.click(XPath.link_with_text('4'))
     
     vassert( fixture.table_number_rows() == 3 )
@@ -242,4 +235,3 @@ def layout_for_contained_table(fixture):
     data_table = DataTable(fixture.view, fixture.columns, fixture.data, 'my_css_id', table_layout=layout)
 
     vassert( data_table.table.layout is layout )
-

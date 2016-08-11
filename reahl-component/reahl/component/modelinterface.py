@@ -1479,14 +1479,6 @@ class UploadedFile(object):
         self.filename = filename  #: The name of the file
         self.mime_type = mime_type #: The mime type of the file
 
-    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.', '3.1')
-    def _get_content_type(self):
-        return self.mime_type
-    @deprecated('UploadedFile.content_type is deprecated, please use UploadedFile.mime_type instead.', '3.1')
-    def _set_content_type(self, value):
-        self.mime_type = value
-
-    content_type = property(_get_content_type, _set_content_type)
 
     @property
     def size(self):

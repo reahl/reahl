@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, expected, test
+from reahl.tofu import vassert, test
 
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture
@@ -37,10 +37,6 @@ class PopupAFixture(WebFixture):
     def new_wsgi_app(self):
         return super(PopupAFixture, self).new_wsgi_app(enable_js=True,
                                                        child_factory=self.MainWidget.factory())
-    def new_webconfig(self):
-        webconfig = super(PopupAFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
 
 class PopupAFixtureWithContent(PopupAFixture):

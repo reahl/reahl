@@ -21,19 +21,22 @@ import six
 
 from reahl.tofu import vassert, scenario, expected, test
 
+from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.exceptions import ProgrammerError
+from reahl.component.i18n import Translator
 from reahl.web.fw import Bookmark, Url
-from reahl.web.ui import A, Div
+from reahl.web.bootstrap.ui import A, Div, P
+from reahl.web.bootstrap.navs import Menu, Nav, MenuItem, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 
-from reahl.web.bootstrap.navs import Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 
+_ = Translator('reahl-web')
 
 
 @test(WebFixture)
 def navs(fixture):
-    """A Nav is a Menu with css classes for styling by Bootstrap."""
+    """A Nav is a menu with css classes for styling by Bootstrap."""
 
     bookmarks = [Bookmark('', '/one', 'One'),
                  Bookmark('', '/two', 'Two')]
@@ -57,6 +60,30 @@ def navs(fixture):
         vassert( a.get_attribute('class') == 'nav-link' )
 
 
+@test(WebFixture)
+def populating(fixture):
+    """Navs can be populated with a list of A's or Bookmarks."""
+    # Case: a normal menu from bookmarks
+    item_specs = [Bookmark('/', '/href1', 'description1'),
+                  Bookmark('/', '/go_to_href', 'description2')]
+    menu = Nav(fixture.view).with_bookmarks(item_specs)
+    tester = WidgetTester(menu)
+
+    [item1, item2] = menu.menu_items
+    vassert( item1.a.href.path == '/href1' )
+    vassert( item1.a.children[0].value == 'description1' )
+    
+    vassert( item2.a.href.path == '/go_to_href' )
+    vassert( item2.a.children[0].value == 'description2' )
+    
+    #case: using A's
+    a_list = [A.from_bookmark(fixture.view, i) for i in item_specs]
+    menu = Nav(fixture.view).with_a_list(a_list)
+    [item1, item2] = menu.menu_items
+    vassert( item1.a is a_list[0] )
+    vassert( item2.a is a_list[1] )
+
+
 class VisualFeedbackScenarios(WebFixture):
     @scenario
     def disabled(self):
@@ -77,7 +104,7 @@ class VisualFeedbackScenarios(WebFixture):
 @test(VisualFeedbackScenarios)
 def visual_feedback_on_items(fixture):
     """The state of a MenuItem is visually indicated to a user."""
-    menu = Nav(fixture.view, [])
+    menu = Nav(fixture.view)
     menu.add_a(A(fixture.view, Url('/an_url')))
     menu.add_a(fixture.menu_item_with_state)
 
@@ -89,6 +116,141 @@ def visual_feedback_on_items(fixture):
     vassert( fixture.state_indicator_class not in defaulted_a.get_attribute('class') )
     vassert( fixture.state_indicator_class in a_with_state.get_attribute('class') )
 
+
+class MenuItemScenarios(WebFixture):
+    description = 'The link'
+    href = Url('/link')
+
+    @scenario
+    def not_active(self):
+        self.active_regex = None
+        self.request.environ['PATH_INFO'] = '/something/else'
+        self.active = False
+
+    @scenario
+    def active_exact_path(self):
+        self.active_regex = None
+        self.request.environ['PATH_INFO'] = '/link'
+        self.active = True
+
+    @scenario
+    def active_partial_path(self):
+        self.active_regex = None
+        self.request.environ['PATH_INFO'] = '/link/something/more'
+        self.active = True
+
+    @scenario
+    def inactive_partial_path(self):
+        self.active_regex = '^/link$'
+        self.request.environ['PATH_INFO'] = '/link/something/more'
+        self.active = False
+
+@test(MenuItemScenarios)
+def rendering_active_menu_items(fixture):
+    """A MenuItem is marked as active based on its active_regex or the A it represents."""
+    description = 'The link'
+    href = Url('/link')
+
+    menu = Nav(fixture.view)
+    menu_item_a = A(fixture.view, href, description=description)
+    menu.add_a(menu_item_a, active_regex=fixture.active_regex)
+    tester = WidgetTester(menu)
+
+    actual = tester.get_html_for('//li')
+    active_str = '' if not fixture.active else 'active '
+    expected_menu_item_html = '<li class="nav-item"><a href="/link" class="%snav-link">The link</a></li>'  % (active_str)
+    vassert( actual == expected_menu_item_html )
+
+
+class CustomMenuItemFixture(WebFixture):
+    def new_href(self):
+        return Url('/link')
+
+    def new_menu_item_a(self):
+        description = 'The link'
+        href = Url('/link')
+    
+        menu_item_a = A(self.view, self.href, description=description)
+        return menu_item_a
+
+    def new_menu(self):
+        menu = Nav(self.view)
+        menu.add_a(self.menu_item_a)
+        return menu
+    
+    @property
+    def menu_item(self):
+        return self.menu.menu_items[0]
+
+    def new_tester(self):
+        return WidgetTester(self.menu)
+
+    def item_displays_as_active(self):
+        actual = self.tester.get_html_for('//li')
+        active_str = 'active '
+        expected_menu_item_html = '<li class="nav-item"><a href="/link" class="%snav-link">The link</a></li>'  % (active_str)
+        return actual == expected_menu_item_html
+
+    def set_request_url(self, href):
+        self.request.environ['PATH_INFO'] = str(href)
+
+    @scenario
+    def default(self):
+        # The default behaviour happens when no custom method is supplied
+        self.go_to_href = self.href
+        self.expects_active = True
+        self.overriding_callable = None
+
+    @scenario
+    def overridden(self):
+        # Overriding behaviour happens when supplied
+        self.go_to_href = self.href
+        self.expects_active = False
+        self.overriding_callable = lambda: False
+
+    @scenario
+    def overridden_on_unrelated_url(self):
+        # On an unrelated url, active is forced
+        url_on_which_item_is_usually_inactive = Url('/another_href')
+        self.go_to_href = url_on_which_item_is_usually_inactive
+
+        self.expects_active = True
+        self.overriding_callable = lambda: True
+
+
+@test(CustomMenuItemFixture)
+def custom_active_menu_items(fixture):
+    """You can specify a custom method by which a MenuItem determines its active state."""
+    fixture.set_request_url(fixture.go_to_href)
+
+    if fixture.overriding_callable:
+        fixture.menu_item.determine_is_active_using(fixture.overriding_callable)
+    vassert( fixture.expects_active == fixture.item_displays_as_active() )
+
+
+@test(WebFixture)
+def language_menu(fixture):
+    """A Nav can also be constructed to let a user choose to view the same page in 
+       another of the supported languages."""
+    
+    class PanelWithMenu(Div):
+        def __init__(self, view):
+            super(PanelWithMenu, self).__init__(view)
+            self.add_child(Menu(view).with_languages())
+            self.add_child(P(view, text=_('This is an English sentence.')))
+
+    wsgi_app = fixture.new_wsgi_app(child_factory=PanelWithMenu.factory())
+    
+    browser = Browser(wsgi_app)
+    browser.open('/')
+    
+    vassert( browser.is_element_present(XPath.paragraph_containing('This is an English sentence.')) )
+
+    browser.click(XPath.link_with_text('Afrikaans'))
+    vassert( browser.is_element_present(XPath.paragraph_containing('Hierdie is \'n sin in Afrikaans.')) )
+
+    browser.click(XPath.link_with_text('English (United Kingdom)'))
+    vassert( browser.is_element_present(XPath.paragraph_containing('This is an English sentence.')) )
 
 
 class LayoutScenarios(WebFixture):

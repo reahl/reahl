@@ -81,7 +81,7 @@ it is defined. However, each page needs all the bookmarks to all :class:`~reahl.
 this issue, you can omit setting the page when defining a :class:`~reahl.web.fw.View` and set it later
 using `.set_page()` as is done here.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
 
 
 Transitions
@@ -100,7 +100,7 @@ the `.assemble()` method of a :class:`~reahl.web.fw.UserInterface`. In this meth
 first defines each :class:`~reahl.web.fw.View` of the :class:`~reahl.web.fw.UserInterface`, and then defines each possible
 :class:`~reahl.web.fw.Transition` between  :class:`~reahl.web.fw.View`\ s . In this example, there is only one :class:`~reahl.web.fw.Transition`:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow2/pageflow2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow2bootstrap/pageflow2bootstrap.py
    :pyobject: AddressBookUI
 
 In previous examples an :class:`~reahl.web.fw.EventHandler` was defined before a :class:`~reahl.web.ui.Button` is
@@ -139,7 +139,7 @@ the following changes as per the explanation above:
  - the `@exposed` decorator was changed to explicitly include the
    names of the :class:`~reahl.component.modelinterface.Event`\ s it will define when called
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow2/pageflow2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow2bootstrap/pageflow2bootstrap.py
 
 
 Guards

@@ -24,20 +24,18 @@ from webob import Request, Response
 
 from reahl.stubble import stubclass
 from reahl.tofu import Fixture
-from reahl.sqlalchemysupport import Session
 
-from reahl.web.fw import ComposedPage, ReahlWSGIApplication, WebExecutionContext, \
-                         UserInterfaceFactory, IdentityDictionary, FactoryDict, UrlBoundView, UserInterface, \
-                         WidgetList, Url, Widget, RegexPath
-from reahl.web.ui import HTML5Page
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
-from reahl.component.i18n import Translator
-from reahl.component.py3compat import ascii_as_bytes_or_str
-from reahl.domain_dev.fixtures import PartyModelZooMixin
-from reahl.domain.systemaccountmodel import LoginSession
 from reahl.webdev.tools import DriverBrowser
 from reahl.webdeclarative.webdeclarative import UserSession
+
+from reahl.domain_dev.fixtures import PartyModelZooMixin
+from reahl.domain.systemaccountmodel import LoginSession
+from reahl.sqlalchemysupport import Session
+from reahl.component.i18n import Translator
+from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.web.fw import ReahlWSGIApplication, WebExecutionContext, UrlBoundView, UserInterface, Url, Widget
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page
 
 
 _ = Translator('reahl-webdev')

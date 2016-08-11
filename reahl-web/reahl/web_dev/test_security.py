@@ -25,13 +25,12 @@ from reahl.stubble import EmptyStub
 
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.web_dev.fixtures import WebFixture
-from reahl.web.fw import Widget, UserInterface
-from reahl.web.ui import Form, TextInput, ButtonInput, Div, P, HTML5Page
-from reahl.web.ui import Button
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
-from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
 
+from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
+from reahl.web.fw import Widget, UserInterface
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import Div, P, HTML5Page
+from reahl.web.ui import Form, TextInput, ButtonInput
 
     
 @istest
@@ -259,7 +258,7 @@ class SecurityTests(object):
                 super(TestPanel, self).__init__(view)
                 form = self.add_child(Form(view, 'some_form'))
                 form.define_event_handler(model_object.events.an_event)
-                form.add_child(Button(form, model_object.events.an_event))
+                form.add_child(ButtonInput(form, model_object.events.an_event))
                 form.add_child(TextInput(form, model_object.fields.field_name))
                 fixture.form = form
 
@@ -288,7 +287,9 @@ class SecurityTests(object):
                 super(TestPanel, self).__init__(view)
                 form = self.add_child(Form(view, 'some_form'))
                 form.define_event_handler(model_object.events.an_event)
-                form.add_child(Button(form, model_object.events.an_event))
+                button = form.add_child(ButtonInput(form, model_object.events.an_event))
+                if button.validation_error:
+                    form.add_child(form.create_error_label(button))
                 fixture.form = form
 
         wsgi_app = fixture.new_wsgi_app(child_factory=TestPanel.factory())
@@ -323,7 +324,7 @@ class SecurityTests(object):
             def __init__(self, view):
                 super(MyForm, self).__init__(view, 'myform')
                 self.define_event_handler(self.events.an_event)
-                self.add_child(Button(self, self.events.an_event))
+                self.add_child(ButtonInput(self, self.events.an_event))
             @exposed
             def events(self, events):
                 events.an_event = Event(label='Click me')

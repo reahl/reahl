@@ -4,4 +4,3 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.doc.examples.tutorial.ajaxbootstrap.ajaxbootstrap import WidgetRefreshUI
 
 web.site_root = WidgetRefreshUI 
-web.frontend_libraries.enable_experimental_bootstrap()

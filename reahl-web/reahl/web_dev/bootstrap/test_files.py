@@ -17,36 +17,22 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import six
-import time
 import os
 import threading 
 
-import webob
-
-
 from reahl.tofu import vassert, scenario, expected, test, Fixture, temp_file_with
-from reahl.stubble import stubclass
 
-
-from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin
+from reahl.webdev.tools import XPath
 
 from reahl.sqlalchemysupport import Session
 from reahl.webdeclarative.webdeclarative import PersistedFile
-from reahl.component.modelinterface import exposed, Field, Event, FileField, Action, ValidationConstraint
+from reahl.component.modelinterface import exposed, Event, FileField, Action, ValidationConstraint
 from reahl.component.exceptions import DomainException
-from reahl.web.fw import WebExecutionContext
-
-from reahl.web.bootstrap.ui import Span, Div, P, TextNode
-from reahl.web.bootstrap.forms import Form, Label
+from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel, Button, FormLayout, FileInput, FileInputButton
 
 
-
-
-
-#----------------------------------
 class FileInputButtonFixture(Fixture, WebBasicsMixin):
 
     def upload_button_indicates_focus(self):
@@ -78,11 +64,6 @@ class FileInputButtonFixture(Fixture, WebBasicsMixin):
 
     def new_wsgi_app(self, enable_js=False):
         return super(FileInputButtonFixture, self).new_wsgi_app(child_factory=self.FileUploadForm.factory(), enable_js=enable_js)
-
-    def new_webconfig(self):
-        web = super(FileInputButtonFixture, self).new_webconfig()
-        web.frontend_libraries.enable_experimental_bootstrap()
-        return web
 
 
 @test(FileInputButtonFixture)
@@ -193,11 +174,6 @@ def file_input_without_js(fixture):
     browser.wait_for(fixture.standard_file_input_is_visible)
 
 
-
-
-
-
-
 class FileUploadInputFixture(WebFixture):
     def file_was_uploaded(self, filename):
         return Session.query(PersistedFile).filter_by(filename=os.path.basename(filename)).count() == 1
@@ -262,10 +238,6 @@ class FileUploadInputFixture(WebFixture):
     def upload_file_is_queued(self, filename):
         return self.driver_browser.is_element_present('//ul/li/span[text()="%s"]/../input[@value="Cancel"]' % os.path.basename(filename))
 
-    def new_webconfig(self):
-        web = super(FileUploadInputFixture, self).new_webconfig()
-        web.frontend_libraries.enable_experimental_bootstrap()
-        return web
 
 
 class ConstrainedFileUploadInputFixture(FileUploadInputFixture):

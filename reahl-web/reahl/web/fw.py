@@ -18,31 +18,34 @@
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-import six
-import sys
-import io
+
 import atexit
-import locale
-import tempfile
-import mimetypes
 import inspect
+import json
+import logging
+import mimetypes
+import string
+import sys
+import threading
+from contextlib import contextmanager
 from datetime import datetime
-import pkg_resources
+
+import cssmin
+import functools
+import io
+import locale
 import os
 import os.path
+import pkg_resources
 import re
-import json
-import string
-import threading
-from six.moves.urllib import parse as urllib_parse
-import functools
-from six.moves import cStringIO
-import logging
-from contextlib import contextmanager
-from pkg_resources import Requirement
+import six
+import slimit
+import tempfile
 import warnings
 from collections import OrderedDict
-
+from pkg_resources import Requirement
+from six.moves import cStringIO
+from six.moves.urllib import parse as urllib_parse
 from webob import Request, Response
 from webob.exc import HTTPException
 from webob.exc import HTTPForbidden
@@ -52,24 +55,21 @@ from webob.exc import HTTPNotFound
 from webob.exc import HTTPSeeOther
 from webob.request import DisconnectionError
 
-import slimit
-import cssmin
-
+from reahl.component.config import StoredConfiguration
+from reahl.component.context import ExecutionContext
+from reahl.component.dbutils import SystemControl
+from reahl.component.decorators import deprecated
+from reahl.component.eggs import ReahlEgg
+from reahl.component.exceptions import ArgumentCheckedCallable
 from reahl.component.exceptions import DomainException
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import IsSubclass
 from reahl.component.exceptions import NotYetAvailable
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
-from reahl.component.exceptions import ArgumentCheckedCallable
-from reahl.component.context import ExecutionContext
-from reahl.component.dbutils import SystemControl
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
-                                             Allowed, exposed, UploadedFile, Event
-from reahl.component.config import StoredConfiguration                                             
-from reahl.component.decorators import deprecated
-from reahl.component.eggs import ReahlEgg
+                                             Allowed, exposed, Event
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
 _ = Translator('reahl-web')
@@ -532,10 +532,6 @@ class UserInterface(object):
         self.page_factory = widget_class.factory(*args, **kwargs)
         return self.page_factory
 
-    @deprecated('Please use .define_page() instead.', '2.1')
-    def define_main_window(self, *args, **kwargs):
-        return self.define_page(*args, **kwargs)
-
     def page_slot_for(self, view, page, local_slot_name):
         if page.created_by is self.page_factory:
             return local_slot_name
@@ -676,10 +672,6 @@ class UserInterface(object):
         self.add_user_interface_factory(ui_factory)
         return ui_factory
 
-    @deprecated('Please use .define_user_interface() instead', '2.1')
-    def define_region(self, *args, **kwargs):
-        return self.define_user_interface(*args, **kwargs)
-
     def define_regex_user_interface(self, path_regex, path_template, ui_class, slot_map, name=None, **assemble_args):
         """Called from `assemble` to create a :class:`UserInterfaceFactory` for a parameterised :class:`UserInterface` that will 
            be created when an URL is requested that matches `path_regex`. See also `define_regex_view`.
@@ -696,10 +688,6 @@ class UserInterface(object):
         ui_factory = UserInterfaceFactory(self, regex_path, slot_map, ui_class, name, **passed_kwargs)
         self.add_user_interface_factory(ui_factory)
         return ui_factory
-
-    @deprecated('Please use .define_regex_user_interface() instead', '2.1')
-    def define_regex_region(self, *args, **kwargs):
-        return self.define_regex_user_interface(*args, **kwargs)
 
     def get_user_interface_for_full_path(self, full_path):
         relative_path = self.get_relative_path_for(full_path)
@@ -766,12 +754,6 @@ class UserInterface(object):
 
     def view_for(self, relative_path, for_bookmark=False):
         return self.controller.view_for(relative_path, for_bookmark=for_bookmark)
-
-
-@deprecated('Region has been renamed to UserInterface, please use UserInterface instead', '2.1')
-class Region(UserInterface):
-    pass
-
 
 
 class StaticUI(UserInterface):
@@ -960,13 +942,13 @@ class WidgetList(list):
 
 
 class Layout(object):
-    """A Layout is used to change what a Widget looks like by (e.g.) changing what css classes are used 
+    """A Layout is used to change what a Widget looks like by (e.g.) changing what css classes are used
        by the Widget, or by letting you add children to a Widget in customised ways.
     """
-    
+
     def __init__(self):
         self.widget = None
-        
+
     @property
     def view(self):
         return self.widget.view
@@ -1021,24 +1003,6 @@ class Widget(object):
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
         self.layout = None                   #: The Layout used for visual layout of this Widget
-
-    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
-    def _get_charset(self):
-        return self.encoding
-    @deprecated('Widget.charset is deprecated, please use Widget.encoding instead.', '3.1')
-    def _set_charset(self, value):
-        self.encoding = value
-
-    charset = property(_get_charset, _set_charset)
-
-    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.', '3.1')
-    def _get_content_type(self):
-        return self.mime_type
-    @deprecated('Widget.content_type is deprecated, please use Widget.mime_type instead.', '3.1')
-    def _set_content_type(self, value):
-        self.mime_type = value
-
-    content_type = property(_get_content_type, _set_content_type)
 
         
     def use_layout(self, layout):
@@ -2494,7 +2458,6 @@ class ConcatenatedFile(FileOnDisk):
                 # Current version of ply (used by slimit) has a bug in Py3
                 # See https://github.com/rspivak/slimit/issues/64
                 from ply import yacc
-                import slimit
 
                 def __getitem__(self,n):
                     if isinstance(n, slice):
@@ -2678,33 +2641,15 @@ class ReahlWSGIApplication(object):
             self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
             self.add_reahl_static_files()
 
-    def find_packaged_files(self, labelled):
-        found_files = []
-        eggs_in_order = ReahlEgg.get_all_relevant_interfaces(self.config.reahlsystem.root_egg)
-        for egg in eggs_in_order:
-            snippets = egg.find_attachments(labelled)
-            for snippet in snippets:
-                found_files.append(PackagedFile(egg.distribution.project_name, os.path.dirname(snippet.filename), os.path.basename(snippet.filename)))
-        return found_files
-
     def add_reahl_static_files(self):
-        css_files = [PackagedFile('reahl-web', 'reahl/web/static', 'reahl.css')]
-        css_files += self.find_packaged_files('css')
-        js_files = [PackagedFile('reahl-web', 'reahl/web/static', i) for i in
-                                   [
-                                   'reahl.validate.js',
-                                   'reahl.modaldialog.js',
-                                   ]]
-        js_files += self.find_packaged_files('js')
-
-        static_files = self.config.web.frontend_libraries.packaged_files() +\
-                       [ConcatenatedFile('reahl.js', js_files),
-                        ConcatenatedFile('reahl.css', css_files)]
-        static_files += self.find_packaged_files('any')
+        static_files = self.config.web.frontend_libraries.packaged_files()
         self.define_static_files('/static', static_files)
 
-        shipped_style_files = [PackagedFile('reahl-web', 'reahl/web/static/css', 'basic.css')]
-        self.define_static_files('/styles', shipped_style_files)
+    def define_static_files(self, path, files):
+        ui_name = 'static_%s' % path
+        ui_factory = UserInterfaceFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
+        self.root_user_interface_factory.predefine_user_interface(ui_factory)
+        return ui_factory
 
     def start(self, connect=True):
         """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
@@ -2724,12 +2669,6 @@ class ReahlWSGIApplication(object):
             context.set_system_control(self.system_control)
             if self.should_disconnect:
                 self.system_control.disconnect()
-
-    def define_static_files(self, path, files):
-        ui_name = 'static_%s' % path
-        ui_factory = UserInterfaceFactory(None, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=FileList(files))
-        self.root_user_interface_factory.predefine_user_interface(ui_factory)
-        return ui_factory
 
     def get_target_ui(self, full_path):
         root_ui = self.root_user_interface_factory.create(full_path)
@@ -2796,11 +2735,6 @@ class ReahlWSGIApplication(object):
         new_context.set_request(request)
         new_context.set_system_control(self.system_control)
         return new_context.handle_wsgi_call(self, environ, start_response)
-
-
-@deprecated('ReahlWebApplication has been renamed to ReahlWSGIApplication, please use ReahlWSGIApplication instead', '2.1')
-class ReahlWebApplication(ReahlWSGIApplication):
-    pass
 
 
 
