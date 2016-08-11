@@ -21,15 +21,13 @@ import six
 
 import webob
 
-from reahl.tofu import vassert, scenario, expected, test
+from reahl.tofu import vassert, test
 from reahl.stubble import stubclass
 
 from reahl.web.fw import Widget, WebExecutionContext
 from reahl.web.ui import Img
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web.bootstrap.carousel import Carousel
-
-
 
 
 class CarouselFixture(WebFixture):

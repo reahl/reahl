@@ -36,6 +36,7 @@ from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.web.fw import Layout
 from reahl.web.ui import Div, HTML5Page, Slot, Header, Footer
 
+
 class ResponsiveSize(Mapping):
     """Represents a set of relative sizes to be used for an element depending on the size of the user's device.
 
@@ -118,7 +119,7 @@ class ColumnLayout(Layout):
 
 class PageLayout(Layout):
     """A PageLayout creates a basic skeleton inside an :class:`reahl.web.ui.HTML5Page`, and optionally
-       applies specified :class:`~reahl.web.ui.Layout`\s to parts of this skeleton.
+       applies specified :class:`~reahl.web.fw.Layout`\s to parts of this skeleton.
 
        The skeleton consists of a :class:`~reahl.web.ui.Div` called the `document` of the page, which
        contains three sub-sections inside of it:
@@ -127,10 +128,10 @@ class PageLayout(Layout):
          - the `.contents` of the page -- the main area to which the main content will be added; and
          - the `.footer` -- the page footer where links and legal notices go.    
 
-       :keyword document_layout: A :class:`~reahl.web.ui.Layout` that will be applied to `.document`.
-       :keyword contents_layout: A :class:`~reahl.web.ui.Layout` that will be applied to `.contents`.
-       :keyword header_layout: A :class:`~reahl.web.ui.Layout` that will be applied to `.header`.
-       :keyword footer_layout: A :class:`~reahl.web.ui.Layout` that will be applied to `.footer`.
+       :keyword document_layout: A :class:`~reahl.web.fw.Layout` that will be applied to `.document`.
+       :keyword contents_layout: A :class:`~reahl.web.fw.Layout` that will be applied to `.contents`.
+       :keyword header_layout: A :class:`~reahl.web.fw.Layout` that will be applied to `.header`.
+       :keyword footer_layout: A :class:`~reahl.web.fw.Layout` that will be applied to `.footer`.
 
        .. admonition:: Styling
        
@@ -143,7 +144,7 @@ class PageLayout(Layout):
        .. versionadded:: 3.2
 
     """
-    @arg_checks(document_layout=IsInstance(Layout, allow_none=True), contents_layout=IsInstance(Layout, allow_none=True), 
+    @arg_checks(document_layout=IsInstance(Layout, allow_none=True), contents_layout=IsInstance(Layout, allow_none=True),
                 header_layout=IsInstance(Layout, allow_none=True), footer_layout=IsInstance(Layout, allow_none=True))
     def __init__(self, document_layout=None, contents_layout=None, header_layout=None, footer_layout=None):
         super(PageLayout, self).__init__()

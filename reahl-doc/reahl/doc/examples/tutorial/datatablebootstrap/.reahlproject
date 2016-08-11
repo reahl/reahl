@@ -14,7 +14,7 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.doc.examples.tutorial.datatable.datatable:Address"/>
+    <class locator="reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap:Address"/>
   </persisted>
   
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=datatablebootstrap_dev -t -i'.*'"/>

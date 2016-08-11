@@ -17,15 +17,15 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from nose.tools import istest
-from reahl.tofu import scenario
-from reahl.tofu import test
-from reahl.tofu import expected
+from reahl.tofu import scenario, test, expected
 
-from reahl.web.fw import UserInterface
-from reahl.web.ui import P, HTML5Page
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
+
 from reahl.component.exceptions import ProgrammerError
+from reahl.web.fw import UserInterface
+from reahl.web.ui import P, HTML5Page
+
 
 class UserInterfaceErrorScenarios(WebFixture):
     def new_wsgi_app(self):

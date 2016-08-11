@@ -12,7 +12,6 @@ Web framework
    Widgets and Layouts (bootstrap) -- bootstrap-styled Widgets and Layouts (reahl.web.bootstrap) <bootstrap/index>
    Holder -- on-the-fly placeholder images (reahl.web.holder) <holder>
 
-   Layout using Pure (reahl.web.pure) <pure>
    Paging long lists (reahl.web.pager) <pager>
    Tables with multiple pages (reahl.web.datatable) <datatable>
    Including not-quite-static static content (reahl.web.dhtml) <dhtml>

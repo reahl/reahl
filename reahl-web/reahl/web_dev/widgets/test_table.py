@@ -68,13 +68,11 @@ def table_basics(fixture):
     class MainWidget(Div):
         def __init__(self, view):
             super(MainWidget, self).__init__(view)
-            table = Table.from_columns(view, 
+            table = Table(view, caption_text='All my friends', summary='Summary for screen reader')
+            table.with_data(
                             [StaticColumn(Field(label='Row Number'), 'row'),
                              StaticColumn(Field(label='Alpha'), 'alpha')],
-                            fixture.data,
-                            caption_text='All my friends',
-                            summary='Summary for screen reader',
-                            css_id='my_table_data'
+                            fixture.data
                             )
             self.add_child(table)
 

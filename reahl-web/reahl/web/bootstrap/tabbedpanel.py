@@ -33,7 +33,6 @@ from reahl.web.ui import Div, ActiveStateAttributes, DelegatedAttributes
 from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
 
 
-
 class TabbedPanel(Widget):
     """A Widget that appears as having multiple panels of content stacked 
     on top of one another -- with only one panel visible at a time.

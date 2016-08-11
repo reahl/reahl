@@ -4,5 +4,5 @@ from reahl.doc.examples.tutorial.bootstrapgrids.bootstrapgrids import BootstrapG
 
 web.site_root = BootstrapGridsUI
 
-web.frontend_libraries.enable_experimental_bootstrap()
+
 

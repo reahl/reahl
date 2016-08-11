@@ -807,68 +807,6 @@ class MigrationList(OrderedClassesList):
         return ('migrations', cls, None)
 
 
-class FileList(list):
-    @property
-    def entry_point(self):
-        return 'reahl.attachments.any'
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('staticfiles', cls, None)
-
-    def inflate_child(self, reader, child, tag, parent):
-        assert isinstance(child, ShippedFile), 'Got %s, expected a StaticFile' % child
-        self.append(child)
-
-
-class AttachmentList(list):
-    def __init__(self, file_type):
-        super(AttachmentList, self).__init__()
-        self.file_type = file_type
-    
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('attachedfiles', cls, None)
-
-    @property
-    def entry_point(self):
-        return 'reahl.attachments.%s' % self.file_type
-    
-    def inflate_attributes(self, reader, attributes, parent):
-        assert 'filetype' in attributes, 'No filetype specified'
-        file_type = attributes['filetype']
-        assert file_type in ['js', 'css'], 'filetype %s undefined. Please use one of "js" or "css"' % file_type
-        self.__init__(file_type)
-
-    def inflate_child(self, reader, child, tag, parent):
-        assert isinstance(child, ShippedFile), 'Got %s, expected a class' % child
-        self.append(child)
-
-
-class ShippedFile(object):
-
-    def __init__(self, path, order, entry_point):
-        self.entry_point = entry_point
-        self.path = path
-        self.order = order
-
-    @property
-    def name(self):
-        return EntryPointKeyEncodedAttachmentName(path=self.path, order=self.order).as_encoded_key()
-
-    @property
-    def locator(self):
-        return EntryPointLocator('reahl')
-    
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('file', cls, None)
-
-    def inflate_attributes(self, reader, attributes, parent):
-        assert 'path' in attributes, 'No path specified'
-        self.__init__(attributes['path'], len(parent), parent.entry_point)
-
-
 class EntryPointLocator(object):
     def __init__(self, string_spec):
         self.string_spec = string_spec
@@ -881,7 +819,6 @@ class EntryPointLocator(object):
     @property
     def class_name(self):
         return self.string_spec.split(':')[-1]
-
 
 
 class NamespaceEntry(object):
@@ -1716,13 +1653,6 @@ class EggProject(Project):
             self.persist_list = child
         elif isinstance(child, MigrationList):
             self.migration_list = child
-        elif isinstance(child, AttachmentList):
-            if child.file_type == 'js':
-                self.js_attach_list = child
-            else:
-                self.css_attach_list = child
-        elif isinstance(child, FileList):
-            self.static_files = child
         elif isinstance(child, ExcludedPackage):
             self.excluded_packages.append(child)
         elif isinstance(child, ScheduledJobSpec):

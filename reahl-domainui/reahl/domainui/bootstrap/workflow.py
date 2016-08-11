@@ -79,7 +79,7 @@ class TaskWidget(HTMLWidget):
 
         <export entrypoint="reahl.workflowui.task_widgets" 
                 name="TaskWidget" 
-                locator="reahl.domainui.workflow:TaskWidget"/>
+                locator="reahl.domainui.bootstrap.workflow:TaskWidget"/>
 
     """
     @classmethod
@@ -153,12 +153,6 @@ class InboxUI(UserInterface):
         self.define_transition(self.workflow_interface.events.go_to_task, inbox_view_factory, task_view_factory)
         self.define_transition(self.workflow_interface.events.defer_task, task_view_factory, inbox_view_factory)
         self.define_transition(self.workflow_interface.events.release_task, task_view_factory, inbox_view_factory)
-
-
-
-@deprecated('Please use InboxUI instead.', '2.1')
-class InboxRegion(InboxUI):
-    pass
 
 
 

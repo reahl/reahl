@@ -31,7 +31,6 @@ UpdateAptRepository = reahl.dev.devshell:UpdateAptRepository
 Upload = reahl.dev.devshell:Upload
 
 [reahl.dev.xmlclasses]
-AttachmentList = reahl.dev.devdomain:AttachmentList
 BzrSourceControl = reahl.dev.devdomain:BzrSourceControl
 ChickenProject = reahl.dev.devdomain:ChickenProject
 CommandAlias = reahl.dev.devdomain:CommandAlias
@@ -45,7 +44,6 @@ EntryPointExport = reahl.dev.devdomain:EntryPointExport
 ExcludedPackage = reahl.dev.devdomain:ExcludedPackage
 ExtraPath = reahl.dev.devdomain:ExtraPath
 ExtrasList = reahl.dev.devdomain:ExtrasList
-FileList = reahl.dev.devdomain:FileList
 HardcodedMetadata = reahl.dev.devdomain:HardcodedMetadata
 MetaInfo = reahl.dev.devdomain:MetaInfo
 MigrationList = reahl.dev.devdomain:MigrationList
@@ -60,7 +58,6 @@ PythonSourcePackage = reahl.dev.devdomain:PythonSourcePackage
 PythonWheelPackage = reahl.dev.devdomain:PythonWheelPackage
 ScheduledJobSpec = reahl.dev.devdomain:ScheduledJobSpec
 ScriptExport = reahl.dev.devdomain:ScriptExport
-ShippedFile = reahl.dev.devdomain:ShippedFile
 SshRepository = reahl.dev.devdomain:SshRepository
 ThirdpartyDependency = reahl.dev.devdomain:ThirdpartyDependency
 TranslationPackage = reahl.dev.devdomain:TranslationPackage

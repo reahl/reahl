@@ -10,7 +10,7 @@ from reahl.sqlalchemysupport import Session, Base
 from reahl.web.fw import CannotCreate, UrlBoundView, UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, Div, P, H
-from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, FieldSet
+from reahl.web.bootstrap.forms import Form, TextInput, ButtonInput, FormLayout, ButtonLayout, FieldSet
 from reahl.web.bootstrap.navs import Nav, TabLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
@@ -76,7 +76,7 @@ class EditAddressForm(Form):
         grouped_inputs.layout.add_input( TextInput(self, address.fields.email_address) )
         self.add_child(grouped_inputs)
 
-        btn = grouped_inputs.add_child(Button(self, address.events.update))
+        btn = grouped_inputs.add_child(ButtonInput(self, address.events.update))
         btn.use_layout(ButtonLayout(style='primary'))
 
 
@@ -91,7 +91,7 @@ class AddAddressForm(Form):
         grouped_inputs.layout.add_input( TextInput(self, new_address.fields.email_address) )
         self.add_child(grouped_inputs)
 
-        btn = grouped_inputs.add_child(Button(self, new_address.events.save))
+        btn = grouped_inputs.add_child(ButtonInput(self, new_address.events.save))
         btn.use_layout(ButtonLayout(style='primary'))
 
 
@@ -101,7 +101,7 @@ class AddressBox(Form):
         super(AddressBox, self).__init__(view, form_name)
 
         par = self.add_child(P(view, text='%s: %s ' % (address.name, address.email_address)))
-        par.add_child(Button(self, address.events.edit.with_arguments(address_id=address.id)))
+        par.add_child(ButtonInput(self, address.events.edit.with_arguments(address_id=address.id)))
 
 
 class Address(Base):

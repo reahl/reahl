@@ -432,7 +432,7 @@ class XPath(object):
     @classmethod
     def link_with_text(cls, text, nth=1):
         """Returns an XPath to find an HTML <a> containing the text in `text`."""
-        return cls('(//a[normalize-space(node())=normalize-space("%s")])[%s]' % (text, nth))
+        return cls('(//a[normalize-space(.)=normalize-space("%s")])[%s]' % (text, nth))
 
     @classmethod
     def link_starting_with_text(cls, text):
@@ -443,6 +443,11 @@ class XPath(object):
     def paragraph_containing(cls, text):
         """Returns an XPath to find an HTML <p> that contains the text in `text`."""
         return cls('//p[contains(node(), "%s")]' % text)
+
+    @classmethod
+    def input_named(cls, name):
+        """Returns an XPath to find an HTML <input> with the given name."""
+        return '//input[@name="%s"]' % name
 
     @classmethod
     def input_labelled(cls, label):
@@ -460,12 +465,6 @@ class XPath(object):
     def input_of_type(cls, input_type):
         """Returns an XPath to find an HTML <input> with type attribute `input_type`."""
         return '//input[@type="%s"]' % input_type
-
-    @deprecated('Please use fieldset_with_legend() instead.', '3.2')
-    @classmethod
-    def inputgroup_labelled(cls, label):
-        """Returns an XPath to find an InputGroup with label text `label`."""
-        return cls('//fieldset[label[normalize-space(node())=normalize-space("%s")]]' % label)
 
     @classmethod
     def fieldset_with_legend(cls, legend_text):

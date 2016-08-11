@@ -25,8 +25,7 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import WidgetTester, XPath
 
 from reahl.web.fw import Url
-from reahl.web.ui import P
-
+from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.tabbedpanel import TabbedPanel, MultiTab, Tab
 
 
@@ -50,10 +49,6 @@ class TabbedPanelAjaxFixture(WebFixture):
                 self.add_tab(tab4)
         return PopulatedTabbedPanel
 
-    def new_webconfig(self):
-        webconfig = super(TabbedPanelAjaxFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
     def new_wsgi_app(self, enable_js=True):
         return super(TabbedPanelAjaxFixture, self).new_wsgi_app(enable_js=enable_js,
@@ -77,7 +72,7 @@ def basic_rendering(fixture):
     tester = WidgetTester(tabbed_panel)
 
     expected_html = \
-      '''<ul class="nav nav-tabs">'''\
+      '''<ul class="nav nav-tabs reahl-menu">'''\
        '''<li class="nav-item">'''\
        '''<a data-target="#tab_tab1" data-toggle="tab" href="/?tab=tab1" class="active nav-link">tab 1 name</a>'''\
        '''</li>'''\
@@ -103,7 +98,7 @@ def tabs_with_sub_options(fixture):
     tester = WidgetTester(tabbed_panel)
 
     expected_html = \
-     '''<ul class="nav nav-tabs">'''\
+     '''<ul class="nav nav-tabs reahl-menu">'''\
      '''<li class="dropdown nav-item">'''\
       '''<a data-target="-" data-toggle="dropdown" href="/?open_item=tab+1+name&amp;tab=mult2" class="active dropdown-toggle nav-link reahl-ajaxlink">tab 1 name<span class="caret"></span></a>'''\
       '''<div class="dropdown-menu">'''\

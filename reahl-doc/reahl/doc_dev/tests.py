@@ -36,9 +36,9 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
-from reahl.doc.examples.tutorial.slots.slots import SlotsUI
+from reahl.doc.examples.tutorial.slotsbootstrap.slotsbootstrap import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
-from reahl.doc.examples.features.slidingpanel.slidingpanel import SlidingPanelUI
+from reahl.doc.examples.features.carousel.carousel import CarouselUI
 from reahl.doc.examples.features.validation.validation import ValidationUI
 from reahl.doc.examples.features.layout.layout import LayoutUI
 from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
@@ -46,18 +46,18 @@ from reahl.doc.examples.features.persistence.persistence import PersistenceUI
 from reahl.doc.examples.features.access.access import AccessUI
 from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
 
-from reahl.doc.fileupload import FileUploadUI, AttachedFile
+from reahl.doc.examples.web.fileupload.fileupload import FileUploadUI, AttachedFile
 
-from reahl.doc.basichtmlwidgets import BasicHTMLWidgetsUI
-from reahl.doc.basichtmlinputs import BasicHTMLInputsUI
+from reahl.doc.examples.web.basichtmlwidgets.basichtmlwidgets import BasicHTMLWidgetsUI
+from reahl.doc.examples.web.basichtmlinputs.basichtmlinputs import BasicHTMLInputsUI
 
 from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
 from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootstrap
 from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
-from reahl.doc.examples.tutorial.pageflow1 import pageflow1
-from reahl.doc.examples.tutorial.pageflow2 import pageflow2
-from reahl.doc.examples.tutorial.parameterised1 import parameterised1
+from reahl.doc.examples.tutorial.pageflow1bootstrap import pageflow1bootstrap
+from reahl.doc.examples.tutorial.pageflow2bootstrap import pageflow2bootstrap
+from reahl.doc.examples.tutorial.parameterised1bootstrap import parameterised1bootstrap
 
 
 class ExampleBasicFixture(Fixture, WebBasicsMixin):
@@ -74,19 +74,19 @@ class ExampleBasicFixture(Fixture, WebBasicsMixin):
         return os.path.join(os.getcwd(), self.screenshot_directory, filename)
 
     def tab_is_active(self, tab_name):
-        return self.driver_browser.execute_script('return window.jQuery("a:contains(\'%s\')").parent().hasClass("active")' % tab_name)
+        return self.driver_browser.execute_script('return window.jQuery("a:contains(\'%s\')").hasClass("active")' % tab_name)
 
     def tab_contents_equals(self, expected_contents):
-        return self.driver_browser.execute_script('return window.jQuery("div.reahl-tabbedpanel div p").html() == "%s"' % expected_contents)
+        return self.driver_browser.execute_script('return window.jQuery("div.tab-content div.active p").html() == "%s"' % expected_contents)
 
-    def sliding_contents_equals(self, expected_contents):
-        return self.driver_browser.execute_script('return window.jQuery("div.contained:visible p").html() == "%s"' % expected_contents)
+    def carousel_caption_equals(self, expected_contents):
+        return self.driver_browser.execute_script('return window.jQuery("div.carousel-caption:visible p").html() == "%s"' % expected_contents)
 
     def error_is_visible(self):
-        return self.driver_browser.execute_script('return window.jQuery(".reahl-form label.error").is(":visible")')
+        return self.driver_browser.execute_script('return window.jQuery(".reahl-form span.has-danger").is(":visible")')
 
     def is_error_text(self, text):
-        return text == self.driver_browser.get_text("//form/label[@class='error']")
+        return text == self.driver_browser.get_text("//form//span[contains(@class,'has-danger')]")
 
     def get_text_in_p(self):
         return self.driver_browser.get_text('//p')
@@ -120,8 +120,8 @@ class ExampleFixture(ExampleBasicFixture):
         self.wsgi_app = self.new_wsgi_app(site_root=TabbedPanelUI, enable_js=True)
 
     @scenario
-    def sliding_panel(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=SlidingPanelUI, enable_js=True)
+    def carousel_panel(self):
+        self.wsgi_app = self.new_wsgi_app(site_root=CarouselUI, enable_js=True)
 
     @scenario
     def validation(self):
@@ -158,7 +158,6 @@ class ExampleFixture(ExampleBasicFixture):
     @scenario
     def fileupload(self):
         self.wsgi_app = self.new_wsgi_app(site_root=FileUploadUI, enable_js=True)
-#        self.wsgi_app = self.new_wsgi_app(site_root=FileUploadUI, enable_js=False)
 
     @scenario
     def slots(self):
@@ -174,23 +173,20 @@ class ExampleFixture(ExampleBasicFixture):
 
     @scenario
     def pageflow1(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=pageflow1.AddressBookUI)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow1bootstrap.AddressBookUI)
 
     @scenario
     def pageflow2(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=pageflow2.AddressBookUI)
+        self.wsgi_app = self.new_wsgi_app(site_root=pageflow2bootstrap.AddressBookUI)
 
     @scenario
     def parameterised1(self):
-        self.wsgi_app = self.new_wsgi_app(site_root=parameterised1.AddressBookUI)
+        self.wsgi_app = self.new_wsgi_app(site_root=parameterised1bootstrap.AddressBookUI)
 
 
 
 class ExampleBootstrapFixture(ExampleBasicFixture):
-    def new_webconfig(self):
-        webconfig = super(ExampleBootstrapFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
+
 
     @scenario
     def addressbook2bootstrap(self):
@@ -219,13 +215,13 @@ def widgets_using_factories(fixture):
     vassert( fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'And another ...  to give content to the second tab.') )
     fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
 
-@test(ExampleFixture.sliding_panel)
+@test(ExampleFixture.carousel_panel)
 def widgets(fixture):
     fixture.start_example_app()
     fixture.driver_browser.open('/')
-    vassert( fixture.driver_browser.wait_for(fixture.sliding_contents_equals, 'a paragraph with text') )
-    fixture.driver_browser.click(XPath.link_with_text('>'))
-    vassert( fixture.driver_browser.wait_for(fixture.sliding_contents_equals, 'a different paragraph') )
+    vassert( fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a paragraph with text') )
+    fixture.driver_browser.click(XPath.link_with_text('Next'))
+    vassert( fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a different paragraph') )
 
 
 @test(ExampleFixture.validation)
@@ -457,7 +453,7 @@ def test_pageflow1(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
-    vassert( browser.is_element_present('//ul[contains(@class,"reahl-menu")]') )
+    vassert( browser.is_element_present('//ul[contains(@class,"nav")]') )
 
     browser.click(XPath.link_with_text('Add an address'))
     vassert( browser.location_path == '/add' )
@@ -478,7 +474,7 @@ def test_pageflow2(fixture):
     browser = Browser(fixture.wsgi_app)
     browser.open('/')
 
-    vassert( browser.is_element_present('//ul[contains(@class,"reahl-menu")]') )
+    vassert( browser.is_element_present('//ul[contains(@class,"nav")]') )
 
     browser.click(XPath.link_with_text('Add an address'))
     vassert( browser.location_path == '/add' )
@@ -504,7 +500,7 @@ def test_parameterised1(fixture):
     vassert( browser.location_path == '/' )
     browser.click(XPath.link_with_text('edit'))
 
-    john = Session.query(parameterised1.Address).one()
+    john = Session.query(parameterised1bootstrap.Address).one()
     vassert( browser.location_path == '/edit/%s' % john.id )
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')

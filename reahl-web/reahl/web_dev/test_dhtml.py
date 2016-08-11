@@ -22,13 +22,14 @@ from reahl.tofu import Fixture, test, set_up
 from reahl.tofu import vassert, temp_dir
 from reahl.stubble import stubclass, replaced
 
-from reahl.web.dhtml import DhtmlUI, DHTMLFile
-from reahl.web.fw import WebExecutionContext, UserInterface
-from reahl.web.ui import HTML5Page
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
+
+from reahl.web.dhtml import DhtmlUI, DHTMLFile
+from reahl.web.fw import WebExecutionContext, UserInterface
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page
+
 
 class DjhtmlFixture(Fixture, WebBasicsMixin):
     def new_static_dir(self):

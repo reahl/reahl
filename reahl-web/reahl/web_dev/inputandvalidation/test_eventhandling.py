@@ -21,25 +21,22 @@ import json
 
 from webob import Request
 
-from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario, NoException, vassert, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
-from reahl.sqlalchemysupport import Session
-from reahl.web.ui import Button, LabelledBlockInput
-from reahl.web.ui import Div, Form, TextInput, HTML5Page, NestedForm
-from reahl.web.fw import Url, UserInterface, ValidationException
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
-
+from reahl.web_dev.fixtures import WebBasicsMixin
+from reahl.webdev.tools import WidgetTester, XPath, Browser
 
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
-from reahl.component.modelinterface import IntegerField, BooleanField, EmailField, DateField, \
+from reahl.component.modelinterface import IntegerField, EmailField, DateField, \
                                     exposed, Field, Event, Action
 from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
-from reahl.web_dev.fixtures import WebBasicsMixin
-from reahl.webdev.tools import WidgetTester, XPath, Browser
+from reahl.sqlalchemysupport import Session
+from reahl.web.fw import Url, UserInterface, ValidationException
+from reahl.web.layout import PageLayout, ColumnLayout
+from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm
+
 
 class FormFixture(Fixture, WebBasicsMixin):
     def new_error_xpath(self):
@@ -67,7 +64,7 @@ def basic_event_linkup(fixture):
         def __init__(self, view, name, other_view):
             super(MyForm, self).__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
-            self.add_child(Button(self, model_object.events.an_event))
+            self.add_child(ButtonInput(self, model_object.events.an_event))
 
     class MainUI(UserInterface):
         def assemble(self):
@@ -110,7 +107,7 @@ def arguments_to_actions(fixture):
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
-            self.add_child(Button(self, model_object.events.an_event.with_arguments(one_argument=1, another_argument='another')))
+            self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(one_argument=1, another_argument='another')))
 
     class MainUI(UserInterface):
         def assemble(self):
@@ -144,10 +141,10 @@ def validation_of_event_arguments(fixture):
     form.define_event_handler(model_object.events.an_event)
     
     with expected(ProgrammerError):
-        Button(form, model_object.events.an_event)
+        ButtonInput(form, model_object.events.an_event)
         
     with expected(NoException):
-        Button(form, model_object.events.an_event.with_arguments(argument='something'))
+        ButtonInput(form, model_object.events.an_event.with_arguments(argument='something'))
 
 
   
@@ -180,7 +177,7 @@ def basic_field_linkup(fixture):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
             self.define_event_handler(model_object.events.an_event)
-            self.add_child(Button(self, model_object.events.an_event))
+            self.add_child(ButtonInput(self, model_object.events.an_event))
             self.add_child(TextInput(self, model_object.fields.field_name))
 
     class MainUI(UserInterface):
@@ -226,7 +223,7 @@ def distinguishing_identical_field_names(fixture):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
             self.define_event_handler(self.events.an_event)
-            self.add_child(Button(self, self.events.an_event))
+            self.add_child(ButtonInput(self, self.events.an_event))
             
             self.add_child(TextInput(self, model_object1.fields.field_name))
             self.add_child(TextInput(self, model_object2.fields.field_name))
@@ -271,7 +268,7 @@ def define_event_handler_not_called(fixture):
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
-            self.add_child(Button(self, model_object.events.an_event))
+            self.add_child(ButtonInput(self, model_object.events.an_event))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
     browser = Browser(wsgi_app)
@@ -309,7 +306,7 @@ def exception_handling(fixture):
         def __init__(self, view, name, other_view):
             super(MyForm, self).__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
-            self.add_child(Button(self, model_object.events.an_event))
+            self.add_child(ButtonInput(self, model_object.events.an_event))
             self.add_child(TextInput(self, model_object.fields.field_name))
 
     class MainUI(UserInterface):
@@ -472,8 +469,8 @@ def nested_forms(fixture):
         def __init__(self, view, name):
             super(MyNestedForm, self).__init__(view, name)
             self.define_event_handler(nested_model_object.events.nested_event)
-            self.add_child(Button(self.form, nested_model_object.events.nested_event))
-            self.add_child(LabelledBlockInput(TextInput(self.form, nested_model_object.fields.nested_field)))
+            self.add_child(ButtonInput(self.form, nested_model_object.events.nested_event))
+            self.add_child(TextInput(self.form, nested_model_object.fields.nested_field))
 
     class OuterModelObject(object):
         handled_event = False
@@ -488,14 +485,14 @@ def nested_forms(fixture):
             super(OuterForm, self).__init__(view, name)
             self.add_child(MyNestedForm(view, 'my_nested_form'))
             self.define_event_handler(outer_model_object.events.outer_event)
-            self.add_child(Button(self, outer_model_object.events.outer_event))
+            self.add_child(ButtonInput(self, outer_model_object.events.outer_event))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=OuterForm.factory('outer_form'))
     fixture.reahl_server.set_app(wsgi_app)
     browser = fixture.driver_browser
 
     browser.open('/')
-    browser.type(XPath.input_labelled('input nested'), 'some nested input')
+    browser.type(XPath.input_named('nested_field'), 'some nested input')
     
     browser.click(XPath.button_labelled('click nested'))
     
@@ -524,8 +521,11 @@ def form_input_validation(fixture):
         def __init__(self, view, name, other_view):
             super(MyForm, self).__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
-            self.add_child(Button(self, model_object.events.an_event))
-            self.add_child(TextInput(self, model_object.fields.field_name))
+            self.add_child(ButtonInput(self, model_object.events.an_event))
+            text_input = self.add_child(TextInput(self, model_object.fields.field_name))
+            if text_input.validation_error:
+                self.add_child(self.create_error_label(text_input))
+
 
     class MainUI(UserInterface):
         def assemble(self):
@@ -602,7 +602,7 @@ class QueryStringScenarios(FormFixture):
         event = Event(label='click me', action=Action(self.action))
         event.bind('an_event', None)
         form.define_event_handler(event, target=self.target)
-        form.add_child(Button(form, event))
+        form.add_child(ButtonInput(form, event))
         return form
 
     @property
@@ -658,7 +658,7 @@ def propagation_of_querystring(fixture):
             else:
                 target = view.as_factory()
             self.define_event_handler(model_object.events.an_event, target=target)
-            self.add_child(Button(self, model_object.events.an_event))
+            self.add_child(ButtonInput(self, model_object.events.an_event))
 
     class MainUI(UserInterface):
         def assemble(self):
@@ -699,7 +699,7 @@ def event_names_are_canonicalised(fixture):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
             self.define_event_handler(model_object.events.an_event)
-            self.add_child(Button(self, model_object.events.an_event.with_arguments(some_argument='f~nnystuff')))
+            self.add_child(ButtonInput(self, model_object.events.an_event.with_arguments(some_argument='f~nnystuff')))
 
     class MainUI(UserInterface):
         def assemble(self):
@@ -738,7 +738,7 @@ def alternative_event_trigerring(fixture):
         def __init__(self, view, name, other_view):
             super(MyForm, self).__init__(view, name)
             self.define_event_handler(model_object.events.an_event, target=other_view)
-            self.add_child(Button(self, model_object.events.an_event))
+            self.add_child(ButtonInput(self, model_object.events.an_event))
 
     class MainUI(UserInterface):
         def assemble(self):

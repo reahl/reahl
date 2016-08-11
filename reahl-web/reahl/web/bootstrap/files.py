@@ -32,7 +32,7 @@ from reahl.web.fw import WebExecutionContext
 import reahl.web.ui
 from reahl.web.ui import PrimitiveInput, UniqueFilesConstraint
 from reahl.web.bootstrap.ui import Div, Span, Li, Ul
-from reahl.web.bootstrap.forms import Button, NestedForm, ButtonLayout, FormLayout, Label
+from reahl.web.bootstrap.forms import Button, NestedForm, FormLayout, Label
 
 
 _ = Translator('reahl-web')
@@ -40,7 +40,6 @@ _ = Translator('reahl-web')
 
 
 class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):
-    append_error = False
     add_default_attribute_source = False
 
     def __init__(self, form, bound_field):
@@ -239,7 +238,6 @@ class FileUploadInput(PrimitiveInput):
     :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of 
               type :class:`reahl.component.modelinterface.FileField`)
     """
-    append_error = False
     add_default_attribute_source = False
 
     @property

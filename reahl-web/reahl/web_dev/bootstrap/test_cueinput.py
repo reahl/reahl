@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, expected, test
+from reahl.tofu import test
 
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture
@@ -33,10 +33,6 @@ from reahl.web.bootstrap.forms import Form, FormLayout, CueInput, TextInput
 class CueInputFixture(WebFixture):
     cue_element_xpath = "//p"
 
-    def new_webconfig(self):
-        webconfig = super(CueInputFixture, self).new_webconfig()
-        webconfig.frontend_libraries.enable_experimental_bootstrap()
-        return webconfig
 
     def new_domain_object(self):
         class DomainObject(object):

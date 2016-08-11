@@ -1,7 +1,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.web.fw import UserInterface
-from reahl.web.ui import HTML5Page, Form, TextInput
+from reahl.web.bootstrap.ui import HTML5Page
+from reahl.web.bootstrap.forms import Form, TextInput, FormLayout
 from reahl.component.modelinterface import exposed, EmailField
 
 class ValidationUI(UserInterface):
@@ -11,7 +12,7 @@ class ValidationUI(UserInterface):
 
 class HomePage(HTML5Page):
     def __init__(self, view):
-        super(HomePage, self).__init__(view, style='basic')
+        super(HomePage, self).__init__(view)
         self.body.add_child(CommentForm(view))
 
 
@@ -24,9 +25,9 @@ class Comment(object):
 class CommentForm(Form):
     def __init__(self, view):
         super(CommentForm, self).__init__(view, 'myform')
-
+        self.use_layout(FormLayout())
         comment = Comment()
-        self.add_child( TextInput(self, comment.fields.email_address) )
+        self.layout.add_input( TextInput(self, comment.fields.email_address) )
 
 
 

@@ -37,28 +37,6 @@
   <persisted>
   </persisted>
 
-  <staticfiles>
-    <file path="reahl/web/static/runningon.png"/>
-  </staticfiles>
-
-  <attachedfiles filetype="css">
-    <file path="reahl/web/reahl.labelledinput.css"/>
-    <file path="reahl/web/reahl.labeloverinput.css"/>
-    <file path="reahl/web/reahl.menu.css"/>
-    <file path="reahl/web/reahl.hmenu.css"/>
-    <file path="reahl/web/reahl.slidingpanel.css"/>
-  </attachedfiles>
-
-  <attachedfiles filetype="js">
-    <file path="reahl/web/reahl.form.js"/>
-    <file path="reahl/web/reahl.cueinput.js"/>
-    <file path="reahl/web/reahl.labeloverinput.js"/>
-    <file path="reahl/web/reahl.fileuploadli.js"/>
-    <file path="reahl/web/reahl.fileuploadpanel.js"/>
-    <file path="reahl/web/reahl.popupa.js"/>
-    <file path="reahl/web/reahl.slidingpanel.js"/>
-  </attachedfiles>
-
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/web_dev -i'.*' -t "/>
   
   <distpackage type="wheel">

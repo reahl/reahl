@@ -2,7 +2,6 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.web.fw import UserInterface, Widget
 from reahl.web.ui import HTML5Page, Div, P, H
-from reahl.sqlalchemysupport import Session
 
 
 class AddressBookUI(UserInterface):
@@ -12,7 +11,7 @@ class AddressBookUI(UserInterface):
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
-        super(AddressBookPage, self).__init__(view, style='basic')
+        super(AddressBookPage, self).__init__(view)
         self.body.add_child(AddressBookPanel(view))
 
 

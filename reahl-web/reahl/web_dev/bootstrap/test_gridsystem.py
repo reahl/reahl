@@ -19,11 +19,10 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, expected, test, NoException, Fixture
+from reahl.tofu import vassert, expected, test, NoException, Fixture
 
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebFixture
-
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.ui import HTMLAttributeValueOption

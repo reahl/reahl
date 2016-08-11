@@ -23,20 +23,14 @@ from reahl.tofu import scenario
 from reahl.tofu import test
 from reahl.tofu import vassert
 
-from reahl.component.modelinterface import Field
-from reahl.web.fw import CannotCreate
-from reahl.web.fw import IdentityDictionary
-from reahl.web.fw import UrlBoundView
-from reahl.web.fw import UserInterface
-from reahl.web.fw import Region
-from reahl.web.ui import HTML5Page
-from reahl.web.ui import P
-from reahl.web.layout import PageLayout
-from reahl.web.pure import ColumnLayout
 from reahl.webdev.tools import Browser
 from reahl.webdev.tools import XPath
 from reahl.web_dev.fixtures import WebFixture
 
+from reahl.component.modelinterface import Field
+from reahl.web.fw import CannotCreate, IdentityDictionary, UrlBoundView, UserInterface
+from reahl.web.ui import HTML5Page, P
+from reahl.web.layout import PageLayout, ColumnLayout
 
 @istest
 class ParameterisedTests(object):
@@ -183,44 +177,6 @@ class ParameterisedTests(object):
         # When the URL cannot be mapped
         browser.open('/a_ui/apath/doesnotexist/', status=404)
 
-
-    @test(WebFixture)
-    def backwards_compatibility(self, fixture):
-        """Parameterised, sub UserInterfaces can also be created with define_regex_region, for backwards compatibility.
-        """
-
-        class RegexUserInterface(Region):
-            def assemble(self, ui_key=None):
-                if ui_key == 'doesnotexist':
-                    raise CannotCreate()
-
-                self.name = 'user_interface-%s' % ui_key
-                root = self.define_view('/', title='Simple user_interface %s' % self.name)
-                root.set_slot('user_interface-slot', P.factory(text='in user_interface slot'))
-
-        class UIWithParameterisedUserInterfaces(Region):
-            def assemble(self):
-                self.define_regex_region('/apath/(?P<ui_key>[^/]*)',
-                                         '/apath/${ui_key}',
-                                         RegexUserInterface,
-                                         {'user_interface-slot': 'main'},
-                                         ui_key=Field())
-
-        class MainUI(Region):
-            def assemble(self):
-                self.define_main_window(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
-                self.define_region('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
-
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
-
-        # A sub-user_interface is dynamically created from an URL
-        with warnings.catch_warnings(record=True) as caught_warnings:
-            warnings.simplefilter('always')
-            browser.open('/a_ui/apath/test1/')
-            vassert( browser.title == 'Simple user_interface user_interface-test1' )
-
-        vassert( caught_warnings )
 
 
     class ParameterisedUserInterfaceScenarios(WebFixture):

@@ -119,10 +119,17 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
     :keyword xl: Size to use if the device is extra large.
 
     """
+
+    @arg_checks(xs=IsInstance(int, allow_none=True), sm=IsInstance(int, allow_none=True),
+                md=IsInstance(int, allow_none=True), lg=IsInstance(int, allow_none=True),
+                xl=IsInstance(int, allow_none=True))
     def __init__(self, xs=None, sm=None, md=None, lg=None, xl=None):
         super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg, xl=xl)
         self.offsets = {}
 
+    @arg_checks(xs=IsInstance(int, allow_none=True), sm=IsInstance(int, allow_none=True),
+                md=IsInstance(int, allow_none=True), lg=IsInstance(int, allow_none=True),
+                xl=IsInstance(int, allow_none=True))
     def offset(self, xs=None, sm=None, md=None, lg=None, xl=None):
         self.offsets = ResponsiveSize(xs=xs, sm=sm, md=md, lg=lg, xl=xl)
         return self

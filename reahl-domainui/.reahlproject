@@ -28,7 +28,6 @@
     <egg name="reahl-bzrsupport"/>
   </deps>
 
-  <export entrypoint="reahl.workflowui.task_widgets" name="TaskWidget" locator="reahl.domainui.workflow:TaskWidget"/>
   <export entrypoint="reahl.workflowui.task_widgets" name="bootstrap.TaskWidget" locator="reahl.domainui.bootstrap.workflow:TaskWidget"/>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/domainui_dev -t -i '.*'"/>

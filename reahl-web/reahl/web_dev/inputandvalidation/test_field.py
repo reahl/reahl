@@ -23,13 +23,10 @@ from reahl.stubble import stubclass
 from reahl.tofu import vassert
 from reahl.component.py3compat import html_escape
 
-from reahl.component.modelinterface import Field, EmailField, PasswordField, BooleanField, IntegerField, \
-                             ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
+from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
-                             EqualToConstraint, RemoteConstraint, IntegerConstraint, \
-                             MaxValueConstraint, MinValueConstraint, exposed
-from reahl.web.ui import InputTypeInput, Form, TextInput
-from reahl.web.ui import Button
+                             EqualToConstraint, RemoteConstraint, exposed
+from reahl.web.ui import InputTypeInput, Form, TextInput, ButtonInput
 from reahl.webdev.tools import WidgetTester
 from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.web_dev.inputandvalidation.test_input import InputMixin, InputMixin2
@@ -39,7 +36,7 @@ class FieldFixture(Fixture, InputMixin):
     pass
 
 class ConstraintRenderingFixture(Fixture, WebBasicsMixin, InputMixin2):
-    def new_field(self, name='an_attribute', label='the label'):
+    def new_field(self, name='an_attribute', label='an attribute'):
         field = super(ConstraintRenderingFixture, self).new_field(label=label)
         field.bind(name, self.model_object)
         return field
@@ -111,7 +108,7 @@ class FieldTests(object):
                 field = model_object.fields.an_attribute
                 self.add_child(TextInput(self, model_object.fields.an_attribute))
                 self.define_event_handler(model_object.events.an_event)
-                self.add_child(Button(self, model_object.events.an_event))
+                self.add_child(ButtonInput(self, model_object.events.an_event))
 
         wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
         fixture.reahl_server.set_app(wsgi_app)
@@ -126,7 +123,7 @@ class FieldTests(object):
         fixture.driver_browser.press_tab('//input')
         fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
         error_text = fixture.driver_browser.get_text("//form/label[@class='error']")
-        vassert( fixture.is_error_text('the label is invalid') )
+        vassert( fixture.is_error_text('an attribute is invalid') )
 
         # A passing value causes an ajax call resulting in clearing of any previous errors
         fixture.driver_browser.type('//input[@type="text"]', 'passing value')
@@ -138,7 +135,7 @@ class FieldTests(object):
         fixture.driver_browser.press_tab('//input')
         fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
         error_text = fixture.driver_browser.get_text("//form/label[@class='error']")
-        vassert( fixture.is_error_text('the label is invalid') )
+        vassert( fixture.is_error_text('an attribute is invalid') )
         
 
 @istest
@@ -257,8 +254,8 @@ class SpecificConstraintTests(object):
         class ModelObject(object):
             @exposed
             def fields(self, fields):
-                fields.an_attribute = Field(label='the label')
-                fields.other = Field(label='other label')
+                fields.an_attribute = Field(label='an attribute')
+                fields.other = Field(label='other attribute')
 
         model_object = ModelObject()
         other_field = model_object.fields.other
@@ -283,7 +280,7 @@ class SpecificConstraintTests(object):
         fixture.driver_browser.type('//input[@id="other"]', 'something')
         fixture.driver_browser.press_tab('//input[@id="one"]')
         fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-        vassert( fixture.is_error_text('the label, other label') )
+        vassert( fixture.is_error_text('an attribute, other attribute') )
 
         fixture.driver_browser.type('//input[@id="one"]', 'something')
         fixture.driver_browser.press_tab('//input[@id="one"]')

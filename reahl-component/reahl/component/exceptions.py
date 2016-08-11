@@ -130,7 +130,7 @@ class ArgumentCheck(Exception):
         self.arg_name = arg_name
         self.value = value
         raise self
-    
+
 class TypeBasedArgumentCheck(ArgumentCheck):
     def __init__(self, type_or_string, allow_none=False):
         super(TypeBasedArgumentCheck, self).__init__(allow_none=allow_none)
@@ -145,7 +145,7 @@ class IsInstance(TypeBasedArgumentCheck):
 
     def __str__(self):
         return '%s: %s should be an instance of %s (got %s instead)' % (self.func, self.arg_name, self.type_.value, self.value)
-        
+
 class IsSubclass(TypeBasedArgumentCheck):
     def is_valid(self, value):
         return inspect.isclass(value) and (issubclass(value, self.type_.value) or self.is_marked_with_attribute(value))

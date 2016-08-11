@@ -65,35 +65,6 @@ The Reahl 3.1 series allowed use of the `reahl-web-elixirimpl` egg which was dis
 with Reahl 2.x to ease transition from the 2 to 3 series. In Reahl 3.2 this usage of some
 older 2.x version eggs is no longer supported.
 
-Changes to existing layout tools
---------------------------------
-
-.. |PageColumnLayout| replace:: :class:`~reahl.web.pure.PageColumnLayout`
-.. |pure.ColumnLayout| replace:: :class:`reahl.web.pure.ColumnLayout`
-.. |grid.ColumnLayout| replace:: :class:`reahl.web.bootstrap.grid.ColumnLayout`
-.. |Layout| replace:: :class:`~reahl.web.fw.Layout`
-.. |PageLayout| replace:: :class:`~reahl.web.layout.PageLayout`
-
-In the process of having to support Bootstrap, our existing concept of
-|PageColumnLayout| has grown too. 
-
-|PageColumnLayout| has too much responsibility. It structures a page
-with header, footer etc but it also structures the content area of the
-page into columns. In order to do this, |PageColumnLayout|
-hard-codes the use of a |pure.ColumnLayout| and we wanted to be able
-to use it with a |grid.ColumnLayout| too.
-
-The new :class:`reahl.web.layout.PageLayout` solves this problem by
-only taking responsibility for the page itself (header, content,
-footer). You can optionally also set up a |PageLayout| with a separate
-|Layout| for each of it parts (header, document, content,
-footer). Detailed layout of each part is thus decoupled from the
-|PageLayout| itself and delegated to whatever |Layout| you specify for
-that part.
-
-This arrangement makes it possible to use |PageLayout| with either a
-|pure.ColumnLayout| or the new |grid.ColumnLayout| in addition to
-other possibilities.
 
 Updated dependencies
 --------------------

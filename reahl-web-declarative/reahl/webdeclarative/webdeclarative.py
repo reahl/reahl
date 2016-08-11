@@ -33,7 +33,6 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration
 from reahl.component.context import ExecutionContext
 from reahl.component.migration import Migration
-from reahl.component.decorators import deprecated
 from reahl.web.interfaces import UserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
 from reahl.web.fw import WebExecutionContext, Url
 
@@ -73,22 +72,12 @@ class UserSession(Base, UserSessionProtocol):
         self.set_idle_lifetime(False)
         super(UserSession, self).__init__(**kwargs)
 
-    @deprecated('Please use LoginSession.is_logged_in(secured=True) instead.', '3.1')
-    def is_secure(self):
-        from reahl.systemaccountmodel import LoginSession
-        return LoginSession.for_current_session().is_logged_in(secured=True)
-
     def is_secured(self):
         context = WebExecutionContext.get_context()
         return self.is_within_timeout(context.config.web.idle_secure_lifetime) \
                and context.request.scheme == 'https' \
                and self.secure_cookie_is_valid()
 
-    @deprecated('Please use LoginSession.is_logged_in instead.', '3.1')
-    def is_logged_in(self):
-        from reahl.systemaccountmodel import LoginSession
-        return LoginSession.for_current_session().is_logged_in()
-        
     def is_active(self):
         return self.is_within_timeout(self.idle_lifetime)
 
