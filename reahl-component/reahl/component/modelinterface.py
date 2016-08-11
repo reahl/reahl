@@ -39,7 +39,6 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Translator
-from reahl.component.decorators import memoized, deprecated
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 import collections

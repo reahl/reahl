@@ -41,7 +41,6 @@ import warnings, re
 from babel import UnknownLocaleError, Locale
 
 from reahl.component.eggs import ReahlEgg
-from reahl.component.decorators import deprecated
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark, Url, WebExecutionContext
