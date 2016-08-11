@@ -30,7 +30,6 @@ import six
 import warnings
 from collections import OrderedDict
 
-from reahl.component.decorators import deprecated
 from reahl.component.exceptions import IsInstance, ProgrammerError
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks

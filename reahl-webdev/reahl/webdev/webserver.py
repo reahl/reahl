@@ -501,7 +501,7 @@ class ReahlWebServer(object):
         finally:
             self.stop()
 
-    def start(self, in_separate_thread=True,  connect=False, in_seperate_thread=None):
+    def start(self, in_separate_thread=True,  connect=False):
         """Starts the webserver and web application.
         
            :keyword in_separate_thread: If False, the server handles requests in the same thread as your tests.
@@ -509,13 +509,7 @@ class ReahlWebServer(object):
            :keyword connect: If True, also connects to the database.
         """
         self.reahl_wsgi_app.start(connect=connect)
-
-        if in_seperate_thread:
-            warnings.warn('The in_seperate_thread keyword argument is deprecated, please use in_separate_thread instead.',
-               DeprecationWarning, stacklevel=2)
-            self.in_separate_thread = in_seperate_thread
-        else:
-            self.in_separate_thread = in_separate_thread
+        self.in_separate_thread = in_separate_thread
 
         if self.in_separate_thread:
             self.start_thread()

@@ -26,7 +26,6 @@ This (experimental) version is based on the new bootstrap-based Widgets (:mod:`r
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
-from reahl.component.decorators import deprecated
 from reahl.sqlalchemysupport import PersistedField
 from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
 from reahl.web.ui import HTMLWidget

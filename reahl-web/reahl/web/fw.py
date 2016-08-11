@@ -58,7 +58,6 @@ from webob.request import DisconnectionError
 from reahl.component.config import StoredConfiguration
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
-from reahl.component.decorators import deprecated
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import ArgumentCheckedCallable
 from reahl.component.exceptions import DomainException
@@ -2045,16 +2044,10 @@ class MethodResult(object):
           Set the default for catch_exception to DomainException
     """
     redirects_internally = False
-    def __init__(self, catch_exception=DomainException, content_type=None, mime_type='text/html', charset=None, encoding='utf-8', replay_request=False):
-        if charset:
-            warnings.warn('The charset keyword argument is deprecated, please use encoding instead.', 
-                          DeprecationWarning, stacklevel=2)
-        if content_type:
-            warnings.warn('The charset keyword argument is deprecated, please use mime_type instead.', 
-                          DeprecationWarning, stacklevel=2)
+    def __init__(self, catch_exception=DomainException, mime_type='text/html', encoding='utf-8', replay_request=False):
         self.catch_exception = catch_exception
-        self.mime_type = content_type or mime_type
-        self.encoding = charset or encoding
+        self.mime_type = mime_type
+        self.encoding = encoding
         self.replay_request = replay_request
 
     def create_response(self, return_value):
@@ -2106,13 +2099,15 @@ class RedirectAfterPost(MethodResult):
        RemoteMethod instead of actually returning the result for display. A RedirectAfterPost is meant to be
        used by the EventChannel only.
 
-       :param content_type: (See :class:`MethodResult`.)
+       :param mime_type: (See :class:`MethodResult`.)
        :param encoding: (See :class:`MethodResult`.)
+
+
+       .. versionchanged: 4.0
+          Renamed content_type to mime_type and charset to encoding in line with MethodResult args.
     """
-    def __init__(self, content_type=None, mime_type='text/html', charset=None, encoding='utf-8'):
-        super(RedirectAfterPost, self).__init__(catch_exception=DomainException, 
-                                                content_type=content_type, mime_type=mime_type, 
-                                                charset=charset, encoding=encoding)
+    def __init__(self, mime_type='text/html', encoding='utf-8'):
+        super(RedirectAfterPost, self).__init__(catch_exception=DomainException, mime_type=mime_type, encoding=encoding)
 
     def create_response(self, return_value):
         next_url = return_value
