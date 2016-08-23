@@ -84,32 +84,61 @@ class Mailer(object):
        :param smtp_host: The host to connect to.
        :param smtp_port: The port to connect to.
        :param smtp_user: The username to use (if specified) for authentication.
-       :param smtp_password: The password to authenticate with the smtp host
+       :param smtp_password: The password to authenticate with the smtp host.
+       :param smtp_use_initial_encrypted_connection: If True, connect to the server using a secure connection (use with smtps)
+       :param smtp_upgrade_initial_connection_to_encrypted: If True, connects to the server unencrypted, but then upgrade to a secure connection using STARTTLS (use with submission or smtp)
+       :param smtp_keyfile: Keyfile to use for identifying the local end of the connection.
+       :param smtp_certfile: Certfile to use for identifying the local end of the connection.
     """
-    @classmethod 
+    @classmethod
     def from_context(cls):
-        """Returns a Mailer, using the host and port of the system configuration."""
+        """Returns a Mailer, using the system configuration."""
         config = ExecutionContext.get_context().config
         smtp_host = config.mail.smtp_host
         smtp_port = config.mail.smtp_port
-        
-        return cls(smtp_host=smtp_host, smtp_port=smtp_port)
+        smtp_user = config.mail.smtp_user
+        smtp_password = config.mail.smtp_password
+        smtp_use_initial_encrypted_connection = config.mail.smtp_use_initial_encrypted_connection
+        smtp_upgrade_initial_connection_to_encrypted = config.mail.smtp_upgrade_initial_connection_to_encrypted
+        smtp_keyfile = config.mail.smtp_keyfile
+        smtp_certfile = config.mail.smtp_certfile
+        return cls(smtp_host=smtp_host, smtp_port=smtp_port, smtp_user=smtp_user, smtp_password=smtp_password,
+                   smtp_use_initial_encrypted_connection=smtp_use_initial_encrypted_connection,
+                   smtp_upgrade_initial_connection_to_encrypted=smtp_upgrade_initial_connection_to_encrypted,
+                   smtp_keyfile=smtp_keyfile, smtp_certfile=smtp_certfile)
 
-    def __init__(self, smtp_host='localhost', smtp_port=8025, smtp_user=None, smtp_password=None):
+
+    def __init__(self, smtp_host='localhost', smtp_port=8025, smtp_user=None, smtp_password=None,
+                 smtp_use_initial_encrypted_connection=False, 
+                 smtp_upgrade_initial_connection_to_encrypted=False,
+                 smtp_keyfile=None, smtp_certfile=None):
         self.smtp_host = smtp_host
         self.smtp_port = smtp_port
         self.smtp_user = smtp_user
         self.smtp_password = smtp_password
+        self.smtp_use_initial_encrypted_connection = smtp_use_initial_encrypted_connection
+        self.smtp_upgrade_initial_connection_to_encrypted = smtp_upgrade_initial_connection_to_encrypted
+        self.smtp_keyfile = smtp_keyfile
+        self.smtp_certfile = smtp_certfile
+
         self.smtp_server = None
         self.connected = False
-     
-    def connect(self):    
-        self.smtp_server = smtplib.SMTP(self.smtp_host, self.smtp_port)
+
+    def connect(self):
+        if self.smtp_use_initial_encrypted_connection:
+            self.smtp_server = smtplib.SMTP_SSL(self.smtp_host, self.smtp_port,
+                                                keyfile=self.smtp_keyfile, certfile=self.smtp_certfile)
+        else:
+            self.smtp_server = smtplib.SMTP(self.smtp_host, self.smtp_port)
+            if self.smtp_upgrade_initial_connection_to_encrypted:
+                self.smtp_server.ehlo()
+                self.smtp_server.starttls(keyfile=self.smtp_keyfile, certfile=self.smtp_certfile)
+                self.smtp_server.ehlo()
         if self.smtp_user:
             self.smtp_server.login(self.smtp_user, self.smtp_password)
         self.connected = True
         logging.debug('connected to server')
-        
+
     def send_message(self, message):
         """Sends `message` (a :class:`MailMessage`) to the connected SMTP server."""
         try:
@@ -117,9 +146,9 @@ class Mailer(object):
             self.smtp_server.sendmail(message.from_address, message.to_addresses, message.as_string())
         finally:
             self.disconnect()
-        
-    def disconnect(self):   
-        if self.connected: 
+
+    def disconnect(self):
+        if self.connected:
             try:
                 self.smtp_server.quit()
             except smtplib.SMTPServerDisconnected as e:
@@ -127,4 +156,5 @@ class Mailer(object):
 
         self.connected = False
         self.smtp_server = None
+
 
