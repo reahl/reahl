@@ -85,7 +85,7 @@ Lastly, you need to change your configuration to include your new
 
    from some.module import MyLibrary
 
-   web.config.frontend_libraries.add(MyLibrary())
+   web.frontend_libraries.add(MyLibrary())
 
 Once this is done your CSS and JavaScript will be present on any
 :class:`~reahl.web.ui.HTML5Page`.
