@@ -26,7 +26,7 @@ class StatusException(Exception):
         import reahl.dev.exceptions
         return [i for i in [getattr(reahl.dev.exceptions, name) for name in dir(reahl.dev.exceptions)]
                 if inspect.isclass(i) and issubclass(i, cls) and i is not cls]
-            
+
 
 class NoException(StatusException):
     legend = '+'

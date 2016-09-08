@@ -44,7 +44,7 @@ from functools import reduce
 class DevShellConfig(Configuration):
     commands = EntryPointClassList('reahl.dev.commands', description='All commands (classes) that can be handled by the development shell')
 
-    
+
 class WorkspaceCommand(Command):
     """A specialised form of Command which is used in development. Its operations are assumed to often involve
     the development workspace.
@@ -68,7 +68,7 @@ class Refresh(WorkspaceCommand):
     """Reconstructs the working set of projects by searching through the given directories (by default the entire workspace directory)."""
     keyword = 'refresh'
     usage_args = '[directory...]'
-    options = [('-A', '--append', dict(action='store_true', dest='append', 
+    options = [('-A', '--append', dict(action='store_true', dest='append',
                                        help='append to the current working set'))]
     def execute(self, options, args):
         self.workspace.refresh(options.append, args)
@@ -85,13 +85,13 @@ class ExplainLegend(WorkspaceCommand):
 class Select(WorkspaceCommand):
     """Selects a subset of projects in the workspace based on their state."""
     keyword = 'select'
-    options = [('-a', '--all', dict(action='store_true', dest='all', 
+    options = [('-a', '--all', dict(action='store_true', dest='all',
                                     help='operate on all projects in the workspace')),
-               ('-A', '--append', dict(action='store_true', dest='append', 
+               ('-A', '--append', dict(action='store_true', dest='append',
                                     help='append to the current selection')),
                ('-s', '--state', dict(action='append', dest='states', default=[],
                                       help='operate on projects with given state')),
-               ('-n', '--not', dict(action='store_true', dest='negated', 
+               ('-n', '--not', dict(action='store_true', dest='negated',
                                     help='negates a state selection')),
                ('-t', '--tagged', dict(action='append', dest='tags', default=[],
                                        help='operate on projects tagged as specified'))]
@@ -173,11 +173,11 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
 
     options = [('-s', '--selection', dict(action='store_true', dest='selection', default=False,
                                           help='operate on all projects in the current selection')),
-               ('-a', '--all', dict(action='store_true', dest='all', 
+               ('-a', '--all', dict(action='store_true', dest='all',
                                     help='operate on all projects in the workspace')),
                ('-S', '--state', dict(action='append', dest='states', default=[],
                                       help='operate on projects with given state')),
-               ('-n', '--not', dict(action='store_true', dest='negated', 
+               ('-n', '--not', dict(action='store_true', dest='negated',
                                     help='negates a state selection')),
                ('-t', '--tagged', dict(action='append', dest='tags', default=[],
                                        help='operate on projects tagged as specified')),
@@ -218,14 +218,14 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
                     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
                     NotUploadedException, AlreadyMarkedAsReleasedException,
-                    AlreadyUploadedException, NotBuiltException, 
+                    AlreadyUploadedException, NotBuiltException,
                     NotBuiltAfterLastCommitException, NotBuiltException) as ex:
                 print(six.text_type(ex), file=sys.stderr)
                 retcode = None
             except CalledProcessError as ex:
                 print(six.text_type(ex), file=sys.stderr)
                 retcode = ex.returncode
-          
+
         if retcode != None:
             if isinstance(retcode, six.string_types):
                 print('ERROR: Child was terminated with error message: %s\n' % retcode, file=sys.stderr)
@@ -301,8 +301,8 @@ class AliasWorkspaceCommand(ForAllWorkspaceCommand):
             return -1
         command = self.commandline.command_named(full_command[0])
         dash_index = full_command.index('--')
-        return command.execute_one(project, options, full_command[dash_index+1:]+args) 
-        
+        return command.execute_one(project, options, full_command[dash_index+1:]+args)
+
 
 class Debianise(ForAllWorkspaceCommand):
     """Debianises a project."""
@@ -330,12 +330,13 @@ class Info(ForAllWorkspaceCommand):
         for project in projects:
             self.print_heading('\tProject:\t%s' % project.directory)
             print('\tIs version controlled?:\t%s' % project.is_version_controlled())
-            print('\tLast commit:\t\t%s' % project.source_control.last_commit_time)
-            print('\tUnchanged?:\t\t%s' % project.is_unchanged())
-            print('\tNeeds new version?:\t%s' % project.needs_new_version())
-            print('\tIs checked in?:\t\t%s' % project.is_checked_in())
+            if project.is_version_controlled():
+               print('\tLast commit:\t\t%s' % project.source_control.last_commit_time)
+               print('\tUnchanged?:\t\t%s' % project.is_unchanged())
+               print('\tNeeds new version?:\t%s' % project.needs_new_version())
+               print('\tIs checked in?:\t\t%s' % project.is_checked_in())
 
-        self.print_heading('\tProject:\t%s' % main_project.directory)
+        self.print_heading('\tMain project:\t%s' % main_project.directory)
         self.print_heading('\tPackages to distribute:')
         for package in main_project.packages_to_distribute:
             print('\t%s' % six.text_type(package))
@@ -408,7 +409,7 @@ class Shell(ForAllParsedWorkspaceCommand):
             yield
 
         context_manager = project.generated_setup_py if options.generate_setup_py else nop_context_manager
-        with context_manager():   
+        with context_manager():
             command = self.do_shell_expansions(project.directory, args)
             return Executable(command[0]).call(command[1:], cwd=project.directory)
 
@@ -485,9 +486,9 @@ class Upload(ForAllWorkspaceCommand):
                                                                      help='upload regardless of possible previous uploads'))]
     def function(self, project, options, args):
         if options.ignore_release_checks:
-            print('WARNING: Ignoring release checks at your request') 
+            print('WARNING: Ignoring release checks at your request')
         if options.ignore_upload_check:
-            print('WARNING: Overwriting possible previous uploads') 
+            print('WARNING: Overwriting possible previous uploads')
         project.upload(knocks=options.knocks, ignore_release_checks=options.ignore_release_checks, ignore_upload_check=options.ignore_upload_check)
         return 0
 

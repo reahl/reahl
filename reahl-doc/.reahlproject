@@ -31,12 +31,6 @@
     <egg name="reahl-sqlitesupport"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
-
-
     <persisted>
         <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>

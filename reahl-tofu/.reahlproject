@@ -13,10 +13,6 @@
     <egg name="reahl-tofu"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <export entrypoint="nose.plugins.0.10" name="run-fixture" locator="reahl.tofu.nosesupport:RunFixturePlugin"/>
   <export entrypoint="nose.plugins.0.10" name="long-output" locator="reahl.tofu.nosesupport:LongOutputPlugin"/>
   <export entrypoint="nose.plugins.0.10" name="test-directory" locator="reahl.tofu.nosesupport:TestDirectoryPlugin"/>

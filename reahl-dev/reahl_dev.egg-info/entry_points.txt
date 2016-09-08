@@ -44,6 +44,7 @@ EntryPointExport = reahl.dev.devdomain:EntryPointExport
 ExcludedPackage = reahl.dev.devdomain:ExcludedPackage
 ExtraPath = reahl.dev.devdomain:ExtraPath
 ExtrasList = reahl.dev.devdomain:ExtrasList
+GitSourceControl = reahl.dev.devdomain:GitSourceControl
 HardcodedMetadata = reahl.dev.devdomain:HardcodedMetadata
 MetaInfo = reahl.dev.devdomain:MetaInfo
 MigrationList = reahl.dev.devdomain:MigrationList

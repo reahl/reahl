@@ -1,5 +1,5 @@
 <project type="chicken">
-  <sourcecontrol type="bzr"/>
+  <sourcecontrol type="git"/>
   <metadata type="debian" url="http://www.reahl.org"/>
 
   <extras name="all">
@@ -53,10 +53,6 @@
 
   <excludepackage name="reahl.doc.*"/>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-  
   <distpackage type="wheel">
     <packageindex repository="devpi"/>
   </distpackage>

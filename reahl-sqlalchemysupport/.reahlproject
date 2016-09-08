@@ -20,10 +20,6 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <persisted>
     <class locator="reahl.sqlalchemysupport:SchemaVersion"/>
   </persisted>

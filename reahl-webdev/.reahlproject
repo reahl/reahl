@@ -16,10 +16,6 @@
     <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="nose"/>
     <egg name="reahl-postgresqlsupport"/>

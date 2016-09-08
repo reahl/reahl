@@ -7,10 +7,6 @@
     <egg name="reahl-component"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <deps purpose="test">
     <thirdpartyegg name="nose"/>
   </deps>
