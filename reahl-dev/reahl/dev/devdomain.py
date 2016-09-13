@@ -39,7 +39,6 @@ from pkg_resources import require, DistributionNotFound, VersionConflict, get_di
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
 
-from reahl.bzrsupport import Bzr
 from reahl.component.shelltools import Executable, ExecutableNotInstalledException
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
@@ -286,7 +285,7 @@ class DebianPackage(DistributionPackage):
 
     def build(self):
         self.generate_install_files()
-        Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr', '-k%s' % os.environ['EMAIL']], cwd=self.project.directory)
+        Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr','-I.git', '-k%s' % os.environ['EMAIL']], cwd=self.project.directory)
         self.project.distribution_apt_repository.upload(self, [])
         self.clean_files(self.build_output_files)
         return 0
@@ -1297,41 +1296,6 @@ class SourceControlSystem(object):
 
 
 
-class BzrSourceControl(SourceControlSystem):
-    def __str__(self):
-        return 'Bzr source control'
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('sourcecontrol', cls, 'bzr')
-
-    def inflate_attributes(self, reader, attributes, parent):
-        self.__init__(parent)
-
-    def __init__(self, parent):
-        super(BzrSourceControl, self).__init__(parent)
-        self.bzr = Bzr(self.project.directory)
-
-    @property
-    def last_commit_time(self):
-        return self.bzr.last_commit_time
-
-    def is_unchanged(self):
-        tag = six.text_type(self.project.version)
-        return tag in self.bzr.get_tags(head_only=True)
-
-    def needs_new_version(self):
-        tag = six.text_type(self.project.version)
-        return tag in self.bzr.get_tags()
-
-    def is_version_controlled(self):
-        return self.bzr.is_version_controlled()
-
-    def is_checked_in(self):
-        return self.bzr.is_checked_in()
-
-    def place_tag(self, tag):
-        self.bzr.tag(tag)
 
 
 class GitSourceControl(SourceControlSystem):

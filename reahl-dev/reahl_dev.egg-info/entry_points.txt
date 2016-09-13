@@ -31,7 +31,6 @@ UpdateAptRepository = reahl.dev.devshell:UpdateAptRepository
 Upload = reahl.dev.devshell:Upload
 
 [reahl.dev.xmlclasses]
-BzrSourceControl = reahl.dev.devdomain:BzrSourceControl
 ChickenProject = reahl.dev.devdomain:ChickenProject
 CommandAlias = reahl.dev.devdomain:CommandAlias
 ConfigurationSpec = reahl.dev.devdomain:ConfigurationSpec
