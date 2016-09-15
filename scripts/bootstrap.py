@@ -155,7 +155,11 @@ def find_missing_dependencies(workspace):
         missing.update(project.list_missing_dependencies(for_development=True))
     return list(missing)
 
+
 def print_final_message(missing_dependencies):
+    debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-9.3', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev']
+    general_debs_needed = ['equivs', 'openssh-client', 'dpkg-dev', 'chromium-browser', 'chromium-chromedriver']
+
     print('')
     print('')
     print('-- ALL DONE --------------------------------------------------------------------------')
@@ -178,7 +182,7 @@ def print_final_message(missing_dependencies):
       print('      on your system. What these are called may differ depending on your distribution/OS,')
       print('      As a hint, on ubuntu these are called:')
       print('')
-      print('  python-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-9.1 zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms1-dev')
+      print('  '+' '.join(debs_needed_to_compile_python)) 
       print('')
       print('NB:  You will have to run this script again after satisfying these dependencies')
       print('')
@@ -189,7 +193,11 @@ def print_final_message(missing_dependencies):
       print('What these are called may differ depending on your distribution/OS.')
       print('As a hint, on ubuntu systems these are:')
       print('')
-      print(' equivs openssh-client dpkg-dev ')
+      print('  '+' '.join(general_debs_needed)) 
+      print('')
+      print('NOTE: If you\'re working in a virtualenv and want to pip install dependencies, you will also need:')
+      print('')
+      print('  '+' '.join(debs_needed_to_compile_python)) 
       print('')
 
 
