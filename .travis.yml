@@ -37,19 +37,20 @@ python:
 #  - 2.7
 
 before_install: 
+  # Install stuff we can't install with apt addon
   - "sudo apt-get install -qq libxslt-dev chromium-chromedriver chromium-browser"
-  - "export PATH=$PATH:/usr/lib/chromium-browser/"
+  - "export PATH=$PATH:/usr/lib/chromium-browser/"    # Fix chromedriver path
 
+  # Import weak key used for testing
   - "gpg --import travis/testkey.public.asc travis/testkey.secret.asc"
   - "gpg --import-ownertrust < travis/testkey.trust.asc"
   - "gpg --list-keys"
   - "gpg --list-secret-keys"
 
-  - "echo $VIRTUAL_ENV"
+
 
 install:
-  - "echo $VIRTUAL_ENV"
-#  - "breakherefornow "
+#  - "breakherefornow TODO:"
 #  - "python scripts/bootstrap.py --script-dependencies"
 #  - "python scripts/bootstrap.py --pip-installs"
 #  - "reahl-control createdbuser reahl-web/etc/"
@@ -57,24 +58,21 @@ install:
 #  - "reahl setup -sX -- develop -N"
 
 before_script:
-  - "echo $VIRTUAL_ENV"
-
+  # Setup ssh for password-less access to localhost
   - ssh-keygen -f ~/.ssh/id_rsa -N ""
   - cp ~/.ssh/{id_rsa.pub,authorized_keys}
 
   - eval $(ssh-agent)
   - ssh-add
 
-  - touch /tmp/testing
-  - scp -o StrictHostKeyChecking=no /tmp/testing localhost:/tmp/testing2
-  - "ls -la /tmp/testing*"
+  - ssh -o StrictHostKeyChecking=no localhost ls
 
+  # Set up headless display for browsers
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 
 script:
-  - "echo $VIRTUAL_ENV"
   - "breakherefornow "
 #  - "reahl shell -sX -- reahl unit"
 
