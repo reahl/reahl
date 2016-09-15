@@ -9,6 +9,7 @@ addons:
         - dpkg-dev 
         - chromium-browser 
         - chromium-chromedriver
+        - gpg2
 
         - python-virtualenv
         - python-dev
@@ -31,12 +32,20 @@ language: python
 python:
   - 3.4
 
+before_install: "gpg2 --gen-key --batch scripts/maketestkey"
+
 install:
   - "python scripts/bootstrap.py --script-dependencies"
   - "python scripts/bootstrap.py --pip-installs"
   - "reahl-control createdbuser reahl-web/etc/"
   - "reahl-control createdb reahl-web/etc/"
   - "reahl setup -sX -- develop -N"
+
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
 
 script:
   - "reahl shell -sX -- reahl unit"
