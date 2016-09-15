@@ -35,7 +35,7 @@ python:
   - 3.4
 
 before_install: 
-  - "sudo apt-get install -qq gnupg2 libxslt-dev" # chromium-chromedriver chromium-browser
+  - "sudo apt-get install -qq gnupg2 libxslt-dev chromium-chromedriver chromium-browser"
   - "chromedriver -h"
   - "chromium-browser -h"
 #  - "gpg --gen-key --batch scripts/maketestkey"
