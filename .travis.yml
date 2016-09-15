@@ -1,4 +1,6 @@
-sudo: false
+sudo: required
+dist: trusty
+
 
 addons:
 #  postgresql: "9.4"
@@ -33,9 +35,10 @@ python:
   - 3.4
 
 before_install: 
+  - "sudo apt-get install -qq gnupg2 libxslt-dev" # chromium-chromedriver chromium-browser
   - "chromedriver -h"
   - "chromium-browser -h"
-  - "gpg --gen-key --batch scripts/maketestkey"
+#  - "gpg --gen-key --batch scripts/maketestkey"
   - "gpg2 --gen-key --batch scripts/maketestkey"
 
 
