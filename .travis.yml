@@ -37,9 +37,14 @@ python:
 before_install: 
   - "sudo apt-get install -qq gnupg2 libxslt-dev chromium-chromedriver chromium-browser"
   - "export PATH=$PATH:/usr/lib/chromium-browser/"
-  - "chromedriver -h"
+  - "cp -a travis/testkeys ~/.gnupg && chmod 700 ~/.gnupg"
+  - "ls ~/.gnupg"
+  - "gpg --list-keys"
+  - "gpg --list-secret-keys"
+  
 #  - "gpg --gen-key --batch scripts/maketestkey"
-  - "gpg2 --gen-key --batch scripts/maketestkey"
+#  - "gpg2 --version"
+  - "breakherefornow gpg2 --gen-key --batch scripts/maketestkey"
 
 
 install:
