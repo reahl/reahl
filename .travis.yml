@@ -7,9 +7,9 @@ addons:
         - equivs 
         - openssh-client 
         - dpkg-dev 
-        - chromium-browser 
-        - chromium-chromedriver
-        - gpg2
+#        - chromium-browser 
+#        - chromium-chromedriver
+        - gnupg2
 
         - python-virtualenv
         - python-dev
@@ -32,7 +32,10 @@ language: python
 python:
   - 3.4
 
-before_install: "gpg2 --gen-key --batch scripts/maketestkey"
+before_install: 
+  - "gpg2 --gen-key --batch scripts/maketestkey"
+  - "chromedriver -h"
+  - "chromium-browser -h"
 
 install:
   - "python scripts/bootstrap.py --script-dependencies"
