@@ -37,7 +37,7 @@ python:
 before_install: 
   - "sudo apt-get install -qq gnupg2 libxslt-dev chromium-chromedriver chromium-browser"
   - "export PATH=$PATH:/usr/lib/chromium-browser/"
-  - "chromium-browser -h"
+  - "chromedriver -h"
 #  - "gpg --gen-key --batch scripts/maketestkey"
   - "gpg2 --gen-key --batch scripts/maketestkey"
 
