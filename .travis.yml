@@ -39,6 +39,10 @@ before_install:
   - "export PATH=$PATH:/usr/lib/chromium-browser/"
   - "cp -a travis/testkeys ~/.gnupg && chmod 700 ~/.gnupg"
   - "ls ~/.gnupg"
+  - "gpg2 --list-keys"
+  - "gpg2 --list-secret-keys"
+  - "sudo mv /usr/bin/gpg /usr/bin/gpg1"
+  - "sudo update-alternatives --verbose --install /usr/bin/gpg gnupg /usr/bin/gpg2"
   - "gpg --list-keys"
   - "gpg --list-secret-keys"
   

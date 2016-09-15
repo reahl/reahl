@@ -1,7 +1,7 @@
 This is a revocation certificate for the OpenPGP key:
 
-pub  dsa2048/3B9465E1 2016-09-15
-      Key fingerprint = 578B AC03 998F 16A3 A7AC  607C BD40 4A2D 3B94 65E1
+pub  dsa2048/F70CB536 2016-09-15
+      Key fingerprint = 9D88 09A0 B2B3 2A39 9CD3  DA3C 4469 F02A F70C B536
 uid                  Tester
 
 A revocation certificate is a kind of "kill switch" to publicly
@@ -22,8 +22,8 @@ before importing and publishing this revocation certificate.
 Version: GnuPG v2
 Comment: This is a revocation certificate
 
-iGEEIBEIAAkFAlfa1SQCHQAACgkQvUBKLTuUZeHI6wEAlTaz5HkpmV6MavU8d+FE
-4pYcCLgOATBGFx2MzP2AGwAA/0qKSTo2anjrMLJ8X8gkFIszhMdC4O1X7BbAjo9M
-w2do
-=UT/r
+iGEEIBEIAAkFAlfa2DICHQAACgkQRGnwKvcMtTYjyAD/cETsWDLtXOY6zJisAEwd
+Ci3JhV5fVTgtqxv/8D7ZrZQA/267HMAHWKr7WGX5g7O6+eHVIBW9AqsxBkSvKi6v
+Vikt
+=a9jS
 -----END PGP PUBLIC KEY BLOCK-----
