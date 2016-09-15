@@ -62,7 +62,7 @@ def clean_workspace(reahl_workspace):
 def clean_egg_info_dirs():
     for current_directory, directories, files in os.walk(os.getcwd()):
         for d in directories:
-            if d.endswith('egg-info') and not d in ['reahl_dev.egg-info','reahl_bzrsupport.egg-info']:
+            if d.endswith('egg-info') and not d in ['reahl_dev.egg-info']:
                 shutil.rmtree(os.path.join(current_directory, d))
 
 def remove_versions_from_requirements(requires_file):
@@ -155,7 +155,11 @@ def find_missing_dependencies(workspace):
         missing.update(project.list_missing_dependencies(for_development=True))
     return list(missing)
 
+
 def print_final_message(missing_dependencies):
+    debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-9.3', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev']
+    general_debs_needed = ['equivs', 'openssh-client', 'dpkg-dev', 'chromium-browser', 'chromium-chromedriver']
+
     print('')
     print('')
     print('-- ALL DONE --------------------------------------------------------------------------')
@@ -178,7 +182,7 @@ def print_final_message(missing_dependencies):
       print('      on your system. What these are called may differ depending on your distribution/OS,')
       print('      As a hint, on ubuntu these are called:')
       print('')
-      print('  python-virtualenv python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-9.1 zlib1g-dev libjpeg62-dev libfreetype6-dev liblcms1-dev')
+      print('  '+' '.join(debs_needed_to_compile_python)) 
       print('')
       print('NB:  You will have to run this script again after satisfying these dependencies')
       print('')
@@ -189,7 +193,11 @@ def print_final_message(missing_dependencies):
       print('What these are called may differ depending on your distribution/OS.')
       print('As a hint, on ubuntu systems these are:')
       print('')
-      print(' equivs openssh-client dpkg-dev ')
+      print('  '+' '.join(general_debs_needed)) 
+      print('')
+      print('NOTE: If you\'re working in a virtualenv and want to pip install dependencies, you will also need:')
+      print('')
+      print('  '+' '.join(debs_needed_to_compile_python)) 
       print('')
 
 
@@ -199,7 +207,7 @@ reahl_workspace = read_env_variable('REAHLWORKSPACE',
                     'Please set the environment variable REAHLWORKSPACE to point to a parent directory of %s' \
                           % (os.getcwd()))
 reahl_dev_requires_file = os.path.join(os.getcwd(), 'reahl-dev', 'reahl_dev.egg-info', 'requires.txt')
-core_project_dirs = ['reahl-bzrsupport', 'reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
+core_project_dirs = ['reahl-component', 'reahl-stubble', 'reahl-tofu', 'reahl-dev']
 
 clean_virtual_env(virtual_env)
 clean_workspace(reahl_workspace)

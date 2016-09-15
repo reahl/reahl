@@ -9,7 +9,6 @@
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 
     <thirdpartyegg name="twine" minversion="1.4.0" maxversion="1.4.9999"/> 
     <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/> 
-    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <deps purpose="test">
@@ -18,16 +17,12 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <script name="reahl" locator="reahl.dev.devshell:WorkspaceCommandline.execute_one"/>
   
   <export entrypoint="reahl.dev.xmlclasses" name="MetaInfo" locator="reahl.dev.devdomain:MetaInfo"/>
   <export entrypoint="reahl.dev.xmlclasses" name="HardcodedMetadata" locator="reahl.dev.devdomain:HardcodedMetadata"/>
   <export entrypoint="reahl.dev.xmlclasses" name="DebianPackageMetadata" locator="reahl.dev.devdomain:DebianPackageMetadata"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="BzrSourceControl" locator="reahl.dev.devdomain:BzrSourceControl"/>
+  <export entrypoint="reahl.dev.xmlclasses" name="GitSourceControl" locator="reahl.dev.devdomain:GitSourceControl"/>
 
   <export entrypoint="reahl.dev.xmlclasses" name="Project" locator="reahl.dev.devdomain:Project"/>
   <export entrypoint="reahl.dev.xmlclasses" name="ChickenProject" locator="reahl.dev.devdomain:ChickenProject"/>

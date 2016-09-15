@@ -153,8 +153,8 @@ Development and packaging
   For example, if you run ``reahl list -s`` a status is shown for each project listed. See ``reahl explainlegend``
   for more information.
   
-  Currently only one type of source control system is supported: Bazaar. Use an attribute `type` set to the string 
-  "bzr" to indicate that this project is maintained using Bazaar.
+  Currently two types of source control system are supported: Bazaar and Git. Use an attribute `type` set to the string
+  "git" or "bzr" to indicate which source control system the project uses.
 
 <distpackage>
 """""""""""""

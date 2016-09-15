@@ -30,10 +30,6 @@
     <egg name="reahl-dev"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <persisted>
   </persisted>
 

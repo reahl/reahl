@@ -20,10 +20,6 @@
     <egg name="reahl-postgresqlsupport"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <persisted>
     <class locator="reahl.webdeclarative.webdeclarative:UserSession"/>
     <class locator="reahl.webdeclarative.webdeclarative:SessionData"/>
