@@ -66,7 +66,7 @@ before_script:
   - ssh-add
 
   - touch /tmp/testing
-  - scp /tmp/testing localhost:/tmp/testing2
+  - scp -o StrictHostKeyChecking=no /tmp/testing localhost:/tmp/testing2
   - "ls -la /tmp/testing*"
 
   - "export DISPLAY=:99.0"
