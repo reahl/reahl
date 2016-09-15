@@ -112,6 +112,14 @@ class Git(object):
                 tags = [line.split()[0] for line in out if line]
         return tags
 
+    def commit(self, message, allow_empty=False):
+        with open(os.devnull, 'w') as DEVNULL:
+            args = '-am "%s"' % message
+            if allow_empty:
+                args += ' --allow-empty'
+            return_code = Executable('git').call(('commit %s' % args).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+        return return_code == 0
+
 
 class DistributionPackage(object):
     """A DistributionPackage is a package that may be built for distribution."""

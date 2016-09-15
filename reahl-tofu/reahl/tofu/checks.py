@@ -81,11 +81,11 @@ def expected(exception, test=None):
     else:
         raise NoExceptionRaised(exception)
 
-def assert_recent(date, seconds_threshold=5, tz=None):
+def assert_recent(date, seconds_threshold=5):
     if date is None:
         is_recent_check = False
     else:
-        delta = datetime.datetime.now(tz=tz) - date
+        delta = datetime.datetime.now(tz=date.tzinfo) - date
         is_recent_check = delta < datetime.timedelta(seconds=seconds_threshold)
     if not is_recent_check:
         if date:
