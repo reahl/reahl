@@ -9,14 +9,14 @@ addons:
         - dpkg-dev 
 #        - chromium-browser 
 #        - chromium-chromedriver
-        - gnupg2
+#        - gnupg2
 
         - python-virtualenv
         - python-dev
         - gcc
         - cython
         - libxml2-dev
-        - libxslt-dev
+#        - libxslt-dev
         - libsqlite3-0
         - sqlite3
         - postgresql-server-dev-9.1
@@ -33,9 +33,11 @@ python:
   - 3.4
 
 before_install: 
-  - "gpg2 --gen-key --batch scripts/maketestkey"
   - "chromedriver -h"
   - "chromium-browser -h"
+  - "gpg --gen-key --batch scripts/maketestkey"
+  - "gpg2 --gen-key --batch scripts/maketestkey"
+
 
 install:
   - "python scripts/bootstrap.py --script-dependencies"
