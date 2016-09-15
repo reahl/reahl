@@ -1,9 +1,0 @@
-%echo Generating key
-Key-Type: DSA
-Key-Length: 1024
-Subkey-Type: ELG-E
-Subkey-Length: 1024
-Name-Real: Tester
-%no-protection
-%transient-key
-%commit

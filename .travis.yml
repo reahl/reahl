@@ -6,19 +6,20 @@ addons:
 #  postgresql: "9.4"
   apt:
     packages:
+       # Basic apt dependencies
         - equivs 
         - openssh-client 
         - dpkg-dev 
 #        - chromium-browser 
 #        - chromium-chromedriver
-#        - gnupg2
 
+       # For compiling pip installed extensions we use
         - python-virtualenv
         - python-dev
         - gcc
         - cython
         - libxml2-dev
-#        - libxslt-dev
+        # - libxslt-dev   # not allowed in apt addon
         - libsqlite3-0
         - sqlite3
         - postgresql-server-dev-9.1
@@ -33,25 +34,20 @@ services:
 language: python
 python:
   - 3.4
+  - 2.7
 
 before_install: 
-  - "sudo apt-get install -qq gnupg2 libxslt-dev chromium-chromedriver chromium-browser"
+  - "sudo apt-get install -qq libxslt-dev chromium-chromedriver chromium-browser"
   - "export PATH=$PATH:/usr/lib/chromium-browser/"
-  - "cp -a travis/testkeys/* ~/.gnupg/"
-  - "ls -la ~/.gnupg"
+  - "gpg --import travis/testkey.public.asc travis/testkey.secret.asc"
+  - "gpg --import-ownertrust < travis/testkey.trust.asc"
   - "gpg --list-keys"
   - "gpg --list-secret-keys"
-#  - "sudo mv /usr/bin/gpg /usr/bin/gpg1"
-#  - "sudo update-alternatives --verbose --install /usr/bin/gpg gnupg /usr/bin/gpg2"
-#  - "gpg --list-keys"
-#  - "gpg --list-secret-keys"
-  
-#  - "gpg --gen-key --batch scripts/maketestkey"
-#  - "gpg2 --version"
-  - "breakherefornow gpg2 --gen-key --batch scripts/maketestkey"
-
+  - "echo $VIRTUALENV"
 
 install:
+  - "echo $VIRTUALENV"
+  - "breakherefornow "
   - "python scripts/bootstrap.py --script-dependencies"
   - "python scripts/bootstrap.py --pip-installs"
   - "reahl-control createdbuser reahl-web/etc/"
