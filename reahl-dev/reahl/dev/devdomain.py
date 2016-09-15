@@ -488,7 +488,7 @@ class LocalRepository(object):
     def upload(self, package, knocks):
         for filename in package.build_output_files:
             shutil.copy(filename, self.root_directory)
-
+            
     def is_uploaded(self, package):
         result = True
         for filename in self.uploaded_files_for(package):

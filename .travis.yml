@@ -1,0 +1,43 @@
+sudo: false
+
+addons:
+#  postgresql: "9.4"
+  apt:
+    packages:
+        - equivs 
+        - openssh-client 
+        - dpkg-dev 
+        - chromium-browser 
+        - chromium-chromedriver
+
+        - python-virtualenv
+        - python-dev
+        - gcc
+        - cython
+        - libxml2-dev
+        - libxslt-dev
+        - libsqlite3-0
+        - sqlite3
+        - postgresql-server-dev-9.1
+        - zlib1g-dev
+        - libjpeg62-dev
+        - libfreetype6-dev
+        - liblcms1-dev
+
+services:
+  - postgresql
+
+language: python
+python:
+  - 3.4
+
+install:
+  - "python scripts/bootstrap.py --script-dependencies"
+  - "python scripts/bootstrap.py --pip-installs"
+  - "reahl-control createdbuser reahl-web/etc/"
+  - "reahl-control createdb reahl-web/etc/"
+  - "reahl setup -sX -- develop -N"
+
+script:
+  - "reahl shell -sX -- reahl unit"
+
