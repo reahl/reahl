@@ -97,27 +97,34 @@ def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
             missing.add(i.strip())
     return list(missing)
 
-def install_prerequisites(missing):
-  print('----------------------------------------------------------------------------------')
-  print('reahl-dev depends on eggs that are not part of reahl.')
-  print('You need these in order to run this script.')
-  print('Some of these are not installed on your system.')
-  print('The missing eggs are:')
-  print('')
-  print('  '+(' '.join(missing)))
-  print('')
-  print('Can I go ahead and "pip install" the eggs listed above?')
-  print('  (the alternative is for you to answer "no", which will abort this script and ')
-  print('   thus allow you to first install the missing eggs yourself by other means)')
-  print('')
-  if ask('Enter "yes" or "no"   : '):
-      import pip
-      if pip.main(['install']+missing) != 0:
-          print('Failed to install %s - (see pip errors above)' % (' '.join(missing)) )
+def install_with_pip(package_list):
+    import pip
+    return pip.main(['install'] + package_list)
+
+def install_prerequisites(missing, interactive=True):
+    if interactive:
+        print('----------------------------------------------------------------------------------')
+        print('reahl-dev depends on eggs that are not part of reahl.')
+        print('You need these in order to run this script.')
+        print('Some of these are not installed on your system.')
+        print('The missing eggs are:')
+        print('')
+        print('  '+(' '.join(missing)))
+        print('')
+        print('Can I go ahead and "pip install" the eggs listed above?')
+        print('  (the alternative is for you to answer "no", which will abort this script and ')
+        print('   thus allow you to first install the missing eggs yourself by other means)')
+        print('')
+        if ask('Enter "yes" or "no"   : '):
+          if install_with_pip(missing) != 0:
+              print('Failed to install %s - (see pip errors above)' % (' '.join(missing)) )
+              exit(1)
+        else:
+          print('Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0])))
           exit(1)
-  else:
-      print('Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0])))
-      exit(1)
+    else:
+        if install_with_pip(missing) != 0:
+            exit(1)
 
 def make_core_projects_importable(core_project_dirs):
     for d in core_project_dirs:
@@ -217,8 +224,10 @@ remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six','wrapt','setuptools>11'])
 if missing:
-    install_prerequisites(missing)
-    print('Successfully installed prerequisites - please re-run')
+    interactive = "--script-dependencies" not in sys.argv
+    install_prerequisites(missing, interactive=interactive)
+    if interactive:
+        print('Successfully installed prerequisites - please re-run')
     exit(0)
 
 workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
@@ -233,6 +242,12 @@ run_setup(workspace, workspace.selection)
 missing_dependencies = find_missing_dependencies(workspace)
 if missing_dependencies:
     run_setup(workspace, workspace.selection, uninstall=True)
-print_final_message(missing_dependencies)
+
+auto_install_missing_dependencies = "--pip-installs" in sys.argv
+if not auto_install_missing_dependencies:
+    print_final_message(missing_dependencies)
+else:
+    if install_with_pip(missing_dependencies) != 0:
+        exit(1)
 
 
