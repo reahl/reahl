@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 
 env:
-  #TODO: need to remove this, rather use .pgpass method
+  # TODO: need to remove this, rather use .pgpass method
   - PGPASSWORD=rhug
   - REAHLWORKSPACE=$HOME
 
