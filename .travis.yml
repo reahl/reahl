@@ -3,7 +3,7 @@ dist: trusty
 
 env:
   # TODO: need to remove the PGPASSWORD, rather use .pgpass method
-  - PGPASSWORD=rhug REAHLWORKSPACE=$HOME
+  - PGPASSWORD=rhug REAHLWORKSPACE=$HOME DEBFULLNAME=Travis DEBEMAIL=info@reahl.org PACKAGESIGNKEYID=DE633F86
 
 addons:
 #  postgresql: "9.4"
@@ -12,7 +12,8 @@ addons:
        # Basic apt dependencies
         - equivs 
         - openssh-client 
-        - dpkg-dev 
+        - dpkg-dev
+        - bzr
 #        - chromium-browser 
 #        - chromium-chromedriver
 
