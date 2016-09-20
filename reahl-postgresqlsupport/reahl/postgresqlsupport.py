@@ -29,6 +29,8 @@ import os.path
 from reahl.component.dbutils import DatabaseControl
 from reahl.component.shelltools import Executable
 
+
+
 class PostgresqlControl(DatabaseControl):
     """A DatabaseControl implementation for PostgreSQL."""
     control_matching_regex = r'^postgres(ql)?:'
@@ -44,8 +46,8 @@ class PostgresqlControl(DatabaseControl):
         return ['-h', self.host, '-p', six.text_type(self.port)]
 
     def create_db_user(self):
-         Executable('createuser').check_call(['-DSRlP'] + self.login_args + [self.user_name])
-         return 0
+        Executable('createuser').check_call(['-DSRl'] + self.login_args + [self.user_name])
+        return 0
 
     def drop_db_user(self):
         Executable('dropuser').check_call(self.login_args + [self.user_name])
