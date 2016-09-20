@@ -2,8 +2,13 @@ sudo: required
 dist: trusty
 
 env:
-  # TODO: need to remove the PGPASSWORD, rather use .pgpass method
-  - PGPASSWORD=rhug REAHLWORKSPACE=$HOME DEBFULLNAME=Travis DEBEMAIL=info@reahl.org PACKAGESIGNKEYID=DE633F86
+  global:
+    - PGPASSWORD=rhug     # TODO: need to remove the PGPASSWORD, rather use .pgpass method
+    - REAHLWORKSPACE=$HOME
+    - EMAIL=info@reahl.org
+    - DEBFULLNAME=Travis
+    - DEBEMAIL=$EMAIL
+    - PACKAGESIGNKEYID=DE633F86
 
 addons:
 #  postgresql: "9.4"
