@@ -78,14 +78,7 @@ class RepositoryUploadFixture(Fixture):
 
     def new_debian_repository(self):
         user = os.environ.get('USER', None)
-
-        @stubclass(SshRepository)
-        class SshRepositoryStub(SshRepository):
-            def transfer(self, package):
-                files = package.files_to_distribute
-                Executable('cp').check_call(files+['%s' % self.destination])
-
-        return SshRepositoryStub(self.workspace, 'localhost', user, self.incoming_directory.name)
+        return SshRepository(self.workspace, 'localhost', user, self.incoming_directory.name)
 
 
 @istest
