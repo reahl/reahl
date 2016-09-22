@@ -59,6 +59,7 @@ before_install:
   - which chromedriver
   - chromium-browser --version
   - chromedriver --version
+  - pip install lxml
   - breakhere
 
   # Import weak key used for testing
