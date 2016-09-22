@@ -100,7 +100,8 @@ class Git(object):
 
     def tag(self, tag_string):
         with open(os.devnull, 'w') as DEVNULL:
-            Executable('git').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+            #Executable('git').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+            Executable('git').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL)
 
     def get_tags(self, head_only=False):
         tags = []
