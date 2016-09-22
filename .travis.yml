@@ -59,7 +59,6 @@ before_install:
   - "gpg --list-keys"
   - "gpg --list-secret-keys"
   
-  - "ls -lad /dev/shmem"
   - "git --version"
 
 install:
