@@ -1,5 +1,7 @@
-sudo: required
-dist: trusty
+#sudo: required
+#dist: trusty
+
+sudo: false
 
 env:
   global:
@@ -47,8 +49,13 @@ python:
 
 before_install: 
   # Install stuff we can't install with apt addon
-  - "sudo apt-get install -qq libxslt-dev chromium-chromedriver chromium-browser"
+#  - "sudo apt-get install -qq libxslt-dev chromium-chromedriver chromium-browser"
   - "export PATH=$PATH:/usr/lib/chromium-browser/"    # Fix chromedriver path
+  - which chromium-browser
+  - which chromedriver
+  - chromium-browser --version
+  - chromedriver --version
+  - breakhere
 
   # Import weak key used for testing
   - "gpg --import travis/testkey.public.asc travis/testkey.secret.asc"
