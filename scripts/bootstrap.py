@@ -231,7 +231,7 @@ def ensure_script_dependencies_installed(interactive=True):
         return False
     return True
 
-def ensure_reahl_project_dependencies(interactive=True):
+def ensure_reahl_project_dependencies_installed(interactive=True):
     workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
     run_setup(workspace, core_projects)
     workspace.selection = core_projects
