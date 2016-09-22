@@ -247,6 +247,7 @@ def ensure_reahl_project_dependencies_installed(interactive=True):
         if not interactive:
             if install_with_pip(missing_dependencies) != 0:
                 exit(1)
+            run_setup(workspace, workspace.selection)
     # elif missing_dependencies:
     #     run_setup(workspace, workspace.selection, uninstall=True)
 
