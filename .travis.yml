@@ -55,12 +55,8 @@ before_install:
   - "chmod u+x ~/bin/chromedriver"
 #  - "export PATH=$PATH:/usr/lib/chromium-browser/"    # Fix chromedriver path
   - "export PATH=$PATH:$HOME/bin"
-  - which chromium-browser
-  - which chromedriver
-  - chromium-browser --version
-  - chromedriver --version
   - pip install lxml
-  - breakhere
+  - dpkg -l libxslt-dev
 
   # Import weak key used for testing
   - "gpg --import travis/testkey.public.asc travis/testkey.secret.asc"
@@ -93,4 +89,5 @@ before_script:
 
 script:
   - "reahl shell -sX -- reahl unit"
+  - breakhere
 
