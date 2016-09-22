@@ -67,7 +67,6 @@ before_install:
 install:
   - "python scripts/bootstrap.py --script-dependencies"
   - "python scripts/bootstrap.py --pip-installs"
-  - "python scripts/bootstrap.py"
   - "reahl-control createdbuser reahl-web/etc/"
   - "reahl-control createdb reahl-web/etc/"
   - "reahl setup -sX -- develop -N"
