@@ -22,7 +22,7 @@ addons:
         - dpkg-dev
         - bzr
 #        - chromium-browser 
-#        - chromium-chromedriver
+        - chromium-chromedriver
 
        # For compiling pip installed extensions we use
         - python-virtualenv
