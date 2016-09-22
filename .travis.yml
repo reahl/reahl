@@ -21,8 +21,8 @@ addons:
         - openssh-client 
         - dpkg-dev
         - bzr
-#        - chromium-browser 
-        - chromium-chromedriver
+#        - chromium-browser       # Already installed on travis
+#        - chromium-chromedriver  # Not whitelisted, not in apt repository for precise
 
        # For compiling pip installed extensions we use
         - python-virtualenv
@@ -50,7 +50,11 @@ python:
 before_install: 
   # Install stuff we can't install with apt addon
 #  - "sudo apt-get install -qq libxslt-dev chromium-chromedriver chromium-browser"
-  - "export PATH=$PATH:/usr/lib/chromium-browser/"    # Fix chromedriver path
+  - "mkdir ~/bin"
+  - "wget -O - http://chromedriver.storage.googleapis.com/2.24/chromedriver_linux64.zip | gunzip -c > ~/bin/chromedriver" 
+  - "chmod u+x ~/bin/chromedriver"
+#  - "export PATH=$PATH:/usr/lib/chromium-browser/"    # Fix chromedriver path
+  - "export PATH=$PATH:$HOME/bin"
   - which chromium-browser
   - which chromedriver
   - chromium-browser --version
