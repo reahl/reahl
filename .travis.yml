@@ -7,8 +7,8 @@ env:
   global:
     - PGPASSWORD=rhug     # TODO: need to remove the PGPASSWORD, rather use .pgpass method
     - REAHLWORKSPACE=$HOME
-    - EMAIL=info@reahl.org
-    - DEBFULLNAME=Travis
+    - EMAIL=noone@example.org
+    - DEBFULLNAME=Travis Tester
     - DEBEMAIL=$EMAIL
     - PACKAGESIGNKEYID=DE633F86
 
@@ -55,8 +55,8 @@ before_install:
   - "chmod u+x ~/bin/chromedriver"
 #  - "export PATH=$PATH:/usr/lib/chromium-browser/"    # Fix chromedriver path
   - "export PATH=$PATH:$HOME/bin"
-  - pip install lxml
   - dpkg -l libxslt-dev
+  - pip install lxml
 
   # Import weak key used for testing
   - "gpg --import travis/testkey.public.asc travis/testkey.secret.asc"

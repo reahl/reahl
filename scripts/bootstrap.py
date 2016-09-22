@@ -222,32 +222,40 @@ clean_egg_info_dirs()
 
 remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
-missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six','wrapt','setuptools>11'])
-if missing:
-    interactive = "--script-dependencies" not in sys.argv
-    install_prerequisites(missing, interactive=interactive)
-    if interactive:
+
+def ensure_script_dependencies_installed(interactive=True):
+    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six','wrapt','setuptools>11'])
+    if missing:
+        install_prerequisites(missing, interactive=interactive)
         print('Successfully installed prerequisites - please re-run')
-    exit(0)
+        return False
+    return True
 
-workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
-run_setup(workspace, core_projects)
-workspace.selection = core_projects
+def ensure_reahl_project_dependencies(interactive=True):
+    workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
+    run_setup(workspace, core_projects)
+    workspace.selection = core_projects
 
-# For good measure, we "setup.py develop" all eggs in reahl
-workspace.refresh(False, [os.getcwd()])
-workspace.select(all_=True)
-run_setup(workspace, workspace.selection)
+    # For good measure, we "setup.py develop" all eggs in reahl
+    workspace.refresh(False, [os.getcwd()])
+    workspace.select(all_=True)
+    run_setup(workspace, workspace.selection)
 
-missing_dependencies = find_missing_dependencies(workspace)
-if missing_dependencies:
-    run_setup(workspace, workspace.selection, uninstall=True)
+    missing_dependencies = find_missing_dependencies(workspace)
+    if missing_dependencies:
+        run_setup(workspace, workspace.selection, uninstall=True)
 
-auto_install_missing_dependencies = "--pip-installs" in sys.argv
-if not auto_install_missing_dependencies:
+    if not interactive:
+        if install_with_pip(missing_dependencies) != 0:
+            exit(1)
+
     print_final_message(missing_dependencies)
-else:
-    if install_with_pip(missing_dependencies) != 0:
-        exit(1)
 
 
+if "--script-dependencies" in sys.argv:
+   ensure_script_dependencies_installed(interactive=False)
+elif "--pip-installs" in sys.argv:
+   ensure_reahl_project_dependencies_installed(interactive=False)
+else:   
+   if ensure_script_dependencies_installed():
+      ensure_reahl_project_dependencies_installed()
