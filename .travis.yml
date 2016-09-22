@@ -21,6 +21,7 @@ addons:
         - openssh-client 
         - dpkg-dev
         - bzr
+        - git
 #        - chromium-browser       # Already installed on travis
 #        - chromium-chromedriver  # Not whitelisted, not in apt repository for precise
 
