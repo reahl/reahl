@@ -69,7 +69,7 @@ before_install:
 
 install:
   - "python scripts/bootstrap.py --script-dependencies"
-  - "CFLAGS="-O0" python scripts/bootstrap.py --pip-installs"
+  - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
   - "reahl-control createdbuser reahl-web/etc/"
   - "reahl-control createdb reahl-web/etc/"
   - "reahl setup -sX -- develop -N"
