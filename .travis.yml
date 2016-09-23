@@ -37,10 +37,10 @@ addons:
         - libjpeg62-dev
         - libfreetype6-dev
         - liblcms1-dev
-        - phantomjs  
+        # - phantomjs  # for reference... not allowed in apt addon
 
-services:
-  - postgresql
+#services:
+#  - postgresql  # Gets stopped because we install it as dependency of the -dev package above...
 
 language: python
 python:
@@ -63,10 +63,14 @@ before_install:
   # Make git happy
   - git config --global user.email $EMAIL
   - git config --global user.name "$DEBFULLNAME"
-  - git --version
 
+  # Version checks of these things are useful for debugging
+  - git --version
   - firefox --version
-  - wires --version
+  #- wires --version # Not installed on travis
+  - chromium-browser --version
+  - chromedriver --version
+  - gpg --version
   
 install:
   - "python scripts/bootstrap.py --script-dependencies"
