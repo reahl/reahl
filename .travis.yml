@@ -84,6 +84,7 @@ before_script:
   - sleep 3 # give xvfb some time to start
 
 script:
-  - "reahl shell -sdX -- reahl unit -- --with-long-output"
+  - "cd reahl-dev; reahl unit -- --with-long-output"
+#  - "reahl shell -sdX -- reahl unit -- --with-long-output"
   - breakhere
 

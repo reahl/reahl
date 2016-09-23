@@ -72,8 +72,27 @@ class Git(object):
     @property
     def last_commit_time(self):
         with TemporaryFile(mode='w+') as out:
-            with open(os.devnull, 'w') as DEVNULL:
-                Executable('git').check_call('log -r -1 --pretty="%ci"'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
+             with TemporaryFile(mode='w+') as DEVNULL:
+#            with open(os.devnull, 'w') as DEVNULL:
+                try:
+                    Executable('git').check_call('log -r -1 --kwater --pretty="%ci"'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
+                except:
+                    DEVNULL.seek(0)
+                    import os
+                    print('DEBUGGING TRAVIS: self.directory = "%s"' % self.directory)
+                    git_dir_contents = os.listdir(self.directory)
+                    Executable('find').call('.'.split(), cwd=self.directory)
+                    print('DEBUGGING TRAVIS:     %s' % ','.join(git_dir_contents))
+                    git_err = DEVNULL.read()
+                    print('DEBUGGING TRAVIS GIT ERR OUTPUT:     %s' % DEVNULL.read())
+                    out.seek(0)
+                    print('DEBUGGING TRAVIS GIT STD OUTPUT:     %s' % out.read())
+                    print('DEBUGGING TRAVIS GIT STATUS')
+                    Executable('git').call('status'.split(), cwd=self.directory)
+                    print('DEBUGGING TRAVIS GIT LOG')
+                    Executable('git').call('log'.split(), cwd=self.directory)
+                    raise ProgrammerError('DEBUGGING: GIT returned "%s"' % git_err)
+                    
                 out.seek(0)
                 [timestamp] = [line.replace('\n','') for line in out]
         return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
@@ -99,9 +118,21 @@ class Git(object):
             return False
 
     def tag(self, tag_string):
-        with open(os.devnull, 'w') as DEVNULL:
-            #Executable('git').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
-            Executable('git').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL)
+#        with TemporaryFile(mode='w+') as DEVNULL:
+#        with open(os.devnull, 'w') as DEVNULL:
+            try:
+                Executable('git').check_call(('tag %s' % tag_string).split(), cwd=self.directory)
+            except:
+                print('DEBUGGING TRAVIS: self.directory = "%s"' % self.directory)
+                git_dir_contents = os.listdir(self.directory)
+                Executable('find').call('.'.split(), cwd=self.directory)
+                print('DEBUGGING TRAVIS:     %s' % ','.join(git_dir_contents))
+                print('DEBUGGING TRAVIS GIT STATUS')
+                Executable('git').call('status'.split(), cwd=self.directory)
+                print('DEBUGGING TRAVIS GIT LOG')
+                Executable('git').call('log'.split(), cwd=self.directory)
+                raise ProgrammerError('DEBUGGING: GIT broke')
+                
 
     def get_tags(self, head_only=False):
         tags = []
