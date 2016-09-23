@@ -62,14 +62,8 @@ before_install:
   # Make git happy
   - git config --global user.email $EMAIL
   - git config --global user.name "$DEBFULLNAME"
-  - "git --version"
-  - "mkdir /tmp/testgit"
-  - "git init /tmp/testgit"
-  - "cd /tmp/testgit; git commit -am testing --allow-empty"
-  - "cd /tmp/testgit; git status"
-  - breakhere
+  - git --version
   
-
 install:
   - "python scripts/bootstrap.py --script-dependencies"
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
@@ -94,6 +88,8 @@ before_script:
 
 script:
   - "cd reahl-dev; reahl unit -- --with-long-output"
+  - "cd ../reahl-doc; reahl unit -- --with-long-output"
+  - "cd ../reahl-web; reahl unit -- --with-long-output"
 #  - "reahl shell -sdX -- reahl unit -- --with-long-output"
   - breakhere
 
