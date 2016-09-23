@@ -60,10 +60,16 @@ before_install:
   - "gpg --list-secret-keys"
   
   - "git --version"
+  - "mkdir /tmp/testgit"
+  - "git init /tmp/testgit"
+  - "cd /tmp/testgit; git commit -am testing --allow-empty"
+  - "cd /tmp/testgit; git status"
+  - breakhere
+  
 
 install:
   - "python scripts/bootstrap.py --script-dependencies"
-  - "python scripts/bootstrap.py --pip-installs"
+  - "CFLAGS="-O0" python scripts/bootstrap.py --pip-installs"
   - "reahl-control createdbuser reahl-web/etc/"
   - "reahl-control createdb reahl-web/etc/"
   - "reahl setup -sX -- develop -N"
