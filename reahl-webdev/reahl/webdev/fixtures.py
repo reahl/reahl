@@ -74,12 +74,32 @@ class BrowserSetup(CleanDatabase):
     @property 
     def web_driver(self):
         return self.chrome_driver
+#        return self.phantomjs_driver
+#        return self.firefox_driver
 
+#    @property
+#    def chrome_driver(self):
+#        return self.web_driver
+
+    def new_phantomjs_driver(self):
+        driver = webdriver.PhantomJS() # or add to your PATH
+        driver.set_window_size(1024, 768) # optional
+        self.reahl_server.install_handler(driver)
+        return driver
+        
     def new_firefox_driver(self, javascript_enabled=True):
         assert javascript_enabled, 'Cannot disable javascript anymore, see: https://github.com/seleniumhq/selenium/issues/635'
         from selenium.webdriver import FirefoxProfile, DesiredCapabilities
 
+        # FF does not fire events when its window is not in focus.
+        # Native events used to fix this.
+        # After FF34 FF does not support native events anymore
+        # We're on 48.0 now...
+
         fp = FirefoxProfile()
+#        fp.set_preference("focusmanager.testmode", False)
+#        fp.set_preference('plugins.testmode', False)
+
         fp.set_preference('network.http.max-connections-per-server', 1)
         fp.set_preference('network.http.max-persistent-connections-per-server', 0)
         fp.set_preference('network.http.spdy.enabled', False)
@@ -88,7 +108,7 @@ class BrowserSetup(CleanDatabase):
         fp.set_preference('network.http.pipelining.ssl', True)
         fp.set_preference('html5.offmainthread', False)
 
-        dc = DesiredCapabilities.FIREFOX.copy() 
+        dc = DesiredCapabilities.FIREFOX.copy()
 
         if not javascript_enabled:
             fp.set_preference('javascript.enabled', False)

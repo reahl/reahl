@@ -37,6 +37,7 @@ addons:
         - libjpeg62-dev
         - libfreetype6-dev
         - liblcms1-dev
+        - phantomjs  
 
 services:
   - postgresql
@@ -63,6 +64,9 @@ before_install:
   - git config --global user.email $EMAIL
   - git config --global user.name "$DEBFULLNAME"
   - git --version
+
+  - firefox --version
+  - wires --version
   
 install:
   - "python scripts/bootstrap.py --script-dependencies"
@@ -72,6 +76,11 @@ install:
   - "reahl setup -sX -- develop -N"
 
 before_script:
+  # Set up headless display for browsers
+  #- "export DISPLAY=:99.0" #
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+
   # Setup ssh for password-less access to localhost
   - ssh-keygen -f ~/.ssh/id_rsa -N ""
   - cp ~/.ssh/{id_rsa.pub,authorized_keys}
@@ -81,15 +90,8 @@ before_script:
 
   - ssh -o StrictHostKeyChecking=no localhost ls
 
-  # Set up headless display for browsers
-  #- "export DISPLAY=:99.0" #
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
 
 script:
-  - "cd reahl-dev; reahl unit -- --with-long-output"
-  - "cd ../reahl-doc; reahl unit -- --with-long-output"
-  - "cd ../reahl-web; reahl unit -- --with-long-output"
-#  - "reahl shell -sdX -- reahl unit -- --with-long-output"
-  - breakhere
+  - "reahl shell -sdX -- reahl unit -- --with-long-output"
+
 
