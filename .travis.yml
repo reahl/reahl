@@ -58,7 +58,10 @@ before_install:
   - "gpg --import-ownertrust < travis/testkey.trust.asc"
   - "gpg --list-keys"
   - "gpg --list-secret-keys"
-  
+
+  # Make git happy
+  - git config --global user.email $EMAIL
+  - git config --global user.name "$DEBFULLNAME"
   - "git --version"
   - "mkdir /tmp/testgit"
   - "git init /tmp/testgit"
