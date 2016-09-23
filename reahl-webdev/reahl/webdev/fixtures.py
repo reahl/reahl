@@ -73,9 +73,9 @@ class BrowserSetup(CleanDatabase):
 
     @property 
     def web_driver(self):
-        return self.chrome_driver
+#        return self.chrome_driver
 #        return self.phantomjs_driver
-#        return self.firefox_driver
+        return self.firefox_driver
 
 #    @property
 #    def chrome_driver(self):
@@ -99,6 +99,10 @@ class BrowserSetup(CleanDatabase):
         fp = FirefoxProfile()
 #        fp.set_preference("focusmanager.testmode", False)
 #        fp.set_preference('plugins.testmode', False)
+        fp.set_preference('webdriver_enable_native_events', True)
+        fp.set_preference('webdriver.enable.native.events', True)
+        fp.set_preference('enable.native.events', True)
+        fp.native_events_enabled = True
 
         fp.set_preference('network.http.max-connections-per-server', 1)
         fp.set_preference('network.http.max-persistent-connections-per-server', 0)
