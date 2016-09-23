@@ -39,8 +39,8 @@ addons:
         - liblcms1-dev
         # - phantomjs  # for reference... not allowed in apt addon
 
-#services:
-#  - postgresql  # Gets stopped because we install it as dependency of the -dev package above...
+services:
+  - postgresql  
 
 language: python
 python:
