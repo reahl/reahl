@@ -50,9 +50,11 @@ python:
 before_install: 
   # Install stuff we can't install with apt addon
   - "mkdir ~/bin"
-  - "wget -O - http://chromedriver.storage.googleapis.com/2.24/chromedriver_linux64.zip | gunzip -c > ~/bin/chromedriver" 
+  - "wget -O - http://chromedriver.storage.googleapis.com/2.24/chromedriver_linux64.zip | gunzip -c > ~/bin/chromedriver"
   - "chmod u+x ~/bin/chromedriver"
-  - "export PATH=$PATH:$HOME/bin"
+  - "wget -O - https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F359699%2Fchrome-linux.zip | gunzip -c > ~/bin/chromium-browser"
+  - "chmod u+x ~/bin/chromium-browser"
+  - "export PATH=$HOME/bin:$PATH"
 
   # Import weak key used for testing
   - "gpg --import travis/testkey.public.asc travis/testkey.secret.asc"
@@ -71,6 +73,7 @@ before_install:
   - chromium-browser --version
   - chromedriver --version
   - gpg --version
+  - breakhere
   
 install:
   - "python scripts/bootstrap.py --script-dependencies"
