@@ -52,8 +52,12 @@ before_install:
   - "mkdir ~/bin"
   - "wget -O - http://chromedriver.storage.googleapis.com/2.24/chromedriver_linux64.zip | gunzip -c > ~/bin/chromedriver"
   - "chmod u+x ~/bin/chromedriver"
-  - "wget -O - https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F359699%2Fchrome-linux.zip | gunzip -c > ~/bin/chromium-browser"
-  - "chmod u+x ~/bin/chromium-browser"
+
+  - "wget -O chromium-48.0.2564.0.zip 'https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F359699%2Fchrome-linux.zip?generation=1447461020145000&alt=media'"
+  - "gunzip chromium-48.0.2564.0.zip"
+  - "mv chrome-linux/chrome_sandbox chrome-linux/chrome-sandbox"
+  - "ln -s chrome-linux/chrome-wrapper $HOME/bin/chromium-browser"
+
   - "export PATH=$HOME/bin:$PATH"
 
   # Import weak key used for testing
