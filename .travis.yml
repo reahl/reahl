@@ -69,7 +69,6 @@ before_install:
   - chromium-browser --version
   - chromedriver --version
   - gpg --version
-  - breakhere
   
 install:
   - "python scripts/bootstrap.py --script-dependencies"
