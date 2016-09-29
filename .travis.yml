@@ -49,6 +49,7 @@ cache:
   pip: true
   directories:
     - $HOME/testinstalls
+    - $HOME/.cache/pip
 
 before_install: 
   # Install stuff we can't install with apt addon

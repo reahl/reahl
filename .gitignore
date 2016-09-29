@@ -6,6 +6,7 @@ debian/*.debhelper
 debian/*.substvars
 debian/files
 __pycache__
+*.pyc
 *.old
 build
 _build
