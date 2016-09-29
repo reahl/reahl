@@ -28,6 +28,7 @@ import shutil
 import subprocess
 import shlex
 import logging
+import time
 import email.utils
 from contextlib import contextmanager
 import datetime
@@ -76,7 +77,8 @@ class Git(object):
                 Executable('git').check_call('log -r -1 --pretty="%ci"'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
                 out.seek(0)
                 [timestamp] = [line.replace('\n','') for line in out]
-        return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
+        format = '"%Y-%m-%d %H:%M:%S %z"'
+        return datetime.datetime(*(time.strptime(timestamp, format)[0:6]))  # For Python2
 
     def is_version_controlled(self):
         return self.uses_git()
