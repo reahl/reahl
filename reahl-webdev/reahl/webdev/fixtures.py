@@ -125,6 +125,7 @@ class BrowserSetup(CleanDatabase):
         options = Options()
         options.add_argument('--disable-preconnect')
         options.add_argument('--dns-prefetch-disable')
+        options.add_argument('--start-maximized') 
         options.add_argument('--no-sandbox')  # Needed to be able to run a user-installed version of chromium on travis
         options.binary_location = Executable('chromium-browser').executable_file  # To run a custom-installed chromium as picked up by the PATH
         #--enable-http-pipelining
