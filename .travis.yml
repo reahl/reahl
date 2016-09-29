@@ -2,7 +2,6 @@ sudo: false
 
 env:
   global:
-#    - PGPASSWORD=rhug     # TODO: need to remove the PGPASSWORD, rather use .pgpass method
     - REAHLWORKSPACE=$HOME
     - EMAIL=noone@example.org
     - DEBFULLNAME="Travis Tester"
@@ -44,8 +43,10 @@ services:
 language: python
 python:
   - 3.4
-#  - 3.5
-#  - 2.7
+  - 3.5
+  - 2.7
+
+cache: pip
 
 before_install: 
   # Install stuff we can't install with apt addon
@@ -95,7 +96,6 @@ before_script:
 
 
 script:
-#  - "reahl shell -sdX -- reahl unit"
-  - "cd reahl-domain; reahl unit"
+  - "reahl shell -sdX -- reahl unit"
 
 
