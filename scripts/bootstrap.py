@@ -256,6 +256,9 @@ if "--script-dependencies" in sys.argv:
    ensure_script_dependencies_installed(interactive=False)
 elif "--pip-installs" in sys.argv:
    ensure_reahl_project_dependencies_installed(interactive=False)
-else:   
+elif len(sys.argv) == 1:
    if ensure_script_dependencies_installed():
       ensure_reahl_project_dependencies_installed()
+else:
+   print('Usage: %s [--script-dependencies|--pip-installs]' % sys.argv[0])
+   exit(123)
