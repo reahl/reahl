@@ -72,7 +72,7 @@ before_install:
 install:
   - "python scripts/bootstrap.py --script-dependencies"
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
-  - "echo '*:*:*:*:rhug' | $HOME/.pgpass"
+  - "echo '*:*:*:*:rhug' > $HOME/.pgpass"
   - "chmod 600 $HOME/.pgpass"
   - "reahl-control createdbuser -n reahl-web/etc/"
   - "reahl-control createdb reahl-web/etc/"
