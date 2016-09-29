@@ -45,8 +45,9 @@ class PostgresqlControl(DatabaseControl):
             return []
         return ['-h', self.host, '-p', six.text_type(self.port)]
 
-    def create_db_user(self):
-        Executable('createuser').check_call(['-DSRl'] + self.login_args + [self.user_name])
+    def create_db_user(self, prompt_for_password=True):
+        password_prompt_option = 'P' if prompt_for_password else ''
+        Executable('createuser').check_call(['-DSRl%s' % password_prompt_option] + self.login_args + [self.user_name])
         return 0
 
     def drop_db_user(self):

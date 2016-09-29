@@ -2,7 +2,7 @@ sudo: false
 
 env:
   global:
-    - PGPASSWORD=rhug     # TODO: need to remove the PGPASSWORD, rather use .pgpass method
+#    - PGPASSWORD=rhug     # TODO: need to remove the PGPASSWORD, rather use .pgpass method
     - REAHLWORKSPACE=$HOME
     - EMAIL=noone@example.org
     - DEBFULLNAME="Travis Tester"
@@ -12,7 +12,6 @@ env:
     - PATH=$HOME/bin:$PATH
 
 addons:
-#  postgresql: "9.4"
   apt:
     packages:
        # Basic apt dependencies
@@ -21,8 +20,8 @@ addons:
         - dpkg-dev
         - bzr
         - git
-#        - chromium-browser       # Already installed on travis
-#        - chromium-chromedriver  # Not whitelisted, not in apt repository for precise
+#        - chromium-browser       # See scripts/installChromium.sh
+#        - chromium-chromedriver  # Ditto
 
        # For compiling pip installed extensions we use
         - python-virtualenv
@@ -30,7 +29,6 @@ addons:
         - gcc
         - cython
         - libxml2-dev
-        # - libxslt-dev   # not allowed in apt addon
         - libsqlite3-0
         - sqlite3
         - postgresql-server-dev-9.1
@@ -46,6 +44,7 @@ services:
 language: python
 python:
   - 3.4
+#  - 3.5
 #  - 2.7
 
 before_install: 
@@ -73,13 +72,15 @@ before_install:
 install:
   - "python scripts/bootstrap.py --script-dependencies"
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
-  - "reahl-control createdbuser reahl-web/etc/"
+  - "echo '*:*:*:*:rhug' | $HOME/.pgpass"
+  - "chmod 600 $HOME/.pgpass"
+  - "reahl-control createdbuser -n reahl-web/etc/"
   - "reahl-control createdb reahl-web/etc/"
   - "reahl setup -sX -- develop -N"
 
 before_script:
   # Set up headless display for browsers
-  #- "export DISPLAY=:99.0" #
+  # DISPLAY is already set up
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 
@@ -94,6 +95,7 @@ before_script:
 
 
 script:
-  - "reahl shell -sdX -- reahl unit -- --with-long-output"
+#  - "reahl shell -sdX -- reahl unit"
+  - "cd reahl-domain; reahl unit"
 
 

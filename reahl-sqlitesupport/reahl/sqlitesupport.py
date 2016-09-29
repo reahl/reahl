@@ -58,7 +58,7 @@ class SQLiteControl(DatabaseControl):
     def login_args(self):
         return []
     
-    def create_db_user(self):
+    def create_db_user(self, prompt_for_password=True):
         return 0
 
     def drop_db_user(self):
