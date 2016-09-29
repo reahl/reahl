@@ -27,6 +27,7 @@ from reahl.tofu import tear_down
 
 from reahl.dev.fixtures import CleanDatabase
 
+from reahl.component.shelltools import Executable
 from reahl.webdev.webserver import ReahlWebServer
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
@@ -73,13 +74,9 @@ class BrowserSetup(CleanDatabase):
 
     @property 
     def web_driver(self):
-#        return self.chrome_driver
+        return self.chrome_driver
 #        return self.phantomjs_driver
-        return self.firefox_driver
-
-#    @property
-#    def chrome_driver(self):
-#        return self.web_driver
+#        return self.firefox_driver
 
     def new_phantomjs_driver(self):
         driver = webdriver.PhantomJS() # or add to your PATH
@@ -122,16 +119,22 @@ class BrowserSetup(CleanDatabase):
         self.reahl_server.install_handler(wd)
         return wd
 
-    def new_chrome_driver(self):
+
+    def new_chrome_options(self):
         from selenium.webdriver.chrome.options import Options
         options = Options()
         options.add_argument('--disable-preconnect')
         options.add_argument('--dns-prefetch-disable')
+        options.add_argument('--no-sandbox')
+        options.binary_location = Executable('chromium-browser').executable_file
         #--enable-http-pipelining
         #--learning
         #--single-process
+        return options
+
+    def new_chrome_driver(self):
         try:
-            wd = webdriver.Chrome(chrome_options=options)
+            wd = webdriver.Chrome(chrome_options=self.chrome_options) #, service_args=["--verbose", "--log-path=/tmp/chromedriver.log"]
         except WebDriverException as ex:
             if ex.msg.startswith('Unable to either launch or connect to Chrome'):
                 ex.msg += '  *****NOTE****: On linux, chrome needs write access to /dev/shm.'
@@ -145,6 +148,11 @@ class BrowserSetup(CleanDatabase):
             raise
         self.reahl_server.install_handler(wd)
         return wd
+
+    def restart_chrome_session(self):
+        self.chrome_driver.close()
+        self.chrome_driver.start_session(self.chrome_options.to_capabilities())
+
 
     def set_noop_app(self):
         # selenium.stop() hits the application its opened on again. NoopApp just ensures this does not break:
@@ -165,10 +173,6 @@ class BrowserSetup(CleanDatabase):
         with self.context:
             # Create and start server
             self.reahl_server.start(in_separate_thread=False, connect=False)
-
-    def restart_session(self, web_driver):
-        web_driver.close()
-        web_driver.start_session(web_driver.desired_capabilities)
 
     def is_instantiated(self, name):
         return name in self.__dict__

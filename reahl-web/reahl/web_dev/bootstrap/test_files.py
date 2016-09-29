@@ -629,7 +629,6 @@ def prevent_form_submit(fixture):
     with fixture.reahl_server.in_background(wait_till_done_serving=False):
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
 
-    assert None, 'ALERTS NOW MAKES chromedriver HANG FOREVER' 
     with browser.no_page_load_expected():
         browser.click( XPath.button_labelled('Submit'), wait=False )
         alert = fixture.web_driver.switch_to.alert

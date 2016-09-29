@@ -9,6 +9,7 @@ env:
     - DEBEMAIL=$EMAIL
     - PACKAGESIGNKEYID=DE633F86
     - DISPLAY=:99.0
+    - PATH=$HOME/bin:$PATH
 
 addons:
 #  postgresql: "9.4"
@@ -49,16 +50,7 @@ python:
 
 before_install: 
   # Install stuff we can't install with apt addon
-  - "mkdir ~/bin"
-  - "wget -O - http://chromedriver.storage.googleapis.com/2.24/chromedriver_linux64.zip | gunzip -c > ~/bin/chromedriver"
-  - "chmod u+x ~/bin/chromedriver"
-
-  - "wget -O chromium-48.0.2564.0.zip 'https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F359699%2Fchrome-linux.zip?generation=1447461020145000&alt=media'"
-  - "unzip chromium-48.0.2564.0.zip"
-  - "mv chrome-linux/chrome_sandbox chrome-linux/chrome-sandbox"
-  - "ln -s chrome-linux/chrome-wrapper $HOME/bin/chromium-browser"
-
-  - "export PATH=$HOME/bin:$PATH"
+  - "scripts/installChromium.sh"
 
   # Import weak key used for testing
   - "gpg --import travis/testkey.public.asc travis/testkey.secret.asc"
