@@ -55,7 +55,7 @@ class DHTMLFile(object):
                 if name == 'div' and dict(attrs).get('id', None) in self.ids:
                     return True
                 return False
-            soup = BeautifulSoup(dhtml_file, parse_only=SoupStrainer(strain))
+            soup = BeautifulSoup(dhtml_file, "lxml", parse_only=SoupStrainer(strain))
             parser = html_parser.HTMLParser()
             self.title = parser.unescape(soup.title.decode_contents()) if soup.title else _('Untitled')
             for an_id in self.ids:
