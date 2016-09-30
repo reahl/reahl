@@ -377,7 +377,7 @@ class DevPiTest(ForAllWorkspaceCommand):
     keyword = 'devpitest'
 
     def function(self, project, options, args):
-        return Executable('devpi').check_call(['test', '%s==%s' % (project.project_name, project.version_for_setup())], cwd=project.directory)
+        return Executable('devpi').check_call(['test', '%s==%s' % (project.project_name, project.version_for_setup())]+args, cwd=project.directory)
 
 
 class DevPiPush(ForAllWorkspaceCommand):

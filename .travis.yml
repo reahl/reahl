@@ -57,14 +57,12 @@ before_install:
   - "scripts/installChromium.sh"
 
   # Import weak key used for testing
-  - "gpg --import travis/testkey.public.asc travis/testkey.secret.asc"
-  - "gpg --import-ownertrust < travis/testkey.trust.asc"
+  - "scripts/createTestKey.sh"
   - "gpg --list-keys"
   - "gpg --list-secret-keys"
 
   # Make git happy
-  - git config --global user.email $EMAIL
-  - git config --global user.name "$DEBFULLNAME"
+  - "scripts/setupTestGit.sh"
 
   # Version checks of these things are useful for debugging
   - git --version
@@ -77,10 +75,7 @@ before_install:
 install:
   - "python scripts/bootstrap.py --script-dependencies"
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
-  - "echo '*:*:*:*:rhug' > $HOME/.pgpass"
-  - "chmod 600 $HOME/.pgpass"
-  - "reahl-control createdbuser -n reahl-web/etc/"
-  - "reahl-control createdb reahl-web/etc/"
+  - "scripts/setupTestPostgresql.sh"
   - "reahl setup -sX -- develop -N"
 
 before_script:
@@ -90,16 +85,13 @@ before_script:
   - sleep 3 # give xvfb some time to start
 
   # Setup ssh for password-less access to localhost
-  - ssh-keygen -f ~/.ssh/id_rsa -N ""
-  - cp ~/.ssh/{id_rsa.pub,authorized_keys}
-
-  - eval $(ssh-agent)
-  - ssh-add
-
-  - ssh -o StrictHostKeyChecking=no localhost ls
+  - "scripts/createTestSshKey.sh"
 
 
 script:
   - "reahl shell -sdX -- reahl unit"
-
-
+  - "reahl build -sdX"
+  - "scripts/setupDevpiServer.sh"
+  - "reahl upload -sdXru"
+  - "tmp=${VIRTUAL_ENV//\/home\/travis\/python/}; export TOX_ENV=py${tmp//./}"
+  - "reahl shell -g -- reahl devpitest -- -e $TOX_ENV"

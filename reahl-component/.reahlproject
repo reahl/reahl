@@ -6,6 +6,10 @@
 
   <translations locator="reahl.messages"/>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <thirdpartyegg name="six"/> 
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 

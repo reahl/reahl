@@ -6,6 +6,10 @@
   <translations locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrapmessages"/>
   <configuration locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:AddressConfig"/>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <egg name="reahl-web"/>
     <egg name="reahl-component"/>

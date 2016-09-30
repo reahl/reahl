@@ -3,6 +3,10 @@
     <package name="reahl"/>
   </namespaces>
   
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <egg name="reahl-component"/>
     <thirdpartyegg name="psycopg2" minversion="2.5" maxversion="2.5.9999"/>
