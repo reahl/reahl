@@ -93,5 +93,5 @@ script:
   - "reahl build -sdX"
   - "scripts/setupDevpiServer.sh"
   - "reahl upload -sdXru"
-  - "tmp=${VIRTUAL_ENV//\/home\/travis\/python/}; export TOX_ENV=py${tmp//./}"
+  - export TOX_ENV=$(python -c "import os; x = os.path.basename(os.environ['VIRTUAL_ENV']).replace('thon', '').replace('.',''); print(x)")
   - "reahl shell -g -- reahl devpitest -- -e $TOX_ENV"
