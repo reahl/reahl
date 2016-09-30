@@ -36,6 +36,7 @@ import pkgutil
 from tempfile import TemporaryFile
 
 import babel
+import tzlocal
 from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
@@ -503,7 +504,7 @@ class LocalRepository(object):
         if not self.is_uploaded(package):
             return False
         a_file = self.uploaded_files_for(package)[0]
-        return datetime.datetime.fromtimestamp(os.path.getmtime(a_file)) >= when
+        return datetime.datetime.fromtimestamp(os.path.getmtime(a_file), tzlocal.get_localzone()) >= when
 
     def remove_uploaded(self, package):
         for filename in self.uploaded_files_for(package):

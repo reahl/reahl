@@ -1,12 +1,6 @@
 #!/bin/bash
 set -e
 
-devpi-server --start
-devpi use http://localhost:3141
-devpi user -c travis password=123
-devpi login travis --password=123
-devpi index -c dev bases=root/pypi
-devpi use travis/dev
 mkdir $HOME/.pip
 cat > $HOME/.pip/pip.conf <<EOF
 [global]
@@ -28,3 +22,10 @@ username = travis
 password = 123
 repository = http://localhost:3141/travis/dev/
 EOF
+
+devpi-server --start
+devpi use http://localhost:3141
+devpi user -c travis password=123
+devpi login travis --password=123
+devpi index -c dev bases=root/pypi
+devpi use travis/dev

@@ -89,9 +89,8 @@ before_script:
 
 
 script:
-  - "reahl shell -sdX -- reahl unit"
+#  - "reahl shell -sdX -- reahl unit"
   - "reahl build -sdX"
   - "scripts/setupDevpiServer.sh"
   - "reahl upload -sdXru"
-  - export TOX_ENV=$(python -c "import os; x = os.path.basename(os.environ['VIRTUAL_ENV']).replace('thon', '').replace('.',''); print(x)")
-  - "reahl shell -g -- reahl devpitest -- -e $TOX_ENV"
+  - "reahl shell -g -- reahl devpitest --for-current-python-only"
