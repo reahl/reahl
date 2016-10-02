@@ -9,6 +9,7 @@
 
   <deps purpose="run">
     <thirdpartyegg name="six"/>
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.5"/> 
   </deps>
 
   <deps purpose="test">

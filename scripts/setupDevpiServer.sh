@@ -4,7 +4,7 @@ set -e
 mkdir $HOME/.pip
 cat > $HOME/.pip/pip.conf <<EOF
 [global]
-index-url = http://localhost:3141/travis/dev
+index-url = http://localhost:3141/travis/dev/+simple/
 EOF
 
 cat > $HOME/.pydistutils.cfg <<EOF

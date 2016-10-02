@@ -15,6 +15,8 @@
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 
     <thirdpartyegg name="python-dateutil" minversion="2.2" maxversion="2.2.999"/> 
     <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/> 
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.5"/> 
+    <thirdpartyegg name="pip" minversion="8.1.2" maxversion="8.1.999"/> 
   </deps>
 
   <deps purpose="test">
