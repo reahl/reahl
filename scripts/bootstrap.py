@@ -227,7 +227,7 @@ remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 
 def ensure_script_dependencies_installed(interactive=True):
-    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six', 'wrapt', 'setuptools==22.0.4'])
+    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six', 'wrapt'])
     if missing:
         install_prerequisites(missing, interactive=interactive)
         print('Successfully installed prerequisites - please re-run')
