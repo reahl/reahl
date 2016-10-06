@@ -70,8 +70,11 @@ def remove_versions_from_requirements(requires_file):
         lines = input_file.readlines()
     with io.open(requires_file, 'w') as output_file:
         for line in lines:
-            version_stripped_line = re.match('([\w-]+)', line).group(0)
-            output_file.write(version_stripped_line)
+            new_line = line.strip()
+            if line.startswith('reahl-'):
+                version_stripped_line = re.match('([\w-]+)', new_line).group(0)
+                new_line = version_stripped_line
+            output_file.write(new_line)
             output_file.write('\n')
 
 def egg_dirs_for(project_dirs):
@@ -224,7 +227,7 @@ remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 
 def ensure_script_dependencies_installed(interactive=True):
-    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six','wrapt','setuptools==22.0.5'])
+    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six', 'wrapt', 'setuptools==22.0.4'])
     if missing:
         install_prerequisites(missing, interactive=interactive)
         print('Successfully installed prerequisites - please re-run')
