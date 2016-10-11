@@ -14,7 +14,7 @@
     <thirdpartyegg name="twine" minversion="1.8.0" maxversion="1.8.9999"/> 
     <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/> 
     <thirdpartyegg name="tzlocal" minversion="1.2.0" maxversion="1.2.9999"/> 
-    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.5"/> 
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/> 
     <thirdpartyegg name="pip" minversion="8.1.2" maxversion="8.1.999"/> 
   </deps>
 

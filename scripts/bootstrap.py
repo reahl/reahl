@@ -87,18 +87,71 @@ def fake_distributions_into_existence(project_dirs):
         if not os.path.exists(egg_dir):
             os.mkdir(egg_dir)
 
+
+# def get_installed(requirement):
+#     requirement_without_version = pkg_resources.Requirement.parse(requirement).project_name
+#     return pkg_resources.working_set.find(pkg_resources.Requirement.parse(requirement_without_version))
+#
+# def check_installed_requirement_conflict(requirement):
+#     already_installed_requirement = get_installed(requirement)
+#     if already_installed_requirement:
+#         installed_requirements_conflict = \
+#             not (pkg_resources.parse_version(already_installed_requirement) == pkg_resources.parse_version(requirement))
+#         if installed_requirements_conflict:
+#             return True
+#     return False
+
+
+def requirement_has_version_specified(requirement):
+    return not project_name_for(requirement) == requirement
+
+
+def requirements_are_compatible(requirement, other_requirement):
+    if pkg_resources.parse_version(other_requirement) == pkg_resources.parse_version(requirement):
+        return True
+    if (not requirement_has_version_specified(requirement)) or (not requirement_has_version_specified(other_requirement)):
+        return True
+
+
+def choose_requirement_containing_version(requirement, other_requirement):
+    if not requirements_are_compatible(requirement, other_requirement):
+        print("Can't choose between versions: %s compared to %s" % (requirement, other_requirement))
+        exit(1)
+    if requirement_has_version_specified(requirement):
+        return requirement
+    return other_requirement
+
+
+def project_name_for(requirement):
+    return pkg_resources.Requirement.parse(requirement).project_name
+
+
+def merge_requirements(requirements, other_requirements):
+    requirements_dict = dict(zip((project_name_for(requirement) for requirement in requirements), requirements))
+    for requirement in other_requirements:
+        project_name = project_name_for(requirement)
+        requirements_dict[project_name] = \
+            choose_requirement_containing_version(requirement, requirements_dict.get(project_name, requirement))
+    return requirements_dict.values()
+
+
 def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
-    non_reahl_requirements = hard_coded_core_dependencies[:]
-    for line in io.open(requires_file, 'r'):
-        if not line.startswith('reahl-'):
-            non_reahl_requirements.append(line)
+    non_reahl_requirements = get_requirements_from_files(requires_file)
     missing = set()
-    for i in non_reahl_requirements:
+    for i in merge_requirements(non_reahl_requirements, hard_coded_core_dependencies):
         try:
             pkg_resources.require(i)
         except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
-            missing.add(i.strip())
+            missing.add(i)
     return list(missing)
+
+
+def get_requirements_from_files(requires_file):
+    non_reahl_requirements = []
+    for line in io.open(requires_file, 'r'):
+        if not line.startswith('reahl-'):
+            non_reahl_requirements.append(line.strip())
+    return non_reahl_requirements
 
 def install_with_pip(package_list):
     import pip
@@ -227,7 +280,7 @@ remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 
 def ensure_script_dependencies_installed(interactive=True):
-    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six', 'wrapt'])
+    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six', 'wrapt']) #, 'setuptools==22.0.5', 'pip==8.1.2'])
     if missing:
         install_prerequisites(missing, interactive=interactive)
         print('Successfully installed prerequisites - please re-run')
