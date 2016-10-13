@@ -1,2 +1,1 @@
-setuptools==22.0.5
-pip==8.1.2
+../requirements.txt
