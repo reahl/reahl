@@ -102,6 +102,10 @@ before_script:
 
 
 script:
+  - pip --version
+  - pip freeze
+  - tox --version
+  - virtualenv --version
 #  - "reahl shell -sdX -- reahl unit"
   - "reahl build -sdX"
   - "scripts/setupDevpiServer.sh"
