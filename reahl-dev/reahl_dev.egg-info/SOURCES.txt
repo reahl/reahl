@@ -3,7 +3,9 @@
 COPYING
 LICENSE
 MANIFEST.in
+reahl
 requirements.txt
+setup.py
 tox.ini
 reahl/__init__.py
 reahl/dev/__init__.py

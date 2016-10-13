@@ -108,5 +108,5 @@ script:
   - "reahl upload -sdXru"
 #  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
   - "(cd reahl-dev; reahl devpitest --for-current-python-only)"
-  - "(cd reahl-doc; reahl devpitest --for-current-python-only)"
   - "(cd reahl-bzrsupport; reahl devpitest --for-current-python-only)"
+  - "(cd reahl-doc; reahl devpitest --for-current-python-only)"
