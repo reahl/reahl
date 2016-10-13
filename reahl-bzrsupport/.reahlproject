@@ -14,10 +14,8 @@
 
   <deps purpose="test">
     <thirdpartyegg name="nose"/>
-    <egg name="reahl-dev"/>
   </deps>
 
-  <export entrypoint="setuptools.file_finders" name="reahl_finder" locator="reahl.bzrsupport:find_files"/> 
   <export entrypoint="reahl.dev.xmlclasses" name="BzrSourceControl" locator="reahl.bzrsupport:BzrSourceControl"/>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/bzrsupport_dev -i '.*' -t"/>
