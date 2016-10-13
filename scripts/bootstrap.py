@@ -155,7 +155,7 @@ def get_requirements_from_files(requires_file):
 
 def install_with_pip(package_list):
     import pip
-    return pip.main(['install'] + package_list)
+    return pip.main(['install', '-U'] + package_list)
 
 def install_prerequisites(missing, interactive=True):
     if interactive:
