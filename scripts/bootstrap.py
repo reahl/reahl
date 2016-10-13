@@ -136,7 +136,7 @@ def merge_requirements(requirements, other_requirements):
 
 
 def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
-    non_reahl_requirements = get_requirements_from_files(requires_file)
+    non_reahl_requirements = get_requirements_from_file(requires_file)
     missing = set()
     for i in merge_requirements(non_reahl_requirements, hard_coded_core_dependencies):
         try:
@@ -146,7 +146,7 @@ def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
     return list(missing)
 
 
-def get_requirements_from_files(requires_file):
+def get_requirements_from_file(requires_file):
     non_reahl_requirements = []
     for line in io.open(requires_file, 'r'):
         if not line.startswith('reahl-'):
@@ -305,6 +305,7 @@ def ensure_reahl_project_dependencies_installed(interactive=True):
             if install_with_pip(missing_dependencies) != 0:
                 exit(1)
             run_setup(workspace, workspace.selection)
+            missing_dependencies = []
 
     print_final_message(missing_dependencies)
 

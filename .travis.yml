@@ -84,7 +84,8 @@ before_install:
   - gpg --version
   
 install:
-  - "python scripts/bootstrap.py --script-dependencies"
+  - "pip install -r scripts/devrequirements.txt"
+#  - "python scripts/bootstrap.py --script-dependencies"
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
   - devpi --version
   - "scripts/setupTestPostgresql.sh"
