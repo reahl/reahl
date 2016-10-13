@@ -18,6 +18,7 @@
     <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
     <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
     <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/>
   </deps>
 
   <deps purpose="test">

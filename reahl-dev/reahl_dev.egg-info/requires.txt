@@ -1,5 +1,7 @@
 reahl-component>=4.0,<4.1
 reahl-tofu>=4.0,<4.1
+six
+devpi
 Babel>=2.1,<2.1.999
 twine>=1.8.0,<1.8.9999
 wheel>=0.24.0,<0.24.9999

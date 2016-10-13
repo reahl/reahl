@@ -18,6 +18,7 @@
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
     <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/>
   </deps>
 
   <extras name="pillow">

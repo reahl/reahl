@@ -280,7 +280,8 @@ remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 
 def ensure_script_dependencies_installed(interactive=True):
-    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six', 'wrapt']) #, 'setuptools==22.0.5', 'pip==8.1.2'])
+    recursive_deps_of_reahl_component = ['Babel>=2.1,<2.1.999', 'python-dateutil>=2.2,<2.2.999', 'wrapt>=1.10.2,<1.10.999']
+    missing = find_missing_prerequisites(reahl_dev_requires_file, recursive_deps_of_reahl_component)
     if missing:
         install_prerequisites(missing, interactive=interactive)
         print('Successfully installed prerequisites - please re-run')

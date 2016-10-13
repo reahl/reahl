@@ -1,3 +1,14 @@
+# reahl-bzrsupport:  pkg_resources.DistributionNotFound: The 'reahl-dev<4.1,>=4.0' distribution was not found and is required by the application
+# reahl-doc:         pkg_resources.VersionConflict: (setuptools 28.3.0 (/tmp/devpi-test4/targz/reahl-doc-4.0.0/.tox/py34/lib/python3.4/site-packages), Requirement.parse('setuptools<22.0.6,>=22.0'))
+# reahl-dev:         pkg_resources.VersionConflict: (wheel 0.30.0a0 (/tmp/devpi-test3/targz/reahl-dev-4.0.0/.tox/py34/lib/python3.4/site-packages), Requirement.parse('wheel<0.24.9999,>=0.24.0'))
+# reahl-webdev:      pkg_resources.VersionConflict: (wheel 0.30.0a0 (/tmp/devpi-test15/targz/reahl-webdev-4.0.0/.tox/py34/lib/python3.4/site-packages), Requirement.parse('wheel<0.24.9999,>=0.24.0'))
+
+# Which version of:
+#  - tox
+#  - pip
+#  - setuptools
+#  - devpi
+
 sudo: false
 
 env:
@@ -93,4 +104,7 @@ script:
   - "reahl build -sdX"
   - "scripts/setupDevpiServer.sh"
   - "reahl upload -sdXru"
-  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+#  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+  - "(cd reahl-dev; reahl shell -sXg -- reahl devpitest --for-current-python-only)"
+  - "(cd reahl-doc; reahl shell -sXg -- reahl devpitest --for-current-python-only)"
+  - "(cd reahl-bzrsupport; reahl shell -sXg -- reahl devpitest --for-current-python-only)"

@@ -20,6 +20,7 @@
     <thirdpartyegg name="BeautifulSoup4" minversion="4.4" maxversion="4.4.999"/>
     <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/>
   </deps>
 
   <deps purpose="test">
