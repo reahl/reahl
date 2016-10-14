@@ -110,4 +110,6 @@ script:
   - "reahl build -sdX"
   - "scripts/setupDevpiServer.sh"
   - "reahl upload -sdXru"
-  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+#  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+  - "(cd reahl-dev; reahl devpitest --for-current-python-only)"
+

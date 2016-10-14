@@ -1807,7 +1807,7 @@ class EggProject(Project):
             setup_file.write('    user_options = []\n')
             setup_file.write('    def run(self):\n')
             setup_file.write('        from setuptools.command import easy_install\n')
-            setup_file.write('        if self.distribution.tests_require: easy_install.main(self.distribution.tests_require)\n')
+            setup_file.write('        if self.distribution.tests_require: easy_install.main(["-q"]+self.distribution.tests_require)\n')
             setup_file.write('\n')
             setup_file.write('    def initialize_options(self):\n')
             setup_file.write('        pass\n')
