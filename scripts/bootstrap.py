@@ -240,7 +240,7 @@ def ensure_reahl_project_dependencies_installed():
 
 
 if "--script-dependencies" in sys.argv:
-   still_missing = ensure_script_dependencies_installed():
+   still_missing = ensure_script_dependencies_installed()
    if still_missing:
        print('Failed to install %s - (see pip errors above)' % (' '.join(missing)) )
    else:
