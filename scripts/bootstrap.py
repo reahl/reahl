@@ -101,9 +101,10 @@ def find_missing_prerequisites(project_dirs):
             missing.add(i.strip())
     return list(missing)
 
-def install_with_pip(package_list):
+def install_with_pip(package_list, upgrade=False):
     import pip
-    return pip.main(['install', '-U'] + package_list)
+    args = ['-U'] if upgrade else []
+    return pip.main(['install'] + args + package_list)
 
 def install_prerequisites(missing, interactive=True):
     if interactive:
@@ -120,14 +121,14 @@ def install_prerequisites(missing, interactive=True):
         print('   thus allow you to first install the missing eggs yourself by other means)')
         print('')
         if ask('Enter "yes" or "no"   : '):
-          if install_with_pip(missing) != 0:
+          if install_with_pip(missing, upgrade=True) != 0:
               print('Failed to install %s - (see pip errors above)' % (' '.join(missing)) )
               exit(1)
         else:
           print('Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0])))
           exit(1)
     else:
-        if install_with_pip(missing) != 0:
+        if install_with_pip(missing, upgrade=True) != 0:
             exit(1)
 
 def make_core_projects_importable(core_project_dirs):
@@ -265,7 +266,7 @@ def ensure_reahl_project_dependencies_installed(interactive=True):
     if missing_dependencies:
         run_setup(workspace, workspace.selection, uninstall=True)
         if not interactive:
-            if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs)))) != 0:
+            if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
                 exit(1)
             run_setup(workspace, workspace.selection)
         missing_dependencies = find_missing_dependencies(workspace)
