@@ -53,9 +53,9 @@ services:
 
 language: python
 python:
-  - 2.7
+#  - 2.7
   - 3.4
-  - 3.5
+#  - 3.5
 
 cache: 
   pip: true
@@ -114,6 +114,6 @@ script:
   - "reahl build -sdX"
   - "scripts/setupDevpiServer.sh"
   - "reahl upload -sdXru"
-  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
-#  - "(cd reahl-dev; reahl devpitest --for-current-python-only)"
+#  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+  - "(cd reahl-webdev; reahl devpitest --for-current-python-only)"
 
