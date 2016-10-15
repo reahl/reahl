@@ -86,13 +86,15 @@ def fake_distributions_into_existence(project_dirs):
         if not os.path.exists(egg_dir):
             os.mkdir(egg_dir)
 
-def find_missing_prerequisites(core_project_dirs):
+def find_all_prerequisits_for(project_dirs):
     prerequisites = set()
-    for project_dir in core_project_dirs:
+    for project_dir in project_dirs:
         prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
-
+    return prerequisites
+    
+def find_missing_prerequisites(project_dirs):
     missing = set()
-    for i in prerequisites:
+    for i in find_all_prerequisits_for(project_dirs):
         try:
             pkg_resources.require(i)
         except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
@@ -263,9 +265,10 @@ def ensure_reahl_project_dependencies_installed(interactive=True):
     if missing_dependencies:
         run_setup(workspace, workspace.selection, uninstall=True)
         if not interactive:
-            if install_with_pip(missing_dependencies) != 0:
+            if install_with_pip(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))) != 0:
                 exit(1)
             run_setup(workspace, workspace.selection)
+        missing_dependencies = find_missing_dependencies(workspace)
 
     print_final_message(missing_dependencies)
 
