@@ -168,49 +168,25 @@ def find_missing_dependencies(workspace):
     return list(missing)
 
 
-def print_final_message(missing_dependencies):
+def print_final_message():
     debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-9.3', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev']
     general_debs_needed = ['equivs', 'openssh-client', 'dpkg-dev', 'chromium-browser', 'chromium-chromedriver']
 
     print('')
     print('')
     print('-- ALL DONE --------------------------------------------------------------------------')
-    if missing_dependencies:
-      print('The following eggs are not available on your system, but are needed ')
-      print('to be able to develop and run reahl:')
-      print('')
-      print('  '+' '.join(missing_dependencies))
-      print('')
-      print('You have a choice here:')
-      print(' 1) You can install packages that provide these eggs via the package manager of your distribution')
-      print(' 2) You can install the eggs directly using "pip install" using the following command:')
-      print('    pip install ' + (' '.join(['"%s"' % d for d in missing_dependencies])) )
-      print('')
-      print('NOTE: You are running inside a virtualenv')
-      print('      To be able to do (1), your virtualenv should have been created using the ')
-      print('      --system-site-packages option to virtualenv.')
-      print('')
-      print('NOTE: Choosing (2) will require that you have some non-python packages installed')
-      print('      on your system. What these are called may differ depending on your distribution/OS,')
-      print('      As a hint, on ubuntu these are called:')
-      print('')
-      print('  '+' '.join(debs_needed_to_compile_python)) 
-      print('')
-      print('NB:  You will have to run this script again after satisfying these dependencies')
-      print('')
-    else:
-      print('Done. All python dependencies satisfied.')
-      print('')
-      print('In order to develop on Reahl, you will need other (non-python) packages as well.')
-      print('What these are called may differ depending on your distribution/OS.')
-      print('As a hint, on ubuntu systems these are:')
-      print('')
-      print('  '+' '.join(general_debs_needed)) 
-      print('')
-      print('NOTE: If you\'re working in a virtualenv and want to pip install dependencies, you will also need:')
-      print('')
-      print('  '+' '.join(debs_needed_to_compile_python)) 
-      print('')
+    print('Done. All python dependencies satisfied.')
+    print('')
+    print('In order to develop on Reahl, you will need other (non-python) packages as well.')
+    print('What these are called may differ depending on your distribution/OS.')
+    print('As a hint, on ubuntu systems these are:')
+    print('')
+    print('  '+' '.join(general_debs_needed)) 
+    print('')
+    print('NOTE: If you\'re working in a virtualenv and want to pip install dependencies, you will also need:')
+    print('')
+    print('  '+' '.join(debs_needed_to_compile_python)) 
+    print('')
 
 
 
@@ -244,15 +220,12 @@ def parse_prerequisites_from(dot_project_file):
         yield requirement_string
 
     
-def ensure_script_dependencies_installed(interactive=True):
+def ensure_script_dependencies_installed():
     missing = find_missing_prerequisites(core_project_dirs)
     if missing:
-        install_prerequisites(missing, interactive=interactive)
-        print('Successfully installed prerequisites - please re-run')
-        return False
-    return True
+        install_prerequisites(missing)
 
-def ensure_reahl_project_dependencies_installed(interactive=True):
+def ensure_reahl_project_dependencies_installed():
     workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
     run_setup(workspace, core_projects)
     workspace.selection = core_projects
@@ -265,22 +238,19 @@ def ensure_reahl_project_dependencies_installed(interactive=True):
     missing_dependencies = find_missing_dependencies(workspace)
     if missing_dependencies:
         run_setup(workspace, workspace.selection, uninstall=True)
-        if not interactive:
-            if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
+        if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
                 exit(1)
-            run_setup(workspace, workspace.selection)
+        run_setup(workspace, workspace.selection)
         missing_dependencies = find_missing_dependencies(workspace)
 
-    print_final_message(missing_dependencies)
 
 
 if "--script-dependencies" in sys.argv:
-   ensure_script_dependencies_installed(interactive=False)
+   ensure_script_dependencies_installed()
+   print('Successfully installed prerequisites - please re-run with --pip-installs')
 elif "--pip-installs" in sys.argv:
-   ensure_reahl_project_dependencies_installed(interactive=False)
-elif len(sys.argv) == 1:
-   if ensure_script_dependencies_installed():
-      ensure_reahl_project_dependencies_installed()
+   ensure_reahl_project_dependencies_installed()
+   print_final_message()
 else:
    print('Usage: %s [--script-dependencies|--pip-installs]' % sys.argv[0])
    exit(123)
