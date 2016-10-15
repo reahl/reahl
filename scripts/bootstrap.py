@@ -70,11 +70,8 @@ def remove_versions_from_requirements(requires_file):
         lines = input_file.readlines()
     with io.open(requires_file, 'w') as output_file:
         for line in lines:
-            new_line = line.strip()
-            if line.startswith('reahl-'):
-                version_stripped_line = re.match('([\w-]+)', new_line).group(0)
-                new_line = version_stripped_line
-            output_file.write(new_line)
+            version_stripped_line = re.match('([\w-]+)', line).group(0)
+            output_file.write(version_stripped_line)
             output_file.write('\n')
 
 def egg_dirs_for(project_dirs):
@@ -87,71 +84,18 @@ def fake_distributions_into_existence(project_dirs):
         if not os.path.exists(egg_dir):
             os.mkdir(egg_dir)
 
-
-# def get_installed(requirement):
-#     requirement_without_version = pkg_resources.Requirement.parse(requirement).project_name
-#     return pkg_resources.working_set.find(pkg_resources.Requirement.parse(requirement_without_version))
-#
-# def check_installed_requirement_conflict(requirement):
-#     already_installed_requirement = get_installed(requirement)
-#     if already_installed_requirement:
-#         installed_requirements_conflict = \
-#             not (pkg_resources.parse_version(already_installed_requirement) == pkg_resources.parse_version(requirement))
-#         if installed_requirements_conflict:
-#             return True
-#     return False
-
-
-def requirement_has_version_specified(requirement):
-    return not project_name_for(requirement) == requirement
-
-
-def requirements_are_compatible(requirement, other_requirement):
-    if pkg_resources.parse_version(other_requirement) == pkg_resources.parse_version(requirement):
-        return True
-    if (not requirement_has_version_specified(requirement)) or (not requirement_has_version_specified(other_requirement)):
-        return True
-
-
-def choose_requirement_containing_version(requirement, other_requirement):
-    if not requirements_are_compatible(requirement, other_requirement):
-        print("Can't choose between versions: %s compared to %s" % (requirement, other_requirement))
-        exit(1)
-    if requirement_has_version_specified(requirement):
-        return requirement
-    return other_requirement
-
-
-def project_name_for(requirement):
-    return pkg_resources.Requirement.parse(requirement).project_name
-
-
-def merge_requirements(requirements, other_requirements):
-    requirements_dict = dict(zip((project_name_for(requirement) for requirement in requirements), requirements))
-    for requirement in other_requirements:
-        project_name = project_name_for(requirement)
-        requirements_dict[project_name] = \
-            choose_requirement_containing_version(requirement, requirements_dict.get(project_name, requirement))
-    return requirements_dict.values()
-
-
 def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
-    non_reahl_requirements = get_requirements_from_file(requires_file)
+    non_reahl_requirements = hard_coded_core_dependencies[:]
+    for line in io.open(requires_file, 'r'):
+        if not line.startswith('reahl-'):
+            non_reahl_requirements.append(line)
     missing = set()
-    for i in merge_requirements(non_reahl_requirements, hard_coded_core_dependencies):
+    for i in non_reahl_requirements:
         try:
             pkg_resources.require(i)
         except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
-            missing.add(i)
+            missing.add(i.strip())
     return list(missing)
-
-
-def get_requirements_from_file(requires_file):
-    non_reahl_requirements = []
-    for line in io.open(requires_file, 'r'):
-        if not line.startswith('reahl-'):
-            non_reahl_requirements.append(line.strip())
-    return non_reahl_requirements
 
 def install_with_pip(package_list):
     import pip
@@ -280,8 +224,7 @@ remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 
 def ensure_script_dependencies_installed(interactive=True):
-    recursive_deps_of_reahl_component = ['Babel>=2.1,<2.1.999', 'python-dateutil>=2.2,<2.2.999', 'wrapt>=1.10.2,<1.10.999']
-    missing = find_missing_prerequisites(reahl_dev_requires_file, recursive_deps_of_reahl_component)
+    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six','wrapt','setuptools==22.0.5'])
     if missing:
         install_prerequisites(missing, interactive=interactive)
         print('Successfully installed prerequisites - please re-run')
@@ -305,7 +248,6 @@ def ensure_reahl_project_dependencies_installed(interactive=True):
             if install_with_pip(missing_dependencies) != 0:
                 exit(1)
             run_setup(workspace, workspace.selection)
-            missing_dependencies = []
 
     print_final_message(missing_dependencies)
 

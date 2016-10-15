@@ -53,9 +53,9 @@ services:
 
 language: python
 python:
-  - 2.7
+#  - 2.7
   - 3.4
-  - 3.5
+#  - 3.5
 
 cache: 
   pip: true
@@ -84,8 +84,8 @@ before_install:
   - gpg --version
   
 install:
-  - "pip install -r scripts/devrequirements.txt"
-#  - "python scripts/bootstrap.py --script-dependencies"
+#  - "pip install -r scripts/devrequirements.txt"
+  - "python scripts/bootstrap.py --script-dependencies"
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
   - devpi --version
   - "scripts/setupTestPostgresql.sh"
@@ -110,6 +110,6 @@ script:
   - "reahl build -sdX"
   - "scripts/setupDevpiServer.sh"
   - "reahl upload -sdXru"
-  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
-#  - "(cd reahl-dev; reahl devpitest --for-current-python-only)"
+#  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+  - "(cd reahl-dev; reahl devpitest --for-current-python-only)"
 
