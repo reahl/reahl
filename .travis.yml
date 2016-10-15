@@ -85,6 +85,8 @@ before_install:
   
 install:
 #  - "pip install -r scripts/devrequirements.txt"
+#  - pip freeze
+#  - "pip uninstall mock nose numpy py pytest wheel"
   - pip freeze
   - "python scripts/bootstrap.py --script-dependencies"
   - pip freeze

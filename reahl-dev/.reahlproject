@@ -12,6 +12,7 @@
     <egg name="reahl-tofu"/> 
     <thirdpartyegg name="six"/>
     <thirdpartyegg name="devpi" minversion="2.2" maxversion="2.2.999"/>
+    <thirdpartyegg name="devpi-client" minversion="2.7" maxversion="2.7.999"/>
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
     <thirdpartyegg name="twine" minversion="1.8.0" maxversion="1.8.9999"/>
     <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/> 

@@ -27,6 +27,8 @@ import shutil
 import glob
 import re
 import io
+import xml.etree.ElementTree
+
 
 def ask(prompt):
     answer = None
@@ -84,13 +86,13 @@ def fake_distributions_into_existence(project_dirs):
         if not os.path.exists(egg_dir):
             os.mkdir(egg_dir)
 
-def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
-    non_reahl_requirements = hard_coded_core_dependencies[:]
-    for line in io.open(requires_file, 'r'):
-        if not line.startswith('reahl-'):
-            non_reahl_requirements.append(line)
+def find_missing_prerequisites(core_project_dirs):
+    prerequisites = set()
+    for project_dir in core_project_dirs:
+        prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
+
     missing = set()
-    for i in non_reahl_requirements:
+    for i in prerequisites:
         try:
             pkg_resources.require(i)
         except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
@@ -99,7 +101,7 @@ def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
 
 def install_with_pip(package_list):
     import pip
-    return pip.main(['install'] + package_list)
+    return pip.main(['install', '-U'] + package_list)
 
 def install_prerequisites(missing, interactive=True):
     if interactive:
@@ -223,8 +225,24 @@ clean_egg_info_dirs()
 remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
 
+
+
+def parse_prerequisites_from(dot_project_file):
+    root = xml.etree.ElementTree.parse(dot_project_file).getroot()
+    for node in root.iter('thirdpartyegg'):
+        requirement_string = node.attrib['name']
+        min_version = node.attrib.get('minversion', None)
+        max_version = node.attrib.get('maxversion', None)
+        if min_version:
+            requirement_string += '>=%s' % min_version
+        if max_version:
+            comma = ',' if min_version else ''
+            requirement_string += '%s<%s' % (comma, max_version)
+        yield requirement_string
+
+    
 def ensure_script_dependencies_installed(interactive=True):
-    missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six','wrapt','setuptools==22.0.5'])
+    missing = find_missing_prerequisites(core_project_dirs)
     if missing:
         install_prerequisites(missing, interactive=interactive)
         print('Successfully installed prerequisites - please re-run')
