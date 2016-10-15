@@ -85,7 +85,9 @@ before_install:
   
 install:
 #  - "pip install -r scripts/devrequirements.txt"
+  - pip freeze
   - "python scripts/bootstrap.py --script-dependencies"
+  - pip freeze
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
   - devpi --version
   - "scripts/setupTestPostgresql.sh"
