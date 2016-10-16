@@ -108,16 +108,14 @@ def install_with_pip(package_list, upgrade=False):
 
 def install_prerequisites(missing):
     print('----------------------------------------------------------------------------------')
-    print('reahl-dev depends on eggs that are not part of reahl.')
+    print('reahl-dev and its dependencies depend on eggs that are not part of reahl.')
     print('You need these in order to run this script.')
     print('Some of these are not installed on your system.')
     print('The missing eggs are:')
     print('')
     print('  '+(' '.join(missing)))
     print('')
-    print('Can I go ahead and "pip install" the eggs listed above?')
-    print('  (the alternative is for you to answer "no", which will abort this script and ')
-    print('   thus allow you to first install the missing eggs yourself by other means)')
+    print('I will no go ahead and "pip install" the eggs listed above')
     print('')
     return install_with_pip(missing, upgrade=True) == 0
 
@@ -242,7 +240,7 @@ def ensure_reahl_project_dependencies_installed():
 if "--script-dependencies" in sys.argv:
    still_missing = ensure_script_dependencies_installed()
    if still_missing:
-       print('Failed to install %s - (see pip errors above)' % (' '.join(missing)) )
+       print('Failed to install %s - (see pip errors above)' % (' '.join(still_missing)) )
    else:
        print('Successfully installed prerequisites - please re-run with --pip-installs')
        
