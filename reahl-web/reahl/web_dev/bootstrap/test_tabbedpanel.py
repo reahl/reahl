@@ -204,7 +204,7 @@ class PanelSwitchFixture(TabbedPanelAjaxFixture):
     def ensure_disabled_js_files_not_cached(self):
         if self.run_fixture.is_instantiated('chrome_driver'):
             assert self.chrome_driver is self.web_driver
-            self.run_fixture.restart_session(self.chrome_driver)
+            self.run_fixture.restart_chrome_session()
 
     @scenario
     def without_js(self):

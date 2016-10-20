@@ -1,0 +1,103 @@
+sudo: false
+
+env:
+  global:
+    - REAHLWORKSPACE=$HOME
+    - EMAIL=noone@example.org
+    - DEBFULLNAME="Travis Tester"
+    - DEBEMAIL=$EMAIL
+    - PACKAGESIGNKEYID=DE633F86
+    - DISPLAY=:99.0
+    - PATH=$HOME/bin:$PATH
+  matrix:
+    - TOX_ENV=py27 
+    - TOX_ENV=py34
+    - TOX_ENV=py35 
+
+addons:
+  apt:
+    packages:
+       # Basic apt dependencies
+        - equivs 
+        - openssh-client 
+        - dpkg-dev
+        - bzr
+        - git
+#        - chromium-browser       # See scripts/installChromium.sh
+#        - chromium-chromedriver  # Ditto
+
+       # For compiling pip installed extensions we use
+        - python-virtualenv
+        - python-dev
+        - gcc
+        - cython
+        - libxml2-dev
+        - libsqlite3-0
+        - sqlite3
+        - postgresql-server-dev-9.1
+        - zlib1g-dev
+        - libjpeg62-dev
+        - libfreetype6-dev
+        - liblcms1-dev
+        # - phantomjs  # for reference... not allowed in apt addon
+
+services:
+  - postgresql  
+
+language: python
+python:
+#  - 2.7
+#  - 3.4
+  - 3.5
+
+cache: 
+  pip: true
+  directories:
+    - $HOME/testinstalls
+    - $HOME/.cache/pip
+
+before_install: 
+  # Install stuff we can't install with apt addon
+  - "scripts/installChromium.sh"
+
+  # Import weak key used for testing
+  - "scripts/createTestKey.sh"
+  - "gpg --list-keys"
+  - "gpg --list-secret-keys"
+
+  # Make git happy
+  - "scripts/setupTestGit.sh"
+
+  # Version checks of these things are useful for debugging
+  - git --version
+  - firefox --version
+  #- wires --version # Not installed on travis
+  - chromium-browser --version
+  - chromedriver --version
+  - gpg --version
+  
+install:
+  - "python scripts/bootstrap.py --script-dependencies"
+  - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
+  - "scripts/setupTestPostgresql.sh"
+  - "reahl setup -sX -- develop -N"
+
+before_script:
+  # Set up headless display for browsers
+  # DISPLAY is already set up
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+
+  # Setup ssh for password-less access to localhost
+  - "scripts/createTestSshKey.sh"
+
+
+script:
+#  - "reahl shell -sdX -- reahl unit"
+  - "reahl build -sdX"
+  - "scripts/configurePip.sh"
+#  - "reahl upload -sdXru"
+#  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+  - "reahl shell -sdXg -- tox -e $TOX_ENV"
+
+

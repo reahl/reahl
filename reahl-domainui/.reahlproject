@@ -7,12 +7,17 @@
 
   <translations locator="reahl.messages"/>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-web"/>
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/>
   </deps>
 
   <deps purpose="test">

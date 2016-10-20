@@ -27,6 +27,8 @@ import shutil
 import glob
 import re
 import io
+import xml.etree.ElementTree
+
 
 def ask(prompt):
     answer = None
@@ -84,44 +86,45 @@ def fake_distributions_into_existence(project_dirs):
         if not os.path.exists(egg_dir):
             os.mkdir(egg_dir)
 
-def find_missing_prerequisites(requires_file, hard_coded_core_dependencies):
-    non_reahl_requirements = hard_coded_core_dependencies[:]
-    for line in io.open(requires_file, 'r'):
-        if not line.startswith('reahl-'):
-            non_reahl_requirements.append(line)
+def find_all_prerequisits_for(project_dirs):
+    prerequisites = set()
+    for project_dir in project_dirs:
+        prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
+    return prerequisites
+    
+def find_missing_prerequisites(project_dirs):
     missing = set()
-    for i in non_reahl_requirements:
+    for i in find_all_prerequisits_for(project_dirs):
         try:
             pkg_resources.require(i)
         except (pkg_resources.DistributionNotFound, pkg_resources.VersionConflict):
             missing.add(i.strip())
     return list(missing)
 
+def install_with_pip(package_list, upgrade=False):
+    import pip
+    args = ['-U'] if upgrade else []
+    return pip.main(['install'] + args + package_list)
+
 def install_prerequisites(missing):
-  print('----------------------------------------------------------------------------------')
-  print('reahl-dev depends on eggs that are not part of reahl.')
-  print('You need these in order to run this script.')
-  print('Some of these are not installed on your system.')
-  print('The missing eggs are:')
-  print('')
-  print('  '+(' '.join(missing)))
-  print('')
-  print('Can I go ahead and "pip install" the eggs listed above?')
-  print('  (the alternative is for you to answer "no", which will abort this script and ')
-  print('   thus allow you to first install the missing eggs yourself by other means)')
-  print('')
-  if ask('Enter "yes" or "no"   : '):
-      import pip
-      if pip.main(['install']+missing) != 0:
-          print('Failed to install %s - (see pip errors above)' % (' '.join(missing)) )
-          exit(1)
-  else:
-      print('Not installing %s - please install it by other means before running %s' % ((' '.join(missing), sys.argv[0])))
-      exit(1)
+    print('----------------------------------------------------------------------------------')
+    print('reahl-dev and its dependencies depend on eggs that are not part of reahl.')
+    print('You need these in order to run this script.')
+    print('Some of these are not installed on your system.')
+    print('The missing eggs are:')
+    print('')
+    print('  '+(' '.join(missing)))
+    print('')
+    print('I will no go ahead and "pip install" the eggs listed above')
+    print('')
+    return install_with_pip(missing, upgrade=True) == 0
+
 
 def make_core_projects_importable(core_project_dirs):
     for d in core_project_dirs:
-        pkg_resources.working_set.add_entry(os.path.join(os.getcwd(), d))
+        project_path = os.path.join(os.getcwd(), d)
+        pkg_resources.working_set.add_entry(project_path)
+        sys.path.append(project_path)
     from reahl.dev.devdomain import DebianChangelog
     common_version = DebianChangelog('debian/changelog').version
  
@@ -156,49 +159,25 @@ def find_missing_dependencies(workspace):
     return list(missing)
 
 
-def print_final_message(missing_dependencies):
+def print_final_message():
     debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-9.3', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev']
     general_debs_needed = ['equivs', 'openssh-client', 'dpkg-dev', 'chromium-browser', 'chromium-chromedriver']
 
     print('')
     print('')
     print('-- ALL DONE --------------------------------------------------------------------------')
-    if missing_dependencies:
-      print('The following eggs are not available on your system, but are needed ')
-      print('to be able to develop and run reahl:')
-      print('')
-      print('  '+' '.join(missing_dependencies))
-      print('')
-      print('You have a choice here:')
-      print(' 1) You can install packages that provide these eggs via the package manager of your distribution')
-      print(' 2) You can install the eggs directly using "pip install" using the following command:')
-      print('    pip install ' + (' '.join(['"%s"' % d for d in missing_dependencies])) )
-      print('')
-      print('NOTE: You are running inside a virtualenv')
-      print('      To be able to do (1), your virtualenv should have been created using the ')
-      print('      --system-site-packages option to virtualenv.')
-      print('')
-      print('NOTE: Choosing (2) will require that you have some non-python packages installed')
-      print('      on your system. What these are called may differ depending on your distribution/OS,')
-      print('      As a hint, on ubuntu these are called:')
-      print('')
-      print('  '+' '.join(debs_needed_to_compile_python)) 
-      print('')
-      print('NB:  You will have to run this script again after satisfying these dependencies')
-      print('')
-    else:
-      print('Done. All python dependencies satisfied.')
-      print('')
-      print('In order to develop on Reahl, you will need other (non-python) packages as well.')
-      print('What these are called may differ depending on your distribution/OS.')
-      print('As a hint, on ubuntu systems these are:')
-      print('')
-      print('  '+' '.join(general_debs_needed)) 
-      print('')
-      print('NOTE: If you\'re working in a virtualenv and want to pip install dependencies, you will also need:')
-      print('')
-      print('  '+' '.join(debs_needed_to_compile_python)) 
-      print('')
+    print('Done. All python dependencies satisfied.')
+    print('')
+    print('In order to develop on Reahl, you will need other (non-python) packages as well.')
+    print('What these are called may differ depending on your distribution/OS.')
+    print('As a hint, on ubuntu systems these are:')
+    print('')
+    print('  '+' '.join(general_debs_needed)) 
+    print('')
+    print('NOTE: If you\'re working in a virtualenv and want to pip install dependencies, you will also need:')
+    print('')
+    print('  '+' '.join(debs_needed_to_compile_python)) 
+    print('')
 
 
 
@@ -215,24 +194,61 @@ clean_egg_info_dirs()
 
 remove_versions_from_requirements(reahl_dev_requires_file)
 fake_distributions_into_existence(core_project_dirs)
-missing = find_missing_prerequisites(reahl_dev_requires_file, ['devpi', 'wheel', 'six','wrapt','setuptools>11'])
-if missing:
-    install_prerequisites(missing)
-    print('Successfully installed prerequisites - please re-run')
-    exit(0)
-
-workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
-run_setup(workspace, core_projects)
-workspace.selection = core_projects
-
-# For good measure, we "setup.py develop" all eggs in reahl
-workspace.refresh(False, [os.getcwd()])
-workspace.select(all_=True)
-run_setup(workspace, workspace.selection)
-
-missing_dependencies = find_missing_dependencies(workspace)
-if missing_dependencies:
-    run_setup(workspace, workspace.selection, uninstall=True)
-print_final_message(missing_dependencies)
 
 
+
+def parse_prerequisites_from(dot_project_file):
+    root = xml.etree.ElementTree.parse(dot_project_file).getroot()
+    for node in root.iter('thirdpartyegg'):
+        requirement_string = node.attrib['name']
+        min_version = node.attrib.get('minversion', None)
+        max_version = node.attrib.get('maxversion', None)
+        if min_version:
+            requirement_string += '>=%s' % min_version
+        if max_version:
+            comma = ',' if min_version else ''
+            requirement_string += '%s<%s' % (comma, max_version)
+        yield requirement_string
+
+    
+def ensure_script_dependencies_installed():
+    missing = find_missing_prerequisites(core_project_dirs)
+    if missing and install_prerequisites(missing):
+        return []
+    elif missing:
+        return missing
+    return []
+
+def ensure_reahl_project_dependencies_installed():
+    workspace, core_projects = bootstrap_workspace(reahl_workspace, core_project_dirs)
+    run_setup(workspace, core_projects)
+    workspace.selection = core_projects
+
+    # For good measure, we "setup.py develop" all eggs in reahl
+    workspace.refresh(False, [os.getcwd()])
+    workspace.select(all_=True)
+    run_setup(workspace, workspace.selection)
+
+    missing_dependencies = find_missing_dependencies(workspace)
+    if missing_dependencies:
+        run_setup(workspace, workspace.selection, uninstall=True)
+        if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
+                exit(1)
+        run_setup(workspace, workspace.selection)
+        missing_dependencies = find_missing_dependencies(workspace)
+
+
+
+if "--script-dependencies" in sys.argv:
+   still_missing = ensure_script_dependencies_installed()
+   if still_missing:
+       print('Failed to install %s - (see pip errors above)' % (' '.join(still_missing)) )
+   else:
+       print('Successfully installed prerequisites - please re-run with --pip-installs')
+       
+elif "--pip-installs" in sys.argv:
+   ensure_reahl_project_dependencies_installed()
+   print_final_message()
+else:
+   print('Usage: %s [--script-dependencies|--pip-installs]' % sys.argv[0])
+   exit(123)

@@ -631,7 +631,6 @@ def prevent_form_submit(fixture):
 
     with browser.no_page_load_expected():
         browser.click( XPath.button_labelled('Submit'), wait=False )
-
         alert = fixture.web_driver.switch_to.alert
         vassert( alert.text == 'Please try again when all files have finished uploading.' )
         alert.accept()
@@ -641,7 +640,6 @@ def prevent_form_submit(fixture):
 def async_remove(fixture):
     """With javascript enabled, removing of uploaded files take place via ajax."""
     fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-
     browser = fixture.driver_browser
     browser.open('/')
 

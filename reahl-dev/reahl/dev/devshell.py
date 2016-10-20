@@ -375,9 +375,15 @@ class ForAllParsedWorkspaceCommand(ForAllWorkspaceCommand):
 class DevPiTest(ForAllWorkspaceCommand):
     """Runs devpi test."""
     keyword = 'devpitest'
-
+    usage_args = '[-- <args passed to "devpi test" command>]'
+    options = ForAllWorkspaceCommand.options +\
+              [('-c', '--for-current-python-only', dict(action='store_true', dest='for_current_python_only', default=False,
+                                                        help='run tox with a -e option suitable for the currently running python'))]
     def function(self, project, options, args):
-        return Executable('devpi').check_call(['test', '%s==%s' % (project.project_name, project.version_for_setup())], cwd=project.directory)
+        if options.for_current_python_only:
+            tox_env = 'py'+(''.join([str(i) for i in sys.version_info[:2]]))
+            args += ['-e', tox_env]
+        return Executable('devpi').check_call(['test', '%s==%s' % (project.project_name, project.version_for_setup())]+args, cwd=project.directory)
 
 
 class DevPiPush(ForAllWorkspaceCommand):

@@ -6,6 +6,7 @@ debian/*.debhelper
 debian/*.substvars
 debian/files
 __pycache__
+*.pyc
 *.old
 build
 _build
@@ -13,6 +14,7 @@ _build
 setup.py
 .noseids
 chromedriver.log
+.vagrant
 
 debian/python-reahl-doc/
 debian/python-reahl-sqlalchemysupport/

@@ -28,6 +28,7 @@ import shutil
 import subprocess
 import shlex
 import logging
+import time
 import email.utils
 from contextlib import contextmanager
 import datetime
@@ -35,6 +36,7 @@ import pkgutil
 from tempfile import TemporaryFile
 
 import babel
+import tzlocal
 from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
@@ -76,8 +78,11 @@ class Git(object):
                 Executable('git').check_call('log -r -1 --pretty="%ci"'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
                 out.seek(0)
                 [timestamp] = [line.replace('\n','') for line in out]
-        return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
-
+        if six.PY2:
+            import dateutil.parser
+            return dateutil.parser.parse(timestamp[1:-1]) 
+        else:
+            return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
 
     def is_version_controlled(self):
         return self.uses_git()
@@ -488,7 +493,7 @@ class LocalRepository(object):
     def upload(self, package, knocks):
         for filename in package.build_output_files:
             shutil.copy(filename, self.root_directory)
-
+            
     def is_uploaded(self, package):
         result = True
         for filename in self.uploaded_files_for(package):
@@ -499,7 +504,7 @@ class LocalRepository(object):
         if not self.is_uploaded(package):
             return False
         a_file = self.uploaded_files_for(package)[0]
-        return datetime.datetime.fromtimestamp(os.path.getmtime(a_file)) >= when
+        return datetime.datetime.fromtimestamp(os.path.getmtime(a_file), tzlocal.get_localzone()) >= when
 
     def remove_uploaded(self, package):
         for filename in self.uploaded_files_for(package):
@@ -1801,8 +1806,8 @@ class EggProject(Project):
             setup_file.write('class InstallTestDependencies(Command):\n')
             setup_file.write('    user_options = []\n')
             setup_file.write('    def run(self):\n')
-            setup_file.write('        from setuptools.command import easy_install\n')
-            setup_file.write('        if self.distribution.tests_require: easy_install.main(self.distribution.tests_require)\n')
+            setup_file.write('        import pip\n')
+            setup_file.write('        if self.distribution.tests_require: pip.main(["install", "-q"]+self.distribution.tests_require)\n')
             setup_file.write('\n')
             setup_file.write('    def initialize_options(self):\n')
             setup_file.write('        pass\n')

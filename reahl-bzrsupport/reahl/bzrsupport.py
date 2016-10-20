@@ -26,7 +26,6 @@ import datetime
 from reahl.component.shelltools import ExecutableNotInstalledException, Executable
 from reahl.dev.devdomain import SourceControlSystem
 
-# see http://packages.python.org/distribute/setuptools.html#adding-support-for-other-revision-control-systems
 
 class BzrSourceControl(SourceControlSystem):
     def __str__(self):
@@ -187,10 +186,4 @@ class Bzr(object):
  
  
  
-        
-def find_files(dirname):
-    bzr = Bzr(dirname)
-    if bzr.bzr_installed() and bzr.uses_bzr():
-        return bzr.find_files()
-    else:
-        return []
+

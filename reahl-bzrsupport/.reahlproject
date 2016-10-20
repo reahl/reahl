@@ -3,6 +3,10 @@
     <package name="reahl"/>
   </namespaces>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-dev"/>
@@ -12,7 +16,6 @@
     <thirdpartyegg name="nose"/>
   </deps>
 
-  <export entrypoint="setuptools.file_finders" name="reahl_finder" locator="reahl.bzrsupport:find_files"/> 
   <export entrypoint="reahl.dev.xmlclasses" name="BzrSourceControl" locator="reahl.bzrsupport:BzrSourceControl"/>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/bzrsupport_dev -i '.*' -t"/>
