@@ -122,7 +122,9 @@ def install_prerequisites(missing):
 
 def make_core_projects_importable(core_project_dirs):
     for d in core_project_dirs:
-        pkg_resources.working_set.add_entry(os.path.join(os.getcwd(), d))
+        project_path = os.path.join(os.getcwd(), d)
+        pkg_resources.working_set.add_entry(project_path)
+        sys.path.append(project_path)
     from reahl.dev.devdomain import DebianChangelog
     common_version = DebianChangelog('debian/changelog').version
  

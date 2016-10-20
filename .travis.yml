@@ -9,6 +9,9 @@ env:
     - PACKAGESIGNKEYID=DE633F86
     - DISPLAY=:99.0
     - PATH=$HOME/bin:$PATH
+  - TOX_ENV=py27 
+  - TOX_ENV=py34
+  - TOX_ENV=py35 
 
 addons:
   apt:
@@ -42,9 +45,9 @@ services:
 
 language: python
 python:
-  - 2.7
+#  - 2.7
   - 3.4
-  - 3.5
+#  - 3.5
 
 cache: 
   pip: true
@@ -91,8 +94,9 @@ before_script:
 script:
 #  - "reahl shell -sdX -- reahl unit"
   - "reahl build -sdX"
-  - "scripts/setupDevpiServer.sh"
-  - "reahl upload -sdXru"
-  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+  - "scripts/configurePip.sh"
+#  - "reahl upload -sdXru"
+#  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
+  - "reahl shell -sdXg -- tox -e $TOX_ENV"
 
 
