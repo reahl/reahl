@@ -7,12 +7,17 @@
 
   <translations locator="reahl.messages"/>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-web"/>
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/>
   </deps>
 
   <deps purpose="test">
@@ -24,10 +29,6 @@
     <egg name="reahl-postgresqlsupport"/>
   </deps>
   
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <export entrypoint="reahl.workflowui.task_widgets" name="bootstrap.TaskWidget" locator="reahl.domainui.bootstrap.workflow:TaskWidget"/>
 
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/domainui_dev -t -i '.*'"/>

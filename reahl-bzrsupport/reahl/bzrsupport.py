@@ -14,64 +14,55 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import subprocess
+import six
 import logging
 import os
 import os.path
 from tempfile import TemporaryFile
 import datetime
 
-# see http://packages.python.org/distribute/setuptools.html#adding-support-for-other-revision-control-systems
+from reahl.component.shelltools import ExecutableNotInstalledException, Executable
+from reahl.dev.devdomain import SourceControlSystem
 
-class ExecutableNotInstalledException(Exception):
-    """ Copied reahl.component.shelltools to avoid dependency issues"""
-    def __init__(self, executable_name):
-        self.executable_name = executable_name
+
+class BzrSourceControl(SourceControlSystem):
     def __str__(self):
-        return 'Executable not found: %s' % self.executable_name
+        return 'Bzr source control'
 
+    @classmethod
+    def get_xml_registration_info(cls):
+        return ('sourcecontrol', cls, 'bzr')
 
-class Executable(object):
-    """ Copied reahl.component.shelltools to avoid dependency issues"""
-    
-    def __init__(self, name):
-        self.name = name
+    def inflate_attributes(self, reader, attributes, parent):
+        self.__init__(parent)
+
+    def __init__(self, parent):
+        super(BzrSourceControl, self).__init__(parent)
+        self.bzr = Bzr(self.project.directory)
 
     @property
-    def executable_file(self):
-        return self.which(self.name)
+    def last_commit_time(self):
+        return self.bzr.last_commit_time
 
-    def which(self, program):
-        def is_exe(fpath):
-            return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+    def is_unchanged(self):
+        tag = six.text_type(self.project.version)
+        return tag in self.bzr.get_tags(head_only=True)
 
-        def ext_candidates(fpath):
-            for ext in os.environ.get("PATHEXT", "").split(os.pathsep):
-                yield fpath + ext
-            yield fpath
+    def needs_new_version(self):
+        tag = six.text_type(self.project.version)
+        return tag in self.bzr.get_tags()
 
-        fpath, fname = os.path.split(program)
-        if fpath:
-            if is_exe(program):
-                return program
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                exe_file = os.path.join(path, program)
-                for candidate in ext_candidates(exe_file):
-                    if is_exe(candidate):
-                        return candidate
+    def is_version_controlled(self):
+        return self.bzr.is_version_controlled()
 
-        raise ExecutableNotInstalledException(program)
-        
-    def call(self, commandline_arguments, *args, **kwargs):
-        return subprocess.call([self.executable_file]+commandline_arguments, *args, **kwargs)
-    def check_call(self, commandline_arguments, *args, **kwargs):
-        return subprocess.check_call([self.executable_file]+commandline_arguments, *args, **kwargs)
-    def Popen(self, commandline_arguments, *args, **kwargs):
-        return subprocess.Popen([self.executable_file]+commandline_arguments, *args, **kwargs)
+    def is_checked_in(self):
+        return self.bzr.is_checked_in()
+
+    def place_tag(self, tag):
+        self.bzr.tag(tag)
+
 
 
 class Bzr(object):
@@ -195,10 +186,4 @@ class Bzr(object):
  
  
  
-        
-def find_files(dirname):
-    bzr = Bzr(dirname)
-    if bzr.bzr_installed() and bzr.uses_bzr():
-        return bzr.find_files()
-    else:
-        return []
+

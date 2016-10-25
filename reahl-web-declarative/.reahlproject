@@ -5,6 +5,10 @@
     <package name="reahl"/>
   </namespaces>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-web"/>
@@ -13,15 +17,12 @@
 
   <deps purpose="test">
     <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
     <egg name="reahl-postgresqlsupport"/>
-  </deps>
-
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <persisted>

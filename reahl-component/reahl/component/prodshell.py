@@ -125,9 +125,11 @@ class CheckConfig(ProductionCommand):
 class CreateDBUser(ProductionCommand):
     """Creates the database user."""
     keyword = 'createdbuser'
+    options = [('-n', '--no-create-password', dict(action='store_true', dest='no_create_password',
+               help='dont prompt for a password - create the user without specifying a password'))]
     def execute(self, options, args):
         super(CreateDBUser, self).execute(options, args)
-        return self.sys_control.create_db_user()
+        return self.sys_control.create_db_user(prompt_for_password=not options.no_create_password)
 
 
 class DropDBUser(ProductionCommand):

@@ -3,13 +3,24 @@
     <package name="reahl"/>
   </namespaces>
   
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/> 
-    <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 
-    <thirdpartyegg name="twine" minversion="1.4.0" maxversion="1.4.9999"/> 
+    <thirdpartyegg name="six"/>
+    <thirdpartyegg name="devpi" minversion="2.2" maxversion="2.2.999"/>
+    <thirdpartyegg name="devpi-client" minversion="2.7" maxversion="2.7.999"/>
+    <thirdpartyegg name="devpi-server" minversion="4.1.1" maxversion="4.1.999"/>   <!-- Because from 4.1.0 did not require waitress <1 like 4.1.1 does -->
+   
+    <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
+    <thirdpartyegg name="twine" minversion="1.8.0" maxversion="1.8.9999"/>
     <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/> 
-    <egg name="reahl-bzrsupport"/>
+    <thirdpartyegg name="tzlocal" minversion="1.2.0" maxversion="1.2.9999"/> 
+    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/> 
+    <thirdpartyegg name="pip" minversion="8.1.2" maxversion="8.1.999"/> 
   </deps>
 
   <deps purpose="test">
@@ -18,16 +29,12 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
-  </deps>
-
   <script name="reahl" locator="reahl.dev.devshell:WorkspaceCommandline.execute_one"/>
   
   <export entrypoint="reahl.dev.xmlclasses" name="MetaInfo" locator="reahl.dev.devdomain:MetaInfo"/>
   <export entrypoint="reahl.dev.xmlclasses" name="HardcodedMetadata" locator="reahl.dev.devdomain:HardcodedMetadata"/>
   <export entrypoint="reahl.dev.xmlclasses" name="DebianPackageMetadata" locator="reahl.dev.devdomain:DebianPackageMetadata"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="BzrSourceControl" locator="reahl.dev.devdomain:BzrSourceControl"/>
+  <export entrypoint="reahl.dev.xmlclasses" name="GitSourceControl" locator="reahl.dev.devdomain:GitSourceControl"/>
 
   <export entrypoint="reahl.dev.xmlclasses" name="Project" locator="reahl.dev.devdomain:Project"/>
   <export entrypoint="reahl.dev.xmlclasses" name="ChickenProject" locator="reahl.dev.devdomain:ChickenProject"/>

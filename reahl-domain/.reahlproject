@@ -8,6 +8,10 @@
 
   <translations locator="reahl.messages"/>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-mailutil"/>
@@ -22,10 +26,6 @@
     <egg name="reahl-dev"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-webdev"/>
-  </deps>
-
-  <deps purpose="build">
-    <egg name="reahl-bzrsupport"/>
   </deps>
 
   <persisted>

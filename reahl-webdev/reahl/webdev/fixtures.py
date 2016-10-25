@@ -27,6 +27,7 @@ from reahl.tofu import tear_down
 
 from reahl.dev.fixtures import CleanDatabase
 
+from reahl.component.shelltools import Executable
 from reahl.webdev.webserver import ReahlWebServer
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
@@ -74,12 +75,32 @@ class BrowserSetup(CleanDatabase):
     @property 
     def web_driver(self):
         return self.chrome_driver
+#        return self.phantomjs_driver
+#        return self.firefox_driver
 
+    def new_phantomjs_driver(self):
+        driver = webdriver.PhantomJS() # or add to your PATH
+        driver.set_window_size(1024, 768) # optional
+        self.reahl_server.install_handler(driver)
+        return driver
+        
     def new_firefox_driver(self, javascript_enabled=True):
         assert javascript_enabled, 'Cannot disable javascript anymore, see: https://github.com/seleniumhq/selenium/issues/635'
         from selenium.webdriver import FirefoxProfile, DesiredCapabilities
 
+        # FF does not fire events when its window is not in focus.
+        # Native events used to fix this.
+        # After FF34 FF does not support native events anymore
+        # We're on 48.0 now on local machines, but on 31 on travis
+
         fp = FirefoxProfile()
+#        fp.set_preference("focusmanager.testmode", False)
+#        fp.set_preference('plugins.testmode', False)
+        fp.set_preference('webdriver_enable_native_events', True)
+        fp.set_preference('webdriver.enable.native.events', True)
+        fp.set_preference('enable.native.events', True)
+        fp.native_events_enabled = True
+
         fp.set_preference('network.http.max-connections-per-server', 1)
         fp.set_preference('network.http.max-persistent-connections-per-server', 0)
         fp.set_preference('network.http.spdy.enabled', False)
@@ -88,7 +109,7 @@ class BrowserSetup(CleanDatabase):
         fp.set_preference('network.http.pipelining.ssl', True)
         fp.set_preference('html5.offmainthread', False)
 
-        dc = DesiredCapabilities.FIREFOX.copy() 
+        dc = DesiredCapabilities.FIREFOX.copy()
 
         if not javascript_enabled:
             fp.set_preference('javascript.enabled', False)
@@ -98,16 +119,23 @@ class BrowserSetup(CleanDatabase):
         self.reahl_server.install_handler(wd)
         return wd
 
-    def new_chrome_driver(self):
+
+    def new_chrome_options(self):
         from selenium.webdriver.chrome.options import Options
         options = Options()
         options.add_argument('--disable-preconnect')
         options.add_argument('--dns-prefetch-disable')
+        options.add_argument('--start-maximized') 
+        options.add_argument('--no-sandbox')  # Needed to be able to run a user-installed version of chromium on travis
+        options.binary_location = Executable('chromium-browser').executable_file  # To run a custom-installed chromium as picked up by the PATH
         #--enable-http-pipelining
         #--learning
         #--single-process
+        return options
+
+    def new_chrome_driver(self):
         try:
-            wd = webdriver.Chrome(chrome_options=options)
+            wd = webdriver.Chrome(chrome_options=self.chrome_options) #, service_args=["--verbose", "--log-path=/tmp/chromedriver.log"]
         except WebDriverException as ex:
             if ex.msg.startswith('Unable to either launch or connect to Chrome'):
                 ex.msg += '  *****NOTE****: On linux, chrome needs write access to /dev/shm.'
@@ -116,11 +144,16 @@ class BrowserSetup(CleanDatabase):
                 ex.msg += ' "tmpfs /dev/shm tmpfs rw,noexec,nosuid,nodev 0 0" '
                 ex.msg += ' .... and then run sudo mount /dev/shm '
                 ex.msg += '\n\n ***ALTERNATIVE*** An alternative solution (when using schroot) is'
-                ex.msg += ' to make sure that /etc/schroot/mount.defaults contain a line for /run/shm.'
+                ex.msg += ' to make sure that /etc/schroot/default/fstab contain a line for /dev/shm.'
                 ex.msg += ' (usually it is commented out)'
             raise
         self.reahl_server.install_handler(wd)
         return wd
+
+    def restart_chrome_session(self):
+        self.chrome_driver.close()
+        self.chrome_driver.start_session(self.chrome_options.to_capabilities())
+
 
     def set_noop_app(self):
         # selenium.stop() hits the application its opened on again. NoopApp just ensures this does not break:
@@ -141,10 +174,6 @@ class BrowserSetup(CleanDatabase):
         with self.context:
             # Create and start server
             self.reahl_server.start(in_separate_thread=False, connect=False)
-
-    def restart_session(self, web_driver):
-        web_driver.close()
-        web_driver.start_session(web_driver.desired_capabilities)
 
     def is_instantiated(self, name):
         return name in self.__dict__

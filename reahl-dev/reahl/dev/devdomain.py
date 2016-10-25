@@ -21,7 +21,6 @@ import six
 import os
 import io
 import sys
-import glob
 import re
 import glob
 import os.path
@@ -29,29 +28,31 @@ import shutil
 import subprocess
 import shlex
 import logging
+import time
 import email.utils
 from contextlib import contextmanager
 import datetime
 import pkgutil
+from tempfile import TemporaryFile
 
 import babel
+import tzlocal
 from pkg_resources import require, DistributionNotFound, VersionConflict, get_distribution
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
 
-from reahl.bzrsupport import Bzr
-from reahl.component.shelltools import Executable
+from reahl.component.shelltools import Executable, ExecutableNotInstalledException
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.eggs import ReahlEgg, EntryPointKeyEncodedAttachmentName
+from reahl.component.eggs import ReahlEgg
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
-from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotBuiltException, NotAValidProjectException, \
+from reahl.dev.exceptions import NoException, StatusException, AlreadyUploadedException, NotAValidProjectException, \
     InvalidProjectFileException, NotUploadedException, NotVersionedException, NotCheckedInException, \
     MetaInformationNotAvailableException, AlreadyDebianisedException, \
     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \
-    AlreadyMarkedAsReleasedException, NoSuchProjectException, NotBuiltAfterLastCommitException, NotBuiltException
-    
+    NotBuiltAfterLastCommitException, NotBuiltException
+
 class ProjectNotFound(Exception):
     pass
 
@@ -65,6 +66,66 @@ class EggNotFound(Exception):
     pass
 
 
+
+class Git(object):
+    def __init__(self, directory):
+        self.directory = directory
+
+    @property
+    def last_commit_time(self):
+        with TemporaryFile(mode='w+') as out:
+            with open(os.devnull, 'w') as DEVNULL:
+                Executable('git').check_call('log -r -1 --pretty="%ci"'.split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
+                out.seek(0)
+                [timestamp] = [line.replace('\n','') for line in out]
+        if six.PY2:
+            import dateutil.parser
+            return dateutil.parser.parse(timestamp[1:-1]) 
+        else:
+            return datetime.datetime.strptime(timestamp, '"%Y-%m-%d %H:%M:%S %z"')
+
+    def is_version_controlled(self):
+        return self.uses_git()
+
+    def is_checked_in(self):
+        with TemporaryFile(mode='w+') as out:
+            return_code = Executable('git').call('status --porcelain'.split(), cwd=self.directory, stdout=out, stderr=out)
+            out.seek(0)
+            return return_code == 0 and not out.read()
+
+    def uses_git(self):
+        with TemporaryFile(mode='w+') as out:
+            try:
+                Executable('git').call('rev-parse --is-inside-work-tree'.split(), cwd=self.directory, stdout=out, stderr=out)
+                out.seek(0)
+                return out.read().replace('\n','') == 'true'
+            except Exception as ex:
+                logging.error('Error trying to execute "git rev-parse --is-inside-work-tree" in %s: %s' % (self.directory, ex))
+            return False
+
+    def tag(self, tag_string):
+        with open(os.devnull, 'w') as DEVNULL:
+            Executable('git').check_call(('tag %s' % tag_string).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+
+    def get_tags(self, head_only=False):
+        tags = []
+        with TemporaryFile(mode='w+') as out:
+            with open(os.devnull, 'w') as DEVNULL:
+                head_only = ' -l --points-at HEAD' if head_only else ''
+                Executable('git').check_call(('tag'+head_only).split(), cwd=self.directory, stdout=out, stderr=DEVNULL)
+                out.seek(0)
+                tags = [line.split()[0] for line in out if line]
+        return tags
+
+    def commit(self, message, allow_empty=False):
+        with open(os.devnull, 'w') as DEVNULL:
+            args = '-am "%s"' % message
+            if allow_empty:
+                args += ' --allow-empty'
+            return_code = Executable('git').call(('commit %s' % args).split(), cwd=self.directory, stdout=DEVNULL, stderr=DEVNULL)
+        return return_code == 0
+
+
 class DistributionPackage(object):
     """A DistributionPackage is a package that may be built for distribution."""
     def __init__(self, project):
@@ -73,7 +134,7 @@ class DistributionPackage(object):
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent)
-        
+
     def inflate_child(self, reader, child, tag, parent):
         self.repositories.append(child)
 
@@ -159,7 +220,7 @@ class PythonWheelPackage(DistributionPackage):
     @property
     def sign_filename(self):
         return '%s.asc' % self.wheel_filename
-        
+
     @property
     def filenames_to_sign(self):
         return [self.wheel_filename]
@@ -197,14 +258,14 @@ class DebianPackage(DistributionPackage):
 
     def deb_filename(self, egg_project):
         return 'python-%s_%s_all.deb' % (egg_project.project_name, self.project.version)
-        
+
     @property
     def targz_filename(self):
         return 'python-%s_%s.tar.gz' % (self.project.project_name, self.project.version)
 
     @property
     def changes_filename(self):
-        return 'python-%s_%s_%s.changes' % (self.project.project_name, self.project.version, 
+        return 'python-%s_%s_%s.changes' % (self.project.project_name, self.project.version,
                                             self.debian_build_architecture)
 
     @property
@@ -225,23 +286,23 @@ class DebianPackage(DistributionPackage):
 
     @property
     def build_output_files(self):
-        return [os.path.join(self.project.directory, '..', i) 
+        return [os.path.join(self.project.directory, '..', i)
                 for i in self.package_files]
 
     @property
     def files_to_distribute(self):
         return self.project.distribution_apt_repository.uploaded_files_for(self)
-        
+
     def last_built_after(self, when):
         return self.project.distribution_apt_repository.is_uploaded_after(self, when)
 
     def build(self):
         self.generate_install_files()
-        Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr', '-k%s' % os.environ['EMAIL']], cwd=self.project.directory)
+        Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr','-I.git', '-k%s' % os.environ['EMAIL']], cwd=self.project.directory)
         self.project.distribution_apt_repository.upload(self, [])
         self.clean_files(self.build_output_files)
         return 0
-        
+
     @property
     def package_files(self):
         return [self.deb_filename(self.project), self.targz_filename, self.changes_filename, self.dsc_filename]
@@ -262,49 +323,49 @@ class DebianDotInstallFile(object):
     def generate(self):
         with io.open(self.filename, 'w') as out_file:
             out_file.write(os.path.join('debian', self.package_set.deb_base_name, self.egg_project.project_name, 'usr'))
-            out_file.write('  /\n') 
+            out_file.write('  /\n')
 
 
 class DebianPackageSet(DebianPackage):
     def __str__(self):
         binaries_files = [self.deb_filename(i) for i in self.project.egg_projects]
         return 'Debian:\t\t\t%s' % ', '.join(binaries_files)
- 
+
     @classmethod
     def get_xml_registration_info(cls):
         return ('distpackageset', cls, 'deb')
-        
+
     @property
     def package_files(self):
         sources_files = [self.targz_filename, self.changes_filename, self.dsc_filename]
         binaries_files = [self.deb_filename(i) for i in self.project.egg_projects]
         return sources_files + binaries_files
-        
+
     @property
     def deb_base_name(self):
         return 'python-%s' % self.project.project_name
-    
+
     def generate_install_files(self):
         for egg in self.project.egg_projects:
             DebianDotInstallFile(self, egg).generate()
-            
-            
+
+
 class RepositoryLocalState(object):
     """Used by Repository objects to keep track locally of what packages have been uploaded to the Repository."""
     def __init__(self, repository):
         self.repository = repository
         self.uploaded_project_ids = set()
-        
+
     def is_uploaded(self, package):
         return package.unique_id in self.uploaded_project_ids
-        
+
     def set_uploaded(self, package):
         self.uploaded_project_ids.add(package.unique_id)
-        
+
     @property
     def upload_state_filename(self):
         return os.path.join(self.repository.repository_state_directory, '%s.uploaded' % self.repository.unique_id )
-        
+
     def read(self):
         self.uploaded_project_ids = set()
         if not os.path.exists(self.upload_state_filename):
@@ -327,7 +388,7 @@ class RemoteRepository(object):
     @property
     def knock_host(self):
         return '127.0.0.1'
-        
+
     def knock(self, knocks):
         Executable('knock').check_call([self.knock_host]+knocks)
 
@@ -338,7 +399,7 @@ class RemoteRepository(object):
     def is_uploaded(self, package):
         self.local_storage.read()
         return self.local_storage.is_uploaded(package)
-        
+
     def upload(self, package, knocks, ignore_upload_check=False):
         if not package.is_built:
             raise NotBuiltException()
@@ -385,7 +446,7 @@ class PackageIndex(RemoteRepository):
     def transfer(self, package):
         Executable('twine').check_call(['upload', '-r', self.repository] + package.files_to_distribute)
 
-    
+
 class SshRepository(RemoteRepository):
     """A simple Repository for uploading debian or egg packages to via ssh. Uploading merely means to scp all the necessary
        debian packaging files to a directory on the remote host."""
@@ -395,7 +456,7 @@ class SshRepository(RemoteRepository):
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent.project.workspace,
-                      six.text_type(attributes['host']), 
+                      six.text_type(attributes['host']),
                       six.text_type(attributes.get('login', os.environ.get('USER', ''))) or None,
                       six.text_type(attributes['destination']) or None)
 
@@ -432,18 +493,18 @@ class LocalRepository(object):
     def upload(self, package, knocks):
         for filename in package.build_output_files:
             shutil.copy(filename, self.root_directory)
-
+            
     def is_uploaded(self, package):
         result = True
         for filename in self.uploaded_files_for(package):
             result = result and os.path.isfile(filename)
         return result
-        
+
     def is_uploaded_after(self, package, when):
         if not self.is_uploaded(package):
             return False
         a_file = self.uploaded_files_for(package)[0]
-        return datetime.datetime.fromtimestamp(os.path.getmtime(a_file)) >= when
+        return datetime.datetime.fromtimestamp(os.path.getmtime(a_file), tzlocal.get_localzone()) >= when
 
     def remove_uploaded(self, package):
         for filename in self.uploaded_files_for(package):
@@ -459,7 +520,7 @@ class LocalRepository(object):
         files_to_sign = [os.path.join(self.root_directory, filename) for filename in package.filenames_to_sign]
         Executable('gpg').check_call(['-ab', '--yes', '-o', sign_file]+files_to_sign, cwd=self.root_directory)
 
-        
+
 class LocalAptRepository(LocalRepository):
     def build_index_files(self):
         with io.open( os.path.join(self.root_directory, 'Packages'), 'w' ) as packages_file:
@@ -544,7 +605,7 @@ class ExcludedPackage(object):
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
         self.__init__(attributes['name'])
-    
+
 
 class Version(object):
     def __init__(self, version_string):
@@ -552,7 +613,7 @@ class Version(object):
         self.major = match.group('major')
         self.minor = match.group('minor')
         self.patch = match.group('patch')
-        self.other = match.group('other') 
+        self.other = match.group('other')
         self.debian_revision = match.group('debian_rev')
 
     def __str__(self):
@@ -575,9 +636,9 @@ class Version(object):
 
     def upper_version(self):
         return Version('.'.join([self.major, six.text_type(int(self.minor)+1)]))
-            
+
     def lower_deb_version(self):
-        return self.truncated()  
+        return self.truncated()
 
     def lower_egg_version(self):
         if self.is_alpha_version():
@@ -586,7 +647,7 @@ class Version(object):
 
     def as_upstream(self):
         return Version('.'.join([self.major, self.minor]+([self.patch] if self.patch else [])))
-        
+
 
 class Dependency(object):
     def __init__(self, project, name, version=None, ignore_version=False):
@@ -594,7 +655,7 @@ class Dependency(object):
         self.name = name
         self.ignore_version = ignore_version
         self.version = Version(version) if version else None
-        
+
     @classmethod
     def get_xml_registration_info(cls):
         return ('egg', cls, None)
@@ -613,10 +674,10 @@ class Dependency(object):
     def as_string_for_deb(self):
         if not self.ignore_version and self.version_is_available():
             version = self.exact_version()
-            return 'python-%s (>=%s), python-%s (<<%s)' % (self.name, version.lower_deb_version(), 
+            return 'python-%s (>=%s), python-%s (<<%s)' % (self.name, version.lower_deb_version(),
                                                            self.name, version.upper_version())
         return 'python-%s' % self.name
-    
+
     def as_project_dependencies(self, project_list):
         try:
             return [project_list.project_named(self.name)]
@@ -630,7 +691,7 @@ class Dependency(object):
 
     @property
     def is_in_development(self):
-        return self.project.workspace.has_project_named(self.name) 
+        return self.project.workspace.has_project_named(self.name)
 
     @property
     def is_installed(self):
@@ -641,7 +702,7 @@ class Dependency(object):
         return True
 
     def version_is_available(self):
-        return self.is_internal or self.version or self.project.workspace.has_project_named(self.name) 
+        return self.is_internal or self.version or self.project.workspace.has_project_named(self.name)
 
     def exact_version(self):
         assert self.version_is_available(), 'No version can be determined for dependency %s' % self.name
@@ -765,7 +826,7 @@ class OrderedPersistedClass(object):
     @property
     def name(self):
         return six.text_type(self.order)
-    
+
     @classmethod
     def get_xml_registration_info(cls):
         return ('class', cls, None)
@@ -779,7 +840,7 @@ class OrderedClassesList(list):
     @property
     def entry_point(self):
         raise ProgrammerError('subclasses must provide this')
-    
+
     def inflate_child(self, reader, child, tag, parent):
         assert isinstance(child, OrderedPersistedClass), 'Got %s, expected a class' % child
         self.append(child)
@@ -837,7 +898,7 @@ class NamespaceEntry(object):
     def path(self):
         return EntryPointLocator(self.name).package_path
 
-    
+
 class NamespaceList(list):
     @classmethod
     def get_xml_registration_info(cls):
@@ -868,7 +929,7 @@ class CommandAlias(object):
         assert 'command' in attributes, 'No command specified'
         assert 'name' in attributes, 'No arguments specified'
         self.__init__(attributes['name'], attributes['command'])
-    
+
     @property
     def arg_list(self):
         return shlex.split(self.full_command)[1:]
@@ -903,16 +964,16 @@ class ProjectTag(object):
     def inflate_attributes(self, reader, attributes, parent):
         assert 'name' in attributes, 'No name specified'
         self.__init__(attributes['name'])
-    
+
 
 
 class ProjectMetadata(object):
     def __str__(self):
         return 'Default project metadata provider'
-    
+
     def __init__(self, project):
         self.project = project
-        
+
     @property
     def project_name(self):
         return os.path.basename(self.directory)
@@ -931,7 +992,7 @@ class ProjectMetadata(object):
         if self.project.chicken_project:
             return self.project.chicken_project.info_readable()
         return True
-    
+
     def info_completed(self):
         if self.project.chicken_project:
             return self.project.chicken_project.info_completed()
@@ -946,7 +1007,7 @@ class ProjectMetadata(object):
         if self.project.chicken_project:
             return self.project.chicken_project.get_description_for(project)
         return 'No description provided'
-        
+
     def get_long_description_for(self, project):
         if self.project.chicken_project:
             return self.project.chicken_project.get_long_description_for(project)
@@ -986,7 +1047,7 @@ class HardcodedMetadata(ProjectMetadata):
     def __init__(self, parent):
         super(HardcodedMetadata, self).__init__(parent)
         self.info = {}
-        
+
     def __str__(self):
         return 'Metadata read from a .reahlproject file'
 
@@ -1000,7 +1061,7 @@ class HardcodedMetadata(ProjectMetadata):
     def inflate_child(self, reader, child, tag, parent):
         assert isinstance(child, MetaInfo), 'Got %s, expected an info' % child
         self.info[child.name] = child
-            
+
     @property
     def version(self):
         return Version(self.info['version'].contents)
@@ -1010,7 +1071,7 @@ class HardcodedMetadata(ProjectMetadata):
 
     def get_description_for(self, project):
         return self.info['description'].contents
-    
+
     def get_url_for(self, project):
         return self.info['url'].contents
 
@@ -1067,7 +1128,7 @@ class DebianPackageMetadata(ProjectMetadata):
             logging.warn('Project not debianised, using directory name for project name')
             print(':::%s' % self.directory)
             return os.path.basename(self.directory)
-        
+
     @property
     def version(self):
         return Version(six.text_type(self.changelog.version))
@@ -1077,7 +1138,7 @@ class DebianPackageMetadata(ProjectMetadata):
 
     def get_description_for(self, project):
         return self.debian_control.get_short_description_for('python-%s' % project.project_name)
-    
+
     def get_url_for(self, project):
         return self.url
 
@@ -1114,19 +1175,19 @@ class DebianPackageMetadata(ProjectMetadata):
     def debianise(self):
         if self.info_completed():
             raise AlreadyDebianisedException()
-        
+
         import tempfile
         deb_dir = os.path.join(tempfile.gettempdir(), 'python-%s-0.1.0' % self.project.project_name)
         if os.path.isdir(deb_dir):
             shutil.rmtree(deb_dir)
         os.mkdir(deb_dir)
-    
+
         dh_make_params = ['--native --defaultless --single --copyright GPL']
         if self.project.workspace.dh_make_directory:
             dh_make_params[0] += ' --templates %s' % self.project.workspace.dh_make_directory
 
         Executable('dh_make').check_call(dh_make_params.split(' '), cwd=deb_dir, shell=True)
-            
+
         shutil.move(os.path.join(deb_dir, 'debian'), os.path.join(self.project.directory, 'debian'))
         shutil.rmtree(deb_dir)
         return 0
@@ -1147,7 +1208,7 @@ class DebianChangelog(object):
                     match = re.match(self.heading_regex, line)
                     assert match, 'Cannot parse changelog file: %s' % self.filename
                     return match.group(element)
-        
+
     @property
     def package_name(self):
         return self.parse_heading_for('package_name')
@@ -1188,7 +1249,7 @@ class DebianControl(object):
         except ValueError:
             raise AssertionError('Could not find a stanza for a package named %s in debian control file %s' % \
                                  (package_name, self.filename))
-    
+
     @property
     def maintainer_name(self):
         return email.utils.parseaddr(self.source_stanza['Maintainer'])[0]
@@ -1196,7 +1257,7 @@ class DebianControl(object):
     @property
     def maintainer_email(self):
         return email.utils.parseaddr(self.source_stanza['Maintainer'])[1]
-        
+
     def get_long_description_for(self, package_name):
         description_field = self.get_package_stanza(package_name)['Description']
         return ''.join([line.strip()+' ' for line in description_field.split('\n')[1:]])
@@ -1206,7 +1267,7 @@ class DebianControl(object):
         return description_field.split('\n')[0]
 
 
-        
+
 class SourceControlSystem(object):
     def __str__(self):
         if self.project.chicken_project:
@@ -1236,7 +1297,7 @@ class SourceControlSystem(object):
         if self.project.chicken_project:
             return self.project.chicken_project.source_control.is_version_controlled()
         return False
-    
+
     def is_checked_in(self):
         if self.project.chicken_project:
             return self.project.chicken_project.source_control.is_checked_in()
@@ -1248,41 +1309,43 @@ class SourceControlSystem(object):
 
 
 
-class BzrSourceControl(SourceControlSystem):
+
+
+class GitSourceControl(SourceControlSystem):
     def __str__(self):
-        return 'Bzr source control'
+        return 'Git source control'
 
     @classmethod
     def get_xml_registration_info(cls):
-        return ('sourcecontrol', cls, 'bzr')
+        return ('sourcecontrol', cls, 'git')
 
     def inflate_attributes(self, reader, attributes, parent):
         self.__init__(parent)
 
     def __init__(self, parent):
-        super(BzrSourceControl, self).__init__(parent)
-        self.bzr = Bzr(self.project.directory)
-        
+        super(GitSourceControl, self).__init__(parent)
+        self.git = Git(self.project.directory)
+
     @property
     def last_commit_time(self):
-        return self.bzr.last_commit_time
-    
+        return self.git.last_commit_time
+
     def is_unchanged(self):
         tag = six.text_type(self.project.version)
-        return tag in self.bzr.get_tags(head_only=True)
+        return tag in self.git.get_tags(head_only=True)
 
     def needs_new_version(self):
         tag = six.text_type(self.project.version)
-        return tag in self.bzr.get_tags()
+        return tag in self.git.get_tags()
 
     def is_version_controlled(self):
-        return self.bzr.is_version_controlled()
+        return self.git.is_version_controlled()
 
     def is_checked_in(self):
-        return self.bzr.is_checked_in()
+        return self.git.is_checked_in()
 
     def place_tag(self, tag):
-        self.bzr.tag(tag)
+        self.git.tag(tag)
 
 
 class Project(object):
@@ -1369,7 +1432,7 @@ class Project(object):
         finally:
             sys.path[:] = path
             os.chdir(cwd)
-        
+
     def command_for_alias(self, alias):
         return self.command_aliases.get(alias, None)
 
@@ -1379,10 +1442,10 @@ class Project(object):
 
     def info_completed(self):
         return self.metadata.info_completed()
-    
+
     def info_readable(self):
         return self.metadata.info_readable()
-        
+
     @property
     def project_name(self):
         return self.metadata.project_name
@@ -1390,17 +1453,17 @@ class Project(object):
     @property
     def project_name_pythonised(self):
         return self.project_name.replace('-', '_')
-    
+
     @property
     def version(self):
         return self.metadata.version
 
     def get_url_for(self, project):
         return self.metadata.get_url_for(project)
-        
+
     def get_description_for(self, project):
         return self.metadata.get_description_for(project)
-        
+
     def get_long_description_for(self, project):
         return self.metadata.get_long_description_for(project)
 
@@ -1461,7 +1524,7 @@ class Project(object):
         for i in self.packages_to_distribute:
             is_up_to_date &= i.last_built_after(last_commit_time)
         return is_up_to_date
-        
+
     def build(self):
         assert self.packages_to_distribute, 'For %s: No <package>... listed in .reahlproject, nothing to do.' % self.project_name
         for i in self.packages_to_distribute:
@@ -1472,7 +1535,7 @@ class Project(object):
         for i in self.packages_to_distribute:
             is_built &= i.is_built
         return is_built
-        
+
     def upload(self, knocks=[], ignore_release_checks=False, ignore_upload_check=False):
         try:
            self.do_release_checks()
@@ -1517,7 +1580,7 @@ class SetupMonitor(object):
     def write(self, line_to_write):
         self.captured_stdout.append(line_to_write)
         self.original_stdout.write(line_to_write)
-        
+
     def flush(self):
         self.original_stdout.flush()
 
@@ -1532,7 +1595,7 @@ class SetupMonitor(object):
         check_method = getattr(self, 'check_%s_command' % command, None)
         if check_method and not check_method():
             raise SetupCommandFailed(command)
-      
+
     def output_ends_with(self, starting, expected_end, only_up_to=None):
         if not starting in self.captured_stdout:
             return False
@@ -1543,7 +1606,7 @@ class SetupMonitor(object):
             if only_up_to and line.startswith(only_up_to):
                 return False
         return True
-        
+
     def check_build_command(self):
         return self.output_ends_with('running build\n', '[Cc]reating (tar archive|.*/WHEEL)\n')
 
@@ -1579,7 +1642,7 @@ class EggProject(Project):
         self.persist_list = []
         self.migration_list = []
         self.scheduled_jobs = []
-        
+
         self.static_files = []
         self.js_attach_list = []
         self.css_attach_list = []
@@ -1595,7 +1658,7 @@ class EggProject(Project):
                self.explicitly_specified_entry_points + \
                ([self.translation_package] if self.translation_package else []) +\
                added_entry_points
-    
+
     @property
     def tags(self):
         extras = ['component']
@@ -1617,7 +1680,7 @@ class EggProject(Project):
             return self.workspace.project_in(directory)
         except ProjectNotFound:
             return Project.from_file(self.workspace, directory)
-        
+
     @classmethod
     def get_xml_registration_info(cls):
         return ('project', cls, 'egg')
@@ -1687,7 +1750,7 @@ class EggProject(Project):
             for line in in_file:
                 sources.append(line)
         return sources
-                
+
     @property
     def egg_info_directory(self):
         return os.path.join(self.directory, '%s.egg-info' % self.project_name_pythonised)
@@ -1743,8 +1806,8 @@ class EggProject(Project):
             setup_file.write('class InstallTestDependencies(Command):\n')
             setup_file.write('    user_options = []\n')
             setup_file.write('    def run(self):\n')
-            setup_file.write('        from setuptools.command import easy_install\n')
-            setup_file.write('        if self.distribution.tests_require: easy_install.main(self.distribution.tests_require)\n')
+            setup_file.write('        import pip\n')
+            setup_file.write('        if self.distribution.tests_require: pip.main(["install", "-q"]+self.distribution.tests_require)\n')
             setup_file.write('\n')
             setup_file.write('    def initialize_options(self):\n')
             setup_file.write('        pass\n')
@@ -1784,7 +1847,7 @@ class EggProject(Project):
 
     def version_for_setup(self):
         return ascii_as_bytes_or_str(six.text_type(self.version.as_upstream()))
-        
+
     def run_deps_for_setup(self):
         return [ascii_as_bytes_or_str(dep.as_string_for_egg()) for dep in self.run_deps]
 
@@ -1823,7 +1886,7 @@ class EggProject(Project):
 
     def test_suite_for_setup(self):
         return self.test_suite
-        
+
     def entry_points_for_setup(self):
         entry_point_dict = {}
         for entry_point_name, entry_point in [(i.entry_point, i) for i in self.entry_points]:
@@ -1832,7 +1895,7 @@ class EggProject(Project):
         return entry_point_dict
 
     def extras_require_for_setup(self):
-        return dict( [ (name, [dep.as_string_for_egg() for dep in dependencies]) 
+        return dict( [ (name, [dep.as_string_for_egg() for dep in dependencies])
                        for name, dependencies in self.extras_required.items()] )
 
     def debinstall(self, args):
@@ -1863,14 +1926,14 @@ class EggProject(Project):
     @property
     def pot_filename(self):
         return os.path.join(self.locale_dirname, self.locale_domain)
-        
+
     def extract_messages(self, args):
         if self.translation_package:
-            self.setup(['extract_messages', 
+            self.setup(['extract_messages',
                         '--input-dirs', '.',
                         '--output-file', self.pot_filename])
         else:
-            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
+            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name))
 
     @property
     def translated_domains(self):
@@ -1878,26 +1941,26 @@ class EggProject(Project):
             filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
             return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
         else:
-            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name)) 
+            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name))
             return []
-        
+
     def merge_translations(self):
         for source_dist_spec in self.translated_domains:
             try:
-                source_egg = ReahlEgg(get_distribution(source_dist_spec)) 
+                source_egg = ReahlEgg(get_distribution(source_dist_spec))
             except DistributionNotFound:
                 raise EggNotFound(source_dist_spec)
             if not os.path.isdir(self.locale_dirname):
                 os.mkdir(self.locale_dirname)
-            self.setup(['update_catalog', 
+            self.setup(['update_catalog',
                         '--input-file', source_egg.translation_pot_filename,
-                        '--domain', source_egg.name, 
+                        '--domain', source_egg.name,
                         '-d', self.locale_dirname])
 
     def compile_translations(self):
         for domain in self.translated_domains:
-            self.setup(['compile_catalog', 
-                        '--domain', domain, 
+            self.setup(['compile_catalog',
+                        '--domain', domain,
                         '-d', self.locale_dirname])
 
     def add_locale(self, locale, source_dist_spec):
@@ -1906,13 +1969,13 @@ class EggProject(Project):
         except ValueError:
             raise InvalidLocaleString(locale)
         try:
-            source_egg = ReahlEgg(get_distribution(source_dist_spec)) 
+            source_egg = ReahlEgg(get_distribution(source_dist_spec))
         except DistributionNotFound:
             raise EggNotFound(source_dist_spec)
-        self.setup(['init_catalog', 
-                    '--input-file', source_egg.translation_pot_filename, 
-                    '--domain', source_egg.name, 
-                    '-d', self.locale_dirname, 
+        self.setup(['init_catalog',
+                    '--input-file', source_egg.translation_pot_filename,
+                    '--domain', source_egg.name,
+                    '-d', self.locale_dirname,
                     '--locale', locale])
 
 
@@ -1930,7 +1993,7 @@ class ChickenProject(EggProject):
 
     @property
     def egg_project_names(self):
-        return [os.path.basename(os.path.dirname(i)) 
+        return [os.path.basename(os.path.dirname(i))
                 for i in glob.glob(os.path.join(self.directory, '*', '.reahlproject'))]
 
     @property
@@ -1997,7 +2060,7 @@ class ProjectList(list):
             if project.directory == full_path:
                 return project
         raise ProjectNotFound(full_path)
-    
+
     def has_project_named(self, name):
         return name in self.name_index.keys()
 
@@ -2013,7 +2076,7 @@ class ProjectList(list):
         projects = ProjectList(workspace)
         projects.read(filename)
         return projects
-        
+
     def collect_projects(self, workspace, directories):
         for directory in directories:
             for root, dirs, files in os.walk(os.path.abspath(directory)):
@@ -2058,7 +2121,7 @@ class ProjectList(list):
             selection = self.workspace.selection
         else:
             selection = ProjectList(self.workspace)
-    
+
         for i in self:
             if (not negated) == (all_ or (i.status in states) or (len(set(i.tags) & set(tags))>0)):
                 selection.append(i)
@@ -2076,12 +2139,12 @@ class ProjectList(list):
 
 
 class Workspace(object):
-    """A Workspace logically contains several Projects in development. It facilitates issuing operations on sets 
+    """A Workspace logically contains several Projects in development. It facilitates issuing operations on sets
     of Projects, and administers the results.
 
     A Workspace is a directory hierarchy on disk, the projects in it are all checked out somewhere in this hierarchy.
 
-    The workspace provides a location where all manner of administrative information can be saved for the projects 
+    The workspace provides a location where all manner of administrative information can be saved for the projects
     it contains.
     """
     def __init__(self, directory):
@@ -2153,7 +2216,7 @@ class Workspace(object):
 
     def project_in(self, directory):
         return self.projects.project_in(directory)
-        
+
     def update_apt_repository_index(self):
         self.distribution_apt_repository.build_index_files()
 
@@ -2166,7 +2229,7 @@ class Workspace(object):
         return dirname
 
     @property
-    def release_directory(self):        
+    def release_directory(self):
         dirname = os.path.join(self.reahl_directory, 'torelease')
         if not os.path.isdir(dirname):
             os.mkdir(dirname)
@@ -2186,14 +2249,14 @@ class Workspace(object):
         if not os.path.isdir(dirname):
             os.mkdir(dirname)
         return dirname
-        
+
     @property
     def dh_make_directory(self):
         dirname = os.path.join(self.reahl_directory, 'dh_make')
         if not os.path.isdir(dirname):
             None
         return dirname
-        
+
     def get_saved_selections(self):
         filenames = glob.glob(os.path.join(self.reahl_directory, '*.selection'))
         return [os.path.splitext(os.path.basename(i))[0] for i in filenames]
@@ -2230,7 +2293,7 @@ class SubstvarsFile(list):
 
     def __getitem__(self, key):
         return dict(self)[key]
-                
+
     def items(self):
         return [i for i in self]
 
