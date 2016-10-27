@@ -1,4 +1,4 @@
-python-reahl (4.0.0) unstable; urgency=low
+python-reahl (4.0.0a1) unstable; urgency=low
 
  * Removed all previously deprecated functionality.
  * Removed css_id kwarg to Nav, Menu.

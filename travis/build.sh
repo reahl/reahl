@@ -6,6 +6,6 @@ function cleanup_keys {
 trap cleanup_keys EXIT
 
 # Setup ssh for password-less access to localhost
-./travis/createTestSshKey.sh
+./travis/createTestGpgKey.sh
 reahl build -sdX
 

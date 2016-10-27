@@ -61,11 +61,6 @@ before_install:
   # Install stuff we can't install with apt addon
   - "travis/installChromium.sh"
 
-  # Import weak key used for testing
-  - "travis/createTestGpgKey.sh"
-  - "gpg --list-keys"
-  - "gpg --list-secret-keys"
-
   # Make git happy
   - "travis/setupTestGit.sh"
 
