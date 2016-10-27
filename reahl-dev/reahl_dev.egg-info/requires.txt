@@ -1,5 +1,5 @@
-reahl-component>=4.0,<4.1
-reahl-tofu>=4.0,<4.1
+reahl-component>=4.0.0a1,<4.1
+reahl-tofu>=4.0.0a1,<4.1
 six
 devpi>=2.2,<2.2.999
 devpi-client>=2.7,<2.7.999

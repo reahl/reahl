@@ -20,10 +20,10 @@
   <alias name="unit" command="setup -- -q nosetests"/>
 
   <distpackage type="wheel">
-    <packageindex repository="devpi"/>
+    <packageindex repository="pypi"/>
   </distpackage>
   <distpackage type="sdist">
-    <packageindex repository="devpi"/>
+    <packageindex repository="pypi"/>
   </distpackage>
 
 </project>
