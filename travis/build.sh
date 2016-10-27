@@ -1,7 +1,9 @@
 #!/bin/bash -x
 
 function cleanup_keys {
-  shred -f /tmp/keys* .gnupg/*
+  if [ ! -z "$(ls /tmp/keys*)" ]; then
+    shred -f /tmp/keys* $HOME/.gnupg/*
+  fi 
 }
 trap cleanup_keys EXIT
 
