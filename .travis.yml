@@ -94,7 +94,8 @@ before_script:
 
 
 script:
-  - "reahl shell -sdXg -- tox -e $TOX_ENV"
+#  - "reahl shell -sdXg -- tox -e $TOX_ENV"
+  - echo "Testing deployment only"
 
 
 before_deploy:
