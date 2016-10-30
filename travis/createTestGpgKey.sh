@@ -20,6 +20,8 @@ function import_gpg_keys () {
   gpg --import-ownertrust < $from_dir/trust.asc
 }
 
+rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
+
 if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
   pip install awscli
