@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+function cleanup_keyfiles {
+  find /tmp/ -maxdepth 1 -name keys* -type f -exec shred -f {} \;
+}
+trap cleanup_keyfiles EXIT
 
 function whack_passphrase {
   gpg --status-fd 1 --command-fd 0 --edit-key $GPG_KEY_ID <<EOF

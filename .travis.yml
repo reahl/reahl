@@ -79,20 +79,18 @@ before_script:
   # Set up headless display for browsers
   # DISPLAY is already set up
   - "sh -e /etc/init.d/xvfb start"
-  # - sleep 3 # give xvfb some time to start
+  # No need to give xvfb time to start, because the build hereafter will take lots of time
 
   # Setup pip.conf to use local egg-dist also where we build stuff (for tox to get them)
   - "travis/configurePip.sh"
 
   # Setup ssh for password-less access to localhost
   - "travis/createTestSshKey.sh"
-
-  - "travis/build.sh"
-
+  - "travis/createTestGpgKey.sh"
+  - "(reahl build -sdX || (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
 
 script:
-  - "reahl shell -sdXg -- tox -e $TOX_ENV"
-
+  - "(reahl shell -sdXg -- tox -e $TOX_ENV && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
 
 before_deploy:
   - travis/configurePypi.sh
