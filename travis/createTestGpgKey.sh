@@ -34,7 +34,7 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   tar -C /tmp -zxvf /tmp/keys.tgz 
   import_gpg_keys /tmp/keys
   mkdir -p ~/.gnupg
-  echo "--default-key $GPG_KEY_ID" >> ~/.gnupg/options
+  echo "default-key $GPG_KEY_ID" >> ~/.gnupg/gpg.conf
   whack_passphrase
 else
   echo "SECRETS NOT available, using fake key for signing"
