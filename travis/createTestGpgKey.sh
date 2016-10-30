@@ -38,5 +38,6 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   whack_passphrase
 else
   echo "SECRETS NOT available, using fake key for signing"
-  import_gpg_keys travis/keys
 fi
+
+import_gpg_keys travis/keys  # We import these anyways for use by tests that sign stuff
