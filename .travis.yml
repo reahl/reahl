@@ -6,7 +6,6 @@ env:
     - EMAIL=noone@example.org
     - DEBFULLNAME="Travis Tester"
     - DEBEMAIL=$EMAIL
-#    - PACKAGESIGNKEYID=DE633F86
     - DISPLAY=:99.0
     - PATH=$HOME/bin:$PATH
 
@@ -47,8 +46,6 @@ services:
 
 language: python
 python:
-#  - 2.7
-#  - 3.4
   - 3.5
 
 cache: 
@@ -94,8 +91,7 @@ before_script:
 
 
 script:
-#  - "reahl shell -sdXg -- tox -e $TOX_ENV"
-  - echo "Testing deployment only"
+  - "reahl shell -sdXg -- tox -e $TOX_ENV"
 
 
 before_deploy:

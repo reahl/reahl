@@ -16,7 +16,7 @@ EOF
 
 function import_gpg_keys () {
   from_dir=$1
-  gpg --import $from_dir/key.asc $from_dir/key.secret.asc
+  gpg --import $from_dir/key.secret.asc
   gpg --import-ownertrust < $from_dir/trust.asc
 }
 

@@ -215,7 +215,7 @@ Description: some wise words
  .
  second paragraph
 
-""" % (os.environ['DEBFULLNAME'], os.environ['EMAIL'])
+""" % (os.environ['DEBFULLNAME'], os.environ['DEBEMAIL'])
         self.temp_directory.file_with('control', control_file_contents)
         Executable('equivs-build').check_call(['-a', 'i386', '-f','control'], cwd=self.temp_directory.name)
 
