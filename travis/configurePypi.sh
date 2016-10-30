@@ -8,6 +8,6 @@ cat > $HOME/.pypirc <<EOF
 index-servers=pypi
 
 [pypi]
-repository = https://testpypi.python.org/pypi
+repository = https://pypi.python.org/pypi
 
 EOF
