@@ -18,7 +18,7 @@
 
 jQuery.validator.addMethod("pattern", function(value, element, params) {
     return this.optional(element) || value.match("^(?:"+params+")$"); 
-    }, jQuery.validator.format("Does not match pattern.")); 
+    }, jQuery.validator.format("Does not match pattern."));
 
 
 
@@ -31,7 +31,7 @@ jQuery.validator.addMethod("data-equalTo2", function(value, element, param) {
         });
     return value == target.val();
 
-    }, jQuery.validator.format("Does not match.")); 
+    }, jQuery.validator.format("Does not match."));
 
 
 jQuery.validator.addMethod("data-filesize", function(value, element, param) {

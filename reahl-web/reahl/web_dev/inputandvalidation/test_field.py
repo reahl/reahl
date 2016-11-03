@@ -82,8 +82,7 @@ class FieldTests(object):
         tester = WidgetTester(fixture.input)
 
         actual = tester.render_html()
-        escaped_json = html_escape('{"validate": {"messages": {"data-one": "validation_constraint 1 message", "data-two": "validation_constraint 2 message with apostrophe\\\\\'s"}}}')
-        expected_html = '''<input name="an_attribute" data-one="true" data-two="a parameter" form="test" type="inputtype" value="field value" class="%s">''' % escaped_json
+        expected_html = '''<input name="an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s" data-one="true" data-two="a parameter" form="test" type="inputtype" value="field value">'''
         vassert( actual == expected_html )
 
     @test(ConstraintRenderingFixture)

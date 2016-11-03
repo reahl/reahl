@@ -1451,17 +1451,14 @@ class InputTypeInput(PrimitiveInput):
                 html_widget.set_attribute(validation_constraint.name, validation_constraint.parameters)
             elif validation_constraint.name != '':
                 html_widget.set_attribute('data-%s' % validation_constraint.name, validation_constraint.parameters or 'true')
-        def map_name(name):
-            if name in html5_validations:
-                return name
-            else:
-                return 'data-%s' % name
-        error_messages = validation_constraints.as_json_messages(map_name, ['', RemoteConstraint.name])
-        if error_messages:
-            html_widget.set_attribute('class', error_messages)
+
+            if validation_constraint.name not in ['', RemoteConstraint.name]:
+                validation_message_name = 'data-msg-%s' % validation_constraint.name
+                html_widget.set_attribute(validation_message_name, validation_constraint.message)
+
         try:
-            title = validation_constraints.get_constraint_named('pattern').message
-            html_widget.set_attribute('title', validation_constraints.get_constraint_named('pattern').message)
+            title_as_error_message = validation_constraints.get_constraint_named('pattern').message
+            html_widget.set_attribute('title', title_as_error_message)
         except ConstraintNotFound:
             pass
 

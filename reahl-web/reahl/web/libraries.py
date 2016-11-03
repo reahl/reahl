@@ -169,7 +169,6 @@ class JQuery(Library):
         self.shipped_in_directory = '/reahl/web/static'
         for i in ['jquery-migrate-1.2.1.js',
                   'jquery.cookie-1.0.js', 
-                  'jquery.metadata-2.1.js',
                   'jquery.validate-1.10.0.modified.js',
                   'jquery.ba-bbq-1.2.1.js',
                   'jquery.blockUI-2.70.0.js',
