@@ -22,7 +22,7 @@ jQuery.validator.addMethod("pattern", function(value, element, params) {
 
 
 
-jQuery.validator.addMethod("data-equalTo2", function(value, element, param) {
+jQuery.validator.addMethod("equalTo2", function(value, element, param) {
     // bind to the blur event of the target in order to revalidate whenever the target field is updated
     // TODO find a way to bind the event just once, avoiding the unbind-rebind overhead
     var target = $(element).closest("form").find("input[name='"+param+"']");
@@ -34,7 +34,7 @@ jQuery.validator.addMethod("data-equalTo2", function(value, element, param) {
     }, jQuery.validator.format("Does not match."));
 
 
-jQuery.validator.addMethod("data-filesize", function(value, element, param) {
+jQuery.validator.addMethod("filesize", function(value, element, param) {
     var maxSize = param;
     var withinLimits = true;
     var i = 0;
@@ -77,6 +77,6 @@ jQuery.validator.addMethod("accept", function(value, element, param) {
     // Either return true because we've validated each file, or because the
     // browser does not support element.files and the FileList feature
     return true;
-}, jQuery.format("Please enter a value with a valid mimetype."));
+}, jQuery.validator.format("Please enter a value with a valid mimetype."));
 
 

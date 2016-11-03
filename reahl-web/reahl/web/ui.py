@@ -1450,7 +1450,7 @@ class InputTypeInput(PrimitiveInput):
             elif validation_constraint.name in html5_validations:
                 html_widget.set_attribute(validation_constraint.name, validation_constraint.parameters)
             elif validation_constraint.name != '':
-                html_widget.set_attribute('data-%s' % validation_constraint.name, validation_constraint.parameters or 'true')
+                html_widget.set_attribute('data-rule-%s' % validation_constraint.name, validation_constraint.parameters or 'true')
 
             if validation_constraint.name not in ['', RemoteConstraint.name]:
                 validation_message_name = 'data-msg-%s' % validation_constraint.name

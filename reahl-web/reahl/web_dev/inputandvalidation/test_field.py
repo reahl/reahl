@@ -82,7 +82,7 @@ class FieldTests(object):
         tester = WidgetTester(fixture.input)
 
         actual = tester.render_html()
-        expected_html = '''<input name="an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s" data-one="true" data-two="a parameter" form="test" type="inputtype" value="field value">'''
+        expected_html = '''<input name="an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s" data-rule-one="true" data-rule-two="a parameter" form="test" type="inputtype" value="field value">'''
         vassert( actual == expected_html )
 
     @test(ConstraintRenderingFixture)
