@@ -17,29 +17,36 @@
 
 
 jQuery.validator.addMethod("pattern", function(value, element, params) {
-    return this.optional(element) || value.match("^(?:"+params+")$"); 
-    }, jQuery.validator.format("Does not match pattern."));
-
+    "use strict";
+    return this.optional(element) || value.match("^(?:"+params+")$");
+}, jQuery.validator.format("Does not match pattern."));
 
 
 jQuery.validator.addMethod("equalTo2", function(value, element, param) {
-    // bind to the blur event of the target in order to revalidate whenever the target field is updated
-    // TODO find a way to bind the event just once, avoiding the unbind-rebind overhead
-    var target = $(element).closest("form").find("input[name='"+param+"']");
-    target.unbind(".validate-equalTo").bind("blur.validate-equalTo", function() {
-        $(element).valid();
-        });
-    return value == target.val();
-
-    }, jQuery.validator.format("Does not match."));
+    "use strict";
+    // Bind to the blur event of the target in order to revalidate whenever the target field is updated
+    var target = null;
+    if (element.form && element.form.elements) {
+        target = $(element.form.elements).filter("input[name='"+param+"']")[0];
+    } else {
+        target = $(element).closest("form").find("input[name='"+param+"']");
+    }
+    if ( this.settings.onfocusout && target.not( ".validate-equalTo-blur" ).length ) {
+        target.addClass( "validate-equalTo-blur" ).on( "blur.validate-equalTo", function() {
+            $( element ).valid();
+        } );
+    }
+    return value === target.val();
+}, jQuery.validator.format("Does not match."));
 
 
 jQuery.validator.addMethod("filesize", function(value, element, param) {
+    "use strict";
     var maxSize = param;
     var withinLimits = true;
     var i = 0;
     for (i = 0; i < element.files.length; i += 1) {
-    withinLimits = withinLimits && (element.files[i].size <= maxSize);
+        withinLimits = withinLimits && (element.files[i].size <= maxSize);
     }
     return withinLimits;
 });
@@ -47,6 +54,7 @@ jQuery.validator.addMethod("filesize", function(value, element, param) {
 
 // Accept a value from a file input based on a required mimetype
 jQuery.validator.addMethod("accept", function(value, element, param) {
+    "use strict";
     // Split mime on commas incase we have multiple types we can accept
     var typeParam = typeof param === "string" ? param.replace(/,/g, '|') : "image/*",
     optionalValue = this.optional(element),

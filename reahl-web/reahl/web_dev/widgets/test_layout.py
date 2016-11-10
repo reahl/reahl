@@ -138,20 +138,6 @@ def responsive_size(fixture):
     vassert( size == {'xs': 1, 'sm': '2'} )
 
 
-class ColumnConstructionScenarios(WebFixture):
-    @scenario
-    def without_sizes(self):
-        """Construct the ColumnLayout with a list of column names."""
-        self.layout = ColumnLayout('column_a', 'column_b')
-        self.expected_class_for_column_b = 'pure-u'
-
-    @scenario
-    def with_size(self):
-        """You can optionally specify the sizes a column should adhere to."""
-        self.layout = ColumnLayout('column_a', ('column_b', ResponsiveSize(default='1/2')))
-        self.expected_class_for_column_b = 'pure-u-1-2'
-
-
 @test(WebFixture)
 def column_layout_basics(fixture):
     """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Div."""
