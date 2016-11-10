@@ -543,7 +543,7 @@ def form_input_validation(fixture):
     fixture.driver_browser.open('/')
     fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
     fixture.driver_browser.type('//input[@type="text"]', 'not@notvalid')
-    fixture.driver_browser.press_tab('//input') #need to fire up validation by tabbing out of the input - jquery validate onkeyup validation is lazy
+    fixture.driver_browser.press_tab('//input') 
     fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
     with fixture.driver_browser.no_page_load_expected():

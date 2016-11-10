@@ -1439,28 +1439,31 @@ class InputTypeInput(PrimitiveInput):
         return html_widget
 
     def validation_constraints_to_render(self):
-        return self.bound_field.validation_constraints
+        return ValidationConstraintList([constraint for constraint in self.bound_field.validation_constraints if constraint.name])
 
     def add_validation_constraints_to(self, html_widget):
-        validation_constraints = self.validation_constraints_to_render()
-        html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue', 'remote']
-        for validation_constraint in validation_constraints:
-            if validation_constraint.is_remote:
-                html_widget.set_attribute(validation_constraint.name, six.text_type(self.form.field_validator.get_url()))
-            elif validation_constraint.name in html5_validations:
-                html_widget.set_attribute(validation_constraint.name, validation_constraint.parameters)
-            elif validation_constraint.name != '':
-                html_widget.set_attribute('data-rule-%s' % validation_constraint.name, validation_constraint.parameters or 'true')
+        html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue']
 
-            if validation_constraint.name not in ['', RemoteConstraint.name]:
+        def jquery_rule_attribute_name_for(validation_constraint):
+            if validation_constraint.is_remote or validation_constraint.name in html5_validations:
+                return validation_constraint.name
+            return 'data-rule-%s' % validation_constraint.name
+
+        def jquery_validate_parameters_for(validation_constraint):
+            if validation_constraint.is_remote:
+                return six.text_type(self.form.field_validator.get_url())
+            elif validation_constraint.name in html5_validations:
+                return validation_constraint.parameters
+            return validation_constraint.parameters or 'true'
+
+        for validation_constraint in self.validation_constraints_to_render():
+            html_widget.set_attribute(jquery_rule_attribute_name_for(validation_constraint),
+                                      jquery_validate_parameters_for(validation_constraint))
+            if not validation_constraint.is_remote:
                 validation_message_name = 'data-msg-%s' % validation_constraint.name
                 html_widget.set_attribute(validation_message_name, validation_constraint.message)
-
-        try:
-            title_as_error_message = validation_constraints.get_constraint_named('pattern').message
-            html_widget.set_attribute('title', title_as_error_message)
-        except ConstraintNotFound:
-            pass
+            if validation_constraint.name == 'pattern':
+                html_widget.set_attribute('title', validation_constraint.message)
 
 
 class TextArea(PrimitiveInput):
