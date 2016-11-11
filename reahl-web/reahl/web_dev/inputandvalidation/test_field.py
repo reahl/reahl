@@ -73,7 +73,7 @@ class FieldTests(object):
             def parameters(self):
                 return 'a parameter'
 
-        constraint2 = ConstraintWithParams('validation_constraint 2 message with apostrophe\'s')
+        constraint2 = ConstraintWithParams('validation_constraint 2 message with apostrophe\'s and quotes"')
         constraint2.name = 'two'
 
         fixture.field.add_validation_constraint(constraint1)
@@ -82,7 +82,7 @@ class FieldTests(object):
         tester = WidgetTester(fixture.input)
 
         actual = tester.render_html()
-        expected_html = '''<input name="an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s" data-rule-one="true" data-rule-two="a parameter" form="test" type="inputtype" value="field value">'''
+        expected_html = '''<input name="an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s and quotes&quot;" data-rule-one="true" data-rule-two="a parameter" form="test" type="inputtype" value="field value">'''
         vassert( actual == expected_html )
 
     @test(ConstraintRenderingFixture)

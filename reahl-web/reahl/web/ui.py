@@ -1463,7 +1463,7 @@ class InputTypeInput(PrimitiveInput):
                 validation_message_name = 'data-msg-%s' % validation_constraint.name
                 html_widget.set_attribute(validation_message_name, validation_constraint.message)
             if validation_constraint.name == 'pattern':
-                html_widget.set_attribute('title', validation_constraint.message)
+                html_widget.set_attribute('title', html_escape(validation_constraint.message))
 
 
 class TextArea(PrimitiveInput):

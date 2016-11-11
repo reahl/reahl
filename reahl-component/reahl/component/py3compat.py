@@ -27,9 +27,10 @@ def ascii_as_bytes_or_str(unicode_str):
 
 def _html_escape_function():
     if six.PY2:
-        import cgi
+        import xml.sax.saxutils
         def html_escape(s, quote=True):
-            return cgi.escape(s, quote=quote)
+            entities = {'"': '&quot;', '\'': '&#x27;'} if quote else {}
+            return xml.sax.saxutils.escape(s, entities=entities)
         return html_escape
     else:
         import html
