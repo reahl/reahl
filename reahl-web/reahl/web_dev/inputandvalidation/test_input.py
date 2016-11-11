@@ -205,14 +205,12 @@ class Scenarios(WebFixture, InputMixin):
         """A checkbox needs a 'checked' an_attribute if its field is True. It also renders ONLY the
             validation message for its required validation_constraint, not for all constraints"""
         self.setup_checkbox_scenario(True)
-        self.expected_html = r'<input name="an_attribute" checked="checked" form="test" required="\*" type="checkbox" ' \
-                             r'class="{&quot;validate&quot;: {&quot;messages&quot;: {&quot;required&quot;: &quot;my text is needed here&quot;}}}">'
+        self.expected_html = r'<input name="an_attribute" checked="checked" data-msg-required="my text is needed here" form="test" required="\*" type="checkbox">'
 
     @scenario
     def checkbox_false(self):
         self.setup_checkbox_scenario(False)
-        self.expected_html = r'<input name="an_attribute" form="test" required="\*" type="checkbox" '\
-                             r'class="{&quot;validate&quot;: {&quot;messages&quot;: {&quot;required&quot;: &quot;my text is needed here&quot;}}}">'
+        self.expected_html = r'<input name="an_attribute" data-msg-required="my text is needed here" form="test" required="\*" type="checkbox">'
 
     @scenario
     def text_area_input(self):
@@ -264,16 +262,17 @@ class Scenarios(WebFixture, InputMixin):
 
         self.widget = self.form.add_child(RadioButtonInput(self.form, self.field))
 
-        validations = html_escape('{"validate": {"messages": {"pattern": "an_attribute should be one of the following: 1\|2"}}}')
         radio_button = r'<span class="reahl-radio-button">'\
-                       r'<input name="an_attribute"%s form="test" pattern="\(1\|2\)" '\
+                       r'<input name="an_attribute"%s '\
+                              r'data-msg-pattern="an_attribute should be one of the following: 1|2" '\
+                              r'form="test" pattern="\(1\|2\)" '\
                               r'title="an_attribute should be one of the following: 1\|2" '\
-                              r'type="radio" value="%s" class="%s">%s'\
+                              r'type="radio" value="%s">%s'\
                        r'</span>'
 
         outer_div = r'<div class="reahl-radio-button-input">%s</div>'
-        buttons = (radio_button % ('', '1', validations, 'One')) +\
-                  (radio_button % (' checked="checked"', '2', validations, 'Two'))
+        buttons = (radio_button % ('', '1', 'One')) +\
+                  (radio_button % (' checked="checked"', '2', 'Two'))
         self.expected_html = outer_div % buttons
         self.field_controls_visibility = True
 
