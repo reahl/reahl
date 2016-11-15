@@ -15,7 +15,6 @@
     <egg name="reahl-domain"/>
     
     <thirdpartyegg name="lxml" minversion="3.3" maxversion="3.3.999"/>
-    <thirdpartyegg name="waitress" minversion="0.9" maxversion="0.9.9999"/> <!-- To force WebTest to pull in a version of waitress that will not conlict with the devpi-server dependency of reahl-dev -->
     <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
     <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
     <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
@@ -38,10 +37,10 @@
   <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/webdev_dev -i'.*' -t "/>
 
   <distpackage type="wheel">
-    <packageindex repository="devpi"/>
+    <packageindex repository="pypi"/>
   </distpackage>
   <distpackage type="sdist">
-    <packageindex repository="devpi"/>
+    <packageindex repository="pypi"/>
   </distpackage>
 
 </project>

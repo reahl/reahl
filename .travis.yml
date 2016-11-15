@@ -6,9 +6,9 @@ env:
     - EMAIL=noone@example.org
     - DEBFULLNAME="Travis Tester"
     - DEBEMAIL=$EMAIL
-    - PACKAGESIGNKEYID=DE633F86
     - DISPLAY=:99.0
     - PATH=$HOME/bin:$PATH
+
   matrix:
     - TOX_ENV=py27 
     - TOX_ENV=py34
@@ -23,7 +23,7 @@ addons:
         - dpkg-dev
         - bzr
         - git
-#        - chromium-browser       # See scripts/installChromium.sh
+#        - chromium-browser       # See travis/installChromium.sh
 #        - chromium-chromedriver  # Ditto
 
        # For compiling pip installed extensions we use
@@ -46,8 +46,6 @@ services:
 
 language: python
 python:
-#  - 2.7
-#  - 3.4
   - 3.5
 
 cache: 
@@ -58,15 +56,10 @@ cache:
 
 before_install: 
   # Install stuff we can't install with apt addon
-  - "scripts/installChromium.sh"
-
-  # Import weak key used for testing
-  - "scripts/createTestKey.sh"
-  - "gpg --list-keys"
-  - "gpg --list-secret-keys"
+  - "travis/installChromium.sh"
 
   # Make git happy
-  - "scripts/setupTestGit.sh"
+  - "travis/setupTestGit.sh"
 
   # Version checks of these things are useful for debugging
   - git --version
@@ -79,25 +72,32 @@ before_install:
 install:
   - "python scripts/bootstrap.py --script-dependencies"
   - CFLAGS="-O0" python scripts/bootstrap.py --pip-installs
-  - "scripts/setupTestPostgresql.sh"
+  - "travis/setupTestPostgresql.sh"
   - "reahl setup -sX -- develop -N"
 
 before_script:
   # Set up headless display for browsers
   # DISPLAY is already set up
   - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
+  # No need to give xvfb time to start, because the build hereafter will take lots of time
+
+  # Setup pip.conf to use local egg-dist also where we build stuff (for tox to get them)
+  - "travis/configurePip.sh"
 
   # Setup ssh for password-less access to localhost
-  - "scripts/createTestSshKey.sh"
-
+  - "travis/createTestSshKey.sh"
+  - "travis/createTestGpgKey.sh"
+  - "(reahl build -sdX || (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
 
 script:
-#  - "reahl shell -sdX -- reahl unit"
-  - "reahl build -sdX"
-  - "scripts/configurePip.sh"
-#  - "reahl upload -sdXru"
-#  - "reahl shell -sdXg -- reahl devpitest --for-current-python-only"
-  - "reahl shell -sdXg -- tox -e $TOX_ENV"
+  - "(reahl shell -sdXg -- tox -e $TOX_ENV && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
 
+before_deploy:
+  - travis/configurePypi.sh
 
+deploy:
+  provider: script
+  script: reahl upload -rusdX
+  on:
+    tags: true
+    condition: "$TOX_ENV = py35"

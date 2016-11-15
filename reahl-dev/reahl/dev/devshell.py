@@ -372,31 +372,6 @@ class ForAllParsedWorkspaceCommand(ForAllWorkspaceCommand):
         return super(ForAllParsedWorkspaceCommand, self).execute(options, self.saved_args)
 
 
-class DevPiTest(ForAllWorkspaceCommand):
-    """Runs devpi test."""
-    keyword = 'devpitest'
-    usage_args = '[-- <args passed to "devpi test" command>]'
-    options = ForAllWorkspaceCommand.options +\
-              [('-c', '--for-current-python-only', dict(action='store_true', dest='for_current_python_only', default=False,
-                                                        help='run tox with a -e option suitable for the currently running python'))]
-    def function(self, project, options, args):
-        if options.for_current_python_only:
-            tox_env = 'py'+(''.join([str(i) for i in sys.version_info[:2]]))
-            args += ['-e', tox_env]
-        return Executable('devpi').check_call(['test', '%s==%s' % (project.project_name, project.version_for_setup())]+args, cwd=project.directory)
-
-
-class DevPiPush(ForAllWorkspaceCommand):
-    """Runs devpi push."""
-    keyword = 'devpipush'
-    usage_args = '<target_spec>'
-
-    def function(self, project, options, args):
-        if not args:
-            raise Exception('You have to supply the destination of the push as <target_spec>')
-        return Executable('devpi').check_call(['push', '%s-%s' % (project.project_name, project.version_for_setup()), args[0]], cwd=project.directory)
-
-
 class Shell(ForAllParsedWorkspaceCommand):
     """Executes a shell command in each selected project, from each project's own root directory."""
     keyword = 'shell'

@@ -409,17 +409,6 @@ class ValidationConstraintList(list):
             if not (ignore and isinstance(validation_constraint, ignore)):
                 validation_constraint.validate_parsed_value(parsed_value)
 
-    def js_escape(self, message):
-        return message.replace('\'', '\\\'')
-        
-    def as_json_messages(self, map_name_function, ignore_names):
-        messages_dict = OrderedDict([(map_name_function(validation_constraint.name), self.js_escape(validation_constraint.message))
-                                     for validation_constraint in self
-                                     if (not validation_constraint.name in ignore_names) ])
-        if messages_dict:
-            return json.dumps({'validate':{'messages':messages_dict}})
-        return ''
-
 
 class RequiredConstraint(ValidationConstraint):
     """The presence of this ValidationConstraint on a Field indicates that the Field is required.

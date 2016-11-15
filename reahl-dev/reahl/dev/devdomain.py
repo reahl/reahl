@@ -298,7 +298,7 @@ class DebianPackage(DistributionPackage):
 
     def build(self):
         self.generate_install_files()
-        Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr','-I.git', '-k%s' % os.environ['EMAIL']], cwd=self.project.directory)
+        Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr','-I.git'], cwd=self.project.directory)
         self.project.distribution_apt_repository.upload(self, [])
         self.clean_files(self.build_output_files)
         return 0
@@ -444,7 +444,7 @@ class PackageIndex(RemoteRepository):
         return file_unsafe_id.replace(os.sep, '-')
 
     def transfer(self, package):
-        Executable('twine').check_call(['upload', '-r', self.repository] + package.files_to_distribute)
+        Executable('twine').check_call(['upload', '--skip-existing', '-r', self.repository] + package.files_to_distribute)
 
 
 class SshRepository(RemoteRepository):
