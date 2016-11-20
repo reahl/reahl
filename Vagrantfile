@@ -16,8 +16,22 @@
 # Like, slightly different versions of packages, some packages that are installed on 
 # travis, but not here, etc. Also things like the vagrant user that needs to be set up 
 # as postgresql superuser etc.
+#
+# This is almost usable now: just need to create the postgres user with a password.
+#
+# To use vagrant on ubuntu 16.04:
+#  apt-get install vagrant vagrant-lxc vagrant-cachier
+#  cd <where VagrantFile is>
+#  vagrant up
+#  vagrant ssh
 
 
+# From https://gist.github.com/juanje/3797297 
+def local_cache(basebox_name)
+  cache_dir = Vagrant::Environment.new.home_path.join('cache', 'pip-old', basebox_name)
+  cache_dir.mkpath unless cache_dir.exist?
+  cache_dir
+end
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -32,6 +46,15 @@ Vagrant.configure(2) do |config|
   # boxes at https://atlas.hashicorp.com/search.
   #config.vm.box = "debian/jessie64"
   config.vm.box = "nhinds/xenial64"
+
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+    config.cache.enable :generic, { :cache_dir => "/home/vagrant/testdownloads" }
+#    config.cache.enable :pip 
+  end
+
+  config.vm.synced_folder local_cache(config.vm.box), "/home/vagrant/.cache/pip/"
+                         
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -81,6 +104,8 @@ Vagrant.configure(2) do |config|
   #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
   # end
 
+  config.ssh.forward_x11 = true
+  config.ssh.forward_agent = true
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
@@ -91,17 +116,31 @@ Vagrant.configure(2) do |config|
     apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libfreetype6 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgnome-keyring0 libgtk2.0-0 libnspr4 libnss3 libpam0g libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libstdc++6 libx11-6 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2  libxrender1 libxss1 libxtst6 zlib1g bash libnss3 xdg-utils 
     # liblcms1-dev -> liblcms2-dev
     # libjpeg62-dev -> libjpeg62-turbo-dev
-    su vagrant -lc /vagrant/scripts/installChromium.sh
-    su vagrant -lc -- bash -c 'echo "export REAHLWORKSPACE=\\\$HOME" >> $HOME/.bashrc'
-    su vagrant -lc -- bash -c 'echo "export EMAIL=noone@example.org" >> $HOME/.bashrc'
-    su vagrant -lc -- bash -c 'echo "export DEBFULLNAME=\"Travis Tester\"" >> $HOME/.bashrc'
-    su vagrant -lc -- bash -c 'echo "export DEBEMAIL=\\\$EMAIL" >> $HOME/.bashrc'
-    su vagrant -lc -- bash -c 'echo "export PACKAGESIGNKEYID=DE633F86" >> $HOME/.bashrc'
-    su vagrant -lc -- bash -c 'echo "export WORKON_HOME=\\\$HOME/virtualenv" >> $HOME/.bashrc'
-    su vagrant -lc -- bash -c 'echo "export PATH=\$HOME/bin:\\\$PATH" >> $HOME/.bashrc'
-    su vagrant -lc -- bash -c 'echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.bashrc'
-    su vagrant -lc 'mkdir -p $HOME/virtualenv'
-    su vagrant -lc --bash -c 'virtualenv -p $(which python2.7) $HOME/virtualenv/python2.7'
-    su vagrant -lc --bash -c 'virtualenv -p $(which python3.5) $HOME/virtualenv/python3.5'
+    # For X11 forwarding to work:
+    apt-get install xauth
+  SHELL
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    cd /vagrant
+    ./travis/installChromium.sh
+    echo "export REAHLWORKSPACE=\\\$HOME" >> $HOME/.profile
+    echo "export EMAIL=noone@example.org" >> $HOME/.profile
+    echo "export DEBFULLNAME=\"Travis Tester\"" >> $HOME/.profile
+    echo "export DEBEMAIL=\\\$EMAIL" >> $HOME/.profile
+    echo "export PACKAGESIGNKEYID=DE633F86" >> $HOME/.profile
+    echo "export WORKON_HOME=\\\$HOME/virtualenv" >> $HOME/.profile
+    echo "export PATH=\$HOME/bin:\\\$PATH" >> $HOME/.profile
+    source $HOME/.profile
+    ./travis/createTestSshKey.sh
+    ./travis/createTestGpgKey.sh
+    mkdir -p $HOME/virtualenv
+    echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.profile
+    echo "workon python3.5" >> $HOME/.bashrc
+    source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+    mkvirtualenv -p $(which python3.5) python3.5
+    workon python3.5
+    python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs
+    sudo -u postgres createuser --superuser vagrant
+    ./travis/setupTestPostgresql.sh
   SHELL
 end
+
