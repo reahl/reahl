@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -ev
 
 function cleanup_keyfiles {
   find /tmp/ -maxdepth 1 -name keys* -type f -exec shred -f {} \;
