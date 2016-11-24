@@ -112,16 +112,18 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
     apt-get install -y python-virtualenv virtualenvwrapper python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libfreetype6-dev equivs openssh-client dpkg-dev unzip python3-dev git postgresql-client-9.5 postgresql-9.5 libyaml-dev
+
     # These are for chromium-browser and chromedriver:
     apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libfreetype6 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgnome-keyring0 libgtk2.0-0 libnspr4 libnss3 libpam0g libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libstdc++6 libx11-6 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2  libxrender1 libxss1 libxtst6 zlib1g bash libnss3 xdg-utils 
     # liblcms1-dev -> liblcms2-dev
     # libjpeg62-dev -> libjpeg62-turbo-dev
+
     # For X11 forwarding to work:
     apt-get install xauth
   SHELL
+
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     cd /vagrant
-    ./travis/installChromium.sh
     echo "export REAHLWORKSPACE=\\\$HOME" >> $HOME/.profile
     echo "export EMAIL=noone@example.org" >> $HOME/.profile
     echo "export DEBFULLNAME=\"Travis Tester\"" >> $HOME/.profile
@@ -130,11 +132,12 @@ Vagrant.configure(2) do |config|
     echo "export WORKON_HOME=\\\$HOME/virtualenv" >> $HOME/.profile
     echo "export PATH=\$HOME/bin:\\\$PATH" >> $HOME/.profile
     source $HOME/.profile
+    ./travis/installChromium.sh
     ./travis/createTestSshKey.sh
     ./travis/createTestGpgKey.sh
     mkdir -p $HOME/virtualenv
     echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.profile
-    echo "workon python3.5" >> $HOME/.bashrc
+    echo "workon python3.5" >> $HOME/.profile
     source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
     mkvirtualenv -p $(which python3.5) python3.5
     workon python3.5
