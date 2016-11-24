@@ -11,6 +11,7 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Upgraded version of BeautifulSoup to 4.4 for python 3.5 compatibility.
  * Removed the file_finder for bzr, roll your own instead: http://code.activestate.com/recipes/577910-bazaar-as-a-setuptools-file-finder/.
  * Removed devpitest and devpipush commands.
+ * Changed DatabaseControl descendents and related commands to allow explicitly specifying the superuser to log in as when performing privileged actions.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Jun 2016 08:47:00 +0200
 

@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -ev
 
 function cleanup_keyfiles {
   find /tmp/ -maxdepth 1 -name keys* -type f -exec shred -f {} \;
@@ -7,6 +6,7 @@ function cleanup_keyfiles {
 trap cleanup_keyfiles EXIT
 
 function whack_passphrase {
+  set +x
   gpg --status-fd 1 --command-fd 0 --edit-key $GPG_KEY_ID <<EOF
 password
 $GPG_PASSPHRASE
@@ -16,6 +16,7 @@ save
 y
 
 EOF
+  set -x
 }
 
 function import_gpg_keys () {
@@ -27,6 +28,7 @@ function import_gpg_keys () {
 rm -f ~/.gnupg/options ~/.gnupg/gpg.conf
 
 if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
+  set +x
   echo "SECRETS are available, fetching reahl GPG signing key"
   pip install awscli
   aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
