@@ -1,24 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# NOTE: This file is just a little experiment I played with and want to leave hanging around.
-#   It would be nice if we can provision development environments via Vagrant (or something)
-#   instead of the chroots we are currently developing in. Also, out chroots are based on 
-#   trusty where we do not have python3.5 so we cannot currently develop past python3.4.
-#
-# This Vagrant file is a start towards using the vagrant and vagrant-lxc packages on
-# ubuntu 16.04 for setting up a development environment that can be used for python3.5
-#
-# It is incomplete, there's lots of stuff from .travis.yml that it would also need
-# to do and I don't want to duplicate it all here.
-#
-# There are also slight variations that would have to be catered for.
-# Like, slightly different versions of packages, some packages that are installed on 
-# travis, but not here, etc. Also things like the vagrant user that needs to be set up 
-# as postgresql superuser etc.
-#
-# This is almost usable now: just need to create the postgres user with a password.
-#
 # To use vagrant on ubuntu 16.04:
 #  apt-get install vagrant vagrant-lxc vagrant-cachier
 #  cd <where VagrantFile is>
@@ -105,7 +87,7 @@ Vagrant.configure(2) do |config|
   # end
 
   config.ssh.forward_x11 = true
-  config.ssh.forward_agent = true
+
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
@@ -126,7 +108,7 @@ Vagrant.configure(2) do |config|
     cd /vagrant
     echo "export REAHLWORKSPACE=\\\$HOME" >> $HOME/.profile
     echo "export EMAIL=noone@example.org" >> $HOME/.profile
-    echo "export DEBFULLNAME=\"Travis Tester\"" >> $HOME/.profile
+    echo "export DEBFULLNAME=\\"Travis Tester\\"" >> $HOME/.profile
     echo "export DEBEMAIL=\\\$EMAIL" >> $HOME/.profile
     echo "export PACKAGESIGNKEYID=DE633F86" >> $HOME/.profile
     echo "export WORKON_HOME=\\\$HOME/virtualenv" >> $HOME/.profile
@@ -143,7 +125,7 @@ Vagrant.configure(2) do |config|
     workon python3.5
     python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs
     sudo -u postgres createuser --superuser vagrant
-    ./travis/setupTestPostgresql.sh
+    reahl-control createdb reahl-web/etc
   SHELL
 end
 
