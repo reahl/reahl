@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ev
 
 # We need a specific version of chromium and chromedriver for tests to pass.
 #  These browsers keep changing in ways that break our tests.
@@ -6,7 +6,6 @@
 #  For chromedriver: https://sites.google.com/a/chromium.org/chromedriver/downloads
 
 
-set -e
 
 mkdir -p $HOME/bin
 mkdir -p $HOME/opt/chromium

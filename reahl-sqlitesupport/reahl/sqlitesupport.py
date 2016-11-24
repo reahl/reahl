@@ -32,8 +32,6 @@ from reahl.component.dbutils import DatabaseControl
 class SQLiteControl(DatabaseControl):
     """A DatabaseControl implementation for SQLite."""
     control_matching_regex = r'^sqlite:'
-    uri_regex_string = r'sqlite:///' + \
-        r'(?P<database>.*)(?P<user>)(?P<password>)(?P<host>)(?P<port>)$'
 
     def __init__(self, url, config):
         super(SQLiteControl, self).__init__(url, config)
@@ -43,8 +41,8 @@ class SQLiteControl(DatabaseControl):
     
     def get_dbapi_connection_creator(self):
         # See: http://stackoverflow.com/questions/2182591/python-sqlite-3-roll-back-to-save-point-fails
-        def connect(*args, **kwargs): 
-            conn = sqlite3.connect(self.database_name, check_same_thread=False) 
+        def connect(*args, **kwargs):
+            conn = sqlite3.connect(self.database_name, check_same_thread=False)
             conn.isolation_level = None
             conn.execute('PRAGMA foreign_keys = ON') # http://www.sqlite.org/foreignkeys.html
             return conn
@@ -58,13 +56,13 @@ class SQLiteControl(DatabaseControl):
     def login_args(self):
         return []
     
-    def create_db_user(self, prompt_for_password=True):
+    def create_db_user(self, super_user_name=None, create_with_password=True):
         return 0
 
-    def drop_db_user(self):
+    def drop_db_user(self, super_user_name=None):
         return 0
 
-    def drop_database(self, yes=False):
+    def drop_database(self, super_user_name=None, yes=False):
         if not self.is_in_memory:
             try:
                 os.remove(self.database_name)
@@ -72,17 +70,17 @@ class SQLiteControl(DatabaseControl):
                 pass
         return 0
 
-    def create_database(self):
+    def create_database(self, super_user_name=None):
         return 0
 
-    def backup_database(self, directory):
+    def backup_database(self, directory, super_user_name=None):
         today = date.today()
         filename = '%s.sqlite.%s' % (self.database_name, today.strftime('%A'))
         full_path = os.path.join(directory, filename)
         shutil.copyfile(self.database_name, full_path)
         return 0
         
-    def restore_database(self, filename):
+    def restore_database(self, filename, super_user_name=None):
         shutil.copyfile(filename, self.database_name)
         return 0
         

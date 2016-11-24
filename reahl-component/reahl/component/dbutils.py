@@ -16,16 +16,15 @@
 
 """Utilities to manipulate underlying databases - sometimes via an ORM tool."""
 
+
 from __future__ import print_function, unicode_literals, absolute_import, division
 import re
 from contextlib import contextmanager
-import logging
+from six.moves.urllib import parse as urllib_parse
 
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
-from reahl.component.migration import MigrationSchedule, MigrationRun
-
-class InvalidConnectionURIException(Exception):
-    pass
+from reahl.component.migration import MigrationRun
 
 
 class CouldNotFindDatabaseControlException(Exception):
@@ -132,13 +131,14 @@ class DatabaseControl(object):
     def __init__(self, url, config):
         self.config = config
         self.connection_uri = url
-        uri_parts = self.parse_connection_uri(url)
-        self.user_name = uri_parts['user']
-        self.password = uri_parts['password']
-        self.host = uri_parts['host']
-        port_string = uri_parts['port'] or '5432'
-        self.port = int(port_string)
-        self.database_name = uri_parts['database']
+        uri_parts = urllib_parse.urlparse(url)
+        self.user_name = uri_parts.username
+        self.password = uri_parts.password
+        self.host = uri_parts.hostname
+        self.port = uri_parts.port
+        self.database_name = uri_parts.path[1:] if uri_parts.path.startswith('/') else uri_parts.path
+        if not self.database_name:
+            raise ProgrammerError('Please specify a database name in reahlsystem.connection_uri')
 
     def get_dbapi_connection_creator(self):
         return None
@@ -151,22 +151,9 @@ class DatabaseControl(object):
     def matches_uri(cls, url):
         return re.match(cls.control_matching_regex, url) is not None
 
-    @classmethod
-    def parse_connection_uri(cls, url):
-        match = re.match(cls.uri_regex_string, url)
-        if not match:
-            raise InvalidConnectionURIException()
-        return match.groupdict()
-
 
 class NullDatabaseControl(DatabaseControl):
     uri_regex_string = r''
-    control_matching_regex = r'^$'
-    @classmethod
-    def parse_connection_uri(self, url):
-        if not url:
-            return {'user':'', 'password':'', 'host':'', 'port':'', 'database':''}
-        raise InvalidConnectionURIException()
 
     def donothing(self, *args, **kwargs):
         pass
