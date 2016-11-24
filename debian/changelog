@@ -9,8 +9,8 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Upgraded jQuery Validation Plugin 1.15.0.
  * Removed dependency on jquery-metadata plugin, and removed the plugin.
  * Upgraded version of BeautifulSoup to 4.4 for python 3.5 compatibility.
- * Added arguments to 'reahl devpitest' command and an option to run tox only on current python environment.
  * Removed the file_finder for bzr, roll your own instead: http://code.activestate.com/recipes/577910-bazaar-as-a-setuptools-file-finder/.
+ * Removed devpitest and devpipush commands.
  * Upgraded dependency on wheel.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Jun 2016 08:47:00 +0200

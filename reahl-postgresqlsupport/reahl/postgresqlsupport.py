@@ -91,7 +91,7 @@ class PostgresqlControl(DatabaseControl):
                 zipped_file.write(line)
         return 0
 
-        
+
     def restore_database(self, filename):
         cmd = ['-C', '-Fc', '-d', 'postgres', filename]
         Executable('pg_restore').check_call(['-C', '-Fc', '-d', 'postgres', filename])
@@ -103,7 +103,7 @@ class PostgresqlControl(DatabaseControl):
             for line in zipped_file:
                 proc.stdin.write(line)
         return 0
-        
+
     def size_database(self, orm_control):
         sql = 'select pg_size_pretty(pg_database_size(\'%s\'));' % self.database_name
         result = orm_control.execute_one(sql)

@@ -11,10 +11,6 @@
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/> 
     <thirdpartyegg name="six"/>
-    <thirdpartyegg name="devpi" minversion="2.2" maxversion="2.2.999"/>
-    <thirdpartyegg name="devpi-client" minversion="2.7" maxversion="2.7.999"/>
-    <thirdpartyegg name="devpi-server" minversion="4.1.1" maxversion="4.1.999"/>   <!-- Because from 4.1.0 did not require waitress <1 like 4.1.1 does -->
-   
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
     <thirdpartyegg name="twine" minversion="1.8.0" maxversion="1.8.9999"/>
     <thirdpartyegg name="wheel" minversion="0.29.0" maxversion="0.29.9999"/> 
@@ -90,8 +86,6 @@
   <export entrypoint="reahl.dev.commands" name="SubstVars" locator="reahl.dev.devshell:SubstVars"/>
   <export entrypoint="reahl.dev.commands" name="Debianise" locator="reahl.dev.devshell:Debianise"/>
   <export entrypoint="reahl.dev.commands" name="Info" locator="reahl.dev.devshell:Info"/>
-  <export entrypoint="reahl.dev.commands" name="DevPiTest" locator="reahl.dev.devshell:DevPiTest"/>
-  <export entrypoint="reahl.dev.commands" name="DevPiPush" locator="reahl.dev.devshell:DevPiPush"/>
 
   <export entrypoint="reahl.dev.commands" name="ExtractMessages" locator="reahl.dev.devshell:ExtractMessages"/>
   <export entrypoint="reahl.dev.commands" name="MergeTranslations" locator="reahl.dev.devshell:MergeTranslations"/>
