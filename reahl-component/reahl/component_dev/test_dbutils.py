@@ -21,8 +21,8 @@ from reahl.tofu import test, Fixture, vassert, expected
 
 from reahl.stubble import easter_egg
 
-from reahl.component.dbutils import DatabaseControl, SystemControl, CouldNotFindDatabaseControlException, \
-    InvalidConnectionURIException
+from reahl.component.dbutils import DatabaseControl, SystemControl, CouldNotFindDatabaseControlException
+
 from reahl.component.config import Configuration, ReahlSystemConfig
 
 
@@ -48,11 +48,11 @@ def finding_database_control(fixture):
        reahlsystem.connection_uri config setting based on its control_matching_regex.
 
     """
-    fixture.config.reahlsystem.connection_uri = 'myprefix://thedb:theuser:thepasswd:thehost:123'
+    fixture.config.reahlsystem.connection_uri = 'myprefix://theuser:thepasswd@thehost:123/thedb'
     system_control = SystemControl(fixture.config)
     vassert( isinstance(system_control.db_control, TestDatabaseControl) )
 
-    fixture.config.reahlsystem.connection_uri = 'wrongprefix://thedb:theuser:thepasswd:thehost:123'
+    fixture.config.reahlsystem.connection_uri = 'wrongprefix://theuser:thepasswd@thehost:123/thedb'
     with expected(CouldNotFindDatabaseControlException):
         SystemControl(fixture.config)
 
@@ -60,12 +60,9 @@ def finding_database_control(fixture):
 @test(DBControlFixture)
 def database_control_settings(fixture):
     """DatabaseControl settings are read from the
-       reahlsystem.connection_uri config setting based on its
-       uri_regex_string which should be a regex with the correct named
-       groups.
-
+       reahlsystem.connection_uri config setting parsed as an RFC1808 URI
     """
-    fixture.config.reahlsystem.connection_uri = 'myprefix://thedb:theuser:thepasswd:thehost:123'
+    fixture.config.reahlsystem.connection_uri = 'myprefix://theuser:thepasswd@thehost:123/thedb'
     system_control = SystemControl(fixture.config)
 
     vassert( system_control.db_control.database_name == 'thedb' )
@@ -75,8 +72,5 @@ def database_control_settings(fixture):
     vassert( system_control.db_control.port == 123 )
 
 
-    fixture.config.reahlsystem.connection_uri = 'myprefix://stuffstuffstuff'
-    with expected(InvalidConnectionURIException):
-        SystemControl(fixture.config)
 
-    
+

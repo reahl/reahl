@@ -126,76 +126,93 @@ class CreateDBUser(ProductionCommand):
     """Creates the database user."""
     keyword = 'createdbuser'
     options = [('-n', '--no-create-password', dict(action='store_true', dest='no_create_password',
-               help='dont prompt for a password - create the user without specifying a password'))]
+                                                   help='create the user without a password')),
+               ('-U', '--super-user-name', dict(dest='super_user_name', default=None,
+                                                help='the name of the priviledged user who may perform this operation'))]
     def execute(self, options, args):
         super(CreateDBUser, self).execute(options, args)
-        return self.sys_control.create_db_user(prompt_for_password=not options.no_create_password)
+        return self.sys_control.create_db_user(super_user_name=options.super_user_name,
+                                               create_with_password=not options.no_create_password)
 
 
 class DropDBUser(ProductionCommand):
     """Drops the database user."""
     keyword = 'dropdbuser'
+    options = [('-U', '--super-user-name', dict(dest='super_user_name', default=None,
+                                                help='the name of the priviledged user who may perform this operation'))]
     def execute(self, options, args):
         super(DropDBUser, self).execute(options, args)
-        return self.sys_control.drop_db_user()
+        return self.sys_control.drop_db_user(super_user_name=options.super_user_name)
 
 
 class DropDB(ProductionCommand):
     """Drops the database."""
     keyword = 'dropdb'
     options = [('-y', '--yes', dict(action='store_true', dest='yes',
-                                      help='automatically answers yes on prompts'))]
+                                    help='automatically answers yes on prompts')),
+               ('-U', '--super-user-name', dict(dest='super_user_name', default=None,
+                                    help='the name of the priviledged user who may perform this operation'))]
     def execute(self, options, args):
         super(DropDB, self).execute(options, args)
-        return self.sys_control.drop_database(yes=options.yes)
+        return self.sys_control.drop_database(super_user_name=options.super_user_name, yes=options.yes)
 
 
 class CreateDB(ProductionCommand):
     """Creates the database."""
     keyword = 'createdb'
+    options = [('-U', '--super-user-name', dict(dest='super_user_name', default=None,
+                                                help='the name of the priviledged user who may perform this operation'))]
     def execute(self, options, args):
         super(CreateDB, self).execute(options, args)
-        return self.sys_control.create_database()
+        return self.sys_control.create_database(super_user_name=options.super_user_name)
 
 
 class BackupDB(ProductionCommand):
     """Backs up the database."""
     keyword = 'backupdb'
     options = ProductionCommand.options +\
-              [('-d', '--directory', dict(dest='directory', default='/tmp', help='the direcotry to back up to'))]
+              [('-d', '--directory', dict(dest='directory', default='/tmp', help='the directory to back up to')),
+               ('-U', '--super-user-name', dict(dest='super_user_name', default=None,
+                                    help='the name of the priviledged user who may perform this operation'))]
     def execute(self, options, args):
         super(BackupDB, self).execute(options, args)
-        return self.sys_control.backup_database(options.directory)
+        return self.sys_control.backup_database(options.directory, super_user_name=options.super_user_name)
 
 
 class RestoreDB(ProductionCommand):
     """Restores up the database."""
     keyword = 'restoredb'
     options = ProductionCommand.options +\
-              [('-f', '--filename', dict(dest='filename', default='/tmp/data.pgsql', help='the file to restore from'))]
+              [('-f', '--filename', dict(dest='filename', default='/tmp/data.pgsql', help='the file to restore from')),
+               ('-U', '--super-user-name', dict(dest='super_user_name', default=None,
+                                    help='the name of the priviledged user who may perform this operation'))]
     def execute(self, options, args):
         super(RestoreDB, self).execute(options, args)
-        return self.sys_control.restore_database(options.filename)
+        return self.sys_control.restore_database(options.filename, super_user_name=options.super_user_name)
 
 
 class BackupAllDB(ProductionCommand):
     """Backs up all the databases on the host this project config points to."""
     keyword = 'backupall'
     options = ProductionCommand.options +\
-              [('-d', '--directory', dict(dest='directory', default='/tmp', help='the direcotry to back up to'))]
+              [('-d', '--directory', dict(dest='directory', default='/tmp', help='the direcotry to back up to')),
+               ('-U', '--super-user-name', dict(dest='super_user_name', default=None,
+                                    help='the name of the priviledged user who may perform this operation'))]
     def execute(self, options, args):
         super(BackupAllDB, self).execute(options, args)
-        return self.sys_control.backup_all_databases(options.directory)
+        return self.sys_control.backup_all_databases(options.directory, super_user_name=options.super_user_name)
 
 
 class RestoreAllDB(ProductionCommand):
     """Restores all the databases on the host this project config points to."""
     keyword = 'restoreall'
     options = ProductionCommand.options +\
-              [('-f', '--filename', dict(dest='filename', default='/tmp/data.sql', help='the file to restore from'))]
+              [('-f', '--filename', dict(dest='filename', default='/tmp/data.sql', help='the file to restore from')),
+               ('-U', '--super-user-name', dict(dest='super_user_name', default=None,
+                                    help='the name of the priviledged user who may perform this operation'))]
     def execute(self, options, args):
         super(RestoreAllDB, self).execute(options, args)
-        return self.sys_control.restore_all_databases(options.filename)
+        return self.sys_control.restore_all_databases(options.filename, super_user_name=options.super_user_name)
 
 
 class SizeDB(ProductionCommand):
