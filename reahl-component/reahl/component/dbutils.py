@@ -138,7 +138,7 @@ class DatabaseControl(object):
         self.password = uri_parts.password
         self.host = uri_parts.hostname
         self.port = uri_parts.port
-        self.database_name = uri_parts.path[1:]
+        self.database_name = uri_parts.path[1:] if uri_parts.path.startswith('/') else uri_parts.path
         if not self.database_name:
             raise ProgrammerError('Please specify a database name in reahlsystem.connection_uri')
 
