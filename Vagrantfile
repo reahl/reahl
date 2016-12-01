@@ -7,93 +7,64 @@
 #  vagrant up
 #  vagrant ssh
 
+Vagrant.require_version ">= 1.8.1", "< 1.8.9999"
 
-# From https://gist.github.com/juanje/3797297 
-def local_cache(basebox_name)
-  cache_dir = Vagrant::Environment.new.home_path.join('cache', 'pip-old', basebox_name)
+# From https://gist.github.com/juanje/3797297
+# (vagrant-cachier does not work with docker & Dockerfile so we roll our own)
+def local_cache(cache_name)
+  cache_dir = Vagrant::Environment.new.home_path.join('cache', cache_name)
   cache_dir.mkpath unless cache_dir.exist?
   cache_dir
 end
 
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
+def exists?(name)
+  `which #{name}`
+  $?.success?
+end
+
 Vagrant.configure(2) do |config|
-  # The most common configuration options are documented and commented below.
-  # For a complete reference, please see the online documentation at
-  # https://docs.vagrantup.com.
+  config.vm.hostname = 'reahl-development-machine'
 
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://atlas.hashicorp.com/search.
-  #config.vm.box = "debian/jessie64"
-  config.vm.box = "nhinds/xenial64"
+  #https://www.vagrantup.com/docs/providers/basic_usage.html
+  config.vm.provider "lxc"
+  config.vm.provider "docker"
+  config.vm.provider "virtualbox"
 
-  if Vagrant.has_plugin?("vagrant-cachier")
-    config.cache.scope = :box
-    config.cache.enable :generic, { :cache_dir => "/home/vagrant/testdownloads" }
-#    config.cache.enable :pip 
+  config.vm.provider :lxc do |lxc, override|
+    override.vm.box = "nhinds/xenial64"
+    if exists? "lxc-ls"
+      LXC_VERSION = `lxc-ls --version`.strip unless defined? LXC_VERSION
+      if LXC_VERSION >= "2.0.0"
+        lxc.backingstore = 'dir'
+      end
+    end
   end
 
-  config.vm.synced_folder local_cache(config.vm.box), "/home/vagrant/.cache/pip/"
+  config.vm.provider :virtualbox do |vb, override|
+    override.vm.box = "ubuntu/xenial64"
+  end
+
+  config.vm.provider :docker do |docker, override|
+    #docker.image = 'ubuntu:16.04'
+    #docker.cmd = ["/sbin/my_init", "--enable-insecure-key"]
+#    docker.cmd = ["/sbin/my_init"]
+    docker.build_dir = "."
+    docker.remains_running = true
+    docker.has_ssh = true
+#    override.ssh.port = 22
+  end
+  
+  config.vm.synced_folder local_cache('pip-old'), "/tmp/.cache/pip/"
+  config.vm.synced_folder local_cache('testdownloads'), "/tmp/testdownloads"
                          
-
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
-
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
   config.vm.network "forwarded_port", guest: 8000, host: 8000
   config.vm.network "forwarded_port", guest: 8363, host: 8363
 
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
-
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
-  # config.vm.network "public_network"
-
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
-
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
-
-  # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
-  # such as FTP and Heroku are also available. See the documentation at
-  # https://docs.vagrantup.com/v2/push/atlas.html for more information.
-  # config.push.define "atlas" do |push|
-  #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
-  # end
-
   config.ssh.forward_x11 = true
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y python-virtualenv virtualenvwrapper python-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libfreetype6-dev equivs openssh-client dpkg-dev unzip python3-dev git postgresql-client-9.5 postgresql-9.5 libyaml-dev
+    apt-get install -y python3 python3-virtualenv virtualenvwrapper python3-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libfreetype6-dev equivs openssh-client dpkg-dev unzip git postgresql libyaml-dev screen
 
     # These are for chromium-browser and chromedriver:
     apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libfreetype6 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgnome-keyring0 libgtk2.0-0 libnspr4 libnss3 libpam0g libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0 libstdc++6 libx11-6 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2  libxrender1 libxss1 libxtst6 zlib1g bash libnss3 xdg-utils 
@@ -105,6 +76,9 @@ Vagrant.configure(2) do |config|
   SHELL
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    ln -fs /tmp/testdownloads $HOME/testdownloads
+    mkdir -p $HOME/.cache
+    ln -fs /tmp/.cache/pip $HOME/.cache/pip
     cd /vagrant
     echo "export REAHLWORKSPACE=\\\$HOME" >> $HOME/.profile
     echo "export EMAIL=noone@example.org" >> $HOME/.profile
@@ -124,7 +98,8 @@ Vagrant.configure(2) do |config|
     mkvirtualenv -p $(which python3.5) python3.5
     workon python3.5
     python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs
-    sudo -u postgres createuser --superuser vagrant
+    sudo /etc/init.d/postgresql start
+    sudo su - postgres -c "createuser --superuser $USER"
     reahl-control createdb reahl-web/etc
   SHELL
 end
