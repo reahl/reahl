@@ -14,18 +14,9 @@ echo "export PATH=\$HOME/bin:\$PATH" >> $HOME/.profile
 ./travis/createTestSshKey.sh
 ./travis/createTestGpgKey.sh
 
-# Setup virtualenv, virtualenvwrapper 
-mkdir -p $HOME/virtualenv
-echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.profile
-source $HOME/.profile
-echo "workon python3.5" >> $HOME/.profile
-
-# Create a development virtualenv
-mkvirtualenv -p $(which python3.5) python3.5 || true
-workon python3.5
-python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs
-
 # Setup postgresql user and test database
 sudo /etc/init.d/postgresql start
 sudo su - postgres -c "createuser --superuser $USER"
-reahl-control createdb reahl-web/etc
+
+
+
