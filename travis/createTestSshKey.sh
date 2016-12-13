@@ -1,5 +1,4 @@
-#!/bin/bash
-set -e
+#!/bin/bash -ev
 
 # Generate the key
 ssh-keygen -f ~/.ssh/id_rsa -N ""
