@@ -1,6 +1,11 @@
 #!/bin/bash -e
 
+# Secure ssh access
+sudo sed -Ei 's|#?\W*(PasswordAuthentication)\W+yes|\1 no|g' /etc/ssh/sshd_config
+sudo sed -Ei 's|#?\W*(PermitRootLogin)\W+.*|\1 no|g' /etc/ssh/sshd_config 
+
 # Setup environment
+echo "if [ -z \"\$DISPLAY\" ]; then export DISPLAY=:100; fi" >> $HOME/.profile
 echo "export REAHLWORKSPACE=\$HOME" >> $HOME/.profile
 echo "export EMAIL=noone@example.org" >> $HOME/.profile
 echo "export DEBFULLNAME=\"Travis Tester\"" >> $HOME/.profile
