@@ -1,0 +1,20 @@
+@startuml
+
+title Controllers zoomed out
+
+hide members
+hide circle
+
+UrlBoundView -up-|> View
+UrlBoundView .right. ViewFactory : matches >
+View .right. Controller
+UserInterface -left- Controller
+ViewPseudoFactory -up-|> ViewFactory
+Controller -- "*" EventHandler
+Event .right. "*" EventHandler
+Transition -up-|> EventHandler
+Transition -left- ViewFactory : source
+EventHandler -- ViewFactory : target
+
+
+@enduml
