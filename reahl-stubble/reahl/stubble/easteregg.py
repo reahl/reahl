@@ -77,7 +77,6 @@ class EasterEgg(pkg_resources.Distribution):
 
     def add_to_working_set(self):
         """Adds this EasterEgg to the global pkg_resources.working_set object."""
-
         pkg_resources.working_set.add(self, replace=True)
 
     def add_entry_point_from_line(self, group_name, line):
@@ -115,9 +114,9 @@ class EasterEgg(pkg_resources.Distribution):
         warnings.warn('DEPRECATED: EasterEgg.set_module_path(). Please use .location = instead, or pass location= upon construction.', DeprecationWarning, stacklevel=1)
         self.location = path
 
-    def activate(self):
+    def activate(self, **kwargs):
         saved_path = sys.path[:]
-        super(EasterEgg, self).activate()
+        super(EasterEgg, self).activate(**kwargs)
         self.added_paths = set(sys.path) - set(saved_path)
 
     def contains(self, module):
