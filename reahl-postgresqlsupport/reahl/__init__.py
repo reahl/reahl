@@ -14,15 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A heading for this module
-=========================
+from pkgutil import extend_path
+__path__ = extend_path(__path__, __name__)
 
-Copyright (C) 2009 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
-
-""" 
-from __future__ import print_function, unicode_literals, absolute_import, division
-
-
-__import__('pkg_resources').declare_namespace(__name__)
-
-
+import pkg_resources
+pkg_resources.declare_namespace(__name__)
