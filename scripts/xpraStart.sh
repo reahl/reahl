@@ -19,4 +19,4 @@ done
 
 set -x
 vagrant ssh $MACHINE_NAME -- xpra start --sharing=yes "$REMOTE_DISPLAY"
-vagrant ssh $MACHINE_NAME -- /vagrant/scripts/showHostFingerprints.sh
+vagrant ssh $MACHINE_NAME -- /vagrant/scripts/showVagrantHostFingerprints.sh
