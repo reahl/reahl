@@ -20,6 +20,7 @@ source $HOME/.profile
 ./travis/createTestSshKey.sh
 ./travis/createTestGpgKey.sh
 ./travis/configurePip.sh
+./travis/setupTestGit.sh
 
 # Setup postgresql user and test database
 sudo /etc/init.d/postgresql start

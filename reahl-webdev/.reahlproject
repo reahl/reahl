@@ -5,6 +5,7 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="nose"/>
   </deps>
 
   <deps purpose="run">
@@ -18,12 +19,13 @@
     <thirdpartyegg name="WebTest" minversion="2.0" maxversion="2.0.999"/>
     <thirdpartyegg name="selenium" minversion="2.42" maxversion="2.9999"/>
     <thirdpartyegg name="watchdog" minversion="0.8.3" maxversion="0.8.3.999"/>
-    <thirdpartyegg name="setuptools" minversion="32.2" maxversion="32.2.9999"/>
+    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
     <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
   </deps>
 
   <deps purpose="test">
     <thirdpartyegg name="nose"/>
+    <egg name="reahl-tofu"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-stubble"/>
   </deps>

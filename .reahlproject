@@ -2,6 +2,10 @@
   <sourcecontrol type="git"/>
   <metadata type="debian" url="http://www.reahl.org"/>
 
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+  </deps>
+
   <extras name="all">
     <egg name="reahl-component"/>
     <egg name="reahl-web"/>

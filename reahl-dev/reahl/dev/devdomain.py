@@ -1801,6 +1801,14 @@ class EggProject(Project):
 
     def generate_setup_py(self):
         with io.open(self.setup_py_filename, 'w') as setup_file:
+#            setup_file.write('def fix_namespace_packages():\n')
+#            setup_file.write('  import sys\n')
+#            setup_file.write('  import os\n')
+#            setup_file.write('  idx = sys.path.index(os.getcwd())\n')
+#            setup_file.write('  sys.path[idx:idx+1] = []\n')
+#            setup_file.write('  import pkg_resources\n')
+#            setup_file.write('  sys.path[idx:idx+1] = [os.getcwd()]\n\n')
+#            setup_file.write('fix_namespace_packages()\n')
             setup_file.write('from setuptools import setup, Command\n')
             setup_file.write('from pkg_resources import require\n')
             setup_file.write('class InstallTestDependencies(Command):\n')
@@ -1860,7 +1868,8 @@ class EggProject(Project):
     def packages_for_setup(self):
         exclusions = [i.name for i in self.excluded_packages]
         exclusions += ['%s.*' % i.name for i in self.excluded_packages]
-        return [ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]
+        # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
+        return [ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]+self.namespace_packages_for_setup()
 
     def namespace_packages_for_setup(self):
         return [ascii_as_bytes_or_str(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!

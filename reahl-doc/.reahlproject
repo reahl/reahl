@@ -8,6 +8,7 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="nose"/>
   </deps>
 
   <deps purpose="run">
@@ -18,7 +19,7 @@
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
     <thirdpartyegg name="nose"/>
-    <thirdpartyegg name="setuptools" minversion="32.2" maxversion="32.2.9999"/>
+    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
   </deps>
 
   <extras name="pillow">
@@ -26,9 +27,9 @@
   </extras>
 
   <deps purpose="test">
+    <thirdpartyegg name="Sphinx"/>    
     <thirdpartyegg name="nose"/>
     <egg name="reahl-tofu"/>
-    <thirdpartyegg name="Sphinx"/>    
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>

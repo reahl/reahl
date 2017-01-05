@@ -9,6 +9,7 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="nose"/>
   </deps>
 
   <deps purpose="run">
@@ -17,7 +18,7 @@
     <egg name="reahl-web"/>
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
-    <thirdpartyegg name="setuptools" minversion="32.2" maxversion="32.2.9999"/>
+    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
   </deps>
 
   <deps purpose="test">
