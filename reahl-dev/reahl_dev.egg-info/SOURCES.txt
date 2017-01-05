@@ -3,6 +3,7 @@
 COPYING
 LICENSE
 MANIFEST.in
+koos.py
 reahl
 setup.py
 tox.ini

@@ -1869,7 +1869,11 @@ class EggProject(Project):
         exclusions = [i.name for i in self.excluded_packages]
         exclusions += ['%s.*' % i.name for i in self.excluded_packages]
         # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
-        return [ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]+self.namespace_packages_for_setup()
+        ns_packages = []
+        for i in self.namespace_packages_for_setup():
+            ns_packages.append(i)
+            ns_packages.extend(['%s.%s' % (i, j) for j in find_packages(where=os.path.join(self.directory, i), exclude=exclusions)])
+        return [ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]+ns_packages
 
     def namespace_packages_for_setup(self):
         return [ascii_as_bytes_or_str(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!
