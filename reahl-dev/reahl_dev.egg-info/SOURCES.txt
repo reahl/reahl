@@ -3,10 +3,10 @@
 COPYING
 LICENSE
 MANIFEST.in
-koos.py
 reahl
 setup.py
 tox.ini
+reahl/__init__.py
 reahl/dev/__init__.py
 reahl/dev/devdomain.py
 reahl/dev/devshell.py
