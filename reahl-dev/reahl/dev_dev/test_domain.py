@@ -425,8 +425,9 @@ class ProjectReadingTests(object):
         project.metadata = MetadataStub()
         vassert( six.text_type(project.version_for_setup()) == '3.1.2a1' )
         vassert( project.project_name == 'test-proj' )
-
-        vassert( project.packages_for_setup() == ['this','this.pack1'] )
+ 
+        packages = project.packages_for_setup()
+        vassert( packages == ['this','this.pack1'] )
         vassert( project.py_modules_for_setup() == ['setup'] )
         vassert( project.include_package_data == True )
         vassert( project.namespace_packages_for_setup() == ['this'] )
