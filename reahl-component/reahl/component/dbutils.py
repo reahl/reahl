@@ -18,15 +18,13 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 import re
 from contextlib import contextmanager
-import logging
 from six.moves.urllib import parse as urllib_parse
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
-from reahl.component.migration import MigrationSchedule, MigrationRun
+from reahl.component.migration import MigrationRun
 
 
 class CouldNotFindDatabaseControlException(Exception):
@@ -47,12 +45,12 @@ class SystemControl(object):
         self.orm_control.connect()
         if self.db_control.is_in_memory:
             self.create_db_tables()
-        
+
     @contextmanager
     def auto_connected(self):
         if self.connected:
             yield
-        
+
         self.connect()
         try:
             yield
@@ -65,13 +63,13 @@ class SystemControl(object):
 
     def disconnect(self):
         self.orm_control.disconnect()
-        
+
     def managed_transaction(self):
         return self.orm_control.managed_transaction()
 
     def nested_transaction(self):
         return self.orm_control.nested_transaction()
-                
+
     def finalise_session(self):
         self.orm_control.finalise_session()
 
@@ -80,7 +78,7 @@ class SystemControl(object):
 
     def commit(self):
         self.orm_control.commit()
-        
+
     def rollback(self):
         self.orm_control.rollback()
 
@@ -113,7 +111,7 @@ class SystemControl(object):
         try:
             self.create_db_tables()
         finally:
-            self.disconnect() 
+            self.disconnect()
 
     def migrate_db(self):
         eggs_in_order = ReahlEgg.get_all_relevant_interfaces(self.config.reahlsystem.root_egg)
@@ -145,7 +143,7 @@ class DatabaseControl(object):
     def get_dbapi_connection_creator(self):
         return None
 
-    @property    
+    @property
     def is_in_memory(self):
         return False
 

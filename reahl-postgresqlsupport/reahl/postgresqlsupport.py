@@ -97,6 +97,7 @@ class PostgresqlControl(DatabaseControl):
                 zipped_file.write(line)
         return 0
 
+
     def restore_database(self, filename, super_user_name=None):
         Executable('pg_restore').check_call(self.login_args(login_username=super_user_name)
                                             + ['-C', '-Fc', '-d', 'postgres', filename])

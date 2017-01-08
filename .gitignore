@@ -15,6 +15,7 @@ setup.py
 .noseids
 chromedriver.log
 .vagrant
+.ngrok
 
 debian/python-reahl-doc/
 debian/python-reahl-sqlalchemysupport/
