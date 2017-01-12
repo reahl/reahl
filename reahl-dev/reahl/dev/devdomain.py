@@ -1802,7 +1802,6 @@ class EggProject(Project):
     def generate_setup_py(self):
         with io.open(self.setup_py_filename, 'w') as setup_file:
             setup_file.write('from setuptools import setup, Command\n')
-            setup_file.write('from pkg_resources import require\n')
             setup_file.write('class InstallTestDependencies(Command):\n')
             setup_file.write('    user_options = []\n')
             setup_file.write('    def run(self):\n')
@@ -1860,7 +1859,11 @@ class EggProject(Project):
     def packages_for_setup(self):
         exclusions = [i.name for i in self.excluded_packages]
         exclusions += ['%s.*' % i.name for i in self.excluded_packages]
-        return [ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]
+        # Adding self.namespace_packages... is to work around https://github.com/pypa/setuptools/issues/97
+        ns_packages = self.namespace_packages_for_setup()
+        packages = list(set([ascii_as_bytes_or_str(i) for i in find_packages(where=self.directory, exclude=exclusions)]+ns_packages))
+        packages.sort()
+        return packages
 
     def namespace_packages_for_setup(self):
         return [ascii_as_bytes_or_str(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!

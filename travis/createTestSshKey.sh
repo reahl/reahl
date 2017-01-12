@@ -1,8 +1,10 @@
 #!/bin/bash -ev
 
 # Generate the key
-ssh-keygen -f ~/.ssh/id_rsa -N ""
-cp ~/.ssh/{id_rsa.pub,authorized_keys}
+ssh-keygen -f ~/.ssh/id_localhost -N ""
+echo 'Host localhost' >> ~/.ssh/config
+echo '  IdentityFile ~/.ssh/id_localhost' >> ~/.ssh/config
+cat ~/.ssh/id_localhost.pub >> ~/.ssh/authorized_keys
 
 # Start ssh agent for passwordless
 # eval $(ssh-agent)

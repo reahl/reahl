@@ -5,6 +5,7 @@
   
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="nose"/>
   </deps>
 
   <deps purpose="run">
@@ -13,10 +14,10 @@
     <thirdpartyegg name="six"/>
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
     <thirdpartyegg name="twine" minversion="1.8.0" maxversion="1.8.9999"/>
-    <thirdpartyegg name="wheel" minversion="0.24.0" maxversion="0.24.9999"/> 
+    <thirdpartyegg name="wheel" minversion="0.29.0" maxversion="0.29.9999"/> 
     <thirdpartyegg name="tzlocal" minversion="1.2.0" maxversion="1.2.9999"/> 
-    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/> 
-    <thirdpartyegg name="pip" minversion="8.1.2" maxversion="8.1.999"/> 
+    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/> 
+    <thirdpartyegg name="pip" minversion="9.0.0" maxversion="9.0.999"/> 
   </deps>
 
   <deps purpose="test">

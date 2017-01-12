@@ -87,7 +87,7 @@ def fake_distributions_into_existence(project_dirs):
             os.mkdir(egg_dir)
 
 def find_all_prerequisits_for(project_dirs):
-    prerequisites = set(['tox>=2.4,<2.4.999']) # Nothing depends on tox, but we use it in .travis.yml so it forms part of our basic infrastructure
+    prerequisites = set(['tox>=2.5,<2.5.999']) # Nothing depends on tox, but we use it in .travis.yml so it forms part of our basic infrastructure
     for project_dir in project_dirs:
         prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
     return prerequisites
@@ -160,7 +160,7 @@ def find_missing_dependencies(workspace):
 
 
 def print_final_message():
-    debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-9.3', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev']
+    debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-all', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev']
     general_debs_needed = ['equivs', 'openssh-client', 'dpkg-dev', 'chromium-browser', 'chromium-chromedriver']
 
     print('')

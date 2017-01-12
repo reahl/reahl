@@ -9,7 +9,7 @@
 
 mkdir -p $HOME/bin
 mkdir -p $HOME/opt/chromium
-mkdir -p $HOME/testdownloads
+[ -e $HOME/testdownloads ] || mkdir -p $HOME/testdownloads 
 
 cd $HOME/opt/chromium
 

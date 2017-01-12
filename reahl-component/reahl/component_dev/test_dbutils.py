@@ -40,7 +40,7 @@ class DBControlFixture(Fixture):
         config.reahlsystem = ReahlSystemConfig()
         return config
 
-        
+
 @test(DBControlFixture)
 def finding_database_control(fixture):
     """The correct DatabaseControl will be found from the entry point

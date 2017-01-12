@@ -5,11 +5,12 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="nose"/>
   </deps>
 
   <deps purpose="run">
     <thirdpartyegg name="six"/>
-    <thirdpartyegg name="setuptools" minversion="22.0" maxversion="22.0.6"/> 
+    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
   </deps>
 
   <deps purpose="test">
