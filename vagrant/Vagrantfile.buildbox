@@ -37,7 +37,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provision "shell", inline: "/vagrant/scripts/installDebs.sh"
-  config.vm.provision "shell", privileged: false, inline: "cd /vagrant; ./scripts/setupDevEnv.sh"
+  config.vm.provision "shell", privileged: false, inline: "cd /vagrant; ./vagrant/setupDevEnv.sh"
   config.vm.provision "shell", inline: <<-SHELL
       rm -f /var/cache/apt/*.bin
       if [ "$(sudo dmidecode -s system-product-name)" = "VirtualBox" ]; then

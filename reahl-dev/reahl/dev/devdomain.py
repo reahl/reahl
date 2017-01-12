@@ -1869,7 +1869,7 @@ class EggProject(Project):
         return [ascii_as_bytes_or_str(i.name) for i in self.namespaces]  # Note: this has to return non-six.text_type strings for setuptools!
 
     def py_modules_for_setup(self):
-        return list(set(['setup']+[i[1] for i in pkgutil.iter_modules('.') if not i[2]]))
+        return list(set([i[1] for i in pkgutil.iter_modules('.') if not i[2]])-{'setup'})
 
     def package_data_for_setup(self):
         return {ascii_as_bytes_or_str(''): [ascii_as_bytes_or_str('*/LC_MESSAGES/*.mo')]}
