@@ -15,6 +15,25 @@ echo "export WORKON_HOME=\$HOME/virtualenv" >> $HOME/.profile
 echo "export PATH=\$HOME/bin:\$PATH" >> $HOME/.profile
 source $HOME/.profile
 
+cat <<'EOF' >> $HOME/.profile
+
+# Start xpra if necessary
+if ! xdpyinfo -display $DISPLAY 1>/dev/null 2>&1; then 
+  echo "There is no display server running on $DISPLAY, starting xpra"
+  xpra start --sharing=yes $DISPLAY 1>/dev/null 2>&1
+fi
+
+# Show fingerprints of current vagrant host
+echo 
+echo "The fingerprints of the vagrant host are:"
+echo "========================================="
+for i in $(ls /etc/ssh/ssh_host_*.pub); do
+    for e in md5 sha256; do
+        ssh-keygen -l -E $e -f $i;
+    done
+done
+EOF
+
 # User installs and config
 ./travis/installChromium.sh
 ./travis/createTestSshKey.sh
