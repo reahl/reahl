@@ -60,7 +60,7 @@ class WorkspaceCommand(Command):
             print('REAHLWORKSPACE environment variable not set, defaulting to %s' % workspace_dir, file=sys.stderr)
 
         work_directory = os.path.abspath(os.path.expanduser(workspace_dir))
-        self.workspace = Workspace(workspace_dir)
+        self.workspace = Workspace(work_directory)
         self.workspace.read()
 
 
