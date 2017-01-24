@@ -1,0 +1,17 @@
+@startuml
+
+title Reahl web server WSGI application details
+
+hide members
+hide circle
+
+ReahlWSGIServer <|-- SSLCapableWSGIServer
+ReahlWebServer -- ReahlWSGIServer : httpd
+ReahlWebServer -- SSLCapableWSGIServer : httpsd
+WrappedApp -- ReahlWSGIServer
+WrappedApp -- ReahlWebServer
+WrappedApp -- SSLCapableWSGIServer
+WrappedApp -right- ReahlWSGIApplication
+ReahlWSGIApplication -right- Configuration
+
+@enduml

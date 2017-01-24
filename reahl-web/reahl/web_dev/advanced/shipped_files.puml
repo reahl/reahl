@@ -1,0 +1,18 @@
+@startuml
+
+title Shipped files
+
+hide members
+hide circle
+
+
+Library -right- "*" FileOnDisk : packaged_files
+FileOnDisk <|-- ConcatenatedFile
+FileOnDisk <|-- PackagedFile
+ConcatenatedFile -right- "*" PackagedFile
+
+Library <|-- Bootstrap4
+Library <|.. "?"
+
+
+@enduml

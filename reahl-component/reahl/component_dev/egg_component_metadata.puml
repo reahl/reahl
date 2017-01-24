@@ -1,0 +1,25 @@
+@startuml
+
+title Egg: Component metadata
+
+hide members
+hide circle
+
+note as N1
+	A reahl component is a Distribution,
+	wrapped with a ReahlEgg that
+	contains extra metadata
+end note
+
+class ReahlEgg #red
+class class <<persisted>>
+
+ReahlEgg --- "0..1" Configuration : config
+ReahlEgg --- "0..1" module : reahl_translations
+module -- file : package_data
+ReahlEgg --- "*" callable : scheduled_jobs
+ReahlEgg -- "*" Migration : reahl.migratelist
+ReahlEgg -- "*" class : reahl.persistlist
+ReahlEgg -left-> Distribution
+
+@enduml
