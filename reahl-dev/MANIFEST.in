@@ -1,1 +1,2 @@
 global-exclude *~
+include setup.py

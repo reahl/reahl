@@ -6,7 +6,7 @@ PYTHON_DEPS="python3 python3-virtualenv virtualenvwrapper python3-dev gcc cython
 UTILS="screen unzip git bzr"
 
 # For X11 forwarding to work and other misc stuff we need
-OS_DEPS="xauth dmidecode xpra libexif12 python-rencode"
+OS_DEPS="xauth dmidecode xpra libexif12 python-rencode x11-utils"
 echo "deb http://winswitch.org/ xenial main" > /etc/apt/sources.list.d/winswitch.list
 wget -O - http://winswitch.org/gpg.asc | apt-key add -
 

@@ -24,7 +24,7 @@ import logging
 try:
     from nose.tools import make_decorator
     from nose.plugins import Plugin
-except ImportException:
+except ImportError:
     msg = 'nose not available, nosesupport disabled'
     logging.warn(msg)
     def make_decorator(f):

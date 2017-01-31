@@ -428,7 +428,7 @@ class ProjectReadingTests(object):
  
         packages = project.packages_for_setup()
         vassert( packages == ['this','this.pack1'] )
-        vassert( project.py_modules_for_setup() == ['setup'] )
+        vassert( project.py_modules_for_setup() == [] )
         vassert( project.include_package_data == True )
         vassert( project.namespace_packages_for_setup() == ['this'] )
 
