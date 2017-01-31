@@ -31,7 +31,7 @@ from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.component.i18n import Translator
 
 import reahl.web.ui
-from reahl.web.ui import WrappedInput, Label, HTMLAttributeValueOption
+from reahl.web.ui import Label, HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span
 from reahl.web.bootstrap.grid import ColumnLayout
 

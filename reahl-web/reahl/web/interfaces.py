@@ -112,13 +112,13 @@ class PersistedExceptionProtocol(SessionDataProtocol):
     """
     @classmethod
     @abstractmethod
-    def get_exception_for_form(self, form): 
+    def get_exception_for_form(cls, form):
         """Retrieves an exception previously saved for the given :class:`reahl.web.ui.Form`, or None if
            not found."""
 
     @classmethod
     @abstractmethod
-    def get_exception_for_input(self, form, input_name): 
+    def get_exception_for_input(cls, form, input_name):
         """Retrieves an exception previously saved for the given :class:`reahl.web.ui.Form` and `input_name`
            or None if not found."""
     

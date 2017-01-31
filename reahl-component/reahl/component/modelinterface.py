@@ -23,15 +23,11 @@ import six
 import copy
 import re
 import fnmatch
-import json
 import sre_constants
 from six.moves.urllib import parse as urllib_parse
 from string import Template
-import types
 import inspect
 from contextlib import contextmanager
-import functools
-from collections import OrderedDict
 
 import dateutil.parser 
 import babel.dates 
@@ -39,7 +35,6 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Translator
-from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 import collections
 
@@ -1072,7 +1067,8 @@ class SecuredFunction(FunctionWrapper):
             self.check_method_signature(check, self.__wrapped__)
 
     def check_call_wrapped(self, wrapped, instance, args, kwargs):
-        if not (self.check_right(self.read_check, instance, *args, **kwargs) and \
+        if not (self.check_right(self.read_check, instance, *args, **kwargs)
+                and
                 self.check_right(self.write_check, instance, *args, **kwargs)):
             raise AccessRestricted()
         return wrapped(*args, **kwargs)

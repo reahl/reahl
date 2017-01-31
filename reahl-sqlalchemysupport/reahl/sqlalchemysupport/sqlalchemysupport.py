@@ -151,7 +151,6 @@ class QueryAsSequence(object):
 
 
 def session_scoped(cls):
-    from reahl.webdeclarative.webdeclarative import UserSession
     cls.user_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
     cls.user_session = relationship('UserSession', cascade='all, delete')
 

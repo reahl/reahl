@@ -41,7 +41,7 @@ from pkg_resources import require, DistributionNotFound, VersionConflict, get_di
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
 
-from reahl.component.shelltools import Executable, ExecutableNotInstalledException
+from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
@@ -1125,7 +1125,7 @@ class DebianPackageMetadata(ProjectMetadata):
             assert deb_name.startswith('python-')
             return deb_name[len('python-'):]
         else:
-            logging.warn('Project not debianised, using directory name for project name')
+            logging.warning('Project not debianised, using directory name for project name')
             print(':::%s' % self.directory)
             return os.path.basename(self.directory)
 
@@ -1936,7 +1936,7 @@ class EggProject(Project):
                         '--input-dirs', '.',
                         '--output-file', self.pot_filename])
         else:
-            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name))
+            logging.warning('No <translations.../> tag specified for project: "%s"' % (self.project_name))
 
     @property
     def translated_domains(self):
@@ -1944,7 +1944,7 @@ class EggProject(Project):
             filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
             return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
         else:
-            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name))
+            logging.warning('No <translations.../> tag specified for project: "%s"' % (self.project_name))
             return []
 
     def merge_translations(self):
@@ -1987,12 +1987,6 @@ class ChickenProject(EggProject):
     @classmethod
     def get_xml_registration_info(cls):
         return ('project', cls, 'chicken')
-
-    def inflate_child(self, reader, child, tag, parent):
-        if isinstance(child, DebianPackageSet):
-            self.packages_to_distribute.append(child)
-        else:
-            super(ChickenProject, self).inflate_child(reader, child, tag, parent)
 
     @property
     def egg_project_names(self):

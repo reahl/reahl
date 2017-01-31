@@ -403,29 +403,10 @@ class Controller(object):
         return self.add_transition(Transition(self, event, source, target, guard=guard))
 
     def define_local_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, source, guard=guard)
-        self.event_handlers.append(transition)
-        return transition
+        return self.add_transition(Transition(self, event, source, source, guard=guard))
 
     def define_return_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard)
-        self.event_handlers.append(transition)
-        return transition
-
-    def define_transition(self, event, source, target, guard=None):
-        transition = Transition(self, event, source, target, guard=guard)
-        self.event_handlers.append(transition)
-        return transition
-
-    def define_local_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, source, guard=guard)
-        self.event_handlers.append(transition)
-        return transition
-
-    def define_return_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard)
-        self.event_handlers.append(transition)
-        return transition
+        return self.add_transition(Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard))
 
     def has_event_named(self, name):
         for handler in self.event_handlers:
@@ -1158,7 +1139,7 @@ class Widget(object):
 
     def parent_widget_pairs(self, own_parent_set):
         yield self, own_parent_set
-        children_parent_set = own_parent_set.union(set([self]))
+        children_parent_set = own_parent_set.union({self})
 
         for child in self.children:
             for widget, parent_set in child.parent_widget_pairs(children_parent_set):
@@ -1631,7 +1612,7 @@ class WidgetFactory(Factory):
     def use_layout(self, layout):
         """If called on the factory, .use_layout will be called in the Widget created, passing along the given layout.
 
-           :keyword use_layout: A layout to be used with the newly created Widget
+           :param layout: A layout to be used with the newly created Widget
         """
         self.layout = layout
         return self

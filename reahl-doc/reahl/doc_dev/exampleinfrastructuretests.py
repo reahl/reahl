@@ -17,7 +17,7 @@
     
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import Fixture, scenario, test, expected, temp_dir, NoException, set_up, tear_down
+from reahl.tofu import Fixture, scenario, test, expected, temp_dir, NoException
 from reahl.stubble import EasterEgg, EmptyStub, stubclass, SystemOutStub
 
 from reahl.doc.commands import Example, GetExample

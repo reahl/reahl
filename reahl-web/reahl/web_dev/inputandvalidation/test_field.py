@@ -21,7 +21,6 @@ from nose.tools import istest
 from reahl.tofu import Fixture, test
 from reahl.stubble import stubclass
 from reahl.tofu import vassert
-from reahl.component.py3compat import html_escape
 
 from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \

@@ -32,7 +32,7 @@ from reahl.component.shelltools import Command, ReahlCommandline, Executable
 from reahl.component.config import EntryPointClassList, Configuration
 
 from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository, SetupCommandFailed
-from reahl.dev.exceptions import StatusException, AlreadyUploadedException, NotBuiltException, \
+from reahl.dev.exceptions import StatusException, AlreadyUploadedException, \
     NotUploadedException, NotVersionedException, NotCheckedInException, \
     MetaInformationNotAvailableException, AlreadyDebianisedException, \
     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \

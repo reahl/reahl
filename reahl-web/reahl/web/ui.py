@@ -30,12 +30,12 @@ import six
 import warnings
 from collections import OrderedDict
 
-from reahl.component.exceptions import IsInstance, ProgrammerError
+from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
-    RemoteConstraint, Field, BooleanField, ConstraintNotFound, Choice, UploadedFile, InputParseException, StandaloneFieldIndex
+    Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
@@ -923,7 +923,6 @@ class Form(HTMLElement):
             return False
         except ValidationConstraint:
             raise
-        return False
 
     def set_up_input_formatter(self, input_formatter_name):
         self.input_formatter = RemoteMethod(input_formatter_name, 

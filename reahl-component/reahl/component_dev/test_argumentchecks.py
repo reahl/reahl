@@ -21,7 +21,7 @@ import six
 from nose.tools import istest
 
 from reahl.tofu import Fixture, test, scenario, expected, NoException, vassert
-from reahl.component.exceptions import ArgumentCheck, IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, ArgumentCheckedCallable, NotYetAvailable
+from reahl.component.exceptions import IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, ArgumentCheckedCallable, NotYetAvailable
 from reahl.component.decorators import deprecated
 
 @istest

@@ -226,7 +226,7 @@ ResourceManager API in setuptools.  You can put the real files that
 the ResourceManager API should provide in a directory somewhere - and
 then specify that location as the EasterEgg's module_path::
 
-  reahl.stubble.easter_egg.set_module_path('/some/where')
+  reahl.stubble.easter_egg.location = '/some/where'
 
 (By default, this path is os.getcwd())
 
@@ -366,7 +366,7 @@ Our stub instance how has the following interesting behaviour::
 
   try:
       s.aa                         # breaks regardless of
-				   #  whether or not aa is on real_instance
+                                   # whether or not aa is on real_instance
   except:
       pass
 

@@ -179,9 +179,8 @@ class SingleWSGIRequestHandler(simple_server.WSGIRequestHandler):
         handler.request_handler = self      # backpointer for logging
         handler.run(self.server.get_app())
 
-        
-    def log_message(self, format, *args):
-        message = format % args
+    def log_message(self, message_format, *args):
+        message = message_format % args
         logging.getLogger(__name__).info(message)
 
 

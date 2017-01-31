@@ -36,7 +36,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-import warnings, re
+import re
 
 from babel import UnknownLocaleError, Locale
 
@@ -45,7 +45,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark, Url, WebExecutionContext
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget
-from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li, TextNode
+from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li
 
 
 

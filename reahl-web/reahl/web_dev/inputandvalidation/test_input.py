@@ -22,7 +22,6 @@ import re
 
 from reahl.tofu import scenario, test, vassert, expected
 from reahl.stubble import EmptyStub
-from reahl.component.py3compat import html_escape
 
 from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
                           PasswordInput, TextArea, SelectInput, RadioButtonInput

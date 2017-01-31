@@ -21,7 +21,6 @@ import pkg_resources
 import re
 import logging
 
-from pkg_resources import DistributionNotFound
 from nose.tools import istest
 
 from reahl.tofu import test

@@ -24,8 +24,6 @@ import logging
 import tempfile
 from logging import config
 from contextlib import contextmanager
-import imp
-import functools
 
 from pkg_resources import require, iter_entry_points, DistributionNotFound
 
@@ -296,12 +294,12 @@ class StoredConfiguration(Configuration):
             egg.validate_config(self)
 
     def list_all(self):
-        all = []
-        all.extend(self.list_required(ReahlSystemConfig))
+        all_items = []
+        all_items.extend(self.list_required(ReahlSystemConfig))
         eggs = ReahlEgg.get_all_relevant_interfaces(self.reahlsystem.root_egg)
         for egg in reversed(eggs):
-            all.extend(egg.list_config(self))
-        return all
+            all_items.extend(egg.list_config(self))
+        return all_items
 
     def read(self, configuration_class):
         new_config = self.create_config(configuration_class)

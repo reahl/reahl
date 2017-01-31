@@ -17,20 +17,15 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 import threading
-from threading import Event
 import subprocess
-import sys
-import os
 import time
-import atexit
 import datetime
 import functools
 
 from reahl.tofu import test, Fixture
-from reahl.tofu import vassert, expected
+from reahl.tofu import vassert
 from reahl.tofu import temp_dir
-from reahl.tofu import temp_file_with
-from reahl.stubble import stubclass, CallMonitor, replaced, exempt, EmptyStub
+from reahl.stubble import stubclass, CallMonitor, exempt, EmptyStub
 
 from reahl.webdev.webserver import ServerSupervisor, SlaveProcess
 

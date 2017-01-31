@@ -23,7 +23,6 @@ import logging
 import re
 import subprocess
 import os
-import warnings
 import distutils
 
 from optparse import OptionParser

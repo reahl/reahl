@@ -18,7 +18,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import sys
 import warnings
-from contextlib import contextmanager
 import pkg_resources
 import os
 
@@ -57,8 +56,6 @@ class EasterEgg(pkg_resources.Distribution):
        :keyword name: A unique name for this Distribution.
        :keyword location: The location on disk where the contents of this Distribution reside. 
        
-       .. versionchanged: 3.2
-          Added the location keyword argument and deprecated set_module_path().
     """
     def __init__(self, name='test', location=None):
         self.metadata_provider = FileSystemResourceProvider(self)
@@ -105,14 +102,6 @@ class EasterEgg(pkg_resources.Distribution):
         if group is not None:
             return epmap.get(group,{})
         return epmap
-
-    def set_module_path(self, path):
-        """Change the location of the egg.
-           .. deprecated:: 3.2
-              Please use .location = instead, or pass location= upon construction.
-        """
-        warnings.warn('DEPRECATED: EasterEgg.set_module_path(). Please use .location = instead, or pass location= upon construction.', DeprecationWarning, stacklevel=1)
-        self.location = path
 
     def activate(self, **kwargs):
         saved_path = sys.path[:]

@@ -15,14 +15,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-import os
-import os.path
 import inspect
 import collections
 from functools import reduce
 
 import six
-import pkg_resources
 
 
 class StubClass(object):
@@ -81,7 +78,7 @@ class StubClass(object):
             (stub, stubbed, type(orig), self.orig)
 
     @classmethod
-    def signatures_match(self, orig, stubbed, ignore_self=False):
+    def signatures_match(cls, orig, stubbed, ignore_self=False):
         orig_arguments = inspect.getargspec(orig)
         stub_arguments = inspect.getargspec(stubbed)
         if ignore_self:
