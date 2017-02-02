@@ -17,26 +17,28 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
 
 from reahl.tofu import Fixture, set_up, tear_down
 
 from reahl.tofu.fixture import NoContext
 
 #--------------------------------------------------[ FixtureTests ]
-@istest
+
 class FixtureTests(object):
-    @istest
-    def test_construction(self):
-        run_fixture = Fixture(None)
-        assert run_fixture.run_fixture == None
-        assert isinstance(run_fixture.context, NoContext)
-        
-        test_fixture = Fixture(run_fixture)
-        assert test_fixture.run_fixture is run_fixture
-        assert test_fixture.context is run_fixture.context
-        
-    @istest
+    __test__ = True
+    def test_context(self):
+        """Each Fixture has a .context within which it is run. This can be customised."""
+        fixture = Fixture()
+        assert isinstance(fixture.context, NoContext)
+
+        class MyFixture(Fixture):
+            def new_context(self):
+                return 'a custom context'
+
+        fixture = MyFixture()
+        assert fixture.context == 'a custom context'
+
+
     def test_automaticsingletons(self):
         class Stub(object): pass
         
@@ -44,7 +46,7 @@ class FixtureTests(object):
             def new_thing(self, a=None):
                 return a or Stub()
 
-        fixture = TestFixture(None)
+        fixture = TestFixture()
 
         assert fixture.thing is not None
         assert fixture.thing is fixture.thing # It is a singleton
@@ -65,7 +67,7 @@ class FixtureTests(object):
 
         assert fixture.new_thing(a=123) == 123
 
-    @istest
+
     def test_automaticsingletons_tear_down(self):
         """Singletons set up automatically via new_ methods can be torn down automatically via
            corresponding del_ methods, in reverse order of being created."""
@@ -88,7 +90,7 @@ class FixtureTests(object):
                 thing.torn_down = True
                 torn_down_things.append(thing)
 
-        with TestFixture(None) as fixture:
+        with TestFixture() as fixture:
             fixture.thing_first_accessed.torn_down = False
             fixture.thing_last_accessed.torn_down = False
 
@@ -96,17 +98,7 @@ class FixtureTests(object):
         assert fixture.thing_last_accessed.torn_down
         assert torn_down_things == [fixture.thing_last_accessed, fixture.thing_first_accessed]
 
-    @istest
-    def test_overriding_automatic_context(self):
-        class TestFixture(Fixture):
-            def new_context(self):
-                return 123
 
-        fixture = TestFixture(None)
-
-        assert fixture.context is 123
-
-    @istest
     def test_automaticsingletons_inherited(self):
         class Parent(Fixture):
             def new_thing(self, a=1):
@@ -115,11 +107,11 @@ class FixtureTests(object):
         class TestFixture(Parent):
             pass
         
-        fixture = TestFixture(None)
+        fixture = TestFixture()
 
         assert fixture.thing == 1
 
-    @istest
+
     def test_automaticsingletons_overridden(self):
         class Parent(Fixture):
             def new_thing(self, a=1):
@@ -129,11 +121,11 @@ class FixtureTests(object):
             def new_thing(self, a=2):
                 return a
         
-        fixture = TestFixture(None)
+        fixture = TestFixture()
 
         assert fixture.thing == 2
 
-    @istest
+
     def test_automaticsingletons_from_mixin(self):
         class Mixin(object):
             def new_thing(self, a=1):
@@ -142,11 +134,11 @@ class FixtureTests(object):
         class TestFixture(Fixture, Mixin):
             pass
         
-        fixture = TestFixture(None)
+        fixture = TestFixture()
 
         assert fixture.thing == 1
 
-    @istest
+
     def test_context_from_mixin(self):
         class ContextStub(object):
             def __enter__(self): pass
@@ -159,11 +151,11 @@ class FixtureTests(object):
         class TestFixture(Fixture, Mixin):
             pass
         
-        fixture = TestFixture(None)
+        fixture = TestFixture()
 
         assert isinstance(fixture.context, ContextStub)
 
-    @istest
+
     def fixture_as_context_manager(self):
         """The Fixture is set_up and torn_down when used in a with statement."""
         class MyFixture(Fixture):
@@ -174,13 +166,13 @@ class FixtureTests(object):
             def tear_down(self):
                 self.is_torn_down = True
          
-        with MyFixture(None) as fixture:
+        with MyFixture() as fixture:
             assert fixture.is_set_up
             assert not fixture.is_torn_down
         
         assert fixture.is_torn_down
          
-    @istest
+
     def setup_breakages_as_context_manager(self):
         """Breakage in the setup triggers tear down to be run when a fixture is used in a with statement."""
         class MyFixture(Fixture):
@@ -190,7 +182,7 @@ class FixtureTests(object):
             def tear_down(self):
                 self.is_torn_down = True
 
-        fixture = MyFixture(None)
+        fixture = MyFixture()
         try:
             with fixture as fixture:
                 pass
@@ -202,7 +194,7 @@ class FixtureTests(object):
         assert fixture.is_torn_down
 
          
-    @istest
+
     def default_set_up_and_tear_down(self):
         """The default set_up and tear_down run marked methods."""
         class MyFixture(Fixture):
@@ -215,13 +207,13 @@ class FixtureTests(object):
             def my_tear_down(self):
                 self.is_torn_down = True
          
-        with MyFixture(None) as fixture:
+        with MyFixture() as fixture:
             assert fixture.is_set_up
             assert not fixture.is_torn_down
         
         assert fixture.is_torn_down
 
-    @istest
+
     def overriding_marked_methods(self):
         """Marked methods can be overridden."""
         class MyFixture(Fixture):
@@ -236,7 +228,7 @@ class FixtureTests(object):
             def my_set_up(self):
                 self.derived_is_set_up = True
 
-        with MyDerivedFixture(None) as fixture:
+        with MyDerivedFixture() as fixture:
             assert not fixture.is_set_up
             assert fixture.derived_is_set_up
         

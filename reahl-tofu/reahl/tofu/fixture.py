@@ -17,9 +17,18 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
+import inspect
+import logging
 from collections import OrderedDict 
 
 import six
+
+try:
+    import pytest
+except ImportError:
+    logging.warn('pytest is not available - pytest fixture support disabled')
+
+
 
 
 #--------------------------------------------------[ MarkingDecorator ]
@@ -65,8 +74,13 @@ class Scenario(MarkingDecorator):
     def get_scenarios(self):
         return [self]
 
-    def for_scenario(self, run_fixture, scenario):
-        return self.fixture_class(run_fixture, scenario)
+    def for_scenario(self, scenario, *args):
+        instance = self.fixture_class(*args)
+        instance.set_scenario(scenario)
+        return instance
+
+    def as_pytest_fixture(self, scope='function'):
+        return _as_pytest_fixture(self, scope=scope)
 
     
 class DefaultScenario(Scenario):
@@ -92,6 +106,30 @@ class TearDown(MarkingDecorator):
 #--------------------------------------------------[ Fixture ]
 class AttributeErrorInFactoryMethod(Exception):
     pass
+
+
+def _as_pytest_fixture(class_or_scenario, scope='function'):
+    if inspect.isclass(class_or_scenario):
+        cls = class_or_scenario
+        deps = [k for k in inspect.signature(cls.__init__).parameters][1:]
+    else:
+        scenario_func = class_or_scenario
+        deps = [k for k in inspect.signature(scenario_func.function).parameters][1:]
+
+    fix_signature = ','.join(deps+['request'])
+    for_scenario_args = ','.join(['request.param']+deps)
+    fixture_function_code = 'def fixture_function(%s):\n'\
+      '    with class_or_scenario.for_scenario(%s) as fixture:\n'\
+      '        yield fixture\n' % (fix_signature, for_scenario_args)
+    l = {}
+    g = globals().copy()
+    g['class_or_scenario'] = class_or_scenario
+    exec(fixture_function_code, g, l)
+    fixture_function = l['fixture_function']
+    return pytest.fixture(scope=scope,
+                          params=class_or_scenario.get_scenarios(),
+                          ids=[s.name for s in class_or_scenario.get_scenarios()])(fixture_function)
+
 
 
 class Fixture(object):
@@ -142,12 +180,20 @@ class Fixture(object):
         return scenarios or [DefaultScenario()]
 
     @classmethod
-    def for_scenario(cls, run_fixture, scenario):
-        return cls(run_fixture, scenario)
-    
-    def __init__(self, fixture, scenario=DefaultScenario()):
+    def for_scenario(cls, scenario, *args):
+        instance = cls(*args)
+        instance.set_scenario(scenario)
+        return instance
+
+    @classmethod
+    def as_pytest_fixture(cls, scope='function'):
+        return _as_pytest_fixture(cls, scope=scope)
+
+    def __init__(self):
         self.attributes_set = OrderedDict()
-        self.run_fixture = fixture
+        self.scenario = DefaultScenario()
+
+    def set_scenario(self, scenario):
         self.scenario = scenario
 
     def tear_down_attributes(self):
@@ -176,10 +222,7 @@ class Fixture(object):
         return instance
 
     def create_default_context(self):
-        if self.run_fixture:
-            return self.run_fixture.context
-        else:
-            return NoContext()
+        return NoContext()
     
     def get_marked_methods(self, cls, marker):
         return [value for name, value in cls.__dict__.items() if isinstance(value, marker)]

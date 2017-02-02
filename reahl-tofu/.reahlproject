@@ -5,7 +5,7 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="run">
@@ -13,17 +13,10 @@
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="nose"/>
     <egg name="reahl-stubble"/>
   </deps>
 
-  <export entrypoint="nose.plugins.0.10" name="run-fixture" locator="reahl_nosesupport:RunFixturePlugin"/>
-  <export entrypoint="nose.plugins.0.10" name="long-output" locator="reahl_nosesupport:LongOutputPlugin"/>
-  <export entrypoint="nose.plugins.0.10" name="test-directory" locator="reahl_nosesupport:TestDirectoryPlugin"/>
-  <export entrypoint="nose.plugins.0.10" name="log-level" locator="reahl_nosesupport:LogLevelPlugin"/>
-  <export entrypoint="nose.plugins.0.10" name="setup-fixture" locator="reahl_nosesupport:SetUpFixturePlugin"/>
-  <export entrypoint="nose.plugins.0.10" name="all-tests" locator="reahl_nosesupport:MarkedTestsPlugin"/>
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/tofu_dev -t -i'.*'"/>
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.tofu_dev'"/>
   
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
