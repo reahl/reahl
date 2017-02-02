@@ -15,70 +15,59 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest, assert_raises
 
+import pytest
 from reahl.stubble import stubclass, checkedinstance, slotconstrained
 
-@istest
-class InstanceVariablesTests(object):
-    def setUp(self):
-        class Stubbed(object):
-            a = None
 
-        self.stubbed = Stubbed
+def test_checked_instance_attributes_are_like_instance_attributes():
+    """an attribute marked as checkedinstance behaves like an instance
+       variable, but is checked against the class variables in the stubbed class"""
 
-    @istest
-    def test_checked_instance_attributes_are_like_instance_attributes(self):
-        """an attribute marked as checkedinstance behaves like an instance
-           variable, but is checked against the class variables in the stubbed class"""
+    class Stubbed(object):
+        a = None
 
+    with pytest.raises(AssertionError):
         #case where a class variable with such a name does not exist on the stubbed
-        def declare_it():
-            @stubclass(self.stubbed)
-            class Stub(object):
-                b = checkedinstance()
-
-        assert_raises(AssertionError,
-                          declare_it)
-
-        #case where a class variable with such a name does exist on the stub
-        @stubclass(self.stubbed)
+        @stubclass(Stubbed)
         class Stub(object):
-            a = checkedinstance()
+            b = checkedinstance()
 
-        s = Stub()
-        assert not hasattr(s, 'a')
-        s.a = 12
-        assert s.a == 12
-        del s.a
-        assert not hasattr(s, 'a')
+    #case where a class variable with such a name does exist on the stub
+    @stubclass(Stubbed)
+    class Stub(object):
+        a = checkedinstance()
 
-    @istest
-    def test_constrained_declaration(self):
-        """an attribute marked slotconstrained breaks at definition time iff its name is not
-           in __slots__ of Stubbed or its ancestors"""
+    s = Stub()
+    assert not hasattr(s, 'a')
+    s.a = 12
+    assert s.a == 12
+    del s.a
+    assert not hasattr(s, 'a')
 
-        class Ancestor(object):
-            __slots__ = ('a')
 
-        class Stubbed(Ancestor):
-            __slots__ = ('b')
+def test_constrained_declaration():
+    """an attribute marked slotconstrained breaks at definition time iff its name is not
+       in __slots__ of Stubbed or its ancestors"""
 
-        self.stubbed = Stubbed
+    class Ancestor(object):
+        __slots__ = ('a')
 
-        #case for name in __slots__ of ancestors
-        @stubclass(self.stubbed)
-        class Stub(object):
-            a = slotconstrained()
+    class Stubbed(Ancestor):
+        __slots__ = ('b')
 
-        #case for name in __slots__ of stubbed
-        @stubclass(self.stubbed)
-        class Stub(object):
-            b = slotconstrained()
+    #case for name in __slots__ of ancestors
+    @stubclass(Stubbed)
+    class Stub(object):
+        a = slotconstrained()
 
+    #case for name in __slots__ of stubbed
+    @stubclass(Stubbed)
+    class Stub(object):
+        b = slotconstrained()
+
+    with pytest.raises(AssertionError):
         #case where name is not found
-        def declare_it():
-            @stubclass(self.stubbed)
-            class Stub(object):
-                c = slotconstrained()
-        assert_raises(AssertionError, declare_it)
+        @stubclass(Stubbed)
+        class Stub(object):
+            c = slotconstrained()

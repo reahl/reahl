@@ -15,26 +15,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
+
+import pytest
 from reahl.stubble import Impostor, stubclass
 
 
-@istest
-class ImpostoringTests(object):
-    def setUp(self):
-        class Stubbed(object):
-            __slots__ = 'a'
+def test_impostor_pretends_to_be_stubbed():
+    """an Impostor fakes being an instance the stubbed class"""
 
-        self.stubbed = Stubbed
+    class Stubbed(object):
+        __slots__ = 'a'
 
-    @istest
-    def test_impostor_pretends_to_be_stubbed(self):
-        """an Impostor fakes being an instance the stubbed class"""
+    @stubclass(Stubbed)
+    class Stub(Impostor):
+        pass
 
-        @stubclass(self.stubbed)
-        class Stub(Impostor):
-            pass
-        
-        stub = Stub()
-        #normal case
-        assert isinstance(stub, self.stubbed)
+    stub = Stub()
+    #normal case
+    assert isinstance(stub, Stubbed)

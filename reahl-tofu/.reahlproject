@@ -13,6 +13,7 @@
   </deps>
 
   <deps purpose="test">
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <egg name="reahl-stubble"/>
   </deps>
 
