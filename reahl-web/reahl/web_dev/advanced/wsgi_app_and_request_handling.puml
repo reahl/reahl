@@ -17,17 +17,17 @@ end note
 
 package "This is per process" {
 
-class ReahlWSGIApplication #red
-class UserInterfaceFactory  #red
+class "<b>ReahlWSGIApplication</b>" as ReahlWSGIApplication
+class "<b>UserInterfaceFactory</b>" as UserInterfaceFactory
+
 ReahlWSGIApplication -right- UserInterfaceFactory :  root_user_interface_factory
 UserInterfaceFactory -right- ViewFactory
 }
 
 package "This is per Request(except UserSession)" {
 
-class UserInterface #red
-class UserInterfaceFactory
-class UserInterfaceFactory_ #red
+class "<b>UserInterface</b>" as UserInterface
+class "<b>UserInterfaceFactory</b>" as UserInterfaceFactory_
 
 UserInterfaceFactory <|---- UserInterface
 UserInterfaceFactory_ -up--- UserInterface : < sub_ui's

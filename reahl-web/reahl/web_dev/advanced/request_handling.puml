@@ -2,8 +2,7 @@
 
 title Basics of remote methods
 
-hide members
-hide circle
+hide footbox
 
 note left of WebExcecutionContext: 	wsgi requests are handled inside\n a WebExecutionContext by \ncreating the appropriate Resource\n and using it to return a Response
 
@@ -15,6 +14,6 @@ ReahlWSGIApp -> Resource
 WebExcecutionContext -> Resource : ""handle_request(self.request)""
 create Response
 Resource -> Response
-WebExcecutionContext -> Response : ""_call_(environ, start_response)""
+WebExcecutionContext -> Response : ""~__call__(environ, start_response)""
 
 @enduml

@@ -5,18 +5,18 @@ title Pagination
 hide methods
 hide circle
 
-class Menu #red
-class PageMenu #red{
+class "<b>Menu</b>" as Menu
+class "<b>PageMenu</b>" as PageMenu{
 	query_fields
 }
 note top: page number selector
 
-class PagedPanel #red{
+class "<b>PagedPanel</b>" as PagedPanel{
 	query_fields
 }
 note right: current page contents \nbeing displayed
 
-class PageIndex #red{
+class "<b>PageIndex</b>" as PageIndex{
 	current_page_number
 	start_page_number
 }

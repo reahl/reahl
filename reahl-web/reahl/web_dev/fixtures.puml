@@ -56,9 +56,7 @@ CleanDatabase -right- SqlAlchemyTestMixin
 SqlAlchemyTestMixin <|-- BasicModelZooMixin
 BasicModelZooMixin <|-- WebBasicsMixin
 BasicModelZooMixin <|--- PartyModelZooMixin
-PartyModelZooMixin <|-- GalleryModelZooMixin
 PartyModelZooMixin <|-- TaskQueueZooMixin
-GalleryModelZooMixin <|-- ArticleModelZooMixin
 
 
 class InputFixture <<fixture>>{
@@ -69,8 +67,6 @@ class InputFixture <<fixture>>{
 	form
 }
 class WebFixture <<fixture>>
-class FaceFixture <<fixture>>
-WebFixture <|-- FaceFixture
 
 
 class ElixirSiteFixture <<fixture>>
@@ -80,41 +76,22 @@ class WidgetFixture <<fixture>>{
 	view
 }
 class PageMenuFixture <<fixture>>
-class GalleryWebFixture <<fixture>>
 InputFixture -right[hidden]- ElixirSiteFixture
-ElixirSiteFixture -right[hidden]- GalleryWebFixture
 
 WebBasicsMixin -- InputFixture
 WebBasicsMixin -- WebFixture
-WebBasicsMixin -- FaceFixture
 WebBasicsMixin -- ElixirSiteFixture
 WebBasicsMixin -- WidgetFixture
 WebBasicsMixin -- PageMenuFixture
-WebBasicsMixin -- GalleryWebFixture
-WebBasicsMixin -- ArticleWebFixture
 WebBasicsMixin -- DjhtmlFixture
 
 class PartyDomainFixture <<fixture>>
-class GalleryDomainFixture <<fixture>>
 class TaskQueueFixture <<fixture>>
-class ArticleWebFixture <<fixture>>
 
 class PartyModelZooMixin{
 	system_account
 	person
 	mailer
-}
-class GalleryModelZooMixin{
-	photo_file
-	gallery
-	photo
-	thumbnail_file
-}
-class ArticleModelZooMixin{
-	article
-	magazine
-	edition
-	section
 }
 class DjhtmlFixture <<fixture>>{
 	region
@@ -123,18 +100,11 @@ class DjhtmlFixture <<fixture>>{
 	djhtml_file
 	other_file
 }
-class ArticleDomainFixture<<fixture>>
 
-PartyModelZooMixin -right- PartyDomainFixture
-GalleryModelZooMixin -right- GalleryDomainFixture
-ArticleModelZooMixin -right- ArticleDomainFixture
 TaskQueueZooMixin -right- TaskQueueFixture
 
 WorkflowWebFixture -left- BasicModelZooMixin
 WorkflowWebFixture -- TaskQueueZooMixin
 
-ElixirSiteFixture -- ArticleModelZooMixin
-ArticleWebFixture -- ArticleModelZooMixin
-GalleryWebFixture -- GalleryModelZooMixin
 
 @enduml

@@ -16,9 +16,9 @@ note as N1
 	things regardless of database used)
 end note
 
-class ExecutionContext #red
-class SystemControl #red
-class Configuration #red
+class "<b>ExecutionContext</b>" as ExecutionContext
+class "<b>SystemControl</b>" as SystemControl
+class "<b>Configuration</b>" as Configuration
 
 ExecutionContext -down- SystemControl
 SystemControl -down- DatabaseControl

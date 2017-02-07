@@ -5,9 +5,9 @@ title Input and Input composition infrastructure
 hide members
 hide circle
 
-class Input #red
-class WrappedInput #red
-class PrimitiveInput #red
+class "<b>Input</b>" as Input
+class "<b>WrappedInput</b>" as WrappedInput
+class "<b>PrimitiveInput</b>" as PrimitiveInput
 class Field
 note right of Input: "{bound_field of all \nInputs is a Field instance,\n except for ButtonInputs,\n which have Events}"
 

@@ -5,10 +5,10 @@ title How static file resources work
 hide members
 hide circle
 
-class StaticFileResource #red
-class FileView #red
-class StaticUI #red
-class ViewableFile #red
+class "<b>StaticFileResource</b>" as StaticFileResource
+class "<b>FileView</b>" as FileView
+class "<b>StaticUI</b>" as StaticUI
+class "<b>ViewableFile</b>" as ViewableFile
 
 SubResource -up-|> Resource
 StaticFileResource -up-|> SubResource

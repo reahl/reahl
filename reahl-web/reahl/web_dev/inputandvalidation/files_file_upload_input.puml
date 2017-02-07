@@ -8,11 +8,11 @@ hide circle
 note "Note that the FileFields are always \nsent a list of UploadedFile objects.\nIn some scenarios, UploadedFiles are \nmade from PersistedFiles, and in other instances \nthey are made from FieldStorages. \n\nDoing this is the responsibility of the Widget." as N1
 
 class PersistedFile <<session scoped>>
-class Form_1 #red
-class Form_2 #red
-class FileField_1 #orange
+class "<b>Form</b>" as Form_1
+class "<b>Form</b>" as Form_2
+class "<b>FileField</b>" as FileField_1
 note right: "(self.fields.uploaded_file)"
-class FileField_2 #orange
+class "<b>FileField</b>" as FileField_2
 note right: "(new_address.fields.files)"
 
 Form_1 -right- SimpleFileInput

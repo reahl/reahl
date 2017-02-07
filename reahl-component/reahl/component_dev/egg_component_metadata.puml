@@ -11,7 +11,7 @@ note as N1
 	contains extra metadata
 end note
 
-class ReahlEgg #red
+class "<b>ReahlEgg</b>" as ReahlEgg
 class class <<persisted>>
 
 ReahlEgg --- "0..1" Configuration : config

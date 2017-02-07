@@ -5,8 +5,8 @@ title Projects and Workspace
 hide members
 hide circle
 
-class Project #red
-class Workspace #red
+class "<b>Project</b>" as Project
+class "<b>Workspace</b>" as Workspace
 
 Project "*" -right- Workspace
 (Project, Workspace) .. ProjectList

@@ -1,0 +1,20 @@
+@startuml
+
+
+@startsalt
+{
+
+<b>Address Books</b>
+.
+{
+Email: | "        "
+Password: | "        "
+. | [Login]
+}
+
+}
+@endsalt
+
+
+
+@enduml

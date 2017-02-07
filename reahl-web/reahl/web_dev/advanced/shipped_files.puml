@@ -5,14 +5,14 @@ title Shipped files
 hide members
 hide circle
 
-
+class "..." as other_classes
 Library -right- "*" FileOnDisk : packaged_files
 FileOnDisk <|-- ConcatenatedFile
 FileOnDisk <|-- PackagedFile
 ConcatenatedFile -right- "*" PackagedFile
 
 Library <|-- Bootstrap4
-Library <|.. "?"
+Library <|.. other_classes
 
 
 @enduml
