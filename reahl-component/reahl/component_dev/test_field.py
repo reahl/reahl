@@ -21,10 +21,8 @@ import six
 import datetime
 import functools
 
-from nose.tools import istest
-from reahl.tofu import  Fixture, test, scenario
+from reahl.tofu import  Fixture, scenario, expected, NoException
 from reahl.stubble import EmptyStub, stubclass
-from reahl.tofu import vassert, expected, NoException
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError, IsInstance, IsCallable, IncorrectArgumentError
@@ -39,7 +37,12 @@ from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, expos
                              FileField, SingleFileConstraint, UploadedFile, FileSizeConstraint, \
                              MimeTypeConstraint, MaxFilesConstraint, SmallerThanConstraint, GreaterThanConstraint
 
-class FieldMixin(object):
+
+
+class FieldFixture(Fixture):
+    def new_context(self):
+        return ExecutionContext()
+
     def new_model_object(self):
         obj = EmptyStub()
         obj.an_attribute = 'field value'
@@ -50,23 +53,21 @@ class FieldMixin(object):
         field.bind(name, self.model_object)
         return field
 
+field_fixture = FieldFixture.as_pytest_fixture()
 
-class FieldFixture(Fixture, FieldMixin):
-    pass
 
-@istest
-class FieldTests(object):
-    @test(FieldFixture)
-    def marshalling(self, fixture):
-        """A Field marshalls a string representation of some input to a python object which is then set as
-           an attribute on the model object to which the Field is bound to. (A Field also unmarshalls such an attribute)."""
-        
+def test_marshalling(field_fixture):
+    """A Field marshalls a string representation of some input to a python object which is then set as
+       an attribute on the model object to which the Field is bound to. (A Field also unmarshalls such an attribute)."""
+
+    with field_fixture.context:
+        fixture = field_fixture
         # How the marshalling is programmed
         class MyField(Field):
             def parse_input(self, unparsed_input):
                 if unparsed_input == 'one': return 1
                 return 0
-        
+
             def as_input(self):
                 if self.get_model_value() == 1: return 'one'
                 return 'zero'
@@ -75,19 +76,22 @@ class FieldTests(object):
 
         # From string to python object
         field.from_input('one')
-        vassert( fixture.model_object.an_attribute == 1 )
+        assert fixture.model_object.an_attribute == 1
 
         # From python object back to string
         fixture.model_object.an_attribute = 0
-        vassert( field.as_input() == 'zero' )
+        assert field.as_input() == 'zero'
 
 
-    @test(FieldFixture)
-    def validation(self, fixture):
-        """Field input is validated by means of Constraints added to the field. Such validation 
-           happens in two places: validation of the string input, and validation based on the 
-           parsed python object."""
-        
+
+def test_validation(field_fixture):
+    """Field input is validated by means of Constraints added to the field. Such validation 
+       happens in two places: validation of the string input, and validation based on the 
+       parsed python object."""
+
+    with field_fixture.context:
+        fixture = field_fixture
+
         # For testing, we just use a simple one-way marshalling field from string to int
         class MyField(Field):
             def parse_input(self, unparsed_input):
@@ -101,22 +105,22 @@ class FieldTests(object):
             def validate_input(self, unparsed_input):
                 if unparsed_input not in ('1', '2'):
                     raise self
-    
+
         # How a validation_constraint is coded that checks the final python object
         class PythonLevelConstraint(ValidationConstraint):
             name = 'pythonlevel'
             def validate_parsed_value(self, parsed_value):
                 if parsed_value > 1:
                     raise self
-        
+
         # How constraints are added to the field
         field.add_validation_constraint(StringLevelConstraint(''))
         field.add_validation_constraint(PythonLevelConstraint(''))
-        
+
         # Input passing both constraints work as expected
         with expected(NoException):
             field.from_input('1')
-            vassert( fixture.model_object.an_attribute == 1 )
+            assert fixture.model_object.an_attribute == 1 
 
         # Input failing either validation_constraint result in the appropriate validation_constraint being raised
         with expected(StringLevelConstraint):
@@ -129,55 +133,64 @@ class FieldTests(object):
         with expected(StringLevelConstraint):
             field.from_input('unparsable string')
 
-    @test(FieldFixture)
-    def field_metadata(self, fixture):
-        """Fields provide metadata about their contents"""
+
+def test_field_metadata(field_fixture):
+    """Fields provide metadata about their contents"""
+
+    with field_fixture.context:
+        fixture = field_fixture
+
         field = Field(default=2, required=True, label='A field')
         field.bind('fieldname', fixture.model_object)
-        
-        vassert( field.label == 'A field' )
-        vassert( field.required )
-        vassert( field.variable_name == 'fieldname' )  
-        vassert( field.get_model_value() == 2 )
 
-    @test(FieldFixture)
-    def constraint_message(self, fixture):
-        """Each validation_constraint has a customisable error message which can make use of the label supplied by 
-           the Field it is added to, or any other attribute of the ValidationConstraint itself."""
-           
+        assert field.label == 'A field' 
+        assert field.required 
+        assert field.variable_name == 'fieldname' 
+        assert field.get_model_value() == 2 
+
+
+def test_constraint_message(field_fixture):
+    """Each validation_constraint has a customisable error message which can make use of the label supplied by 
+       the Field it is added to, or any other attribute of the ValidationConstraint itself."""
+
+    with field_fixture.context:
+        fixture = field_fixture
+
         class MyConstraint(ValidationConstraint):
             name = 'myconstraint'
             one_attr = 'boerpampoene'
             another_attr = 20091124
-        
+
         # The message template is given when constructed
         validation_constraint = MyConstraint('Bob âte $missing_attr $one_attr on $another_attr $label')
         fixture.field.add_validation_constraint(validation_constraint)
 
         # The validation_constraint gets its label from its field
-        vassert( validation_constraint.label == fixture.field.label )
+        assert validation_constraint.label == fixture.field.label 
 
         # How the template is filled with attributes (and missing ones)
         expected = 'Bob âte $missing_attr boerpampoene on 20091124 the label'
-        vassert( validation_constraint.message == expected )
+        assert validation_constraint.message == expected 
 
-    @test(Fixture)
-    def meaning_of_required(self, fixture):
-        """Making a Field required means adding a RequiredConstraint to it"""
-        # Case: construction with default value for required
+
+def test_meaning_of_required(field_fixture):
+    """Making a Field required means adding a RequiredConstraint to it"""
+    # Case: construction with default value for required
+    with field_fixture.context:
         field = Field()
-        vassert( not field.required )       
+        assert not field.required 
 
         # Case: construction with required=True
         field = Field(required=True)
-        vassert( field.required )
-        vassert( field.get_validation_constraint_named(RequiredConstraint.name) )      
-    
+        assert field.required 
+        assert field.get_validation_constraint_named(RequiredConstraint.name) 
 
-    @test(Fixture)
-    def getting_modified_copy(self, fixture):
-        """It is possible to get a modified copy of an existing field if you want to link it with 
-           different constraints on a different input"""
+
+
+def test_getting_modified_copy(field_fixture):
+    """It is possible to get a modified copy of an existing field if you want to link it with 
+       different constraints on a different input"""
+    with field_fixture.context:
         other_constraint = ValidationConstraint('Other error')
         other_constraint.name = 'other'
         field = Field()
@@ -185,51 +198,51 @@ class FieldTests(object):
 
         # Getting a copy
         new_field = field.copy()
-        vassert( new_field is not field )
-        vassert( new_field.name == field.name )
-        vassert( new_field.storage_object == field.storage_object )
-        vassert( new_field.default == field.default )
-        vassert( new_field.label == field.label )
+        assert new_field is not field 
+        assert new_field.name == field.name 
+        assert new_field.storage_object == field.storage_object 
+        assert new_field.default == field.default 
+        assert new_field.label == field.label 
         copied_other_constraint = new_field.get_validation_constraint_named(other_constraint.name)
-        vassert( copied_other_constraint.field is new_field )
+        assert copied_other_constraint.field is new_field 
         new_validation_constraints = [i.__class__ for i in new_field.validation_constraints]
         old_validation_constraints = [i.__class__ for i in field.validation_constraints]
-        vassert( new_validation_constraints == old_validation_constraints )
-        vassert( new_field.validation_constraints != field.validation_constraints )
-        vassert( new_field.validation_constraints is not field.validation_constraints )
+        assert new_validation_constraints == old_validation_constraints 
+        assert new_field.validation_constraints != field.validation_constraints 
+        assert new_field.validation_constraints is not field.validation_constraints 
 
-        vassert( new_field.access_rights is not field.access_rights )
-        vassert( new_field.access_rights.readable is field.access_rights.readable )
-        vassert( new_field.access_rights.writable is field.access_rights.writable )
+        assert new_field.access_rights is not field.access_rights 
+        assert new_field.access_rights.readable is field.access_rights.readable 
+        assert new_field.access_rights.writable is field.access_rights.writable 
 
         # Getting a required copy
-        vassert( not field.required )
+        assert not field.required 
         required_field = field.as_required(required_message='new required message')
-        vassert( required_field.required )
+        assert required_field.required 
         required = required_field.get_validation_constraint_named(RequiredConstraint.name)
-        vassert( required.error_message.template == 'new required message' )
+        assert required.error_message.template == 'new required message' 
 
         # Getting copy that's not required
         field.make_required('')
-        vassert( field.required )
+        assert field.required 
         optional_field = field.as_optional()
-        vassert( not optional_field.required )
+        assert not optional_field.required 
 
         # Getting copy with a ValidationConstraint of certain type removed
-        vassert( field.required )
+        assert field.required 
         more_lax_field = field.as_without_validation_constraint(RequiredConstraint)
-        vassert( not more_lax_field.required )
-        
+        assert not more_lax_field.required 
+
         # Getting copy with a new ValidationConstraint added
         field.make_optional()
-        vassert( not field.required )
+        assert not field.required 
         more_strict_field = field.as_with_validation_constraint(RequiredConstraint())
-        vassert( more_strict_field.required )
-        
+        assert more_strict_field.required 
 
-    @test(Fixture)
-    def helpers_for_fields(self, fixture):
-        """The @exposed decorator makes it simpler to bind Fields to an object."""
+
+def test_helpers_for_fields(field_fixture):
+    """The @exposed decorator makes it simpler to bind Fields to an object."""
+    with field_fixture.context:
         class ModelObject(object):
             @exposed
             def fields(self, fields):
@@ -238,14 +251,15 @@ class FieldTests(object):
 
         model_object = ModelObject()
 
-        vassert( model_object.fields is model_object.fields )
-        vassert( model_object.fields.field1.bound_to is model_object )
-        vassert( model_object.fields.field2.bound_to is model_object )
+        assert model_object.fields is model_object.fields 
+        assert model_object.fields.field1.bound_to is model_object 
+        assert model_object.fields.field2.bound_to is model_object 
 
-    @test(Fixture)
-    def helpers_for_fields2(self, fixture):
-        """The ReahlFields class is an alternative way to make it simpler to bind Fields to an object.
-           This reads a bit nicer, BUT does not currently play well with internationalising strings."""
+
+def test_helpers_for_fields2(field_fixture):
+    """The ReahlFields class is an alternative way to make it simpler to bind Fields to an object.
+       This reads a bit nicer, BUT does not currently play well with internationalising strings."""
+    with field_fixture.context:
         class ModelObject(object):
             fields = ReahlFields()
             fields.field1 = IntegerField()
@@ -257,36 +271,38 @@ class FieldTests(object):
 
         model_object = ModelObject()
 
-        vassert( model_object.fields is model_object.fields )
-        vassert( model_object.fields.field1.bound_to is model_object )
-        vassert( model_object.fields.field2.bound_to is model_object )
+        assert model_object.fields is model_object.fields 
+        assert model_object.fields.field1.bound_to is model_object 
+        assert model_object.fields.field2.bound_to is model_object 
 
         inheriting_object = InheritingModelObject()
-        
-        vassert( inheriting_object.fields is not model_object.fields )
-        vassert( inheriting_object.fields is inheriting_object.fields )
-        vassert( inheriting_object.fields.field1.bound_to is inheriting_object )
-        vassert( inheriting_object.fields.field2.bound_to is inheriting_object )
-        vassert( inheriting_object.fields.field3.bound_to is inheriting_object )
 
-    @test(Fixture)
-    def re_binding_behaviour_of_field_index(self, fixture):
-        """FieldIndexes wont bind a field if it already is bound."""
+        assert inheriting_object.fields is not model_object.fields 
+        assert inheriting_object.fields is inheriting_object.fields 
+        assert inheriting_object.fields.field1.bound_to is inheriting_object 
+        assert inheriting_object.fields.field2.bound_to is inheriting_object 
+        assert inheriting_object.fields.field3.bound_to is inheriting_object 
+
+
+def test_re_binding_behaviour_of_field_index(field_fixture):
+    """FieldIndexes wont bind a field if it already is bound."""
+    with field_fixture.context:
         model_object1 = EmptyStub()
         model_object2 = EmptyStub()
         bound_field = Field()
         bound_field.bind('bound_field', model_object2)
 
-        vassert( bound_field.is_bound )
-        vassert( bound_field.bound_to is model_object2 )
+        assert bound_field.is_bound 
+        assert bound_field.bound_to is model_object2 
         index = FieldIndex(model_object1)
         index.new_name_for_bound_field = bound_field
-        vassert( index.new_name_for_bound_field.name is 'bound_field' )
-        vassert( bound_field.bound_to is model_object2 )
+        assert index.new_name_for_bound_field.name is 'bound_field' 
+        assert bound_field.bound_to is model_object2 
 
-    @test(Fixture)
-    def helpers_for_events(self, fixture):
-        """The @exposed decorator makes it simpler to collect Events on an object similar to how it is used for Fields."""
+
+def test_helpers_for_events(field_fixture):
+    """The @exposed decorator makes it simpler to collect Events on an object similar to how it is used for Fields."""
+    with field_fixture.context:
         class ModelObject(object):
             @exposed
             def events(self, fields):
@@ -295,29 +311,31 @@ class FieldTests(object):
 
         model_object = ModelObject()
 
-        vassert( model_object.events is model_object.events )
-        vassert( model_object.events.event1.bound_to is model_object.events.event1 )
-        vassert( model_object.events.event2.bound_to is model_object.events.event2 )
+        assert model_object.events is model_object.events 
+        assert model_object.events.event1.bound_to is model_object.events.event1 
+        assert model_object.events.event2.bound_to is model_object.events.event2 
 
-        vassert( model_object.events.event1.name == 'event1' )
+        assert model_object.events.event1.name == 'event1' 
 
-    @test(Fixture)
-    def helpers_for_events2(self, fixture):
-        """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
+
+def test_helpers_for_events2(field_fixture):
+    """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
+    with field_fixture.context:
         class ModelObject(object):
             @exposed('event1')
             def events(self, fields):
                 fields.event1 = Event()
                 fields.event2 = Event()
 
-        vassert( ModelObject.events.event1.name == 'event1' )
+        assert ModelObject.events.event1.name == 'event1' 
 
         with expected(AttributeError):
             ModelObject.events.nonevent
 
-    @test(Fixture)
-    def helpers_for_events3(self, fixture):
-        """An Event has to be created for each of the names listed to the @exposed decorator, else an error is raised."""
+
+def test_helpers_for_events3(field_fixture):
+    """An Event has to be created for each of the names listed to the @exposed decorator, else an error is raised."""
+    with field_fixture.context:
         class ModelObject(object):
             @exposed('event1', 'forgotten')
             def events(self, fields):
@@ -325,21 +343,22 @@ class FieldTests(object):
                 fields.event2 = Event()
 
         def check_exc(exc):
-            vassert( six.text_type(exc).startswith('You promised to instantiate') )
+            assert six.text_type(exc).startswith('You promised to instantiate') 
         with expected(ProgrammerError, test=check_exc):
             ModelObject().events
 
-    @test(Fixture)
-    def events(self, fixture):
-        """An Event defines a signal that can be sent to the system, with the intention to
-           possibly trigger the execution of an Action by the system. Metadata, such as what
-           a human might label the Event, is also specified."""
-        
+
+def test_events(field_fixture):
+    """An Event defines a signal that can be sent to the system, with the intention to
+       possibly trigger the execution of an Action by the system. Metadata, such as what
+       a human might label the Event, is also specified."""
+
+    with field_fixture.context:
         class ModelObject(object):
             @exposed
             def events(self, events):
                 events.an_event = Event(action=Action(self.do_something), label='human readable label')
-                
+
             def do_something(self):
                 self.something_done = True
 
@@ -348,14 +367,15 @@ class FieldTests(object):
         event.from_input(event.as_input())
         event.fire()
 
-        vassert( model_object.something_done )
-        vassert( model_object.events.an_event.label == 'human readable label' )
+        assert model_object.something_done 
+        assert model_object.events.an_event.label == 'human readable label' 
 
-    @test(Fixture)
-    def arguments_to_actions(self, fixture):
-        """Arguments can be defined on an Event in order to be able to pass them to the linked Action 
-           as args or kwargs as specified by the Action."""
 
+def test_arguments_to_actions(field_fixture):
+    """Arguments can be defined on an Event in order to be able to pass them to the linked Action 
+       as args or kwargs as specified by the Action."""
+
+    with field_fixture.context:
         expected_arg = 123
         expected_kwarg = 45
 
@@ -368,7 +388,7 @@ class FieldTests(object):
                                         action=Action(self.do_something,
                                                       ['one_argument'],
                                                       dict(a_kwarg='another_argument')))
-                
+
             def do_something(self, an_arg, a_kwarg=None):
                 self.passed_an_arg = an_arg
                 self.passed_a_kwarg = a_kwarg
@@ -378,22 +398,22 @@ class FieldTests(object):
         event.from_input(event.as_input())
         event.fire()
 
-        vassert( model_object.passed_an_arg is expected_arg )
-        vassert( model_object.passed_a_kwarg is expected_kwarg )
+        assert model_object.passed_an_arg is expected_arg 
+        assert model_object.passed_a_kwarg is expected_kwarg 
 
 
-    @test(Fixture)
-    def arguments_to_event(self, fixture):
-        """Only Action objects can be sent as action= when creating an Event. The arguments passed to readable and writable
-           should be callable objects with correct signature."""
+def test_arguments_to_event(field_fixture):
+    """Only Action objects can be sent as action= when creating an Event. The arguments passed to readable and writable
+       should be callable objects with correct signature."""
 
+    with field_fixture.context:
         # action=
         with expected(IsInstance):
             Event(action=EmptyStub())
 
         def check_exc(expected_message, ex):
             message = six.text_type(ex).split(':')[1][1:]
-            vassert( message.startswith(expected_message) )
+            assert message.startswith(expected_message) 
 
         # readable/writable are callable
         with expected(IsCallable, test=functools.partial(check_exc, 'readable should be a callable object')):
@@ -409,79 +429,81 @@ class FieldTests(object):
             Event(writable=do_nothing)
 
 
-    class ActionScenarios(Fixture):
-        @scenario
-        def action_method(self):
-            class ModelObject(object):
-                allow_read_flag = True
-                allow_write_flag = True
-                def allow_read(self):
-                    return self.allow_read_flag
-
-                def allow_write(self):
-                    return self.allow_write_flag
-
-                @secured( read_check=allow_read, write_check=allow_write )
-                def do_something(self):
-                    pass
-
-                @exposed
-                def events(self, events):
-                    events.an_event = Event(action=Action(self.do_something))
-            self.model_object = ModelObject()
-            self.rights_flags = self.model_object
-
-        @scenario
-        def action_function(self):
-            self.allow_read_flag = True
-            self.allow_write_flag = True
-
-            def allow_read():
+class ActionScenarios(Fixture):
+    @scenario
+    def action_method(self):
+        class ModelObject(object):
+            allow_read_flag = True
+            allow_write_flag = True
+            def allow_read(self):
                 return self.allow_read_flag
 
-            def allow_write():
+            def allow_write(self):
                 return self.allow_write_flag
 
             @secured( read_check=allow_read, write_check=allow_write )
-            def do_something():
+            def do_something(self):
                 pass
 
-            class ModelObject(object):
-                @exposed
-                def events(self, events):
-                    events.an_event = Event(action=Action(do_something))
-            self.model_object = ModelObject()
-            self.rights_flags = self
+            @exposed
+            def events(self, events):
+                events.an_event = Event(action=Action(self.do_something))
+        self.model_object = ModelObject()
+        self.rights_flags = self.model_object
+
+    @scenario
+    def action_function(self):
+        self.allow_read_flag = True
+        self.allow_write_flag = True
+
+        def allow_read():
+            return self.allow_read_flag
+
+        def allow_write():
+            return self.allow_write_flag
+
+        @secured( read_check=allow_read, write_check=allow_write )
+        def do_something():
+            pass
+
+        class ModelObject(object):
+            @exposed
+            def events(self, events):
+                events.an_event = Event(action=Action(do_something))
+        self.model_object = ModelObject()
+        self.rights_flags = self
+
+action_scenarios = ActionScenarios.as_pytest_fixture()
 
 
-    @test(ActionScenarios)
-    def event_security(self, fixture):
-        """If an Event specifies an Action, the access controls of the Action are
-           used for access to the Event as well."""
-
+def test_event_security(field_fixture, action_scenarios):
+    """If an Event specifies an Action, the access controls of the Action are
+       used for access to the Event as well."""
+    with field_fixture.context:
+        fixture = action_scenarios
 
         event = fixture.model_object.events.an_event.with_arguments()
         event.from_input(event.as_input())
-        
+
         event.fire()
-        
-        vassert( event.can_read() )
-        vassert( event.can_write() )
+
+        assert event.can_read() 
+        assert event.can_write() 
 
         fixture.rights_flags.allow_read_flag = False
-        vassert( not event.can_read() )
+        assert not event.can_read() 
 
         fixture.rights_flags.allow_write_flag = False
-        vassert( not event.can_write() )
+        assert not event.can_write() 
 
         with expected(ProgrammerError):
             event.fire()
 
 
 
-    @test(Fixture)
-    def event_security2(self, fixture):
-        """If an Event does not specify an Action, then Actions can be passed for its readable and writable."""
+def test_event_security2(field_fixture):
+    """If an Event does not specify an Action, then Actions can be passed for its readable and writable."""
+    with field_fixture.context:
         class ModelObject(object):
             allow_read_flag = True
             allow_write_flag = True
@@ -499,31 +521,32 @@ class FieldTests(object):
         model_object = ModelObject()
         event = model_object.events.an_event.with_arguments()
 
-        vassert( event.can_read() )
-        vassert( event.can_write() )
+        assert event.can_read() 
+        assert event.can_write() 
 
         model_object.allow_read_flag = False
-        vassert( not event.can_read() )
+        assert not event.can_read() 
 
         model_object.allow_write_flag = False
-        vassert( not event.can_write() )
+        assert not event.can_write() 
 
-    @test(Fixture)
-    def event_security_action_and_rw(self, fixture):
-        """Supply either an action or a readable/writable to an Event, but not both."""
 
-        def do_nothing(): pass
+def test_event_security_action_and_rw():
+    """Supply either an action or a readable/writable to an Event, but not both."""
 
-        with expected(ProgrammerError):
-            Event(action=Action(do_nothing), readable=Action(do_nothing))
-        with expected(ProgrammerError):
-            Event(action=Action(do_nothing), writable=Action(do_nothing))
+    def do_nothing(): pass
 
-    @test(Fixture)
-    def receiving_events(self, fixture):
-        """An Event is said to have occurred if it received a querystring containing its arguments from user input.
-           An Event can only be fired if it occurred."""
+    with expected(ProgrammerError):
+        Event(action=Action(do_nothing), readable=Action(do_nothing))
+    with expected(ProgrammerError):
+        Event(action=Action(do_nothing), writable=Action(do_nothing))
 
+
+def test_receiving_events(field_fixture):
+    """An Event is said to have occurred if it received a querystring containing its arguments from user input.
+       An Event can only be fired if it occurred."""
+
+    with field_fixture.context:
         class ModelObject(object):
             @exposed
             def events(self, events):
@@ -531,49 +554,54 @@ class FieldTests(object):
 
         model_object = ModelObject()
         event = model_object.events.an_event.with_arguments(an_argument=123)
-        
-        vassert( event.default == {'an_argument': 123} )
-        vassert( not hasattr(event, 'arguments') )
-        vassert( not event.occurred )
+
+        assert event.default == {'an_argument': 123} 
+        assert not hasattr(event, 'arguments') 
+        assert not event.occurred 
         with expected(ProgrammerError):
             event.fire()
-        
+
         event.from_input('?an_argument=123')
-        vassert( event.arguments == {'an_argument': 123} )
-        vassert( event.occurred )
+        assert event.arguments == {'an_argument': 123} 
+        assert event.occurred 
         with expected(NoException):
             event.fire()
 
 
-    class Scenarios(Fixture):
-        @scenario
-        def both_disallowed(self):
-            self.allow_read = False
-            self.allow_write = False
-            self.expected_occurred = False
-            self.expected_exception = AccessRightsConstraint
-        @scenario
-        def read_allowed(self):
-            self.allow_read = True
-            self.allow_write = False
-            self.expected_occurred = False
-            self.expected_exception = AccessRightsConstraint
-        @scenario
-        def write_allowed(self):
-            self.allow_read = False
-            self.allow_write = True
-            self.expected_occurred = False
-            self.expected_exception = AccessRightsConstraint
-        @scenario
-        def both_allowed(self):
-            self.allow_read = True
-            self.allow_write = True
-            self.expected_occurred = True
-            self.expected_exception = NoException
+class AllowedScenarios(Fixture):
+    @scenario
+    def both_disallowed(self):
+        self.allow_read = False
+        self.allow_write = False
+        self.expected_occurred = False
+        self.expected_exception = AccessRightsConstraint
+    @scenario
+    def read_allowed(self):
+        self.allow_read = True
+        self.allow_write = False
+        self.expected_occurred = False
+        self.expected_exception = AccessRightsConstraint
+    @scenario
+    def write_allowed(self):
+        self.allow_read = False
+        self.allow_write = True
+        self.expected_occurred = False
+        self.expected_exception = AccessRightsConstraint
+    @scenario
+    def both_allowed(self):
+        self.allow_read = True
+        self.allow_write = True
+        self.expected_occurred = True
+        self.expected_exception = NoException
 
-    @test(Scenarios)
-    def security_of_receiving_events(self, fixture):
-        """An Event can only occur if BOTH its access restrictions are allowed."""
+allowed_scenarios = AllowedScenarios.as_pytest_fixture()
+
+
+def test_security_of_receiving_events(field_fixture, allowed_scenarios):
+    """An Event can only occur if BOTH its access restrictions are allowed."""
+
+    with field_fixture.context:
+        fixture = allowed_scenarios
 
         class ModelObject(object):
             def allow_read(self):
@@ -586,24 +614,22 @@ class FieldTests(object):
 
         model_object = ModelObject()
         event = model_object.events.an_event
-        
-        vassert( not event.occurred )
+
+        assert not event.occurred 
         with expected(fixture.expected_exception):
             event.from_input('?')
-        vassert( event.occurred is fixture.expected_occurred )
+        assert event.occurred is fixture.expected_occurred 
 
 
 
-@istest
-class SpecificConstraintTests(object):
-    @test(Fixture)
-    def required_constraint(self, fixture):
+def test_required_constraint(field_fixture):
+    with field_fixture.context:
         selector = 'find me'
         required_constraint = RequiredConstraint(selector_expression=selector)
-        
+
         #selector is returned as parameter
-        vassert( required_constraint.parameters == selector )
-        
+        assert required_constraint.parameters == selector 
+
         #case: no input 
         with expected(RequiredConstraint):
             required_constraint.validate_input('')
@@ -615,7 +641,7 @@ class SpecificConstraintTests(object):
             required_constraint.validate_input(space)
         with expected(RequiredConstraint):
             required_constraint.validate_input(space*56)
-        
+
         #case: input 
         with expected(NoException):
             required_constraint.validate_input(' something valid    ')
@@ -624,47 +650,49 @@ class SpecificConstraintTests(object):
         with expected(NoException):
             required_constraint.validate_input('.')
 
-    @test(Fixture)
-    def min_length_constraint(self, fixture):
+
+def test_min_length_constraint(field_fixture):
+    with field_fixture.context:
         min_required_length = 5
         min_length_constraint = MinLengthConstraint(min_length=min_required_length)
-        
+
         #min length is returned as parameter
-        vassert( min_length_constraint.parameters == '%s' % min_required_length )
-        
+        assert min_length_constraint.parameters == '%s' % min_required_length 
+
         #case: just enough characters, exact number of
         with expected(NoException):
             min_length_constraint.validate_input('⁵'*min_required_length)
-        
+
         #case: more than enough
         with expected(NoException):
             min_length_constraint.validate_input('ê'*(min_required_length+1))
-            
+
         #case: just not enough characters
         with expected(MinLengthConstraint):
             min_length_constraint.validate_input('ś'*(min_required_length-1))
-        
+
         #case: empty string
         with expected(MinLengthConstraint):
             min_length_constraint.validate_input('')
-                        
 
-    @test(Fixture)
-    def max_length_constraint(self, fixture):
+
+
+def test_max_length_constraint(field_fixture):
+    with field_fixture.context:
         max_allowed_length = 5
         max_length_constraint = MaxLengthConstraint(max_length=max_allowed_length)
-        
+
         #max length is returned as parameter
-        vassert( max_length_constraint.parameters == '%s' % max_allowed_length )
-        
+        assert max_length_constraint.parameters == '%s' % max_allowed_length 
+
         #case: just enough characters, exact number of
         with expected(NoException):
             max_length_constraint.validate_input('⁵'*max_allowed_length)
-        
+
         #case: less than max
         with expected(NoException):
             max_length_constraint.validate_input('⁵'*(max_allowed_length-1))
-            
+
         #case: nothing
         with expected(NoException):
             max_length_constraint.validate_input('')
@@ -674,31 +702,33 @@ class SpecificConstraintTests(object):
             max_length_constraint.validate_input('ś'*(max_allowed_length+1))
 
 
-    @test(Fixture)
-    def pattern_constraint(self, fixture):
+
+def test_pattern_constraint(field_fixture):
+    with field_fixture.context:
         allow_pattern = '(ab)+'
         pattern_constraint = PatternConstraint(pattern=allow_pattern)
-        
+
         #pattern is returned as parameter
-        vassert( pattern_constraint.parameters == allow_pattern )
-        
+        assert pattern_constraint.parameters == allow_pattern 
+
         #case: valid
         valid_input = 'ababab'
         with expected(NoException):
             pattern_constraint.validate_input(valid_input )
-        
+
         #case invalid
         with expected(PatternConstraint):
             pattern_constraint.validate_input('aba')
-        
+
         #case: faulty pattern
         faulty_pattern_constraint = PatternConstraint(pattern='??????')
         with expected(ProgrammerError):
             faulty_pattern_constraint.validate_input(valid_input)
-        
-        
-    @test(Fixture)
-    def allowed_values_constraint(self, fixture):
+
+
+
+def test_allowed_values_constraint(field_fixture):
+    with field_fixture.context:
         allowed_values=['a','b']
         allowed_values_constraint = AllowedValuesConstraint(allowed_values=allowed_values)
 
@@ -713,8 +743,9 @@ class SpecificConstraintTests(object):
         with expected(AllowedValuesConstraint):
             allowed_values_constraint.validate_input(invalid_input)
 
-    @test(Fixture)
-    def equal_to_constraint(self, fixture):
+
+def test_equal_to_constraint(field_fixture):
+    with field_fixture.context:
         other_field = Field(label='other')
         equal_to_constraint = EqualToConstraint(other_field, '$label, $other_label')
         other_field.set_user_input('should be equal to this string', ignore_validation=True)
@@ -727,8 +758,9 @@ class SpecificConstraintTests(object):
         with expected(EqualToConstraint):
             equal_to_constraint.validate_parsed_value('this is not equal')
 
-    @test(Fixture)
-    def smaller_than_constraint(self, fixture):
+
+def test_smaller_than_constraint(field_fixture):
+    with field_fixture.context:
         other_field = IntegerField(label='other')
         smaller_than_constraint = SmallerThanConstraint(other_field, '$label, $other_label')
         other_field.set_user_input('5', ignore_validation=True)
@@ -741,8 +773,9 @@ class SpecificConstraintTests(object):
         with expected(SmallerThanConstraint):
             smaller_than_constraint.validate_parsed_value( 5 )
 
-    @test(Fixture)
-    def greater_than_constraint(self, fixture):
+
+def test_greater_than_constraint(field_fixture):
+    with field_fixture.context:
         other_field = IntegerField(label='other')
         greater_than_constraint = GreaterThanConstraint(other_field, '$label, $other_label')
         other_field.set_user_input('5', ignore_validation=True)
@@ -756,107 +789,109 @@ class SpecificConstraintTests(object):
             greater_than_constraint.validate_parsed_value( 5 )
 
 
-@istest
-class SpecificFieldsTests(object):
-    @test(Fixture)
-    def email_validation(self, fixture):
+
+def test_email_validation(field_fixture):
+    with field_fixture.context:
         field = EmailField()
-        
+
         # Case: invalid
         invalid_addresses = ['somethingWithoutTheAt', '@somethingThatBeginsWithTheAT',
                                       'somethingThatEndsWithTheAt@', '@' ,None]
         for address in invalid_addresses:
             with expected(PatternConstraint):
                 field.set_user_input(address)
-            vassert( field.validation_error is field.get_validation_constraint_named('pattern') )
+            assert field.validation_error is field.get_validation_constraint_named('pattern') 
 
         # Case: valid
         valid_addresses = ['someone@home.co.za', 'something@somewhere.com', 'j@j.ca']
         for address in valid_addresses:
             with expected(NoException):
                 field.set_user_input(address, ignore_validation=True)
-            vassert( not field.validation_error )
+            assert not field.validation_error 
 
-    @test(Fixture)
-    def password_validation(self, fixture):
+
+def test_password_validation(field_fixture):
+    with field_fixture.context:
         field = PasswordField()
-        
+
         # Case: invalid
         with expected(MinLengthConstraint):
             field.set_user_input('123')
-        vassert( field.validation_error is field.get_validation_constraint_named('minlength') )
+        assert field.validation_error is field.get_validation_constraint_named('minlength') 
         with expected(MaxLengthConstraint):
             field.set_user_input('1'*21)
-        vassert( field.validation_error is field.get_validation_constraint_named('maxlength') )
+        assert field.validation_error is field.get_validation_constraint_named('maxlength') 
 
         # Case: valid
         with expected(NoException):
             field.set_user_input('my passwôrd')
-        vassert( not field.validation_error )
+        assert not field.validation_error 
 
-    @test(Fixture)
-    def password_access(self, fixture):
-        """A PasswordField is world writable, but not readable by anyone."""
 
+def test_password_access(field_fixture):
+    """A PasswordField is world writable, but not readable by anyone."""
+
+    with field_fixture.context:
         field = PasswordField()
-        field.bind('password_field', fixture)
-        vassert( not field.can_read() )
-        vassert( field.can_write() )
+        field.bind('password_field', EmptyStub())
+        assert not field.can_read() 
+        assert field.can_write() 
 
-    @test(Fixture)
-    def boolean_validation(self, fixture):
+
+def test_boolean_validation(field_fixture):
+    with field_fixture.context:
         obj = EmptyStub()
         field = BooleanField()
         field.bind('boolean_attribute', obj)
-        
+
         # Case: invalid
         invalid_boolean_name = ['negative', 'affirmative', '+', '-', None]
         for boolean_candidate in invalid_boolean_name:
             with expected(AllowedValuesConstraint):
                 field.set_user_input(boolean_candidate)
-            vassert( field.validation_error is field.get_validation_constraint_named('pattern') )
+            assert field.validation_error is field.get_validation_constraint_named('pattern') 
 
         # Case: valid
         field.from_input('on')
-        vassert( obj.boolean_attribute is True )
-        vassert( field.as_input() == 'on' )
+        assert obj.boolean_attribute is True 
+        assert field.as_input() == 'on' 
         field.from_input('off')
-        vassert( obj.boolean_attribute is False )
-        vassert( field.as_input() == 'off' )
+        assert obj.boolean_attribute is False 
+        assert field.as_input() == 'off' 
 
         # Case: required means True for BooleanField
         field = BooleanField(required=True)
         field.bind('boolean_attribute', obj)
         with expected(AllowedValuesConstraint):
             field.set_user_input('off')        
-        vassert( field.validation_error is field.get_validation_constraint_named('pattern') )
+        assert field.validation_error is field.get_validation_constraint_named('pattern') 
         with expected(NoException):
             field.from_input('on')
 
-    @test(Fixture)
-    def boolean_i18n(self, fixture):
-        @stubclass(ExecutionContext)
-        class AfrikaansContext(ExecutionContext):
-            @property
-            def interface_locale(self):
-                return 'af'
-            
-        with AfrikaansContext():
-            obj = EmptyStub()
-            field = BooleanField()
-            field.bind('boolean_attribute', obj)
 
-            # Case: valid
-            field.from_input('aan')
-            vassert( obj.boolean_attribute is True )
-            vassert( field.as_input() == 'aan' )
-            field.from_input('af')
-            vassert( obj.boolean_attribute is False )
-            vassert( field.as_input() == 'af' )
+def test_boolean_i18n():
+    @stubclass(ExecutionContext)
+    class AfrikaansContext(ExecutionContext):
+        @property
+        def interface_locale(self):
+            return 'af'
+
+    with AfrikaansContext():
+        obj = EmptyStub()
+        field = BooleanField()
+        field.bind('boolean_attribute', obj)
+
+        # Case: valid
+        field.from_input('aan')
+        assert obj.boolean_attribute is True 
+        assert field.as_input() == 'aan' 
+        field.from_input('af')
+        assert obj.boolean_attribute is False 
+        assert field.as_input() == 'af' 
 
 
-    @test(Fixture)
-    def integer_validation(self, fixture):
+def test_integer_validation(field_fixture):
+    with field_fixture.context:
         field = IntegerField()
 
         # Case invalid
@@ -878,97 +913,111 @@ class SpecificFieldsTests(object):
             field.set_user_input('3')
 
 
-    @test(Fixture)
-    def basic_marshalling(self, fixture):
+
+def test_basic_marshalling(field_fixture):
+    with field_fixture.context:
         field = Field()
         obj = EmptyStub()
         field.bind('value', obj)
 
         # From input
         field.from_input('abc')
-        vassert( obj.value == 'abc' )
+        assert obj.value == 'abc' 
 
         # As input
         obj.value = 'def'
-        vassert( field.as_input() == 'def' )
+        assert field.as_input() == 'def' 
 
         # As input - corner case
         obj.value = ''
-        vassert( field.as_input() == '' )
+        assert field.as_input() == '' 
 
-    @test(Fixture)
-    def integer_marshalling(self, fixture):
+
+def test_integer_marshalling(field_fixture):
+    with field_fixture.context:
         field = IntegerField()
         obj = EmptyStub()
         field.bind('integer_value', obj)
 
         # From input
         field.from_input('5')
-        vassert( obj.integer_value is 5 )
+        assert obj.integer_value is 5 
 
         # As input
         obj.integer_value = 6
-        vassert( field.as_input() == '6' )
+        assert field.as_input() == '6' 
 
         # As input - corner case
         obj.integer_value = 0
-        vassert( field.as_input() == '0' )
+        assert field.as_input() == '0' 
 
-    class ChoiceFixture(Fixture):
-        def new_field(self, field_class=None):
-            field_class = field_class or ChoiceField
-            field = field_class(self.choices)
-            field.bind('choice_value', self.model_object)
-            return field
+class ChoiceFixture(Fixture):
+    def __init__(self, field_fixture):
+        super(ChoiceFixture, self).__init__()
+        self.field_fixture = field_fixture
 
-        def new_model_object(self):
-            return EmptyStub()
-            
-        @scenario
-        def plain_choices(self):
-            self.all_choices = [Choice(1, IntegerField(label='One')), 
-                                Choice('2', Field(label='Two'))]
-            self.choices = self.all_choices
-            self.groups = []
-            self.valid_inputs = ['1', '2']
-            self.input_to_value_map = {'1': 1, '2': '2'}
-            self.expected_validation_constraint = AllowedValuesConstraint
+    def new_context(self):
+        return ExecutionContext()
 
-        @scenario
-        def grouped_choices(self):
-            self.all_choices = [Choice(1, IntegerField(label='One')), 
-                                Choice('2', Field(label='Two'))]
-            self.groups = [ChoiceGroup('', self.all_choices)]
-            self.choices = self.groups
-            self.valid_inputs = ['1', '2']
-            self.input_to_value_map = {'1': 1, '2': '2'}
-            self.expected_validation_constraint = AllowedValuesConstraint
+    def new_field(self, field_class=None):
+        field_class = field_class or ChoiceField
+        field = field_class(self.choices)
+        field.bind('choice_value', self.model_object)
+        return field
 
-        @scenario
-        def multi_choices(self):
-            self.all_choices = [Choice(1, IntegerField(label='One')), 
-                                Choice(2, IntegerField(label='Two')),
-                                Choice(3, IntegerField(label='Three'))]
-            self.groups = []
-            self.choices = self.all_choices
-            self.field = self.new_field(MultiChoiceField)
+    def new_model_object(self):
+        return EmptyStub()
 
-            self.valid_inputs = [('1',), ['1', '2']]
-            self.input_to_value_map = {('1',): [1], ('1', '2'): [1,2]}
-            self.expected_validation_constraint = MultiChoiceConstraint
+    @scenario
+    def plain_choices(self):
+        self.all_choices = [Choice(1, IntegerField(label='One')),
+                            Choice('2', Field(label='Two'))]
+        self.choices = self.all_choices
+        self.groups = []
+        self.valid_inputs = ['1', '2']
+        self.input_to_value_map = {'1': 1, '2': '2'}
+        self.expected_validation_constraint = AllowedValuesConstraint
 
-    @test(ChoiceFixture)
-    def choice_querying(self, fixture):
-        """A ChoiceField maintains a list of the Choices and Groups it was constructed with."""
+    @scenario
+    def grouped_choices(self):
+        self.all_choices = [Choice(1, IntegerField(label='One')), 
+                            Choice('2', Field(label='Two'))]
+        self.groups = [ChoiceGroup('', self.all_choices)]
+        self.choices = self.groups
+        self.valid_inputs = ['1', '2']
+        self.input_to_value_map = {'1': 1, '2': '2'}
+        self.expected_validation_constraint = AllowedValuesConstraint
+
+    @scenario
+    def multi_choices(self):
+        self.all_choices = [Choice(1, IntegerField(label='One')), 
+                            Choice(2, IntegerField(label='Two')),
+                            Choice(3, IntegerField(label='Three'))]
+        self.groups = []
+        self.choices = self.all_choices
+        self.field = self.new_field(MultiChoiceField)
+
+        self.valid_inputs = [('1',), ['1', '2']]
+        self.input_to_value_map = {('1',): [1], ('1', '2'): [1,2]}
+        self.expected_validation_constraint = MultiChoiceConstraint
+
+choice_fixture = ChoiceFixture.as_pytest_fixture()
+
+def test_choice_querying(choice_fixture):
+    """A ChoiceField maintains a list of the Choices and Groups it was constructed with."""
+    with choice_fixture.context:
+        fixture = choice_fixture
+
         field = fixture.field
-        
-        vassert( field.groups == fixture.groups )
-        vassert( field.flattened_choices == fixture.all_choices )
+
+        assert field.groups == fixture.groups 
+        assert field.flattened_choices == fixture.all_choices 
 
 
-    @test(ChoiceFixture)
-    def choice_validation(self, fixture):
-        """Input for a ChoiceField is valid only if it matches one of its Choices."""
+def test_choice_validation(choice_fixture):
+    """Input for a ChoiceField is valid only if it matches one of its Choices."""
+    with choice_fixture.context:
+        fixture = choice_fixture
         field = fixture.field
 
         # Case invalid
@@ -981,31 +1030,33 @@ class SpecificFieldsTests(object):
                 field.set_user_input(i)
 
 
-    @test(ChoiceFixture)
-    def choice_field_marshalling(self, fixture):
-        """Input for a ChoiceField is marshalled differently, depending on the Field specified for the Choice matching the input."""
+def test_choice_field_marshalling(choice_fixture):
+    """Input for a ChoiceField is marshalled differently, depending on the Field specified for the Choice matching the input."""
+    with choice_fixture.context:
+        fixture = choice_fixture
         field = fixture.field
         obj = fixture.model_object
-        
+
         # From input
         for valid_input, value in fixture.input_to_value_map.items():
             field.from_input(valid_input)
-            vassert( obj.choice_value == value )
+            assert obj.choice_value == value 
 
         # As input
         for expected_input, value in fixture.input_to_value_map.items():
             obj.choice_value = value
             if isinstance(expected_input, tuple):
                 expected_input = list(expected_input)
-            vassert( field.as_input() == expected_input )
+            assert field.as_input() == expected_input 
 
 
-    @test(FieldFixture)
-    def file_marshalling(self, fixture):
-        """A FileField receives as input a list of UploadedFile objects.  Its marshalling job consists
-           of merely changing such a list into a single value, or returning it as is depending on
-           the setting of its allow_multiple flag.
-        """
+def test_file_marshalling(field_fixture):
+    """A FileField receives as input a list of UploadedFile objects.  Its marshalling job consists
+       of merely changing such a list into a single value, or returning it as is depending on
+       the setting of its allow_multiple flag.
+    """
+    with field_fixture.context:
+        fixture = field_fixture
 
         field = FileField()
         obj = fixture.model_object
@@ -1015,26 +1066,28 @@ class SpecificFieldsTests(object):
 
         # Single file only
         field.from_input(files[:1])
-        vassert( obj.file_value == files[0] )
+        assert obj.file_value == files[0] 
 
         obj.file_value = files[0]
-        vassert( field.as_input() == '' )
+        assert field.as_input() == '' 
 
         # Multiple files
         field = FileField(allow_multiple=True)
         field.bind('file_value', obj)
 
         field.from_input(files)
-        vassert( obj.file_value == files )
+        assert obj.file_value == files 
 
         obj.file_value = files
-        vassert( field.as_input() == '' )
+        assert field.as_input() == '' 
 
-    @test(FieldFixture)
-    def file_validation(self, fixture):
-        """A FileField needs to check that the right number of files were submitted, depending on the
-           setting of allow_multiple and/or required.
-        """
+
+def test_file_validation(field_fixture):
+    """A FileField needs to check that the right number of files were submitted, depending on the
+       setting of allow_multiple and/or required.
+    """
+    with field_fixture.context:
+        fixture = field_fixture
 
         field = FileField()
         obj = fixture.model_object
@@ -1055,7 +1108,7 @@ class SpecificFieldsTests(object):
 
         with expected(NoException):
             field.set_user_input(files[:1])
-            
+
         with expected(RequiredConstraint):
             field.set_user_input([])
 
@@ -1066,10 +1119,12 @@ class SpecificFieldsTests(object):
         with expected(NoException):
             field.set_user_input(files)
 
-    @test(FieldFixture)
-    def file_validation_size(self, fixture):
-        """A FileField can also limit the size if files uploaded.
-        """
+
+def test_file_validation_size(field_fixture):
+    """A FileField can also limit the size if files uploaded.
+    """
+    with field_fixture.context:
+        fixture = field_fixture
 
         field = FileField(allow_multiple=True, max_size_bytes=100)
         obj = fixture.model_object
@@ -1083,10 +1138,12 @@ class SpecificFieldsTests(object):
         with expected(FileSizeConstraint):
             field.set_user_input(files)
 
-    @test(FieldFixture)
-    def file_validation_mime_type(self, fixture):
-        """A FileField can also limit the mimetype of files allowed to be uploaded.
-        """
+
+def test_file_validation_mime_type(field_fixture):
+    """A FileField can also limit the mimetype of files allowed to be uploaded.
+    """
+    with field_fixture.context:
+        fixture = field_fixture
 
         field = FileField(allow_multiple=True, accept=['text/*'])
         obj = fixture.model_object
@@ -1100,10 +1157,12 @@ class SpecificFieldsTests(object):
         with expected(MimeTypeConstraint):
             field.set_user_input(files)
 
-    @test(FieldFixture)
-    def file_validation_max_files(self, fixture):
-        """A maximum can be placed upon the number of files that may be uploaded.
-        """
+
+def test_file_validation_max_files(field_fixture):
+    """A maximum can be placed upon the number of files that may be uploaded.
+    """
+    with field_fixture.context:
+        fixture = field_fixture
 
         field = FileField(allow_multiple=True, max_files=1)
         obj = fixture.model_object
@@ -1118,34 +1177,37 @@ class SpecificFieldsTests(object):
             field.set_user_input(files)
 
 
-    @test(FieldFixture)
-    def date_marshalling(self, fixture):
-        """A DateField marshalls human readable date representation to a datetime.date object.
-           (It tolerates non-precise input.)
-        """
+def test_date_marshalling(field_fixture):
+    """A DateField marshalls human readable date representation to a datetime.date object.
+       (It tolerates non-precise input.)
+    """
+    with field_fixture.context:
+        fixture = field_fixture
 
         field = DateField()
         obj = fixture.model_object
-        
+
         field.bind('date_value', obj)
-        
+
         # From input
         for input_string in ['10 November 2012', '10/11/2012']:
             field.from_input(input_string)
-            vassert( obj.date_value == datetime.date(2012, 11, 10) )
+            assert obj.date_value == datetime.date(2012, 11, 10) 
 
         # As input
         obj.date_value = datetime.date(2010, 11, 10)
         actual_output = field.as_input()
-        vassert( actual_output == '10 Nov 2010' )
+        assert actual_output == '10 Nov 2010' 
 
-    @test(FieldFixture)
-    def date_validation(self, fixture):
-        """A DateField can validate its input based on a min or max value and expects fuzzy but sensible input."""
+
+def test_date_validation(field_fixture):
+    """A DateField can validate its input based on a min or max value and expects fuzzy but sensible input."""
+    with field_fixture.context:
+        fixture = field_fixture
 
         field = DateField()
         obj = fixture.model_object
-        
+
         field.bind('date_value', obj)
 
         # Case invalid

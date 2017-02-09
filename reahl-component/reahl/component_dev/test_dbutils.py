@@ -16,8 +16,8 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
-from reahl.tofu import test, Fixture, vassert, expected
+
+from reahl.tofu import Fixture, expected
 
 from reahl.stubble import easter_egg
 
@@ -26,50 +26,52 @@ from reahl.component.dbutils import DatabaseControl, SystemControl, CouldNotFind
 from reahl.component.config import Configuration, ReahlSystemConfig
 
 
-class TestDatabaseControl(DatabaseControl):
+class StubDatabaseControl(DatabaseControl):
     control_matching_regex = r'^myprefix://'
     uri_regex_string = r'myprefix://(?P<database>.*):(?P<user>.*):(?P<password>.*):(?P<host>.*):(?P<port>.*)$'
 
 
 class DBControlFixture(Fixture):
     def new_config(self):
-        line = 'TestDatabaseControl = reahl.component_dev.test_dbutils:TestDatabaseControl'
+        line = 'StubDatabaseControl = reahl.component_dev.test_dbutils:StubDatabaseControl'
         easter_egg.add_entry_point_from_line('reahl.component.databasecontrols', line)
 
         config = Configuration()
         config.reahlsystem = ReahlSystemConfig()
         return config
 
+dbcontrol_fixture = DBControlFixture.as_pytest_fixture()
 
-@test(DBControlFixture)
-def finding_database_control(fixture):
+
+def test_finding_database_control(dbcontrol_fixture):
     """The correct DatabaseControl will be found from the entry point
        reahl.component.databasecontrols for a given
        reahlsystem.connection_uri config setting based on its control_matching_regex.
 
     """
+    fixture = dbcontrol_fixture
     fixture.config.reahlsystem.connection_uri = 'myprefix://theuser:thepasswd@thehost:123/thedb'
     system_control = SystemControl(fixture.config)
-    vassert( isinstance(system_control.db_control, TestDatabaseControl) )
+    assert isinstance(system_control.db_control, StubDatabaseControl) 
 
     fixture.config.reahlsystem.connection_uri = 'wrongprefix://theuser:thepasswd@thehost:123/thedb'
     with expected(CouldNotFindDatabaseControlException):
         SystemControl(fixture.config)
 
 
-@test(DBControlFixture)
-def database_control_settings(fixture):
+def test_database_control_settings(dbcontrol_fixture):
     """DatabaseControl settings are read from the
        reahlsystem.connection_uri config setting parsed as an RFC1808 URI
     """
+    fixture = dbcontrol_fixture
     fixture.config.reahlsystem.connection_uri = 'myprefix://theuser:thepasswd@thehost:123/thedb'
     system_control = SystemControl(fixture.config)
 
-    vassert( system_control.db_control.database_name == 'thedb' )
-    vassert( system_control.db_control.user_name == 'theuser' )
-    vassert( system_control.db_control.password == 'thepasswd' )
-    vassert( system_control.db_control.host == 'thehost' )
-    vassert( system_control.db_control.port == 123 )
+    assert system_control.db_control.database_name == 'thedb' 
+    assert system_control.db_control.user_name == 'theuser' 
+    assert system_control.db_control.password == 'thepasswd' 
+    assert system_control.db_control.host == 'thehost' 
+    assert system_control.db_control.port == 123 
 
 
 

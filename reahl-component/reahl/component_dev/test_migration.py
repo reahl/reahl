@@ -22,7 +22,7 @@ from contextlib import contextmanager
 import warnings
 import re
 
-from reahl.tofu import Fixture, test, vassert, expected, NoException
+from reahl.tofu import Fixture, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
 
@@ -31,12 +31,14 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.migration import Migration, MigrationSchedule, MigrationRun
 from reahl.component.exceptions import ProgrammerError
 
+
 class stubclass(object):
     def __init__(self, cls):
         pass
     def __call__(self, cls):
         warnings.warn('This needs to become stubble.stubclass, but stubble does not deal with this scenario - it needs to be fixed')
         return cls
+
 
 @stubclass(ReahlEgg)
 class ReahlEggStub(ReahlEgg):
@@ -82,14 +84,15 @@ class ORMControlStub(ORMControl):
         self.versions[egg.name] = version_number
 
 
-
 class MigrateFixture(Fixture):
     def new_orm_control(self):
         return ORMControlStub()
 
 
-@test(MigrateFixture)
-def how_migration_works(fixture):
+migrate_fixture = MigrateFixture.as_pytest_fixture()
+
+
+def test_how_migration_works(migrate_fixture):
     """Calls that will modify the database are scheduled in the schedule_upgrades() method of all
        the applicable Migrations for a single migration run. `shedule_upgrades()` is called on each
        migration in order of their versions. Once all calls are scheduled,
@@ -115,16 +118,15 @@ def how_migration_works(fixture):
             self.schedule('drop_fk', some_object.do_something, 'drop_fk_3')
 
     egg = ReahlEggStub('my_egg', '4.0', [Migration1, Migration2])
-    fixture.orm_control.set_currently_installed_version_for(egg, '1.0')
+    migrate_fixture.orm_control.set_currently_installed_version_for(egg, '1.0')
 
-    fixture.orm_control.migrate_db([egg])
+    migrate_fixture.orm_control.migrate_db([egg])
 
     expected_order = ['drop_fk_1', 'drop_fk_2', 'drop_fk_3', 'data_1']
-    vassert( some_object.calls_made == expected_order )
+    assert some_object.calls_made == expected_order
 
 
-@test(MigrateFixture)
-def schedule_executes_in_order(fixture):
+def test_schedule_executes_in_order(migrate_fixture):
     """A MigrationSchedule is used internally to schedule calls in different phases. The calls 
        scheduled in each phase are executed in the order the phases have been set up on the MigrationSchedule.
        Within a phase, the calls are executed in the order they were registered in that phase.
@@ -150,11 +152,10 @@ def schedule_executes_in_order(fixture):
 
     actual_order = [call.args[0] for call in monitor.calls]
     expected_order = ['a1', 'a2', 'b', 'c1', 'c2']
-    vassert( actual_order == expected_order )
+    assert actual_order == expected_order
 
 
-@test(MigrateFixture)
-def schedule_executes_phases_with_parameters(fixture):
+def test_schedule_executes_phases_with_parameters(migrate_fixture):
     """When a MigrationSchedule executes the calls that were scheduled from a Migration, 
        the methods are actually called, and passed the correct arguments."""
 
@@ -171,26 +172,24 @@ def schedule_executes_phases_with_parameters(fixture):
 
     migration_schedule.execute_all()
 
-    vassert( monitor.calls[0].args == ('myarg',) )
-    vassert( monitor.calls[0].kwargs == dict(kwarg='mykwarg') )
+    assert monitor.calls[0].args == ('myarg',)
+    assert monitor.calls[0].kwargs == dict(kwarg='mykwarg')
 
 
-@test(MigrateFixture)
-def invalid_schedule_name_raises(fixture):
+def test_invalid_schedule_name_raises(migrate_fixture):
     """A useful error is raised when an attempt is made to schedule a call in a phase that is not defined."""
     
     valid_schedule_names = ['a', 'b']
     migration_schedule = MigrationSchedule(*valid_schedule_names)
 
     def check_exception(ex):
-        vassert( six.text_type(ex) == 'A phase with name<wrong_name> does not exist.' )
+        assert six.text_type(ex) == 'A phase with name<wrong_name> does not exist.'
 
     with expected(ProgrammerError, test=check_exception):
         migration_schedule.schedule('wrong_name', None)
 
 
-@test(MigrateFixture)
-def version_dictates_execution_of_migration_(fixture):
+def test_version_dictates_execution_of_migration_(migrate_fixture):
     """Each Migration should have a class attribute `version` that states which version of the component
        it upgrades the database schema to. Only the Migrations with versions greater than the current 
        schema version are included in a MigrationRun for a given egg.
@@ -207,32 +206,30 @@ def version_dictates_execution_of_migration_(fixture):
 
     egg = ReahlEggStub('my_egg', '4.0', [PreviousVersionMigration, MatchingCurrentVersionMigration, 
                                          NewerVersionMigration, EvenNewerVersionMigration])
-    fixture.orm_control.set_currently_installed_version_for(egg, '2.0')
+    migrate_fixture.orm_control.set_currently_installed_version_for(egg, '2.0')
 
-    migration_run = MigrationRun(fixture.orm_control, [egg])
+    migration_run = MigrationRun(migrate_fixture.orm_control, [egg])
     migrations_to_run = migration_run.migrations_to_run_for(egg)
     classes_to_run = [m.__class__ for m in migrations_to_run]
-    vassert( classes_to_run == [NewerVersionMigration, EvenNewerVersionMigration] )
+    assert classes_to_run == [NewerVersionMigration, EvenNewerVersionMigration]
 
 
-@test(MigrateFixture)
-def version_of_migration_not_set_error(fixture):
+def test_version_of_migration_not_set_error(migrate_fixture):
     """If the version to which a Migration is applicable is not set, an error is raised."""
     class TestMigration(Migration):
         pass
 
     egg = ReahlEggStub('my_egg', '1.0', [TestMigration])
-    fixture.orm_control.set_currently_installed_version_for(egg, '0.0')
+    migrate_fixture.orm_control.set_currently_installed_version_for(egg, '0.0')
 
     def check_exception(ex):
-        vassert( re.match('Migration <class \'reahl\.component_dev\.test_migration\..*TestMigration\'> does not have a version set', six.text_type(ex) ))
+        assert re.match('Migration <class \'reahl\.component_dev\.test_migration\..*TestMigration\'> does not have a version set', six.text_type(ex) )
 
     with expected(ProgrammerError, test=check_exception):
-        fixture.orm_control.migrate_db([egg])
+        migrate_fixture.orm_control.migrate_db([egg])
 
 
-@test(MigrateFixture)
-def missing_schedule_upgrades_warns(fixture):
+def test_missing_schedule_upgrades_warns(migrate_fixture):
     """If a programmer does not override schedule_upgrades, a warning is raised."""
     class TestMigration(Migration):
         pass
@@ -244,30 +241,25 @@ def missing_schedule_upgrades_warns(fixture):
  
     [warning] = raised_warnings
     expected_message = 'Ignoring TestMigration.schedule_upgrades(): it does not override schedule_upgrades() (method name typo perhaps?)'
-    vassert( six.text_type(warning.message) == expected_message  )
+    assert six.text_type(warning.message) == expected_message
 
 
-@test(MigrateFixture)
-def available_migration_phases(fixture):
+def test_available_migration_phases(migrate_fixture):
     """These are the phases, and order of the phases in a MigrationRun."""
 
-    migration_run = MigrationRun(fixture.orm_control, [])
+    migration_run = MigrationRun(migrate_fixture.orm_control, [])
     
     expected_order = ('drop_fk', 'drop_pk', 'pre_alter', 'alter', 'create_pk', 'indexes', 'data', 'create_fk', 'cleanup')
-    vassert( migration_run.changes.phases_in_order == expected_order  )
+    assert migration_run.changes.phases_in_order == expected_order
 
 
-@test(MigrateFixture)
-def schema_version_housekeeping(fixture):
+def test_schema_version_housekeeping(migrate_fixture):
     """The database keeps track of the schema for each installed component. After a migration run
        the currently installed versions are updated.
     """
     
     egg = ReahlEggStub('my_egg', '2.0', [])
-    fixture.orm_control.set_currently_installed_version_for(egg, '1.0')
-    migration_run = MigrationRun(fixture.orm_control, [egg])
+    migrate_fixture.orm_control.set_currently_installed_version_for(egg, '1.0')
+    migration_run = MigrationRun(migrate_fixture.orm_control, [egg])
     migration_run.execute_migrations()
-    vassert( fixture.orm_control.schema_version_for(egg) == '2.0' )
-
-
-
+    assert migrate_fixture.orm_control.schema_version_for(egg) == '2.0'

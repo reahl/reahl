@@ -81,6 +81,7 @@ def expected(exception, test=None):
     else:
         raise NoExceptionRaised(exception)
 
+
 def assert_recent(date, seconds_threshold=5):
     if date is None:
         is_recent_check = False
@@ -92,6 +93,7 @@ def assert_recent(date, seconds_threshold=5):
             raise AssertionError( 'Date[%s] exceeds given threshold of %s with %s' % (date, seconds_threshold, delta ) )
         else:
             raise AssertionError( 'No date set' )
+
 
 def check_limitation(coded_version, msg):
     """Warns that a newer Python version is now used, which may have a fix for

@@ -16,59 +16,55 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
-from reahl.tofu import  test, Fixture
-from reahl.tofu import vassert
+
 
 from reahl.component.context import ExecutionContext
 from reahl.stubble import EmptyStub
 
-@istest
-class ContextTests(object):
-    @test(Fixture)
-    def execution_context_basics(self, fixture):
-        """An ExecutionContext is like a global variable for a particular call stack. To create an
-           ExecutionContext for a call stack, use it in a with statement."""
 
-        def do_something():
-            fixture.found_context = ExecutionContext.get_context()
-        def do_high_level_something():
-            do_something()
-            
-        fixture.found_context = None
-        some_context = ExecutionContext()
-        with some_context:
-            do_high_level_something()
+def test_execution_context_basics():
+    """An ExecutionContext is like a global variable for a particular call stack. To create an
+       ExecutionContext for a call stack, use it in a with statement."""
 
-        vassert( fixture.found_context is some_context )
-        
-    @test(Fixture)
-    def execution_context_stacking(self, fixture):
-        """When an ExecutionContext overrides a deeper one on the call stack, it will retain the same id."""
-        some_context = ExecutionContext()
 
-        vassert( some_context is not fixture.context )
-        vassert( some_context.id == fixture.context.id )
+    def do_something():
+        return ExecutionContext.get_context()
+    def do_high_level_something():
+        return do_something()
 
-        with some_context:
-            vassert( ExecutionContext.get_context_id() == some_context.id )
+    some_context = ExecutionContext()
+    with some_context:
+        found_context = do_high_level_something()
 
-    @test(Fixture)
-    def contents(self, fixture):
-        """A Session, Config or SystemControl may be set on the ExecutionContext."""
-        some_context = ExecutionContext()
+    assert found_context is some_context
 
-        session = EmptyStub()
-        config = EmptyStub()
-        system_control = EmptyStub()
 
-        some_context.set_session( session )
-        some_context.set_config( config )
-        some_context.set_system_control( system_control )
+def test_execution_context_stacking():
+    """When an ExecutionContext overrides a deeper one on the call stack, it will retain the same id."""
+    some_context = ExecutionContext()
 
-        vassert( some_context.session is session )
-        vassert( some_context.config is config )
-        vassert( some_context.system_control is system_control )
+    with some_context:
+        with ExecutionContext() as deeper_context:
+            assert some_context is not deeper_context
+            assert some_context.id == deeper_context.id
+            assert ExecutionContext.get_context_id() == some_context.id
+
+
+def test_contents():
+    """A Session, Config or SystemControl may be set on the ExecutionContext."""
+    some_context = ExecutionContext()
+
+    session = EmptyStub()
+    config = EmptyStub()
+    system_control = EmptyStub()
+
+    some_context.set_session( session )
+    some_context.set_config( config )
+    some_context.set_system_control( system_control )
+
+    assert some_context.session is session
+    assert some_context.config is config
+    assert some_context.system_control is system_control
 
 
 

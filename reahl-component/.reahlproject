@@ -8,7 +8,7 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="run">
@@ -21,7 +21,7 @@
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
   </deps>
@@ -48,8 +48,8 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="NullDatabaseControl" locator="reahl.component.dbutils:NullDatabaseControl"/>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/component_dev -t -i '.*'"/>
-  
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.component_dev'"/>
+
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
   </distpackage>
