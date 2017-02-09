@@ -79,8 +79,13 @@ class StubClass(object):
 
     @classmethod
     def signatures_match(cls, orig, stubbed, ignore_self=False):
-        orig_arguments = inspect.getargspec(orig)
-        stub_arguments = inspect.getargspec(stubbed)
+        if six.PY2:
+            orig_arguments = inspect.getargspec(orig)
+            stub_arguments = inspect.getargspec(stubbed)
+        else:
+            orig_arguments = inspect.getfullargspec(orig)
+            stub_arguments = inspect.getfullargspec(stubbed)
+
         if ignore_self:
             if 'self' in orig_arguments.args: orig_arguments.args.remove('self')
             if 'self' in stub_arguments.args: stub_arguments.args.remove('self')

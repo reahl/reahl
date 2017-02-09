@@ -120,7 +120,7 @@ class TextArea(reahl.web.ui.TextArea):
     """
     add_default_attribute_source = False
     def __init__(self, form, bound_field, rows=None, columns=None):
-        super(TextArea, self).__init__(form, bound_field, rows=rows, columns=rows)
+        super(TextArea, self).__init__(form, bound_field, rows=rows, columns=columns)
         self.append_class('form-control')
 
 

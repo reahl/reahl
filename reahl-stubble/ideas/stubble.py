@@ -74,6 +74,7 @@ class StubMethod(object):
     def __delete__(self, instance):
         assert None, 'cannot delete stub methods'
 
+
 def stubmethod(stub):
     return StubMethod(stub)
 
@@ -154,7 +155,7 @@ class StubEx2(RealClass, Stub):
 
     @stubmethod
     def ma(self, d):
-        print('stub called with %s' % b)
+        print('stub called with %s' % d)
 
     @stubmethod
     def donkey(self):

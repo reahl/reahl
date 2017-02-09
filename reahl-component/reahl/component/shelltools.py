@@ -153,7 +153,7 @@ class ReahlCommandline(object):
         return return_code
 
     def set_log_level(self, log_level):
-        loglevel = getattr(logging, log_level)
+        log_level = getattr(logging, log_level)
         logging.getLogger('').setLevel(log_level)
         
     def execute_command(self, command, line, options, parser):

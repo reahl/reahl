@@ -18,7 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 
-from sqlalchemy import Column, String, Integer, UnicodeText
+from sqlalchemy import Column, String, UnicodeText
 from alembic import op
 
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative

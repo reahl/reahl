@@ -230,7 +230,7 @@ class SqlAlchemyControl(ORMControl):
     def instrument_classes_for(self, root_egg):
         all_classes = []
         for i in ReahlEgg.get_all_relevant_interfaces(root_egg):
-            all_classes.extend(i.get_persisted_classes_in_order(self)) # So that they get imported
+            all_classes.extend(i.get_persisted_classes_in_order()) # So that they get imported
         
         declarative_classes = [i for i in all_classes if issubclass(i, Base)]
         self.instrument_declarative_classes(declarative_classes)

@@ -363,7 +363,7 @@ class CodedConfiguration(StoredConfiguration, dict):
         super(CodedConfiguration, self).__init__('<in memory>')
 
     def read(self, configuration_class):
-        fimename = configuration_class.filename
+        filename = configuration_class.filename
         new_config = self.create_config(configuration_class)
         if filename in self:
             locals_dict = ConfigAsDict(self)

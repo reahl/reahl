@@ -867,7 +867,7 @@ class Span(HTMLElement):
     def __init__(self, view, text=None, html_escape=True, css_id=None):
         super(Span, self).__init__(view, 'span', children_allowed=True, css_id=css_id)
         if text:
-            self.add_child(TextNode(view, text))
+            self.add_child(TextNode(view, text, html_escape=html_escape))
 
 
 
@@ -1079,10 +1079,9 @@ class NestedForm(Div):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: (See :class:`Form`)
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
        
     """
-    def __init__(self, view, unique_name, css_id=None):
+    def __init__(self, view, unique_name):
         self.out_of_bound_form = self.create_out_of_bound_form(view, unique_name)
         super(NestedForm, self).__init__(view, css_id='%s_nested' % self.out_of_bound_form.css_id)
         self.add_to_attribute('class', ['reahl-nested-form'])

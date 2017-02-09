@@ -32,17 +32,12 @@ from contextlib import contextmanager
 import logging
 import functools
 import pkg_resources
-import warnings
-import distutils
 
 from webob import Request
 from webob.exc import HTTPInternalServerError
 
-from six.moves.queue import Queue
-
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-from watchdog.observers.polling import PollingObserver
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext

@@ -96,7 +96,6 @@ class Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
-        current_url = Url.get_current_url()
         context = WebExecutionContext.get_context()
         supported_locales = ReahlEgg.get_languages_supported_by_all(context.config.reahlsystem.root_egg)
         for locale in supported_locales:

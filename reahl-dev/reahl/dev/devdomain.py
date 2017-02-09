@@ -2074,7 +2074,7 @@ class ProjectList(list):
         projects.read(filename)
         return projects
 
-    def collect_projects(self, workspace, directories):
+    def collect_projects(self, directories):
         for directory in directories:
             for root, dirs, files in os.walk(os.path.abspath(directory)):
                 if '.reahlignore' in files:
@@ -2203,7 +2203,7 @@ class Workspace(object):
         self.save()
 
     def get_selection_subset(self, states=None, tags=None, append=False, all_=False, negated=False):
-        return self.selection.select(states=None, tags=None, append=False, all_=False, negated=False)
+        return self.selection.select(states=states, tags=tags, append=append, all_=all_, negated=negated)
 
     def project_named(self, name):
         return self.projects.project_named(name)

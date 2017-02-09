@@ -228,7 +228,7 @@ class RegistrationPendingWidget(TitledWidget):
         super(RegistrationPendingWidget, self).__init__(view)
         config = WebExecutionContext.get_context().config
         self.add_child(P(view, text=_('There is a registration pending for email address "%s".') % account_management_interface.email))
-        self.add_child(P(view, text=_('Before you can log in using it, you need to act on the automated email '\
+        self.add_child(P(view, text=_('Before you can log in using it, you need to act on the automated email '
                                       'sent to that address. It looks like you did not do that.')))
         self.add_child(P(view, text=_('You should receive the automated email anything between a minute to an hour after '
                                       'registration. Sometimes though, your email software may mistakenly identify our '

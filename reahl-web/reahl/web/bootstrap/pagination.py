@@ -298,7 +298,6 @@ class PageMenu(HTMLWidget):
         item.html_representation.append_class('page-item')
 
     def create_items(self, menu):
-        links = []
 
         self.add_bordering_link_for(menu, '←', 'First', 1,
                                    not self.page_index.has_previous_page)

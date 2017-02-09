@@ -68,8 +68,7 @@ class ComponentTests(object):
         # The meta-info that can be obtained via such an interface
         vassert( interface.configuration_spec is None )
 
-        orm_control = EmptyStub()
-        vassert( interface.get_persisted_classes_in_order(orm_control) == [] )
+        vassert( interface.get_persisted_classes_in_order() == [] )
         vassert( interface.migrations_in_order == [] )
 
         # Hooks for allowing a component to do its own housekeeping

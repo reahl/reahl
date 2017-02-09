@@ -143,7 +143,7 @@ class ReahlEgg(object):
             return config.list_required(self.configuration_spec)
         return []
 
-    def get_persisted_classes_in_order(self, orm_control):
+    def get_persisted_classes_in_order(self):
         return self.get_ordered_classes_exported_on('reahl.persistlist')
 
     @property
