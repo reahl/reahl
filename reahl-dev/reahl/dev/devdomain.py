@@ -311,45 +311,6 @@ class DebianPackage(DistributionPackage):
         pass
 
 
-class DebianDotInstallFile(object):
-    def __init__(self, package_set, egg_project):
-        self.egg_project = egg_project
-        self.package_set = package_set
-
-    @property
-    def filename(self):
-        return os.path.join('debian', 'python-%s.install' % self.egg_project.project_name)
-
-    def generate(self):
-        with io.open(self.filename, 'w') as out_file:
-            out_file.write(os.path.join('debian', self.package_set.deb_base_name, self.egg_project.project_name, 'usr'))
-            out_file.write('  /\n')
-
-
-class DebianPackageSet(DebianPackage):
-    def __str__(self):
-        binaries_files = [self.deb_filename(i) for i in self.project.egg_projects]
-        return 'Debian:\t\t\t%s' % ', '.join(binaries_files)
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('distpackageset', cls, 'deb')
-
-    @property
-    def package_files(self):
-        sources_files = [self.targz_filename, self.changes_filename, self.dsc_filename]
-        binaries_files = [self.deb_filename(i) for i in self.project.egg_projects]
-        return sources_files + binaries_files
-
-    @property
-    def deb_base_name(self):
-        return 'python-%s' % self.project.project_name
-
-    def generate_install_files(self):
-        for egg in self.project.egg_projects:
-            DebianDotInstallFile(self, egg).generate()
-
-
 class RepositoryLocalState(object):
     """Used by Repository objects to keep track locally of what packages have been uploaded to the Repository."""
     def __init__(self, repository):
@@ -2190,7 +2151,7 @@ class Workspace(object):
 
         if not append:
             self.projects = ProjectList(self)
-        self.projects.collect_projects(self, directories or [self.directory])
+        self.projects.collect_projects(directories or [self.directory])
         self.selection = ProjectList(self)
         self.save()
 
