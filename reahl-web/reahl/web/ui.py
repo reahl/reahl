@@ -1104,19 +1104,12 @@ class FieldSet(HTMLElement):
           Rendered as an HTML <fieldset> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :keyword label_text: If given, the FieldSet will have a label containing this text.
        :keyword legend_text: If given, the FieldSet will have a Legend containing this text.
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
-       .. versionchanged: 3.2
-          Deprecated label_text and instead added legend_text: FieldSets should have Legends, not Labels.
     """
-    def __init__(self, view, legend_text=None, label_text=None, css_id=None):
+    def __init__(self, view, legend_text=None, css_id=None):
         super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
-        if label_text:
-            warnings.warn('DEPRECATED: label_text=. Please use legend_text= instead.',
-                          DeprecationWarning, stacklevel=1)
-            self.label = self.add_child(Label(view, text=label_text))
         if legend_text:
             self.legend = self.add_child(Legend(view, text=legend_text))
 
@@ -1328,13 +1321,7 @@ class PrimitiveInput(Input):
             self.name = form.register_input(self) # bound_field must be set for this registration to work
         
         self.prepare_input()
-
-        html_widget = None
-        if (type(self) is not PrimitiveInput) and ('create_html_input' in type(self).__dict__):
-            warnings.warn('DEPRECATED: %s. %s' % (self.create_html_input, 'Please use .create_html_widget instead.'),
-                          DeprecationWarning, stacklevel=5)
-            html_widget = self.create_html_input()
-        self.set_html_representation(self.add_child(html_widget or self.create_html_widget()))
+        self.set_html_representation(self.add_child(self.create_html_widget()))
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)

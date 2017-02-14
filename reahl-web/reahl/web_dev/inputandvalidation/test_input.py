@@ -300,32 +300,6 @@ def rendering_when_not_allowed(fixture):
 
 
 @test(SimpleInputFixture)
-def backwards_compatibility(fixture):
-    """We still support overriding create_html_input for backwards compatibility."""
-
-    # Case when old interface is overridden
-    class OldInput(TextInput):
-        def create_html_input(self):
-            return super(OldInput, self).create_html_widget()
-
-    with warnings.catch_warnings(record=True) as caught_warnings:
-        warnings.simplefilter('always')
-        html_input = OldInput(fixture.form, fixture.field)
-
-    vassert( caught_warnings )
-    tester = WidgetTester(html_input)
-
-    actual = tester.render_html()
-    vassert( actual ) # Something was rendered.
-
-    # Case when new interface is used
-    with warnings.catch_warnings(record=True) as caught_warnings:
-        warnings.simplefilter('always')
-        html_input = TextInput(fixture.form, fixture.field)
-    vassert( not caught_warnings )
-
-
-@test(SimpleInputFixture)
 def input_wrapped_widgets(fixture):
     """An Input is an empty Widget; its contents are supplied by overriding its 
        .create_html_widget() method. Several methods for setting HTML-things, like 
