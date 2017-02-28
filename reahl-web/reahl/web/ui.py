@@ -1107,6 +1107,11 @@ class FieldSet(HTMLElement):
        :keyword legend_text: If given, the FieldSet will have a Legend containing this text.
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
+       .. versionchanged: 3.2
+          Deprecated label_text and instead added legend_text: FieldSets should have Legends, not Labels.
+
+       .. versionchanged: 4.0
+          Removed label_text that was deprecated.
     """
     def __init__(self, view, legend_text=None, css_id=None):
         super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
