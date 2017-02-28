@@ -1,0 +1,19 @@
+@startuml
+
+title Controllers zoomed in
+
+hide members
+hide circle
+
+class set <<python>>
+
+Controller -- EventHandlerList
+set <|-down- FactoryDict
+Controller -right- FactoryDict
+FactoryDict .right. FactoryFromUrlRegex
+
+FactoryFromUrlRegex .right.> View : creates
+ViewFactory -up-|> FactoryFromUrlRegex
+
+
+@enduml

@@ -34,7 +34,6 @@ CommandAlias = reahl.dev.devdomain:CommandAlias
 ConfigurationSpec = reahl.dev.devdomain:ConfigurationSpec
 DebianPackage = reahl.dev.devdomain:DebianPackage
 DebianPackageMetadata = reahl.dev.devdomain:DebianPackageMetadata
-DebianPackageSet = reahl.dev.devdomain:DebianPackageSet
 Dependency = reahl.dev.devdomain:Dependency
 EggProject = reahl.dev.devdomain:EggProject
 EntryPointExport = reahl.dev.devdomain:EntryPointExport

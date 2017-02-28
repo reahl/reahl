@@ -39,7 +39,7 @@ class RealClass(object):
 @six.add_metaclass(stubclass(RealClass))
 class Stub(object):
     def foo(self, a):
-        'i am a fake foo'
+        """i am a fake foo"""
 
 s = Stub()
 s.foo(1)       #calls the fake foo (off course)

@@ -1,0 +1,15 @@
+@startuml
+
+title Reahl commandline shells
+
+hide members
+hide circle
+
+ReahlCommandLine -right- “*” Command : {discovered via entrypoints}
+Command <|-- ProductionCommand
+ReahlCommandLine <|-- ProductionCommandLine
+ProductionCommandLine -right- "*" ProductionCommand
+ProductionCommand -- SystemControl
+ProductionCommand -- Configuration
+
+@enduml

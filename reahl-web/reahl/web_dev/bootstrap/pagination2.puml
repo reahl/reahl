@@ -1,0 +1,31 @@
+@startuml
+
+title Pagination
+
+'│ is ascii-179
+
+
+
+@startsalt
+{+
+
+{
+<i><b>PageMenu</b></i>
+│< < 1 2 3 4 5 > >│
+}
+.
+<i><b>PagedPanel</b></i>
+{+
+.
+.
+Current page contents
+being displayed here
+.
+.
+}
+
+
+}
+@endsalt
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+
+title Hash change handler (Ajax)
+
+hide members
+hide circle
+
+HTMLElement -up--|> Widget
+HTMLElement -right- HashChangeHandler
+HashChangeHandler -right- CheckedRemoteMethod
+CheckedRemoteMethod --up-|> RemoteMethod
+RemoteMethod -right- MethodResult
+WidgetResult -up-|> MethodResult
+@enduml

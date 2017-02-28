@@ -1,0 +1,35 @@
+@startuml
+
+title Pagination
+
+hide methods
+hide circle
+
+class "<b>Menu</b>" as Menu
+class "<b>PageMenu</b>" as PageMenu{
+	query_fields
+}
+note top: page number selector
+
+class "<b>PagedPanel</b>" as PagedPanel{
+	query_fields
+}
+note right: current page contents \nbeing displayed
+
+class "<b>PageIndex</b>" as PageIndex{
+	current_page_number
+	start_page_number
+}
+note left of PageIndex : does all the calculations \nneeded by the \nparticipating Widgets
+Widget <|--- PageMenu
+Widget <|--- PagedPanel
+
+PageMenu -right- PagedPanel : pagedPanel >
+PageMenu -left- Menu : html_representation >
+PageMenu -- PageIndex
+PageIndex -- PagedPanel
+PageIndex -right- Page
+PageIndex <|-- AnnualPageIndex
+PageIndex <|-- SequentialPageIndex
+
+@enduml

@@ -31,7 +31,7 @@ from reahl.tofu import temp_file_with
 from reahl.tofu import vassert
 from reahl.stubble import easter_egg, stubclass
 
-from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, ReahlWSGIApplication, UserInterface
+from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, UserInterface
 from reahl.webdev.tools import Browser
 from reahl.web_dev.fixtures import WebFixture
 
@@ -157,7 +157,7 @@ class StaticFileTests(object):
 
         easter_egg.clear()
         pkg_resources.working_set.add(easter_egg)
-        easter_egg.set_module_path(egg_dir.name)
+        easter_egg.location = egg_dir.name
         
         class MainUI(UserInterface):
             def assemble(self):
@@ -206,7 +206,7 @@ class StaticFileTests(object):
         another_file = package_dir.file_with('packaged_file2', fixture.file2_contents)
 
         pkg_resources.working_set.add(easter_egg)
-        easter_egg.set_module_path(egg_dir.name)
+        easter_egg.location = egg_dir.name
 
         class MainUI(UserInterface):
             def assemble(self):

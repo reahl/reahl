@@ -1,0 +1,12 @@
+@startuml
+
+title Workflow Inbox
+
+hide members
+hide circle
+
+Inbox "*" --right- "*" Queue
+Queue "1" --right-- "*" Task
+Task "*" -down- "0..1" Party : reserved_by >
+
+@enduml

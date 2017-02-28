@@ -1,0 +1,31 @@
+@startuml
+
+title Factories
+
+hide members
+hide circle
+
+
+FactoryFromUrlRegex -up-|> Factory
+WidgetFactory -up-|> Factory
+FileFactory -up-|> Factory
+FileList -up-|> FileFactory
+DiskDirectory -up-|> FileFactory
+UserInterfaceFactory -up-|> FactoryFromUrlRegex
+SubResourceFactory -up-|> FactoryFromUrlRegex
+ViewFactory -up-|> FactoryFromUrlRegex
+ViewPseudoFactory -up-|> ViewFactory
+
+ViewPseudoFactory -right- Bookmark
+
+PseudoBookmark -up-|> Bookmark
+ReturnToCaller -up-|> PseudoBookmark
+ReturnToCurrent -up-|> PseudoBookmark
+
+
+FactoryFromUrlRegex "*" -right-  FactoryDict
+FactoryFromUrlRegex -left-  RegexPath
+
+ParameterisedPath -up-|> RegexPath
+
+@enduml

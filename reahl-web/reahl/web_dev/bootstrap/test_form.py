@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, expected, test
+from reahl.tofu import vassert, scenario, test
 
 from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester

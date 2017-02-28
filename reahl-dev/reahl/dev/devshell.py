@@ -32,7 +32,7 @@ from reahl.component.shelltools import Command, ReahlCommandline, Executable
 from reahl.component.config import EntryPointClassList, Configuration
 
 from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository, SetupCommandFailed
-from reahl.dev.exceptions import StatusException, AlreadyUploadedException, NotBuiltException, \
+from reahl.dev.exceptions import StatusException, AlreadyUploadedException, \
     NotUploadedException, NotVersionedException, NotCheckedInException, \
     MetaInformationNotAvailableException, AlreadyDebianisedException, \
     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException, \
@@ -60,7 +60,7 @@ class WorkspaceCommand(Command):
             print('REAHLWORKSPACE environment variable not set, defaulting to %s' % workspace_dir, file=sys.stderr)
 
         work_directory = os.path.abspath(os.path.expanduser(workspace_dir))
-        self.workspace = Workspace(workspace_dir)
+        self.workspace = Workspace(work_directory)
         self.workspace.read()
 
 

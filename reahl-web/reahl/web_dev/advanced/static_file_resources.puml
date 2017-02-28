@@ -1,0 +1,32 @@
+@startuml
+
+title How static file resources work
+
+hide members
+hide circle
+
+class "<b>StaticFileResource</b>" as StaticFileResource
+class "<b>FileView</b>" as FileView
+class "<b>StaticUI</b>" as StaticUI
+class "<b>ViewableFile</b>" as ViewableFile
+
+SubResource -up-|> Resource
+StaticFileResource -up-|> SubResource
+StaticFileResource -right- FileView
+FileView -up--|> View
+StaticUI -up--|> UserInterface
+FileView -right- StaticUI : current_view
+ViewableFile -up-|> FileView
+FileOnDisk -up-|> ViewableFile
+FileFromBlob -up-|> ViewableFile
+PackagedFile -up-|> FileOnDisk
+ConcatenatedFile -up-|> FileOnDisk
+
+ViewableFile .right. FileFactory
+
+StaticUI --- FileFactory
+FileFactory -up-|> Factory
+DiskDirectory -up-|> FileFactory
+FileList -up-|> FileFactory
+
+@enduml

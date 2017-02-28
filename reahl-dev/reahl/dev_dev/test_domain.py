@@ -30,7 +30,7 @@ from reahl.stubble import stubclass
 
 from reahl.component.shelltools import Executable
 from reahl.dev.devdomain import DebianPackage, SshRepository, LocalAptRepository, RepositoryLocalState, Workspace, \
-    Version, Project, ProjectMetadata, EggProject, ChickenProject, Project, SubstvarsFile, \
+    Version, ProjectMetadata, EggProject, ChickenProject, Project, SubstvarsFile, \
     Dependency, ThirdpartyDependency, DebianChangelog, DebianControl
 from reahl.dev.exceptions import AlreadyUploadedException, NotBuiltException, NotAValidProjectException, \
     InvalidProjectFileException

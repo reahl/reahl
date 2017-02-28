@@ -38,7 +38,6 @@
   <export entrypoint="reahl.dev.xmlclasses" name="EggProject" locator="reahl.dev.devdomain:EggProject"/>
 
   <export entrypoint="reahl.dev.xmlclasses" name="DebianPackage" locator="reahl.dev.devdomain:DebianPackage"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="DebianPackageSet" locator="reahl.dev.devdomain:DebianPackageSet"/>
   <export entrypoint="reahl.dev.xmlclasses" name="SshRepository" locator="reahl.dev.devdomain:SshRepository"/>
 
   <export entrypoint="reahl.dev.xmlclasses" name="PythonSourcePackage" locator="reahl.dev.devdomain:PythonSourcePackage"/>

@@ -18,7 +18,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from alembic import op
 
 from reahl.component.migration import Migration
-from reahl.sqlalchemysupport import fk_name, pk_name, ix_name
+from reahl.sqlalchemysupport import fk_name, ix_name
 
 
 class MigrateElixirToDeclarative(Migration):

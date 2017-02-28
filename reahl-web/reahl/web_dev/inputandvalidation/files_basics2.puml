@@ -1,0 +1,12 @@
+@startuml
+
+title Files - basics: SimpleFileInput
+
+hide members
+hide circle
+
+class python <<object>>
+SimpleFileInput -right- FileField
+FileField -right- python
+
+@enduml

@@ -70,7 +70,7 @@ class BasicModelZooMixin(SqlAlchemyTestMixin):
         accounts.mailer_class = MailerStub
         return accounts
     
-    def new_webconfig(self, wsgi_app=None):
+    def new_webconfig(self):
         web = WebConfig()
         web.site_root = UserInterface
         web.static_root = os.path.join(os.getcwd(), 'static')

@@ -1,0 +1,24 @@
+@startuml
+
+
+@startsalt
+{
+
+<b>Add Collaborator</b>
+.
+{
+Name: | ^Jane   ^
+.
+Rights:
+[] Can add
+[] Can modify
+.
+.|[Share]
+}
+
+}
+@endsalt
+
+
+
+@enduml

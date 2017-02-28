@@ -1,0 +1,30 @@
+@startuml
+
+title Reahl web server WSGI application details
+
+hide members
+hide circle
+
+class "simple_server.WSGIServer" as ssWSGISServer
+
+ssWSGISServer <|-- ReahlWSGIServer
+ReahlWSGIServer <|-- ReahlSSLCapableWSGIServer
+
+'object diagram
+object "<u>:ReahlWebServer</u>" as reahlwebserver
+object "<u>:ReahlWSGIServer</u>" as reahlwsgiserver
+object "<u>:SSLCapableWSGIServer</u>" as sslcapablewsgiserver
+object "<u>:WrappedApp</u>" as wrappedapp
+object "<u>:ReahlWSGIApplication</u>" as rwsgiapplication
+object "<u>:Configuration</u>" as configuration
+
+reahlwebserver -down-> reahlwsgiserver : httpd
+reahlwebserver -down-> sslcapablewsgiserver : httpsd
+reahlwebserver --> wrappedapp
+reahlwsgiserver --> wrappedapp
+sslcapablewsgiserver --> wrappedapp
+wrappedapp -right-> rwsgiapplication
+rwsgiapplication -right-> configuration
+
+
+@enduml

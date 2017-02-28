@@ -31,50 +31,13 @@ from pkg_resources import working_set
 from reahl.component.decorators import memoized
 
 
-class EntryPointKeyEncodedAttachmentName(object):
-
-    order_delimeter = '-'
-    
-    def __init__(self, encoded_string=None, path=None, order=None):
-        self.encoded_string = encoded_string
-        self._order = order
-        self._path = path
-
-    @property
-    def is_encoded(self):
-        return self.encoded_string is not None
-        
-    @property
-    def order(self):
-        if self.is_encoded:
-            return int(self.encoded_string.split(self.order_delimeter)[0])
-        return self._order 
-    
-    @property
-    def encoded_path(self):
-        if self.is_encoded:
-            return '-'.join(self.encoded_string.split(self.order_delimeter)[1:])
-        return self._path.replace('/', '+')
-
-    @property
-    def decoded_path(self):
-        if self.is_encoded:
-            return self.encoded_path.replace('+', '/')
-        return self._path
-
-    def as_encoded_key(self):
-        if self.is_encoded:
-            return self.encoded_string
-        return '%s%s%s' % (self.order, self.order_delimeter, self.encoded_path)
-
-
 class NoDependencyPathFound(Exception):
     def __init__(self, from_vertex, to_vertex):
         self.from_vertex = from_vertex
         self.to_vertex = to_vertex
 
     def str(self):
-        return 'No dependency path found from %s to %s' % (self.from_vertex, to_vertex)
+        return 'No dependency path found from %s to %s' % (self.from_vertex, self.to_vertex)
 
 
 class CircularDependencyDetected(Exception):
@@ -180,15 +143,8 @@ class ReahlEgg(object):
             return config.list_required(self.configuration_spec)
         return []
 
-    def get_persisted_classes_in_order(self, orm_control):
+    def get_persisted_classes_in_order(self):
         return self.get_ordered_classes_exported_on('reahl.persistlist')
-
-    def find_attachments(self, label):
-        entry_point = 'reahl.attachments.%s' % label
-        entry_point_dict = self.distribution.get_entry_map().get(entry_point, {})
-        names = [EntryPointKeyEncodedAttachmentName(encoded_string=name) for name in entry_point_dict.keys()]
-        ordered_names = [name.decoded_path for name in sorted(names, key=lambda name: name.order)]
-        return [Attachment(i, label) for i in ordered_names]
 
     @property
     def migrations_in_order(self):
@@ -225,10 +181,6 @@ class ReahlEgg(object):
     def do_daily_maintenance(self):
         for job in self.scheduled_jobs:
             job()
-
-    def get_roles_to_add(self):
-        "returns a list of role classes"
-        return []
 
     @property
     def locale_dirname(self):

@@ -42,9 +42,8 @@ creating a :class:`Library` is the way to do it going forward.
 import itertools
 from collections import OrderedDict
 
-from reahl.component.exceptions import ProgrammerError
-from reahl.component.context import ExecutionContext
 from reahl.web.fw import PackagedFile, ConcatenatedFile
+
 
 class LibraryIndex(object):
     """An ordered collection of :class:`Library` instances.

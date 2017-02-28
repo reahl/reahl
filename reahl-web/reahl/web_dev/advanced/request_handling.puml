@@ -1,0 +1,19 @@
+@startuml
+
+title Basics of remote methods
+
+hide footbox
+
+note left of WebExcecutionContext: 	wsgi requests are handled inside\n a WebExecutionContext by \ncreating the appropriate Resource\n and using it to return a Response
+
+
+-> WebExcecutionContext : request
+WebExcecutionContext -> ReahlWSGIApp : ""resource_for(self.request)""
+create Resource
+ReahlWSGIApp -> Resource
+WebExcecutionContext -> Resource : ""handle_request(self.request)""
+create Response
+Resource -> Response
+WebExcecutionContext -> Response : ""~__call__(environ, start_response)""
+
+@enduml

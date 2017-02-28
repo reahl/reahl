@@ -1,0 +1,41 @@
+@startuml
+
+title Files - FileUploadInput
+
+hide members
+hide circle
+
+note "Note that the FileFields are always \nsent a list of UploadedFile objects.\nIn some scenarios, UploadedFiles are \nmade from PersistedFiles, and in other instances \nthey are made from FieldStorages. \n\nDoing this is the responsibility of the Widget." as N1
+
+class PersistedFile <<session scoped>>
+class "<b>Form</b>" as Form_1
+class "<b>Form</b>" as Form_2
+class "<b>FileField</b>" as FileField_1
+note right: "(self.fields.uploaded_file)"
+class "<b>FileField</b>" as FileField_2
+note right: "(new_address.fields.files)"
+
+Form_1 -right- SimpleFileInput
+SimpleFileInput -- FileField_1
+FileUploadInput -up- Form_1 : upload_form
+
+FileUploadInput -left- Form_2
+FileUploadInput -right- FileField_1 : <- domain_object / fields.uploaded_file ->
+'FileUploadInput -right- FileField_1  : fields.uploaded_file >
+FileUploadInput -- FileField_2
+FileUploadInput -- UploadedFile
+
+FileUploadInput -- "*" SessionData : uploaded_files
+Form_2 -- "*" SessionData
+SessionData -right- UserSession
+PersistedFile -up- SessionData
+
+package "Example User Code"{
+class Comment
+class AttachedFile <<persisted>>
+Comment -down- AttachedFile
+}
+
+FileField_2 --- Comment : domain_object >
+
+@enduml

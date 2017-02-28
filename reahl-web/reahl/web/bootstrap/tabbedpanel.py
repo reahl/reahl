@@ -28,9 +28,9 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.component.modelinterface import exposed, Field
-from reahl.web.fw import Widget, Bookmark
+from reahl.web.fw import Widget
 from reahl.web.ui import Div, ActiveStateAttributes, DelegatedAttributes
-from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu, MenuItem
+from reahl.web.bootstrap.navs import Nav, TabLayout, DropdownMenu
 
 
 class TabbedPanel(Widget):

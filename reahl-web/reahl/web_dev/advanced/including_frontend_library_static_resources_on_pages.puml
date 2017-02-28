@@ -1,0 +1,21 @@
+@startuml
+
+title Including frontend library static resources on pages
+
+hide members
+hide circle
+
+
+HTML5Page -right- Head
+HTML5Page -- Body
+
+Head -right- HeaderContent : reahl_header
+Body -right- FooterContent : real_footer
+
+HeaderContent -right- LibraryIndex
+FooterContent -- LibraryIndex
+
+WebConfig -down- LibraryIndex : frontend_libraries >
+LibraryIndex -down- "*" Library
+
+@enduml

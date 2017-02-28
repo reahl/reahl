@@ -157,7 +157,6 @@ class UserSession(Base, UserSessionProtocol):
         if not hasattr(context, 'request'):
             return 'en_gb'
 
-        request = context.request
         url = Url.get_current_url()
         possible_locale, path = url.get_locale_split_path()
         supported_locales = ReahlEgg.get_languages_supported_by_all(context.config.reahlsystem.root_egg)

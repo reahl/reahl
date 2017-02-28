@@ -17,10 +17,7 @@
     
 from __future__ import print_function, unicode_literals, absolute_import, division
 import os
-import shutil
 import os.path
-from contextlib import contextmanager
-import tempfile
 
 from reahl.tofu import Fixture
 from reahl.tofu import scenario

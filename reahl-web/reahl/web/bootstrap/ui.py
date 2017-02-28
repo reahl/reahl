@@ -29,9 +29,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from copy import copy
-
-from reahl.component.exceptions import ProgrammerError, arg_checks, IsInstance
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 
 import reahl.web.ui
