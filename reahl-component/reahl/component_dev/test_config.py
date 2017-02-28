@@ -21,8 +21,6 @@ import pkg_resources
 import re
 import logging
 
-from pkg_resources import DistributionNotFound
-
 from reahl.tofu import Fixture, set_up, temp_dir, expected
 from reahl.stubble import CallMonitor, EasterEgg, easter_egg
 

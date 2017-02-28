@@ -173,7 +173,6 @@ def test_replaced_signature_should_match():
         def foo(self, n, y=None):
             assert None, 'This should never be reached in this test'
 
-
     s = SomethingElse()
 
     def replacement():

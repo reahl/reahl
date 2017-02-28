@@ -41,7 +41,7 @@ from pkg_resources import require, DistributionNotFound, VersionConflict, get_di
 from setuptools import find_packages, setup
 from xml.parsers.expat import ExpatError
 
-from reahl.component.shelltools import Executable, ExecutableNotInstalledException
+from reahl.component.shelltools import Executable
 from reahl.dev.xmlreader import XMLReader, TagNotRegisteredException
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.eggs import ReahlEgg
@@ -309,45 +309,6 @@ class DebianPackage(DistributionPackage):
 
     def generate_install_files(self):
         pass
-
-
-class DebianDotInstallFile(object):
-    def __init__(self, package_set, egg_project):
-        self.egg_project = egg_project
-        self.package_set = package_set
-
-    @property
-    def filename(self):
-        return os.path.join('debian', 'python-%s.install' % self.egg_project.project_name)
-
-    def generate(self):
-        with io.open(self.filename, 'w') as out_file:
-            out_file.write(os.path.join('debian', self.package_set.deb_base_name, self.egg_project.project_name, 'usr'))
-            out_file.write('  /\n')
-
-
-class DebianPackageSet(DebianPackage):
-    def __str__(self):
-        binaries_files = [self.deb_filename(i) for i in self.project.egg_projects]
-        return 'Debian:\t\t\t%s' % ', '.join(binaries_files)
-
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('distpackageset', cls, 'deb')
-
-    @property
-    def package_files(self):
-        sources_files = [self.targz_filename, self.changes_filename, self.dsc_filename]
-        binaries_files = [self.deb_filename(i) for i in self.project.egg_projects]
-        return sources_files + binaries_files
-
-    @property
-    def deb_base_name(self):
-        return 'python-%s' % self.project.project_name
-
-    def generate_install_files(self):
-        for egg in self.project.egg_projects:
-            DebianDotInstallFile(self, egg).generate()
 
 
 class RepositoryLocalState(object):
@@ -1125,7 +1086,7 @@ class DebianPackageMetadata(ProjectMetadata):
             assert deb_name.startswith('python-')
             return deb_name[len('python-'):]
         else:
-            logging.warn('Project not debianised, using directory name for project name')
+            logging.warning('Project not debianised, using directory name for project name')
             print(':::%s' % self.directory)
             return os.path.basename(self.directory)
 
@@ -1939,7 +1900,7 @@ class EggProject(Project):
                         '--input-dirs', '.',
                         '--output-file', self.pot_filename])
         else:
-            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name))
+            logging.warning('No <translations.../> tag specified for project: "%s"' % (self.project_name))
 
     @property
     def translated_domains(self):
@@ -1947,7 +1908,7 @@ class EggProject(Project):
             filenames = glob.glob(os.path.join(self.locale_dirname, '*/LC_MESSAGES/*.po'))
             return {os.path.splitext(os.path.basename(i))[0] for i in filenames}
         else:
-            logging.warn('No <translations.../> tag specified for project: "%s"' % (self.project_name))
+            logging.warning('No <translations.../> tag specified for project: "%s"' % (self.project_name))
             return []
 
     def merge_translations(self):
@@ -1990,12 +1951,6 @@ class ChickenProject(EggProject):
     @classmethod
     def get_xml_registration_info(cls):
         return ('project', cls, 'chicken')
-
-    def inflate_child(self, reader, child, tag, parent):
-        if isinstance(child, DebianPackageSet):
-            self.packages_to_distribute.append(child)
-        else:
-            super(ChickenProject, self).inflate_child(reader, child, tag, parent)
 
     @property
     def egg_project_names(self):
@@ -2083,7 +2038,7 @@ class ProjectList(list):
         projects.read(filename)
         return projects
 
-    def collect_projects(self, workspace, directories):
+    def collect_projects(self, directories):
         for directory in directories:
             for root, dirs, files in os.walk(os.path.abspath(directory)):
                 if '.reahlignore' in files:
@@ -2199,7 +2154,7 @@ class Workspace(object):
 
         if not append:
             self.projects = ProjectList(self)
-        self.projects.collect_projects(self, directories or [self.directory])
+        self.projects.collect_projects(directories or [self.directory])
         self.selection = ProjectList(self)
         self.save()
 
@@ -2212,7 +2167,7 @@ class Workspace(object):
         self.save()
 
     def get_selection_subset(self, states=None, tags=None, append=False, all_=False, negated=False):
-        return self.selection.select(states=None, tags=None, append=False, all_=False, negated=False)
+        return self.selection.select(states=states, tags=tags, append=append, all_=all_, negated=negated)
 
     def project_named(self, name):
         return self.projects.project_named(name)

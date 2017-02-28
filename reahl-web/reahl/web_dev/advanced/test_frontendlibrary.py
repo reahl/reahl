@@ -46,7 +46,7 @@ class LibraryFixture(WebFixture):
     def new_MyLibrary(self):
         easter_egg.clear()
         pkg_resources.working_set.add(easter_egg)
-        easter_egg.set_module_path(self.egg_dir.name)
+        easter_egg.location = self.egg_dir.name
 
         class MyLibrary(Library):
             def __init__(self):

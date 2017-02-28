@@ -31,9 +31,10 @@ from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, expos
                              DateField, DateConstraint, \
                              ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
-                             EqualToConstraint, RemoteConstraint, IntegerConstraint, \
-                             MaxValueConstraint, MinValueConstraint, Action, AdaptedMethod, secured,\
-                             AccessRightsConstraint, Choice, ChoiceGroup, ChoiceField, MultiChoiceConstraint, MultiChoiceField,\
+                             EqualToConstraint, IntegerConstraint, \
+                             MaxValueConstraint, MinValueConstraint, Action, secured,\
+                             AccessRightsConstraint, Choice, ChoiceGroup, ChoiceField, MultiChoiceConstraint, \
+                             MultiChoiceField,\
                              FileField, SingleFileConstraint, UploadedFile, FileSizeConstraint, \
                              MimeTypeConstraint, MaxFilesConstraint, SmallerThanConstraint, GreaterThanConstraint
 

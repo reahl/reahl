@@ -17,8 +17,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from sqlalchemy import Column, Integer, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer
 
 from reahl.sqlalchemysupport import Base
 from reahl.component.i18n import Translator

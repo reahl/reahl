@@ -59,7 +59,7 @@ class is the easy part. Just include a configuration element in your
    :end-before:   <persisted>
 
 .. note:: Remember to run ``reahl setup -- develop -N`` after editing
-	  the `.reahlproject` file so that those edits can take effect.
+      the `.reahlproject` file so that those edits can take effect.
 
 Config files are evaluated as Python code, but variable names are made
 available in these files so that a config file basically looks like a

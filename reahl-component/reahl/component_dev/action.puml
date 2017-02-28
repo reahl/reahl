@@ -1,0 +1,15 @@
+@startuml
+
+title Action
+
+hide members
+hide circle
+
+class callable <<interface>>
+
+AdaptedMethod <|-- Action
+AccessRights -right- Action : readable
+AccessRights -right- Action : writable
+AdaptedMethod -right-> callable
+
+@enduml

@@ -186,7 +186,7 @@ class MemoizeScenarios(Fixture):
         class SomeClass(object):
             @memoized
             @classmethod
-            def some_class_method(self):
+            def some_class_method(cls):
               return EmptyStub()
 
         self.memoized_callable = SomeClass.some_class_method
@@ -196,7 +196,7 @@ class MemoizeScenarios(Fixture):
         class SomeClass(object):
             @memoized
             @classmethod
-            def some_class_method(self):
+            def some_class_method(cls):
               return EmptyStub()
 
         an_instance = SomeClass()

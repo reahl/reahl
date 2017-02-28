@@ -26,12 +26,11 @@ from reahl.tofu import vassert
 from sqlalchemy import Column, Integer, Boolean, UnicodeText, ForeignKey
 
 from reahl.dev.tools import EventTester
-from reahl.sqlalchemysupport import metadata, Session, Base
+from reahl.sqlalchemysupport import Session, Base
 from reahl.domain.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
-from reahl.web_dev.fixtures import WebBasicsMixin
 
 
 class DeferredActionFixture(Fixture, BasicModelZooMixin):
@@ -66,7 +65,7 @@ class DeferredActionFixture(Fixture, BasicModelZooMixin):
         return MyDeferredAction
 
     def new_current_time(self):
-        return datetime.datetime.now();
+        return datetime.datetime.now()
         
     def new_future_time(self):
         return self.current_time + datetime.timedelta(days=1)

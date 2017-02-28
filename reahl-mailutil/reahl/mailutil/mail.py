@@ -72,7 +72,6 @@ class MailMessage(object):
         return self.message_root.as_string()
 
     def validate_email_addresses(self, list_of_addresses):
-        result = []
         for address in list_of_addresses:
             if self.EMAIL_RE.search(address) == None:
                 raise InvalidEmailAddressException(address)

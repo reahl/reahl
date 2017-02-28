@@ -24,7 +24,7 @@ import random
 from string import Template
 
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
@@ -34,7 +34,7 @@ from reahl.mailutil.mail import Mailer, MailMessage
 from reahl.component.config import Configuration, ConfigSetting
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import EmailField, PasswordField, BooleanField, EqualToConstraint, \
-                                   RemoteConstraint, Field, Event, exposed, exposed, Action
+                                            Field, Event, exposed, Action
 from reahl.component.context import ExecutionContext
 from reahl.domain.partymodel import Party
 from reahl.domain.workflowmodel import DeferredAction, Requirement
@@ -113,7 +113,7 @@ class SystemAccount(Base):
 
 
 class EmailAndPasswordSystemAccount(SystemAccount):
-    """An EmailAndPasswordSystemAccount used an email address to identify the account uniquely,
+    """An EmailAndPasswordSystemAccount uses an email address to identify the account uniquely,
        and uses a password to authenticate login attempts.
     """
     __tablename__ = 'emailandpasswordsystemaccount'
@@ -592,7 +592,7 @@ class LoginSession(Base):
     def is_logged_in(self, secured=False):
         """Answers whether the user is logged in.
 
-           :keyword secure: If True, ensures the login is done via secure means (such as an encrypted connection).
+           :keyword secured: If True, ensures the login is done via secure means (such as an encrypted connection).
 
            .. versionchanged:: 3.1
               Moved here from the older UserSession, and the `secured` keyword argument was added.
@@ -605,7 +605,6 @@ class LoginSession(Base):
 
     def set_as_logged_in(self, account, stay_logged_in):
         self.account = account
-        config = ExecutionContext.get_context().config
         self.user_session.set_idle_lifetime(stay_logged_in)
         self.user_session.set_last_activity_time()
 

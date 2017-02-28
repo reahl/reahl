@@ -18,11 +18,9 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture, expected
-
 from reahl.stubble import easter_egg
 
 from reahl.component.dbutils import DatabaseControl, SystemControl, CouldNotFindDatabaseControlException
-
 from reahl.component.config import Configuration, ReahlSystemConfig
 
 

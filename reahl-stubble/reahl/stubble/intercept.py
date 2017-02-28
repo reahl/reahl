@@ -181,6 +181,7 @@ def replaced(method, replacement):
     if inspect.ismethod(method) and method_self is not None:
         target = method_self
     else:
+        #in six.PY3 this code will not be reached - the ValueError above would be raised
         warnings.warn(
             'Stubbing by passing in unbound methods is deprecated.',
             DeprecationWarning)

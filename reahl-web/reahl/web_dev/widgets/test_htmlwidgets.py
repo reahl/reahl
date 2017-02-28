@@ -355,11 +355,6 @@ class Scenarios(WebFixture):
     def fieldset1(self):
         self.widget = FieldSet(self.view)
         self.expected_html = '<fieldset></fieldset>'
-        
-    @scenario
-    def fieldset2deprecated(self):
-        self.widget = FieldSet(self.view, label_text='text')
-        self.expected_html = '<fieldset><label>text</label></fieldset>'
 
     @scenario
     def fieldset2(self):

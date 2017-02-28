@@ -31,7 +31,7 @@ from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.component.i18n import Translator
 
 import reahl.web.ui
-from reahl.web.ui import WrappedInput, Label, HTMLAttributeValueOption
+from reahl.web.ui import Label, HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span
 from reahl.web.bootstrap.grid import ColumnLayout
 
@@ -120,7 +120,7 @@ class TextArea(reahl.web.ui.TextArea):
     """
     add_default_attribute_source = False
     def __init__(self, form, bound_field, rows=None, columns=None):
-        super(TextArea, self).__init__(form, bound_field, rows=rows, columns=rows)
+        super(TextArea, self).__init__(form, bound_field, rows=rows, columns=columns)
         self.append_class('form-control')
 
 

@@ -1,0 +1,21 @@
+@startuml
+
+title Projects and project related metadata
+
+hide members
+hide circle
+
+Project <|-- EggProject
+Dependency <|-- ThirdpartyDependency
+EggProject -left- Dependency : build_deps >
+EggProject -- Dependency : test_deps >
+EggProject -- Dependency : run_deps >
+
+Project -right- ProjectMetadata : metadata
+Project -- SourceControlSystem : source_control
+SourceControlSystem <|-- BzrSourceControl
+SourceControlSystem <|-- GitSourceControl
+ProjectMetadata <|-- DebianPackageMetadata
+ProjectMetadata <|-- HardcodedMetadata
+
+@enduml

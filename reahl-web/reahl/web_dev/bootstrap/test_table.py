@@ -72,10 +72,9 @@ class LayoutScenarios(WebFixture):
 def table_layout_options(fixture):
     """TableLayout uses Bootstrap to implement many table layout options."""
 
-    for switched_on in [True, False]:
-        layout = TableLayout(**fixture.layout_kwargs)
-        Table(fixture.view).use_layout(layout)
-        vassert( layout.widget.get_attribute('class') == 'table %s' % fixture.expected_css_class )
+    layout = TableLayout(**fixture.layout_kwargs)
+    Table(fixture.view).use_layout(layout)
+    vassert( layout.widget.get_attribute('class') == 'table %s' % fixture.expected_css_class )
 
 
 

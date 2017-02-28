@@ -1,0 +1,30 @@
+@startuml
+
+title Menus and Layout
+
+hide members
+hide circle
+
+
+class A #grey
+class Layout #grey
+class HTMLWidget #grey
+class HTMLElement #grey
+
+HTMLWidget -right- HTMLElement : html_representation
+
+HTMLWidget <|-- Menu
+Menu <|-- DropDownMenu
+Menu <|-- Nav
+Menu -right- Layout
+Menu -left- "*" MenuItem
+MenuItem -up- A
+
+Layout <|-- NavLayout
+Layout <|-- DropDownMenuLayout
+NavLayout <|-- PillLayout
+NavLayout <|-- TabLayout
+
+note " #grey items are Core,\n others are Bootstrap" as N1
+
+@enduml

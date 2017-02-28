@@ -31,12 +31,11 @@ from reahl.component.exceptions import DomainException
 from reahl.web.fw import CheckedRemoteMethod
 from reahl.web.fw import JsonResult
 from reahl.web.fw import MethodResult
-from reahl.web.fw import RemoteMethod, RegenerateMethodResult
+from reahl.web.fw import RemoteMethod
 from reahl.web.fw import Widget
 from reahl.web.fw import WidgetResult
 from reahl.component.modelinterface import Field, IntegerField
-from reahl.component.py3compat import ascii_as_bytes_or_str
-from reahl.web_dev.fixtures import  WebFixture
+from reahl.web_dev.fixtures import WebFixture
 
 class RemoteMethodFixture(WebFixture):
     def new_widget_factory(self, remote_method=None):

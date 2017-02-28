@@ -1,0 +1,33 @@
+@startuml
+
+title Forms and exception handling
+
+hide members
+hide circle
+
+class UserInput <<Persisted>>
+class SessionData <<Persisted>>
+class WebUserSession <<Persisted>>
+class PersistedException <<Persisted>>
+
+
+Form .up..|> Widget
+Input .up..|> Widget
+UserInput -- Input
+
+RemoteMethod .up.|> Resource
+EventChannel-up-|> RemoteMethod
+
+Form -left- RemoteMethod : field_validator
+Form -- EventChannel : event_channel
+
+Form -right- "*" Input
+Form -- "*" UserInput
+Form -- PersistedException
+
+SessionData -right- WebUserSession
+UserInput --|> SessionData
+PersistedException -- SessionData
+
+
+@enduml

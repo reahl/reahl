@@ -24,7 +24,7 @@ import time
 from reahl.stubble import easter_egg, stubclass, EmptyStub
 from nose.tools import istest
 from reahl.tofu import Fixture, test, set_up, tear_down, scenario
-from reahl.tofu import temp_file_with, check_limitation, vassert, expected
+from reahl.tofu import temp_file_with, vassert, expected
 
 from reahl.dev.xmlreader import XMLReader, DoubleRegistrationException, TagNotRegisteredException
 

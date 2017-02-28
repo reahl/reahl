@@ -30,12 +30,12 @@ import six
 import warnings
 from collections import OrderedDict
 
-from reahl.component.exceptions import IsInstance, ProgrammerError
+from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
-    RemoteConstraint, Field, BooleanField, ConstraintNotFound, Choice, UploadedFile, InputParseException, StandaloneFieldIndex
+    Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
@@ -867,7 +867,7 @@ class Span(HTMLElement):
     def __init__(self, view, text=None, html_escape=True, css_id=None):
         super(Span, self).__init__(view, 'span', children_allowed=True, css_id=css_id)
         if text:
-            self.add_child(TextNode(view, text))
+            self.add_child(TextNode(view, text, html_escape=html_escape))
 
 
 
@@ -923,7 +923,6 @@ class Form(HTMLElement):
             return False
         except ValidationConstraint:
             raise
-        return False
 
     def set_up_input_formatter(self, input_formatter_name):
         self.input_formatter = RemoteMethod(input_formatter_name, 
@@ -1080,10 +1079,9 @@ class NestedForm(Div):
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: (See :class:`Form`)
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
-       
+
     """
-    def __init__(self, view, unique_name, css_id=None):
+    def __init__(self, view, unique_name):
         self.out_of_bound_form = self.create_out_of_bound_form(view, unique_name)
         super(NestedForm, self).__init__(view, css_id='%s_nested' % self.out_of_bound_form.css_id)
         self.add_to_attribute('class', ['reahl-nested-form'])
@@ -1106,19 +1104,17 @@ class FieldSet(HTMLElement):
           Rendered as an HTML <fieldset> element.
     
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :keyword label_text: If given, the FieldSet will have a label containing this text.
        :keyword legend_text: If given, the FieldSet will have a Legend containing this text.
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
        .. versionchanged: 3.2
           Deprecated label_text and instead added legend_text: FieldSets should have Legends, not Labels.
+
+       .. versionchanged: 4.0
+          Removed label_text that was deprecated.
     """
-    def __init__(self, view, legend_text=None, label_text=None, css_id=None):
+    def __init__(self, view, legend_text=None, css_id=None):
         super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
-        if label_text:
-            warnings.warn('DEPRECATED: label_text=. Please use legend_text= instead.',
-                          DeprecationWarning, stacklevel=1)
-            self.label = self.add_child(Label(view, text=label_text))
         if legend_text:
             self.legend = self.add_child(Legend(view, text=legend_text))
 
@@ -1330,13 +1326,7 @@ class PrimitiveInput(Input):
             self.name = form.register_input(self) # bound_field must be set for this registration to work
         
         self.prepare_input()
-
-        html_widget = None
-        if (type(self) is not PrimitiveInput) and ('create_html_input' in type(self).__dict__):
-            warnings.warn('DEPRECATED: %s. %s' % (self.create_html_input, 'Please use .create_html_widget instead.'),
-                          DeprecationWarning, stacklevel=5)
-            html_widget = self.create_html_input()
-        self.set_html_representation(self.add_child(html_widget or self.create_html_widget()))
+        self.set_html_representation(self.add_child(self.create_html_widget()))
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)

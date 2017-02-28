@@ -1,0 +1,17 @@
+@startuml
+
+title Projects and Workspace
+
+hide members
+hide circle
+
+class "<b>Project</b>" as Project
+class "<b>Workspace</b>" as Workspace
+
+Project "*" -right- Workspace
+(Project, Workspace) .. ProjectList
+LocalRepository <|-- LocalAptRepository
+Workspace -right- LocalRepository : distribution_egg_repository
+Workspace -- LocalAptRepository : distribution_apt_repository
+
+@enduml

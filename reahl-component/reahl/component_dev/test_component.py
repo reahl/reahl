@@ -17,7 +17,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import Fixture, expected, NoException
+from reahl.tofu import expected, NoException
 from reahl.stubble import easter_egg, EmptyStub
 
 from reahl.component.eggs import ReahlEgg
@@ -38,9 +38,9 @@ def test_flattened_tree_of_eggs():
     def is_ordered_before(higher, lower):
         return component_names_in_order.index(higher) < component_names_in_order.index(lower)
 
-    assert component_names_in_order[:2] == [easter_egg.project_name, 'reahl-component'] 
-    assert is_ordered_before('Babel', 'pytz') 
-    assert is_ordered_before('python-dateutil', 'six') 
+    assert component_names_in_order[:2] == [easter_egg.project_name, 'reahl-component']
+    assert is_ordered_before('Babel', 'pytz')
+    assert is_ordered_before('python-dateutil', 'six')
 
 
 
@@ -61,16 +61,16 @@ def test_interface_with_meta_info():
     [interface] = [i for i in interfaces_in_order if i.distribution is easter_egg]
 
     # The meta-info that can be obtained via such an interface
-    assert interface.configuration_spec is None 
+    assert interface.configuration_spec is None
 
     orm_control = EmptyStub()
-    assert interface.get_persisted_classes_in_order(orm_control) == [] 
-    assert interface.migrations_in_order == [] 
-    assert interface.get_roles_to_add() == [] 
+    assert interface.get_persisted_classes_in_order(orm_control) == []
+    assert interface.migrations_in_order == []
+    assert interface.get_roles_to_add() == []
 
     # Hooks for allowing a component to do its own housekeeping
     with expected(NoException):
-        interface.do_daily_maintenance() 
+        interface.do_daily_maintenance()
 
 
 

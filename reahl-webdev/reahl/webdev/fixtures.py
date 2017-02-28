@@ -159,7 +159,6 @@ class BrowserSetup(CleanDatabase):
         # selenium.stop() hits the application its opened on again. NoopApp just ensures this does not break:
         class NoopApp(object):
             def __call__(self, environ, start_response):
-                status = '200 OK'
                 status = '403 Forbidden'
                 response_headers = [('Content-type','text/plain')]
                 start_response(status, response_headers)

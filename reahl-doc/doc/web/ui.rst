@@ -7,7 +7,7 @@ Module reahl.web.ui
 
 
 Widgets for constructing a page
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTML5Page
 """""""""

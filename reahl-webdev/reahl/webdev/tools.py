@@ -56,10 +56,6 @@ def patch_Field():
 
 
 class BasicBrowser(object):
-    def save_source(self, filename):
-        with io.open(filename, 'w') as output:
-            for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
-                output.write(line+'\n')
 
     def view_source(self):
         for line in html.tostring(self.lxml_html, pretty_print=True, encoding='unicode').split('\n'): 
@@ -68,11 +64,7 @@ class BasicBrowser(object):
     def save_source(self, filename):
         with io.open(filename, 'w') as html_file:
             html_file.write(self.raw_html)
-            
-    def get_html_for(self, locator):
-        xpath = six.text_type(locator)
-        return html.tostring(self.lxml_html.xpath(xpath)[0], encoding='unicode')
-        
+
     def is_element_present(self, locator):
         xpath = six.text_type(locator)
         return len(self.lxml_html.xpath(xpath)) == 1 

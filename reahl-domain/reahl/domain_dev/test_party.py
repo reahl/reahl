@@ -32,7 +32,7 @@ from reahl.stubble import stubclass
 from reahl.component.eggs import ReahlEgg
 from reahl.domain.partymodel import Party
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, VerificationRequest, VerifyEmailRequest, NewPasswordRequest, \
-     ChangeAccountEmail, PasswordException, NotUniqueException, InvalidPasswordException, KeyException, \
+     ChangeAccountEmail, NotUniqueException, InvalidPasswordException, KeyException, \
      InvalidEmailException, AccountNotActiveException, NoSuchAccountException, AccountActive, AccountDisabled, AccountNotActivated,\
      AccountManagementInterface,  ActivateAccount, LoginSession
 from reahl.domain_dev.fixtures import PartyModelZooMixin
@@ -84,7 +84,7 @@ class RegistrationTests(object):
         vassert( system_account.email == account_management_interface.email )
         # FIXME: These are those dubious tests where the assert just repeats the implementation verbatim
         vassert( system_account.password_md5 == hashlib.md5(account_management_interface.password.encode('utf-8')).hexdigest() )
-        vassert( system_account.apache_digest == hashlib.md5(('%s:%s:%s' %\
+        vassert( system_account.apache_digest == hashlib.md5(('%s:%s:%s' %
                                               (account_management_interface.email,'',account_management_interface.password)).encode('utf-8')).hexdigest() )
         assert_recent( activation_action.deadline - timedelta(days=10) )
         vassert( not system_account.registration_activated )

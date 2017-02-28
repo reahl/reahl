@@ -163,7 +163,7 @@ class PageIndex(PageIndexProtocol):
     @property
     @memoized
     def end_page(self):
-        page_number = self.start_page_number+min(self.max_page_links-1, self.total_number_of_pages-(self.start_page_number));
+        page_number = self.start_page_number+min(self.max_page_links-1, self.total_number_of_pages-(self.start_page_number))
         return self.get_page_number(page_number)
 
     @property
@@ -298,7 +298,6 @@ class PageMenu(HTMLWidget):
         item.html_representation.append_class('page-item')
 
     def create_items(self, menu):
-        links = []
 
         self.add_bordering_link_for(menu, '←', 'First', 1,
                                    not self.page_index.has_previous_page)
@@ -325,9 +324,9 @@ class PageMenu(HTMLWidget):
         link = A.from_bookmark(self.view, self.get_bookmark(start_page_number=start_page_number, 
                                                             disabled=disabled))
 
-        link.add_child(Span(self.view, text=short_description)).set_attribute('aria-hidden', 'true');
-        link.add_child(Span(self.view, text=long_description)).append_class('sr-only');
-        link.set_attribute('aria-label', long_description);
+        link.add_child(Span(self.view, text=short_description)).set_attribute('aria-hidden', 'true')
+        link.add_child(Span(self.view, text=long_description)).append_class('sr-only')
+        link.set_attribute('aria-label', long_description)
         link.set_active(not disabled)
         item = menu.add_a(link)
         item.html_representation.add_attribute_source(AccessRightAttributes(link))

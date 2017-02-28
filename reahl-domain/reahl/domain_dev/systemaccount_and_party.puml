@@ -1,0 +1,24 @@
+@startuml
+
+title SystemAccount and Party
+
+hide members
+hide circle
+
+package reahl.domain.partymodel{
+	class Party
+}
+
+package reahl.domain.systemaccountmodel{
+	class SystemAccount
+	class LoginSession <<session_scoped>>
+	class EmailAndPasswordSystemAccount
+
+	SystemAccount <|-- EmailAndPasswordSystemAccount
+}
+reahl.domain.partymodel <- reahl.domain.systemaccountmodel
+
+Party "1" -- "0..*" SystemAccount : < owner
+SystemAccount "0..1" -right- "0..*" LoginSession
+
+@enduml

@@ -21,7 +21,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 import os.path
 
-from nose.tools import istest
 from reahl.tofu import test, Fixture
 from reahl.tofu import temp_dir, vassert, assert_recent
 

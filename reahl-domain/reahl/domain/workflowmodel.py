@@ -29,13 +29,12 @@ from sqlalchemy import Column, Table, Integer, ForeignKey, UnicodeText, String, 
 from sqlalchemy.orm import relationship, backref
 
 from reahl.component.i18n import Translator
-from reahl.sqlalchemysupport import metadata, Session, PersistedField, Base
+from reahl.sqlalchemysupport import Session, PersistedField, Base
 from reahl.component.modelinterface import Action
 from reahl.component.modelinterface import CurrentUser
 from reahl.component.modelinterface import Event
 from reahl.component.modelinterface import exposed
 from reahl.component.modelinterface import secured
-from reahl.component.context import ExecutionContext
 from reahl.domain.partymodel import Party
 
 _ = Translator('reahl-domain')
