@@ -264,7 +264,7 @@ class LayoutScenarios(WebFixture):
     def stacked_pill_layouts(self):
         """Using a PillLayout, you can also make MenuItems appear stacked on top of 
            one another instead of being placed next to one another."""
-        self.layout_css_class = {'nav-pills', 'nav-stacked'}
+        self.layout_css_class = {'nav-pills', 'flex-column'}
         self.layout = PillLayout(stacked=True)
 
     @scenario
@@ -284,6 +284,7 @@ def nav_layouts(fixture):
     vassert( fixture.layout_css_class.issubset(menu.html_representation.attributes['class'].value) )
 
 
+# noinspection PyAttributeOutsideInit
 class DifferentLayoutTypes(WebFixture):
     @scenario
     def pills(self):
@@ -295,23 +296,35 @@ class DifferentLayoutTypes(WebFixture):
 
 
 @test(DifferentLayoutTypes)
-def justified_items(fixture):
+def test_nav_items_can_fill_space(fixture):
     """Both a PillLayout or TabLayout can be set to make the MenuItems of
-       their Nav fill the width of the parent, with the text of each item centered."""
+       their Nav fill the width of the parent"""
 
     menu = Nav(fixture.view).use_layout(fixture.layout_type())
     vassert( 'nav-justified' not in menu.html_representation.get_attribute('class') )
     
-    menu = Nav(fixture.view).use_layout(fixture.layout_type(justified=True))
+    menu = Nav(fixture.view).use_layout(fixture.layout_type(horizontal_alignment_or_fill='nav-justified'))
     vassert( 'nav-justified' in menu.html_representation.get_attribute('class') )
+
+
+@test(DifferentLayoutTypes)
+def test_nav_items_can_be_aligned_horizontally(fixture):
+    """Both a PillLayout or TabLayout can be set to make the MenuItems of
+       their Nav be aligned horizontal."""
+
+    menu = Nav(fixture.view).use_layout(fixture.layout_type())
+    vassert('justify-content-center' not in menu.html_representation.get_attribute('class'))
+
+    menu = Nav(fixture.view).use_layout(fixture.layout_type(horizontal_alignment_or_fill='justify-content-center'))
+    vassert('justify-content-center' in menu.html_representation.get_attribute('class'))
 
 
 @test(WebFixture)
 def pill_layouts_cannot_mix_justified_and_stacked(fixture):
-    """A PillLayout cannot be both stacked and justified at the same time."""
+    """A PillLayout cannot be both stacked and justified(or aligned) at the same time."""
 
     with expected(ProgrammerError):
-        PillLayout(stacked=True, justified=True)
+        PillLayout(stacked=True, horizontal_alignment_or_fill='nav-justified')
 
 
 @test(WebFixture)

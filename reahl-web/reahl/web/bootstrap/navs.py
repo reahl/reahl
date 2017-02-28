@@ -44,7 +44,7 @@ from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, Field
 from reahl.web.fw import Layout, Bookmark, Url, WebExecutionContext
-from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget
+from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget, HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li
 
 
@@ -250,12 +250,18 @@ class Nav(Menu):
         return li
 
 
+class HorizontalAlignmentOrFill(HTMLAttributeValueOption):
+    valid_options = ['justify-content-center', 'justify-content-end', 'nav-fill', 'nav-justified']
+
+    def __init__(self, name):
+        super(HorizontalAlignmentOrFill, self).__init__(name, name is not None,
+                                                        constrain_value_to=self.valid_options)
 
 
 class NavLayout(Layout):
-    def __init__(self, key=None, justified=False):
+    def __init__(self, key=None, horizontal_alignment_or_fill=None):
         super(NavLayout, self).__init__()
-        self.justified = justified
+        self.horizontal_alignment_or_fill = HorizontalAlignmentOrFill(horizontal_alignment_or_fill)
         self.key = key
 
     @property
@@ -266,38 +272,39 @@ class NavLayout(Layout):
         super(NavLayout, self).customise_widget()
         if self.key:
             self.widget.append_class(self.additional_css_class)
-        if self.justified:
-            self.widget.append_class('nav-justified')
+        if self.horizontal_alignment_or_fill.is_set:
+            self.widget.append_class(self.horizontal_alignment_or_fill.as_html_snippet())
 
 
 class PillLayout(NavLayout):
     """This Layout makes a Nav appear as horizontally or vertically arranged pills (buttons).
 
     :keyword stacked: If True, the pills are stacked vertically.
-    :keyword justified: If True, the pills are widened to fill all available space.
+    :keyword horizontal_alignment_or_fill: Optional. how the space must be filled with the items. If omitted, the
+                    items will be left aligned.
+                    (One of: justify-content-center, justify-content-end, nav-fill, nav-justified)
     """
-    def __init__(self, stacked=False, justified=False):
-        super(PillLayout, self).__init__(key='pill', justified=justified)
-        if all([stacked, justified]):
-            raise ProgrammerError('Pills must be stacked or justified, but not both')
+    def __init__(self, stacked=False, horizontal_alignment_or_fill=None):
+        super(PillLayout, self).__init__(key='pill', horizontal_alignment_or_fill=horizontal_alignment_or_fill)
+        if all([stacked, horizontal_alignment_or_fill]):
+            raise ProgrammerError('Pills must be stacked or horizontal, but not both')
         self.stacked = stacked
-        self.justified = justified
 
     def customise_widget(self):
         super(PillLayout, self).customise_widget()
         if self.stacked:
-            self.widget.append_class('nav-stacked')
+            self.widget.append_class('flex-column')
 
 
 class TabLayout(NavLayout):
     """This Layout makes a Nav appear as horizontal tabs.
 
-    :keyword justified: If True, the tabs are widened to fill all available space.
+    :keyword horizontal_alignment_or_fill: Optional. how the space must be filled with the items. If omitted, the
+                    items will be left aligned.
+                    (One of: justify-content-center, justify-content-end, nav-fill, nav-justified)
     """
-    def __init__(self, justified=False):
-        super(TabLayout, self).__init__(key='tab', justified=justified)
-
-
+    def __init__(self, horizontal_alignment_or_fill=None):
+        super(TabLayout, self).__init__(key='tab', horizontal_alignment_or_fill=horizontal_alignment_or_fill)
 
 
 class DropdownMenu(Menu):
@@ -315,7 +322,6 @@ class DropdownMenu(Menu):
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         item.set_html_representation(item.a)
         return item.a
-
 
 
 class DropdownMenuLayout(Layout):
