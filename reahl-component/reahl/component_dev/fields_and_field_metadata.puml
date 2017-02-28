@@ -1,0 +1,15 @@
+@startuml
+
+title Fields and field metadata
+
+hide members
+hide circle
+
+Field -left- object : storage_object >
+Field -- ValidationConstraintList
+ValidationConstraintList -down- ValidationConstraint
+Field -right- AccessRights
+AccessRights -right- Action : readable
+AccessRights -right- Action : writable
+
+@enduml

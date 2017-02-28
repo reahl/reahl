@@ -1,0 +1,20 @@
+@startuml
+
+@startsalt
+{
+
+<b>Edit Address: friend2@some.org </b>
+.
+{
+Name: | "      "
+Email: | "      "
+.
+. | [Update]
+}
+
+}
+@endsalt
+
+
+
+@enduml

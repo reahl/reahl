@@ -1,0 +1,20 @@
+@startuml
+
+@startsalt
+{
+
+<b>Add Address</b>
+.
+{
+Name: | "      "
+Email: | "      "
+.
+. | [Save]
+}
+
+}
+@endsalt
+
+
+
+@enduml

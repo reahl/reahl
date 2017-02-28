@@ -1,0 +1,11 @@
+@startuml
+
+title Events
+
+hide members
+hide circle
+
+Field <|-- Event
+Event -right- Action
+
+@enduml

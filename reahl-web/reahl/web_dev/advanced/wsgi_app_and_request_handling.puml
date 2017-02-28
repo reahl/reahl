@@ -1,0 +1,52 @@
+@startuml
+
+
+title ReahlWSGIApplication definition and Request handling
+
+hide members
+hide circle
+
+note as N1
+This shows:
+- Threading/Request/Context scope
+- Definition of ReahlWSGIApplication
+  by means of Factories
+- Each Request is handled by a Resource
+  (of differing complexity)
+end note
+
+package "This is per process" {
+
+class "<b>ReahlWSGIApplication</b>" as ReahlWSGIApplication
+class "<b>UserInterfaceFactory</b>" as UserInterfaceFactory
+
+ReahlWSGIApplication -right- UserInterfaceFactory :  root_user_interface_factory
+UserInterfaceFactory -right- ViewFactory
+}
+
+package "This is per Request(except UserSession)" {
+
+class "<b>UserInterface</b>" as UserInterface
+class "<b>UserInterfaceFactory</b>" as UserInterfaceFactory_
+
+UserInterfaceFactory <|---- UserInterface
+UserInterfaceFactory_ -up--- UserInterface : < sub_ui's
+
+Resource <|-- ComposedPage
+Resource <|-- SubResource
+
+UserInterface -down-- "*" SubResource : sub_resources\n {url} >
+
+WebExecutionContext -down- Resource
+
+class Request <<webob.Request>>
+class UserSession <<persisted>>
+note top of UserSession : ~spans many requests
+
+UserSession -left- WebExecutionContext
+Request -up- WebExecutionContext
+
+}
+
+
+@enduml

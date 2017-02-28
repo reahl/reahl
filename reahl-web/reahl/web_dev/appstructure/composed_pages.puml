@@ -1,0 +1,24 @@
+@startuml
+
+title How composed pages work
+
+hide members
+hide circle
+
+
+ComposedPage -up-|> Resource
+
+UrlBoundView .up.|> View
+View -right- Region : < current_view
+
+ComposedPage -right- UrlBoundView
+ComposedPage -- Widget_ : main_window >
+
+UrlBoundView -- "*" WidgetFactory : slot_definitions >
+
+Widget_ -right- WidgetFactory : default_slot_definitions
+Widget -up-> WidgetFactory
+Widget -- "*" Widget : children
+Widget_ -- "*" Widget : {per slot} slot_contents
+
+@enduml

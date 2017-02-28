@@ -1,0 +1,110 @@
+@startuml
+
+title Fixtures
+
+hide methods
+hide circle
+
+class ConfiguredFixture <<runfixture>>{
+	config
+	reahl_system
+	context
+	system_control
+}
+
+class CleanDatabase <<runfixture>>{
+}
+
+class BrowserSetup <<runfixture>>{
+	reahl_server
+	web_driver
+	driver_browser
+	firefox_driver
+	chrome_driver
+	config
+}
+
+class SqlAlchemyTestMixin{
+	reahlsystem
+	config
+	context
+	@system_control
+}
+
+class BasicModelZooMixin{
+	systeminfo
+	config
+	session
+}
+
+class WebBasicsMixin{
+	webconfig
+	config
+	context
+	request
+	session
+	@page_checker
+	@reahl_server
+}
+
+
+ConfiguredFixture <|-- CleanDatabase
+CleanDatabase <|-- BrowserSetup
+BrowserSetup  -right- WebBasicsMixin
+CleanDatabase -right- SqlAlchemyTestMixin
+
+SqlAlchemyTestMixin <|-- BasicModelZooMixin
+BasicModelZooMixin <|-- WebBasicsMixin
+BasicModelZooMixin <|--- PartyModelZooMixin
+PartyModelZooMixin <|-- TaskQueueZooMixin
+
+
+class InputFixture <<fixture>>{
+	obj
+	field
+	view
+	region
+	form
+}
+class WebFixture <<fixture>>
+
+
+class ElixirSiteFixture <<fixture>>
+class WidgetFixture <<fixture>>{
+	region_factory
+	region
+	view
+}
+class PageMenuFixture <<fixture>>
+InputFixture -right[hidden]- ElixirSiteFixture
+
+WebBasicsMixin -- InputFixture
+WebBasicsMixin -- WebFixture
+WebBasicsMixin -- ElixirSiteFixture
+WebBasicsMixin -- WidgetFixture
+WebBasicsMixin -- PageMenuFixture
+WebBasicsMixin -- DjhtmlFixture
+
+class PartyDomainFixture <<fixture>>
+class TaskQueueFixture <<fixture>>
+
+class PartyModelZooMixin{
+	system_account
+	person
+	mailer
+}
+class DjhtmlFixture <<fixture>>{
+	region
+	static_dir
+	config
+	djhtml_file
+	other_file
+}
+
+TaskQueueZooMixin -right- TaskQueueFixture
+
+WorkflowWebFixture -left- BasicModelZooMixin
+WorkflowWebFixture -- TaskQueueZooMixin
+
+
+@enduml

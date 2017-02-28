@@ -1,0 +1,56 @@
+@startuml
+
+title Files - basics
+
+
+hide footbox
+
+-> Form : handle_form_input
+
+activate Form
+
+	Form -> SimpleFileInput: accept_input\n(dict with field_storages)
+
+
+	activate SimpleFileInput
+			SimpleFileInput -> SimpleFileInput: get_value_from_input\n(dict with field_storages)
+		activate SimpleFileInput
+			create UploadedFile
+			SimpleFileInput --> UploadedFile
+		deactivate SimpleFileInput
+
+
+		SimpleFileInput -> FileField : from_input\n(list of UploadedFile(s))
+		activate FileField
+
+			note right of FileField
+			Fields have the responsibility to marshall
+			incoming input (usually in the form of strings)
+			to python objects.
+
+			Files are input as FieldStorages - a concept tied
+			to the WEB, hence we do not want to propagate it
+			all the way to the FileField.
+
+			That's why SimpleFileInput does this translation
+			from web to python like objects instead of FileField,
+			as would usually be the case.
+			end note
+
+			FileField -> FileField : validate_input\n(list of UploadedFile(s))
+			FileField -> FileField : parse_input\n(list of UploadedFile(s))
+			FileField -> FileField : validate_parsed_input\n(list of or single UploadedFile)
+			FileField -> FileField : set_model_value
+
+			...  ...
+
+			SimpleFileInput <- FileField
+			Form <- SimpleFileInput
+		deactivate FileField
+	deactivate SimpleFileInput
+
+
+
+deactivate Form
+
+@enduml

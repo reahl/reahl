@@ -1,0 +1,17 @@
+@startuml
+
+title Dependency Injection
+
+hide members
+hide circle
+
+Address "*" -right- "1" AddressBook
+
+AddressBook "1" -right- "1" EmailAndPasswordSystemAccount : owner
+
+AddressBook "*" -right- "*" EmailAndPasswordSystemAccount
+(AddressBook, EmailAndPasswordSystemAccount) .. Collaborator
+
+
+
+@enduml
