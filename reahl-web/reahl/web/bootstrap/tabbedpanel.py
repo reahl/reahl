@@ -52,6 +52,7 @@ class TabbedPanel(Widget):
     def __init__(self, view, nav_layout=None):
         super(TabbedPanel, self).__init__(view)
         self.tabs = []
+        self.tab = None
         self.nav = self.add_child(Nav(view).use_layout(nav_layout or TabLayout()))
         self.content_panel = self.add_child(Div(view))
         self.content_panel.append_class('tab-content')
@@ -189,7 +190,7 @@ class MultiTab(Tab):
         super(MultiTab, self).__init__(view, title, tab_key, None)
         
     def add_tab(self, tab):
-        menu_item = tab.add_to_menu(self.menu)
+        tab.add_to_menu(self.menu)
         tab.set_panel(self.panel)
         self.tabs.append(tab)
         return tab

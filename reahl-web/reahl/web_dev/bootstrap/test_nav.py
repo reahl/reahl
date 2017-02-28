@@ -359,6 +359,18 @@ def dropdown_menus(fixture):
     
 
 @test(WebFixture)
+def dropdown_menus_with_divider(fixture):
+    """You can add a divider to a DropdownMenu."""
+    sub_menu = DropdownMenu(fixture.view)
+    sub_menu.add_a(A(fixture.view, Url('/an/url'), description='sub menu item'))
+    sub_menu.add_divider()
+    sub_menu.add_a(A(fixture.view, Url('/another/url'), description='another sub menu item'))
+
+    [item1, divider, item2] = sub_menu.html_representation.children
+    vassert( 'dropdown-divider' in divider.get_attribute('class').split() )
+
+
+@test(WebFixture)
 def dropdown_menus_can_drop_up(fixture):
     """Dropdown menus can drop upwards instead of downwards."""
     menu = Nav(fixture.view)
