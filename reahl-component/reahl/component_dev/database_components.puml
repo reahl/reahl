@@ -1,0 +1,42 @@
+@startuml
+
+title Database components
+
+hide members
+hide circle
+
+note as N1
+	How we control the database
+	and persisted classes
+	using a system control
+	as the interface to a database control
+	(for dealing with database-specific
+	things regardless of ORM used) and a
+	ORM Control (for dealing with ORM-specific
+	things regardless of database used)
+end note
+
+class "<b>ExecutionContext</b>" as ExecutionContext
+class "<b>SystemControl</b>" as SystemControl
+class "<b>Configuration</b>" as Configuration
+
+ExecutionContext -down- SystemControl
+SystemControl -down- DatabaseControl
+SystemControl -down- ORMControl
+
+Configuration <|-- ReahlSystemConfig
+ReahlSystemConfig -- ORMControl
+
+package reahl-sqlalchemysupport{
+	class SQLAlchemyControl
+}
+
+ORMControl <|-- SQLAlchemyControl
+
+package reahl-postgrgesqlsupport{
+	class PostgresqlControl
+}
+
+DatabaseControl <|-- PostgresqlControl
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+
+title Different views
+
+hide members
+hide circle
+
+PseudoView -up-|> View
+UrlBoundView -up-|> View
+FileView -up-|> View
+
+RedirectView -up-|> UrlBoundView
+
+NoView -up-|> PseudoView
+UserInterfaceRootRedirectView -up-|> PseudoView
+
+
+@enduml

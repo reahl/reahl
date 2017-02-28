@@ -1,0 +1,37 @@
+@startuml
+
+title User events and associated input handling
+
+hide members
+hide circle
+
+callable <<python>>
+attribute <<python>>
+Exception <<python>>
+
+Form .up..|> Widget
+Input .up..|> Widget
+Form -right- "*" Input
+Input -right- Field
+ButtonInput -up-|> Input
+
+Form -down- EventChannel
+
+Event -up-|> Field
+Event -- "*" EventHandler
+Event -- Action
+EventChannel -- "*" EventHandler
+Transition -up-|> EventHandler
+Action --> callable : "function or object method"
+
+Field --> attribute : domain_value
+Field -right- "*" ValidationConstraint
+Field --- AccessRights
+AccessRights -left- Action_ : readable
+AccessRights -left- Action_ : writable
+
+ValidationConstraint --up-|> Exception
+RemoteConstraint -up-|> ValidationConstraint
+
+
+@enduml

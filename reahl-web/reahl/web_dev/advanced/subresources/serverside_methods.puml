@@ -1,0 +1,19 @@
+@startuml
+
+title Invoking server-side methods from a browser
+
+hide members
+hide circle
+
+SubResource -up-|> Resource
+RemoteMethod -up-|> SubResource
+CheckedRemoteMethod -up-|> RemoteMethod
+EventChannel -up-|> RemoteMethod
+
+RemoteMethod -right- MethodResult
+JsonResult -up-|> MethodResult
+WidgetResult -up-|> MethodResult
+RedirectAfterPost -up-|> MethodResult
+noRedirectAfterPost -up-|> MethodResult
+
+@enduml

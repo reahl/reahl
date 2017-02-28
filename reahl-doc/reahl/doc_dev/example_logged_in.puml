@@ -1,0 +1,19 @@
+@startuml
+
+
+@startsalt
+{
+
+<b>Address Books</b>
+.
+{
+<u>johndoe@some.org</u>
+<u>janedoe@some.org</u>
+}
+
+}
+@endsalt
+
+
+
+@enduml

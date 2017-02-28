@@ -1,0 +1,38 @@
+
+@startuml
+
+title Getting the current locale urlpath
+
+'hide members
+hide methods
+hide circle
+
+
+package reahl.component{
+	class ExecutionContext
+	class Configuration
+}
+
+package reahl.web{
+	class UserSessionProtocol
+	class WebExecutionContext
+	class Url{
+		locale_path
+	}
+}
+
+
+package reahl.webdeclarative{
+	class UserSession
+}
+
+ExecutionContext -right- Configuration
+ExecutionContext <|-- WebExecutionContext
+WebExecutionContext -right- Url : current_url
+UserSessionProtocol <-[dotted]- UserSession
+UserSession -- WebExecutionContext
+
+
+
+
+@enduml

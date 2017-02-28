@@ -1,0 +1,18 @@
+@startuml
+
+title Workflow Action and Requirement
+
+'hide members
+hide circle
+
+class DeferredAction{
+	deadline
+	success_action()
+	deadline_action()
+}
+
+
+DeferredAction "*" -right- Requirement : < deferred_actions
+DeferredAction -- "*" Requirement : requirements >
+
+@enduml

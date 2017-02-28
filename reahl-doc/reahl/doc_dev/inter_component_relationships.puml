@@ -1,0 +1,68 @@
+@startuml
+
+title Dependency Injection
+
+hide members
+hide circle
+
+package implementation{
+class "reahl_domain" as reahl_domain <<component>>
+class "reahl_domainui" as reahl_domainui <<component>>
+class "reahl_web_declarative" as reahl_web_declarative <<component>>
+}
+
+package core{
+class "reahl_component" as reahl_component <<component>>
+class "reahl_mailutil" as reahl_mailutil <<component>>
+class "reahl_web" as reahl_web <<component>>
+class "reahl_dev" as reahl_dev <<component>>
+class "reahl_webdev" as reahl_webdev <<component>>
+class "reahl_sqlalchemysupport" as reahl_sqlalchemysupport <<component>>
+class "reahl_tofu" as reahl_tofu <<component>>
+class "reahl_stubble" as reahl_stubble <<component>>
+class "reahl_postgresqlsupport" as reahl_postgresqlsupport <<component>>
+}
+
+reahl_domainui --> reahl_domain
+reahl_domainui --> reahl_mailutil
+reahl_domainui --> reahl_web_declarative
+reahl_domainui --> reahl_web
+reahl_domainui --> reahl_sqlalchemysupport
+reahl_domainui --> reahl_component
+
+reahl_domain --> reahl_web_declarative
+reahl_domain --> reahl_sqlalchemysupport
+reahl_domain --> reahl_mailutil
+reahl_domain --> reahl_web
+reahl_domain --> reahl_component
+
+reahl_web_declarative --> reahl_web
+reahl_web_declarative --> reahl_sqlalchemysupport
+reahl_web_declarative --> reahl_component
+
+reahl_webdev --> reahl_domain
+reahl_webdev --> reahl_web_declarative
+reahl_webdev --> reahl_sqlalchemysupport
+reahl_webdev --> reahl_dev
+reahl_webdev --> reahl_tofu
+reahl_webdev --> reahl_web
+reahl_webdev --> reahl_mailutil
+reahl_webdev --> reahl_component
+
+reahl_web --> reahl_component
+
+reahl_dev --> reahl_component
+reahl_dev --> reahl_tofu
+reahl_dev --> reahl_stubble : test_dep
+
+reahl_tofu --> reahl_stubble : test_dep
+
+reahl_sqlalchemysupport --> reahl_component
+reahl_postgresqlsupport --> reahl_component
+reahl_mailutil --> reahl_component
+
+
+
+
+
+@enduml

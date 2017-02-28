@@ -1,0 +1,19 @@
+@startuml
+
+title Serving frontend library static resources
+
+hide members
+hide circle
+
+WebConfig -down- LibraryIndex : frontend_libraries >
+LibraryIndex -down- "*" Library
+
+LibraryIndex -right- ReahlWSGIApplication
+LibraryIndex -- "*" FileOnDisk : packaged_files
+
+ReahlWSGIApplication -right- StaticUI : reahl_static_files
+StaticUI -right- FileList
+FileOnDisk "*" -- FileList
+FileFactory <|-- FileList
+
+@enduml

@@ -679,7 +679,7 @@ class UserInterface(object):
     def define_static_directory(self, path):
         """Defines an URL which is mapped to a directory from which files will be served directly.
            The URL is mapped to a similarly named subdirectory of the `static root` of the web application,
-           as configured, as configured by the setting `web.static_root`.
+           as configured by the setting `web.static_root`.
         """
         ui_name = 'static_%s' % path
         ui_factory = UserInterfaceFactory(self, RegexPath(path, path, {}), IdentityDictionary(), StaticUI, ui_name, files=DiskDirectory(path))

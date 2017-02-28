@@ -1,0 +1,27 @@
+@startuml
+
+title Dependency Injection
+
+hide methods
+hide circle
+
+component "reahl-web-declarative" as rwd{
+	interface "WebUserSession" as WebUserSession
+	interface "UserInput" as UserInput
+	interface "PersistedException" as PersistedException
+	interface "PersistedFile" as PersistedFile
+}
+
+component "reahl-web" as rw{
+	WebUserSession )-- rw: session_class
+	UserInput )-- rw: persisted_userinput_class
+	PersistedException )-- rw: persisted_exception_class
+	PersistedFile )-- rw: persisted_file_class
+}
+
+component "reahl-domain" as rd
+
+rwd ..> rd
+
+
+@enduml
