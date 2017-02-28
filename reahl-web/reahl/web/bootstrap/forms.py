@@ -31,7 +31,7 @@ from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.component.i18n import Translator
 
 import reahl.web.ui
-from reahl.web.ui import WrappedInput, Label, HTMLAttributeValueOption
+from reahl.web.ui import Label, HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span
 from reahl.web.bootstrap.grid import ColumnLayout
 
@@ -81,7 +81,7 @@ class TextInput(reahl.web.ui.TextInput):
                      If given True instead of a string, the label of the TextInput is used.
     """
     add_default_attribute_source = False
-    def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
+    def     __init__(self, form, bound_field, fuzzy=False, placeholder=False):
         super(TextInput, self).__init__(form, bound_field, fuzzy=fuzzy, placeholder=placeholder)
         self.append_class('form-control')
 
@@ -94,8 +94,10 @@ class FieldSet(reahl.web.ui.FieldSet):
        :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
 
     """
-    def __init__(self, view, legend_text=None, css_id=None):
+    def __init__(self, view, legend_text=None, style_legend_as_label=True, css_id=None):
         super(FieldSet, self).__init__(view, legend_text=legend_text, css_id=css_id)
+        if self.legend and style_legend_as_label:
+            self.legend.append_class('col-form-legend')
 
 
 class PasswordInput(reahl.web.ui.PasswordInput):
@@ -144,6 +146,9 @@ class PrimitiveCheckboxInput(reahl.web.ui.CheckboxInput):
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     add_default_attribute_source = False
+    def __init__(self, form, bound_field):
+        super(PrimitiveCheckboxInput, self).__init__(form, bound_field)
+        self.append_class('form-check-input')
 
 
 class CheckboxInput(WrappedInput):
@@ -171,6 +176,10 @@ class CheckboxInput(WrappedInput):
 class PrimitiveRadioButtonInput(reahl.web.ui.SingleRadioButton):
     add_default_attribute_source = False
 
+    def __init__(self, form, bound_field):
+        super(PrimitiveRadioButtonInput, self).__init__(form, bound_field)
+        self.append_class('form-check-input')
+
     def create_html_widget(self):
         return self.create_button_input()
 
@@ -183,13 +192,13 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     add_default_attribute_source = False
+
     def __init__(self, form, bound_field, button_layout=None):
         self.button_layout = button_layout or ChoicesLayout()
         super(RadioButtonInput, self).__init__(form, bound_field)
 
     def create_main_element(self):
         main_element = super(RadioButtonInput, self).create_main_element().use_layout(self.button_layout)
-        main_element.append_class('form-control-label')
         return main_element
 
     def add_button_for_choice_to(self, widget, choice):
@@ -209,6 +218,7 @@ class ButtonInput(reahl.web.ui.ButtonInput):
        :keyword css_id: (See :class:`HTMLElement`)
     """
     add_default_attribute_source = False
+
     def __init__(self, form, event):
         super(ButtonInput, self).__init__(form, event)
         self.append_class('btn')
@@ -233,8 +243,6 @@ class StaticData(reahl.web.ui.Input):
 
     def can_write(self):
         return False
-
-
 
 
 class CueInput(reahl.web.ui.WrappedInput):
@@ -312,32 +320,29 @@ class ButtonLayout(reahl.web.fw.Layout):
                 self.widget.append_class(option.as_html_snippet())
         
 
-
 class ChoicesLayout(reahl.web.fw.Layout):
     def __init__(self, inline=False):
         super(ChoicesLayout, self).__init__()
         self.inline = inline
 
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, PrimitiveRadioButtonInput)))
-    def add_choice(self, html_input): 
+    def add_choice(self, html_input):
         label_widget = Label(self.view)
+        label_widget.append_class('form-check-label')
 
+        outer_div = Div(self.view)
+        outer_div.append_class('form-check')
+        outer_div.add_child(label_widget)
         if self.inline:
-            label_widget.append_class('%s-inline' % html_input.input_type)
-            wrapper = label_widget
-        else:
-            outer_div = Div(self.view)
-            outer_div.append_class(html_input.input_type)
-            outer_div.add_child(label_widget)
-            wrapper = outer_div
+            outer_div.append_class('form-check-inline')
 
         label_widget.add_child(html_input)
         label_widget.add_child(TextNode(self.view, ' '))
         label_widget.add_child(TextNode(self.view, html_input.label))
 
-        self.widget.add_child(wrapper)
+        self.widget.add_child(outer_div)
 
-        return wrapper
+        return outer_div
 
 
 class FormLayout(reahl.web.fw.Layout):
@@ -374,10 +379,17 @@ class FormLayout(reahl.web.fw.Layout):
         error_text.set_attribute('generated', 'true')
         return error_text
 
+    def set_help_text_layout_classes(self, help_text_widget):
+        help_text_widget.append_class('form-text')
+
+    def create_help_text_widget(self, help_text):
+        return P(self.view, text=help_text)
+
     def add_help_text_to(self, parent_element, help_text):
-        help_text_p = parent_element.add_child(P(self.view, text=help_text))
-        help_text_p.append_class('text-muted')
-        return help_text_p
+        help_text_widget = parent_element.add_child(self.create_help_text_widget(help_text))
+        help_text_widget.append_class('text-muted')
+        self.set_help_text_layout_classes(help_text_widget)
+        return help_text_widget
 
     def add_label_to(self, form_group, html_input, hidden):
         label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
@@ -403,7 +415,10 @@ class FormLayout(reahl.web.fw.Layout):
             self.add_validation_error_to(form_group, html_input)
 
         if help_text:
-            self.add_help_text_to(form_group, help_text)
+            help_widget = self.add_help_text_to(form_group, help_text)
+            if not help_widget.css_id_is_set:
+                help_widget.generate_random_css_id()
+            html_input.set_attribute('aria-describedby', help_widget.css_id)
 
         return html_input
 
@@ -430,11 +445,15 @@ class GridFormLayout(FormLayout):
         column = form_group.layout.columns['label']
         label = super(GridFormLayout, self).add_label_to(column, html_input, hidden)
         label.append_class('form-control-label')
+        label.append_class('col-form-label')
         return label
 
     def add_input_to(self, parent_element, html_input):
         input_column = parent_element.layout.columns['input']
         return super(GridFormLayout, self).add_input_to(input_column, html_input)
+
+    def set_help_text_layout_classes(self, help_text_widget):
+        pass
 
     def add_help_text_to(self, parent_element, help_text):
         input_column = parent_element.layout.columns['input']
@@ -447,6 +466,12 @@ class InlineFormLayout(FormLayout):
     def customise_widget(self):
         super(InlineFormLayout, self).customise_widget()
         self.widget.append_class('form-inline')
+
+    def create_help_text_widget(self, help_text):
+        return Span(self.view, text=help_text)
+
+    def set_help_text_layout_classes(self, help_text_widget):
+        pass
 
 
 class InputGroup(reahl.web.ui.WrappedInput):

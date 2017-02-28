@@ -208,7 +208,7 @@ def adding_checkboxes(fixture):
     vassert( not any(child.tag == 'label' for child in fixture.get_form_group_children(browser)) )
     [div] = fixture.get_form_group_children(browser)
     [checkbox] = div.getchildren()
-    vassert( checkbox.attrib['class'] == 'checkbox' )
+    vassert( checkbox.attrib['class'] == 'form-check' )
     
 
 class ValidationScenarios(FormLayoutFixture):
@@ -364,15 +364,15 @@ def choices_layout(fixture):
     tester = WidgetTester(stacked_container)
     vassert( fixture.input_is_wrapped_in_label(tester) )
     vassert( fixture.main_element(tester).tag == 'div' )
-    vassert( fixture.main_element(tester).attrib['class'] == 'checkbox' )
+    vassert( fixture.main_element(tester).attrib['class'] == 'form-check' )
 
     inlined_container = Div(fixture.view).use_layout(ChoicesLayout(inline=True))
     inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
 
     tester = WidgetTester(inlined_container)
     vassert( fixture.input_is_wrapped_in_label(tester) )
-    vassert( fixture.main_element(tester).tag == 'label' )
-    vassert( fixture.main_element(tester).attrib['class'] == 'checkbox-inline' )
+    vassert( fixture.main_element(tester).tag == 'div' )
+    vassert( fixture.main_element(tester).attrib['class'] == 'form-check form-check-inline' )
 
 
 class RadioButtonFixture(ChoicesLayoutFixture):
@@ -393,14 +393,14 @@ def layout_of_radio_button_input(fixture):
     tester = WidgetTester(stacked_radio)
     vassert( fixture.input_is_wrapped_in_label(tester) )
     vassert( fixture.main_element(tester).tag == 'div' )
-    vassert( fixture.main_element(tester).attrib['class'] == 'radio' )
+    vassert( fixture.main_element(tester).attrib['class'] == 'form-check' )
 
     inlined_radio = RadioButtonInput(fixture.form, fixture.field, button_layout=ChoicesLayout(inline=True))
 
     tester = WidgetTester(inlined_radio)
     vassert( fixture.input_is_wrapped_in_label(tester) )
-    vassert( fixture.main_element(tester).tag == 'label' )
-    vassert( fixture.main_element(tester).attrib['class'] == 'radio-inline' )
+    vassert( fixture.main_element(tester).tag == 'div' )
+    vassert( fixture.main_element(tester).attrib['class'] == 'form-check form-check-inline' )
 
 
 

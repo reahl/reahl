@@ -302,7 +302,14 @@ class HTMLElement(Widget):
         self._css_id = value
         self.set_attribute('id', value)
     css_id = property(get_css_id, set_css_id)
-    
+
+    def generate_random_css_id(self):
+        if not self.css_id_is_set:
+            self.set_css_id('tmpid-%s-%s' % (id(self), time.time()))
+        else:
+            raise ProgrammerError('%s already has a css_id set, will not overwrite it!' % self)
+        return self.css_id
+
     def contextualise_selector(self, selector, context):
         """Returns a JQuery selector for finding `selector` within the elements matched by `context` (another selector)."""
         context_str = ', "%s"' % context if context else ''
@@ -1119,6 +1126,7 @@ class FieldSet(HTMLElement):
             warnings.warn('DEPRECATED: label_text=. Please use legend_text= instead.',
                           DeprecationWarning, stacklevel=1)
             self.label = self.add_child(Label(view, text=label_text))
+        self.legend = None
         if legend_text:
             self.legend = self.add_child(Legend(view, text=legend_text))
 
@@ -1837,7 +1845,7 @@ class Label(HTMLElement):
         super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
         self.for_input = for_input
         if self.for_input and self.for_input.html_control and not self.for_input.html_control.css_id_is_set:
-            self.for_input.html_control.set_id('tmpid-%s-%s' % (id(self), time.time()))
+            self.for_input.html_control.generate_random_css_id() #TODO: 'tmpid-%s-%s' % (id(self), time.time()) why was self used with id ? and not html_control
         if text or for_input:
             self.text_node = self.add_child(TextNode(view, text or for_input.label))
 

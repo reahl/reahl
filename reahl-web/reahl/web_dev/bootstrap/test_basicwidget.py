@@ -23,7 +23,7 @@ from reahl.tofu import vassert, scenario, expected, test
 
 from reahl.web_dev.fixtures import WebFixture
 
-from reahl.web.bootstrap.ui import Alert
+from reahl.web.bootstrap.ui import Alert, Badge, P
 
 
 
@@ -37,3 +37,32 @@ def alerts(fixture):
     vassert( alert.get_attribute('role') == 'alert' )
     [message] = alert.children
     vassert( message.value == 'Be careful' )
+
+@test(WebFixture)
+def test_alert_with_widget_as_message(fixture):
+    """An alert can also be constructed with a widget as message"""
+
+    widget_contained_in_alert = P(fixture.view, text='Consider yourself warned')
+    alert = Alert(fixture.view, widget_contained_in_alert, 'warning')
+
+    [paragraph] = alert.children
+    [message] = paragraph.children
+    vassert( message.value == 'Consider yourself warned' )
+
+@test(WebFixture)
+def test_badges(fixture):
+    """A badge is used inside other widgets to draw the users attention"""
+
+    badge = Badge(fixture.view, 'On sale', 'info')
+
+    vassert( badge.get_attribute('class') == 'badge badge-info' )
+    [message] = badge.children
+    vassert( message.value == 'On sale' )
+
+@test(WebFixture)
+def test_badge_as_pill(fixture):
+    """A badge can be made to look like a pill"""
+
+    badge = Badge(fixture.view, 'On sale', 'success', as_pill=True)
+
+    vassert( badge.get_attribute('class') == 'badge badge-pill badge-success' )

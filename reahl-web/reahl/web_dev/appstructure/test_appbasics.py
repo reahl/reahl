@@ -51,7 +51,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello', page=SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 3571
+        self.expected_content_length = 3558
         self.content_includes_p = True
 
     @scenario
@@ -67,7 +67,7 @@ class BasicScenarios(WebFixture):
                 home.set_page(SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 3571
+        self.expected_content_length = 3558
         self.content_includes_p = True
 
     @scenario
@@ -78,7 +78,7 @@ class BasicScenarios(WebFixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 3552
+        self.expected_content_length = 3539
         self.content_includes_p = False
 
 

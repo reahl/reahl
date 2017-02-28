@@ -70,22 +70,41 @@ class HTML5Page(reahl.web.ui.HTML5Page):
                       ' %s has a ColumnLayout, and thus needs to have an anchestor with a Container Layout.' % widget)
 
 
-
 class Alert(Div):
     """A message box meant to alert the user of some message.
 
     :param view: (See :class:`reahl.web.fw.Widget`)
-    :param message: The message to display inside the Alert.
+    :param message_or_widget: The message or widget to display inside the Alert.
     :param severity: One of 'success', 'info', 'warning', 'danger' to indicate the color scheme to be used for the Alert.
 
     """
-    def __init__(self, view, message, severity):
+    def __init__(self, view, message_or_widget, severity):
         super(Alert, self).__init__(view)
         severity_option = HTMLAttributeValueOption(severity, severity, prefix='alert', 
                                                    constrain_value_to=['success', 'info', 'warning', 'danger'])
-        self.add_child(TextNode(view, message))
+        child_widget = message_or_widget
+        if isinstance(message_or_widget, six.string_types):
+            child_widget = TextNode(view, message_or_widget)
+        self.add_child(child_widget)
         self.append_class('alert')
         self.append_class(severity_option.as_html_snippet())
         self.set_attribute('role', 'alert')
 
 
+class Badge(Span):
+    """A message box meant to alert the user of some message.
+
+    :param view: (See :class:`reahl.web.fw.Widget`)
+    :param message: The message for the badge.
+    :param level: One of 'default', 'primary', 'success', 'info', 'warning', 'danger' to indicate the color scheme to be used for the Badge.
+    :keyword as_pill: Defaults to False. If set to True the badge will look like a pill.
+    """
+    def __init__(self, view, message, level, as_pill=False):
+        super(Badge, self).__init__(view)
+        severity_option = HTMLAttributeValueOption(level, level, prefix='badge',
+                                                   constrain_value_to=['default', 'primary', 'success', 'info', 'warning', 'danger'])
+        self.add_child(TextNode(view, message))
+        self.append_class('badge')
+        if as_pill:
+            self.append_class('badge-pill')
+        self.append_class(severity_option.as_html_snippet())

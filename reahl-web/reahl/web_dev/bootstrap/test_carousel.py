@@ -69,20 +69,20 @@ def carousel_basics(fixture):
     vassert( carousel_inner.get_attribute('role') == 'listbox' )
 
     # Controls
-    def check_control(control, position, action, label):
-        vassert( control.get_attribute('class') == 'carousel-control %s' % position )
+    def check_control(control, action, label):
+        vassert( control.get_attribute('class') == 'carousel-control-%s' % action )
         vassert( control.get_attribute('role') == 'button' )
         vassert( control.get_attribute('data-slide') == action )
 
         [icon, text] = control.children
-        vassert( icon.get_attribute('class') == 'icon-%s' % action )
+        vassert( icon.get_attribute('class') == 'carousel-control-%s-icon' % action )
         vassert( icon.get_attribute('aria-hidden') == 'true' )
         
         vassert( text.children[0].value == label)
         vassert( text.get_attribute('class') == 'sr-only')
 
-    check_control(left_control, 'left', 'prev', 'Previous')
-    check_control(right_control, 'right', 'next', 'Next')
+    check_control(left_control, 'prev', 'Previous')
+    check_control(right_control, 'next', 'Next')
 
 
 @test(CarouselFixture)
@@ -207,3 +207,12 @@ def adding_items_with_captions(fixture):
     [actual_caption_widget] = div_containing_caption.children
     vassert( actual_caption_widget is caption_widget )
 
+
+@test(CarouselFixture)
+def test_check_classes_added_for_images(fixture):
+    """A Widget can be supplied to be used caption for an added image."""
+    carousel = Carousel(fixture.view, 'my_carousel_id')
+
+    img_widget = Img(fixture.view)
+    carousel.add_slide(img_widget)
+    vassert( img_widget.get_attribute('class') == 'd-block img-fluid' )
