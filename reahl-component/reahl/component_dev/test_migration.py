@@ -22,7 +22,7 @@ from contextlib import contextmanager
 import warnings
 import re
 
-from reahl.tofu import Fixture, test, vassert, expected, NoException
+from reahl.tofu import Fixture, test, vassert, expected
 from reahl.stubble import CallMonitor, EmptyStub
 
 

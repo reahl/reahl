@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import io
 import six
 import warnings
-from nose.tools import istest, assert_raises
+from nose.tools import istest, assert_raises, assert_raises_regexp
 import tempfile
 
 from reahl.stubble import CallMonitor, InitMonitor, SystemOutStub, replaced
@@ -150,7 +150,7 @@ class InterceptTests(object):
             [deprecation] = raised_warnings
             assert issubclass(deprecation.category, DeprecationWarning)
         else:
-            with assert_raises(ValueError):
+            with assert_raises_regexp(ValueError, '.*should be a method$'):
                 with replaced(SomethingElse.foo, replacement):
                     pass
 

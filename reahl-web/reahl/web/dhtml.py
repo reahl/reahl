@@ -106,7 +106,7 @@ class DhtmlUI(UserInterface):
     def statics(self, relative_path):
         dhtml_file = DHTMLFile(self.filesystem_path(relative_path), [self.static_div_name])
         dhtml_file.read()
-        statics = {}
+        statics = dict()
         statics['title'] = dhtml_file.title
         statics['div'] = dhtml_file.elements[self.static_div_name]
         return statics

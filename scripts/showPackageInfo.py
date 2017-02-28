@@ -18,8 +18,6 @@
 
 import six.moves.urllib as urllib
 import argparse
-import subprocess
-import sys
 
 from bs4 import BeautifulSoup
 

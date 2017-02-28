@@ -87,7 +87,7 @@ def fake_distributions_into_existence(project_dirs):
             os.mkdir(egg_dir)
 
 def find_all_prerequisits_for(project_dirs):
-    prerequisites = set(['tox>=2.5,<2.5.999']) # Nothing depends on tox, but we use it in .travis.yml so it forms part of our basic infrastructure
+    prerequisites = {'tox>=2.5,<2.5.999'} # Nothing depends on tox, but we use it in .travis.yml so it forms part of our basic infrastructure
     for project_dir in project_dirs:
         prerequisites.update(parse_prerequisites_from(os.path.join(os.getcwd(), project_dir, '.reahlproject')))
     return prerequisites

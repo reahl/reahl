@@ -22,14 +22,14 @@ import six
 from six.moves import http_cookies
 from six.moves.urllib import parse as urllib_parse
 
-from sqlalchemy import Column, ForeignKey, Integer, inspect
+from sqlalchemy import Column, ForeignKey, Integer
 from webob import Response
 
 from nose.tools import istest
 from reahl.tofu import test, scenario, vassert
 from reahl.stubble import stubclass
 
-from reahl.sqlalchemysupport import metadata, Session
+from reahl.sqlalchemysupport import Session
 from reahl.web_dev.fixtures import WebFixture
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.webdeclarative.webdeclarative import UserSession, SessionData

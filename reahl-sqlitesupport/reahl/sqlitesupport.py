@@ -86,4 +86,3 @@ class SQLiteControl(DatabaseControl):
         
     def size_database(self, orm_control):
         return os.path.getsize(self.database_name)
-        return result[0]

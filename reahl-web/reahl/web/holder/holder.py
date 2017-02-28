@@ -22,11 +22,8 @@ Generate images on the fly.
 
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
-import six
 
 from collections import OrderedDict
-
-from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.fw import Url
 from reahl.web.ui import Img, HTMLAttributeValueOption

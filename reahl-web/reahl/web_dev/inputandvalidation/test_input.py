@@ -22,7 +22,6 @@ import re
 
 from reahl.tofu import scenario, test, vassert, expected
 from reahl.stubble import EmptyStub
-from reahl.component.py3compat import html_escape
 
 from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
                           PasswordInput, TextArea, SelectInput, RadioButtonInput
@@ -298,32 +297,6 @@ def rendering_when_not_allowed(fixture):
         vassert( actual == '' )
     else:
         vassert( re.match(fixture.expected_html, actual) )
-
-
-@test(SimpleInputFixture)
-def backwards_compatibility(fixture):
-    """We still support overriding create_html_input for backwards compatibility."""
-
-    # Case when old interface is overridden
-    class OldInput(TextInput):
-        def create_html_input(self):
-            return super(OldInput, self).create_html_widget()
-
-    with warnings.catch_warnings(record=True) as caught_warnings:
-        warnings.simplefilter('always')
-        html_input = OldInput(fixture.form, fixture.field)
-
-    vassert( caught_warnings )
-    tester = WidgetTester(html_input)
-
-    actual = tester.render_html()
-    vassert( actual ) # Something was rendered.
-
-    # Case when new interface is used
-    with warnings.catch_warnings(record=True) as caught_warnings:
-        warnings.simplefilter('always')
-        html_input = TextInput(fixture.form, fixture.field)
-    vassert( not caught_warnings )
 
 
 @test(SimpleInputFixture)

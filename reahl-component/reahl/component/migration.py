@@ -51,9 +51,6 @@ class MigrationRun(object):
                            current_schema_version, egg.version)
             logging.getLogger(__name__).info(message)
             for migration in migration_list:
-                if (method_name in ['upgrade', 'upgrade_cleanup']) and hasattr(migration, method_name):
-                    message = 'Please override Migration.schedule_upgrades() instead.'
-                    warnings.warn('DEPRECATED: %s.%s. %s' % (migration.__class__.__name__, method_name, message), DeprecationWarning, stacklevel=-1)
                 if hasattr(migration, method_name):
                     getattr(migration, method_name)()
 

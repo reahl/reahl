@@ -7,7 +7,7 @@ Module reahl.web.dhtml
 
 
 DhtmlUI
-""""""""
+"""""""
 
 .. autoclass:: DhtmlUI
    :members:

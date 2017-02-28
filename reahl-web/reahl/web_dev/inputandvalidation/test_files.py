@@ -24,11 +24,17 @@ from reahl.tofu import test
 from reahl.tofu import temp_file_with
 from reahl.tofu import vassert
 
-from reahl.component.modelinterface import FileField, exposed, Event, UploadedFile
+from reahl.component.modelinterface import FileField, exposed, Event, UploadedFile, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, Form, ButtonInput
 from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
 
+
+class FailingConstraint(ValidationConstraint):
+    fail = True
+    def validate_input(self, unparsed_input):
+        if self.fail:
+            raise self
 
 
 class FileTests(object):

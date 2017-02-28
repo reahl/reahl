@@ -58,7 +58,6 @@ from webob.request import DisconnectionError
 from reahl.component.config import StoredConfiguration
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
-from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import ArgumentCheckedCallable
 from reahl.component.exceptions import DomainException
 from reahl.component.exceptions import IsInstance
@@ -403,29 +402,10 @@ class Controller(object):
         return self.add_transition(Transition(self, event, source, target, guard=guard))
 
     def define_local_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, source, guard=guard)
-        self.event_handlers.append(transition)
-        return transition
+        return self.add_transition(Transition(self, event, source, source, guard=guard))
 
     def define_return_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard)
-        self.event_handlers.append(transition)
-        return transition
-
-    def define_transition(self, event, source, target, guard=None):
-        transition = Transition(self, event, source, target, guard=guard)
-        self.event_handlers.append(transition)
-        return transition
-
-    def define_local_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, source, guard=guard)
-        self.event_handlers.append(transition)
-        return transition
-
-    def define_return_transition(self, event, source, guard=None):
-        transition = Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard)
-        self.event_handlers.append(transition)
-        return transition
+        return self.add_transition(Transition(self, event, source, ReturnToCaller(source.as_bookmark(self.user_interface)).as_view_factory(), guard=guard))
 
     def has_event_named(self, name):
         for handler in self.event_handlers:
@@ -613,7 +593,7 @@ class UserInterface(object):
             ArgumentCheckedCallable(view_class.assemble, explanation='.define_regex_view() was called with incorrect arguments for %s' % view_class.assemble).checkargs(NotYetAvailable('self'), **assemble_args)
 
         factory = ViewFactory(RegexPath(path_regex, path_template, path_argument_fields), None, {}, 
-                              view_class=view_class, factory_method=factory_method, read_check=None, write_check=None, **passed_kwargs)
+                              view_class=view_class, factory_method=factory_method, read_check=read_check, write_check=write_check, **passed_kwargs)
         self.add_view_factory(factory)
         return factory
 
@@ -1158,7 +1138,7 @@ class Widget(object):
 
     def parent_widget_pairs(self, own_parent_set):
         yield self, own_parent_set
-        children_parent_set = own_parent_set.union(set([self]))
+        children_parent_set = own_parent_set.union({self})
 
         for child in self.children:
             for widget, parent_set in child.parent_widget_pairs(children_parent_set):
@@ -1631,7 +1611,7 @@ class WidgetFactory(Factory):
     def use_layout(self, layout):
         """If called on the factory, .use_layout will be called in the Widget created, passing along the given layout.
 
-           :keyword use_layout: A layout to be used with the newly created Widget
+           :param layout: A layout to be used with the newly created Widget
         """
         self.layout = layout
         return self
@@ -1981,7 +1961,6 @@ class SubResource(Resource):
     def get_url_for(cls, unique_name, **kwargs):
         sub_path = cls.get_path_template(unique_name) % kwargs
         context = WebExecutionContext.get_context()
-        request = context.request
         url = Url.get_current_url()
         url.path = cls.get_full_path_for(url.path, sub_path)
         url.make_network_relative()
@@ -1989,7 +1968,6 @@ class SubResource(Resource):
 
     @classmethod
     def get_regex(cls, unique_name):
-        context = WebExecutionContext.get_context()
         current_path = Url.get_current_url().as_locale_relative().path
         match = re.match('(?P<current_view_path>.*)(?P<delimiter>/_{1,2})%s_%s$' % (unique_name, cls.sub_regex), current_path)
         if match:
@@ -2015,7 +1993,6 @@ class SubResource(Resource):
 
     @classmethod
     def get_parent_url(cls): 
-        request = ExecutionContext.get_context().request
         current_path = Url.get_current_url().path
         new_path = cls.get_view_path_for(current_path)
         url = Url.get_current_url()
@@ -2167,7 +2144,7 @@ class WidgetResult(MethodResult):
         self.result_widget = result_widget
         self.as_json_and_result = as_json_and_result
 
-    def render_html(self, return_value):
+    def render_html(self):
         result = self.result_widget.render_contents()
         js = set(self.result_widget.get_contents_js(context='#%s' % self.result_widget.css_id))
         result += '<script type="text/javascript">' 
@@ -2176,14 +2153,14 @@ class WidgetResult(MethodResult):
         return result
 
     def render_as_json(self, exception):
-        rendered_widget = self.render_html(None)
+        rendered_widget = self.render_html()
         success = exception is None
         return json.dumps({ 'success': success, 'widget': rendered_widget })
 
     def render(self, return_value):
         if self.as_json_and_result:
             return self.render_as_json(None)
-        return self.render_html(None)
+        return self.render_html()
 
     def render_exception(self, exception):
         if self.as_json_and_result:

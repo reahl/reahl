@@ -16,8 +16,6 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import warnings
-
 from webob import Request
 
 from nose.tools import istest

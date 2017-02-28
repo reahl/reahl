@@ -118,21 +118,22 @@ class RegisterForm(Form):
     def create_identification_inputs(self):
         identification_inputs = self.add_child(FieldSet(self.view, legend_text=_('How will you identify yourself?'))).use_layout(FormLayout())
 
-        email_cue = P(self.view, _('You identify yourself to us by your email address.' \
+        email_cue = P(self.view, _('You identify yourself to us by your email address.'
                                    'This information is not divulged to others.'))
-        error_message=_('Sorry, you can only register once per email address and someone is ' \
-                        'already registered as $value. Did you perhaps register long ago?')
+        error_message = _('Sorry, you can only register once per email address and someone is '
+                          'already registered as $value. Did you perhaps register long ago?')
 
         unique_email_field = self.account_management_interface.fields.email.as_with_validation_constraint(UniqueEmailConstraint(error_message))
         identification_inputs.layout.add_input(CueInput(TextInput(self, unique_email_field), email_cue))
 
-        password_cue = P(self.view, _('Upon logging in, you will be asked for your password. Your password should be a '\
-                                 'secret, known only to yourself, and be difficult to guess.') )
+        password_cue = P(self.view, _('Upon logging in, you will be asked for your password. Your password should be a '
+                                      'secret, known only to yourself, and be difficult to guess.') )
         identification_inputs.layout.add_input(CueInput(PasswordInput(self, self.account_management_interface.fields.password),
                                            password_cue))
         repeat_password_cue = P(self.view, _('By typing the same password again you help us to make sure you did not make any typing mistakes.'))
-        identification_inputs.layout.add_input(CueInput(PasswordInput(self, self.account_management_interface.fields.repeat_password),
-                                           repeat_password_cue))
+        identification_inputs.layout.add_input(
+            CueInput(
+                PasswordInput(self, self.account_management_interface.fields.repeat_password), repeat_password_cue))
 
     def create_terms_inputs(self):
         terms_inputs = self.add_child(FieldSet(self.view, legend_text=_('Terms and conditions'))).use_layout(FormLayout())
@@ -213,8 +214,8 @@ class RegistrationDuplicatedWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
         super(RegistrationDuplicatedWidget, self).__init__(view)
         self.add_child(P(view, text=_('You are trying to register using the email address "%s"') % account_management_interface.email))
-        self.add_child(P(view, text=_('That address is already registered and active on the system.' \
-                                      'This means that you (or someone else) must have registered using that email address' \
+        self.add_child(P(view, text=_('That address is already registered and active on the system.'
+                                      'This means that you (or someone else) must have registered using that email address'
                                       ' previously.')))
 
         forgot_password_bookmark = self.user_interface.get_bookmark(relative_path='/resetPassword')
@@ -227,14 +228,14 @@ class RegistrationPendingWidget(TitledWidget):
         super(RegistrationPendingWidget, self).__init__(view)
         config = WebExecutionContext.get_context().config
         self.add_child(P(view, text=_('There is a registration pending for email address "%s".') % account_management_interface.email))
-        self.add_child(P(view, text=_('Before you can log in using it, you need to act on the automated email '\
+        self.add_child(P(view, text=_('Before you can log in using it, you need to act on the automated email '
                                       'sent to that address. It looks like you did not do that.')))
-        self.add_child(P(view, text=_('You should receive the automated email anything between a minute to an hour after '\
-                                      'registration. Sometimes though, your email software may mistakenly identify our '\
-                                      'email as junk email. If this happens it will be hidden away in a "junk email" '\
+        self.add_child(P(view, text=_('You should receive the automated email anything between a minute to an hour after '
+                                      'registration. Sometimes though, your email software may mistakenly identify our '
+                                      'email as junk email. If this happens it will be hidden away in a "junk email" '
                                       'folder or just not shown to you.')))
         self.add_child(P(view, text=_('You can have the email re-sent to you by clicking on the button below.')))
-        self.add_child(P(view, text=_('Before you do that, however, please make sure that your email system will allow '\
+        self.add_child(P(view, text=_('Before you do that, however, please make sure that your email system will allow '
                                       'emails from "%s" through to you.') % config.accounts.admin_email))
 
         self.add_child(RegistrationPendingForm(view))
@@ -256,7 +257,7 @@ class RegistrationNotFoundWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
         super(RegistrationNotFoundWidget, self).__init__(view)
         self.add_child(P(view, text=_('There is no record of someone trying to register the email address "%s".') % account_management_interface.email))
-        self.add_child(P(view, text=_('Perhaps you mistyped your email address when registering? The system also removes ' \
+        self.add_child(P(view, text=_('Perhaps you mistyped your email address when registering? The system also removes '
                                       'such a registration request if you take a long time to get around to verifying it.')))
 
         register_bookmark = self.user_interface.get_bookmark(relative_path='/register')
@@ -293,10 +294,11 @@ class CongratsWidget(TitledWidget):
 class ResetPasswordWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
         super(ResetPasswordWidget, self).__init__(view)
-        explanation = P(view, text=_('To ensure you are not an impostor, resetting your password is a two step '\
-                         'process: First, we send a "secret key" to your registered email address. '\
-                         'Then, {choose_password}. But you need that secret key for the last step in order to prove '\
-                         'that you are indeed the owner of the registered email address.'))
+        explanation = P(view,
+                        text=_('To ensure you are not an impostor, resetting your password is a two step '
+                               'process: First, we send a "secret key" to your registered email address. '
+                               'Then, {choose_password}. But you need that secret key for the last step in order to prove '
+                               'that you are indeed the owner of the registered email address.'))
         link_text = _('you can choose a new password')
         step2_bookmark = self.user_interface.get_bookmark(relative_path='/choosePassword', description=link_text)
         self.add_child(explanation.format(choose_password=A.from_bookmark(view, step2_bookmark)))

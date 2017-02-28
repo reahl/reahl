@@ -23,15 +23,11 @@ import six
 import copy
 import re
 import fnmatch
-import json
 import sre_constants
 from six.moves.urllib import parse as urllib_parse
 from string import Template
-import types
 import inspect
 from contextlib import contextmanager
-import functools
-from collections import OrderedDict
 
 import dateutil.parser 
 import babel.dates 
@@ -39,7 +35,6 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
 from reahl.component.i18n import Translator
-from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 import collections
 
@@ -1072,7 +1067,8 @@ class SecuredFunction(FunctionWrapper):
             self.check_method_signature(check, self.__wrapped__)
 
     def check_call_wrapped(self, wrapped, instance, args, kwargs):
-        if not (self.check_right(self.read_check, instance, *args, **kwargs) and \
+        if not (self.check_right(self.read_check, instance, *args, **kwargs)
+                and
                 self.check_right(self.write_check, instance, *args, **kwargs)):
             raise AccessRestricted()
         return wrapped(*args, **kwargs)
@@ -1086,8 +1082,13 @@ class SecuredFunction(FunctionWrapper):
             return True
 
     def check_method_signature(self, check_method, original_method):
-        check_signature = inspect.getargspec(check_method)
-        expected_signature = inspect.getargspec(original_method)
+        if six.PY2:
+            check_signature = inspect.getargspec(check_method)
+            expected_signature = inspect.getargspec(original_method)
+        else:
+            check_signature = inspect.getfullargspec(check_method)
+            expected_signature = inspect.getfullargspec(original_method)
+
         if check_signature != expected_signature:
             messages = [repr(method) + inspect.formatargspec(*signature)
                         for signature, method in [(check_signature, check_method),
@@ -1096,7 +1097,10 @@ class SecuredFunction(FunctionWrapper):
                                   tuple(messages))
 
     def get_declared_argument_names(self):
-        arg_spec = inspect.getargspec(self.__wrapped__)
+        if six.PY2:
+            arg_spec = inspect.getargspec(self.__wrapped__)
+        else:
+            arg_spec = inspect.getfullargspec(self.__wrapped__)
         positional_args_end = len(arg_spec.args)-len(arg_spec.defaults or [])
         return arg_spec.args[:positional_args_end]
 

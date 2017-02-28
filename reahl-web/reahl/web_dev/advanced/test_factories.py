@@ -18,7 +18,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-from nose.tools import istest, assert_raises_regexp
+from nose.tools import istest
 from reahl.tofu import Fixture, test, scenario
 from reahl.tofu import vassert, expected
 from reahl.stubble import EmptyStub

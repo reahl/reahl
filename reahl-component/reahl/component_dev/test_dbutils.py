@@ -16,7 +16,6 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
 from reahl.tofu import test, Fixture, vassert, expected
 
 from reahl.stubble import easter_egg

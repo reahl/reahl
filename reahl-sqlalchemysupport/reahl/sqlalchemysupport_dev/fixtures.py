@@ -21,10 +21,10 @@ from contextlib import contextmanager
 from reahl.tofu import set_up, tear_down
 from reahl.stubble import EmptyStub
 
-from reahl.component.config import ReahlSystemConfig, Configuration
+from reahl.component.config import ReahlSystemConfig
 from reahl.component.context import ExecutionContext
 
-from reahl.sqlalchemysupport import metadata, Session, Base
+from reahl.sqlalchemysupport import metadata, Session
 
     
 class SqlAlchemyTestMixin(object):

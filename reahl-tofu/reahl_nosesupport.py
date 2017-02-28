@@ -278,8 +278,7 @@ class SetUpFixturePlugin(Plugin):
         print('Finished running %s' % self.setup_fixture, file=stream)
         return True
         
-  
-from nose.plugins.attrib import AttributeSelector
+
 from nose.selector import Selector
 import unittest
 log = logging.getLogger(__name__)

@@ -110,7 +110,7 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
 
     def temp_dir(self):
         """Returns a directory inside this directory.""" 
-        d = AutomaticallyDeletedTempDirectory(self.name)
+        d = AutomaticallyDeletedTempDirectory(directory=self.name)
         self.entries.append(d)
         return d
 
@@ -131,8 +131,8 @@ class AutomaticallyDeletedDirectory(EmptyDirectory):
         
 
 class AutomaticallyDeletedTempDirectory(AutomaticallyDeletedDirectory):
-    def __init__(self, dir=None):
-        name = tempfile.mkdtemp(dir=dir)
+    def __init__(self, directory=None):
+        name = tempfile.mkdtemp(dir=directory)
         super(AutomaticallyDeletedTempDirectory, self).__init__(name)
 
 def temp_dir():
