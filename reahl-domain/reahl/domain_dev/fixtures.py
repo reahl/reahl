@@ -20,14 +20,15 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import os
 
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, set_up
 from reahl.stubble import stubclass, exempt
 from reahl.mailutil.mail import Mailer
 
 from reahl.sqlalchemysupport import Session
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin, sql_alchemy_fixture
 from reahl.domain.partymodel import Party
-from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, AccountManagementInterface
 from reahl.domain.systemaccountmodel import SystemAccountConfig
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.web.egg import WebConfig
@@ -95,7 +96,7 @@ class PartyModelZooMixin(BasicModelZooMixin):
         password = 'topsecret'
         system_account = EmailAndPasswordSystemAccount(owner=party or self.party, email=email)
         system_account.set_new_password(email, password)
-        system_account.password = password # The unencrypted version for use in tests
+        system_account.password = password  # The unencrypted version for use in tests
         if activated:
             system_account.activate()
         Session.add(system_account)
@@ -119,3 +120,63 @@ class DemoSetup(Fixture, PartyModelZooMixin):
         self.party
         self.system_account
         self.system_control.commit()
+
+
+class DeclarativeImplementationFixture(Fixture):
+    def new_session(self, system_account=None):
+        return UserSession()
+
+
+class PartyAccountFixture(Fixture):
+    def __init__(self, sql_alchemy_fixture):
+        super(PartyAccountFixture, self).__init__()
+        self.sql_alchemy_fixture = sql_alchemy_fixture
+
+    @property
+    def context(self):
+        return self.sql_alchemy_fixture.context
+
+    @set_up
+    def add_system_account_config(self):
+        self.sql_alchemy_fixture.config.accounts = self.system_account_config
+        self.sql_alchemy_fixture.context.set_session(self.session)
+
+    def new_system_account_config(self):
+        accounts = SystemAccountConfig()
+        accounts.admin_email = 'pietiskoning@home.org'
+        accounts.mailer_class = MailerStub
+        return accounts
+
+    def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
+        password = 'topsecret'
+        system_account = EmailAndPasswordSystemAccount(owner=party or self.party, email=email)
+        system_account.set_new_password(email, password)
+        system_account.password = password  # The unencrypted version for use in tests
+        if activated:
+            system_account.activate()
+        Session.add(system_account)
+        Session.flush()
+        return system_account
+
+    def new_party(self):
+        party = Party()
+        Session.add(party)
+        Session.flush()
+        return party
+
+    def new_mailer(self):
+        return MailerStub.from_context()
+
+    def new_account_management_interface(self, system_account=None):
+        system_account = system_account or self.system_account
+        account_management_interface = AccountManagementInterface()
+        account_management_interface.password = system_account.password
+        account_management_interface.email = system_account.email
+        Session.add(account_management_interface)
+        Session.flush()
+        return account_management_interface
+
+    def new_session(self, system_account=None):
+        return UserSession()
+
+party_account_fixture = PartyAccountFixture.as_pytest_fixture()

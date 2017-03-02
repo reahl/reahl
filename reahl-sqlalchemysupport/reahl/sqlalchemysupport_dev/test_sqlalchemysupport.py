@@ -19,49 +19,56 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from sqlalchemy import Column, String
 
-from reahl.tofu import Fixture, test, vassert
+from reahl.tofu import Fixture
+# noinspection PyUnresolvedReferences
+from reahl.dev.fixtures import reahl_system_fixture
 
 from reahl.sqlalchemysupport import SqlAlchemyControl, QueryAsSequence, Session, Base
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
 
 from reahl.component_dev.test_migration import ReahlEggStub
 
 
+def test_egg_schema_version_changes(reahl_system_fixture):
+    with reahl_system_fixture.context:
+        orm_control = SqlAlchemyControl()
 
-@test(Fixture)
-def egg_schema_version_changes(fixture):
-    orm_control = SqlAlchemyControl()
+        old_version_egg = ReahlEggStub('anegg', '0.0', [])
 
-    old_version_egg = ReahlEggStub('anegg', '0.0', [])
-    
-    orm_control.initialise_schema_version_for(old_version_egg)
-    current_version = orm_control.schema_version_for(old_version_egg)
-    vassert( current_version == old_version_egg.version )
-    
-    new_version_egg = ReahlEggStub('anegg', '0.1', [])
-    orm_control.update_schema_version_for(new_version_egg)
-    current_version = orm_control.schema_version_for(new_version_egg)
-    vassert( current_version == new_version_egg.version )
-    vassert( not current_version == old_version_egg.version )
-    current_version = orm_control.schema_version_for(old_version_egg)
-    vassert( current_version == new_version_egg.version )
+        orm_control.initialise_schema_version_for(old_version_egg)
+        current_version = orm_control.schema_version_for(old_version_egg)
+        assert current_version == old_version_egg.version
 
-
-@test(Fixture)
-def egg_schema_version_init(fixture):
-    orm_control = SqlAlchemyControl()
-
-    egg = ReahlEggStub('initegg', '0.0', [])
-    orm_control.create_db_tables(None, [egg])
-    current_version = orm_control.schema_version_for(egg)
-    vassert( current_version == egg.version )
+        new_version_egg = ReahlEggStub('anegg', '0.1', [])
+        orm_control.update_schema_version_for(new_version_egg)
+        current_version = orm_control.schema_version_for(new_version_egg)
+        assert current_version == new_version_egg.version
+        assert not current_version == old_version_egg.version
+        current_version = orm_control.schema_version_for(old_version_egg)
+        assert current_version == new_version_egg.version
 
 
-class QueryFixture(Fixture, SqlAlchemyTestMixin):
+def test_egg_schema_version_init(reahl_system_fixture):
+    with reahl_system_fixture.context:
+        orm_control = SqlAlchemyControl()
+
+        egg = ReahlEggStub('initegg', '0.0', [])
+        orm_control.create_db_tables(None, [egg])
+        current_version = orm_control.schema_version_for(egg)
+        assert current_version == egg.version
+
+
+class QueryFixture(Fixture):
+    def __init__(self, sql_alchemy_fixture):
+        super(QueryFixture, self).__init__()
+        self.sql_alchemy_fixture = sql_alchemy_fixture
+
     def new_MyObject(self):
         class MyObject(Base):
             __tablename__ = 'my_object'
             name = Column(String, primary_key=True)
+
             def __init__(self, name):
                 self.name = name
         return MyObject
@@ -75,61 +82,63 @@ class QueryFixture(Fixture, SqlAlchemyTestMixin):
     def new_query_as_sequence(self):
         return QueryAsSequence(Session.query(self.MyObject))
 
+query_fixture = QueryFixture.as_pytest_fixture()
 
-@test(QueryFixture)
-def query_as_sequence(fixture):
+
+def test_query_as_sequence(sql_alchemy_fixture, query_fixture):
     """A QueryAsSequence adapts a sqlalchemy.Query to look like a list."""
-    
-    with fixture.persistent_test_classes(fixture.MyObject):
+
+    fixture = query_fixture
+    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 
-        #can len() items
-        vassert( len(fixture.query_as_sequence) == 3 )
+        # can len() items
+        assert len(fixture.query_as_sequence) == 3
 
-        #can find in list
+        # can find in list
         items = [item for item in Session.query(fixture.MyObject)]
         for i, item in enumerate(items):
-            vassert( fixture.query_as_sequence[i] is item )
+            assert fixture.query_as_sequence[i] is item
 
-        #can sort
+        # can sort
         fixture.query_as_sequence.sort(key=fixture.MyObject.name)
         sorted_items = [item for item in fixture.query_as_sequence]
-        vassert( sorted_items == [object2, object1, object3] )
+        assert sorted_items == [object2, object1, object3]
 
-        #can sort descending
+        # can sort descending
         fixture.query_as_sequence.sort(key=fixture.MyObject.name, reverse=True)
         sorted_items_in_reverse = [item for item in fixture.query_as_sequence]
-        vassert( sorted_items_in_reverse == [object3, object1, object2] )
+        assert sorted_items_in_reverse == [object3, object1, object2]
 
-        #can slice
+        # can slice
         natural_ordered_items = [item for item in fixture.query_as_sequence]
         [object1, object2, object3] = fixture.query_as_sequence[:]
-        vassert([object1, object2, object3] == natural_ordered_items)
+        assert[object1, object2, object3] == natural_ordered_items
 
-        #can slice some more
+        # can slice some more
         [sliced_item] = fixture.query_as_sequence[1:2]
-        vassert(sliced_item == natural_ordered_items[1])
+        assert sliced_item == natural_ordered_items[1]
 
 
-@test(QueryFixture)
-def query_as_sequence_last_sort_wins(fixture):
+def test_query_as_sequence_last_sort_wins(sql_alchemy_fixture, query_fixture):
     """Only the last .sort() on a QueryAsSequence has any effect."""
 
-    with fixture.persistent_test_classes(fixture.MyObject):
+    fixture = query_fixture
+    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 
         fixture.query_as_sequence.sort(key=fixture.MyObject.name)
         fixture.query_as_sequence.sort(key=fixture.MyObject.name, reverse=True)
         sorted_items = [item for item in fixture.query_as_sequence]
-        vassert( sorted_items == [object3, object1, object2] )
+        assert sorted_items == [object3, object1, object2]
 
 
-@test(QueryFixture)
-def query_as_sequence_chained_sorts(fixture):
+def test_query_as_sequence_chained_sorts(sql_alchemy_fixture, query_fixture):
     """A QueryAsSequence constructed with a query that already has an order_by clause,
        should be able to chain additional sort(order_by) requirements"""
 
-    with fixture.persistent_test_classes(fixture.MyObject):
+    fixture = query_fixture
+    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 
         native_query_with_sort = Session.query(fixture.MyObject).order_by(fixture.MyObject.name)
@@ -138,5 +147,5 @@ def query_as_sequence_chained_sorts(fixture):
         # another sort(order_by) requirement
         query_as_sequence.sort(key=fixture.MyObject.name, reverse=True)
         sorted_items = [item for item in query_as_sequence]
-        vassert( sorted_items == [object3, object1, object2] )
+        assert sorted_items == [object3, object1, object2]
 

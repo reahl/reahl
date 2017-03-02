@@ -63,10 +63,8 @@ def test_interface_with_meta_info():
     # The meta-info that can be obtained via such an interface
     assert interface.configuration_spec is None
 
-    orm_control = EmptyStub()
-    assert interface.get_persisted_classes_in_order(orm_control) == []
+    assert interface.get_persisted_classes_in_order() == []
     assert interface.migrations_in_order == []
-    assert interface.get_roles_to_add() == []
 
     # Hooks for allowing a component to do its own housekeeping
     with expected(NoException):

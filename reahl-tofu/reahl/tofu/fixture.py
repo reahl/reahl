@@ -235,7 +235,7 @@ class Fixture(object):
                     marked.method_for(self)()
                     done.add(marked.name)
 
-    def do_nothing(self):  # Used when no scenarions are defined
+    def do_nothing(self):  # Used when no scenarios are defined
         pass
         
     def set_up(self): pass
@@ -263,21 +263,22 @@ class Fixture(object):
         return '%s[%s]' % (self.__class__.__name__, self.scenario.name)
 
     def __enter__(self):
-        self.context.__enter__()
-        try:
-            self.set_up()
-            self.run_marked_methods(SetUp, order=reversed)
-            self.scenario.method_for(self)()
-        except:
-            self.__exit__(*sys.exc_info())
-            raise
-        return self
+        with self.context:
+            try:
+                self.set_up()
+                self.run_marked_methods(SetUp, order=reversed)
+                self.scenario.method_for(self)()
+            except:
+                self.__exit__(*sys.exc_info())
+                raise
+            return self
 
     def __exit__(self, exception_type, value, traceback):
-        self.context.__exit__(exception_type, value, traceback)
-        self.tear_down_attributes()
-        self.run_marked_methods(TearDown)
-        self.tear_down()
+        with self.context:
+            self.tear_down_attributes()
+            self.run_marked_methods(TearDown)
+            self.tear_down()
+
 
 
 class NoContext(object):
