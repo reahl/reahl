@@ -10,7 +10,7 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="run">
@@ -25,7 +25,7 @@
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-sqlalchemysupport"/>
@@ -39,8 +39,8 @@
   <persisted>
   </persisted>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=reahl/web_dev -i'.*' -t "/>
-  
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.web_dev'"/>
+
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
   </distpackage>
