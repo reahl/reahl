@@ -7,7 +7,7 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="run">
@@ -18,7 +18,7 @@
 
   <deps purpose="test">
     <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
@@ -43,7 +43,7 @@
     <class locator="reahl.webdeclarative.migrations:RenameContentType"/>
   </migrations>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -t -i'.*' --tests=reahl/webdeclarative_dev "/>
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.webdeclarative_dev'"/>
   
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
