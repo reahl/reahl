@@ -19,37 +19,38 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-from nose.tools import istest
-from reahl.tofu import test
 from reahl.tofu import expected
 
 from reahl.webdev.tools import Browser
-from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import Field, RequiredConstraint
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UrlBoundView, UserInterface
 from reahl.web.ui import HTML5Page
 
-@istest
-class ParameterisedViewErrors(object):
-    @test(WebFixture)
-    def missing_variable_in_regex(self, fixture):
-        """If a variable is missing from the regex, an appropriate error is raised."""
+from reahl.web_dev.fixtures import web_fixture
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+from reahl.domain_dev.fixtures import party_account_fixture
 
-        class ParameterisedView(UrlBoundView):
-            def assemble(self, some_key=None):
-                self.title = 'View for: %s' % some_key
 
-        class UIWithParameterisedViews(UserInterface):
-            def assemble(self):
-                self.define_regex_view('/(?P<incorrect_name_for_key>.*)', '/${key}', view_class=ParameterisedView, some_key=Field(required=True))
+def test_missing_variable_in_regex(web_fixture):
+    """If a variable is missing from the regex, an appropriate error is raised."""
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(HTML5Page)
-                self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='test_ui')
+    class ParameterisedView(UrlBoundView):
+        def assemble(self, some_key=None):
+            self.title = 'View for: %s' % some_key
 
+    class UIWithParameterisedViews(UserInterface):
+        def assemble(self):
+            self.define_regex_view('/(?P<incorrect_name_for_key>.*)', '/${key}', view_class=ParameterisedView, some_key=Field(required=True))
+
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(HTML5Page)
+            self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='test_ui')
+
+    fixture = web_fixture
+    with web_fixture.context:
         wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
         browser = Browser(wsgi_app)
 
@@ -59,34 +60,27 @@ class ParameterisedViewErrors(object):
             browser.open('/a_ui/test1/')
 
 
+def test_missing_variable_in_ui_regex(web_fixture):
 
-class ParameterisedUserInterfaceErrors(WebFixture):
-    def new_wsgi_app(self):
-        fixture = self
-        class RegexUserInterface(UserInterface):
-            def assemble(self, ui_key=None):
-                self.name = 'user_interface-%s' % ui_key
+    class RegexUserInterface(UserInterface):
+        def assemble(self, ui_key=None):
+            self.name = 'user_interface-%s' % ui_key
 
-        class UIWithParameterisedUserInterfaces(UserInterface):
-            def assemble(self):
-                self.define_regex_user_interface('/(?P<xxx>[^/]*)', 'N/A', RegexUserInterface,
-                                         {},
-                                         ui_key=Field(required=True))
+    class UIWithParameterisedUserInterfaces(UserInterface):
+        def assemble(self):
+            self.define_regex_user_interface('/(?P<xxx>[^/]*)', 'N/A', RegexUserInterface,
+                                             {},
+                                             ui_key=Field(required=True))
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(HTML5Page)
-                self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  {}, name='test_ui')
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(HTML5Page)
+            self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  {}, name='test_ui')
 
-        return super(ParameterisedUserInterfaceErrors, self).new_wsgi_app(site_root=MainUI)
-       
+    with web_fixture.context:
+        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
 
-@istest
-class ParameterisedErrorsTests(object):
-    @test(ParameterisedUserInterfaceErrors)
-    def missing_variable_in_regex(self, fixture):
-
-        browser = Browser(fixture.wsgi_app)
+        browser = Browser(wsgi_app)
 
         with expected(RequiredConstraint):
             browser.open('/a_ui/test1/')
