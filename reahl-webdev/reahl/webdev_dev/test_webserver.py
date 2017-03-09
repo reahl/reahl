@@ -22,9 +22,7 @@ import time
 import datetime
 import functools
 
-from reahl.tofu import test, Fixture
-from reahl.tofu import vassert
-from reahl.tofu import temp_dir
+from reahl.tofu import Fixture, temp_dir
 from reahl.stubble import stubclass, CallMonitor, exempt, EmptyStub
 
 from reahl.webdev.webserver import ServerSupervisor, SlaveProcess
@@ -82,17 +80,20 @@ class SupervisorFixture(Fixture):
             time.sleep(poll_interval)
 
 
-@test(SupervisorFixture)
-def server_supervisor_restarts_slave_when_files_changed(fixture):
-    """The ServerSupervisor watches for changes to files, and restarts a web serving process when a file was changed."""
+supervisor_fixture = SupervisorFixture.as_pytest_fixture()
 
-    vassert( not fixture.supervisor.serving_process.is_running() )
+
+def test_server_supervisor_restarts_slave_when_files_changed(supervisor_fixture):
+    """The ServerSupervisor watches for changes to files, and restarts a web serving process when a file was changed."""
+    fixture = supervisor_fixture
+
+    assert not fixture.supervisor.serving_process.is_running()
 
     fixture.start_supervisor()
 
     try:
-        vassert( fixture.supervisor.serving_process.started(count=1) )
-        vassert( fixture.supervisor.serving_process.is_running() )
+        assert fixture.supervisor.serving_process.started(count=1)
+        assert fixture.supervisor.serving_process.is_running()
 
         fixture.change_a_file()
 
@@ -103,7 +104,7 @@ def server_supervisor_restarts_slave_when_files_changed(fixture):
     finally:
         fixture.stop_supervisor()
     
-    vassert( not fixture.supervisor.serving_process.is_running() )
+    assert not fixture.supervisor.serving_process.is_running()
 
 
 @stubclass(SlaveProcess)
@@ -120,14 +121,13 @@ class SlaveProcessRegisterOrphanStub(SlaveProcess):
 
 
 
-@test(Fixture)
-def slave_process_registers_process_to_kill(fixture):
+def test_slave_process_registers_process_to_kill():
     """The SlaveProcess ensures that orphaned os processes started by it will be killed upon exit."""
     
     slave_process = SlaveProcessRegisterOrphanStub()
-    vassert( not slave_process.kill_orphan_callable )
+    assert not slave_process.kill_orphan_callable
     slave_process.start()
-    vassert( callable(slave_process.kill_orphan_callable) )
+    assert callable(slave_process.kill_orphan_callable)
 
 
 
@@ -149,8 +149,8 @@ class SlaveProcessStub(SlaveProcess):
     def register_orphan_killer(self, kill_function): pass
 
 
-@test(Fixture)
-def slave_process_terminates_then_waits(fixture):
+
+def test_slave_process_terminates_then_waits():
     """When the SlaveProcess is terminated, it waits for the OS process to die before returning."""
 
     slave_process = SlaveProcessStub()
@@ -158,7 +158,7 @@ def slave_process_terminates_then_waits(fixture):
 
     with CallMonitor(slave_process.process.wait) as wait_monitor:
         slave_process.terminate()
-    vassert( wait_monitor.times_called == 1 )
+    assert wait_monitor.times_called == 1
 
 
 
@@ -182,8 +182,7 @@ class ProcessThatTakesLongToDie(ProcessFake):
         self.killed = True
 
 
-@test(Fixture)
-def process_wait_timeout_reached_raises_exception(fixture):
+def test_process_wait_timeout_reached_raises_exception():
     """If a SlaveProcess does not terminate successfully, it is forcibly killed."""
     
     slave_process = SlaveProcessThatDoesNotReallyStart()
@@ -192,8 +191,8 @@ def process_wait_timeout_reached_raises_exception(fixture):
     slave_process.start()
     short_time = slave_process.process.time_to_take_to_die/10
     
-    vassert( not slave_process.process.killed )
+    assert not slave_process.process.killed
     slave_process.terminate(short_time)
-    vassert( slave_process.process.killed )
+    assert slave_process.process.killed
 
 
