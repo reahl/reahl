@@ -25,3 +25,4 @@ class BookmarkStub(object):
         self.description = description
         self.href = href
         self.ajax = False
+

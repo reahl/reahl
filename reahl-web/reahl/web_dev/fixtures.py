@@ -201,7 +201,7 @@ class WebFixture2(Fixture):
         session = session or self.session
         browser = browser or self.driver_browser
         login_session = LoginSession.for_session(session)
-        login_session.set_as_logged_in(system_account or self.system_account, stay_logged_in)
+        login_session.set_as_logged_in(system_account or self.party_account_fixture.system_account, stay_logged_in)
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
         self.session.set_session_key(response)
