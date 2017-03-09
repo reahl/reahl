@@ -34,6 +34,13 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, Verif
     InvalidEmailException, AccountNotActiveException, NoSuchAccountException, AccountActive, AccountDisabled, \
     AccountNotActivated, AccountManagementInterface,  ActivateAccount, LoginSession
 
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+# noinspection PyUnresolvedReferences
+from reahl.domain_dev.fixtures import party_account_fixture
+# noinspection PyUnresolvedReferences
+from reahl.web_dev.fixtures import web_fixture
+
 
 def test_create_account(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
@@ -473,7 +480,7 @@ def test_logging_in(sql_alchemy_fixture, party_account_fixture):
         assert login_session.account is None
 
 
-from reahl.webdev.fixtures import web_server_fixture
+
 def test_login_queries(party_account_fixture, web_fixture):
     """"""
 

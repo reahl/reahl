@@ -38,8 +38,6 @@ from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page
 from reahl.web.egg import WebConfig
 
-# noinspection PyUnresolvedReferences
-from reahl.webdev.fixtures import web_server_fixture
 
 _ = Translator('reahl-webdev')
 
@@ -145,11 +143,12 @@ class WebFixture(Fixture, WebBasicsMixin):
 
 
 class WebFixture2(Fixture):
-    def __init__(self, sql_alchemy_fixture, party_account_fixture, web_server_fixture):
+    def __init__(self, reahl_system_fixture, sql_alchemy_fixture, party_account_fixture, web_server_fixture):
         super(WebFixture2, self).__init__()
         self.sql_alchemy_fixture = sql_alchemy_fixture
         self.party_account_fixture = party_account_fixture
         self.web_server_fixture = web_server_fixture
+        self.reahl_system_fixture = reahl_system_fixture
 
     @set_up
     def add_web_config(self):
@@ -168,13 +167,14 @@ class WebFixture2(Fixture):
         return self.sql_alchemy_fixture.system_control
 
     def new_context(self, request=None, config=None, session=None):
-        context = WebExecutionContext()
-        context.set_config(config or self.config)
-        context.set_system_control(self.system_control)
-        context.set_request(request or self.request)
-        with context:
-            context.set_session(session or self.session)
-        return context
+        with self.reahl_system_fixture.context:
+            context = WebExecutionContext()
+            context.set_config(config or self.config)
+            context.set_system_control(self.system_control)
+            context.set_request(request or self.request)
+            with context:
+                context.set_session(session or self.session)
+            return context
 
     def new_webconfig(self):
         web = WebConfig()

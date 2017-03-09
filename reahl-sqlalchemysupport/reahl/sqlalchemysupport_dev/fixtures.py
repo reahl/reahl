@@ -26,8 +26,6 @@ from reahl.component.context import ExecutionContext
 
 from reahl.sqlalchemysupport import metadata, Session
 
-# noinspection PyUnresolvedReferences
-from reahl.dev.fixtures import reahl_system_fixture
 
 
 class SqlAlchemyTestMixin(object):
@@ -162,10 +160,11 @@ class SqlAlchemyFixture(Fixture):
         return config
 
     def new_context(self, config=None, session=None):
-        context = ExecutionContext()
-        context.set_config(config or self.config)
-        context.set_system_control(self.system_control)
-        return context
+        with self.reahl_system_fixture.context:
+            context = ExecutionContext()
+            context.set_config(config or self.config)
+            context.set_system_control(self.system_control)
+            return context
 
     @property
     def system_control(self):

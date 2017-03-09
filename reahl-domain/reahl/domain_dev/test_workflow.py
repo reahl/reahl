@@ -30,6 +30,11 @@ from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
 
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+# noinspection PyUnresolvedReferences
+from reahl.domain_dev.fixtures import party_account_fixture
+
 
 class DeferredActionFixture(Fixture):
     def __init__(self, party_account_fixture):
