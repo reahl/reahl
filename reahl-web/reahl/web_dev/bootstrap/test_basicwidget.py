@@ -19,21 +19,24 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, test
-
-from reahl.web_dev.fixtures import WebFixture
-
 from reahl.web.bootstrap.ui import Alert
 
+# noinspection PyUnresolvedReferences
+from reahl.web_dev.fixtures import web_fixture
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+# noinspection PyUnresolvedReferences
+from reahl.domain_dev.fixtures import party_account_fixture
 
 
-@test(WebFixture)
-def alerts(fixture):
+
+def test_alerts(web_fixture):
     """An alert is used to display a message with a specific severity"""
 
-    alert = Alert(fixture.view, 'Be careful', 'danger')
+    with web_fixture.context:
+        alert = Alert(web_fixture.view, 'Be careful', 'danger')
 
-    vassert( alert.get_attribute('class') == 'alert alert-danger' )
-    vassert( alert.get_attribute('role') == 'alert' )
-    [message] = alert.children
-    vassert( message.value == 'Be careful' )
+        assert alert.get_attribute('class') == 'alert alert-danger'
+        assert alert.get_attribute('role') == 'alert'
+        [message] = alert.children
+        assert message.value == 'Be careful'

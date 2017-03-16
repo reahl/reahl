@@ -17,24 +17,28 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
-from reahl.tofu import Fixture, test
+
 from reahl.stubble import stubclass
-from reahl.tofu import vassert
 
 from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, exposed
 from reahl.web.ui import InputTypeInput, Form, TextInput, ButtonInput
 from reahl.webdev.tools import WidgetTester
-from reahl.web_dev.fixtures import WebBasicsMixin
-from reahl.web_dev.inputandvalidation.test_input import InputMixin, InputMixin2
+from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture2
+
+# noinspection PyUnresolvedReferences
+from reahl.web_dev.fixtures import web_fixture
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+# noinspection PyUnresolvedReferences
+from reahl.domain_dev.fixtures import party_account_fixture
+# noinspection PyUnresolvedReferences
+from reahl.component_dev.test_field import field_fixture
 
 
-class FieldFixture(Fixture, InputMixin):
-    pass
 
-class ConstraintRenderingFixture(Fixture, WebBasicsMixin, InputMixin2):
+class ConstraintRenderingFixture(SimpleInputFixture2):
     def new_field(self, name='an_attribute', label='an attribute'):
         field = super(ConstraintRenderingFixture, self).new_field(label=label)
         field.bind(name, self.model_object)
@@ -44,23 +48,24 @@ class ConstraintRenderingFixture(Fixture, WebBasicsMixin, InputMixin2):
         return '//form/label[@class="error"]'
 
     def is_error_text(self, text):
-        return text == self.driver_browser.get_text(self.error_xpath)
+        return text == self.web_fixture.driver_browser.get_text(self.error_xpath)
 
     def new_input(self, field=None):
         return InputTypeInput(self.form, field or self.field, 'inputtype')
 
+constraint_rendering_fixture = ConstraintRenderingFixture.as_pytest_fixture()
 
-@istest
-class FieldTests(object):
-    @test(ConstraintRenderingFixture)
-    def rendering_of_constraints(self, fixture):
-        """The constraints of the Field of an PrimitiveInput are rendered in html as html attributes of an Input
-           which corresponds with the name of each validation_constraint and has value the parameters of the validation_constraint.
-           The error message of each validation_constraint is also put in a json object inside the class attribute.
-           These measures make it possible to write constraints that are checked on the browser either by
-           browser support or by a jquery validate add-on, and in case of failure to display the exact
-           corresponding error message."""
 
+def test_rendering_of_constraints(web_fixture, constraint_rendering_fixture):
+    """The constraints of the Field of an PrimitiveInput are rendered in html as html attributes of an Input
+       which corresponds with the name of each validation_constraint and has value the parameters of the validation_constraint.
+       The error message of each validation_constraint is also put in a json object inside the class attribute.
+       These measures make it possible to write constraints that are checked on the browser either by
+       browser support or by a jquery validate add-on, and in case of failure to display the exact
+       corresponding error message."""
+
+    fixture = constraint_rendering_fixture
+    with web_fixture.context:
         fixture.field.bind('an_attribute', fixture.model_object)
         fixture.model_object.an_attribute = 'field value'
 
@@ -82,17 +87,19 @@ class FieldTests(object):
 
         actual = tester.render_html()
         expected_html = '''<input name="an_attribute" data-msg-one="validation_constraint 1 message" data-msg-two="validation_constraint 2 message with apostrophe&#x27;s and quotes&quot;" data-rule-one="true" data-rule-two="a parameter" form="test" type="inputtype" value="field value">'''
-        vassert( actual == expected_html )
+        assert actual == expected_html
 
-    @test(ConstraintRenderingFixture)
-    def remote_constraints(self, fixture):
-        """Remote constraints are invoked by the browser via ajax on the server when the input loses focus."""
 
+def test_remote_constraints(web_fixture, constraint_rendering_fixture):
+    """Remote constraints are invoked by the browser via ajax on the server when the input loses focus."""
+
+    fixture = constraint_rendering_fixture
+    with web_fixture.context:
         class MyRemoteConstraint(RemoteConstraint):
             def validate_input(self, unparsed_input):
                 if unparsed_input == 'failing_string_value':
                     raise self
-    
+
             def validate_parsed_value(self, parsed_value):
                 if parsed_value == 'failing_parsed_value':
                     raise self
@@ -108,62 +115,63 @@ class FieldTests(object):
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(ButtonInput(self, model_object.events.an_event))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-        fixture.reahl_server.set_app(wsgi_app)
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+        web_fixture.reahl_server.set_app(wsgi_app)
 
-        fixture.driver_browser.open('/')
+        web_fixture.driver_browser.open('/')
 
         # Initially, there's no error
-        fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
+        web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
         # A failing string value causes an ajax call resulting in an error
-        fixture.driver_browser.type('//input[@type="text"]', 'failing_string_value')
-        fixture.driver_browser.press_tab('//input')
-        fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-        error_text = fixture.driver_browser.get_text("//form/label[@class='error']")
-        vassert( fixture.is_error_text('an attribute is invalid') )
+        web_fixture.driver_browser.type('//input[@type="text"]', 'failing_string_value')
+        web_fixture.driver_browser.press_tab('//input')
+        web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
+        error_text = web_fixture.driver_browser.get_text("//form/label[@class='error']")
+        assert fixture.is_error_text('an attribute is invalid')
 
         # A passing value causes an ajax call resulting in clearing of any previous errors
-        fixture.driver_browser.type('//input[@type="text"]', 'passing value')
-        fixture.driver_browser.press_tab('//input')
-        fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
+        web_fixture.driver_browser.type('//input[@type="text"]', 'passing value')
+        web_fixture.driver_browser.press_tab('//input')
+        web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
         # A failing python value causes an ajax call resulting in an error
-        fixture.driver_browser.type('//input[@type="text"]', 'failing_parsed_value')
-        fixture.driver_browser.press_tab('//input')
-        fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-        error_text = fixture.driver_browser.get_text("//form/label[@class='error']")
-        vassert( fixture.is_error_text('an attribute is invalid') )
-        
+        web_fixture.driver_browser.type('//input[@type="text"]', 'failing_parsed_value')
+        web_fixture.driver_browser.press_tab('//input')
+        web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
+        error_text = web_fixture.driver_browser.get_text("//form/label[@class='error']")
+        assert fixture.is_error_text('an attribute is invalid')
 
-@istest
-class SpecificConstraintTests(object):
-    @test(ConstraintRenderingFixture)
-    def required_constraint_js(self, fixture):
+
+def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
+    fixture = constraint_rendering_fixture
+    with web_fixture.context:
         constraint = RequiredConstraint()
+
         class MyForm(Form):
             def __init__(self, view, name):
                 super(MyForm, self).__init__(view, name)
                 field = fixture.model_object.fields.an_attribute
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-        fixture.reahl_server.set_app(wsgi_app)
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+        web_fixture.reahl_server.set_app(wsgi_app)
 
-        fixture.driver_browser.open('/')
+        web_fixture.driver_browser.open('/')
 
-        fixture.driver_browser.type('//input[@type="text"]', 'something')
-        fixture.driver_browser.press_tab('//input')
-        fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
+        web_fixture.driver_browser.type('//input[@type="text"]', 'something')
+        web_fixture.driver_browser.press_tab('//input')
+        web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
-        fixture.driver_browser.type('//input[@type="text"]', '')
-        fixture.driver_browser.press_backspace('//input')  # To trigger validation on the field
-        
-        fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-        
+        web_fixture.driver_browser.type('//input[@type="text"]', '')
+        web_fixture.driver_browser.press_backspace('//input')  # To trigger validation on the field
 
-    @test(ConstraintRenderingFixture)
-    def min_length_constraint_js(self, fixture):
+        web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
+
+
+def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
+    fixture = constraint_rendering_fixture
+    with web_fixture.context:
         min_required_length = 5
         constraint = MinLengthConstraint(min_length=min_required_length)
         class MyForm(Form):
@@ -173,17 +181,19 @@ class SpecificConstraintTests(object):
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-        fixture.reahl_server.set_app(wsgi_app)
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+        web_fixture.reahl_server.set_app(wsgi_app)
 
-        fixture.driver_browser.open('/')
+        web_fixture.driver_browser.open('/')
 
-        fixture.driver_browser.type('//input[@type="text"]', '1234')
-        fixture.driver_browser.press_tab('//input')
-        fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
+        web_fixture.driver_browser.type('//input[@type="text"]', '1234')
+        web_fixture.driver_browser.press_tab('//input')
+        web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
-    @test(ConstraintRenderingFixture)
-    def max_length_constraint_js(self, fixture):
+
+def test_max_length_constraint_js(web_fixture, constraint_rendering_fixture):
+    fixture = constraint_rendering_fixture
+    with web_fixture.context:
         max_allowed_length = 5
         constraint = MaxLengthConstraint(max_length=max_allowed_length)
         class MyForm(Form):
@@ -193,20 +203,22 @@ class SpecificConstraintTests(object):
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-        fixture.reahl_server.set_app(wsgi_app)
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+        web_fixture.reahl_server.set_app(wsgi_app)
 
-        fixture.driver_browser.open('/')
+        web_fixture.driver_browser.open('/')
 
-        fixture.driver_browser.type('//input[@type="text"]', '123456')
-        accepted_value = fixture.driver_browser.get_value('//input[@type="text"]')
-        vassert( accepted_value == '12345' )
+        web_fixture.driver_browser.type('//input[@type="text"]', '123456')
+        accepted_value = web_fixture.driver_browser.get_value('//input[@type="text"]')
+        assert accepted_value == '12345'
 
-    @test(ConstraintRenderingFixture)
-    def pattern_constraint_js(self, fixture):
+
+def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
+    fixture = constraint_rendering_fixture
+    with web_fixture.context:
         allow_pattern = '(ab)+'
         constraint = PatternConstraint(pattern=allow_pattern)
-        
+
         class MyForm(Form):
             def __init__(self, view, name):
                 super(MyForm, self).__init__(view, name)
@@ -214,21 +226,23 @@ class SpecificConstraintTests(object):
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-        fixture.reahl_server.set_app(wsgi_app)
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+        web_fixture.reahl_server.set_app(wsgi_app)
 
-        fixture.driver_browser.open('/')
+        web_fixture.driver_browser.open('/')
 
-        fixture.driver_browser.type('//input[@type="text"]', 'aba')
-        fixture.driver_browser.press_tab('//input')
-        fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
+        web_fixture.driver_browser.type('//input[@type="text"]', 'aba')
+        web_fixture.driver_browser.press_tab('//input')
+        web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
-        fixture.driver_browser.type('//input[@type="text"]', 'ababab')
-        fixture.driver_browser.press_tab('//input')
-        fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
-        
-    @test(ConstraintRenderingFixture)
-    def allowed_values_constraint_js(self, fixture):
+        web_fixture.driver_browser.type('//input[@type="text"]', 'ababab')
+        web_fixture.driver_browser.press_tab('//input')
+        web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
+
+
+def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture):
+    fixture = constraint_rendering_fixture
+    with web_fixture.context:
         allowed_values=['a','b']
         constraint = AllowedValuesConstraint(allowed_values=allowed_values)
 
@@ -239,16 +253,18 @@ class SpecificConstraintTests(object):
                 field.add_validation_constraint(constraint)
                 self.add_child(TextInput(self, field))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-        fixture.reahl_server.set_app(wsgi_app)
-        fixture.driver_browser.open('/')
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+        web_fixture.reahl_server.set_app(wsgi_app)
+        web_fixture.driver_browser.open('/')
 
-        fixture.driver_browser.type('//input[@type="text"]', 'ba')
-        fixture.driver_browser.press_tab('//input')
-        fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
+        web_fixture.driver_browser.type('//input[@type="text"]', 'ba')
+        web_fixture.driver_browser.press_tab('//input')
+        web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
-    @test(ConstraintRenderingFixture)
-    def equal_to_constraint_js(self, fixture):
+
+def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
+    fixture = constraint_rendering_fixture
+    with web_fixture.context:
         class ModelObject(object):
             @exposed
             def fields(self, fields):
@@ -269,18 +285,17 @@ class SpecificConstraintTests(object):
                 one_input = self.add_child(TextInput(self, field))
                 one_input.set_id('one')
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-        fixture.reahl_server.set_app(wsgi_app)
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+        web_fixture.reahl_server.set_app(wsgi_app)
 
-        fixture.driver_browser.open('/')
+        web_fixture.driver_browser.open('/')
 
-        fixture.driver_browser.type('//input[@id="one"]', 'something else')
-        fixture.driver_browser.type('//input[@id="other"]', 'something')
-        fixture.driver_browser.press_tab('//input[@id="one"]')
-        fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-        vassert( fixture.is_error_text('an attribute, other attribute') )
+        web_fixture.driver_browser.type('//input[@id="one"]', 'something else')
+        web_fixture.driver_browser.type('//input[@id="other"]', 'something')
+        web_fixture.driver_browser.press_tab('//input[@id="one"]')
+        web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
+        assert fixture.is_error_text('an attribute, other attribute')
 
-        fixture.driver_browser.type('//input[@id="one"]', 'something')
-        fixture.driver_browser.press_tab('//input[@id="one"]')
-        fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
-
+        web_fixture.driver_browser.type('//input[@id="one"]', 'something')
+        web_fixture.driver_browser.press_tab('//input[@id="one"]')
+        web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)

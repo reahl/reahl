@@ -111,10 +111,10 @@ class AttributeErrorInFactoryMethod(Exception):
 def _as_pytest_fixture(class_or_scenario, scope='function'):
     if inspect.isclass(class_or_scenario):
         cls = class_or_scenario
-        deps = [k for k in inspect.signature(cls.__init__).parameters][1:]
     else:
-        scenario_func = class_or_scenario
-        deps = [k for k in inspect.signature(scenario_func.function).parameters][1:]
+        cls = class_or_scenario.fixture_class
+
+    deps = [k for k in inspect.signature(cls.__init__).parameters][1:]
 
     fix_signature = ','.join(deps+['request'])
     for_scenario_args = ','.join(['request.param']+deps)

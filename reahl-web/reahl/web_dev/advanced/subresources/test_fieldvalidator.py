@@ -17,20 +17,23 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-from nose.tools import istest
-from reahl.tofu import scenario
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import scenario, Fixture
 
 from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput
 from reahl.component.modelinterface import EmailField, exposed
 
-from reahl.web_dev.inputandvalidation.test_eventhandling import FormFixture
+# noinspection PyUnresolvedReferences
+from reahl.web_dev.fixtures import web_fixture
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+# noinspection PyUnresolvedReferences
+from reahl.domain_dev.fixtures import party_account_fixture
+
 from reahl.webdev.tools import Browser
 
 
-class Scenarios(FormFixture):
+class ValidationScenarios(Fixture):
     @scenario
     def valid_field(self):
         # - a field that passes validation
@@ -67,11 +70,14 @@ class Scenarios(FormFixture):
         self.expected_content_type = 'application/json'
         self.expected_charset = 'utf-8'
 
-    
-@istest
-class FieldValidatorTests(object):
-    @test(Scenarios)
-    def remote_field_validator_handles_GET(self, fixture):
+
+validation_scenarios = ValidationScenarios.as_pytest_fixture()    
+
+
+def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
+    fixture = validation_scenarios
+
+    with web_fixture.context:
         class ModelObject(object):
             @exposed
             def fields(self, fields):
@@ -84,15 +90,15 @@ class FieldValidatorTests(object):
                 super(MyForm, self).__init__(view, name)
                 self.add_child(TextInput(self, model_object.fields.field_name))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(name='some_form'))
-        fixture.reahl_server.set_app(wsgi_app)
+        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory(name='some_form'))
+        web_fixture.reahl_server.set_app(wsgi_app)
         browser = Browser(wsgi_app)
 
         browser.open(six.text_type(fixture.url))
         response = browser.last_response
 
-        vassert( response.unicode_body == fixture.expected_body )
-        vassert( response.status == fixture.expected_status )
-        vassert( response.content_type == fixture.expected_content_type )
-        vassert( response.charset == fixture.expected_charset )
+        assert response.unicode_body == fixture.expected_body 
+        assert response.status == fixture.expected_status 
+        assert response.content_type == fixture.expected_content_type 
+        assert response.charset == fixture.expected_charset 
 

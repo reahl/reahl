@@ -20,21 +20,28 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import pkg_resources
 
-from reahl.tofu import test
-from reahl.tofu import temp_dir
-from reahl.tofu import vassert
+from reahl.tofu import temp_dir, Fixture, set_up
 from reahl.stubble import easter_egg
 
 from reahl.webdev.tools import Browser
-from reahl.web_dev.fixtures import WebFixture
 
-from reahl.component.config import Configuration
 from reahl.web.fw import ReahlWSGIApplication, UserInterface
 from reahl.web.ui import HTML5Page
 from reahl.web.libraries import Library
 
+# noinspection PyUnresolvedReferences
+from reahl.web_dev.fixtures import web_fixture
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+# noinspection PyUnresolvedReferences
+from reahl.domain_dev.fixtures import party_account_fixture
 
-class LibraryFixture(WebFixture):
+
+class LibraryFixture(Fixture):
+    def __init__(self, web_fixture):
+        super(LibraryFixture, self).__init__()
+        self.web_fixture = web_fixture
+
     def new_egg_dir(self):
         egg_dir = temp_dir()
         package_dir = egg_dir.sub_dir('static_files')
@@ -57,12 +64,9 @@ class LibraryFixture(WebFixture):
 
         return MyLibrary
 
-    def new_config(self):
-        config = Configuration()
-        config.reahlsystem = self.new_reahlsystem()
-        config.web = self.new_webconfig()
-        config.web.site_root = self.MainUI
-        return config
+    @set_up
+    def configure_site_root(self):
+        self.web_fixture.config.web.site_root = self.MainUI
 
     def new_MainUI(self):
         class MainUI(UserInterface):
@@ -72,59 +76,60 @@ class LibraryFixture(WebFixture):
         return MainUI
 
 
+library_fixture = LibraryFixture.as_pytest_fixture()
 
-@test(LibraryFixture)
-def configuring_libraries(fixture):
+def test_configuring_libraries(web_fixture, library_fixture):
     """Reahl can be configured to expose frontend libraries (libraries of js and css files)."""
-    web = fixture.config.web
-    vassert( 'mylib' not in web.frontend_libraries )
-    web.frontend_libraries.add(fixture.MyLibrary())
-    vassert( 'mylib' in web.frontend_libraries )
+    with web_fixture.context:
+        web = web_fixture.config.web
+        assert 'mylib' not in web.frontend_libraries
+        web.frontend_libraries.add(library_fixture.MyLibrary())
+        assert 'mylib' in web.frontend_libraries
 
 
-@test(LibraryFixture)
-def library_files(fixture):
+
+def test_library_files(web_fixture, library_fixture):
     """The files part of configured frontend libraries are (a) added to /static and also (b) included on any page."""
-    fixture.config.web.frontend_libraries.clear()
-    fixture.config.web.frontend_libraries.add(fixture.MyLibrary())
+    with web_fixture.context:
+        web_fixture.config.web.frontend_libraries.clear()
+        web_fixture.config.web.frontend_libraries.add(library_fixture.MyLibrary())
 
-    browser = Browser(ReahlWSGIApplication(fixture.config))
+        browser = Browser(ReahlWSGIApplication(web_fixture.config))
 
-    browser.open('/static/somefile.js')
-    vassert( browser.raw_html == 'contents - js' )
+        browser.open('/static/somefile.js')
+        assert browser.raw_html == 'contents - js'
 
-    browser.open('/static/somefile.css')
-    vassert( browser.raw_html == 'contents - css' )
+        browser.open('/static/somefile.css')
+        assert browser.raw_html == 'contents - css'
 
-    browser.open('/')
-    script_added = browser.get_html_for('//script[@src]')
-    vassert( script_added == '<script type="text/javascript" src="/static/somefile.js"></script>' )
+        browser.open('/')
+        script_added = browser.get_html_for('//script[@src]')
+        assert script_added == '<script type="text/javascript" src="/static/somefile.js"></script>'
 
-    link_added = browser.get_html_for('//link')
-    vassert( link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">' )
+        link_added = browser.get_html_for('//link')
+        assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
 
 
-@test(WebFixture)
-def standard_reahl_files(fixture):
+def test_standard_reahl_files(web_fixture):
     """The framework includes certain frontent frameworks by default."""
+    with web_fixture.context:
+        wsgi_app = ReahlWSGIApplication(web_fixture.config)
+        browser = Browser(wsgi_app)
 
-    wsgi_app = ReahlWSGIApplication(fixture.config)
-    browser = Browser(wsgi_app)
+        browser.open('/static/html5shiv-printshiv-3.6.3.js')
+        assert browser.last_response.content_length > 0
 
-    browser.open('/static/html5shiv-printshiv-3.6.3.js')
-    vassert( browser.last_response.content_length > 0 )
+        browser.open('/static/IE9.js')
+        assert browser.last_response.content_length > 0
 
-    browser.open('/static/IE9.js')
-    vassert( browser.last_response.content_length > 0 )
+        browser.open('/static/reahl.validate.js')
+        assert browser.last_response.content_length > 0
 
-    browser.open('/static/reahl.validate.js')
-    vassert( browser.last_response.content_length > 0 )
+        browser.open('/static/reahl.css')
+        assert browser.last_response.content_length > 0
 
-    browser.open('/static/reahl.css')
-    vassert( browser.last_response.content_length > 0 )
+        browser.open('/static/runningon.png')
+        assert browser.last_response.content_length > 0
 
-    browser.open('/static/runningon.png')
-    vassert( browser.last_response.content_length > 0 )
-
-    browser.open('/static/reahl.runningonbadge.css')
-    vassert(browser.last_response.content_length > 0)
+        browser.open('/static/reahl.runningonbadge.css')
+        assert browser.last_response.content_length > 0
