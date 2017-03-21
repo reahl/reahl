@@ -25,6 +25,7 @@ $.widget("reahl.bootstrappopupa", {
         buttons: {},
         showForSelector: 'body',
         title: '',
+        dismiss_label: '',
     },
     _create: function() {
         var o = this.options;
@@ -36,6 +37,7 @@ $.widget("reahl.bootstrappopupa", {
                         "    <div class='modal-content'>"+
                         "      <div class='modal-header'>"+
                         "        <h4 class='modal-title'>"+o.title+"</h4>"+
+                        "        <button type='button' class='close' data-dismiss='modal' aria-label='"+o.dismiss_label+"'><span aria-hidden='true'>&times;</span></button>"+
                         "      </div>"+
                         "      <div class='modal-body'>"+
                         "      </div>"+
@@ -44,6 +46,7 @@ $.widget("reahl.bootstrappopupa", {
                         "    </div>"+
                         "  </div>"+
                         "</div>");
+        this_.$header = this_.$dialog.find(".modal-header");
         this_.$footer = this_.$dialog.find(".modal-footer");
 
 
