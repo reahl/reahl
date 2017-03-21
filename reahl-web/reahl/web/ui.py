@@ -1122,6 +1122,7 @@ class FieldSet(HTMLElement):
     """
     def __init__(self, view, legend_text=None, css_id=None):
         super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
+        self.legend = None
         if legend_text:
             self.legend = self.add_child(Legend(view, text=legend_text))
 
