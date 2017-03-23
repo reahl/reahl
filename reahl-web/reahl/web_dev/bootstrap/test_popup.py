@@ -19,10 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, test
-
+from reahl.tofu import Fixture
 from reahl.webdev.tools import XPath
-from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import exposed, BooleanField
 
@@ -30,35 +28,43 @@ from reahl.web.bootstrap.ui import Div, P
 from reahl.web.bootstrap.forms import Form, FormLayout, CheckboxInput
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
-class PopupAFixture(WebFixture):
+
+# noinspection PyUnresolvedReferences
+from reahl.web_dev.fixtures import web_fixture
+# noinspection PyUnresolvedReferences
+from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+# noinspection PyUnresolvedReferences
+from reahl.domain_dev.fixtures import party_account_fixture
+
+
+class PopupAFixture(Fixture):
+    def __init__(self, web_fixture):
+        super(PopupAFixture, self).__init__()
+        self.web_fixture = web_fixture
+
     # (note that this xpath ensures that the p is the ONLY content of the dialog)
     poppedup_contents = "//div[@class='modal-body' and count(*)=1]/p[@id='contents']"
 
-    def new_wsgi_app(self):
-        return super(PopupAFixture, self).new_wsgi_app(enable_js=True,
-                                                       child_factory=self.MainWidget.factory())
+    def is_popped_up(self):
+        return self.web_fixture.driver_browser.is_visible(self.poppedup_contents)
+
+popup_a_fixture = PopupAFixture.as_pytest_fixture()
 
 
-class PopupAFixtureWithContent(PopupAFixture):
-    def new_MainWidget(self):
-        fixture = self
-
-        class PopupTestPanel(Div):
-            def __init__(self, view):
-                super(PopupTestPanel, self).__init__(view)
-                self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
-                popup_contents = self.add_child(P(view, text='this is the content of the popup'))
-                popup_contents.set_id('contents')
-
-        return PopupTestPanel
-
-@test(PopupAFixtureWithContent)
-def default_behaviour(fixture):
+def test_default_behaviour(web_fixture, popup_a_fixture):
     """If you click on the A, a popupwindow opens with its contents the specified
        element on the target page."""
 
-    fixture.reahl_server.set_app(fixture.wsgi_app)
-    browser = fixture.driver_browser
+    class PopupTestPanel(Div):
+        def __init__(self, view):
+            super(PopupTestPanel, self).__init__(view)
+            self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
+            popup_contents = self.add_child(P(view, text='this is the content of the popup'))
+            popup_contents.set_id('contents')
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=PopupTestPanel.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
     browser.open('/')
 
     # The A is rendered correctly
@@ -66,81 +72,67 @@ def default_behaviour(fixture):
 
     # subsequent behaviour
     browser.click(XPath.link_with_text('Home page'))
-    browser.wait_for_element_visible(fixture.poppedup_contents)
+    browser.wait_for(popup_a_fixture.is_popped_up)
 
     browser.click(XPath.button_labelled('Close'))
-    browser.wait_for_element_not_visible(fixture.poppedup_contents)
+    browser.wait_for_not(popup_a_fixture.is_popped_up)
 
 
-class PopupAFixtureWithCustomButtons(PopupAFixture):
-    def new_MainWidget(self):
-        fixture = self
-
-        class PopupTestPanel(Div):
-            def __init__(self, view):
-                super(PopupTestPanel, self).__init__(view)
-                popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
-                popup_a.add_js_button('Butt1')
-                popup_a.add_js_button('Butt2')
-                popup_contents = self.add_child(P(view, text='this is the content of the popup'))
-                popup_contents.set_id('contents')
-
-        return PopupTestPanel
-
-
-@test(PopupAFixtureWithCustomButtons)
-def customising_dialog_buttons(fixture):
+def test_customising_dialog_buttons(web_fixture, popup_a_fixture):
     """The buttons of the dialog can be customised."""
 
-    fixture.reahl_server.set_app(fixture.wsgi_app)
-    browser = fixture.driver_browser
+    class PopupTestPanel(Div):
+        def __init__(self, view):
+            super(PopupTestPanel, self).__init__(view)
+            popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
+            popup_a.add_js_button('Butt1')
+            popup_a.add_js_button('Butt2')
+            popup_contents = self.add_child(P(view, text='this is the content of the popup'))
+            popup_contents.set_id('contents')
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=PopupTestPanel.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
     browser.open('/')
 
     button1_xpath = XPath.button_labelled('Butt1')
     button2_xpath = XPath.button_labelled('Butt2')
-    fixture.driver_browser.open('/')
-
-    browser.click(XPath.link_with_text('Home page'))
-    browser.wait_for_element_visible(fixture.poppedup_contents)
-
-    vassert( browser.is_element_present(button1_xpath) )
-    vassert( browser.is_element_present(button2_xpath) )
-
-
-class PopupAFixtureWithCheckBox(PopupAFixture):
-    def new_MainWidget(self):
-        fixture = self
-
-        class PopupTestPanel(Div):
-            @exposed
-            def fields(self, fields):
-                fields.field = BooleanField(label='a checkbox')
-
-            def __init__(self, view):
-                super(PopupTestPanel, self).__init__(view)
-                popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
-                popup_contents = self.add_child(P(view, text='this is the content of the popup'))
-                popup_contents.set_id('contents')
-                form = self.add_child(Form(view, 'aform')).use_layout(FormLayout())
-                checkbox = form.layout.add_input(CheckboxInput(form, self.fields.field))
-
-                popup_a.add_js_button('Checkit', CheckCheckboxScript(checkbox))
-
-        return PopupTestPanel
-
-
-@test(PopupAFixtureWithCheckBox)
-def workings_of_check_checkbox_button(fixture):
-    """A CheckCheckBoxButton checks the checkbox on the original page when clicked."""
-
-    fixture.reahl_server.set_app(fixture.wsgi_app)
-    browser = fixture.driver_browser
     browser.open('/')
 
     browser.click(XPath.link_with_text('Home page'))
-    browser.wait_for_element_visible(fixture.poppedup_contents)
+    browser.wait_for(popup_a_fixture.is_popped_up)
+
+    assert browser.is_element_present(button1_xpath)
+    assert browser.is_element_present(button2_xpath)
+
+
+def test_workings_of_check_checkbox_button(web_fixture, popup_a_fixture):
+    """A CheckCheckBoxButton checks the checkbox on the original page when clicked."""
+
+    class PopupTestPanel(Div):
+        @exposed
+        def fields(self, fields):
+            fields.field = BooleanField(label='a checkbox')
+
+        def __init__(self, view):
+            super(PopupTestPanel, self).__init__(view)
+            popup_a = self.add_child(PopupA(view, view.as_bookmark(), '#contents'))
+            popup_contents = self.add_child(P(view, text='this is the content of the popup'))
+            popup_contents.set_id('contents')
+            form = self.add_child(Form(view, 'aform')).use_layout(FormLayout())
+            checkbox = form.layout.add_input(CheckboxInput(form, self.fields.field))
+
+            popup_a.add_js_button('Checkit', CheckCheckboxScript(checkbox))
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=PopupTestPanel.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    browser.click(XPath.link_with_text('Home page'))
+    browser.wait_for(popup_a_fixture.is_popped_up)
 
     browser.click(XPath.button_labelled('Checkit'))
-    browser.wait_for_element_not_visible(fixture.poppedup_contents)
+    browser.wait_for_not(popup_a_fixture.is_popped_up)
 
-    vassert( fixture.driver_browser.is_checked(XPath.input_labelled('a checkbox')) )
+    assert browser.is_checked(XPath.input_labelled('a checkbox'))

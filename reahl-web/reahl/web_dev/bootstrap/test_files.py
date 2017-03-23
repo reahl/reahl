@@ -112,8 +112,7 @@ def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
         assert browser.wait_for(fixture.upload_button_indicates_focus) 
 
 
-#@test(FilesUploadFixture)
-#def select_file_dialog_opens(fixture):
+#def test_select_file_dialog_opens(fixture):
 #    """Clicking on the FileInputButton opens up the browser choose file dialog."""
 #
 #    fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
@@ -121,21 +120,17 @@ def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
 #    browser.open('/')
 #
 #    browser.click(fixture.upload_button_xpath)
-#    # We can't dismiss the local file dialog with selenium
+#    # We can't dismiss the local file dialog with selenium: one day we would be able to when firefox
+#    # selenium is implemented differently
 
 
-class FileInputFixture(Fixture):
-    def __init__(self, web_fixture, file_input_button_fixture):
-        super(FileInputFixture, self).__init__()
-        self.web_fixture = web_fixture
-        self.file_input_button_fixture = file_input_button_fixture
-
+class FileInputFixture(FileInputButtonFixture):
     def new_FileUploadForm(self):
         fixture = self
         class FileUploadForm(Form):
             def __init__(self, view):
                 super(FileUploadForm, self).__init__(view, 'test')
-                self.add_child(FileInput(self, fixture.file_input_button_fixture.domain_object.fields.files))
+                self.add_child(FileInput(self, fixture.domain_object.fields.files))
         return FileUploadForm   
 
     message_span_xpath = '//div[contains(@class, "reahl-bootstrapfileinput")]//span[2]'
@@ -322,6 +317,7 @@ class MaxNumberOfFilesFileUploadInputFixture(ConstrainedFileUploadInputFixture):
 
 max_number_of_files_file_upload_input_fixture = MaxNumberOfFilesFileUploadInputFixture.as_pytest_fixture()
 
+
 class ToggleableConstraint(ValidationConstraint):
     def __init__(self, fixture=None):
         super(ToggleableConstraint, self).__init__(error_message='test validation message')
@@ -413,6 +409,7 @@ class LargeFileUploadInputFixture(StubbedFileUploadInputFixture):
 
 large_file_upload_input_fixture = LargeFileUploadInputFixture.as_pytest_fixture()
 
+
 class BrokenFileUploadInputFixture(StubbedFileUploadInputFixture):
     run_hook_after = True
     def file_upload_hook(self):
@@ -426,7 +423,6 @@ class FailingConstraint(ValidationConstraint):
     def validate_input(self, unparsed_input):
         if self.fail:
             raise self
-
 
 
 def test_file_upload_input_basics(web_fixture, file_upload_input_fixture):
@@ -473,7 +469,6 @@ def test_file_upload_input_basics(web_fixture, file_upload_input_fixture):
         file1_content, file1_mime_type = fixture.domain_object.submitted_file_info[os.path.basename(fixture.file_to_upload1.name)]
         assert file1_content == fixture.file_to_upload1_content 
         assert file1_mime_type == 'text/html' 
-
 
 
 def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
@@ -541,8 +536,7 @@ def test_file_upload_input_remove_files(web_fixture, file_upload_input_fixture):
 
         # Only the one file is submitted
         browser.click( XPath.button_labelled('Submit') )
-        assert list(fixture.domain_object.submitted_file_info.keys()) == [fixture.file_to_upload2_name] 
-
+        assert list(fixture.domain_object.submitted_file_info.keys()) == [fixture.file_to_upload2_name]
 
 
 def test_file_upload_input_double_uploads(web_fixture, file_upload_input_fixture):
@@ -589,7 +583,6 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
         assert browser.get_value(XPath.input_labelled('Choose file(s)')) == ''   # Input is cleared for next file to be input
         assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
         assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
-
 
 
 def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
@@ -852,7 +845,6 @@ def test_async_validation(web_fixture, per_file_constrained_file_upload_input_fi
 
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.valid_file.name)
         assert fixture.uploaded_file_is_listed( fixture.valid_file.name ) 
-
 
 
 def test_async_number_files_validation(web_fixture, max_number_of_files_file_upload_input_fixture):
