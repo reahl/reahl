@@ -270,7 +270,7 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.0.0 alpha 2 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.0.0 alpha 6 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super(Bootstrap4, self).__init__('bootstrap4')
