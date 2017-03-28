@@ -58,12 +58,7 @@ class LayoutScenarios(WebFixture):
         self.expected_css_class = 'table-sm'
 
     @scenario
-    def transposed(self):
-        self.layout_kwargs = dict(transposed=True)
-        self.expected_css_class = 'table-reflow'
-
-    @scenario
-    def transposed(self):
+    def responsive(self):
         self.layout_kwargs = dict(responsive=True)
         self.expected_css_class = 'table-responsive'
 
@@ -75,6 +70,44 @@ def table_layout_options(fixture):
     layout = TableLayout(**fixture.layout_kwargs)
     Table(fixture.view).use_layout(layout)
     vassert( layout.widget.get_attribute('class') == 'table %s' % fixture.expected_css_class )
+
+
+class LayoutHeaderThemeScenarios(WebFixture):
+
+    def new_data(self):
+        return [DataItem(1, 'T'), DataItem(2, 'H'), DataItem(3, 'E')]
+
+    def new_column_definitions(self):
+        return [StaticColumn(Field(label='Row Number'), 'row'),
+                StaticColumn(Field(label='Alpha'), 'alpha')]
+
+    @scenario
+    def no_theme(self):
+        self.theme = None
+
+    @scenario
+    def inverse(self):
+        self.theme = 'inverse'
+        self.expected_css_class = 'thead-inverse'
+
+    @scenario
+    def default(self):
+        self.theme = 'default'
+        self.expected_css_class = 'thead-default'
+
+
+@test(LayoutHeaderThemeScenarios)
+def table_layout_header_options(fixture):
+    """TableLayout can style a table header row."""
+
+    layout = TableLayout(heading_theme=fixture.theme)
+    table = Table(fixture.view).with_data(fixture.column_definitions, fixture.data)
+    table.use_layout(layout)
+
+    if fixture.theme is not None:
+        vassert( layout.widget.thead.get_attribute('class') == '%s' % fixture.expected_css_class )
+    else:
+        vassert( not layout.widget.thead.has_attribute('class') )
 
 
 
@@ -234,3 +267,4 @@ def layout_for_contained_table(fixture):
     data_table = DataTable(fixture.view, fixture.columns, fixture.data, 'my_css_id', table_layout=layout)
 
     vassert( data_table.table.layout is layout )
+
