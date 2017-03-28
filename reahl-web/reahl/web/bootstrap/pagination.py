@@ -327,6 +327,8 @@ class PageMenu(HTMLWidget):
         link.add_child(Span(self.view, text=short_description)).set_attribute('aria-hidden', 'true')
         link.add_child(Span(self.view, text=long_description)).append_class('sr-only')
         link.set_attribute('aria-label', long_description)
+        if disabled:
+            link.set_attribute('tabindex', '-1')
         link.set_active(not disabled)
         item = menu.add_a(link)
         item.html_representation.add_attribute_source(AccessRightAttributes(link))

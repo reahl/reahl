@@ -147,7 +147,7 @@ class PageMenuTests(object):
         fixture.max_page_links = 5
         fixture.reahl_server.set_app(fixture.wsgi_app)
         fixture.driver_browser.open('/')
-        
+
         with fixture.driver_browser.no_load_expected_for('.pagination>*'):
             vassert( not fixture.is_marked_active('p2') )
             fixture.driver_browser.click(XPath.link_with_text('p2'))
@@ -173,7 +173,7 @@ class PageMenuTests(object):
         fixture.driver_browser.click(XPath.link_with_text('p2'))
         fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2', 1)
         fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2', 2)
-        
+
 
     @test(PageMenuFixture)
     def active_state_of_next_prev_links(self, fixture):
@@ -197,7 +197,7 @@ class PageMenuTests(object):
         vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('«')) )
         vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('»')) )
         vassert( fixture.driver_browser.is_active(XPath.link_starting_with_text('→')) )
-        
+
         # Case: when you are at the end of the page range        
         fixture.driver_browser.click(XPath.link_starting_with_text('»'))
         fixture.driver_browser.wait_for_element_present(XPath.link_with_text('p11'))
@@ -264,7 +264,7 @@ class PageMenuTests(object):
     @test(Fixture)
     def annual_page_index(self, fixture):
         """The AnnualPageIndex breaks a query of items up into pages containing items with the same year."""
-        
+
         @stubclass(AnnualItemOrganiserProtocol)
         class ItemOrganiser(AnnualItemOrganiserProtocol):
             def get_years(self):                return [2000, 2001]
@@ -284,7 +284,7 @@ class PageMenuTests(object):
 
         def new_page_index(self):
             return SequentialPageIndex(self.items, items_per_page=self.items_per_page, max_page_links=12)
-            
+
         @scenario
         def less_than_a_page_items(self):
             self.number_of_items = 2
@@ -305,15 +305,57 @@ class PageMenuTests(object):
             self.items_per_page = 10
             self.expected_pages = 2
             self.last_page_contents = self.items[10:15]
-        
+
     @test(SequentialScenarios)
     def sequential_page_index(self, fixture):
         """The SequentialPageIndex breaks a query of items up into pages of sequential items"""
-        
+
         vassert( fixture.page_index.total_number_of_pages == fixture.expected_pages )
         page = fixture.page_index.get_page_number(fixture.expected_pages)
         vassert( page.description == six.text_type(fixture.expected_pages) )
-        vassert( page.contents == fixture.last_page_contents )        
+        vassert( page.contents == fixture.last_page_contents )
         vassert( fixture.page_index.max_page_links == 12 )
 
+    @test(PageMenuFixture)
+    def test_pagination_basics(self, fixture):
 
+        #This is what the pager looks like: ← « 1 2 3 » →
+        #With this query string we are indicating that we have clicked on page 3, and thus should be the current page
+        fixture.request.query_string = 'current_page_number=3&start_page_number=1'
+        page_index = fixture.PageIndexStub(3, 9)
+        page_container = fixture.PageContainer(fixture.view, page_index)
+        pagemenu = PageMenu(fixture.view, 'my_page_menu_widget', page_index, page_container)
+
+        [pagination_container] = pagemenu.children
+        vassert( 'pagination' in pagination_container.html_representation.get_attribute('class') )
+
+        [items_container] = pagination_container.children
+        page_items = items_container.children
+        vassert( len(page_items) == 7 )
+
+        disabled_page_link_indexes = [0, 1] # These are disabled(unclickable): ← «
+        current_page_link_index = 4 # given the query string, the link to page 3, is active
+        for i, page_item in enumerate(page_items):
+            vassert( 'page-item' in page_item.get_attribute('class') )
+
+            [page_link] = page_item.children
+            vassert( 'page-link' in page_link.get_attribute('class') )
+            vassert( 'reahl-ajaxlink' in page_link.get_attribute('class') )
+
+            # links you cannot click on (disabled)
+            if i in disabled_page_link_indexes:
+                vassert( 'disabled' in page_item.get_attribute('class') )
+
+                vassert( '-1' == page_link.get_attribute('tabindex') )
+                vassert( page_link.disabled )
+            else:
+                vassert( 'disabled' not in page_item.get_attribute('class') )
+
+                vassert( not page_link.has_attribute('tabindex') )
+                vassert( not page_link.disabled  )
+
+            # current page is highlighted if you selected the page(are on the page)
+            if i == current_page_link_index:
+                vassert( 'active' in page_item.get_attribute('class') )
+            else:
+                vassert( 'active' not in page_item.get_attribute('class') )
