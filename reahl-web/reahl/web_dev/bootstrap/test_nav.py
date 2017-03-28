@@ -342,6 +342,8 @@ def dropdown_menus(fixture):
     
     [toggle, added_sub_menu] = item.children
     vassert( 'dropdown-toggle' in toggle.get_attribute('class') )
+    vassert( 'button' in toggle.get_attribute('role') )
+    vassert( 'true' in toggle.get_attribute('aria-haspopup') )
     vassert( 'dropdown' in toggle.get_attribute('data-toggle') )
     vassert( '-' in toggle.get_attribute('data-target') )
     vassert( 'caret' in toggle.children[1].get_attribute('class') )

@@ -100,7 +100,7 @@ def tabs_with_sub_options(fixture):
     expected_html = \
      '''<ul class="nav nav-tabs reahl-menu">'''\
      '''<li class="dropdown nav-item">'''\
-      '''<a data-target="-" data-toggle="dropdown" href="/?open_item=tab+1+name&amp;tab=mult2" class="active dropdown-toggle nav-link reahl-ajaxlink">tab 1 name<span class="caret"></span></a>'''\
+      '''<a aria-haspopup="true" data-target="-" data-toggle="dropdown" href="/?open_item=tab+1+name&amp;tab=mult2" role="button" class="active dropdown-toggle nav-link reahl-ajaxlink">tab 1 name<span class="caret"></span></a>'''\
       '''<div class="dropdown-menu">'''\
        '''<a data-target="#tab_mult1" data-toggle="tab" href="/?tab=mult1" class="dropdown-item">multi tab 1</a>'''\
        '''<a data-target="#tab_mult2" data-toggle="tab" href="/?tab=mult2" class="active dropdown-item">multi tab 2</a>'''\
