@@ -267,7 +267,7 @@ def clicking_on_multi_tab(fixture):
 
 @test(PanelSwitchFixture)
 def clicking_on_sub_tab_switches(fixture):
-    """Clicking on a sub tab also changes the contents that are displayed as well as the active tab."""
+    """Clicking on a sub tab also changes the contents that is displayed as well as the active tab."""
     if not fixture.enable_js:
         fixture.ensure_disabled_js_files_not_cached()
     
@@ -294,10 +294,6 @@ def clicking_on_sub_tab_switches(fixture):
     # Clicking away from the multitab sub-tab removes its active status
     fixture.driver_browser.click(XPath.link_with_text('tab 3 name'))
     # tab2 is not active anymore
-    if fixture.enable_js:
-       pass
-       ### assert None, 'This is a bug in bootstrap v4.0 alpha javascript'
-    else:
-        vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 2 name') )
+    vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 2 name') )
 
 
