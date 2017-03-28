@@ -163,7 +163,7 @@ class PageIndex(PageIndexProtocol):
     @property
     @memoized
     def end_page(self):
-        page_number = self.start_page_number+min(self.max_page_links-1, self.total_number_of_pages-(self.start_page_number))
+        page_number = self.start_page_number+min(self.max_page_links-1, self.total_number_of_pages-self.start_page_number)
         return self.get_page_number(page_number)
 
     @property
@@ -214,13 +214,13 @@ class SequentialPageIndex(PageIndex):
 
     def get_contents_for_page(self, page_number):
         range_start = (page_number-1)*self.items_per_page
-        range_end = range_start+min(self.items_per_page, len(self.items)-(range_start))-1
+        range_end = range_start+min(self.items_per_page, len(self.items)-range_start)-1
         return self.items[range_start:range_end+1]
 
     @property
     @memoized
     def total_number_of_pages(self):
-        return ((len(self.items)-1) // (self.items_per_page))+1
+        return ((len(self.items)-1) // self.items_per_page)+1
 
 
 @six.add_metaclass(ABCMeta)
@@ -248,8 +248,8 @@ class AnnualPageIndex(PageIndex):
     """
     def __init__(self, annual_item_organiser, current_page_number=1, start_page_number=1, max_page_links=4):
         super(AnnualPageIndex, self).__init__(current_page_number=current_page_number,
-                                          start_page_number=start_page_number,
-                                          max_page_links=max_page_links)
+                                              start_page_number=start_page_number,
+                                              max_page_links=max_page_links)
         self.annual_item_organiser = annual_item_organiser
 
     def get_contents_for_page(self, page_number):
@@ -293,7 +293,8 @@ class PageMenu(HTMLWidget):
 
         self.enable_refresh(self.query_fields.start_page_number)
 
-    def add_styling_to_menu_item(self, item):
+    @classmethod
+    def add_styling_to_menu_item(cls, item):
         item.a.append_class('page-link')
         item.html_representation.append_class('page-item')
 
@@ -315,10 +316,9 @@ class PageMenu(HTMLWidget):
                 item.set_active()
 
         self.add_bordering_link_for(menu, '»', 'Next', self.page_index.next_page.number, 
-                                   not self.page_index.has_next_page)
+                                    not self.page_index.has_next_page)
         self.add_bordering_link_for(menu, '→', 'Last', self.page_index.last_page.number, 
-                                   not self.page_index.has_next_page)
-
+                                    not self.page_index.has_next_page)
 
     def add_bordering_link_for(self, menu, short_description, long_description, start_page_number, disabled):
         link = A.from_bookmark(self.view, self.get_bookmark(start_page_number=start_page_number, 
@@ -340,7 +340,6 @@ class PageMenu(HTMLWidget):
                                                         'current_page_number': self.page_index.current_page_number},
                                        write_check=lambda: not disabled).on_view(self.view)
         return bookmark
-    
 
     @exposed
     def query_fields(self, fields):
@@ -354,8 +353,3 @@ class PageMenu(HTMLWidget):
     def get_js(self, context=None):
         js = ['$(%s).bootstrappagemenu({});' % self.jquery_selector]
         return super(PageMenu, self).get_js(context=context) + js 
-
-
-
-
-
