@@ -13,6 +13,7 @@ from reahl.web_dev.fixtures import web_fixture
 from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
 from reahl.domain_dev.fixtures import party_account_fixture
 
+
 class JobsFixture(Fixture):
     def __init__(self, web_fixture):
         super(JobsFixture, self).__init__()
