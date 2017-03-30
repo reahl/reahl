@@ -122,7 +122,10 @@ class SqlAlchemyFixture(Fixture):
             if not self.commit:
                 self.reahl_system_fixture.system_control.rollback()  # The nested one
                 self.reahl_system_fixture.system_control.rollback()  # The real transaction
-                self.reahl_system_fixture.system_control.finalise_session()  # To nuke the session, and commit (nothing)
+                self.reahl_system_fixture.system_control.finalise_session()  # To nuke the session, and commit (possibly nothing)
+            else:
+                self.reahl_system_fixture.system_control.commit()  # The nested one
+                self.reahl_system_fixture.system_control.commit()  # The real transaction
 
     @contextmanager
     def persistent_test_classes(self, *entities):

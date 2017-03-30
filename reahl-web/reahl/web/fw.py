@@ -132,7 +132,7 @@ class Url(object):
     
     @property
     def netloc(self):
-        """Returns the `authority part of the URl as per RFC3968 <http://tools.ietf.org/html/rfc3986#section-3.2>`_, 
+        """Returns the `authority part of the URl as per RFC3968 <http://tools.ietf.org/html/rfc3986#section-3.2>`_,
            also sometimes referred to as the netloc part in Python docs."""
         netloc = ''
         if self.username: netloc += self.username
