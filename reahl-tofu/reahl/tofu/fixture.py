@@ -84,6 +84,10 @@ class Scenario(MarkingDecorator):
     def as_pytest_fixture(self, scope='function'):
         return _as_pytest_fixture(self, scope=scope)
 
+    @property
+    def _options(self):
+        return self.fixture_class._options
+
     
 class DefaultScenario(Scenario):
     def __init__(self):
