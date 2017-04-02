@@ -31,7 +31,7 @@ temporary files, etc. All this functionality is now also part of Tofu.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu.fixture import Fixture
+from reahl.tofu.fixture import Fixture, uses, scope
 from reahl.tofu.fixture import Scenario as scenario
 from reahl.tofu.fixture import SetUp as set_up
 from reahl.tofu.fixture import TearDown as tear_down

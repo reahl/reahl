@@ -19,6 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import sys
 import inspect
 import logging
+import copy
+import atexit
 from collections import OrderedDict 
 
 import six
@@ -131,6 +133,26 @@ def _as_pytest_fixture(class_or_scenario, scope='function'):
                           ids=[s.name for s in class_or_scenario.get_scenarios()])(fixture_function)
 
 
+class FixtureOptions(object):
+    def __init__(self):
+        self.dependencies = {}
+        self.scope = 'function'
+
+    
+def uses(**kwargs):
+    def catcher(f):
+        f._options = copy.copy(f._options)
+        f._options.dependencies = kwargs
+        return f
+    return catcher
+
+def scope(scope):
+    def catcher(f):
+        f._options = copy.copy(f._options)
+        f._options.scope = scope
+        return f
+    return catcher
+
 
 class Fixture(object):
     """A test Fixture is a collection of objects defined and set up to be
@@ -173,6 +195,8 @@ class Fixture(object):
        
     """
     factory_method_prefix = 'new'
+    _options = FixtureOptions()
+    _session_setup_done = {}
 
     @classmethod
     def get_scenarios(cls):
@@ -180,9 +204,25 @@ class Fixture(object):
         return scenarios or [DefaultScenario()]
 
     @classmethod
-    def for_scenario(cls, scenario, *args):
+    def create_with_scenario(cls, scenario, *args):
         instance = cls(*args)
         instance.set_scenario(scenario)
+        return instance
+
+    @classmethod
+    def for_scenario(cls, scenario, *args):
+        assert cls._options.scope in ['function', 'session']
+        if cls._options.scope == 'function':
+            return cls.create_with_scenario(scenario, *args)
+
+        if not hasattr(cls, '_session_instances'):
+            cls._session_instances = {}
+            cls._session_setup_done = {}
+        try:
+            instance = cls._session_instances[scenario]
+        except KeyError:
+            instance = cls._session_instances[scenario] = cls.create_with_scenario(scenario, *args)
+
         return instance
 
     @classmethod
@@ -196,6 +236,12 @@ class Fixture(object):
     def set_scenario(self, scenario):
         self.scenario = scenario
 
+    def setup_dependencies(self, all_fixtures):
+        dependencies_by_class = {v: k for k, v in self._options.dependencies.items()}
+        for fixture in all_fixtures:
+            if fixture.__class__ in dependencies_by_class:
+                setattr(self, dependencies_by_class[fixture.__class__], fixture)
+        
     def tear_down_attributes(self):
         for name, instance in reversed(list(self.attributes_set.items())):
             self.get_tear_down_method_for(name)(instance)
@@ -263,6 +309,24 @@ class Fixture(object):
         return '%s[%s]' % (self.__class__.__name__, self.scenario.name)
 
     def __enter__(self):
+        if self._options.scope == 'function':
+            return super(Fuxture, self).__enter__()
+        elif self._options.scope == 'session' and not self.__class__._session_setup_done.get(self.scenario, False):
+            atexit.register(self.session_cleanup)
+            try:
+                return super(Fuxture, self).__enter__()
+            finally:
+                self.__class__._session_setup_done[self.scenario] = True
+
+    def __enter__(self):
+        session_scoped_setup_done = self.__class__._session_setup_done.get(self.scenario, False)
+        if self._options.scope == 'session':
+            if not session_scoped_setup_done:
+                atexit.register(self.session_cleanup)
+                self.__class__._session_setup_done[self.scenario] = True
+            else:
+                return
+
         with self.context:
             try:
                 self.set_up()
@@ -273,11 +337,15 @@ class Fixture(object):
                 raise
             return self
 
-    def __exit__(self, exception_type, value, traceback):
-        with self.context:
-            self.tear_down_attributes()
-            self.run_marked_methods(TearDown)
-            self.tear_down()
+    def session_cleanup(self):
+        return self.__exit__(*sys.exc_info(), exit_session=True)
+
+    def __exit__(self, exception_type, value, traceback, exit_session=False):
+        if self._options.scope == 'function' or exit_session:
+            with self.context:
+                self.tear_down_attributes()
+                self.run_marked_methods(TearDown)
+                self.tear_down()
 
 
 
