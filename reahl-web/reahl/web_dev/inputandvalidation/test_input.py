@@ -135,7 +135,7 @@ class InputStateFixture(SimpleInputFixture):
         self.expected_value = 'not an email address'
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture2, InputStateFixture)
 def test_the_states_of_an_input(web_fixture, input_state_fixture):
     """An Input can be in one of three states: defaulted, invalidly_entered or validly_entered. Depending
        on the state of the input, it will have a different value when rendering.

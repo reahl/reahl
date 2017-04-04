@@ -22,12 +22,13 @@ class TranslationExampleFixture(Fixture):
         return addresses
 
 
-xxx why is the datatableExampleFixture here?
-@with_fixtures(WebFixture2, ???)
-def demo_setup(sql_alchemy_fixture, data_table_example_fixture):
+@with_fixtures(WebFixture2, TranslationExampleFixture)
+def demo_setup(sql_alchemy_fixture, translation_example_fixture):
     sql_alchemy_fixture.commit = True
     with sql_alchemy_fixture.context:
         data_table_example_fixture.create_addresses()
+        translation_example_fixture.create_addresses()
+
 
 
 @with_fixtures(WebFixture2, TranslationExampleFixture)

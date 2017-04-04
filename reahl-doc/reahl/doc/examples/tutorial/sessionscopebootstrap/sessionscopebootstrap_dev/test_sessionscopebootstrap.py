@@ -73,6 +73,7 @@ def test_email_retained(web_fixture, session_scope_fixture):
         assert typed_value == 'johndoe@some.org'
     
 
+@with_fixtures(WebFixture2, SessionScopeFixture)
 def test_domain_exception(web_fixture, session_scope_fixture):
     """Typing the wrong password results in an error message being shown to the user."""
 

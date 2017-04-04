@@ -24,6 +24,7 @@ def test_use_with_pytest(testdir):
 
     p = testdir.makepyfile('''
     from reahl.tofu import Fixture
+    from reahl.tofu.pytest_support import with_fixtures
     class FixtureStub(Fixture):
         set_up_done = False
         tear_down_done = False
@@ -35,7 +36,7 @@ def test_use_with_pytest(testdir):
             FixtureStub.tear_down_done = True
 
 
-    pyfix = FixtureStub.as_pytest_fixture()
+    @with_fixtures(FixtureStub)
     def test_func(pyfix):
         assert pyfix.set_up_done
         assert not pyfix.tear_down_done
@@ -55,6 +56,7 @@ def test_scenarios(testdir):
 
     p = testdir.makepyfile('''
     from reahl.tofu import Fixture, scenario
+    from reahl.tofu.pytest_support import with_fixtures
     class Scenarios(Fixture):
         @scenario
         def one(self):
@@ -63,10 +65,9 @@ def test_scenarios(testdir):
         def two(self):
             self.n = 2
 
-    scenario_fixture = Scenarios.as_pytest_fixture()
-
     Scenarios.runs = []
 
+    @with_fixtures(Scenarios)
     def test_something(scenario_fixture):
         Scenarios.runs.append(scenario_fixture)
 
@@ -86,6 +87,7 @@ def test_single_scenario(testdir):
 
     p = testdir.makepyfile('''
     from reahl.tofu import Fixture, scenario
+    from reahl.tofu.pytest_support import with_fixtures
     class Scenarios(Fixture):
         @scenario
         def one(self):
@@ -95,8 +97,8 @@ def test_single_scenario(testdir):
             self.n = 2
 
     a = []
-    one = Scenarios.one.as_pytest_fixture()
 
+    @with_fixtures(Scenarios.one)
     def test_something(one):
         a.append(one)
 
@@ -114,6 +116,7 @@ def test_contextual_runs(testdir):
 
     p = testdir.makepyfile('''
     from reahl.tofu import Fixture, scenario
+    from reahl.tofu.pytest_support import with_fixtures
     class ContextManager(object):
         entered = False
         exited = False
@@ -125,9 +128,9 @@ def test_contextual_runs(testdir):
     class ContextualFixture(Fixture):
         def new_context(self):
             return ContextManager()
-    context_fixture = ContextualFixture.as_pytest_fixture()
 
     a = []
+    @with_fixtures(ContextualFixture)
     def test_something(context_fixture):
         a.append(context_fixture)
         assert context_fixture.context.entered

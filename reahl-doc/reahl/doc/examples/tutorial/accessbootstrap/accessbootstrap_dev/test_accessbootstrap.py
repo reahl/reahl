@@ -19,7 +19,7 @@ from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web_dev.fixtures import WebFixture2
 
 
-@with_fixtures(WebFixture2)
+@uses(web_fixture=WebFixture2)
 class AccessUIFixture(Fixture):
 
     def new_browser(self):

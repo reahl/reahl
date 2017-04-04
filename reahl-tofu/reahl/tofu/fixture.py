@@ -25,11 +25,6 @@ from collections import OrderedDict
 
 import six
 
-try:
-    import pytest
-except ImportError:
-    logging.warn('pytest is not available - pytest fixture support disabled')
-
 
 
 
@@ -81,9 +76,6 @@ class Scenario(MarkingDecorator):
         instance.set_scenario(scenario)
         return instance
 
-    def as_pytest_fixture(self, scope='function'):
-        return _as_pytest_fixture(self, scope=scope)
-
     @property
     def _options(self):
         return self.fixture_class._options
@@ -114,27 +106,6 @@ class AttributeErrorInFactoryMethod(Exception):
     pass
 
 
-def _as_pytest_fixture(class_or_scenario, scope='function'):
-    if inspect.isclass(class_or_scenario):
-        cls = class_or_scenario
-    else:
-        cls = class_or_scenario.fixture_class
-
-    deps = [k for k in inspect.signature(cls.__init__).parameters][1:]
-
-    fix_signature = ','.join(deps+['request'])
-    for_scenario_args = ','.join(['request.param']+deps)
-    fixture_function_code = 'def fixture_function(%s):\n'\
-      '    with class_or_scenario.for_scenario(%s) as fixture:\n'\
-      '        yield fixture\n' % (fix_signature, for_scenario_args)
-    l = {}
-    g = globals().copy()
-    g['class_or_scenario'] = class_or_scenario
-    exec(fixture_function_code, g, l)
-    fixture_function = l['fixture_function']
-    return pytest.fixture(scope=scope,
-                          params=class_or_scenario.get_scenarios(),
-                          ids=[s.name for s in class_or_scenario.get_scenarios()])(fixture_function)
 
 
 class FixtureOptions(object):
@@ -200,7 +171,7 @@ class Fixture(object):
     """
     factory_method_prefix = 'new'
     _options = FixtureOptions()
-    _session_setup_done = {}
+    _setup_done = False
 
     @classmethod
     def get_scenarios(cls):
@@ -229,9 +200,6 @@ class Fixture(object):
 
         return instance
 
-    @classmethod
-    def as_pytest_fixture(cls, scope='function'):
-        return _as_pytest_fixture(cls, scope=scope)
 
     def __init__(self):
         self.attributes_set = OrderedDict()
@@ -325,13 +293,13 @@ class Fixture(object):
     #             self.__class__._session_setup_done[self.scenario] = True
 
     def __enter__(self):
-        session_scoped_setup_done = self.__class__._session_setup_done.get(self.scenario.name, False)
+        if self._setup_done:
+            return
+
+        self._setup_done = True
+        
         if self._options.scope == 'session':
-            if not session_scoped_setup_done:
-                atexit.register(self.session_cleanup)
-                self.__class__._session_setup_done[self.scenario.name] = True
-            else:
-                return
+            atexit.register(self.session_cleanup)
 
         with self.context:
             try:

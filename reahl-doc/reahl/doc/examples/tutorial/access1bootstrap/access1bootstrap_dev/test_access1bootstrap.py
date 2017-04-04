@@ -51,6 +51,7 @@ def demo_setup(sql_alchemy_fixture, access_domain_fixture):
         access_domain_fixture.other_address_book
 
 
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
     """An Address is created in a particular AddressBook, which is owned by a SystemAccount."""
 

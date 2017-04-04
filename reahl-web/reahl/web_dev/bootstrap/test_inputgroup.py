@@ -28,9 +28,9 @@ from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import TextInput, InputGroup
 
 from reahl.web_dev.fixtures import WebFixture2
-from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture2
+from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
 
-@uses(web_fixture=WebFixture2, simple_input_fixture=SimpleInputFixture2)
+@uses(web_fixture=WebFixture2, simple_input_fixture=SimpleInputFixture)
 class InputGroupFixture(Fixture):
 
     @property
