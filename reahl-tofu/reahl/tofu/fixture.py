@@ -241,10 +241,12 @@ class Fixture(object):
         self.scenario = scenario
 
     def setup_dependencies(self, all_fixtures):
+        self.dependencies = []
         dependencies_by_class = {v: k for k, v in self._options.dependencies.items()}
         for fixture in all_fixtures:
             if fixture.__class__ in dependencies_by_class:
                 setattr(self, dependencies_by_class[fixture.__class__], fixture)
+                self.dependencies.append(fixture)
         
     def tear_down_attributes(self):
         for name, instance in reversed(list(self.attributes_set.items())):
@@ -312,22 +314,22 @@ class Fixture(object):
     def __repr__(self):
         return '%s[%s]' % (self.__class__.__name__, self.scenario.name)
 
-    def __enter__(self):
-        if self._options.scope == 'function':
-            return super(Fuxture, self).__enter__()
-        elif self._options.scope == 'session' and not self.__class__._session_setup_done.get(self.scenario, False):
-            atexit.register(self.session_cleanup)
-            try:
-                return super(Fuxture, self).__enter__()
-            finally:
-                self.__class__._session_setup_done[self.scenario] = True
+    # def __enter__(self):
+    #     if self._options.scope == 'function':
+    #         return super(Fuxture, self).__enter__()
+    #     elif self._options.scope == 'session' and not self.__class__._session_setup_done.get(self.scenario, False):
+    #         atexit.register(self.session_cleanup)
+    #         try:
+    #             return super(Fuxture, self).__enter__()
+    #         finally:
+    #             self.__class__._session_setup_done[self.scenario] = True
 
     def __enter__(self):
-        session_scoped_setup_done = self.__class__._session_setup_done.get(self.scenario, False)
+        session_scoped_setup_done = self.__class__._session_setup_done.get(self.scenario.name, False)
         if self._options.scope == 'session':
             if not session_scoped_setup_done:
                 atexit.register(self.session_cleanup)
-                self.__class__._session_setup_done[self.scenario] = True
+                self.__class__._session_setup_done[self.scenario.name] = True
             else:
                 return
 

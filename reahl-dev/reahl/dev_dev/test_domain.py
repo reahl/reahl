@@ -24,8 +24,8 @@ import filecmp
 
 import pytest
 
-from reahl.tofu import Fixture
-from reahl.tofu import temp_dir, temp_file_with, expected
+from reahl.tofu import temp_dir, temp_file_with, expected, Fixture
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import exempt
 from reahl.stubble import stubclass
 
@@ -81,9 +81,8 @@ class RepositoryUploadFixture(Fixture):
         user = os.environ.get('USER', None)
         return SshRepository(self.workspace, 'localhost', user, self.incoming_directory.name)
 
-repository_upload_fixture = RepositoryUploadFixture.as_pytest_fixture()
 
-
+@with_fixtures(RepositoryUploadFixture)
 def test_upload_not_built(repository_upload_fixture):
     fixture = repository_upload_fixture
     # Case where you upload something that's not been built yet
@@ -93,6 +92,7 @@ def test_upload_not_built(repository_upload_fixture):
         fixture.debian_repository.upload(fixture.package, [])
 
 
+@with_fixtures(RepositoryUploadFixture)
 def test_upload_success(repository_upload_fixture):
     fixture = repository_upload_fixture
     fixture.package.build()
@@ -220,6 +220,7 @@ Description: some wise words
         self.temp_directory.file_with('control', control_file_contents)
         Executable('equivs-build').check_call(['-a', 'i386', '-f','control'], cwd=self.temp_directory.name)
 
+
 class LocalAptRepositoryFixture(Fixture):
     def new_repository_directory(self):
         return temp_dir()
@@ -230,10 +231,8 @@ class LocalAptRepositoryFixture(Fixture):
     def new_package(self):
         return DebianPackageStub()
 
-local_apt_repository_fixture = LocalAptRepositoryFixture.as_pytest_fixture()
 
-
-
+@with_fixtures(LocalAptRepositoryFixture)
 def test_creation_of_directory(local_apt_repository_fixture):
     fixture = local_apt_repository_fixture
     package = fixture.package
@@ -250,6 +249,7 @@ def test_creation_of_directory(local_apt_repository_fixture):
     assert repository2.is_uploaded(package)
 
 
+@with_fixtures(LocalAptRepositoryFixture)
 def test_uploading(local_apt_repository_fixture):
     fixture = local_apt_repository_fixture
     package = fixture.package
@@ -270,6 +270,7 @@ def test_uploading(local_apt_repository_fixture):
         assert not os.path.isfile(filename)
 
 
+@with_fixtures(LocalAptRepositoryFixture)
 def test_index_building(local_apt_repository_fixture):
     fixture = local_apt_repository_fixture
     package = DebianPackageStubWithRealFiles()
@@ -687,7 +688,6 @@ Description: Stub tools for use in unit testing
 
 ''' )
     return control_file
-
 
 
 def test_debian_control_descriptions(control_file):

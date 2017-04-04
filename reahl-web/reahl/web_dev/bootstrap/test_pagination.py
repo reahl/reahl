@@ -19,25 +19,17 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 from reahl.stubble import stubclass
-from reahl.tofu import Fixture, scenario
+from reahl.tofu import Fixture, scenario, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import XPath
 from reahl.web.bootstrap.ui import P, Div
 from reahl.web.bootstrap.pagination import PageMenu, PagedPanel, PageIndex, SequentialPageIndex, AnnualItemOrganiserProtocol, AnnualPageIndex
 
+from reahl.web_dev.fixtures import WebFixture2
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
-
-
+@uses(web_fixture=WebFixture2)
 class PageMenuFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(PageMenuFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -100,10 +92,9 @@ class PageMenuFixture(Fixture):
     def new_wsgi_app(self):
         return self.web_fixture.new_wsgi_app(enable_js=True, child_factory=self.MainWidget.factory())
 
-page_menu_fixture = PageMenuFixture.as_pytest_fixture()
-
 
 # Please see fixture for how to declare a PageIndex, PageContainer and PageMenu
+@with_fixtures(WebFixture2, PageMenuFixture)
 def test_selecting_a_page(web_fixture, page_menu_fixture):
     """Clicking the link of a page results in the contents of the PageContainer being refreshed."""
     with web_fixture.context:
@@ -117,6 +108,7 @@ def test_selecting_a_page(web_fixture, page_menu_fixture):
         browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
 
 
+@with_fixtures(WebFixture2, PageMenuFixture)
 def test_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     """One can navigate the range of page links displayed by the PageMenu using the special links."""
 
@@ -148,6 +140,7 @@ def test_navigating_the_page_numbers(web_fixture, page_menu_fixture):
         assert browser.wait_for(fixture.page_range_links_match, 'p1,p2,p3,p4,p5')
 
 
+@with_fixtures(WebFixture2, PageMenuFixture)
 def test_contents_when_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     """When navigating the range of page links, the currently displayed contents stay unchanged."""
     with web_fixture.context:
@@ -164,6 +157,7 @@ def test_contents_when_navigating_the_page_numbers(web_fixture, page_menu_fixtur
         browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
 
 
+@with_fixtures(WebFixture2, PageMenuFixture)
 def test_active_state_of_page_links(web_fixture, page_menu_fixture):
     """When choosing a page, the new page link is marked as active, without a server round-trip."""
     fixture = page_menu_fixture
@@ -180,6 +174,7 @@ def test_active_state_of_page_links(web_fixture, page_menu_fixture):
             web_fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2')
 
 
+@with_fixtures(WebFixture2, PageMenuFixture)
 def test_active_state_on_multiple_menus(web_fixture, page_menu_fixture):
     """If there's more than one PageMenu on the page, the active page is switched for both of them"""
     fixture = page_menu_fixture
@@ -206,6 +201,7 @@ def test_active_state_on_multiple_menus(web_fixture, page_menu_fixture):
         browser.wait_for(fixture.is_marked_active, 'p2', 2)
 
 
+@with_fixtures(WebFixture2, PageMenuFixture)
 def test_active_state_of_next_prev_links(web_fixture, page_menu_fixture):
     """Next and Last links are only active when not on the last range of pages,
        and Prev and First are similarly deactive when on the first range of pages."""
@@ -282,9 +278,8 @@ class LinkScenarios(PageMenuFixture):
         self.visible_page_descriptions = 'p1,p2,p3'
         self.visible_last_page_descriptions = self.visible_page_descriptions
 
-link_scenarios = LinkScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, LinkScenarios)
 def test_which_links_display(web_fixture, link_scenarios):
     """The menu displays the correct range of page links, depending on the starting page in the range, the
        total number of pages and the max number of links in a range"""
@@ -346,9 +341,8 @@ class SequentialScenarios(Fixture):
         self.expected_pages = 2
         self.last_page_contents = self.items[10:15]
 
-sequential_scenarios = SequentialScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, SequentialScenarios)
 def test_sequential_page_index(sequential_scenarios):
     """The SequentialPageIndex breaks a query of items up into pages of sequential items"""
 

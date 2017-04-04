@@ -21,19 +21,13 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os.path
 
 from reahl.tofu import temp_file_with
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.component.modelinterface import FileField, exposed, Event, UploadedFile, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, Form, ButtonInput
 from reahl.webdev.tools import XPath
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
-# noinspection PyUnresolvedReferences
-from reahl.component_dev.test_field import field_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class FailingConstraint(ValidationConstraint):
@@ -44,7 +38,7 @@ class FailingConstraint(ValidationConstraint):
             raise self
 
 
-
+@with_fixtures(WebFixture2)
 def test_form_encoding(web_fixture):
     """The enctype of a Form changes to multipart/form-data if it contains an input for a file."""
     fixture = web_fixture
@@ -63,6 +57,7 @@ def test_form_encoding(web_fixture):
         assert form.attributes.v['enctype'] == 'multipart/form-data'
 
 
+@with_fixtures(WebFixture2)
 def test_simple_file_input(web_fixture):
     """A SimpleFileInput is a Widget with which a user can choose one or more files.
        The SimpleFileInput transforms the chosen files to UploadedFile objects, and passes these
@@ -107,7 +102,7 @@ def test_simple_file_input(web_fixture):
         assert read_contents == expected_content
 
 
-
+@with_fixtures(WebFixture2)
 def test_simple_file_input_exceptions(web_fixture):
     """Usually, when a DomainException happens during a form submit Inputs save the input they received so that
        such input can be pre-populated on the screen rendered by a subsequent GET for a user to correct

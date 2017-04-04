@@ -1,6 +1,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import Browser, XPath
 
@@ -9,15 +10,12 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.doc.examples.tutorial.login2bootstrap.login2bootstrap import LoginUI
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class LoginFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(LoginFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def new_browser(self):
         return Browser(self.web_fixture.new_wsgi_app(site_root=LoginUI))
@@ -31,14 +29,15 @@ class LoginFixture(Fixture):
         account.activate()
         return account
 
-login_fixture = LoginFixture.as_pytest_fixture()
 
+@with_fixtures(SqlAlchemyFixture, LoginFixture)
 def demo_setup(sql_alchemy_fixture, login_fixture):
     sql_alchemy_fixture.commit = True
     with sql_alchemy_fixture.context:
         login_fixture.new_account()
 
 
+@with_fixtures(WebFixture2, LoginFixture)
 def test_logging_in(web_fixture, login_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""

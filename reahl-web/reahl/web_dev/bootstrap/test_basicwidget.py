@@ -19,17 +19,14 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
+from reahl.tofu.pytest_support import with_fixtures
+
 from reahl.web.bootstrap.ui import Alert
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
-
+@with_fixtures(WebFixture2)
 def test_alerts(web_fixture):
     """An alert is used to display a message with a specific severity"""
 

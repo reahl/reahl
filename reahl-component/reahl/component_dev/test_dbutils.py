@@ -18,6 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture, expected
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import easter_egg
 
 from reahl.component.dbutils import DatabaseControl, SystemControl, CouldNotFindDatabaseControlException
@@ -38,9 +39,8 @@ class DBControlFixture(Fixture):
         config.reahlsystem = ReahlSystemConfig()
         return config
 
-dbcontrol_fixture = DBControlFixture.as_pytest_fixture()
 
-
+@with_fixtures(DBControlFixture)
 def test_finding_database_control(dbcontrol_fixture):
     """The correct DatabaseControl will be found from the entry point
        reahl.component.databasecontrols for a given
@@ -57,6 +57,7 @@ def test_finding_database_control(dbcontrol_fixture):
         SystemControl(fixture.config)
 
 
+@with_fixtures(DBControlFixture)
 def test_database_control_settings(dbcontrol_fixture):
     """DatabaseControl settings are read from the
        reahlsystem.connection_uri config setting parsed as an RFC1808 URI

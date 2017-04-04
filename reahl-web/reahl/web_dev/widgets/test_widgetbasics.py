@@ -19,7 +19,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
-from reahl.tofu import Fixture, expected
+from reahl.tofu import Fixture, expected, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
 
 from reahl.webdev.tools import WidgetTester, Browser
@@ -29,21 +30,17 @@ from reahl.web.fw import UrlBoundView, UserInterface, Widget
 from reahl.web.ui import Div, P, Slot
 
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class WidgetFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(WidgetFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def new_user_interface_factory(self):
         factory = UserInterface.factory('test_user_interface_name')
         factory.attach_to('/', {})
         return factory
-        
+
     def new_user_interface(self):
         factory = self.ui_factory
         with self.web_fixture.context:
@@ -54,6 +51,7 @@ class WidgetFixture(Fixture):
         return UrlBoundView(user_interface, relative_path, title, slot_definitions)
 
 
+@with_fixtures(WebFixture2)
 def test_basic_widget(web_fixture):
     """Basic widgets are created by adding children widgets to them, and the result is rendered in HTML"""
 
@@ -73,6 +71,7 @@ def test_basic_widget(web_fixture):
         assert actual == '<div><p>Hello World!</p><p>a</p><p>b</p></div>'
 
 
+@with_fixtures(WebFixture2)
 def test_visibility(web_fixture):
     """Widgets are rendered only if their .visible property is True."""
 
@@ -103,6 +102,7 @@ def test_visibility(web_fixture):
         assert actual == ''
 
 
+@with_fixtures(WebFixture2)
 def test_widget_factories_and_args(web_fixture):
     """Widgets can be created from factories which allow you to supply widget-specific args
        and/or kwargs before a view is available."""
@@ -123,6 +123,7 @@ def test_widget_factories_and_args(web_fixture):
         assert widget.saved_kwarg == 'b'
 
 
+@with_fixtures(WebFixture2)
 def test_widget_factories_error(web_fixture):
     """Supplying arguments to .factory that do not match those of the Widget's __init__ is reported to the programmer.."""
 
@@ -139,6 +140,7 @@ def test_widget_factories_error(web_fixture):
             WidgetWithArgs.factory('a', 'b', 'c')
 
 
+@with_fixtures(WebFixture2)
 def test_widget_construct_error(web_fixture):
     """Passing anything other than a View as a Widget's view argument on construction results in an error."""
 
@@ -147,6 +149,7 @@ def test_widget_construct_error(web_fixture):
             Widget(EmptyStub())
 
 
+@with_fixtures(WebFixture2)
 def test_widget_adding_error(web_fixture):
     """Passing anything other than other Widgets to .add_child or add_children results in an error."""
     fixture = web_fixture
@@ -160,6 +163,7 @@ def test_widget_adding_error(web_fixture):
             widget.add_children([Widget(fixture.view), EmptyStub()])
 
 
+@with_fixtures(WebFixture2)
 def test_basic_working_of_slots(web_fixture):
     """Slots are special Widgets that can be added to the page. The contents of a
        Slot are then supplied (differently) by different Views."""
@@ -196,6 +200,7 @@ def test_basic_working_of_slots(web_fixture):
         assert slot1_p.text == 'other'
 
 
+@with_fixtures(WebFixture2)
 def test_defaults_for_slots(web_fixture):
     """A Widget can have defaults for its slots."""
 
@@ -220,6 +225,7 @@ def test_defaults_for_slots(web_fixture):
         assert slot3_p.text == 'default'
 
 
+@with_fixtures(WebFixture2)
 def test_activating_javascript(web_fixture):
     """The JavaScript snippets of all Widgets are collected in a jQuery.ready() function by"""
     """ an automatically inserted Widget in the slot named reahl_footer.  Duplicate snippets are removed."""

@@ -22,7 +22,7 @@ import os
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
-from reahl.tofu import Fixture, set_up, tear_down
+from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 
 from reahl.dev.fixtures import CleanDatabase
 
@@ -32,6 +32,8 @@ from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.domain.systemaccountmodel import SystemAccountConfig
+
+from reahl.dev.fixtures import ReahlSystemFixture
 
 
 class BrowserSetup(CleanDatabase):
@@ -203,7 +205,8 @@ class BrowserSetup(CleanDatabase):
         return config
 
 
-
+@uses(reahl_system_fixture=ReahlSystemFixture)
+@scope('session')
 class WebServerFixture(Fixture):
     """A Fixture to be used as run fixture. It inherits from :class:`reahl.dev.fixtures.CleanDatabase` and
        hence includes all its functionality, but adds a running, configured web server and more than one
@@ -235,9 +238,6 @@ class WebServerFixture(Fixture):
           and web server.
 
     """
-    def __init__(self, reahl_system_fixture):
-        super(WebServerFixture, self).__init__()
-        self.reahl_system_fixture = reahl_system_fixture
 
     def new_reahl_server(self):
         server = ReahlWebServer(self.reahl_system_fixture.config, 8000)
@@ -363,4 +363,3 @@ class WebServerFixture(Fixture):
     def new_test_dependencies(self):
         return ['reahl-web-declarative']
 
-web_server_fixture = WebServerFixture.as_pytest_fixture(scope='session')

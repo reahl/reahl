@@ -21,6 +21,7 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from reahl.tofu import expected, Fixture
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import stubclass, CallMonitor
 
 from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext, InternalRedirect
@@ -28,12 +29,7 @@ from reahl.web.interfaces import UserSessionProtocol
 from reahl.web_dev.fixtures import ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class WSGIFixture(Fixture):
@@ -44,9 +40,8 @@ class WSGIFixture(Fixture):
     def some_headers_are_set(self, headers):
         return dict(headers)['Content-Type'] == 'text/html; charset=utf-8'
 
-wsgi_fixture = WSGIFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, WSGIFixture)
 def test_wsgi_interface(web_fixture, wsgi_fixture):
     """A ReahlWSGIApplication is a WSGI application."""
     fixture = wsgi_fixture
@@ -66,6 +61,7 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
         assert fixture.some_headers_are_set(fixture.headers)
 
 
+@with_fixtures(WebFixture2)
 def test_web_session_handling(web_fixture):
     """The core web framework (this egg) does not implement a notion of session directly.
        It relies on such a notion, but expects an implementation for this to be supplied.
@@ -146,6 +142,7 @@ def test_web_session_handling(web_fixture):
         assert UserSessionStub.session.last_activity_time_set  # set_last_activity_time was called
 
 
+@with_fixtures(WebFixture2)
 def test_handling_HTTPError_exceptions(web_fixture):
     """If an HTTPError exception is raised, it is used as response."""
     @stubclass(ReahlWSGIApplication)
@@ -159,6 +156,7 @@ def test_handling_HTTPError_exceptions(web_fixture):
         browser.open('/', status=404)
 
 
+@with_fixtures(WebFixture2)
 def test_internal_redirects(web_fixture):
     """During request handling, an InternalRedirect exception can be thrown. This is handled by
        restarting the request loop from scratch to handle the same request again, using a freshly
@@ -193,6 +191,7 @@ def test_internal_redirects(web_fixture):
         assert fixture.handling_resources[0] is not fixture.handling_resources[1]
 
 
+@with_fixtures(WebFixture2)
 def test_handling_uncaught_exceptions(web_fixture):
     """If an uncaught exception is raised, the session is closed properly."""
 

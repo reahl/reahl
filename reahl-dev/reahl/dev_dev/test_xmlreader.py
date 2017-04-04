@@ -22,15 +22,13 @@ import six
 import time
 
 from reahl.stubble import easter_egg, stubclass, EmptyStub
-from reahl.tofu import Fixture, set_up, tear_down, scenario
-from reahl.tofu import temp_file_with, expected
+from reahl.tofu import Fixture, set_up, tear_down, scenario, uses, temp_file_with, expected
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.dev.xmlreader import XMLReader, DoubleRegistrationException, TagNotRegisteredException
 
 
 # --------------------------------------------------[ fixtures ]
-
-
 class BasicObjectSetup(Fixture):
     tag_name = 'anObject'
     string = 'something'
@@ -62,13 +60,9 @@ class BasicObjectSetup(Fixture):
     def close_file(self):
         self.file.close()
 
-basic_object_setup = BasicObjectSetup.as_pytest_fixture()
 
-
+@uses(basic_object_setup=BasicObjectSetup)
 class ConfiguredReader(Fixture):
-    def __init__(self, basic_object_setup):
-        super(ConfiguredReader, self).__init__()
-        self.basic_object_setup = basic_object_setup
 
     class TestClass1(object):
         @classmethod
@@ -97,9 +91,6 @@ class ConfiguredReader(Fixture):
         return XMLReaderStub()
 
 
-configured_reader = ConfiguredReader.as_pytest_fixture()
-
-
 class TextObjectSetup(BasicObjectSetup):
     def new_test_class(self):
         class TestClass(object):
@@ -117,8 +108,6 @@ class TextObjectSetup(BasicObjectSetup):
     @scenario
     def some_text(self):
         self.text = 'some text'
-
-text_object_setup = TextObjectSetup.as_pytest_fixture()
 
 
 class CompositeObjectSetup(BasicObjectSetup):
@@ -144,8 +133,6 @@ class CompositeObjectSetup(BasicObjectSetup):
         ''' % (self.tag_name, self.inner_tag_name, self.string, self.integer, self.tag_name)
         return contents
 
-composite_object_setup = CompositeObjectSetup.as_pytest_fixture()
-
 
 class MultipleClassesForTag(CompositeObjectSetup):
     inner_tag_name = 'sametag'
@@ -169,8 +156,6 @@ class MultipleClassesForTag(CompositeObjectSetup):
                self.tag_name)
         return contents
 
-multiple_classes_for_tag = MultipleClassesForTag.as_pytest_fixture()
-
 
 class TimeStampedInflationSetup(CompositeObjectSetup):
     def new_test_class(self):
@@ -188,10 +173,9 @@ class TimeStampedInflationSetup(CompositeObjectSetup):
 
         return OuterClass
 
-time_stamped_inflation_setup = TimeStampedInflationSetup.as_pytest_fixture()
-
 
 # --------------------------------------------------[ a basic object ]
+@with_fixtures(BasicObjectSetup)
 def test_read_basic_object(basic_object_setup):
     fixture = basic_object_setup
     fixture.reader.register(fixture.tag_name, fixture.test_class)
@@ -204,6 +188,7 @@ def test_read_basic_object(basic_object_setup):
     assert read_object.parent is parent
 
 
+@with_fixtures(BasicObjectSetup)
 def test_exception_on_double_register(basic_object_setup):
     fixture = basic_object_setup
     fixture.reader.register(fixture.tag_name, fixture.test_class)
@@ -212,6 +197,7 @@ def test_exception_on_double_register(basic_object_setup):
         fixture.reader.register(fixture.tag_name, fixture.test_class)
 
 
+@with_fixtures(BasicObjectSetup)
 def test_exception_on_not_registered(basic_object_setup):
     fixture = basic_object_setup
     with expected(TagNotRegisteredException):
@@ -219,6 +205,7 @@ def test_exception_on_not_registered(basic_object_setup):
 
 
 # --------------------------------------------------[ a composite object ]
+@with_fixtures(CompositeObjectSetup)
 def test_read_composite_object(composite_object_setup):
     fixture = composite_object_setup
     fixture.reader.register(fixture.inner_tag_name, fixture.inner_class)
@@ -237,6 +224,7 @@ def test_read_composite_object(composite_object_setup):
     assert child.parent is read_object
 
 
+@with_fixtures(MultipleClassesForTag)
 def test_read_objects_with_same_tag_and_different_type_attribute(multiple_classes_for_tag):
     fixture = multiple_classes_for_tag
     fixture.reader.register(fixture.inner_tag_name, fixture.inner_class, fixture.innerType1)
@@ -256,6 +244,7 @@ def test_read_objects_with_same_tag_and_different_type_attribute(multiple_classe
 
 
 # --------------------------------------------------[ simple object with text content ]
+@with_fixtures(TextObjectSetup)
 def test_read_text_object(text_object_setup):
     fixture = text_object_setup
     fixture.reader.register(fixture.tag_name, fixture.test_class)
@@ -267,6 +256,7 @@ def test_read_text_object(text_object_setup):
 
 
 # --------------------------------------------------[ order of inflation method calls ]
+@with_fixtures(TimeStampedInflationSetup)
 def test_order_of_methods_calls_is_correct(time_stamped_inflation_setup):
     fixture = time_stamped_inflation_setup
     fixture.reader.register(fixture.inner_tag_name, fixture.inner_class)
@@ -278,6 +268,7 @@ def test_order_of_methods_calls_is_correct(time_stamped_inflation_setup):
 
 
 # --------------------------------------------------[ configuration ]
+@with_fixtures(ConfiguredReader)
 def test_available_classes_from_plugins_are_registered(configured_reader):
     fixture = configured_reader
     for cls in [fixture.TestClass1, fixture.TestClass2]:

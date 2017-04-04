@@ -16,7 +16,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import scenario, Fixture
+from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import Browser, XPath
 
@@ -25,14 +26,11 @@ from reahl.web.fw import CannotCreate, IdentityDictionary, UrlBoundView, UserInt
 from reahl.web.ui import HTML5Page, P
 from reahl.web.layout import PageLayout, ColumnLayout
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
+
+@uses(web_fixture=WebFixture2)
 class ParameterisedScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(ParameterisedScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -87,9 +85,8 @@ class ParameterisedScenarios(Fixture):
         self.url = '/a_ui/aview'
         self.should_exist = False
 
-parameterised_scenarios = ParameterisedScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, ParameterisedScenarios)
 def test_views_with_parameters(web_fixture, parameterised_scenarios):
     """Views can have arguments that originate from code, or are parsed from the URL."""
 
@@ -115,6 +112,7 @@ def test_views_with_parameters(web_fixture, parameterised_scenarios):
             browser.open(fixture.url, status=404)
 
 
+@with_fixtures(WebFixture2)
 def test_views_from_regex(web_fixture):
     """Parameterised Views can also be added based on a regex over the url."""
 
@@ -141,6 +139,7 @@ def test_views_from_regex(web_fixture):
         assert browser.title == 'View for: test1' 
 
 
+@with_fixtures(WebFixture2)
 def test_user_interfaces_from_regex(web_fixture):
     """Sub UserInterfaces can be created on the fly on a UserInterface, based on the URL visited. To indicate that a
        UserInterface does not exist, the creation method should return None."""
@@ -188,10 +187,8 @@ def test_user_interfaces_from_regex(web_fixture):
 
 
 
+@uses(web_fixture=WebFixture2)
 class ParameterisedUserInterfaceScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(ParameterisedUserInterfaceScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -221,9 +218,8 @@ class ParameterisedUserInterfaceScenarios(Fixture):
         self.url = '/a_ui/parameterisedui/aview'
         self.should_exist = False
 
-parameterised_user_interface_scenarios = ParameterisedUserInterfaceScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, ParameterisedUserInterfaceScenarios)
 def test_parameterised_uis(web_fixture, parameterised_user_interface_scenarios):
     """Sub UserInterfaces can also be parameterised by defining arguments in .define_user_interface, and receiving them in .assemble()."""
 
@@ -265,7 +261,4 @@ def test_parameterised_uis(web_fixture, parameterised_user_interface_scenarios):
         else:
             # When the URL cannot be mapped
             browser.open(fixture.url, status=404)
-
-
-
 

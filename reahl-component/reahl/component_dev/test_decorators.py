@@ -24,8 +24,10 @@ from six.moves import zip_longest
 
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.component.decorators import deprecated, memoized
 from reahl.component.exceptions import arg_checks
+
 
 @contextlib.contextmanager
 def expected_deprecation_warnings(expected_warnings):
@@ -71,8 +73,7 @@ class ClassDeprecationScenarios(Fixture):
         self.ADeprecatedClass = ADeprecatedClass
 
 
-class_deprecation_scenarios = ClassDeprecationScenarios.as_pytest_fixture()
-
+@with_fixtures(ClassDeprecationScenarios)
 def test_deprecating_a_class(class_deprecation_scenarios):
     """When @deprecated is used on a class, constructing the class or calling class methods 
        emit a deprecation warning. This only works when the Deprecated class has an __init__ or inherits 
@@ -87,7 +88,6 @@ def test_deprecating_a_class(class_deprecation_scenarios):
         
     with expected_deprecation_warnings(['this test deprecated class is deprecated']):
         fixture.ADeprecatedClass.some_class_method()
-
 
 
 def test_deprecating_a_class_docstring():
@@ -109,7 +109,6 @@ def test_deprecating_a_class_docstring():
         pass
 
     assert not ClassWithoutDocstring.__doc__ 
-
 
 
 class MethodDeprecationScenarios(Fixture):
@@ -149,9 +148,8 @@ class MethodDeprecationScenarios(Fixture):
                 pass
         self.NonDeprecatedClass = NonDeprecatedClass
 
-method_deprecation_scenarios = MethodDeprecationScenarios.as_pytest_fixture()
 
-
+@with_fixtures(MethodDeprecationScenarios)
 def test_deprecating_a_method(method_deprecation_scenarios):
     """When @deprecated is used on a method or classmethod, only calling the method emits a deprecation 
        warning. """
@@ -210,8 +208,8 @@ class MemoizeScenarios(Fixture):
 
         self.memoized_callable = some_function
 
-memoize_scenarios = MemoizeScenarios.as_pytest_fixture()
 
+@with_fixtures(MemoizeScenarios)
 def test_memoize_caches_call_results(memoize_scenarios):
     """On a memoized callable, the result of the first call is cached and re-used on subsequent calls"""
 

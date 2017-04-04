@@ -19,7 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import datetime
 
 
-from reahl.tofu import Fixture, set_up
+from reahl.tofu import Fixture, set_up, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from sqlalchemy import Column, Integer, Boolean, UnicodeText, ForeignKey
 
@@ -30,16 +31,12 @@ from reahl.component.eggs import ReahlEgg
 from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
 
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
 
 
+@uses(party_account_fixture=PartyAccountFixture)
 class DeferredActionFixture(Fixture):
-    def __init__(self, party_account_fixture):
-        super(DeferredActionFixture, self).__init__()
-        self.party_account_fixture = party_account_fixture
 
     def new_SomeObject(self):
         class SomeObject(Base):
@@ -90,9 +87,8 @@ class DeferredActionFixture(Fixture):
         Session.add(another)
         return another
 
-deferred_action_fixture = DeferredActionFixture.as_pytest_fixture()
 
-
+@with_fixtures(SqlAlchemyFixture, DeferredActionFixture)
 def test_deferred_action_completes(sql_alchemy_fixture, deferred_action_fixture):
     """A DeferredAction will execute its primary action once all its Requirements are fulfilled; then, it and its Requirements are deleted."""
 
@@ -111,6 +107,7 @@ def test_deferred_action_completes(sql_alchemy_fixture, deferred_action_fixture)
         assert Session.query(DeferredAction).count() == 0
 
 
+@with_fixtures(SqlAlchemyFixture, DeferredActionFixture)
 def test_deferred_action_times_out(sql_alchemy_fixture, deferred_action_fixture):
     """If all its Requirements are not fulfilled before its deadline has been reached, a DeferredAction executes its deadline action; then, it and its Requirements are deleted"""
 
@@ -138,7 +135,7 @@ def test_deferred_action_times_out(sql_alchemy_fixture, deferred_action_fixture)
         assert Session.query(DeferredAction).count() == 0
 
 
-
+@with_fixtures(SqlAlchemyFixture, DeferredActionFixture)
 def test_deferred_action_completes_with_shared_requirements(sql_alchemy_fixture, deferred_action_fixture):
     """A requirement could be linked to many DeferredActions, in which case it will notify all on success"""
 
@@ -186,7 +183,7 @@ def test_deferred_action_completes_with_shared_requirements(sql_alchemy_fixture,
         assert Session.query(DeferredAction).count() == 0
 
 
-
+@with_fixtures(SqlAlchemyFixture, DeferredActionFixture)
 def test_deferred_action_times_out_with_shared_requirements(sql_alchemy_fixture, deferred_action_fixture):
     """If a DeferredAction times out, it will not nuke Requirements shared with another DeferredAction."""
 
@@ -229,6 +226,7 @@ def test_deferred_action_times_out_with_shared_requirements(sql_alchemy_fixture,
         assert Session.query(DeferredAction).count() == 0
 
 
+# TODO: cs remove
 class TaskQueueZooMixin(PartyModelZooMixin):
     def new_session(self, system_account=None):
         session = super(TaskQueueZooMixin, self).new_session()
@@ -255,15 +253,13 @@ class TaskQueueZooMixin(PartyModelZooMixin):
         return task
 
 
+# TODO: cs remove
 class TaskQueueFixture(Fixture, TaskQueueZooMixin):
     pass
 
 
+@uses(sql_alchemy_fixture=SqlAlchemyFixture, party_account_fixture=PartyAccountFixture)
 class TaskQueueFixture2(Fixture):
-    def __init__(self, sql_alchemy_fixture, party_account_fixture):
-        super(TaskQueueFixture2, self).__init__()
-        self.party_account_fixture = party_account_fixture
-        self.sql_alchemy_fixture = sql_alchemy_fixture
 
     @property
     def context(self):
@@ -293,10 +289,8 @@ class TaskQueueFixture2(Fixture):
         Session.flush()
         return task
 
-task_queue_fixture = TaskQueueFixture2.as_pytest_fixture()
 
-
-
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
 def test_reserving_tasks(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
     """Tasks can be reserved by a party; a reserved task can be released again."""
 
@@ -316,6 +310,7 @@ def test_reserving_tasks(sql_alchemy_fixture, party_account_fixture, task_queue_
         assert not task.is_reserved_for(party_account_fixture.party)
 
 
+@with_fixtures(SqlAlchemyFixture, TaskQueueFixture2)
 def test_inbox(sql_alchemy_fixture, task_queue_fixture):
     """An Inbox is a collection of tasks in a collection of queues."""
 
@@ -333,6 +328,7 @@ def test_inbox(sql_alchemy_fixture, task_queue_fixture):
         assert tasks == [task1, task2]
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
 def test_take_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
     with sql_alchemy_fixture.context:
@@ -349,6 +345,7 @@ def test_take_task_interface(sql_alchemy_fixture, party_account_fixture, task_qu
         assert take_task.can_write_event
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
 def test_go_to_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
     with sql_alchemy_fixture.context:
@@ -364,6 +361,7 @@ def test_go_to_task_interface(sql_alchemy_fixture, party_account_fixture, task_q
         assert not go_to_task.can_read_event
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
 def test_release_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
     with sql_alchemy_fixture.context:

@@ -22,14 +22,14 @@ class with_fixtures(object):
         def the_test(wrapped, instance, args, kwargs):
             fixture_instances = [i for i in list(args) + list(kwargs.values())
                                      if i.__class__ in self.fixture_classes or i.scenario in self.requested_fixtures]
-            fixtures = self.instances_in_fixture_order(self.fixture_classes, fixture_instances)
+            dependency_ordered_fixtures = self.topological_sort(fixture_instances)
 
             if six.PY2:
-                with contextlib.nested(fixtures):
+                with contextlib.nested(dependency_ordered_fixtures):
                     return wrapped(*args, **kwargs)
             else:
                 with contextlib.ExitStack() as stack:
-                    for fixture in fixtures:
+                    for fixture in dependency_ordered_fixtures:
                         stack.enter_context(fixture)
                     return wrapped(*args, **kwargs)
 
@@ -48,6 +48,20 @@ class with_fixtures(object):
 
     def fixture_permutations(self, number_args):
         return FixturePermutationIterator(self.requested_fixtures, self.fixture_classes, number_args)
+
+    def topological_sort(self, fixture_instances):
+        def add_instance(fixture_instance, graph):
+            graph[fixture_instance] = fixture_instance.dependencies
+            for dep in fixture_instance.dependencies:
+                if dep not in graph:
+                    add_instance(dep, graph)
+
+        graph = {}
+        for fixture_instance in fixture_instances:
+            add_instance(fixture_instance, graph)
+
+        graph[None] = fixture_instances
+        return reversed(list(DependencyGraph(graph).topological_sort())[1:])
 
     
 class FixturePermutationIterator(object):

@@ -20,7 +20,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import pkg_resources
 
-from reahl.tofu import temp_dir, Fixture, set_up
+from reahl.tofu import temp_dir, Fixture, set_up, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import easter_egg
 
 from reahl.webdev.tools import Browser
@@ -29,18 +30,11 @@ from reahl.web.fw import ReahlWSGIApplication, UserInterface
 from reahl.web.ui import HTML5Page
 from reahl.web.libraries import Library
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class LibraryFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(LibraryFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def new_egg_dir(self):
         egg_dir = temp_dir()
@@ -76,8 +70,7 @@ class LibraryFixture(Fixture):
         return MainUI
 
 
-library_fixture = LibraryFixture.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, LibraryFixture)
 def test_configuring_libraries(web_fixture, library_fixture):
     """Reahl can be configured to expose frontend libraries (libraries of js and css files)."""
     with web_fixture.context:
@@ -87,7 +80,7 @@ def test_configuring_libraries(web_fixture, library_fixture):
         assert 'mylib' in web.frontend_libraries
 
 
-
+@with_fixtures(WebFixture2, LibraryFixture)
 def test_library_files(web_fixture, library_fixture):
     """The files part of configured frontend libraries are (a) added to /static and also (b) included on any page."""
     with web_fixture.context:
@@ -110,6 +103,7 @@ def test_library_files(web_fixture, library_fixture):
         assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
 
 
+@with_fixtures(WebFixture2)
 def test_standard_reahl_files(web_fixture):
     """The framework includes certain frontent frameworks by default."""
     with web_fixture.context:

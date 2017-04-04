@@ -20,6 +20,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 from reahl.tofu import expected
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import Browser
 
@@ -28,11 +29,10 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UrlBoundView, UserInterface
 from reahl.web.ui import HTML5Page
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@with_fixtures(WebFixture2)
 def test_missing_variable_in_regex(web_fixture):
     """If a variable is missing from the regex, an appropriate error is raised."""
 
@@ -60,6 +60,7 @@ def test_missing_variable_in_regex(web_fixture):
             browser.open('/a_ui/test1/')
 
 
+@with_fixtures(WebFixture2)
 def test_missing_variable_in_ui_regex(web_fixture):
 
     class RegexUserInterface(UserInterface):

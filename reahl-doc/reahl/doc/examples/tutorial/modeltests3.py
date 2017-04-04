@@ -62,3 +62,4 @@ def test_reahl_additions():
         #  a string again, but it could have been, for example an EmailAddress object,
         #  and Integer, or a Date.)
         assert address.email_address == 'valid@email.com'
+

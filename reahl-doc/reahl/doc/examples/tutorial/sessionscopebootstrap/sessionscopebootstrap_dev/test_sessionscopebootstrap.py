@@ -1,15 +1,15 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import Fixture
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.sqlalchemysupport import Session
 from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap import SessionScopeUI, User
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class SessionScopeFixture(Fixture):
@@ -21,17 +21,15 @@ class SessionScopeFixture(Fixture):
         Session.add(user)
         return user
 
-session_scope_fixture = SessionScopeFixture.as_pytest_fixture()
 
-
+@with_fixtures(SqlAlchemyFixture, SessionScopeFixture)
 def demo_setup(sql_alchemy_fixture, session_scope_fixture):
     sql_alchemy_fixture.commit = True
     with sql_alchemy_fixture.context:
         session_scope_fixture.new_user()
 
 
-
-
+@with_fixtures(WebFixture2, SessionScopeFixture)
 def test_logging_in(web_fixture, session_scope_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""
@@ -51,6 +49,7 @@ def test_logging_in(web_fixture, session_scope_fixture):
         assert browser.is_element_present(XPath.paragraph_containing('Welcome John Doe'))
     
 
+@with_fixtures(WebFixture2, SessionScopeFixture)
 def test_email_retained(web_fixture, session_scope_fixture):
     """The email address used when last logged in is always pre-populated on the Log in page."""
 

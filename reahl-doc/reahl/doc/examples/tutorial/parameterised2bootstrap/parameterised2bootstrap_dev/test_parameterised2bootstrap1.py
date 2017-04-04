@@ -1,15 +1,16 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+from reahl.tofu.pytest_support import with_fixtures
+
 from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap import AddressBookUI
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@with_fixtures(WebFixture2)
 def test_adding_an_address(web_fixture):
     """To add a new address, a user clicks on "Add Address" link on the menu, then supplies the 
        information for the new address and clicks the Save button. Upon successful addition of the

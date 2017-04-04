@@ -7,18 +7,17 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
+
 from reahl.webdev.tools import XPath
 from reahl.doc.examples.tutorial.ajaxbootstrap.ajaxbootstrap import WidgetRefreshUI
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
+
+@uses(web_fixture=WebFixture2)
 class RefreshFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(RefreshFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def new_browser(self):
         return self.web_fixture.driver_browser
@@ -29,10 +28,10 @@ class RefreshFixture(Fixture):
     def text_shows_selected(self, expected_selected):
         return self.browser.is_element_present(XPath.paragraph_containing('You selected link number %s' % expected_selected))
 
-refresh_fixture = RefreshFixture.as_pytest_fixture()
 
 #------ Tests
 
+@with_fixtures(WebFixture2, RefreshFixture)
 def test_refreshing_widget(web_fixture, refresh_fixture):
     """Clicking on a link, refreshes the displayed text to indicate which link 
        was clicked, without triggering a page load."""

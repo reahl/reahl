@@ -43,7 +43,6 @@ def test_flattened_tree_of_eggs():
     assert is_ordered_before('python-dateutil', 'six')
 
 
-
 def test_interface_with_meta_info():
     """A Reahl component can publish a ReahlEgg instance to supply extra meta information about itself.
        Such interfaces with extra information are also often used from a flattened list in dependency order."""
@@ -69,16 +68,5 @@ def test_interface_with_meta_info():
     # Hooks for allowing a component to do its own housekeeping
     with expected(NoException):
         interface.do_daily_maintenance()
-
-
-
-
-
-
-
-
-
-
-
 
 

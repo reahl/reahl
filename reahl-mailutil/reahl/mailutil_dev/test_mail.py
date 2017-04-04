@@ -18,6 +18,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.tofu import Fixture
 from reahl.tofu import expected
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.mailutil.mail import Mailer, MailMessage, InvalidEmailAddressException
 from reahl.dev.mailtest import MailTester
@@ -54,10 +55,8 @@ class MailerFixture(Fixture):
         if self.mail_checker_started:
             self.mail_tester.stop()
 
-mailer_fixture = MailerFixture.as_pytest_fixture()
 
-
-# noinspection PyShadowingNames
+@with_fixtures(MailerFixture)
 def test_validation(mailer_fixture):
     fixture = mailer_fixture
     with expected(InvalidEmailAddressException):
@@ -73,7 +72,7 @@ def test_validation(mailer_fixture):
                     'Some Message')
 
 
-# noinspection PyShadowingNames
+@with_fixtures(MailerFixture)
 def test_sending(mailer_fixture):
     fixture = mailer_fixture
 

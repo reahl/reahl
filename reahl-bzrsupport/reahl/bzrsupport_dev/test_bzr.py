@@ -22,6 +22,7 @@ import os
 import os.path
 
 from reahl.tofu import Fixture, temp_dir, assert_recent
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.bzrsupport import Bzr, Executable
 
@@ -35,9 +36,7 @@ class BzrFixture(Fixture):
         return bzr_directory
 
 
-bzr_fixture = BzrFixture.as_pytest_fixture()
-
-
+@with_fixtures(BzrFixture)
 def test_is_version_controlled(bzr_fixture):
     non_initialised_directory = bzr_fixture.new_bzr_directory(initialised=False)
     bzr = Bzr(non_initialised_directory.name)
@@ -47,6 +46,7 @@ def test_is_version_controlled(bzr_fixture):
     assert bzr.is_version_controlled()
 
 
+@with_fixtures(BzrFixture)
 def test_is_checked_in(bzr_fixture):
     bzr = Bzr(bzr_fixture.bzr_directory.name)
     assert bzr.is_checked_in()
@@ -55,6 +55,7 @@ def test_is_checked_in(bzr_fixture):
     assert not bzr.is_checked_in()
 
 
+@with_fixtures(BzrFixture)
 def test_last_commit_time(bzr_fixture):
     bzr = Bzr(bzr_fixture.bzr_directory.name)
     bzr.commit('testing', unchanged=True)
@@ -62,6 +63,7 @@ def test_last_commit_time(bzr_fixture):
     assert_recent( bzr.last_commit_time )
 
 
+@with_fixtures(BzrFixture)
 def test_tag_related(bzr_fixture):
     bzr = Bzr(bzr_fixture.bzr_directory.name)
     bzr.commit('testing', unchanged=True)
@@ -75,6 +77,4 @@ def test_tag_related(bzr_fixture):
     bzr.tag('lasttag')
     assert bzr.get_tags(head_only=True) == ['lasttag']
     assert bzr.get_tags() == ['lasttag', 'mytag']
-
-
 

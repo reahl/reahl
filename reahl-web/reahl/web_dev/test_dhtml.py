@@ -18,6 +18,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.tofu import Fixture, set_up, temp_dir
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import stubclass, replaced
 
 from reahl.webdev.tools import Browser
@@ -27,12 +28,7 @@ from reahl.web.fw import WebExecutionContext, UserInterface
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class DhtmlFixture(Fixture):
@@ -63,9 +59,8 @@ class DhtmlFixture(Fixture):
         self.afrikaans_dhtml_file
         self.other_file
 
-dhtml_fixture = DhtmlFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, DhtmlFixture)
 def test_basic_workings(web_fixture, dhtml_fixture):
     """A DhtmlUI provides a UserInterface which maps to the filesystem where there may be
        a combination of .d.html and other files. When a d.html file is requested from
@@ -101,6 +96,7 @@ def test_basic_workings(web_fixture, dhtml_fixture):
         browser.open('/dhtml_ui/idonotexist.d.html', status=404)
 
 
+@with_fixtures(WebFixture2, DhtmlFixture)
 def test_i18n_dhtml(web_fixture, dhtml_fixture):
     """Dhtml files can have i18nsed versions, which would be served up if applicable."""
 
@@ -134,6 +130,7 @@ def test_i18n_dhtml(web_fixture, dhtml_fixture):
         assert browser.title == 'Afrikaans bo!'
 
 
+@with_fixtures(DhtmlFixture)
 def test_encoding_dammit(dhtml_fixture):
     """ """
     dhtml_file = DHTMLFile(dhtml_fixture.dhtml_file.name, ['astatic'])

@@ -19,10 +19,10 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.stubble import stubclass
 from reahl.web.fw import Bookmark
 
+
 @stubclass(Bookmark)
 class BookmarkStub(object):
     def __init__(self, href, description):
         self.description = description
         self.href = href
         self.ajax = False
-

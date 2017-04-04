@@ -18,6 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture, scenario, expected, temp_dir, NoException
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import EasterEgg, EmptyStub, stubclass, SystemOutStub
 
 from reahl.doc.commands import Example, GetExample
@@ -82,8 +83,8 @@ class ImportErrorScenarios(ExampleFixture):
         self.expected_exception = ImportError
         self.command_line = self.example_name
 
-import_error_scenarios = ImportErrorScenarios.as_pytest_fixture()
 
+@with_fixtures(ImportErrorScenarios)
 def test_handling_import_errors(import_error_scenarios):
     """Should example code be broken enough to cause ImportErrors, such errors are 
        reported when an attempt is made to check it out."""

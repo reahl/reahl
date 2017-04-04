@@ -19,30 +19,19 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import scenario, Fixture
+from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import WidgetTester
 
 from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import TextInput, InputGroup
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.inputandvalidation.test_input import simple_input_fixture
-# noinspection PyUnresolvedReferences
-from reahl.component_dev.test_field import field_fixture
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture2
 
-
+@uses(web_fixture=WebFixture2, simple_input_fixture=SimpleInputFixture2)
 class InputGroupFixture(Fixture):
-    def __init__(self, web_fixture, simple_input_fixture):
-        super(InputGroupFixture, self).__init__()
-        self.web_fixture = web_fixture
-        self.simple_input_fixture = simple_input_fixture
 
     @property
     def context(self):
@@ -71,9 +60,8 @@ class InputGroupFixture(Fixture):
         self.expects_before_html = '<span class="input-group-addon"><p>before widget</p></span>'
         self.expects_after_html = '<span class="input-group-addon"><p>after widget</p></span>'
 
-input_group_fixture = InputGroupFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, InputGroupFixture)
 def test_input_group(web_fixture, input_group_fixture):
     """An InputGroup is a composition of an input with some text or Widget before and/or after an input."""
     fixture = input_group_fixture
@@ -100,6 +88,4 @@ def test_input_group(web_fixture, input_group_fixture):
             assert rendered_html == fixture.expects_after_html
         else:
             assert not tester.is_element_present('//div/input/following-sibling::span')
-
-
 

@@ -130,3 +130,4 @@ def test_translated_config():
 
         config.setting_af = 'die verstek'
         assert config.setting == 'die verstek'
+

@@ -1,22 +1,19 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap import AddressBookUI, Address
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class AddressAppFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(AddressAppFixture, self).__init__()
-        self.web_fixture = web_fixture
-        
+
     def new_browser(self):
         return Browser(self.web_fixture.new_wsgi_app(site_root=AddressBookUI))
 
@@ -37,9 +34,8 @@ class AddressAppFixture(Fixture):
     def address_is_listed_as(self, name, email_address):
         return self.browser.is_element_present(XPath.paragraph_containing('%s: %s' % (name, email_address)))
 
-address_app_fixture = AddressAppFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, AddressAppFixture)
 def test_adding_an_address(web_fixture, address_app_fixture):
     """To add a new address, a user clicks on "Add Address" link on the menu, then supplies the 
        information for the new address and clicks the Save button. Upon success addition of the
@@ -60,6 +56,7 @@ def test_adding_an_address(web_fixture, address_app_fixture):
         assert address_app_fixture.address_is_listed_as('John Doe', 'johndoe@some.org') 
 
 
+@with_fixtures(WebFixture2, AddressAppFixture)
 def test_editing_an_address(web_fixture, address_app_fixture):
     """To edit an existing address, a user clicks on the "Edit" button next to the chosen Address
        on the "Addresses" page. The user is then taken to an "Edit" View for the chosen Address and 

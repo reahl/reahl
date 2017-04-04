@@ -20,6 +20,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from six.moves.urllib import parse as urllib_parse
 
 from reahl.tofu import expected
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField
@@ -29,12 +30,7 @@ from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Retu
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, Form, ButtonInput, A
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class FormWithButton(Form):
@@ -43,6 +39,7 @@ class FormWithButton(Form):
         self.add_child(ButtonInput(self, event))
                 
 
+@with_fixtures(WebFixture2)
 def test_basic_transition(web_fixture):
     """Transitions express how the browser is ferried between Views in reaction to user-initiated Events."""
     fixture  = web_fixture
@@ -82,6 +79,7 @@ def test_basic_transition(web_fixture):
         assert not fixture.did_something
 
 
+@with_fixtures(WebFixture2)
 def test_guards(web_fixture):
     """Guards can be set on Transitions. A Transition is only elegible for firing if its guard is True."""
     fixture = web_fixture
@@ -122,6 +120,8 @@ def test_guards(web_fixture):
         with expected(ProgrammerError):
             browser.click('//input[@value="Click me"]')
 
+
+@with_fixtures(WebFixture2)
 def test_local_transition(web_fixture):
     """A local Transition has its source as its target."""
     fixture = web_fixture
@@ -162,6 +162,7 @@ def test_local_transition(web_fixture):
             browser.click('//input[@value="Click me"]')
 
 
+@with_fixtures(WebFixture2)
 def test_transitions_to_parameterised_views(web_fixture):
     """When a Button is placed for an Event that may trigger a Transition to a parameterised View,
        the Event should be bound to the arguments to be used for the target View, using .with_arguments()"""
@@ -208,6 +209,7 @@ def test_transitions_to_parameterised_views(web_fixture):
         assert web_fixture.driver_browser.title == 'View with event_argument1: 1%s and view_argument: 3%s' % (type(1), type(3))
 
 
+@with_fixtures(WebFixture2)
 def test_transitions_to_parameterised_views_error(web_fixture):
     """If an Event triggers a Transition to a parameterised View, and it was not bound to the arguments
        expected by the target View, an error is raised."""
@@ -249,7 +251,7 @@ def test_transitions_to_parameterised_views_error(web_fixture):
             browser.click(XPath.button_labelled('Click me'))
 
 
-
+@with_fixtures(WebFixture2)
 def test_view_preconditions(web_fixture):
     """Views can have Conditions attached to them - if a ViewPreCondition fails upon a GET or HEAD request,
        the specified exception is raised. For all other requests, HTTPNotFound is raised."""
@@ -276,6 +278,7 @@ def test_view_preconditions(web_fixture):
         browser.post('/_the_form', {}, status=404)
 
 
+@with_fixtures(WebFixture2)
 def test_inverse_view_preconditions(web_fixture):
     """A ViewPreCondition can give you another ViewPreCondition which it itself negated, optionally with its own exception."""
     class SomeException(Exception):
@@ -297,6 +300,7 @@ def test_inverse_view_preconditions(web_fixture):
             browser.open('/')
 
 
+@with_fixtures(WebFixture2)
 def test_redirect(web_fixture):
     """Redirect is a special exception that will redirect the browser to another View."""
     class UIWithRedirect(UserInterface):
@@ -319,6 +323,7 @@ def test_redirect(web_fixture):
         assert browser.location_path == '/a_ui/viewb'
 
 
+@with_fixtures(WebFixture2)
 def test_detours_and_return_transitions(web_fixture):
     """Detour is a special exception that will redirect the browser to another View, but it also does the
        necessary housekeeping that will allow a return_transition to let the browser return to where the
@@ -365,7 +370,7 @@ def test_detours_and_return_transitions(web_fixture):
         assert browser.location_query_string == ''
 
 
-
+@with_fixtures(WebFixture2)
 def test_detours_and_explicit_return_view(web_fixture):
     """A Detour can also explicitly set the View to return to."""
 
@@ -401,7 +406,7 @@ def test_detours_and_explicit_return_view(web_fixture):
         assert browser.location_query_string == ''
 
 
-
+@with_fixtures(WebFixture2)
 def test_redirect_used_to_return(web_fixture):
     """A Return is an exception used with Preconditoins to return automatically to another View (as set by detour),
        instead of using a return_transition (the latter can only be triggered by a user)."""
@@ -415,7 +420,6 @@ def test_redirect_used_to_return(web_fixture):
 
             viewa.add_precondition(ViewPreCondition(lambda: False, exception=Detour(detour.as_bookmark(self), return_to=explicit_return_view.as_bookmark(self))))
             detour.add_precondition(ViewPreCondition(lambda: False, exception=Return(default.as_bookmark(self))))
-
 
     class MainUI(UserInterface):
         def assemble(self):
@@ -441,6 +445,7 @@ def test_redirect_used_to_return(web_fixture):
         assert browser.location_query_string == ''
 
 
+@with_fixtures(WebFixture2)
 def test_unconditional_redirection(web_fixture):
     """You can force an URL to always redirect to a given Bookmark."""
 
@@ -462,6 +467,7 @@ def test_unconditional_redirection(web_fixture):
         assert browser.location_path == '/a_ui/target'
 
 
+@with_fixtures(WebFixture2)
 def test_linking_to_views_marked_as_detour(web_fixture):
     """A View can be marked as the start of a Detour. Where used, a Bookmark for such a View
        will automatically include a returnTo in the its query string. This allows an
@@ -511,6 +517,7 @@ def test_linking_to_views_marked_as_detour(web_fixture):
         assert browser.location_query_string == ''
 
 
+@with_fixtures(WebFixture2)
 def test_detour_is_non_reentrant(web_fixture):
     """Once detoured to a View marked as the start of a Detour, a Bookmark to that View itself
     will not re-enter the detour.

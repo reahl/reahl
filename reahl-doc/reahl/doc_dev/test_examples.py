@@ -19,8 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 import os.path
 
-from reahl.tofu import Fixture
-from reahl.tofu import scenario, expected, temp_file_with
+from reahl.tofu import Fixture, scenario, expected, temp_file_with, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import SystemOutStub
 from reahl.component.shelltools import Executable
 
@@ -53,18 +53,11 @@ from reahl.doc.examples.tutorial.pageflow1bootstrap import pageflow1bootstrap
 from reahl.doc.examples.tutorial.pageflow2bootstrap import pageflow2bootstrap
 from reahl.doc.examples.tutorial.parameterised1bootstrap import parameterised1bootstrap
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class ExampleFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(ExampleFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def start_example_app(self):
         self.web_fixture.reahl_server.set_app(self.wsgi_app)
@@ -194,15 +187,13 @@ class ExampleFixture(Fixture):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=bootstrapgrids.BootstrapGridsUI, enable_js=True)
 
 
-example_fixture = ExampleFixture.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture)
 def test_hit_home_page(web_fixture, example_fixture):
     example_fixture.start_example_app()
     web_fixture.driver_browser.open('/')
 
 
-tabbed_panel_scenario = ExampleFixture.tabbed_panel.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.tabbed_panel)
 def test_widgets_using_factories(web_fixture, tabbed_panel_scenario):
     fixture = tabbed_panel_scenario
     fixture.start_example_app()
@@ -217,8 +208,7 @@ def test_widgets_using_factories(web_fixture, tabbed_panel_scenario):
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
 
 
-carousel_panel_scenario = ExampleFixture.carousel_panel.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.carousel_panel)
 def test_widgets(web_fixture, carousel_panel_scenario):
     fixture = carousel_panel_scenario
     fixture.start_example_app()
@@ -228,8 +218,7 @@ def test_widgets(web_fixture, carousel_panel_scenario):
     assert web_fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a different paragraph')
 
 
-validation_scenario = ExampleFixture.validation.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.validation)
 def test_validation(web_fixture, validation_scenario):
     fixture = validation_scenario
     
@@ -257,8 +246,7 @@ def test_validation(web_fixture, validation_scenario):
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation4.png'))
 
 
-layout_scenario = ExampleFixture.layout.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.layout)
 def test_layout(web_fixture, layout_scenario):
     fixture = layout_scenario
 
@@ -270,8 +258,7 @@ def test_layout(web_fixture, layout_scenario):
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('layout.png'))
 
 
-pageflow_scenario = ExampleFixture.pageflow.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.pageflow)
 def test_pageflow(web_fixture, pageflow_scenario):
     fixture = pageflow_scenario
     
@@ -297,8 +284,7 @@ def test_pageflow(web_fixture, pageflow_scenario):
         output.capture_console_screenshot(fixture.new_screenshot_path('pageflow2.txt'))
 
 
-persistence_scenario = ExampleFixture.persistence.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.persistence)
 def test_persistence(web_fixture, persistence_scenario):
     fixture = persistence_scenario
 
@@ -322,8 +308,7 @@ def test_persistence(web_fixture, persistence_scenario):
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('persistence2.png'))
 
 
-access_control_scenario = ExampleFixture.access_control.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.access_control)
 def test_access(web_fixture, access_control_scenario):
     fixture = access_control_scenario
     fixture.start_example_app()
@@ -340,8 +325,8 @@ def test_access(web_fixture, access_control_scenario):
     with expected(AccessRestricted):
         comment.do_something()
 
-i18n_scenario = ExampleFixture.i18n.as_pytest_fixture()
 
+@with_fixtures(WebFixture2, ExampleFixture.i18n)
 def test_i18n(web_fixture, i18n_scenario):
     fixture = i18n_scenario
     fixture.start_example_app()
@@ -356,15 +341,13 @@ def test_i18n(web_fixture, i18n_scenario):
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n2.png'))
 
 
-basichtmlwidgets_scenario = ExampleFixture.basichtmlwidgets.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.basichtmlwidgets)
 def test_basichtmlwidgets(web_fixture, basichtmlwidgets_scenario):
     basichtmlwidgets_scenario.start_example_app()
     web_fixture.driver_browser.open('/')
 
 
-fileupload_scenario = ExampleFixture.fileupload.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.fileupload)
 def test_fileupload(web_fixture, fileupload_scenario):
     fixture = fileupload_scenario
     with web_fixture.context:
@@ -403,8 +386,7 @@ def test_fileupload(web_fixture, fileupload_scenario):
         assert attached_file3.contents == b'even more content' 
 
 
-slots_scenario = ExampleFixture.slots.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.slots)
 def test_slots(web_fixture, slots_scenario):
     fixture = slots_scenario
     fixture.start_example_app()
@@ -429,8 +411,8 @@ def test_slots(web_fixture, slots_scenario):
 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('slots2.png'))
 
-basichtmlinputs_scenario = ExampleFixture.basichtmlinputs.as_pytest_fixture()
 
+@with_fixtures(WebFixture2, ExampleFixture.basichtmlinputs)
 def test_basichtmlinputs(web_fixture, basichtmlinputs_scenario):
     basichtmlinputs_scenario.start_example_app()
     web_fixture.driver_browser.open('/')
@@ -441,8 +423,8 @@ def test_model_examples():
     for example in ['modeltests1.py', 'modeltests2.py', 'modeltests3.py']:
         Executable('nosetests').check_call(['--first-package-wins', 'reahl/doc/examples/tutorial/%s' % example ])
 
-addressbook1_scenario = ExampleFixture.addressbook1.as_pytest_fixture()
 
+@with_fixtures(WebFixture2, ExampleFixture.addressbook1)
 def test_addressbook1(web_fixture, addressbook1_scenario):
     with web_fixture.context:
         john = addressbook1.Address(name='John', email_address='johndoe@some.org')
@@ -454,8 +436,7 @@ def test_addressbook1(web_fixture, addressbook1_scenario):
         assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
 
-addressbook2_scenario = ExampleFixture.addressbook2.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.addressbook2)
 def test_addressbook2(web_fixture, addressbook2_scenario):
     with web_fixture.context:
         browser = Browser(addressbook2_scenario.wsgi_app)
@@ -468,8 +449,7 @@ def test_addressbook2(web_fixture, addressbook2_scenario):
         assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
 
-addressbook2bootstrap_scenario = ExampleFixture.addressbook2bootstrap.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.addressbook2bootstrap)
 def test_addressbook2bootstrap(web_fixture, addressbook2bootstrap_scenario):
     fixture = addressbook2bootstrap_scenario
     fixture.start_example_app()
@@ -480,8 +460,7 @@ def test_addressbook2bootstrap(web_fixture, addressbook2bootstrap_scenario):
 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('bootstrapform.png'))
 
-bootstrapgrids_scenario = ExampleFixture.bootstrapgrids.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.bootstrapgrids)
 def test_bootstrapgrids(web_fixture, bootstrapgrids_scenario):
     fixture = bootstrapgrids_scenario
     
@@ -490,8 +469,7 @@ def test_bootstrapgrids(web_fixture, bootstrapgrids_scenario):
 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('bootstrapgrids.png'))
 
-pageflow1_scenario = ExampleFixture.pageflow1.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.pageflow1)
 def test_pageflow1(web_fixture, pageflow1_scenario):
     with web_fixture.context:
         browser = Browser(pageflow1_scenario.wsgi_app)
@@ -513,8 +491,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
         assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
 
-pageflow2_scenario = ExampleFixture.pageflow2.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.pageflow2)
 def test_pageflow2(web_fixture, pageflow2_scenario):
     with web_fixture.context:
         browser = Browser(pageflow2_scenario.wsgi_app)
@@ -533,8 +510,7 @@ def test_pageflow2(web_fixture, pageflow2_scenario):
         assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
 
-parameterised1_scenario = ExampleFixture.parameterised1.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ExampleFixture.parameterised1)
 def test_parameterised1(web_fixture, parameterised1_scenario):
     with web_fixture.context:
         browser = Browser(parameterised1_scenario.wsgi_app)

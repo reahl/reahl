@@ -6,7 +6,8 @@
 # pytest -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap_dev.test_access1bootstrap
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import Fixture
+from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.sqlalchemysupport import Session
 
@@ -14,8 +15,8 @@ from reahl.sqlalchemysupport import Session
 from reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap import AddressBook, Address
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.web_dev.fixtures import WebFixture2
 
 class AccessDomainFixture(Fixture):
     password = 'topsecret'
@@ -40,9 +41,7 @@ class AccessDomainFixture(Fixture):
         return self.new_address_book(owner=self.other_account)
 
 
-access_domain_fixture = AccessDomainFixture.as_pytest_fixture()
-
-
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def demo_setup(sql_alchemy_fixture, access_domain_fixture):
     sql_alchemy_fixture.commit = True
     with sql_alchemy_fixture.context:
@@ -80,6 +79,7 @@ def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
         assert other_address_book.addresses == [address3]
 
 
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """A particular SystemAccount can see its own AddressBooks as well as all the AddressBooks
        it is explicitly allowed to see, but no other AddressBooks."""
@@ -104,6 +104,7 @@ def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
         assert set(books) == {address_book, other_address_book}
 
 
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
     """When allowing an account to see another's AddressBook, the rights it has to the AddressBook are specified."""
 
@@ -123,6 +124,7 @@ def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
         assert other_address_book.can_be_added_to_by(account)
 
 
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """The owner of an AddressBook may add collaborators to it."""
 

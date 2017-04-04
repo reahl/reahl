@@ -20,20 +20,17 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.tofu import expected
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import WidgetTester
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.holder.holder import PlaceholderImage, PredefinedTheme, CustomTheme
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@with_fixtures(WebFixture2)
 def test_placeholder_basics(web_fixture):
     """
        hint: Ensure the Holder(Library) is added to the  web.frontend_libraries config setting in the file:web.config.py
@@ -48,6 +45,7 @@ def test_placeholder_basics(web_fixture):
         assert actual == expected_html
 
 
+@with_fixtures(WebFixture2)
 def test_placeholder_with_text(web_fixture):
 
     with web_fixture.context:
@@ -58,6 +56,7 @@ def test_placeholder_with_text(web_fixture):
         assert actual_value == expected_value
 
 
+@with_fixtures(WebFixture2)
 def test_placeholder_with_predefine_theme(web_fixture):
 
     with web_fixture.context:
@@ -69,6 +68,7 @@ def test_placeholder_with_predefine_theme(web_fixture):
         assert actual_value == expected_value
 
 
+@with_fixtures(WebFixture2)
 def test_text_and_theme_options_are_encoded(web_fixture):
 
     with web_fixture.context:

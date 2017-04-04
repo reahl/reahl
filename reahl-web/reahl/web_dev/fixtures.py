@@ -23,7 +23,7 @@ from six.moves import http_cookies
 from webob import Request, Response
 
 from reahl.stubble import stubclass
-from reahl.tofu import Fixture, set_up
+from reahl.tofu import Fixture, set_up, uses
 
 from reahl.webdev.tools import DriverBrowser
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
@@ -39,6 +39,12 @@ from reahl.web.ui import HTML5Page
 from reahl.web.egg import WebConfig
 
 
+from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.webdev.fixtures import WebServerFixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
+
+
 _ = Translator('reahl-webdev')
 
         
@@ -47,7 +53,8 @@ class ReahlWSGIApplicationStub(ReahlWSGIApplication):
     def add_reahl_static_files(self): # To save time, this is costly...
         pass  
 
-    
+
+# TODO: cs remove
 class WebBasicsMixin(PartyModelZooMixin):
     def log_in(self, browser=None, session=None, system_account=None, stay_logged_in=False):
         session = session or self.session
@@ -62,7 +69,7 @@ class WebBasicsMixin(PartyModelZooMixin):
             cookie = {'name':name, 'value':morsel.value}
             cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
             browser.create_cookie(cookie)
-    
+
     def new_driver_browser(self, driver=None):
         driver = driver or self.web_driver
         return DriverBrowser(driver)
@@ -79,7 +86,7 @@ class WebBasicsMixin(PartyModelZooMixin):
     @property
     def reahl_server(self):
         return self.run_fixture.reahl_server
-        
+
     def new_context(self, request=None, config=None, session=None):
         context = WebExecutionContext()
         context.set_config( config or self.config )
@@ -88,7 +95,7 @@ class WebBasicsMixin(PartyModelZooMixin):
         with context:
             context.set_session( session or self.session )
         return context
-        
+
     def new_session(self):
         web_user_session = UserSession()
         Session.add(web_user_session)
@@ -105,7 +112,7 @@ class WebBasicsMixin(PartyModelZooMixin):
             request.host = 'localhost:8363'
         return Request(request.environ, charset='utf8')
 
-    def new_wsgi_app(self, site_root=None, enable_js=False, 
+    def new_wsgi_app(self, site_root=None, enable_js=False,
                          config=None, view_slots=None, child_factory=None):
         wsgi_app_class = ReahlWSGIApplicationStub
         if enable_js:
@@ -137,18 +144,14 @@ class WebBasicsMixin(PartyModelZooMixin):
     def new_user_interface(self):
         return UserInterface(None, '/', {}, False, 'test_ui')
 
-
+# TODO: cs remove
 class WebFixture(Fixture, WebBasicsMixin):
     pass
 
 
+@uses(reahl_system_fixture=ReahlSystemFixture, sql_alchemy_fixture=SqlAlchemyFixture,
+      party_account_fixture=PartyAccountFixture, web_server_fixture=WebServerFixture)
 class WebFixture2(Fixture):
-    def __init__(self, reahl_system_fixture, sql_alchemy_fixture, party_account_fixture, web_server_fixture):
-        super(WebFixture2, self).__init__()
-        self.sql_alchemy_fixture = sql_alchemy_fixture
-        self.party_account_fixture = party_account_fixture
-        self.web_server_fixture = web_server_fixture
-        self.reahl_system_fixture = reahl_system_fixture
 
     @set_up
     def add_web_config(self):
@@ -260,5 +263,3 @@ class WebFixture2(Fixture):
     def new_user_interface(self):
         return UserInterface(None, '/', {}, False, 'test_ui')
 
-
-web_fixture = WebFixture2.as_pytest_fixture()

@@ -19,7 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import scenario, expected, Fixture
+from reahl.tofu import scenario, expected, Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 
@@ -29,18 +30,12 @@ from reahl.web.fw import Bookmark, Url
 from reahl.web.bootstrap.ui import A, Div, P
 from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
-
+from reahl.web_dev.fixtures import WebFixture2
 
 _ = Translator('reahl-web')
 
 
-
+@with_fixtures(WebFixture2)
 def test_navs(web_fixture):
     """A Nav is a menu with css classes for styling by Bootstrap."""
     with web_fixture.context:
@@ -67,7 +62,7 @@ def test_navs(web_fixture):
             assert a.get_attribute('class') == 'nav-link'
 
 
-
+@with_fixtures(WebFixture2)
 def test_populating(web_fixture):
     """Navs can be populated with a list of A's or Bookmarks."""
     with web_fixture.context:
@@ -93,10 +88,8 @@ def test_populating(web_fixture):
         assert item2.a is a_list[1]
 
 
+@uses(web_fixture=WebFixture2)
 class VisualFeedbackScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(VisualFeedbackScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -117,9 +110,8 @@ class VisualFeedbackScenarios(Fixture):
         self.menu_item_with_state = A(self.web_fixture.view, current_url)
         self.state_indicator_class = 'active'
 
-visual_feedback_scenarios = VisualFeedbackScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, VisualFeedbackScenarios)
 def test_visual_feedback_on_items(web_fixture, visual_feedback_scenarios):
     """The state of a MenuItem is visually indicated to a user."""
     with web_fixture.context:
@@ -137,13 +129,10 @@ def test_visual_feedback_on_items(web_fixture, visual_feedback_scenarios):
         assert visual_feedback_scenarios.state_indicator_class in a_with_state.get_attribute('class')
 
 
+@uses(web_fixture=WebFixture2)
 class MenuItemScenarios(Fixture):
     description = 'The link'
     href = Url('/link')
-
-    def __init__(self, web_fixture):
-        super(MenuItemScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -173,9 +162,8 @@ class MenuItemScenarios(Fixture):
         self.web_fixture.request.environ['PATH_INFO'] = '/link/something/more'
         self.active = False
 
-menu_item_scenarios = MenuItemScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, MenuItemScenarios)
 def test_rendering_active_menu_items(web_fixture, menu_item_scenarios):
     """A MenuItem is marked as active based on its active_regex or the A it represents."""
     description = 'The link'
@@ -194,10 +182,8 @@ def test_rendering_active_menu_items(web_fixture, menu_item_scenarios):
         assert actual == expected_menu_item_html
 
 
+@uses(web_fixture=WebFixture2)
 class CustomMenuItemFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(CustomMenuItemFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -257,9 +243,8 @@ class CustomMenuItemFixture(Fixture):
         self.expects_active = True
         self.overriding_callable = lambda: True
 
-custom_menu_item_fixture = CustomMenuItemFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, CustomMenuItemFixture)
 def test_custom_active_menu_items(web_fixture, custom_menu_item_fixture):
     """You can specify a custom method by which a MenuItem determines its active state."""
     fixture = custom_menu_item_fixture
@@ -272,6 +257,7 @@ def test_custom_active_menu_items(web_fixture, custom_menu_item_fixture):
         assert fixture.expects_active == fixture.item_displays_as_active()
 
 
+@with_fixtures(WebFixture2)
 def test_language_menu(web_fixture):
     """A Nav can also be constructed to let a user choose to view the same page in
        another of the supported languages."""
@@ -319,9 +305,7 @@ class LayoutScenarios(Fixture):
         self.layout = TabLayout()
 
 
-layout_scenarios = LayoutScenarios.as_pytest_fixture()
-
-
+@with_fixtures(WebFixture2, LayoutScenarios)
 def test_nav_layouts(web_fixture, layout_scenarios):
     """Navs can be laid out in different ways."""
     with web_fixture.context:
@@ -342,9 +326,8 @@ class DifferentLayoutTypes(Fixture):
     def tabs(self):
         self.layout_type = TabLayout
 
-different_layout_types = DifferentLayoutTypes.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, DifferentLayoutTypes)
 def test_justified_items(web_fixture, different_layout_types):
     """Both a PillLayout or TabLayout can be set to make the MenuItems of
        their Nav fill the width of the parent, with the text of each item centered."""
@@ -365,6 +348,7 @@ def test_pill_layouts_cannot_mix_justified_and_stacked():
         PillLayout(stacked=True, justified=True)
 
 
+@with_fixtures(WebFixture2)
 def test_dropdown_menus(web_fixture):
     """You can add a DropdownMenu as a dropdown inside a Nav."""
     with web_fixture.context:
@@ -397,6 +381,7 @@ def test_dropdown_menus(web_fixture):
         assert 'dropdown-item' in dropdown_item.get_attribute('class').split()
 
 
+@with_fixtures(WebFixture2)
 def test_dropdown_menus_can_drop_up(web_fixture):
     """Dropdown menus can drop upwards instead of downwards."""
     with web_fixture.context:
@@ -411,6 +396,7 @@ def test_dropdown_menus_can_drop_up(web_fixture):
         assert 'dropup' in item.get_attribute('class')
 
 
+@with_fixtures(WebFixture2)
 def test_dropdown_menus_right_align(web_fixture):
     """Dropdown menus can be aligned to the bottom right of their toggle, instead of the default (left)."""
 

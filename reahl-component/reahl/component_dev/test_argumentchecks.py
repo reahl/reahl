@@ -18,11 +18,12 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
-
-
 from reahl.tofu import Fixture, scenario, expected, NoException
-from reahl.component.exceptions import IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, ArgumentCheckedCallable, NotYetAvailable
+from reahl.tofu.pytest_support import with_fixtures
+from reahl.component.exceptions import IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, \
+     ArgumentCheckedCallable, NotYetAvailable
 from reahl.component.decorators import deprecated
+
 
 class ArgumentCheckScenarios(Fixture):
     def new_ModelObject(self):
@@ -113,9 +114,8 @@ class ArgumentCheckScenarios(Fixture):
         self.kwargs = {}
         self.callable = self.ModelObject().do_something
 
-argument_check_fixture = ArgumentCheckScenarios.as_pytest_fixture()
 
-
+@with_fixtures(ArgumentCheckScenarios)
 def test_checking_arguments(argument_check_fixture):
     """Methods can be augmented with argument checks. These checks are done when calling such a method,
        or before an actual call is made using ArgumentCheckedCallable.checkargs."""

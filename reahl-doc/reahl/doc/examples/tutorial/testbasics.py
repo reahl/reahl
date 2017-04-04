@@ -1,13 +1,15 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import test, Fixture
+from reahl.tofu import Fixture
+from reahl.tofu.pytest_support import with_fixtures
+
 
 class SimpleFixture(Fixture):
     def new_name(self):
         return 'John'
 
 
-@test(SimpleFixture)
+@with_fixtures(SimpleFixture)
 def fixture_singletons(fixture):
     """Accessing an attribute on the Fixture always brings back the same 
        object, as created by a similarly named new_ method on the fixture."""
@@ -28,7 +30,7 @@ class InterestingFixture(SimpleFixture):
         return User(self.name)
 
 
-@test(InterestingFixture)
+@with_fixtures(InterestingFixture)
 def dependent_setup_objects(fixture):
     """Different attributes on a Fixture can reference one another."""
     assert fixture.user.name is fixture.name
@@ -41,7 +43,7 @@ class MoreInterestingFixture(SimpleFixture):
         return User(name or self.name)
 
 
-@test(MoreInterestingFixture)
+@with_fixtures(MoreInterestingFixture)
 def bypassing_the_singleton(fixture):
     """new_ methods can be supplied with kwargs in order to create test objects that differ from the default."""
     jane = fixture.new_user(name='Jane')

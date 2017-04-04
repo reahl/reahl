@@ -24,6 +24,7 @@ import re
 
 
 from reahl.tofu import Fixture, expected
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import CallMonitor, EmptyStub
 
 
@@ -66,7 +67,6 @@ class ReahlEggStub(ReahlEgg):
         return self.migrations
 
 
-# noinspection PyUnusedLocal
 @stubclass(ORMControl)
 class ORMControlStub(ORMControl):
     created_schema_for = None
@@ -97,10 +97,7 @@ class MigrateFixture(Fixture):
         return ORMControlStub()
 
 
-migrate_fixture = MigrateFixture.as_pytest_fixture()
-
-
-# noinspection PyShadowingNames
+@with_fixtures(MigrateFixture)
 def test_how_migration_works(migrate_fixture):
     """Calls that will modify the database are scheduled in the schedule_upgrades() method of all
        the applicable Migrations for a single migration run. `shedule_upgrades()` is called on each
@@ -139,8 +136,7 @@ def test_how_migration_works(migrate_fixture):
     assert some_object.calls_made == expected_order
 
 
-# noinspection PyShadowingNames,PyUnusedLocal
-def test_schedule_executes_in_order(migrate_fixture):
+def test_schedule_executes_in_order():
     """A MigrationSchedule is used internally to schedule calls in different phases. The calls 
        scheduled in each phase are executed in the order the phases have been set up on the MigrationSchedule.
        Within a phase, the calls are executed in the order they were registered in that phase.
@@ -169,8 +165,7 @@ def test_schedule_executes_in_order(migrate_fixture):
     assert actual_order == expected_order
 
 
-# noinspection PyShadowingNames,PyUnusedLocal
-def test_schedule_executes_phases_with_parameters(migrate_fixture):
+def test_schedule_executes_phases_with_parameters():
     """When a MigrationSchedule executes the calls that were scheduled from a Migration, 
        the methods are actually called, and passed the correct arguments."""
 
@@ -191,8 +186,7 @@ def test_schedule_executes_phases_with_parameters(migrate_fixture):
     assert monitor.calls[0].kwargs == dict(kwarg='mykwarg')
 
 
-# noinspection PyShadowingNames,PyUnusedLocal
-def test_invalid_schedule_name_raises(migrate_fixture):
+def test_invalid_schedule_name_raises():
     """A useful error is raised when an attempt is made to schedule a call in a phase that is not defined."""
     
     valid_schedule_names = ['a', 'b']
@@ -205,7 +199,7 @@ def test_invalid_schedule_name_raises(migrate_fixture):
         migration_schedule.schedule('wrong_name', None)
 
 
-# noinspection PyShadowingNames
+@with_fixtures(MigrateFixture)
 def test_version_dictates_execution_of_migration_(migrate_fixture):
     """Each Migration should have a class attribute `version` that states which version of the component
        it upgrades the database schema to. Only the Migrations with versions greater than the current 
@@ -234,7 +228,7 @@ def test_version_dictates_execution_of_migration_(migrate_fixture):
     assert classes_to_run == [NewerVersionMigration, EvenNewerVersionMigration]
 
 
-# noinspection PyShadowingNames
+@with_fixtures(MigrateFixture)
 def test_version_of_migration_not_set_error(migrate_fixture):
     """If the version to which a Migration is applicable is not set, an error is raised."""
     class TestMigration(Migration):
@@ -250,8 +244,7 @@ def test_version_of_migration_not_set_error(migrate_fixture):
         migrate_fixture.orm_control.migrate_db([egg])
 
 
-# noinspection PyShadowingNames,PyUnusedLocal
-def test_missing_schedule_upgrades_warns(migrate_fixture):
+def test_missing_schedule_upgrades_warns():
     """If a programmer does not override schedule_upgrades, a warning is raised."""
     class TestMigration(Migration):
         pass
@@ -267,7 +260,7 @@ def test_missing_schedule_upgrades_warns(migrate_fixture):
     assert six.text_type(warning.message) == expected_message
 
 
-# noinspection PyShadowingNames
+@with_fixtures(MigrateFixture)
 def test_available_migration_phases(migrate_fixture):
     """These are the phases, and order of the phases in a MigrationRun."""
 
@@ -277,7 +270,7 @@ def test_available_migration_phases(migrate_fixture):
     assert migration_run.changes.phases_in_order == expected_order
 
 
-# noinspection PyShadowingNames
+@with_fixtures(MigrateFixture)
 def test_schema_version_housekeeping(migrate_fixture):
     """The database keeps track of the schema for each installed component. After a migration run
        the currently installed versions are updated.

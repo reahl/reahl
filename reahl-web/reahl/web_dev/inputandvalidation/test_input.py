@@ -19,7 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import re
 
-from reahl.tofu import Fixture, scenario, expected
+from reahl.tofu import Fixture, scenario, expected, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import EmptyStub
 
 from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
@@ -31,21 +32,12 @@ from reahl.component.exceptions import IsInstance
 from reahl.webdev.tools import WidgetTester
 from reahl.webdev.tools import XPath
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
-# noinspection PyUnresolvedReferences
-from reahl.component_dev.test_field import field_fixture
+from reahl.web_dev.fixtures import WebFixture2
+from reahl.component_dev.test_field import FieldFixture
 
 
+@uses(web_fixture=WebFixture2, field_fixture=FieldFixture)
 class SimpleInputFixture(Fixture):
-    def __init__(self, web_fixture, field_fixture):
-        super(SimpleInputFixture, self).__init__()
-        self.web_fixture = web_fixture
-        self.field_fixture = field_fixture
 
     def new_field(self):  # not a delegated property, because some scenarios override this by setting self.field
         return self.field_fixture.new_field()
@@ -65,8 +57,6 @@ class SimpleInputFixture(Fixture):
         event.bind('aname', None)
         self.form.define_event_handler(event)
         return event
-
-simple_input_fixture = SimpleInputFixture.as_pytest_fixture()
 
 
 class SimpleInputFixture2(SimpleInputFixture):
@@ -145,9 +135,7 @@ class InputStateFixture(SimpleInputFixture):
         self.expected_value = 'not an email address'
 
 
-input_state_fixture = InputStateFixture.as_pytest_fixture()
-
-
+@with_fixtures(WebFixture2)
 def test_the_states_of_an_input(web_fixture, input_state_fixture):
     """An Input can be in one of three states: defaulted, invalidly_entered or validly_entered. Depending
        on the state of the input, it will have a different value when rendering.
@@ -299,8 +287,7 @@ class InputScenarios(SimpleInputFixture):
         self.field_controls_visibility = True
 
 
-input_scenarios = InputScenarios.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, InputScenarios)
 def test_basic_rendering(web_fixture, input_scenarios):
     """What the rendered html for a number of simple inputs look like."""
 
@@ -311,6 +298,7 @@ def test_basic_rendering(web_fixture, input_scenarios):
         assert re.match(fixture.expected_html, actual)
 
 
+@with_fixtures(WebFixture2, InputScenarios)
 def test_rendering_when_not_allowed(web_fixture, input_scenarios):
     """When not allowed to see the Widget, it is not rendered."""
     fixture = input_scenarios
@@ -326,6 +314,7 @@ def test_rendering_when_not_allowed(web_fixture, input_scenarios):
             assert re.match(fixture.expected_html, actual)
 
 
+@with_fixtures(WebFixture2, FieldFixture, SimpleInputFixture)
 def test_input_wrapped_widgets(web_fixture, field_fixture, simple_input_fixture):
     """An Input is an empty Widget; its contents are supplied by overriding its 
        .create_html_widget() method. Several methods for setting HTML-things, like 
@@ -352,7 +341,7 @@ def test_input_wrapped_widgets(web_fixture, field_fixture, simple_input_fixture)
         assert rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" title="mytitle">'
 
 
-
+@with_fixtures(WebFixture2, SimpleInputFixture)
 def test_wrong_args_to_input(web_fixture, simple_input_fixture):
     """Passing the wrong arguments upon constructing an Input results in an error."""
 
@@ -370,9 +359,8 @@ class CheckboxFixture(SimpleInputFixture2):
     def new_field(self):
         return BooleanField(label='my text')
 
-checkbox_fixture = CheckboxFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, CheckboxFixture)
 def test_marshalling_of_checkbox(web_fixture, checkbox_fixture):
     """When a form is submitted, the value of a checkbox is derived from
        whether the checkbox is included in the submission or not."""
@@ -411,9 +399,8 @@ class FuzzyTextInputFixture(SimpleInputFixture2):
     def new_field(self, label='the label'):
         return DateField(label=label)
 
-fuzzy_text_input_fixture = FuzzyTextInputFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, FuzzyTextInputFixture)
 def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
     """A TextInput can be created as fuzzy=True. Doing this results in the possibly imprecise
        input that was typed by the user to be interpreted server-side and changed to the

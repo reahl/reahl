@@ -19,8 +19,6 @@ class AddressBook(object):
         self.addresses.append(address)
 
 
-
-
 @istest
 def test_model():
     contacts = AddressBook()

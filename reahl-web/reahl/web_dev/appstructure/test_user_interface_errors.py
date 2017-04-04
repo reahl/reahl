@@ -18,6 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import scenario, expected, Fixture
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import Browser
 
@@ -25,9 +26,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UserInterface
 from reahl.web.ui import P, HTML5Page
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class UserInterfaceErrorScenarios(Fixture):
@@ -39,9 +38,8 @@ class UserInterfaceErrorScenarios(Fixture):
     def view_name_not_mapped(self):
         self.slot_map = {}
 
-user_interface_error_scenarios = UserInterfaceErrorScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, UserInterfaceErrorScenarios)
 def test_ui_slots_map_error(web_fixture, user_interface_error_scenarios):
 
     class SimpleUserInterface(UserInterface):

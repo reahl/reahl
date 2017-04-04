@@ -21,7 +21,8 @@ import json
 
 from webob import Request
 
-from reahl.tofu import Fixture, scenario, NoException, expected
+from reahl.tofu import Fixture, scenario, NoException, expected, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import CallMonitor, EmptyStub
 
 from reahl.webdev.tools import WidgetTester, XPath, Browser
@@ -36,14 +37,10 @@ from reahl.web.fw import Url, UserInterface, ValidationException
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@with_fixtures(WebFixture2)
 def test_basic_event_linkup(web_fixture):
     """When a user clicks on a Button, the Event to which the Button is linked is triggered on 
        the server, and its corresponding action is executed. After this, the 
@@ -88,6 +85,7 @@ def test_basic_event_linkup(web_fixture):
         assert fixture.driver_browser.current_url.path == '/page2'
 
 
+@with_fixtures(WebFixture2)
 def test_arguments_to_actions(web_fixture):
     """If a Button is created for an Event with_arguments, those arguments are passed to the backend 
        when the Button is clicked."""
@@ -130,6 +128,7 @@ def test_arguments_to_actions(web_fixture):
         assert model_object.args == (1, 'another')
 
 
+@with_fixtures(WebFixture2)
 def test_validation_of_event_arguments(web_fixture):
     """Buttons cannot be created for Events with invalid default arguments."""
 
@@ -152,7 +151,7 @@ def test_validation_of_event_arguments(web_fixture):
             ButtonInput(form, model_object.events.an_event.with_arguments(argument='something'))
 
 
-  
+@with_fixtures(WebFixture2)
 def test_basic_field_linkup(web_fixture):
     """When a form is rendered, the Inputs on it display either the default value as specified
        by the Field with which the Input is associated, or (if set) the value of the attribute
@@ -207,7 +206,7 @@ def test_basic_field_linkup(web_fixture):
         assert model_object.field_name == 5
 
 
-
+@with_fixtures(WebFixture2)
 def test_distinguishing_identical_field_names(web_fixture):
     """A programmer can add different Inputs on the same Form even if their respective Fields are bound
        to identically named attributes of different objects."""
@@ -247,7 +246,7 @@ def test_distinguishing_identical_field_names(web_fixture):
         assert model_object2.field_name == 1
 
 
-
+@with_fixtures(WebFixture2)
 def test_wrong_arguments_to_define_event_handler(web_fixture):
     """Passing anything other than an Event to define_event_handler is an error."""
 
@@ -265,6 +264,7 @@ def test_wrong_arguments_to_define_event_handler(web_fixture):
             browser.open('/')
 
 
+@with_fixtures(WebFixture2)
 def test_define_event_handler_not_called(web_fixture):
     """."""
     fixture = web_fixture
@@ -291,6 +291,7 @@ def test_define_event_handler_not_called(web_fixture):
             browser.open('/')
 
 
+@with_fixtures(WebFixture2)
 def test_exception_handling(web_fixture):
     """When a DomainException happens during the handling of an Event:
 
@@ -349,6 +350,8 @@ def test_exception_handling(web_fixture):
         # the browser is still on the page with the form which triggered the exception
         assert fixture.driver_browser.current_url.path == '/'
 
+
+@with_fixtures(WebFixture2)
 def test_rendering_of_form(web_fixture):
     """A Form is always set up to POST to its EventChannel url.  The current page's query string is
        propagated with the POST url if any.  The Form has an id and class to help style it etc."""
@@ -372,6 +375,7 @@ def test_rendering_of_form(web_fixture):
         assert action == '/a/b/_test_channel_method'
 
 
+@with_fixtures(WebFixture2)
 def test_duplicate_forms(web_fixture):
     """It is an error to add more than one form with the same unique_name to a page."""
 
@@ -394,7 +398,7 @@ def test_duplicate_forms(web_fixture):
             browser.open('/')
 
 
-
+@with_fixtures(WebFixture2)
 def test_check_input_placement(web_fixture):
     """When a web request is handled, the framework throws an exception if an input might be seperated conceptually from the form they are bound to."""
     
@@ -433,6 +437,7 @@ def test_check_input_placement(web_fixture):
             browser.open('/')
             
 
+@with_fixtures(WebFixture2)
 def test_check_missing_form(web_fixture):
     """All forms referred to by inputs on a page have to be present on that page."""
     
@@ -462,6 +467,7 @@ def test_check_missing_form(web_fixture):
             browser.open('/')
             
 
+@with_fixtures(WebFixture2)
 def test_nested_forms(web_fixture):
     """HTML disallows nesting of forms. A NestedForm can be used to simulate 
        a form which is visually part of another Form. A NestedForm provides a
@@ -519,6 +525,7 @@ def test_nested_forms(web_fixture):
         assert nested_model_object.nested_field == 'some nested input'
     
 
+@with_fixtures(WebFixture2)
 def test_form_input_validation(web_fixture):
     """Validation of input happens in JS on the client, but also on the server if JS is bypassed."""
 
@@ -615,10 +622,8 @@ def test_form_input_validation(web_fixture):
 
 
 
+@uses(web_fixture=WebFixture2)
 class QueryStringScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(QueryStringScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -662,9 +667,8 @@ class QueryStringScenarios(Fixture):
         self.initial_qs = 'a=b'
         self.final_qs = 'a=b'
 
-query_string_scenarios = QueryStringScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, QueryStringScenarios)
 def test_propagation_of_querystring(web_fixture, query_string_scenarios):
     """The query string of the original View visited is maintained through the GET/POST cycle.
        If, for whatever reason (exception or intent) the browser should stay on the same
@@ -709,7 +713,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
         assert web_fixture.driver_browser.current_url.query == fixture.final_qs
 
 
-
+@with_fixtures(WebFixture2)
 def test_event_names_are_canonicalised(web_fixture):
     """The name= attribute of a button is an url encoded string. There is more than one way
        to url encode the same string. The server ensures that different encodings of the same
@@ -750,6 +754,7 @@ def test_event_names_are_canonicalised(web_fixture):
         assert model_object.received_argument == 'f~nnystuff'
 
 
+@with_fixtures(WebFixture2)
 def test_alternative_event_trigerring(web_fixture):
     """Events can also be triggered by submitting a Form via Ajax. In such cases the normal redirect-after-submit
        behaviour of the underlying EventChannel is not desirable. This behaviour can be switched off by submitting
@@ -801,6 +806,7 @@ def test_alternative_event_trigerring(web_fixture):
         assert json_dict['widget'].startswith(expected_html+'<script')
 
 
+@with_fixtures(WebFixture2)
 def test_remote_field_validation(web_fixture):
     """A Form contains a RemoteMethod that can be used to validate any of its fields via HTTP.
     """
@@ -829,6 +835,7 @@ def test_remote_field_validation(web_fixture):
         assert browser.raw_html == 'true'
     
 
+@with_fixtures(WebFixture2)
 def test_remote_field_formatting(web_fixture):
     """A Form contains a RemoteMethod that can be used to reformat any of its fields via HTTP.
     """

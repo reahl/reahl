@@ -19,17 +19,17 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from sqlalchemy import Column, String
 
-from reahl.tofu import Fixture
-# noinspection PyUnresolvedReferences
-from reahl.dev.fixtures import reahl_system_fixture
-
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.sqlalchemysupport import SqlAlchemyControl, QueryAsSequence, Session, Base
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
+
+from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 
 from reahl.component_dev.test_migration import ReahlEggStub
 
 
+@with_fixtures(ReahlSystemFixture)
 def test_egg_schema_version_changes(reahl_system_fixture):
     with reahl_system_fixture.context:
         orm_control = SqlAlchemyControl()
@@ -49,6 +49,7 @@ def test_egg_schema_version_changes(reahl_system_fixture):
         assert current_version == new_version_egg.version
 
 
+@with_fixtures(ReahlSystemFixture)
 def test_egg_schema_version_init(reahl_system_fixture):
     with reahl_system_fixture.context:
         orm_control = SqlAlchemyControl()
@@ -59,10 +60,8 @@ def test_egg_schema_version_init(reahl_system_fixture):
         assert current_version == egg.version
 
 
+@uses(sql_alchemy_fixture=SqlAlchemyFixture)
 class QueryFixture(Fixture):
-    def __init__(self, sql_alchemy_fixture):
-        super(QueryFixture, self).__init__()
-        self.sql_alchemy_fixture = sql_alchemy_fixture
 
     def new_MyObject(self):
         class MyObject(Base):
@@ -82,9 +81,8 @@ class QueryFixture(Fixture):
     def new_query_as_sequence(self):
         return QueryAsSequence(Session.query(self.MyObject))
 
-query_fixture = QueryFixture.as_pytest_fixture()
 
-
+@with_fixtures(SqlAlchemyFixture, QueryFixture)
 def test_query_as_sequence(sql_alchemy_fixture, query_fixture):
     """A QueryAsSequence adapts a sqlalchemy.Query to look like a list."""
 
@@ -120,6 +118,7 @@ def test_query_as_sequence(sql_alchemy_fixture, query_fixture):
         assert sliced_item == natural_ordered_items[1]
 
 
+@with_fixtures(SqlAlchemyFixture, QueryFixture)
 def test_query_as_sequence_last_sort_wins(sql_alchemy_fixture, query_fixture):
     """Only the last .sort() on a QueryAsSequence has any effect."""
 
@@ -133,6 +132,7 @@ def test_query_as_sequence_last_sort_wins(sql_alchemy_fixture, query_fixture):
         assert sorted_items == [object3, object1, object2]
 
 
+@with_fixtures(SqlAlchemyFixture, QueryFixture)
 def test_query_as_sequence_chained_sorts(sql_alchemy_fixture, query_fixture):
     """A QueryAsSequence constructed with a query that already has an order_by clause,
        should be able to chain additional sort(order_by) requirements"""

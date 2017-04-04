@@ -18,19 +18,15 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 from reahl.tofu import scenario, Fixture
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput
 from reahl.component.modelinterface import EmailField, exposed
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
-
 from reahl.webdev.tools import Browser
+
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class ValidationScenarios(Fixture):
@@ -71,9 +67,7 @@ class ValidationScenarios(Fixture):
         self.expected_charset = 'utf-8'
 
 
-validation_scenarios = ValidationScenarios.as_pytest_fixture()    
-
-
+@with_fixtures(WebFixture2, ValidationScenarios)
 def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
     fixture = validation_scenarios
 

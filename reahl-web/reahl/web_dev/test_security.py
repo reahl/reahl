@@ -14,9 +14,10 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import Fixture, scenario
+
+from reahl.tofu import Fixture, scenario, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import EmptyStub
 
 from reahl.webdev.tools import WidgetTester, Browser, XPath
@@ -27,16 +28,10 @@ from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import Div, P, HTML5Page
 from reahl.web.ui import Form, TextInput, ButtonInput
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
-
-
+@with_fixtures(WebFixture2)
 def test_security_sensitive(web_fixture):
     """A Widget is security sensitive if a read_check is specified for it; one of its
        children is security sensitive, or it was explixitly marked as security sensitive."""
@@ -61,6 +56,7 @@ def test_security_sensitive(web_fixture):
         assert widget.is_security_sensitive
 
 
+@with_fixtures(WebFixture2)
 def test_serving_security_sensitive_widgets(web_fixture):
     """If the page is security sensitive, it will only be served on config.web.encrypted_http_scheme,
        else it will only be served on config.web.default_http_scheme."""
@@ -89,6 +85,7 @@ def test_serving_security_sensitive_widgets(web_fixture):
         assert fixture.driver_browser.current_url.scheme == fixture.config.web.encrypted_http_scheme
 
 
+@with_fixtures(WebFixture2)
 def test_fields_have_access_rights(web_fixture):
     """Fields have access rights for reading and for writing. By default both reading and writing are allowed.
        This default can be changed by passing an Action (which returns a boolean) for each kind of
@@ -111,6 +108,7 @@ def test_fields_have_access_rights(web_fixture):
         assert not field.can_write()
 
 
+@with_fixtures(WebFixture2)
 def test_tailored_access_make_inputs_security_sensitive(web_fixture):
     """An Input is sensitive if explicitly set as sensitive, or if its Fields has non-defaulted
        mechanisms for determiing access rights."""
@@ -124,10 +122,8 @@ def test_tailored_access_make_inputs_security_sensitive(web_fixture):
         assert input_widget.is_security_sensitive
 
 
+@uses(web_fixture=WebFixture2)
 class InputRenderingScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(InputRenderingScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -246,9 +242,7 @@ class InputRenderingScenarios(Fixture):
         self.expected_html = ''
 
 
-input_rendering_scenarios = InputRenderingScenarios.as_pytest_fixture()
-
-
+@with_fixtures(WebFixture2, InputRenderingScenarios)
 def test_rendering_inputs(web_fixture, input_rendering_scenarios):
     """How Inputs render, depending on the rights."""
 
@@ -260,7 +254,7 @@ def test_rendering_inputs(web_fixture, input_rendering_scenarios):
         assert actual == fixture.expected_html
 
 
-
+@with_fixtures(WebFixture2)
 def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
     """If a form submits a value for an Input that is linked to Field with access rights that prohibit writing,
        the input is silently ignored."""
@@ -296,7 +290,7 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
         assert model_object.field_name == 'Original value'
 
 
-
+@with_fixtures(WebFixture2)
 def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
     """If a form submits an Event with access rights that prohibit writing, a ValidationException is raised."""
     fixture = web_fixture
@@ -330,6 +324,7 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
         assert error_label == '<label for="%s" class="error">you cannot do this</label>' % input_id
 
 
+@with_fixtures(WebFixture2)
 def test_getting_view(web_fixture):
     """ONLY If a View is readable, it can be GET"""
     fixture = web_fixture
@@ -347,6 +342,7 @@ def test_getting_view(web_fixture):
         browser.open('/view', status=403)
 
 
+@with_fixtures(WebFixture2)
 def test_posting_to_view(web_fixture):
     """ONLY If a View is writable, may it be POSTed to"""
     def disallowed(): return False

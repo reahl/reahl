@@ -17,7 +17,8 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.sqlalchemysupport import Session
 from reahl.web.fw import Url, UserInterface
@@ -29,20 +30,13 @@ from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordReque
 from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domainui_dev.fixtures import BookmarkStub
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
 
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class AccountsWebFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(AccountsWebFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -77,9 +71,8 @@ class AccountsWebFixture(Fixture):
             disclaimer_bookmark = BookmarkStub(Url('/#disclaimer'), 'Disclaimer')
         return Bookmarks()
 
-accounts_web_fixture = AccountsWebFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, PartyAccountFixture, AccountsWebFixture)
 def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
     with web_fixture.context:
@@ -100,6 +93,7 @@ def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixt
         assert fixture.browser.location_query_string == 'a=b&name=kitty'
 
 
+@with_fixtures(WebFixture2, AccountsWebFixture)
 def test_register(web_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
     with web_fixture.context:
@@ -118,6 +112,7 @@ def test_register(web_fixture, accounts_web_fixture):
         assert verification_requests.count() == 1
 
 
+@with_fixtures(WebFixture2, PartyAccountFixture, AccountsWebFixture)
 def test_register_help_duplicate(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
     with web_fixture.context:
@@ -132,6 +127,7 @@ def test_register_help_duplicate(web_fixture, party_account_fixture, accounts_we
         assert fixture.browser.location_path == '/a_ui/resetPassword'
 
 
+@with_fixtures(WebFixture2, PartyAccountFixture, AccountsWebFixture)
 def test_register_help_not_found(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
     with web_fixture.context:
@@ -146,6 +142,7 @@ def test_register_help_not_found(web_fixture, party_account_fixture, accounts_we
         assert fixture.browser.location_path == '/a_ui/register'
 
 
+@with_fixtures(WebFixture2, PartyAccountFixture, AccountsWebFixture)
 def test_register_help_pending(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
     with web_fixture.context:
@@ -172,6 +169,7 @@ def test_register_help_pending(web_fixture, party_account_fixture, accounts_web_
         assert fixture.browser.location_path == '/a_ui/registerHelp/pending/sent'
 
 
+@with_fixtures(WebFixture2, PartyAccountFixture, AccountsWebFixture)
 def test_verify_from_menu(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
     with web_fixture.context:
@@ -198,6 +196,7 @@ def test_verify_from_menu(web_fixture, party_account_fixture, accounts_web_fixtu
         # Case needed for when you supply invalid stuff???
 
 
+@with_fixtures(WebFixture2, PartyAccountFixture, AccountsWebFixture)
 def test_reset_password(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
     with web_fixture.context:
@@ -220,6 +219,7 @@ def test_reset_password(web_fixture, party_account_fixture, accounts_web_fixture
         assert fixture.browser.location_path == '/a_ui/passwordChanged'
 
 
+@with_fixtures(WebFixture2, PartyAccountFixture, AccountsWebFixture)
 def test_reset_password_from_url(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
     with web_fixture.context:

@@ -17,19 +17,19 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import scenario, Fixture
-from reahl.tofu import expected
+
+
+from reahl.tofu import scenario, Fixture, expected, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
 
 from reahl.web.ui import *
 from reahl.webdev.tools import WidgetTester
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
-
+@with_fixtures(WebFixture2)
 def test_basic_fixed_attributes(web_fixture):
     """How the static attributes of a Widget can be manipulated, queried and rendered."""
 
@@ -61,7 +61,7 @@ def test_basic_fixed_attributes(web_fixture):
         assert rendered == '<x id="123" attr1="value1" listattr="one three two" class="b z">'
 
 
-
+@with_fixtures(WebFixture2)
 def test_handy_methods(web_fixture):
     """Some handy methods for special attributes."""
 
@@ -79,6 +79,7 @@ def test_handy_methods(web_fixture):
         assert rendered == '<x id="the id" title="the title" class="one two">'
 
 
+@with_fixtures(WebFixture2)
 def test_dynamically_determining_attributes(web_fixture):
     """A Widget can determine its attribute values at the latest possible stage, based on changing data."""
 
@@ -108,6 +109,7 @@ def test_dynamically_determining_attributes(web_fixture):
         assert rendered == '<x dynamic="2" dynamiclist="2" fixed="value1">'
 
 
+@with_fixtures(WebFixture2)
 def test_delegating_setting_of_attributes(web_fixture):
     """One or more DelegatedAttributes instances can be added to an HTMLElement as `attribute_source` -- an
        object which the HTMLElement can use in order to let some other object modify or add to its attributes.
@@ -129,6 +131,7 @@ def test_delegating_setting_of_attributes(web_fixture):
         assert rendered == '<x set-by-external-source="rhythm and poetry">'
 
 
+@with_fixtures(WebFixture2)
 def test_all_html_widgets_have_css_ids(web_fixture):
     """A Widget (for HTML) can have a css_id. If accessed, but not set, a ProgrammerError is raised."""
 
@@ -146,6 +149,7 @@ def test_all_html_widgets_have_css_ids(web_fixture):
         assert widget.css_id == 'myid'
 
 
+@with_fixtures(WebFixture2)
 def test_jquery_support(web_fixture):
     """Each HTML Widget has a jquery_selector that targets it uniquely. By default
        this makes use of the css_id of the Widget, which thus need to be set, however
@@ -172,6 +176,7 @@ def test_jquery_support(web_fixture):
         assert contextualised ==  'selector'
 
 
+@with_fixtures(WebFixture2)
 def test_single_tags(web_fixture):
     """Definition of a HTMLElement."""
 
@@ -187,6 +192,7 @@ def test_single_tags(web_fixture):
         assert rendered == '<single>'
 
 
+@with_fixtures(WebFixture2)
 def test_closing_tags(web_fixture):
     """Definition of a HTMLElement with children."""
 
@@ -201,10 +207,8 @@ def test_closing_tags(web_fixture):
         assert rendered == '<closing><p></p></closing>'
 
 
+@uses(web_fixture=WebFixture2)
 class WidgetScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(WidgetScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -392,8 +396,7 @@ class WidgetScenarios(Fixture):
         self.expected_html = '<fieldset><legend>text</legend></fieldset>'
 
 
-widget_scenarios = WidgetScenarios.as_pytest_fixture()
-
+@with_fixtures(WidgetScenarios)
 def test_basic_html_widgets(widget_scenarios):
     """Several basic widgets merely correspond to html elements."""
 
@@ -402,6 +405,7 @@ def test_basic_html_widgets(widget_scenarios):
     assert rendered_html == widget_scenarios.expected_html
 
 
+@with_fixtures(WebFixture2)
 def test_view_rights_propagate_to_a(web_fixture):
     """The access rights specified for a View are propagated to an A, made from a Bookmark to that View."""
     fixture = web_fixture
@@ -413,6 +417,7 @@ def test_view_rights_propagate_to_a(web_fixture):
         assert a.write_check is fixture.view.write_check
 
 
+@with_fixtures(WebFixture2)
 def test_text_node_can_vary(web_fixture):
     """A TextNode can vary its text if constructed with a getter for the value instead of a hardcoded value."""
 
@@ -434,7 +439,7 @@ def test_text_node_can_vary(web_fixture):
         assert rendered == 'other'
 
 
-
+@with_fixtures(WebFixture2)
 def test_text_node_escapes_html(web_fixture):
     """The text of a TextNode is html-escaped."""
 
@@ -447,6 +452,7 @@ def test_text_node_escapes_html(web_fixture):
         assert rendered == '&lt;tag&gt; "Here" &amp; \'there\''
 
 
+@with_fixtures(WebFixture2)
 def test_literal_html(web_fixture):
     """The LiteralHTML Widget just renders a chunk of HTML, but can answer queries about images in that HTML."""
 
@@ -469,6 +475,7 @@ def test_literal_html(web_fixture):
         assert rendered_html == text_transformation(contents)
 
 
+@with_fixtures(WebFixture2)
 def test_head(web_fixture):
     """Head corresponds with the head HTML element, can have a title and always has a special Slot used by the framework."""
 
@@ -485,6 +492,7 @@ def test_head(web_fixture):
         assert rendered_html == '<head><title>a title</title></head>'
 
 
+@with_fixtures(WebFixture2)
 def test_body(web_fixture):
     """Body corresponds with the body HTML element, and always has a special Slot at its end used by the framework."""
 
@@ -503,6 +511,7 @@ def test_body(web_fixture):
         assert rendered_html == '<body><p></p></body>'
 
 
+@with_fixtures(WebFixture2)
 def test_html5_page(web_fixture):
     """An HTML5Page is an empty HTML 5 document using the header and body widgets."""
 

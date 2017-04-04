@@ -19,7 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import scenario, Fixture
+from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
@@ -30,19 +31,11 @@ from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, Grid
                                    TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonInput, ButtonLayout
 from reahl.web.bootstrap.grid import ResponsiveSize
 
-
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class FormLayoutScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(FormLayoutScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -66,9 +59,8 @@ class FormLayoutScenarios(Fixture):
         self.layout = GridFormLayout(ResponsiveSize(xl=4), ResponsiveSize(xl=8))
         self.expected_html = '<div></div>'
 
-form_layout_scenarios = FormLayoutScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, FormLayoutScenarios)
 def test_basic_form_layouts(web_fixture, form_layout_scenarios):
     """There are three basic layouts of forms in bootstrap."""
     with web_fixture.context:
@@ -77,12 +69,9 @@ def test_basic_form_layouts(web_fixture, form_layout_scenarios):
         assert actual == form_layout_scenarios.expected_html
 
 
+@uses(web_fixture=WebFixture2)
 class FormLayoutFixture(Fixture):
     form_group_xpath = '//form/div[contains(@class, "form-group")]'
-
-    def __init__(self, web_fixture):
-        super(FormLayoutFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -121,9 +110,8 @@ class FormLayoutFixture(Fixture):
         return [element for element in self.get_form_group_children(browser, index=index)
                         if is_error_element(element) and is_visible(element) ]
 
-form_layout_fixture = FormLayoutFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, FormLayoutFixture)
 def test_adding_basic_input(web_fixture, form_layout_fixture):
     """Adding an input to a FormLayout, adds it in a bootstrap form-group with Some input."""
     fixture = form_layout_fixture
@@ -152,6 +140,7 @@ def test_adding_basic_input(web_fixture, form_layout_fixture):
         assert input_widget.attrib['name'] == 'an_attribute'
 
 
+@with_fixtures(WebFixture2, FormLayoutFixture)
 def test_grid_form_layouts(web_fixture, form_layout_fixture):
     """A GridFormLayout adds the Label and Input of each added input in separate columns sized like you specify"""
     fixture = form_layout_fixture
@@ -176,6 +165,7 @@ def test_grid_form_layouts(web_fixture, form_layout_fixture):
         assert 'column-input' in input_column.attrib['class']
 
 
+@with_fixtures(WebFixture2, FormLayoutFixture)
 def test_specifying_help_text(web_fixture, form_layout_fixture):
     """You can optionally specify help_text when adding an input."""
     fixture = form_layout_fixture
@@ -199,6 +189,7 @@ def test_specifying_help_text(web_fixture, form_layout_fixture):
         assert help_text.text == 'some help'
 
 
+@with_fixtures(WebFixture2, FormLayoutFixture)
 def test_omitting_label(web_fixture, form_layout_fixture):
     """The label will be rendered hidden (but available to screen readers) if this is explicity requested."""
     fixture = form_layout_fixture
@@ -218,6 +209,7 @@ def test_omitting_label(web_fixture, form_layout_fixture):
         assert label.attrib['class'] == 'sr-only'
 
 
+@with_fixtures(WebFixture2, FormLayoutFixture)
 def test_adding_checkboxes(web_fixture, form_layout_fixture):
     """CheckboxInputs are added non-inlined, and by default without labels."""
 
@@ -264,7 +256,7 @@ class ValidationScenarios(FormLayoutFixture):
         class FormWithInput(Form):
             def __init__(self, view):
                 super(FormWithInput, self).__init__(view, 'aform')
-                self.set_attribute('novalidate','novalidate')
+                self.set_attribute('novalidate', 'novalidate')
                 self.use_layout(FormLayout())
                 self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
                 self.layout.add_input(TextInput(self, fixture.domain_object.fields.another_attribute))
@@ -285,9 +277,8 @@ class ValidationScenarios(FormLayoutFixture):
     def without_javascript(self):
         self.browser = Browser(self.web_fixture.new_wsgi_app(child_factory=self.Form.factory()))
 
-validation_scenarios = ValidationScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, ValidationScenarios)
 def test_input_validation_cues(web_fixture, validation_scenarios):
     """Visible cues are inserted to indicate the current validation state
        and possible validation error messages to a user. """
@@ -321,8 +312,7 @@ def test_input_validation_cues(web_fixture, validation_scenarios):
         assert not fixture.get_form_group_errors(browser, index=0)
 
 
-javascript_validation_scenario = ValidationScenarios.with_javascript.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, ValidationScenarios.with_javascript)
 def test_input_validation_cues_javascript_interaction(web_fixture, javascript_validation_scenario):
     """The visual cues rendered server-side can subsequently be manipulated via javascript."""
     fixture = javascript_validation_scenario
@@ -357,10 +347,8 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
         assert not fixture.get_form_group_errors(browser, index=0)
 
 
+@uses(web_fixture=WebFixture2)
 class DisabledScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(DisabledScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -376,9 +364,8 @@ class DisabledScenarios(Fixture):
         self.field = Field(writable=lambda field: True)
         self.expects_disabled_class = False
 
-disabled_scenarios = DisabledScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, DisabledScenarios)
 def test_disabled_state(web_fixture, disabled_scenarios):
     """Visible cues are inserted to indicate that inputs are disabled. """
     fixture = disabled_scenarios
@@ -399,10 +386,8 @@ def test_disabled_state(web_fixture, disabled_scenarios):
             assert 'disabled' not in form_group.attrib['class']
 
 
+@uses(web_fixture=WebFixture2)
 class ChoicesLayoutFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(ChoicesLayoutFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -422,9 +407,8 @@ class ChoicesLayoutFixture(Fixture):
     def main_element(self, tester):
         return tester.xpath('//div/*')[0]
 
-choices_layout_fixture = ChoicesLayoutFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, ChoicesLayoutFixture)
 def test_choices_layout(web_fixture, choices_layout_fixture):
     """A ChoicesLayout can be used to add a PrimitiveCheckboxInput inlined or stacked."""
     fixture = choices_layout_fixture
@@ -456,9 +440,8 @@ class RadioButtonFixture(ChoicesLayoutFixture):
         field.bind('field', self)
         return field
 
-radio_button_fixture = RadioButtonFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, RadioButtonFixture)
 def test_layout_of_radio_button_input(web_fixture, radio_button_fixture):
     """The PrimitiveRadioButtonInputs inside a RadioButtonInput are also laid out using a ChoicesLayout."""
     fixture = radio_button_fixture
@@ -479,6 +462,7 @@ def test_layout_of_radio_button_input(web_fixture, radio_button_fixture):
         assert fixture.main_element(tester).attrib['class'] == 'radio-inline'
 
 
+@with_fixtures(WebFixture2)
 def test_button_layouts(web_fixture):
     """A ButtonLayout can be be used on a Button to customise various visual effects."""
 
@@ -503,6 +487,7 @@ def test_button_layouts(web_fixture):
         assert button.attrib['class'] == 'active btn btn-block btn-default btn-sm'
 
 
+@with_fixtures(WebFixture2)
 def test_button_layouts_on_anchors(web_fixture):
     """A ButtonLayout can also be used to make an A (anchor) look like a button."""
 
@@ -513,6 +498,7 @@ def test_button_layouts_on_anchors(web_fixture):
         assert rendered_anchor.attrib['class'] == 'btn'
 
 
+@with_fixtures(WebFixture2)
 def test_button_layouts_on_disabled_anchors(web_fixture):
     """Disabled A's are marked with a class so Bootstap can style them appropriately."""
     def can_write():

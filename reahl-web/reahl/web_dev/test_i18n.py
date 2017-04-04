@@ -17,21 +17,17 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface, IdentityDictionary, Bookmark
 from reahl.web.ui import HTML5Page
 from reahl.webdev.tools import Browser
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
-
+@with_fixtures(WebFixture2)
 def test_i18n_urls(web_fixture):
     """The current locale is determined by reading the first segment of the path. If the locale is not present in the
     path, web.default_url_locale is used."""
@@ -64,6 +60,7 @@ def test_i18n_urls(web_fixture):
         assert browser.title == 'A View'
 
 
+@with_fixtures(WebFixture2)
 def test_bookmarks(web_fixture):
     """Bookmarks normally refer to the current locale. You can override that to be a specified locale instead.
     """

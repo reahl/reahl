@@ -26,7 +26,6 @@ def test_execution_context_basics():
     """An ExecutionContext is like a global variable for a particular call stack. To create an
        ExecutionContext for a call stack, use it in a with statement."""
 
-
     def do_something():
         return ExecutionContext.get_context()
     def do_high_level_something():

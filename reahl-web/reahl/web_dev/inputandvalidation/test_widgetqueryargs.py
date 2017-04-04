@@ -15,9 +15,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import Fixture, expected, scenario
+
+from reahl.tofu import Fixture, expected, scenario, uses
+from reahl.tofu.pytest_support import with_fixtures
+
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.webdev.tools import Browser, XPath
@@ -26,20 +28,11 @@ from reahl.component.modelinterface import Field, exposed, IntegerField
 from reahl.web.fw import Bookmark, Widget
 from reahl.web.ui import A, P, Form, TextInput, Div
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
-# noinspection PyUnresolvedReferences
-from reahl.component_dev.test_field import field_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class QueryStringFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(QueryStringFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def is_state_labelled_now(self, label, state):
         return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('%s is now %s' % (label, state)))
@@ -72,8 +65,7 @@ class QueryStringFixture(Fixture):
         return self.web_fixture.new_wsgi_app(enable_js=True, child_factory=widget_factory)
 
 
-query_string_fixture = QueryStringFixture.as_pytest_fixture()
-
+@with_fixtures(WebFixture2, QueryStringFixture)
 def test_query_string_widget_arguments(web_fixture, query_string_fixture):
     """Widgets can have arguments that are read from a query string"""
 
@@ -96,6 +88,7 @@ def test_query_string_widget_arguments(web_fixture, query_string_fixture):
         assert browser.lxml_html.xpath('//p')[0].text == 'supercalafragalisticxpelidocious'
 
 
+@with_fixtures(WebFixture2)
 def test_query_string_prepopulates_form(web_fixture):
     """Widget query string arguments can be used on forms to pre-populate inputs based on the query string."""
 
@@ -122,6 +115,7 @@ def test_query_string_prepopulates_form(web_fixture):
         assert browser.lxml_html.xpath('//input')[0].value == 'metoo'
 
 
+@with_fixtures(WebFixture2, QueryStringFixture)
 def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
     """If a widget has query_fields, call `.enable_refresh()` on it to let it change
        its contents without reloading the whole page,
@@ -150,6 +144,7 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
         assert fixture.widget is previous_widget
 
 
+@with_fixtures(WebFixture2)
 def test_css_id_is_mandatory(web_fixture):
     """If a Widget is enabled to to be refreshed, it must also have a css_id set."""
     with web_fixture.context:
@@ -180,9 +175,8 @@ class PartialRefreshFixture(QueryStringFixture):
 
         return MyFancyWidget
 
-partial_refresh_fixture = PartialRefreshFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, PartialRefreshFixture)
 def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture):
     """Calling `.enable_refresh()` only with specific query_fields has the effect that
        the Widget is only refreshed automatically for the particular fields passed, not
@@ -210,6 +204,7 @@ def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture)
         assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
 
 
+@with_fixtures(WebFixture2)
 def test_bookmarks_support_such_fragments(web_fixture):
     """Page-internal bookmarks support such bookmarkable widgets.
 
@@ -286,9 +281,8 @@ class RightsScenarios(Fixture):
         self.normal_writable = self.not_allowed
         self.expected_writable = False
 
-rights_scenarios = RightsScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, RightsScenarios)
 def test_bookmark_rights_when_adding(rights_scenarios):
     """When adding two Bookmarks, access rights of both are taken into account.
 

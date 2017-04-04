@@ -23,9 +23,11 @@ import os.path
 
 from reahl.tofu import Fixture
 from reahl.tofu import temp_dir, assert_recent
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.component.shelltools import Executable
 from reahl.dev.devdomain import Git
+
 
 class GitFixture(Fixture):
     def new_git_directory(self, initialised=True):
@@ -35,9 +37,8 @@ class GitFixture(Fixture):
                 Executable('git').check_call(['init'], cwd=git_directory.name, stdout=DEVNULL, stderr=DEVNULL)
         return git_directory
 
-git_fixture = GitFixture.as_pytest_fixture()
 
-
+@with_fixtures(GitFixture)
 def test_is_version_controlled(git_fixture):
     fixture = git_fixture
     non_initialised_directory = fixture.new_git_directory(initialised=False)
@@ -48,6 +49,7 @@ def test_is_version_controlled(git_fixture):
     assert git.is_version_controlled()
 
 
+@with_fixtures(GitFixture)
 def test_is_checked_in(git_fixture):
     fixture = git_fixture
     git = Git(fixture.git_directory.name)
@@ -57,6 +59,7 @@ def test_is_checked_in(git_fixture):
     assert not git.is_checked_in()
     
 
+@with_fixtures(GitFixture)
 def test_last_commit_time(git_fixture):
     fixture = git_fixture
     git = Git(fixture.git_directory.name)
@@ -65,6 +68,7 @@ def test_last_commit_time(git_fixture):
     assert_recent( git.last_commit_time )
 
 
+@with_fixtures(GitFixture)
 def test_tag_related(git_fixture):
     fixture = git_fixture
     git = Git(fixture.git_directory.name)

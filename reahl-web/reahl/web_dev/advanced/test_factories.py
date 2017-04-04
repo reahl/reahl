@@ -19,20 +19,15 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
-from reahl.tofu import Fixture, scenario, expected
+from reahl.tofu import Fixture, scenario, expected, uses
+from reahl.tofu.pytest_support import with_fixtures
+
 from reahl.stubble import EmptyStub
 
 from reahl.component.modelinterface import Field
 from reahl.web.fw import Factory, FactoryFromUrlRegex, UserInterface, RegexPath, NoMatchingFactoryFound, UrlBoundView
 
-
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
-
+from reahl.web_dev.fixtures import WebFixture2
 
 
 def test_factory_basics():
@@ -52,7 +47,6 @@ def test_factory_basics():
     assert instance.kwarg == 2
 
 
-
 def test_factory_failure_to_create():
     """Parameters sent to .create should identify an instance uniquely and so enable the create_method
        to construct the correct instance on request. If the create_method cannot create or retrieve
@@ -67,7 +61,7 @@ def test_factory_failure_to_create():
         factory.create(1, kwarg=2)
 
 
-
+@with_fixtures(WebFixture2)
 def test_factory_from_path_regex(web_fixture):
     """An FactoryFromUrlRegex parses args from the given URL and passes these as kwargs to create_method
        along with the args and kwargs passed to its .create()."""
@@ -81,17 +75,15 @@ def test_factory_from_path_regex(web_fixture):
     with web_fixture.context:
 
         argument_fields = {'path_arg': Field()}
-        factory = FactoryFromUrlRegex(RegexPath('some(?P<path_arg>.+)path', 'some${path_arg}path', argument_fields), create_method,
-                                      dict(extra_kwarg='42'))
+        factory = FactoryFromUrlRegex(RegexPath('some(?P<path_arg>.+)path', 'some${path_arg}path', argument_fields),
+                                      create_method, dict(extra_kwarg='42'))
         instance = factory.create('somecoolpath')
         assert instance.path_arg == 'cool'
         assert instance.extra_kwarg == '42'
 
 
+@uses(web_fixture=WebFixture2)
 class MatchingScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(MatchingScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -168,9 +160,8 @@ class MatchingScenarios(Fixture):
         self.factory = self.web_fixture.user_interface.define_user_interface('/editions', self.UIWithKwarg, {}, my_one_arg=Field())
         self.is_applicable = True
 
-matching_scenarios = MatchingScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, MatchingScenarios)
 def test_matching(web_fixture, matching_scenarios):
     with web_fixture.context:
         applicable_rating = matching_scenarios.factory.is_applicable_for(matching_scenarios.matched_path)

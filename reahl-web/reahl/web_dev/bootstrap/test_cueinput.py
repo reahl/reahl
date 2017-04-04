@@ -20,6 +20,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.tofu import Fixture
+from reahl.tofu.pytest_support import with_fixtures
+
 from reahl.webdev.tools import XPath
 
 from reahl.component.modelinterface import exposed, Field
@@ -27,12 +29,7 @@ from reahl.component.modelinterface import exposed, Field
 from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import Form, FormLayout, CueInput, TextInput
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class CueInputFixture(Fixture):
@@ -45,9 +42,8 @@ class CueInputFixture(Fixture):
                 fields.field = Field(label='MyField')
         return DomainObject()
 
-cue_input_fixture = CueInputFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, CueInputFixture)
 def test_cue_input_display_basics(web_fixture, cue_input_fixture):
     """A CueInput displays a given cue when its wrapped Input has focus and hides the cue otherwise."""
     fixture = cue_input_fixture
@@ -78,7 +74,7 @@ def test_cue_input_display_basics(web_fixture, cue_input_fixture):
         browser.wait_for_element_not_visible(fixture.cue_element_xpath)
 
 
-
+@with_fixtures(WebFixture2, CueInputFixture)
 def test_cue_is_visible_when_js_disabled(web_fixture, cue_input_fixture):
     """A CueInput degrades without JS to always display its cue."""
     fixture = cue_input_fixture

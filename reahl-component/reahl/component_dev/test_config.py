@@ -22,6 +22,7 @@ import re
 import logging
 
 from reahl.tofu import Fixture, set_up, temp_dir, expected
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import CallMonitor, EasterEgg, easter_egg
 
 from reahl.component.eggs import ReahlEgg
@@ -63,8 +64,6 @@ reahlsystem.debug = False
         line = 'Egg = reahl.component.eggs:ReahlEgg' 
         egg.add_entry_point_from_line('reahl.eggs', line)
 
-config_with_files = ConfigWithFiles.as_pytest_fixture()
-
 
 class ConfigWithSetting(Configuration):
     filename = 'config_file_for_this_egg.py'
@@ -72,6 +71,7 @@ class ConfigWithSetting(Configuration):
     some_setting = ConfigSetting()
 
 
+@with_fixtures(ConfigWithFiles)
 def test_config_basics(config_with_files):
     """Config is specified per component, via its ReahlEgg interface, and read from its own config file."""
 
@@ -88,6 +88,7 @@ def test_config_basics(config_with_files):
     assert config.some_key.some_setting == 3 
 
 
+@with_fixtures(ConfigWithFiles)
 def test_missing_settings(config_with_files):
     """An exception is raised if setting do not have values set."""
     fixture = config_with_files
@@ -101,6 +102,7 @@ def test_missing_settings(config_with_files):
         config.configure()
 
 
+@with_fixtures(ConfigWithFiles)
 def test_incorrect_settings(config_with_files):
     """An exception is raised when an attempt is made to set a setting that does not exist."""
 
@@ -116,6 +118,7 @@ def test_incorrect_settings(config_with_files):
         config.configure()
 
 
+@with_fixtures(ConfigWithFiles)
 def test_incorrect_replacement_of_configuration(config_with_files):
     """An exception is raised when an attempt is made to replace a Configuration with another of the wrong type."""
 
@@ -137,7 +140,7 @@ class ConfigWithDefaultedSetting(Configuration):
     some_setting = ConfigSetting(default='default value')
 
 
-
+@with_fixtures(ConfigWithFiles)
 def test_config_defaults(config_with_files):
     """If a default is specified for the ConfigSetting, it need not be set in the file."""
 
@@ -158,8 +161,7 @@ class ConfigWithDangerousDefaultedSetting(Configuration):
     some_setting = ConfigSetting(default='default value', dangerous=True)
 
 
-
-
+@with_fixtures(ConfigWithFiles)
 def test_config_defaults_dangerous(config_with_files):
     """Defaults that are dangerous to leave at their at their settings can be marked as such. 
        This will result in a logged warning."""
@@ -181,6 +183,7 @@ def test_config_defaults_dangerous(config_with_files):
     assert config.some_key.some_setting == 'default value' 
 
 
+@with_fixtures(ConfigWithFiles)
 def test_config_in_production(config_with_files):
     """When a Configuration is created as in_production, dangerous defaulted config is not allowed."""
 
@@ -190,7 +193,6 @@ def test_config_in_production(config_with_files):
     config = StoredConfiguration(fixture.config_dir.name, in_production=True)
     with expected(ConfigurationException):
         config.configure()
-
 
 
 class ConfigWithEntryPointClassList(Configuration):
@@ -203,6 +205,7 @@ class ListedClass1(object): pass
 class ListedClass2(object): pass
 
 
+@with_fixtures(ConfigWithFiles)
 def test_entry_point_class_list(config_with_files):
     """EntryPointClassList is a special ConfigSetting which reads its value from a pkg_resources
        entry point which contains a list of classes published by any (possibly other) egg."""
@@ -229,7 +232,6 @@ def test_entry_point_class_list(config_with_files):
     assert set(config.some_key.some_setting) == {ListedClass1, ListedClass2} 
 
 
-
 class ConfigWithInjectedSetting(Configuration):
     filename = 'config_file_for_this_egg.py'
     config_key = 'some_key'
@@ -239,10 +241,12 @@ class ConfigWithInjectedSetting(Configuration):
 class ConfigWhichInjectsSetting(Configuration):
     filename = 'injector_egg.py'
     config_key = 'some_other_key'
+
     def do_injections(self, config):
         config.some_key.injected_setting = 123
 
 
+@with_fixtures(ConfigWithFiles)
 def test_config_defaults_automatic(config_with_files):
     """To facilitate dependency injection, the Configuration of one Egg can set the 'automatic' ConfigSettings of
        another egg on which it depends."""

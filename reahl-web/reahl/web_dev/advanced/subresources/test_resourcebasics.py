@@ -23,20 +23,16 @@ from webob.exc import HTTPMethodNotAllowed
 
 from reahl.stubble import stubclass, exempt
 from reahl.tofu import scenario, Fixture
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.component.modelinterface import Field
 from reahl.webdev.tools import Browser
 from reahl.web.fw import Resource, SubResource, Widget
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
-
+@with_fixtures(WebFixture2)
 def test_resources(web_fixture):
     """A Resource has the responsibility to handle an HTTP Request. A Resource indicates that it can
        handle a particular HTTP method by having a method named for it. Such method should return
@@ -71,6 +67,7 @@ def test_resources(web_fixture):
         assert response == 'something'
 
 
+@with_fixtures(WebFixture2)
 def test_simple_sub_resources(web_fixture):
     """During their construction, Widgets can add SubResources to their View.  The SubResource
        will then be available via a special URL underneath the URL of the Widget's View."""
@@ -96,6 +93,7 @@ def test_simple_sub_resources(web_fixture):
         browser.open('/_uniquename_simple_resource')
 
 
+@with_fixtures(WebFixture2)
 def test_dynamic_sub_resources(web_fixture):
     """Sometimes it is undesirable to instantiate a SubResource just for the purpose of adding it
        to a View. In such cases, A Factory can be added that will construct the SubResource
@@ -134,6 +132,7 @@ def test_dynamic_sub_resources(web_fixture):
         assert browser.raw_html == 'two'
 
 
+@with_fixtures(WebFixture2)
 def test_dynamic_sub_resources_factory_args(web_fixture):
     """Such dynamic SubResources can also be created with arguments specified to its Factory (instead of
        only from the path)."""
@@ -174,6 +173,7 @@ def test_dynamic_sub_resources_factory_args(web_fixture):
 
 
 
+@with_fixtures(WebFixture2)
 def test_disambiguating_between_factories(web_fixture):
     """Sometimes, Widgets may need to add more than one SubResource (or Factories) of the same type.
        Since these are of the same type, they will both match the same urls based on their sub_regex.
@@ -227,9 +227,8 @@ class UrlScenarios(Fixture):
         self.view_path = '/'
         self.expected_path = '/__uniquename_sub_path'
 
-url_scenarios = UrlScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, UrlScenarios)
 def test_computation_of_url(web_fixture, url_scenarios):
     """The URL of a SubResource can be different, depending on the scenario.  This is done so that
        A SubResource can unambiguously determine the URL of its parent View."""

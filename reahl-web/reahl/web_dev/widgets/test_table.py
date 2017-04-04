@@ -19,16 +19,15 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.stubble import EmptyStub
-from reahl.tofu import Fixture, scenario
+from reahl.tofu import Fixture, scenario, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import XPath, WidgetTester
 from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P
 
 from reahl.component.modelinterface import Field, BooleanField
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
 class DataItem(object):
@@ -37,10 +36,8 @@ class DataItem(object):
         self.alpha = alpha
 
 
+@uses(web_fixture=WebFixture2)
 class TableFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(TableFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def new_data(self):
         return [DataItem(1, 'T'), DataItem(2, 'H'), DataItem(3, 'E')]
@@ -66,9 +63,8 @@ class TableFixture(Fixture):
     def table_number_rows(self):
         return len(self.web_fixture.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
 
-table_fixture = TableFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, TableFixture)
 def test_table_basics(web_fixture, table_fixture):
     """A Table created .from_columns() displays a list of items as defined by a list of Columns"""
 
@@ -105,14 +101,11 @@ def test_table_basics(web_fixture, table_fixture):
         assert fixture.get_table_row(3) == ['3', 'E']
 
 
+@uses(web_fixture=WebFixture2)
 class ColumnScenarios(Fixture):
     sort_key = EmptyStub()
     heading = 'A heading'
     row_item = EmptyStub(some_attribute=True)
-
-    def __init__(self, web_fixture):
-        super(ColumnScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -148,9 +141,8 @@ class ColumnScenarios(Fixture):
         self.expected_cell_html = '<span>Answer: True</span>' # raw attribute used
         self.expected_heading_html = '<p>A heading</p>'
 
-column_scenarios = ColumnScenarios.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, ColumnScenarios)
 def test_different_kinds_of_columns(web_fixture, column_scenarios):
     """There are different kinds of Columns, allowing different levels of flexibility for defining a Table"""
 
@@ -171,6 +163,7 @@ def test_different_kinds_of_columns(web_fixture, column_scenarios):
         assert actual == fixture.expected_cell_html
 
 
+@with_fixtures(WebFixture2)
 def test_table_thead(web_fixture):
     """Table can find its Thead element"""
 

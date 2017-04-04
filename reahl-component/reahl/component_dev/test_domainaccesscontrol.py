@@ -18,11 +18,10 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu import Fixture, scenario, expected, NoException
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.component.modelinterface import secured, AdaptedMethod
 from reahl.component.exceptions import AccessRestricted, ProgrammerError
-
-
 
 
 def test_methods_can_be_secured_basics():
@@ -148,8 +147,8 @@ class MismatchScenarios(Fixture):
         self.read_check = self.check_with_valid_signature
         self.write_check = self.check_without_kwarg
 
-mismatch_scenarios = MismatchScenarios.as_pytest_fixture()
 
+@with_fixtures(MismatchScenarios)
 def test_exception_on_mismatch_of_signature(mismatch_scenarios):
     """When the signatures of check methods do not match, an exception is raised."""
     fixture = mismatch_scenarios
@@ -197,15 +196,4 @@ def test_adapted_methods():
     assert model_object.saved_kwarg_in_write_check is expected_kwarg 
     assert model_object.saved_arg is expected_arg 
     assert model_object.saved_kwarg is expected_kwarg 
-
-
-
-
-
-
-
-
-
-
-
 

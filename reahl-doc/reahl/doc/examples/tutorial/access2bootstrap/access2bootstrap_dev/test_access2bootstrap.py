@@ -5,7 +5,8 @@
 # pytest -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap_dev.test_access2bootstrap
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import Fixture
+from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.sqlalchemysupport import Session
 
@@ -15,23 +16,18 @@ from reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap import Addres
 
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@with_fixtures(WebFixture2)
 class AccessUIFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(AccessUIFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def new_browser(self):
         return Browser(self.web_fixture.new_wsgi_app(site_root=AddressBookUI, enable_js=True))
 
     def is_on_address_book_page_of(self, email):
         return self.browser.title == 'Address book of %s' % email
-
-access_ui_fixture = AccessUIFixture.as_pytest_fixture()
 
 
 class AccessDomainFixture(Fixture):
@@ -56,9 +52,8 @@ class AccessDomainFixture(Fixture):
     def new_other_address_book(self):
         return self.new_address_book(owner=self.other_account)
 
-access_domain_fixture = AccessDomainFixture.as_pytest_fixture()
 
-
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def demo_setup(sql_alchemy_fixture, access_domain_fixture):
     sql_alchemy_fixture.commit = True
     with sql_alchemy_fixture.context:
@@ -91,6 +86,7 @@ def demo_setup(sql_alchemy_fixture, access_domain_fixture):
         Address(address_book=someone_else_book, email_address='friend24@some.org', name='Friend24').save()
 
 
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
     """An Address is created in a particular AddressBook, which is owned by a SystemAccount."""
 
@@ -119,6 +115,7 @@ def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
         assert other_address_book.addresses == [address3]
 
 
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """A particular SystemAccount can see its own AddressBooks as well as all the AddressBooks
        it is explicitly allowed to see, but no other AddressBooks."""
@@ -143,6 +140,7 @@ def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
         assert set(books) == {address_book, other_address_book}
 
 
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
     """When allowing an account to see another's AddressBook, the rights it has to the AddressBook are specified."""
 
@@ -162,6 +160,7 @@ def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
         assert other_address_book.can_be_added_to_by(account)
 
 
+@with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """The owner of an AddressBook may add collaborators to it."""
 
@@ -174,6 +173,7 @@ def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
         assert not other_address_book.collaborators_can_be_added_by(account)
 
 
+@with_fixtures(WebFixture2, AccessDomainFixture, AccessUIFixture)
 def test_logging_in(web_fixture, access_domain_fixture, access_ui_fixture):
     """A user first sees only a login screen on the home page; after logging in,
        all the address books visible to the user appear."""
@@ -194,6 +194,7 @@ def test_logging_in(web_fixture, access_domain_fixture, access_ui_fixture):
         assert browser.is_element_present(XPath.link_with_text('Address book of other@some.org'))
 
 
+@with_fixtures(WebFixture2, AccessDomainFixture, AccessUIFixture)
 def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture):
     """The owner of an AddressBook can add and edit Addresses to the owned AddressBook."""
 
@@ -227,7 +228,7 @@ def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture)
 
 # ------- Tests added for access control
 
-
+@with_fixtures(WebFixture2, AccessDomainFixture, AccessUIFixture)
 def test_add_collaborator(web_fixture, access_domain_fixture, access_ui_fixture):
     """A user may add other users as collaborators to his address book, specifying the privileges in the process."""
     with web_fixture.context:

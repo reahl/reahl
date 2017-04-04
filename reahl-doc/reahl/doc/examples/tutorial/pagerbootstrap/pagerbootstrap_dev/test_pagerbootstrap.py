@@ -4,21 +4,18 @@
 #
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
 from reahl.webdev.tools import XPath
 from reahl.doc.examples.tutorial.pagerbootstrap.pagerbootstrap import AddressBookUI
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class PagingFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(PagingFixture, self).__init__()
-        self.web_fixture = web_fixture
-        
+
     def new_browser(self):
         return self.web_fixture.driver_browser
         
@@ -28,9 +25,8 @@ class PagingFixture(Fixture):
     def is_email_listed(self, email):
         return self.browser.is_element_present(XPath.paragraph_containing(email))
 
-paging_fixture = PagingFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, PagingFixture)
 def test_paging(web_fixture, paging_fixture):
     """Clicking on a different page in the pager changes the addresses listed without triggering a page load."""
 
@@ -48,7 +44,4 @@ def test_paging(web_fixture, paging_fixture):
 
         assert not paging_fixture.is_email_listed('friend0@some.org')
         assert paging_fixture.is_email_listed('friend9@some.org')
-
-
-
 

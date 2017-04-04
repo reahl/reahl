@@ -20,13 +20,12 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import os
 
-from reahl.tofu import Fixture, set_up
+from reahl.tofu import Fixture, set_up, uses
 from reahl.stubble import stubclass, exempt
 from reahl.mailutil.mail import Mailer
 
 from reahl.sqlalchemysupport import Session
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin, sql_alchemy_fixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin, SqlAlchemyFixture
 from reahl.domain.partymodel import Party
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, AccountManagementInterface
 from reahl.domain.systemaccountmodel import SystemAccountConfig
@@ -64,6 +63,7 @@ class MailerStub(object):
         self.mail_sender = None
 
 
+# TODO: cs remove
 class BasicModelZooMixin(SqlAlchemyTestMixin):
     def new_accounts(self):
         accounts = SystemAccountConfig()
@@ -91,6 +91,7 @@ class BasicModelZooMixin(SqlAlchemyTestMixin):
         return UserSession()
 
     
+# TODO: cs remove
 class PartyModelZooMixin(BasicModelZooMixin):
     def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
         password = 'topsecret'
@@ -113,6 +114,7 @@ class PartyModelZooMixin(BasicModelZooMixin):
         return MailerStub.from_context()
 
 
+# TODO: cs remove
 class DemoSetup(Fixture, PartyModelZooMixin):
     commit = True
     def set_up(self):
@@ -122,15 +124,14 @@ class DemoSetup(Fixture, PartyModelZooMixin):
         self.system_control.commit()
 
 
+# TODO: cs remove
 class DeclarativeImplementationFixture(Fixture):
     def new_session(self, system_account=None):
         return UserSession()
 
 
+@uses(sql_alchemy_fixture=SqlAlchemyFixture)
 class PartyAccountFixture(Fixture):
-    def __init__(self, sql_alchemy_fixture):
-        super(PartyAccountFixture, self).__init__()
-        self.sql_alchemy_fixture = sql_alchemy_fixture
 
     @property
     def context(self):
@@ -179,4 +180,3 @@ class PartyAccountFixture(Fixture):
     def new_session(self, system_account=None):
         return UserSession()
 
-party_account_fixture = PartyAccountFixture.as_pytest_fixture()

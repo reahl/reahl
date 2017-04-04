@@ -22,13 +22,14 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import sys
 import pkg_resources
-from reahl.tofu import Fixture, set_up, tear_down
+from reahl.tofu import Fixture, set_up, tear_down, scope
 
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
 from reahl.component.config import StoredConfiguration
 
 from reahl.dev.exceptions import CouldNotConfigureServer
+
 
 class CleanDatabase(Fixture):
     """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
@@ -79,7 +80,7 @@ class CleanDatabase(Fixture):
 
 
 
-
+@scope('session')
 class ReahlSystemFixture(Fixture):
     """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
        correct database schema for the project and sets up any persistent classes for use with that
@@ -126,7 +127,4 @@ class ReahlSystemFixture(Fixture):
         with self.context:
             if self.system_control.connected:
                 self.system_control.disconnect()
-
-
-reahl_system_fixture = ReahlSystemFixture.as_pytest_fixture(scope='session')
 

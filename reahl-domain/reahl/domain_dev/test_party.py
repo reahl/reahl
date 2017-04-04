@@ -25,6 +25,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 
 from reahl.sqlalchemysupport import Session
 from reahl.tofu import vassert, assert_recent, expected
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import stubclass
 
 from reahl.component.eggs import ReahlEgg
@@ -34,14 +35,12 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, Verif
     InvalidEmailException, AccountNotActiveException, NoSuchAccountException, AccountActive, AccountDisabled, \
     AccountNotActivated, AccountManagementInterface,  ActivateAccount, LoginSession
 
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_create_account(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -93,6 +92,7 @@ def test_create_account(sql_alchemy_fixture, party_account_fixture):
         assert not mailer_stub.mail_sent
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_registration_application_help(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -117,6 +117,7 @@ def test_registration_application_help(sql_alchemy_fixture, party_account_fixtur
         assert account_management_interface.is_login_pending()
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_send_activation_mail(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -145,6 +146,7 @@ def test_send_activation_mail(sql_alchemy_fixture, party_account_fixture):
         assert mailer_stub.mail_message == expected_message
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_uniqueness_of_request_keys(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -170,6 +172,7 @@ def test_uniqueness_of_request_keys(sql_alchemy_fixture, party_account_fixture):
             assert request2.as_secret_key() != clashing_request.as_secret_key()
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_activate_via_key(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -209,6 +212,7 @@ def test_activate_via_key(sql_alchemy_fixture, party_account_fixture):
         assert Session.query(VerifyEmailRequest).filter_by(id=activation_request.id).count() == 0
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_expire_stale_requests(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -238,6 +242,7 @@ def test_expire_stale_requests(sql_alchemy_fixture, party_account_fixture):
         assert Session.query(EmailAndPasswordSystemAccount).filter_by(id=recent_system_account.id).count() == 1
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_request_new_password(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -305,6 +310,7 @@ def test_request_new_password(sql_alchemy_fixture, party_account_fixture):
         assert mailer_stub.mail_message == expected_message
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_set_new_password(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -339,6 +345,7 @@ def test_set_new_password(sql_alchemy_fixture, party_account_fixture):
         system_account.authenticate(new_password) # Should not raise exception
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_request_email_change(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -393,6 +400,7 @@ def test_request_email_change(sql_alchemy_fixture, party_account_fixture):
             account_management_interface.request_email_change()
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_verify_email_change(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -429,6 +437,7 @@ def test_verify_email_change(sql_alchemy_fixture, party_account_fixture):
         assert system_account.email == new_email
 
 
+@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_logging_in(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
     with sql_alchemy_fixture.context:
@@ -480,7 +489,7 @@ def test_logging_in(sql_alchemy_fixture, party_account_fixture):
         assert login_session.account is None
 
 
-
+@with_fixtures(PartyAccountFixture, WebFixture2)
 def test_login_queries(party_account_fixture, web_fixture):
     """"""
 

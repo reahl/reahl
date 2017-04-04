@@ -20,7 +20,8 @@ import warnings
 
 import six
 from six.moves import zip_longest
-from reahl.tofu import expected, scenario, Fixture
+from reahl.tofu import expected, scenario, Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import EmptyStub
 
 from reahl.webdev.tools import Browser
@@ -30,15 +31,11 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, P
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class BasicScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(BasicScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -91,8 +88,8 @@ class BasicScenarios(Fixture):
         self.expected_content_length = 3552
         self.content_includes_p = False
 
-basic_scenarios = BasicScenarios.as_pytest_fixture()
 
+@with_fixtures(WebFixture2, BasicScenarios)
 def test_basic_assembly(web_fixture, basic_scenarios):
     """An application is built by extending UserInterface, and defining this UserInterface in an .assemble() method.
 
@@ -131,6 +128,7 @@ def test_basic_assembly(web_fixture, basic_scenarios):
             browser.open('/nonexistantview/', status=404)
 
 
+@with_fixtures(WebFixture2)
 def test_basic_error1(web_fixture):
     """Sending the the wrong kind of thing as widget_class to define_page is reported to the programmer."""
     class MainUI(UserInterface):
@@ -147,6 +145,7 @@ def test_basic_error1(web_fixture):
             browser.open('/')
 
 
+@with_fixtures(WebFixture2)
 def test_basic_error2(web_fixture):
     """Sending the the wrong arguments for the specified class to define_page is reported to the programmer."""
 
@@ -167,6 +166,7 @@ def test_basic_error2(web_fixture):
             browser.open('/')
 
 
+@with_fixtures(WebFixture2)
 def test_basic_error3(web_fixture):
     """Forgetting to define either a page of a page for a View is reported to the programmer."""
     class MainUI(UserInterface):
@@ -185,10 +185,8 @@ def test_basic_error3(web_fixture):
             browser.open('/')
 
 
+@uses(web_fixture=WebFixture2)
 class SlotScenarios(Fixture):
-    def __init__(self, web_fixture):
-        super(SlotScenarios, self).__init__()
-        self.web_fixture = web_fixture
 
     @property
     def context(self):
@@ -214,8 +212,8 @@ class SlotScenarios(Fixture):
                 home.set_slot('footer', P.factory(text='I am the footer'))
         self.MainUI = MainUI
 
-slot_scenarios = SlotScenarios.as_pytest_fixture()
 
+@with_fixtures(WebFixture2, SlotScenarios)
 def test_slots(web_fixture, slot_scenarios):
     """A View modifies the page by populating named Slots in the page with Widgets."""
     fixture = slot_scenarios
@@ -230,6 +228,7 @@ def test_slots(web_fixture, slot_scenarios):
         assert footer_p.text == 'I am the footer'
 
 
+@with_fixtures(WebFixture2)
 def test_slot_error(web_fixture):
     """Supplying contents for a slot that does not exist results in s sensible error."""
     class MainUI(UserInterface):
@@ -251,6 +250,7 @@ def test_slot_error(web_fixture):
             browser.open('/')
 
 
+@with_fixtures(WebFixture2)
 def test_slot_defaults(web_fixture):
     """If a View does not specify contents for a Slot, the Slot will be populated by the window's default
        widget for that slot if specified, else it will be left empty.

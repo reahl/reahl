@@ -23,6 +23,7 @@ import datetime
 import functools
 
 from reahl.tofu import Fixture, temp_dir
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import stubclass, CallMonitor, exempt, EmptyStub
 
 from reahl.webdev.webserver import ServerSupervisor, SlaveProcess
@@ -80,9 +81,7 @@ class SupervisorFixture(Fixture):
             time.sleep(poll_interval)
 
 
-supervisor_fixture = SupervisorFixture.as_pytest_fixture()
-
-
+@with_fixtures(SupervisorFixture)
 def test_server_supervisor_restarts_slave_when_files_changed(supervisor_fixture):
     """The ServerSupervisor watches for changes to files, and restarts a web serving process when a file was changed."""
     fixture = supervisor_fixture

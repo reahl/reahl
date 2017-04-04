@@ -18,7 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from contextlib import contextmanager
 
-from reahl.tofu import set_up, tear_down, Fixture
+from reahl.tofu import set_up, tear_down, Fixture, uses
 from reahl.stubble import EmptyStub
 
 from reahl.component.config import ReahlSystemConfig
@@ -26,8 +26,10 @@ from reahl.component.context import ExecutionContext
 
 from reahl.sqlalchemysupport import metadata, Session
 
+from reahl.dev.fixtures import ReahlSystemFixture
 
 
+# TODO: cs remove
 class SqlAlchemyTestMixin(object):
     commit = False
 
@@ -98,13 +100,9 @@ class SqlAlchemyTestMixin(object):
         return self.run_fixture.system_control
 
 
+@uses(reahl_system_fixture=ReahlSystemFixture)
 class SqlAlchemyFixture(Fixture):
     commit = False
-
-    # noinspection PyShadowingNames
-    def __init__(self, reahl_system_fixture):
-        super(SqlAlchemyFixture, self).__init__()
-        self.reahl_system_fixture = reahl_system_fixture
 
     @set_up
     def start_transaction(self):
@@ -173,4 +171,3 @@ class SqlAlchemyFixture(Fixture):
     def system_control(self):
         return self.reahl_system_fixture.system_control
 
-sql_alchemy_fixture = SqlAlchemyFixture.as_pytest_fixture()

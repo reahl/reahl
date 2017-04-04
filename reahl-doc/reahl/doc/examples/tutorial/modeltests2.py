@@ -35,4 +35,3 @@ def test_model():
 
         assert addresses[1].name == 'Jane'
         assert addresses[1].email_address == 'jane@world.com'
-

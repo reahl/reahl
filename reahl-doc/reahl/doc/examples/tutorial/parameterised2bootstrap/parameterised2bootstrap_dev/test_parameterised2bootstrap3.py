@@ -1,21 +1,17 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytest_support import with_fixtures
 
-from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
 
 from reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap import AddressBookUI, Address
 
-from reahl.web_dev.fixtures import web_fixture
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.web_dev.fixtures import WebFixture2
 
 
+@uses(web_fixture=WebFixture2)
 class AddressAppFixture(Fixture):
-    def __init__(self, web_fixture):
-        super(AddressAppFixture, self).__init__()
-        self.web_fixture = web_fixture
 
     def new_wsgi_app(self):
         return self.web_fixture.new_wsgi_app(site_root=AddressBookUI, enable_js=True)
@@ -28,9 +24,8 @@ class AddressAppFixture(Fixture):
     def error_is_displayed(self, text):
         return self.web_fixture.driver_browser.is_element_present(XPath.span_containing(text))
 
-address_app_fixture = AddressAppFixture.as_pytest_fixture()
 
-
+@with_fixtures(WebFixture2, AddressAppFixture)
 def test_edit_errors(web_fixture, address_app_fixture):
     """Email addresses on the Edit an address page have to be valid email addresses."""
 

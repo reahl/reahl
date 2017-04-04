@@ -18,8 +18,10 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import pkg_resources
 
 
-from reahl.tofu import Fixture, set_up
+from reahl.tofu import Fixture, set_up, uses
+from reahl.tofu.pytest_support import with_fixtures
 from reahl.stubble import easter_egg
+
 from sqlalchemy import Column, Integer, ForeignKey
 
 from reahl.domain.workflowmodel import Task
@@ -35,26 +37,15 @@ from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
 
-# noinspection PyUnresolvedReferences
-from reahl.web_dev.fixtures import web_fixture
-
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.test_workflow import task_queue_fixture
-
-# noinspection PyUnresolvedReferences
-from reahl.sqlalchemysupport_dev.fixtures import sql_alchemy_fixture
-
-# noinspection PyUnresolvedReferences
-from reahl.domain_dev.fixtures import party_account_fixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
+from reahl.web_dev.fixtures import WebFixture2
+from reahl.domain_dev.test_workflow import TaskQueueFixture2
 
 
+@uses(sql_alchemy_fixture=SqlAlchemyFixture, party_account_fixture=PartyAccountFixture,
+      web_fixture=WebFixture2, task_queue_fixture=TaskQueueFixture2)
 class WorkflowWebFixture(Fixture):
-    def __init__(self, web_fixture, sql_alchemy_fixture, task_queue_fixture, party_account_fixture):
-        super(WorkflowWebFixture, self).__init__()
-        self.web_fixture = web_fixture
-        self.task_queue_fixture = task_queue_fixture
-        self.party_account_fixture = party_account_fixture
-        self.sql_alchemy_fixture = sql_alchemy_fixture
 
     def new_queues(self):
         return [self.task_queue_fixture.queue]
@@ -89,9 +80,6 @@ class WorkflowWebFixture(Fixture):
         config.workflowui = DomainUiConfig()
 
 
-workflow_web_fixture = WorkflowWebFixture.as_pytest_fixture()
-
-
 class MyTask(Task):
     __tablename__ = 'mytask'
     __mapper_args__ = {'polymorphic_identity': 'mytask'}
@@ -107,6 +95,7 @@ class MyTaskWidget(TaskWidget):
         self.add_child(P(self.view, text='my task widget'))
 
 
+@with_fixtures(WebFixture2, PartyAccountFixture, WorkflowWebFixture)
 def test_detour_to_login(web_fixture, party_account_fixture, workflow_web_fixture):
     fixture = workflow_web_fixture
 
@@ -121,6 +110,7 @@ def test_detour_to_login(web_fixture, party_account_fixture, workflow_web_fixtur
         assert browser.location_path == '/inbox/'
 
 
+@with_fixtures(WebFixture2, TaskQueueFixture2, WorkflowWebFixture)
 def test_take_and_release_task(web_fixture, task_queue_fixture, workflow_web_fixture):
     fixture = workflow_web_fixture
 
@@ -149,6 +139,7 @@ def test_take_and_release_task(web_fixture, task_queue_fixture, workflow_web_fix
         assert browser.location_path == '/inbox/'
 
 
+@with_fixtures(WebFixture2, SqlAlchemyFixture, TaskQueueFixture2, WorkflowWebFixture)
 def test_widgets_for_tasks(web_fixture, sql_alchemy_fixture, task_queue_fixture, workflow_web_fixture):
     """The widget to use for displaying a particular type of task can be set via an entry point."""
     fixture = workflow_web_fixture
