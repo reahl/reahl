@@ -342,7 +342,7 @@ class SequentialScenarios(Fixture):
         self.last_page_contents = self.items[10:15]
 
 
-@with_fixtures(WebFixture2, SequentialScenarios)
+@with_fixtures(SequentialScenarios)
 def test_sequential_page_index(sequential_scenarios):
     """The SequentialPageIndex breaks a query of items up into pages of sequential items"""
 

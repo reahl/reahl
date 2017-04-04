@@ -223,9 +223,9 @@ class Fixture(object):
             cls._session_instances = {}
             cls._session_setup_done = {}
         try:
-            instance = cls._session_instances[scenario]
+            instance = cls._session_instances[scenario.name]
         except KeyError:
-            instance = cls._session_instances[scenario] = cls.create_with_scenario(scenario, *args)
+            instance = cls._session_instances[scenario.name] = cls.create_with_scenario(scenario, *args)
 
         return instance
 

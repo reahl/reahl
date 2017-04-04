@@ -282,7 +282,7 @@ class RightsScenarios(Fixture):
         self.expected_writable = False
 
 
-@with_fixtures(WebFixture2, RightsScenarios)
+@with_fixtures(RightsScenarios)
 def test_bookmark_rights_when_adding(rights_scenarios):
     """When adding two Bookmarks, access rights of both are taken into account.
 
