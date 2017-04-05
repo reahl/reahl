@@ -50,6 +50,20 @@ class CircularDependencyDetected(Exception):
 
     
 class DependencyGraph(object):
+    @classmethod
+    def from_vertices(cls, vertices, find_dependencies):
+        graph = {}
+        def add_to_graph(v, graph):
+            dependencies = graph[v] = find_dependencies(v)
+            for dep in dependencies:
+                if dep not in graph:
+                    add_to_graph(dep, graph)
+
+        for v in vertices:
+            add_to_graph(v, graph)
+
+        return cls(graph)
+    
     def __init__(self, graph):
         self.graph = graph
         self.discovered = {}
@@ -246,8 +260,7 @@ class ReahlEgg(object):
 
     @classmethod
     def topological_sort(cls, distributions):
-        graph = {}
-        for dist in distributions:
+        def find_dependencies(dist):
             dependencies = [working_set.find(i) for i in dist.requires()]
             my_requirements =  dist.requires()
             #we want the subset of stuff in the basket we actually depend on, not just the basket itself
@@ -255,10 +268,9 @@ class ReahlEgg(object):
                                    if i.extras]
             for basket in basket_requirements:
                 dependencies.extend([working_set.find(Requirement.parse(i)) for i in basket.extras])
-
-            graph[dist] = dependencies
-
-        return DependencyGraph(graph).topological_sort()
+            return dependencies
+            
+        return DependencyGraph.from_vertices(distributions, find_dependencies).topological_sort()
 
 
     @classmethod 

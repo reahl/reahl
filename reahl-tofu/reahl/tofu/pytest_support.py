@@ -50,18 +50,10 @@ class with_fixtures(object):
         return FixturePermutationIterator(self.requested_fixtures, self.fixture_classes, number_args)
 
     def topological_sort(self, fixture_instances):
-        def add_instance(fixture_instance, graph):
-            graph[fixture_instance] = fixture_instance.dependencies
-            for dep in fixture_instance.dependencies:
-                if dep not in graph:
-                    add_instance(dep, graph)
-
-        graph = {}
-        for fixture_instance in fixture_instances:
-            add_instance(fixture_instance, graph)
-
-        graph[None] = fixture_instances
-        return reversed(list(DependencyGraph(graph).topological_sort())[1:])
+        def find_dependencies(fixture_instance):
+            return fixture_instance.dependencies
+        dependency_graph = DependencyGraph.from_vertices(fixture_instances, find_dependencies)
+        return reversed(list(dependency_graph.topological_sort()))
 
     
 class FixturePermutationIterator(object):
@@ -85,15 +77,8 @@ class FixturePermutationIterator(object):
             return with_fixtures.instances_in_fixture_order(self.fixture_classes, instances)[0]
             
     def topological_sort(self, fixture_classes):
-        def add_class(fixture_class, graph):
-            graph[fixture_class] = fixture_class._options.dependencies.values()
-            for dep in fixture_class._options.dependencies.values():
-                if dep not in graph:
-                    add_class(dep, graph)
+        def find_dependencies(fixture_class):
+            return fixture_class._options.dependencies.values()
+        dependency_graph = DependencyGraph.from_vertices(fixture_classes, find_dependencies)
+        return list(dependency_graph.topological_sort())
 
-        graph = {}
-        for fixture_class in fixture_classes:
-            add_class(fixture_class, graph)
-
-        graph[None] = fixture_classes
-        return list(DependencyGraph(graph).topological_sort())[1:]
