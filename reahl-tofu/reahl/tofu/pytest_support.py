@@ -12,7 +12,7 @@ import six
 from reahl.component.eggs import DependencyGraph
 from reahl.tofu.fixture import Scenario
 
-class with_fixtures(object):
+class WithFixtureDecorator(object):
     def __init__(self, *fixture_classes):
         self.requested_fixtures = fixture_classes
         self.fixture_classes = [(i.fixture_class if isinstance(i, Scenario) else i) for i in fixture_classes]
@@ -55,6 +55,7 @@ class with_fixtures(object):
         dependency_graph = DependencyGraph.from_vertices(fixture_instances, find_dependencies)
         return reversed(list(dependency_graph.topological_sort()))
 
+with_fixtures = WithFixtureDecorator
     
 class FixturePermutationIterator(object):
     def __init__(self, requested_fixtures, fixture_classes, number_args):
