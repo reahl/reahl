@@ -80,6 +80,8 @@ class FixturePermutationIterator(object):
             return with_fixtures.instances_in_fixture_order(self.fixture_classes, instances)
         else:
             return with_fixtures.instances_in_fixture_order(self.fixture_classes, instances)[0]
+        
+    next = __next__
             
     def topological_sort(self, fixture_classes):
         def find_dependencies(fixture_class):
