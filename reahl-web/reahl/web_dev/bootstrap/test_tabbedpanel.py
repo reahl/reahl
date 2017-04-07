@@ -232,6 +232,9 @@ class PanelSwitchFixture(Fixture):
 @with_fixtures(WebFixture2, PanelSwitchFixture, TabbedPanelAjaxFixture)
 def test_clicking_on_different_tabs_switch(web_fixture, panel_switch_fixture, tabbed_panel_ajax_fixture):
     """Clicking on tabs change the contents that are displayed as well as the active tab."""
+    if not panel_switch_fixture.enable_js:
+        panel_switch_fixture.ensure_disabled_js_files_not_cached()
+
     with web_fixture.context:
         wsgi_app = tabbed_panel_ajax_fixture.new_wsgi_app(enable_js=panel_switch_fixture.enable_js)
         web_fixture.reahl_server.set_app(wsgi_app)
@@ -257,6 +260,9 @@ def test_clicking_on_different_tabs_switch(web_fixture, panel_switch_fixture, ta
 @with_fixtures(WebFixture2, PanelSwitchFixture, TabbedPanelAjaxFixture)
 def test_clicking_on_multi_tab(web_fixture, panel_switch_fixture, tabbed_panel_ajax_fixture):
     """Clicking on a multitab just opens and closes its dropdown without affecting the current open tab."""
+    if not panel_switch_fixture.enable_js:
+        panel_switch_fixture.ensure_disabled_js_files_not_cached()
+
     with web_fixture.context:
         wsgi_app = tabbed_panel_ajax_fixture.new_wsgi_app(enable_js=panel_switch_fixture.enable_js)
         web_fixture.reahl_server.set_app(wsgi_app)

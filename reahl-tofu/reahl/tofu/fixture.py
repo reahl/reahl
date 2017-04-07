@@ -282,45 +282,35 @@ class Fixture(object):
     def __repr__(self):
         return '%s[%s]' % (self.__class__.__name__, self.scenario.name)
 
-    # def __enter__(self):
-    #     if self._options.scope == 'function':
-    #         return super(Fuxture, self).__enter__()
-    #     elif self._options.scope == 'session' and not self.__class__._session_setup_done.get(self.scenario, False):
-    #         atexit.register(self.session_cleanup)
-    #         try:
-    #             return super(Fuxture, self).__enter__()
-    #         finally:
-    #             self.__class__._session_setup_done[self.scenario] = True
-
     def __enter__(self):
         if self._setup_done:
             return
-
         self._setup_done = True
-        
+
         if self._options.scope == 'session':
             atexit.register(self.session_cleanup)
 
-        with self.context:
-            try:
-                self.set_up()
-                self.run_marked_methods(SetUp, order=reversed)
-                self.scenario.method_for(self)()
-            except:
-                self.__exit__(*sys.exc_info())
-                raise
-            return self
+        try:
+            self.context.__enter__()
+            # noinspection PyUnusedLocal
+            __reahl_context__ = self.context
+            self.set_up()
+            self.run_marked_methods(SetUp, order=reversed)
+            self.scenario.method_for(self)()
+        except:
+            self.__exit__(*sys.exc_info())
+            raise
+        return self
 
     def session_cleanup(self):
         return self.__exit__(*sys.exc_info(), exit_session=True)
 
     def __exit__(self, exception_type, value, traceback, exit_session=False):
         if self._options.scope == 'function' or exit_session:
-            with self.context:
-                self.tear_down_attributes()
-                self.run_marked_methods(TearDown)
-                self.tear_down()
-
+            self.tear_down_attributes()
+            self.run_marked_methods(TearDown)
+            self.tear_down()
+        self.context.__exit__(exception_type, value, traceback)
 
 
 class NoContext(object):

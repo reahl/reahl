@@ -50,8 +50,11 @@ _ = Translator('reahl-webdev')
         
 @stubclass(ReahlWSGIApplication)
 class ReahlWSGIApplicationStub(ReahlWSGIApplication):
-    def add_reahl_static_files(self): # To save time, this is costly...
-        pass  
+    def add_reahl_static_files(self): 
+        static_files = self.config.web.frontend_libraries.packaged_files()
+        static_files_no_js = [packaged_file
+                              for packaged_file in static_files if not packaged_file.relative_name.endswith('.js')]
+        self.define_static_files('/static', static_files_no_js)
 
 
 # TODO: cs remove
