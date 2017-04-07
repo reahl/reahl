@@ -15,7 +15,6 @@
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
-    <egg name="reahl-tofu"/>
   </deps>
 
   <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.stubble_dev'"/>

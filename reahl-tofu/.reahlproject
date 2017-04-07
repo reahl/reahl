@@ -11,12 +11,10 @@
   <deps purpose="run">
     <thirdpartyegg name="six"/>
     <thirdpartyegg name="wrapt" minversion="1.10.2" maxversion="1.10.999"/> 
-    <egg name="reahl-component"/>
   </deps>
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
-    <egg name="reahl-stubble"/>
   </deps>
 
   <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.tofu_dev'"/>
