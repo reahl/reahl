@@ -27,10 +27,10 @@ from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactor
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, P, A, Div, Slot
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_basic_ui(web_fixture):
     """A UserInterface is a chunk of web app that can be grafted onto the URL hierarchy of any app.
 
@@ -58,7 +58,7 @@ def test_basic_ui(web_fixture):
         assert browser.title == 'UserInterface other view' 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_ui_slots_map_to_window(web_fixture):
     """The UserInterface uses its own names for Slots. When attaching a UserInterface, you have to specify 
         which of the UserInterface's Slots plug into which of the page's Slots.
@@ -86,7 +86,7 @@ def test_ui_slots_map_to_window(web_fixture):
         assert p.text == 'in user_interface slot named text' 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_ui_redirect(web_fixture):
     """When opening an URL without trailing slash that maps to where a UserInterface is attached,
        the browser is redirected to the UserInterface '/' View."""
@@ -110,7 +110,7 @@ def test_ui_redirect(web_fixture):
         assert browser.location_path == '/a_ui/' 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_ui_arguments(web_fixture):
     """UserInterfaces can take exta args and kwargs."""
 
@@ -137,7 +137,7 @@ def test_ui_arguments(web_fixture):
         assert p.text == 'the kwarg' 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_bookmarks(web_fixture):
     """Bookmarks are pointers to Views. You need them, because Views are relative to a UserInterface and
        a Bookmark can, at run time, turn these into absolute URLs. Bookmarks also contain metadata,
@@ -160,7 +160,7 @@ def test_bookmarks(web_fixture):
         assert str(a.href) == str(bookmark.href) 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_bookmarks_overrides(web_fixture):
     """Various bits of information can be overridden from the defaults when creating a bookmark from a View.
     """
@@ -178,7 +178,7 @@ def test_bookmarks_overrides(web_fixture):
         assert bookmark.locale == 'af' 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_bookmarks_from_other_sources(web_fixture):
     """Bookmarks can also be made from ViewFactories, UserInterfaces or UserInterfaceFactories. 
     """
@@ -214,7 +214,7 @@ def test_bookmarks_from_other_sources(web_fixture):
             assert bookmark.relative_path == '/aview' 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_the_lifecycle_of_a_ui(web_fixture):
     """This test illustrates the steps a UserInterface goes through from being specified, to
        being used. It tests a couple of lower-level implementation issues (see comments)."""

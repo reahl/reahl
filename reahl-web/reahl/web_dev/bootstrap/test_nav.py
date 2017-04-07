@@ -30,12 +30,12 @@ from reahl.web.fw import Bookmark, Url
 from reahl.web.bootstrap.ui import A, Div, P
 from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 _ = Translator('reahl-web')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_navs(web_fixture):
     """A Nav is a menu with css classes for styling by Bootstrap."""
     with web_fixture.context:
@@ -62,7 +62,7 @@ def test_navs(web_fixture):
             assert a.get_attribute('class') == 'nav-link'
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_populating(web_fixture):
     """Navs can be populated with a list of A's or Bookmarks."""
     with web_fixture.context:
@@ -88,7 +88,7 @@ def test_populating(web_fixture):
         assert item2.a is a_list[1]
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class VisualFeedbackScenarios(Fixture):
 
     @property
@@ -111,7 +111,7 @@ class VisualFeedbackScenarios(Fixture):
         self.state_indicator_class = 'active'
 
 
-@with_fixtures(WebFixture2, VisualFeedbackScenarios)
+@with_fixtures(WebFixture, VisualFeedbackScenarios)
 def test_visual_feedback_on_items(web_fixture, visual_feedback_scenarios):
     """The state of a MenuItem is visually indicated to a user."""
     with web_fixture.context:
@@ -129,7 +129,7 @@ def test_visual_feedback_on_items(web_fixture, visual_feedback_scenarios):
         assert visual_feedback_scenarios.state_indicator_class in a_with_state.get_attribute('class')
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class MenuItemScenarios(Fixture):
     description = 'The link'
     href = Url('/link')
@@ -163,7 +163,7 @@ class MenuItemScenarios(Fixture):
         self.active = False
 
 
-@with_fixtures(WebFixture2, MenuItemScenarios)
+@with_fixtures(WebFixture, MenuItemScenarios)
 def test_rendering_active_menu_items(web_fixture, menu_item_scenarios):
     """A MenuItem is marked as active based on its active_regex or the A it represents."""
     description = 'The link'
@@ -182,7 +182,7 @@ def test_rendering_active_menu_items(web_fixture, menu_item_scenarios):
         assert actual == expected_menu_item_html
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class CustomMenuItemFixture(Fixture):
 
     @property
@@ -244,7 +244,7 @@ class CustomMenuItemFixture(Fixture):
         self.overriding_callable = lambda: True
 
 
-@with_fixtures(WebFixture2, CustomMenuItemFixture)
+@with_fixtures(WebFixture, CustomMenuItemFixture)
 def test_custom_active_menu_items(web_fixture, custom_menu_item_fixture):
     """You can specify a custom method by which a MenuItem determines its active state."""
     fixture = custom_menu_item_fixture
@@ -257,7 +257,7 @@ def test_custom_active_menu_items(web_fixture, custom_menu_item_fixture):
         assert fixture.expects_active == fixture.item_displays_as_active()
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_language_menu(web_fixture):
     """A Nav can also be constructed to let a user choose to view the same page in
        another of the supported languages."""
@@ -305,7 +305,7 @@ class LayoutScenarios(Fixture):
         self.layout = TabLayout()
 
 
-@with_fixtures(WebFixture2, LayoutScenarios)
+@with_fixtures(WebFixture, LayoutScenarios)
 def test_nav_layouts(web_fixture, layout_scenarios):
     """Navs can be laid out in different ways."""
     with web_fixture.context:
@@ -327,7 +327,7 @@ class DifferentLayoutTypes(Fixture):
         self.layout_type = TabLayout
 
 
-@with_fixtures(WebFixture2, DifferentLayoutTypes)
+@with_fixtures(WebFixture, DifferentLayoutTypes)
 def test_justified_items(web_fixture, different_layout_types):
     """Both a PillLayout or TabLayout can be set to make the MenuItems of
        their Nav fill the width of the parent, with the text of each item centered."""
@@ -348,7 +348,7 @@ def test_pill_layouts_cannot_mix_justified_and_stacked():
         PillLayout(stacked=True, justified=True)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_dropdown_menus(web_fixture):
     """You can add a DropdownMenu as a dropdown inside a Nav."""
     with web_fixture.context:
@@ -381,7 +381,7 @@ def test_dropdown_menus(web_fixture):
         assert 'dropdown-item' in dropdown_item.get_attribute('class').split()
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_dropdown_menus_can_drop_up(web_fixture):
     """Dropdown menus can drop upwards instead of downwards."""
     with web_fixture.context:
@@ -396,7 +396,7 @@ def test_dropdown_menus_can_drop_up(web_fixture):
         assert 'dropup' in item.get_attribute('class')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_dropdown_menus_right_align(web_fixture):
     """Dropdown menus can be aligned to the bottom right of their toggle, instead of the default (left)."""
 

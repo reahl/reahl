@@ -27,7 +27,7 @@ from reahl.stubble import EmptyStub
 from reahl.component.modelinterface import Field
 from reahl.web.fw import Factory, FactoryFromUrlRegex, UserInterface, RegexPath, NoMatchingFactoryFound, UrlBoundView
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 def test_factory_basics():
@@ -61,7 +61,7 @@ def test_factory_failure_to_create():
         factory.create(1, kwarg=2)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_factory_from_path_regex(web_fixture):
     """An FactoryFromUrlRegex parses args from the given URL and passes these as kwargs to create_method
        along with the args and kwargs passed to its .create()."""
@@ -82,7 +82,7 @@ def test_factory_from_path_regex(web_fixture):
         assert instance.extra_kwarg == '42'
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class MatchingScenarios(Fixture):
 
     @property
@@ -161,7 +161,7 @@ class MatchingScenarios(Fixture):
         self.is_applicable = True
 
 
-@with_fixtures(WebFixture2, MatchingScenarios)
+@with_fixtures(WebFixture, MatchingScenarios)
 def test_matching(web_fixture, matching_scenarios):
     with web_fixture.context:
         applicable_rating = matching_scenarios.factory.is_applicable_for(matching_scenarios.matched_path)

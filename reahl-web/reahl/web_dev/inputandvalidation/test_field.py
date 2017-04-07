@@ -28,7 +28,7 @@ from reahl.web.ui import InputTypeInput, Form, TextInput, ButtonInput
 from reahl.webdev.tools import WidgetTester
 
 from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture2
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class ConstraintRenderingFixture(SimpleInputFixture2):
@@ -47,7 +47,7 @@ class ConstraintRenderingFixture(SimpleInputFixture2):
         return InputTypeInput(self.form, field or self.field, 'inputtype')
 
 
-@with_fixtures(WebFixture2, ConstraintRenderingFixture)
+@with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_rendering_of_constraints(web_fixture, constraint_rendering_fixture):
     """The constraints of the Field of an PrimitiveInput are rendered in html as html attributes of an Input
        which corresponds with the name of each validation_constraint and has value the parameters of the validation_constraint.
@@ -82,7 +82,7 @@ def test_rendering_of_constraints(web_fixture, constraint_rendering_fixture):
         assert actual == expected_html
 
 
-@with_fixtures(WebFixture2, ConstraintRenderingFixture)
+@with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_remote_constraints(web_fixture, constraint_rendering_fixture):
     """Remote constraints are invoked by the browser via ajax on the server when the input loses focus."""
 
@@ -136,7 +136,7 @@ def test_remote_constraints(web_fixture, constraint_rendering_fixture):
         assert fixture.is_error_text('an attribute is invalid')
 
 
-@with_fixtures(WebFixture2, ConstraintRenderingFixture)
+@with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
     with web_fixture.context:
@@ -163,7 +163,7 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
         web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
 
-@with_fixtures(WebFixture2, ConstraintRenderingFixture)
+@with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
     with web_fixture.context:
@@ -186,7 +186,7 @@ def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
         web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
 
-@with_fixtures(WebFixture2, ConstraintRenderingFixture)
+@with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_max_length_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
     with web_fixture.context:
@@ -209,7 +209,7 @@ def test_max_length_constraint_js(web_fixture, constraint_rendering_fixture):
         assert accepted_value == '12345'
 
 
-@with_fixtures(WebFixture2, ConstraintRenderingFixture)
+@with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
     with web_fixture.context:
@@ -237,7 +237,7 @@ def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
         web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
 
-@with_fixtures(WebFixture2, ConstraintRenderingFixture)
+@with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
     with web_fixture.context:
@@ -260,7 +260,7 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
         web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
 
-@with_fixtures(WebFixture2, ConstraintRenderingFixture)
+@with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
     with web_fixture.context:

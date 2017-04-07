@@ -30,10 +30,10 @@ from reahl.web.bootstrap.tabbedpanel import TabbedPanel, MultiTab, Tab
 
 
 from reahl.webdev.fixtures import WebServerFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class TabbedPanelAjaxFixture(Fixture):
 
     @property
@@ -69,7 +69,7 @@ class TabbedPanelAjaxFixture(Fixture):
         return current_contents == expected_contents
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_basic_rendering(web_fixture):
     """A TabbedPanel consists of a Nav (its tabs) and a Div in which tab contents are displayed."""
 
@@ -94,7 +94,7 @@ def test_basic_rendering(web_fixture):
         assert actual == expected_html
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_tabs_with_sub_options(web_fixture):
     """A TabbedPanel can have Tabs that are each composed of multiple sub-options."""
     with web_fixture.context:
@@ -126,7 +126,7 @@ def test_tabs_with_sub_options(web_fixture):
         assert actual == expected_html
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class DefaultTabScenarios(Fixture):
 
     @scenario
@@ -135,7 +135,7 @@ class DefaultTabScenarios(Fixture):
         self.expected_contents = '<p>tab 2 content</p>'
         self.tab1_active = False
         self.tab2_active = True
-        
+
     @scenario
     def defaulted(self):
         self.web_fixture.request.query_string = ''
@@ -144,7 +144,7 @@ class DefaultTabScenarios(Fixture):
         self.tab2_active = False
 
 
-@with_fixtures(WebFixture2, DefaultTabScenarios)
+@with_fixtures(WebFixture, DefaultTabScenarios)
 def test_default_active_tab(web_fixture, default_tab_scenarios):
     """The first tab is active by default (if the active tab is not indicated in the query_string)."""
     with web_fixture.context:
@@ -173,7 +173,7 @@ class DefaultMultiTabScenarios(Fixture):
         self.tab1_active = False
         self.tab2_active = True
         self.tab3_active = False
-        
+
     @scenario
     def defaulted(self):
         self.query_args = {}
@@ -193,7 +193,7 @@ class DefaultMultiTabScenarios(Fixture):
         self.tab3_active = True
 
 
-@with_fixtures(WebFixture2, TabbedPanelAjaxFixture, DefaultMultiTabScenarios)
+@with_fixtures(WebFixture, TabbedPanelAjaxFixture, DefaultMultiTabScenarios)
 def test_default_active_multi_tab(web_fixture, tabbed_panel_ajax_fixture, default_multi_tab_scenarios):
     """The first item of the first tab is active by default (if the active tab is not indicated in the query_string)."""
     fixture = default_multi_tab_scenarios
@@ -212,7 +212,7 @@ def test_default_active_multi_tab(web_fixture, tabbed_panel_ajax_fixture, defaul
         assert (not fixture.tab3_active) or tabbed_panel_ajax_fixture.tab_is_active('tab 3 name')
 
 
-@uses(web_fixture=WebFixture2, web_server_fixture=WebServerFixture)
+@uses(web_fixture=WebFixture, web_server_fixture=WebServerFixture)
 class PanelSwitchFixture(Fixture):
 
     def ensure_disabled_js_files_not_cached(self):
@@ -229,7 +229,7 @@ class PanelSwitchFixture(Fixture):
         self.enable_js = True
 
 
-@with_fixtures(WebFixture2, PanelSwitchFixture, TabbedPanelAjaxFixture)
+@with_fixtures(WebFixture, PanelSwitchFixture, TabbedPanelAjaxFixture)
 def test_clicking_on_different_tabs_switch(web_fixture, panel_switch_fixture, tabbed_panel_ajax_fixture):
     """Clicking on tabs change the contents that are displayed as well as the active tab."""
     if not panel_switch_fixture.enable_js:
@@ -257,7 +257,7 @@ def test_clicking_on_different_tabs_switch(web_fixture, panel_switch_fixture, ta
         assert browser.wait_for(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 4 content</p>')
 
 
-@with_fixtures(WebFixture2, PanelSwitchFixture, TabbedPanelAjaxFixture)
+@with_fixtures(WebFixture, PanelSwitchFixture, TabbedPanelAjaxFixture)
 def test_clicking_on_multi_tab(web_fixture, panel_switch_fixture, tabbed_panel_ajax_fixture):
     """Clicking on a multitab just opens and closes its dropdown without affecting the current open tab."""
     if not panel_switch_fixture.enable_js:
@@ -291,7 +291,7 @@ def test_clicking_on_multi_tab(web_fixture, panel_switch_fixture, tabbed_panel_a
         assert browser.wait_for(tabbed_panel_ajax_fixture.tab_contents_equals, '<p>tab 3 content</p>')
 
 
-@with_fixtures(WebFixture2, PanelSwitchFixture, TabbedPanelAjaxFixture)
+@with_fixtures(WebFixture, PanelSwitchFixture, TabbedPanelAjaxFixture)
 def test_clicking_on_sub_tab_switches(web_fixture, panel_switch_fixture, tabbed_panel_ajax_fixture):
     """Clicking on a sub tab also changes the contents that are displayed as well as the active tab."""
     if not panel_switch_fixture.enable_js:

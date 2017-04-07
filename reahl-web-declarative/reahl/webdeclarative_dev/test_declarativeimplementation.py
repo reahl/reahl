@@ -33,12 +33,12 @@ from reahl.sqlalchemysupport import Session
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.webdeclarative.webdeclarative import UserSession, SessionData
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_session_active_state(web_fixture):
     """The session is active if the last user interaction was in the last idle_lifetime """
     fixture = web_fixture
@@ -54,7 +54,7 @@ def test_session_active_state(web_fixture):
     assert not user_session.is_active() 
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class SecureScenarios(Fixture):
 
     @scenario
@@ -83,7 +83,7 @@ class SecureScenarios(Fixture):
         self.expect_secure = False
 
 
-@with_fixtures(WebFixture2, SecureScenarios)
+@with_fixtures(WebFixture, SecureScenarios)
 def test_session_secure_state(web_fixture, secure_scenarios):
     """The session is only secured when used over https, the secure cookie is set correctly,
        and the last interaction is within idle_secure_lifetime"""
@@ -101,7 +101,7 @@ def test_session_secure_state(web_fixture, secure_scenarios):
         assert user_session.is_secured() is fixture.expect_secure
 
 
-@with_fixtures(SqlAlchemyFixture, WebFixture2)
+@with_fixtures(SqlAlchemyFixture, WebFixture)
 def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
     """How WebExecutionContext sets session and secure cookies in the response."""
     fixture = web_fixture
@@ -158,7 +158,7 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         #assert 'httponly' in secure_cookie
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_reading_cookies_on_initialising_a_session(web_fixture):
     fixture = web_fixture
     with web_fixture.context:
@@ -211,7 +211,7 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
         assert not fixture.context.session.is_secured()
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_session_data_disappears_when_session_does(web_fixture):
     """When a UserSession is deleted, all associated SessionData disappear as well."""
     fixture = web_fixture
@@ -231,7 +231,7 @@ def test_session_data_disappears_when_session_does(web_fixture):
         assert Session.query(UserSession).filter_by(id=user_session.id).count() == 0
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_session_keeps_living(web_fixture):
     """When SessionData is deleted, the associated UserSession is not affected."""
     fixture = web_fixture

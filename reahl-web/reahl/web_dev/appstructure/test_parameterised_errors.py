@@ -29,10 +29,10 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UrlBoundView, UserInterface
 from reahl.web.ui import HTML5Page
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_missing_variable_in_regex(web_fixture):
     """If a variable is missing from the regex, an appropriate error is raised."""
 
@@ -60,7 +60,7 @@ def test_missing_variable_in_regex(web_fixture):
             browser.open('/a_ui/test1/')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_missing_variable_in_ui_regex(web_fixture):
 
     class RegexUserInterface(UserInterface):

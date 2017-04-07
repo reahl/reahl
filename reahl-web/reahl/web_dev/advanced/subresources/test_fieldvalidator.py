@@ -26,7 +26,7 @@ from reahl.component.modelinterface import EmailField, exposed
 
 from reahl.webdev.tools import Browser
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class ValidationScenarios(Fixture):
@@ -67,7 +67,7 @@ class ValidationScenarios(Fixture):
         self.expected_charset = 'utf-8'
 
 
-@with_fixtures(WebFixture2, ValidationScenarios)
+@with_fixtures(WebFixture, ValidationScenarios)
 def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
     fixture = validation_scenarios
 

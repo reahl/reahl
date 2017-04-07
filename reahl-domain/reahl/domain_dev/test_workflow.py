@@ -28,7 +28,6 @@ from reahl.dev.tools import EventTester
 from reahl.sqlalchemysupport import Session, Base
 from reahl.domain.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.component.eggs import ReahlEgg
-from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
@@ -224,38 +223,6 @@ def test_deferred_action_times_out_with_shared_requirements(sql_alchemy_fixture,
 
         assert Session.query(Requirement).count() == 0
         assert Session.query(DeferredAction).count() == 0
-
-
-# TODO: cs remove
-class TaskQueueZooMixin(PartyModelZooMixin):
-    def new_session(self, system_account=None):
-        session = super(TaskQueueZooMixin, self).new_session()
-        system_account = self.new_system_account(party=self.party)
-        login_session = LoginSession.for_session(session)
-        login_session.set_as_logged_in(system_account, True)
-        return session
-
-    def new_workflow_interface(self):
-        return WorkflowInterface()
-
-    def new_queue(self, name=None):
-        name = name or 'A queue'
-        queue = Queue(name=name)
-        Session.add(queue)
-        return queue
-
-    def new_task(self, title=None, queue=None):
-        title = title or 'A task'
-        queue = queue or self.queue
-        task = Task(title=title, queue=queue)
-        Session.add(task)
-        Session.flush()
-        return task
-
-
-# TODO: cs remove
-class TaskQueueFixture(Fixture, TaskQueueZooMixin):
-    pass
 
 
 @uses(sql_alchemy_fixture=SqlAlchemyFixture, party_account_fixture=PartyAccountFixture)

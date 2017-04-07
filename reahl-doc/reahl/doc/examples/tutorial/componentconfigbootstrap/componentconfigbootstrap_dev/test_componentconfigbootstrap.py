@@ -9,10 +9,10 @@ from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap import AddressBookUI, Address
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class ConfigFixture(Fixture):
 
     def new_wsgi_app(self):
@@ -33,7 +33,7 @@ class ConfigFixture(Fixture):
         return self.browser.is_element_present(XPath.heading_with_text(1, 'Addresses'))
 
 
-@with_fixtures(WebFixture2, ConfigFixture)
+@with_fixtures(WebFixture, ConfigFixture)
 def test_add_address(web_fixture, config_fixture):
     """A user can add an address, after which the address is listed."""
     browser = config_fixture.browser
@@ -48,13 +48,13 @@ def test_add_address(web_fixture, config_fixture):
         assert config_fixture.address_is_listed_as('John', 'johndoe@some.org')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_config_was_read_from_file(web_fixture):
     """The tests are run with config read from an actual config file, not the default config."""
     assert web_fixture.context.config.componentconfig.showheader == True
 
 
-@with_fixtures(WebFixture2, ConfigFixture)
+@with_fixtures(WebFixture, ConfigFixture)
 def test_configurable_heading(web_fixture, config_fixture):
     """Whether the heading is displayed or not, is configurable."""
     browser = config_fixture.browser

@@ -9,7 +9,7 @@ from reahl.webdev.tools import Browser, XPath
 from reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap import SessionScopeUI, User
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class SessionScopeFixture(Fixture):
@@ -29,7 +29,7 @@ def demo_setup(sql_alchemy_fixture, session_scope_fixture):
         session_scope_fixture.new_user()
 
 
-@with_fixtures(WebFixture2, SessionScopeFixture)
+@with_fixtures(WebFixture, SessionScopeFixture)
 def test_logging_in(web_fixture, session_scope_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""
@@ -49,7 +49,7 @@ def test_logging_in(web_fixture, session_scope_fixture):
         assert browser.is_element_present(XPath.paragraph_containing('Welcome John Doe'))
     
 
-@with_fixtures(WebFixture2, SessionScopeFixture)
+@with_fixtures(WebFixture, SessionScopeFixture)
 def test_email_retained(web_fixture, session_scope_fixture):
     """The email address used when last logged in is always pre-populated on the Log in page."""
 
@@ -73,7 +73,7 @@ def test_email_retained(web_fixture, session_scope_fixture):
         assert typed_value == 'johndoe@some.org'
     
 
-@with_fixtures(WebFixture2, SessionScopeFixture)
+@with_fixtures(WebFixture, SessionScopeFixture)
 def test_domain_exception(web_fixture, session_scope_fixture):
     """Typing the wrong password results in an error message being shown to the user."""
 

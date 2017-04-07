@@ -37,7 +37,7 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, Verif
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
@@ -489,7 +489,7 @@ def test_logging_in(sql_alchemy_fixture, party_account_fixture):
         assert login_session.account is None
 
 
-@with_fixtures(PartyAccountFixture, WebFixture2)
+@with_fixtures(PartyAccountFixture, WebFixture)
 def test_login_queries(party_account_fixture, web_fixture):
     """"""
 

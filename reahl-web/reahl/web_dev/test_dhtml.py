@@ -28,7 +28,7 @@ from reahl.web.fw import WebExecutionContext, UserInterface
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class DhtmlFixture(Fixture):
@@ -60,7 +60,7 @@ class DhtmlFixture(Fixture):
         self.other_file
 
 
-@with_fixtures(WebFixture2, DhtmlFixture)
+@with_fixtures(WebFixture, DhtmlFixture)
 def test_basic_workings(web_fixture, dhtml_fixture):
     """A DhtmlUI provides a UserInterface which maps to the filesystem where there may be
        a combination of .d.html and other files. When a d.html file is requested from
@@ -96,7 +96,7 @@ def test_basic_workings(web_fixture, dhtml_fixture):
         browser.open('/dhtml_ui/idonotexist.d.html', status=404)
 
 
-@with_fixtures(WebFixture2, DhtmlFixture)
+@with_fixtures(WebFixture, DhtmlFixture)
 def test_i18n_dhtml(web_fixture, dhtml_fixture):
     """Dhtml files can have i18nsed versions, which would be served up if applicable."""
 

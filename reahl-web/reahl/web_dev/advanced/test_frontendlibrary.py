@@ -30,10 +30,10 @@ from reahl.web.fw import ReahlWSGIApplication, UserInterface
 from reahl.web.ui import HTML5Page
 from reahl.web.libraries import Library
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class LibraryFixture(Fixture):
 
     def new_egg_dir(self):
@@ -70,7 +70,7 @@ class LibraryFixture(Fixture):
         return MainUI
 
 
-@with_fixtures(WebFixture2, LibraryFixture)
+@with_fixtures(WebFixture, LibraryFixture)
 def test_configuring_libraries(web_fixture, library_fixture):
     """Reahl can be configured to expose frontend libraries (libraries of js and css files)."""
     with web_fixture.context:
@@ -80,7 +80,7 @@ def test_configuring_libraries(web_fixture, library_fixture):
         assert 'mylib' in web.frontend_libraries
 
 
-@with_fixtures(WebFixture2, LibraryFixture)
+@with_fixtures(WebFixture, LibraryFixture)
 def test_library_files(web_fixture, library_fixture):
     """The files part of configured frontend libraries are (a) added to /static and also (b) included on any page."""
     with web_fixture.context:
@@ -103,7 +103,7 @@ def test_library_files(web_fixture, library_fixture):
         assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_standard_reahl_files(web_fixture):
     """The framework includes certain frontent frameworks by default."""
     with web_fixture.context:

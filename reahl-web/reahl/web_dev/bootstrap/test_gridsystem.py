@@ -29,10 +29,10 @@ from reahl.web.ui import HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div
 from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_containers(web_fixture):
     """There are two types of Bootstrap containers:  a full width container, and a responsive (fluid) container."""
 
@@ -51,7 +51,7 @@ def test_containers(web_fixture):
         assert 'container-fluid' == css_class
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_column_layout_basics(web_fixture):
     """The bootstrap.ColumnLayout adds the correct classes for Bootstrap to lay out its Widget as a row with columns."""
 
@@ -71,7 +71,7 @@ def test_column_layout_basics(web_fixture):
         assert 'col-lg-8' in column_b.get_attribute('class')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_column_layout_sizes(web_fixture):
     """It is mandatory to specify sizes for all columns."""
 
@@ -81,7 +81,7 @@ def test_column_layout_sizes(web_fixture):
 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_adding_columns(web_fixture):
     """You can add additional columns after construction."""
 
@@ -104,7 +104,7 @@ def test_allowed_sizes():
     assert size == {'xs':1, 'sm':2, 'md':3, 'lg':4, 'xl':5}
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_column_offsets(web_fixture):
     """You can optionally specify space to leave empty (an offset) before a column at specific device sizes."""
 
@@ -123,7 +123,7 @@ def test_column_offsets(web_fixture):
         assert 'col-xl-offset-1' in column_a.get_attribute('class')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_column_clearfix(web_fixture):
     """If a logical row spans more than one visual row for a device size, bootstrap clearfixes are
        automatically inserted to ensure cells in resultant visual rows are neatly arranged.

@@ -7,10 +7,10 @@ from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap import AddressBookUI, Address
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class DataTableExampleFixture(Fixture):
 
     def new_browser(self):
@@ -34,14 +34,14 @@ class DataTableExampleFixture(Fixture):
         return '//table/thead/tr/th/a/span[text()="%s"]/..' % column_heading
 
 
-@with_fixtures(WebFixture2, DataTableExampleFixture)
+@with_fixtures(WebFixture, DataTableExampleFixture)
 def demo_setup(sql_alchemy_fixture, data_table_example_fixture):
     sql_alchemy_fixture.commit = True
     with sql_alchemy_fixture.context:
         data_table_example_fixture.create_addresses()
 
 
-@with_fixtures(WebFixture2, DataTableExampleFixture)
+@with_fixtures(WebFixture, DataTableExampleFixture)
 def test_editing_an_address(web_fixture, data_table_example_fixture):
     """To edit an existing address, a user clicks on the "Edit" link next to the chosen Address
        on the "Addresses" page. The user is then taken to an "Edit" View for the chosen Address and
@@ -67,7 +67,7 @@ def test_editing_an_address(web_fixture, data_table_example_fixture):
         assert not fixture.address_is_listed_as(original_address_name)
 
 
-@with_fixtures(WebFixture2, DataTableExampleFixture)
+@with_fixtures(WebFixture, DataTableExampleFixture)
 def test_pageable_table(web_fixture, data_table_example_fixture):
     """If there is a large dataset, the user can page through it, receiving only a managable number of items
        at a time."""
@@ -90,7 +90,7 @@ def test_pageable_table(web_fixture, data_table_example_fixture):
         assert not fixture.address_is_listed_as('friend 21')
 
 
-@with_fixtures(WebFixture2, DataTableExampleFixture)
+@with_fixtures(WebFixture, DataTableExampleFixture)
 def test_sorting_by_column(web_fixture, data_table_example_fixture):
     """The user can sort the table differently, by clicking on links in the heading of a sortable
        column."""

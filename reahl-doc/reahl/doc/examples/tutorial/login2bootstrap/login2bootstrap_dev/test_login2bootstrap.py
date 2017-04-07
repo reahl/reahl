@@ -11,10 +11,10 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 from reahl.doc.examples.tutorial.login2bootstrap.login2bootstrap import LoginUI
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class LoginFixture(Fixture):
 
     def new_browser(self):
@@ -37,7 +37,7 @@ def demo_setup(sql_alchemy_fixture, login_fixture):
         login_fixture.new_account()
 
 
-@with_fixtures(WebFixture2, LoginFixture)
+@with_fixtures(WebFixture, LoginFixture)
 def test_logging_in(web_fixture, login_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""

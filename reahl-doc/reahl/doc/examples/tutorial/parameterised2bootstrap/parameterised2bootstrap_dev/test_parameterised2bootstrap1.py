@@ -7,10 +7,10 @@ from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap import AddressBookUI
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_adding_an_address(web_fixture):
     """To add a new address, a user clicks on "Add Address" link on the menu, then supplies the 
        information for the new address and clicks the Save button. Upon successful addition of the

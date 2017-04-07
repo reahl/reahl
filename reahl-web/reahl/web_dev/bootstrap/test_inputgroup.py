@@ -27,10 +27,10 @@ from reahl.webdev.tools import WidgetTester
 from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import TextInput, InputGroup
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
 
-@uses(web_fixture=WebFixture2, simple_input_fixture=SimpleInputFixture)
+@uses(web_fixture=WebFixture, simple_input_fixture=SimpleInputFixture)
 class InputGroupFixture(Fixture):
 
     @property
@@ -61,7 +61,7 @@ class InputGroupFixture(Fixture):
         self.expects_after_html = '<span class="input-group-addon"><p>after widget</p></span>'
 
 
-@with_fixtures(WebFixture2, InputGroupFixture)
+@with_fixtures(WebFixture, InputGroupFixture)
 def test_input_group(web_fixture, input_group_fixture):
     """An InputGroup is a composition of an input with some text or Widget before and/or after an input."""
     fixture = input_group_fixture

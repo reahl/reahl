@@ -30,7 +30,7 @@ from reahl.component.modelinterface import Field, IntegerField, exposed
 from reahl.web.bootstrap.ui import Div
 from reahl.web.bootstrap.tables import Table, StaticColumn, TableLayout, DataTable
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 from reahl.web_dev.widgets.test_table import TableFixture
 
 
@@ -71,7 +71,7 @@ class LayoutScenarios(Fixture):
         self.expected_css_class = 'table-responsive'
 
 
-@with_fixtures(WebFixture2, LayoutScenarios)
+@with_fixtures(WebFixture, LayoutScenarios)
 def test_table_layout_options(web_fixture, layout_scenarios):
     """TableLayout uses Bootstrap to implement many table layout options."""
     with web_fixture.context:
@@ -134,7 +134,7 @@ class DataTableFixture(TableFixture):
                         for expected_class in ['sorted-ascending','sorted-descending']])
 
 
-@with_fixtures(WebFixture2, DataTableFixture)
+@with_fixtures(WebFixture, DataTableFixture)
 def test_paging_through_data(web_fixture, data_table_fixture):
     """DataTable splits its items into different pages (between which a user can navigate), showing only the items of a particular page at a time."""
     with web_fixture.context:
@@ -160,7 +160,7 @@ def test_paging_through_data(web_fixture, data_table_fixture):
         assert data_table_fixture.get_table_row(3) == ['12' ,'W']
 
 
-@with_fixtures(WebFixture2, DataTableFixture)
+@with_fixtures(WebFixture, DataTableFixture)
 def test_sorting(web_fixture, data_table_fixture):
     """By clicking on special links in the column header, the table is sorted according to that column - ascending or descending."""
     with web_fixture.context:
@@ -214,7 +214,7 @@ def test_sorting(web_fixture, data_table_fixture):
         assert data_table_fixture.get_table_row(3) == ['12' ,'W']
 
 
-@with_fixtures(WebFixture2, DataTableFixture)
+@with_fixtures(WebFixture, DataTableFixture)
 def test_which_columns_can_cause_sorting(web_fixture, data_table_fixture):
     """Only columns with sort_key specified are sortable."""
     with web_fixture.context:
@@ -229,7 +229,7 @@ def test_which_columns_can_cause_sorting(web_fixture, data_table_fixture):
         assert not data_table_fixture.does_column_have_sort_link(3)
 
 
-@with_fixtures(WebFixture2, DataTableFixture)
+@with_fixtures(WebFixture, DataTableFixture)
 def test_layout_for_contained_table(web_fixture, data_table_fixture):
     """You can specify a Layout to use for the actual table inside the DataTable."""
     with web_fixture.context:

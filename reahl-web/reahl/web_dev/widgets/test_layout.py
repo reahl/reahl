@@ -28,10 +28,10 @@ from reahl.web.fw import UserInterface, Layout
 from reahl.web.ui import P, HTML5Page, Div, Header, Footer
 from reahl.web.layout import ResponsiveSize, ColumnLayout, PageLayout
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_widget_layout(web_fixture):
     """A Layout is used to add children to the Widget in customised ways, and to customise the Widget itself upon construction."""
 
@@ -63,7 +63,7 @@ def test_widget_layout(web_fixture):
         assert wrapper.children == [widget_to_add]
 
     
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_widget_layout_errors(web_fixture):
     """A Layout can only be used with a single Widget, and a Widget can only have a single Layout."""
 
@@ -80,7 +80,7 @@ def test_widget_layout_errors(web_fixture):
             Div(fixture.view).use_layout(re_used_layout)
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class WidgetCreationScenarios(Fixture):
 
     @property
@@ -115,7 +115,7 @@ class WidgetCreationScenarios(Fixture):
         self.MainUI = MainUI
 
 
-@with_fixtures(WebFixture2, WidgetCreationScenarios)
+@with_fixtures(WebFixture, WidgetCreationScenarios)
 def test_widget_factory_creates_widget_with_layout(web_fixture, widget_creation_scenarios):
     """A Layout can be specified to any WidgetFactory or to UserInterface.define_page"""
 
@@ -151,7 +151,7 @@ def test_responsive_size():
     assert size == {'xs': 1, 'sm': '2'}
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_column_layout_basics(web_fixture):
     """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Div."""
 
@@ -169,7 +169,7 @@ def test_column_layout_basics(web_fixture):
         assert isinstance(column_b, Div)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_column_layout_sizes(web_fixture):
     """You can also pass tuples to define columns with specified sizes. The size is passed to add_column which you can override."""
 
@@ -191,7 +191,7 @@ def test_column_layout_sizes(web_fixture):
         assert fixture.added_sizes[1] is specified_size
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_order_of_columns(web_fixture):
     """Columns are added in the order given to the ColumnLayout constructor, and the Div representing each column
        can be obtained using dictionary access on Layout.columns."""
@@ -209,7 +209,7 @@ def test_order_of_columns(web_fixture):
         assert second_column is column_b
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_columns_classes(web_fixture):
     """The Div added for each column specified to ColumnLayout is given a CSS class derived from the column name."""
 
@@ -220,7 +220,7 @@ def test_columns_classes(web_fixture):
         assert 'column-column_name_a' in column_a.get_attribute('class')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_column_slots(web_fixture):
     """A ColumnLayout can be made that adds a Slot to each added column, named after the column it is added to."""
 
@@ -233,7 +233,7 @@ def test_column_slots(web_fixture):
         assert 'column_name_b' in column_b.available_slots
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_adding_unnamed_columns(web_fixture):
     """You can add a column by calling add_column on the ColumnLayout"""
 
@@ -250,7 +250,7 @@ def test_adding_unnamed_columns(web_fixture):
         assert isinstance(widget.children[0], Div)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_page_layout_basics(web_fixture):
     """A PageLayout adds a Div to the body of its page (the page's document), containing a header, footer 
        with a div inbetween the two for page contents."""
@@ -268,7 +268,7 @@ def test_page_layout_basics(web_fixture):
         assert isinstance(footer, Footer)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_header_and_footer_slots(web_fixture):
     """PageLayout adds a Slot for Header and Footer."""
 
@@ -282,7 +282,7 @@ def test_header_and_footer_slots(web_fixture):
         assert 'footer' in footer.available_slots
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_page_layout_content_layout(web_fixture):
     """A PageLayout can be given a Layout it should use to lay out its contents Div."""
 
@@ -294,7 +294,7 @@ def test_page_layout_content_layout(web_fixture):
         assert widget.layout.contents.layout is contents_layout
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_page_layout_only_meant_for_html5page(web_fixture):
     """When an attempting to use a PageLayout on something other than an HTML5Page, a useful exception is raised."""
 
@@ -304,7 +304,7 @@ def test_page_layout_only_meant_for_html5page(web_fixture):
             Div(fixture.view).use_layout(PageLayout())
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_page_layout_convenience_features(web_fixture):
     """A PageLayout exposes useful methods to get to its contents, and adds ids to certain elements for convenience in CSS."""
 

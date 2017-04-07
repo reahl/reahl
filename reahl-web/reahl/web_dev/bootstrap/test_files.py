@@ -32,10 +32,10 @@ from reahl.component.exceptions import DomainException
 from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.files import FileUploadInput, FileUploadPanel, Button, FormLayout, FileInput, FileInputButton
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class FileInputButtonFixture(Fixture):
 
     def upload_button_indicates_focus(self):
@@ -66,7 +66,7 @@ class FileInputButtonFixture(Fixture):
         return FileUploadForm   
 
 
-@with_fixtures(WebFixture2, FileInputButtonFixture)
+@with_fixtures(WebFixture, FileInputButtonFixture)
 def test_file_upload_button(web_fixture, file_input_button_fixture):
     """A FileInputButton lets you upload files using the browser's file choosing mechanism."""
 
@@ -87,7 +87,7 @@ def test_file_upload_button(web_fixture, file_input_button_fixture):
         assert len(fixture.domain_object.files) == 1 
 
 
-@with_fixtures(WebFixture2, FileInputButtonFixture)
+@with_fixtures(WebFixture, FileInputButtonFixture)
 def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
     """If the FileInputButton gets tab focus, it is styled to appear focussed."""
 
@@ -137,7 +137,7 @@ class FileInputFixture(FileInputButtonFixture):
         return not input_element.value_of_css_property('width').startswith('0.')
 
 
-@with_fixtures(WebFixture2, FileInputFixture)
+@with_fixtures(WebFixture, FileInputFixture)
 def test_file_input_basics(web_fixture, file_input_fixture):
     """A FileInput is a FileInputButton combined with a area where the chosen file name is displayed."""
     fixture = file_input_fixture
@@ -156,7 +156,7 @@ def test_file_input_basics(web_fixture, file_input_fixture):
         browser.wait_for(fixture.message_displayed_is, '2 files chosen')
 
 
-@with_fixtures(WebFixture2, FileInputFixture)
+@with_fixtures(WebFixture, FileInputFixture)
 def test_i18n(web_fixture, file_input_fixture):
     """All messages have translations."""
     fixture = file_input_fixture
@@ -173,7 +173,7 @@ def test_i18n(web_fixture, file_input_fixture):
         browser.wait_for(fixture.message_displayed_is, '2 gekose lêers')
 
 
-@with_fixtures(WebFixture2, FileInputFixture)
+@with_fixtures(WebFixture, FileInputFixture)
 def test_file_input_without_js(web_fixture, file_input_fixture):
     """If JS available, we display a bootstrap-styled button, and associated span that look like a pretty version of a standard file input; otherwise we degrade to displaying only the standard file input"""
 
@@ -195,7 +195,7 @@ def test_file_input_without_js(web_fixture, file_input_fixture):
         browser.wait_for(fixture.standard_file_input_is_visible)
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class FileUploadInputFixture(Fixture):
 
     @property
@@ -403,7 +403,7 @@ class FailingConstraint(ValidationConstraint):
             raise self
 
 
-@with_fixtures(WebFixture2, FileUploadInputFixture)
+@with_fixtures(WebFixture, FileUploadInputFixture)
 def test_file_upload_input_basics(web_fixture, file_upload_input_fixture):
     """A FileUploadInput allows its user to upload multiple files one by one before the Form that
        contains the FileUploadInput is submitted.  When the Form is finally submitted
@@ -450,7 +450,7 @@ def test_file_upload_input_basics(web_fixture, file_upload_input_fixture):
         assert file1_mime_type == 'text/html' 
 
 
-@with_fixtures(WebFixture2, FileUploadInputFixture)
+@with_fixtures(WebFixture, FileUploadInputFixture)
 def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
     """The FileUploadInput displays a list of files that were uploaded so far, but is cleared 
        once the Form is submitted."""
@@ -491,7 +491,7 @@ def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
         assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
 
-@with_fixtures(WebFixture2, FileUploadInputFixture)
+@with_fixtures(WebFixture, FileUploadInputFixture)
 def test_file_upload_input_remove_files(web_fixture, file_upload_input_fixture):
     """A user can remove files that were uploaded before the Form which contains the 
        FileUploadInput is submitted."""
@@ -520,7 +520,7 @@ def test_file_upload_input_remove_files(web_fixture, file_upload_input_fixture):
         assert list(fixture.domain_object.submitted_file_info.keys()) == [fixture.file_to_upload2_name]
 
 
-@with_fixtures(WebFixture2, FileUploadInputFixture)
+@with_fixtures(WebFixture, FileUploadInputFixture)
 def test_file_upload_input_double_uploads(web_fixture, file_upload_input_fixture):
     """The user is prevented from uploading more than one file with the same name.
     """
@@ -543,7 +543,7 @@ def test_file_upload_input_double_uploads(web_fixture, file_upload_input_fixture
         assert fixture.file_was_uploaded(fixture.file_to_upload1.name) 
 
 
-@with_fixtures(WebFixture2, FileUploadInputFixture)
+@with_fixtures(WebFixture, FileUploadInputFixture)
 def test_async_upload(web_fixture, file_upload_input_fixture):
     """If JavaScript is enabled, the uploading of files happen in the background via ajax (without reloading the page)
        allowing the user to be busy with the rest of the form. The user does not need to click on the Upload button,
@@ -568,7 +568,7 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
         assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
 
 
-@with_fixtures(WebFixture2, LargeFileUploadInputFixture)
+@with_fixtures(WebFixture, LargeFileUploadInputFixture)
 def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     """While a large file is being uploaded, a progress bar and a Cancel button are displayed. Clicking on the Cancel
        button stops the upload and clears the file name from the list of uploaded files.
@@ -597,7 +597,7 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
         assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
 
 
-@with_fixtures(WebFixture2, LargeFileUploadInputFixture)
+@with_fixtures(WebFixture, LargeFileUploadInputFixture)
 def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
     """Cancelling an upload that is still queued (upload not started yet) removes the file from the list
        and removed it from the queue of uploads.
@@ -635,7 +635,7 @@ def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
         assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
 
 
-@with_fixtures(WebFixture2, FileUploadInputFixture)
+@with_fixtures(WebFixture, FileUploadInputFixture)
 def test_prevent_duplicate_upload_js(web_fixture, file_upload_input_fixture):
     """The user is prevented from uploading more than one file with the same name on the client side.
     """
@@ -667,7 +667,7 @@ def test_prevent_duplicate_upload_js(web_fixture, file_upload_input_fixture):
         browser.wait_for_not(error_is_visible)
 
 
-@with_fixtures(WebFixture2, LargeFileUploadInputFixture)
+@with_fixtures(WebFixture, LargeFileUploadInputFixture)
 def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
     """The user is prevented from submitting the Form while one or more file uploads are still in progress."""
     fixture = large_file_upload_input_fixture
@@ -689,7 +689,7 @@ def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
             alert.accept()
 
 
-@with_fixtures(WebFixture2, FileUploadInputFixture)
+@with_fixtures(WebFixture, FileUploadInputFixture)
 def test_async_remove(web_fixture, file_upload_input_fixture):
     """With javascript enabled, removing of uploaded files take place via ajax."""
 
@@ -726,7 +726,7 @@ def test_async_remove(web_fixture, file_upload_input_fixture):
         assert list(fixture.domain_object.submitted_file_info.keys()) == [] 
 
 
-@with_fixtures(WebFixture2, BrokenFileUploadInputFixture)
+@with_fixtures(WebFixture, BrokenFileUploadInputFixture)
 def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
     """If an error happens during (ajax) upload, the user is notified."""
     fixture = broken_file_upload_input_fixture
@@ -745,7 +745,7 @@ def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
         assert not browser.is_element_enabled(XPath.button_labelled('Cancel')) 
 
 
-@with_fixtures(WebFixture2, ToggleValidationFixture)
+@with_fixtures(WebFixture, ToggleValidationFixture)
 def test_async_upload_domain_exception(web_fixture, toggle_validation_fixture):
     """When a DomainException happens upon uploading via JavaScript, 
        the form is replaced with a rerendered version from the server."""
@@ -780,7 +780,7 @@ def test_async_upload_domain_exception(web_fixture, toggle_validation_fixture):
             browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
 
 
-@with_fixtures(WebFixture2, LargeFileUploadInputFixture)
+@with_fixtures(WebFixture, LargeFileUploadInputFixture)
 def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     """Asynchronous uploads do not happen concurrently, they are queued one after another.
     """
@@ -814,7 +814,7 @@ def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
         assert fixture.file_was_uploaded(fixture.file_to_upload2.name) 
 
 
-@with_fixtures(WebFixture2, PerFileConstrainedFileUploadInputFixture)
+@with_fixtures(WebFixture, PerFileConstrainedFileUploadInputFixture)
 def test_async_validation(web_fixture, per_file_constrained_file_upload_input_fixture):
     """Validations are checked in JavaScript before uploading.
     """
@@ -839,7 +839,7 @@ def test_async_validation(web_fixture, per_file_constrained_file_upload_input_fi
         assert fixture.uploaded_file_is_listed( fixture.valid_file.name ) 
 
 
-@with_fixtures(WebFixture2, MaxNumberOfFilesFileUploadInputFixture)
+@with_fixtures(WebFixture, MaxNumberOfFilesFileUploadInputFixture)
 def test_async_number_files_validation(web_fixture, max_number_of_files_file_upload_input_fixture):
     """A Field set to only allow a maximum number of files is checked for validity before uploading in JS.
     """

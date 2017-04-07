@@ -27,7 +27,7 @@ from reahl.component.modelinterface import FileField, exposed, Event, UploadedFi
 from reahl.web.ui import SimpleFileInput, Form, ButtonInput
 from reahl.webdev.tools import XPath
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class FailingConstraint(ValidationConstraint):
@@ -38,7 +38,7 @@ class FailingConstraint(ValidationConstraint):
             raise self
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_form_encoding(web_fixture):
     """The enctype of a Form changes to multipart/form-data if it contains an input for a file."""
     fixture = web_fixture
@@ -57,7 +57,7 @@ def test_form_encoding(web_fixture):
         assert form.attributes.v['enctype'] == 'multipart/form-data'
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_simple_file_input(web_fixture):
     """A SimpleFileInput is a Widget with which a user can choose one or more files.
        The SimpleFileInput transforms the chosen files to UploadedFile objects, and passes these
@@ -102,7 +102,7 @@ def test_simple_file_input(web_fixture):
         assert read_contents == expected_content
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_simple_file_input_exceptions(web_fixture):
     """Usually, when a DomainException happens during a form submit Inputs save the input they received so that
        such input can be pre-populated on the screen rendered by a subsequent GET for a user to correct

@@ -10,10 +10,10 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.webdev.tools import XPath
 from reahl.doc.examples.tutorial.pagerbootstrap.pagerbootstrap import AddressBookUI
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class PagingFixture(Fixture):
 
     def new_browser(self):
@@ -26,7 +26,7 @@ class PagingFixture(Fixture):
         return self.browser.is_element_present(XPath.paragraph_containing(email))
 
 
-@with_fixtures(WebFixture2, PagingFixture)
+@with_fixtures(WebFixture, PagingFixture)
 def test_paging(web_fixture, paging_fixture):
     """Clicking on a different page in the pager changes the addresses listed without triggering a page load."""
 

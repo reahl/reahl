@@ -16,10 +16,10 @@ from reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap import Address,
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class AccessUIFixture(Fixture):
 
     def new_browser(self):
@@ -172,7 +172,7 @@ def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
         assert not other_address_book.collaborators_can_be_added_by(account)
 
 
-@with_fixtures(WebFixture2, AccessDomainFixture, AccessUIFixture)
+@with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_logging_in(web_fixture, access_domain_fixture, access_ui_fixture):
     """A user first sees only a login screen on the home page; after logging in,
        all the address books visible to the user appear."""
@@ -193,7 +193,7 @@ def test_logging_in(web_fixture, access_domain_fixture, access_ui_fixture):
         assert browser.is_element_present(XPath.link_with_text('Address book of other@some.org'))
 
 
-@with_fixtures(WebFixture2, AccessDomainFixture, AccessUIFixture)
+@with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture):
     """The owner of an AddressBook can add and edit Addresses to the owned AddressBook."""
 
@@ -228,7 +228,7 @@ def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture)
 # ------- Tests added for access control
 
 
-@with_fixtures(WebFixture2, AccessDomainFixture, AccessUIFixture)
+@with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
     """If allowed, an account may see another account's AddressBook, and could edit or add Addresses,
        depending on the allowed rights."""
@@ -272,7 +272,7 @@ def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
         assert browser.is_element_present(XPath.paragraph_containing('Else: else@some.org'))
 
 
-@with_fixtures(WebFixture2, AccessDomainFixture, AccessUIFixture)
+@with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_edit_other(web_fixture, access_domain_fixture, access_ui_fixture):
     """If you may only edit (not add) an address, then you may only edit the email address, not the name."""
 
@@ -307,7 +307,7 @@ def test_edit_other(web_fixture, access_domain_fixture, access_ui_fixture):
         assert browser.is_element_present(XPath.paragraph_containing('Friend: else@some.org'))
 
 
-@with_fixtures(WebFixture2, AccessDomainFixture, AccessUIFixture)
+@with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_add_collaborator(web_fixture, access_domain_fixture, access_ui_fixture):
     """A user may add other users as collaborators to his address book, specifying the privileges in the process."""
     with web_fixture.context:
@@ -377,7 +377,7 @@ class ViewScenarios(Fixture):
         self.get = True
 
 
-@with_fixtures(WebFixture2, AccessUIFixture, AccessDomainFixture, ViewScenarios)
+@with_fixtures(WebFixture, AccessUIFixture, AccessDomainFixture, ViewScenarios)
 def test_view_permissions(web_fixture, access_ui_fixture, access_domain_fixture, view_scenarios):
     with web_fixture.context:
         browser = access_ui_fixture.browser

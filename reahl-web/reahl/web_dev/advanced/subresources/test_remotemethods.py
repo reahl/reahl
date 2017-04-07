@@ -29,10 +29,10 @@ from reahl.web.fw import CheckedRemoteMethod, JsonResult, MethodResult, RemoteMe
 from reahl.component.modelinterface import Field, IntegerField
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class RemoteMethodFixture(Fixture):
 
     def new_widget_factory(self, remote_method=None):
@@ -51,7 +51,7 @@ class RemoteMethodFixture(Fixture):
         return self.web_fixture.new_wsgi_app(child_factory=self.new_widget_factory(remote_method=remote_method))
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_remote_methods(web_fixture):
     """A RemoteMethod is a SubResource representing a method on the server side which can be invoked via POSTing to an URL."""
 
@@ -82,7 +82,7 @@ def test_remote_methods(web_fixture):
         assert browser.last_response.content_type == 'ttext/hhtml'
 
 
-@with_fixtures(WebFixture2, RemoteMethodFixture)
+@with_fixtures(WebFixture, RemoteMethodFixture)
 def test_exception_handling(web_fixture, remote_method_fixture):
     """The RemoteMethod sends back the six.text_type() of an exception raised for the specified exception class."""
 
@@ -98,7 +98,7 @@ def test_exception_handling(web_fixture, remote_method_fixture):
         assert browser.raw_html == 'I failed'
 
 
-@with_fixtures(WebFixture2, RemoteMethodFixture)
+@with_fixtures(WebFixture, RemoteMethodFixture)
 def test_immutable_remote_methods(web_fixture, remote_method_fixture):
     """A RemoteMethod that is immutable is accessible via GET (instead of POST)."""
 
@@ -127,7 +127,7 @@ class ArgumentScenarios(Fixture):
         self.immutable = False
 
 
-@with_fixtures(WebFixture2, RemoteMethodFixture, ArgumentScenarios)
+@with_fixtures(WebFixture, RemoteMethodFixture, ArgumentScenarios)
 def test_arguments_to_remote_methods(web_fixture, remote_method_fixture, argument_scenarios):
     """A RemoteMethod can get arguments from a query string or submitted form values, depending on the scenario."""
 
@@ -149,7 +149,7 @@ def test_arguments_to_remote_methods(web_fixture, remote_method_fixture, argumen
         assert fixture.method_kwargs == kwargs_sent
 
 
-@with_fixtures(WebFixture2, RemoteMethodFixture, ArgumentScenarios)
+@with_fixtures(WebFixture, RemoteMethodFixture, ArgumentScenarios)
 def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenarios):
     """A CheckedRemoteMethod checks and marshalls its parameters using Fields."""
 
@@ -173,7 +173,7 @@ def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenario
         assert fixture.method_kwargs == {'anint':5, 'astring':'SupercalifraGilisticexpialidocious'}
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class ResultScenarios(Fixture):
 
     @property
@@ -219,7 +219,7 @@ class ResultScenarios(Fixture):
         self.results_match = results_match
 
 
-@with_fixtures(WebFixture2, RemoteMethodFixture, ResultScenarios)
+@with_fixtures(WebFixture, RemoteMethodFixture, ResultScenarios)
 def test_different_kinds_of_result(web_fixture, remote_method_fixture, result_scenarios):
     """Different kinds of MethodResult can be specified for a method."""
 
@@ -238,7 +238,7 @@ def test_different_kinds_of_result(web_fixture, remote_method_fixture, result_sc
         assert browser.last_response.content_type == fixture.expected_content_type
 
 
-@with_fixtures(WebFixture2, RemoteMethodFixture, ResultScenarios.json)
+@with_fixtures(WebFixture, RemoteMethodFixture, ResultScenarios.json)
 def test_exception_handling_for_json(web_fixture, remote_method_fixture, json_result_scenario):
     """How exceptions are handled with JsonResult."""
 
@@ -257,7 +257,7 @@ def test_exception_handling_for_json(web_fixture, remote_method_fixture, json_re
         assert browser.last_response.content_type == fixture.expected_content_type
 
 
-@with_fixtures(WebFixture2, RemoteMethodFixture, ResultScenarios.widget)
+@with_fixtures(WebFixture, RemoteMethodFixture, ResultScenarios.widget)
 def test_exception_handling_for_widgets(web_fixture, remote_method_fixture, widget_result_scenario):
     """How exceptions are handled with WidgetResult."""
 
@@ -306,7 +306,7 @@ class RegenerateMethodResultScenarios(Fixture):
         self.expected_response = 'exception: method was called 1 times'
 
 
-@with_fixtures(WebFixture2, SqlAlchemyFixture, RemoteMethodFixture, RegenerateMethodResultScenarios)
+@with_fixtures(WebFixture, SqlAlchemyFixture, RemoteMethodFixture, RegenerateMethodResultScenarios)
 def test_regenerating_method_results(web_fixture, sql_alchemy_fixture,
                                      remote_method_fixture, regenerate_method_result_scenarios):
     """If a MethodResult is set up to replay_request=True, the view it is part of (and thus itself) is recreated
@@ -377,7 +377,7 @@ class WidgetResultScenarios(Fixture):
                                   'widget': '<changed contents><script type="text/javascript">js(changed contents)</script>'}
 
 
-@with_fixtures(WebFixture2, WidgetResultScenarios)
+@with_fixtures(WebFixture, WidgetResultScenarios)
 def test_widgets_that_change_during_method_processing(web_fixture, widget_result_scenarios):
     """The Widget rendered by WidgetResult reflects its Widget as it would have
        looked if it were constructed AFTER the changes effected by executing

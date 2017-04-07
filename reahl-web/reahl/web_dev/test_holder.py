@@ -27,10 +27,10 @@ from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.holder.holder import PlaceholderImage, PredefinedTheme, CustomTheme
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_placeholder_basics(web_fixture):
     """
        hint: Ensure the Holder(Library) is added to the  web.frontend_libraries config setting in the file:web.config.py
@@ -45,7 +45,7 @@ def test_placeholder_basics(web_fixture):
         assert actual == expected_html
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_placeholder_with_text(web_fixture):
 
     with web_fixture.context:
@@ -56,7 +56,7 @@ def test_placeholder_with_text(web_fixture):
         assert actual_value == expected_value
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_placeholder_with_predefine_theme(web_fixture):
 
     with web_fixture.context:
@@ -68,7 +68,7 @@ def test_placeholder_with_predefine_theme(web_fixture):
         assert actual_value == expected_value
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_text_and_theme_options_are_encoded(web_fixture):
 
     with web_fixture.context:

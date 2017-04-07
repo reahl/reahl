@@ -27,7 +27,7 @@ from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P
 
 from reahl.component.modelinterface import Field, BooleanField
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class DataItem(object):
@@ -36,7 +36,7 @@ class DataItem(object):
         self.alpha = alpha
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class TableFixture(Fixture):
 
     def new_data(self):
@@ -64,7 +64,7 @@ class TableFixture(Fixture):
         return len(self.web_fixture.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
 
 
-@with_fixtures(WebFixture2, TableFixture)
+@with_fixtures(WebFixture, TableFixture)
 def test_table_basics(web_fixture, table_fixture):
     """A Table created .from_columns() displays a list of items as defined by a list of Columns"""
 
@@ -101,7 +101,7 @@ def test_table_basics(web_fixture, table_fixture):
         assert fixture.get_table_row(3) == ['3', 'E']
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class ColumnScenarios(Fixture):
     sort_key = EmptyStub()
     heading = 'A heading'
@@ -142,7 +142,7 @@ class ColumnScenarios(Fixture):
         self.expected_heading_html = '<p>A heading</p>'
 
 
-@with_fixtures(WebFixture2, ColumnScenarios)
+@with_fixtures(WebFixture, ColumnScenarios)
 def test_different_kinds_of_columns(web_fixture, column_scenarios):
     """There are different kinds of Columns, allowing different levels of flexibility for defining a Table"""
 
@@ -163,7 +163,7 @@ def test_different_kinds_of_columns(web_fixture, column_scenarios):
         assert actual == fixture.expected_cell_html
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_table_thead(web_fixture):
     """Table can find its Thead element"""
 

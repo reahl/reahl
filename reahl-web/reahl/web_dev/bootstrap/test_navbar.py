@@ -35,10 +35,10 @@ from reahl.web.bootstrap.navs import Nav
 
 from reahl.component.exceptions import ProgrammerError
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class NavbarFixture(Fixture):
 
     def new_navbar(self):
@@ -57,7 +57,7 @@ class NavbarFixture(Fixture):
         return Form(self.web_fixture.view, 'myform')
 
 
-@with_fixtures(WebFixture2, NavbarFixture)
+@with_fixtures(WebFixture, NavbarFixture)
 def test_navbar_basics(web_fixture, navbar_fixture):
     """A typical Navbar is created by using its layout to add some brand text, a nav and form in it."""
 
@@ -86,7 +86,7 @@ def test_navbar_basics(web_fixture, navbar_fixture):
         assert isinstance(form, Form)
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class LayoutScenarios(Fixture):
 
     @property
@@ -114,7 +114,7 @@ class LayoutScenarios(Fixture):
         self.expected_css_class = None
 
 
-@with_fixtures(WebFixture2, LayoutScenarios)
+@with_fixtures(WebFixture, LayoutScenarios)
 def test_navbar_can_have_layout(web_fixture, layout_scenarios):
     """NavbarLayout is used to define the placement of a Navbar."""
 
@@ -132,7 +132,7 @@ def test_navbar_can_have_layout(web_fixture, layout_scenarios):
             assert not_expected_class not in navbar.get_attribute('class').split(' ')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_customised_colour_scheme(web_fixture):
     """A ColourScheme is used to determine link colours and/or optionally a standard bootstrap background color."""
 
@@ -147,7 +147,7 @@ def test_customised_colour_scheme(web_fixture):
         assert 'bg-inverse' in navbar.get_attribute('class')
 
 
-@with_fixtures(WebFixture2, NavbarFixture)
+@with_fixtures(WebFixture, NavbarFixture)
 def test_adding_brand_widget(web_fixture, navbar_fixture):
     """Brand content can also be added as a Widget, instead of only text."""
 
@@ -174,7 +174,7 @@ class SpecifyPlacementScenarios(Fixture):
         self.side = 'right'
 
 
-@with_fixtures(WebFixture2, NavbarFixture, SpecifyPlacementScenarios)
+@with_fixtures(WebFixture, NavbarFixture, SpecifyPlacementScenarios)
 def test_adding_to_navbar_with_specific_placement(web_fixture, navbar_fixture, specify_placement_scenarios):
     """Widgets can be added to a Navbar placed right or left in the NavBar."""
     with web_fixture.context:
@@ -193,7 +193,7 @@ def test_adding_to_navbar_with_specific_placement(web_fixture, navbar_fixture, s
         assert [added_widget] == wrapping_div.children
 
 
-@with_fixtures(WebFixture2, NavbarFixture, SpecifyPlacementScenarios)
+@with_fixtures(WebFixture, NavbarFixture, SpecifyPlacementScenarios)
 def test_adding_to_navbar_placement_for_device(web_fixture, navbar_fixture, specify_placement_scenarios):
     """Placement of an added Widget can be specified to apply below a certain device size only."""
     with web_fixture.context:
@@ -209,7 +209,7 @@ def test_adding_to_navbar_placement_for_device(web_fixture, navbar_fixture, spec
         assert'pull-md-%s' % specify_placement_scenarios.side in wrapping_div.get_attribute('class')
 
 
-@with_fixtures(WebFixture2, NavbarFixture)
+@with_fixtures(WebFixture, NavbarFixture)
 def test_adding_to_navbar_with_both_left_and_right_alignment_not_allowed(web_fixture, navbar_fixture):
     """You cannot place an added Widget to both left and right sides."""
     with web_fixture.context:
@@ -223,7 +223,7 @@ def test_adding_to_navbar_with_both_left_and_right_alignment_not_allowed(web_fix
             navbar.layout.add(navbar_fixture.nav, left=True, right=True)
 
 
-@with_fixtures(WebFixture2, NavbarFixture)
+@with_fixtures(WebFixture, NavbarFixture)
 def test_adding_other_than_form_or_nav_is_not_allowed(web_fixture, navbar_fixture):
     """Only Navs and Forms may be added."""
 
@@ -250,7 +250,7 @@ def test_adding_other_than_form_or_nav_is_not_allowed(web_fixture, navbar_fixtur
         assert 'navbar-nav' in navbar_fixture.nav.html_representation.get_attribute('class').split(' ')
 
 
-@with_fixtures(WebFixture2, NavbarFixture)
+@with_fixtures(WebFixture, NavbarFixture)
 def test_navbar_with_centered_contents(web_fixture, navbar_fixture):
     """Contents of a Navbar appears centered when center_contents is set to True"""
 
@@ -268,7 +268,7 @@ def test_navbar_with_centered_contents(web_fixture, navbar_fixture):
         assert 'navbar-brand' in brand_widget.get_attribute('class')
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class NavbarToggleFixture(Fixture):
 
     def is_expanded(self, locator):
@@ -301,7 +301,7 @@ class NavbarToggleFixture(Fixture):
         return MainWidget
 
 
-@with_fixtures(WebFixture2, NavbarToggleFixture)
+@with_fixtures(WebFixture, NavbarToggleFixture)
 def test_navbar_toggle_collapses_html_element(web_fixture, navbar_toggle_fixture):
     """You can add a toggle to the navbar that hides another element on the page."""
 
@@ -325,7 +325,7 @@ def test_navbar_toggle_collapses_html_element(web_fixture, navbar_toggle_fixture
         browser.wait_for_not(navbar_toggle_fixture.panel_is_visible)
 
 
-@with_fixtures(WebFixture2, NavbarFixture)
+@with_fixtures(WebFixture, NavbarFixture)
 def test_navbar_toggle_requires_target_id(web_fixture, navbar_fixture):
     """To be able to hide an element, it is required to have an id"""
 
@@ -342,7 +342,7 @@ def test_navbar_toggle_requires_target_id(web_fixture, navbar_fixture):
             navbar.layout.add_toggle(element_without_id)
 
 
-@with_fixtures(WebFixture2, NavbarFixture)
+@with_fixtures(WebFixture, NavbarFixture)
 def test_navbar_toggle_customised(web_fixture, navbar_fixture):
     """The text on a toggle that hides an element is customisable"""
 
@@ -356,7 +356,7 @@ def test_navbar_toggle_customised(web_fixture, navbar_fixture):
         assert '≎' == toggle_text_node.value
 
 
-@with_fixtures(WebFixture2, NavbarFixture)
+@with_fixtures(WebFixture, NavbarFixture)
 def test_responsive_navbar(web_fixture, navbar_fixture):
     """A ResponsiveLayout hides its Navbar when the viewport becomes smaller than a given device size"""
     with web_fixture.context:

@@ -32,11 +32,11 @@ from reahl.component.exceptions import IsInstance
 from reahl.webdev.tools import WidgetTester
 from reahl.webdev.tools import XPath
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 from reahl.component_dev.test_field import FieldFixture
 
 
-@uses(web_fixture=WebFixture2, field_fixture=FieldFixture)
+@uses(web_fixture=WebFixture, field_fixture=FieldFixture)
 class SimpleInputFixture(Fixture):
 
     def new_field(self):  # not a delegated property, because some scenarios override this by setting self.field
@@ -135,7 +135,7 @@ class InputStateFixture(SimpleInputFixture):
         self.expected_value = 'not an email address'
 
 
-@with_fixtures(WebFixture2, InputStateFixture)
+@with_fixtures(WebFixture, InputStateFixture)
 def test_the_states_of_an_input(web_fixture, input_state_fixture):
     """An Input can be in one of three states: defaulted, invalidly_entered or validly_entered. Depending
        on the state of the input, it will have a different value when rendering.
@@ -287,7 +287,7 @@ class InputScenarios(SimpleInputFixture):
         self.field_controls_visibility = True
 
 
-@with_fixtures(WebFixture2, InputScenarios)
+@with_fixtures(WebFixture, InputScenarios)
 def test_basic_rendering(web_fixture, input_scenarios):
     """What the rendered html for a number of simple inputs look like."""
 
@@ -298,7 +298,7 @@ def test_basic_rendering(web_fixture, input_scenarios):
         assert re.match(fixture.expected_html, actual)
 
 
-@with_fixtures(WebFixture2, InputScenarios)
+@with_fixtures(WebFixture, InputScenarios)
 def test_rendering_when_not_allowed(web_fixture, input_scenarios):
     """When not allowed to see the Widget, it is not rendered."""
     fixture = input_scenarios
@@ -314,7 +314,7 @@ def test_rendering_when_not_allowed(web_fixture, input_scenarios):
             assert re.match(fixture.expected_html, actual)
 
 
-@with_fixtures(WebFixture2, FieldFixture, SimpleInputFixture)
+@with_fixtures(WebFixture, FieldFixture, SimpleInputFixture)
 def test_input_wrapped_widgets(web_fixture, field_fixture, simple_input_fixture):
     """An Input is an empty Widget; its contents are supplied by overriding its 
        .create_html_widget() method. Several methods for setting HTML-things, like 
@@ -341,7 +341,7 @@ def test_input_wrapped_widgets(web_fixture, field_fixture, simple_input_fixture)
         assert rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" title="mytitle">'
 
 
-@with_fixtures(WebFixture2, SimpleInputFixture)
+@with_fixtures(WebFixture, SimpleInputFixture)
 def test_wrong_args_to_input(web_fixture, simple_input_fixture):
     """Passing the wrong arguments upon constructing an Input results in an error."""
 
@@ -360,7 +360,7 @@ class CheckboxFixture(SimpleInputFixture2):
         return BooleanField(label='my text')
 
 
-@with_fixtures(WebFixture2, CheckboxFixture)
+@with_fixtures(WebFixture, CheckboxFixture)
 def test_marshalling_of_checkbox(web_fixture, checkbox_fixture):
     """When a form is submitted, the value of a checkbox is derived from
        whether the checkbox is included in the submission or not."""
@@ -400,7 +400,7 @@ class FuzzyTextInputFixture(SimpleInputFixture2):
         return DateField(label=label)
 
 
-@with_fixtures(WebFixture2, FuzzyTextInputFixture)
+@with_fixtures(WebFixture, FuzzyTextInputFixture)
 def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
     """A TextInput can be created as fuzzy=True. Doing this results in the possibly imprecise
        input that was typed by the user to be interpreted server-side and changed to the

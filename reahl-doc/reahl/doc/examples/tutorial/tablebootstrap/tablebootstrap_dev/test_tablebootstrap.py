@@ -9,10 +9,10 @@ from reahl.webdev.tools import Browser, XPath
 from reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap import AddressBookUI, Address
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class TableExampleFixture(Fixture):
 
     def new_browser(self):
@@ -41,7 +41,7 @@ def demo_setup(sql_alchemy_fixture, table_example_fixture):
         table_example_fixture.create_addresses()
 
 
-@with_fixtures(WebFixture2, TableExampleFixture)
+@with_fixtures(WebFixture, TableExampleFixture)
 def test_editing_an_address(web_fixture, table_example_fixture):
     """To edit an existing address, a user clicks on the "Edit" link next to the chosen Address
        on the "Addresses" page. The user is then taken to an "Edit" View for the chosen Address and
@@ -68,7 +68,7 @@ def test_editing_an_address(web_fixture, table_example_fixture):
         assert not fixture.address_is_listed_as(original_address_name)
 
 
-@with_fixtures(WebFixture2, TableExampleFixture)
+@with_fixtures(WebFixture, TableExampleFixture)
 def test_deleting_several_address(web_fixture, table_example_fixture):
     """To delete several address, a user "checks" the box next to each of the Addresses
        on the "Addresses" page she wants to delete. Upon clicking the "Delete Selected" Button, the page

@@ -11,10 +11,10 @@ from reahl.sqlalchemysupport import Session
 from reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap import AddressBookUI, Address
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class MigrateFixture(Fixture):
 
     def new_wsgi_app(self):
@@ -32,7 +32,7 @@ class MigrateFixture(Fixture):
         return self.browser.is_element_present(XPath.paragraph_containing('%s: %s' % (name, email_address)))
 
 
-@with_fixtures(WebFixture2, MigrateFixture)
+@with_fixtures(WebFixture, MigrateFixture)
 def test_add_address(web_fixture, migrate_fixture):
     """A user can add an address, after which the address is listed."""
     with web_fixture.context:

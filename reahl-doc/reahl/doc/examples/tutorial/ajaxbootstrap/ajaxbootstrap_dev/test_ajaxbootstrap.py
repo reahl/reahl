@@ -13,10 +13,10 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.webdev.tools import XPath
 from reahl.doc.examples.tutorial.ajaxbootstrap.ajaxbootstrap import WidgetRefreshUI
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class RefreshFixture(Fixture):
 
     def new_browser(self):
@@ -31,7 +31,7 @@ class RefreshFixture(Fixture):
 
 #------ Tests
 
-@with_fixtures(WebFixture2, RefreshFixture)
+@with_fixtures(WebFixture, RefreshFixture)
 def test_refreshing_widget(web_fixture, refresh_fixture):
     """Clicking on a link, refreshes the displayed text to indicate which link 
        was clicked, without triggering a page load."""

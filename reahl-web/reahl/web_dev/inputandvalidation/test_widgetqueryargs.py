@@ -28,10 +28,10 @@ from reahl.component.modelinterface import Field, exposed, IntegerField
 from reahl.web.fw import Bookmark, Widget
 from reahl.web.ui import A, P, Form, TextInput, Div
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class QueryStringFixture(Fixture):
 
     def is_state_labelled_now(self, label, state):
@@ -65,7 +65,7 @@ class QueryStringFixture(Fixture):
         return self.web_fixture.new_wsgi_app(enable_js=True, child_factory=widget_factory)
 
 
-@with_fixtures(WebFixture2, QueryStringFixture)
+@with_fixtures(WebFixture, QueryStringFixture)
 def test_query_string_widget_arguments(web_fixture, query_string_fixture):
     """Widgets can have arguments that are read from a query string"""
 
@@ -88,7 +88,7 @@ def test_query_string_widget_arguments(web_fixture, query_string_fixture):
         assert browser.lxml_html.xpath('//p')[0].text == 'supercalafragalisticxpelidocious'
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_query_string_prepopulates_form(web_fixture):
     """Widget query string arguments can be used on forms to pre-populate inputs based on the query string."""
 
@@ -115,7 +115,7 @@ def test_query_string_prepopulates_form(web_fixture):
         assert browser.lxml_html.xpath('//input')[0].value == 'metoo'
 
 
-@with_fixtures(WebFixture2, QueryStringFixture)
+@with_fixtures(WebFixture, QueryStringFixture)
 def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
     """If a widget has query_fields, call `.enable_refresh()` on it to let it change
        its contents without reloading the whole page,
@@ -144,7 +144,7 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
         assert fixture.widget is previous_widget
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_css_id_is_mandatory(web_fixture):
     """If a Widget is enabled to to be refreshed, it must also have a css_id set."""
     with web_fixture.context:
@@ -176,7 +176,7 @@ class PartialRefreshFixture(QueryStringFixture):
         return MyFancyWidget
 
 
-@with_fixtures(WebFixture2, PartialRefreshFixture)
+@with_fixtures(WebFixture, PartialRefreshFixture)
 def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture):
     """Calling `.enable_refresh()` only with specific query_fields has the effect that
        the Widget is only refreshed automatically for the particular fields passed, not
@@ -204,7 +204,7 @@ def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture)
         assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_bookmarks_support_such_fragments(web_fixture):
     """Page-internal bookmarks support such bookmarkable widgets.
 

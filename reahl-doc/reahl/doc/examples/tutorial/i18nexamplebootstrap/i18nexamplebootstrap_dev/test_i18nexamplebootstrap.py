@@ -6,10 +6,10 @@ from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap import AddressBookUI, Address
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class TranslationExampleFixture(Fixture):
 
     def new_browser(self):
@@ -22,7 +22,7 @@ class TranslationExampleFixture(Fixture):
         return addresses
 
 
-@with_fixtures(WebFixture2, TranslationExampleFixture)
+@with_fixtures(WebFixture, TranslationExampleFixture)
 def demo_setup(sql_alchemy_fixture, translation_example_fixture):
     sql_alchemy_fixture.commit = True
     with sql_alchemy_fixture.context:
@@ -31,7 +31,7 @@ def demo_setup(sql_alchemy_fixture, translation_example_fixture):
 
 
 
-@with_fixtures(WebFixture2, TranslationExampleFixture)
+@with_fixtures(WebFixture, TranslationExampleFixture)
 def test_translations(web_fixture, translation_example_fixture):
     """The user can choose between languages. The text for which translations exist change accordingly."""
 

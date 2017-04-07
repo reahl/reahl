@@ -7,10 +7,10 @@ from reahl.webdev.tools import XPath
 
 from reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap import AddressBookUI, Address
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class AddressAppFixture(Fixture):
 
     def new_wsgi_app(self):
@@ -25,7 +25,7 @@ class AddressAppFixture(Fixture):
         return self.web_fixture.driver_browser.is_element_present(XPath.span_containing(text))
 
 
-@with_fixtures(WebFixture2, AddressAppFixture)
+@with_fixtures(WebFixture, AddressAppFixture)
 def test_edit_errors(web_fixture, address_app_fixture):
     """Email addresses on the Edit an address page have to be valid email addresses."""
 

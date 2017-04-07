@@ -30,10 +30,10 @@ from reahl.web.bootstrap.ui import Div, P
 from reahl.web.bootstrap.forms import Form, FormLayout, CheckboxInput
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class PopupAFixture(Fixture):
 
     # (note that this xpath ensures that the p is the ONLY content of the dialog)
@@ -43,7 +43,7 @@ class PopupAFixture(Fixture):
         return self.web_fixture.driver_browser.is_visible(self.poppedup_contents)
 
 
-@with_fixtures(WebFixture2, PopupAFixture)
+@with_fixtures(WebFixture, PopupAFixture)
 def test_default_behaviour(web_fixture, popup_a_fixture):
     """If you click on the A, a popupwindow opens with its contents the specified
        element on the target page."""
@@ -71,7 +71,7 @@ def test_default_behaviour(web_fixture, popup_a_fixture):
     browser.wait_for_not(popup_a_fixture.is_popped_up)
 
 
-@with_fixtures(WebFixture2, PopupAFixture)
+@with_fixtures(WebFixture, PopupAFixture)
 def test_customising_dialog_buttons(web_fixture, popup_a_fixture):
     """The buttons of the dialog can be customised."""
 
@@ -100,7 +100,7 @@ def test_customising_dialog_buttons(web_fixture, popup_a_fixture):
     assert browser.is_element_present(button2_xpath)
 
 
-@with_fixtures(WebFixture2, PopupAFixture)
+@with_fixtures(WebFixture, PopupAFixture)
 def test_workings_of_check_checkbox_button(web_fixture, popup_a_fixture):
     """A CheckCheckBoxButton checks the checkbox on the original page when clicked."""
 

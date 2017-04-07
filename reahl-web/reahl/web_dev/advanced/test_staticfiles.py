@@ -30,10 +30,10 @@ from reahl.stubble import easter_egg, stubclass
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, UserInterface
 from reahl.webdev.tools import Browser
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_files_from_disk(web_fixture):
     """A directory in the web.static_root configuration setting, can be mounted on a URL
        named after it on the WebApplication.
@@ -78,7 +78,7 @@ def test_files_from_disk(web_fixture):
         browser.open('/staticfiles/one_that_does_not_exist', status=404)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_files_from_list(web_fixture):
     """An explicit list of files can also be added on an URL as if they were in a single
        directory.
@@ -113,7 +113,7 @@ def test_files_from_list(web_fixture):
         browser.open('/morestaticfiles/one_that_does_not_exist', status=404)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_files_from_database(web_fixture):
     """Files can also be created on the fly such as from data in a database."""
 
@@ -147,7 +147,7 @@ def test_files_from_database(web_fixture):
         assert response.etag == expected_etag
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_packaged_files(web_fixture):
     """Files can also be served straight from a python egg."""
 
@@ -197,7 +197,7 @@ class ConcatenateScenarios(Fixture):
         self.expected_result = '.cool{}a,p{}'
 
 
-@with_fixtures(WebFixture2, ConcatenateScenarios)
+@with_fixtures(WebFixture, ConcatenateScenarios)
 def test_concatenated_files(web_fixture, concatenate_scenarios):
     """Files can also be formed by concatenating other files.  Files ending in .css or .js are appropriately
        minified in the process."""
@@ -230,7 +230,7 @@ def test_concatenated_files(web_fixture, concatenate_scenarios):
         assert browser.raw_html == fixture.expected_result
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_file_download_details(web_fixture):
     """FileDownloadStub (the GET response for a StaticFileResource) works correctly in
       different scenarios of partial GETting too."""

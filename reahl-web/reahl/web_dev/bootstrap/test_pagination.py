@@ -26,9 +26,9 @@ from reahl.webdev.tools import XPath
 from reahl.web.bootstrap.ui import P, Div
 from reahl.web.bootstrap.pagination import PageMenu, PagedPanel, PageIndex, SequentialPageIndex, AnnualItemOrganiserProtocol, AnnualPageIndex
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class PageMenuFixture(Fixture):
 
     @property
@@ -94,7 +94,7 @@ class PageMenuFixture(Fixture):
 
 
 # Please see fixture for how to declare a PageIndex, PageContainer and PageMenu
-@with_fixtures(WebFixture2, PageMenuFixture)
+@with_fixtures(WebFixture, PageMenuFixture)
 def test_selecting_a_page(web_fixture, page_menu_fixture):
     """Clicking the link of a page results in the contents of the PageContainer being refreshed."""
     with web_fixture.context:
@@ -108,7 +108,7 @@ def test_selecting_a_page(web_fixture, page_menu_fixture):
         browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
 
 
-@with_fixtures(WebFixture2, PageMenuFixture)
+@with_fixtures(WebFixture, PageMenuFixture)
 def test_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     """One can navigate the range of page links displayed by the PageMenu using the special links."""
 
@@ -140,7 +140,7 @@ def test_navigating_the_page_numbers(web_fixture, page_menu_fixture):
         assert browser.wait_for(fixture.page_range_links_match, 'p1,p2,p3,p4,p5')
 
 
-@with_fixtures(WebFixture2, PageMenuFixture)
+@with_fixtures(WebFixture, PageMenuFixture)
 def test_contents_when_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     """When navigating the range of page links, the currently displayed contents stay unchanged."""
     with web_fixture.context:
@@ -157,7 +157,7 @@ def test_contents_when_navigating_the_page_numbers(web_fixture, page_menu_fixtur
         browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
 
 
-@with_fixtures(WebFixture2, PageMenuFixture)
+@with_fixtures(WebFixture, PageMenuFixture)
 def test_active_state_of_page_links(web_fixture, page_menu_fixture):
     """When choosing a page, the new page link is marked as active, without a server round-trip."""
     fixture = page_menu_fixture
@@ -174,7 +174,7 @@ def test_active_state_of_page_links(web_fixture, page_menu_fixture):
             web_fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2')
 
 
-@with_fixtures(WebFixture2, PageMenuFixture)
+@with_fixtures(WebFixture, PageMenuFixture)
 def test_active_state_on_multiple_menus(web_fixture, page_menu_fixture):
     """If there's more than one PageMenu on the page, the active page is switched for both of them"""
     fixture = page_menu_fixture
@@ -201,7 +201,7 @@ def test_active_state_on_multiple_menus(web_fixture, page_menu_fixture):
         browser.wait_for(fixture.is_marked_active, 'p2', 2)
 
 
-@with_fixtures(WebFixture2, PageMenuFixture)
+@with_fixtures(WebFixture, PageMenuFixture)
 def test_active_state_of_next_prev_links(web_fixture, page_menu_fixture):
     """Next and Last links are only active when not on the last range of pages,
        and Prev and First are similarly deactive when on the first range of pages."""
@@ -279,7 +279,7 @@ class LinkScenarios(PageMenuFixture):
         self.visible_last_page_descriptions = self.visible_page_descriptions
 
 
-@with_fixtures(WebFixture2, LinkScenarios)
+@with_fixtures(WebFixture, LinkScenarios)
 def test_which_links_display(web_fixture, link_scenarios):
     """The menu displays the correct range of page links, depending on the starting page in the range, the
        total number of pages and the max number of links in a range"""

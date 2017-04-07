@@ -8,10 +8,10 @@ from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap import AddressBookUI, Address
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class AddressAppFixture(Fixture):
 
     def new_browser(self):
@@ -35,7 +35,7 @@ class AddressAppFixture(Fixture):
         return self.browser.is_element_present(XPath.paragraph_containing('%s: %s' % (name, email_address)))
 
 
-@with_fixtures(WebFixture2, AddressAppFixture)
+@with_fixtures(WebFixture, AddressAppFixture)
 def test_adding_an_address(web_fixture, address_app_fixture):
     """To add a new address, a user clicks on "Add Address" link on the menu, then supplies the 
        information for the new address and clicks the Save button. Upon success addition of the
@@ -56,7 +56,7 @@ def test_adding_an_address(web_fixture, address_app_fixture):
         assert address_app_fixture.address_is_listed_as('John Doe', 'johndoe@some.org') 
 
 
-@with_fixtures(WebFixture2, AddressAppFixture)
+@with_fixtures(WebFixture, AddressAppFixture)
 def test_editing_an_address(web_fixture, address_app_fixture):
     """To edit an existing address, a user clicks on the "Edit" button next to the chosen Address
        on the "Addresses" page. The user is then taken to an "Edit" View for the chosen Address and 

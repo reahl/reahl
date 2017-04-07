@@ -16,7 +16,7 @@ from reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap import Addres
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 class AccessDomainFixture(Fixture):
     password = 'topsecret'

@@ -25,7 +25,7 @@ from reahl.stubble import stubclass, exempt
 from reahl.mailutil.mail import Mailer
 
 from reahl.sqlalchemysupport import Session
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin, SqlAlchemyFixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain.partymodel import Party
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, AccountManagementInterface
 from reahl.domain.systemaccountmodel import SystemAccountConfig
@@ -61,73 +61,6 @@ class MailerStub(object):
         self.mail_subject = None
         self.mail_message = None
         self.mail_sender = None
-
-
-# TODO: cs remove
-class BasicModelZooMixin(SqlAlchemyTestMixin):
-    def new_accounts(self):
-        accounts = SystemAccountConfig()
-        accounts.admin_email = 'pietiskoning@home.org'
-        accounts.mailer_class = MailerStub
-        return accounts
-    
-    def new_webconfig(self):
-        web = WebConfig()
-        web.site_root = UserInterface
-        web.static_root = os.path.join(os.getcwd(), 'static')
-        web.session_class = UserSession
-        web.persisted_exception_class = PersistedException
-        web.persisted_file_class = PersistedFile
-        web.persisted_userinput_class = UserInput
-        return web
-
-    def new_config(self, reahlsystem=None, accounts=None, web=None):
-        config = super(BasicModelZooMixin, self).new_config(reahlsystem=reahlsystem)
-        config.web = web or self.new_webconfig()
-        config.accounts = accounts or self.accounts
-        return config
-
-    def new_session(self, system_account=None):
-        return UserSession()
-
-    
-# TODO: cs remove
-class PartyModelZooMixin(BasicModelZooMixin):
-    def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
-        password = 'topsecret'
-        system_account = EmailAndPasswordSystemAccount(owner=party or self.party, email=email)
-        system_account.set_new_password(email, password)
-        system_account.password = password  # The unencrypted version for use in tests
-        if activated:
-            system_account.activate()
-        Session.add(system_account)
-        Session.flush()
-        return system_account
-
-    def new_party(self):
-        party = Party()
-        Session.add(party)
-        Session.flush()
-        return party
-
-    def new_mailer(self):
-        return MailerStub.from_context()
-
-
-# TODO: cs remove
-class DemoSetup(Fixture, PartyModelZooMixin):
-    commit = True
-    def set_up(self):
-        super(DemoSetup, self).set_up()
-        self.party
-        self.system_account
-        self.system_control.commit()
-
-
-# TODO: cs remove
-class DeclarativeImplementationFixture(Fixture):
-    def new_session(self, system_account=None):
-        return UserSession()
 
 
 @uses(sql_alchemy_fixture=SqlAlchemyFixture)

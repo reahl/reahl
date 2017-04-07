@@ -26,10 +26,10 @@ from reahl.web.fw import CannotCreate, IdentityDictionary, UrlBoundView, UserInt
 from reahl.web.ui import HTML5Page, P
 from reahl.web.layout import PageLayout, ColumnLayout
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class ParameterisedScenarios(Fixture):
 
     @property
@@ -86,7 +86,7 @@ class ParameterisedScenarios(Fixture):
         self.should_exist = False
 
 
-@with_fixtures(WebFixture2, ParameterisedScenarios)
+@with_fixtures(WebFixture, ParameterisedScenarios)
 def test_views_with_parameters(web_fixture, parameterised_scenarios):
     """Views can have arguments that originate from code, or are parsed from the URL."""
 
@@ -112,7 +112,7 @@ def test_views_with_parameters(web_fixture, parameterised_scenarios):
             browser.open(fixture.url, status=404)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_views_from_regex(web_fixture):
     """Parameterised Views can also be added based on a regex over the url."""
 
@@ -139,7 +139,7 @@ def test_views_from_regex(web_fixture):
         assert browser.title == 'View for: test1' 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_user_interfaces_from_regex(web_fixture):
     """Sub UserInterfaces can be created on the fly on a UserInterface, based on the URL visited. To indicate that a
        UserInterface does not exist, the creation method should return None."""
@@ -187,7 +187,7 @@ def test_user_interfaces_from_regex(web_fixture):
 
 
 
-@uses(web_fixture=WebFixture2)
+@uses(web_fixture=WebFixture)
 class ParameterisedUserInterfaceScenarios(Fixture):
 
     @property
@@ -219,7 +219,7 @@ class ParameterisedUserInterfaceScenarios(Fixture):
         self.should_exist = False
 
 
-@with_fixtures(WebFixture2, ParameterisedUserInterfaceScenarios)
+@with_fixtures(WebFixture, ParameterisedUserInterfaceScenarios)
 def test_parameterised_uis(web_fixture, parameterised_user_interface_scenarios):
     """Sub UserInterfaces can also be parameterised by defining arguments in .define_user_interface, and receiving them in .assemble()."""
 

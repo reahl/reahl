@@ -26,7 +26,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UserInterface
 from reahl.web.ui import P, HTML5Page
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class UserInterfaceErrorScenarios(Fixture):
@@ -39,7 +39,7 @@ class UserInterfaceErrorScenarios(Fixture):
         self.slot_map = {}
 
 
-@with_fixtures(WebFixture2, UserInterfaceErrorScenarios)
+@with_fixtures(WebFixture, UserInterfaceErrorScenarios)
 def test_ui_slots_map_error(web_fixture, user_interface_error_scenarios):
 
     class SimpleUserInterface(UserInterface):

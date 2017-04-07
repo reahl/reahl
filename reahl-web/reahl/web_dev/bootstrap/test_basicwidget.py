@@ -23,10 +23,10 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web.bootstrap.ui import Alert
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_alerts(web_fixture):
     """An alert is used to display a message with a specific severity"""
 

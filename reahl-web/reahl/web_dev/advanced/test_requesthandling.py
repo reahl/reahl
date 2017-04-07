@@ -29,7 +29,7 @@ from reahl.web.interfaces import UserSessionProtocol
 from reahl.web_dev.fixtures import ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class WSGIFixture(Fixture):
@@ -41,7 +41,7 @@ class WSGIFixture(Fixture):
         return dict(headers)['Content-Type'] == 'text/html; charset=utf-8'
 
 
-@with_fixtures(WebFixture2, WSGIFixture)
+@with_fixtures(WebFixture, WSGIFixture)
 def test_wsgi_interface(web_fixture, wsgi_fixture):
     """A ReahlWSGIApplication is a WSGI application."""
     fixture = wsgi_fixture
@@ -61,7 +61,7 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
         assert fixture.some_headers_are_set(fixture.headers)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_web_session_handling(web_fixture):
     """The core web framework (this egg) does not implement a notion of session directly.
        It relies on such a notion, but expects an implementation for this to be supplied.
@@ -142,7 +142,7 @@ def test_web_session_handling(web_fixture):
         assert UserSessionStub.session.last_activity_time_set  # set_last_activity_time was called
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_handling_HTTPError_exceptions(web_fixture):
     """If an HTTPError exception is raised, it is used as response."""
     @stubclass(ReahlWSGIApplication)
@@ -156,7 +156,7 @@ def test_handling_HTTPError_exceptions(web_fixture):
         browser.open('/', status=404)
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_internal_redirects(web_fixture):
     """During request handling, an InternalRedirect exception can be thrown. This is handled by
        restarting the request loop from scratch to handle the same request again, using a freshly
@@ -191,7 +191,7 @@ def test_internal_redirects(web_fixture):
         assert fixture.handling_resources[0] is not fixture.handling_resources[1]
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_handling_uncaught_exceptions(web_fixture):
     """If an uncaught exception is raised, the session is closed properly."""
 

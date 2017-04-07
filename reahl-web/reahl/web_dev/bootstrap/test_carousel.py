@@ -29,7 +29,7 @@ from reahl.web.fw import Widget, WebExecutionContext
 from reahl.web.ui import Img
 from reahl.web.bootstrap.carousel import Carousel
 
-from reahl.web_dev.fixtures import WebFixture2
+from reahl.web_dev.fixtures import WebFixture
 
 
 class CarouselFixture(Fixture):
@@ -49,7 +49,7 @@ class CarouselFixture(Fixture):
                     for child in self.get_main_div_for(carousel).children])
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_carousel_basics(web_fixture):
     """A Carousel contains all the right classes and contents to act as a Bootstrap Carousel component."""
 
@@ -88,7 +88,7 @@ def test_carousel_basics(web_fixture):
         check_control(right_control, 'right', 'next', 'Next')
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_i18n(web_fixture):
     """User-visible labels are internationalised."""
     @stubclass(WebExecutionContext)
@@ -112,7 +112,7 @@ def test_i18n(web_fixture):
         check_control(right_control, 'Volgende')
 
 
-@with_fixtures(WebFixture2, CarouselFixture)
+@with_fixtures(WebFixture, CarouselFixture)
 def test_carousel_has_options(web_fixture, carousel_fixture):
     """Constructor allows you to set certain customizing options"""
 
@@ -126,7 +126,7 @@ def test_carousel_has_options(web_fixture, carousel_fixture):
         assert main_div.get_attribute('data-keyboard') == 'true'
 
 
-@with_fixtures(WebFixture2, CarouselFixture)
+@with_fixtures(WebFixture, CarouselFixture)
 def test_adding_items_to_carousel(web_fixture, carousel_fixture):
     """Images can be added to a Carousel."""
 
@@ -159,7 +159,7 @@ def test_adding_items_to_carousel(web_fixture, carousel_fixture):
         assert indicator.get_attribute('data-slide-to') == '0'
 
 
-@with_fixtures(WebFixture2, CarouselFixture)
+@with_fixtures(WebFixture, CarouselFixture)
 def test_active_state_of_items(web_fixture, carousel_fixture):
     """The first item added is marked as active, and also its corresponding indicator."""
 
@@ -187,7 +187,7 @@ def test_active_state_of_items(web_fixture, carousel_fixture):
 
 
 
-@with_fixtures(WebFixture2, CarouselFixture)
+@with_fixtures(WebFixture, CarouselFixture)
 def test_item_indicators_are_optional(web_fixture, carousel_fixture):
     """With show_indicators=False, indicators are not added when adding items."""
     fixture = carousel_fixture
@@ -203,7 +203,7 @@ def test_item_indicators_are_optional(web_fixture, carousel_fixture):
 
 
 
-@with_fixtures(WebFixture2)
+@with_fixtures(WebFixture)
 def test_adding_items_with_captions(web_fixture):
     """A Widget can be supplied to be used caption for an added image."""
     with web_fixture.context:
