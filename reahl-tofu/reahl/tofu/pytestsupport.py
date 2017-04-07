@@ -104,7 +104,7 @@ class WithFixtureDecorator(object):
             dependency_ordered_fixtures = self.topological_sort(fixture_instances)
 
             if six.PY2:
-                with contextlib.nested(list(dependency_ordered_fixtures)):
+                with contextlib.nested(*list(dependency_ordered_fixtures)):
                     return wrapped(*args, **kwargs)
             else:
                 with contextlib.ExitStack() as stack:
