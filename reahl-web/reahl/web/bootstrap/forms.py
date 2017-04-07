@@ -81,7 +81,8 @@ class TextInput(reahl.web.ui.TextInput):
                      If given True instead of a string, the label of the TextInput is used.
     """
     add_default_attribute_source = False
-    def     __init__(self, form, bound_field, fuzzy=False, placeholder=False):
+
+    def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
         super(TextInput, self).__init__(form, bound_field, fuzzy=fuzzy, placeholder=placeholder)
         self.append_class('form-control')
 
