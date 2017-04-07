@@ -72,7 +72,11 @@ class FixturePermutationIterator(object):
         return self
     
     def __next__(self):
-        current_scenarios = self.permutations.__next__()
+        if six.PY2:
+            current_scenarios = self.permutations.next()
+        else:
+            current_scenarios = self.permutations.__next__()
+
         instances = [f.for_scenario(current_scenarios[self.dependency_ordered_classes.index(f)]) for f in self.dependency_ordered_classes]
         for instance in instances:
             instance.setup_dependencies(instances)
