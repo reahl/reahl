@@ -24,7 +24,7 @@ import re
 
 
 from reahl.tofu import Fixture, expected
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EmptyStub
 
 

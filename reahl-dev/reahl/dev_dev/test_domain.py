@@ -25,7 +25,7 @@ import filecmp
 import pytest
 
 from reahl.tofu import temp_dir, temp_file_with, expected, Fixture
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import exempt
 from reahl.stubble import stubclass
 

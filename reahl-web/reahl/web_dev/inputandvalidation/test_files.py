@@ -21,7 +21,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os.path
 
 from reahl.tofu import temp_file_with
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.modelinterface import FileField, exposed, Event, UploadedFile, ValidationConstraint
 from reahl.web.ui import SimpleFileInput, Form, ButtonInput

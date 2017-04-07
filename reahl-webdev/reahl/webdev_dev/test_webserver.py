@@ -23,7 +23,7 @@ import datetime
 import functools
 
 from reahl.tofu import Fixture, temp_dir
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass, CallMonitor, exempt, EmptyStub
 
 from reahl.webdev.webserver import ServerSupervisor, SlaveProcess

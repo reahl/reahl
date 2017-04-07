@@ -24,7 +24,7 @@ def test_use_with_pytest(testdir):
 
     p = testdir.makepyfile('''
     from reahl.tofu import Fixture
-    from reahl.tofu.pytest_support import with_fixtures
+    from reahl.tofu.pytestsupport import with_fixtures
     class FixtureStub(Fixture):
         set_up_done = False
         tear_down_done = False
@@ -56,7 +56,7 @@ def test_scenarios(testdir):
 
     p = testdir.makepyfile('''
     from reahl.tofu import Fixture, scenario
-    from reahl.tofu.pytest_support import with_fixtures
+    from reahl.tofu.pytestsupport import with_fixtures
     class Scenarios(Fixture):
         @scenario
         def one(self):
@@ -87,7 +87,7 @@ def test_single_scenario(testdir):
 
     p = testdir.makepyfile('''
     from reahl.tofu import Fixture, scenario
-    from reahl.tofu.pytest_support import with_fixtures
+    from reahl.tofu.pytestsupport import with_fixtures
     class Scenarios(Fixture):
         @scenario
         def one(self):
@@ -116,7 +116,7 @@ def test_contextual_runs(testdir):
 
     p = testdir.makepyfile('''
     from reahl.tofu import Fixture, scenario
-    from reahl.tofu.pytest_support import with_fixtures
+    from reahl.tofu.pytestsupport import with_fixtures
     class ContextManager(object):
         entered = False
         exited = False

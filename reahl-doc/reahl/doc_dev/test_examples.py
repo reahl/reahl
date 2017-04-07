@@ -20,7 +20,7 @@ import os
 import os.path
 
 from reahl.tofu import Fixture, scenario, expected, temp_file_with, uses
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import SystemOutStub
 from reahl.component.shelltools import Executable
 

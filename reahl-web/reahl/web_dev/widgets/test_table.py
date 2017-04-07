@@ -20,7 +20,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario, uses
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath, WidgetTester
 from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P

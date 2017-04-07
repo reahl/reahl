@@ -24,7 +24,7 @@ from six.moves import zip_longest
 
 from reahl.stubble import EmptyStub
 from reahl.tofu import Fixture, scenario
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.component.decorators import deprecated, memoized
 from reahl.component.exceptions import arg_checks
 

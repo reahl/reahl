@@ -22,7 +22,7 @@ import json
 from webob import Request
 
 from reahl.tofu import Fixture, scenario, NoException, expected, uses
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EmptyStub
 
 from reahl.webdev.tools import WidgetTester, XPath, Browser

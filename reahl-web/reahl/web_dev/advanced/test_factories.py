@@ -20,7 +20,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.tofu import Fixture, scenario, expected, uses
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.stubble import EmptyStub
 

@@ -23,7 +23,7 @@ from webob.exc import HTTPMethodNotAllowed
 
 from reahl.stubble import stubclass, exempt
 from reahl.tofu import scenario, Fixture
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.modelinterface import Field
 from reahl.webdev.tools import Browser

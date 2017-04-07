@@ -23,7 +23,7 @@ import time
 
 from reahl.stubble import easter_egg, stubclass, EmptyStub
 from reahl.tofu import Fixture, set_up, tear_down, scenario, uses, temp_file_with, expected
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.dev.xmlreader import XMLReader, DoubleRegistrationException, TagNotRegisteredException
 

@@ -20,7 +20,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from six.moves.urllib import parse as urllib_parse
 
 from reahl.tofu import expected
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Event, Field, Action, exposed, IntegerField

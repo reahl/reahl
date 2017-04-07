@@ -17,7 +17,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface, IdentityDictionary, Bookmark

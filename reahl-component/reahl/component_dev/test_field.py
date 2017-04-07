@@ -22,7 +22,7 @@ import datetime
 import functools
 
 from reahl.tofu import Fixture, scenario, expected, NoException, uses
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
 
 from reahl.component.context import ExecutionContext

@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.tofu import Fixture, scenario, expected, NoException
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.component.exceptions import IncorrectArgumentError, arg_checks, IsInstance, IsSubclass, \
      ArgumentCheckedCallable, NotYetAvailable
 from reahl.component.decorators import deprecated

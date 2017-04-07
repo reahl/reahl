@@ -20,7 +20,7 @@ import datetime
 
 
 from reahl.tofu import Fixture, set_up, uses
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from sqlalchemy import Column, Integer, Boolean, UnicodeText, ForeignKey
 

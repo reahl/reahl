@@ -23,7 +23,7 @@ import os.path
 
 from reahl.tofu import Fixture
 from reahl.tofu import temp_dir, assert_recent
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.shelltools import Executable
 from reahl.dev.devdomain import Git

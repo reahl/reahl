@@ -21,7 +21,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import pkg_resources
 
 from reahl.tofu import temp_dir, Fixture, set_up, uses
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import easter_egg
 
 from reahl.webdev.tools import Browser

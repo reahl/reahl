@@ -22,7 +22,7 @@ import os
 import os.path
 
 from reahl.tofu import Fixture, temp_dir, assert_recent
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.bzrsupport import Bzr, Executable
 

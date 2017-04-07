@@ -21,7 +21,7 @@ import os
 import threading 
 
 from reahl.tofu import scenario, expected, Fixture, temp_file_with, uses
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath
 

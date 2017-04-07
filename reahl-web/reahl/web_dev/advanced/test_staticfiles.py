@@ -24,7 +24,7 @@ import os.path
 import pkg_resources
 
 from reahl.tofu import scenario, temp_dir, temp_file_with, Fixture
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import easter_egg, stubclass
 
 from reahl.web.fw import FileOnDisk, FileFromBlob, PackagedFile, ConcatenatedFile, FileDownload, UserInterface

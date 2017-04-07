@@ -25,7 +25,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 
 from reahl.sqlalchemysupport import Session
 from reahl.tofu import vassert, assert_recent, expected
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass
 
 from reahl.component.eggs import ReahlEgg

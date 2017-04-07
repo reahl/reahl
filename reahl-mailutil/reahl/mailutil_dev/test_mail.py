@@ -18,7 +18,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.tofu import Fixture
 from reahl.tofu import expected
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.mailutil.mail import Mailer, MailMessage, InvalidEmailAddressException
 from reahl.dev.mailtest import MailTester

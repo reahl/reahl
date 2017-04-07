@@ -27,7 +27,7 @@ from webob import Response
 
 from reahl.tofu import scenario, Fixture, uses
 from reahl.stubble import stubclass
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.sqlalchemysupport import Session
 from reahl.component.py3compat import ascii_as_bytes_or_str

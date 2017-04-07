@@ -22,7 +22,7 @@ import re
 import logging
 
 from reahl.tofu import Fixture, set_up, temp_dir, expected
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import CallMonitor, EasterEgg, easter_egg
 
 from reahl.component.eggs import ReahlEgg

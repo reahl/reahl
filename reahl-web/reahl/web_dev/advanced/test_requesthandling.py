@@ -21,7 +21,7 @@ from webob import Request, Response
 from webob.exc import HTTPNotFound
 
 from reahl.tofu import expected, Fixture
-from reahl.tofu.pytest_support import with_fixtures
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass, CallMonitor
 
 from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext, InternalRedirect
