@@ -420,7 +420,7 @@ def test_basichtmlinputs(web_fixture, basichtmlinputs_scenario):
 
 def test_model_examples():
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
-    for example in ['modeltests1.py', 'modeltests2.py', 'modeltests3.py']:
+    for example in ['test_model1.py', 'test_model2.py', 'test_model3.py']:
         Executable('pytest').check_call(['reahl/doc/examples/tutorial/%s' % example ])
 
 

@@ -43,8 +43,12 @@ class WithFixtureDecorator(object):
         return [fixture_instances[c] for c in fixture_classes]
         
     def fixture_arg_names(self, f):
-        signature = inspect.signature(f)
-        return list(signature.parameters.keys())[:len(self.requested_fixtures)]
+        if six.PY2:
+            arg_spec = inspect.getargspec(f)
+            return arg_spec.args[:len(self.requested_fixtures)]
+        else:
+            signature = inspect.signature(f)
+            return list(signature.parameters.keys())[:len(self.requested_fixtures)]
 
     def fixture_permutations(self, number_args):
         return FixturePermutationIterator(self.requested_fixtures, self.fixture_classes, number_args)

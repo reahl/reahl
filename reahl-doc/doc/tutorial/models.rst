@@ -5,7 +5,7 @@ A basic model
 
 .. sidebar:: Examples in this section
 
-   - tutorial.modeltests1
+   - tutorial.test_model1
 
    Get a copy of an example by running:
 
@@ -23,10 +23,10 @@ concept in that domain.
 
 Here is a simple model for an address book application:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/modeltests1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/test_model1.py
    :pyobject: Address
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/modeltests1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/test_model1.py
    :pyobject: AddressBook
 
 
@@ -54,13 +54,13 @@ include the toy model and its test together in a single file for now.
 To put the simple model presented above through its paces, you can
 put it together with a test in a file as follows, say test.py:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/modeltests1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/test_model1.py
 
 You can execute this example by running:
 
 .. code-block:: bash
 
-   nosetests modeltests1.py
+   nosetests test_model1.py
 
 Sometimes it is useful to include a line somewhere in that test which
 will invoke the Python debugger so that you can play around with the
@@ -75,7 +75,7 @@ option:
 
 .. code-block:: bash
 
-   nosetests -s modeltests1.py
+   nosetests -s test_model1.py
 
    
 

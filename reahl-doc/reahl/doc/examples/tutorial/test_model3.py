@@ -1,6 +1,5 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
 from reahl.tofu import expected, NoException
 
 
@@ -31,7 +30,6 @@ class Address(Base):
         events.save = Event(label='Save', action=Action(self.save))
 
 
-@istest
 def test_reahl_additions():
 
     metadata.bind = 'sqlite:///:memory:'

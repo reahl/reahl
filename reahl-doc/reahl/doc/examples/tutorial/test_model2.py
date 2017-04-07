@@ -1,6 +1,5 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
 
 from sqlalchemy import Column, Integer, UnicodeText
 
@@ -18,7 +17,6 @@ class Address(Base):
         Session.add(self)
 
 
-@istest
 def test_model():
     metadata.bind = 'sqlite:///:memory:'
     metadata.create_all()
