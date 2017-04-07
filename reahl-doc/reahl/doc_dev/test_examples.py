@@ -421,7 +421,7 @@ def test_basichtmlinputs(web_fixture, basichtmlinputs_scenario):
 def test_model_examples():
     # These examples are built to run outside of our infrastructure, hence have to be run like this:
     for example in ['modeltests1.py', 'modeltests2.py', 'modeltests3.py']:
-        Executable('nosetests').check_call(['--first-package-wins', 'reahl/doc/examples/tutorial/%s' % example ])
+        Executable('pytest').check_call(['reahl/doc/examples/tutorial/%s' % example ])
 
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook1)
