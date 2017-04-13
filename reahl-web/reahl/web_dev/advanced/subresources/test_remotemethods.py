@@ -56,66 +56,69 @@ def test_remote_methods(web_fixture):
     """A RemoteMethod is a SubResource representing a method on the server side which can be invoked via POSTing to an URL."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        def callable_object():
-            return 'value returned from method'
+    web_fixture.context.install()
 
-        encoding = 'koi8_r'  # Deliberate
-        remote_method = RemoteMethod('amethod', callable_object, MethodResult(mime_type='ttext/hhtml', encoding=encoding))
+    def callable_object():
+        return 'value returned from method'
 
-        @stubclass(Widget)
-        class WidgetWithRemoteMethod(Widget):
-            def __init__(self, view):
-                super(WidgetWithRemoteMethod, self).__init__(view)
-                view.add_resource(remote_method)
+    encoding = 'koi8_r'  # Deliberate
+    remote_method = RemoteMethod('amethod', callable_object, MethodResult(mime_type='ttext/hhtml', encoding=encoding))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
-        browser = Browser(wsgi_app)
+    @stubclass(Widget)
+    class WidgetWithRemoteMethod(Widget):
+        def __init__(self, view):
+            super(WidgetWithRemoteMethod, self).__init__(view)
+            view.add_resource(remote_method)
 
-        # By default you cannot GET, since the method is not immutable
-        browser.open('/_amethod_method', status=405)
+    wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithRemoteMethod.factory())
+    browser = Browser(wsgi_app)
 
-        # POSTing to the URL, returns the result of the method
-        browser.post('/_amethod_method', {})
-        assert browser.raw_html == 'value returned from method'
-        assert browser.last_response.charset == encoding
-        assert browser.last_response.content_type == 'ttext/hhtml'
+    # By default you cannot GET, since the method is not immutable
+    browser.open('/_amethod_method', status=405)
+
+    # POSTing to the URL, returns the result of the method
+    browser.post('/_amethod_method', {})
+    assert browser.raw_html == 'value returned from method'
+    assert browser.last_response.charset == encoding
+    assert browser.last_response.content_type == 'ttext/hhtml'
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture)
 def test_exception_handling(web_fixture, remote_method_fixture):
     """The RemoteMethod sends back the six.text_type() of an exception raised for the specified exception class."""
 
-    with web_fixture.context:
-        def fail():
-            raise Exception('I failed')
-        remote_method = RemoteMethod('amethod', fail, MethodResult(catch_exception=Exception))
+    web_fixture.context.install()
 
-        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
-        browser = Browser(wsgi_app)
+    def fail():
+        raise Exception('I failed')
+    remote_method = RemoteMethod('amethod', fail, MethodResult(catch_exception=Exception))
 
-        browser.post('/_amethod_method', {})
-        assert browser.raw_html == 'I failed'
+    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+    browser = Browser(wsgi_app)
+
+    browser.post('/_amethod_method', {})
+    assert browser.raw_html == 'I failed'
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture)
 def test_immutable_remote_methods(web_fixture, remote_method_fixture):
     """A RemoteMethod that is immutable is accessible via GET (instead of POST)."""
 
-    with web_fixture.context:
-        def callable_object():
-            return 'value returned from method'
-        remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
+    web_fixture.context.install()
 
-        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
-        browser = Browser(wsgi_app)
+    def callable_object():
+        return 'value returned from method'
+    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
 
-        # GET, since the method is immutable
-        browser.open('/_amethod_method')
-        assert browser.raw_html == 'value returned from method'
+    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+    browser = Browser(wsgi_app)
 
-        # POSTing to the URL, is not supported
-        browser.post('/_amethod_method', {}, status=405)
+    # GET, since the method is immutable
+    browser.open('/_amethod_method')
+    assert browser.raw_html == 'value returned from method'
+
+    # POSTing to the URL, is not supported
+    browser.post('/_amethod_method', {}, status=405)
 
 
 class ArgumentScenarios(Fixture):
@@ -132,21 +135,22 @@ def test_arguments_to_remote_methods(web_fixture, remote_method_fixture, argumen
     """A RemoteMethod can get arguments from a query string or submitted form values, depending on the scenario."""
 
     fixture = argument_scenarios
-    with web_fixture.context:
-        def callable_object(**kwargs):
-            fixture.method_kwargs = kwargs
-            return ''
-        remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=fixture.immutable)
+    web_fixture.context.install()
 
-        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
-        browser = Browser(wsgi_app)
+    def callable_object(**kwargs):
+        fixture.method_kwargs = kwargs
+        return ''
+    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=fixture.immutable)
 
-        kwargs_sent = {'a':'AAA', 'b':'BBB'}
-        if fixture.immutable:
-            browser.open('/_amethod_method?a=AAA&b=BBB')
-        else:
-            browser.post('/_amethod_method', kwargs_sent)
-        assert fixture.method_kwargs == kwargs_sent
+    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+    browser = Browser(wsgi_app)
+
+    kwargs_sent = {'a':'AAA', 'b':'BBB'}
+    if fixture.immutable:
+        browser.open('/_amethod_method?a=AAA&b=BBB')
+    else:
+        browser.post('/_amethod_method', kwargs_sent)
+    assert fixture.method_kwargs == kwargs_sent
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture, ArgumentScenarios)
@@ -154,23 +158,24 @@ def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenario
     """A CheckedRemoteMethod checks and marshalls its parameters using Fields."""
 
     fixture = argument_scenarios
-    with web_fixture.context:
-        def callable_object(anint=None, astring=None):
-            fixture.method_kwargs = {'anint': anint, 'astring': astring}
-            return ''
-        remote_method = CheckedRemoteMethod('amethod', callable_object, MethodResult(),
-                                            immutable=fixture.immutable,
-                                            anint=IntegerField(),
-                                            astring=Field())
+    web_fixture.context.install()
 
-        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
-        browser = Browser(wsgi_app)
+    def callable_object(anint=None, astring=None):
+        fixture.method_kwargs = {'anint': anint, 'astring': astring}
+        return ''
+    remote_method = CheckedRemoteMethod('amethod', callable_object, MethodResult(),
+                                        immutable=fixture.immutable,
+                                        anint=IntegerField(),
+                                        astring=Field())
 
-        if fixture.immutable:
-            browser.open('/_amethod_method?anint=5&astring=SupercalifraGilisticexpialidocious')
-        else:
-            browser.post('/_amethod_method', {'anint':'5', 'astring':'SupercalifraGilisticexpialidocious'})
-        assert fixture.method_kwargs == {'anint':5, 'astring':'SupercalifraGilisticexpialidocious'}
+    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+    browser = Browser(wsgi_app)
+
+    if fixture.immutable:
+        browser.open('/_amethod_method?anint=5&astring=SupercalifraGilisticexpialidocious')
+    else:
+        browser.post('/_amethod_method', {'anint':'5', 'astring':'SupercalifraGilisticexpialidocious'})
+    assert fixture.method_kwargs == {'anint':5, 'astring':'SupercalifraGilisticexpialidocious'}
 
 
 @uses(web_fixture=WebFixture)
@@ -224,18 +229,19 @@ def test_different_kinds_of_result(web_fixture, remote_method_fixture, result_sc
     """Different kinds of MethodResult can be specified for a method."""
 
     fixture = result_scenarios
-    with web_fixture.context:
-        def callable_object():
-            return fixture.value_to_return
-        remote_method = RemoteMethod('amethod', callable_object, default_result=fixture.method_result)
+    web_fixture.context.install()
 
-        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
-        browser = Browser(wsgi_app)
+    def callable_object():
+        return fixture.value_to_return
+    remote_method = RemoteMethod('amethod', callable_object, default_result=fixture.method_result)
 
-        browser.post('/_amethod_method', {})
-        assert fixture.results_match(fixture.expected_response, browser.raw_html)
-        assert browser.last_response.charset == fixture.expected_charset
-        assert browser.last_response.content_type == fixture.expected_content_type
+    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+    browser = Browser(wsgi_app)
+
+    browser.post('/_amethod_method', {})
+    assert fixture.results_match(fixture.expected_response, browser.raw_html)
+    assert browser.last_response.charset == fixture.expected_charset
+    assert browser.last_response.content_type == fixture.expected_content_type
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture, ResultScenarios.json)
@@ -243,18 +249,19 @@ def test_exception_handling_for_json(web_fixture, remote_method_fixture, json_re
     """How exceptions are handled with JsonResult."""
 
     fixture = json_result_scenario
-    with web_fixture.context:
-        def fail():
-            raise Exception('exception text')
-        remote_method = RemoteMethod('amethod', fail, default_result=fixture.method_result)
+    web_fixture.context.install()
 
-        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
-        browser = Browser(wsgi_app)
+    def fail():
+        raise Exception('exception text')
+    remote_method = RemoteMethod('amethod', fail, default_result=fixture.method_result)
 
-        browser.post('/_amethod_method', {})
-        assert browser.raw_html == fixture.exception_response
-        assert browser.last_response.charset == fixture.expected_charset
-        assert browser.last_response.content_type == fixture.expected_content_type
+    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+    browser = Browser(wsgi_app)
+
+    browser.post('/_amethod_method', {})
+    assert browser.raw_html == fixture.exception_response
+    assert browser.last_response.charset == fixture.expected_charset
+    assert browser.last_response.content_type == fixture.expected_content_type
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture, ResultScenarios.widget)
@@ -262,16 +269,17 @@ def test_exception_handling_for_widgets(web_fixture, remote_method_fixture, widg
     """How exceptions are handled with WidgetResult."""
 
     fixture = widget_result_scenario
-    with web_fixture.context:
-        def fail():
-            raise Exception('exception text')
-        remote_method = RemoteMethod('amethod', fail, default_result=fixture.method_result)
+    web_fixture.context.install()
 
-        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
-        browser = Browser(wsgi_app)
+    def fail():
+        raise Exception('exception text')
+    remote_method = RemoteMethod('amethod', fail, default_result=fixture.method_result)
 
-        with expected(Exception):
-            browser.post('/_amethod_method', {})
+    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+    browser = Browser(wsgi_app)
+
+    with expected(Exception):
+        browser.post('/_amethod_method', {})
 
 
 class RegenerateMethodResultScenarios(Fixture):
@@ -317,14 +325,15 @@ def test_regenerating_method_results(web_fixture, sql_alchemy_fixture,
        is not executed twice.
     """
 
-    with web_fixture.context:
-        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=regenerate_method_result_scenarios.remote_method)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        with CallMonitor(sql_alchemy_fixture.system_control.orm_control.commit) as monitor:
-            browser.post('/_amethod_method', {})
-        assert browser.raw_html == regenerate_method_result_scenarios.expected_response
-        assert monitor.times_called == 2
+    wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=regenerate_method_result_scenarios.remote_method)
+    browser = Browser(wsgi_app)
+
+    with CallMonitor(sql_alchemy_fixture.system_control.orm_control.commit) as monitor:
+        browser.post('/_amethod_method', {})
+    assert browser.raw_html == regenerate_method_result_scenarios.expected_response
+    assert monitor.times_called == 2
 
 
 class WidgetResultScenarios(Fixture):
@@ -384,10 +393,11 @@ def test_widgets_that_change_during_method_processing(web_fixture, widget_result
        its RemoteMethod have been committed.
     """
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=widget_result_scenarios.WidgetWithRemoteMethod.factory())
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.post('/_amethod_method', {})
-        json_response = json.loads(browser.raw_html)
-        assert json_response == widget_result_scenarios.expected_response
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=widget_result_scenarios.WidgetWithRemoteMethod.factory())
+    browser = Browser(wsgi_app)
+
+    browser.post('/_amethod_method', {})
+    json_response = json.loads(browser.raw_html)
+    assert json_response == widget_result_scenarios.expected_response

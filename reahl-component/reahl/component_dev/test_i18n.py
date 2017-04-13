@@ -42,18 +42,19 @@ def test_basic_usage():
 
     _ = Translator('reahl-component')  # Will find its translations in the compiled messages of reahl-component
 
-    with LocaleContextStub() as context:
-        context.test_locale = 'en_gb'
-        assert _('test string') == 'test string'
-        assert _.gettext('test string') == 'test string'
-        assert _.ngettext('thing', 'things', 1) == 'thing'
-        assert _.ngettext('thing', 'things', 3) == 'things'
+    context = LocaleContextStub().install()
 
-        context.test_locale = 'af'
-        assert _('test string') == 'toets string'
-        assert _.gettext('test string') == 'toets string'
-        assert _.ngettext('thing', 'things', 1) == 'ding'
-        assert _.ngettext('thing', 'things', 3) == 'goeters'
+    context.test_locale = 'en_gb'
+    assert _('test string') == 'test string'
+    assert _.gettext('test string') == 'test string'
+    assert _.ngettext('thing', 'things', 1) == 'thing'
+    assert _.ngettext('thing', 'things', 3) == 'things'
+
+    context.test_locale = 'af'
+    assert _('test string') == 'toets string'
+    assert _.gettext('test string') == 'toets string'
+    assert _.ngettext('thing', 'things', 1) == 'ding'
+    assert _.ngettext('thing', 'things', 3) == 'goeters'
 
 
 def test_formatting():
@@ -64,16 +65,17 @@ def test_formatting():
 
     date = datetime.date(2012, 1, 10)
 
-    with LocaleContextStub() as context:
-        context.test_locale = 'en_gb'
-        assert _.current_locale == 'en_gb'
-        actual = babel.dates.format_date(date, format='long', locale=_.current_locale)
-        assert actual == '10 January 2012'
+    context = LocaleContextStub().install()
 
-        context.test_locale = 'af'
-        assert _.current_locale == 'af'
-        actual = babel.dates.format_date(date, format='long', locale=_.current_locale)
-        assert actual == '10 Januarie 2012'
+    context.test_locale = 'en_gb'
+    assert _.current_locale == 'en_gb'
+    actual = babel.dates.format_date(date, format='long', locale=_.current_locale)
+    assert actual == '10 January 2012'
+
+    context.test_locale = 'af'
+    assert _.current_locale == 'af'
+    actual = babel.dates.format_date(date, format='long', locale=_.current_locale)
+    assert actual == '10 Januarie 2012'
 
 
 def test_translator_singleton():
@@ -85,12 +87,13 @@ def test_translator_singleton():
         _ = Translator('reahl-component')
         _2 = Translator('reahl-component')
 
-        with LocaleContextStub() as context:
-            _('test string')
-            _.ngettext('thing', 'things', 1)
-            _.ngettext('thing', 'things', 2)
+        context = LocaleContextStub().install()
 
-            _2('test string')
+        _('test string')
+        _.ngettext('thing', 'things', 1)
+        _.ngettext('thing', 'things', 2)
+
+        _2('test string')
 
     assert monitor.times_called == 1
 
@@ -106,9 +109,9 @@ def test_translator_singleton_thread_safety():
         saved_state.lock_released = True
     timer = Timer(.1, release_lock)
     timer.start()
-    with LocaleContextStub() as context:
-        _ = Translator('reahl-component')
-        _.gettext('test string')
+    context = LocaleContextStub().install()
+    _ = Translator('reahl-component')
+    _.gettext('test string')
     timer.cancel()
     assert saved_state.lock_released
 
@@ -121,13 +124,14 @@ def test_translated_config():
 
     config = MyConfig()
 
-    with LocaleContextStub() as context:
-        context.test_locale = 'en_gb'
-        assert config.setting == 'the default'
+    context = LocaleContextStub().install()
 
-        context.test_locale = 'af'
-        assert config.setting == 'the default'
+    context.test_locale = 'en_gb'
+    assert config.setting == 'the default'
 
-        config.setting_af = 'die verstek'
-        assert config.setting == 'die verstek'
+    context.test_locale = 'af'
+    assert config.setting == 'the default'
+
+    config.setting_af = 'die verstek'
+    assert config.setting == 'die verstek'
 

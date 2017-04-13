@@ -30,18 +30,18 @@ class PagingFixture(Fixture):
 def test_paging(web_fixture, paging_fixture):
     """Clicking on a different page in the pager changes the addresses listed without triggering a page load."""
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(paging_fixture.wsgi_app)
-        browser = paging_fixture.browser
+    web_fixture.context.install()
+    web_fixture.reahl_server.set_app(paging_fixture.wsgi_app)
+    browser = paging_fixture.browser
 
-        browser.open('/')
+    browser.open('/')
 
-        assert paging_fixture.is_email_listed('friend0@some.org')
-        assert not paging_fixture.is_email_listed('friend9@some.org')
+    assert paging_fixture.is_email_listed('friend0@some.org')
+    assert not paging_fixture.is_email_listed('friend9@some.org')
 
-        with browser.no_page_load_expected():
-            browser.click(XPath.link_with_text('2'))
+    with browser.no_page_load_expected():
+        browser.click(XPath.link_with_text('2'))
 
-        assert not paging_fixture.is_email_listed('friend0@some.org')
-        assert paging_fixture.is_email_listed('friend9@some.org')
+    assert not paging_fixture.is_email_listed('friend0@some.org')
+    assert paging_fixture.is_email_listed('friend9@some.org')
 

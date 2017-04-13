@@ -33,8 +33,9 @@ class LoginFixture(Fixture):
 @with_fixtures(SqlAlchemyFixture, LoginFixture)
 def demo_setup(sql_alchemy_fixture, login_fixture):
     sql_alchemy_fixture.commit = True
-    with sql_alchemy_fixture.context:
-        login_fixture.new_account()
+    sql_alchemy_fixture.context.install()
+
+    login_fixture.new_account()
 
 
 @with_fixtures(WebFixture, LoginFixture)
@@ -42,34 +43,34 @@ def test_logging_in(web_fixture, login_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""
 
-    with web_fixture.context:
-        browser = login_fixture.browser
-        login_fixture.new_account()
+    web_fixture.context.install()
+    browser = login_fixture.browser
+    login_fixture.new_account()
 
-        browser.open('/')
-        browser.click(XPath.link_with_text('Log in'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Log in'))
 
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-        browser.type(XPath.input_labelled('Password'), 'topsecret')
-        browser.click(XPath.button_labelled('Log in'))
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Password'), 'topsecret')
+    browser.click(XPath.button_labelled('Log in'))
 
-        browser.click(XPath.link_with_text('Home'))
-        assert browser.is_element_present(XPath.paragraph_containing('Welcome johndoe@some.org'))
+    browser.click(XPath.link_with_text('Home'))
+    assert browser.is_element_present(XPath.paragraph_containing('Welcome johndoe@some.org'))
 
 
 @with_fixtures(WebFixture, LoginFixture)
 def test_domain_exception(web_fixture, login_fixture):
     """Typing the wrong password results in an error message being shown to the user."""
 
-    with web_fixture.context:
-        browser = login_fixture.browser
-        login_fixture.new_account()
+    web_fixture.context.install()
+    browser = login_fixture.browser
+    login_fixture.new_account()
 
-        browser.open('/')
-        browser.click(XPath.link_with_text('Log in'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Log in'))
 
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-        browser.type(XPath.input_labelled('Password'), 'wrong password')
-        browser.click(XPath.button_labelled('Log in'))
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Password'), 'wrong password')
+    browser.click(XPath.button_labelled('Log in'))
 
-        assert browser.is_element_present(XPath.div_containing('Invalid login credentials'))
+    assert browser.is_element_present(XPath.div_containing('Invalid login credentials'))

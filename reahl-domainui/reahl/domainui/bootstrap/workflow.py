@@ -26,8 +26,9 @@ This (experimental) version is based on the new bootstrap-based Widgets (:mod:`r
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
+from reahl.component.context import ExecutionContext
 from reahl.sqlalchemysupport import PersistedField
-from reahl.web.fw import UserInterface, UrlBoundView, WebExecutionContext, Detour, ViewPreCondition
+from reahl.web.fw import UserInterface, UrlBoundView, Detour, ViewPreCondition
 from reahl.web.ui import HTMLWidget
 from reahl.web.bootstrap.ui import P, Div, Ul, Li, H
 from reahl.web.bootstrap.forms import Form, Button, ButtonLayout, FormLayout
@@ -112,7 +113,7 @@ class TaskView(UrlBoundView):
         self.title = 'Task %s' % (task.id)
 
     def get_widget_class_for(self, task):
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         for widget_class in config.workflowui.task_widgets:
             if issubclass(widget_class, TaskWidget) and widget_class.displays(task):
                 return widget_class
@@ -135,7 +136,7 @@ class InboxUI(UserInterface):
     """
     def assemble(self, login_bookmark=None, get_queues=None):
         self.get_queues = get_queues
-        self.web_session = WebExecutionContext.get_context().session 
+        self.web_session = ExecutionContext.get_context().session 
         self.first_log_in = ViewPreCondition(LoginSession.for_current_session().is_logged_in, exception=Detour(login_bookmark))
 
         self.workflow_interface = WorkflowInterface()

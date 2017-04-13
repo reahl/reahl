@@ -34,10 +34,11 @@ from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
+from reahl.component.context import ExecutionContext
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
     Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex
 from reahl.component.py3compat import html_escape
-from reahl.web.fw import WebExecutionContext, EventChannel, RemoteMethod, JsonResult, Widget, \
+from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
 
 _ = Translator('reahl-web')
@@ -963,7 +964,7 @@ class Form(HTMLElement):
 
     @property
     def action(self):
-        request = WebExecutionContext.get_context().request
+        request = ExecutionContext.get_context().request
         action = self.event_channel.get_url()
         action.query = request.query_string
         action.make_network_relative()
@@ -986,15 +987,15 @@ class Form(HTMLElement):
 
     @property
     def persisted_exception_class(self):
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         return config.web.persisted_exception_class
     @property
     def persisted_userinput_class(self):
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         return config.web.persisted_userinput_class
     @property
     def persisted_file_class(self):
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         return config.web.persisted_file_class
 
     def create_error_label(self, input_widget):
@@ -1925,7 +1926,7 @@ class UniqueFilesConstraint(ValidationConstraint):
 
     def validate_input(self, unparsed_input):
         assert (self.form is not None) and (self.field is not None)
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         persisted_file_class = config.web.persisted_file_class
         for f in unparsed_input:
             if persisted_file_class.is_uploaded_for_form(self.form, self.input_name, f.filename):

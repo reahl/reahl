@@ -73,7 +73,7 @@ class PartyAccountFixture(Fixture):
     @set_up
     def add_system_account_config(self):
         self.sql_alchemy_fixture.config.accounts = self.system_account_config
-        self.sql_alchemy_fixture.context.set_session(self.session)
+        self.sql_alchemy_fixture.context.session = self.session
 
     def new_system_account_config(self):
         accounts = SystemAccountConfig()

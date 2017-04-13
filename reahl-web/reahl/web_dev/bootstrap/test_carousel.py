@@ -25,7 +25,8 @@ from reahl.stubble import stubclass
 from reahl.tofu import Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.web.fw import Widget, WebExecutionContext
+from reahl.component.context import ExecutionContext
+from reahl.web.fw import Widget
 from reahl.web.ui import Img
 from reahl.web.bootstrap.carousel import Carousel
 
@@ -53,77 +54,80 @@ class CarouselFixture(Fixture):
 def test_carousel_basics(web_fixture):
     """A Carousel contains all the right classes and contents to act as a Bootstrap Carousel component."""
 
-    with web_fixture.context:
-        widget = Carousel(web_fixture.view, 'my_carousel_id')
+    web_fixture.context.install()
 
-        [main_div] = widget.children
+    widget = Carousel(web_fixture.view, 'my_carousel_id')
 
-        # The main div
-        assert main_div.get_attribute('id') == 'my_carousel_id'
-        assert main_div.get_attribute('class') == 'carousel slide'
+    [main_div] = widget.children
 
-        [indicator_list, carousel_inner, left_control, right_control] = main_div.children
+    # The main div
+    assert main_div.get_attribute('id') == 'my_carousel_id'
+    assert main_div.get_attribute('class') == 'carousel slide'
 
-        # Indicators
-        assert indicator_list.get_attribute('class') == 'carousel-indicators'
+    [indicator_list, carousel_inner, left_control, right_control] = main_div.children
 
-        # Inner (container of the images)
-        assert carousel_inner.get_attribute('class') == 'carousel-inner'
-        assert carousel_inner.get_attribute('role') == 'listbox'
+    # Indicators
+    assert indicator_list.get_attribute('class') == 'carousel-indicators'
 
-        # Controls
-        def check_control(control, position, action, label):
-            assert control.get_attribute('class') == 'carousel-control %s' % position
-            assert control.get_attribute('role') == 'button'
-            assert control.get_attribute('data-slide') == action
+    # Inner (container of the images)
+    assert carousel_inner.get_attribute('class') == 'carousel-inner'
+    assert carousel_inner.get_attribute('role') == 'listbox'
 
-            [icon, text] = control.children
-            assert icon.get_attribute('class') == 'icon-%s' % action
-            assert icon.get_attribute('aria-hidden') == 'true'
+    # Controls
+    def check_control(control, position, action, label):
+        assert control.get_attribute('class') == 'carousel-control %s' % position
+        assert control.get_attribute('role') == 'button'
+        assert control.get_attribute('data-slide') == action
 
-            assert text.children[0].value == label
-            assert text.get_attribute('class') == 'sr-only'
+        [icon, text] = control.children
+        assert icon.get_attribute('class') == 'icon-%s' % action
+        assert icon.get_attribute('aria-hidden') == 'true'
 
-        check_control(left_control, 'left', 'prev', 'Previous')
-        check_control(right_control, 'right', 'next', 'Next')
+        assert text.children[0].value == label
+        assert text.get_attribute('class') == 'sr-only'
+
+    check_control(left_control, 'left', 'prev', 'Previous')
+    check_control(right_control, 'right', 'next', 'Next')
 
 
 @with_fixtures(WebFixture)
 def test_i18n(web_fixture):
     """User-visible labels are internationalised."""
-    @stubclass(WebExecutionContext)
-    class AfrikaansContext(WebExecutionContext):
+    @stubclass(ExecutionContext)
+    class AfrikaansContext(ExecutionContext):
         request = webob.Request.blank('/', charset='utf8')
         @property
         def interface_locale(self):
             return 'af'
 
-    with web_fixture.context, AfrikaansContext():
-        widget = Carousel(web_fixture.view, 'my_carousel_id')
+    AfrikaansContext(parent_context=web_fixture.context).install()
 
-        [main_div] = widget.children
-        [indicator_list, carousel_inner, left_control, right_control] = main_div.children
+    widget = Carousel(web_fixture.view, 'my_carousel_id')
 
-        def check_control(control, label):
-            [icon, text] = control.children
-            assert text.children[0].value == label
+    [main_div] = widget.children
+    [indicator_list, carousel_inner, left_control, right_control] = main_div.children
 
-        check_control(left_control, 'Vorige')
-        check_control(right_control, 'Volgende')
+    def check_control(control, label):
+        [icon, text] = control.children
+        assert text.children[0].value == label
+
+    check_control(left_control, 'Vorige')
+    check_control(right_control, 'Volgende')
 
 
 @with_fixtures(WebFixture, CarouselFixture)
 def test_carousel_has_options(web_fixture, carousel_fixture):
     """Constructor allows you to set certain customizing options"""
 
-    with web_fixture.context:
-        carousel = Carousel(web_fixture.view, 'my_carousel_id', interval=1000, pause='hover', wrap=True, keyboard=True)
-        main_div = carousel_fixture.get_main_div_for(carousel)
+    web_fixture.context.install()
 
-        assert main_div.get_attribute('data-interval') == '1000'
-        assert main_div.get_attribute('data-pause') == 'hover'
-        assert main_div.get_attribute('data-wrap') == 'true'
-        assert main_div.get_attribute('data-keyboard') == 'true'
+    carousel = Carousel(web_fixture.view, 'my_carousel_id', interval=1000, pause='hover', wrap=True, keyboard=True)
+    main_div = carousel_fixture.get_main_div_for(carousel)
+
+    assert main_div.get_attribute('data-interval') == '1000'
+    assert main_div.get_attribute('data-pause') == 'hover'
+    assert main_div.get_attribute('data-wrap') == 'true'
+    assert main_div.get_attribute('data-keyboard') == 'true'
 
 
 @with_fixtures(WebFixture, CarouselFixture)
@@ -131,32 +135,33 @@ def test_adding_items_to_carousel(web_fixture, carousel_fixture):
     """Images can be added to a Carousel."""
 
     fixture = carousel_fixture
-    with web_fixture.context:
-        carousel = Carousel(web_fixture.view, 'my_carousel_id', show_indicators=True)
-        main_div = fixture.get_main_div_for(carousel)
-        [indicator_list, carousel_inner, left_control, right_control] = main_div.children
+    web_fixture.context.install()
 
-        # Initially, no items or indicators are present
-        assert carousel_inner.children == []
-        assert fixture.carousel_indicators_present(carousel)
-        assert fixture.get_indicator_list_for(carousel) == []
+    carousel = Carousel(web_fixture.view, 'my_carousel_id', show_indicators=True)
+    main_div = fixture.get_main_div_for(carousel)
+    [indicator_list, carousel_inner, left_control, right_control] = main_div.children
 
-        image = Img(web_fixture.view)
-        added_item = carousel.add_slide(image)
+    # Initially, no items or indicators are present
+    assert carousel_inner.children == []
+    assert fixture.carousel_indicators_present(carousel)
+    assert fixture.get_indicator_list_for(carousel) == []
 
-        # A carousel item was added for the image
-        [carousel_item] = carousel_inner.children
-        assert carousel_item is added_item
-        assert 'carousel-item' in carousel_item.get_attribute('class')
+    image = Img(web_fixture.view)
+    added_item = carousel.add_slide(image)
 
-        [actual_image] = carousel_item.children
-        assert actual_image is image
+    # A carousel item was added for the image
+    [carousel_item] = carousel_inner.children
+    assert carousel_item is added_item
+    assert 'carousel-item' in carousel_item.get_attribute('class')
 
-        # An indicator was added for the item
-        [indicator] = fixture.get_indicator_list_for(carousel)
+    [actual_image] = carousel_item.children
+    assert actual_image is image
 
-        assert indicator.get_attribute('data-target') == '#my_carousel_id'
-        assert indicator.get_attribute('data-slide-to') == '0'
+    # An indicator was added for the item
+    [indicator] = fixture.get_indicator_list_for(carousel)
+
+    assert indicator.get_attribute('data-target') == '#my_carousel_id'
+    assert indicator.get_attribute('data-slide-to') == '0'
 
 
 @with_fixtures(WebFixture, CarouselFixture)
@@ -164,26 +169,27 @@ def test_active_state_of_items(web_fixture, carousel_fixture):
     """The first item added is marked as active, and also its corresponding indicator."""
 
     fixture = carousel_fixture
-    with web_fixture.context:
-        carousel = Carousel(web_fixture.view, 'my_carousel_id')
-        carousel.add_slide(Img(web_fixture.view))
-        carousel.add_slide(Img(web_fixture.view))
+    web_fixture.context.install()
 
-        main_div = fixture.get_main_div_for(carousel)
-        [indicator_list, carousel_inner, left_control, right_control] = main_div.children
+    carousel = Carousel(web_fixture.view, 'my_carousel_id')
+    carousel.add_slide(Img(web_fixture.view))
+    carousel.add_slide(Img(web_fixture.view))
 
-        #only the first item is active
-        [carousel_item_1, carousel_item_2] = carousel_inner.children
-        assert carousel_item_1.get_attribute('class') == 'active carousel-item'
-        assert carousel_item_2.get_attribute('class') == 'carousel-item'
+    main_div = fixture.get_main_div_for(carousel)
+    [indicator_list, carousel_inner, left_control, right_control] = main_div.children
 
-        #only the first indicator is active
-        [indicator_0, indicator_1] = fixture.get_indicator_list_for(carousel)
+    #only the first item is active
+    [carousel_item_1, carousel_item_2] = carousel_inner.children
+    assert carousel_item_1.get_attribute('class') == 'active carousel-item'
+    assert carousel_item_2.get_attribute('class') == 'carousel-item'
 
-        assert indicator_0.get_attribute('class') == 'active'
-        assert not indicator_1.has_attribute('class')
-        assert indicator_0.get_attribute('data-slide-to') == '0'
-        assert indicator_1.get_attribute('data-slide-to') == '1'
+    #only the first indicator is active
+    [indicator_0, indicator_1] = fixture.get_indicator_list_for(carousel)
+
+    assert indicator_0.get_attribute('class') == 'active'
+    assert not indicator_1.has_attribute('class')
+    assert indicator_0.get_attribute('data-slide-to') == '0'
+    assert indicator_1.get_attribute('data-slide-to') == '1'
 
 
 
@@ -191,29 +197,31 @@ def test_active_state_of_items(web_fixture, carousel_fixture):
 def test_item_indicators_are_optional(web_fixture, carousel_fixture):
     """With show_indicators=False, indicators are not added when adding items."""
     fixture = carousel_fixture
-    with web_fixture.context:
-        carousel = Carousel(web_fixture.view, 'my_carousel_id', show_indicators=False)
+    web_fixture.context.install()
 
-        assert not fixture.carousel_indicators_present(carousel)
+    carousel = Carousel(web_fixture.view, 'my_carousel_id', show_indicators=False)
 
-        carousel.add_slide(Img(web_fixture.view))
+    assert not fixture.carousel_indicators_present(carousel)
 
-        #after adding the item, indicators shouldn't appear
-        assert not fixture.carousel_indicators_present(carousel)
+    carousel.add_slide(Img(web_fixture.view))
+
+    #after adding the item, indicators shouldn't appear
+    assert not fixture.carousel_indicators_present(carousel)
 
 
 
 @with_fixtures(WebFixture)
 def test_adding_items_with_captions(web_fixture):
     """A Widget can be supplied to be used caption for an added image."""
-    with web_fixture.context:
-        carousel = Carousel(web_fixture.view, 'my_carousel_id')
+    web_fixture.context.install()
 
-        caption_widget = Widget(web_fixture.view)
-        carousel_item = carousel.add_slide(Img(web_fixture.view), caption_widget=caption_widget)
+    carousel = Carousel(web_fixture.view, 'my_carousel_id')
 
-        [image, div_containing_caption] = carousel_item.children
-        assert div_containing_caption.get_attribute('class') == 'carousel-caption'
+    caption_widget = Widget(web_fixture.view)
+    carousel_item = carousel.add_slide(Img(web_fixture.view), caption_widget=caption_widget)
 
-        [actual_caption_widget] = div_containing_caption.children
-        assert actual_caption_widget is caption_widget
+    [image, div_containing_caption] = carousel_item.children
+    assert div_containing_caption.get_attribute('class') == 'carousel-caption'
+
+    [actual_caption_widget] = div_containing_caption.children
+    assert actual_caption_widget is caption_widget

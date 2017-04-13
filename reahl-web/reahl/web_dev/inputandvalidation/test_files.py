@@ -42,19 +42,20 @@ class FailingConstraint(ValidationConstraint):
 def test_form_encoding(web_fixture):
     """The enctype of a Form changes to multipart/form-data if it contains an input for a file."""
     fixture = web_fixture
-    with web_fixture.context:
-        class DomainObject(object):
-            @exposed
-            def fields(self, fields):
-                fields.file = FileField(allow_multiple=False, label='Attached files')
+    web_fixture.context.install()
 
-        domain_object = DomainObject()
+    class DomainObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.file = FileField(allow_multiple=False, label='Attached files')
 
-        form = Form(fixture.view, 'testform')
-        assert 'enctype' not in form.attributes.v
+    domain_object = DomainObject()
 
-        form.add_child(SimpleFileInput(form, domain_object.fields.file))
-        assert form.attributes.v['enctype'] == 'multipart/form-data'
+    form = Form(fixture.view, 'testform')
+    assert 'enctype' not in form.attributes.v
+
+    form.add_child(SimpleFileInput(form, domain_object.fields.file))
+    assert form.attributes.v['enctype'] == 'multipart/form-data'
 
 
 @with_fixtures(WebFixture)
@@ -63,43 +64,44 @@ def test_simple_file_input(web_fixture):
        The SimpleFileInput transforms the chosen files to UploadedFile objects, and passes these
        to its associated FileField upon a Form submit."""
 
-    with web_fixture.context:
-        expected_content = b'some content'
-        file_to_upload = temp_file_with(expected_content, mode='w+b')
-        class DomainObject(object):
-            def __init__(self):
-               self.file = None
+    web_fixture.context.install()
 
-            @exposed
-            def fields(self, fields):
-                fields.file = FileField(allow_multiple=False, label='Attached files')
+    expected_content = b'some content'
+    file_to_upload = temp_file_with(expected_content, mode='w+b')
+    class DomainObject(object):
+        def __init__(self):
+           self.file = None
 
-            @exposed
-            def events(self, events):
-                events.upload = Event(label='Upload')
+        @exposed
+        def fields(self, fields):
+            fields.file = FileField(allow_multiple=False, label='Attached files')
 
-        domain_object = DomainObject()
+        @exposed
+        def events(self, events):
+            events.upload = Event(label='Upload')
 
-        class FileUploadForm(Form):
-            def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
-                self.add_child(SimpleFileInput(self, domain_object.fields.file))
-                self.define_event_handler(domain_object.events.upload)
-                self.add_child(ButtonInput(self, domain_object.events.upload))
+    domain_object = DomainObject()
 
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=FileUploadForm.factory(), enable_js=False)
-        web_fixture.reahl_server.set_app(wsgi_app)
+    class FileUploadForm(Form):
+        def __init__(self, view):
+            super(FileUploadForm, self).__init__(view, 'test')
+            self.add_child(SimpleFileInput(self, domain_object.fields.file))
+            self.define_event_handler(domain_object.events.upload)
+            self.add_child(ButtonInput(self, domain_object.events.upload))
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=FileUploadForm.factory(), enable_js=False)
+    web_fixture.reahl_server.set_app(wsgi_app)
 
-        browser.type(XPath.input_of_type('file'), file_to_upload.name)
-        browser.click(XPath.button_labelled('Upload'))
-        assert isinstance(domain_object.file, UploadedFile)
-        assert domain_object.file.filename == os.path.basename(file_to_upload.name)
-        with domain_object.file.open() as opened_file:
-            read_contents = opened_file.read()
-        assert read_contents == expected_content
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    browser.type(XPath.input_of_type('file'), file_to_upload.name)
+    browser.click(XPath.button_labelled('Upload'))
+    assert isinstance(domain_object.file, UploadedFile)
+    assert domain_object.file.filename == os.path.basename(file_to_upload.name)
+    with domain_object.file.open() as opened_file:
+        read_contents = opened_file.read()
+    assert read_contents == expected_content
 
 
 @with_fixtures(WebFixture)
@@ -113,47 +115,48 @@ def test_simple_file_input_exceptions(web_fixture):
        possible to prepopulate its value using HTML or JS as this would be a security risk.
     """
 
-    with web_fixture.context:
-        file_to_upload = temp_file_with('some content')
-        failing_constraint = FailingConstraint('I am breaking')
+    web_fixture.context.install()
 
-        class DomainObject(object):
-            def __init__(self):
-                self.file = None
+    file_to_upload = temp_file_with('some content')
+    failing_constraint = FailingConstraint('I am breaking')
 
-            @exposed
-            def fields(self, fields):
-                fields.file = FileField(allow_multiple=False, label='Attached files')
-                # FailingConstraint is declared in module level scope for it to be pickleable
-                fields.file.add_validation_constraint(failing_constraint)
+    class DomainObject(object):
+        def __init__(self):
+            self.file = None
 
-            @exposed
-            def events(self, events):
-                events.upload = Event(label='Upload')
+        @exposed
+        def fields(self, fields):
+            fields.file = FileField(allow_multiple=False, label='Attached files')
+            # FailingConstraint is declared in module level scope for it to be pickleable
+            fields.file.add_validation_constraint(failing_constraint)
 
-        domain_object = DomainObject()
+        @exposed
+        def events(self, events):
+            events.upload = Event(label='Upload')
 
-        class FileUploadForm(Form):
-            def __init__(self, view):
-                super(FileUploadForm, self).__init__(view, 'test')
-                file_input = self.add_child(SimpleFileInput(self, domain_object.fields.file))
-                if file_input.validation_error:
-                    self.add_child(self.create_error_label(file_input))
-                self.define_event_handler(domain_object.events.upload)
-                self.add_child(ButtonInput(self, domain_object.events.upload))
+    domain_object = DomainObject()
 
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=FileUploadForm.factory(), enable_js=False)
-        web_fixture.reahl_server.set_app(wsgi_app)
+    class FileUploadForm(Form):
+        def __init__(self, view):
+            super(FileUploadForm, self).__init__(view, 'test')
+            file_input = self.add_child(SimpleFileInput(self, domain_object.fields.file))
+            if file_input.validation_error:
+                self.add_child(self.create_error_label(file_input))
+            self.define_event_handler(domain_object.events.upload)
+            self.add_child(ButtonInput(self, domain_object.events.upload))
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=FileUploadForm.factory(), enable_js=False)
+    web_fixture.reahl_server.set_app(wsgi_app)
 
-        browser.type(XPath.input_of_type('file'), file_to_upload.name)
-        browser.click(XPath.button_labelled('Upload'))
-        assert browser.is_element_present('//label[text()="I am breaking"]')
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        # Message is cleared on second attempt
-        failing_constraint.fail = False
-        browser.type(XPath.input_of_type('file'), file_to_upload.name)
-        browser.click(XPath.button_labelled('Upload'))
-        assert not browser.is_element_present('//label[text()="I am breaking"]')
+    browser.type(XPath.input_of_type('file'), file_to_upload.name)
+    browser.click(XPath.button_labelled('Upload'))
+    assert browser.is_element_present('//label[text()="I am breaking"]')
+
+    # Message is cleared on second attempt
+    failing_constraint.fail = False
+    browser.type(XPath.input_of_type('file'), file_to_upload.name)
+    browser.click(XPath.button_labelled('Upload'))
+    assert not browser.is_element_present('//label[text()="I am breaking"]')

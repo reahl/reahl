@@ -72,14 +72,14 @@ def test_factory_from_path_regex(web_fixture):
         instance.extra_kwarg = extra_kwarg
         return instance
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        argument_fields = {'path_arg': Field()}
-        factory = FactoryFromUrlRegex(RegexPath('some(?P<path_arg>.+)path', 'some${path_arg}path', argument_fields),
-                                      create_method, dict(extra_kwarg='42'))
-        instance = factory.create('somecoolpath')
-        assert instance.path_arg == 'cool'
-        assert instance.extra_kwarg == '42'
+    argument_fields = {'path_arg': Field()}
+    factory = FactoryFromUrlRegex(RegexPath('some(?P<path_arg>.+)path', 'some${path_arg}path', argument_fields),
+                                  create_method, dict(extra_kwarg='42'))
+    instance = factory.create('somecoolpath')
+    assert instance.path_arg == 'cool'
+    assert instance.extra_kwarg == '42'
 
 
 @uses(web_fixture=WebFixture)
@@ -163,6 +163,7 @@ class MatchingScenarios(Fixture):
 
 @with_fixtures(WebFixture, MatchingScenarios)
 def test_matching(web_fixture, matching_scenarios):
-    with web_fixture.context:
-        applicable_rating = matching_scenarios.factory.is_applicable_for(matching_scenarios.matched_path)
-        assert (applicable_rating > 0) == matching_scenarios.is_applicable
+    web_fixture.context.install()
+
+    applicable_rating = matching_scenarios.factory.is_applicable_for(matching_scenarios.matched_path)
+    assert (applicable_rating > 0) == matching_scenarios.is_applicable

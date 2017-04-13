@@ -36,38 +36,40 @@ class JobsFixture(Fixture):
 @with_fixtures(WebFixture, JobsFixture)
 def test_add_address(web_fixture, jobs_fixture):
     """A user can add an address, after which the address is listed."""
-    with web_fixture.context:
-        browser = jobs_fixture.browser
+    web_fixture.context.install()
+    browser = jobs_fixture.browser
 
-        browser.open('/')
-        browser.type(XPath.input_labelled('Name'), 'John')
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.open('/')
+    browser.type(XPath.input_labelled('Name'), 'John')
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
 
-        browser.click(XPath.button_labelled('Save'))
+    browser.click(XPath.button_labelled('Save'))
 
-        assert jobs_fixture.address_is_listed_as('John', 'johndoe@some.org', True)
+    assert jobs_fixture.address_is_listed_as('John', 'johndoe@some.org', True)
 
 
 @with_fixtures(SqlAlchemyFixture, JobsFixture)
 def test_daily_maintenance(sql_alchemy_fixture, jobs_fixture):
     """When daily maintenance is run, all addresses are set to be old."""
 
-    with sql_alchemy_fixture.context:
-        jobs_fixture.existing_address
-        Session.flush()
-        assert jobs_fixture.existing_address.added_today
+    sql_alchemy_fixture.context.install()
+    
+    jobs_fixture.existing_address
+    Session.flush()
+    assert jobs_fixture.existing_address.added_today
 
-        sql_alchemy_fixture.context.system_control.do_daily_maintenance()
+    sql_alchemy_fixture.context.system_control.do_daily_maintenance()
 
-        assert not jobs_fixture.existing_address.added_today
+    assert not jobs_fixture.existing_address.added_today
 
 
 @with_fixtures(SqlAlchemyFixture)
 def demo_setup(sql_alchemy_fixture):
     sql_alchemy_fixture.commit = True
-    with sql_alchemy_fixture.context:
-        Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
-        Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
-        Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
+    sql_alchemy_fixture.context.install()
+    
+    Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
+    Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
+    Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
 
 

@@ -31,33 +31,33 @@ from reahl.component_dev.test_migration import ReahlEggStub
 
 @with_fixtures(ReahlSystemFixture)
 def test_egg_schema_version_changes(reahl_system_fixture):
-    with reahl_system_fixture.context:
-        orm_control = SqlAlchemyControl()
+    reahl_system_fixture.context.install()
+    orm_control = SqlAlchemyControl()
 
-        old_version_egg = ReahlEggStub('anegg', '0.0', [])
+    old_version_egg = ReahlEggStub('anegg', '0.0', [])
 
-        orm_control.initialise_schema_version_for(old_version_egg)
-        current_version = orm_control.schema_version_for(old_version_egg)
-        assert current_version == old_version_egg.version
+    orm_control.initialise_schema_version_for(old_version_egg)
+    current_version = orm_control.schema_version_for(old_version_egg)
+    assert current_version == old_version_egg.version
 
-        new_version_egg = ReahlEggStub('anegg', '0.1', [])
-        orm_control.update_schema_version_for(new_version_egg)
-        current_version = orm_control.schema_version_for(new_version_egg)
-        assert current_version == new_version_egg.version
-        assert not current_version == old_version_egg.version
-        current_version = orm_control.schema_version_for(old_version_egg)
-        assert current_version == new_version_egg.version
+    new_version_egg = ReahlEggStub('anegg', '0.1', [])
+    orm_control.update_schema_version_for(new_version_egg)
+    current_version = orm_control.schema_version_for(new_version_egg)
+    assert current_version == new_version_egg.version
+    assert not current_version == old_version_egg.version
+    current_version = orm_control.schema_version_for(old_version_egg)
+    assert current_version == new_version_egg.version
 
 
 @with_fixtures(ReahlSystemFixture)
 def test_egg_schema_version_init(reahl_system_fixture):
-    with reahl_system_fixture.context:
-        orm_control = SqlAlchemyControl()
+    reahl_system_fixture.context.install()
+    orm_control = SqlAlchemyControl()
 
-        egg = ReahlEggStub('initegg', '0.0', [])
-        orm_control.create_db_tables(None, [egg])
-        current_version = orm_control.schema_version_for(egg)
-        assert current_version == egg.version
+    egg = ReahlEggStub('initegg', '0.0', [])
+    orm_control.create_db_tables(None, [egg])
+    current_version = orm_control.schema_version_for(egg)
+    assert current_version == egg.version
 
 
 @uses(sql_alchemy_fixture=SqlAlchemyFixture)
@@ -87,7 +87,8 @@ def test_query_as_sequence(sql_alchemy_fixture, query_fixture):
     """A QueryAsSequence adapts a sqlalchemy.Query to look like a list."""
 
     fixture = query_fixture
-    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
+    sql_alchemy_fixture.context.install()
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 
         # can len() items
@@ -123,7 +124,8 @@ def test_query_as_sequence_last_sort_wins(sql_alchemy_fixture, query_fixture):
     """Only the last .sort() on a QueryAsSequence has any effect."""
 
     fixture = query_fixture
-    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
+    sql_alchemy_fixture.context.install()
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 
         fixture.query_as_sequence.sort(key=fixture.MyObject.name)
@@ -138,7 +140,8 @@ def test_query_as_sequence_chained_sorts(sql_alchemy_fixture, query_fixture):
        should be able to chain additional sort(order_by) requirements"""
 
     fixture = query_fixture
-    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
+    sql_alchemy_fixture.context.install()
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 
         native_query_with_sort = Session.query(fixture.MyObject).order_by(fixture.MyObject.name)

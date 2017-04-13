@@ -74,10 +74,11 @@ class LayoutScenarios(Fixture):
 @with_fixtures(WebFixture, LayoutScenarios)
 def test_table_layout_options(web_fixture, layout_scenarios):
     """TableLayout uses Bootstrap to implement many table layout options."""
-    with web_fixture.context:
-        layout = TableLayout(**layout_scenarios.layout_kwargs)
-        Table(web_fixture.view).use_layout(layout)
-        assert layout.widget.get_attribute('class') == 'table %s' % layout_scenarios.expected_css_class
+    web_fixture.context.install()
+
+    layout = TableLayout(**layout_scenarios.layout_kwargs)
+    Table(web_fixture.view).use_layout(layout)
+    assert layout.widget.get_attribute('class') == 'table %s' % layout_scenarios.expected_css_class
 
 
 class DataItem(reahl.web_dev.widgets.test_table.DataItem):
@@ -137,103 +138,107 @@ class DataTableFixture(TableFixture):
 @with_fixtures(WebFixture, DataTableFixture)
 def test_paging_through_data(web_fixture, data_table_fixture):
     """DataTable splits its items into different pages (between which a user can navigate), showing only the items of a particular page at a time."""
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.context.install()
 
-        #click to last page
-        browser.click(XPath.link_starting_with_text('→'))
-        browser.click(XPath.link_with_text('9'))
+    web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        assert data_table_fixture.table_number_rows() == 2
-        assert data_table_fixture.get_table_row(1) == ['25' ,'D']
-        assert data_table_fixture.get_table_row(2) == ['26' ,'G']
+    #click to last page
+    browser.click(XPath.link_starting_with_text('→'))
+    browser.click(XPath.link_with_text('9'))
 
-        #click to page 4
-        browser.click(XPath.link_starting_with_text('←'))
-        browser.click(XPath.link_with_text('4'))
+    assert data_table_fixture.table_number_rows() == 2
+    assert data_table_fixture.get_table_row(1) == ['25' ,'D']
+    assert data_table_fixture.get_table_row(2) == ['26' ,'G']
 
-        assert data_table_fixture.table_number_rows() == 3
-        assert data_table_fixture.get_table_row(1) == ['10' ,'R']
-        assert data_table_fixture.get_table_row(2) == ['11' ,'O']
-        assert data_table_fixture.get_table_row(3) == ['12' ,'W']
+    #click to page 4
+    browser.click(XPath.link_starting_with_text('←'))
+    browser.click(XPath.link_with_text('4'))
+
+    assert data_table_fixture.table_number_rows() == 3
+    assert data_table_fixture.get_table_row(1) == ['10' ,'R']
+    assert data_table_fixture.get_table_row(2) == ['11' ,'O']
+    assert data_table_fixture.get_table_row(3) == ['12' ,'W']
 
 
 @with_fixtures(WebFixture, DataTableFixture)
 def test_sorting(web_fixture, data_table_fixture):
     """By clicking on special links in the column header, the table is sorted according to that column - ascending or descending."""
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.context.install()
 
-        #----- by default, not sorted
-        assert not data_table_fixture.is_column_sorted(1, 'ascending')
-        assert not data_table_fixture.is_column_sorted(1, 'descending')
-        assert not data_table_fixture.is_column_sorted(2, 'ascending')
-        assert not data_table_fixture.is_column_sorted(2, 'descending')
+    web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        #----- first click on column sorts ascending
-        browser.click(data_table_fixture.xpath_for_sort_link_for_column(1))
-        assert data_table_fixture.is_column_sorted(1, 'ascending')
-        assert data_table_fixture.get_table_row(1) == ['1' ,'T']
-        assert data_table_fixture.get_table_row(2) == ['2' ,'H']
-        assert data_table_fixture.get_table_row(3) == ['3' ,'E']
+    #----- by default, not sorted
+    assert not data_table_fixture.is_column_sorted(1, 'ascending')
+    assert not data_table_fixture.is_column_sorted(1, 'descending')
+    assert not data_table_fixture.is_column_sorted(2, 'ascending')
+    assert not data_table_fixture.is_column_sorted(2, 'descending')
 
-        #----- sort ascending on alpha, the second column
-        assert data_table_fixture.is_column_sorted(2, None)
-        browser.click(data_table_fixture.xpath_for_sort_link_for_column(2))
-        assert data_table_fixture.is_column_sorted(2, 'ascending')
-        assert data_table_fixture.is_column_sorted(1, None)
+    #----- first click on column sorts ascending
+    browser.click(data_table_fixture.xpath_for_sort_link_for_column(1))
+    assert data_table_fixture.is_column_sorted(1, 'ascending')
+    assert data_table_fixture.get_table_row(1) == ['1' ,'T']
+    assert data_table_fixture.get_table_row(2) == ['2' ,'H']
+    assert data_table_fixture.get_table_row(3) == ['3' ,'E']
 
-        assert data_table_fixture.get_table_row(1) == ['22' ,'A']
-        assert data_table_fixture.get_table_row(2) == ['9' ,'B']
-        assert data_table_fixture.get_table_row(3) == ['7' ,'C']
+    #----- sort ascending on alpha, the second column
+    assert data_table_fixture.is_column_sorted(2, None)
+    browser.click(data_table_fixture.xpath_for_sort_link_for_column(2))
+    assert data_table_fixture.is_column_sorted(2, 'ascending')
+    assert data_table_fixture.is_column_sorted(1, None)
 
-        #----- sort descending on alpha, the second column
-        browser.click(data_table_fixture.xpath_for_sort_link_for_column(2))
-        assert data_table_fixture.is_column_sorted(2, 'descending')
+    assert data_table_fixture.get_table_row(1) == ['22' ,'A']
+    assert data_table_fixture.get_table_row(2) == ['9' ,'B']
+    assert data_table_fixture.get_table_row(3) == ['7' ,'C']
 
-        assert data_table_fixture.get_table_row(1) == ['23' ,'Z']
-        assert data_table_fixture.get_table_row(2) == ['24' ,'Y']
-        assert data_table_fixture.get_table_row(3) == ['15' ,'X']
+    #----- sort descending on alpha, the second column
+    browser.click(data_table_fixture.xpath_for_sort_link_for_column(2))
+    assert data_table_fixture.is_column_sorted(2, 'descending')
 
-        #----- sort order stays changed when paging
-        browser.click(XPath.link_with_text('4'))
+    assert data_table_fixture.get_table_row(1) == ['23' ,'Z']
+    assert data_table_fixture.get_table_row(2) == ['24' ,'Y']
+    assert data_table_fixture.get_table_row(3) == ['15' ,'X']
 
-        assert data_table_fixture.get_table_row(1) == ['4' ,'Q']
-        assert data_table_fixture.get_table_row(2) == ['18' ,'P']
-        assert data_table_fixture.get_table_row(3) == ['11' ,'O']
+    #----- sort order stays changed when paging
+    browser.click(XPath.link_with_text('4'))
 
-        #----- contents of the page you are on changes according to a new sort order
-        browser.click(data_table_fixture.xpath_for_sort_link_for_column(1))
+    assert data_table_fixture.get_table_row(1) == ['4' ,'Q']
+    assert data_table_fixture.get_table_row(2) == ['18' ,'P']
+    assert data_table_fixture.get_table_row(3) == ['11' ,'O']
 
-        assert data_table_fixture.get_table_row(1) == ['10' ,'R']
-        assert data_table_fixture.get_table_row(2) == ['11' ,'O']
-        assert data_table_fixture.get_table_row(3) == ['12' ,'W']
+    #----- contents of the page you are on changes according to a new sort order
+    browser.click(data_table_fixture.xpath_for_sort_link_for_column(1))
+
+    assert data_table_fixture.get_table_row(1) == ['10' ,'R']
+    assert data_table_fixture.get_table_row(2) == ['11' ,'O']
+    assert data_table_fixture.get_table_row(3) == ['12' ,'W']
 
 
 @with_fixtures(WebFixture, DataTableFixture)
 def test_which_columns_can_cause_sorting(web_fixture, data_table_fixture):
     """Only columns with sort_key specified are sortable."""
-    with web_fixture.context:
-        data_table_fixture.columns.append(StaticColumn(Field(label='Not sortable'), 'alpha'))
+    web_fixture.context.install()
 
-        web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    data_table_fixture.columns.append(StaticColumn(Field(label='Not sortable'), 'alpha'))
 
-        assert data_table_fixture.does_column_have_sort_link(1)
-        assert data_table_fixture.does_column_have_sort_link(2)
-        assert not data_table_fixture.does_column_have_sort_link(3)
+    web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert data_table_fixture.does_column_have_sort_link(1)
+    assert data_table_fixture.does_column_have_sort_link(2)
+    assert not data_table_fixture.does_column_have_sort_link(3)
 
 
 @with_fixtures(WebFixture, DataTableFixture)
 def test_layout_for_contained_table(web_fixture, data_table_fixture):
     """You can specify a Layout to use for the actual table inside the DataTable."""
-    with web_fixture.context:
-        layout = TableLayout()
-        data_table = DataTable(web_fixture.view, data_table_fixture.columns, data_table_fixture.data, 'my_css_id', table_layout=layout)
+    web_fixture.context.install()
 
-        assert data_table.table.layout is layout
+    layout = TableLayout()
+    data_table = DataTable(web_fixture.view, data_table_fixture.columns, data_table_fixture.data, 'my_css_id', table_layout=layout)
+
+    assert data_table.table.layout is layout

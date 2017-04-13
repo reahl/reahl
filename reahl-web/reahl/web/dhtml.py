@@ -30,7 +30,8 @@ from bs4 import BeautifulSoup, SoupStrainer
 from reahl.component.modelinterface import Field
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
-from reahl.web.fw import WebExecutionContext, UrlBoundView, FileOnDisk, UserInterface, FileView, CannotCreate
+from reahl.component.context import ExecutionContext
+from reahl.web.fw import UrlBoundView, FileOnDisk, UserInterface, FileView, CannotCreate
 from reahl.web.ui import LiteralHTML
 
 _ = Translator('reahl-web')
@@ -88,14 +89,14 @@ class DhtmlUI(UserInterface):
         return os.path.isfile(filename) and not filename.endswith('.d.html')
 
     def filesystem_path(self, relative_path):
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         static_root = context.config.web.static_root
         if relative_path.endswith('/'):
            relative_path += 'index.d.html'
         return self.i18nise_filename(os.path.join(static_root, *relative_path.split('/')))
 
     def i18nise_filename(self, for_default_locale):
-        current_locale = WebExecutionContext.get_context().interface_locale
+        current_locale = ExecutionContext.get_context().interface_locale
         head, tail = os.path.splitext(for_default_locale)
         head, d = os.path.splitext(head)
         for_current_locale = head+'.%s' % current_locale+d+tail

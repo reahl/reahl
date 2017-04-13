@@ -35,23 +35,24 @@ class MigrateFixture(Fixture):
 @with_fixtures(WebFixture, MigrateFixture)
 def test_add_address(web_fixture, migrate_fixture):
     """A user can add an address, after which the address is listed."""
-    with web_fixture.context:
-        browser = migrate_fixture.browser
+    web_fixture.context.install()
+    browser = migrate_fixture.browser
 
-        browser.open('/')
-        browser.type(XPath.input_labelled('Name'), 'John')
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.open('/')
+    browser.type(XPath.input_labelled('Name'), 'John')
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
 
-        browser.click(XPath.button_labelled('Save'))
+    browser.click(XPath.button_labelled('Save'))
 
-        assert migrate_fixture.address_is_listed_as('John', 'johndoe@some.org')
+    assert migrate_fixture.address_is_listed_as('John', 'johndoe@some.org')
 
 
 @with_fixtures(SqlAlchemyFixture)
 def demo_setup(sql_alchemy_fixture):
     sql_alchemy_fixture.commit = True
-    with sql_alchemy_fixture.context:
-        Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
-        Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
-        Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
+    sql_alchemy_fixture.context.install()
+    
+    Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
+    Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))
+    Session.add(Address(name='Jack Black', email_address='jackblack@some.org'))
 

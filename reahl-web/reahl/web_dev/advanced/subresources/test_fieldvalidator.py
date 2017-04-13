@@ -71,28 +71,29 @@ class ValidationScenarios(Fixture):
 def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
     fixture = validation_scenarios
 
-    with web_fixture.context:
-        class ModelObject(object):
-            @exposed
-            def fields(self, fields):
-                fields.field_name = EmailField()
+    web_fixture.context.install()
 
-        model_object = ModelObject()
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.field_name = EmailField()
 
-        class MyForm(Form):
-            def __init__(self, view, name):
-                super(MyForm, self).__init__(view, name)
-                self.add_child(TextInput(self, model_object.fields.field_name))
+    model_object = ModelObject()
 
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory(name='some_form'))
-        web_fixture.reahl_server.set_app(wsgi_app)
-        browser = Browser(wsgi_app)
+    class MyForm(Form):
+        def __init__(self, view, name):
+            super(MyForm, self).__init__(view, name)
+            self.add_child(TextInput(self, model_object.fields.field_name))
 
-        browser.open(six.text_type(fixture.url))
-        response = browser.last_response
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory(name='some_form'))
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = Browser(wsgi_app)
 
-        assert response.unicode_body == fixture.expected_body 
-        assert response.status == fixture.expected_status 
-        assert response.content_type == fixture.expected_content_type 
-        assert response.charset == fixture.expected_charset 
+    browser.open(six.text_type(fixture.url))
+    response = browser.last_response
+
+    assert response.unicode_body == fixture.expected_body 
+    assert response.status == fixture.expected_status 
+    assert response.content_type == fixture.expected_content_type 
+    assert response.charset == fixture.expected_charset 
 

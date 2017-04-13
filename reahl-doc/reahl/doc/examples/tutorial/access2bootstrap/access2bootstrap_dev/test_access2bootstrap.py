@@ -55,64 +55,66 @@ class AccessDomainFixture(Fixture):
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def demo_setup(sql_alchemy_fixture, access_domain_fixture):
+    sql_alchemy_fixture.context.install()
     sql_alchemy_fixture.commit = True
-    with sql_alchemy_fixture.context:
-        access_domain_fixture.address_book
-        john = access_domain_fixture.account
-        jane = access_domain_fixture.new_account(email='janedoe@some.org')
-        jane_book = access_domain_fixture.new_address_book(owner=jane)
-        someone = access_domain_fixture.new_account(email='someone@some.org')
-        someone_book = access_domain_fixture.new_address_book(owner=someone)
-        someone_else = access_domain_fixture.new_account(email='someoneelse@some.org')
-        someone_else_book = access_domain_fixture.new_address_book(owner=someone_else)
 
-        jane_book.allow(john, can_add_addresses=True, can_edit_addresses=True)
-        someone_book.allow(john, can_add_addresses=False, can_edit_addresses=True)
-        someone_else_book.allow(john, can_add_addresses=False, can_edit_addresses=False)
+    access_domain_fixture.address_book
+    john = access_domain_fixture.account
+    jane = access_domain_fixture.new_account(email='janedoe@some.org')
+    jane_book = access_domain_fixture.new_address_book(owner=jane)
+    someone = access_domain_fixture.new_account(email='someone@some.org')
+    someone_book = access_domain_fixture.new_address_book(owner=someone)
+    someone_else = access_domain_fixture.new_account(email='someoneelse@some.org')
+    someone_else_book = access_domain_fixture.new_address_book(owner=someone_else)
 
-        Address(address_book=jane_book, email_address='friend1@some.org', name='Friend1').save()
-        Address(address_book=jane_book, email_address='friend2@some.org', name='Friend2').save()
-        Address(address_book=jane_book, email_address='friend3@some.org', name='Friend3').save()
-        Address(address_book=jane_book, email_address='friend4@some.org', name='Friend4').save()
+    jane_book.allow(john, can_add_addresses=True, can_edit_addresses=True)
+    someone_book.allow(john, can_add_addresses=False, can_edit_addresses=True)
+    someone_else_book.allow(john, can_add_addresses=False, can_edit_addresses=False)
 
-        Address(address_book=someone_book, email_address='friend11@some.org', name='Friend11').save()
-        Address(address_book=someone_book, email_address='friend12@some.org', name='Friend12').save()
-        Address(address_book=someone_book, email_address='friend13@some.org', name='Friend13').save()
-        Address(address_book=someone_book, email_address='friend14@some.org', name='Friend14').save()
+    Address(address_book=jane_book, email_address='friend1@some.org', name='Friend1').save()
+    Address(address_book=jane_book, email_address='friend2@some.org', name='Friend2').save()
+    Address(address_book=jane_book, email_address='friend3@some.org', name='Friend3').save()
+    Address(address_book=jane_book, email_address='friend4@some.org', name='Friend4').save()
 
-        Address(address_book=someone_else_book, email_address='friend21@some.org', name='Friend21').save()
-        Address(address_book=someone_else_book, email_address='friend22@some.org', name='Friend22').save()
-        Address(address_book=someone_else_book, email_address='friend23@some.org', name='Friend23').save()
-        Address(address_book=someone_else_book, email_address='friend24@some.org', name='Friend24').save()
+    Address(address_book=someone_book, email_address='friend11@some.org', name='Friend11').save()
+    Address(address_book=someone_book, email_address='friend12@some.org', name='Friend12').save()
+    Address(address_book=someone_book, email_address='friend13@some.org', name='Friend13').save()
+    Address(address_book=someone_book, email_address='friend14@some.org', name='Friend14').save()
+
+    Address(address_book=someone_else_book, email_address='friend21@some.org', name='Friend21').save()
+    Address(address_book=someone_else_book, email_address='friend22@some.org', name='Friend22').save()
+    Address(address_book=someone_else_book, email_address='friend23@some.org', name='Friend23').save()
+    Address(address_book=someone_else_book, email_address='friend24@some.org', name='Friend24').save()
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
     """An Address is created in a particular AddressBook, which is owned by a SystemAccount."""
 
-    with sql_alchemy_fixture.context:
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
-        other_address_book = access_domain_fixture.other_address_book
+    sql_alchemy_fixture.context.install()
 
-        # AddressBooks are owned
-        address_book.owner is account
-        other_address_book.owner is access_domain_fixture.other_account
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
+    other_address_book = access_domain_fixture.other_address_book
 
-        # Addresses live in specific AddressBooks
-        assert address_book.addresses == []
-        assert other_address_book.addresses == []
+    # AddressBooks are owned
+    address_book.owner is account
+    other_address_book.owner is access_domain_fixture.other_account
 
-        address1 = Address(address_book=address_book, email_address='friend1@some.org', name='Friend1')
-        address2 = Address(address_book=address_book, email_address='friend2@some.org', name='Friend2')
+    # Addresses live in specific AddressBooks
+    assert address_book.addresses == []
+    assert other_address_book.addresses == []
 
-        address3 = Address(address_book=other_address_book, email_address='friend3@some.org', name='Friend3')
+    address1 = Address(address_book=address_book, email_address='friend1@some.org', name='Friend1')
+    address2 = Address(address_book=address_book, email_address='friend2@some.org', name='Friend2')
 
-        for address in [address1, address2, address3]:
-            address.save()
+    address3 = Address(address_book=other_address_book, email_address='friend3@some.org', name='Friend3')
 
-        assert address_book.addresses == [address1, address2]
-        assert other_address_book.addresses == [address3]
+    for address in [address1, address2, address3]:
+        address.save()
+
+    assert address_book.addresses == [address1, address2]
+    assert other_address_book.addresses == [address3]
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
@@ -120,110 +122,116 @@ def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """A particular SystemAccount can see its own AddressBooks as well as all the AddressBooks
        it is explicitly allowed to see, but no other AddressBooks."""
 
-    with sql_alchemy_fixture.context:
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
-        other_address_book = access_domain_fixture.other_address_book
+    sql_alchemy_fixture.context.install()
 
-        unrelated_account = access_domain_fixture.new_account(email='unrelated@some.org')
-        unrelated_address_book = access_domain_fixture.new_address_book(owner=unrelated_account)
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
+    other_address_book = access_domain_fixture.other_address_book
 
-        other_address_book.allow(account)
+    unrelated_account = access_domain_fixture.new_account(email='unrelated@some.org')
+    unrelated_address_book = access_domain_fixture.new_address_book(owner=unrelated_account)
 
-        # Checks to see whether an AddressBook is visible
-        assert address_book.is_visible_to(account)
-        assert other_address_book.is_visible_to(account)
-        assert not unrelated_address_book.is_visible_to(account)
+    other_address_book.allow(account)
 
-        # Getting a list of visible AddressBooks (for populating the screen)
-        books = AddressBook.address_books_visible_to(account)
-        assert set(books) == {address_book, other_address_book}
+    # Checks to see whether an AddressBook is visible
+    assert address_book.is_visible_to(account)
+    assert other_address_book.is_visible_to(account)
+    assert not unrelated_address_book.is_visible_to(account)
+
+    # Getting a list of visible AddressBooks (for populating the screen)
+    books = AddressBook.address_books_visible_to(account)
+    assert set(books) == {address_book, other_address_book}
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
     """When allowing an account to see another's AddressBook, the rights it has to the AddressBook are specified."""
 
-    with sql_alchemy_fixture.context:
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
-        other_address_book = access_domain_fixture.other_address_book
+    sql_alchemy_fixture.context.install()
 
-        # Case: defaults
-        other_address_book.allow(account)
-        assert not other_address_book.can_be_edited_by(account)
-        assert not other_address_book.can_be_added_to_by(account)
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
+    other_address_book = access_domain_fixture.other_address_book
 
-        # Case: rights specified
-        other_address_book.allow(account, can_edit_addresses=True, can_add_addresses=True)
-        assert other_address_book.can_be_edited_by(account)
-        assert other_address_book.can_be_added_to_by(account)
+    # Case: defaults
+    other_address_book.allow(account)
+    assert not other_address_book.can_be_edited_by(account)
+    assert not other_address_book.can_be_added_to_by(account)
+
+    # Case: rights specified
+    other_address_book.allow(account, can_edit_addresses=True, can_add_addresses=True)
+    assert other_address_book.can_be_edited_by(account)
+    assert other_address_book.can_be_added_to_by(account)
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """The owner of an AddressBook may add collaborators to it."""
 
-    with sql_alchemy_fixture.context:
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
-        other_address_book = access_domain_fixture.other_address_book
+    sql_alchemy_fixture.context.install()
 
-        assert address_book.collaborators_can_be_added_by(account)
-        assert not other_address_book.collaborators_can_be_added_by(account)
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
+    other_address_book = access_domain_fixture.other_address_book
+
+    assert address_book.collaborators_can_be_added_by(account)
+    assert not other_address_book.collaborators_can_be_added_by(account)
 
 
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_logging_in(web_fixture, access_domain_fixture, access_ui_fixture):
     """A user first sees only a login screen on the home page; after logging in,
        all the address books visible to the user appear."""
-    with web_fixture.context:
-        browser = access_ui_fixture.browser
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
 
-        other_address_book = access_domain_fixture.other_address_book
-        other_address_book.allow(account)
+    web_fixture.context.install()
 
-        browser.open('/')
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-        browser.type(XPath.input_labelled('Password'), access_domain_fixture.password)
-        browser.click(XPath.button_labelled('Log in'))
+    browser = access_ui_fixture.browser
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
 
-        assert browser.is_element_present(XPath.link_with_text('Address book of johndoe@some.org'))
-        assert browser.is_element_present(XPath.link_with_text('Address book of other@some.org'))
+    other_address_book = access_domain_fixture.other_address_book
+    other_address_book.allow(account)
+
+    browser.open('/')
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Password'), access_domain_fixture.password)
+    browser.click(XPath.button_labelled('Log in'))
+
+    assert browser.is_element_present(XPath.link_with_text('Address book of johndoe@some.org'))
+    assert browser.is_element_present(XPath.link_with_text('Address book of other@some.org'))
 
 
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture):
     """The owner of an AddressBook can add and edit Addresses to the owned AddressBook."""
 
-    with web_fixture.context:
-        browser = access_ui_fixture.browser
-        fixture = access_domain_fixture
-        account = fixture.account
-        address_book = fixture.address_book
+    web_fixture.context.install()
 
-        web_fixture.log_in(browser=browser, system_account=account)
-        browser.open('/')
+    browser = access_ui_fixture.browser
+    fixture = access_domain_fixture
+    account = fixture.account
+    address_book = fixture.address_book
 
-        browser.click(XPath.link_with_text('Address book of johndoe@some.org'))
+    web_fixture.log_in(browser=browser, system_account=account)
+    browser.open('/')
 
-        # add
-        browser.click(XPath.link_with_text('Add address'))
-        browser.type(XPath.input_labelled('Name'), 'Someone')
-        browser.type(XPath.input_labelled('Email'), 'someone@some.org')
-        browser.click(XPath.button_labelled('Save'))
+    browser.click(XPath.link_with_text('Address book of johndoe@some.org'))
 
-        assert browser.is_element_present(XPath.paragraph_containing('Someone: someone@some.org'))
+    # add
+    browser.click(XPath.link_with_text('Add address'))
+    browser.type(XPath.input_labelled('Name'), 'Someone')
+    browser.type(XPath.input_labelled('Email'), 'someone@some.org')
+    browser.click(XPath.button_labelled('Save'))
 
-        # edit
-        browser.click(XPath.button_labelled('Edit'))
-        browser.type(XPath.input_labelled('Name'), 'Else')
-        browser.type(XPath.input_labelled('Email'), 'else@some.org')
-        browser.click(XPath.button_labelled('Update'))
+    assert browser.is_element_present(XPath.paragraph_containing('Someone: someone@some.org'))
 
-        assert browser.is_element_present(XPath.paragraph_containing('Else: else@some.org'))
+    # edit
+    browser.click(XPath.button_labelled('Edit'))
+    browser.type(XPath.input_labelled('Name'), 'Else')
+    browser.type(XPath.input_labelled('Email'), 'else@some.org')
+    browser.click(XPath.button_labelled('Update'))
+
+    assert browser.is_element_present(XPath.paragraph_containing('Else: else@some.org'))
 
 
 # ------- Tests added for access control
@@ -231,34 +239,36 @@ def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture)
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_add_collaborator(web_fixture, access_domain_fixture, access_ui_fixture):
     """A user may add other users as collaborators to his address book, specifying the privileges in the process."""
-    with web_fixture.context:
-        browser = access_ui_fixture.browser
-        address_book = access_domain_fixture.address_book
-        account = access_domain_fixture.account
 
-        other_address_book = access_domain_fixture.other_address_book
-        other_account = access_domain_fixture.other_account
+    web_fixture.context.install()
 
-        web_fixture.log_in(browser=browser, system_account=account)
-        browser.open('/')
+    browser = access_ui_fixture.browser
+    address_book = access_domain_fixture.address_book
+    account = access_domain_fixture.account
 
-        assert address_book not in AddressBook.address_books_visible_to(other_account)
-        assert not address_book.can_be_edited_by(other_account)
-        assert not address_book.can_be_added_to_by(other_account)
+    other_address_book = access_domain_fixture.other_address_book
+    other_account = access_domain_fixture.other_account
 
-        browser.click(XPath.link_with_text('Address book of johndoe@some.org'))
-        browser.click(XPath.link_with_text('Add collaborator'))
+    web_fixture.log_in(browser=browser, system_account=account)
+    browser.open('/')
 
-        browser.select(XPath.select_labelled('Choose collaborator'), 'other@some.org')
-        browser.click(XPath.input_labelled('May add new addresses'))
-        browser.click(XPath.input_labelled('May edit existing addresses'))
+    assert address_book not in AddressBook.address_books_visible_to(other_account)
+    assert not address_book.can_be_edited_by(other_account)
+    assert not address_book.can_be_added_to_by(other_account)
 
-        browser.click(XPath.button_labelled('Share'))
+    browser.click(XPath.link_with_text('Address book of johndoe@some.org'))
+    browser.click(XPath.link_with_text('Add collaborator'))
 
-        assert access_ui_fixture.is_on_address_book_page_of('johndoe@some.org')
+    browser.select(XPath.select_labelled('Choose collaborator'), 'other@some.org')
+    browser.click(XPath.input_labelled('May add new addresses'))
+    browser.click(XPath.input_labelled('May edit existing addresses'))
 
-        assert address_book in AddressBook.address_books_visible_to(other_account)
-        assert address_book.can_be_edited_by(other_account)
-        assert address_book.can_be_added_to_by(other_account)
+    browser.click(XPath.button_labelled('Share'))
+
+    assert access_ui_fixture.is_on_address_book_page_of('johndoe@some.org')
+
+    assert address_book in AddressBook.address_books_visible_to(other_account)
+    assert address_book.can_be_edited_by(other_account)
+    assert address_book.can_be_added_to_by(other_account)
 
 

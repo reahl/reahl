@@ -36,24 +36,24 @@ def test_security_sensitive(web_fixture):
     """A Widget is security sensitive if a read_check is specified for it; one of its
        children is security sensitive, or it was explixitly marked as security sensitive."""
     fixture = web_fixture
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        widget = Widget(fixture.view)
+    widget = Widget(fixture.view)
 
-        # Case: marked explicitly
-        assert not widget.is_security_sensitive
-        widget.set_as_security_sensitive()
-        assert widget.is_security_sensitive
+    # Case: marked explicitly
+    assert not widget.is_security_sensitive
+    widget.set_as_security_sensitive()
+    assert widget.is_security_sensitive
 
-        # Case: derived from children
-        parent_widget = Widget(fixture.view)
-        parent_widget.add_child(widget)
-        assert widget.is_security_sensitive
+    # Case: derived from children
+    parent_widget = Widget(fixture.view)
+    parent_widget.add_child(widget)
+    assert widget.is_security_sensitive
 
-        # Case: derived from read rights
-        def allow(self): return True
-        widget_with_rights = Widget(fixture.view, read_check=allow)
-        assert widget.is_security_sensitive
+    # Case: derived from read rights
+    def allow(self): return True
+    widget_with_rights = Widget(fixture.view, read_check=allow)
+    assert widget.is_security_sensitive
 
 
 @with_fixtures(WebFixture)
@@ -69,20 +69,21 @@ def test_serving_security_sensitive_widgets(web_fixture):
                 widget.set_as_security_sensitive()
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory(), enable_js=True)
-        fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.context.install()
 
-        assert fixture.config.web.encrypted_http_scheme == 'https'
-        assert fixture.config.web.default_http_scheme == 'http'
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory(), enable_js=True)
+    fixture.reahl_server.set_app(wsgi_app)
 
-        fixture.security_sensitive = False
-        fixture.driver_browser.open('https://localhost:8363/')
-        assert fixture.driver_browser.current_url.scheme == fixture.config.web.default_http_scheme
+    assert fixture.config.web.encrypted_http_scheme == 'https'
+    assert fixture.config.web.default_http_scheme == 'http'
 
-        fixture.security_sensitive = True
-        fixture.driver_browser.open('http://localhost:8000/')
-        assert fixture.driver_browser.current_url.scheme == fixture.config.web.encrypted_http_scheme
+    fixture.security_sensitive = False
+    fixture.driver_browser.open('https://localhost:8363/')
+    assert fixture.driver_browser.current_url.scheme == fixture.config.web.default_http_scheme
+
+    fixture.security_sensitive = True
+    fixture.driver_browser.open('http://localhost:8000/')
+    assert fixture.driver_browser.current_url.scheme == fixture.config.web.encrypted_http_scheme
 
 
 @with_fixtures(WebFixture)
@@ -92,20 +93,20 @@ def test_fields_have_access_rights(web_fixture):
        access which will be called to determine whether that kind of access is allowed.
        """
     fixture = web_fixture
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        def not_allowed(): return False
+    def not_allowed(): return False
 
-        # Case: the default
-        field = Field()
-        assert field.can_read()
-        assert field.can_write()
+    # Case: the default
+    field = Field()
+    assert field.can_read()
+    assert field.can_write()
 
-        # Case: tailored rights
-        field = Field(readable=Action(not_allowed), writable=Action(not_allowed))
-        field.bind('field_name', fixture)
-        assert not field.can_read()
-        assert not field.can_write()
+    # Case: tailored rights
+    field = Field(readable=Action(not_allowed), writable=Action(not_allowed))
+    field.bind('field_name', fixture)
+    assert not field.can_read()
+    assert not field.can_write()
 
 
 @with_fixtures(WebFixture)
@@ -113,13 +114,14 @@ def test_tailored_access_make_inputs_security_sensitive(web_fixture):
     """An Input is sensitive if explicitly set as sensitive, or if its Fields has non-defaulted
        mechanisms for determiing access rights."""
 
-    with web_fixture.context:
-        form = Form(web_fixture.view, 'some_form')
-        field = Field(default=3, readable=Allowed(True))
-        field.bind('field_name', EmptyStub())
-        input_widget = TextInput(form, field)
+    web_fixture.context.install()
 
-        assert input_widget.is_security_sensitive
+    form = Form(web_fixture.view, 'some_form')
+    field = Field(default=3, readable=Allowed(True))
+    field.bind('field_name', EmptyStub())
+    input_widget = TextInput(form, field)
+
+    assert input_widget.is_security_sensitive
 
 
 @uses(web_fixture=WebFixture)
@@ -247,11 +249,12 @@ def test_rendering_inputs(web_fixture, input_rendering_scenarios):
     """How Inputs render, depending on the rights."""
 
     fixture = input_rendering_scenarios
-    with web_fixture.context:
-        tester = WidgetTester(fixture.input_widget)
+    web_fixture.context.install()
 
-        actual = tester.render_html()
-        assert actual == fixture.expected_html
+    tester = WidgetTester(fixture.input_widget)
+
+    actual = tester.render_html()
+    assert actual == fixture.expected_html
 
 
 @with_fixtures(WebFixture)
@@ -280,14 +283,15 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
             form.add_child(TextInput(form, model_object.fields.field_name))
             fixture.form = form
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory())
-        browser = Browser(wsgi_app)
-        browser.open('/')
+    web_fixture.context.install()
 
-        browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':'', 'field_name': 'illigitimate value'})
-        browser.follow_response()
-        assert model_object.field_name == 'Original value'
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory())
+    browser = Browser(wsgi_app)
+    browser.open('/')
+
+    browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':'', 'field_name': 'illigitimate value'})
+    browser.follow_response()
+    assert model_object.field_name == 'Original value'
 
 
 @with_fixtures(WebFixture)
@@ -312,16 +316,17 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
                 form.add_child(form.create_error_label(button))
             fixture.form = form
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory())
-        browser = Browser(wsgi_app)
-        browser.open('/')
+    web_fixture.context.install()
 
-        browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':''})
-        browser.follow_response()
-        input_id = browser.get_id_of('//input[@name="event.an_event?"]')
-        error_label = browser.get_html_for('//label')
-        assert error_label == '<label for="%s" class="error">you cannot do this</label>' % input_id
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory())
+    browser = Browser(wsgi_app)
+    browser.open('/')
+
+    browser.post(fixture.form.event_channel.get_url().path, {'event.an_event?':''})
+    browser.follow_response()
+    input_id = browser.get_id_of('//input[@name="event.an_event?"]')
+    error_label = browser.get_html_for('//label')
+    assert error_label == '<label for="%s" class="error">you cannot do this</label>' % input_id
 
 
 @with_fixtures(WebFixture)
@@ -336,10 +341,11 @@ def test_getting_view(web_fixture):
             self.define_page(HTML5Page)
             self.define_view('/view', 'Title', read_check=disallowed)
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
-        browser.open('/view', status=403)
+    web_fixture.context.install()
+
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+    browser.open('/view', status=403)
 
 
 @with_fixtures(WebFixture)
@@ -362,9 +368,10 @@ def test_posting_to_view(web_fixture):
             home = self.define_view('/a_view', 'Title', write_check=disallowed)
             home.set_slot('main', MyForm.factory())
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/a_view')
-        browser.click(XPath.button_labelled('Click me'), status=403)
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/a_view')
+    browser.click(XPath.button_labelled('Click me'), status=403)

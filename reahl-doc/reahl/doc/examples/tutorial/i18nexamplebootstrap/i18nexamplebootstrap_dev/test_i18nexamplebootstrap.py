@@ -25,9 +25,10 @@ class TranslationExampleFixture(Fixture):
 @with_fixtures(WebFixture, TranslationExampleFixture)
 def demo_setup(sql_alchemy_fixture, translation_example_fixture):
     sql_alchemy_fixture.commit = True
-    with sql_alchemy_fixture.context:
-        data_table_example_fixture.create_addresses()
-        translation_example_fixture.create_addresses()
+    sql_alchemy_fixture.context.install()
+    
+    data_table_example_fixture.create_addresses()
+    translation_example_fixture.create_addresses()
 
 
 
@@ -35,13 +36,14 @@ def demo_setup(sql_alchemy_fixture, translation_example_fixture):
 def test_translations(web_fixture, translation_example_fixture):
     """The user can choose between languages. The text for which translations exist change accordingly."""
 
-    with web_fixture.context:
-        browser = translation_example_fixture.browser
-        browser.open('/')
-        assert browser.is_element_present(XPath.heading_with_text(1, "Addresses"))
-        assert browser.is_element_present(XPath.label_with_text("Name"))
+    web_fixture.context.install()
+    
+    browser = translation_example_fixture.browser
+    browser.open('/')
+    assert browser.is_element_present(XPath.heading_with_text(1, "Addresses"))
+    assert browser.is_element_present(XPath.label_with_text("Name"))
 
-        #go to the the translated page
-        browser.click(XPath.link_with_text('Afrikaans'))
-        assert browser.is_element_present(XPath.heading_with_text(1, "Adresse"))
-        assert browser.is_element_present(XPath.label_with_text("Naam"))
+    #go to the the translated page
+    browser.click(XPath.link_with_text('Afrikaans'))
+    assert browser.is_element_present(XPath.heading_with_text(1, "Adresse"))
+    assert browser.is_element_present(XPath.label_with_text("Naam"))

@@ -291,9 +291,7 @@ class Fixture(object):
             atexit.register(self.session_cleanup)
 
         try:
-            self.context.__enter__()
-            # noinspection PyUnusedLocal
-            __reahl_context__ = self.context
+            self.context.install()
             self.set_up()
             self.run_marked_methods(SetUp, order=reversed)
             self.scenario.method_for(self)()
@@ -306,11 +304,12 @@ class Fixture(object):
         return self.__exit__(*sys.exc_info(), exit_session=True)
 
     def __exit__(self, exception_type, value, traceback, exit_session=False):
+        self.context.install()
         if self._options.scope == 'function' or exit_session:
             self.tear_down_attributes()
             self.run_marked_methods(TearDown)
             self.tear_down()
-        self.context.__exit__(exception_type, value, traceback)
+
 
 
 class NoContext(object):
@@ -318,4 +317,7 @@ class NoContext(object):
         return self
 
     def __exit__(self, exception_type, value, traceback):
+        pass
+
+    def install(self):
         pass

@@ -72,19 +72,20 @@ def test_file_upload_button(web_fixture, file_input_button_fixture):
 
     fixture = file_input_button_fixture
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
-        web_fixture.reahl_server.set_app(wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.context.install()
 
-        file_to_upload = temp_file_with('some content')
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        browser.type(XPath.input_labelled('Choose file(s)'), file_to_upload.name)
+    file_to_upload = temp_file_with('some content')
 
-        assert len(fixture.domain_object.files) == 0 
-        browser.click(XPath.button_labelled('Submit'))
-        assert len(fixture.domain_object.files) == 1 
+    browser.type(XPath.input_labelled('Choose file(s)'), file_to_upload.name)
+
+    assert len(fixture.domain_object.files) == 0 
+    browser.click(XPath.button_labelled('Submit'))
+    assert len(fixture.domain_object.files) == 1 
 
 
 @with_fixtures(WebFixture, FileInputButtonFixture)
@@ -93,15 +94,16 @@ def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
 
     fixture = file_input_button_fixture
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
-        web_fixture.reahl_server.set_app(wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.context.install()
 
-        assert browser.wait_for_not(fixture.upload_button_indicates_focus) 
-        browser.focus_on(XPath.input_labelled('Choose file(s)'))
-        assert browser.wait_for(fixture.upload_button_indicates_focus) 
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.wait_for_not(fixture.upload_button_indicates_focus) 
+    browser.focus_on(XPath.input_labelled('Choose file(s)'))
+    assert browser.wait_for(fixture.upload_button_indicates_focus) 
 
 
 #def test_select_file_dialog_opens(fixture):
@@ -142,35 +144,37 @@ def test_file_input_basics(web_fixture, file_input_fixture):
     """A FileInput is a FileInputButton combined with a area where the chosen file name is displayed."""
     fixture = file_input_fixture
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
-        web_fixture.reahl_server.set_app(wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.context.install()
 
-        browser.wait_for(fixture.message_displayed_is, 'No files chosen')
-        browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html')
-        browser.wait_for(fixture.message_displayed_is, 'koos.html')
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html\n/tmp/jannie.html')
-        browser.wait_for(fixture.message_displayed_is, '2 files chosen')
+    browser.wait_for(fixture.message_displayed_is, 'No files chosen')
+    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html')
+    browser.wait_for(fixture.message_displayed_is, 'koos.html')
+
+    browser.type(XPath.input_labelled('Choose file(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.wait_for(fixture.message_displayed_is, '2 files chosen')
 
 
 @with_fixtures(WebFixture, FileInputFixture)
 def test_i18n(web_fixture, file_input_fixture):
     """All messages have translations."""
     fixture = file_input_fixture
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
-        web_fixture.reahl_server.set_app(wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/af/')
+    web_fixture.context.install()
 
-        browser.wait_for(fixture.message_displayed_is, 'Geen lêers gekies')
-        browser.wait_for_element_present(XPath.input_labelled('Kies lêer(s)'))
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/af/')
 
-        browser.type(XPath.input_labelled('Kies lêer(s)'), '/tmp/koos.html\n/tmp/jannie.html')
-        browser.wait_for(fixture.message_displayed_is, '2 gekose lêers')
+    browser.wait_for(fixture.message_displayed_is, 'Geen lêers gekies')
+    browser.wait_for_element_present(XPath.input_labelled('Kies lêer(s)'))
+
+    browser.type(XPath.input_labelled('Kies lêer(s)'), '/tmp/koos.html\n/tmp/jannie.html')
+    browser.wait_for(fixture.message_displayed_is, '2 gekose lêers')
 
 
 @with_fixtures(WebFixture, FileInputFixture)
@@ -179,20 +183,21 @@ def test_file_input_without_js(web_fixture, file_input_fixture):
 
     fixture = file_input_fixture
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
-        web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
 
-        browser.wait_for(fixture.message_is_visible)
-        browser.wait_for_not(fixture.standard_file_input_is_visible)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        browser.switch_styling(javascript=False)
+    browser.wait_for(fixture.message_is_visible)
+    browser.wait_for_not(fixture.standard_file_input_is_visible)
 
-        browser.wait_for_not(fixture.message_is_visible)
-        browser.wait_for(fixture.standard_file_input_is_visible)
+    browser.switch_styling(javascript=False)
+
+    browser.wait_for_not(fixture.message_is_visible)
+    browser.wait_for(fixture.standard_file_input_is_visible)
 
 
 @uses(web_fixture=WebFixture)
@@ -410,44 +415,45 @@ def test_file_upload_input_basics(web_fixture, file_upload_input_fixture):
        the FileField of the FileUploadInput receives all the files uploaded as UploadFile objects.
     """
     fixture = file_upload_input_fixture
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.wsgi_app)
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
-        assert not fixture.domain_object.submitted 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        # Upload one file
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-        browser.click(XPath.button_labelled('Upload'))
+    assert not fixture.domain_object.submitted 
+    assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
 
-        assert not fixture.domain_object.submitted 
-        assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
+    # Upload one file
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Upload'))
 
-        # Upload a second file
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-        browser.click(XPath.button_labelled('Upload'))
+    assert not fixture.domain_object.submitted 
+    assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
 
-        assert not fixture.domain_object.submitted 
-        assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
-        assert fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
+    # Upload a second file
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+    browser.click(XPath.button_labelled('Upload'))
 
-        # Submit the form
-        browser.click( XPath.button_labelled('Submit') )
-        assert fixture.domain_object.submitted 
+    assert not fixture.domain_object.submitted 
+    assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    assert fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
 
-        # All uploaded files were submitted
-        assert sorted(fixture.domain_object.submitted_file_info.keys()) == sorted([os.path.basename(f.name)
-                                                                               for f in [fixture.file_to_upload1, fixture.file_to_upload2]] )
+    # Submit the form
+    browser.click( XPath.button_labelled('Submit') )
+    assert fixture.domain_object.submitted 
 
-        # Files that were submitted are correct
-        file1_content, file1_mime_type = fixture.domain_object.submitted_file_info[os.path.basename(fixture.file_to_upload1.name)]
-        assert file1_content == fixture.file_to_upload1_content 
-        assert file1_mime_type == 'text/html' 
+    # All uploaded files were submitted
+    assert sorted(fixture.domain_object.submitted_file_info.keys()) == sorted([os.path.basename(f.name)
+                                                                           for f in [fixture.file_to_upload1, fixture.file_to_upload2]] )
+
+    # Files that were submitted are correct
+    file1_content, file1_mime_type = fixture.domain_object.submitted_file_info[os.path.basename(fixture.file_to_upload1.name)]
+    assert file1_content == fixture.file_to_upload1_content 
+    assert file1_mime_type == 'text/html' 
 
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
@@ -457,38 +463,39 @@ def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
 
     fixture = file_upload_input_fixture
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.wsgi_app)
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
-        # Upload one file
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-        browser.click(XPath.button_labelled('Upload'))
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    # Upload one file
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Upload'))
 
-        # Upload a second file
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-        browser.click(XPath.button_labelled('Upload'))
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    # Upload a second file
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+    browser.click(XPath.button_labelled('Upload'))
 
-        # Submit the form:
-        # If an exception is raised, the list is NOT cleared
-        fixture.domain_object.throws_exception = True
-        browser.click( XPath.button_labelled('Submit') )
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-        # Upon successful submit, the list IS cleared
-        fixture.domain_object.throws_exception = False
-        browser.click( XPath.button_labelled('Submit') )
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    # Submit the form:
+    # If an exception is raised, the list is NOT cleared
+    fixture.domain_object.throws_exception = True
+    browser.click( XPath.button_labelled('Submit') )
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+
+    # Upon successful submit, the list IS cleared
+    fixture.domain_object.throws_exception = False
+    browser.click( XPath.button_labelled('Submit') )
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
@@ -497,27 +504,28 @@ def test_file_upload_input_remove_files(web_fixture, file_upload_input_fixture):
        FileUploadInput is submitted."""
     fixture = file_upload_input_fixture
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.wsgi_app)
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
-        # Upload two files
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-        browser.click(XPath.button_labelled('Upload'))
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-        browser.click(XPath.button_labelled('Upload'))
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        # Remove file1
-        browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
+    # Upload two files
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Upload'))
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+    browser.click(XPath.button_labelled('Upload'))
 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    # Remove file1
+    browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
 
-        # Only the one file is submitted
-        browser.click( XPath.button_labelled('Submit') )
-        assert list(fixture.domain_object.submitted_file_info.keys()) == [fixture.file_to_upload2_name]
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+
+    # Only the one file is submitted
+    browser.click( XPath.button_labelled('Submit') )
+    assert list(fixture.domain_object.submitted_file_info.keys()) == [fixture.file_to_upload2_name]
 
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
@@ -526,21 +534,22 @@ def test_file_upload_input_double_uploads(web_fixture, file_upload_input_fixture
     """
     fixture = file_upload_input_fixture
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=False))
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=False))
 
-        # Upload two files with the same name
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-        browser.click(XPath.button_labelled('Upload'))
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-        browser.click(XPath.button_labelled('Upload'))
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        # Expect an validation error message
-        assert browser.is_element_present('//span[text()="uploaded files should all have different names"]') 
-        assert fixture.file_was_uploaded(fixture.file_to_upload1.name) 
+    # Upload two files with the same name
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Upload'))
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Upload'))
+
+    # Expect an validation error message
+    assert browser.is_element_present('//span[text()="uploaded files should all have different names"]') 
+    assert fixture.file_was_uploaded(fixture.file_to_upload1.name) 
 
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
@@ -551,21 +560,22 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
     """
     fixture = file_upload_input_fixture
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        with browser.no_page_load_expected():
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
 
-        assert browser.get_value(XPath.input_labelled('Choose file(s)')) == ''   # Input is cleared for next file to be input
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    with browser.no_page_load_expected():
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+
+    assert browser.get_value(XPath.input_labelled('Choose file(s)')) == ''   # Input is cleared for next file to be input
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
@@ -575,26 +585,27 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     """
     fixture = large_file_upload_input_fixture
 
-    with web_fixture.context:
-        fixture.run_hook_before = True
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    fixture.run_hook_before = True
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
+    assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
 
-        assert browser.is_element_present('//ul/li/progress') 
-        progress = browser.get_attribute('//ul/li/progress', 'value')
-        assert progress == '100' 
-        browser.click(XPath.button_labelled('Cancel'))
+    with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    assert browser.is_element_present('//ul/li/progress') 
+    progress = browser.get_attribute('//ul/li/progress', 'value')
+    assert progress == '100' 
+    browser.click(XPath.button_labelled('Cancel'))
+
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
@@ -604,35 +615,36 @@ def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
     """
     fixture = large_file_upload_input_fixture
 
-    with web_fixture.context:
-        fixture.run_hook_before = True
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    fixture.run_hook_before = True
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name) # Upload will block, see fixture
+    assert not fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-        browser.wait_for(fixture.upload_file_is_queued, fixture.file_to_upload1.name)
-        browser.wait_for(fixture.upload_file_is_queued, fixture.file_to_upload2.name)
+    with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name) # Upload will block, see fixture
 
-        browser.click(XPath.button_labelled('Cancel', filename=fixture.file_to_upload2_name))
+    browser.wait_for(fixture.upload_file_is_queued, fixture.file_to_upload1.name)
+    browser.wait_for(fixture.upload_file_is_queued, fixture.file_to_upload2.name)
 
-        browser.wait_for_not(fixture.upload_file_is_queued, fixture.file_to_upload2.name)
-        fixture.simulate_large_file_upload_done()
-        browser.wait_for(fixture.uploaded_file_is_listed, fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Cancel', filename=fixture.file_to_upload2_name))
 
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
-        assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
+    browser.wait_for_not(fixture.upload_file_is_queued, fixture.file_to_upload2.name)
+    fixture.simulate_large_file_upload_done()
+    browser.wait_for(fixture.uploaded_file_is_listed, fixture.file_to_upload1.name)
+
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert fixture.file_was_uploaded( fixture.file_to_upload1.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    assert not fixture.file_was_uploaded( fixture.file_to_upload2.name ) 
 
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
@@ -642,29 +654,30 @@ def test_prevent_duplicate_upload_js(web_fixture, file_upload_input_fixture):
 
     fixture = file_upload_input_fixture
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-        browser = web_fixture.driver_browser
+    web_fixture.context.install()
 
-        error_locator = XPath.span_containing('uploaded files should all have different names')
-        def error_is_visible():
-            return browser.is_visible(error_locator)
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    browser = web_fixture.driver_browser
 
-        browser.open('/')
+    error_locator = XPath.span_containing('uploaded files should all have different names')
+    def error_is_visible():
+        return browser.is_visible(error_locator)
 
+    browser.open('/')
+
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.wait_for_not(error_is_visible)
+
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+    browser.wait_for_not(error_is_visible)
+
+    with web_fixture.reahl_server.paused():
         browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-        browser.wait_for_not(error_is_visible)
+        assert not fixture.upload_file_is_queued(fixture.file_to_upload1.name) 
+        browser.wait_for(error_is_visible)
 
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-        browser.wait_for_not(error_is_visible)
-
-        with web_fixture.reahl_server.paused():
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-            assert not fixture.upload_file_is_queued(fixture.file_to_upload1.name) 
-            browser.wait_for(error_is_visible)
-
-        browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
-        browser.wait_for_not(error_is_visible)
+    browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
+    browser.wait_for_not(error_is_visible)
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
@@ -672,21 +685,22 @@ def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
     """The user is prevented from submitting the Form while one or more file uploads are still in progress."""
     fixture = large_file_upload_input_fixture
 
-    with web_fixture.context:
-        fixture.run_hook_after = True
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    fixture.run_hook_after = True
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
-        with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        with browser.no_page_load_expected():
-            browser.click( XPath.button_labelled('Submit'), wait=False )
-            alert = fixture.web_driver.switch_to.alert
-            assert alert.text == 'Please try again when all files have finished uploading.' 
-            alert.accept()
+    with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
+
+    with browser.no_page_load_expected():
+        browser.click( XPath.button_labelled('Submit'), wait=False )
+        alert = fixture.web_driver.switch_to.alert
+        assert alert.text == 'Please try again when all files have finished uploading.' 
+        alert.accept()
 
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
@@ -695,54 +709,56 @@ def test_async_remove(web_fixture, file_upload_input_fixture):
 
     fixture = file_upload_input_fixture
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.context.install()
 
-        # Upload two files
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-        browser.click(XPath.button_labelled('Upload'))
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-        browser.click(XPath.button_labelled('Upload'))
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        # Remove file1
-        with browser.no_page_load_expected():
-            browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
+    # Upload two files
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    browser.click(XPath.button_labelled('Upload'))
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+    browser.click(XPath.button_labelled('Upload'))
 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    # Remove file1
+    with browser.no_page_load_expected():
+        browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
 
-        # The javascript works on DOM elements that have been generated server-side as well:
-        browser.refresh()
-        with browser.no_page_load_expected():
-            browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    # The javascript works on DOM elements that have been generated server-side as well:
+    browser.refresh()
+    with browser.no_page_load_expected():
+        browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
 
-        # No files are submitted eventually
-        browser.click( XPath.button_labelled('Submit') )
-        assert list(fixture.domain_object.submitted_file_info.keys()) == [] 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+
+    # No files are submitted eventually
+    browser.click( XPath.button_labelled('Submit') )
+    assert list(fixture.domain_object.submitted_file_info.keys()) == [] 
 
 
 @with_fixtures(WebFixture, BrokenFileUploadInputFixture)
 def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
     """If an error happens during (ajax) upload, the user is notified."""
     fixture = broken_file_upload_input_fixture
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-        web_fixture.config.reahlsystem.debug = False # So that we don't see the exception output while testing
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.context.install()
 
-        assert not browser.is_element_present(XPath.label_with_text('an error ocurred, please try again later.')) 
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    web_fixture.config.reahlsystem.debug = False # So that we don't see the exception output while testing
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        with expected(Exception):
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    assert not browser.is_element_present(XPath.label_with_text('an error ocurred, please try again later.')) 
 
-        assert browser.wait_for_element_present(XPath.span_containing('an error occurred, please try again later.')) 
-        assert not browser.is_element_enabled(XPath.button_labelled('Cancel')) 
+    with expected(Exception):
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+
+    assert browser.wait_for_element_present(XPath.span_containing('an error occurred, please try again later.')) 
+    assert not browser.is_element_enabled(XPath.button_labelled('Cancel')) 
 
 
 @with_fixtures(WebFixture, ToggleValidationFixture)
@@ -751,33 +767,33 @@ def test_async_upload_domain_exception(web_fixture, toggle_validation_fixture):
        the form is replaced with a rerendered version from the server."""
 
     fixture = toggle_validation_fixture
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
-        browser = web_fixture.driver_browser
-        browser.open('/')
 
-        fixture.make_validation_fail = False
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        fixture.make_validation_fail = True
-        fixture.mark_nested_form()
-        with browser.no_page_load_expected():
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-        assert fixture.nested_form_was_reloaded()
+    fixture.make_validation_fail = False
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
 
-        # JS Stuff on re-rendered form still work
+    fixture.make_validation_fail = True
+    fixture.mark_nested_form()
+    with browser.no_page_load_expected():
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+    assert fixture.nested_form_was_reloaded()
 
-        # 1: Server-rendered validation message has been cleared
-        assert browser.is_visible(XPath.span_containing('test validation message')) 
-        fixture.make_validation_fail = False
-        with browser.no_page_load_expected():
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-        browser.wait_for_not(browser.is_visible, XPath.span_containing('test validation message'))
+    # JS Stuff on re-rendered form still work
 
-        # 2: The remove button still happens via ajax
-        with browser.no_page_load_expected():
-            browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
-            browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
+    # 1: Server-rendered validation message has been cleared
+    assert browser.is_visible(XPath.span_containing('test validation message')) 
+    fixture.make_validation_fail = False
+    with browser.no_page_load_expected():
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+    browser.wait_for_not(browser.is_visible, XPath.span_containing('test validation message'))
+
+    # 2: The remove button still happens via ajax
+    with browser.no_page_load_expected():
+        browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
+        browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload2_name))
 
 
 @with_fixtures(WebFixture, LargeFileUploadInputFixture)
@@ -786,32 +802,33 @@ def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     """
     fixture = large_file_upload_input_fixture
 
-    with web_fixture.context:
-        fixture.run_hook_after = True
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    fixture.run_hook_after = True
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
-        assert not fixture.file_was_uploaded(fixture.file_to_upload1.name) 
-        assert not fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) 
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
-            browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name) # Upload will block, see fixture
+    assert not fixture.file_was_uploaded(fixture.file_to_upload1.name) 
+    assert not fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) 
 
-        progress1 = browser.get_attribute('//ul/li[1]/progress', 'value')
-        assert progress1 == '100'
-        progress2 = browser.get_attribute('//ul/li[2]/progress', 'value')
-        assert progress2 == '0'
+    with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name) # Upload will block, see fixture
+        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name) # Upload will block, see fixture
 
-        fixture.simulate_large_file_upload_done()
-        browser.wait_for( fixture.uploaded_file_is_listed, fixture.file_to_upload2.name )
+    progress1 = browser.get_attribute('//ul/li[1]/progress', 'value')
+    assert progress1 == '100'
+    progress2 = browser.get_attribute('//ul/li[2]/progress', 'value')
+    assert progress2 == '0'
 
-        assert fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) 
-        assert fixture.uploaded_file_is_listed(fixture.file_to_upload2.name) 
-        assert fixture.file_was_uploaded(fixture.file_to_upload1.name) 
-        assert fixture.file_was_uploaded(fixture.file_to_upload2.name) 
+    fixture.simulate_large_file_upload_done()
+    browser.wait_for( fixture.uploaded_file_is_listed, fixture.file_to_upload2.name )
+
+    assert fixture.uploaded_file_is_listed(fixture.file_to_upload1.name) 
+    assert fixture.uploaded_file_is_listed(fixture.file_to_upload2.name) 
+    assert fixture.file_was_uploaded(fixture.file_to_upload1.name) 
+    assert fixture.file_was_uploaded(fixture.file_to_upload2.name) 
 
 
 @with_fixtures(WebFixture, PerFileConstrainedFileUploadInputFixture)
@@ -822,21 +839,22 @@ def test_async_validation(web_fixture, per_file_constrained_file_upload_input_fi
     # in its own implementation, in a NestedForm, and has to pass on the
     # filesize constraint all the way. This way, we test all of that.
     fixture = per_file_constrained_file_upload_input_fixture
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
-        assert not fixture.uploaded_file_is_listed( fixture.valid_file.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.invalid_file.name ) 
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.invalid_file.name)
-        assert not fixture.uploaded_file_is_listed( fixture.invalid_file.name ) 
-        assert browser.is_element_present(XPath.span_containing(fixture.validation_error_message)) 
+    assert not fixture.uploaded_file_is_listed( fixture.valid_file.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.invalid_file.name ) 
 
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.valid_file.name)
-        assert fixture.uploaded_file_is_listed( fixture.valid_file.name ) 
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.invalid_file.name)
+    assert not fixture.uploaded_file_is_listed( fixture.invalid_file.name ) 
+    assert browser.is_element_present(XPath.span_containing(fixture.validation_error_message)) 
+
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.valid_file.name)
+    assert fixture.uploaded_file_is_listed( fixture.valid_file.name ) 
 
 
 @with_fixtures(WebFixture, MaxNumberOfFilesFileUploadInputFixture)
@@ -847,24 +865,25 @@ def test_async_number_files_validation(web_fixture, max_number_of_files_file_upl
     # in its own implementation, in a NestedForm, and has to pass on the
     # filesize constraint all the way. This way, we test all of that.
     fixture = max_number_of_files_file_upload_input_fixture
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
+    web_fixture.context.install()
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
-        assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
-        # Corner case: max are uploaded, but you've not asked to add to them yet:
-        assert browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
 
-        # Normal case: max are uploaded, and you're asking to upload another:
-        browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
-        assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
-        assert browser.wait_for(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload1.name)
+    assert fixture.uploaded_file_is_listed( fixture.file_to_upload1.name ) 
+    # Corner case: max are uploaded, but you've not asked to add to them yet:
+    assert browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
 
-        browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
-        assert browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+    # Normal case: max are uploaded, and you're asking to upload another:
+    browser.type(XPath.input_labelled('Choose file(s)'), fixture.file_to_upload2.name)
+    assert not fixture.uploaded_file_is_listed( fixture.file_to_upload2.name ) 
+    assert browser.wait_for(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 
+
+    browser.click(XPath.button_labelled('Remove', filename=fixture.file_to_upload1_name))
+    assert browser.wait_for_not(browser.is_visible, XPath.span_containing('a maximum of 1 files may be uploaded')) 

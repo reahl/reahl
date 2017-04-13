@@ -39,32 +39,33 @@ def test_resources(web_fixture):
        a Response."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        @stubclass(Resource)
-        class ResourceStub(Resource):
-            called = None
-            @exempt
-            def handle_something(self, request):
-                self.called = True
-                return 'something'
-            @exempt
-            def handle_anotherthing(self, request):
-                pass
+    web_fixture.context.install()
 
-        resource = ResourceStub()
+    @stubclass(Resource)
+    class ResourceStub(Resource):
+        called = None
+        @exempt
+        def handle_something(self, request):
+            self.called = True
+            return 'something'
+        @exempt
+        def handle_anotherthing(self, request):
+            pass
 
-        # Case where the HTTP method is not supported
-        fixture.request.method = 'koos'
-        response = resource.handle_request(fixture.request)
-        assert isinstance(response, HTTPMethodNotAllowed)
-        assert not resource.called
-        assert response.headers['allow'] == 'anotherthing, something'
+    resource = ResourceStub()
 
-        # Case where the HTTP method is supported
-        fixture.request.method = 'SOMEthing'
-        response = resource.handle_request(fixture.request)
-        assert resource.called
-        assert response == 'something'
+    # Case where the HTTP method is not supported
+    fixture.request.method = 'koos'
+    response = resource.handle_request(fixture.request)
+    assert isinstance(response, HTTPMethodNotAllowed)
+    assert not resource.called
+    assert response.headers['allow'] == 'anotherthing, something'
+
+    # Case where the HTTP method is supported
+    fixture.request.method = 'SOMEthing'
+    response = resource.handle_request(fixture.request)
+    assert resource.called
+    assert response == 'something'
 
 
 @with_fixtures(WebFixture)
@@ -73,24 +74,25 @@ def test_simple_sub_resources(web_fixture):
        will then be available via a special URL underneath the URL of the Widget's View."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        @stubclass(SubResource)
-        class ASimpleSubResource(SubResource):
-            sub_regex = 'simple_resource'
-            sub_path_template = 'simple_resource'
-            @exempt
-            def handle_get(self, request):
-                return Response()
+    web_fixture.context.install()
 
-        @stubclass(Widget)
-        class WidgetWithSubResource(Widget):
-            def __init__(self, view):
-                super(WidgetWithSubResource, self).__init__(view)
-                view.add_resource(ASimpleSubResource('uniquename'))
+    @stubclass(SubResource)
+    class ASimpleSubResource(SubResource):
+        sub_regex = 'simple_resource'
+        sub_path_template = 'simple_resource'
+        @exempt
+        def handle_get(self, request):
+            return Response()
 
-        wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
-        browser = Browser(wsgi_app)
-        browser.open('/_uniquename_simple_resource')
+    @stubclass(Widget)
+    class WidgetWithSubResource(Widget):
+        def __init__(self, view):
+            super(WidgetWithSubResource, self).__init__(view)
+            view.add_resource(ASimpleSubResource('uniquename'))
+
+    wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
+    browser = Browser(wsgi_app)
+    browser.open('/_uniquename_simple_resource')
 
 
 @with_fixtures(WebFixture)
@@ -99,37 +101,38 @@ def test_dynamic_sub_resources(web_fixture):
        to a View. In such cases, A Factory can be added that will construct the SubResource
        on demand, based on a regex which may contain parameters."""
     fixture = web_fixture
-    with web_fixture.context:
-        @stubclass(SubResource)
-        class ParameterisedSubResource(SubResource):
-            sub_regex = 'dynamic_(?P<param>[^/]+)'
-            sub_path_template = 'dynamic_%(param)s'
+    web_fixture.context.install()
 
-            def __init__(self, unique_name, param):
-                super(ParameterisedSubResource, self).__init__(unique_name)
-                self.param = param
+    @stubclass(SubResource)
+    class ParameterisedSubResource(SubResource):
+        sub_regex = 'dynamic_(?P<param>[^/]+)'
+        sub_path_template = 'dynamic_%(param)s'
 
-            @exempt
-            def handle_get(self, request):
-                return Response(unicode_body=six.text_type(self.param))
+        def __init__(self, unique_name, param):
+            super(ParameterisedSubResource, self).__init__(unique_name)
+            self.param = param
 
-            @exempt
-            @classmethod
-            def create_resource(cls, unique_name, param=None):
-                return cls(unique_name, param)
+        @exempt
+        def handle_get(self, request):
+            return Response(unicode_body=six.text_type(self.param))
 
-        @stubclass(Widget)
-        class WidgetWithSubResource(Widget):
-            def __init__(self, view):
-                super(WidgetWithSubResource, self).__init__(view)
-                view.add_resource_factory(ParameterisedSubResource.factory('uniquename', {'param': Field(required=True)}))
+        @exempt
+        @classmethod
+        def create_resource(cls, unique_name, param=None):
+            return cls(unique_name, param)
 
-        wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
-        browser = Browser(wsgi_app)
-        browser.open('/_uniquename_dynamic_one')
-        assert browser.raw_html == 'one'
-        browser.open('/_uniquename_dynamic_two')
-        assert browser.raw_html == 'two'
+    @stubclass(Widget)
+    class WidgetWithSubResource(Widget):
+        def __init__(self, view):
+            super(WidgetWithSubResource, self).__init__(view)
+            view.add_resource_factory(ParameterisedSubResource.factory('uniquename', {'param': Field(required=True)}))
+
+    wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
+    browser = Browser(wsgi_app)
+    browser.open('/_uniquename_dynamic_one')
+    assert browser.raw_html == 'one'
+    browser.open('/_uniquename_dynamic_two')
+    assert browser.raw_html == 'two'
 
 
 @with_fixtures(WebFixture)
@@ -165,11 +168,12 @@ def test_dynamic_sub_resources_factory_args(web_fixture):
             view.add_resource_factory(factory)
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
-        browser = Browser(wsgi_app)
-        browser.open('/__uniquename_dynamic_one')
-        assert browser.raw_html == 'arg to factory|kwarg to factory|one'
+    web_fixture.context.install()
+
+    wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
+    browser = Browser(wsgi_app)
+    browser.open('/__uniquename_dynamic_one')
+    assert browser.raw_html == 'arg to factory|kwarg to factory|one'
 
 
 
@@ -204,13 +208,14 @@ def test_disambiguating_between_factories(web_fixture):
             view.add_resource_factory(factory2)
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithAmbiguousSubResources.factory()})
-        browser = Browser(wsgi_app)
-        browser.open('/__factory1_path')
-        assert browser.raw_html == 'factory1'
-        browser.open('/__factory2_path')
-        assert browser.raw_html == 'factory2'
+    web_fixture.context.install()
+
+    wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithAmbiguousSubResources.factory()})
+    browser = Browser(wsgi_app)
+    browser.open('/__factory1_path')
+    assert browser.raw_html == 'factory1'
+    browser.open('/__factory2_path')
+    assert browser.raw_html == 'factory2'
 
 
 class UrlScenarios(Fixture):
@@ -237,20 +242,21 @@ def test_computation_of_url(web_fixture, url_scenarios):
         sub_regex = 'sub_path'
         sub_path_template = 'sub_path'
 
-    with web_fixture.context:
-        sub_resource = ASimpleSubResource('uniquename')
+    web_fixture.context.install()
 
-        # Calculating the sub_resource's URL from the context of the View
-        web_fixture.request.environ['PATH_INFO'] = url_scenarios.view_path
-        actual = sub_resource.get_url()
-        assert actual.path == url_scenarios.expected_path
+    sub_resource = ASimpleSubResource('uniquename')
 
-        # Calculating the URL of the parent View from the context of the SubResource
-        web_fixture.request.environ['PATH_INFO'] = url_scenarios.expected_path
-        actual = SubResource.get_parent_url()
-        assert actual.path == url_scenarios.view_path
+    # Calculating the sub_resource's URL from the context of the View
+    web_fixture.request.environ['PATH_INFO'] = url_scenarios.view_path
+    actual = sub_resource.get_url()
+    assert actual.path == url_scenarios.expected_path
 
-        # Calculating the sub_resource's URL from the context of the SubResource
-        web_fixture.request.environ['PATH_INFO'] = url_scenarios.expected_path
-        actual = sub_resource.get_url()
-        assert actual.path == url_scenarios.expected_path
+    # Calculating the URL of the parent View from the context of the SubResource
+    web_fixture.request.environ['PATH_INFO'] = url_scenarios.expected_path
+    actual = SubResource.get_parent_url()
+    assert actual.path == url_scenarios.view_path
+
+    # Calculating the sub_resource's URL from the context of the SubResource
+    web_fixture.request.environ['PATH_INFO'] = url_scenarios.expected_path
+    actual = sub_resource.get_url()
+    assert actual.path == url_scenarios.expected_path

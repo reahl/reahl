@@ -36,17 +36,18 @@ def test_refreshing_widget(web_fixture, refresh_fixture):
     """Clicking on a link, refreshes the displayed text to indicate which link 
        was clicked, without triggering a page load."""
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(refresh_fixture.wsgi_app)
-        browser = refresh_fixture.browser
+    web_fixture.context.install()
 
-        browser.open('/')
+    web_fixture.reahl_server.set_app(refresh_fixture.wsgi_app)
+    browser = refresh_fixture.browser
 
-        assert refresh_fixture.text_shows_selected(1)
-        assert not refresh_fixture.text_shows_selected(3)
+    browser.open('/')
 
-        with browser.no_page_load_expected():
-            browser.click(XPath.link_with_text('Select 3'))
+    assert refresh_fixture.text_shows_selected(1)
+    assert not refresh_fixture.text_shows_selected(3)
 
-        assert not refresh_fixture.text_shows_selected(1)
-        assert refresh_fixture.text_shows_selected(3)
+    with browser.no_page_load_expected():
+        browser.click(XPath.link_with_text('Select 3'))
+
+    assert not refresh_fixture.text_shows_selected(1)
+    assert refresh_fixture.text_shows_selected(3)

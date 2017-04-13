@@ -98,7 +98,7 @@ class Url(object):
     @classmethod
     def get_current_url(cls, request=None):
         """Returns the Url requested by the current Request."""
-        request = request or WebExecutionContext.get_context().request
+        request = request or ExecutionContext.get_context().request
         return cls(six.text_type(request.url))
     
     def __init__(self, url_string):
@@ -118,7 +118,7 @@ class Url(object):
            web.default_http_port and web.encrypted_http_port configuration settings."""
         self.scheme = scheme
         if self.port:
-            config = WebExecutionContext.get_context().config
+            config = ExecutionContext.get_context().config
             self.port = config.web.default_http_port
             if self.scheme == config.web.encrypted_http_scheme:
                 self.port = config.web.encrypted_http_port
@@ -225,7 +225,7 @@ class Url(object):
 
     def is_currently_active(self, exact_path=False):
         """Answers whether this Url is currently active (see `is_active_on`)."""
-        request = WebExecutionContext.get_context().request
+        request = ExecutionContext.get_context().request
         return self.is_active_on(Url(request.url), exact_path=exact_path)
 
     def query_is_subset(self, other_url):
@@ -247,41 +247,6 @@ class Url(object):
 
 class InternalRedirect(Exception):
     pass
-
-class WebExecutionContext(ExecutionContext):
-    def set_request(self, request):
-        self.request = request
-
-    def initialise_web_session(self):
-        with self:
-            session_class = self.config.web.session_class
-            self.set_session( session_class.get_or_create_session() )
-    
-    def handle_wsgi_call(self, wsgi_app, environ, start_response):
-        with self:
-            with wsgi_app.concurrency_manager:
-                with self.system_control.nested_transaction():
-                    self.initialise_web_session()
-                try:
-                    try:
-                        try:
-                            resource = wsgi_app.resource_for(self.request)
-                            response = resource.handle_request(self.request) 
-                        except InternalRedirect as e:
-                            self.request.internal_redirect = e
-                            resource = wsgi_app.resource_for(self.request)
-                            response = resource.handle_request(self.request)
-                    except HTTPException as e:
-                        response = e
-                    except DisconnectionError as e:
-                        response = HTTPInternalServerError(unicode_body=six.text_type(e))
-
-                    self.session.set_session_key(response)
-                    for chunk in response(environ, start_response):
-                        yield chunk
-                    self.session.set_last_activity_time()
-                finally:
-                    self.system_control.finalise_session()
 
 
 class EventHandler(object):
@@ -806,7 +771,7 @@ class Bookmark(object):
         query_arguments = OrderedDict(sorted(self.query_arguments.items()))
         url.set_query_from(query_arguments)
         if self.detour:
-            request = WebExecutionContext.get_context().request
+            request = ExecutionContext.get_context().request
             if not url.is_currently_active(exact_path=True):
                 query_arguments['returnTo'] = request.url
             elif 'returnTo' in request.params:
@@ -828,7 +793,7 @@ class Bookmark(object):
         .. versionadded: 3.2
         """
         if view is view.user_interface.current_view:
-            request = WebExecutionContext.get_context().request
+            request = ExecutionContext.get_context().request
             query_arguments = request.GET
         else:
             query_arguments = {}
@@ -859,7 +824,7 @@ class RedirectToScheme(HTTPSeeOther):
         super(RedirectToScheme, self).__init__(location=ascii_as_bytes_or_str(six.text_type(self.compute_target_url())))
 
     def compute_target_url(self):
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         url = Url(context.request.url)
         url.set_scheme(self.scheme)
         return url
@@ -1013,7 +978,7 @@ class Widget(object):
         """
         
     def set_arguments_from_query_string(self):
-        request = WebExecutionContext.get_context().request
+        request = ExecutionContext.get_context().request
         self.query_fields.accept_input(request.GET)
 
     def add_default_slot(self, slot_name, widget_factory):
@@ -1249,7 +1214,7 @@ class ViewPreCondition(object):
 
     def check(self, *args, **kwargs):
         if not self.is_true(*args, **kwargs):
-            request = WebExecutionContext.get_context().request
+            request = ExecutionContext.get_context().request
             if request.method.lower() not in ['get', 'head']:
                 raise HTTPNotFound()
             raise self.exception
@@ -1657,7 +1622,7 @@ class ReturnToCaller(PseudoBookmark):
 
     @property
     def href(self):
-        request = WebExecutionContext.get_context().request
+        request = ExecutionContext.get_context().request
         if 'returnTo' in request.GET:
             return Url(request.GET['returnTo'])
         return self.default.href
@@ -1666,7 +1631,7 @@ class ReturnToCaller(PseudoBookmark):
 class ReturnToCurrent(PseudoBookmark):
     @property
     def href(self):
-        url = Url(WebExecutionContext.get_context().request.url)
+        url = Url(ExecutionContext.get_context().request.url)
         url.make_network_relative()
         return url
 
@@ -1871,7 +1836,7 @@ class HeaderContent(Widget):
         self.page = page
 
     def render(self):
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         return ''.join([library.header_only_material(self.page)
                         for library in config.web.frontend_libraries])
     
@@ -1883,7 +1848,7 @@ class FooterContent(Widget):
         self.page = page
 
     def render(self):
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         return ''.join([library.footer_only_material(self.page)
                         for library in config.web.frontend_libraries])
 
@@ -1960,7 +1925,7 @@ class SubResource(Resource):
     @classmethod
     def get_url_for(cls, unique_name, **kwargs):
         sub_path = cls.get_path_template(unique_name) % kwargs
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         url = Url.get_current_url()
         url.path = cls.get_full_path_for(url.path, sub_path)
         url.make_network_relative()
@@ -2218,7 +2183,7 @@ class RemoteMethod(SubResource):
             with context.system_control.nested_transaction():
                 return_value = self.callable_object(**self.parse_arguments(input_values))
         except catch_exception as ex:
-            context.initialise_web_session()  # Because the rollback above nuked it
+            context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
             self.cleanup_after_exception(input_values, ex)
             caught_exception = ex
         else:
@@ -2455,7 +2420,7 @@ class ConcatenatedFile(FileOnDisk):
                     text.write(line)
                 output_stream.write(cssmin.cssmin(text.getvalue()))
 
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         if context.config.reahlsystem.debug:
             return NoOpMinifier()
 
@@ -2515,7 +2480,7 @@ class DiskDirectory(FileFactory):
 
     def create_file(self, relative_path):
         path = relative_path[1:]
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         static_root = context.config.web.static_root
         relative_path = self.root_path.split('/')+path.split('/')
         full_path = os.path.join(static_root, *relative_path)
@@ -2607,11 +2572,12 @@ class ReahlWSGIApplication(object):
         self.request_lock = threading.Lock()
         self.config = config
         self.system_control = SystemControl(self.config)
-        with WebExecutionContext() as context:
-            context.set_config(self.config)
-            context.set_system_control(self.system_control)
-            self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
-            self.add_reahl_static_files()
+        context = ExecutionContext().install()
+        context.install()
+        context.config = self.config
+        context.system_control = self.system_control
+        self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
+        self.add_reahl_static_files()
 
     def add_reahl_static_files(self):
         static_files = self.config.web.frontend_libraries.packaged_files()
@@ -2627,20 +2593,20 @@ class ReahlWSGIApplication(object):
         """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
            depending on the persistence mechanism in use. It could include enhancing classes for persistence, etc."""
         self.should_disconnect = connect
-        with ExecutionContext() as context:
-            context.set_config(self.config)
-            context.set_system_control(self.system_control)
-            if connect:
-                self.system_control.connect()
+        context = ExecutionContext().install()
+        context.config = self.config
+        context.system_control = self.system_control
+        if connect:
+            self.system_control.connect()
         
     def stop(self):
         """Stops the ReahlWSGIApplication by "disconnecting" from the database. What "disconnecting" means may differ
            depending on the persistence mechanism in use."""
-        with ExecutionContext() as context:
-            context.set_config(self.config)
-            context.set_system_control(self.system_control)
-            if self.should_disconnect:
-                self.system_control.disconnect()
+        context = ExecutionContext().install()
+        context.config = self.config
+        context.system_control = self.system_control
+        if self.should_disconnect:
+            self.system_control.disconnect()
 
     def get_target_ui(self, full_path):
         root_ui = self.root_user_interface_factory.create(full_path)
@@ -2675,12 +2641,12 @@ class ReahlWSGIApplication(object):
         if security_sensitive:
             scheme_needed = self.config.web.encrypted_http_scheme
 
-        request = WebExecutionContext.get_context().request
+        request = ExecutionContext.get_context().request
         if request.scheme.lower() != scheme_needed.lower():
             raise RedirectToScheme(scheme_needed)
 
     def create_context_for_request(self):
-        return WebExecutionContext()
+        return ExecutionContext()
 
     @contextmanager
     def serialise_requests(self):
@@ -2703,10 +2669,34 @@ class ReahlWSGIApplication(object):
     def __call__(self, environ, start_response):
         request = Request(environ, charset='utf8')
         new_context = self.create_context_for_request()
-        new_context.set_config(self.config)
-        new_context.set_request(request)
-        new_context.set_system_control(self.system_control)
-        return new_context.handle_wsgi_call(self, environ, start_response)
+        new_context.config = self.config
+        new_context.request = request
+        new_context.system_control = self.system_control
+        new_context.install()
+        with self.concurrency_manager:
+            with self.system_control.nested_transaction():
+                self.config.web.session_class.initialise_web_session_on(new_context)
+            try:
+                try:
+                    try:
+                        resource = self.resource_for(request)
+                        response = resource.handle_request(request) 
+                    except InternalRedirect as e:
+                        request.internal_redirect = e
+                        resource = self.resource_for(request)
+                        response = resource.handle_request(request)
+                except HTTPException as e:
+                    response = e
+                except DisconnectionError as e:
+                    response = HTTPInternalServerError(unicode_body=six.text_type(e))
+
+                new_context.session.set_session_key(response)
+                for chunk in response(environ, start_response):
+                    yield chunk
+                new_context.session.set_last_activity_time()
+            finally:
+                self.system_control.finalise_session()
 
 
 
+        

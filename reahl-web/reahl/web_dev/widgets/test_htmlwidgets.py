@@ -34,31 +34,32 @@ def test_basic_fixed_attributes(web_fixture):
     """How the static attributes of a Widget can be manipulated, queried and rendered."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = HTMLElement(fixture.view, 'x')
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        # Adding / setting
-        widget.set_attribute('attr1', 'value1')
-        widget.add_to_attribute('listattr', ['one', 'two'])
-        widget.add_to_attribute('listattr', ['three'])
+    widget = HTMLElement(fixture.view, 'x')
+    tester = WidgetTester(widget)
 
-        # Querying
-        assert widget.has_attribute('attr1')
-        assert widget.has_attribute('listattr')
-        assert not widget.has_attribute('notthere')
-        assert widget.attributes.v['attr1'] == 'value1'
-        assert widget.attributes.v['listattr'] == 'one three two'
+    # Adding / setting
+    widget.set_attribute('attr1', 'value1')
+    widget.add_to_attribute('listattr', ['one', 'two'])
+    widget.add_to_attribute('listattr', ['three'])
 
-        # Rendering
-        rendered = tester.render_html()
-        assert rendered == '<x attr1="value1" listattr="one three two">'
+    # Querying
+    assert widget.has_attribute('attr1')
+    assert widget.has_attribute('listattr')
+    assert not widget.has_attribute('notthere')
+    assert widget.attributes.v['attr1'] == 'value1'
+    assert widget.attributes.v['listattr'] == 'one three two'
 
-        # Rendering - the order of attributes in the rendered output
-        widget.set_attribute('id', '123')
-        widget.add_to_attribute('class', ['z', 'b'])
-        rendered = tester.render_html()
-        assert rendered == '<x id="123" attr1="value1" listattr="one three two" class="b z">'
+    # Rendering
+    rendered = tester.render_html()
+    assert rendered == '<x attr1="value1" listattr="one three two">'
+
+    # Rendering - the order of attributes in the rendered output
+    widget.set_attribute('id', '123')
+    widget.add_to_attribute('class', ['z', 'b'])
+    rendered = tester.render_html()
+    assert rendered == '<x id="123" attr1="value1" listattr="one three two" class="b z">'
 
 
 @with_fixtures(WebFixture)
@@ -66,17 +67,18 @@ def test_handy_methods(web_fixture):
     """Some handy methods for special attributes."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = HTMLElement(fixture.view, 'x')
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        widget.set_title('the title')
-        widget.set_id('the id')
-        widget.append_class('two')
-        widget.append_class('one')
+    widget = HTMLElement(fixture.view, 'x')
+    tester = WidgetTester(widget)
 
-        rendered = tester.render_html()
-        assert rendered == '<x id="the id" title="the title" class="one two">'
+    widget.set_title('the title')
+    widget.set_id('the id')
+    widget.append_class('two')
+    widget.append_class('one')
+
+    rendered = tester.render_html()
+    assert rendered == '<x id="the id" title="the title" class="one two">'
 
 
 @with_fixtures(WebFixture)
@@ -95,18 +97,19 @@ def test_dynamically_determining_attributes(web_fixture):
             return attributes
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = WidgetWithDynamicAttributes(fixture.view, 'x')
-        widget.set_attribute('fixed', 'value1')
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        widget.state = '1'
-        rendered = tester.render_html()
-        assert rendered == '<x dynamic="1" dynamiclist="1" fixed="value1">'
+    widget = WidgetWithDynamicAttributes(fixture.view, 'x')
+    widget.set_attribute('fixed', 'value1')
+    tester = WidgetTester(widget)
 
-        widget.state = '2'
-        rendered = tester.render_html()
-        assert rendered == '<x dynamic="2" dynamiclist="2" fixed="value1">'
+    widget.state = '1'
+    rendered = tester.render_html()
+    assert rendered == '<x dynamic="1" dynamiclist="1" fixed="value1">'
+
+    widget.state = '2'
+    rendered = tester.render_html()
+    assert rendered == '<x dynamic="2" dynamiclist="2" fixed="value1">'
 
 
 @with_fixtures(WebFixture)
@@ -121,14 +124,15 @@ def test_delegating_setting_of_attributes(web_fixture):
             attributes.set_to('set-by-external-source', 'rhythm and poetry')
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = HTMLElement(fixture.view, 'x')
-        widget.add_attribute_source(MyDelegatedAttributesClass())
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        # Case: dynamic attributes are supplied by the wrapper
-        rendered = tester.render_html()
-        assert rendered == '<x set-by-external-source="rhythm and poetry">'
+    widget = HTMLElement(fixture.view, 'x')
+    widget.add_attribute_source(MyDelegatedAttributesClass())
+    tester = WidgetTester(widget)
+
+    # Case: dynamic attributes are supplied by the wrapper
+    rendered = tester.render_html()
+    assert rendered == '<x set-by-external-source="rhythm and poetry">'
 
 
 @with_fixtures(WebFixture)
@@ -136,17 +140,18 @@ def test_all_html_widgets_have_css_ids(web_fixture):
     """A Widget (for HTML) can have a css_id. If accessed, but not set, a ProgrammerError is raised."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = HTMLElement(fixture.view, 'x')
-        widget.tag_name = 'x'
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        widget._css_id = None
-        with expected(ProgrammerError):
-            widget.css_id
+    widget = HTMLElement(fixture.view, 'x')
+    widget.tag_name = 'x'
+    tester = WidgetTester(widget)
 
-        widget._css_id = 'myid'
-        assert widget.css_id == 'myid'
+    widget._css_id = None
+    with expected(ProgrammerError):
+        widget.css_id
+
+    widget._css_id = 'myid'
+    assert widget.css_id == 'myid'
 
 
 @with_fixtures(WebFixture)
@@ -158,22 +163,23 @@ def test_jquery_support(web_fixture):
        jquery selector context."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = HTMLElement(fixture.view, 'x')
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        with expected(ProgrammerError):  # css id not set
-            widget.jquery_selector
+    widget = HTMLElement(fixture.view, 'x')
+    tester = WidgetTester(widget)
 
-        widget.set_id('anid')
-        assert widget.jquery_selector == '"#%s"' % widget.css_id
-        assert widget.attributes['id'].as_html_value() == widget.css_id
+    with expected(ProgrammerError):  # css id not set
+        widget.jquery_selector
 
-        contextualised = widget.contextualise_selector('selector', 'context')
-        assert contextualised ==  'selector, "context"'
+    widget.set_id('anid')
+    assert widget.jquery_selector == '"#%s"' % widget.css_id
+    assert widget.attributes['id'].as_html_value() == widget.css_id
 
-        contextualised = widget.contextualise_selector('selector', None)
-        assert contextualised ==  'selector'
+    contextualised = widget.contextualise_selector('selector', 'context')
+    assert contextualised ==  'selector, "context"'
+
+    contextualised = widget.contextualise_selector('selector', None)
+    assert contextualised ==  'selector'
 
 
 @with_fixtures(WebFixture)
@@ -181,15 +187,16 @@ def test_single_tags(web_fixture):
     """Definition of a HTMLElement."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        single_tag = HTMLElement(fixture.view, 'single')
-        tester = WidgetTester(single_tag)
+    web_fixture.context.install()
 
-        with expected(AssertionError):
-            single_tag.add_child(P(fixture.view))
+    single_tag = HTMLElement(fixture.view, 'single')
+    tester = WidgetTester(single_tag)
 
-        rendered = tester.render_html()
-        assert rendered == '<single>'
+    with expected(AssertionError):
+        single_tag.add_child(P(fixture.view))
+
+    rendered = tester.render_html()
+    assert rendered == '<single>'
 
 
 @with_fixtures(WebFixture)
@@ -197,14 +204,15 @@ def test_closing_tags(web_fixture):
     """Definition of a HTMLElement with children."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        closing_tag = HTMLElement(fixture.view, 'closing', children_allowed=True)
-        tester = WidgetTester(closing_tag)
+    web_fixture.context.install()
 
-        closing_tag.add_child(P(fixture.view))
+    closing_tag = HTMLElement(fixture.view, 'closing', children_allowed=True)
+    tester = WidgetTester(closing_tag)
 
-        rendered = tester.render_html()
-        assert rendered == '<closing><p></p></closing>'
+    closing_tag.add_child(P(fixture.view))
+
+    rendered = tester.render_html()
+    assert rendered == '<closing><p></p></closing>'
 
 
 @uses(web_fixture=WebFixture)
@@ -409,12 +417,13 @@ def test_basic_html_widgets(widget_scenarios):
 def test_view_rights_propagate_to_a(web_fixture):
     """The access rights specified for a View are propagated to an A, made from a Bookmark to that View."""
     fixture = web_fixture
-    with web_fixture.context:
-        fixture.view.write_check = EmptyStub()
-        fixture.view.read_check = EmptyStub()
-        a = A.from_bookmark(fixture.view, fixture.view.as_bookmark())
-        assert a.read_check is fixture.view.read_check
-        assert a.write_check is fixture.view.write_check
+    web_fixture.context.install()
+
+    fixture.view.write_check = EmptyStub()
+    fixture.view.read_check = EmptyStub()
+    a = A.from_bookmark(fixture.view, fixture.view.as_bookmark())
+    assert a.read_check is fixture.view.read_check
+    assert a.write_check is fixture.view.write_check
 
 
 @with_fixtures(WebFixture)
@@ -426,17 +435,18 @@ def test_text_node_can_vary(web_fixture):
     def getter():
         return fixture.current_value
 
-    with web_fixture.context:
-        widget = TextNode(fixture.view, getter)
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        fixture.current_value = 'stuff'
-        rendered = tester.render_html()
-        assert rendered == 'stuff'
+    widget = TextNode(fixture.view, getter)
+    tester = WidgetTester(widget)
 
-        fixture.current_value = 'other'
-        rendered = tester.render_html()
-        assert rendered == 'other'
+    fixture.current_value = 'stuff'
+    rendered = tester.render_html()
+    assert rendered == 'stuff'
+
+    fixture.current_value = 'other'
+    rendered = tester.render_html()
+    assert rendered == 'other'
 
 
 @with_fixtures(WebFixture)
@@ -444,12 +454,13 @@ def test_text_node_escapes_html(web_fixture):
     """The text of a TextNode is html-escaped."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = TextNode(fixture.view, '<tag> "Here" & \'there\'')
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        rendered = tester.render_html()
-        assert rendered == '&lt;tag&gt; "Here" &amp; \'there\''
+    widget = TextNode(fixture.view, '<tag> "Here" & \'there\'')
+    tester = WidgetTester(widget)
+
+    rendered = tester.render_html()
+    assert rendered == '&lt;tag&gt; "Here" &amp; \'there\''
 
 
 @with_fixtures(WebFixture)
@@ -457,22 +468,23 @@ def test_literal_html(web_fixture):
     """The LiteralHTML Widget just renders a chunk of HTML, but can answer queries about images in that HTML."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        contents = '<img src="_some_images/piet.pdf  "> <img src   = \' _some_images/koos was-^-hoêr.jpg\'>'
-        literal_html = LiteralHTML(fixture.view, contents)
-        tester = WidgetTester(literal_html)
+    web_fixture.context.install()
 
-        rendered_html = tester.render_html()
-        assert rendered_html == contents
+    contents = '<img src="_some_images/piet.pdf  "> <img src   = \' _some_images/koos was-^-hoêr.jpg\'>'
+    literal_html = LiteralHTML(fixture.view, contents)
+    tester = WidgetTester(literal_html)
 
-        # Case: when the content is transformed
-        def text_transformation(text):
-            return text.replace('im', 'IM')
-        literal_html = LiteralHTML(fixture.view, contents, transform=text_transformation)
-        tester = WidgetTester(literal_html)
+    rendered_html = tester.render_html()
+    assert rendered_html == contents
 
-        rendered_html = tester.render_html()
-        assert rendered_html == text_transformation(contents)
+    # Case: when the content is transformed
+    def text_transformation(text):
+        return text.replace('im', 'IM')
+    literal_html = LiteralHTML(fixture.view, contents, transform=text_transformation)
+    tester = WidgetTester(literal_html)
+
+    rendered_html = tester.render_html()
+    assert rendered_html == text_transformation(contents)
 
 
 @with_fixtures(WebFixture)
@@ -480,16 +492,17 @@ def test_head(web_fixture):
     """Head corresponds with the head HTML element, can have a title and always has a special Slot used by the framework."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        head = Head(fixture.view, 'a title')
-        tester = WidgetTester(head)
+    web_fixture.context.install()
 
-        reahl_header_slot = head.children[1]
-        assert isinstance(reahl_header_slot, Slot)
-        assert reahl_header_slot.name == 'reahl_header'
+    head = Head(fixture.view, 'a title')
+    tester = WidgetTester(head)
 
-        rendered_html = tester.render_html()
-        assert rendered_html == '<head><title>a title</title></head>'
+    reahl_header_slot = head.children[1]
+    assert isinstance(reahl_header_slot, Slot)
+    assert reahl_header_slot.name == 'reahl_header'
+
+    rendered_html = tester.render_html()
+    assert rendered_html == '<head><title>a title</title></head>'
 
 
 @with_fixtures(WebFixture)
@@ -497,18 +510,19 @@ def test_body(web_fixture):
     """Body corresponds with the body HTML element, and always has a special Slot at its end used by the framework."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        body = Body(fixture.view)
-        tester = WidgetTester(body)
+    web_fixture.context.install()
 
-        body.add_child(P(fixture.view))
+    body = Body(fixture.view)
+    tester = WidgetTester(body)
 
-        reahl_footer_slot = body.children[1]
-        assert isinstance(reahl_footer_slot, Slot)
-        assert reahl_footer_slot.name == 'reahl_footer'
+    body.add_child(P(fixture.view))
 
-        rendered_html = tester.render_html()
-        assert rendered_html == '<body><p></p></body>'
+    reahl_footer_slot = body.children[1]
+    assert isinstance(reahl_footer_slot, Slot)
+    assert reahl_footer_slot.name == 'reahl_footer'
+
+    rendered_html = tester.render_html()
+    assert rendered_html == '<body><p></p></body>'
 
 
 @with_fixtures(WebFixture)
@@ -516,14 +530,15 @@ def test_html5_page(web_fixture):
     """An HTML5Page is an empty HTML 5 document using the header and body widgets."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = HTML5Page(fixture.view, title='It: $current_title')
-        widget.add_default_slot('slot1', P.factory())
-        tester = WidgetTester(widget)
+    web_fixture.context.install()
 
-        rendered_html = tester.render_html()
-        head = '<head><title>It: %s</title></head>' % fixture.view.title
-        expected_regex = '<!DOCTYPE html><html class="no-js"><script>.*</script>%s<body></body></html>' % head
-        assert re.match(expected_regex, rendered_html.replace('\n', ''))
+    widget = HTML5Page(fixture.view, title='It: $current_title')
+    widget.add_default_slot('slot1', P.factory())
+    tester = WidgetTester(widget)
 
-        assert list(widget.default_slot_definitions.keys()) == ['slot1']
+    rendered_html = tester.render_html()
+    head = '<head><title>It: %s</title></head>' % fixture.view.title
+    expected_regex = '<!DOCTYPE html><html class="no-js"><script>.*</script>%s<body></body></html>' % head
+    assert re.match(expected_regex, rendered_html.replace('\n', ''))
+
+    assert list(widget.default_slot_definitions.keys()) == ['slot1']

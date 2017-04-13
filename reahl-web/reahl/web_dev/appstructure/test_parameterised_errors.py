@@ -50,14 +50,15 @@ def test_missing_variable_in_regex(web_fixture):
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='test_ui')
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        def check_message(ex):
-            return six.text_type(ex).startswith('The arguments contained in URL')
-        with expected(ProgrammerError, test=check_message):
-            browser.open('/a_ui/test1/')
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    def check_message(ex):
+        return six.text_type(ex).startswith('The arguments contained in URL')
+    with expected(ProgrammerError, test=check_message):
+        browser.open('/a_ui/test1/')
 
 
 @with_fixtures(WebFixture)
@@ -78,10 +79,11 @@ def test_missing_variable_in_ui_regex(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  {}, name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    web_fixture.context.install()
 
-        browser = Browser(wsgi_app)
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
 
-        with expected(RequiredConstraint):
-            browser.open('/a_ui/test1/')
+    browser = Browser(wsgi_app)
+
+    with expected(RequiredConstraint):
+        browser.open('/a_ui/test1/')

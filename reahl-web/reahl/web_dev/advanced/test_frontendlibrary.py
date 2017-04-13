@@ -73,57 +73,60 @@ class LibraryFixture(Fixture):
 @with_fixtures(WebFixture, LibraryFixture)
 def test_configuring_libraries(web_fixture, library_fixture):
     """Reahl can be configured to expose frontend libraries (libraries of js and css files)."""
-    with web_fixture.context:
-        web = web_fixture.config.web
-        assert 'mylib' not in web.frontend_libraries
-        web.frontend_libraries.add(library_fixture.MyLibrary())
-        assert 'mylib' in web.frontend_libraries
+    web_fixture.context.install()
+
+    web = web_fixture.config.web
+    assert 'mylib' not in web.frontend_libraries
+    web.frontend_libraries.add(library_fixture.MyLibrary())
+    assert 'mylib' in web.frontend_libraries
 
 
 @with_fixtures(WebFixture, LibraryFixture)
 def test_library_files(web_fixture, library_fixture):
     """The files part of configured frontend libraries are (a) added to /static and also (b) included on any page."""
-    with web_fixture.context:
-        web_fixture.config.web.frontend_libraries.clear()
-        web_fixture.config.web.frontend_libraries.add(library_fixture.MyLibrary())
+    web_fixture.context.install()
 
-        browser = Browser(ReahlWSGIApplication(web_fixture.config))
+    web_fixture.config.web.frontend_libraries.clear()
+    web_fixture.config.web.frontend_libraries.add(library_fixture.MyLibrary())
 
-        browser.open('/static/somefile.js')
-        assert browser.raw_html == 'contents - js'
+    browser = Browser(ReahlWSGIApplication(web_fixture.config))
 
-        browser.open('/static/somefile.css')
-        assert browser.raw_html == 'contents - css'
+    browser.open('/static/somefile.js')
+    assert browser.raw_html == 'contents - js'
 
-        browser.open('/')
-        script_added = browser.get_html_for('//script[@src]')
-        assert script_added == '<script type="text/javascript" src="/static/somefile.js"></script>'
+    browser.open('/static/somefile.css')
+    assert browser.raw_html == 'contents - css'
 
-        link_added = browser.get_html_for('//link')
-        assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
+    browser.open('/')
+    script_added = browser.get_html_for('//script[@src]')
+    assert script_added == '<script type="text/javascript" src="/static/somefile.js"></script>'
+
+    link_added = browser.get_html_for('//link')
+    assert link_added == '<link rel="stylesheet" href="/static/somefile.css" type="text/css">'
 
 
 @with_fixtures(WebFixture)
 def test_standard_reahl_files(web_fixture):
     """The framework includes certain frontent frameworks by default."""
-    with web_fixture.context:
-        wsgi_app = ReahlWSGIApplication(web_fixture.config)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/static/html5shiv-printshiv-3.6.3.js')
-        assert browser.last_response.content_length > 0
+    wsgi_app = ReahlWSGIApplication(web_fixture.config)
+    browser = Browser(wsgi_app)
 
-        browser.open('/static/IE9.js')
-        assert browser.last_response.content_length > 0
+    browser.open('/static/html5shiv-printshiv-3.6.3.js')
+    assert browser.last_response.content_length > 0
 
-        browser.open('/static/reahl.validate.js')
-        assert browser.last_response.content_length > 0
+    browser.open('/static/IE9.js')
+    assert browser.last_response.content_length > 0
 
-        browser.open('/static/reahl.css')
-        assert browser.last_response.content_length > 0
+    browser.open('/static/reahl.validate.js')
+    assert browser.last_response.content_length > 0
 
-        browser.open('/static/runningon.png')
-        assert browser.last_response.content_length > 0
+    browser.open('/static/reahl.css')
+    assert browser.last_response.content_length > 0
 
-        browser.open('/static/reahl.runningonbadge.css')
-        assert browser.last_response.content_length > 0
+    browser.open('/static/runningon.png')
+    assert browser.last_response.content_length > 0
+
+    browser.open('/static/reahl.runningonbadge.css')
+    assert browser.last_response.content_length > 0

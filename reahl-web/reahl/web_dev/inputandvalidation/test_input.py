@@ -151,9 +151,10 @@ def test_the_states_of_an_input(web_fixture, input_state_fixture):
                             model object has a corresponding value
     """
     fixture = input_state_fixture
-    with web_fixture.context:
-        assert fixture.input.get_input_status() == fixture.expected_state
-        assert fixture.input.value == fixture.expected_value
+    web_fixture.context.install()
+
+    assert fixture.input.get_input_status() == fixture.expected_state
+    assert fixture.input.value == fixture.expected_value
 
 
 class InputScenarios(SimpleInputFixture):
@@ -292,26 +293,28 @@ def test_basic_rendering(web_fixture, input_scenarios):
     """What the rendered html for a number of simple inputs look like."""
 
     fixture = input_scenarios
-    with web_fixture.context:
-        tester = WidgetTester(fixture.widget)
-        actual = tester.render_html()
-        assert re.match(fixture.expected_html, actual)
+    web_fixture.context.install()
+
+    tester = WidgetTester(fixture.widget)
+    actual = tester.render_html()
+    assert re.match(fixture.expected_html, actual)
 
 
 @with_fixtures(WebFixture, InputScenarios)
 def test_rendering_when_not_allowed(web_fixture, input_scenarios):
     """When not allowed to see the Widget, it is not rendered."""
     fixture = input_scenarios
-    with web_fixture.context:
-        tester = WidgetTester(fixture.widget)
+    web_fixture.context.install()
 
-        fixture.field.access_rights.readable = Allowed(False)
-        fixture.field.access_rights.writable = Allowed(False)
-        actual = tester.render_html()
-        if fixture.field_controls_visibility:
-            assert actual == ''
-        else:
-            assert re.match(fixture.expected_html, actual)
+    tester = WidgetTester(fixture.widget)
+
+    fixture.field.access_rights.readable = Allowed(False)
+    fixture.field.access_rights.writable = Allowed(False)
+    actual = tester.render_html()
+    if fixture.field_controls_visibility:
+        assert actual == ''
+    else:
+        assert re.match(fixture.expected_html, actual)
 
 
 @with_fixtures(WebFixture, FieldFixture, SimpleInputFixture)
@@ -320,25 +323,26 @@ def test_input_wrapped_widgets(web_fixture, field_fixture, simple_input_fixture)
        .create_html_widget() method. Several methods for setting HTML-things, like 
        css id are delegated to this Widget which represents the Input in HTML.
     """
+    web_fixture.context.install()
     fixture = simple_input_fixture
-    with web_fixture.context:
-        class MyInput(PrimitiveInput):
-            def create_html_widget(self):
-                return HTMLElement(self.view, 'x')
 
-        test_input = MyInput(fixture.form, field_fixture.field)
-        tester = WidgetTester(test_input)
+    class MyInput(PrimitiveInput):
+        def create_html_widget(self):
+            return HTMLElement(self.view, 'x')
 
-        rendered = tester.render_html()
-        assert rendered == '<x>'
+    test_input = MyInput(fixture.form, field_fixture.field)
+    tester = WidgetTester(test_input)
 
-        test_input.set_id('myid')
-        test_input.set_title('mytitle')
-        test_input.add_to_attribute('list-attribute', ['one', 'two'])
-        test_input.set_attribute('an-attribute', 'a value')
+    rendered = tester.render_html()
+    assert rendered == '<x>'
 
-        rendered = tester.render_html()
-        assert rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" title="mytitle">'
+    test_input.set_id('myid')
+    test_input.set_title('mytitle')
+    test_input.add_to_attribute('list-attribute', ['one', 'two'])
+    test_input.set_attribute('an-attribute', 'a value')
+
+    rendered = tester.render_html()
+    assert rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" title="mytitle">'
 
 
 @with_fixtures(WebFixture, SimpleInputFixture)
@@ -346,13 +350,13 @@ def test_wrong_args_to_input(web_fixture, simple_input_fixture):
     """Passing the wrong arguments upon constructing an Input results in an error."""
 
     fixture = simple_input_fixture
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        with expected(IsInstance):
-            PrimitiveInput(fixture.form, EmptyStub())
+    with expected(IsInstance):
+        PrimitiveInput(fixture.form, EmptyStub())
 
-        with expected(IsInstance):
-            PrimitiveInput(EmptyStub(), Field())
+    with expected(IsInstance):
+        PrimitiveInput(EmptyStub(), Field())
 
 
 class CheckboxFixture(SimpleInputFixture2):
@@ -366,33 +370,34 @@ def test_marshalling_of_checkbox(web_fixture, checkbox_fixture):
        whether the checkbox is included in the submission or not."""
 
     fixture = checkbox_fixture
-    with web_fixture.context:
-        model_object = fixture.model_object
-        class MyForm(Form):
-            def __init__(self, view, name):
-                super(MyForm, self).__init__(view, name)
-                checkbox = self.add_child(CheckboxInput(self, model_object.fields.an_attribute))
-                self.define_event_handler(model_object.events.an_event)
-                self.add_child(ButtonInput(self, model_object.events.an_event))
-                fixture.checkbox = checkbox
+    web_fixture.context.install()
 
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
-        web_fixture.reahl_server.set_app(wsgi_app)
-        web_fixture.driver_browser.open('/')
+    model_object = fixture.model_object
+    class MyForm(Form):
+        def __init__(self, view, name):
+            super(MyForm, self).__init__(view, name)
+            checkbox = self.add_child(CheckboxInput(self, model_object.fields.an_attribute))
+            self.define_event_handler(model_object.events.an_event)
+            self.add_child(ButtonInput(self, model_object.events.an_event))
+            fixture.checkbox = checkbox
 
-        # Case: checkbox is submitted with form (ie checked)
-        web_fixture.driver_browser.check("//input[@type='checkbox']")
-        web_fixture.driver_browser.click("//input[@value='click me']")
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'))
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
 
-        assert model_object.an_attribute
-        assert fixture.checkbox.value == 'on'
+    # Case: checkbox is submitted with form (ie checked)
+    web_fixture.driver_browser.check("//input[@type='checkbox']")
+    web_fixture.driver_browser.click("//input[@value='click me']")
 
-        # Case: checkbox is not submitted with form (ie unchecked)
-        web_fixture.driver_browser.uncheck("//input[@type='checkbox']")
-        web_fixture.driver_browser.click("//input[@value='click me']")
+    assert model_object.an_attribute
+    assert fixture.checkbox.value == 'on'
 
-        assert not model_object.an_attribute
-        assert fixture.checkbox.value == 'off'
+    # Case: checkbox is not submitted with form (ie unchecked)
+    web_fixture.driver_browser.uncheck("//input[@type='checkbox']")
+    web_fixture.driver_browser.click("//input[@value='click me']")
+
+    assert not model_object.an_attribute
+    assert fixture.checkbox.value == 'off'
 
 
 class FuzzyTextInputFixture(SimpleInputFixture2):
@@ -406,20 +411,21 @@ def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
        input that was typed by the user to be interpreted server-side and changed to the
        more exact representation in the client browser.  This happens upon the input losing focus."""
     fixture = fuzzy_text_input_fixture
-    with web_fixture.context:
-        model_object = fixture.model_object
-        class MyForm(Form):
-            def __init__(self, view, name):
-                super(MyForm, self).__init__(view, name)
-                self.add_child(TextInput(self, model_object.fields.an_attribute, fuzzy=True))
-                self.define_event_handler(model_object.events.an_event)
-                self.add_child(ButtonInput(self, model_object.events.an_event))
+    web_fixture.context.install()
 
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
-        web_fixture.reahl_server.set_app(wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    model_object = fixture.model_object
+    class MyForm(Form):
+        def __init__(self, view, name):
+            super(MyForm, self).__init__(view, name)
+            self.add_child(TextInput(self, model_object.fields.an_attribute, fuzzy=True))
+            self.define_event_handler(model_object.events.an_event)
+            self.add_child(ButtonInput(self, model_object.events.an_event))
 
-        browser.type(XPath.input_named('an_attribute'), '20 November 2012')
-        browser.press_tab(XPath.input_named('an_attribute'))
-        browser.wait_for(browser.is_element_value, XPath.input_named('an_attribute'), '20 Nov 2012')
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    browser.type(XPath.input_named('an_attribute'), '20 November 2012')
+    browser.press_tab(XPath.input_named('an_attribute'))
+    browser.wait_for(browser.is_element_value, XPath.input_named('an_attribute'), '20 Nov 2012')

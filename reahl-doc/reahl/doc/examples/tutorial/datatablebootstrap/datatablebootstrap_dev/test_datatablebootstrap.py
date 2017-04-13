@@ -37,8 +37,9 @@ class DataTableExampleFixture(Fixture):
 @with_fixtures(WebFixture, DataTableExampleFixture)
 def demo_setup(sql_alchemy_fixture, data_table_example_fixture):
     sql_alchemy_fixture.commit = True
-    with sql_alchemy_fixture.context:
-        data_table_example_fixture.create_addresses()
+    sql_alchemy_fixture.context.install()
+
+    data_table_example_fixture.create_addresses()
 
 
 @with_fixtures(WebFixture, DataTableExampleFixture)
@@ -47,24 +48,26 @@ def test_editing_an_address(web_fixture, data_table_example_fixture):
        on the "Addresses" page. The user is then taken to an "Edit" View for the chosen Address and
        can change the name or email address. Upon clicking the "Update" Button, the user is sent back
        to the "Addresses" page where the changes are visible."""
-    with web_fixture.context:
-        fixture = data_table_example_fixture
-        all_addresses = fixture.create_addresses()
-        browser = fixture.browser
 
-        original_address_name = 'friend 7'   #choose the seventh address to edit
+    web_fixture.context.install()
 
-        browser.open('/')
-        browser.click(XPath.link_with_text('Edit', nth=7))
+    fixture = data_table_example_fixture
+    all_addresses = fixture.create_addresses()
+    browser = fixture.browser
 
-        assert fixture.is_on_edit_page_for(original_address_name)
-        browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.changed.org')
-        browser.click(XPath.button_labelled('Update'))
+    original_address_name = 'friend 7'   #choose the seventh address to edit
 
-        assert fixture.address_is_listed_as('John Doe-changed')
-        assert fixture.address_is_listed_as('johndoe@some.changed.org')
-        assert not fixture.address_is_listed_as(original_address_name)
+    browser.open('/')
+    browser.click(XPath.link_with_text('Edit', nth=7))
+
+    assert fixture.is_on_edit_page_for(original_address_name)
+    browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.changed.org')
+    browser.click(XPath.button_labelled('Update'))
+
+    assert fixture.address_is_listed_as('John Doe-changed')
+    assert fixture.address_is_listed_as('johndoe@some.changed.org')
+    assert not fixture.address_is_listed_as(original_address_name)
 
 
 @with_fixtures(WebFixture, DataTableExampleFixture)
@@ -72,22 +75,23 @@ def test_pageable_table(web_fixture, data_table_example_fixture):
     """If there is a large dataset, the user can page through it, receiving only a managable number of items
        at a time."""
 
-    with web_fixture.context:
-        fixture = data_table_example_fixture
-        fixture.create_addresses()
-        browser = fixture.browser
+    web_fixture.context.install()
 
-        browser.open('/')
+    fixture = data_table_example_fixture
+    fixture.create_addresses()
+    browser = fixture.browser
 
-        assert fixture.number_of_rows_in_table() == 10
-        assert fixture.address_is_listed_as('friend 1')
-        assert not fixture.address_is_listed_as('friend 11')
+    browser.open('/')
 
-        browser.click(XPath.link_with_text('2'))
+    assert fixture.number_of_rows_in_table() == 10
+    assert fixture.address_is_listed_as('friend 1')
+    assert not fixture.address_is_listed_as('friend 11')
 
-        assert fixture.number_of_rows_in_table() == 10
-        assert fixture.address_is_listed_as('friend 11')
-        assert not fixture.address_is_listed_as('friend 21')
+    browser.click(XPath.link_with_text('2'))
+
+    assert fixture.number_of_rows_in_table() == 10
+    assert fixture.address_is_listed_as('friend 11')
+    assert not fixture.address_is_listed_as('friend 21')
 
 
 @with_fixtures(WebFixture, DataTableExampleFixture)
@@ -95,36 +99,37 @@ def test_sorting_by_column(web_fixture, data_table_example_fixture):
     """The user can sort the table differently, by clicking on links in the heading of a sortable
        column."""
 
-    with web_fixture.context:
-        fixture = data_table_example_fixture
-        fixture.create_addresses()
-        browser = fixture.browser
+    web_fixture.context.install()
+    
+    fixture = data_table_example_fixture
+    fixture.create_addresses()
+    browser = fixture.browser
 
-        browser.open('/')
+    browser.open('/')
 
-        assert fixture.address_is_listed_as('friend 1') # Initially data is sorted in the order given
-        assert fixture.address_is_listed_as('friend 2')
-        assert fixture.address_is_listed_as('friend 3')
-        assert fixture.address_is_listed_as('friend 4')
-        assert fixture.address_is_listed_as('friend 5')
-        assert fixture.address_is_listed_as('friend 6')
-        assert fixture.address_is_listed_as('friend 7')
-        assert fixture.address_is_listed_as('friend 8')
-        assert fixture.address_is_listed_as('friend 9')
-        assert fixture.address_is_listed_as('friend 10')
+    assert fixture.address_is_listed_as('friend 1') # Initially data is sorted in the order given
+    assert fixture.address_is_listed_as('friend 2')
+    assert fixture.address_is_listed_as('friend 3')
+    assert fixture.address_is_listed_as('friend 4')
+    assert fixture.address_is_listed_as('friend 5')
+    assert fixture.address_is_listed_as('friend 6')
+    assert fixture.address_is_listed_as('friend 7')
+    assert fixture.address_is_listed_as('friend 8')
+    assert fixture.address_is_listed_as('friend 9')
+    assert fixture.address_is_listed_as('friend 10')
 
-        browser.click(fixture.heading_link_for_column('Zip'))# Ascending sort
-        browser.click(fixture.heading_link_for_column('Zip'))# Another click sorts it descending
+    browser.click(fixture.heading_link_for_column('Zip'))# Ascending sort
+    browser.click(fixture.heading_link_for_column('Zip'))# Another click sorts it descending
 
-        assert fixture.address_is_listed_as('friend 200')
-        assert fixture.address_is_listed_as('friend 199')
-        assert fixture.address_is_listed_as('friend 198')
-        assert fixture.address_is_listed_as('friend 197')
-        assert fixture.address_is_listed_as('friend 196')
-        assert fixture.address_is_listed_as('friend 195')
-        assert fixture.address_is_listed_as('friend 194')
-        assert fixture.address_is_listed_as('friend 193')
-        assert fixture.address_is_listed_as('friend 192')
-        assert fixture.address_is_listed_as('friend 191')
+    assert fixture.address_is_listed_as('friend 200')
+    assert fixture.address_is_listed_as('friend 199')
+    assert fixture.address_is_listed_as('friend 198')
+    assert fixture.address_is_listed_as('friend 197')
+    assert fixture.address_is_listed_as('friend 196')
+    assert fixture.address_is_listed_as('friend 195')
+    assert fixture.address_is_listed_as('friend 194')
+    assert fixture.address_is_listed_as('friend 193')
+    assert fixture.address_is_listed_as('friend 192')
+    assert fixture.address_is_listed_as('friend 191')
     
 

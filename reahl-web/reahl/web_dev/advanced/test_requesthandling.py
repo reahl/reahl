@@ -24,7 +24,8 @@ from reahl.tofu import expected, Fixture
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass, CallMonitor
 
-from reahl.web.fw import Resource, ReahlWSGIApplication, WebExecutionContext, InternalRedirect
+from reahl.component.context import ExecutionContext
+from reahl.web.fw import Resource, ReahlWSGIApplication, InternalRedirect
 from reahl.web.interfaces import UserSessionProtocol
 from reahl.web_dev.fixtures import ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
@@ -45,20 +46,20 @@ class WSGIFixture(Fixture):
 def test_wsgi_interface(web_fixture, wsgi_fixture):
     """A ReahlWSGIApplication is a WSGI application."""
     fixture = wsgi_fixture
-    with web_fixture.context:
-        wsgi_app = web_fixture.wsgi_app
+    web_fixture.context.install()
+    wsgi_app = web_fixture.wsgi_app
 
-        environ = Request.blank('/', charset='utf8').environ
-        def start_response(status, headers):
-            fixture.status = status
-            fixture.headers = headers
+    environ = Request.blank('/', charset='utf8').environ
+    def start_response(status, headers):
+        fixture.status = status
+        fixture.headers = headers
 
-        wsgi_iterator = wsgi_app(environ, start_response)
+    wsgi_iterator = wsgi_app(environ, start_response)
 
-        result = ''.join([i.decode('utf-8') for i in wsgi_iterator])  # To check that it is iterable and get the value
-        assert fixture.result_is_valid(result)
-        assert fixture.status == '200 OK'
-        assert fixture.some_headers_are_set(fixture.headers)
+    result = ''.join([i.decode('utf-8') for i in wsgi_iterator])  # To check that it is iterable and get the value
+    assert fixture.result_is_valid(result)
+    assert fixture.status == '200 OK'
+    assert fixture.some_headers_are_set(fixture.headers)
 
 
 @with_fixtures(WebFixture)
@@ -93,6 +94,10 @@ def test_web_session_handling(web_fixture):
             cls.session = cls()
             return cls.session
 
+        @classmethod
+        def initialise_web_session_on(cls, context):
+            context.session = cls.get_or_create_session()
+
         def set_session_key(self, response):
             self.key_is_set = True
             self.saved_response = response
@@ -111,11 +116,12 @@ def test_web_session_handling(web_fixture):
     # Setting the implementation in config
 
     web_fixture.config.web.session_class = UserSessionStub
-    with web_fixture.context, CallMonitor(web_fixture.system_control.orm_control.commit) as monitor:
+    web_fixture.context.install()
+    with CallMonitor(web_fixture.system_control.orm_control.commit) as monitor:
         @stubclass(Resource)
         class ResourceStub(object):
             def handle_request(self, request):
-                context = WebExecutionContext.get_context()
+                context = ExecutionContext.get_context()
                 assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
                 assert monitor.times_called == 1  # The database has been committed
                 assert not context.session.last_activity_time_set
@@ -150,10 +156,10 @@ def test_handling_HTTPError_exceptions(web_fixture):
         def resource_for(self, request):
             raise HTTPNotFound()
 
-    with web_fixture.context:
-        browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
+    web_fixture.context.install()
+    browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
 
-        browser.open('/', status=404)
+    browser.open('/', status=404)
 
 
 @with_fixtures(WebFixture)
@@ -164,31 +170,31 @@ def test_internal_redirects(web_fixture):
        save for the browser round trip."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        fixture.requests_handled = []
-        fixture.handling_resources = []
+    web_fixture.context.install()
+    fixture.requests_handled = []
+    fixture.handling_resources = []
 
-        @stubclass(Resource)
-        class ResourceStub(object):
-            def handle_request(self, request):
-                fixture.requests_handled.append(request)
-                fixture.handling_resources.append(self)
-                if hasattr(request, 'internal_redirect'):
-                    return Response(body='response given after internal redirect')
-                raise InternalRedirect(None, None)
+    @stubclass(Resource)
+    class ResourceStub(object):
+        def handle_request(self, request):
+            fixture.requests_handled.append(request)
+            fixture.handling_resources.append(self)
+            if hasattr(request, 'internal_redirect'):
+                return Response(body='response given after internal redirect')
+            raise InternalRedirect(None, None)
 
-        @stubclass(ReahlWSGIApplication)
-        class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
-            def resource_for(self, request):
-                return ResourceStub()
+    @stubclass(ReahlWSGIApplication)
+    class ReahlWSGIApplicationStub2(ReahlWSGIApplicationStub):
+        def resource_for(self, request):
+            return ResourceStub()
 
-        browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
+    browser = Browser(ReahlWSGIApplicationStub2(fixture.config))
 
-        browser.open('/')
+    browser.open('/')
 
-        assert browser.raw_html == 'response given after internal redirect'
-        assert fixture.requests_handled[0] is fixture.requests_handled[1]
-        assert fixture.handling_resources[0] is not fixture.handling_resources[1]
+    assert browser.raw_html == 'response given after internal redirect'
+    assert fixture.requests_handled[0] is fixture.requests_handled[1]
+    assert fixture.handling_resources[0] is not fixture.handling_resources[1]
 
 
 @with_fixtures(WebFixture)
@@ -200,12 +206,13 @@ def test_handling_uncaught_exceptions(web_fixture):
         def resource_for(self, request):
             raise AssertionError('this an unknown breakage')
 
-    with web_fixture.context:
-        app = ReahlWSGIApplicationStub2(web_fixture.config)
-        browser = Browser(app)
+    web_fixture.context.install()
 
-        with CallMonitor(app.system_control.finalise_session) as monitor:
-            assert monitor.times_called == 0
-            with expected(AssertionError):
-                browser.open('/')
-            assert monitor.times_called == 1
+    app = ReahlWSGIApplicationStub2(web_fixture.config)
+    browser = Browser(app)
+
+    with CallMonitor(app.system_control.finalise_session) as monitor:
+        assert monitor.times_called == 0
+        with expected(AssertionError):
+            browser.open('/')
+        assert monitor.times_called == 1

@@ -17,8 +17,9 @@
 """The Reahl context utilities."""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-import inspect
 
+import inspect
+import contextlib
 
 
 class NoContextFound(Exception):
@@ -28,11 +29,6 @@ class NoContext(object):
     def __getattr__(self, name):
         raise NoContextFound('An attempt was made to access %s on the context, but not context was present in the call stack' % name)
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        pass
 
 
 class ExecutionContext(object):
@@ -55,7 +51,7 @@ class ExecutionContext(object):
         config = StoredConfiguration(config_directory)
         config.configure()
         new_context = cls()
-        new_context.set_config(config)
+        new_context.config = config
         return new_context
 
     @classmethod
@@ -78,29 +74,17 @@ class ExecutionContext(object):
             del to_delete
         return context
 
-    def __init__(self):
-        self.parent_context = self.get_context()
+    def __init__(self, parent_context=None):
+        self.parent_context = parent_context or self.get_context()
         self.id = (self.parent_context.id if isinstance(self.parent_context, ExecutionContext) else id(self))
 
-    def set_session(self, session):
-        self.session = session
-
-    def set_system_control(self, system_control):
-        self.system_control = system_control
-
-    def set_config(self, config):
-        self.config = config
-
-    def __enter__(self):
+    def install(self):
         f = inspect.currentframe()
         calling_frame = f.f_back
         calling_frame.f_locals['__reahl_context__'] = self
         del calling_frame
         del f
         return self
-
-    def __exit__(self, *args):
-        pass
 
     @property
     def interface_locale(self):
@@ -109,3 +93,6 @@ class ExecutionContext(object):
         if not session:
             return 'en_gb'
         return self.session.get_interface_locale()
+
+    def __enter__(self):
+        assert None, 'Fuck'

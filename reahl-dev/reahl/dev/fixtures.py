@@ -31,55 +31,6 @@ from reahl.component.config import StoredConfiguration
 from reahl.dev.exceptions import CouldNotConfigureServer
 
 
-class CleanDatabase(Fixture):
-    """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
-       correct database schema for the project and sets up any persistent classes for use with that
-       schema. It also connects to the database. Upon tear down, the Fixture disconnects from the database.
-    """
-    commit = False
-
-    def new_reahlsystem(self):
-        return self.config.reahlsystem
-
-    def new_config(self):
-        config = StoredConfiguration('etc/')
-        try:
-            config.configure()
-        except pkg_resources.DistributionNotFound as ex:
-            six.reraise(CouldNotConfigureServer, CouldNotConfigureServer(ex), sys.exc_info()[2])
-
-        return config
-
-    def new_context(self, config=None, system_control=None):
-        context = ExecutionContext()
-        context.set_config( config or self.config )
-        context.set_system_control(system_control or self.system_control)
-        return context
-
-    def new_system_control(self):
-        return SystemControl(self.config)
-
-    def new_test_dependencies(self):
-        return []
-
-    @set_up
-    def init_database(self):
-        with self.context:
-            orm_control = self.config.reahlsystem.orm_control
-            for dependency in self.test_dependencies:
-                orm_control.instrument_classes_for(dependency)
-            if not self.system_control.is_in_memory:
-                self.system_control.initialise_database(yes=True)
-            self.system_control.connect()
-
-    @tear_down
-    def disconnect(self):
-        with self.context:
-            if self.system_control.connected:
-                self.system_control.disconnect()
-
-
-
 @scope('session')
 class ReahlSystemFixture(Fixture):
     """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
@@ -101,9 +52,9 @@ class ReahlSystemFixture(Fixture):
         return config
 
     def new_context(self, config=None, system_control=None):
-        context = ExecutionContext()
-        context.set_config( config or self.config )
-        context.set_system_control(system_control or self.system_control)
+        context = ExecutionContext().install()
+        context.config = config or self.config
+        context.system_control = system_control or self.system_control
         return context
 
     def new_system_control(self):
@@ -114,17 +65,17 @@ class ReahlSystemFixture(Fixture):
 
     @set_up
     def init_database(self):
-        with self.context:
-            orm_control = self.config.reahlsystem.orm_control
-            for dependency in self.test_dependencies:
-                orm_control.instrument_classes_for(dependency)
-            if not self.system_control.is_in_memory:
-                self.system_control.initialise_database(yes=True)
-            self.system_control.connect()
+        self.context.install()
+        orm_control = self.config.reahlsystem.orm_control
+        for dependency in self.test_dependencies:
+            orm_control.instrument_classes_for(dependency)
+        if not self.system_control.is_in_memory:
+            self.system_control.initialise_database(yes=True)
+        self.system_control.connect()
 
     @tear_down
     def disconnect(self):
-        with self.context:
-            if self.system_control.connected:
-                self.system_control.disconnect()
+        self.context.install()
+        if self.system_control.connected:
+            self.system_control.disconnect()
 

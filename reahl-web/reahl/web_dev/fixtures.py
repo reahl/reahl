@@ -31,7 +31,8 @@ from reahl.webdeclarative.webdeclarative import UserSession, PersistedException,
 from reahl.domain.systemaccountmodel import LoginSession
 from reahl.component.i18n import Translator
 from reahl.component.py3compat import ascii_as_bytes_or_str
-from reahl.web.fw import ReahlWSGIApplication, WebExecutionContext, UrlBoundView, UserInterface, Url, Widget
+from reahl.component.context import ExecutionContext
+from reahl.web.fw import ReahlWSGIApplication, UrlBoundView, UserInterface, Url, Widget
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page
 from reahl.web.egg import WebConfig
@@ -61,7 +62,15 @@ class WebFixture(Fixture):
 
     @set_up
     def add_web_config(self):
+        self.context.install()
         self.config.web = self.webconfig
+
+    @set_up
+    def add_request_to_context(self):
+        self.context.install()
+        self.context.request = self.request
+#            with context:
+#                context.session = self.session
 
     @property
     def session(self):
@@ -75,15 +84,9 @@ class WebFixture(Fixture):
     def system_control(self):
         return self.sql_alchemy_fixture.system_control
 
-    def new_context(self, request=None, config=None, session=None):
-        with self.reahl_system_fixture.context:
-            context = WebExecutionContext()
-            context.set_config(config or self.config)
-            context.set_system_control(self.system_control)
-            context.set_request(request or self.request)
-            with context:
-                context.set_session(session or self.session)
-            return context
+    @property
+    def context(self):
+        return self.sql_alchemy_fixture.context
 
     def new_webconfig(self):
         web = WebConfig()
@@ -162,7 +165,7 @@ class WebFixture(Fixture):
         return Url(self.driver_browser.get_location())
 
     def new_view(self):
-        current_path = Url(WebExecutionContext.get_context().request.url).path
+        current_path = Url(ExecutionContext.get_context().request.url).path
         view = UrlBoundView(self.user_interface, current_path, 'A view', {})
         return view
 

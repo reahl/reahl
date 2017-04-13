@@ -35,24 +35,24 @@ class SqlAlchemyFixture(Fixture):
 
     @set_up
     def start_transaction(self):
-        with self.context:
-            if not self.commit:
-                # The tests run in a nested transaction inside a real transaction, and both are rolled back
-                # This is done because finalise_session (real code) is run as part of the test, and it
-                # checks for the nested transaction and behaves differently to make testing possible.
-                # Session.begin() - this happens implicitly
-                Session.begin_nested()
+        self.context.install()
+        if not self.commit:
+            # The tests run in a nested transaction inside a real transaction, and both are rolled back
+            # This is done because finalise_session (real code) is run as part of the test, and it
+            # checks for the nested transaction and behaves differently to make testing possible.
+            # Session.begin() - this happens implicitly
+            Session.begin_nested()
 
     @tear_down
     def finalise_transaction(self):
-        with self.context:
-            if not self.commit:
-                self.reahl_system_fixture.system_control.rollback()  # The nested one
-                self.reahl_system_fixture.system_control.rollback()  # The real transaction
-                self.reahl_system_fixture.system_control.finalise_session()  # To nuke the session, and commit (possibly nothing)
-            else:
-                self.reahl_system_fixture.system_control.commit()  # The nested one
-                self.reahl_system_fixture.system_control.commit()  # The real transaction
+        self.context.install()
+        if not self.commit:
+            self.reahl_system_fixture.system_control.rollback()  # The nested one
+            self.reahl_system_fixture.system_control.rollback()  # The real transaction
+            self.reahl_system_fixture.system_control.finalise_session()  # To nuke the session, and commit (possibly nothing)
+        else:
+            self.reahl_system_fixture.system_control.commit()  # The nested one
+            self.reahl_system_fixture.system_control.commit()  # The real transaction
 
     @contextmanager
     def persistent_test_classes(self, *entities):
@@ -90,11 +90,10 @@ class SqlAlchemyFixture(Fixture):
         return config
 
     def new_context(self, config=None, session=None):
-        with self.reahl_system_fixture.context:
-            context = ExecutionContext()
-            context.set_config(config or self.config)
-            context.set_system_control(self.system_control)
-            return context
+        context = ExecutionContext(parent_context=self.reahl_system_fixture.context)
+        context.config = config or self.config
+        context.system_control = self.system_control
+        return context
 
     @property
     def system_control(self):

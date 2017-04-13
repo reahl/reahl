@@ -42,22 +42,22 @@ def test_i18n_urls(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  I18nUI,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        browser.open('/a_ui/aview')
-        assert browser.title == 'A View'
+    browser.open('/a_ui/aview')
+    assert browser.title == 'A View'
 
-        browser.open('/af/a_ui/aview')
-        assert browser.title == '\'n Oogpunt'
+    browser.open('/af/a_ui/aview')
+    assert browser.title == '\'n Oogpunt'
 
-        web_fixture.context.config.web.default_url_locale = 'af'
-        browser.open('/a_ui/aview')
-        assert browser.title == '\'n Oogpunt'
+    web_fixture.context.config.web.default_url_locale = 'af'
+    browser.open('/a_ui/aview')
+    assert browser.title == '\'n Oogpunt'
 
-        browser.open('/en_gb/a_ui/aview')
-        assert browser.title == 'A View'
+    browser.open('/en_gb/a_ui/aview')
+    assert browser.title == 'A View'
 
 
 @with_fixtures(WebFixture)
@@ -65,13 +65,13 @@ def test_bookmarks(web_fixture):
     """Bookmarks normally refer to the current locale. You can override that to be a specified locale instead.
     """
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        bookmark = Bookmark('/base_path', '/relative_path', 'description')
-        af_bookmark = Bookmark('/base_path', '/relative_path', 'description', locale='af')
+    bookmark = Bookmark('/base_path', '/relative_path', 'description')
+    af_bookmark = Bookmark('/base_path', '/relative_path', 'description', locale='af')
 
-        assert af_bookmark.locale == 'af'
-        assert af_bookmark.href.path == '/af/base_path/relative_path'
+    assert af_bookmark.locale == 'af'
+    assert af_bookmark.href.path == '/af/base_path/relative_path'
 
-        assert bookmark.locale is None
-        assert bookmark.href.path == '/base_path/relative_path'
+    assert bookmark.locale is None
+    assert bookmark.href.path == '/base_path/relative_path'

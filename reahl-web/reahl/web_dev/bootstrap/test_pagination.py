@@ -1,3 +1,4 @@
+
 # Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
@@ -97,15 +98,15 @@ class PageMenuFixture(Fixture):
 @with_fixtures(WebFixture, PageMenuFixture)
 def test_selecting_a_page(web_fixture, page_menu_fixture):
     """Clicking the link of a page results in the contents of the PageContainer being refreshed."""
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        web_fixture.reahl_server.set_app(page_menu_fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(page_menu_fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 1')
-        browser.click(XPath.link_with_text('p2'))
-        browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
+    browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 1')
+    browser.click(XPath.link_with_text('p2'))
+    browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
 
 
 @with_fixtures(WebFixture, PageMenuFixture)
@@ -113,48 +114,48 @@ def test_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     """One can navigate the range of page links displayed by the PageMenu using the special links."""
 
     fixture = page_menu_fixture
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        fixture.number_of_pages = 30
-        fixture.max_page_links = 5
-        web_fixture.reahl_server.set_app(page_menu_fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    fixture.number_of_pages = 30
+    fixture.max_page_links = 5
+    web_fixture.reahl_server.set_app(page_menu_fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        # Case: next link
-        browser.click(XPath.link_starting_with_text('»'))
-        assert browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10')
-        browser.click(XPath.link_starting_with_text('»'))
-        assert browser.wait_for(fixture.page_range_links_match, 'p11,p12,p13,p14,p15')
+    # Case: next link
+    browser.click(XPath.link_starting_with_text('»'))
+    assert browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10')
+    browser.click(XPath.link_starting_with_text('»'))
+    assert browser.wait_for(fixture.page_range_links_match, 'p11,p12,p13,p14,p15')
 
-        # Case: prev link
-        browser.click(XPath.link_starting_with_text('«'))
-        assert browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10')
+    # Case: prev link
+    browser.click(XPath.link_starting_with_text('«'))
+    assert browser.wait_for(fixture.page_range_links_match, 'p6,p7,p8,p9,p10')
 
-        # Case: last link
-        browser.click(XPath.link_starting_with_text('→'))
-        assert browser.wait_for(fixture.page_range_links_match, 'p26,p27,p28,p29,p30')
+    # Case: last link
+    browser.click(XPath.link_starting_with_text('→'))
+    assert browser.wait_for(fixture.page_range_links_match, 'p26,p27,p28,p29,p30')
 
-        # Case: first link
-        browser.click(XPath.link_starting_with_text('←'))
-        assert browser.wait_for(fixture.page_range_links_match, 'p1,p2,p3,p4,p5')
+    # Case: first link
+    browser.click(XPath.link_starting_with_text('←'))
+    assert browser.wait_for(fixture.page_range_links_match, 'p1,p2,p3,p4,p5')
 
 
 @with_fixtures(WebFixture, PageMenuFixture)
 def test_contents_when_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     """When navigating the range of page links, the currently displayed contents stay unchanged."""
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        page_menu_fixture.number_of_pages = 30
-        page_menu_fixture.max_page_links = 5
-        web_fixture.reahl_server.set_app(page_menu_fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    page_menu_fixture.number_of_pages = 30
+    page_menu_fixture.max_page_links = 5
+    web_fixture.reahl_server.set_app(page_menu_fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        browser.click(XPath.link_with_text('p2'))
-        browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
-        browser.click(XPath.link_starting_with_text('»'))
-        browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
+    browser.click(XPath.link_with_text('p2'))
+    browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
+    browser.click(XPath.link_starting_with_text('»'))
+    browser.wait_for(page_menu_fixture.container_contents_is, 'contents of page 2')
 
 
 @with_fixtures(WebFixture, PageMenuFixture)
@@ -162,16 +163,17 @@ def test_active_state_of_page_links(web_fixture, page_menu_fixture):
     """When choosing a page, the new page link is marked as active, without a server round-trip."""
     fixture = page_menu_fixture
 
-    with web_fixture.context:
-        fixture.number_of_pages = 30
-        fixture.max_page_links = 5
-        web_fixture.reahl_server.set_app(fixture.wsgi_app)
-        web_fixture.driver_browser.open('/')
+    web_fixture.context.install()
 
-        with web_fixture.driver_browser.no_load_expected_for('.pagination>*'):
-            assert not fixture.is_marked_active('p2')
-            web_fixture.driver_browser.click(XPath.link_with_text('p2'))
-            web_fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2')
+    fixture.number_of_pages = 30
+    fixture.max_page_links = 5
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    with web_fixture.driver_browser.no_load_expected_for('.pagination>*'):
+        assert not fixture.is_marked_active('p2')
+        web_fixture.driver_browser.click(XPath.link_with_text('p2'))
+        web_fixture.driver_browser.wait_for(fixture.is_marked_active, 'p2')
 
 
 @with_fixtures(WebFixture, PageMenuFixture)
@@ -179,26 +181,26 @@ def test_active_state_on_multiple_menus(web_fixture, page_menu_fixture):
     """If there's more than one PageMenu on the page, the active page is switched for both of them"""
     fixture = page_menu_fixture
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        class MainWidget(Div):
-            def __init__(self, view):
-                super(MainWidget, self).__init__(view)
-                page_index = fixture.PageIndexStub(fixture.max_page_links, fixture.number_of_pages)
-                page_container = self.add_child(fixture.PageContainer(self.view, page_index))
-                self.add_child(PageMenu(self.view, 'page_menu_widget', page_index, page_container))
-                self.add_child(PageMenu(self.view, 'page_menu_widget2', page_index, page_container))
-        fixture.MainWidget = MainWidget
+    class MainWidget(Div):
+        def __init__(self, view):
+            super(MainWidget, self).__init__(view)
+            page_index = fixture.PageIndexStub(fixture.max_page_links, fixture.number_of_pages)
+            page_container = self.add_child(fixture.PageContainer(self.view, page_index))
+            self.add_child(PageMenu(self.view, 'page_menu_widget', page_index, page_container))
+            self.add_child(PageMenu(self.view, 'page_menu_widget2', page_index, page_container))
+    fixture.MainWidget = MainWidget
 
-        web_fixture.reahl_server.set_app(fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-        assert not fixture.is_marked_active('p2', nth=1)
-        assert not fixture.is_marked_active('p2', nth=2)
-        browser.click(XPath.link_with_text('p2'))
-        browser.wait_for(fixture.is_marked_active, 'p2', 1)
-        browser.wait_for(fixture.is_marked_active, 'p2', 2)
+    assert not fixture.is_marked_active('p2', nth=1)
+    assert not fixture.is_marked_active('p2', nth=2)
+    browser.click(XPath.link_with_text('p2'))
+    browser.wait_for(fixture.is_marked_active, 'p2', 1)
+    browser.wait_for(fixture.is_marked_active, 'p2', 2)
 
 
 @with_fixtures(WebFixture, PageMenuFixture)
@@ -207,34 +209,34 @@ def test_active_state_of_next_prev_links(web_fixture, page_menu_fixture):
        and Prev and First are similarly deactive when on the first range of pages."""
     fixture = page_menu_fixture
 
-    with web_fixture.context:
-        fixture.number_of_pages = 15
-        fixture.max_page_links = 5
-        web_fixture.reahl_server.set_app(fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        browser.open('/')
-    
-        # Case: when you are on the left of the page range
-        assert not browser.is_active(XPath.link_starting_with_text('←'))
-        assert not browser.is_active(XPath.link_starting_with_text('«'))
-        assert browser.is_active(XPath.link_starting_with_text('»'))
-        assert browser.is_active(XPath.link_starting_with_text('→'))
-    
-        # Case: when you are in the middle of the page range
-        browser.click(XPath.link_starting_with_text('»'))
-        browser.wait_for_element_present(XPath.link_with_text('p6'))
-        assert browser.is_active(XPath.link_starting_with_text('←'))
-        assert browser.is_active(XPath.link_starting_with_text('«'))
-        assert browser.is_active(XPath.link_starting_with_text('»'))
-        assert browser.is_active(XPath.link_starting_with_text('→'))
-    
-        # Case: when you are at the end of the page range
-        browser.click(XPath.link_starting_with_text('»'))
-        browser.wait_for_element_present(XPath.link_with_text('p11'))
-        assert browser.is_active(XPath.link_starting_with_text('←'))
-        assert browser.is_active(XPath.link_starting_with_text('«'))
-        assert not browser.is_active(XPath.link_starting_with_text('»'))
-        assert not browser.is_active(XPath.link_starting_with_text('→'))
+    web_fixture.context.install()
+    fixture.number_of_pages = 15
+    fixture.max_page_links = 5
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    # Case: when you are on the left of the page range
+    assert not browser.is_active(XPath.link_starting_with_text('←'))
+    assert not browser.is_active(XPath.link_starting_with_text('«'))
+    assert browser.is_active(XPath.link_starting_with_text('»'))
+    assert browser.is_active(XPath.link_starting_with_text('→'))
+
+    # Case: when you are in the middle of the page range
+    browser.click(XPath.link_starting_with_text('»'))
+    browser.wait_for_element_present(XPath.link_with_text('p6'))
+    assert browser.is_active(XPath.link_starting_with_text('←'))
+    assert browser.is_active(XPath.link_starting_with_text('«'))
+    assert browser.is_active(XPath.link_starting_with_text('»'))
+    assert browser.is_active(XPath.link_starting_with_text('→'))
+
+    # Case: when you are at the end of the page range
+    browser.click(XPath.link_starting_with_text('»'))
+    browser.wait_for_element_present(XPath.link_with_text('p11'))
+    assert browser.is_active(XPath.link_starting_with_text('←'))
+    assert browser.is_active(XPath.link_starting_with_text('«'))
+    assert not browser.is_active(XPath.link_starting_with_text('»'))
+    assert not browser.is_active(XPath.link_starting_with_text('→'))
 
 
 class LinkScenarios(PageMenuFixture):
@@ -284,17 +286,17 @@ def test_which_links_display(web_fixture, link_scenarios):
     """The menu displays the correct range of page links, depending on the starting page in the range, the
        total number of pages and the max number of links in a range"""
     fixture = link_scenarios
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(fixture.wsgi_app)
+    web_fixture.context.install()
+    web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
-        browser = web_fixture.driver_browser
-        browser.open('/')
-        assert browser.wait_for(fixture.page_range_links_match, fixture.visible_page_descriptions)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+    assert browser.wait_for(fixture.page_range_links_match, fixture.visible_page_descriptions)
 
-        if fixture.goto_last_range:
-            browser.click(XPath.link_starting_with_text('→'))
+    if fixture.goto_last_range:
+        browser.click(XPath.link_starting_with_text('→'))
 
-        assert browser.wait_for(fixture.page_range_links_match, fixture.visible_last_page_descriptions)
+    assert browser.wait_for(fixture.page_range_links_match, fixture.visible_last_page_descriptions)
 
 
 def test_annual_page_index():

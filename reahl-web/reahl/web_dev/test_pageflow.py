@@ -43,40 +43,41 @@ class FormWithButton(Form):
 def test_basic_transition(web_fixture):
     """Transitions express how the browser is ferried between Views in reaction to user-initiated Events."""
     fixture  = web_fixture
-    with web_fixture.context:
-        def do_something():
-            fixture.did_something = True
+    web_fixture.context.install()
 
-        class UIWithTwoViews(UserInterface):
-            def assemble(self):
-                event = Event(label='Click me', action=Action(do_something))
-                event.bind('anevent', None)
-                slot_definitions = {'main': FormWithButton.factory(event)}
-                viewa = self.define_view('/viewa', title='View a', slot_definitions=slot_definitions)
-                viewb = self.define_view('/viewb', title='View b', slot_definitions=slot_definitions)
-                self.define_transition(event, viewa, viewb)
+    def do_something():
+        fixture.did_something = True
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
-                self.define_user_interface('/a_ui',  UIWithTwoViews,  IdentityDictionary(), name='test_ui')
+    class UIWithTwoViews(UserInterface):
+        def assemble(self):
+            event = Event(label='Click me', action=Action(do_something))
+            event.bind('anevent', None)
+            slot_definitions = {'main': FormWithButton.factory(event)}
+            viewa = self.define_view('/viewa', title='View a', slot_definitions=slot_definitions)
+            viewb = self.define_view('/viewb', title='View b', slot_definitions=slot_definitions)
+            self.define_transition(event, viewa, viewb)
 
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_user_interface('/a_ui',  UIWithTwoViews,  IdentityDictionary(), name='test_ui')
 
-        # The transition works from viewa
-        fixture.did_something = False
-        browser.open('/a_ui/viewa')
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    # The transition works from viewa
+    fixture.did_something = False
+    browser.open('/a_ui/viewa')
+    browser.click('//input[@value="Click me"]')
+    assert browser.location_path == '/a_ui/viewb'
+    assert fixture.did_something
+
+    # The transition does not work from viewb
+    fixture.did_something = False
+    browser.open('/a_ui/viewb')
+    with expected(ProgrammerError):
         browser.click('//input[@value="Click me"]')
-        assert browser.location_path == '/a_ui/viewb'
-        assert fixture.did_something
-
-        # The transition does not work from viewb
-        fixture.did_something = False
-        browser.open('/a_ui/viewb')
-        with expected(ProgrammerError):
-            browser.click('//input[@value="Click me"]')
-        assert not fixture.did_something
+    assert not fixture.did_something
 
 
 @with_fixtures(WebFixture)
@@ -104,21 +105,22 @@ def test_guards(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        # The transition with True guard is the one followed
-        fixture.guard_value = True
-        browser.open('/a_ui/viewa')
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    # The transition with True guard is the one followed
+    fixture.guard_value = True
+    browser.open('/a_ui/viewa')
+    browser.click('//input[@value="Click me"]')
+    assert browser.location_path == '/a_ui/viewc'
+
+    # If there is no Transition with a True guard, fail
+    fixture.guard_value = False
+    browser.open('/a_ui/viewa')
+    with expected(ProgrammerError):
         browser.click('//input[@value="Click me"]')
-        assert browser.location_path == '/a_ui/viewc'
-
-        # If there is no Transition with a True guard, fail
-        fixture.guard_value = False
-        browser.open('/a_ui/viewa')
-        with expected(ProgrammerError):
-            browser.click('//input[@value="Click me"]')
 
 
 @with_fixtures(WebFixture)
@@ -144,22 +146,23 @@ def test_local_transition(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithAView,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        # The transition works from viewa
-        fixture.did_something = False
-        browser.open('/a_ui/viewa')
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    # The transition works from viewa
+    fixture.did_something = False
+    browser.open('/a_ui/viewa')
+    browser.click('//input[@value="Click me"]')
+    assert browser.location_path == '/a_ui/viewa'
+    assert fixture.did_something
+
+    # But it is also guarded
+    fixture.guard_passes = False
+    browser.open('/a_ui/viewa')
+    with expected(ProgrammerError):
         browser.click('//input[@value="Click me"]')
-        assert browser.location_path == '/a_ui/viewa'
-        assert fixture.did_something
-
-        # But it is also guarded
-        fixture.guard_passes = False
-        browser.open('/a_ui/viewa')
-        with expected(ProgrammerError):
-            browser.click('//input[@value="Click me"]')
 
 
 @with_fixtures(WebFixture)
@@ -199,14 +202,15 @@ def test_transitions_to_parameterised_views(web_fixture):
 
             self.define_transition(model_object.events.an_event, home, other_view)
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        web_fixture.reahl_server.set_app(wsgi_app)
-        web_fixture.driver_browser.open('/')
+    web_fixture.context.install()
 
-        # when the Action is executed, the correct arguments are passed to the View
-        web_fixture.driver_browser.click("//input[@value='click me']")
-        assert web_fixture.driver_browser.title == 'View with event_argument1: 1%s and view_argument: 3%s' % (type(1), type(3))
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    # when the Action is executed, the correct arguments are passed to the View
+    web_fixture.driver_browser.click("//input[@value='click me']")
+    assert web_fixture.driver_browser.title == 'View with event_argument1: 1%s and view_argument: 3%s' % (type(1), type(3))
 
 
 @with_fixtures(WebFixture)
@@ -242,13 +246,14 @@ def test_transitions_to_parameterised_views_error(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/a_ui/static')
-        with expected(ProgrammerError):
-            browser.click(XPath.button_labelled('Click me'))
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/a_ui/static')
+    with expected(ProgrammerError):
+        browser.click(XPath.button_labelled('Click me'))
 
 
 @with_fixtures(WebFixture)
@@ -268,14 +273,15 @@ def test_view_preconditions(web_fixture):
             view.add_precondition(passing_precondition)
             view.add_precondition(failing_precondition)
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        with expected(SomeException):
-            browser.open('/')
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        browser.post('/_the_form', {}, status=404)
+    with expected(SomeException):
+        browser.open('/')
+
+    browser.post('/_the_form', {}, status=404)
 
 
 @with_fixtures(WebFixture)
@@ -292,12 +298,13 @@ def test_inverse_view_preconditions(web_fixture):
             failing_precondition = passing_precondition.negated(exception=SomeException)
             view.add_precondition(failing_precondition)
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
-    
-        with expected(SomeException):
-            browser.open('/')
+    web_fixture.context.install()
+
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    with expected(SomeException):
+        browser.open('/')
 
 
 @with_fixtures(WebFixture)
@@ -315,12 +322,13 @@ def test_redirect(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithRedirect,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/a_ui/viewa')
-        assert browser.location_path == '/a_ui/viewb'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/a_ui/viewa')
+    assert browser.location_path == '/a_ui/viewb'
 
 
 @with_fixtures(WebFixture)
@@ -350,24 +358,25 @@ def test_detours_and_return_transitions(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
-        fixture.did_something = False
+    web_fixture.context.install()
 
-        fixture.make_precondition_pass = False
-        browser.open('/a_ui/viewa')
-        assert browser.location_path == '/a_ui/firstStepOfDetour'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+    fixture.did_something = False
 
-        browser.click('//input[@type="submit"]')
-        assert browser.location_path == '/a_ui/lastStepOfDetour'
+    fixture.make_precondition_pass = False
+    browser.open('/a_ui/viewa')
+    assert browser.location_path == '/a_ui/firstStepOfDetour'
 
-        fixture.make_precondition_pass = True
-        browser.click('//input[@type="submit"]')
-        assert browser.location_path == '/a_ui/viewa'
+    browser.click('//input[@type="submit"]')
+    assert browser.location_path == '/a_ui/lastStepOfDetour'
 
-        # The query string is cleared after such a return (it is used to remember where to return to)
-        assert browser.location_query_string == ''
+    fixture.make_precondition_pass = True
+    browser.click('//input[@type="submit"]')
+    assert browser.location_path == '/a_ui/viewa'
+
+    # The query string is cleared after such a return (it is used to remember where to return to)
+    assert browser.location_query_string == ''
 
 
 @with_fixtures(WebFixture)
@@ -392,18 +401,19 @@ def test_detours_and_explicit_return_view(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/a_ui/viewa')
-        assert browser.location_path == '/a_ui/detour'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        browser.click('//input[@type="submit"]')
-        assert browser.location_path == '/a_ui/explicitReturnView'
+    browser.open('/a_ui/viewa')
+    assert browser.location_path == '/a_ui/detour'
 
-        # The query string is cleared after such a return (it is used to remember where to return to)
-        assert browser.location_query_string == ''
+    browser.click('//input[@type="submit"]')
+    assert browser.location_path == '/a_ui/explicitReturnView'
+
+    # The query string is cleared after such a return (it is used to remember where to return to)
+    assert browser.location_query_string == ''
 
 
 @with_fixtures(WebFixture)
@@ -426,23 +436,24 @@ def test_redirect_used_to_return(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        # Normal operation - when a caller can be determined
-        browser.open('/a_ui/viewa')
-        assert browser.location_path == '/a_ui/explicitReturnView'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        #  - the query string is cleared after such a return (it is used to remember where to return to)
-        assert browser.location_query_string == ''
+    # Normal operation - when a caller can be determined
+    browser.open('/a_ui/viewa')
+    assert browser.location_path == '/a_ui/explicitReturnView'
 
-        # When a caller cannot be determined, the default is used
-        browser.open('/a_ui/detour')
-        assert browser.location_path == '/a_ui/defaultReturnView'
+    #  - the query string is cleared after such a return (it is used to remember where to return to)
+    assert browser.location_query_string == ''
 
-        #  - the query string is cleared after such a return (it is used to remember where to return to)
-        assert browser.location_query_string == ''
+    # When a caller cannot be determined, the default is used
+    browser.open('/a_ui/detour')
+    assert browser.location_path == '/a_ui/defaultReturnView'
+
+    #  - the query string is cleared after such a return (it is used to remember where to return to)
+    assert browser.location_query_string == ''
 
 
 @with_fixtures(WebFixture)
@@ -459,12 +470,13 @@ def test_unconditional_redirection(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithRedirect,  IdentityDictionary(), name='test_ui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/a_ui/redirected')
-        assert browser.location_path == '/a_ui/target'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/a_ui/redirected')
+    assert browser.location_path == '/a_ui/target'
 
 
 @with_fixtures(WebFixture)
@@ -499,22 +511,23 @@ def test_linking_to_views_marked_as_detour(web_fixture):
             bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
             self.define_user_interface('/uiWithLink',  UIWithLink,  IdentityDictionary(), name='first_ui', bookmark=bookmark)
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/uiWithLink/initial')
-        browser.click('//a')
-        assert browser.location_path == '/uiWithDetour/firstStepOfDetour'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        browser.click('//input[@type="submit"]')
-        assert browser.location_path == '/uiWithDetour/lastStepOfDetour'
+    browser.open('/uiWithLink/initial')
+    browser.click('//a')
+    assert browser.location_path == '/uiWithDetour/firstStepOfDetour'
 
-        browser.click('//input[@type="submit"]')
-        assert browser.location_path == '/uiWithLink/initial'
+    browser.click('//input[@type="submit"]')
+    assert browser.location_path == '/uiWithDetour/lastStepOfDetour'
 
-        # The query string is cleared after such a return (it is used to remember where to return to)
-        assert browser.location_query_string == ''
+    browser.click('//input[@type="submit"]')
+    assert browser.location_path == '/uiWithLink/initial'
+
+    # The query string is cleared after such a return (it is used to remember where to return to)
+    assert browser.location_query_string == ''
 
 
 @with_fixtures(WebFixture)
@@ -533,18 +546,19 @@ def test_detour_is_non_reentrant(web_fixture):
             home = self.define_view('/initial', title='View a')
             home.set_slot('main', A.factory_from_bookmark(step1.as_bookmark(self)))
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        def locationIsSetToReturnTo(url_path):
-            return urllib_parse.parse_qs(browser.location_query_string)['returnTo'] == [url_path]
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        browser.open('/initial')
-        browser.click(XPath.link_with_text('Step 1'))
-        assert browser.location_path == '/firstStepOfDetour'
-        assert locationIsSetToReturnTo('http://localhost/initial')
+    def locationIsSetToReturnTo(url_path):
+        return urllib_parse.parse_qs(browser.location_query_string)['returnTo'] == [url_path]
 
-        browser.click(XPath.link_with_text('Step 1'))
-        assert browser.location_path == '/firstStepOfDetour'
-        assert locationIsSetToReturnTo('http://localhost/initial')
+    browser.open('/initial')
+    browser.click(XPath.link_with_text('Step 1'))
+    assert browser.location_path == '/firstStepOfDetour'
+    assert locationIsSetToReturnTo('http://localhost/initial')
+
+    browser.click(XPath.link_with_text('Step 1'))
+    assert browser.location_path == '/firstStepOfDetour'
+    assert locationIsSetToReturnTo('http://localhost/initial')

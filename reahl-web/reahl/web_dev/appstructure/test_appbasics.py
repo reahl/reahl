@@ -98,34 +98,35 @@ def test_basic_assembly(web_fixture, basic_scenarios):
     can happen in different ways, as illustrated by each scenario of this test.
     """
     fixture = basic_scenarios
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        # GETting the URL results in the HTML for that View
-        with warnings.catch_warnings(record=True) as caught_warnings:
-            warnings.simplefilter('always')
-            browser.open('/')
-            assert browser.title == 'Hello'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
+    browser = Browser(wsgi_app)
 
-        warning_messages = [six.text_type(i.message) for i in caught_warnings]
-        assert len(warning_messages) == len(fixture.expected_warnings)
-        for caught, expected_message in zip_longest(warning_messages, fixture.expected_warnings):
-            assert expected_message in caught
+    # GETting the URL results in the HTML for that View
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        warnings.simplefilter('always')
+        browser.open('/')
+        assert browser.title == 'Hello'
 
-        if fixture.content_includes_p:
-            [message] = browser.xpath('//p')
-            assert message.text == 'Hello world!'
+    warning_messages = [six.text_type(i.message) for i in caught_warnings]
+    assert len(warning_messages) == len(fixture.expected_warnings)
+    for caught, expected_message in zip_longest(warning_messages, fixture.expected_warnings):
+        assert expected_message in caught
 
-        # The headers are set correctly
-        response = browser.last_response
-        assert response.content_length == fixture.expected_content_length
-        assert response.content_type == 'text/html'
-        assert response.charset == 'utf-8'
+    if fixture.content_includes_p:
+        [message] = browser.xpath('//p')
+        assert message.text == 'Hello world!'
 
-        # Invalid URLs do not exist
-        with warnings.catch_warnings(record=True):
-            browser.open('/nonexistantview/', status=404)
+    # The headers are set correctly
+    response = browser.last_response
+    assert response.content_length == fixture.expected_content_length
+    assert response.content_type == 'text/html'
+    assert response.charset == 'utf-8'
+
+    # Invalid URLs do not exist
+    with warnings.catch_warnings(record=True):
+        browser.open('/nonexistantview/', status=404)
 
 
 @with_fixtures(WebFixture)
@@ -137,12 +138,13 @@ def test_basic_error1(web_fixture):
             self.define_view('/', title='Hello')
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        with expected(IsSubclass):
-            browser.open('/')
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    with expected(IsSubclass):
+        browser.open('/')
 
 
 @with_fixtures(WebFixture)
@@ -155,15 +157,16 @@ def test_basic_error2(web_fixture):
             self.define_view('/', title='Hello')
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        def check_exc(ex):
-            msg = six.text_type(ex)
-            assert msg.startswith('define_page was called with arguments that do not match those expected by')
-        with expected(IncorrectArgumentError, test=check_exc):
-            browser.open('/')
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    def check_exc(ex):
+        msg = six.text_type(ex)
+        assert msg.startswith('define_page was called with arguments that do not match those expected by')
+    with expected(IncorrectArgumentError, test=check_exc):
+        browser.open('/')
 
 
 @with_fixtures(WebFixture)
@@ -174,15 +177,16 @@ def test_basic_error3(web_fixture):
             self.define_view('/', title='Hello')
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        def check_exc(ex):
-            msg = six.text_type(ex)
-            assert msg == 'there is no page defined for /'
-        with expected(ProgrammerError, test=check_exc):
-            browser.open('/')
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    def check_exc(ex):
+        msg = six.text_type(ex)
+        assert msg == 'there is no page defined for /'
+    with expected(ProgrammerError, test=check_exc):
+        browser.open('/')
 
 
 @uses(web_fixture=WebFixture)
@@ -217,15 +221,16 @@ class SlotScenarios(Fixture):
 def test_slots(web_fixture, slot_scenarios):
     """A View modifies the page by populating named Slots in the page with Widgets."""
     fixture = slot_scenarios
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/')
-        assert browser.title == 'Hello'
-        [main_p, footer_p] = browser.xpath('//p')
-        assert main_p.text == 'Hello world'
-        assert footer_p.text == 'I am the footer'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/')
+    assert browser.title == 'Hello'
+    [main_p, footer_p] = browser.xpath('//p')
+    assert main_p.text == 'Hello world'
+    assert footer_p.text == 'I am the footer'
 
 
 @with_fixtures(WebFixture)
@@ -239,15 +244,16 @@ def test_slot_error(web_fixture):
             home.set_slot('nonexistantslotname', P.factory(text='I am breaking'))
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        def check_exc(ex):
-            assert six.text_type(ex).startswith('An attempt was made to plug Widgets into the following slots that do not exist')
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        with expected(ProgrammerError, test=check_exc):
-            browser.open('/')
+    def check_exc(ex):
+        assert six.text_type(ex).startswith('An attempt was made to plug Widgets into the following slots that do not exist')
+
+    with expected(ProgrammerError, test=check_exc):
+        browser.open('/')
 
 
 @with_fixtures(WebFixture)
@@ -262,17 +268,18 @@ def test_slot_defaults(web_fixture):
             self.define_view('/', title='Hello')
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/')
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        # The default widget for the main slot is used
-        [p] = browser.xpath('//p')
-        assert p.text == 'defaulted slot contents'
+    browser.open('/')
 
-        # The header slot has no default, and is thus left empty
-        header_contents = browser.xpath('//header/*')
-        assert not header_contents
+    # The default widget for the main slot is used
+    [p] = browser.xpath('//p')
+    assert p.text == 'defaulted slot contents'
+
+    # The header slot has no default, and is thus left empty
+    header_contents = browser.xpath('//header/*')
+    assert not header_contents
 

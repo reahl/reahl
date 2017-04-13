@@ -88,22 +88,23 @@ def test_session_secure_state(web_fixture, secure_scenarios):
     """The session is only secured when used over https, the secure cookie is set correctly,
        and the last interaction is within idle_secure_lifetime"""
     fixture = secure_scenarios
-    with web_fixture.context:
-        user_session = web_fixture.context.session
-        config = web_fixture.config
-        context = web_fixture.context
-        assert config.web.idle_secure_lifetime < config.web.idle_lifetime
-        assert config.web.idle_lifetime < config.web.idle_lifetime_max
+    web_fixture.context.install()
 
-        web_fixture.request.scheme = fixture.scheme
-        user_session.last_activity = fixture.last_activity
-        context.request.cookies[context.config.web.secure_key_name] = fixture.secure_cookie
-        assert user_session.is_secured() is fixture.expect_secure
+    user_session = web_fixture.context.session
+    config = web_fixture.config
+    context = web_fixture.context
+    assert config.web.idle_secure_lifetime < config.web.idle_lifetime
+    assert config.web.idle_lifetime < config.web.idle_lifetime_max
+
+    web_fixture.request.scheme = fixture.scheme
+    user_session.last_activity = fixture.last_activity
+    context.request.cookies[context.config.web.secure_key_name] = fixture.secure_cookie
+    assert user_session.is_secured() is fixture.expect_secure
 
 
 @with_fixtures(SqlAlchemyFixture, WebFixture)
 def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
-    """How WebExecutionContext sets session and secure cookies in the response."""
+    """How UserSession sets session and secure cookies in the response."""
     fixture = web_fixture
     @stubclass(UserSession)
     class UserSessionStub(UserSession):
@@ -115,7 +116,8 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         def is_secured(self):
             return self.secured
 
-    with web_fixture.context, sql_alchemy_fixture.persistent_test_classes(UserSessionStub):
+    web_fixture.context.install()
+    with sql_alchemy_fixture.persistent_test_classes(UserSessionStub):
         user_session = UserSessionStub()
 
         class ResponseStub(Response):
@@ -161,93 +163,96 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
 @with_fixtures(WebFixture)
 def test_reading_cookies_on_initialising_a_session(web_fixture):
     fixture = web_fixture
-    with web_fixture.context:
-        # Case: session cookie not set in Request
-        fixture.context.initialise_web_session()
-        assert not fixture.context.session.is_active()
-        assert not fixture.context.session.is_secured()
+    web_fixture.context.install()
 
-        # Case: session cookie set in Request
-        fixture.context.set_session(None)
-        user_session = UserSession()
-        user_session.set_last_activity_time()
-        Session.add(user_session)
+    # Case: session cookie not set in Request
+    UserSession.initialise_web_session_on(fixture.context)
+    assert not fixture.context.session.is_active()
+    assert not fixture.context.session.is_secured()
 
-        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % user_session.as_key())
-        fixture.context.initialise_web_session()
+    # Case: session cookie set in Request
+    fixture.context.session = None
+    user_session = UserSession()
+    user_session.set_last_activity_time()
+    Session.add(user_session)
 
-        assert fixture.context.session is user_session
-        assert fixture.context.session.is_active()
-        assert not fixture.context.session.is_secured()
+    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % user_session.as_key())
+    UserSession.initialise_web_session_on(fixture.context)
 
-        # Case: session cookie set, secure cookie also set in Request, https
-        fixture.request.scheme = 'https'
-        fixture.context.set_session(None)
-        user_session = UserSession()
-        user_session.set_last_activity_time()
-        Session.add(user_session)
+    assert fixture.context.session is user_session
+    assert fixture.context.session.is_active()
+    assert not fixture.context.session.is_secured()
 
-        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                            (user_session.as_key(), user_session.secure_salt))
-        fixture.context.initialise_web_session()
+    # Case: session cookie set, secure cookie also set in Request, https
+    fixture.request.scheme = 'https'
+    fixture.context.session = None
+    user_session = UserSession()
+    user_session.set_last_activity_time()
+    Session.add(user_session)
 
-        assert fixture.context.session is user_session
-        assert fixture.context.session.is_active()
-        assert fixture.context.session.is_secured()
+    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt))
+    UserSession.initialise_web_session_on(fixture.context)
 
-        # Case: session cookie set, secure cookie also set in Request, http
-        fixture.request.scheme = 'http'
-        fixture.context.set_session(None)
-        user_session = UserSession()
-        user_session.set_last_activity_time()
-        Session.add(user_session)
-        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                            (user_session.as_key(), user_session.secure_salt))
+    assert fixture.context.session is user_session
+    assert fixture.context.session.is_active()
+    assert fixture.context.session.is_secured()
 
-        fixture.context.initialise_web_session()
+    # Case: session cookie set, secure cookie also set in Request, http
+    fixture.request.scheme = 'http'
+    fixture.context.session = None
+    user_session = UserSession()
+    user_session.set_last_activity_time()
+    Session.add(user_session)
+    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt))
 
-        assert fixture.context.session is user_session
-        assert fixture.context.session.is_active()
-        assert not fixture.context.session.is_secured()
+    UserSession.initialise_web_session_on(fixture.context)
+
+    assert fixture.context.session is user_session
+    assert fixture.context.session.is_active()
+    assert not fixture.context.session.is_secured()
 
 
 @with_fixtures(WebFixture)
 def test_session_data_disappears_when_session_does(web_fixture):
     """When a UserSession is deleted, all associated SessionData disappear as well."""
     fixture = web_fixture
-    with web_fixture.context:
-        fixture.context.initialise_web_session()
-        user_session = fixture.context.session
-        ui_name = 'user_interface'
-        channel_name = 'channel'
+    web_fixture.context.install()
 
-        session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
-        Session.add(session_data)
-        Session.flush()
+    UserSession.initialise_web_session_on(fixture.context)
+    user_session = fixture.context.session
+    ui_name = 'user_interface'
+    channel_name = 'channel'
 
-        Session.delete(user_session)
+    session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
+    Session.add(session_data)
+    Session.flush()
 
-        assert Session.query(SessionData).filter_by(id=session_data.id).count() == 0
-        assert Session.query(UserSession).filter_by(id=user_session.id).count() == 0
+    Session.delete(user_session)
+
+    assert Session.query(SessionData).filter_by(id=session_data.id).count() == 0
+    assert Session.query(UserSession).filter_by(id=user_session.id).count() == 0
 
 
 @with_fixtures(WebFixture)
 def test_session_keeps_living(web_fixture):
     """When SessionData is deleted, the associated UserSession is not affected."""
     fixture = web_fixture
-    with web_fixture.context:
-        fixture.context.initialise_web_session()
-        user_session = fixture.context.session
-        ui_name = 'user_interface'
-        channel_name = 'channel'
+    web_fixture.context.install()
 
-        session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
-        Session.add(session_data)
-        Session.flush()
+    UserSession.initialise_web_session_on(fixture.context)
+    user_session = fixture.context.session
+    ui_name = 'user_interface'
+    channel_name = 'channel'
 
-        Session.delete(session_data)
+    session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
+    Session.add(session_data)
+    Session.flush()
 
-        assert Session.query(SessionData).filter_by(id=session_data.id).count() == 0
-        assert Session.query(UserSession).filter_by(id=user_session.id).one() is user_session
+    Session.delete(session_data)
+
+    assert Session.query(SessionData).filter_by(id=session_data.id).count() == 0
+    assert Session.query(UserSession).filter_by(id=user_session.id).one() is user_session
 
 

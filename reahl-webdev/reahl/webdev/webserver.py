@@ -462,17 +462,17 @@ class ReahlWebServer(object):
 
 
     def main_loop(self, context):
-        with context:
-            while self.running:
-                try:
-                    self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
-                    self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
-                except:  
-                    # When running as a standalone server, we keep the server running, but else break so tests break
-                    if self.in_separate_thread and self.running:
-                        print(traceback.format_exc(), file=sys.stderr)
-                    else:
-                        raise
+        context.install()
+        while self.running:
+            try:
+                self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
+                self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
+            except:  
+                # When running as a standalone server, we keep the server running, but else break so tests break
+                if self.in_separate_thread and self.running:
+                    print(traceback.format_exc(), file=sys.stderr)
+                else:
+                    raise
 
     def start_thread(self):
         assert not self.running

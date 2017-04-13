@@ -10,7 +10,7 @@ class SimpleFixture(Fixture):
 
 
 @with_fixtures(SimpleFixture)
-def fixture_singletons(fixture):
+def test_fixture_singletons(fixture):
     """Accessing an attribute on the Fixture always brings back the same 
        object, as created by a similarly named new_ method on the fixture."""
 
@@ -31,7 +31,7 @@ class InterestingFixture(SimpleFixture):
 
 
 @with_fixtures(InterestingFixture)
-def dependent_setup_objects(fixture):
+def test_dependent_setup_objects(fixture):
     """Different attributes on a Fixture can reference one another."""
     assert fixture.user.name is fixture.name
 
@@ -44,7 +44,7 @@ class MoreInterestingFixture(SimpleFixture):
 
 
 @with_fixtures(MoreInterestingFixture)
-def bypassing_the_singleton(fixture):
+def test_bypassing_the_singleton(fixture):
     """new_ methods can be supplied with kwargs in order to create test objects that differ from the default."""
     jane = fixture.new_user(name='Jane')
     assert jane.name == 'Jane'

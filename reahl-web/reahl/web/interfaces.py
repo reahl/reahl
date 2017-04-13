@@ -68,6 +68,11 @@ class UserSessionProtocol(object):
            to the response (such as setting a cookie with the ID of the current session).
         """
 
+    @classmethod
+    @abstractmethod
+    def initialise_web_session_on(cls, context):
+        """TODO"""
+        
 
 @six.add_metaclass(ABCMeta)
 class SessionDataProtocol(object):

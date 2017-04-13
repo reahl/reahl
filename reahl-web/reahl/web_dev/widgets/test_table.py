@@ -80,25 +80,26 @@ def test_table_basics(web_fixture, table_fixture):
             self.add_child(table)
 
     fixture = table_fixture
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
-        web_fixture.reahl_server.set_app(wsgi_app)
-        web_fixture.driver_browser.open('/')
+    web_fixture.context.install()
 
-        # The table has a caption and summary
-        assert fixture.table_caption_is('All my friends')
-        assert fixture.table_summary_is('Summary for screen reader')
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
 
-        # Column headings are derived from given Column Fields
-        assert fixture.table_column_name_is(1, 'Row Number')
-        assert fixture.table_column_name_is(2, 'Alpha')
+    # The table has a caption and summary
+    assert fixture.table_caption_is('All my friends')
+    assert fixture.table_summary_is('Summary for screen reader')
 
-        # A string representation of the value of each Field of a given data item is shown in the appropriate cell
-        assert fixture.table_number_rows() == 3
+    # Column headings are derived from given Column Fields
+    assert fixture.table_column_name_is(1, 'Row Number')
+    assert fixture.table_column_name_is(2, 'Alpha')
 
-        assert fixture.get_table_row(1) == ['1', 'T']
-        assert fixture.get_table_row(2) == ['2', 'H']
-        assert fixture.get_table_row(3) == ['3', 'E']
+    # A string representation of the value of each Field of a given data item is shown in the appropriate cell
+    assert fixture.table_number_rows() == 3
+
+    assert fixture.get_table_row(1) == ['1', 'T']
+    assert fixture.get_table_row(2) == ['2', 'H']
+    assert fixture.get_table_row(3) == ['3', 'E']
 
 
 @uses(web_fixture=WebFixture)
@@ -147,28 +148,30 @@ def test_different_kinds_of_columns(web_fixture, column_scenarios):
     """There are different kinds of Columns, allowing different levels of flexibility for defining a Table"""
 
     fixture = column_scenarios
-    with web_fixture.context:
-        assert fixture.column.sort_key is fixture.sort_key
+    web_fixture.context.install()
 
-        # The heading
-        widget_for_heading = fixture.column.heading_as_widget(web_fixture.view)
-        actual = WidgetTester(widget_for_heading).render_html()
+    assert fixture.column.sort_key is fixture.sort_key
 
-        assert actual == fixture.expected_heading_html
+    # The heading
+    widget_for_heading = fixture.column.heading_as_widget(web_fixture.view)
+    actual = WidgetTester(widget_for_heading).render_html()
 
-        # A cell
-        widget_for_cell = fixture.column.as_widget(web_fixture.view, fixture.row_item)
-        actual = WidgetTester(widget_for_cell).render_html()
+    assert actual == fixture.expected_heading_html
 
-        assert actual == fixture.expected_cell_html
+    # A cell
+    widget_for_cell = fixture.column.as_widget(web_fixture.view, fixture.row_item)
+    actual = WidgetTester(widget_for_cell).render_html()
+
+    assert actual == fixture.expected_cell_html
 
 
 @with_fixtures(WebFixture)
 def test_table_thead(web_fixture):
     """Table can find its Thead element"""
 
-    with web_fixture.context:
-        table = Table(web_fixture.view)
-        thead = table.add_child(Thead(web_fixture.view))
+    web_fixture.context.install()
 
-        assert table.thead is thead
+    table = Table(web_fixture.view)
+    thead = table.add_child(Thead(web_fixture.view))
+
+    assert table.thead is thead

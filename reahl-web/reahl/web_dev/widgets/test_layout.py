@@ -45,22 +45,23 @@ def test_widget_layout(web_fixture):
             return child
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget_with_layout = Div(fixture.view)
+    web_fixture.context.install()
 
-        assert not widget_with_layout.has_attribute('class')
-        assert not widget_with_layout.children
+    widget_with_layout = Div(fixture.view)
 
-        widget_with_layout.use_layout(MyLayout())
+    assert not widget_with_layout.has_attribute('class')
+    assert not widget_with_layout.children
 
-        assert widget_with_layout.get_attribute('class') == 'class-added-by-custom-layout'
-        assert not widget_with_layout.children
+    widget_with_layout.use_layout(MyLayout())
 
-        widget_to_add = P(fixture.view)
-        widget_with_layout.layout.add_wrapped(widget_to_add)
+    assert widget_with_layout.get_attribute('class') == 'class-added-by-custom-layout'
+    assert not widget_with_layout.children
 
-        [wrapper] = widget_with_layout.children
-        assert wrapper.children == [widget_to_add]
+    widget_to_add = P(fixture.view)
+    widget_with_layout.layout.add_wrapped(widget_to_add)
+
+    [wrapper] = widget_with_layout.children
+    assert wrapper.children == [widget_to_add]
 
     
 @with_fixtures(WebFixture)
@@ -68,16 +69,17 @@ def test_widget_layout_errors(web_fixture):
     """A Layout can only be used with a single Widget, and a Widget can only have a single Layout."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget_with_layout = Div(fixture.view).use_layout(Layout())
+    web_fixture.context.install()
 
-        with expected(ProgrammerError):
-            widget_with_layout.use_layout(Layout())
+    widget_with_layout = Div(fixture.view).use_layout(Layout())
 
-        re_used_layout = Layout()
-        widget_with_reused_layout = Div(fixture.view).use_layout(re_used_layout)
-        with expected(ProgrammerError):
-            Div(fixture.view).use_layout(re_used_layout)
+    with expected(ProgrammerError):
+        widget_with_layout.use_layout(Layout())
+
+    re_used_layout = Layout()
+    widget_with_reused_layout = Div(fixture.view).use_layout(re_used_layout)
+    with expected(ProgrammerError):
+        Div(fixture.view).use_layout(re_used_layout)
 
 
 @uses(web_fixture=WebFixture)
@@ -130,13 +132,14 @@ def test_widget_factory_creates_widget_with_layout(web_fixture, widget_creation_
             self.define_view('/', title='Hello', page=HTML5Page.factory(use_layout=layout_for_widget))
 
     fixture = widget_creation_scenarios
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/')
-        [p] = browser.lxml_html.xpath('//p')
-        assert p.text == 'This widget is using Mylayout'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/')
+    [p] = browser.lxml_html.xpath('//p')
+    assert p.text == 'This widget is using Mylayout'
 
 
 def test_responsive_size():
@@ -156,17 +159,18 @@ def test_column_layout_basics(web_fixture):
     """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Div."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        layout = ColumnLayout('column_a', 'column_b')
-        widget = Div(fixture.view)
+    web_fixture.context.install()
 
-        assert not widget.children
+    layout = ColumnLayout('column_a', 'column_b')
+    widget = Div(fixture.view)
 
-        widget.use_layout(layout)
+    assert not widget.children
 
-        column_a, column_b = widget.children
-        assert isinstance(column_a, Div)
-        assert isinstance(column_b, Div)
+    widget.use_layout(layout)
+
+    column_a, column_b = widget.children
+    assert isinstance(column_a, Div)
+    assert isinstance(column_b, Div)
 
 
 @with_fixtures(WebFixture)
@@ -182,13 +186,14 @@ def test_column_layout_sizes(web_fixture):
             fixture.added_sizes.append(size)
             return super(ColumnLayoutStub, self).add_column(size)
 
-    with web_fixture.context:
-        specified_size = EmptyStub()
-        widget = Div(fixture.view).use_layout(ColumnLayoutStub('column_a', ('column_b', specified_size)))
+    web_fixture.context.install()
 
-        assert isinstance(fixture.added_sizes[0], ResponsiveSize)
-        assert not fixture.added_sizes[0]
-        assert fixture.added_sizes[1] is specified_size
+    specified_size = EmptyStub()
+    widget = Div(fixture.view).use_layout(ColumnLayoutStub('column_a', ('column_b', specified_size)))
+
+    assert isinstance(fixture.added_sizes[0], ResponsiveSize)
+    assert not fixture.added_sizes[0]
+    assert fixture.added_sizes[1] is specified_size
 
 
 @with_fixtures(WebFixture)
@@ -197,16 +202,17 @@ def test_order_of_columns(web_fixture):
        can be obtained using dictionary access on Layout.columns."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b'))
+    web_fixture.context.install()
 
-        column_a = widget.layout.columns['column_name_a']
-        column_b = widget.layout.columns['column_name_b']
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b'))
 
-        first_column, second_column = widget.children
+    column_a = widget.layout.columns['column_name_a']
+    column_b = widget.layout.columns['column_name_b']
 
-        assert first_column is column_a
-        assert second_column is column_b
+    first_column, second_column = widget.children
+
+    assert first_column is column_a
+    assert second_column is column_b
 
 
 @with_fixtures(WebFixture)
@@ -214,10 +220,11 @@ def test_columns_classes(web_fixture):
     """The Div added for each column specified to ColumnLayout is given a CSS class derived from the column name."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a'))
-        column_a = widget.layout.columns['column_name_a']
-        assert 'column-column_name_a' in column_a.get_attribute('class')
+    web_fixture.context.install()
+
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a'))
+    column_a = widget.layout.columns['column_name_a']
+    assert 'column-column_name_a' in column_a.get_attribute('class')
 
 
 @with_fixtures(WebFixture)
@@ -225,12 +232,13 @@ def test_column_slots(web_fixture):
     """A ColumnLayout can be made that adds a Slot to each added column, named after the column it is added to."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b').with_slots())
+    web_fixture.context.install()
 
-        column_a, column_b = widget.layout.columns.values()
-        assert 'column_name_a' in column_a.available_slots
-        assert 'column_name_b' in column_b.available_slots
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b').with_slots())
+
+    column_a, column_b = widget.layout.columns.values()
+    assert 'column_name_a' in column_a.available_slots
+    assert 'column_name_b' in column_b.available_slots
 
 
 @with_fixtures(WebFixture)
@@ -238,16 +246,16 @@ def test_adding_unnamed_columns(web_fixture):
     """You can add a column by calling add_column on the ColumnLayout"""
 
     fixture = web_fixture
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        widget = Div(fixture.view).use_layout(ColumnLayout())
+    widget = Div(fixture.view).use_layout(ColumnLayout())
 
-        assert not widget.children
+    assert not widget.children
 
-        widget.layout.add_column(ResponsiveSize())
+    widget.layout.add_column(ResponsiveSize())
 
-        assert len(widget.children) == 1
-        assert isinstance(widget.children[0], Div)
+    assert len(widget.children) == 1
+    assert isinstance(widget.children[0], Div)
 
 
 @with_fixtures(WebFixture)
@@ -256,16 +264,17 @@ def test_page_layout_basics(web_fixture):
        with a div inbetween the two for page contents."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        layout = PageLayout()
-        widget = HTML5Page(fixture.view).use_layout(layout)
+    web_fixture.context.install()
 
-        assert [layout.document] == widget.body.children[:-1]
-        header, contents_div, footer = layout.document.children
+    layout = PageLayout()
+    widget = HTML5Page(fixture.view).use_layout(layout)
 
-        assert isinstance(header, Header)
-        assert isinstance(contents_div, Div)
-        assert isinstance(footer, Footer)
+    assert [layout.document] == widget.body.children[:-1]
+    header, contents_div, footer = layout.document.children
+
+    assert isinstance(header, Header)
+    assert isinstance(contents_div, Div)
+    assert isinstance(footer, Footer)
 
 
 @with_fixtures(WebFixture)
@@ -273,13 +282,14 @@ def test_header_and_footer_slots(web_fixture):
     """PageLayout adds a Slot for Header and Footer."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        page = HTML5Page(fixture.view).use_layout(PageLayout())
+    web_fixture.context.install()
 
-        header, contents_div, footer = page.layout.document.children
+    page = HTML5Page(fixture.view).use_layout(PageLayout())
 
-        assert 'header' in header.available_slots
-        assert 'footer' in footer.available_slots
+    header, contents_div, footer = page.layout.document.children
+
+    assert 'header' in header.available_slots
+    assert 'footer' in footer.available_slots
 
 
 @with_fixtures(WebFixture)
@@ -287,11 +297,12 @@ def test_page_layout_content_layout(web_fixture):
     """A PageLayout can be given a Layout it should use to lay out its contents Div."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        contents_layout = Layout()
-        widget = HTML5Page(fixture.view).use_layout(PageLayout(contents_layout=contents_layout))
+    web_fixture.context.install()
 
-        assert widget.layout.contents.layout is contents_layout
+    contents_layout = Layout()
+    widget = HTML5Page(fixture.view).use_layout(PageLayout(contents_layout=contents_layout))
+
+    assert widget.layout.contents.layout is contents_layout
 
 
 @with_fixtures(WebFixture)
@@ -299,9 +310,10 @@ def test_page_layout_only_meant_for_html5page(web_fixture):
     """When an attempting to use a PageLayout on something other than an HTML5Page, a useful exception is raised."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        with expected(IsInstance):
-            Div(fixture.view).use_layout(PageLayout())
+    web_fixture.context.install()
+
+    with expected(IsInstance):
+        Div(fixture.view).use_layout(PageLayout())
 
 
 @with_fixtures(WebFixture)
@@ -309,17 +321,18 @@ def test_page_layout_convenience_features(web_fixture):
     """A PageLayout exposes useful methods to get to its contents, and adds ids to certain elements for convenience in CSS."""
 
     fixture = web_fixture
-    with web_fixture.context:
-        layout = PageLayout()
-        widget = HTML5Page(fixture.view).use_layout(layout)
-        header, contents_div, footer = layout.document.children
+    web_fixture.context.install()
 
-        assert layout.document.css_id == 'doc'
-        assert header.css_id == 'hd'
-        assert footer.css_id == 'ft'
-        assert contents_div.css_id == 'bd'
-        assert contents_div.get_attribute('role') == 'main'
+    layout = PageLayout()
+    widget = HTML5Page(fixture.view).use_layout(layout)
+    header, contents_div, footer = layout.document.children
 
-        assert layout.header is header
-        assert layout.contents is contents_div
-        assert layout.footer is footer
+    assert layout.document.css_id == 'doc'
+    assert header.css_id == 'hd'
+    assert footer.css_id == 'ft'
+    assert contents_div.css_id == 'bd'
+    assert contents_div.get_attribute('role') == 'main'
+
+    assert layout.header is header
+    assert layout.contents is contents_div
+    assert layout.footer is footer

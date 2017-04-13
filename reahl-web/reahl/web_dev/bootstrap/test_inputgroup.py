@@ -66,26 +66,26 @@ def test_input_group(web_fixture, input_group_fixture):
     """An InputGroup is a composition of an input with some text or Widget before and/or after an input."""
     fixture = input_group_fixture
 
-    with web_fixture.context:
-        tester = WidgetTester(fixture.input_group)
-    
-        [outer_div] = tester.xpath('//div')
-        assert outer_div.attrib['class'] == 'input-group'
+    web_fixture.context.install()
+    tester = WidgetTester(fixture.input_group)
 
-        if fixture.expects_before_html:
-            rendered_html = tester.get_html_for('//div/input/preceding-sibling::span')
-            assert rendered_html == fixture.expects_before_html
-        else:
-            assert not tester.is_element_present('//div/input/preceding-sibling::span')
+    [outer_div] = tester.xpath('//div')
+    assert outer_div.attrib['class'] == 'input-group'
 
-        children = outer_div.getchildren()
-        the_input = children[1] if fixture.expects_before_html else children[0]
-        assert the_input.tag == 'input'
-        assert the_input.name == 'an_attribute'
+    if fixture.expects_before_html:
+        rendered_html = tester.get_html_for('//div/input/preceding-sibling::span')
+        assert rendered_html == fixture.expects_before_html
+    else:
+        assert not tester.is_element_present('//div/input/preceding-sibling::span')
 
-        if fixture.expects_after_html:
-            rendered_html = tester.get_html_for('//div/input/following-sibling::span')
-            assert rendered_html == fixture.expects_after_html
-        else:
-            assert not tester.is_element_present('//div/input/following-sibling::span')
+    children = outer_div.getchildren()
+    the_input = children[1] if fixture.expects_before_html else children[0]
+    assert the_input.tag == 'input'
+    assert the_input.name == 'an_attribute'
+
+    if fixture.expects_after_html:
+        rendered_html = tester.get_html_for('//div/input/following-sibling::span')
+        assert rendered_html == fixture.expects_after_html
+    else:
+        assert not tester.is_element_present('//div/input/following-sibling::span')
 

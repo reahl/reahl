@@ -31,22 +31,25 @@ def test_execution_context_basics():
     def do_high_level_something():
         return do_something()
 
-    some_context = ExecutionContext()
-    with some_context:
-        found_context = do_high_level_something()
+    some_context = ExecutionContext().install()
+
+    found_context = do_high_level_something()
 
     assert found_context is some_context
 
 
 def test_execution_context_stacking():
     """When an ExecutionContext overrides a deeper one on the call stack, it will retain the same id."""
-    some_context = ExecutionContext()
+    some_context = ExecutionContext().install()
 
-    with some_context:
-        with ExecutionContext() as deeper_context:
-            assert some_context is not deeper_context
-            assert some_context.id == deeper_context.id
-            assert ExecutionContext.get_context_id() == some_context.id
+    def deeper_code():
+        deeper_context = ExecutionContext().install()
+        assert ExecutionContext.get_context_id() == some_context.id
+        return deeper_context
+
+    deeper_context = deeper_code()
+    assert some_context is not deeper_context
+    assert some_context.id == deeper_context.id
 
 
 def test_contents():
@@ -57,9 +60,9 @@ def test_contents():
     config = EmptyStub()
     system_control = EmptyStub()
 
-    some_context.set_session( session )
-    some_context.set_config( config )
-    some_context.set_system_control( system_control )
+    some_context.session = session
+    some_context.config = config
+    some_context.system_control = system_control
 
     assert some_context.session is session
     assert some_context.config is config

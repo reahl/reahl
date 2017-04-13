@@ -43,41 +43,43 @@ class AccessDomainFixture(Fixture):
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def demo_setup(sql_alchemy_fixture, access_domain_fixture):
+    sql_alchemy_fixture.context.install()
     sql_alchemy_fixture.commit = True
-    with sql_alchemy_fixture.context:
-        access_domain_fixture.address_book
-        access_domain_fixture.account
-        access_domain_fixture.other_account
-        access_domain_fixture.other_address_book
+
+    access_domain_fixture.address_book
+    access_domain_fixture.account
+    access_domain_fixture.other_account
+    access_domain_fixture.other_address_book
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
     """An Address is created in a particular AddressBook, which is owned by a SystemAccount."""
 
-    with sql_alchemy_fixture.context:
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
-        other_address_book = access_domain_fixture.other_address_book
+    sql_alchemy_fixture.context.install()
 
-        # AddressBooks are owned
-        address_book.owner is account
-        other_address_book.owner is access_domain_fixture.other_account
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
+    other_address_book = access_domain_fixture.other_address_book
 
-        # Addresses live in specific AddressBooks
-        assert address_book.addresses == []
-        assert other_address_book.addresses == []
+    # AddressBooks are owned
+    address_book.owner is account
+    other_address_book.owner is access_domain_fixture.other_account
 
-        address1 = Address(address_book=address_book, email_address='friend1@some.org', name='Friend1')
-        address2 = Address(address_book=address_book, email_address='friend2@some.org', name='Friend2')
+    # Addresses live in specific AddressBooks
+    assert address_book.addresses == []
+    assert other_address_book.addresses == []
 
-        address3 = Address(address_book=other_address_book, email_address='friend3@some.org', name='Friend3')
+    address1 = Address(address_book=address_book, email_address='friend1@some.org', name='Friend1')
+    address2 = Address(address_book=address_book, email_address='friend2@some.org', name='Friend2')
 
-        for address in [address1, address2, address3]:
-            address.save()
+    address3 = Address(address_book=other_address_book, email_address='friend3@some.org', name='Friend3')
 
-        assert address_book.addresses == [address1, address2]
-        assert other_address_book.addresses == [address3]
+    for address in [address1, address2, address3]:
+        address.save()
+
+    assert address_book.addresses == [address1, address2]
+    assert other_address_book.addresses == [address3]
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
@@ -85,56 +87,59 @@ def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """A particular SystemAccount can see its own AddressBooks as well as all the AddressBooks
        it is explicitly allowed to see, but no other AddressBooks."""
 
-    with sql_alchemy_fixture.context:
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
-        other_address_book = access_domain_fixture.other_address_book
+    sql_alchemy_fixture.context.install()
 
-        unrelated_account = access_domain_fixture.new_account(email='unrelated@some.org')
-        unrelated_address_book = access_domain_fixture.new_address_book(owner=unrelated_account)
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
+    other_address_book = access_domain_fixture.other_address_book
 
-        other_address_book.allow(account)
+    unrelated_account = access_domain_fixture.new_account(email='unrelated@some.org')
+    unrelated_address_book = access_domain_fixture.new_address_book(owner=unrelated_account)
 
-        # Checks to see whether an AddressBook is visible
-        assert address_book.is_visible_to(account)
-        assert other_address_book.is_visible_to(account)
-        assert not unrelated_address_book.is_visible_to(account)
+    other_address_book.allow(account)
 
-        # Getting a list of visible AddressBooks (for populating the screen)
-        books = AddressBook.address_books_visible_to(account)
-        assert set(books) == {address_book, other_address_book}
+    # Checks to see whether an AddressBook is visible
+    assert address_book.is_visible_to(account)
+    assert other_address_book.is_visible_to(account)
+    assert not unrelated_address_book.is_visible_to(account)
+
+    # Getting a list of visible AddressBooks (for populating the screen)
+    books = AddressBook.address_books_visible_to(account)
+    assert set(books) == {address_book, other_address_book}
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
     """When allowing an account to see another's AddressBook, the rights it has to the AddressBook are specified."""
 
-    with sql_alchemy_fixture.context:
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
-        other_address_book = access_domain_fixture.other_address_book
+    sql_alchemy_fixture.context.install()
 
-        # Case: defaults
-        other_address_book.allow(account)
-        assert not other_address_book.can_be_edited_by(account)
-        assert not other_address_book.can_be_added_to_by(account)
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
+    other_address_book = access_domain_fixture.other_address_book
 
-        # Case: rights specified
-        other_address_book.allow(account, can_edit_addresses=True, can_add_addresses=True)
-        assert other_address_book.can_be_edited_by(account)
-        assert other_address_book.can_be_added_to_by(account)
+    # Case: defaults
+    other_address_book.allow(account)
+    assert not other_address_book.can_be_edited_by(account)
+    assert not other_address_book.can_be_added_to_by(account)
+
+    # Case: rights specified
+    other_address_book.allow(account, can_edit_addresses=True, can_add_addresses=True)
+    assert other_address_book.can_be_edited_by(account)
+    assert other_address_book.can_be_added_to_by(account)
 
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """The owner of an AddressBook may add collaborators to it."""
 
-    with sql_alchemy_fixture.context:
-        account = access_domain_fixture.account
-        address_book = access_domain_fixture.address_book
-        other_address_book = access_domain_fixture.other_address_book
+    sql_alchemy_fixture.context.install()
 
-        assert address_book.collaborators_can_be_added_by(account)
-        assert not other_address_book.collaborators_can_be_added_by(account)
+    account = access_domain_fixture.account
+    address_book = access_domain_fixture.address_book
+    other_address_book = access_domain_fixture.other_address_book
+
+    assert address_book.collaborators_can_be_added_by(account)
+    assert not other_address_book.collaborators_can_be_added_by(account)
 
 

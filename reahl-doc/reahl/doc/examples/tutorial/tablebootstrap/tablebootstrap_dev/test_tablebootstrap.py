@@ -35,65 +35,64 @@ class TableExampleFixture(Fixture):
 
 
 @with_fixtures(SqlAlchemyFixture, TableExampleFixture)
-def demo_setup(sql_alchemy_fixture, table_example_fixture):
+def demo_setup(sql_alchemy_fixture, fixture):
     sql_alchemy_fixture.commit = True
-    with sql_alchemy_fixture.context:
-        table_example_fixture.create_addresses()
+    sql_alchemy_fixture.context.install()
+
+    fixture.create_addresses()
 
 
 @with_fixtures(WebFixture, TableExampleFixture)
-def test_editing_an_address(web_fixture, table_example_fixture):
+def test_editing_an_address(web_fixture, fixture):
     """To edit an existing address, a user clicks on the "Edit" link next to the chosen Address
        on the "Addresses" page. The user is then taken to an "Edit" View for the chosen Address and
        can change the name or email address. Upon clicking the "Update" Button, the user is sent back
        to the "Addresses" page where the changes are visible."""
 
-    fixture = table_example_fixture
-    with web_fixture.context:
-        all_addresses = fixture.create_addresses()    #create some data to play with
+    web_fixture.context.install()
+    all_addresses = fixture.create_addresses()    #create some data to play with
 
-        original_address_name = 'friend 7'   #choose the seventh address to edit
+    original_address_name = 'friend 7'   #choose the seventh address to edit
 
-        fixture.browser.open('/')
-        fixture.browser.click(XPath.link_with_text('Edit', nth=7))
+    fixture.browser.open('/')
+    fixture.browser.click(XPath.link_with_text('Edit', nth=7))
 
-        assert fixture.is_on_edit_page_for(original_address_name)
-        fixture.browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
-        fixture.browser.type(XPath.input_labelled('Email'), 'johndoe@some.changed.org')
-        fixture.browser.click(XPath.button_labelled('Update'))
+    assert fixture.is_on_edit_page_for(original_address_name)
+    fixture.browser.type(XPath.input_labelled('Name'), 'John Doe-changed')
+    fixture.browser.type(XPath.input_labelled('Email'), 'johndoe@some.changed.org')
+    fixture.browser.click(XPath.button_labelled('Update'))
 
-        assert fixture.is_on_home_page()
-        assert fixture.address_is_listed_as('John Doe-changed')
-        assert fixture.address_is_listed_as('johndoe@some.changed.org')
-        assert not fixture.address_is_listed_as(original_address_name)
+    assert fixture.is_on_home_page()
+    assert fixture.address_is_listed_as('John Doe-changed')
+    assert fixture.address_is_listed_as('johndoe@some.changed.org')
+    assert not fixture.address_is_listed_as(original_address_name)
 
 
 @with_fixtures(WebFixture, TableExampleFixture)
-def test_deleting_several_address(web_fixture, table_example_fixture):
+def test_deleting_several_address(web_fixture, fixture):
     """To delete several address, a user "checks" the box next to each of the Addresses
        on the "Addresses" page she wants to delete. Upon clicking the "Delete Selected" Button, the page
        refreshes, and the remaining addresses appear."""
 
-    fixture = table_example_fixture
-    with web_fixture.context:
-        fixture.create_addresses()    #create some data to play with
+    web_fixture.context.install()
+    fixture.create_addresses()    #create some data to play with
 
-        fixture.browser.open('/')
+    fixture.browser.open('/')
 
-        name_of_address_1 = 'friend 1'
-        name_of_address_13 = 'friend 13'
-        name_of_address_20 = 'friend 20'
+    name_of_address_1 = 'friend 1'
+    name_of_address_13 = 'friend 13'
+    name_of_address_20 = 'friend 20'
 
-        assert fixture.address_is_listed_as(name_of_address_1)
-        assert fixture.address_is_listed_as(name_of_address_13)
-        assert fixture.address_is_listed_as(name_of_address_20)
+    assert fixture.address_is_listed_as(name_of_address_1)
+    assert fixture.address_is_listed_as(name_of_address_13)
+    assert fixture.address_is_listed_as(name_of_address_20)
 
-        fixture.browser.click(XPath.checkbox_in_table_row(1))
-        fixture.browser.click(XPath.checkbox_in_table_row(13))
-        fixture.browser.click(XPath.checkbox_in_table_row(20))
-        fixture.browser.click(XPath.button_labelled('Delete Selected'))
+    fixture.browser.click(XPath.checkbox_in_table_row(1))
+    fixture.browser.click(XPath.checkbox_in_table_row(13))
+    fixture.browser.click(XPath.checkbox_in_table_row(20))
+    fixture.browser.click(XPath.button_labelled('Delete Selected'))
 
-        assert fixture.is_on_home_page()
-        assert not fixture.address_is_listed_as(name_of_address_1)
-        assert not fixture.address_is_listed_as(name_of_address_13)
-        assert not fixture.address_is_listed_as(name_of_address_20)
+    assert fixture.is_on_home_page()
+    assert not fixture.address_is_listed_as(name_of_address_1)
+    assert not fixture.address_is_listed_as(name_of_address_13)
+    assert not fixture.address_is_listed_as(name_of_address_20)

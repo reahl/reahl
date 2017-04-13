@@ -36,48 +36,49 @@ from reahl.web_dev.fixtures import WebFixture
 def test_containers(web_fixture):
     """There are two types of Bootstrap containers:  a full width container, and a responsive (fluid) container."""
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        widget = Div(web_fixture.view).use_layout(Container())
-        tester = WidgetTester(widget)
+    widget = Div(web_fixture.view).use_layout(Container())
+    tester = WidgetTester(widget)
 
-        css_class = tester.xpath('//div')[0].attrib['class']
-        assert 'container' == css_class
+    css_class = tester.xpath('//div')[0].attrib['class']
+    assert 'container' == css_class
 
-        widget = Div(web_fixture.view).use_layout(Container(fluid=True))
-        tester = WidgetTester(widget)
+    widget = Div(web_fixture.view).use_layout(Container(fluid=True))
+    tester = WidgetTester(widget)
 
-        css_class = tester.xpath('//div')[0].attrib['class']
-        assert 'container-fluid' == css_class
+    css_class = tester.xpath('//div')[0].attrib['class']
+    assert 'container-fluid' == css_class
 
 
 @with_fixtures(WebFixture)
 def test_column_layout_basics(web_fixture):
     """The bootstrap.ColumnLayout adds the correct classes for Bootstrap to lay out its Widget as a row with columns."""
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        layout = ColumnLayout(('column_a', ResponsiveSize(lg=4)), ('column_b', ResponsiveSize(lg=8)))
-        widget = Div(web_fixture.view)
+    layout = ColumnLayout(('column_a', ResponsiveSize(lg=4)), ('column_b', ResponsiveSize(lg=8)))
+    widget = Div(web_fixture.view)
 
-        assert not widget.has_attribute('class')
+    assert not widget.has_attribute('class')
 
-        widget.use_layout(layout)
+    widget.use_layout(layout)
 
-        assert widget.get_attribute('class') == 'row'
-        column_a, column_b = widget.children
+    assert widget.get_attribute('class') == 'row'
+    column_a, column_b = widget.children
 
-        assert 'col-lg-4' in column_a.get_attribute('class')
-        assert 'col-lg-8' in column_b.get_attribute('class')
+    assert 'col-lg-4' in column_a.get_attribute('class')
+    assert 'col-lg-8' in column_b.get_attribute('class')
 
 
 @with_fixtures(WebFixture)
 def test_column_layout_sizes(web_fixture):
     """It is mandatory to specify sizes for all columns."""
 
-    with web_fixture.context:
-        with expected(ProgrammerError):
-            ColumnLayout('column_a')
+    web_fixture.context.install()
+
+    with expected(ProgrammerError):
+        ColumnLayout('column_a')
 
 
 
@@ -85,16 +86,16 @@ def test_column_layout_sizes(web_fixture):
 def test_adding_columns(web_fixture):
     """You can add additional columns after construction."""
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        widget = Div(web_fixture.view).use_layout(ColumnLayout())
+    widget = Div(web_fixture.view).use_layout(ColumnLayout())
 
-        assert not widget.children
+    assert not widget.children
 
-        widget.layout.add_column(ResponsiveSize(lg=4))
+    widget.layout.add_column(ResponsiveSize(lg=4))
 
-        [added_column] = widget.children
-        assert added_column.get_attribute('class') == 'col-lg-4'
+    [added_column] = widget.children
+    assert added_column.get_attribute('class') == 'col-lg-4'
 
 
 def test_allowed_sizes():
@@ -108,19 +109,19 @@ def test_allowed_sizes():
 def test_column_offsets(web_fixture):
     """You can optionally specify space to leave empty (an offset) before a column at specific device sizes."""
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        layout = ColumnLayout(('column_a', ResponsiveSize(xl=2).offset(xs=2, sm=4, md=6, lg=3, xl=1)))
-        widget = Div(web_fixture.view).use_layout(layout)
+    layout = ColumnLayout(('column_a', ResponsiveSize(xl=2).offset(xs=2, sm=4, md=6, lg=3, xl=1)))
+    widget = Div(web_fixture.view).use_layout(layout)
 
-        [column_a] = layout.columns.values()
+    [column_a] = layout.columns.values()
 
-        assert 'col-xl-2' in column_a.get_attribute('class')
-        assert 'col-lg-offset-3' in column_a.get_attribute('class')
-        assert 'col-xs-offset-2' in column_a.get_attribute('class')
-        assert 'col-sm-offset-4' in column_a.get_attribute('class')
-        assert 'col-md-offset-6' in column_a.get_attribute('class')
-        assert 'col-xl-offset-1' in column_a.get_attribute('class')
+    assert 'col-xl-2' in column_a.get_attribute('class')
+    assert 'col-lg-offset-3' in column_a.get_attribute('class')
+    assert 'col-xs-offset-2' in column_a.get_attribute('class')
+    assert 'col-sm-offset-4' in column_a.get_attribute('class')
+    assert 'col-md-offset-6' in column_a.get_attribute('class')
+    assert 'col-xl-offset-1' in column_a.get_attribute('class')
 
 
 @with_fixtures(WebFixture)
@@ -128,38 +129,38 @@ def test_column_clearfix(web_fixture):
     """If a logical row spans more than one visual row for a device size, bootstrap clearfixes are
        automatically inserted to ensure cells in resultant visual rows are neatly arranged.
     """
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        # Case: Adding a correct clearfix in the right place
-        wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).offset(xs=2)),
-                                       ('column_b', ResponsiveSize(xs=2).offset(xs=2))
-        )
-        widget = Div(web_fixture.view).use_layout(wrapping_layout)
+    # Case: Adding a correct clearfix in the right place
+    wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).offset(xs=2)),
+                                   ('column_b', ResponsiveSize(xs=2).offset(xs=2))
+    )
+    widget = Div(web_fixture.view).use_layout(wrapping_layout)
 
-        [column_a, clearfix, column_b] = widget.children
-        assert [column_a, column_b] == [i for i in wrapping_layout.columns.values()]
-        assert 'clearfix' in clearfix.get_attribute('class')
-        assert 'visible-xs-block' in clearfix.get_attribute('class')
+    [column_a, clearfix, column_b] = widget.children
+    assert [column_a, column_b] == [i for i in wrapping_layout.columns.values()]
+    assert 'clearfix' in clearfix.get_attribute('class')
+    assert 'visible-xs-block' in clearfix.get_attribute('class')
 
-        # Case: When clearfix needs to take "implicit" sizes of smaller device classes into account
-        wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).offset(xs=2)),
-                                       ('column_b', ResponsiveSize(lg=2).offset(lg=2))
-        )
-        widget = Div(web_fixture.view).use_layout(wrapping_layout)
+    # Case: When clearfix needs to take "implicit" sizes of smaller device classes into account
+    wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).offset(xs=2)),
+                                   ('column_b', ResponsiveSize(lg=2).offset(lg=2))
+    )
+    widget = Div(web_fixture.view).use_layout(wrapping_layout)
 
-        [column_a, clearfix, column_b] = widget.children
-        assert [column_a, column_b] == [i for i in wrapping_layout.columns.values()]
-        assert 'clearfix' in clearfix.get_attribute('class')
-        assert 'visible-lg-block' in clearfix.get_attribute('class')
+    [column_a, clearfix, column_b] = widget.children
+    assert [column_a, column_b] == [i for i in wrapping_layout.columns.values()]
+    assert 'clearfix' in clearfix.get_attribute('class')
+    assert 'visible-lg-block' in clearfix.get_attribute('class')
 
-        # Case: When no clearfix must be added
-        non_wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=2).offset(xs=2)),
-                                           ('column_b', ResponsiveSize(xs=2))
-        )
-        widget = Div(web_fixture.view).use_layout(non_wrapping_layout)
+    # Case: When no clearfix must be added
+    non_wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=2).offset(xs=2)),
+                                       ('column_b', ResponsiveSize(xs=2))
+    )
+    widget = Div(web_fixture.view).use_layout(non_wrapping_layout)
 
-        [column_a, column_b] = widget.children
-        assert [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()]
+    [column_a, column_b] = widget.children
+    assert [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()]
 
 
 def test_allowed_string_options():

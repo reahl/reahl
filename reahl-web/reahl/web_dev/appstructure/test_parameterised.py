@@ -100,16 +100,17 @@ def test_views_with_parameters(web_fixture, parameterised_scenarios):
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {'main': 'main'}, name='myui')
 
     fixture = parameterised_scenarios
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        if fixture.should_exist:
-            browser.open(fixture.url)
-            assert browser.title == 'View for: %s' % fixture.expected_value 
-            assert browser.is_element_present(XPath.paragraph_containing('content for %s' % fixture.expected_value)) 
-        else:
-            browser.open(fixture.url, status=404)
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    if fixture.should_exist:
+        browser.open(fixture.url)
+        assert browser.title == 'View for: %s' % fixture.expected_value 
+        assert browser.is_element_present(XPath.paragraph_containing('content for %s' % fixture.expected_value)) 
+    else:
+        browser.open(fixture.url, status=404)
 
 
 @with_fixtures(WebFixture)
@@ -130,13 +131,14 @@ def test_views_from_regex(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='myui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        # Parameterisedally constructing a View from an URL
-        browser.open('/a_ui/someurl_test1')
-        assert browser.title == 'View for: test1' 
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    # Parameterisedally constructing a View from an URL
+    browser.open('/a_ui/someurl_test1')
+    assert browser.title == 'View for: test1' 
 
 
 @with_fixtures(WebFixture)
@@ -166,24 +168,25 @@ def test_user_interfaces_from_regex(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        # A sub-user_interface is dynamically created from an URL
-        browser.open('/a_ui/apath/test1/')
-        assert browser.title == 'Simple user_interface user_interface-test1' 
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        # The slots of the sub-user_interface is correctly plugged into the page
-        [p] = browser.lxml_html.xpath('//p')
-        assert p.text == 'in user_interface slot' 
+    # A sub-user_interface is dynamically created from an URL
+    browser.open('/a_ui/apath/test1/')
+    assert browser.title == 'Simple user_interface user_interface-test1' 
 
-        # Another sub-user_interface is dynamically created from an URL
-        browser.open('/a_ui/apath/another/')
-        assert browser.title == 'Simple user_interface user_interface-another' 
+    # The slots of the sub-user_interface is correctly plugged into the page
+    [p] = browser.lxml_html.xpath('//p')
+    assert p.text == 'in user_interface slot' 
 
-        # When the URL cannot be mapped
-        browser.open('/a_ui/apath/doesnotexist/', status=404)
+    # Another sub-user_interface is dynamically created from an URL
+    browser.open('/a_ui/apath/another/')
+    assert browser.title == 'Simple user_interface user_interface-another' 
+
+    # When the URL cannot be mapped
+    browser.open('/a_ui/apath/doesnotexist/', status=404)
 
 
 
@@ -245,20 +248,21 @@ def test_parameterised_uis(web_fixture, parameterised_user_interface_scenarios):
             self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
     fixture = parameterised_user_interface_scenarios
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        if fixture.should_exist:
-            browser.open(fixture.url)
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-            # The correct argument was passed
-            assert browser.title == 'Simple user_interface user_interface-%s' % fixture.expected_value 
+    if fixture.should_exist:
+        browser.open(fixture.url)
 
-            # The slots of the sub-user_interface is correctly plugged into the page
-            [p] = browser.lxml_html.xpath('//p')
-            assert p.text == 'in user_interface slot' 
-        else:
-            # When the URL cannot be mapped
-            browser.open(fixture.url, status=404)
+        # The correct argument was passed
+        assert browser.title == 'Simple user_interface user_interface-%s' % fixture.expected_value 
+
+        # The slots of the sub-user_interface is correctly plugged into the page
+        [p] = browser.lxml_html.xpath('//p')
+        assert p.text == 'in user_interface slot' 
+    else:
+        # When the URL cannot be mapped
+        browser.open(fixture.url, status=404)
 

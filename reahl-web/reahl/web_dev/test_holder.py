@@ -35,49 +35,49 @@ def test_placeholder_basics(web_fixture):
     """
        hint: Ensure the Holder(Library) is added to the  web.frontend_libraries config setting in the file:web.config.py
     """
-    with web_fixture.context:
-        placeholder = PlaceholderImage(web_fixture.view, 20, 30)
+    web_fixture.context.install()
+    placeholder = PlaceholderImage(web_fixture.view, 20, 30)
 
-        tester = WidgetTester(placeholder)
+    tester = WidgetTester(placeholder)
 
-        expected_html = '<img data-src="holder.js/20x30">'
-        actual = tester.render_html()
-        assert actual == expected_html
+    expected_html = '<img data-src="holder.js/20x30">'
+    actual = tester.render_html()
+    assert actual == expected_html
 
 
 @with_fixtures(WebFixture)
 def test_placeholder_with_text(web_fixture):
 
-    with web_fixture.context:
-        placeholder = PlaceholderImage(web_fixture.view, 20, 30, text='My banner')
+    web_fixture.context.install()
+    placeholder = PlaceholderImage(web_fixture.view, 20, 30, text='My banner')
 
-        expected_value = 'holder.js/20x30?text=My banner'
-        actual_value = placeholder.get_attribute('data-src')
-        assert actual_value == expected_value
+    expected_value = 'holder.js/20x30?text=My banner'
+    actual_value = placeholder.get_attribute('data-src')
+    assert actual_value == expected_value
 
 
 @with_fixtures(WebFixture)
 def test_placeholder_with_predefine_theme(web_fixture):
 
-    with web_fixture.context:
-        my_theme = PredefinedTheme('lava')
-        placeholder = PlaceholderImage(web_fixture.view, 20, 30, theme=my_theme)
+    web_fixture.context.install()
+    my_theme = PredefinedTheme('lava')
+    placeholder = PlaceholderImage(web_fixture.view, 20, 30, theme=my_theme)
 
-        expected_value = 'holder.js/20x30?theme=lava'
-        actual_value = placeholder.get_attribute('data-src')
-        assert actual_value == expected_value
+    expected_value = 'holder.js/20x30?theme=lava'
+    actual_value = placeholder.get_attribute('data-src')
+    assert actual_value == expected_value
 
 
 @with_fixtures(WebFixture)
 def test_text_and_theme_options_are_encoded(web_fixture):
 
-    with web_fixture.context:
-        my_theme = CustomTheme(bg='white', fg='red')
-        placeholder = PlaceholderImage(web_fixture.view, 20, 30, text='My sê goed', theme=my_theme)
+    web_fixture.context.install()
+    my_theme = CustomTheme(bg='white', fg='red')
+    placeholder = PlaceholderImage(web_fixture.view, 20, 30, text='My sê goed', theme=my_theme)
 
-        expected_value = 'holder.js/20x30?bg=white&fg=red&text=My sê goed'
-        actual_value = placeholder.get_attribute('data-src')
-        assert actual_value == expected_value
+    expected_value = 'holder.js/20x30?bg=white&fg=red&text=My sê goed'
+    actual_value = placeholder.get_attribute('data-src')
+    assert actual_value == expected_value
 
 
 def test_custom_theme_options_become_text():

@@ -92,7 +92,8 @@ def test_deferred_action_completes(sql_alchemy_fixture, deferred_action_fixture)
     """A DeferredAction will execute its primary action once all its Requirements are fulfilled; then, it and its Requirements are deleted."""
 
     fixture = deferred_action_fixture
-    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
+    sql_alchemy_fixture.context.install()
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
         requirements = [Requirement(), Requirement(), Requirement()]
         deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
         Session.add(deferred_action)
@@ -111,7 +112,8 @@ def test_deferred_action_times_out(sql_alchemy_fixture, deferred_action_fixture)
     """If all its Requirements are not fulfilled before its deadline has been reached, a DeferredAction executes its deadline action; then, it and its Requirements are deleted"""
 
     fixture = deferred_action_fixture
-    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
+    sql_alchemy_fixture.context.install()
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
         requirements = [Requirement(), Requirement(), Requirement()]
         deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
         Session.add(deferred_action)
@@ -139,7 +141,8 @@ def test_deferred_action_completes_with_shared_requirements(sql_alchemy_fixture,
     """A requirement could be linked to many DeferredActions, in which case it will notify all on success"""
 
     fixture = deferred_action_fixture
-    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
+    sql_alchemy_fixture.context.install()
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
         requirements1 = [Requirement()]
         requirements2 = [Requirement(), Requirement()]
         deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
@@ -187,7 +190,8 @@ def test_deferred_action_times_out_with_shared_requirements(sql_alchemy_fixture,
     """If a DeferredAction times out, it will not nuke Requirements shared with another DeferredAction."""
 
     fixture = deferred_action_fixture
-    with sql_alchemy_fixture.context, sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
+    sql_alchemy_fixture.context.install()
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
         requirements1 = [Requirement()]
         requirements2 = [Requirement(), Requirement()]
         deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
@@ -262,19 +266,20 @@ def test_reserving_tasks(sql_alchemy_fixture, party_account_fixture, task_queue_
     """Tasks can be reserved by a party; a reserved task can be released again."""
 
     fixture = task_queue_fixture
-    with sql_alchemy_fixture.context:
-        task = fixture.task
+    sql_alchemy_fixture.context.install()
 
-        assert task.is_available()
-        assert not task.is_reserved_for(party_account_fixture.party)
+    task = fixture.task
 
-        task.reserve_for(party_account_fixture.party)
-        assert not task.is_available()
-        assert task.is_reserved_for(party_account_fixture.party)
+    assert task.is_available()
+    assert not task.is_reserved_for(party_account_fixture.party)
 
-        task.release()
-        assert task.is_available()
-        assert not task.is_reserved_for(party_account_fixture.party)
+    task.reserve_for(party_account_fixture.party)
+    assert not task.is_available()
+    assert task.is_reserved_for(party_account_fixture.party)
+
+    task.release()
+    assert task.is_available()
+    assert not task.is_reserved_for(party_account_fixture.party)
 
 
 @with_fixtures(SqlAlchemyFixture, TaskQueueFixture2)
@@ -282,64 +287,68 @@ def test_inbox(sql_alchemy_fixture, task_queue_fixture):
     """An Inbox is a collection of tasks in a collection of queues."""
 
     fixture = task_queue_fixture
-    with sql_alchemy_fixture.context:
-        queue1 = fixture.new_queue(name='q1')
-        queue2 = fixture.new_queue(name='q2')
-        queue3 = fixture.new_queue(name='q3')
-        inbox = Inbox([queue1, queue2])
-        task1 = fixture.new_task(queue=queue1)
-        task2 = fixture.new_task(queue=queue2)
-        task3 = fixture.new_task(queue=queue3)
+    sql_alchemy_fixture.context.install()
 
-        tasks = inbox.get_tasks()
-        assert tasks == [task1, task2]
+    queue1 = fixture.new_queue(name='q1')
+    queue2 = fixture.new_queue(name='q2')
+    queue3 = fixture.new_queue(name='q3')
+    inbox = Inbox([queue1, queue2])
+    task1 = fixture.new_task(queue=queue1)
+    task2 = fixture.new_task(queue=queue2)
+    task3 = fixture.new_task(queue=queue3)
+
+    tasks = inbox.get_tasks()
+    assert tasks == [task1, task2]
 
 
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
 def test_take_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
-    with sql_alchemy_fixture.context:
-        workflow_interface = fixture.workflow_interface
-        task = fixture.task
+    sql_alchemy_fixture.context.install()
 
-        assert not task.is_reserved_for(party_account_fixture.party)
-        take_task = EventTester(workflow_interface.events.take_task, task=task)
-        take_task.fire_event()
-        assert task.is_reserved_for(party_account_fixture.party)
-        assert not take_task.can_write_event
+    workflow_interface = fixture.workflow_interface
+    task = fixture.task
 
-        task.release()
-        assert take_task.can_write_event
+    assert not task.is_reserved_for(party_account_fixture.party)
+    take_task = EventTester(workflow_interface.events.take_task, task=task)
+    take_task.fire_event()
+    assert task.is_reserved_for(party_account_fixture.party)
+    assert not take_task.can_write_event
+
+    task.release()
+    assert take_task.can_write_event
 
 
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
 def test_go_to_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
-    with sql_alchemy_fixture.context:
-        workflow_interface = fixture.workflow_interface
-        task = fixture.task
+    sql_alchemy_fixture.context.install()
 
-        assert not task.is_reserved_for(party_account_fixture.party)
-        task.reserve_for(party_account_fixture.party)
-        go_to_task = EventTester(workflow_interface.events.go_to_task, task=task)
-        assert go_to_task.can_read_event
+    workflow_interface = fixture.workflow_interface
+    task = fixture.task
 
-        task.release()
-        assert not go_to_task.can_read_event
+    assert not task.is_reserved_for(party_account_fixture.party)
+    task.reserve_for(party_account_fixture.party)
+    go_to_task = EventTester(workflow_interface.events.go_to_task, task=task)
+    assert go_to_task.can_read_event
+
+    task.release()
+    assert not go_to_task.can_read_event
 
 
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
 def test_release_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
-    with sql_alchemy_fixture.context:
-        workflow_interface = fixture.workflow_interface
-        task = fixture.task
+    sql_alchemy_fixture.context.install()
 
-        task.reserve_for(party_account_fixture.party)
-        release_task = EventTester(workflow_interface.events.release_task, task=task)
-        release_task.fire_event()
-        assert not task.is_reserved_for(party_account_fixture.party)
-        assert not release_task.can_write_event
+    workflow_interface = fixture.workflow_interface
+    task = fixture.task
 
-        task.reserve_for(party_account_fixture.party)
-        assert release_task.can_write_event
+    task.reserve_for(party_account_fixture.party)
+    release_task = EventTester(workflow_interface.events.release_task, task=task)
+    release_task.fire_event()
+    assert not task.is_reserved_for(party_account_fixture.party)
+    assert not release_task.can_write_event
+
+    task.reserve_for(party_account_fixture.party)
+    assert release_task.can_write_event

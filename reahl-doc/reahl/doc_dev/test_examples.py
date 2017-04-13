@@ -349,41 +349,42 @@ def test_basichtmlwidgets(web_fixture, basichtmlwidgets_scenario):
 
 @with_fixtures(WebFixture, ExampleFixture.fileupload)
 def test_fileupload(web_fixture, fileupload_scenario):
+    web_fixture.context.install()
+    
     fixture = fileupload_scenario
-    with web_fixture.context:
-        fixture.start_example_app()
-        web_fixture.driver_browser.open('/')
+    fixture.start_example_app()
+    web_fixture.driver_browser.open('/')
 
-        file1 = temp_file_with(b'some content in a file', 'file1.txt', mode='w+b')
-        file2 = temp_file_with(b'different content', 'file2.txt', mode='w+b')
-        file3 = temp_file_with(b'even more content', 'file3.txt', mode='w+b')
+    file1 = temp_file_with(b'some content in a file', 'file1.txt', mode='w+b')
+    file2 = temp_file_with(b'different content', 'file2.txt', mode='w+b')
+    file3 = temp_file_with(b'even more content', 'file3.txt', mode='w+b')
 
-        # Upload a file
-        web_fixture.driver_browser.type('//input[@type="file"]', file1.name)
-        assert fixture.uploaded_file_is_listed(file1.name) 
+    # Upload a file
+    web_fixture.driver_browser.type('//input[@type="file"]', file1.name)
+    assert fixture.uploaded_file_is_listed(file1.name) 
 
-        # Upload a file
-        web_fixture.driver_browser.type('//input[@type="file"]', file2.name)
-        assert fixture.uploaded_file_is_listed(file2.name) 
+    # Upload a file
+    web_fixture.driver_browser.type('//input[@type="file"]', file2.name)
+    assert fixture.uploaded_file_is_listed(file2.name) 
 
-        # Upload a file
-        web_fixture.driver_browser.type('//input[@type="file"]', file3.name)
-        assert fixture.uploaded_file_is_listed(file3.name) 
+    # Upload a file
+    web_fixture.driver_browser.type('//input[@type="file"]', file3.name)
+    assert fixture.uploaded_file_is_listed(file3.name) 
 
-        # Delete file2 from uploaded files
-        web_fixture.driver_browser.click(XPath.button_labelled('Remove', filename=os.path.basename(file2.name)))
-        assert not fixture.uploaded_file_is_listed(file2.name) 
+    # Delete file2 from uploaded files
+    web_fixture.driver_browser.click(XPath.button_labelled('Remove', filename=os.path.basename(file2.name)))
+    assert not fixture.uploaded_file_is_listed(file2.name) 
 
-        # Submit the form
-        web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
-        web_fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
-        web_fixture.driver_browser.click(XPath.button_labelled('Submit'))
+    # Submit the form
+    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
+    web_fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
+    web_fixture.driver_browser.click(XPath.button_labelled('Submit'))
 
-        attached_file1 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file1.name)).one()
-        attached_file3 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file3.name)).one()
-        assert Session.query(AttachedFile).count() == 2 
-        assert attached_file1.contents == b'some content in a file' 
-        assert attached_file3.contents == b'even more content' 
+    attached_file1 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file1.name)).one()
+    attached_file3 = Session.query(AttachedFile).filter_by(filename=os.path.basename(file3.name)).one()
+    assert Session.query(AttachedFile).count() == 2 
+    assert attached_file1.contents == b'some content in a file' 
+    assert attached_file3.contents == b'even more content' 
 
 
 @with_fixtures(WebFixture, ExampleFixture.slots)
@@ -426,27 +427,29 @@ def test_model_examples():
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook1)
 def test_addressbook1(web_fixture, addressbook1_scenario):
-    with web_fixture.context:
-        john = addressbook1.Address(name='John', email_address='johndoe@some.org')
-        john.save()
+    web_fixture.context.install()
 
-        browser = Browser(addressbook1_scenario.wsgi_app)
-        browser.open('/')
+    john = addressbook1.Address(name='John', email_address='johndoe@some.org')
+    john.save()
 
-        assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    browser = Browser(addressbook1_scenario.wsgi_app)
+    browser.open('/')
+
+    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook2)
 def test_addressbook2(web_fixture, addressbook2_scenario):
-    with web_fixture.context:
-        browser = Browser(addressbook2_scenario.wsgi_app)
-        browser.open('/')
+    web_fixture.context.install()
 
-        browser.type(XPath.input_labelled('Name'), 'John') 
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-        browser.click(XPath.button_labelled('Save'))
+    browser = Browser(addressbook2_scenario.wsgi_app)
+    browser.open('/')
 
-        assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
+
+    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook2bootstrap)
@@ -471,66 +474,69 @@ def test_bootstrapgrids(web_fixture, bootstrapgrids_scenario):
 
 @with_fixtures(WebFixture, ExampleFixture.pageflow1)
 def test_pageflow1(web_fixture, pageflow1_scenario):
-    with web_fixture.context:
-        browser = Browser(pageflow1_scenario.wsgi_app)
-        browser.open('/')
+    web_fixture.context.install()
+    
+    browser = Browser(pageflow1_scenario.wsgi_app)
+    browser.open('/')
 
-        assert browser.is_element_present('//ul[contains(@class,"nav")]') 
+    assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
-        browser.click(XPath.link_with_text('Add an address'))
-        assert browser.location_path == '/add' 
+    browser.click(XPath.link_with_text('Add an address'))
+    assert browser.location_path == '/add' 
 
-        browser.type(XPath.input_labelled('Name'), 'John') 
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-        browser.click(XPath.button_labelled('Save'))
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
 
-        assert browser.location_path == '/add' 
+    assert browser.location_path == '/add' 
 
-        browser.click(XPath.link_with_text('Addresses'))
-        assert browser.location_path == '/' 
-        assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    browser.click(XPath.link_with_text('Addresses'))
+    assert browser.location_path == '/' 
+    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
 
 @with_fixtures(WebFixture, ExampleFixture.pageflow2)
 def test_pageflow2(web_fixture, pageflow2_scenario):
-    with web_fixture.context:
-        browser = Browser(pageflow2_scenario.wsgi_app)
-        browser.open('/')
+    web_fixture.context.install()
+    
+    browser = Browser(pageflow2_scenario.wsgi_app)
+    browser.open('/')
 
-        assert browser.is_element_present('//ul[contains(@class,"nav")]') 
+    assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
-        browser.click(XPath.link_with_text('Add an address'))
-        assert browser.location_path == '/add' 
+    browser.click(XPath.link_with_text('Add an address'))
+    assert browser.location_path == '/add' 
 
-        browser.type(XPath.input_labelled('Name'), 'John') 
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-        browser.click(XPath.button_labelled('Save'))
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
 
-        assert browser.location_path == '/' 
-        assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    assert browser.location_path == '/' 
+    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
 
 @with_fixtures(WebFixture, ExampleFixture.parameterised1)
 def test_parameterised1(web_fixture, parameterised1_scenario):
-    with web_fixture.context:
-        browser = Browser(parameterised1_scenario.wsgi_app)
-        browser.open('/')
+    web_fixture.context.install()
 
-        browser.click(XPath.link_with_text('Add an address'))
-        browser.type(XPath.input_labelled('Name'), 'John') 
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-        browser.click(XPath.button_labelled('Save'))
+    browser = Browser(parameterised1_scenario.wsgi_app)
+    browser.open('/')
 
-        assert browser.location_path == '/' 
-        browser.click(XPath.link_with_text('edit'))
+    browser.click(XPath.link_with_text('Add an address'))
+    browser.type(XPath.input_labelled('Name'), 'John') 
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.click(XPath.button_labelled('Save'))
 
-        john = Session.query(parameterised1bootstrap.Address).one()
-        assert browser.location_path == '/edit/%s' % john.id 
-        browser.type(XPath.input_labelled('Name'), 'Johnny') 
-        browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
-        browser.click(XPath.button_labelled('Update'))
+    assert browser.location_path == '/' 
+    browser.click(XPath.link_with_text('edit'))
 
-        assert browser.location_path == '/' 
-        assert browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) 
+    john = Session.query(parameterised1bootstrap.Address).one()
+    assert browser.location_path == '/edit/%s' % john.id 
+    browser.type(XPath.input_labelled('Name'), 'Johnny') 
+    browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
+    browser.click(XPath.button_labelled('Update'))
+
+    assert browser.location_path == '/' 
+    assert browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) 
 
 

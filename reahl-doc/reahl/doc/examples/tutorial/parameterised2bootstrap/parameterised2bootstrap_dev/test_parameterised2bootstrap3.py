@@ -29,18 +29,18 @@ class AddressAppFixture(Fixture):
 def test_edit_errors(web_fixture, address_app_fixture):
     """Email addresses on the Edit an address page have to be valid email addresses."""
 
-    with web_fixture.context:
-        web_fixture.reahl_server.set_app(address_app_fixture.wsgi_app)
-        browser = web_fixture.driver_browser
-        address_app_fixture.new_existing_address()
+    web_fixture.context.install()
+    web_fixture.reahl_server.set_app(address_app_fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    address_app_fixture.new_existing_address()
 
-        browser.open('/')
-        browser.click(XPath.button_labelled('Edit'))
+    browser.open('/')
+    browser.click(XPath.button_labelled('Edit'))
 
-        browser.type(XPath.input_labelled('Email'), 'invalid email address')
-        browser.press_tab('//input') #tab out so that validation is triggered
+    browser.type(XPath.input_labelled('Email'), 'invalid email address')
+    browser.press_tab('//input') #tab out so that validation is triggered
 
-        assert address_app_fixture.error_is_displayed('Email should be a valid email address')
+    assert address_app_fixture.error_is_displayed('Email should be a valid email address')
 
 
 

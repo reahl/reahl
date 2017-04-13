@@ -23,8 +23,9 @@ from reahl.stubble import stubclass, replaced
 
 from reahl.webdev.tools import Browser
 
+from reahl.component.context import ExecutionContext
 from reahl.web.dhtml import DhtmlUI, DHTMLFile
-from reahl.web.fw import WebExecutionContext, UserInterface
+from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page
 
@@ -74,34 +75,35 @@ def test_basic_workings(web_fixture, dhtml_fixture):
                             name='test_ui', static_div_name='astatic')
 
     fixture = dhtml_fixture
-    with web_fixture.context:
-        # Dhtml files should be located in the web.static_root
-        web_fixture.config.web.static_root = fixture.static_dir.name
+    web_fixture.context.install()
 
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
-        browser = Browser(wsgi_app)
+    # Dhtml files should be located in the web.static_root
+    web_fixture.config.web.static_root = fixture.static_dir.name
 
-        # A dhtml file: HTML5Page's main_slot now contains the insides of the div in the dhtml file
-        browser.open('/dhtml_ui/correctfile.d.html')
-        html = fixture.get_inserted_html(browser)
-        assert html == fixture.div_internals
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
+    browser = Browser(wsgi_app)
 
-        # A non-dhtml file is returned verbatim
-        browser.open('/dhtml_ui/otherfile.txt')
-        contents = browser.raw_html
-        assert contents == 'other'
+    # A dhtml file: HTML5Page's main_slot now contains the insides of the div in the dhtml file
+    browser.open('/dhtml_ui/correctfile.d.html')
+    html = fixture.get_inserted_html(browser)
+    assert html == fixture.div_internals
 
-        # Files that do not exist are reported as such
-        browser.open('/dhtml_ui/idonotexist.txt', status=404)
-        browser.open('/dhtml_ui/idonotexist.d.html', status=404)
+    # A non-dhtml file is returned verbatim
+    browser.open('/dhtml_ui/otherfile.txt')
+    contents = browser.raw_html
+    assert contents == 'other'
+
+    # Files that do not exist are reported as such
+    browser.open('/dhtml_ui/idonotexist.txt', status=404)
+    browser.open('/dhtml_ui/idonotexist.d.html', status=404)
 
 
 @with_fixtures(WebFixture, DhtmlFixture)
 def test_i18n_dhtml(web_fixture, dhtml_fixture):
     """Dhtml files can have i18nsed versions, which would be served up if applicable."""
 
-    @stubclass(WebExecutionContext)
-    class AfrikaansContext(WebExecutionContext):
+    @stubclass(ExecutionContext)
+    class AfrikaansContext(ExecutionContext):
         @property
         def interface_locale(self):
             return 'af'
@@ -113,21 +115,22 @@ def test_i18n_dhtml(web_fixture, dhtml_fixture):
                                        name='test_ui', static_div_name='astatic')
 
     fixture = dhtml_fixture
-    with web_fixture.context:
-        # Dhtml files should be located in the web.static_root
-        web_fixture.config.web.static_root = fixture.static_dir.name
+    web_fixture.context.install()
 
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    # Dhtml files should be located in the web.static_root
+    web_fixture.config.web.static_root = fixture.static_dir.name
 
-        browser = Browser(wsgi_app)
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
 
-        # request the file, but get the translated alternative for the locale
-        def stubbed_create_context_for_request():
-            return AfrikaansContext()
-        with replaced(wsgi_app.create_context_for_request, stubbed_create_context_for_request):
-            browser.open('/dhtml_ui/correctfile.d.html')
+    browser = Browser(wsgi_app)
 
-        assert browser.title == 'Afrikaans bo!'
+    # request the file, but get the translated alternative for the locale
+    def stubbed_create_context_for_request():
+        return AfrikaansContext()
+    with replaced(wsgi_app.create_context_for_request, stubbed_create_context_for_request):
+        browser.open('/dhtml_ui/correctfile.d.html')
+
+    assert browser.title == 'Afrikaans bo!'
 
 
 @with_fixtures(DhtmlFixture)

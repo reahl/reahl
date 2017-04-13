@@ -121,35 +121,3 @@ def test_single_scenario(testdir):
     result.reprec.assertoutcome(passed=2)
 
 
-def test_contextual_runs(testdir):
-    """Tests can be run in the context of their fixtures (if any)."""
-
-    p = testdir.makepyfile('''
-    from reahl.tofu import Fixture, scenario
-    from reahl.tofu.pytestsupport import with_fixtures
-    class ContextManager(object):
-        entered = False
-        exited = False
-        def __enter__(self):
-            self.entered = True
-        def __exit__(self, exception, value, trace):
-            self.exited = True
-
-    class ContextualFixture(Fixture):
-        def new_context(self):
-            return ContextManager()
-
-    a = []
-    @with_fixtures(ContextualFixture)
-    def test_something(context_fixture):
-        a.append(context_fixture)
-        assert context_fixture.context.entered
-        assert not context_fixture.context.exited
-
-    def test_result():
-        [fixture] = a
-        assert fixture.context.exited
-    ''')
-    result = testdir.runpytest(p)
-    result.reprec.assertoutcome(passed=2)
-

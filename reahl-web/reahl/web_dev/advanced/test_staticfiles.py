@@ -38,44 +38,45 @@ def test_files_from_disk(web_fixture):
     """A directory in the web.static_root configuration setting, can be mounted on a URL
        named after it on the WebApplication.
     """
-    with web_fixture.context:
-        static_root = temp_dir()
-        files_dir = static_root.sub_dir('staticfiles')
-        sub_dir = files_dir.sub_dir('subdir')
-        one_file = files_dir.file_with('one_file.xml', 'one')
-        nested_file = sub_dir.file_with('nested_file', 'other')
+    web_fixture.context.install()
 
-        # How the config is set
-        web_fixture.config.web.static_root = static_root.name
+    static_root = temp_dir()
+    files_dir = static_root.sub_dir('staticfiles')
+    sub_dir = files_dir.sub_dir('subdir')
+    one_file = files_dir.file_with('one_file.xml', 'one')
+    nested_file = sub_dir.file_with('nested_file', 'other')
 
-        # How the subdirectory is mounted
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_static_directory('/staticfiles')
+    # How the config is set
+    web_fixture.config.web.static_root = static_root.name
 
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    # How the subdirectory is mounted
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_static_directory('/staticfiles')
 
-        # How the first file would be accessed
-        browser.open('/staticfiles/one_file.xml')
-        assert browser.raw_html == 'one'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        # The meta-info of the file
-        response = browser.last_response
-        assert response.content_type == 'application/xml'
-        assert response.content_encoding is None
-        assert response.content_length == 3
-        expected_mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(one_file.name)))
-        assert response.last_modified.replace(tzinfo=None) == expected_mtime
-        expected_tag = '%s-%s-%s' % (os.path.getmtime(one_file.name), 3, abs(hash(one_file.name)))
-        assert response.etag == expected_tag
+    # How the first file would be accessed
+    browser.open('/staticfiles/one_file.xml')
+    assert browser.raw_html == 'one'
 
-        # How the file in the subdirectory would be accessed
-        browser.open('/staticfiles/subdir/nested_file')
-        assert browser.raw_html == 'other'
+    # The meta-info of the file
+    response = browser.last_response
+    assert response.content_type == 'application/xml'
+    assert response.content_encoding is None
+    assert response.content_length == 3
+    expected_mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(one_file.name)))
+    assert response.last_modified.replace(tzinfo=None) == expected_mtime
+    expected_tag = '%s-%s-%s' % (os.path.getmtime(one_file.name), 3, abs(hash(one_file.name)))
+    assert response.etag == expected_tag
 
-        # When a file does not exist
-        browser.open('/staticfiles/one_that_does_not_exist', status=404)
+    # How the file in the subdirectory would be accessed
+    browser.open('/staticfiles/subdir/nested_file')
+    assert browser.raw_html == 'other'
+
+    # When a file does not exist
+    browser.open('/staticfiles/one_that_does_not_exist', status=404)
 
 
 @with_fixtures(WebFixture)
@@ -83,96 +84,99 @@ def test_files_from_list(web_fixture):
     """An explicit list of files can also be added on an URL as if they were in a single
        directory.
     """
-    with web_fixture.context:
-        files_dir = temp_dir()
-        one_file = files_dir.file_with('any_name_will_do_here', 'one')
+    web_fixture.context.install()
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                list_of_files = [FileOnDisk(one_file.name, 'one_file')]
-                self.define_static_files('/morestaticfiles', list_of_files)
+    files_dir = temp_dir()
+    one_file = files_dir.file_with('any_name_will_do_here', 'one')
 
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    class MainUI(UserInterface):
+        def assemble(self):
+            list_of_files = [FileOnDisk(one_file.name, 'one_file')]
+            self.define_static_files('/morestaticfiles', list_of_files)
 
-        # How the first file would be accessed
-        browser.open('/morestaticfiles/one_file')
-        assert browser.raw_html == 'one'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        # The meta-info of the file
-        response = browser.last_response
-        assert response.content_type == 'application/octet-stream'
-        assert response.content_encoding is None
-        assert response.content_length == 3
-        expected_mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(one_file.name)))
-        assert response.last_modified.replace(tzinfo=None) == expected_mtime
-        expected_tag = '%s-%s-%s' % (os.path.getmtime(one_file.name), 3, abs(hash(one_file.name)))
-        assert response.etag == expected_tag
+    # How the first file would be accessed
+    browser.open('/morestaticfiles/one_file')
+    assert browser.raw_html == 'one'
 
-        # When a file does not exist
-        browser.open('/morestaticfiles/one_that_does_not_exist', status=404)
+    # The meta-info of the file
+    response = browser.last_response
+    assert response.content_type == 'application/octet-stream'
+    assert response.content_encoding is None
+    assert response.content_length == 3
+    expected_mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(one_file.name)))
+    assert response.last_modified.replace(tzinfo=None) == expected_mtime
+    expected_tag = '%s-%s-%s' % (os.path.getmtime(one_file.name), 3, abs(hash(one_file.name)))
+    assert response.etag == expected_tag
+
+    # When a file does not exist
+    browser.open('/morestaticfiles/one_that_does_not_exist', status=404)
 
 
 @with_fixtures(WebFixture)
 def test_files_from_database(web_fixture):
     """Files can also be created on the fly such as from data in a database."""
 
-    with web_fixture.context:
-        content_bytes = ('hôt stuff').encode('utf-8')
+    web_fixture.context.install()
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                mime_type = 'text/html'
-                encoding = 'utf-8'
-                mtime = 123
-                size = len(content_bytes)
+    content_bytes = ('hôt stuff').encode('utf-8')
 
-                list_of_files = [FileFromBlob('database_file', content_bytes, mime_type, encoding, size, mtime)]
-                self.define_static_files('/files', list_of_files)
+    class MainUI(UserInterface):
+        def assemble(self):
+            mime_type = 'text/html'
+            encoding = 'utf-8'
+            mtime = 123
+            size = len(content_bytes)
 
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+            list_of_files = [FileFromBlob('database_file', content_bytes, mime_type, encoding, size, mtime)]
+            self.define_static_files('/files', list_of_files)
 
-        # How the file would be accessed
-        browser.open('/files/database_file')
-        assert browser.raw_html == 'hôt stuff'
-        response = browser.last_response
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        # The meta-info of the file
-        assert response.content_type == 'text/html'
-        assert not response.content_encoding
-        assert response.content_length == len(content_bytes)
-        assert response.last_modified.replace(tzinfo=None) == datetime.datetime.fromtimestamp(123)
-        expected_etag = '123-%s-%s' % (len(content_bytes), abs(hash('database_file')))
-        assert response.etag == expected_etag
+    # How the file would be accessed
+    browser.open('/files/database_file')
+    assert browser.raw_html == 'hôt stuff'
+    response = browser.last_response
+
+    # The meta-info of the file
+    assert response.content_type == 'text/html'
+    assert not response.content_encoding
+    assert response.content_length == len(content_bytes)
+    assert response.last_modified.replace(tzinfo=None) == datetime.datetime.fromtimestamp(123)
+    expected_etag = '123-%s-%s' % (len(content_bytes), abs(hash('database_file')))
+    assert response.etag == expected_etag
 
 
 @with_fixtures(WebFixture)
 def test_packaged_files(web_fixture):
     """Files can also be served straight from a python egg."""
 
-    with web_fixture.context:
-        # Create an egg with package packaged_files, containing the file packaged_file
-        egg_dir = temp_dir()
-        package_dir = egg_dir.sub_dir('packaged_files')
-        init_file = package_dir.file_with('__init__.py', '')
-        afile = package_dir.file_with('packaged_file', 'contents')
+    web_fixture.context.install()
 
-        easter_egg.clear()
-        pkg_resources.working_set.add(easter_egg)
-        easter_egg.location = egg_dir.name
+    # Create an egg with package packaged_files, containing the file packaged_file
+    egg_dir = temp_dir()
+    package_dir = egg_dir.sub_dir('packaged_files')
+    init_file = package_dir.file_with('__init__.py', '')
+    afile = package_dir.file_with('packaged_file', 'contents')
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                list_of_files = [PackagedFile(easter_egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
-                self.define_static_files('/files', list_of_files)
+    easter_egg.clear()
+    pkg_resources.working_set.add(easter_egg)
+    easter_egg.location = egg_dir.name
 
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    class MainUI(UserInterface):
+        def assemble(self):
+            list_of_files = [PackagedFile(easter_egg.as_requirement_string(), 'packaged_files', 'packaged_file')]
+            self.define_static_files('/files', list_of_files)
 
-        # How the file would be accessed
-        browser.open('/files/packaged_file')
-        assert browser.raw_html == 'contents'
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    # How the file would be accessed
+    browser.open('/files/packaged_file')
+    assert browser.raw_html == 'contents'
 
 class ConcatenateScenarios(Fixture):
     @scenario
@@ -203,31 +207,32 @@ def test_concatenated_files(web_fixture, concatenate_scenarios):
        minified in the process."""
 
     fixture = concatenate_scenarios
-    with web_fixture.context:
-        # Make an egg with a package called packaged_files, and two files in there.
-        egg_dir = temp_dir()
-        package_dir = egg_dir.sub_dir('packaged_files')
-        init_file = package_dir.file_with('__init__.py', '')
-        afile = package_dir.file_with('packaged_file', fixture.file1_contents)
-        another_file = package_dir.file_with('packaged_file2', fixture.file2_contents)
+    web_fixture.context.install()
 
-        pkg_resources.working_set.add(easter_egg)
-        easter_egg.location = egg_dir.name
+    # Make an egg with a package called packaged_files, and two files in there.
+    egg_dir = temp_dir()
+    package_dir = egg_dir.sub_dir('packaged_files')
+    init_file = package_dir.file_with('__init__.py', '')
+    afile = package_dir.file_with('packaged_file', fixture.file1_contents)
+    another_file = package_dir.file_with('packaged_file2', fixture.file2_contents)
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                to_concatenate = [PackagedFile('test==1.0', 'packaged_files', 'packaged_file'),
-                                  PackagedFile('test==1.0', 'packaged_files', 'packaged_file2')]
-                list_of_files = [ConcatenatedFile(fixture.filename, to_concatenate)]
-                self.define_static_files('/files', list_of_files)
+    pkg_resources.working_set.add(easter_egg)
+    easter_egg.location = egg_dir.name
 
-        web_fixture.config.reahlsystem.debug = False  # To enable minification
-        wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    class MainUI(UserInterface):
+        def assemble(self):
+            to_concatenate = [PackagedFile('test==1.0', 'packaged_files', 'packaged_file'),
+                              PackagedFile('test==1.0', 'packaged_files', 'packaged_file2')]
+            list_of_files = [ConcatenatedFile(fixture.filename, to_concatenate)]
+            self.define_static_files('/files', list_of_files)
 
-        # How the first file would be accessed
-        browser.open('/files/%s' % fixture.filename)
-        assert browser.raw_html == fixture.expected_result
+    web_fixture.config.reahlsystem.debug = False  # To enable minification
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    # How the first file would be accessed
+    browser.open('/files/%s' % fixture.filename)
+    assert browser.raw_html == fixture.expected_result
 
 
 @with_fixtures(WebFixture)
@@ -235,74 +240,75 @@ def test_file_download_details(web_fixture):
     """FileDownloadStub (the GET response for a StaticFileResource) works correctly in
       different scenarios of partial GETting too."""
 
-    with web_fixture.context:
-        file_content = b'some content'
-        server_file = temp_file_with(file_content, 'afile.css', mode='w+b')
-        @stubclass(FileDownload)
-        class FileDownloadStub(FileDownload):
-            chunk_size = 1
-        response = FileDownloadStub(FileOnDisk(server_file.name, '/path/for/the/file'))
+    web_fixture.context.install()
 
-        # Case: The whole content is sent, in chunk_size bits
-        read = [i for i in response.app_iter]
-        expected = [six.int2byte(i) for i in six.iterbytes(file_content)]
-        assert read == expected
+    file_content = b'some content'
+    server_file = temp_file_with(file_content, 'afile.css', mode='w+b')
+    @stubclass(FileDownload)
+    class FileDownloadStub(FileDownload):
+        chunk_size = 1
+    response = FileDownloadStub(FileOnDisk(server_file.name, '/path/for/the/file'))
 
-        # Case: Headers are set correctly
-        assert response.content_type == 'text/css'
-        assert not response.content_encoding
-        assert response.content_length == len(file_content)
+    # Case: The whole content is sent, in chunk_size bits
+    read = [i for i in response.app_iter]
+    expected = [six.int2byte(i) for i in six.iterbytes(file_content)]
+    assert read == expected
 
-        mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(server_file.name)))
-        assert response.last_modified.replace(tzinfo=None) == mtime
-        tag_mtime, tag_size, tag_hash = response.etag.split('-')
-        mtime = six.text_type(os.path.getmtime(server_file.name))
-        assert tag_mtime == mtime
-        assert tag_size == six.text_type(len(file_content))
-        assert tag_hash == six.text_type(abs(hash(server_file.name)))
+    # Case: Headers are set correctly
+    assert response.content_type == 'text/css'
+    assert not response.content_encoding
+    assert response.content_length == len(file_content)
 
-        # Case: conditional response is supported
-        assert response.conditional_response
+    mtime = datetime.datetime.fromtimestamp(int(os.path.getmtime(server_file.name)))
+    assert response.last_modified.replace(tzinfo=None) == mtime
+    tag_mtime, tag_size, tag_hash = response.etag.split('-')
+    mtime = six.text_type(os.path.getmtime(server_file.name))
+    assert tag_mtime == mtime
+    assert tag_size == six.text_type(len(file_content))
+    assert tag_hash == six.text_type(abs(hash(server_file.name)))
 
-        # Case: partial response is supported - different cases:
-        #      - normal case
-        actual = [i for i in response.app_iter.app_iter_range(3,7)]
-        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:8])]
-        assert actual == expected
+    # Case: conditional response is supported
+    assert response.conditional_response
 
-        #      - no end specified
-        actual = [i for i in response.app_iter.app_iter_range(3)]
-        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
-        assert actual == expected
+    # Case: partial response is supported - different cases:
+    #      - normal case
+    actual = [i for i in response.app_iter.app_iter_range(3,7)]
+    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:8])]
+    assert actual == expected
 
-        #      - no start specified
-        actual = [i for i in response.app_iter.app_iter_range(end=7)]
-        expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
-        assert actual == expected
+    #      - no end specified
+    actual = [i for i in response.app_iter.app_iter_range(3)]
+    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
+    assert actual == expected
 
-        #      - where the last chunk read would stretch past end
-        response.chunk_size = 2
-        actual = b''.join([i for i in response.app_iter.app_iter_range(end=6)])
-        expected = file_content[:7]
-        assert actual == expected
+    #      - no start specified
+    actual = [i for i in response.app_iter.app_iter_range(end=7)]
+    expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
+    assert actual == expected
 
-        #      - where start > end
-        response.chunk_size = 1
-        actual = [i for i in response.app_iter.app_iter_range(start=7, end=3)]
-        expected = [b'']
-        assert actual == expected
+    #      - where the last chunk read would stretch past end
+    response.chunk_size = 2
+    actual = b''.join([i for i in response.app_iter.app_iter_range(end=6)])
+    expected = file_content[:7]
+    assert actual == expected
 
-        #      - where start < 0
-        actual = [i for i in response.app_iter.app_iter_range(start=-10, end=7)]
-        expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
-        assert actual == expected
+    #      - where start > end
+    response.chunk_size = 1
+    actual = [i for i in response.app_iter.app_iter_range(start=7, end=3)]
+    expected = [b'']
+    assert actual == expected
 
-        #      - where end > length of file
-        actual = [i for i in response.app_iter.app_iter_range(start=3, end=2000)]
-        expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
-        assert actual == expected
+    #      - where start < 0
+    actual = [i for i in response.app_iter.app_iter_range(start=-10, end=7)]
+    expected = [six.int2byte(i) for i in six.iterbytes(file_content[:8])]
+    assert actual == expected
 
-        #      - where start > length of file
-        actual = [i for i in response.app_iter.app_iter_range(start=700)]
-        expected = [b'']
-        assert actual == expected
+    #      - where end > length of file
+    actual = [i for i in response.app_iter.app_iter_range(start=3, end=2000)]
+    expected = [six.int2byte(i) for i in six.iterbytes(file_content[3:])]
+    assert actual == expected
+
+    #      - where start > length of file
+    actual = [i for i in response.app_iter.app_iter_range(start=700)]
+    expected = [b'']
+    assert actual == expected

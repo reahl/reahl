@@ -36,16 +36,17 @@ class ConfigFixture(Fixture):
 @with_fixtures(WebFixture, ConfigFixture)
 def test_add_address(web_fixture, config_fixture):
     """A user can add an address, after which the address is listed."""
+
+    web_fixture.context.install()
     browser = config_fixture.browser
 
-    with web_fixture.context:
-        browser.open('/')
-        browser.type(XPath.input_labelled('Name'), 'John')
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.open('/')
+    browser.type(XPath.input_labelled('Name'), 'John')
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
 
-        browser.click(XPath.button_labelled('Save'))
+    browser.click(XPath.button_labelled('Save'))
 
-        assert config_fixture.address_is_listed_as('John', 'johndoe@some.org')
+    assert config_fixture.address_is_listed_as('John', 'johndoe@some.org')
 
 
 @with_fixtures(WebFixture)
@@ -57,13 +58,14 @@ def test_config_was_read_from_file(web_fixture):
 @with_fixtures(WebFixture, ConfigFixture)
 def test_configurable_heading(web_fixture, config_fixture):
     """Whether the heading is displayed or not, is configurable."""
-    browser = config_fixture.browser
-    
-    with web_fixture.context:
-        web_fixture.context.config.componentconfig.showheader = False
-        browser.open('/')
-        assert not config_fixture.heading_is_displayed()
 
-        web_fixture.context.config.componentconfig.showheader = True
-        browser.open('/')
-        assert config_fixture.heading_is_displayed()
+    web_fixture.context.install()
+    browser = config_fixture.browser
+
+    web_fixture.context.config.componentconfig.showheader = False
+    browser.open('/')
+    assert not config_fixture.heading_is_displayed()
+
+    web_fixture.context.config.componentconfig.showheader = True
+    browser.open('/')
+    assert config_fixture.heading_is_displayed()

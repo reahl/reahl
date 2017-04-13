@@ -30,10 +30,11 @@ from reahl.web_dev.fixtures import WebFixture
 def test_alerts(web_fixture):
     """An alert is used to display a message with a specific severity"""
 
-    with web_fixture.context:
-        alert = Alert(web_fixture.view, 'Be careful', 'danger')
+    web_fixture.context.install()
 
-        assert alert.get_attribute('class') == 'alert alert-danger'
-        assert alert.get_attribute('role') == 'alert'
-        [message] = alert.children
-        assert message.value == 'Be careful'
+    alert = Alert(web_fixture.view, 'Be careful', 'danger')
+
+    assert alert.get_attribute('class') == 'alert alert-danger'
+    assert alert.get_attribute('role') == 'alert'
+    [message] = alert.children
+    assert message.value == 'Be careful'

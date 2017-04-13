@@ -16,23 +16,23 @@ def test_adding_an_address(web_fixture):
        information for the new address and clicks the Save button. Upon successful addition of the
        address, the user is returned to the home page where the new address is now listed."""
 
-    with web_fixture.context:
-        browser = Browser(web_fixture.new_wsgi_app(site_root=AddressBookUI))
+    web_fixture.context.install()
+    browser = Browser(web_fixture.new_wsgi_app(site_root=AddressBookUI))
 
-        browser.open('/')
-        browser.click(XPath.link_with_text('Add an address'))
+    browser.open('/')
+    browser.click(XPath.link_with_text('Add an address'))
 
-        actual_title = browser.title
-        assert actual_title == 'Add an address', 'Expected to be on the Add an address page'
+    actual_title = browser.title
+    assert actual_title == 'Add an address', 'Expected to be on the Add an address page'
 
-        browser.type(XPath.input_labelled('Name'), 'John Doe')
-        browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
+    browser.type(XPath.input_labelled('Name'), 'John Doe')
+    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
 
-        browser.click(XPath.button_labelled('Save'))
+    browser.click(XPath.button_labelled('Save'))
 
-        actual_title = browser.title
-        assert actual_title == 'Addresses', 'Expected to be back on the home page after editing'
+    actual_title = browser.title
+    assert actual_title == 'Addresses', 'Expected to be back on the home page after editing'
 
-        assert browser.is_element_present(XPath.paragraph_containing('John Doe: johndoe@some.org')), \
-               'Expected the newly added address to be listed on the home page'
+    assert browser.is_element_present(XPath.paragraph_containing('John Doe: johndoe@some.org')), \
+           'Expected the newly added address to be listed on the home page'
 

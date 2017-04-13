@@ -70,49 +70,50 @@ def test_query_string_widget_arguments(web_fixture, query_string_fixture):
     """Widgets can have arguments that are read from a query string"""
 
     fixture = query_string_fixture
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        class WidgetWithQueryArguments(Widget):
-            def __init__(self, view):
-                super(WidgetWithQueryArguments, self).__init__(view)
-                self.add_child(P(view, text=self.arg_directly_on_widget))
+    class WidgetWithQueryArguments(Widget):
+        def __init__(self, view):
+            super(WidgetWithQueryArguments, self).__init__(view)
+            self.add_child(P(view, text=self.arg_directly_on_widget))
 
-            @exposed
-            def query_fields(self, fields):
-                fields.arg_directly_on_widget = Field()
+        @exposed
+        def query_fields(self, fields):
+            fields.arg_directly_on_widget = Field()
 
-        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=WidgetWithQueryArguments.factory())
-        browser = Browser(wsgi_app)
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=WidgetWithQueryArguments.factory())
+    browser = Browser(wsgi_app)
 
-        browser.open('/?arg_directly_on_widget=supercalafragalisticxpelidocious')
-        assert browser.lxml_html.xpath('//p')[0].text == 'supercalafragalisticxpelidocious'
+    browser.open('/?arg_directly_on_widget=supercalafragalisticxpelidocious')
+    assert browser.lxml_html.xpath('//p')[0].text == 'supercalafragalisticxpelidocious'
 
 
 @with_fixtures(WebFixture)
 def test_query_string_prepopulates_form(web_fixture):
     """Widget query string arguments can be used on forms to pre-populate inputs based on the query string."""
 
-    with web_fixture.context:
-        class ModelObject(object):
-            @exposed
-            def fields(self, fields):
-                fields.arg_on_other_object = Field()
+    web_fixture.context.install()
 
-        class FormWithQueryArguments(Form):
-            def __init__(self, view):
-                self.model_object = ModelObject()
-                super(FormWithQueryArguments, self).__init__(view, 'name')
-                self.add_child(TextInput(self, self.model_object.fields.arg_on_other_object))
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.arg_on_other_object = Field()
 
-            @exposed
-            def query_fields(self, fields):
-                fields.arg_on_other_object = self.model_object.fields.arg_on_other_object
+    class FormWithQueryArguments(Form):
+        def __init__(self, view):
+            self.model_object = ModelObject()
+            super(FormWithQueryArguments, self).__init__(view, 'name')
+            self.add_child(TextInput(self, self.model_object.fields.arg_on_other_object))
 
-        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=FormWithQueryArguments.factory())
-        browser = Browser(wsgi_app)
+        @exposed
+        def query_fields(self, fields):
+            fields.arg_on_other_object = self.model_object.fields.arg_on_other_object
 
-        browser.open('/?arg_on_other_object=metoo')
-        assert browser.lxml_html.xpath('//input')[0].value == 'metoo'
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=FormWithQueryArguments.factory())
+    browser = Browser(wsgi_app)
+
+    browser.open('/?arg_on_other_object=metoo')
+    assert browser.lxml_html.xpath('//input')[0].value == 'metoo'
 
 
 @with_fixtures(WebFixture, QueryStringFixture)
@@ -123,38 +124,40 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
        such Widgets bookmarkable by a browser."""
 
     fixture = query_string_fixture
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
-        web_fixture.reahl_server.set_app(wsgi_app)
-        web_fixture.driver_browser.open('/')
+    web_fixture.context.install()
 
-        # Case: the default
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 1)
-        assert fixture.widget.fancy_state == 1
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
 
-        # Case: change without page load
-        fixture.change_fragment('#fancy_state=2')
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
-        assert fixture.widget.fancy_state == 2
+    # Case: the default
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 1)
+    assert fixture.widget.fancy_state == 1
 
-        # Case: unrelated fragment changes do not trigger a reload of the widget
-        previous_widget = fixture.widget
-        fixture.change_fragment('#fancy_state=2&other_var=other_value')
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
-        assert fixture.widget is previous_widget
+    # Case: change without page load
+    fixture.change_fragment('#fancy_state=2')
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
+    assert fixture.widget.fancy_state == 2
+
+    # Case: unrelated fragment changes do not trigger a reload of the widget
+    previous_widget = fixture.widget
+    fixture.change_fragment('#fancy_state=2&other_var=other_value')
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
+    assert fixture.widget is previous_widget
 
 
 @with_fixtures(WebFixture)
 def test_css_id_is_mandatory(web_fixture):
     """If a Widget is enabled to to be refreshed, it must also have a css_id set."""
-    with web_fixture.context:
-        class MyFancyWidget(Div):
-            def __init__(self, view):
-                super(MyFancyWidget, self).__init__(view)
-                self.enable_refresh()
+    web_fixture.context.install()
 
-        with expected(ProgrammerError):
-            MyFancyWidget(web_fixture.view)
+    class MyFancyWidget(Div):
+        def __init__(self, view):
+            super(MyFancyWidget, self).__init__(view)
+            self.enable_refresh()
+
+    with expected(ProgrammerError):
+        MyFancyWidget(web_fixture.view)
 
 
 class PartialRefreshFixture(QueryStringFixture):
@@ -184,24 +187,25 @@ def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture)
     """
 
     fixture = partial_refresh_fixture
-    with web_fixture.context:
-        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
-        web_fixture.reahl_server.set_app(wsgi_app)
-        web_fixture.driver_browser.open('/')
+    web_fixture.context.install()
 
-        # Case: the default
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 1)
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
 
-        # Case: changing the specified field only
-        fixture.change_fragment('#refreshing_state=3')
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3)
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
+    # Case: the default
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 1)
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
 
-        # Case: changing the other field only
-        fixture.change_fragment('#non_refreshing_state=4')
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3)
-        assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
+    # Case: changing the specified field only
+    fixture.change_fragment('#refreshing_state=3')
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3)
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
+
+    # Case: changing the other field only
+    fixture.change_fragment('#non_refreshing_state=4')
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My refreshing state', 3)
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_labelled_now, 'My non-refreshing state', 2)
 
 
 @with_fixtures(WebFixture)
@@ -216,36 +220,37 @@ def test_bookmarks_support_such_fragments(web_fixture):
     """
 
     fixture = web_fixture
-    with web_fixture.context:
-        internal_bookmark = Bookmark.for_widget('an ajax bookmark', query_arguments={'fancy_state':2})
-        normal_bookmark = Bookmark('/', '', 'a normal bookmark')
+    web_fixture.context.install()
 
-        # You can query whether a bookmark is page_internal or not
-        assert internal_bookmark.is_page_internal
-        assert not normal_bookmark.is_page_internal
+    internal_bookmark = Bookmark.for_widget('an ajax bookmark', query_arguments={'fancy_state':2})
+    normal_bookmark = Bookmark('/', '', 'a normal bookmark')
 
-        # page-internal bookmarks must be added to normal ones to be useful
-        usable_bookmark = normal_bookmark+internal_bookmark
+    # You can query whether a bookmark is page_internal or not
+    assert internal_bookmark.is_page_internal
+    assert not normal_bookmark.is_page_internal
 
-        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=A.factory_from_bookmark(usable_bookmark))
+    # page-internal bookmarks must be added to normal ones to be useful
+    usable_bookmark = normal_bookmark+internal_bookmark
 
-        # Case: when rendered without javascript
-        browser = Browser(wsgi_app)
-        browser.open('/')
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=A.factory_from_bookmark(usable_bookmark))
 
-        a = browser.lxml_html.xpath('//a')[0]
-        assert a.attrib['href'] == '/?fancy_state=2'
-        assert a.text == 'an ajax bookmark'
+    # Case: when rendered without javascript
+    browser = Browser(wsgi_app)
+    browser.open('/')
 
-        # Case: when rendered in a browser with javascript support
-        web_fixture.reahl_server.set_app(wsgi_app)
-        web_fixture.driver_browser.open('/')
-        assert     web_fixture.driver_browser.is_element_present("//a[@href='/#fancy_state=2']")
-        assert not web_fixture.driver_browser.is_element_present("//a[@href='/?fancy_state=2']")
+    a = browser.lxml_html.xpath('//a')[0]
+    assert a.attrib['href'] == '/?fancy_state=2'
+    assert a.text == 'an ajax bookmark'
 
-        # Case: when the argument was given on the query string of the current page
-        fixture.driver_browser.open('/?fancy_state=4')
-        assert     web_fixture.driver_browser.is_element_present("//a[@href='/#fancy_state=2']")
+    # Case: when rendered in a browser with javascript support
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+    assert     web_fixture.driver_browser.is_element_present("//a[@href='/#fancy_state=2']")
+    assert not web_fixture.driver_browser.is_element_present("//a[@href='/?fancy_state=2']")
+
+    # Case: when the argument was given on the query string of the current page
+    fixture.driver_browser.open('/?fancy_state=4')
+    assert     web_fixture.driver_browser.is_element_present("//a[@href='/#fancy_state=2']")
 
 
 class RightsScenarios(Fixture):

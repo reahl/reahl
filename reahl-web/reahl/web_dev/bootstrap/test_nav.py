@@ -1,3 +1,4 @@
+
 # Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
@@ -38,54 +39,54 @@ _ = Translator('reahl-web')
 @with_fixtures(WebFixture)
 def test_navs(web_fixture):
     """A Nav is a menu with css classes for styling by Bootstrap."""
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        bookmarks = [Bookmark('', '/one', 'One'),
-                     Bookmark('', '/two', 'Two')]
-        menu = Nav(web_fixture.view).with_bookmarks(bookmarks)
+    bookmarks = [Bookmark('', '/one', 'One'),
+                 Bookmark('', '/two', 'Two')]
+    menu = Nav(web_fixture.view).with_bookmarks(bookmarks)
 
-        # A nav is an ul.nav
-        assert menu.html_representation.tag_name == 'ul'
-        assert 'nav' in menu.html_representation.get_attribute('class')
+    # A nav is an ul.nav
+    assert menu.html_representation.tag_name == 'ul'
+    assert 'nav' in menu.html_representation.get_attribute('class')
 
-        # Containing a li for each menu item
-        [one, two] = menu.html_representation.children
+    # Containing a li for each menu item
+    [one, two] = menu.html_representation.children
 
-        for item, expected_href, expected_description in [(one, '/one', 'One'),
-                                                          (two, '/two', 'Two')]:
-            assert item.tag_name == 'li'
-            assert item.get_attribute('class') == 'nav-item'
+    for item, expected_href, expected_description in [(one, '/one', 'One'),
+                                                      (two, '/two', 'Two')]:
+        assert item.tag_name == 'li'
+        assert item.get_attribute('class') == 'nav-item'
 
-            [a] = item.children
-            assert a.get_attribute('href') == expected_href
-            assert a.children[0].value ==  expected_description
-            assert a.get_attribute('class') == 'nav-link'
+        [a] = item.children
+        assert a.get_attribute('href') == expected_href
+        assert a.children[0].value ==  expected_description
+        assert a.get_attribute('class') == 'nav-link'
 
 
 @with_fixtures(WebFixture)
 def test_populating(web_fixture):
     """Navs can be populated with a list of A's or Bookmarks."""
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        # Case: a normal menu from bookmarks
-        item_specs = [Bookmark('/', '/href1', 'description1'),
-                      Bookmark('/', '/go_to_href', 'description2')]
-        menu = Nav(web_fixture.view).with_bookmarks(item_specs)
-        tester = WidgetTester(menu)
+    # Case: a normal menu from bookmarks
+    item_specs = [Bookmark('/', '/href1', 'description1'),
+                  Bookmark('/', '/go_to_href', 'description2')]
+    menu = Nav(web_fixture.view).with_bookmarks(item_specs)
+    tester = WidgetTester(menu)
 
-        [item1, item2] = menu.menu_items
-        assert item1.a.href.path == '/href1'
-        assert item1.a.children[0].value == 'description1'
+    [item1, item2] = menu.menu_items
+    assert item1.a.href.path == '/href1'
+    assert item1.a.children[0].value == 'description1'
 
-        assert item2.a.href.path == '/go_to_href'
-        assert item2.a.children[0].value == 'description2'
+    assert item2.a.href.path == '/go_to_href'
+    assert item2.a.children[0].value == 'description2'
 
-        #case: using A's
-        a_list = [A.from_bookmark(web_fixture.view, i) for i in item_specs]
-        menu = Nav(web_fixture.view).with_a_list(a_list)
-        [item1, item2] = menu.menu_items
-        assert item1.a is a_list[0]
-        assert item2.a is a_list[1]
+    #case: using A's
+    a_list = [A.from_bookmark(web_fixture.view, i) for i in item_specs]
+    menu = Nav(web_fixture.view).with_a_list(a_list)
+    [item1, item2] = menu.menu_items
+    assert item1.a is a_list[0]
+    assert item2.a is a_list[1]
 
 
 @uses(web_fixture=WebFixture)
@@ -114,19 +115,19 @@ class VisualFeedbackScenarios(Fixture):
 @with_fixtures(WebFixture, VisualFeedbackScenarios)
 def test_visual_feedback_on_items(web_fixture, visual_feedback_scenarios):
     """The state of a MenuItem is visually indicated to a user."""
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        menu = Nav(web_fixture.view)
-        menu.add_a(A(web_fixture.view, Url('/an_url')))
-        menu.add_a(visual_feedback_scenarios.menu_item_with_state)
+    menu = Nav(web_fixture.view)
+    menu.add_a(A(web_fixture.view, Url('/an_url')))
+    menu.add_a(visual_feedback_scenarios.menu_item_with_state)
 
-        [defaulted_item, item_with_state] = menu.html_representation.children
+    [defaulted_item, item_with_state] = menu.html_representation.children
 
-        [defaulted_a] = defaulted_item.children
-        [a_with_state] = item_with_state.children
+    [defaulted_a] = defaulted_item.children
+    [a_with_state] = item_with_state.children
 
-        assert visual_feedback_scenarios.state_indicator_class not in defaulted_a.get_attribute('class')
-        assert visual_feedback_scenarios.state_indicator_class in a_with_state.get_attribute('class')
+    assert visual_feedback_scenarios.state_indicator_class not in defaulted_a.get_attribute('class')
+    assert visual_feedback_scenarios.state_indicator_class in a_with_state.get_attribute('class')
 
 
 @uses(web_fixture=WebFixture)
@@ -169,17 +170,17 @@ def test_rendering_active_menu_items(web_fixture, menu_item_scenarios):
     description = 'The link'
     href = Url('/link')
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        menu = Nav(web_fixture.view)
-        menu_item_a = A(web_fixture.view, href, description=description)
-        menu.add_a(menu_item_a, active_regex=menu_item_scenarios.active_regex)
-        tester = WidgetTester(menu)
+    menu = Nav(web_fixture.view)
+    menu_item_a = A(web_fixture.view, href, description=description)
+    menu.add_a(menu_item_a, active_regex=menu_item_scenarios.active_regex)
+    tester = WidgetTester(menu)
 
-        actual = tester.get_html_for('//li')
-        active_str = '' if not menu_item_scenarios.active else 'active '
-        expected_menu_item_html = '<li class="nav-item"><a href="/link" class="%snav-link">The link</a></li>'  % (active_str)
-        assert actual == expected_menu_item_html
+    actual = tester.get_html_for('//li')
+    active_str = '' if not menu_item_scenarios.active else 'active '
+    expected_menu_item_html = '<li class="nav-item"><a href="/link" class="%snav-link">The link</a></li>'  % (active_str)
+    assert actual == expected_menu_item_html
 
 
 @uses(web_fixture=WebFixture)
@@ -249,12 +250,13 @@ def test_custom_active_menu_items(web_fixture, custom_menu_item_fixture):
     """You can specify a custom method by which a MenuItem determines its active state."""
     fixture = custom_menu_item_fixture
 
-    with web_fixture.context:
-        fixture.set_request_url(fixture.go_to_href)
+    web_fixture.context.install()
 
-        if fixture.overriding_callable:
-            fixture.menu_item.determine_is_active_using(fixture.overriding_callable)
-        assert fixture.expects_active == fixture.item_displays_as_active()
+    fixture.set_request_url(fixture.go_to_href)
+
+    if fixture.overriding_callable:
+        fixture.menu_item.determine_is_active_using(fixture.overriding_callable)
+    assert fixture.expects_active == fixture.item_displays_as_active()
 
 
 @with_fixtures(WebFixture)
@@ -268,20 +270,20 @@ def test_language_menu(web_fixture):
             self.add_child(Menu(view).with_languages())
             self.add_child(P(view, text=_('This is an English sentence.')))
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        wsgi_app = web_fixture.new_wsgi_app(child_factory=PanelWithMenu.factory())
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=PanelWithMenu.factory())
 
-        browser = Browser(wsgi_app)
-        browser.open('/')
+    browser = Browser(wsgi_app)
+    browser.open('/')
 
-        assert browser.is_element_present(XPath.paragraph_containing('This is an English sentence.'))
+    assert browser.is_element_present(XPath.paragraph_containing('This is an English sentence.'))
 
-        browser.click(XPath.link_with_text('Afrikaans'))
-        assert browser.is_element_present(XPath.paragraph_containing('Hierdie is \'n sin in Afrikaans.'))
+    browser.click(XPath.link_with_text('Afrikaans'))
+    assert browser.is_element_present(XPath.paragraph_containing('Hierdie is \'n sin in Afrikaans.'))
 
-        browser.click(XPath.link_with_text('English (United Kingdom)'))
-        assert browser.is_element_present(XPath.paragraph_containing('This is an English sentence.'))
+    browser.click(XPath.link_with_text('English (United Kingdom)'))
+    assert browser.is_element_present(XPath.paragraph_containing('This is an English sentence.'))
 
 
 class LayoutScenarios(Fixture):
@@ -308,13 +310,13 @@ class LayoutScenarios(Fixture):
 @with_fixtures(WebFixture, LayoutScenarios)
 def test_nav_layouts(web_fixture, layout_scenarios):
     """Navs can be laid out in different ways."""
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        menu = Nav(web_fixture.view)
+    menu = Nav(web_fixture.view)
 
-        assert not layout_scenarios.layout_css_class.issubset(menu.html_representation.attributes['class'].value)
-        menu.use_layout(layout_scenarios.layout)
-        assert layout_scenarios.layout_css_class.issubset(menu.html_representation.attributes['class'].value)
+    assert not layout_scenarios.layout_css_class.issubset(menu.html_representation.attributes['class'].value)
+    menu.use_layout(layout_scenarios.layout)
+    assert layout_scenarios.layout_css_class.issubset(menu.html_representation.attributes['class'].value)
 
 
 class DifferentLayoutTypes(Fixture):
@@ -332,13 +334,13 @@ def test_justified_items(web_fixture, different_layout_types):
     """Both a PillLayout or TabLayout can be set to make the MenuItems of
        their Nav fill the width of the parent, with the text of each item centered."""
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type())
-        assert 'nav-justified' not in menu.html_representation.get_attribute('class')
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type())
+    assert 'nav-justified' not in menu.html_representation.get_attribute('class')
 
-        menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type(justified=True))
-        assert 'nav-justified' in menu.html_representation.get_attribute('class')
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type(justified=True))
+    assert 'nav-justified' in menu.html_representation.get_attribute('class')
 
 
 def test_pill_layouts_cannot_mix_justified_and_stacked():
@@ -351,59 +353,59 @@ def test_pill_layouts_cannot_mix_justified_and_stacked():
 @with_fixtures(WebFixture)
 def test_dropdown_menus(web_fixture):
     """You can add a DropdownMenu as a dropdown inside a Nav."""
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        menu = Nav(web_fixture.view)
-        sub_menu = DropdownMenu(web_fixture.view)
-        sub_menu.add_a(A(web_fixture.view, Url('/an/url'), description='sub menu item'))
-        menu.add_dropdown('Dropdown title', sub_menu)
+    menu = Nav(web_fixture.view)
+    sub_menu = DropdownMenu(web_fixture.view)
+    sub_menu.add_a(A(web_fixture.view, Url('/an/url'), description='sub menu item'))
+    menu.add_dropdown('Dropdown title', sub_menu)
 
-        [item] = menu.html_representation.children
+    [item] = menu.html_representation.children
 
-        assert item.tag_name == 'li'
-        assert 'dropdown' in item.get_attribute('class')
+    assert item.tag_name == 'li'
+    assert 'dropdown' in item.get_attribute('class')
 
-        [toggle, added_sub_menu] = item.children
-        assert 'dropdown-toggle' in toggle.get_attribute('class')
-        assert 'dropdown' in toggle.get_attribute('data-toggle')
-        assert '-' in toggle.get_attribute('data-target')
-        assert 'caret' in toggle.children[1].get_attribute('class')
+    [toggle, added_sub_menu] = item.children
+    assert 'dropdown-toggle' in toggle.get_attribute('class')
+    assert 'dropdown' in toggle.get_attribute('data-toggle')
+    assert '-' in toggle.get_attribute('data-target')
+    assert 'caret' in toggle.children[1].get_attribute('class')
 
-        title_text = toggle.children[0].value
-        assert title_text == 'Dropdown title'
+    title_text = toggle.children[0].value
+    assert title_text == 'Dropdown title'
 
-        assert added_sub_menu is sub_menu
-        assert 'dropdown-menu' in added_sub_menu.html_representation.get_attribute('class').split()
-        assert isinstance(added_sub_menu.html_representation, Div)
+    assert added_sub_menu is sub_menu
+    assert 'dropdown-menu' in added_sub_menu.html_representation.get_attribute('class').split()
+    assert isinstance(added_sub_menu.html_representation, Div)
 
-        [dropdown_item] = added_sub_menu.html_representation.children
-        assert isinstance(dropdown_item, A)
-        assert 'dropdown-item' in dropdown_item.get_attribute('class').split()
+    [dropdown_item] = added_sub_menu.html_representation.children
+    assert isinstance(dropdown_item, A)
+    assert 'dropdown-item' in dropdown_item.get_attribute('class').split()
 
 
 @with_fixtures(WebFixture)
 def test_dropdown_menus_can_drop_up(web_fixture):
     """Dropdown menus can drop upwards instead of downwards."""
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        menu = Nav(web_fixture.view)
-        sub_menu = Nav(web_fixture.view)
-        menu.add_dropdown('Dropdown title', sub_menu, drop_up=True)
+    menu = Nav(web_fixture.view)
+    sub_menu = Nav(web_fixture.view)
+    menu.add_dropdown('Dropdown title', sub_menu, drop_up=True)
 
-        [item] = menu.html_representation.children
+    [item] = menu.html_representation.children
 
-        assert item.tag_name == 'li'
-        assert 'dropup' in item.get_attribute('class')
+    assert item.tag_name == 'li'
+    assert 'dropup' in item.get_attribute('class')
 
 
 @with_fixtures(WebFixture)
 def test_dropdown_menus_right_align(web_fixture):
     """Dropdown menus can be aligned to the bottom right of their toggle, instead of the default (left)."""
 
-    with web_fixture.context:
+    web_fixture.context.install()
 
-        defaulted_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout())
-        assert 'dropdown-menu-right' not in defaulted_sub_menu.html_representation.get_attribute('class')
+    defaulted_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout())
+    assert 'dropdown-menu-right' not in defaulted_sub_menu.html_representation.get_attribute('class')
 
-        right_aligned_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout(align_right=True))
-        assert 'dropdown-menu-right' in right_aligned_sub_menu.html_representation.get_attribute('class')
+    right_aligned_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout(align_right=True))
+    assert 'dropdown-menu-right' in right_aligned_sub_menu.html_representation.get_attribute('class')

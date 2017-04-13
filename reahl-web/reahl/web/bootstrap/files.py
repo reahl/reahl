@@ -28,7 +28,7 @@ import six
 
 from reahl.component.i18n import Translator
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
-from reahl.web.fw import WebExecutionContext
+from reahl.component.context import ExecutionContext
 import reahl.web.ui
 from reahl.web.ui import PrimitiveInput, UniqueFilesConstraint
 from reahl.web.bootstrap.ui import Div, Span, Li, Ul
@@ -242,7 +242,7 @@ class FileUploadInput(PrimitiveInput):
 
     @property
     def persisted_file_class(self):
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         return config.web.persisted_file_class
 
     def create_html_widget(self):

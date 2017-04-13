@@ -62,13 +62,14 @@ def test_basic_widget(web_fixture):
             self.add_children([P(view, text='a'), P(view, text='b')])
 
     fixture = web_fixture
-    with web_fixture.context:
-        message = MyMessage(fixture.view)
+    web_fixture.context.install()
 
-        widget_tester = WidgetTester(message)
-        actual = widget_tester.render_html()
+    message = MyMessage(fixture.view)
 
-        assert actual == '<div><p>Hello World!</p><p>a</p><p>b</p></div>'
+    widget_tester = WidgetTester(message)
+    actual = widget_tester.render_html()
+
+    assert actual == '<div><p>Hello World!</p><p>a</p><p>b</p></div>'
 
 
 @with_fixtures(WebFixture)
@@ -86,20 +87,21 @@ def test_visibility(web_fixture):
             return self.is_visible
 
     fixture = web_fixture
-    with web_fixture.context:
-        message = MyMessage(fixture.view)
+    web_fixture.context.install()
 
-        widget_tester = WidgetTester(message)
+    message = MyMessage(fixture.view)
 
-        # Case: when visible
-        message.is_visible = True
-        actual = widget_tester.render_html()
-        assert actual == '<p>你好世界!</p>'
+    widget_tester = WidgetTester(message)
 
-        # Case: when not visible
-        message.is_visible = False
-        actual = widget_tester.render_html()
-        assert actual == ''
+    # Case: when visible
+    message.is_visible = True
+    actual = widget_tester.render_html()
+    assert actual == '<p>你好世界!</p>'
+
+    # Case: when not visible
+    message.is_visible = False
+    actual = widget_tester.render_html()
+    assert actual == ''
 
 
 @with_fixtures(WebFixture)
@@ -114,13 +116,14 @@ def test_widget_factories_and_args(web_fixture):
             self.saved_kwarg = kwarg
 
     fixture = web_fixture
-    with web_fixture.context:
-        factory = WidgetWithArgs.factory('a', kwarg='b')
+    web_fixture.context.install()
 
-        widget = factory.create(fixture.view)
+    factory = WidgetWithArgs.factory('a', kwarg='b')
 
-        assert widget.saved_arg == 'a'
-        assert widget.saved_kwarg == 'b'
+    widget = factory.create(fixture.view)
+
+    assert widget.saved_arg == 'a'
+    assert widget.saved_kwarg == 'b'
 
 
 @with_fixtures(WebFixture)
@@ -135,32 +138,35 @@ def test_widget_factories_error(web_fixture):
 
     def check_exc(ex):
         assert six.text_type(ex).startswith("An attempt was made to create a WidgetFactory for %r with arguments that do not match what is expected for %r" % (WidgetWithArgs, WidgetWithArgs))
-    with web_fixture.context:
-        with expected(IncorrectArgumentError, test=check_exc):
-            WidgetWithArgs.factory('a', 'b', 'c')
+    web_fixture.context.install()
+
+    with expected(IncorrectArgumentError, test=check_exc):
+        WidgetWithArgs.factory('a', 'b', 'c')
 
 
 @with_fixtures(WebFixture)
 def test_widget_construct_error(web_fixture):
     """Passing anything other than a View as a Widget's view argument on construction results in an error."""
 
-    with web_fixture.context:
-        with expected(IsInstance):
-            Widget(EmptyStub())
+    web_fixture.context.install()
+
+    with expected(IsInstance):
+        Widget(EmptyStub())
 
 
 @with_fixtures(WebFixture)
 def test_widget_adding_error(web_fixture):
     """Passing anything other than other Widgets to .add_child or add_children results in an error."""
     fixture = web_fixture
-    with web_fixture.context:
-        widget = Widget(fixture.view)
+    web_fixture.context.install()
 
-        with expected(IsInstance):
-            widget.add_child(EmptyStub())
+    widget = Widget(fixture.view)
 
-        with expected(IsInstance):
-            widget.add_children([Widget(fixture.view), EmptyStub()])
+    with expected(IsInstance):
+        widget.add_child(EmptyStub())
+
+    with expected(IsInstance):
+        widget.add_children([Widget(fixture.view), EmptyStub()])
 
 
 @with_fixtures(WebFixture)
@@ -186,18 +192,19 @@ def test_basic_working_of_slots(web_fixture):
             other.set_slot('slot1', P.factory(text='other'))
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/')
-        [slot1_p, slot2_p] = browser.lxml_html.xpath('//p')
-        assert slot1_p.text == 'a'
-        assert slot2_p.text == 'b'
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        browser.open('/other')
-        [slot1_p] = browser.lxml_html.xpath('//p')
-        assert slot1_p.text == 'other'
+    browser.open('/')
+    [slot1_p, slot2_p] = browser.lxml_html.xpath('//p')
+    assert slot1_p.text == 'a'
+    assert slot2_p.text == 'b'
+
+    browser.open('/other')
+    [slot1_p] = browser.lxml_html.xpath('//p')
+    assert slot1_p.text == 'other'
 
 
 @with_fixtures(WebFixture)
@@ -216,13 +223,14 @@ def test_defaults_for_slots(web_fixture):
             self.define_view('/', title='Home')
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
 
-        browser.open('/')
-        [slot3_p] = browser.lxml_html.xpath('//p')
-        assert slot3_p.text == 'default'
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/')
+    [slot3_p] = browser.lxml_html.xpath('//p')
+    assert slot3_p.text == 'default'
 
 
 @with_fixtures(WebFixture)
@@ -252,13 +260,13 @@ def test_activating_javascript(web_fixture):
             self.define_view('/', title='Home')
 
     fixture = web_fixture
-    with web_fixture.context:
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
+    web_fixture.context.install()
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
 
-        browser.open('/')
-        rendered_js = [i.text for i in browser.lxml_html.xpath('//script') if i.text][0]
-        assert rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n'
+    browser.open('/')
+    rendered_js = [i.text for i in browser.lxml_html.xpath('//script') if i.text][0]
+    assert rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n'
 
-        number_of_duplicates = rendered_js.count('js1') - 1
-        assert number_of_duplicates == 0
+    number_of_duplicates = rendered_js.count('js1') - 1
+    assert number_of_duplicates == 0
