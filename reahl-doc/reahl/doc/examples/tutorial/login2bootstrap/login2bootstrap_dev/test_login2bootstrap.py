@@ -33,8 +33,6 @@ class LoginFixture(Fixture):
 @with_fixtures(SqlAlchemyFixture, LoginFixture)
 def demo_setup(sql_alchemy_fixture, login_fixture):
     sql_alchemy_fixture.commit = True
-    sql_alchemy_fixture.context.context()
-    
     login_fixture.new_account()
 
 

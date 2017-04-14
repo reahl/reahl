@@ -33,6 +33,8 @@ from reahl.webdeclarative.webdeclarative import UserSession, PersistedException,
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
 
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
+
 
 @stubclass(Mailer)
 class MailerStub(object):
@@ -63,13 +65,13 @@ class MailerStub(object):
         self.mail_sender = None
 
 
-@uses(sql_alchemy_fixture=SqlAlchemyFixture)
+@uses(reahl_system_fixture=ReahlSystemFunctionFixture, sql_alchemy_fixture=SqlAlchemyFixture)
 class PartyAccountFixture(Fixture):
 
     @set_up
     def add_system_account_config(self):
-        self.sql_alchemy_fixture.config.accounts = self.system_account_config
-        self.sql_alchemy_fixture.context.session = self.session
+        self.reahl_system_fixture.config.accounts = self.system_account_config
+        self.reahl_system_fixture.context.session = self.session
 
     def new_system_account_config(self):
         accounts = SystemAccountConfig()

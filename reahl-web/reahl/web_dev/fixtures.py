@@ -38,7 +38,7 @@ from reahl.web.ui import HTML5Page
 from reahl.web.egg import WebConfig
 
 
-from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
 from reahl.webdev.fixtures import WebServerFixture
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
@@ -56,25 +56,25 @@ class ReahlWSGIApplicationStub(ReahlWSGIApplication):
         self.define_static_files('/static', static_files_no_js)
 
 
-@uses(reahl_system_fixture=ReahlSystemFixture, sql_alchemy_fixture=SqlAlchemyFixture,
+@uses(reahl_system_fixture=ReahlSystemFunctionFixture, sql_alchemy_fixture=SqlAlchemyFixture,
       party_account_fixture=PartyAccountFixture, web_server_fixture=WebServerFixture)
 class WebFixture(Fixture):
 
     @set_up
     def add_web_config(self):
-        self.sql_alchemy_fixture.config.web = self.webconfig
+        self.reahl_system_fixture.config.web = self.webconfig
 
     @set_up
     def add_request_to_context(self):
-        self.sql_alchemy_fixture.context.request = self.request
+        self.reahl_system_fixture.context.request = self.request
 
     @property
     def context(self):
-        return self.sql_alchemy_fixture.context
+        return self.reahl_system_fixture.context
 
     @property
     def config(self):
-        return self.sql_alchemy_fixture.config
+        return self.reahl_system_fixture.config
     
     def new_webconfig(self):
         web = WebConfig()
@@ -137,7 +137,7 @@ class WebFixture(Fixture):
         child_factory = child_factory or Widget.factory()
         if 'main' not in view_slots:
             view_slots['main'] = child_factory
-        config = config or self.sql_alchemy_fixture.config
+        config = config or self.config
 
         class MainUI(UserInterface):
             def assemble(self):

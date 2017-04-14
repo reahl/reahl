@@ -23,13 +23,13 @@ from reahl.tofu import Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.sqlalchemysupport import SqlAlchemyControl, QueryAsSequence, Session, Base
 
-from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 
 from reahl.component_dev.test_migration import ReahlEggStub
 
 
-@with_fixtures(ReahlSystemFixture)
+@with_fixtures(ReahlSystemFunctionFixture)
 def test_egg_schema_version_changes(reahl_system_fixture):
     orm_control = SqlAlchemyControl()
 
@@ -48,7 +48,7 @@ def test_egg_schema_version_changes(reahl_system_fixture):
     assert current_version == new_version_egg.version
 
 
-@with_fixtures(ReahlSystemFixture)
+@with_fixtures(ReahlSystemFunctionFixture)
 def test_egg_schema_version_init(reahl_system_fixture):
     orm_control = SqlAlchemyControl()
 

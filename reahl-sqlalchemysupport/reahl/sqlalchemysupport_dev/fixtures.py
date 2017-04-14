@@ -18,20 +18,14 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 from contextlib import contextmanager
 
-from reahl.tofu import set_up, tear_down, Fixture, uses
-from reahl.stubble import EmptyStub
-
-from reahl.component.config import ReahlSystemConfig
-from reahl.component.context import ExecutionContext
-from reahl.component_dev.fixtures import ContextAwareFixture
-
+from reahl.tofu import Fixture, set_up, tear_down, Fixture, uses
 from reahl.sqlalchemysupport import metadata, Session
 
-from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
 
 
-@uses(reahl_system_fixture=ReahlSystemFixture)
-class SqlAlchemyFixture(ContextAwareFixture):
+@uses(reahl_system_fixture=ReahlSystemFunctionFixture)
+class SqlAlchemyFixture(Fixture):
     commit = False
 
     @set_up
@@ -75,26 +69,4 @@ class SqlAlchemyFixture(ContextAwareFixture):
                     # noinspection PyProtectedMember
                     del entity._decl_class_registry[entity.__name__]
 
-    def new_reahlsystem(self, root_egg=None, connection_uri=None, orm_control=None):
-        reahlsystem = ReahlSystemConfig()
-        reahlsystem.root_egg = root_egg or self.reahl_system_fixture.reahlsystem.root_egg
-        reahlsystem.connection_uri = connection_uri or self.reahl_system_fixture.reahlsystem.connection_uri
-        reahlsystem.orm_control = orm_control or self.reahl_system_fixture.reahlsystem.orm_control
-        reahlsystem.debug = True
-        return reahlsystem
-
-    def new_config(self, reahlsystem=None):
-        config = self.reahl_system_fixture.config
-        config.reahlsystem = reahlsystem or self.new_reahlsystem()
-        return config
-
-    def new_context(self, config=None, session=None):
-        context = ExecutionContext(parent_context=self.reahl_system_fixture.context)
-        context.config = config or self.config
-        context.system_control = self.system_control
-        return context
-
-    @property
-    def system_control(self):
-        return self.reahl_system_fixture.system_control
 

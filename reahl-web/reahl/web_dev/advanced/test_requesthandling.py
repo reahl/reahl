@@ -27,6 +27,7 @@ from reahl.stubble import stubclass, CallMonitor
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import Resource, ReahlWSGIApplication, InternalRedirect
 from reahl.web.interfaces import UserSessionProtocol
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
 from reahl.web_dev.fixtures import ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
 
@@ -62,8 +63,8 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
     assert fixture.some_headers_are_set(fixture.headers)
 
 
-@with_fixtures(SqlAlchemyFixture, WebFixture)
-def test_web_session_handling(sql_alchemy_fixture, web_fixture):
+@with_fixtures(ReahlSystemFunctionFixture, WebFixture)
+def test_web_session_handling(reahl_system_fixture, web_fixture):
     """The core web framework (this egg) does not implement a notion of session directly.
        It relies on such a notion, but expects an implementation for this to be supplied.
 
@@ -116,7 +117,7 @@ def test_web_session_handling(sql_alchemy_fixture, web_fixture):
     # Setting the implementation in config
 
     web_fixture.config.web.session_class = UserSessionStub
-    with CallMonitor(sql_alchemy_fixture.system_control.orm_control.commit) as monitor:
+    with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
         @stubclass(Resource)
         class ResourceStub(object):
             def handle_request(self, request):

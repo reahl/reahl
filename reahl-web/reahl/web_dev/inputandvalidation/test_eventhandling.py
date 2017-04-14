@@ -38,6 +38,7 @@ from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -292,8 +293,8 @@ def test_define_event_handler_not_called(web_fixture):
         browser.open('/')
 
 
-@with_fixtures(SqlAlchemyFixture, WebFixture)
-def test_exception_handling(sql_alchemy_fixture, web_fixture):
+@with_fixtures(ReahlSystemFunctionFixture, WebFixture)
+def test_exception_handling(reahl_system_fixture, web_fixture):
     """When a DomainException happens during the handling of an Event:
 
        The database is rolled back.
@@ -339,7 +340,7 @@ def test_exception_handling(sql_alchemy_fixture, web_fixture):
     fixture.driver_browser.type("//input[@type='text']", '5')
 
     # any database stuff that happened when the form was submitted was rolled back
-    with CallMonitor(sql_alchemy_fixture.system_control.orm_control.rollback) as monitor:
+    with CallMonitor(reahl_system_fixture.system_control.orm_control.rollback) as monitor:
         fixture.driver_browser.click("//input[@value='click me']")
     assert monitor.times_called == 1
 

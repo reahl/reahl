@@ -39,12 +39,16 @@ from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
 from reahl.web_dev.fixtures import WebFixture
 from reahl.domain_dev.test_workflow import TaskQueueFixture2
 
 
-@uses(sql_alchemy_fixture=SqlAlchemyFixture, party_account_fixture=PartyAccountFixture,
-      web_fixture=WebFixture, task_queue_fixture=TaskQueueFixture2)
+@uses(reahl_system_fixture=ReahlSystemFunctionFixture,
+      sql_alchemy_fixture=SqlAlchemyFixture,
+      party_account_fixture=PartyAccountFixture,
+      web_fixture=WebFixture,
+      task_queue_fixture=TaskQueueFixture2)
 class WorkflowWebFixture(Fixture):
 
     def new_queues(self):
@@ -76,7 +80,7 @@ class WorkflowWebFixture(Fixture):
 
     @set_up
     def add_domain_config(self):
-        config = self.sql_alchemy_fixture.config
+        config = self.reahl_system_fixture.config
         config.workflowui = DomainUiConfig()
 
 

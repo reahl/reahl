@@ -38,11 +38,12 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, Verif
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_create_account(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+def test_create_account(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
     login_email = 'piet@home.org'
@@ -62,7 +63,7 @@ def test_create_account(sql_alchemy_fixture, party_account_fixture):
         account_management_interface.register()
 
     assert not mailer_stub.mail_sent
-    sql_alchemy_fixture.system_control.rollback()
+    reahl_system_fixture.system_control.rollback()
 
     # Case where it all works
     assert Session.query(ActivateAccount).count() == 0
@@ -93,8 +94,8 @@ def test_create_account(sql_alchemy_fixture, party_account_fixture):
     assert not mailer_stub.mail_sent
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_registration_application_help(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(PartyAccountFixture)
+def test_registration_application_help(party_account_fixture):
     fixture = party_account_fixture
 
     # Case: there is already an active account by that email
@@ -118,8 +119,8 @@ def test_registration_application_help(sql_alchemy_fixture, party_account_fixtur
     assert account_management_interface.is_login_pending()
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_send_activation_mail(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+def test_send_activation_mail(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
     system_account = fixture.new_system_account(email='someone@home.org', activated=False)
@@ -137,13 +138,13 @@ def test_send_activation_mail(sql_alchemy_fixture, party_account_fixture):
     fixture.account_management_interface.send_activation_notification()
 
     assert mailer_stub.mail_recipients == [system_account.email]
-    assert mailer_stub.mail_sender == sql_alchemy_fixture.config.accounts.admin_email
+    assert mailer_stub.mail_sender == reahl_system_fixture.config.accounts.admin_email
     substitutions = { 'email': system_account.email,
                       'secret_key': activation_request.as_secret_key()
                     }
-    expected_subject = Template(sql_alchemy_fixture.config.accounts.activation_subject).substitute(substitutions)
+    expected_subject = Template(reahl_system_fixture.config.accounts.activation_subject).substitute(substitutions)
     assert mailer_stub.mail_subject == expected_subject
-    expected_message = Template(sql_alchemy_fixture.config.accounts.activation_email).substitute(substitutions)
+    expected_message = Template(reahl_system_fixture.config.accounts.activation_email).substitute(substitutions)
     assert mailer_stub.mail_message == expected_message
 
 
@@ -173,8 +174,8 @@ def test_uniqueness_of_request_keys(sql_alchemy_fixture, party_account_fixture):
         assert request2.as_secret_key() != clashing_request.as_secret_key()
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_activate_via_key(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(PartyAccountFixture)
+def test_activate_via_key(party_account_fixture):
     fixture = party_account_fixture
 
     system_account = fixture.new_system_account(email='someone@home.org', activated=False)
@@ -213,8 +214,8 @@ def test_activate_via_key(sql_alchemy_fixture, party_account_fixture):
     assert Session.query(VerifyEmailRequest).filter_by(id=activation_request.id).count() == 0
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_expire_stale_requests(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+def test_expire_stale_requests(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
     old_email = 'old@home.org'
@@ -222,7 +223,7 @@ def test_expire_stale_requests(sql_alchemy_fixture, party_account_fixture):
     password = 'pw'
     mailer_stub = fixture.mailer
     EmailAndPasswordSystemAccount.mailer = mailer_stub
-    longago = datetime.now() - timedelta(sql_alchemy_fixture.config.accounts.request_verification_timeout)
+    longago = datetime.now() - timedelta(reahl_system_fixture.config.accounts.request_verification_timeout)
 
     old_account_management_interface = AccountManagementInterface()
     old_account_management_interface.email = old_email
@@ -243,8 +244,8 @@ def test_expire_stale_requests(sql_alchemy_fixture, party_account_fixture):
     assert Session.query(EmailAndPasswordSystemAccount).filter_by(id=recent_system_account.id).count() == 1
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_request_new_password(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+def test_request_new_password(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
 
@@ -284,13 +285,13 @@ def test_request_new_password(sql_alchemy_fixture, party_account_fixture):
     [new_password_request] = Session.query(NewPasswordRequest).filter_by(system_account=system_account).all()
 
     assert mailer_stub.mail_recipients == [system_account.email]
-    assert mailer_stub.mail_sender == sql_alchemy_fixture.config.accounts.admin_email
+    assert mailer_stub.mail_sender == reahl_system_fixture.config.accounts.admin_email
     substitutions = { 'email': system_account.email,
                       'secret_key': new_password_request.as_secret_key()
                     }
-    expected_subject = Template(sql_alchemy_fixture.config.accounts.new_password_subject).substitute(substitutions)
+    expected_subject = Template(reahl_system_fixture.config.accounts.new_password_subject).substitute(substitutions)
     assert mailer_stub.mail_subject == expected_subject
-    expected_message = Template(sql_alchemy_fixture.config.accounts.new_password_email).substitute(substitutions)
+    expected_message = Template(reahl_system_fixture.config.accounts.new_password_email).substitute(substitutions)
     assert mailer_stub.mail_message == expected_message
 
     # Case where a new password is requested multiple times
@@ -302,18 +303,18 @@ def test_request_new_password(sql_alchemy_fixture, party_account_fixture):
     [new_password_request] = Session.query(NewPasswordRequest).filter_by(system_account=system_account).all()
 
     assert mailer_stub.mail_recipients == [system_account.email]
-    assert mailer_stub.mail_sender == sql_alchemy_fixture.config.accounts.admin_email
+    assert mailer_stub.mail_sender == reahl_system_fixture.config.accounts.admin_email
     substitutions = { 'email': system_account.email,
                       'secret_key': new_password_request.as_secret_key()
                     }
-    expected_subject = Template(sql_alchemy_fixture.config.accounts.new_password_subject).substitute(substitutions)
+    expected_subject = Template(reahl_system_fixture.config.accounts.new_password_subject).substitute(substitutions)
     assert mailer_stub.mail_subject == expected_subject
-    expected_message = Template(sql_alchemy_fixture.config.accounts.new_password_email).substitute(substitutions)
+    expected_message = Template(reahl_system_fixture.config.accounts.new_password_email).substitute(substitutions)
     assert mailer_stub.mail_message == expected_message
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_set_new_password(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(PartyAccountFixture)
+def test_set_new_password(party_account_fixture):
     fixture = party_account_fixture
 
     system_account = fixture.system_account
@@ -347,8 +348,8 @@ def test_set_new_password(sql_alchemy_fixture, party_account_fixture):
     system_account.authenticate(new_password) # Should not raise exception
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_request_email_change(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+def test_request_email_change(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
     system_account = fixture.new_system_account(activated=False)
@@ -387,13 +388,13 @@ def test_request_email_change(sql_alchemy_fixture, party_account_fixture):
     new_email_request = Session.query(ChangeAccountEmail).filter_by(system_account=system_account).one().verify_email_request
 
     assert mailer_stub.mail_recipients == [new_email]
-    assert mailer_stub.mail_sender == sql_alchemy_fixture.config.accounts.admin_email
+    assert mailer_stub.mail_sender == reahl_system_fixture.config.accounts.admin_email
     substitutions = { 'email': new_email,
                       'secret_key': new_email_request.as_secret_key()
                     }
-    expected_subject = Template(sql_alchemy_fixture.config.accounts.email_change_subject).substitute(substitutions)
+    expected_subject = Template(reahl_system_fixture.config.accounts.email_change_subject).substitute(substitutions)
     assert mailer_stub.mail_subject == expected_subject
-    expected_message = Template(sql_alchemy_fixture.config.accounts.email_change_email).substitute(substitutions)
+    expected_message = Template(reahl_system_fixture.config.accounts.email_change_email).substitute(substitutions)
     assert mailer_stub.mail_message == expected_message
 
     # Case where a email name is requested which matches an already pending one
@@ -402,8 +403,8 @@ def test_request_email_change(sql_alchemy_fixture, party_account_fixture):
         account_management_interface.request_email_change()
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_verify_email_change(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(PartyAccountFixture)
+def test_verify_email_change(party_account_fixture):
     fixture = party_account_fixture
 
     system_account = fixture.system_account
@@ -439,12 +440,12 @@ def test_verify_email_change(sql_alchemy_fixture, party_account_fixture):
     assert system_account.email == new_email
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
-def test_logging_in(sql_alchemy_fixture, party_account_fixture):
+@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+def test_logging_in(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
     system_account = fixture.system_account
-    login_session = LoginSession.for_session(sql_alchemy_fixture.context.session)
+    login_session = LoginSession.for_session(reahl_system_fixture.context.session)
     account_management_interface = fixture.account_management_interface
     account_management_interface.stay_logged_in = False
 

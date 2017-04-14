@@ -29,6 +29,7 @@ from reahl.web.fw import CheckedRemoteMethod, JsonResult, MethodResult, RemoteMe
 from reahl.component.modelinterface import Field, IntegerField
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.dev.fixtures import ReahlSystemFunctionFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -301,8 +302,8 @@ class RegenerateMethodResultScenarios(Fixture):
         self.expected_response = 'exception: method was called 1 times'
 
 
-@with_fixtures(WebFixture, SqlAlchemyFixture, RemoteMethodFixture, RegenerateMethodResultScenarios)
-def test_regenerating_method_results(web_fixture, sql_alchemy_fixture,
+@with_fixtures(ReahlSystemFunctionFixture, WebFixture, RemoteMethodFixture, RegenerateMethodResultScenarios)
+def test_regenerating_method_results(reahl_system_fixture, web_fixture,
                                      remote_method_fixture, regenerate_method_result_scenarios):
     """If a MethodResult is set up to replay_request=True, the view it is part of (and thus itself) is recreated
        before the (new incarnation of the) MethodResult generates its actual response. Replaying the request means recreating
@@ -316,7 +317,7 @@ def test_regenerating_method_results(web_fixture, sql_alchemy_fixture,
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=regenerate_method_result_scenarios.remote_method)
     browser = Browser(wsgi_app)
 
-    with CallMonitor(sql_alchemy_fixture.system_control.orm_control.commit) as monitor:
+    with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
         browser.post('/_amethod_method', {})
     assert browser.raw_html == regenerate_method_result_scenarios.expected_response
     assert monitor.times_called == 2

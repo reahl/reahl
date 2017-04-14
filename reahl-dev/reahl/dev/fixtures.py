@@ -21,14 +21,31 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 import sys
+import copy
 import pkg_resources
-from reahl.tofu import Fixture, set_up, tear_down, scope
 
+from reahl.tofu import Fixture, set_up, tear_down, scope, uses
+from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
-from reahl.component.config import StoredConfiguration
-from reahl.component_dev.fixtures import ContextAwareFixture
+from reahl.component.config import StoredConfiguration, ReahlSystemConfig
 from reahl.dev.exceptions import CouldNotConfigureServer
+from reahl.tofu.pytestsupport import WithFixtureDecorator
+
+from reahl.tofu import Fixture
+
+
+class ContextAwareFixture(Fixture):
+    def new_context(self):
+        raise ProgrammerError('No ExecutionContext defined for %s. You must override new_context() or set an attribute or @property named "context"' % self)
+
+    def __enter__(self):
+        self.context.install(lambda f: isinstance(f.f_locals['self'], WithFixtureDecorator))
+        return super(ContextAwareFixture, self).__enter__()
+
+    def run_tear_down_actions(self):
+        self.context.install()
+        return super(ContextAwareFixture, self).run_tear_down_actions()
 
 
 @scope('session')
@@ -77,3 +94,30 @@ class ReahlSystemFixture(ContextAwareFixture):
         if self.system_control.connected:
             self.system_control.disconnect()
 
+    
+    
+@uses(reahl_system_fixture=ReahlSystemFixture)
+class ReahlSystemFunctionFixture(ContextAwareFixture):
+    @property
+    def system_control(self):
+        return self.reahl_system_fixture.system_control
+
+    def new_context(self, config=None, session=None):
+        context = ExecutionContext(parent_context=self.reahl_system_fixture.context)
+        context.config = config or self.config
+        context.system_control = self.system_control
+        return context
+
+    def new_config(self, reahlsystem=None):
+        config = copy.copy(self.reahl_system_fixture.config)
+        config.reahlsystem = reahlsystem or self.reahlsystem
+        return config
+
+    def new_reahlsystem(self, root_egg=None, connection_uri=None, orm_control=None):
+        reahlsystem = ReahlSystemConfig()
+        reahlsystem.root_egg = root_egg or self.reahl_system_fixture.reahlsystem.root_egg
+        reahlsystem.connection_uri = connection_uri or self.reahl_system_fixture.reahlsystem.connection_uri
+        reahlsystem.orm_control = orm_control or self.reahl_system_fixture.reahlsystem.orm_control
+        reahlsystem.debug = True
+        return reahlsystem
+            

@@ -228,10 +228,6 @@ def test_deferred_action_times_out_with_shared_requirements(sql_alchemy_fixture,
 @uses(sql_alchemy_fixture=SqlAlchemyFixture, party_account_fixture=PartyAccountFixture)
 class TaskQueueFixture2(Fixture):
 
-    @property
-    def context(self):
-        return self.sql_alchemy_fixture.context
-
     @set_up
     def log_in_test_user(self):
         session = self.party_account_fixture.session
@@ -257,8 +253,8 @@ class TaskQueueFixture2(Fixture):
         return task
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
-def test_reserving_tasks(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
+@with_fixtures(PartyAccountFixture, TaskQueueFixture2)
+def test_reserving_tasks(party_account_fixture, task_queue_fixture):
     """Tasks can be reserved by a party; a reserved task can be released again."""
 
     fixture = task_queue_fixture
@@ -277,8 +273,8 @@ def test_reserving_tasks(sql_alchemy_fixture, party_account_fixture, task_queue_
     assert not task.is_reserved_for(party_account_fixture.party)
 
 
-@with_fixtures(SqlAlchemyFixture, TaskQueueFixture2)
-def test_inbox(sql_alchemy_fixture, task_queue_fixture):
+@with_fixtures(TaskQueueFixture2)
+def test_inbox(task_queue_fixture):
     """An Inbox is a collection of tasks in a collection of queues."""
 
     fixture = task_queue_fixture
@@ -295,8 +291,8 @@ def test_inbox(sql_alchemy_fixture, task_queue_fixture):
     assert tasks == [task1, task2]
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
-def test_take_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
+@with_fixtures(PartyAccountFixture, TaskQueueFixture2)
+def test_take_task_interface(party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
 
     workflow_interface = fixture.workflow_interface
@@ -312,8 +308,8 @@ def test_take_task_interface(sql_alchemy_fixture, party_account_fixture, task_qu
     assert take_task.can_write_event
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
-def test_go_to_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
+@with_fixtures(PartyAccountFixture, TaskQueueFixture2)
+def test_go_to_task_interface(party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
 
     workflow_interface = fixture.workflow_interface
@@ -328,8 +324,8 @@ def test_go_to_task_interface(sql_alchemy_fixture, party_account_fixture, task_q
     assert not go_to_task.can_read_event
 
 
-@with_fixtures(SqlAlchemyFixture, PartyAccountFixture, TaskQueueFixture2)
-def test_release_task_interface(sql_alchemy_fixture, party_account_fixture, task_queue_fixture):
+@with_fixtures(PartyAccountFixture, TaskQueueFixture2)
+def test_release_task_interface(party_account_fixture, task_queue_fixture):
     fixture = task_queue_fixture
 
     workflow_interface = fixture.workflow_interface

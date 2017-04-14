@@ -23,7 +23,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub
 
 from reahl.component.context import ExecutionContext
-from reahl.component_dev.fixtures import ContextAwareFixture
+from reahl.dev.fixtures import ContextAwareFixture
 
 
 def test_execution_context_basics():
