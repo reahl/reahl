@@ -43,8 +43,7 @@ class WidgetFixture(Fixture):
 
     def new_user_interface(self):
         factory = self.ui_factory
-        with self.web_fixture.context:
-            return factory.create()
+        return factory.create()
 
     def new_view(self, user_interface=None, relative_path='/', title='A view', slot_definitions={}):
         user_interface = user_interface or self.user_interface
