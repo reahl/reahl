@@ -16,7 +16,7 @@ from reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap import Address,
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -342,7 +342,7 @@ def test_add_collaborator(web_fixture, access_domain_fixture, access_ui_fixture)
     assert address_book.can_be_added_to_by(other_account)
 
 
-@uses(reahl_system_fixture=ReahlSystemFunctionFixture, access_domain_fixture=AccessDomainFixture)
+@uses(reahl_system_fixture=ReahlSystemFixture, access_domain_fixture=AccessDomainFixture)
 class ViewScenarios(Fixture):
     @scenario
     def viewing_other_address_book(self):

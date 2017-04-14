@@ -11,7 +11,7 @@ from reahl.sqlalchemysupport import Session
 from reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap import AddressBookUI, Address
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -48,7 +48,7 @@ def test_add_address(web_fixture, jobs_fixture):
     assert jobs_fixture.address_is_listed_as('John', 'johndoe@some.org', True)
 
 
-@with_fixtures(ReahlSystemFunctionFixture, JobsFixture)
+@with_fixtures(ReahlSystemFixture, JobsFixture)
 def test_daily_maintenance(reahl_system_fixture, jobs_fixture):
     """When daily maintenance is run, all addresses are set to be old."""
 

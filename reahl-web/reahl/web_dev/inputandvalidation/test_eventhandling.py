@@ -38,7 +38,7 @@ from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -293,7 +293,7 @@ def test_define_event_handler_not_called(web_fixture):
         browser.open('/')
 
 
-@with_fixtures(ReahlSystemFunctionFixture, WebFixture)
+@with_fixtures(ReahlSystemFixture, WebFixture)
 def test_exception_handling(reahl_system_fixture, web_fixture):
     """When a DomainException happens during the handling of an Event:
 

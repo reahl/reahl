@@ -29,7 +29,7 @@ from reahl.web.fw import CheckedRemoteMethod, JsonResult, MethodResult, RemoteMe
 from reahl.component.modelinterface import Field, IntegerField
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -302,7 +302,7 @@ class RegenerateMethodResultScenarios(Fixture):
         self.expected_response = 'exception: method was called 1 times'
 
 
-@with_fixtures(ReahlSystemFunctionFixture, WebFixture, RemoteMethodFixture, RegenerateMethodResultScenarios)
+@with_fixtures(ReahlSystemFixture, WebFixture, RemoteMethodFixture, RegenerateMethodResultScenarios)
 def test_regenerating_method_results(reahl_system_fixture, web_fixture,
                                      remote_method_fixture, regenerate_method_result_scenarios):
     """If a MethodResult is set up to replay_request=True, the view it is part of (and thus itself) is recreated

@@ -38,7 +38,7 @@ from reahl.web.ui import HTML5Page
 from reahl.web.egg import WebConfig
 
 
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.webdev.fixtures import WebServerFixture
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
@@ -56,7 +56,7 @@ class ReahlWSGIApplicationStub(ReahlWSGIApplication):
         self.define_static_files('/static', static_files_no_js)
 
 
-@uses(reahl_system_fixture=ReahlSystemFunctionFixture, sql_alchemy_fixture=SqlAlchemyFixture,
+@uses(reahl_system_fixture=ReahlSystemFixture, sql_alchemy_fixture=SqlAlchemyFixture,
       party_account_fixture=PartyAccountFixture, web_server_fixture=WebServerFixture)
 class WebFixture(Fixture):
 

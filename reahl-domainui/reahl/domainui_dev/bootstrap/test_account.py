@@ -32,11 +32,11 @@ from reahl.domainui_dev.fixtures import BookmarkStub
 
 
 from reahl.domain_dev.fixtures import PartyAccountFixture
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(reahl_system_fixture=ReahlSystemFunctionFixture, web_fixture=WebFixture)
+@uses(reahl_system_fixture=ReahlSystemFixture, web_fixture=WebFixture)
 class AccountsWebFixture(Fixture):
 
     def new_login_bookmark(self, request=None):

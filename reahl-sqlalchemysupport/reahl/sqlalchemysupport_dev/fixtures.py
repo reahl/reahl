@@ -21,10 +21,10 @@ from contextlib import contextmanager
 from reahl.tofu import Fixture, set_up, tear_down, Fixture, uses
 from reahl.sqlalchemysupport import metadata, Session
 
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 
 
-@uses(reahl_system_fixture=ReahlSystemFunctionFixture)
+@uses(reahl_system_fixture=ReahlSystemFixture)
 class SqlAlchemyFixture(Fixture):
     commit = False
 

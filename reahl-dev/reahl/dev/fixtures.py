@@ -49,7 +49,7 @@ class ContextAwareFixture(Fixture):
 
 
 @scope('session')
-class ReahlSystemFixture(ContextAwareFixture):
+class ReahlSystemSessionFixture(ContextAwareFixture):
     """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
        correct database schema for the project and sets up any persistent classes for use with that
        schema. It also connects to the database. Upon tear down, the Fixture disconnects from the database.
@@ -96,8 +96,8 @@ class ReahlSystemFixture(ContextAwareFixture):
 
     
     
-@uses(reahl_system_fixture=ReahlSystemFixture)
-class ReahlSystemFunctionFixture(ContextAwareFixture):
+@uses(reahl_system_fixture=ReahlSystemSessionFixture)
+class ReahlSystemFixture(ContextAwareFixture):
     @property
     def system_control(self):
         return self.reahl_system_fixture.system_control

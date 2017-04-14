@@ -39,12 +39,12 @@ from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 from reahl.domain_dev.test_workflow import TaskQueueFixture2
 
 
-@uses(reahl_system_fixture=ReahlSystemFunctionFixture,
+@uses(reahl_system_fixture=ReahlSystemFixture,
       sql_alchemy_fixture=SqlAlchemyFixture,
       party_account_fixture=PartyAccountFixture,
       web_fixture=WebFixture,

@@ -31,9 +31,9 @@ from reahl.web.fw import UserInterface
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.domain.systemaccountmodel import SystemAccountConfig
 
-from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.dev.fixtures import ReahlSystemSessionFixture
 
-@uses(reahl_system_fixture=ReahlSystemFixture)
+@uses(reahl_system_fixture=ReahlSystemSessionFixture)
 @scope('session')
 class WebServerFixture(Fixture):
     """A Fixture to be used as run fixture. It inherits from :class:`reahl.dev.fixtures.CleanDatabase` and

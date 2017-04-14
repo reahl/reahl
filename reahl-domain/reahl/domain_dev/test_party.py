@@ -38,11 +38,11 @@ from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, Verif
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
-from reahl.dev.fixtures import ReahlSystemFunctionFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
-@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+@with_fixtures(ReahlSystemFixture, PartyAccountFixture)
 def test_create_account(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
@@ -119,7 +119,7 @@ def test_registration_application_help(party_account_fixture):
     assert account_management_interface.is_login_pending()
 
 
-@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+@with_fixtures(ReahlSystemFixture, PartyAccountFixture)
 def test_send_activation_mail(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
@@ -214,7 +214,7 @@ def test_activate_via_key(party_account_fixture):
     assert Session.query(VerifyEmailRequest).filter_by(id=activation_request.id).count() == 0
 
 
-@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+@with_fixtures(ReahlSystemFixture, PartyAccountFixture)
 def test_expire_stale_requests(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
@@ -244,7 +244,7 @@ def test_expire_stale_requests(reahl_system_fixture, party_account_fixture):
     assert Session.query(EmailAndPasswordSystemAccount).filter_by(id=recent_system_account.id).count() == 1
 
 
-@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+@with_fixtures(ReahlSystemFixture, PartyAccountFixture)
 def test_request_new_password(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
@@ -348,7 +348,7 @@ def test_set_new_password(party_account_fixture):
     system_account.authenticate(new_password) # Should not raise exception
 
 
-@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+@with_fixtures(ReahlSystemFixture, PartyAccountFixture)
 def test_request_email_change(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
@@ -440,7 +440,7 @@ def test_verify_email_change(party_account_fixture):
     assert system_account.email == new_email
 
 
-@with_fixtures(ReahlSystemFunctionFixture, PartyAccountFixture)
+@with_fixtures(ReahlSystemFixture, PartyAccountFixture)
 def test_logging_in(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
 
