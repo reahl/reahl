@@ -39,9 +39,9 @@ from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, expos
                              FileField, SingleFileConstraint, UploadedFile, FileSizeConstraint, \
                              MimeTypeConstraint, MaxFilesConstraint, SmallerThanConstraint, GreaterThanConstraint
 
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.dev.fixtures import ReahlSystemFixture
 
-@uses(sql_alchemy_fixture = SqlAlchemyFixture) # For a context
+@uses(reahl_system_fixture = ReahlSystemFixture) # For a context
 class FieldFixture(Fixture):
     def new_model_object(self):
         obj = EmptyStub()

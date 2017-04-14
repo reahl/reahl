@@ -24,6 +24,7 @@
     <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
   </deps>
 
   <script name="reahl-control" locator="reahl.component.prodshell:ProductionCommandline.execute_one"/>
