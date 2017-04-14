@@ -31,10 +31,6 @@ from reahl.web_dev.fixtures import WebFixture
 
 @uses(web_fixture=WebFixture)
 class ParameterisedScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
     
     class ParameterisedView(UrlBoundView):
         def assemble(self, some_arg=None):
@@ -100,7 +96,6 @@ def test_views_with_parameters(web_fixture, parameterised_scenarios):
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {'main': 'main'}, name='myui')
 
     fixture = parameterised_scenarios
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -131,7 +126,6 @@ def test_views_from_regex(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='myui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -168,7 +162,6 @@ def test_user_interfaces_from_regex(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -193,10 +186,6 @@ def test_user_interfaces_from_regex(web_fixture):
 @uses(web_fixture=WebFixture)
 class ParameterisedUserInterfaceScenarios(Fixture):
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-    
     @scenario
     def normal_arguments(self):
         """Arguments can be sent from where the UserInterface is defined."""
@@ -248,7 +237,6 @@ def test_parameterised_uis(web_fixture, parameterised_user_interface_scenarios):
             self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
     fixture = parameterised_user_interface_scenarios
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)

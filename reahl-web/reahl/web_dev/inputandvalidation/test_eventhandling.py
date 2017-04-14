@@ -37,6 +37,7 @@ from reahl.web.fw import Url, UserInterface, ValidationException
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm
 
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -47,7 +48,6 @@ def test_basic_event_linkup(web_fixture):
        browser is transitioned to the target view as specified by the EventHandler.
     """
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         handled_event = False
@@ -92,7 +92,6 @@ def test_arguments_to_actions(web_fixture):
        when the Button is clicked."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     # how you link everything up in code
     class ModelObject(object):
@@ -135,7 +134,6 @@ def test_validation_of_event_arguments(web_fixture):
     """Buttons cannot be created for Events with invalid default arguments."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -166,7 +164,6 @@ def test_basic_field_linkup(web_fixture):
     """
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         def handle_event(self):
@@ -216,7 +213,6 @@ def test_distinguishing_identical_field_names(web_fixture):
        to identically named attributes of different objects."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -256,7 +252,6 @@ def test_wrong_arguments_to_define_event_handler(web_fixture):
     """Passing anything other than an Event to define_event_handler is an error."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class MyForm(Form):
         def __init__(self, view, name):
@@ -274,7 +269,6 @@ def test_wrong_arguments_to_define_event_handler(web_fixture):
 def test_define_event_handler_not_called(web_fixture):
     """."""
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -298,8 +292,8 @@ def test_define_event_handler_not_called(web_fixture):
         browser.open('/')
 
 
-@with_fixtures(WebFixture)
-def test_exception_handling(web_fixture):
+@with_fixtures(SqlAlchemyFixture, WebFixture)
+def test_exception_handling(sql_alchemy_fixture, web_fixture):
     """When a DomainException happens during the handling of an Event:
 
        The database is rolled back.
@@ -308,7 +302,6 @@ def test_exception_handling(web_fixture):
     """
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         def handle_event(self):
@@ -346,7 +339,7 @@ def test_exception_handling(web_fixture):
     fixture.driver_browser.type("//input[@type='text']", '5')
 
     # any database stuff that happened when the form was submitted was rolled back
-    with CallMonitor(fixture.system_control.orm_control.rollback) as monitor:
+    with CallMonitor(sql_alchemy_fixture.system_control.orm_control.rollback) as monitor:
         fixture.driver_browser.click("//input[@value='click me']")
     assert monitor.times_called == 1
 
@@ -365,7 +358,6 @@ def test_rendering_of_form(web_fixture):
        propagated with the POST url if any.  The Form has an id and class to help style it etc."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     form = Form(fixture.view, 'test_channel')
     tester = WidgetTester(form)
@@ -389,7 +381,6 @@ def test_duplicate_forms(web_fixture):
     """It is an error to add more than one form with the same unique_name to a page."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class MainUI(UserInterface):
         def assemble(self):
@@ -413,7 +404,6 @@ def test_check_input_placement(web_fixture):
     """When a web request is handled, the framework throws an exception if an input might be seperated conceptually from the form they are bound to."""
     
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -453,7 +443,6 @@ def test_check_missing_form(web_fixture):
     """All forms referred to by inputs on a page have to be present on that page."""
     
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -487,7 +476,6 @@ def test_nested_forms(web_fixture):
     """
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class NestedModelObject(object):
         handled_event = False
@@ -545,7 +533,6 @@ def test_form_input_validation(web_fixture):
     error_xpath = '//form[contains(@class, "reahl-form")]/label[contains(@class, "error")]'
     
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         def handle_event(self):
@@ -638,11 +625,6 @@ def test_form_input_validation(web_fixture):
 
 @uses(web_fixture=WebFixture)
 class QueryStringScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     def new_other_view(self):
         return self.web_fixture.wsgi_app.define_view('/page2', title='Page 2')
 
@@ -690,7 +672,6 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
        Else, the query string is cleared.
     """
     fixture = query_string_scenarios
-    web_fixture.context.install()
 
     class ModelObject(object):
         def handle_event(self):
@@ -736,7 +717,6 @@ def test_event_names_are_canonicalised(web_fixture):
     """
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         def handle_event(self, some_argument):
@@ -778,7 +758,6 @@ def test_alternative_event_trigerring(web_fixture):
     """
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         def handle_event(self):
@@ -829,7 +808,6 @@ def test_remote_field_validation(web_fixture):
     """
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -859,7 +837,6 @@ def test_remote_field_formatting(web_fixture):
     """
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed

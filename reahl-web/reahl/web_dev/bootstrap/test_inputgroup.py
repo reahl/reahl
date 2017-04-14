@@ -33,10 +33,6 @@ from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
 @uses(web_fixture=WebFixture, simple_input_fixture=SimpleInputFixture)
 class InputGroupFixture(Fixture):
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     def new_an_input(self):
         return TextInput(self.simple_input_fixture.form, self.simple_input_fixture.field)
 
@@ -66,7 +62,6 @@ def test_input_group(web_fixture, input_group_fixture):
     """An InputGroup is a composition of an input with some text or Widget before and/or after an input."""
     fixture = input_group_fixture
 
-    web_fixture.context.install()
     tester = WidgetTester(fixture.input_group)
 
     [outer_div] = tester.xpath('//div')

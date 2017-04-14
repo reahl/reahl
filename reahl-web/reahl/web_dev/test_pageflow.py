@@ -43,7 +43,6 @@ class FormWithButton(Form):
 def test_basic_transition(web_fixture):
     """Transitions express how the browser is ferried between Views in reaction to user-initiated Events."""
     fixture  = web_fixture
-    web_fixture.context.install()
 
     def do_something():
         fixture.did_something = True
@@ -105,7 +104,6 @@ def test_guards(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -146,7 +144,6 @@ def test_local_transition(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithAView,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -202,7 +199,6 @@ def test_transitions_to_parameterised_views(web_fixture):
 
             self.define_transition(model_object.events.an_event, home, other_view)
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -246,7 +242,6 @@ def test_transitions_to_parameterised_views_error(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -273,7 +268,6 @@ def test_view_preconditions(web_fixture):
             view.add_precondition(passing_precondition)
             view.add_precondition(failing_precondition)
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -298,7 +292,6 @@ def test_inverse_view_preconditions(web_fixture):
             failing_precondition = passing_precondition.negated(exception=SomeException)
             view.add_precondition(failing_precondition)
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -322,7 +315,6 @@ def test_redirect(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithRedirect,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -358,7 +350,6 @@ def test_detours_and_return_transitions(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -401,7 +392,6 @@ def test_detours_and_explicit_return_view(web_fixture):
             self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
             self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -436,7 +426,6 @@ def test_redirect_used_to_return(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -470,7 +459,6 @@ def test_unconditional_redirection(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithRedirect,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -511,7 +499,6 @@ def test_linking_to_views_marked_as_detour(web_fixture):
             bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
             self.define_user_interface('/uiWithLink',  UIWithLink,  IdentityDictionary(), name='first_ui', bookmark=bookmark)
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -546,7 +533,6 @@ def test_detour_is_non_reentrant(web_fixture):
             home = self.define_view('/initial', title='View a')
             home.set_slot('main', A.factory_from_bookmark(step1.as_bookmark(self)))
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)

@@ -60,7 +60,7 @@ class LibraryFixture(Fixture):
 
     @set_up
     def configure_site_root(self):
-        self.web_fixture.config.web.site_root = self.MainUI
+        self.web_fixture.webconfig.site_root = self.MainUI
 
     def new_MainUI(self):
         class MainUI(UserInterface):
@@ -73,9 +73,8 @@ class LibraryFixture(Fixture):
 @with_fixtures(WebFixture, LibraryFixture)
 def test_configuring_libraries(web_fixture, library_fixture):
     """Reahl can be configured to expose frontend libraries (libraries of js and css files)."""
-    web_fixture.context.install()
 
-    web = web_fixture.config.web
+    web = web_fixture.webconfig
     assert 'mylib' not in web.frontend_libraries
     web.frontend_libraries.add(library_fixture.MyLibrary())
     assert 'mylib' in web.frontend_libraries
@@ -84,12 +83,12 @@ def test_configuring_libraries(web_fixture, library_fixture):
 @with_fixtures(WebFixture, LibraryFixture)
 def test_library_files(web_fixture, library_fixture):
     """The files part of configured frontend libraries are (a) added to /static and also (b) included on any page."""
-    web_fixture.context.install()
 
-    web_fixture.config.web.frontend_libraries.clear()
-    web_fixture.config.web.frontend_libraries.add(library_fixture.MyLibrary())
+    config = web_fixture.config
+    config.web.frontend_libraries.clear()
+    config.web.frontend_libraries.add(library_fixture.MyLibrary())
 
-    browser = Browser(ReahlWSGIApplication(web_fixture.config))
+    browser = Browser(ReahlWSGIApplication(config))
 
     browser.open('/static/somefile.js')
     assert browser.raw_html == 'contents - js'
@@ -108,9 +107,9 @@ def test_library_files(web_fixture, library_fixture):
 @with_fixtures(WebFixture)
 def test_standard_reahl_files(web_fixture):
     """The framework includes certain frontent frameworks by default."""
-    web_fixture.context.install()
 
-    wsgi_app = ReahlWSGIApplication(web_fixture.config)
+    config = web_fixture.config
+    wsgi_app = ReahlWSGIApplication(config)
     browser = Browser(wsgi_app)
 
     browser.open('/static/html5shiv-printshiv-3.6.3.js')

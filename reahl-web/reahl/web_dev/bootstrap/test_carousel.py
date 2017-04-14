@@ -54,7 +54,6 @@ class CarouselFixture(Fixture):
 def test_carousel_basics(web_fixture):
     """A Carousel contains all the right classes and contents to act as a Bootstrap Carousel component."""
 
-    web_fixture.context.install()
 
     widget = Carousel(web_fixture.view, 'my_carousel_id')
 
@@ -100,7 +99,7 @@ def test_i18n(web_fixture):
         def interface_locale(self):
             return 'af'
 
-    AfrikaansContext(parent_context=web_fixture.context).install()
+    AfrikaansContext().install()
 
     widget = Carousel(web_fixture.view, 'my_carousel_id')
 
@@ -119,7 +118,6 @@ def test_i18n(web_fixture):
 def test_carousel_has_options(web_fixture, carousel_fixture):
     """Constructor allows you to set certain customizing options"""
 
-    web_fixture.context.install()
 
     carousel = Carousel(web_fixture.view, 'my_carousel_id', interval=1000, pause='hover', wrap=True, keyboard=True)
     main_div = carousel_fixture.get_main_div_for(carousel)
@@ -135,7 +133,6 @@ def test_adding_items_to_carousel(web_fixture, carousel_fixture):
     """Images can be added to a Carousel."""
 
     fixture = carousel_fixture
-    web_fixture.context.install()
 
     carousel = Carousel(web_fixture.view, 'my_carousel_id', show_indicators=True)
     main_div = fixture.get_main_div_for(carousel)
@@ -169,7 +166,6 @@ def test_active_state_of_items(web_fixture, carousel_fixture):
     """The first item added is marked as active, and also its corresponding indicator."""
 
     fixture = carousel_fixture
-    web_fixture.context.install()
 
     carousel = Carousel(web_fixture.view, 'my_carousel_id')
     carousel.add_slide(Img(web_fixture.view))
@@ -197,7 +193,6 @@ def test_active_state_of_items(web_fixture, carousel_fixture):
 def test_item_indicators_are_optional(web_fixture, carousel_fixture):
     """With show_indicators=False, indicators are not added when adding items."""
     fixture = carousel_fixture
-    web_fixture.context.install()
 
     carousel = Carousel(web_fixture.view, 'my_carousel_id', show_indicators=False)
 
@@ -213,7 +208,6 @@ def test_item_indicators_are_optional(web_fixture, carousel_fixture):
 @with_fixtures(WebFixture)
 def test_adding_items_with_captions(web_fixture):
     """A Widget can be supplied to be used caption for an added image."""
-    web_fixture.context.install()
 
     carousel = Carousel(web_fixture.view, 'my_carousel_id')
 

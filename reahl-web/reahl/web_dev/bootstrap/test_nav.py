@@ -39,7 +39,6 @@ _ = Translator('reahl-web')
 @with_fixtures(WebFixture)
 def test_navs(web_fixture):
     """A Nav is a menu with css classes for styling by Bootstrap."""
-    web_fixture.context.install()
 
     bookmarks = [Bookmark('', '/one', 'One'),
                  Bookmark('', '/two', 'Two')]
@@ -66,7 +65,6 @@ def test_navs(web_fixture):
 @with_fixtures(WebFixture)
 def test_populating(web_fixture):
     """Navs can be populated with a list of A's or Bookmarks."""
-    web_fixture.context.install()
 
     # Case: a normal menu from bookmarks
     item_specs = [Bookmark('/', '/href1', 'description1'),
@@ -92,10 +90,6 @@ def test_populating(web_fixture):
 @uses(web_fixture=WebFixture)
 class VisualFeedbackScenarios(Fixture):
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     @scenario
     def disabled(self):
         """The mouse cursor is shown as no-access on disabled items."""
@@ -115,7 +109,6 @@ class VisualFeedbackScenarios(Fixture):
 @with_fixtures(WebFixture, VisualFeedbackScenarios)
 def test_visual_feedback_on_items(web_fixture, visual_feedback_scenarios):
     """The state of a MenuItem is visually indicated to a user."""
-    web_fixture.context.install()
 
     menu = Nav(web_fixture.view)
     menu.add_a(A(web_fixture.view, Url('/an_url')))
@@ -134,10 +127,6 @@ def test_visual_feedback_on_items(web_fixture, visual_feedback_scenarios):
 class MenuItemScenarios(Fixture):
     description = 'The link'
     href = Url('/link')
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     @scenario
     def not_active(self):
@@ -170,7 +159,6 @@ def test_rendering_active_menu_items(web_fixture, menu_item_scenarios):
     description = 'The link'
     href = Url('/link')
 
-    web_fixture.context.install()
 
     menu = Nav(web_fixture.view)
     menu_item_a = A(web_fixture.view, href, description=description)
@@ -185,10 +173,6 @@ def test_rendering_active_menu_items(web_fixture, menu_item_scenarios):
 
 @uses(web_fixture=WebFixture)
 class CustomMenuItemFixture(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     def new_href(self):
         return Url('/link')
@@ -250,7 +234,6 @@ def test_custom_active_menu_items(web_fixture, custom_menu_item_fixture):
     """You can specify a custom method by which a MenuItem determines its active state."""
     fixture = custom_menu_item_fixture
 
-    web_fixture.context.install()
 
     fixture.set_request_url(fixture.go_to_href)
 
@@ -270,7 +253,6 @@ def test_language_menu(web_fixture):
             self.add_child(Menu(view).with_languages())
             self.add_child(P(view, text=_('This is an English sentence.')))
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=PanelWithMenu.factory())
 
@@ -310,7 +292,6 @@ class LayoutScenarios(Fixture):
 @with_fixtures(WebFixture, LayoutScenarios)
 def test_nav_layouts(web_fixture, layout_scenarios):
     """Navs can be laid out in different ways."""
-    web_fixture.context.install()
 
     menu = Nav(web_fixture.view)
 
@@ -334,7 +315,6 @@ def test_justified_items(web_fixture, different_layout_types):
     """Both a PillLayout or TabLayout can be set to make the MenuItems of
        their Nav fill the width of the parent, with the text of each item centered."""
 
-    web_fixture.context.install()
 
     menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type())
     assert 'nav-justified' not in menu.html_representation.get_attribute('class')
@@ -353,7 +333,6 @@ def test_pill_layouts_cannot_mix_justified_and_stacked():
 @with_fixtures(WebFixture)
 def test_dropdown_menus(web_fixture):
     """You can add a DropdownMenu as a dropdown inside a Nav."""
-    web_fixture.context.install()
 
     menu = Nav(web_fixture.view)
     sub_menu = DropdownMenu(web_fixture.view)
@@ -386,7 +365,6 @@ def test_dropdown_menus(web_fixture):
 @with_fixtures(WebFixture)
 def test_dropdown_menus_can_drop_up(web_fixture):
     """Dropdown menus can drop upwards instead of downwards."""
-    web_fixture.context.install()
 
     menu = Nav(web_fixture.view)
     sub_menu = Nav(web_fixture.view)
@@ -402,7 +380,6 @@ def test_dropdown_menus_can_drop_up(web_fixture):
 def test_dropdown_menus_right_align(web_fixture):
     """Dropdown menus can be aligned to the bottom right of their toggle, instead of the default (left)."""
 
-    web_fixture.context.install()
 
     defaulted_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout())
     assert 'dropdown-menu-right' not in defaulted_sub_menu.html_representation.get_attribute('class')

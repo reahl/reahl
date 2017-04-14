@@ -71,7 +71,6 @@ class ValidationScenarios(Fixture):
 def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
     fixture = validation_scenarios
 
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed

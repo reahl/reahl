@@ -38,7 +38,6 @@ def test_files_from_disk(web_fixture):
     """A directory in the web.static_root configuration setting, can be mounted on a URL
        named after it on the WebApplication.
     """
-    web_fixture.context.install()
 
     static_root = temp_dir()
     files_dir = static_root.sub_dir('staticfiles')
@@ -84,7 +83,6 @@ def test_files_from_list(web_fixture):
     """An explicit list of files can also be added on an URL as if they were in a single
        directory.
     """
-    web_fixture.context.install()
 
     files_dir = temp_dir()
     one_file = files_dir.file_with('any_name_will_do_here', 'one')
@@ -119,7 +117,6 @@ def test_files_from_list(web_fixture):
 def test_files_from_database(web_fixture):
     """Files can also be created on the fly such as from data in a database."""
 
-    web_fixture.context.install()
 
     content_bytes = ('hôt stuff').encode('utf-8')
 
@@ -154,7 +151,6 @@ def test_files_from_database(web_fixture):
 def test_packaged_files(web_fixture):
     """Files can also be served straight from a python egg."""
 
-    web_fixture.context.install()
 
     # Create an egg with package packaged_files, containing the file packaged_file
     egg_dir = temp_dir()
@@ -207,7 +203,6 @@ def test_concatenated_files(web_fixture, concatenate_scenarios):
        minified in the process."""
 
     fixture = concatenate_scenarios
-    web_fixture.context.install()
 
     # Make an egg with a package called packaged_files, and two files in there.
     egg_dir = temp_dir()
@@ -240,7 +235,6 @@ def test_file_download_details(web_fixture):
     """FileDownloadStub (the GET response for a StaticFileResource) works correctly in
       different scenarios of partial GETting too."""
 
-    web_fixture.context.install()
 
     file_content = b'some content'
     server_file = temp_file_with(file_content, 'afile.css', mode='w+b')

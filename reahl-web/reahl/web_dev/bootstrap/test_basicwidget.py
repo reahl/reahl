@@ -30,7 +30,6 @@ from reahl.web_dev.fixtures import WebFixture
 def test_alerts(web_fixture):
     """An alert is used to display a message with a specific severity"""
 
-    web_fixture.context.install()
 
     alert = Alert(web_fixture.view, 'Be careful', 'danger')
 

@@ -37,7 +37,6 @@ class TableExampleFixture(Fixture):
 @with_fixtures(SqlAlchemyFixture, TableExampleFixture)
 def demo_setup(sql_alchemy_fixture, fixture):
     sql_alchemy_fixture.commit = True
-    sql_alchemy_fixture.context.install()
 
     fixture.create_addresses()
 
@@ -49,7 +48,6 @@ def test_editing_an_address(web_fixture, fixture):
        can change the name or email address. Upon clicking the "Update" Button, the user is sent back
        to the "Addresses" page where the changes are visible."""
 
-    web_fixture.context.install()
     all_addresses = fixture.create_addresses()    #create some data to play with
 
     original_address_name = 'friend 7'   #choose the seventh address to edit
@@ -74,7 +72,6 @@ def test_deleting_several_address(web_fixture, fixture):
        on the "Addresses" page she wants to delete. Upon clicking the "Delete Selected" Button, the page
        refreshes, and the remaining addresses appear."""
 
-    web_fixture.context.install()
     fixture.create_addresses()    #create some data to play with
 
     fixture.browser.open('/')

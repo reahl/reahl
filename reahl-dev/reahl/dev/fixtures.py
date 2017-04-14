@@ -52,7 +52,7 @@ class ReahlSystemFixture(ContextAwareFixture):
         return config
 
     def new_context(self, config=None, system_control=None):
-        context = ExecutionContext().install()
+        context = ExecutionContext(name=self.__class__.__name__).install()
         context.config = config or self.config
         context.system_control = system_control or self.system_control
         return context
@@ -65,7 +65,6 @@ class ReahlSystemFixture(ContextAwareFixture):
 
     @set_up
     def init_database(self):
-        self.context.install()
         orm_control = self.config.reahlsystem.orm_control
         for dependency in self.test_dependencies:
             orm_control.instrument_classes_for(dependency)
@@ -75,7 +74,6 @@ class ReahlSystemFixture(ContextAwareFixture):
 
     @tear_down
     def disconnect(self):
-        self.context.install()
         if self.system_control.connected:
             self.system_control.disconnect()
 

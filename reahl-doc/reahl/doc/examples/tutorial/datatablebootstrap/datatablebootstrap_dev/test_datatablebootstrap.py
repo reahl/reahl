@@ -37,7 +37,6 @@ class DataTableExampleFixture(Fixture):
 @with_fixtures(WebFixture, DataTableExampleFixture)
 def demo_setup(sql_alchemy_fixture, data_table_example_fixture):
     sql_alchemy_fixture.commit = True
-    sql_alchemy_fixture.context.install()
 
     data_table_example_fixture.create_addresses()
 
@@ -49,7 +48,6 @@ def test_editing_an_address(web_fixture, data_table_example_fixture):
        can change the name or email address. Upon clicking the "Update" Button, the user is sent back
        to the "Addresses" page where the changes are visible."""
 
-    web_fixture.context.install()
 
     fixture = data_table_example_fixture
     all_addresses = fixture.create_addresses()
@@ -75,7 +73,6 @@ def test_pageable_table(web_fixture, data_table_example_fixture):
     """If there is a large dataset, the user can page through it, receiving only a managable number of items
        at a time."""
 
-    web_fixture.context.install()
 
     fixture = data_table_example_fixture
     fixture.create_addresses()
@@ -99,7 +96,6 @@ def test_sorting_by_column(web_fixture, data_table_example_fixture):
     """The user can sort the table differently, by clicking on links in the heading of a sortable
        column."""
 
-    web_fixture.context.install()
     
     fixture = data_table_example_fixture
     fixture.create_addresses()

@@ -99,7 +99,6 @@ class MyTaskWidget(TaskWidget):
 def test_detour_to_login(web_fixture, party_account_fixture, workflow_web_fixture):
     fixture = workflow_web_fixture
 
-    web_fixture.context.install()
     browser = Browser(fixture.wsgi_app)
 
     browser.open('/inbox/')
@@ -114,7 +113,6 @@ def test_detour_to_login(web_fixture, party_account_fixture, workflow_web_fixtur
 def test_take_and_release_task(web_fixture, task_queue_fixture, workflow_web_fixture):
     fixture = workflow_web_fixture
 
-    web_fixture.context.install()
     browser = Browser(fixture.wsgi_app)
     task = task_queue_fixture.task
 
@@ -148,7 +146,6 @@ def test_widgets_for_tasks(web_fixture, sql_alchemy_fixture, task_queue_fixture,
     line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.test_workflow:MyTaskWidget'
     easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
 
-    web_fixture.context.install()    
     with sql_alchemy_fixture.persistent_test_classes(MyTask):
         task = MyTask(queue=task_queue_fixture.queue, title='a task')
 

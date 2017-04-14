@@ -33,7 +33,6 @@ class LoginFixture(Fixture):
 @with_fixtures(SqlAlchemyFixture, LoginFixture)
 def demo_setup(sql_alchemy_fixture, login_fixture):
     sql_alchemy_fixture.commit = True
-    sql_alchemy_fixture.context.install()
 
     login_fixture.new_account()
 
@@ -43,7 +42,6 @@ def test_logging_in(web_fixture, login_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""
 
-    web_fixture.context.install()
     browser = login_fixture.browser
     login_fixture.new_account()
 
@@ -62,7 +60,6 @@ def test_logging_in(web_fixture, login_fixture):
 def test_domain_exception(web_fixture, login_fixture):
     """Typing the wrong password results in an error message being shown to the user."""
 
-    web_fixture.context.install()
     browser = login_fixture.browser
     login_fixture.new_account()
 

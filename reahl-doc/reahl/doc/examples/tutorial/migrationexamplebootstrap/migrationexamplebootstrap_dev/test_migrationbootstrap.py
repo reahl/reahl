@@ -35,7 +35,6 @@ class MigrateFixture(Fixture):
 @with_fixtures(WebFixture, MigrateFixture)
 def test_add_address(web_fixture, migrate_fixture):
     """A user can add an address, after which the address is listed."""
-    web_fixture.context.install()
     browser = migrate_fixture.browser
 
     browser.open('/')
@@ -50,7 +49,6 @@ def test_add_address(web_fixture, migrate_fixture):
 @with_fixtures(SqlAlchemyFixture)
 def demo_setup(sql_alchemy_fixture):
     sql_alchemy_fixture.commit = True
-    sql_alchemy_fixture.context.install()
     
     Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
     Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))

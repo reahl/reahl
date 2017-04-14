@@ -54,7 +54,6 @@ class AccessDomainFixture(Fixture):
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def demo_setup(sql_alchemy_fixture, access_domain_fixture):
-    sql_alchemy_fixture.context.install()
     sql_alchemy_fixture.commit = True
 
     access_domain_fixture.address_book
@@ -90,7 +89,6 @@ def demo_setup(sql_alchemy_fixture, access_domain_fixture):
 def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
     """An Address is created in a particular AddressBook, which is owned by a SystemAccount."""
 
-    sql_alchemy_fixture.context.install()
 
     account = access_domain_fixture.account
     address_book = access_domain_fixture.address_book
@@ -121,7 +119,6 @@ def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """A particular SystemAccount can see its own AddressBooks as well as all the AddressBooks
        it is explicitly allowed to see, but no other AddressBooks."""
 
-    sql_alchemy_fixture.context.install()
 
     account = access_domain_fixture.account
     address_book = access_domain_fixture.address_book
@@ -146,7 +143,6 @@ def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
 def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
     """When allowing an account to see another's AddressBook, the rights it has to the AddressBook are specified."""
 
-    sql_alchemy_fixture.context.install()
 
     account = access_domain_fixture.account
     address_book = access_domain_fixture.address_book
@@ -167,7 +163,6 @@ def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
 def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """The owner of an AddressBook may add collaborators to it."""
 
-    sql_alchemy_fixture.context.install()
 
     account = access_domain_fixture.account
     address_book = access_domain_fixture.address_book
@@ -181,7 +176,6 @@ def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
 def test_logging_in(web_fixture, access_domain_fixture, access_ui_fixture):
     """A user first sees only a login screen on the home page; after logging in,
        all the address books visible to the user appear."""
-    web_fixture.context.install()
 
     browser = access_ui_fixture.browser
     account = access_domain_fixture.account
@@ -203,7 +197,6 @@ def test_logging_in(web_fixture, access_domain_fixture, access_ui_fixture):
 def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture):
     """The owner of an AddressBook can add and edit Addresses to the owned AddressBook."""
 
-    web_fixture.context.install()
 
     browser = access_ui_fixture.browser
     fixture = access_domain_fixture
@@ -239,7 +232,6 @@ def test_edit_and_add_own(web_fixture, access_domain_fixture, access_ui_fixture)
 def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
     """If allowed, an account may see another account's AddressBook, and could edit or add Addresses,
        depending on the allowed rights."""
-    web_fixture.context.install()
 
     browser = access_ui_fixture.browser
     account = access_domain_fixture.account
@@ -284,7 +276,6 @@ def test_see_other(web_fixture, access_domain_fixture, access_ui_fixture):
 def test_edit_other(web_fixture, access_domain_fixture, access_ui_fixture):
     """If you may only edit (not add) an address, then you may only edit the email address, not the name."""
 
-    web_fixture.context.install()
 
     browser = access_ui_fixture.browser
     address_book = access_domain_fixture.address_book
@@ -319,7 +310,6 @@ def test_edit_other(web_fixture, access_domain_fixture, access_ui_fixture):
 @with_fixtures(WebFixture, AccessDomainFixture, AccessUIFixture)
 def test_add_collaborator(web_fixture, access_domain_fixture, access_ui_fixture):
     """A user may add other users as collaborators to his address book, specifying the privileges in the process."""
-    web_fixture.context.install()
     
     browser = access_ui_fixture.browser
     address_book = access_domain_fixture.address_book
@@ -389,7 +379,6 @@ class ViewScenarios(Fixture):
 
 @with_fixtures(WebFixture, AccessUIFixture, AccessDomainFixture, ViewScenarios)
 def test_view_permissions(web_fixture, access_ui_fixture, access_domain_fixture, view_scenarios):
-    web_fixture.context.install()
 
     browser = access_ui_fixture.browser
     account = access_domain_fixture.account

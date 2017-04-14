@@ -42,7 +42,6 @@ def test_i18n_urls(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  I18nUI,  IdentityDictionary(), name='test_ui')
 
-    web_fixture.context.install()
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
@@ -52,7 +51,7 @@ def test_i18n_urls(web_fixture):
     browser.open('/af/a_ui/aview')
     assert browser.title == '\'n Oogpunt'
 
-    web_fixture.context.config.web.default_url_locale = 'af'
+    web_fixture.config.web.default_url_locale = 'af'
     browser.open('/a_ui/aview')
     assert browser.title == '\'n Oogpunt'
 
@@ -65,7 +64,6 @@ def test_bookmarks(web_fixture):
     """Bookmarks normally refer to the current locale. You can override that to be a specified locale instead.
     """
 
-    web_fixture.context.install()
 
     bookmark = Bookmark('/base_path', '/relative_path', 'description')
     af_bookmark = Bookmark('/base_path', '/relative_path', 'description', locale='af')

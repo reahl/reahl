@@ -62,32 +62,20 @@ class WebFixture(Fixture):
 
     @set_up
     def add_web_config(self):
-        self.context.install()
-        self.config.web = self.webconfig
+        self.sql_alchemy_fixture.config.web = self.webconfig
 
     @set_up
     def add_request_to_context(self):
-        self.context.install()
-        self.context.request = self.request
-#            with context:
-#                context.session = self.session
-
-    @property
-    def session(self):
-        return self.party_account_fixture.session
-
-    @property
-    def config(self):
-        return self.sql_alchemy_fixture.config
-
-    @property
-    def system_control(self):
-        return self.sql_alchemy_fixture.system_control
+        self.sql_alchemy_fixture.context.request = self.request
 
     @property
     def context(self):
         return self.sql_alchemy_fixture.context
 
+    @property
+    def config(self):
+        return self.sql_alchemy_fixture.config
+    
     def new_webconfig(self):
         web = WebConfig()
         web.site_root = UserInterface
@@ -110,13 +98,13 @@ class WebFixture(Fixture):
         return Request(request.environ, charset='utf8')
 
     def log_in(self, browser=None, session=None, system_account=None, stay_logged_in=False):
-        session = session or self.session
+        session = session or self.party_account_fixture.session
         browser = browser or self.driver_browser
         login_session = LoginSession.for_session(session)
         login_session.set_as_logged_in(system_account or self.party_account_fixture.system_account, stay_logged_in)
         # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
         response = Response()
-        self.session.set_session_key(response)
+        session.set_session_key(response)
         cookies = http_cookies.BaseCookie(ascii_as_bytes_or_str(', '.join(response.headers.getall('set-cookie'))))
         for name, morsel in cookies.items():
             cookie = {'name':name, 'value':morsel.value}
@@ -149,7 +137,7 @@ class WebFixture(Fixture):
         child_factory = child_factory or Widget.factory()
         if 'main' not in view_slots:
             view_slots['main'] = child_factory
-        config = config or self.config
+        config = config or self.sql_alchemy_fixture.config
 
         class MainUI(UserInterface):
             def assemble(self):

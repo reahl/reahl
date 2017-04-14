@@ -30,6 +30,7 @@ from reahl.web.interfaces import UserSessionProtocol
 from reahl.web_dev.fixtures import ReahlWSGIApplicationStub
 from reahl.webdev.tools import Browser
 
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web_dev.fixtures import WebFixture
 
 
@@ -46,7 +47,6 @@ class WSGIFixture(Fixture):
 def test_wsgi_interface(web_fixture, wsgi_fixture):
     """A ReahlWSGIApplication is a WSGI application."""
     fixture = wsgi_fixture
-    web_fixture.context.install()
     wsgi_app = web_fixture.wsgi_app
 
     environ = Request.blank('/', charset='utf8').environ
@@ -62,8 +62,8 @@ def test_wsgi_interface(web_fixture, wsgi_fixture):
     assert fixture.some_headers_are_set(fixture.headers)
 
 
-@with_fixtures(WebFixture)
-def test_web_session_handling(web_fixture):
+@with_fixtures(SqlAlchemyFixture, WebFixture)
+def test_web_session_handling(sql_alchemy_fixture, web_fixture):
     """The core web framework (this egg) does not implement a notion of session directly.
        It relies on such a notion, but expects an implementation for this to be supplied.
 
@@ -116,8 +116,7 @@ def test_web_session_handling(web_fixture):
     # Setting the implementation in config
 
     web_fixture.config.web.session_class = UserSessionStub
-    web_fixture.context.install()
-    with CallMonitor(web_fixture.system_control.orm_control.commit) as monitor:
+    with CallMonitor(sql_alchemy_fixture.system_control.orm_control.commit) as monitor:
         @stubclass(Resource)
         class ResourceStub(object):
             def handle_request(self, request):
@@ -156,7 +155,6 @@ def test_handling_HTTPError_exceptions(web_fixture):
         def resource_for(self, request):
             raise HTTPNotFound()
 
-    web_fixture.context.install()
     browser = Browser(ReahlWSGIApplicationStub2(web_fixture.config))
 
     browser.open('/', status=404)
@@ -170,7 +168,6 @@ def test_internal_redirects(web_fixture):
        save for the browser round trip."""
 
     fixture = web_fixture
-    web_fixture.context.install()
     fixture.requests_handled = []
     fixture.handling_resources = []
 
@@ -206,7 +203,6 @@ def test_handling_uncaught_exceptions(web_fixture):
         def resource_for(self, request):
             raise AssertionError('this an unknown breakage')
 
-    web_fixture.context.install()
 
     app = ReahlWSGIApplicationStub2(web_fixture.config)
     browser = Browser(app)

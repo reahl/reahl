@@ -36,11 +36,6 @@ from reahl.web_dev.fixtures import WebFixture
 
 @uses(web_fixture=WebFixture)
 class BasicScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     @property
     def view(self):
         return self.web_fixture.view
@@ -98,7 +93,6 @@ def test_basic_assembly(web_fixture, basic_scenarios):
     can happen in different ways, as illustrated by each scenario of this test.
     """
     fixture = basic_scenarios
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
     browser = Browser(wsgi_app)
@@ -138,7 +132,6 @@ def test_basic_error1(web_fixture):
             self.define_view('/', title='Hello')
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -157,7 +150,6 @@ def test_basic_error2(web_fixture):
             self.define_view('/', title='Hello')
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -177,7 +169,6 @@ def test_basic_error3(web_fixture):
             self.define_view('/', title='Hello')
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -191,11 +182,6 @@ def test_basic_error3(web_fixture):
 
 @uses(web_fixture=WebFixture)
 class SlotScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     @scenario
     def page_on_ui(self):
         class MainUI(UserInterface):
@@ -221,7 +207,6 @@ class SlotScenarios(Fixture):
 def test_slots(web_fixture, slot_scenarios):
     """A View modifies the page by populating named Slots in the page with Widgets."""
     fixture = slot_scenarios
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
     browser = Browser(wsgi_app)
@@ -244,7 +229,6 @@ def test_slot_error(web_fixture):
             home.set_slot('nonexistantslotname', P.factory(text='I am breaking'))
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -268,7 +252,6 @@ def test_slot_defaults(web_fixture):
             self.define_view('/', title='Hello')
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)

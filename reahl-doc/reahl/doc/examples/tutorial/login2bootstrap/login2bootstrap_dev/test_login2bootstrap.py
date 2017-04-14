@@ -43,7 +43,6 @@ def test_logging_in(web_fixture, login_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""
 
-    web_fixture.context.install()
     browser = login_fixture.browser
     login_fixture.new_account()
 

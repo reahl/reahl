@@ -31,7 +31,6 @@ from reahl.component_dev.test_migration import ReahlEggStub
 
 @with_fixtures(ReahlSystemFixture)
 def test_egg_schema_version_changes(reahl_system_fixture):
-    reahl_system_fixture.context.install()
     orm_control = SqlAlchemyControl()
 
     old_version_egg = ReahlEggStub('anegg', '0.0', [])
@@ -51,7 +50,6 @@ def test_egg_schema_version_changes(reahl_system_fixture):
 
 @with_fixtures(ReahlSystemFixture)
 def test_egg_schema_version_init(reahl_system_fixture):
-    reahl_system_fixture.context.install()
     orm_control = SqlAlchemyControl()
 
     egg = ReahlEggStub('initegg', '0.0', [])
@@ -87,7 +85,6 @@ def test_query_as_sequence(sql_alchemy_fixture, query_fixture):
     """A QueryAsSequence adapts a sqlalchemy.Query to look like a list."""
 
     fixture = query_fixture
-    sql_alchemy_fixture.context.install()
     with sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 
@@ -124,7 +121,6 @@ def test_query_as_sequence_last_sort_wins(sql_alchemy_fixture, query_fixture):
     """Only the last .sort() on a QueryAsSequence has any effect."""
 
     fixture = query_fixture
-    sql_alchemy_fixture.context.install()
     with sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 
@@ -140,7 +136,6 @@ def test_query_as_sequence_chained_sorts(sql_alchemy_fixture, query_fixture):
        should be able to chain additional sort(order_by) requirements"""
 
     fixture = query_fixture
-    sql_alchemy_fixture.context.install()
     with sql_alchemy_fixture.persistent_test_classes(fixture.MyObject):
         [object1, object2, object3] = fixture.objects
 

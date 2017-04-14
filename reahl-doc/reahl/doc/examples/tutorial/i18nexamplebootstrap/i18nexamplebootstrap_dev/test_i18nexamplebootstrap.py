@@ -25,7 +25,6 @@ class TranslationExampleFixture(Fixture):
 @with_fixtures(WebFixture, TranslationExampleFixture)
 def demo_setup(sql_alchemy_fixture, translation_example_fixture):
     sql_alchemy_fixture.commit = True
-    sql_alchemy_fixture.context.install()
     
     data_table_example_fixture.create_addresses()
     translation_example_fixture.create_addresses()
@@ -36,7 +35,6 @@ def demo_setup(sql_alchemy_fixture, translation_example_fixture):
 def test_translations(web_fixture, translation_example_fixture):
     """The user can choose between languages. The text for which translations exist change accordingly."""
 
-    web_fixture.context.install()
     
     browser = translation_example_fixture.browser
     browser.open('/')

@@ -42,7 +42,6 @@ class FailingConstraint(ValidationConstraint):
 def test_form_encoding(web_fixture):
     """The enctype of a Form changes to multipart/form-data if it contains an input for a file."""
     fixture = web_fixture
-    web_fixture.context.install()
 
     class DomainObject(object):
         @exposed
@@ -64,7 +63,6 @@ def test_simple_file_input(web_fixture):
        The SimpleFileInput transforms the chosen files to UploadedFile objects, and passes these
        to its associated FileField upon a Form submit."""
 
-    web_fixture.context.install()
 
     expected_content = b'some content'
     file_to_upload = temp_file_with(expected_content, mode='w+b')
@@ -115,7 +113,6 @@ def test_simple_file_input_exceptions(web_fixture):
        possible to prepopulate its value using HTML or JS as this would be a security risk.
     """
 
-    web_fixture.context.install()
 
     file_to_upload = temp_file_with('some content')
     failing_constraint = FailingConstraint('I am breaking')

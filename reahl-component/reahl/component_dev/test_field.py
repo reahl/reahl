@@ -24,7 +24,6 @@ import functools
 from reahl.tofu import Fixture, scenario, expected, NoException, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
-from reahl.component_dev.fixtures import ContextAwareFixture
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError, IsInstance, IsCallable, IncorrectArgumentError
@@ -40,11 +39,10 @@ from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, expos
                              FileField, SingleFileConstraint, UploadedFile, FileSizeConstraint, \
                              MimeTypeConstraint, MaxFilesConstraint, SmallerThanConstraint, GreaterThanConstraint
 
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 
-class FieldFixture(ContextAwareFixture):
-    def new_context(self):
-        return ExecutionContext()
-
+@uses(sql_alchemy_fixture = SqlAlchemyFixture) # For a context
+class FieldFixture(Fixture):
     def new_model_object(self):
         obj = EmptyStub()
         obj.an_attribute = 'field value'
@@ -61,7 +59,6 @@ def test_marshalling(fixture):
     """A Field marshalls a string representation of some input to a python object which is then set as
        an attribute on the model object to which the Field is bound to. (A Field also unmarshalls such an attribute)."""
 
-    fixture.context.install()
 
     # How the marshalling is programmed
     class MyField(Field):
@@ -90,7 +87,6 @@ def test_validation(fixture):
        happens in two places: validation of the string input, and validation based on the 
        parsed python object."""
 
-    fixture.context.install()
 
     # For testing, we just use a simple one-way marshalling field from string to int
     class MyField(Field):
@@ -137,7 +133,6 @@ def test_validation(fixture):
 @with_fixtures(FieldFixture)
 def test_field_metadata(fixture):
     """Fields provide metadata about their contents"""
-    fixture.context.install()
 
     field = Field(default=2, required=True, label='A field')
     field.bind('fieldname', fixture.model_object)
@@ -153,7 +148,6 @@ def test_constraint_message(fixture):
     """Each validation_constraint has a customisable error message which can make use of the label supplied by 
        the Field it is added to, or any other attribute of the ValidationConstraint itself."""
 
-    fixture.context.install()
 
     class MyConstraint(ValidationConstraint):
         name = 'myconstraint'
@@ -176,7 +170,6 @@ def test_constraint_message(fixture):
 def test_meaning_of_required(fixture):
     """Making a Field required means adding a RequiredConstraint to it"""
     # Case: construction with default value for required
-    fixture.context.install()
 
     field = Field()
     assert not field.required 
@@ -191,7 +184,6 @@ def test_meaning_of_required(fixture):
 def test_getting_modified_copy(fixture):
     """It is possible to get a modified copy of an existing field if you want to link it with 
        different constraints on a different input"""
-    fixture.context.install()
 
     other_constraint = ValidationConstraint('Other error')
     other_constraint.name = 'other'
@@ -245,7 +237,6 @@ def test_getting_modified_copy(fixture):
 @with_fixtures(FieldFixture)
 def test_helpers_for_fields(fixture):
     """The @exposed decorator makes it simpler to bind Fields to an object."""
-    fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -265,7 +256,6 @@ def test_helpers_for_fields2(fixture):
     """The ReahlFields class is an alternative way to make it simpler to bind Fields to an object.
        This reads a bit nicer, BUT does not currently play well with internationalising strings."""
 
-    fixture.context.install()
     class ModelObject(object):
         fields = ReahlFields()
         fields.field1 = IntegerField()
@@ -293,7 +283,6 @@ def test_helpers_for_fields2(fixture):
 @with_fixtures(FieldFixture)
 def test_re_binding_behaviour_of_field_index(fixture):
     """FieldIndexes wont bind a field if it already is bound."""
-    fixture.context.install()
 
     model_object1 = EmptyStub()
     model_object2 = EmptyStub()
@@ -311,7 +300,6 @@ def test_re_binding_behaviour_of_field_index(fixture):
 @with_fixtures(FieldFixture)
 def test_helpers_for_events(fixture):
     """The @exposed decorator makes it simpler to collect Events on an object similar to how it is used for Fields."""
-    fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -331,7 +319,6 @@ def test_helpers_for_events(fixture):
 @with_fixtures(FieldFixture)
 def test_helpers_for_events2(fixture):
     """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
-    fixture.context.install()
 
     class ModelObject(object):
         @exposed('event1')
@@ -348,7 +335,6 @@ def test_helpers_for_events2(fixture):
 @with_fixtures(FieldFixture)
 def test_helpers_for_events3(fixture):
     """An Event has to be created for each of the names listed to the @exposed decorator, else an error is raised."""
-    fixture.context.install()
 
     class ModelObject(object):
         @exposed('event1', 'forgotten')
@@ -368,7 +354,6 @@ def test_events(fixture):
        possibly trigger the execution of an Action by the system. Metadata, such as what
        a human might label the Event, is also specified."""
 
-    fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -392,7 +377,6 @@ def test_arguments_to_actions(fixture):
     """Arguments can be defined on an Event in order to be able to pass them to the linked Action 
        as args or kwargs as specified by the Action."""
 
-    fixture.context.install()
 
     expected_arg = 123
     expected_kwarg = 45
@@ -425,7 +409,6 @@ def test_arguments_to_event(fixture):
     """Only Action objects can be sent as action= when creating an Event. The arguments passed to readable and writable
        should be callable objects with correct signature."""
 
-    fixture.context.install()
 
     # action=
     with expected(IsInstance):
@@ -498,7 +481,6 @@ class ActionScenarios(Fixture):
 def test_event_security(field_fixture, action_scenarios):
     """If an Event specifies an Action, the access controls of the Action are
        used for access to the Event as well."""
-    field_fixture.context.install()
 
     fixture = action_scenarios
 
@@ -523,7 +505,6 @@ def test_event_security(field_fixture, action_scenarios):
 @with_fixtures(FieldFixture)
 def test_event_security2(fixture):
     """If an Event does not specify an Action, then Actions can be passed for its readable and writable."""
-    fixture.context.install()
 
     class ModelObject(object):
         allow_read_flag = True
@@ -568,7 +549,6 @@ def test_receiving_events(fixture):
     """An Event is said to have occurred if it received a querystring containing its arguments from user input.
        An Event can only be fired if it occurred."""
 
-    fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -622,7 +602,6 @@ class AllowedScenarios(Fixture):
 def test_security_of_receiving_events(field_fixture, allowed_scenarios):
     """An Event can only occur if BOTH its access restrictions are allowed."""
 
-    field_fixture.context.install()
 
     fixture = allowed_scenarios
 
@@ -646,7 +625,6 @@ def test_security_of_receiving_events(field_fixture, allowed_scenarios):
 
 @with_fixtures(FieldFixture)
 def test_required_constraint(fixture):
-    fixture.context.install()
     selector = 'find me'
     required_constraint = RequiredConstraint(selector_expression=selector)
 
@@ -677,7 +655,6 @@ def test_required_constraint(fixture):
 @with_fixtures(FieldFixture)
 def test_min_length_constraint(fixture):
 
-    fixture.context.install()
     min_required_length = 5
     min_length_constraint = MinLengthConstraint(min_length=min_required_length)
 
@@ -704,7 +681,6 @@ def test_min_length_constraint(fixture):
 @with_fixtures(FieldFixture)
 def test_max_length_constraint(fixture):
 
-    fixture.context.install()
     max_allowed_length = 5
     max_length_constraint = MaxLengthConstraint(max_length=max_allowed_length)
 
@@ -731,7 +707,6 @@ def test_max_length_constraint(fixture):
 @with_fixtures(FieldFixture)
 def test_pattern_constraint(fixture):
 
-    fixture.context.install()
     allow_pattern = '(ab)+'
     pattern_constraint = PatternConstraint(pattern=allow_pattern)
 
@@ -756,7 +731,6 @@ def test_pattern_constraint(fixture):
 @with_fixtures(FieldFixture)
 def test_allowed_values_constraint(fixture):
 
-    fixture.context.install()
     allowed_values=['a','b']
     allowed_values_constraint = AllowedValuesConstraint(allowed_values=allowed_values)
 
@@ -775,7 +749,6 @@ def test_allowed_values_constraint(fixture):
 @with_fixtures(FieldFixture)
 def test_equal_to_constraint(fixture):
 
-    fixture.context.install()
     other_field = Field(label='other')
     equal_to_constraint = EqualToConstraint(other_field, '$label, $other_label')
     other_field.set_user_input('should be equal to this string', ignore_validation=True)
@@ -792,7 +765,6 @@ def test_equal_to_constraint(fixture):
 @with_fixtures(FieldFixture)
 def test_smaller_than_constraint(fixture):
 
-    fixture.context.install()
     other_field = IntegerField(label='other')
     smaller_than_constraint = SmallerThanConstraint(other_field, '$label, $other_label')
     other_field.set_user_input('5', ignore_validation=True)
@@ -809,7 +781,6 @@ def test_smaller_than_constraint(fixture):
 @with_fixtures(FieldFixture)
 def test_greater_than_constraint(fixture):
 
-    fixture.context.install()
     other_field = IntegerField(label='other')
     greater_than_constraint = GreaterThanConstraint(other_field, '$label, $other_label')
     other_field.set_user_input('5', ignore_validation=True)
@@ -826,7 +797,6 @@ def test_greater_than_constraint(fixture):
 @with_fixtures(FieldFixture)
 def test_email_validation(fixture):
 
-    fixture.context.install()
     field = EmailField()
 
     # Case: invalid
@@ -848,7 +818,6 @@ def test_email_validation(fixture):
 @with_fixtures(FieldFixture)
 def test_password_validation(fixture):
 
-    fixture.context.install()
     field = PasswordField()
 
     # Case: invalid
@@ -869,7 +838,6 @@ def test_password_validation(fixture):
 def test_password_access(fixture):
     """A PasswordField is world writable, but not readable by anyone."""
 
-    fixture.context.install()
     field = PasswordField()
     field.bind('password_field', EmptyStub())
     assert not field.can_read() 
@@ -879,7 +847,6 @@ def test_password_access(fixture):
 @with_fixtures(FieldFixture)
 def test_boolean_validation(fixture):
 
-    fixture.context.install()
     obj = EmptyStub()
     field = BooleanField()
     field.bind('boolean_attribute', obj)
@@ -934,7 +901,6 @@ def test_boolean_i18n():
 @with_fixtures(FieldFixture)
 def test_integer_validation(fixture):
 
-    fixture.context.install()
     field = IntegerField()
 
     # Case invalid
@@ -959,7 +925,6 @@ def test_integer_validation(fixture):
 @with_fixtures(FieldFixture)
 def test_basic_marshalling(fixture):
 
-    fixture.context.install()
     field = Field()
     obj = EmptyStub()
     field.bind('value', obj)
@@ -980,7 +945,6 @@ def test_basic_marshalling(fixture):
 @with_fixtures(FieldFixture)
 def test_integer_marshalling(fixture):
 
-    fixture.context.install()
     field = IntegerField()
     obj = EmptyStub()
     field.bind('integer_value', obj)
@@ -999,11 +963,7 @@ def test_integer_marshalling(fixture):
 
 
 @uses(field_fixture=FieldFixture)
-class ChoiceFixture(ContextAwareFixture):
-    @property
-    def context(self):
-        return self.field_fixture.context
-
+class ChoiceFixture(Fixture):
     def new_field(self, field_class=None):
         field_class = field_class or ChoiceField
         field = field_class(self.choices)
@@ -1051,7 +1011,6 @@ class ChoiceFixture(ContextAwareFixture):
 def test_choice_querying(choice_fixture):
     """A ChoiceField maintains a list of the Choices and Groups it was constructed with."""
 
-    choice_fixture.context.install()
     fixture = choice_fixture
 
     field = fixture.field
@@ -1064,7 +1023,6 @@ def test_choice_querying(choice_fixture):
 def test_choice_validation(choice_fixture):
     """Input for a ChoiceField is valid only if it matches one of its Choices."""
 
-    choice_fixture.context.install()
     fixture = choice_fixture
     field = fixture.field
 
@@ -1082,7 +1040,6 @@ def test_choice_validation(choice_fixture):
 def test_choice_field_marshalling(choice_fixture):
     """Input for a ChoiceField is marshalled differently, depending on the Field specified for the Choice matching the input."""
 
-    choice_fixture.context.install()
     fixture = choice_fixture
     field = fixture.field
     obj = fixture.model_object
@@ -1107,7 +1064,6 @@ def test_file_marshalling(fixture):
        the setting of its allow_multiple flag.
     """
 
-    fixture.context.install()
 
     field = FileField()
     obj = fixture.model_object
@@ -1139,7 +1095,6 @@ def test_file_validation(fixture):
        setting of allow_multiple and/or required.
     """
 
-    fixture.context.install()
 
     field = FileField()
     obj = fixture.model_object
@@ -1177,7 +1132,6 @@ def test_file_validation_size(fixture):
     """A FileField can also limit the size if files uploaded.
     """
 
-    fixture.context.install()
 
     field = FileField(allow_multiple=True, max_size_bytes=100)
     obj = fixture.model_object
@@ -1197,7 +1151,6 @@ def test_file_validation_mime_type(fixture):
     """A FileField can also limit the mimetype of files allowed to be uploaded.
     """
 
-    fixture.context.install()
 
     field = FileField(allow_multiple=True, accept=['text/*'])
     obj = fixture.model_object
@@ -1217,7 +1170,6 @@ def test_file_validation_max_files(fixture):
     """A maximum can be placed upon the number of files that may be uploaded.
     """
 
-    fixture.context.install()
 
     field = FileField(allow_multiple=True, max_files=1)
     obj = fixture.model_object
@@ -1238,7 +1190,6 @@ def test_date_marshalling(fixture):
        (It tolerates non-precise input.)
     """
 
-    fixture.context.install()
 
     field = DateField()
     obj = fixture.model_object
@@ -1260,7 +1211,6 @@ def test_date_marshalling(fixture):
 def test_date_validation(fixture):
     """A DateField can validate its input based on a min or max value and expects fuzzy but sensible input."""
 
-    fixture.context.install()
 
     field = DateField()
     obj = fixture.model_object

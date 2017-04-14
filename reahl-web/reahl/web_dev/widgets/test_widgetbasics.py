@@ -62,7 +62,6 @@ def test_basic_widget(web_fixture):
             self.add_children([P(view, text='a'), P(view, text='b')])
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     message = MyMessage(fixture.view)
 
@@ -87,7 +86,6 @@ def test_visibility(web_fixture):
             return self.is_visible
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     message = MyMessage(fixture.view)
 
@@ -116,7 +114,6 @@ def test_widget_factories_and_args(web_fixture):
             self.saved_kwarg = kwarg
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     factory = WidgetWithArgs.factory('a', kwarg='b')
 
@@ -138,7 +135,6 @@ def test_widget_factories_error(web_fixture):
 
     def check_exc(ex):
         assert six.text_type(ex).startswith("An attempt was made to create a WidgetFactory for %r with arguments that do not match what is expected for %r" % (WidgetWithArgs, WidgetWithArgs))
-    web_fixture.context.install()
 
     with expected(IncorrectArgumentError, test=check_exc):
         WidgetWithArgs.factory('a', 'b', 'c')
@@ -148,7 +144,6 @@ def test_widget_factories_error(web_fixture):
 def test_widget_construct_error(web_fixture):
     """Passing anything other than a View as a Widget's view argument on construction results in an error."""
 
-    web_fixture.context.install()
 
     with expected(IsInstance):
         Widget(EmptyStub())
@@ -158,7 +153,6 @@ def test_widget_construct_error(web_fixture):
 def test_widget_adding_error(web_fixture):
     """Passing anything other than other Widgets to .add_child or add_children results in an error."""
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = Widget(fixture.view)
 
@@ -192,7 +186,6 @@ def test_basic_working_of_slots(web_fixture):
             other.set_slot('slot1', P.factory(text='other'))
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -223,7 +216,6 @@ def test_defaults_for_slots(web_fixture):
             self.define_view('/', title='Home')
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -260,7 +252,6 @@ def test_activating_javascript(web_fixture):
             self.define_view('/', title='Home')
 
     fixture = web_fixture
-    web_fixture.context.install()
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 

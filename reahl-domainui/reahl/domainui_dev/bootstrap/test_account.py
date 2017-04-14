@@ -75,7 +75,6 @@ class AccountsWebFixture(Fixture):
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
 def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
-    web_fixture.context.install()
 
     account = party_account_fixture.system_account
 
@@ -97,7 +96,6 @@ def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixt
 @with_fixtures(WebFixture, AccountsWebFixture)
 def test_register(web_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
-    web_fixture.context.install()
 
     verification_requests = Session.query(VerifyEmailRequest)
     fixture.browser.open('/a_ui/register')
@@ -117,7 +115,6 @@ def test_register(web_fixture, accounts_web_fixture):
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
 def test_register_help_duplicate(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
-    web_fixture.context.install()
     fixture.browser.open('/a_ui/registerHelp')
 
     fixture.browser.type('//input[@name="email"]', party_account_fixture.system_account.email)
@@ -132,7 +129,6 @@ def test_register_help_duplicate(web_fixture, party_account_fixture, accounts_we
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
 def test_register_help_not_found(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
-    web_fixture.context.install()
 
     fixture.browser.open('/a_ui/registerHelp')
 
@@ -148,7 +144,6 @@ def test_register_help_not_found(web_fixture, party_account_fixture, accounts_we
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
 def test_register_help_pending(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
-    web_fixture.context.install()
 
     verification_requests = Session.query(VerifyEmailRequest)
     unactivated_account = party_account_fixture.new_system_account(email='unactivated_johndoe@home.org', activated=False)
@@ -176,7 +171,6 @@ def test_register_help_pending(web_fixture, party_account_fixture, accounts_web_
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
 def test_verify_from_menu(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
-    web_fixture.context.install()
 
     account = party_account_fixture.new_system_account(activated=False)
     activation_request = VerifyEmailRequest(email=account.email,
@@ -204,7 +198,6 @@ def test_verify_from_menu(web_fixture, party_account_fixture, accounts_web_fixtu
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
 def test_reset_password(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
-    web_fixture.context.install()
     account = party_account_fixture.system_account
 
     fixture.browser.open('/a_ui/resetPassword')
@@ -227,7 +220,6 @@ def test_reset_password(web_fixture, party_account_fixture, accounts_web_fixture
 @with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
 def test_reset_password_from_url(web_fixture, party_account_fixture, accounts_web_fixture):
     fixture = accounts_web_fixture
-    web_fixture.context.install()
     account = party_account_fixture.system_account
     new_password_request = NewPasswordRequest(system_account=account)
     Session.add(new_password_request)

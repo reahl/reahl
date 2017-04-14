@@ -39,7 +39,6 @@ def test_resources(web_fixture):
        a Response."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     @stubclass(Resource)
     class ResourceStub(Resource):
@@ -74,7 +73,6 @@ def test_simple_sub_resources(web_fixture):
        will then be available via a special URL underneath the URL of the Widget's View."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     @stubclass(SubResource)
     class ASimpleSubResource(SubResource):
@@ -101,7 +99,6 @@ def test_dynamic_sub_resources(web_fixture):
        to a View. In such cases, A Factory can be added that will construct the SubResource
        on demand, based on a regex which may contain parameters."""
     fixture = web_fixture
-    web_fixture.context.install()
 
     @stubclass(SubResource)
     class ParameterisedSubResource(SubResource):
@@ -168,7 +165,6 @@ def test_dynamic_sub_resources_factory_args(web_fixture):
             view.add_resource_factory(factory)
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
     browser = Browser(wsgi_app)
@@ -208,7 +204,6 @@ def test_disambiguating_between_factories(web_fixture):
             view.add_resource_factory(factory2)
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithAmbiguousSubResources.factory()})
     browser = Browser(wsgi_app)
@@ -242,7 +237,6 @@ def test_computation_of_url(web_fixture, url_scenarios):
         sub_regex = 'sub_path'
         sub_path_template = 'sub_path'
 
-    web_fixture.context.install()
 
     sub_resource = ASimpleSubResource('uniquename')
 

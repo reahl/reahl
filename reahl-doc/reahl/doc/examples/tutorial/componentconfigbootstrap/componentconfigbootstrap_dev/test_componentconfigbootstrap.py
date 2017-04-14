@@ -37,7 +37,6 @@ class ConfigFixture(Fixture):
 def test_add_address(web_fixture, config_fixture):
     """A user can add an address, after which the address is listed."""
 
-    web_fixture.context.install()
     browser = config_fixture.browser
 
     browser.open('/')
@@ -59,7 +58,6 @@ def test_config_was_read_from_file(web_fixture):
 def test_configurable_heading(web_fixture, config_fixture):
     """Whether the heading is displayed or not, is configurable."""
 
-    web_fixture.context.install()
     browser = config_fixture.browser
 
     web_fixture.context.config.componentconfig.showheader = False

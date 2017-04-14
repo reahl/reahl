@@ -36,7 +36,6 @@ def test_security_sensitive(web_fixture):
     """A Widget is security sensitive if a read_check is specified for it; one of its
        children is security sensitive, or it was explixitly marked as security sensitive."""
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = Widget(fixture.view)
 
@@ -69,21 +68,21 @@ def test_serving_security_sensitive_widgets(web_fixture):
                 widget.set_as_security_sensitive()
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory(), enable_js=True)
     fixture.reahl_server.set_app(wsgi_app)
 
-    assert fixture.config.web.encrypted_http_scheme == 'https'
-    assert fixture.config.web.default_http_scheme == 'http'
+    config = web_fixture.config
+    assert config.web.encrypted_http_scheme == 'https'
+    assert config.web.default_http_scheme == 'http'
 
     fixture.security_sensitive = False
     fixture.driver_browser.open('https://localhost:8363/')
-    assert fixture.driver_browser.current_url.scheme == fixture.config.web.default_http_scheme
+    assert fixture.driver_browser.current_url.scheme == config.web.default_http_scheme
 
     fixture.security_sensitive = True
     fixture.driver_browser.open('http://localhost:8000/')
-    assert fixture.driver_browser.current_url.scheme == fixture.config.web.encrypted_http_scheme
+    assert fixture.driver_browser.current_url.scheme == config.web.encrypted_http_scheme
 
 
 @with_fixtures(WebFixture)
@@ -93,7 +92,6 @@ def test_fields_have_access_rights(web_fixture):
        access which will be called to determine whether that kind of access is allowed.
        """
     fixture = web_fixture
-    web_fixture.context.install()
 
     def not_allowed(): return False
 
@@ -114,7 +112,6 @@ def test_tailored_access_make_inputs_security_sensitive(web_fixture):
     """An Input is sensitive if explicitly set as sensitive, or if its Fields has non-defaulted
        mechanisms for determiing access rights."""
 
-    web_fixture.context.install()
 
     form = Form(web_fixture.view, 'some_form')
     field = Field(default=3, readable=Allowed(True))
@@ -126,10 +123,6 @@ def test_tailored_access_make_inputs_security_sensitive(web_fixture):
 
 @uses(web_fixture=WebFixture)
 class InputRenderingScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     def new_form(self):
         return Form(self.web_fixture.view, 'some_form')
@@ -249,7 +242,6 @@ def test_rendering_inputs(web_fixture, input_rendering_scenarios):
     """How Inputs render, depending on the rights."""
 
     fixture = input_rendering_scenarios
-    web_fixture.context.install()
 
     tester = WidgetTester(fixture.input_widget)
 
@@ -283,7 +275,6 @@ def test_non_writable_input_is_dealt_with_like_invalid_input(web_fixture):
             form.add_child(TextInput(form, model_object.fields.field_name))
             fixture.form = form
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory())
     browser = Browser(wsgi_app)
@@ -316,7 +307,6 @@ def test_non_writable_events_are_dealt_with_like_invalid_input(web_fixture):
                 form.add_child(form.create_error_label(button))
             fixture.form = form
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=TestPanel.factory())
     browser = Browser(wsgi_app)
@@ -341,7 +331,6 @@ def test_getting_view(web_fixture):
             self.define_page(HTML5Page)
             self.define_view('/view', 'Title', read_check=disallowed)
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -368,7 +357,6 @@ def test_posting_to_view(web_fixture):
             home = self.define_view('/a_view', 'Title', write_check=disallowed)
             home.set_slot('main', MyForm.factory())
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)

@@ -57,7 +57,6 @@ def test_rendering_of_constraints(web_fixture, constraint_rendering_fixture):
        corresponding error message."""
 
     fixture = constraint_rendering_fixture
-    web_fixture.context.install()
 
     fixture.field.bind('an_attribute', fixture.model_object)
     fixture.model_object.an_attribute = 'field value'
@@ -88,7 +87,6 @@ def test_remote_constraints(web_fixture, constraint_rendering_fixture):
     """Remote constraints are invoked by the browser via ajax on the server when the input loses focus."""
 
     fixture = constraint_rendering_fixture
-    web_fixture.context.install()
 
     class MyRemoteConstraint(RemoteConstraint):
         def validate_input(self, unparsed_input):
@@ -141,7 +139,6 @@ def test_remote_constraints(web_fixture, constraint_rendering_fixture):
 @with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
-    web_fixture.context.install()
 
     constraint = RequiredConstraint()
 
@@ -169,7 +166,6 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
 @with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
-    web_fixture.context.install()
 
     min_required_length = 5
     constraint = MinLengthConstraint(min_length=min_required_length)
@@ -193,7 +189,6 @@ def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
 @with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_max_length_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
-    web_fixture.context.install()
 
     max_allowed_length = 5
     constraint = MaxLengthConstraint(max_length=max_allowed_length)
@@ -217,7 +212,6 @@ def test_max_length_constraint_js(web_fixture, constraint_rendering_fixture):
 @with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
-    web_fixture.context.install()
 
     allow_pattern = '(ab)+'
     constraint = PatternConstraint(pattern=allow_pattern)
@@ -246,7 +240,6 @@ def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
 @with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
-    web_fixture.context.install()
 
     allowed_values=['a','b']
     constraint = AllowedValuesConstraint(allowed_values=allowed_values)
@@ -270,7 +263,6 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
 @with_fixtures(WebFixture, ConstraintRenderingFixture)
 def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
     fixture = constraint_rendering_fixture
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed

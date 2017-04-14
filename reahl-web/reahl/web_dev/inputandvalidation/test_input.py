@@ -45,10 +45,6 @@ class SimpleInputFixture(Fixture):
     def new_model_object(self): # not a delegated property, because some classes override it
         return self.field_fixture.new_model_object()
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     def new_form(self):
         return Form(self.web_fixture.view, 'test')
 
@@ -151,7 +147,6 @@ def test_the_states_of_an_input(web_fixture, input_state_fixture):
                             model object has a corresponding value
     """
     fixture = input_state_fixture
-    web_fixture.context.install()
 
     assert fixture.input.get_input_status() == fixture.expected_state
     assert fixture.input.value == fixture.expected_value
@@ -293,7 +288,6 @@ def test_basic_rendering(web_fixture, input_scenarios):
     """What the rendered html for a number of simple inputs look like."""
 
     fixture = input_scenarios
-    web_fixture.context.install()
 
     tester = WidgetTester(fixture.widget)
     actual = tester.render_html()
@@ -304,7 +298,6 @@ def test_basic_rendering(web_fixture, input_scenarios):
 def test_rendering_when_not_allowed(web_fixture, input_scenarios):
     """When not allowed to see the Widget, it is not rendered."""
     fixture = input_scenarios
-    web_fixture.context.install()
 
     tester = WidgetTester(fixture.widget)
 
@@ -323,7 +316,6 @@ def test_input_wrapped_widgets(web_fixture, field_fixture, simple_input_fixture)
        .create_html_widget() method. Several methods for setting HTML-things, like 
        css id are delegated to this Widget which represents the Input in HTML.
     """
-    web_fixture.context.install()
     fixture = simple_input_fixture
 
     class MyInput(PrimitiveInput):
@@ -350,7 +342,6 @@ def test_wrong_args_to_input(web_fixture, simple_input_fixture):
     """Passing the wrong arguments upon constructing an Input results in an error."""
 
     fixture = simple_input_fixture
-    web_fixture.context.install()
 
     with expected(IsInstance):
         PrimitiveInput(fixture.form, EmptyStub())
@@ -370,7 +361,6 @@ def test_marshalling_of_checkbox(web_fixture, checkbox_fixture):
        whether the checkbox is included in the submission or not."""
 
     fixture = checkbox_fixture
-    web_fixture.context.install()
 
     model_object = fixture.model_object
     class MyForm(Form):
@@ -411,7 +401,6 @@ def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
        input that was typed by the user to be interpreted server-side and changed to the
        more exact representation in the client browser.  This happens upon the input losing focus."""
     fixture = fuzzy_text_input_fixture
-    web_fixture.context.install()
 
     model_object = fixture.model_object
     class MyForm(Form):

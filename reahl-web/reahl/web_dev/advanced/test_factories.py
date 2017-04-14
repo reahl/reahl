@@ -72,7 +72,6 @@ def test_factory_from_path_regex(web_fixture):
         instance.extra_kwarg = extra_kwarg
         return instance
 
-    web_fixture.context.install()
 
     argument_fields = {'path_arg': Field()}
     factory = FactoryFromUrlRegex(RegexPath('some(?P<path_arg>.+)path', 'some${path_arg}path', argument_fields),
@@ -84,10 +83,6 @@ def test_factory_from_path_regex(web_fixture):
 
 @uses(web_fixture=WebFixture)
 class MatchingScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     class ViewWithArg(UrlBoundView):
         def assemble(self, my_one_arg=None): pass
@@ -163,7 +158,6 @@ class MatchingScenarios(Fixture):
 
 @with_fixtures(WebFixture, MatchingScenarios)
 def test_matching(web_fixture, matching_scenarios):
-    web_fixture.context.install()
 
     applicable_rating = matching_scenarios.factory.is_applicable_for(matching_scenarios.matched_path)
     assert (applicable_rating > 0) == matching_scenarios.is_applicable

@@ -36,7 +36,6 @@ class JobsFixture(Fixture):
 @with_fixtures(WebFixture, JobsFixture)
 def test_add_address(web_fixture, jobs_fixture):
     """A user can add an address, after which the address is listed."""
-    web_fixture.context.install()
     browser = jobs_fixture.browser
 
     browser.open('/')
@@ -52,7 +51,6 @@ def test_add_address(web_fixture, jobs_fixture):
 def test_daily_maintenance(sql_alchemy_fixture, jobs_fixture):
     """When daily maintenance is run, all addresses are set to be old."""
 
-    sql_alchemy_fixture.context.install()
     
     jobs_fixture.existing_address
     Session.flush()
@@ -66,7 +64,6 @@ def test_daily_maintenance(sql_alchemy_fixture, jobs_fixture):
 @with_fixtures(SqlAlchemyFixture)
 def demo_setup(sql_alchemy_fixture):
     sql_alchemy_fixture.commit = True
-    sql_alchemy_fixture.context.install()
     
     Session.add(Address(name='John Doe', email_address='johndoe@some.org'))
     Session.add(Address(name='Jane Johnson', email_address='janejohnson@some.org'))

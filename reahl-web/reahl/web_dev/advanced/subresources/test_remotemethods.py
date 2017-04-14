@@ -56,7 +56,6 @@ def test_remote_methods(web_fixture):
     """A RemoteMethod is a SubResource representing a method on the server side which can be invoked via POSTing to an URL."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     def callable_object():
         return 'value returned from method'
@@ -87,7 +86,6 @@ def test_remote_methods(web_fixture):
 def test_exception_handling(web_fixture, remote_method_fixture):
     """The RemoteMethod sends back the six.text_type() of an exception raised for the specified exception class."""
 
-    web_fixture.context.install()
 
     def fail():
         raise Exception('I failed')
@@ -104,7 +102,6 @@ def test_exception_handling(web_fixture, remote_method_fixture):
 def test_immutable_remote_methods(web_fixture, remote_method_fixture):
     """A RemoteMethod that is immutable is accessible via GET (instead of POST)."""
 
-    web_fixture.context.install()
 
     def callable_object():
         return 'value returned from method'
@@ -135,7 +132,6 @@ def test_arguments_to_remote_methods(web_fixture, remote_method_fixture, argumen
     """A RemoteMethod can get arguments from a query string or submitted form values, depending on the scenario."""
 
     fixture = argument_scenarios
-    web_fixture.context.install()
 
     def callable_object(**kwargs):
         fixture.method_kwargs = kwargs
@@ -158,7 +154,6 @@ def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenario
     """A CheckedRemoteMethod checks and marshalls its parameters using Fields."""
 
     fixture = argument_scenarios
-    web_fixture.context.install()
 
     def callable_object(anint=None, astring=None):
         fixture.method_kwargs = {'anint': anint, 'astring': astring}
@@ -180,11 +175,6 @@ def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenario
 
 @uses(web_fixture=WebFixture)
 class ResultScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     @scenario
     def json(self):
         self.method_result = JsonResult(IntegerField(), catch_exception=Exception)
@@ -229,7 +219,6 @@ def test_different_kinds_of_result(web_fixture, remote_method_fixture, result_sc
     """Different kinds of MethodResult can be specified for a method."""
 
     fixture = result_scenarios
-    web_fixture.context.install()
 
     def callable_object():
         return fixture.value_to_return
@@ -249,7 +238,6 @@ def test_exception_handling_for_json(web_fixture, remote_method_fixture, json_re
     """How exceptions are handled with JsonResult."""
 
     fixture = json_result_scenario
-    web_fixture.context.install()
 
     def fail():
         raise Exception('exception text')
@@ -269,7 +257,6 @@ def test_exception_handling_for_widgets(web_fixture, remote_method_fixture, widg
     """How exceptions are handled with WidgetResult."""
 
     fixture = widget_result_scenario
-    web_fixture.context.install()
 
     def fail():
         raise Exception('exception text')
@@ -325,7 +312,6 @@ def test_regenerating_method_results(web_fixture, sql_alchemy_fixture,
        is not executed twice.
     """
 
-    web_fixture.context.install()
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=regenerate_method_result_scenarios.remote_method)
     browser = Browser(wsgi_app)
@@ -393,7 +379,6 @@ def test_widgets_that_change_during_method_processing(web_fixture, widget_result
        its RemoteMethod have been committed.
     """
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=widget_result_scenarios.WidgetWithRemoteMethod.factory())
     browser = Browser(wsgi_app)

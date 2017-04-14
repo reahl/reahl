@@ -78,7 +78,7 @@ class ListConfig(ProductionCommand):
                ('-i', '--info', dict(action='store_true', dest='print_description', help='prints a description'))]
 
     def create_context(self, config_directory):
-        self.context = ExecutionContext()
+        self.context = ExecutionContext(name=self.__class__.__name__)
 
     def execute(self, options, args):
         super(ListConfig, self).execute(options, args)

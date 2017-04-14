@@ -36,7 +36,6 @@ def test_refreshing_widget(web_fixture, refresh_fixture):
     """Clicking on a link, refreshes the displayed text to indicate which link 
        was clicked, without triggering a page load."""
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(refresh_fixture.wsgi_app)
     browser = refresh_fixture.browser

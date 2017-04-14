@@ -37,10 +37,6 @@ from reahl.web_dev.fixtures import WebFixture
 @uses(web_fixture=WebFixture)
 class FormLayoutScenarios(Fixture):
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     def new_widget(self):
         return Div(self.web_fixture.view).use_layout(self.layout)
 
@@ -63,7 +59,6 @@ class FormLayoutScenarios(Fixture):
 @with_fixtures(WebFixture, FormLayoutScenarios)
 def test_basic_form_layouts(web_fixture, form_layout_scenarios):
     """There are three basic layouts of forms in bootstrap."""
-    web_fixture.context.install()
 
     tester = WidgetTester(form_layout_scenarios.widget)
     actual = tester.render_html()
@@ -73,10 +68,6 @@ def test_basic_form_layouts(web_fixture, form_layout_scenarios):
 @uses(web_fixture=WebFixture)
 class FormLayoutFixture(Fixture):
     form_group_xpath = '//form/div[contains(@class, "form-group")]'
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     def new_domain_object(self):
         class StubDomainObject(object):
@@ -117,7 +108,6 @@ def test_adding_basic_input(web_fixture, form_layout_fixture):
     """Adding an input to a FormLayout, adds it in a bootstrap form-group with Some input."""
     fixture = form_layout_fixture
 
-    web_fixture.context.install()
 
     class FormWithInputAddedUsingDefaults(Form):
         def __init__(self, view):
@@ -153,7 +143,6 @@ def test_grid_form_layouts(web_fixture, form_layout_fixture):
             self.use_layout(GridFormLayout(ResponsiveSize(lg=4), ResponsiveSize(lg=8)))
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
 
-    web_fixture.context.install()
 
     browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithGridFormLayout.factory()))
     browser.open('/')
@@ -179,7 +168,6 @@ def test_specifying_help_text(web_fixture, form_layout_fixture):
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
-    web_fixture.context.install()
 
 
     browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithInputAndHelp.factory()))
@@ -204,7 +192,6 @@ def test_omitting_label(web_fixture, form_layout_fixture):
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), hide_label=True)
 
-    web_fixture.context.install()
 
     browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithInputNoLabel.factory()))
     browser.open('/')
@@ -233,7 +220,6 @@ def test_adding_checkboxes(web_fixture, form_layout_fixture):
             self.use_layout(FormLayout())
             self.layout.add_input(CheckboxInput(self, fixture.domain_object.fields.an_attribute))
 
-    web_fixture.context.install()
 
     browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithInputWithCheckbox.factory()))
     browser.open('/')
@@ -269,10 +255,6 @@ class ValidationScenarios(FormLayoutFixture):
                 self.add_child(Button(self, fixture.domain_object.events.submit))
         return FormWithInput
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     @scenario
     def with_javascript(self):
         self.web_fixture.reahl_server.set_app(self.web_fixture.new_wsgi_app(child_factory=self.Form.factory(), enable_js=True))
@@ -289,7 +271,6 @@ def test_input_validation_cues(web_fixture, validation_scenarios):
        and possible validation error messages to a user. """
     fixture = validation_scenarios
 
-    web_fixture.context.install()
 
     browser = fixture.browser
     browser.open('/')
@@ -322,7 +303,6 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
     """The visual cues rendered server-side can subsequently be manipulated via javascript."""
     fixture = javascript_validation_scenario
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=False))
 
@@ -356,10 +336,6 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
 @uses(web_fixture=WebFixture)
 class DisabledScenarios(Fixture):
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     @scenario
     def disabled_input(self):
         self.field = Field(writable=lambda field: False)
@@ -376,7 +352,6 @@ def test_disabled_state(web_fixture, disabled_scenarios):
     """Visible cues are inserted to indicate that inputs are disabled. """
     fixture = disabled_scenarios
 
-    web_fixture.context.install()
 
     form = Form(web_fixture.view, 'test').use_layout(FormLayout())
     field = fixture.field
@@ -395,10 +370,6 @@ def test_disabled_state(web_fixture, disabled_scenarios):
 
 @uses(web_fixture=WebFixture)
 class ChoicesLayoutFixture(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     def new_form(self):
         return Form(self.web_fixture.view, 'test')
@@ -420,7 +391,6 @@ def test_choices_layout(web_fixture, choices_layout_fixture):
     """A ChoicesLayout can be used to add a PrimitiveCheckboxInput inlined or stacked."""
     fixture = choices_layout_fixture
 
-    web_fixture.context.install()
 
     stacked_container = Div(web_fixture.view).use_layout(ChoicesLayout())
     stacked_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
@@ -454,7 +424,6 @@ def test_layout_of_radio_button_input(web_fixture, radio_button_fixture):
     """The PrimitiveRadioButtonInputs inside a RadioButtonInput are also laid out using a ChoicesLayout."""
     fixture = radio_button_fixture
 
-    web_fixture.context.install()
 
     stacked_radio = RadioButtonInput(fixture.form, fixture.field)
 
@@ -475,7 +444,6 @@ def test_layout_of_radio_button_input(web_fixture, radio_button_fixture):
 def test_button_layouts(web_fixture):
     """A ButtonLayout can be be used on a Button to customise various visual effects."""
 
-    web_fixture.context.install()
 
     event = Event(label='click me')
     event.bind('event', web_fixture)
@@ -501,7 +469,6 @@ def test_button_layouts(web_fixture):
 def test_button_layouts_on_anchors(web_fixture):
     """A ButtonLayout can also be used to make an A (anchor) look like a button."""
 
-    web_fixture.context.install()
 
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text').use_layout(ButtonLayout())
     tester = WidgetTester(anchor)
@@ -515,7 +482,6 @@ def test_button_layouts_on_disabled_anchors(web_fixture):
     def can_write():
         return False
 
-    web_fixture.context.install()
 
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=can_write)
     anchor.use_layout(ButtonLayout())

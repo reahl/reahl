@@ -16,7 +16,6 @@ def test_adding_an_address(web_fixture):
        information for the new address and clicks the Save button. Upon successful addition of the
        address, the user is returned to the home page where the new address is now listed."""
 
-    web_fixture.context.install()
     browser = Browser(web_fixture.new_wsgi_app(site_root=AddressBookUI))
 
     browser.open('/')

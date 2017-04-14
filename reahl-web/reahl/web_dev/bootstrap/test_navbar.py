@@ -63,7 +63,6 @@ def test_navbar_basics(web_fixture, navbar_fixture):
 
     fixture = navbar_fixture
 
-    web_fixture.context.install()
 
     navbar = Navbar(web_fixture.view).use_layout(NavbarLayout())
 
@@ -89,10 +88,6 @@ def test_navbar_basics(web_fixture, navbar_fixture):
 
 @uses(web_fixture=WebFixture)
 class LayoutScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     @scenario
     def fixed_top(self):
@@ -121,7 +116,6 @@ def test_navbar_can_have_layout(web_fixture, layout_scenarios):
 
     fixture = layout_scenarios
 
-    web_fixture.context.install()
 
     widget = Navbar(web_fixture.view).use_layout(fixture.layout)
 
@@ -138,7 +132,6 @@ def test_navbar_can_have_layout(web_fixture, layout_scenarios):
 def test_customised_colour_scheme(web_fixture):
     """A ColourScheme is used to determine link colours and/or optionally a standard bootstrap background color."""
 
-    web_fixture.context.install()
 
     layout = NavbarLayout(colour_theme='light', bg_scheme='inverse')
     widget = Navbar(web_fixture.view).use_layout(layout)
@@ -153,7 +146,6 @@ def test_customised_colour_scheme(web_fixture):
 def test_adding_brand_widget(web_fixture, navbar_fixture):
     """Brand content can also be added as a Widget, instead of only text."""
 
-    web_fixture.context.install()
 
     navbar_widget = navbar_fixture.navbar.use_layout(NavbarLayout())
     custom_brand = Div(web_fixture.view)
@@ -179,7 +171,6 @@ class SpecifyPlacementScenarios(Fixture):
 @with_fixtures(WebFixture, NavbarFixture, SpecifyPlacementScenarios)
 def test_adding_to_navbar_with_specific_placement(web_fixture, navbar_fixture, specify_placement_scenarios):
     """Widgets can be added to a Navbar placed right or left in the NavBar."""
-    web_fixture.context.install()
 
     navbar = navbar_fixture.navbar.use_layout(NavbarLayout())
 
@@ -198,7 +189,6 @@ def test_adding_to_navbar_with_specific_placement(web_fixture, navbar_fixture, s
 @with_fixtures(WebFixture, NavbarFixture, SpecifyPlacementScenarios)
 def test_adding_to_navbar_placement_for_device(web_fixture, navbar_fixture, specify_placement_scenarios):
     """Placement of an added Widget can be specified to apply below a certain device size only."""
-    web_fixture.context.install()
 
     navbar_fixture.navbar.use_layout(NavbarLayout())
 
@@ -214,7 +204,6 @@ def test_adding_to_navbar_placement_for_device(web_fixture, navbar_fixture, spec
 @with_fixtures(WebFixture, NavbarFixture)
 def test_adding_to_navbar_with_both_left_and_right_alignment_not_allowed(web_fixture, navbar_fixture):
     """You cannot place an added Widget to both left and right sides."""
-    web_fixture.context.install()
 
     navbar = navbar_fixture.navbar.use_layout(NavbarLayout())
 
@@ -229,7 +218,6 @@ def test_adding_to_navbar_with_both_left_and_right_alignment_not_allowed(web_fix
 def test_adding_other_than_form_or_nav_is_not_allowed(web_fixture, navbar_fixture):
     """Only Navs and Forms may be added."""
 
-    web_fixture.context.install()
 
     navbar = navbar_fixture.navbar.use_layout(NavbarLayout())
     not_a_form_or_nav = Div(web_fixture.view)
@@ -256,7 +244,6 @@ def test_adding_other_than_form_or_nav_is_not_allowed(web_fixture, navbar_fixtur
 def test_navbar_with_centered_contents(web_fixture, navbar_fixture):
     """Contents of a Navbar appears centered when center_contents is set to True"""
 
-    web_fixture.context.install()
 
     navbar_widget = navbar_fixture.navbar
     navbar_widget.use_layout(NavbarLayout(center_contents=True))
@@ -307,7 +294,6 @@ class NavbarToggleFixture(Fixture):
 def test_navbar_toggle_collapses_html_element(web_fixture, navbar_toggle_fixture):
     """You can add a toggle to the navbar that hides another element on the page."""
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=navbar_toggle_fixture.MainWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -331,7 +317,6 @@ def test_navbar_toggle_collapses_html_element(web_fixture, navbar_toggle_fixture
 def test_navbar_toggle_requires_target_id(web_fixture, navbar_fixture):
     """To be able to hide an element, it is required to have an id"""
 
-    web_fixture.context.install()
 
     navbar = navbar_fixture.navbar
     navbar.use_layout(NavbarLayout())
@@ -348,7 +333,6 @@ def test_navbar_toggle_requires_target_id(web_fixture, navbar_fixture):
 def test_navbar_toggle_customised(web_fixture, navbar_fixture):
     """The text on a toggle that hides an element is customisable"""
 
-    web_fixture.context.install()
 
     element_to_collapse = Div(web_fixture.view, css_id='my_id')
     toggle = navbar_fixture.navbar_with_layout.layout.add_toggle(element_to_collapse, text='≎')
@@ -361,7 +345,6 @@ def test_navbar_toggle_customised(web_fixture, navbar_fixture):
 @with_fixtures(WebFixture, NavbarFixture)
 def test_responsive_navbar(web_fixture, navbar_fixture):
     """A ResponsiveLayout hides its Navbar when the viewport becomes smaller than a given device size"""
-    web_fixture.context.install()
 
     navbar_widget = navbar_fixture.navbar
     navbar_widget.set_id('my_navbar_id')

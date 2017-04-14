@@ -50,7 +50,6 @@ def test_missing_variable_in_regex(web_fixture):
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='test_ui')
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -79,7 +78,6 @@ def test_missing_variable_in_ui_regex(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  {}, name='test_ui')
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
 

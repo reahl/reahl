@@ -68,7 +68,8 @@ class ExecutionContext(object):
             raise NoContextFound('No %s is active in the call stack' % cls)
         return context
 
-    def __init__(self, parent_context=None):
+    def __init__(self, name=None, parent_context=None):
+        self.name = name
         try:
             self.parent_context = parent_context or self.get_context()
         except NoContextFound:
@@ -98,5 +99,12 @@ class ExecutionContext(object):
             return 'en_gb'
         return self.session.get_interface_locale()
 
-    def __enter__(self):
-        assert None, 'Fuck'
+    def __getattr__(self, name):
+        raise AttributeError('%s has no attribute \'%s\'' % (self, name))
+
+    def __str__(self):
+        if self.name:
+            return '%s named \'%s\'' % (self.__class__.__name__, self.name)
+        return super(ExecutionContext, self).__str__()
+
+        

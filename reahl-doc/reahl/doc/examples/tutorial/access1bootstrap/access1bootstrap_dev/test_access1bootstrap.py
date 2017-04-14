@@ -43,7 +43,6 @@ class AccessDomainFixture(Fixture):
 
 @with_fixtures(SqlAlchemyFixture, AccessDomainFixture)
 def demo_setup(sql_alchemy_fixture, access_domain_fixture):
-    sql_alchemy_fixture.context.install()
     sql_alchemy_fixture.commit = True
 
     access_domain_fixture.address_book
@@ -56,7 +55,6 @@ def demo_setup(sql_alchemy_fixture, access_domain_fixture):
 def test_separate_address_books(sql_alchemy_fixture, access_domain_fixture):
     """An Address is created in a particular AddressBook, which is owned by a SystemAccount."""
 
-    sql_alchemy_fixture.context.install()
 
     account = access_domain_fixture.account
     address_book = access_domain_fixture.address_book
@@ -87,7 +85,6 @@ def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """A particular SystemAccount can see its own AddressBooks as well as all the AddressBooks
        it is explicitly allowed to see, but no other AddressBooks."""
 
-    sql_alchemy_fixture.context.install()
 
     account = access_domain_fixture.account
     address_book = access_domain_fixture.address_book
@@ -112,7 +109,6 @@ def test_collaborators(sql_alchemy_fixture, access_domain_fixture):
 def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
     """When allowing an account to see another's AddressBook, the rights it has to the AddressBook are specified."""
 
-    sql_alchemy_fixture.context.install()
 
     account = access_domain_fixture.account
     address_book = access_domain_fixture.address_book
@@ -133,7 +129,6 @@ def test_collaborator_rights(sql_alchemy_fixture, access_domain_fixture):
 def test_adding_collaborators(sql_alchemy_fixture, access_domain_fixture):
     """The owner of an AddressBook may add collaborators to it."""
 
-    sql_alchemy_fixture.context.install()
 
     account = access_domain_fixture.account
     address_book = access_domain_fixture.address_book

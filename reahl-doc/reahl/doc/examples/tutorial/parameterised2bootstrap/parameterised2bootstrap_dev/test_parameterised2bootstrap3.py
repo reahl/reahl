@@ -29,7 +29,6 @@ class AddressAppFixture(Fixture):
 def test_edit_errors(web_fixture, address_app_fixture):
     """Email addresses on the Edit an address page have to be valid email addresses."""
 
-    web_fixture.context.install()
     web_fixture.reahl_server.set_app(address_app_fixture.wsgi_app)
     browser = web_fixture.driver_browser
     address_app_fixture.new_existing_address()

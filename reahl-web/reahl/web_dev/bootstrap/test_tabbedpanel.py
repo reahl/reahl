@@ -36,10 +36,6 @@ from reahl.web_dev.fixtures import WebFixture
 @uses(web_fixture=WebFixture)
 class TabbedPanelAjaxFixture(Fixture):
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     def new_PopulatedTabbedPanel(self):
         class PopulatedTabbedPanel(TabbedPanel):
             def __init__(self, view):
@@ -73,7 +69,6 @@ class TabbedPanelAjaxFixture(Fixture):
 def test_basic_rendering(web_fixture):
     """A TabbedPanel consists of a Nav (its tabs) and a Div in which tab contents are displayed."""
 
-    web_fixture.context.install()
 
     web_fixture.request.query_string = 'tab=tab1'
     tabbed_panel = TabbedPanel(web_fixture.view)
@@ -98,7 +93,6 @@ def test_basic_rendering(web_fixture):
 @with_fixtures(WebFixture)
 def test_tabs_with_sub_options(web_fixture):
     """A TabbedPanel can have Tabs that are each composed of multiple sub-options."""
-    web_fixture.context.install()
 
     web_fixture.request.query_string = 'tab=mult2'
     tabbed_panel = TabbedPanel(web_fixture.view)
@@ -149,7 +143,6 @@ class DefaultTabScenarios(Fixture):
 @with_fixtures(WebFixture, DefaultTabScenarios)
 def test_default_active_tab(web_fixture, default_tab_scenarios):
     """The first tab is active by default (if the active tab is not indicated in the query_string)."""
-    web_fixture.context.install()
 
     tab1 = Tab(web_fixture.view, 'tab 1 name', 'tab1', P.factory(text='tab 1 content'))
     tab2 = Tab(web_fixture.view, 'tab 2 name', 'tab2', P.factory(text='tab 2 content'))
@@ -201,7 +194,6 @@ def test_default_active_multi_tab(web_fixture, tabbed_panel_ajax_fixture, defaul
     """The first item of the first tab is active by default (if the active tab is not indicated in the query_string)."""
     fixture = default_multi_tab_scenarios
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(tabbed_panel_ajax_fixture.wsgi_app)
     url = Url('/')
@@ -239,7 +231,6 @@ def test_clicking_on_different_tabs_switch(web_fixture, panel_switch_fixture, ta
     if not panel_switch_fixture.enable_js:
         panel_switch_fixture.ensure_disabled_js_files_not_cached()
 
-    web_fixture.context.install()
 
     wsgi_app = tabbed_panel_ajax_fixture.new_wsgi_app(enable_js=panel_switch_fixture.enable_js)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -268,7 +259,6 @@ def test_clicking_on_multi_tab(web_fixture, panel_switch_fixture, tabbed_panel_a
     if not panel_switch_fixture.enable_js:
         panel_switch_fixture.ensure_disabled_js_files_not_cached()
 
-    web_fixture.context.install()
 
     wsgi_app = tabbed_panel_ajax_fixture.new_wsgi_app(enable_js=panel_switch_fixture.enable_js)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -303,7 +293,6 @@ def test_clicking_on_sub_tab_switches(web_fixture, panel_switch_fixture, tabbed_
     if not panel_switch_fixture.enable_js:
         panel_switch_fixture.ensure_disabled_js_files_not_cached()
 
-    web_fixture.context.install()
 
     wsgi_app = tabbed_panel_ajax_fixture.new_wsgi_app(enable_js=panel_switch_fixture.enable_js)
     web_fixture.reahl_server.set_app(wsgi_app)

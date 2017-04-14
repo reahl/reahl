@@ -30,8 +30,8 @@ class ContextAwareFixture(Fixture):
     def __enter__(self):
         self.context.install(lambda f: isinstance(f.f_locals['self'], WithFixtureDecorator))
         return super(ContextAwareFixture, self).__enter__()
-    
-    def __exit__(self, exception_type, value, traceback):
-        return super(ContextAwareFixture, self).__exit__(exception_type, value, traceback)
-    
+
+    def run_tear_down_actions(self):
+        self.context.install()
+        return super(ContextAwareFixture, self).run_tear_down_actions()
 

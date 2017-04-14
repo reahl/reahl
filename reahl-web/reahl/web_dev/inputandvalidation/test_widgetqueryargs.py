@@ -70,7 +70,6 @@ def test_query_string_widget_arguments(web_fixture, query_string_fixture):
     """Widgets can have arguments that are read from a query string"""
 
     fixture = query_string_fixture
-    web_fixture.context.install()
 
     class WidgetWithQueryArguments(Widget):
         def __init__(self, view):
@@ -92,7 +91,6 @@ def test_query_string_widget_arguments(web_fixture, query_string_fixture):
 def test_query_string_prepopulates_form(web_fixture):
     """Widget query string arguments can be used on forms to pre-populate inputs based on the query string."""
 
-    web_fixture.context.install()
 
     class ModelObject(object):
         @exposed
@@ -124,7 +122,6 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
        such Widgets bookmarkable by a browser."""
 
     fixture = query_string_fixture
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -149,7 +146,6 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture):
 @with_fixtures(WebFixture)
 def test_css_id_is_mandatory(web_fixture):
     """If a Widget is enabled to to be refreshed, it must also have a css_id set."""
-    web_fixture.context.install()
 
     class MyFancyWidget(Div):
         def __init__(self, view):
@@ -187,7 +183,6 @@ def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture)
     """
 
     fixture = partial_refresh_fixture
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -220,7 +215,6 @@ def test_bookmarks_support_such_fragments(web_fixture):
     """
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     internal_bookmark = Bookmark.for_widget('an ajax bookmark', query_arguments={'fancy_state':2})
     normal_bookmark = Bookmark('/', '', 'a normal bookmark')

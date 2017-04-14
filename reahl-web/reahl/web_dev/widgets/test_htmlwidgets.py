@@ -34,7 +34,6 @@ def test_basic_fixed_attributes(web_fixture):
     """How the static attributes of a Widget can be manipulated, queried and rendered."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = HTMLElement(fixture.view, 'x')
     tester = WidgetTester(widget)
@@ -67,7 +66,6 @@ def test_handy_methods(web_fixture):
     """Some handy methods for special attributes."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = HTMLElement(fixture.view, 'x')
     tester = WidgetTester(widget)
@@ -97,7 +95,6 @@ def test_dynamically_determining_attributes(web_fixture):
             return attributes
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = WidgetWithDynamicAttributes(fixture.view, 'x')
     widget.set_attribute('fixed', 'value1')
@@ -124,7 +121,6 @@ def test_delegating_setting_of_attributes(web_fixture):
             attributes.set_to('set-by-external-source', 'rhythm and poetry')
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = HTMLElement(fixture.view, 'x')
     widget.add_attribute_source(MyDelegatedAttributesClass())
@@ -140,7 +136,6 @@ def test_all_html_widgets_have_css_ids(web_fixture):
     """A Widget (for HTML) can have a css_id. If accessed, but not set, a ProgrammerError is raised."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = HTMLElement(fixture.view, 'x')
     widget.tag_name = 'x'
@@ -163,7 +158,6 @@ def test_jquery_support(web_fixture):
        jquery selector context."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = HTMLElement(fixture.view, 'x')
     tester = WidgetTester(widget)
@@ -187,7 +181,6 @@ def test_single_tags(web_fixture):
     """Definition of a HTMLElement."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     single_tag = HTMLElement(fixture.view, 'single')
     tester = WidgetTester(single_tag)
@@ -204,7 +197,6 @@ def test_closing_tags(web_fixture):
     """Definition of a HTMLElement with children."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     closing_tag = HTMLElement(fixture.view, 'closing', children_allowed=True)
     tester = WidgetTester(closing_tag)
@@ -217,10 +209,6 @@ def test_closing_tags(web_fixture):
 
 @uses(web_fixture=WebFixture)
 class WidgetScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     @property
     def view(self):
@@ -417,7 +405,6 @@ def test_basic_html_widgets(widget_scenarios):
 def test_view_rights_propagate_to_a(web_fixture):
     """The access rights specified for a View are propagated to an A, made from a Bookmark to that View."""
     fixture = web_fixture
-    web_fixture.context.install()
 
     fixture.view.write_check = EmptyStub()
     fixture.view.read_check = EmptyStub()
@@ -435,7 +422,6 @@ def test_text_node_can_vary(web_fixture):
     def getter():
         return fixture.current_value
 
-    web_fixture.context.install()
 
     widget = TextNode(fixture.view, getter)
     tester = WidgetTester(widget)
@@ -454,7 +440,6 @@ def test_text_node_escapes_html(web_fixture):
     """The text of a TextNode is html-escaped."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = TextNode(fixture.view, '<tag> "Here" & \'there\'')
     tester = WidgetTester(widget)
@@ -468,7 +453,6 @@ def test_literal_html(web_fixture):
     """The LiteralHTML Widget just renders a chunk of HTML, but can answer queries about images in that HTML."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     contents = '<img src="_some_images/piet.pdf  "> <img src   = \' _some_images/koos was-^-hoêr.jpg\'>'
     literal_html = LiteralHTML(fixture.view, contents)
@@ -492,7 +476,6 @@ def test_head(web_fixture):
     """Head corresponds with the head HTML element, can have a title and always has a special Slot used by the framework."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     head = Head(fixture.view, 'a title')
     tester = WidgetTester(head)
@@ -510,7 +493,6 @@ def test_body(web_fixture):
     """Body corresponds with the body HTML element, and always has a special Slot at its end used by the framework."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     body = Body(fixture.view)
     tester = WidgetTester(body)
@@ -530,7 +512,6 @@ def test_html5_page(web_fixture):
     """An HTML5Page is an empty HTML 5 document using the header and body widgets."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = HTML5Page(fixture.view, title='It: $current_title')
     widget.add_default_slot('slot1', P.factory())

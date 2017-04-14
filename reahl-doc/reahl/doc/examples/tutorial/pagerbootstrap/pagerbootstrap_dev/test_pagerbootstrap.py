@@ -30,7 +30,6 @@ class PagingFixture(Fixture):
 def test_paging(web_fixture, paging_fixture):
     """Clicking on a different page in the pager changes the addresses listed without triggering a page load."""
 
-    web_fixture.context.install()
     web_fixture.reahl_server.set_app(paging_fixture.wsgi_app)
     browser = paging_fixture.browser
 

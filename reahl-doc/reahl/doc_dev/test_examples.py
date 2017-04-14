@@ -349,7 +349,6 @@ def test_basichtmlwidgets(web_fixture, basichtmlwidgets_scenario):
 
 @with_fixtures(WebFixture, ExampleFixture.fileupload)
 def test_fileupload(web_fixture, fileupload_scenario):
-    web_fixture.context.install()
     
     fixture = fileupload_scenario
     fixture.start_example_app()
@@ -427,7 +426,6 @@ def test_model_examples():
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook1)
 def test_addressbook1(web_fixture, addressbook1_scenario):
-    web_fixture.context.install()
 
     john = addressbook1.Address(name='John', email_address='johndoe@some.org')
     john.save()
@@ -440,7 +438,6 @@ def test_addressbook1(web_fixture, addressbook1_scenario):
 
 @with_fixtures(WebFixture, ExampleFixture.addressbook2)
 def test_addressbook2(web_fixture, addressbook2_scenario):
-    web_fixture.context.install()
 
     browser = Browser(addressbook2_scenario.wsgi_app)
     browser.open('/')
@@ -474,7 +471,6 @@ def test_bootstrapgrids(web_fixture, bootstrapgrids_scenario):
 
 @with_fixtures(WebFixture, ExampleFixture.pageflow1)
 def test_pageflow1(web_fixture, pageflow1_scenario):
-    web_fixture.context.install()
     
     browser = Browser(pageflow1_scenario.wsgi_app)
     browser.open('/')
@@ -497,7 +493,6 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
 
 @with_fixtures(WebFixture, ExampleFixture.pageflow2)
 def test_pageflow2(web_fixture, pageflow2_scenario):
-    web_fixture.context.install()
     
     browser = Browser(pageflow2_scenario.wsgi_app)
     browser.open('/')
@@ -517,7 +512,6 @@ def test_pageflow2(web_fixture, pageflow2_scenario):
 
 @with_fixtures(WebFixture, ExampleFixture.parameterised1)
 def test_parameterised1(web_fixture, parameterised1_scenario):
-    web_fixture.context.install()
 
     browser = Browser(parameterised1_scenario.wsgi_app)
     browser.open('/')

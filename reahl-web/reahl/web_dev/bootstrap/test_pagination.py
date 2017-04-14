@@ -32,10 +32,6 @@ from reahl.web_dev.fixtures import WebFixture
 @uses(web_fixture=WebFixture)
 class PageMenuFixture(Fixture):
 
-    @property
-    def context(self):
-        return self.web_fixture.context
-
     def new_number_of_pages(self):
         return 10
 
@@ -98,7 +94,6 @@ class PageMenuFixture(Fixture):
 @with_fixtures(WebFixture, PageMenuFixture)
 def test_selecting_a_page(web_fixture, page_menu_fixture):
     """Clicking the link of a page results in the contents of the PageContainer being refreshed."""
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(page_menu_fixture.wsgi_app)
     browser = web_fixture.driver_browser
@@ -114,7 +109,6 @@ def test_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     """One can navigate the range of page links displayed by the PageMenu using the special links."""
 
     fixture = page_menu_fixture
-    web_fixture.context.install()
 
     fixture.number_of_pages = 30
     fixture.max_page_links = 5
@@ -144,7 +138,6 @@ def test_navigating_the_page_numbers(web_fixture, page_menu_fixture):
 @with_fixtures(WebFixture, PageMenuFixture)
 def test_contents_when_navigating_the_page_numbers(web_fixture, page_menu_fixture):
     """When navigating the range of page links, the currently displayed contents stay unchanged."""
-    web_fixture.context.install()
 
     page_menu_fixture.number_of_pages = 30
     page_menu_fixture.max_page_links = 5
@@ -163,7 +156,6 @@ def test_active_state_of_page_links(web_fixture, page_menu_fixture):
     """When choosing a page, the new page link is marked as active, without a server round-trip."""
     fixture = page_menu_fixture
 
-    web_fixture.context.install()
 
     fixture.number_of_pages = 30
     fixture.max_page_links = 5
@@ -181,7 +173,6 @@ def test_active_state_on_multiple_menus(web_fixture, page_menu_fixture):
     """If there's more than one PageMenu on the page, the active page is switched for both of them"""
     fixture = page_menu_fixture
 
-    web_fixture.context.install()
 
     class MainWidget(Div):
         def __init__(self, view):
@@ -209,7 +200,6 @@ def test_active_state_of_next_prev_links(web_fixture, page_menu_fixture):
        and Prev and First are similarly deactive when on the first range of pages."""
     fixture = page_menu_fixture
 
-    web_fixture.context.install()
     fixture.number_of_pages = 15
     fixture.max_page_links = 5
     web_fixture.reahl_server.set_app(fixture.wsgi_app)
@@ -286,7 +276,6 @@ def test_which_links_display(web_fixture, link_scenarios):
     """The menu displays the correct range of page links, depending on the starting page in the range, the
        total number of pages and the max number of links in a range"""
     fixture = link_scenarios
-    web_fixture.context.install()
     web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
     browser = web_fixture.driver_browser

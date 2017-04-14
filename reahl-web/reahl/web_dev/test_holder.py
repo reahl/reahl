@@ -35,7 +35,6 @@ def test_placeholder_basics(web_fixture):
     """
        hint: Ensure the Holder(Library) is added to the  web.frontend_libraries config setting in the file:web.config.py
     """
-    web_fixture.context.install()
     placeholder = PlaceholderImage(web_fixture.view, 20, 30)
 
     tester = WidgetTester(placeholder)
@@ -48,7 +47,6 @@ def test_placeholder_basics(web_fixture):
 @with_fixtures(WebFixture)
 def test_placeholder_with_text(web_fixture):
 
-    web_fixture.context.install()
     placeholder = PlaceholderImage(web_fixture.view, 20, 30, text='My banner')
 
     expected_value = 'holder.js/20x30?text=My banner'
@@ -59,7 +57,6 @@ def test_placeholder_with_text(web_fixture):
 @with_fixtures(WebFixture)
 def test_placeholder_with_predefine_theme(web_fixture):
 
-    web_fixture.context.install()
     my_theme = PredefinedTheme('lava')
     placeholder = PlaceholderImage(web_fixture.view, 20, 30, theme=my_theme)
 
@@ -71,7 +68,6 @@ def test_placeholder_with_predefine_theme(web_fixture):
 @with_fixtures(WebFixture)
 def test_text_and_theme_options_are_encoded(web_fixture):
 
-    web_fixture.context.install()
     my_theme = CustomTheme(bg='white', fg='red')
     placeholder = PlaceholderImage(web_fixture.view, 20, 30, text='My sê goed', theme=my_theme)
 

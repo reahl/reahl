@@ -75,7 +75,6 @@ def test_basic_workings(web_fixture, dhtml_fixture):
                             name='test_ui', static_div_name='astatic')
 
     fixture = dhtml_fixture
-    web_fixture.context.install()
 
     # Dhtml files should be located in the web.static_root
     web_fixture.config.web.static_root = fixture.static_dir.name
@@ -115,7 +114,6 @@ def test_i18n_dhtml(web_fixture, dhtml_fixture):
                                        name='test_ui', static_div_name='astatic')
 
     fixture = dhtml_fixture
-    web_fixture.context.install()
 
     # Dhtml files should be located in the web.static_root
     web_fixture.config.web.static_root = fixture.static_dir.name

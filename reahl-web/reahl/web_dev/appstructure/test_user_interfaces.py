@@ -47,7 +47,6 @@ def test_basic_ui(web_fixture):
             self.define_user_interface('/a_ui',  UIWithTwoViews,  {}, name='myui')
 
     fixture = web_fixture
-    fixture.context.install()
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
@@ -74,7 +73,6 @@ def test_ui_slots_map_to_window(web_fixture):
             self.define_user_interface('/a_ui',  UIWithSlots,  {'text': 'main'}, name='myui')
 
     fixture = web_fixture
-    fixture.context.install()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -145,7 +143,6 @@ def test_bookmarks(web_fixture):
        such as the title of the View it points to.
     """
     fixture = web_fixture
-    fixture.context.install()
     user_interface = UserInterface(None, '/a_ui', {}, False, 'test_ui')
     view = UrlBoundView(user_interface, '/aview', 'A View title', {})
     bookmark = view.as_bookmark()
@@ -166,7 +163,6 @@ def test_bookmarks_overrides(web_fixture):
     """Various bits of information can be overridden from the defaults when creating a bookmark from a View.
     """
     fixture = web_fixture
-    fixture.context.install()
 
     user_interface = UserInterface(None, '/a_ui', {}, False, 'test_ui')
     view = UrlBoundView(user_interface, '/aview', 'A View title', {})
@@ -202,7 +198,6 @@ def test_bookmarks_from_other_sources(web_fixture):
             # How you could get a bookmark from a UserInterfaceFactory
             fixture.bookmark_from_ui_factory = fixture.ui_factory.get_bookmark(relative_path='/aview')
 
-    fixture.context.install()
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     Browser(wsgi_app).open('/a_ui/aview') # To execute the above once
 
@@ -234,7 +229,6 @@ def test_the_lifecycle_of_a_ui(web_fixture):
             self.assembled = True
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     # Phase1: specifying a user_interface and assembleing it to a site (with kwargs)
     parent_ui = None

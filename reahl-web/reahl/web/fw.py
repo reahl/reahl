@@ -2572,8 +2572,7 @@ class ReahlWSGIApplication(object):
         self.request_lock = threading.Lock()
         self.config = config
         self.system_control = SystemControl(self.config)
-        context = ExecutionContext().install()
-        context.install()
+        context = ExecutionContext(name='%s.__init__()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
         self.root_user_interface_factory = UserInterfaceFactory(None, RegexPath('/', '/', {}), IdentityDictionary(), self.config.web.site_root, 'site_root')
@@ -2593,7 +2592,7 @@ class ReahlWSGIApplication(object):
         """Starts the ReahlWSGIApplication by "connecting" to the database. What "connecting" means may differ
            depending on the persistence mechanism in use. It could include enhancing classes for persistence, etc."""
         self.should_disconnect = connect
-        context = ExecutionContext().install()
+        context = ExecutionContext(name='%s.start()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
         if connect:
@@ -2602,7 +2601,7 @@ class ReahlWSGIApplication(object):
     def stop(self):
         """Stops the ReahlWSGIApplication by "disconnecting" from the database. What "disconnecting" means may differ
            depending on the persistence mechanism in use."""
-        context = ExecutionContext().install()
+        context = ExecutionContext(name='%s.stop()' % self.__class__.__name__).install()
         context.config = self.config
         context.system_control = self.system_control
         if self.should_disconnect:
@@ -2646,7 +2645,7 @@ class ReahlWSGIApplication(object):
             raise RedirectToScheme(scheme_needed)
 
     def create_context_for_request(self):
-        return ExecutionContext()
+        return ExecutionContext(name='%s.create_context_for_request()' % self.__class__.__name__)
 
     @contextmanager
     def serialise_requests(self):
@@ -2668,14 +2667,14 @@ class ReahlWSGIApplication(object):
 
     def __call__(self, environ, start_response):
         request = Request(environ, charset='utf8')
-        new_context = self.create_context_for_request()
-        new_context.config = self.config
-        new_context.request = request
-        new_context.system_control = self.system_control
-        new_context.install()
+        context = self.create_context_for_request()
+        context.config = self.config
+        context.request = request
+        context.system_control = self.system_control
+        context.install()
         with self.concurrency_manager:
             with self.system_control.nested_transaction():
-                self.config.web.session_class.initialise_web_session_on(new_context)
+                self.config.web.session_class.initialise_web_session_on(context)
             try:
                 try:
                     try:
@@ -2690,10 +2689,10 @@ class ReahlWSGIApplication(object):
                 except DisconnectionError as e:
                     response = HTTPInternalServerError(unicode_body=six.text_type(e))
 
-                new_context.session.set_session_key(response)
+                context.session.set_session_key(response)
                 for chunk in response(environ, start_response):
                     yield chunk
-                new_context.session.set_last_activity_time()
+                context.session.set_last_activity_time()
             finally:
                 self.system_control.finalise_session()
 

@@ -25,7 +25,6 @@ class SessionScopeFixture(Fixture):
 @with_fixtures(SqlAlchemyFixture, SessionScopeFixture)
 def demo_setup(sql_alchemy_fixture, session_scope_fixture):
     sql_alchemy_fixture.commit = True
-    sql_alchemy_fixture.context.install()
 
     session_scope_fixture.new_user()
 
@@ -35,7 +34,6 @@ def test_logging_in(web_fixture, session_scope_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""
 
-    web_fixture.context.install()
     browser = Browser(web_fixture.new_wsgi_app(site_root=SessionScopeUI))
     user = session_scope_fixture.user
 
@@ -54,7 +52,6 @@ def test_logging_in(web_fixture, session_scope_fixture):
 def test_email_retained(web_fixture, session_scope_fixture):
     """The email address used when last logged in is always pre-populated on the Log in page."""
 
-    web_fixture.context.install()
     browser = Browser(web_fixture.new_wsgi_app(site_root=SessionScopeUI))
     user = session_scope_fixture.user
 
@@ -78,7 +75,6 @@ def test_email_retained(web_fixture, session_scope_fixture):
 def test_domain_exception(web_fixture, session_scope_fixture):
     """Typing the wrong password results in an error message being shown to the user."""
 
-    web_fixture.context.install()
     browser = Browser(web_fixture.new_wsgi_app(site_root=SessionScopeUI))
     user = session_scope_fixture.user
 

@@ -20,28 +20,11 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.tofu import Fixture, set_up, tear_down
 
-from reahl.tofu.fixture import NoContextFound
 
 #--------------------------------------------------[ FixtureTests ]
 
 class FixtureTests(object):
     __test__ = True
-    def test_context(self):
-        """Each Fixture has a .context within which it is run. This can be customised."""
-        fixture = Fixture()
-        try:
-            fixture.context
-            assert None, 'Expected NoContextFound to be raised'
-        except NoContextFound:
-            pass
-
-        class MyFixture(Fixture):
-            def new_context(self):
-                return 'a custom context'
-
-        fixture = MyFixture()
-        assert fixture.context == 'a custom context'
-
 
     def test_automaticsingletons(self):
         class Stub(object): pass
@@ -141,23 +124,6 @@ class FixtureTests(object):
         fixture = TestFixture()
 
         assert fixture.thing == 1
-
-
-    def test_context_from_mixin(self):
-        class ContextStub(object):
-            def __enter__(self): pass
-            def __exit__(self): pass
-            
-        class Mixin(object):
-            def new_context(self, a=1):
-                return ContextStub()
-
-        class TestFixture(Fixture, Mixin):
-            pass
-        
-        fixture = TestFixture()
-
-        assert isinstance(fixture.context, ContextStub)
 
 
     def fixture_as_context_manager(self):

@@ -55,7 +55,6 @@ def test_cue_input_display_basics(web_fixture, cue_input_fixture):
                 cue_input = CueInput(TextInput(self, fixture.domain_object.fields.field), P(view, 'this is your cue'))
                 self.layout.add_input(cue_input)
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=FormWithCueInput.factory(), enable_js=True)
 
@@ -86,7 +85,6 @@ def test_cue_is_visible_when_js_disabled(web_fixture, cue_input_fixture):
                 cue_input = CueInput(TextInput(self, fixture.domain_object.fields.field), P(view, 'this is your cue'))
                 self.layout.add_input(cue_input)
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=FormWithCueInput.factory(), enable_js=False)
 

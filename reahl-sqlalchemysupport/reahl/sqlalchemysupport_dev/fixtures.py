@@ -36,7 +36,6 @@ class SqlAlchemyFixture(ContextAwareFixture):
 
     @set_up
     def start_transaction(self):
-        self.context.install()
         if not self.commit:
             # The tests run in a nested transaction inside a real transaction, and both are rolled back
             # This is done because finalise_session (real code) is run as part of the test, and it
@@ -46,7 +45,6 @@ class SqlAlchemyFixture(ContextAwareFixture):
 
     @tear_down
     def finalise_transaction(self):
-        self.context.install()
         if not self.commit:
             self.reahl_system_fixture.system_control.rollback()  # The nested one
             self.reahl_system_fixture.system_control.rollback()  # The real transaction

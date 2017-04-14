@@ -72,7 +72,6 @@ def test_file_upload_button(web_fixture, file_input_button_fixture):
 
     fixture = file_input_button_fixture
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -94,7 +93,6 @@ def test_file_upload_button_focus(web_fixture, file_input_button_fixture):
 
     fixture = file_input_button_fixture
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -144,7 +142,6 @@ def test_file_input_basics(web_fixture, file_input_fixture):
     """A FileInput is a FileInputButton combined with a area where the chosen file name is displayed."""
     fixture = file_input_fixture
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -163,7 +160,6 @@ def test_file_input_basics(web_fixture, file_input_fixture):
 def test_i18n(web_fixture, file_input_fixture):
     """All messages have translations."""
     fixture = file_input_fixture
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -183,7 +179,6 @@ def test_file_input_without_js(web_fixture, file_input_fixture):
 
     fixture = file_input_fixture
 
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_fixture.FileUploadForm.factory(), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -202,10 +197,6 @@ def test_file_input_without_js(web_fixture, file_input_fixture):
 
 @uses(web_fixture=WebFixture)
 class FileUploadInputFixture(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     def file_was_uploaded(self, filename):
         return Session.query(PersistedFile).filter_by(filename=os.path.basename(filename)).count() == 1
@@ -415,7 +406,6 @@ def test_file_upload_input_basics(web_fixture, file_upload_input_fixture):
        the FileField of the FileUploadInput receives all the files uploaded as UploadFile objects.
     """
     fixture = file_upload_input_fixture
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
@@ -463,7 +453,6 @@ def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
 
     fixture = file_upload_input_fixture
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
@@ -504,7 +493,6 @@ def test_file_upload_input_remove_files(web_fixture, file_upload_input_fixture):
        FileUploadInput is submitted."""
     fixture = file_upload_input_fixture
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
@@ -534,7 +522,6 @@ def test_file_upload_input_double_uploads(web_fixture, file_upload_input_fixture
     """
     fixture = file_upload_input_fixture
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=False))
 
@@ -560,7 +547,6 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
     """
     fixture = file_upload_input_fixture
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
@@ -585,7 +571,6 @@ def test_async_in_progress(web_fixture, large_file_upload_input_fixture):
     """
     fixture = large_file_upload_input_fixture
 
-    web_fixture.context.install()
 
     fixture.run_hook_before = True
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
@@ -615,7 +600,6 @@ def test_cancelling_queued_upload(web_fixture, large_file_upload_input_fixture):
     """
     fixture = large_file_upload_input_fixture
 
-    web_fixture.context.install()
 
     fixture.run_hook_before = True
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
@@ -654,7 +638,6 @@ def test_prevent_duplicate_upload_js(web_fixture, file_upload_input_fixture):
 
     fixture = file_upload_input_fixture
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = web_fixture.driver_browser
@@ -685,7 +668,6 @@ def test_prevent_form_submit(web_fixture, large_file_upload_input_fixture):
     """The user is prevented from submitting the Form while one or more file uploads are still in progress."""
     fixture = large_file_upload_input_fixture
 
-    web_fixture.context.install()
 
     fixture.run_hook_after = True
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
@@ -709,7 +691,6 @@ def test_async_remove(web_fixture, file_upload_input_fixture):
 
     fixture = file_upload_input_fixture
 
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     browser = web_fixture.driver_browser
@@ -745,7 +726,6 @@ def test_async_remove(web_fixture, file_upload_input_fixture):
 def test_async_upload_error(web_fixture, broken_file_upload_input_fixture):
     """If an error happens during (ajax) upload, the user is notified."""
     fixture = broken_file_upload_input_fixture
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
     web_fixture.config.reahlsystem.debug = False # So that we don't see the exception output while testing
@@ -802,7 +782,6 @@ def test_queueing_async_uploads(web_fixture, large_file_upload_input_fixture):
     """
     fixture = large_file_upload_input_fixture
 
-    web_fixture.context.install()
 
     fixture.run_hook_after = True
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
@@ -839,7 +818,6 @@ def test_async_validation(web_fixture, per_file_constrained_file_upload_input_fi
     # in its own implementation, in a NestedForm, and has to pass on the
     # filesize constraint all the way. This way, we test all of that.
     fixture = per_file_constrained_file_upload_input_fixture
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 
@@ -865,7 +843,6 @@ def test_async_number_files_validation(web_fixture, max_number_of_files_file_upl
     # in its own implementation, in a NestedForm, and has to pass on the
     # filesize constraint all the way. This way, we test all of that.
     fixture = max_number_of_files_file_upload_input_fixture
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 

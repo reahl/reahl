@@ -45,7 +45,6 @@ def test_widget_layout(web_fixture):
             return child
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget_with_layout = Div(fixture.view)
 
@@ -69,7 +68,6 @@ def test_widget_layout_errors(web_fixture):
     """A Layout can only be used with a single Widget, and a Widget can only have a single Layout."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget_with_layout = Div(fixture.view).use_layout(Layout())
 
@@ -84,10 +82,6 @@ def test_widget_layout_errors(web_fixture):
 
 @uses(web_fixture=WebFixture)
 class WidgetCreationScenarios(Fixture):
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     @property
     def view(self):
@@ -132,7 +126,6 @@ def test_widget_factory_creates_widget_with_layout(web_fixture, widget_creation_
             self.define_view('/', title='Hello', page=HTML5Page.factory(use_layout=layout_for_widget))
 
     fixture = widget_creation_scenarios
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=fixture.MainUI)
     browser = Browser(wsgi_app)
@@ -159,7 +152,6 @@ def test_column_layout_basics(web_fixture):
     """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Div."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     layout = ColumnLayout('column_a', 'column_b')
     widget = Div(fixture.view)
@@ -186,7 +178,6 @@ def test_column_layout_sizes(web_fixture):
             fixture.added_sizes.append(size)
             return super(ColumnLayoutStub, self).add_column(size)
 
-    web_fixture.context.install()
 
     specified_size = EmptyStub()
     widget = Div(fixture.view).use_layout(ColumnLayoutStub('column_a', ('column_b', specified_size)))
@@ -202,7 +193,6 @@ def test_order_of_columns(web_fixture):
        can be obtained using dictionary access on Layout.columns."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b'))
 
@@ -220,7 +210,6 @@ def test_columns_classes(web_fixture):
     """The Div added for each column specified to ColumnLayout is given a CSS class derived from the column name."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a'))
     column_a = widget.layout.columns['column_name_a']
@@ -232,7 +221,6 @@ def test_column_slots(web_fixture):
     """A ColumnLayout can be made that adds a Slot to each added column, named after the column it is added to."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b').with_slots())
 
@@ -246,7 +234,6 @@ def test_adding_unnamed_columns(web_fixture):
     """You can add a column by calling add_column on the ColumnLayout"""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     widget = Div(fixture.view).use_layout(ColumnLayout())
 
@@ -264,7 +251,6 @@ def test_page_layout_basics(web_fixture):
        with a div inbetween the two for page contents."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     layout = PageLayout()
     widget = HTML5Page(fixture.view).use_layout(layout)
@@ -282,7 +268,6 @@ def test_header_and_footer_slots(web_fixture):
     """PageLayout adds a Slot for Header and Footer."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     page = HTML5Page(fixture.view).use_layout(PageLayout())
 
@@ -297,7 +282,6 @@ def test_page_layout_content_layout(web_fixture):
     """A PageLayout can be given a Layout it should use to lay out its contents Div."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     contents_layout = Layout()
     widget = HTML5Page(fixture.view).use_layout(PageLayout(contents_layout=contents_layout))
@@ -310,7 +294,6 @@ def test_page_layout_only_meant_for_html5page(web_fixture):
     """When an attempting to use a PageLayout on something other than an HTML5Page, a useful exception is raised."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     with expected(IsInstance):
         Div(fixture.view).use_layout(PageLayout())
@@ -321,7 +304,6 @@ def test_page_layout_convenience_features(web_fixture):
     """A PageLayout exposes useful methods to get to its contents, and adds ids to certain elements for convenience in CSS."""
 
     fixture = web_fixture
-    web_fixture.context.install()
 
     layout = PageLayout()
     widget = HTML5Page(fixture.view).use_layout(layout)

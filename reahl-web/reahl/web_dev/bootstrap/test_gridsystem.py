@@ -36,7 +36,6 @@ from reahl.web_dev.fixtures import WebFixture
 def test_containers(web_fixture):
     """There are two types of Bootstrap containers:  a full width container, and a responsive (fluid) container."""
 
-    web_fixture.context.install()
 
     widget = Div(web_fixture.view).use_layout(Container())
     tester = WidgetTester(widget)
@@ -55,7 +54,6 @@ def test_containers(web_fixture):
 def test_column_layout_basics(web_fixture):
     """The bootstrap.ColumnLayout adds the correct classes for Bootstrap to lay out its Widget as a row with columns."""
 
-    web_fixture.context.install()
 
     layout = ColumnLayout(('column_a', ResponsiveSize(lg=4)), ('column_b', ResponsiveSize(lg=8)))
     widget = Div(web_fixture.view)
@@ -75,7 +73,6 @@ def test_column_layout_basics(web_fixture):
 def test_column_layout_sizes(web_fixture):
     """It is mandatory to specify sizes for all columns."""
 
-    web_fixture.context.install()
 
     with expected(ProgrammerError):
         ColumnLayout('column_a')
@@ -86,7 +83,6 @@ def test_column_layout_sizes(web_fixture):
 def test_adding_columns(web_fixture):
     """You can add additional columns after construction."""
 
-    web_fixture.context.install()
 
     widget = Div(web_fixture.view).use_layout(ColumnLayout())
 
@@ -109,7 +105,6 @@ def test_allowed_sizes():
 def test_column_offsets(web_fixture):
     """You can optionally specify space to leave empty (an offset) before a column at specific device sizes."""
 
-    web_fixture.context.install()
 
     layout = ColumnLayout(('column_a', ResponsiveSize(xl=2).offset(xs=2, sm=4, md=6, lg=3, xl=1)))
     widget = Div(web_fixture.view).use_layout(layout)
@@ -129,7 +124,6 @@ def test_column_clearfix(web_fixture):
     """If a logical row spans more than one visual row for a device size, bootstrap clearfixes are
        automatically inserted to ensure cells in resultant visual rows are neatly arranged.
     """
-    web_fixture.context.install()
 
     # Case: Adding a correct clearfix in the right place
     wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).offset(xs=2)),

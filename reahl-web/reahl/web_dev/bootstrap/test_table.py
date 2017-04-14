@@ -74,7 +74,6 @@ class LayoutScenarios(Fixture):
 @with_fixtures(WebFixture, LayoutScenarios)
 def test_table_layout_options(web_fixture, layout_scenarios):
     """TableLayout uses Bootstrap to implement many table layout options."""
-    web_fixture.context.install()
 
     layout = TableLayout(**layout_scenarios.layout_kwargs)
     Table(web_fixture.view).use_layout(layout)
@@ -138,7 +137,6 @@ class DataTableFixture(TableFixture):
 @with_fixtures(WebFixture, DataTableFixture)
 def test_paging_through_data(web_fixture, data_table_fixture):
     """DataTable splits its items into different pages (between which a user can navigate), showing only the items of a particular page at a time."""
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
     browser = web_fixture.driver_browser
@@ -165,7 +163,6 @@ def test_paging_through_data(web_fixture, data_table_fixture):
 @with_fixtures(WebFixture, DataTableFixture)
 def test_sorting(web_fixture, data_table_fixture):
     """By clicking on special links in the column header, the table is sorted according to that column - ascending or descending."""
-    web_fixture.context.install()
 
     web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
     browser = web_fixture.driver_browser
@@ -220,7 +217,6 @@ def test_sorting(web_fixture, data_table_fixture):
 @with_fixtures(WebFixture, DataTableFixture)
 def test_which_columns_can_cause_sorting(web_fixture, data_table_fixture):
     """Only columns with sort_key specified are sortable."""
-    web_fixture.context.install()
 
     data_table_fixture.columns.append(StaticColumn(Field(label='Not sortable'), 'alpha'))
 
@@ -236,7 +232,6 @@ def test_which_columns_can_cause_sorting(web_fixture, data_table_fixture):
 @with_fixtures(WebFixture, DataTableFixture)
 def test_layout_for_contained_table(web_fixture, data_table_fixture):
     """You can specify a Layout to use for the actual table inside the DataTable."""
-    web_fixture.context.install()
 
     layout = TableLayout()
     data_table = DataTable(web_fixture.view, data_table_fixture.columns, data_table_fixture.data, 'my_css_id', table_layout=layout)

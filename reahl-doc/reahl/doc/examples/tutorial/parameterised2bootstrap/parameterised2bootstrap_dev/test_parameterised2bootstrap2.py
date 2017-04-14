@@ -41,7 +41,6 @@ def test_adding_an_address(web_fixture, address_app_fixture):
        information for the new address and clicks the Save button. Upon success addition of the
        address, the user is returned to the home page where the new address is now listed."""
 
-    web_fixture.context.install()
     browser = address_app_fixture.browser
 
     browser.open('/')
@@ -63,7 +62,6 @@ def test_editing_an_address(web_fixture, address_app_fixture):
        can change the name or email address. Upon clicking the "Update" Button, the user is sent back 
        to the "Addresses" page where the changes are visible."""
 
-    web_fixture.context.install()
     browser = address_app_fixture.browser
     existing_address = address_app_fixture.existing_address
 

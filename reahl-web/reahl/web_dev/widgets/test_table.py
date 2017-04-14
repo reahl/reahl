@@ -80,7 +80,6 @@ def test_table_basics(web_fixture, table_fixture):
             self.add_child(table)
 
     fixture = table_fixture
-    web_fixture.context.install()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -107,10 +106,6 @@ class ColumnScenarios(Fixture):
     sort_key = EmptyStub()
     heading = 'A heading'
     row_item = EmptyStub(some_attribute=True)
-
-    @property
-    def context(self):
-        return self.web_fixture.context
 
     @scenario
     def static_column(self):
@@ -148,7 +143,6 @@ def test_different_kinds_of_columns(web_fixture, column_scenarios):
     """There are different kinds of Columns, allowing different levels of flexibility for defining a Table"""
 
     fixture = column_scenarios
-    web_fixture.context.install()
 
     assert fixture.column.sort_key is fixture.sort_key
 
@@ -169,7 +163,6 @@ def test_different_kinds_of_columns(web_fixture, column_scenarios):
 def test_table_thead(web_fixture):
     """Table can find its Thead element"""
 
-    web_fixture.context.install()
 
     table = Table(web_fixture.view)
     thead = table.add_child(Thead(web_fixture.view))

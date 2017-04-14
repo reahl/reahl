@@ -88,7 +88,6 @@ def test_session_secure_state(web_fixture, secure_scenarios):
     """The session is only secured when used over https, the secure cookie is set correctly,
        and the last interaction is within idle_secure_lifetime"""
     fixture = secure_scenarios
-    web_fixture.context.install()
 
     user_session = web_fixture.context.session
     config = web_fixture.config
@@ -116,7 +115,6 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
         def is_secured(self):
             return self.secured
 
-    web_fixture.context.install()
     with sql_alchemy_fixture.persistent_test_classes(UserSessionStub):
         user_session = UserSessionStub()
 
@@ -163,7 +161,6 @@ def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
 @with_fixtures(WebFixture)
 def test_reading_cookies_on_initialising_a_session(web_fixture):
     fixture = web_fixture
-    web_fixture.context.install()
 
     # Case: session cookie not set in Request
     UserSession.initialise_web_session_on(fixture.context)
@@ -218,7 +215,6 @@ def test_reading_cookies_on_initialising_a_session(web_fixture):
 def test_session_data_disappears_when_session_does(web_fixture):
     """When a UserSession is deleted, all associated SessionData disappear as well."""
     fixture = web_fixture
-    web_fixture.context.install()
 
     UserSession.initialise_web_session_on(fixture.context)
     user_session = fixture.context.session
@@ -239,7 +235,6 @@ def test_session_data_disappears_when_session_does(web_fixture):
 def test_session_keeps_living(web_fixture):
     """When SessionData is deleted, the associated UserSession is not affected."""
     fixture = web_fixture
-    web_fixture.context.install()
 
     UserSession.initialise_web_session_on(fixture.context)
     user_session = fixture.context.session
