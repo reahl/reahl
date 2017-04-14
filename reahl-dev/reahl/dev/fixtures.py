@@ -40,7 +40,7 @@ class ContextAwareFixture(Fixture):
         raise ProgrammerError('No ExecutionContext defined for %s. You must override new_context() or set an attribute or @property named "context"' % self)
 
     def __enter__(self):
-        self.context.install(lambda f: isinstance(f.f_locals['self'], WithFixtureDecorator))
+        self.context.install(lambda f: isinstance(f.f_locals.get('self', None), WithFixtureDecorator))
         return super(ContextAwareFixture, self).__enter__()
 
     def run_tear_down_actions(self):
