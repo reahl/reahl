@@ -78,12 +78,19 @@ class ExecutionContext(object):
         self.parent_context = parent_context or self.get_context()
         self.id = (self.parent_context.id if isinstance(self.parent_context, ExecutionContext) else id(self))
 
-    def install(self):
+    def install(self, stop=None):
         f = inspect.currentframe()
-        calling_frame = f.f_back
+        i = 0
+        if not stop:
+            def stop(ff):
+                return i >= 1
+        while not stop(f):
+            calling_frame = f.f_back
+            i += 1
+            del f
+            f = calling_frame
         calling_frame.f_locals['__reahl_context__'] = self
         del calling_frame
-        del f
         return self
 
     @property
