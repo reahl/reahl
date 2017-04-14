@@ -27,12 +27,12 @@ from reahl.tofu import Fixture, set_up, tear_down, scope
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
 from reahl.component.config import StoredConfiguration
-
+from reahl.component_dev.fixtures import ContextAwareFixture
 from reahl.dev.exceptions import CouldNotConfigureServer
 
 
 @scope('session')
-class ReahlSystemFixture(Fixture):
+class ReahlSystemFixture(ContextAwareFixture):
     """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
        correct database schema for the project and sets up any persistent classes for use with that
        schema. It also connects to the database. Upon tear down, the Fixture disconnects from the database.

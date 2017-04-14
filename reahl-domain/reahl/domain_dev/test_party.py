@@ -29,6 +29,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass
 
 from reahl.component.eggs import ReahlEgg
+from reahl.component.context import ExecutionContext
 from reahl.domain.partymodel import Party
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, VerificationRequest, VerifyEmailRequest, \
     NewPasswordRequest, ChangeAccountEmail, NotUniqueException, InvalidPasswordException, KeyException, \
@@ -43,7 +44,6 @@ from reahl.web_dev.fixtures import WebFixture
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_create_account(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     login_email = 'piet@home.org'
     mailer_stub = fixture.mailer
@@ -96,7 +96,6 @@ def test_create_account(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_registration_application_help(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     # Case: there is already an active account by that email
     account_management_interface = fixture.account_management_interface
@@ -122,7 +121,6 @@ def test_registration_application_help(sql_alchemy_fixture, party_account_fixtur
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_send_activation_mail(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     system_account = fixture.new_system_account(email='someone@home.org', activated=False)
     activation_request = VerifyEmailRequest(email=system_account.email,
@@ -152,7 +150,6 @@ def test_send_activation_mail(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_uniqueness_of_request_keys(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     system_account = fixture.new_system_account(activated=False)
 
@@ -179,7 +176,6 @@ def test_uniqueness_of_request_keys(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_activate_via_key(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     system_account = fixture.new_system_account(email='someone@home.org', activated=False)
     activation_request = VerifyEmailRequest(email=system_account.email,
@@ -220,7 +216,6 @@ def test_activate_via_key(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_expire_stale_requests(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     old_email = 'old@home.org'
     recent_email = 'recent@home.org'
@@ -251,7 +246,7 @@ def test_expire_stale_requests(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_request_new_password(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
+
 
     system_account = fixture.new_system_account(activated=False)
     account_management_interface = fixture.new_account_management_interface(system_account=system_account)
@@ -320,7 +315,6 @@ def test_request_new_password(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_set_new_password(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     system_account = fixture.system_account
     new_password_request = NewPasswordRequest(system_account=system_account)
@@ -356,7 +350,6 @@ def test_set_new_password(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_request_email_change(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     system_account = fixture.new_system_account(activated=False)
     mailer_stub = fixture.mailer
@@ -412,7 +405,6 @@ def test_request_email_change(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_verify_email_change(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     system_account = fixture.system_account
     new_email = 'new@home.org'
@@ -450,7 +442,6 @@ def test_verify_email_change(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(SqlAlchemyFixture, PartyAccountFixture)
 def test_logging_in(sql_alchemy_fixture, party_account_fixture):
     fixture = party_account_fixture
-    sql_alchemy_fixture.context.install()
 
     system_account = fixture.system_account
     login_session = LoginSession.for_session(sql_alchemy_fixture.context.session)
@@ -503,7 +494,7 @@ def test_logging_in(sql_alchemy_fixture, party_account_fixture):
 @with_fixtures(PartyAccountFixture, WebFixture)
 def test_login_queries(party_account_fixture, web_fixture):
     """"""
-    context = web_fixture.context.install()
+    context = ExecutionContext.get_context()
 
     config = context.config
     user_session = context.session

@@ -25,11 +25,6 @@ import contextlib
 class NoContextFound(Exception):
     pass
 
-class NoContext(object):
-    def __getattr__(self, name):
-        raise NoContextFound('An attempt was made to access %s on the context, but not context was present in the call stack' % name)
-
-
 
 class ExecutionContext(object):
     """Most code execute "in the scope of" some ExecutionContext. Such code can obtain
@@ -61,21 +56,23 @@ class ExecutionContext(object):
 
     @classmethod
     def get_context(cls):
-        """Returns the current call context, or :class:`NoContext` if there is none."""
-        no_context = NoContext()
-        context = no_context
+        """Returns the current call context, or raises :class:`NoContextFound` if there is none."""
+        context = None
         f = inspect.currentframe()
-        while context is no_context and f:
-            candidate = f.f_locals.get('__reahl_context__', None)
-            if isinstance(candidate, ExecutionContext):
-                context = candidate
+        while (not context) and f:
+            context = f.f_locals.get('__reahl_context__', None)
             to_delete = f
             f = f.f_back
             del to_delete
+        if not context:
+            raise NoContextFound('No %s is active in the call stack' % cls)
         return context
 
     def __init__(self, parent_context=None):
-        self.parent_context = parent_context or self.get_context()
+        try:
+            self.parent_context = parent_context or self.get_context()
+        except NoContextFound:
+            self.parent_context = None
         self.id = (self.parent_context.id if isinstance(self.parent_context, ExecutionContext) else id(self))
 
     def install(self, stop=None):

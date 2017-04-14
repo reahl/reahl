@@ -241,9 +241,6 @@ class Fixture(object):
         self.attributes_set[name] = instance
         return instance
 
-    def create_default_context(self):
-        return NoContext()
-    
     def get_marked_methods(self, cls, marker):
         return [value for name, value in cls.__dict__.items() if isinstance(value, marker)]
 
@@ -262,12 +259,7 @@ class Fixture(object):
     def tear_down(self): pass    
 
     def get_factory_method_for(self, name):
-        try:
-            return self.get_prefixed_method_for(name, 'new')
-        except AttributeError:
-            if name == 'context':
-                return self.create_default_context
-            raise
+        return self.get_prefixed_method_for(name, 'new')
 
     def get_tear_down_method_for(self, name):
         try:
@@ -291,7 +283,6 @@ class Fixture(object):
             atexit.register(self.session_cleanup)
 
         try:
-            self.context.install()
             self.set_up()
             self.run_marked_methods(SetUp, order=reversed)
             self.scenario.method_for(self)()
@@ -301,23 +292,16 @@ class Fixture(object):
         return self
 
     def session_cleanup(self):
-        return self.__exit__(*sys.exc_info(), exit_session=True)
-
-    def __exit__(self, exception_type, value, traceback, exit_session=False):
-        self.context.install()
-        if self._options.scope == 'function' or exit_session:
-            self.tear_down_attributes()
-            self.run_marked_methods(TearDown)
-            self.tear_down()
-
-
-
-class NoContext(object):
-    def __enter__(self):
-        return self
+        return self.run_tear_down_actions()
 
     def __exit__(self, exception_type, value, traceback):
-        pass
+        if self._options.scope == 'function':
+            return self.run_tear_down_actions()
 
-    def install(self):
-        pass
+    def run_tear_down_actions(self):
+        self.tear_down_attributes()
+        self.run_marked_methods(TearDown)
+        self.tear_down()
+
+
+

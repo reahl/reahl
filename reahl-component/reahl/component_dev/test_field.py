@@ -24,6 +24,7 @@ import functools
 from reahl.tofu import Fixture, scenario, expected, NoException, uses
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
+from reahl.component_dev.fixtures import ContextAwareFixture
 
 from reahl.component.context import ExecutionContext
 from reahl.component.exceptions import ProgrammerError, IsInstance, IsCallable, IncorrectArgumentError
@@ -40,7 +41,7 @@ from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, expos
                              MimeTypeConstraint, MaxFilesConstraint, SmallerThanConstraint, GreaterThanConstraint
 
 
-class FieldFixture(Fixture):
+class FieldFixture(ContextAwareFixture):
     def new_context(self):
         return ExecutionContext()
 
@@ -997,11 +998,11 @@ def test_integer_marshalling(fixture):
     assert field.as_input() == '0' 
 
 
-@uses(field_fiture=FieldFixture)
-class ChoiceFixture(Fixture):
-
-    def new_context(self):
-        return ExecutionContext()
+@uses(field_fixture=FieldFixture)
+class ChoiceFixture(ContextAwareFixture):
+    @property
+    def context(self):
+        return self.field_fixture.context
 
     def new_field(self, field_class=None):
         field_class = field_class or ChoiceField

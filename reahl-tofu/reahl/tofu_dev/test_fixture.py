@@ -20,7 +20,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.tofu import Fixture, set_up, tear_down
 
-from reahl.tofu.fixture import NoContext
+from reahl.tofu.fixture import NoContextFound
 
 #--------------------------------------------------[ FixtureTests ]
 
@@ -29,7 +29,11 @@ class FixtureTests(object):
     def test_context(self):
         """Each Fixture has a .context within which it is run. This can be customised."""
         fixture = Fixture()
-        assert isinstance(fixture.context, NoContext)
+        try:
+            fixture.context
+            assert None, 'Expected NoContextFound to be raised'
+        except NoContextFound:
+            pass
 
         class MyFixture(Fixture):
             def new_context(self):

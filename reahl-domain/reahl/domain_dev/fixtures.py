@@ -66,10 +66,6 @@ class MailerStub(object):
 @uses(sql_alchemy_fixture=SqlAlchemyFixture)
 class PartyAccountFixture(Fixture):
 
-    @property
-    def context(self):
-        return self.sql_alchemy_fixture.context
-
     @set_up
     def add_system_account_config(self):
         self.sql_alchemy_fixture.config.accounts = self.system_account_config

@@ -23,6 +23,7 @@ from reahl.stubble import EmptyStub
 
 from reahl.component.config import ReahlSystemConfig
 from reahl.component.context import ExecutionContext
+from reahl.component_dev.fixtures import ContextAwareFixture
 
 from reahl.sqlalchemysupport import metadata, Session
 
@@ -30,7 +31,7 @@ from reahl.dev.fixtures import ReahlSystemFixture
 
 
 @uses(reahl_system_fixture=ReahlSystemFixture)
-class SqlAlchemyFixture(Fixture):
+class SqlAlchemyFixture(ContextAwareFixture):
     commit = False
 
     @set_up
