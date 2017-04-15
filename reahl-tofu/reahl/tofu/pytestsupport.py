@@ -1,6 +1,7 @@
 import inspect
 import itertools
 import contextlib
+import copy
 
 import wrapt
 try:
@@ -91,7 +92,108 @@ class DependencyGraph(object):
 
 
 
+def uses(**fixture_classes):
+    """A decorator for making one :py:class:`Fixture` use others.
+
+    The following will result in an instance of FixtureClass1 being instantiated
+    every time a MyFixture is created. This instance will be available
+    in MyFixture as its `.name1` attribute::
+
+       @uses(name1=OtherFixture)
+       class MyFixture(Fixture):
+           def some_method(self):
+               assert isinstance(self.name1, OtherFixture)
+
+    .. versionadded:: 4.0 
+
+    """
+    def catcher(f):
+        f._options = copy.copy(f._options)
+        f._options.dependencies = fixture_classes
+        return f
+    return catcher
+
+def scope(scope):
+    """A decorator for setting the scope of a :py:class:`Fixture`.
+
+    By default, all :py:class:`Fixture`\s are in 'function' scope,
+    meaning they are created, set up, and torn down around each test
+    function run. With `@scope` this default can be changed to
+    'session' scope. A session scoped :py:class:`Fixture` is created
+    and set up the first time it is entered as context manager, and
+    torn down only once: when the test process exits.
+
+    If the :py:class:`Fixture` contains multiple scenarios, a session
+    scoped instance is created and set up for each scenario.
+
+    .. code-block:: python
+
+       @uses('session')
+       class MyFixture(Fixture):
+           pass
+
+    .. versionadded:: 4.0 
+
+    """
+    def catcher(f):
+        f._options = copy.copy(f._options)
+        f._options.scope = scope
+        return f
+    return catcher
+
+
 class WithFixtureDecorator(object):
+    """A decorator for injecting :py:class:`Fixture`\s into pytest test method arguments.
+
+    This decorator takes a list of :py:class:`Fixture` classes as
+    arguments and ensures that the first declared positional arguments
+    of the `test_` function it decorates will be populated with
+    instances of the corresponding :py:class:`Fixture` classes when
+    the test is run.
+
+    The names of these positional arguments do not matter.
+
+    If a :py:class:`Fixture` in this list has scenarios, the test
+    function will be run repeatedly--once for each scenario. If more than
+    one :py:class:`Fixture` in this list has scenarios, the `test_`
+    function will be repeated once for each combination of scenarios.
+
+    For example::
+
+       class MyFixture(Fixture):
+           def new_string(self):
+               return 'this is a test'
+
+       @with_fixture(MyFixture)
+       def test_this(my_fix)
+           assert my_fix.string == 'this is a test'
+
+    The use of :py:class:`Fixture` classes can me mixed with
+    pytest.fixture functions. In such a case, the :py:class:`Fixture`
+    instances are passed to the first declared positional arguments of
+    the test function, leaving the remainder of the arguments to be
+    interpreted by pytest itself::
+
+       class MyFixture(Fixture):
+           def new_string(self):
+               return 'this is a test'
+
+       class MyOtherFixture(Fixture):
+           def new_int(self):
+               return 123
+
+       @pytest.fixture
+       def another_string():
+           return 'another'
+
+       @with_fixture(MyFixture, MyOtherFixture)
+       def test_this(my_fix, other, another_string)
+           assert my_fix.string == 'this is a test'
+           assert other.int == 123
+           assert another_string == 'another'
+
+    .. versionadded:: 4.0 
+    """
     def __init__(self, *fixture_classes):
         self.requested_fixtures = fixture_classes
         self.fixture_classes = [(i.fixture_class if isinstance(i, Scenario) else i) for i in fixture_classes]

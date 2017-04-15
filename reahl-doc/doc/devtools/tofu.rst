@@ -40,58 +40,28 @@ tear_down
    :members:
 
 
-Integration with nose
-^^^^^^^^^^^^^^^^^^^^^
+Integration with pytest
+^^^^^^^^^^^^^^^^^^^^^^^
 
-@test
+with_fixtures
+"""""""""""""
+
+.. autoclass:: reahl.tofu.with_fixtures
+   :members:
+.. autoclass:: reahl.tofu.pytestsupport.WithFixtureDecorator
+   :members:
+
+uses
+""""
+
+.. autofunction:: reahl.tofu.uses
+
+
+scope
 """""
 
-.. autoclass:: reahl.tofu.test
-   :members:
-.. autoclass:: reahl.tofu.nosesupport.IsTestWithFixture
-   :members:
+.. autofunction:: reahl.tofu.scope
 
-set_run_fixture
-"""""""""""""""
-
-.. autofunction:: reahl.tofu.nosesupport.set_run_fixture
-
-
-RunFixturePlugin
-""""""""""""""""
-
-.. autoclass:: reahl.tofu.nosesupport.RunFixturePlugin
-   :members:
-
-LongOutputPlugin
-""""""""""""""""
-
-.. autoclass:: reahl.tofu.nosesupport.LongOutputPlugin
-   :members:
-
-MarkedTestsPlugin
-"""""""""""""""""
-
-.. autoclass:: reahl.tofu.nosesupport.MarkedTestsPlugin
-   :members:
-
-TestDirectoryPlugin
-"""""""""""""""""""
-
-.. autoclass:: reahl.tofu.nosesupport.TestDirectoryPlugin
-   :members:
-
-LogLevelPlugin
-""""""""""""""
-
-.. autoclass:: reahl.tofu.nosesupport.LogLevelPlugin
-   :members:
-
-SetUpFixturePlugin
-""""""""""""""""""
-
-.. autoclass:: reahl.tofu.nosesupport.SetUpFixturePlugin
-   :members:
 
 Testing for exceptions
 ^^^^^^^^^^^^^^^^^^^^^^

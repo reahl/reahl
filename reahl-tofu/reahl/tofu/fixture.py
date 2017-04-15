@@ -19,7 +19,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import sys
 import inspect
 import logging
-import copy
 import atexit
 from collections import OrderedDict 
 
@@ -59,14 +58,18 @@ class MarkingDecorator(object):
 class Scenario(MarkingDecorator):
     """A Scenario is a variation on a :class:`Fixture`.
 
-       A Scenario is defined as a Fixture method which is decorated with @scenario.
-       The Scenario method is run after setup of the Fixture, to provide some extra
-       setup pertaining to that scenario only.
+       A Scenario is defined as a Fixture method which is decorated
+       with @scenario.  The Scenario method is run after setup of the
+       Fixture, to provide some extra setup pertaining to that
+       scenario only.
 
-       When a Fixture that contains more than one scenario is used with nosetests, 
-       the test will be run once for every Scenario defined on the Fixture. Before
-       each run of the Fixture, a new Fixture instance is set up, and only the current
-       scenario method is called to provide the needed variation on the Fixture.
+       When a Fixture that contains more than one scenario is used
+       with :py:func:`with_fixtures`, the test will be run once for
+       every Scenario defined on the Fixture. Before each run of the
+       Fixture, a new Fixture instance is set up, and only the current
+       scenario method is called to provide the needed variation on
+       the Fixture.
+
     """
     def get_scenarios(self):
         return [self]
@@ -114,21 +117,6 @@ class FixtureOptions(object):
         self.scope = 'function'
 
     
-def uses(**kwargs):
-    def catcher(f):
-        f._options = copy.copy(f._options)
-        f._options.dependencies = kwargs
-        return f
-    return catcher
-
-def scope(scope):
-    def catcher(f):
-        f._options = copy.copy(f._options)
-        f._options.scope = scope
-        return f
-    return catcher
-
-
 class Fixture(object):
     """A test Fixture is a collection of objects defined and set up to be
        used together in a test.
@@ -152,22 +140,19 @@ class Fixture(object):
        of each instance. Singleton instances are also torn down before any other
        tear down logic happens (because, presumably the instances are all
        created after all other setup occurs).
-       
 
        A Fixture instance can be used as a context manager. It is set up before 
        entering the block of code it manages, and torn down upon exiting it.
 
-       A Fixture instance also has a context manager available as its
-       '.context' attribute. Setup, test run and tear down code is run
-       within the context of '.context' as well. The default context
-       manager does not do anything, but you can supply your own by
-       creating a method named `new_context` on a subclass. If no custom
-       context is given and the fixture has a run_fixture, the run_fixture.context
-       is used.
-
        .. versionchanged:: 3.2
           Added support for `del_` methods.
-       
+
+       .. versionchanged:: 4.0 
+          Changed to work with pytest instead of nosetests
+          (:py:class:`with_fixtures`, :py:func:`scope`,
+          :py:func:`uses`) and removal of `.run_fixture` and
+          `.context`.
+
     """
     factory_method_prefix = 'new'
     _options = FixtureOptions()
