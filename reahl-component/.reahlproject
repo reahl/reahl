@@ -26,6 +26,7 @@
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-sqlitesupport"/>
   </deps>
 
   <script name="reahl-control" locator="reahl.component.prodshell:ProductionCommandline.execute_one"/>
