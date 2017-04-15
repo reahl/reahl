@@ -200,10 +200,10 @@ class WithFixtureDecorator(object):
 
     def __call__(self, f):
         @wrapt.decorator
-        def the_test(wrapped, instance, args, kwargs):
+        def test_with_fixtures(wrapped, instance, args, kwargs):
             fixture_instances = [i for i in list(args) + list(kwargs.values())
                                      if i.__class__ in self.fixture_classes or i.scenario in self.requested_fixtures]
-            dependency_ordered_fixtures = self.topological_sort(fixture_instances)
+            dependency_ordered_fixtures = self.topological_sort_instances(fixture_instances)
 
             if six.PY2:
                 with contextlib.nested(*list(dependency_ordered_fixtures)):
@@ -214,14 +214,13 @@ class WithFixtureDecorator(object):
                         stack.enter_context(fixture)
                     return wrapped(*args, **kwargs)
 
-        ff = the_test(f)
+        ff = test_with_fixtures(f)
         arg_names = self.fixture_arg_names(ff)
         return pytest.mark.parametrize(','.join(arg_names), self.fixture_permutations(len(arg_names)))(ff)
 
-    @classmethod
-    def instances_in_fixture_order(self, fixture_classes, instances):
-        fixture_instances = {i.__class__: i for i in instances if i.__class__ in fixture_classes}
-        return [fixture_instances[c] for c in fixture_classes]
+    def instances_in_fixture_order(self, instances):
+        fixture_instances = {i.__class__: i for i in instances if i.__class__ in self.fixture_classes}
+        return [fixture_instances[c] for c in self.fixture_classes]
         
     def fixture_arg_names(self, f):
         if six.PY2:
@@ -231,46 +230,29 @@ class WithFixtureDecorator(object):
             signature = inspect.signature(f)
             return list(signature.parameters.keys())[:len(self.requested_fixtures)]
 
-    def fixture_permutations(self, number_args):
-        return FixturePermutationIterator(self.requested_fixtures, self.fixture_classes, number_args)
-
-    def topological_sort(self, fixture_instances):
+    def topological_sort_instances(self, fixture_instances):
         def find_dependencies(fixture_instance):
             return fixture_instance.dependencies
         dependency_graph = DependencyGraph.from_vertices(fixture_instances, find_dependencies)
         return reversed(list(dependency_graph.topological_sort()))
 
-with_fixtures = WithFixtureDecorator
-    
-class FixturePermutationIterator(object):
-    def __init__(self, requested_fixtures, fixture_classes, number_args):
-        self.fixture_classes = fixture_classes
-        self.dependency_ordered_classes = self.topological_sort(requested_fixtures)
-        self.number_args = number_args
-        self.permutations = itertools.product(*([c.get_scenarios() for c in self.dependency_ordered_classes]))
-
-    def __iter__(self):
-        return self
-    
-    def __next__(self):
-        if six.PY2:
-            current_scenarios = self.permutations.next()
-        else:
-            current_scenarios = self.permutations.__next__()
-
-        instances = [f.for_scenario(current_scenarios[self.dependency_ordered_classes.index(f)]) for f in self.dependency_ordered_classes]
-        for instance in instances:
-            instance.setup_dependencies(instances)
-        if self.number_args > 1:
-            return with_fixtures.instances_in_fixture_order(self.fixture_classes, instances)
-        else:
-            return with_fixtures.instances_in_fixture_order(self.fixture_classes, instances)[0]
-        
-    next = __next__
-            
-    def topological_sort(self, fixture_classes):
+    def topological_sort_classes(self, fixture_classes):
         def find_dependencies(fixture_class):
             return fixture_class._options.dependencies.values()
         dependency_graph = DependencyGraph.from_vertices(fixture_classes, find_dependencies)
         return list(dependency_graph.topological_sort())
 
+    def fixture_permutations(self, number_args):
+        dependency_ordered_classes = self.topological_sort_classes(self.requested_fixtures)
+        permutations = itertools.product(*([c.get_scenarios() for c in dependency_ordered_classes]))
+
+        for current_scenarios in permutations:
+            instances = [f.for_scenario(current_scenarios[dependency_ordered_classes.index(f)]) for f in dependency_ordered_classes]
+            for instance in instances:
+                instance.setup_dependencies(instances)
+            ordered_instances = self.instances_in_fixture_order(instances)
+            yield (ordered_instances if number_args > 1 else ordered_instances[0])
+
+
+with_fixtures = WithFixtureDecorator
+    
