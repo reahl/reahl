@@ -60,11 +60,6 @@ class WebServerFixture(Fixture):
 
           The default WebDriver instance (Chrome, by default).
 
-       .. data:: config
-
-          A :class:`reahl.component.config.Configuration` class used for the test process
-          and web server.
-
     """
 
     def new_reahl_server(self):
