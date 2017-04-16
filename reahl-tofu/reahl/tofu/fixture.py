@@ -20,10 +20,12 @@ import sys
 import inspect
 import logging
 import atexit
+import contextlib
 from collections import OrderedDict 
 
 import six
 
+from reahl.component.exceptions import ProgrammerError
 
 
 
@@ -132,14 +134,15 @@ class Fixture(object):
        `new_` method is called, and the resulting object cached as a singleton for
        future accesses.
 
-       If a corresponding `del_` method exists for a given `new_`
-       method, it will be called when the Fixture is torn down. This
-       mechanism exists so you can dispose of the singleton created by
-       the `new_` method. These `del_` methods are called only for singleton
-       instances that were actually created, and in reverse order of creation
-       of each instance. Singleton instances are also torn down before any other
-       tear down logic happens (because, presumably the instances are all
-       created after all other setup occurs).
+       If the created singleton object also needs to be torn down, the new_ method 
+       should yield it (not return), and perform necessary tear down after the yield
+       statement.
+
+       Singletons are torn down using this mechanism in reverse order
+       of how they were created. (The last one created is torn down
+       first.) Singleton instances are also torn down before any other
+       tear down logic happens (because, presumably the instances are
+       all created after all other setup occurs).
 
        A Fixture instance can be used as a context manager. It is set up before 
        entering the block of code it manages, and torn down upon exiting it.
@@ -150,8 +153,13 @@ class Fixture(object):
        .. versionchanged:: 4.0 
           Changed to work with pytest instead of nosetests
           (:py:class:`with_fixtures`, :py:func:`scope`,
-          :py:func:`uses`) and removal of `.run_fixture` and
-          `.context`.
+          :py:func:`uses`).
+
+       .. versionchanged:: 4.0 
+          Removed `.run_fixture` and `.context`.
+
+       .. versionchanged:: 4.0 
+          Removed `_del` methods in favour of allowing `new_` methods to yield, then tear down.
 
     """
     factory_method_prefix = 'new'
@@ -189,6 +197,7 @@ class Fixture(object):
     def __init__(self):
         self.attributes_set = OrderedDict()
         self.scenario = DefaultScenario()
+        self.attribute_generators = []
 
     def set_scenario(self, scenario):
         self.scenario = scenario
@@ -202,8 +211,14 @@ class Fixture(object):
                 self.dependencies.append(fixture)
         
     def tear_down_attributes(self):
-        for name, instance in reversed(list(self.attributes_set.items())):
-            self.get_tear_down_method_for(name)(instance)
+        for generator in reversed(self.attribute_generators):
+            try:
+                next(generator)
+            except StopIteration:
+                pass
+            else:
+                name = generator.__name__ if six.PY2 else generator.__qualname__ 
+                raise ProgrammerError('%s is yielding more than one element. \'new_\' methods should only yield a single element' % name)
 
     def clear(self):
         """Clears all existing singleton objects"""
@@ -211,17 +226,29 @@ class Fixture(object):
         for name in self.attributes_set.keys():
             delattr(self, name)
         self.attributes_set = OrderedDict()
+        self.attribute_generators = []
 
+    @contextlib.contextmanager
+    def wrapped_attribute_error(self):
+        try:
+            yield
+        except AttributeError as ex:
+            six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
+        
     def __getattr__(self, name):
         if name.startswith(self.factory_method_prefix):
             raise AttributeError(name)
 
         factory = self.get_factory_method_for(name)
-        
-        try:
-            instance = factory()
-        except AttributeError as ex:
-            six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
+        if inspect.isgeneratorfunction(factory):
+            with self.wrapped_attribute_error():
+                generator = factory()
+                instance = next(generator)
+            self.attribute_generators.append(generator)
+        else:
+            with self.wrapped_attribute_error():
+                instance = factory()
+            
         setattr(self, name, instance)
         self.attributes_set[name] = instance
         return instance
@@ -245,12 +272,6 @@ class Fixture(object):
 
     def get_factory_method_for(self, name):
         return self.get_prefixed_method_for(name, 'new')
-
-    def get_tear_down_method_for(self, name):
-        try:
-            return self.get_prefixed_method_for(name, 'del')
-        except AttributeError:
-            return lambda i: None
 
     def get_prefixed_method_for(self, name, prefix):
         method_name = '%s_%s' % (prefix, name)

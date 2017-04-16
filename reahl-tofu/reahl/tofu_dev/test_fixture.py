@@ -56,24 +56,23 @@ class FixtureTests(object):
 
 
     def test_automaticsingletons_tear_down(self):
-        """Singletons set up automatically via new_ methods can be torn down automatically via
-           corresponding del_ methods, in reverse order of being created."""
+        """If a new_ method for a singleton yields a value (instead of returning one) the singleton can be torn down
+           after the yield statement in the new_ method. Tairing down such singletons happens in reverse order
+           of singletons being created (ie, last created is first to be torn down)."""
         class Stub(object): pass
 
         torn_down_things = []
 
         class TestFixture(Fixture):
             def new_thing_last_accessed(self):
-                return Stub()
-
-            def del_thing_last_accessed(self, thing):
+                thing = Stub()
+                yield thing
                 thing.torn_down = True
                 torn_down_things.append(thing)
 
             def new_thing_first_accessed(self):
-                return Stub()
-
-            def del_thing_first_accessed(self, thing):
+                thing = Stub()
+                yield thing
                 thing.torn_down = True
                 torn_down_things.append(thing)
 
@@ -126,7 +125,7 @@ class FixtureTests(object):
         assert fixture.thing == 1
 
 
-    def fixture_as_context_manager(self):
+    def test_fixture_as_context_manager(self):
         """The Fixture is set_up and torn_down when used in a with statement."""
         class MyFixture(Fixture):
             is_set_up = False
@@ -143,7 +142,7 @@ class FixtureTests(object):
         assert fixture.is_torn_down
          
 
-    def setup_breakages_as_context_manager(self):
+    def test_setup_breakages_as_context_manager(self):
         """Breakage in the setup triggers tear down to be run when a fixture is used in a with statement."""
         class MyFixture(Fixture):
             is_torn_down = False
@@ -165,7 +164,7 @@ class FixtureTests(object):
 
          
 
-    def default_set_up_and_tear_down(self):
+    def test_default_set_up_and_tear_down(self):
         """The default set_up and tear_down run marked methods."""
         class MyFixture(Fixture):
             is_set_up = False
@@ -184,7 +183,7 @@ class FixtureTests(object):
         assert fixture.is_torn_down
 
 
-    def overriding_marked_methods(self):
+    def test_overriding_marked_methods(self):
         """Marked methods can be overridden."""
         class MyFixture(Fixture):
             is_set_up = False

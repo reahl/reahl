@@ -37,10 +37,9 @@ class ExampleFixture(Fixture):
     example_module_contents = ''
 
     def new_containing_egg(self):
-        return EasterEgg(name='example_egg', location=self.egg_directory.name)
-
-    def del_containing_egg(self, instance):
-        instance.deactivate()
+        egg = EasterEgg(name='example_egg', location=self.egg_directory.name)
+        yield egg
+        egg.deactivate()
 
     def new_egg_directory(self):
         return temp_dir()

@@ -55,8 +55,7 @@ class ContextAwareFixtureStub(ContextAwareFixture):
 
     def new_thing(self):
         self.check_context()
-
-    def del_thing(self, thing):
+        yield None
         self.check_context()
     
 
