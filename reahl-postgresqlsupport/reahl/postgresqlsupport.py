@@ -57,7 +57,7 @@ class PostgresqlControl(DatabaseControl):
         return 0
 
     def drop_database(self, super_user_name=None, yes=False):
-        cmd_args = self.login_args(login_username=super_user_name)
+        cmd_args = self.login_args(login_username=super_user_name) + ['--if-exists']
         last_part = ['-i', self.database_name]
         if yes:
             last_part = [self.database_name]

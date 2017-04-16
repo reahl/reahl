@@ -36,6 +36,15 @@ from reahl.tofu import Fixture
 
 
 class ContextAwareFixture(Fixture):
+    """A ContextAwareFixture is a :class:`~reahl.tofu.Fixture` which has
+    an :class:`~reahl.component.context.ExecutionContext` as one of its
+    elements.
+
+    Such a Fixture ensures that its setup and teardown actions are
+    done within its `.context`, and that tests using it are also run
+    withing its `.context`.
+
+    """
     def new_context(self):
         raise ProgrammerError('No ExecutionContext defined for %s. You must override new_context() or set an attribute or @property named "context"' % self)
 
@@ -50,9 +59,29 @@ class ContextAwareFixture(Fixture):
 
 @scope('session')
 class ReahlSystemSessionFixture(ContextAwareFixture):
-    """A Fixture to be used as run fixture. Upon set up, it creates a new empty database with the
-       correct database schema for the project and sets up any persistent classes for use with that
-       schema. It also connects to the database. Upon tear down, the Fixture disconnects from the database.
+    """A session-scoped :class:`~reahl.tofu.Fixture` which sets up all the basics any Reahl system needs to run.
+
+    Upon set up, it creates a new empty database with the correct
+    database schema for the project and sets up any persistent classes
+    for use with that schema. It also connects to the database. Upon
+    tear down, the Fixture disconnects from the database.
+
+    To be able to do all that, it needs to provide a basic
+    :class:`~reahl.component.context.ExecutionContext` with the
+    appropriate configuration, which it reads from the 'etc' directory
+    relative to the current directory.
+
+    .. note::
+
+       You should not use this fixture directly in tests because
+       changes to, eg. the
+       :class:`~reahl.component.context.ExecutionContext` it provides
+       will persist between different tests. The idea is for
+       ReahlSystemSessionFixture to be used by other
+       :class:`~reahl.tofu.Fixture`\s that are not session scoped, but
+       that uses this one where necessary. See for example
+       :class:`ReahlSystemFixture`.
+
     """
     commit = False
 
@@ -60,6 +89,10 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         return self.config.reahlsystem
 
     def new_config(self):
+        """The main :class:`~reahl.component.config.Configuration` of the system.
+
+        This is read from disk from the 'etc' directory present in the current working directory where tests are run.
+        """
         config = StoredConfiguration('etc/')
         try:
             config.configure()
@@ -69,12 +102,14 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
         return config
 
     def new_context(self, config=None, system_control=None):
+        """The :class:`~reahl.component.context.ExecutionContext` within which all tests are run."""
         context = ExecutionContext(name=self.__class__.__name__).install()
         context.config = config or self.config
         context.system_control = system_control or self.system_control
         return context
 
     def new_system_control(self):
+        """The :class:`~reahl.component.dbutils.SystemControl` with which you can control the underlying database. """
         return SystemControl(self.config)
 
     def new_test_dependencies(self):
@@ -98,6 +133,19 @@ class ReahlSystemSessionFixture(ContextAwareFixture):
     
 @uses(reahl_system_fixture=ReahlSystemSessionFixture)
 class ReahlSystemFixture(ContextAwareFixture):
+    """A :class:`~reahl.tofu.Fixture` for direct use in test which sets up all the basics any Reahl system needs to run.
+
+    ReahlSystemFixture does its work by using a
+    :class:`ReahlSystemSessionFixture` behind the
+    scenes. ReahlSystemFixture provides copies of most of the
+    session-lived stuff in the
+    :class:`ReahlSystemSessionFixture`. This allows you to "inherit"
+    the configuration set up for the session by default, but also
+    allows you to change the configuration and ExecutionContext for a
+    particular test, safe in the knowledge that such changes will be
+    torn down after each test function ran.
+
+    """
     @property
     def system_control(self):
         return self.reahl_system_fixture.system_control

@@ -34,6 +34,37 @@ class CouldNotFindDatabaseControlException(Exception):
 
 
 class SystemControl(object):
+    """Used to control all aspects relating to the underlying database as per the configuration of the system.
+
+    Any Reahl system is assumed to have a database backing it. Our
+    dealings with a databases vary in two dimentions. The first of
+    these dimantions is the different database backends that can be
+    used. How one controls the backend itself (such as creating users,
+    dropping databases, etc) differs depending on the particular
+    backend used.
+
+    Regardless of which backend is used, one can also use an ORM layer
+    on top of the database. Things like instrumenting classes,
+    creating database tables of dealing with database transactions are
+    dependent on the ORM implementation used.
+
+    The SystemControl allows you to control all these aspects of the
+    database. It does so by delegating methods relating to the
+    database backend to a :class:`DatabaseControl` of the correct
+    kind, and by delegating the methods relating to ORM operations to
+    an :class:`ORMControl` of the correct kind.
+
+    The type of :class:`DatabaseControl` used is inferred from the
+    configured `reahlsystem.connection_uri` in `reahl.config.py`. The
+    actual :class:`ORMControl` used is configured as the
+    `reahlsystem.orm_control` in `reahl.config.py`.
+
+    A programmer should use the SystemControl of the system as
+    programmatic interface to the database without regard for which
+    technology-specific classes it delegates to in order to do its
+    work.
+
+    """
     def __init__(self, config):
         self.config = config
         self.connection_uri = self.config.reahlsystem.connection_uri
@@ -42,6 +73,7 @@ class SystemControl(object):
         self.orm_control.system_control = self
 
     def connect(self):
+        """Connects and logs into the database."""
         self.orm_control.connect()
         if self.db_control.is_in_memory:
             self.create_db_tables()
@@ -59,9 +91,11 @@ class SystemControl(object):
 
     @property
     def connected(self):
+        """Returns True if the system is currently connected to the database."""
         return self.orm_control.connected
 
     def disconnect(self):
+        """Disconnects from the database."""
         self.orm_control.disconnect()
 
     def managed_transaction(self):
@@ -77,9 +111,11 @@ class SystemControl(object):
         self.orm_control.set_transaction_and_connection(transaction)
 
     def commit(self):
+        """Commits the database."""
         self.orm_control.commit()
 
     def rollback(self):
+        """Rolls back the database."""
         self.orm_control.rollback()
 
     def db_control_for_uri(self, url):
@@ -92,19 +128,23 @@ class SystemControl(object):
         return getattr(self.db_control, name)
 
     def size_database(self):
+        """Returns the current size of the database."""
         with self.orm_control.managed_transaction():
             return self.db_control.size_database(self.orm_control)
 
     def create_db_tables(self):
+        """Creates the underlying database schema."""
         eggs_in_order = ReahlEgg.get_all_relevant_interfaces(self.config.reahlsystem.root_egg)
         with self.orm_control.managed_transaction() as transaction:
             return self.orm_control.create_db_tables(transaction, eggs_in_order)
 
     def drop_db_tables(self):
+        """Removes the underlying database schema."""
         with self.orm_control.managed_transaction() as transaction:
             return self.orm_control.drop_db_tables(transaction)
 
     def initialise_database(self, yes=False):
+        """Ensures a new clean database exists, with a schema created. This drops an existing database if one is present."""
         self.drop_database(yes=yes)
         self.create_database()
         self.connect()
@@ -114,19 +154,64 @@ class SystemControl(object):
             self.disconnect()
 
     def migrate_db(self):
+        """Runs the database migrations relevant to the current system."""
         eggs_in_order = ReahlEgg.get_all_relevant_interfaces(self.config.reahlsystem.root_egg)
         self.orm_control.migrate_db(eggs_in_order)
         return 0
 
     def diff_db(self):
+        """Computes the changes in schema iwetween the current database and what the current system expects."""
         return self.orm_control.diff_db()
 
     def do_daily_maintenance(self):
+        """Runs the all the scheduled jobs relevant to the current system."""
         with self.orm_control.managed_transaction() as transaction:
             ReahlEgg.do_daily_maintenance_for_egg(self.config.reahlsystem.root_egg)
 
+    def create_db_user(self, super_user_name=None, create_with_password=True):
+        """Creates the database user."""
+        return self.db_control.create_db_user(super_user_name=super_user_name, create_with_password=create_with_password)
+
+    def drop_db_user(self, super_user_name=None):
+        """Drops the database user."""
+        return self.db_control.drop_db_user(super_user_name=super_user_name)
+    
+    def drop_database(self, super_user_name=None, yes=False):
+        """Drops the database (if it exists)."""
+        return self.db_control.drop_database(super_user_name=super_user_name, yes=yes)
+    
+    def create_database(self, super_user_name=None):
+        """Creates the database."""
+        return self.db_control.create_database(super_user_name=super_user_name)
+    
+    def backup_database(self, directory, super_user_name=None):
+        """Backs up the database."""
+        return self.db_control.backup_database(directory, super_user_name=super_user_name)
+    
+    def backup_all_databases(self, directory, super_user_name=None):
+        """Backs up all databases on the current machine."""
+        return self.db_control.backup_all_databases(directory, super_user_name=super_user_name)
+    
+    def restore_database(self, filename, super_user_name=None):
+        """Restores a databases from thexs given backup."""
+        return self.db_control.restore_database(directory, super_user_name=super_user_name)
+    
+    def restore_all_databases(self, filename, super_user_name=None):
+        """Restores all databases from the given backup."""
+        return self.db_control.restore_all_databases(directory, super_user_name=super_user_name)
+
+    
 
 class DatabaseControl(object):
+    """An interface to the underlying database backend technology used. 
+
+    This class has the responsibility to manage the low-level backend
+    operations, such as creating/dropping databases or users.
+
+    In order to support a new type of database, subclass this class
+    and implement its methods appropriately for that backend.
+
+    """
     control_matching_regex = r'^$'
     def __init__(self, url, config):
         self.config = config
@@ -153,6 +238,7 @@ class DatabaseControl(object):
 
 
 class NullDatabaseControl(DatabaseControl):
+    """A stubbed-out :class:`DatabaseControl` for systems that do not have any database at all."""
     uri_regex_string = r''
 
     def donothing(self, *args, **kwargs):
@@ -163,6 +249,16 @@ class NullDatabaseControl(DatabaseControl):
 
 
 class ORMControl(object):
+    """An interface to higher-level database operations that may be dependent on the ORM technology used.
+
+    This class has the responsibility to manage the higher-level
+    backend operations, such as instrumenting persisted classes,
+    creating database schemas, migration, etc.
+
+    In order to support a new type of ORM, subclass this class
+    and implement its methods appropriately for that ORM.
+
+    """
     def migrate_db(self, eggs_in_order):
         with self.managed_transaction():
             migration_run = MigrationRun(self, eggs_in_order)
