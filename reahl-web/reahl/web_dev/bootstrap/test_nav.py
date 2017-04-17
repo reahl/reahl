@@ -1,4 +1,3 @@
-
 # Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
