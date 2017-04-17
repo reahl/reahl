@@ -145,8 +145,7 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
-            field = fixture.model_object.fields.an_attribute
-            field.add_validation_constraint(constraint)
+            field = fixture.model_object.fields.an_attribute.as_with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -172,8 +171,7 @@ def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
-            field = fixture.model_object.fields.an_attribute
-            field.add_validation_constraint(constraint)
+            field = fixture.model_object.fields.an_attribute.as_with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
@@ -195,8 +193,7 @@ def test_max_length_constraint_js(web_fixture, constraint_rendering_fixture):
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
-            field = fixture.model_object.fields.an_attribute
-            field.add_validation_constraint(constraint)
+            field = fixture.model_object.fields.an_attribute.as_with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
@@ -219,8 +216,7 @@ def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
-            field = fixture.model_object.fields.an_attribute
-            field.add_validation_constraint(constraint)
+            field = fixture.model_object.fields.an_attribute.as_with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
@@ -247,8 +243,7 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
-            field = fixture.model_object.fields.an_attribute
-            field.add_validation_constraint(constraint)
+            field = fixture.model_object.fields.an_attribute.as_with_validation_constraint(constraint)
             self.add_child(TextInput(self, field))
 
     wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
@@ -277,8 +272,7 @@ def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
     class MyForm(Form):
         def __init__(self, view, name):
             super(MyForm, self).__init__(view, name)
-            field = model_object.fields.an_attribute
-            field.add_validation_constraint(constraint)
+            field = fixture.model_object.fields.an_attribute.as_with_validation_constraint(constraint)
             other_input = self.add_child(TextInput(self, model_object.fields.other))
             other_input.set_id('other')
             one_input = self.add_child(TextInput(self, field))
