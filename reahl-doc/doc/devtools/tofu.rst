@@ -81,11 +81,6 @@ check_limitation
 
 .. autofunction:: reahl.tofu.check_limitation
 
-vassert
-"""""""
-
-.. autoclass:: reahl.tofu.vassert
-
 
 Temporary files and directories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

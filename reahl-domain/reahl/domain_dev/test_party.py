@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import Column, ForeignKey, Integer
 
 from reahl.sqlalchemysupport import Session
-from reahl.tofu import vassert, assert_recent, expected
+from reahl.tofu import assert_recent, expected
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass
 
@@ -41,7 +41,12 @@ from reahl.domain_dev.fixtures import PartyAccountFixture
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
+def assert_not_set_to_commit(e):
+    assert not e.commit
+def assert_is_set_to_commit(e):
+    assert e.commit
 
+    
 @with_fixtures(ReahlSystemFixture, PartyAccountFixture)
 def test_create_account(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
@@ -173,7 +178,7 @@ def test_uniqueness_of_request_keys(sql_alchemy_fixture, party_account_fixture):
         assert request1.as_secret_key() != clashing_request.as_secret_key()
         assert request2.as_secret_key() != clashing_request.as_secret_key()
 
-
+    
 @with_fixtures(PartyAccountFixture)
 def test_activate_via_key(party_account_fixture):
     fixture = party_account_fixture
@@ -190,7 +195,7 @@ def test_activate_via_key(party_account_fixture):
     # Case where there is an email mismatch
     account_management_interface.email = 'bad@email.com'
     account_management_interface.secret = activation_request.as_secret_key()
-    with expected(InvalidEmailException, test=lambda e: vassert(e.commit)):
+    with expected(InvalidEmailException, test=assert_is_set_to_commit):
         account_management_interface.verify_email()
     assert not system_account.registration_activated
 
@@ -418,7 +423,7 @@ def test_verify_email_change(party_account_fixture):
     account_management_interface.email = new_email
     account_management_interface.password = 'bad password'
     account_management_interface.secret = request.as_secret_key()
-    with expected(InvalidPasswordException, test=lambda e: vassert(e.commit)):
+    with expected(InvalidPasswordException, test=assert_is_set_to_commit):
         account_management_interface.verify_email()
     assert system_account.email != new_email
 
@@ -461,7 +466,7 @@ def test_logging_in(reahl_system_fixture, party_account_fixture):
     account_management_interface.email = system_account.email
     account_management_interface.password = 'gobbledegook'
     for i in list(range(3)):
-        with expected(InvalidPasswordException, test=lambda e: vassert(e.commit)):
+        with expected(InvalidPasswordException, test=assert_is_set_to_commit):
             account_management_interface.log_in()
         assert system_account.failed_logins == i+1
 
@@ -487,7 +492,7 @@ def test_logging_in(reahl_system_fixture, party_account_fixture):
     # Case: Login for nonexistant email name
     account_management_interface.email = 'i@do not exist'
     account_management_interface.password = 'gobbledegook'
-    with expected(InvalidPasswordException, test=lambda e: vassert(not e.commit)):
+    with expected(InvalidPasswordException, test=assert_not_set_to_commit):
         account_management_interface.log_in()
     assert login_session.account is None
 

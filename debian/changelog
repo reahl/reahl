@@ -16,7 +16,9 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Upgraded dependency on setuptools.
  * Added workaround for https://github.com/pypa/setuptools/issues/97.
  * Changed Fixtures extensively to work with pytest instead of nosetests (in response to #71).
+ * Removed vassert function from reahl.tofu (in favour of pytest's assert).
  * Removed support of Fixture.del_ methods in favour of letting new_ methods yield.
+ * Merged WebExecutionContext into ExecutionContext.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Jun 2016 08:47:00 +0200
 
