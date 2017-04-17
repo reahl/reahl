@@ -19,21 +19,21 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, test
-
-from reahl.web_dev.fixtures import WebFixture
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web.bootstrap.ui import Alert
 
+from reahl.web_dev.fixtures import WebFixture
 
 
-@test(WebFixture)
-def alerts(fixture):
+@with_fixtures(WebFixture)
+def test_alerts(web_fixture):
     """An alert is used to display a message with a specific severity"""
 
-    alert = Alert(fixture.view, 'Be careful', 'danger')
 
-    vassert( alert.get_attribute('class') == 'alert alert-danger' )
-    vassert( alert.get_attribute('role') == 'alert' )
+    alert = Alert(web_fixture.view, 'Be careful', 'danger')
+
+    assert alert.get_attribute('class') == 'alert alert-danger'
+    assert alert.get_attribute('role') == 'alert'
     [message] = alert.children
-    vassert( message.value == 'Be careful' )
+    assert message.value == 'Be careful'

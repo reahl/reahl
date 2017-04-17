@@ -21,11 +21,13 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 import os.path
 
-from reahl.tofu import test, Fixture
-from reahl.tofu import temp_dir, vassert, assert_recent
+from reahl.tofu import Fixture
+from reahl.tofu import temp_dir, assert_recent
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.shelltools import Executable
 from reahl.dev.devdomain import Git
+
 
 class GitFixture(Fixture):
     def new_git_directory(self, initialised=True):
@@ -35,45 +37,52 @@ class GitFixture(Fixture):
                 Executable('git').check_call(['init'], cwd=git_directory.name, stdout=DEVNULL, stderr=DEVNULL)
         return git_directory
 
-        
-@test(GitFixture)
-def is_version_controlled(fixture):
+
+@with_fixtures(GitFixture)
+def test_is_version_controlled(git_fixture):
+    fixture = git_fixture
     non_initialised_directory = fixture.new_git_directory(initialised=False)
     git = Git(non_initialised_directory.name)
-    vassert( not git.is_version_controlled() )
+    assert not git.is_version_controlled()
 
     git = Git(fixture.git_directory.name)
-    vassert( git.is_version_controlled() )
+    assert git.is_version_controlled()
 
-@test(GitFixture)
-def is_checked_in(fixture):
+
+@with_fixtures(GitFixture)
+def test_is_checked_in(git_fixture):
+    fixture = git_fixture
     git = Git(fixture.git_directory.name)
-    vassert( git.is_checked_in() )
+    assert git.is_checked_in()
 
     open(os.path.join(fixture.git_directory.name, 'afile'), 'w').close()
-    vassert( not git.is_checked_in() )
+    assert not git.is_checked_in()
     
-@test(GitFixture)
-def last_commit_time(fixture):
+
+@with_fixtures(GitFixture)
+def test_last_commit_time(git_fixture):
+    fixture = git_fixture
     git = Git(fixture.git_directory.name)
     git.commit('testing', allow_empty=True)
 
     assert_recent( git.last_commit_time )
 
-@test(GitFixture)
-def tag_related(fixture):
+
+@with_fixtures(GitFixture)
+def test_tag_related(git_fixture):
+    fixture = git_fixture
     git = Git(fixture.git_directory.name)
     git.commit('testing', allow_empty=True)
 
-    vassert( git.get_tags() == [] )
+    assert git.get_tags() == []
     git.tag('mytag')
-    vassert( git.get_tags(head_only=True) == ['mytag'] )
-    vassert( git.get_tags() == ['mytag'] )
+    assert git.get_tags(head_only=True) == ['mytag']
+    assert git.get_tags() == ['mytag']
 
     git.commit('testing', allow_empty=True)
     git.tag('lasttag')
-    vassert( git.get_tags(head_only=True) == ['lasttag'] )
-    vassert( git.get_tags() == ['lasttag', 'mytag'] )
+    assert git.get_tags(head_only=True) == ['lasttag']
+    assert git.get_tags() == ['lasttag', 'mytag']
 
 
 

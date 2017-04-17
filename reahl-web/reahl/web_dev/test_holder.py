@@ -19,64 +19,64 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, expected, test
+from reahl.tofu import expected
+from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import WidgetTester
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.holder.holder import PlaceholderImage, PredefinedTheme, CustomTheme
 
+from reahl.web_dev.fixtures import WebFixture
 
-@test(WebFixture)
-def placeholder_basics(fixture):
+
+@with_fixtures(WebFixture)
+def test_placeholder_basics(web_fixture):
     """
        hint: Ensure the Holder(Library) is added to the  web.frontend_libraries config setting in the file:web.config.py
     """
-
-    placeholder = PlaceholderImage(fixture.view, 20, 30)
+    placeholder = PlaceholderImage(web_fixture.view, 20, 30)
 
     tester = WidgetTester(placeholder)
 
     expected_html = '<img data-src="holder.js/20x30">'
     actual = tester.render_html()
-    vassert( actual == expected_html )
+    assert actual == expected_html
 
 
-@test(WebFixture)
-def placeholder_with_text(fixture):
+@with_fixtures(WebFixture)
+def test_placeholder_with_text(web_fixture):
 
-    placeholder = PlaceholderImage(fixture.view, 20, 30, text='My banner')
+    placeholder = PlaceholderImage(web_fixture.view, 20, 30, text='My banner')
 
     expected_value = 'holder.js/20x30?text=My banner'
     actual_value = placeholder.get_attribute('data-src')
-    vassert( actual_value == expected_value )
+    assert actual_value == expected_value
 
 
-@test(WebFixture)
-def placeholder_with_predefine_theme(fixture):
+@with_fixtures(WebFixture)
+def test_placeholder_with_predefine_theme(web_fixture):
 
     my_theme = PredefinedTheme('lava')
-    placeholder = PlaceholderImage(fixture.view, 20, 30, theme=my_theme)
+    placeholder = PlaceholderImage(web_fixture.view, 20, 30, theme=my_theme)
 
     expected_value = 'holder.js/20x30?theme=lava'
     actual_value = placeholder.get_attribute('data-src')
-    vassert( actual_value == expected_value )
+    assert actual_value == expected_value
 
 
-@test(WebFixture)
-def text_and_theme_options_are_encoded(fixture):
+@with_fixtures(WebFixture)
+def test_text_and_theme_options_are_encoded(web_fixture):
 
     my_theme = CustomTheme(bg='white', fg='red')
-    placeholder = PlaceholderImage(fixture.view, 20, 30, text='My sê goed', theme=my_theme)
+    placeholder = PlaceholderImage(web_fixture.view, 20, 30, text='My sê goed', theme=my_theme)
 
     expected_value = 'holder.js/20x30?bg=white&fg=red&text=My sê goed'
     actual_value = placeholder.get_attribute('data-src')
-    vassert( actual_value == expected_value )
+    assert actual_value == expected_value
 
 
-@test(WebFixture)
-def custom_theme_options_become_text(fixture):
+def test_custom_theme_options_become_text():
 
     my_theme = CustomTheme(bg='yellow', fg='blue',
                            text_size=12, text_font='arial', text_align='left',
@@ -84,17 +84,16 @@ def custom_theme_options_become_text(fixture):
 
     options_dict = my_theme
 
-    vassert( options_dict.get('bg') == 'yellow' )
-    vassert( options_dict.get('fg') == 'blue' )
-    vassert( options_dict.get('size') == '12' )
-    vassert( options_dict.get('font') == 'arial' )
-    vassert( options_dict.get('align') == 'left' )
-    vassert( options_dict.get('outline') == 'yes' )
-    vassert( options_dict.get('lineWrap') == '0.5' )
+    assert options_dict.get('bg') == 'yellow'
+    assert options_dict.get('fg') == 'blue'
+    assert options_dict.get('size') == '12'
+    assert options_dict.get('font') == 'arial'
+    assert options_dict.get('align') == 'left'
+    assert options_dict.get('outline') == 'yes'
+    assert options_dict.get('lineWrap') == '0.5'
 
 
-@test(WebFixture)
-def custom_theme_text_align_valid_values(fixture):
+def test_custom_theme_text_align_valid_values():
 
     #valid options
     CustomTheme(text_align='left')

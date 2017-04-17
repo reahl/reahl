@@ -18,21 +18,18 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import pkg_resources
 
 
-from nose.tools import istest
-from reahl.tofu import Fixture
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import Fixture, set_up, uses
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import easter_egg
+
 from sqlalchemy import Column, Integer, ForeignKey
 
 from reahl.domain.workflowmodel import Task
-from reahl.domain_dev.test_workflow import TaskQueueZooMixin
 from reahl.domainui.bootstrap.workflow import InboxUI, TaskWidget
 from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domainuiegg import DomainUiConfig
 from reahl.domainui_dev.fixtures import BookmarkStub
 
-from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 
 from reahl.web.fw import UserInterface, Url
@@ -40,10 +37,22 @@ from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
 
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
+from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.web_dev.fixtures import WebFixture
+from reahl.domain_dev.test_workflow import TaskQueueFixture2
 
-class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
+
+@uses(reahl_system_fixture=ReahlSystemFixture,
+      sql_alchemy_fixture=SqlAlchemyFixture,
+      party_account_fixture=PartyAccountFixture,
+      web_fixture=WebFixture,
+      task_queue_fixture=TaskQueueFixture2)
+class WorkflowWebFixture(Fixture):
+
     def new_queues(self):
-        return [self.queue]
+        return [self.task_queue_fixture.queue]
     
     def new_account_bookmarks(self):
         class Bookmarks(object):
@@ -54,30 +63,25 @@ class WorkflowWebFixture(Fixture, WebBasicsMixin, TaskQueueZooMixin):
 
     def new_wsgi_app(self, enable_js=False):
         fixture = self
+
         def get_queues():
             return fixture.queues
+
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
                                                                   contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots()))
                 accounts = self.define_user_interface('/accounts', AccountUI, {'main_slot': 'main'},
-                                              name='test_ui', bookmarks=fixture.account_bookmarks)
+                                                      name='test_ui', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
                 self.define_user_interface('/inbox',  InboxUI,  {'main_slot': 'main'}, 
-                                   name='test_ui', login_bookmark=login_bookmark, get_queues=get_queues)
-        return super(WorkflowWebFixture, self).new_wsgi_app(enable_js=enable_js,
-                                                         site_root=MainUI)
+                                           name='test_ui', login_bookmark=login_bookmark, get_queues=get_queues)
+        return self.web_fixture.new_wsgi_app(enable_js=enable_js, site_root=MainUI)
 
-    def new_system_account(self):
-        account = super(WorkflowWebFixture, self).new_system_account()
-        account.party = self.party
-        return account
-
-    def new_config(self):
-        config = super(WorkflowWebFixture, self).new_config()
+    @set_up
+    def add_domain_config(self):
+        config = self.reahl_system_fixture.config
         config.workflowui = DomainUiConfig()
-        return config
-
 
 
 class MyTask(Task):
@@ -95,59 +99,62 @@ class MyTaskWidget(TaskWidget):
         self.add_child(P(self.view, text='my task widget'))
 
 
-@istest
-class Tests(object):
-    @test(WorkflowWebFixture)
-    def detour_to_login(self, fixture):
+@with_fixtures(WebFixture, PartyAccountFixture, WorkflowWebFixture)
+def test_detour_to_login(web_fixture, party_account_fixture, workflow_web_fixture):
+    fixture = workflow_web_fixture
+
+    browser = Browser(fixture.wsgi_app)
+
+    browser.open('/inbox/')
+    assert browser.location_path == '/accounts/login'
+    browser.type('//input[@name="email"]', party_account_fixture.system_account.email)
+    browser.type('//input[@name="password"]', party_account_fixture.system_account.password)
+    browser.click('//input[@value="Log in"]')
+    assert browser.location_path == '/inbox/'
+
+
+@with_fixtures(WebFixture, TaskQueueFixture2, WorkflowWebFixture)
+def test_take_and_release_task(web_fixture, task_queue_fixture, workflow_web_fixture):
+    fixture = workflow_web_fixture
+
+    browser = Browser(fixture.wsgi_app)
+    task = task_queue_fixture.task
+
+    take_task_button = '//input[@value="Take"]'
+    defer_task_button = '//input[@value="Defer"]'
+    release_task_button = '//input[@value="Release"]'
+    go_to_task_button = '//input[@value="Go to"]'
+
+    web_fixture.log_in(browser=browser)
+    browser.open('/inbox/')
+
+    browser.click(take_task_button)
+    assert browser.location_path == '/inbox/task/%s' % task.id
+
+    browser.click(defer_task_button)
+    assert browser.location_path == '/inbox/'
+
+    browser.click(go_to_task_button)
+    assert browser.location_path == '/inbox/task/%s' % task.id
+
+    browser.click(release_task_button)
+    assert browser.location_path == '/inbox/'
+
+
+@with_fixtures(WebFixture, SqlAlchemyFixture, TaskQueueFixture2, WorkflowWebFixture)
+def test_widgets_for_tasks(web_fixture, sql_alchemy_fixture, task_queue_fixture, workflow_web_fixture):
+    """The widget to use for displaying a particular type of task can be set via an entry point."""
+    fixture = workflow_web_fixture
+
+    pkg_resources.working_set.add(easter_egg)
+    line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.test_workflow:MyTaskWidget'
+    easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
+
+    with sql_alchemy_fixture.persistent_test_classes(MyTask):
+        task = MyTask(queue=task_queue_fixture.queue, title='a task')
+
         browser = Browser(fixture.wsgi_app)
-
-        browser.open('/inbox/')
-        vassert( browser.location_path == '/accounts/login' )
-        browser.type('//input[@name="email"]', fixture.system_account.email)
-        browser.type('//input[@name="password"]', fixture.system_account.password)
-        browser.click('//input[@value="Log in"]')
-        vassert( browser.location_path == '/inbox/' )
-        
-        
-
-    @test(WorkflowWebFixture)
-    def take_and_release_task(self, fixture):
-        browser = Browser(fixture.wsgi_app)
-        task = fixture.task
-
-        take_task_button = '//input[@value="Take"]'
-        defer_task_button = '//input[@value="Defer"]'
-        release_task_button = '//input[@value="Release"]'
-        go_to_task_button = '//input[@value="Go to"]'
-
-        fixture.log_in(browser=browser)
-        browser.open('/inbox/')
-    
-        browser.click(take_task_button)
-        vassert( browser.location_path == '/inbox/task/%s' % task.id )
-
-        browser.click(defer_task_button)
-        vassert( browser.location_path == '/inbox/' )
-        
-        browser.click(go_to_task_button)
-        vassert( browser.location_path == '/inbox/task/%s' % task.id )
-
-        browser.click(release_task_button)
-        vassert( browser.location_path == '/inbox/' )
-
-    @test(WorkflowWebFixture)
-    def widgets_for_tasks(self, fixture):
-        """The widget to use for displaying a particular type of task can be set via an entry point."""
-        pkg_resources.working_set.add(easter_egg)
-        line = 'MyTaskWidget = reahl.domainui_dev.bootstrap.test_workflow:MyTaskWidget'
-        easter_egg.add_entry_point_from_line('reahl.workflowui.task_widgets', line)
-
-        with fixture.persistent_test_classes(MyTask):
-            task = MyTask(queue=fixture.queue, title='a task')
-
-            browser = Browser(fixture.wsgi_app)
-            fixture.log_in(browser=browser)
-            browser.open('/inbox/task/%s' % task.id )
-            html = browser.get_html_for('//div/p')
-            vassert( html == '<p>my task widget</p>' )
-
+        web_fixture.log_in(browser=browser)
+        browser.open('/inbox/task/%s' % task.id )
+        html = browser.get_html_for('//div/p')
+        assert html == '<p>my task widget</p>'

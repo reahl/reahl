@@ -22,16 +22,13 @@ import six
 import time
 
 from reahl.stubble import easter_egg, stubclass, EmptyStub
-from nose.tools import istest
-from reahl.tofu import Fixture, test, set_up, tear_down, scenario
-from reahl.tofu import temp_file_with, vassert, expected
+from reahl.tofu import Fixture, set_up, tear_down, scenario, uses, temp_file_with, expected
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.dev.xmlreader import XMLReader, DoubleRegistrationException, TagNotRegisteredException
 
 
-#--------------------------------------------------[ fixtures ]
-
-
+# --------------------------------------------------[ fixtures ]
 class BasicObjectSetup(Fixture):
     tag_name = 'anObject'
     string = 'something'
@@ -52,6 +49,10 @@ class BasicObjectSetup(Fixture):
     def init_easter_egg(self):
         easter_egg.add_to_working_set()
 
+    @property
+    def easter_egg(self):
+        return easter_egg
+
     def new_reader(self):
         return XMLReader()
 
@@ -60,7 +61,9 @@ class BasicObjectSetup(Fixture):
         self.file.close()
 
 
-class ConfiguredReader(BasicObjectSetup):
+@uses(basic_object_setup=BasicObjectSetup)
+class ConfiguredReader(Fixture):
+
     class TestClass1(object):
         @classmethod
         def get_xml_registration_info(cls):
@@ -72,14 +75,16 @@ class ConfiguredReader(BasicObjectSetup):
             return ('2', cls, 'asd')
 
     def new_reader(self):
-        easter_egg.add_entry_point_from_line('reahl.dev.xmlclasses',
-                                     'test1 = reahl.dev_dev.test_xmlreader:ConfiguredReader.TestClass1')
-        easter_egg.add_entry_point_from_line('reahl.dev.xmlclasses',
-                                     'test2 = reahl.dev_dev.test_xmlreader:ConfiguredReader.TestClass2')
+        egg = self.basic_object_setup.easter_egg
+        egg.add_entry_point_from_line('reahl.dev.xmlclasses',
+                                      'test1 = reahl.dev_dev.test_xmlreader:ConfiguredReader.TestClass1')
+        egg.add_entry_point_from_line('reahl.dev.xmlclasses',
+                                      'test2 = reahl.dev_dev.test_xmlreader:ConfiguredReader.TestClass2')
 
         @stubclass(XMLReader)
         class XMLReaderStub(XMLReader):
             registered = {}
+
             def register(self, tag_name, class_to_instantiate, type_name=None):
                 self.registered[class_to_instantiate] = (tag_name, class_to_instantiate, type_name)
 
@@ -169,92 +174,102 @@ class TimeStampedInflationSetup(CompositeObjectSetup):
         return OuterClass
 
 
-#--------------------------------------------------[ tests ]
-@istest
-class XMLReaderTests(object):
+# --------------------------------------------------[ a basic object ]
+@with_fixtures(BasicObjectSetup)
+def test_read_basic_object(basic_object_setup):
+    fixture = basic_object_setup
+    fixture.reader.register(fixture.tag_name, fixture.test_class)
+    parent = EmptyStub()
+    read_object = fixture.reader.read_file(fixture.file, parent)
 
-    #--------------------------------------------------[ a basic object ]
-    @test(BasicObjectSetup)
-    def read_basic_object(self, fixture):
-        fixture.reader.register(fixture.tag_name, fixture.test_class)
-        parent = EmptyStub()
-        read_object = fixture.reader.read_file(fixture.file, parent)
+    assert isinstance(read_object, fixture.test_class)
+    assert read_object.attr1 == fixture.string
+    assert read_object.attr2 == fixture.integer
+    assert read_object.parent is parent
 
-        vassert( isinstance(read_object, fixture.test_class) )
-        vassert( read_object.attr1 == fixture.string )
-        vassert( read_object.attr2 == fixture.integer )
-        vassert( read_object.parent is parent )
 
-    @test(BasicObjectSetup)
-    def exception_on_double_register(self, fixture):
-        fixture.reader.register(fixture.tag_name, fixture.test_class)
+@with_fixtures(BasicObjectSetup)
+def test_exception_on_double_register(basic_object_setup):
+    fixture = basic_object_setup
+    fixture.reader.register(fixture.tag_name, fixture.test_class)
 
-        with expected(DoubleRegistrationException):
-            fixture.reader.register(fixture.tag_name, fixture.test_class)
-
-    @test(BasicObjectSetup)
-    def exception_on_not_registered(self, fixture):
-        with expected(TagNotRegisteredException):
-            fixture.reader.read_file(fixture.file, None)
-
-    #--------------------------------------------------[ a composite object ]
-    @test(CompositeObjectSetup)
-    def read_composite_object(self, fixture):
-        fixture.reader.register(fixture.inner_tag_name, fixture.inner_class)
+    with expected(DoubleRegistrationException):
         fixture.reader.register(fixture.tag_name, fixture.test_class)
 
-        read_object = fixture.reader.read_file(fixture.file, None)
 
-        vassert(isinstance(read_object, fixture.test_class))
-        vassert(len(read_object.inner) == 1)
-        child = read_object.inner[0][1]
-        child_tag = read_object.inner[0][0]
-        vassert(isinstance(child, fixture.inner_class))
-        vassert(child_tag == fixture.inner_tag_name)
-        vassert(child.attr1 == fixture.string)
-        vassert(child.attr2 == fixture.integer)
-        vassert(child.parent is read_object)
-
-    @test(MultipleClassesForTag)
-    def read_objects_with_same_tag_and_different_type_attribute(self, fixture):
-        fixture.reader.register(fixture.inner_tag_name, fixture.inner_class, fixture.innerType1)
-        fixture.reader.register(fixture.inner_tag_name, fixture.inner_class2, fixture.innerType2)
-        fixture.reader.register(fixture.tag_name, fixture.test_class)
-
-        read_object = fixture.reader.read_file(fixture.file, None)
-
-        vassert(isinstance(read_object, fixture.test_class))
-        vassert(len(read_object.inner) == 2)
-
-        vassert(isinstance(read_object.inner[0][1], fixture.inner_class))
-        vassert(read_object.inner[0][1].attr1 == fixture.string)
-        vassert(read_object.inner[0][1].attr2 == fixture.integer)
-
-        vassert(isinstance(read_object.inner[1][1], fixture.inner_class2))
-
-    #--------------------------------------------------[ simple object with text content ]
-    @test(TextObjectSetup)
-    def read_text_object(self, fixture):
-        fixture.reader.register(fixture.tag_name, fixture.test_class)
-        read_object = fixture.reader.read_file(fixture.file, None)
-        if fixture.text:
-            vassert(read_object.text == fixture.text)
-        else:
-            vassert(not hasattr(read_object, 'text'))
-
-    #--------------------------------------------------[ order of inflation method calls ]
-    @test(TimeStampedInflationSetup)
-    def order_of_methods_calls_is_correct(self, fixture):
-        fixture.reader.register(fixture.inner_tag_name, fixture.inner_class)
-        fixture.reader.register(fixture.tag_name, fixture.test_class)
-
-        read_object = fixture.reader.read_file(fixture.file, None)
-
-        vassert(read_object.attribute_stamp < read_object.child_stamp < read_object.check_stamp)
+@with_fixtures(BasicObjectSetup)
+def test_exception_on_not_registered(basic_object_setup):
+    fixture = basic_object_setup
+    with expected(TagNotRegisteredException):
+        fixture.reader.read_file(fixture.file, None)
 
 
-    #--------------------------------------------------[ configuration ]
-    @test(ConfiguredReader)
-    def available_classes_from_plugins_are_registered(self, fixture):
-        for cls in [fixture.TestClass1, fixture.TestClass2]:
-            vassert( fixture.reader.registered[cls] == cls.get_xml_registration_info() )
+# --------------------------------------------------[ a composite object ]
+@with_fixtures(CompositeObjectSetup)
+def test_read_composite_object(composite_object_setup):
+    fixture = composite_object_setup
+    fixture.reader.register(fixture.inner_tag_name, fixture.inner_class)
+    fixture.reader.register(fixture.tag_name, fixture.test_class)
+
+    read_object = fixture.reader.read_file(fixture.file, None)
+
+    assert isinstance(read_object, fixture.test_class)
+    assert len(read_object.inner) == 1
+    child = read_object.inner[0][1]
+    child_tag = read_object.inner[0][0]
+    assert isinstance(child, fixture.inner_class)
+    assert child_tag == fixture.inner_tag_name
+    assert child.attr1 == fixture.string
+    assert child.attr2 == fixture.integer
+    assert child.parent is read_object
+
+
+@with_fixtures(MultipleClassesForTag)
+def test_read_objects_with_same_tag_and_different_type_attribute(multiple_classes_for_tag):
+    fixture = multiple_classes_for_tag
+    fixture.reader.register(fixture.inner_tag_name, fixture.inner_class, fixture.innerType1)
+    fixture.reader.register(fixture.inner_tag_name, fixture.inner_class2, fixture.innerType2)
+    fixture.reader.register(fixture.tag_name, fixture.test_class)
+
+    read_object = fixture.reader.read_file(fixture.file, None)
+
+    assert isinstance(read_object, fixture.test_class)
+    assert len(read_object.inner) == 2
+
+    assert isinstance(read_object.inner[0][1], fixture.inner_class)
+    assert read_object.inner[0][1].attr1 == fixture.string
+    assert read_object.inner[0][1].attr2 == fixture.integer
+
+    assert isinstance(read_object.inner[1][1], fixture.inner_class2)
+
+
+# --------------------------------------------------[ simple object with text content ]
+@with_fixtures(TextObjectSetup)
+def test_read_text_object(text_object_setup):
+    fixture = text_object_setup
+    fixture.reader.register(fixture.tag_name, fixture.test_class)
+    read_object = fixture.reader.read_file(fixture.file, None)
+    if fixture.text:
+        assert read_object.text == fixture.text
+    else:
+        assert not hasattr(read_object, 'text')
+
+
+# --------------------------------------------------[ order of inflation method calls ]
+@with_fixtures(TimeStampedInflationSetup)
+def test_order_of_methods_calls_is_correct(time_stamped_inflation_setup):
+    fixture = time_stamped_inflation_setup
+    fixture.reader.register(fixture.inner_tag_name, fixture.inner_class)
+    fixture.reader.register(fixture.tag_name, fixture.test_class)
+
+    read_object = fixture.reader.read_file(fixture.file, None)
+
+    assert read_object.attribute_stamp < read_object.child_stamp < read_object.check_stamp
+
+
+# --------------------------------------------------[ configuration ]
+@with_fixtures(ConfiguredReader)
+def test_available_classes_from_plugins_are_registered(configured_reader):
+    fixture = configured_reader
+    for cls in [fixture.TestClass1, fixture.TestClass2]:
+        assert fixture.reader.registered[cls] == cls.get_xml_registration_info()

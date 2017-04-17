@@ -13,24 +13,25 @@ package reahl.component{
 	class Configuration
 }
 
+package reahl.webdeclarative{
+	class UserSession
+}
+
 package reahl.web{
 	class UserSessionProtocol
-	class WebExecutionContext
+	class Request
 	class Url{
 		locale_path
 	}
 }
 
 
-package reahl.webdeclarative{
-	class UserSession
-}
 
 ExecutionContext -right- Configuration
-ExecutionContext <|-- WebExecutionContext
-WebExecutionContext -right- Url : current_url
+ExecutionContext -- Request
+Request -right- Url : current_url
 UserSessionProtocol <-[dotted]- UserSession
-UserSession -- WebExecutionContext
+UserSession -- ExecutionContext
 
 
 

@@ -2,17 +2,21 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 
-from reahl.tofu import test
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
 from reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap import AddressBookUI, Address
 
+from reahl.web_dev.fixtures import WebFixture
 
-class ConfigFixture(WebFixture):
+
+@uses(web_fixture=WebFixture)
+class ConfigFixture(Fixture):
+
     def new_wsgi_app(self):
-        return super(ConfigFixture, self).new_wsgi_app(site_root=AddressBookUI)
+        return self.web_fixture.new_wsgi_app(site_root=AddressBookUI)
 
     def new_existing_address(self):
         address = Address(name='John Doe', email_address='johndoe@some.org')
@@ -29,37 +33,37 @@ class ConfigFixture(WebFixture):
         return self.browser.is_element_present(XPath.heading_with_text(1, 'Addresses'))
 
 
-@test(ConfigFixture)
-def add_address(fixture):
+@with_fixtures(WebFixture, ConfigFixture)
+def test_add_address(web_fixture, config_fixture):
     """A user can add an address, after which the address is listed."""
-    browser = fixture.browser
-    
+
+    browser = config_fixture.browser
+
     browser.open('/')
     browser.type(XPath.input_labelled('Name'), 'John')
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
 
     browser.click(XPath.button_labelled('Save'))
-    
-    assert fixture.address_is_listed_as('John', 'johndoe@some.org')
+
+    assert config_fixture.address_is_listed_as('John', 'johndoe@some.org')
 
 
-@test(ConfigFixture)
-def config_was_read_from_file(fixture):
+@with_fixtures(WebFixture)
+def test_config_was_read_from_file(web_fixture):
     """The tests are run with config read from an actual config file, not the default config."""
-    assert fixture.context.config.componentconfig.showheader == True
+    assert web_fixture.context.config.componentconfig.showheader == True
 
 
-@test(ConfigFixture)
-def configurable_heading(fixture):
+@with_fixtures(WebFixture, ConfigFixture)
+def test_configurable_heading(web_fixture, config_fixture):
     """Whether the heading is displayed or not, is configurable."""
-    browser = fixture.browser
-    
-    fixture.context.config.componentconfig.showheader = False
-    browser.open('/')
-    assert not fixture.heading_is_displayed()
-    
-    fixture.context.config.componentconfig.showheader = True
-    browser.open('/')
-    assert fixture.heading_is_displayed()
 
+    browser = config_fixture.browser
 
+    web_fixture.context.config.componentconfig.showheader = False
+    browser.open('/')
+    assert not config_fixture.heading_is_displayed()
+
+    web_fixture.context.config.componentconfig.showheader = True
+    browser.open('/')
+    assert config_fixture.heading_is_displayed()

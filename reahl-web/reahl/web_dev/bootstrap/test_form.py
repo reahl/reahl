@@ -19,11 +19,11 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, test
+from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
-from reahl.web_dev.fixtures import WebFixture
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
 from reahl.web.fw import Url
 from reahl.web.bootstrap.ui import A, Div
@@ -31,12 +31,14 @@ from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, Grid
                                    TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonInput, ButtonLayout
 from reahl.web.bootstrap.grid import ResponsiveSize
 
+from reahl.web_dev.fixtures import WebFixture
 
 
+@uses(web_fixture=WebFixture)
+class FormLayoutScenarios(Fixture):
 
-class FormLayoutScenarios(WebFixture):
     def new_widget(self):
-        return Div(self.view).use_layout(self.layout)
+        return Div(self.web_fixture.view).use_layout(self.layout)
 
     @scenario
     def basic_form(self):
@@ -54,23 +56,26 @@ class FormLayoutScenarios(WebFixture):
         self.expected_html = '<div></div>'
 
 
-@test(FormLayoutScenarios)
-def basic_form_layouts(fixture):
+@with_fixtures(WebFixture, FormLayoutScenarios)
+def test_basic_form_layouts(web_fixture, form_layout_scenarios):
     """There are three basic layouts of forms in bootstrap."""
-    tester = WidgetTester(fixture.widget)
+
+    tester = WidgetTester(form_layout_scenarios.widget)
     actual = tester.render_html()
-    vassert( actual == fixture.expected_html )
+    assert actual == form_layout_scenarios.expected_html
 
 
-class FormLayoutFixture(WebFixture):
+@uses(web_fixture=WebFixture)
+class FormLayoutFixture(Fixture):
     form_group_xpath = '//form/div[contains(@class, "form-group")]'
+
     def new_domain_object(self):
         class StubDomainObject(object):
             @exposed
             def fields(self, fields):
                 fields.an_attribute = Field(label='Some input', required=True)
         return StubDomainObject()
-    
+
     def form_contains_form_group(self, browser):
         return browser.get_xpath_count(self.form_group_xpath) == 1
 
@@ -85,108 +90,119 @@ class FormLayoutFixture(WebFixture):
         form_group = self.get_form_group(browser, index=index)
         return [mark for mark in form_group.attrib['class'].split(' ')
                      if mark.startswith('has-')]
-        
+
     def get_form_group_errors(self, browser, index=0):
         def is_error_element(element):
             return 'class' in element.attrib \
                    and 'text-help' in element.attrib['class'] \
-                   and 'has-danger' in element.attrib['class'] 
+                   and 'has-danger' in element.attrib['class']
         def is_visible(element):
             return not (('style' in element.attrib) and ('display: none' in element.attrib['style']))
-            
+
         return [element for element in self.get_form_group_children(browser, index=index)
                         if is_error_element(element) and is_visible(element) ]
 
 
-@test(FormLayoutFixture)
-def adding_basic_input(fixture):
+@with_fixtures(WebFixture, FormLayoutFixture)
+def test_adding_basic_input(web_fixture, form_layout_fixture):
     """Adding an input to a FormLayout, adds it in a bootstrap form-group with Some input."""
-    
+    fixture = form_layout_fixture
+
+
     class FormWithInputAddedUsingDefaults(Form):
         def __init__(self, view):
             super(FormWithInputAddedUsingDefaults, self).__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
 
-    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputAddedUsingDefaults.factory()))
+    browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithInputAddedUsingDefaults.factory()))
     browser.open('/')
 
-    vassert( fixture.form_contains_form_group(browser) )
-    
+    assert fixture.form_contains_form_group(browser)
+
     [label, input_widget] = fixture.get_form_group_children(browser)
-    
+
     # form-group has a label, correctly set up for bootstrap
-    vassert( label.tag == 'label' )
-    vassert( label.attrib['for'] == input_widget.attrib['id'] )
-    vassert( label.text == 'Some input' )
-    
+    assert label.tag == 'label'
+    assert label.attrib['for'] == input_widget.attrib['id']
+    assert label.text == 'Some input'
+
     # form-group has an input, correctly set up for bootstrap
-    vassert( input_widget.tag == 'input' )
-    vassert( input_widget.attrib['name'] == 'an_attribute' )
+    assert input_widget.tag == 'input'
+    assert input_widget.attrib['name'] == 'an_attribute'
 
 
-@test(FormLayoutFixture)
-def grid_form_layouts(fixture):
+@with_fixtures(WebFixture, FormLayoutFixture)
+def test_grid_form_layouts(web_fixture, form_layout_fixture):
     """A GridFormLayout adds the Label and Input of each added input in separate columns sized like you specify"""
+    fixture = form_layout_fixture
+
     class FormWithGridFormLayout(Form):
         def __init__(self, view):
             super(FormWithGridFormLayout, self).__init__(view, 'aform')
             self.use_layout(GridFormLayout(ResponsiveSize(lg=4), ResponsiveSize(lg=8)))
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
 
-    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithGridFormLayout.factory()))
+
+    browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithGridFormLayout.factory()))
     browser.open('/')
 
     [label_column, input_column] = fixture.get_form_group_children(browser)
-    vassert( label_column.tag == 'div' )
-    vassert( 'col-lg-4' in label_column.attrib['class'] )
-    vassert( 'column-label' in label_column.attrib['class'] )
+    assert label_column.tag == 'div'
+    assert 'col-lg-4' in label_column.attrib['class']
+    assert 'column-label' in label_column.attrib['class']
 
-    vassert( input_column.tag == 'div' )
-    vassert( 'col-lg-8' in input_column.attrib['class'] )
-    vassert( 'column-input' in input_column.attrib['class'] )
+    assert input_column.tag == 'div'
+    assert 'col-lg-8' in input_column.attrib['class']
+    assert 'column-input' in input_column.attrib['class']
 
 
-@test(FormLayoutFixture)
-def specifying_help_text(fixture):
+@with_fixtures(WebFixture, FormLayoutFixture)
+def test_specifying_help_text(web_fixture, form_layout_fixture):
     """You can optionally specify help_text when adding an input."""
-    
+    fixture = form_layout_fixture
+
     class FormWithInputAndHelp(Form):
         def __init__(self, view):
             super(FormWithInputAndHelp, self).__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
-    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputAndHelp.factory()))
+
+
+    browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithInputAndHelp.factory()))
     browser.open('/')
 
     [label, input_widget, help_text] = fixture.get_form_group_children(browser)
 
-    # form-group has help-text    
-    vassert( help_text.tag == 'p' )
-    vassert( 'text-muted' in help_text.attrib['class'] )
-    vassert( help_text.text == 'some help' )
-    
+    # form-group has help-text
+    assert help_text.tag == 'p'
+    assert 'text-muted' in help_text.attrib['class']
+    assert help_text.text == 'some help'
 
-@test(FormLayoutFixture)
-def omitting_label(fixture):
+
+@with_fixtures(WebFixture, FormLayoutFixture)
+def test_omitting_label(web_fixture, form_layout_fixture):
     """The label will be rendered hidden (but available to screen readers) if this is explicity requested."""
+    fixture = form_layout_fixture
+
     class FormWithInputNoLabel(Form):
         def __init__(self, view):
             super(FormWithInputNoLabel, self).__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), hide_label=True)
 
-    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputNoLabel.factory()))
+
+    browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithInputNoLabel.factory()))
     browser.open('/')
 
     [label, help_text] = fixture.get_form_group_children(browser)
-    vassert( label.tag == 'label' )
-    vassert( label.attrib['class'] == 'sr-only' )
-    
+    assert label.tag == 'label'
+    assert label.attrib['class'] == 'sr-only'
 
-@test(FormLayoutFixture)
-def adding_checkboxes(fixture):
+
+@with_fixtures(WebFixture, FormLayoutFixture)
+def test_adding_checkboxes(web_fixture, form_layout_fixture):
     """CheckboxInputs are added non-inlined, and by default without labels."""
 
     class DomainObjectWithBoolean(object):
@@ -194,22 +210,25 @@ def adding_checkboxes(fixture):
         def fields(self, fields):
             fields.an_attribute = BooleanField(label='Some input', required=True)
 
+    fixture = form_layout_fixture
+
     fixture.domain_object = DomainObjectWithBoolean()
-    
+
     class FormWithInputWithCheckbox(Form):
         def __init__(self, view):
             super(FormWithInputWithCheckbox, self).__init__(view, 'aform')
             self.use_layout(FormLayout())
             self.layout.add_input(CheckboxInput(self, fixture.domain_object.fields.an_attribute))
 
-    browser = Browser(fixture.new_wsgi_app(child_factory=FormWithInputWithCheckbox.factory()))
+
+    browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithInputWithCheckbox.factory()))
     browser.open('/')
 
-    vassert( not any(child.tag == 'label' for child in fixture.get_form_group_children(browser)) )
+    assert not any(child.tag == 'label' for child in fixture.get_form_group_children(browser))
     [div] = fixture.get_form_group_children(browser)
     [checkbox] = div.getchildren()
-    vassert( checkbox.attrib['class'] == 'checkbox' )
-    
+    assert checkbox.attrib['class'] == 'checkbox'
+
 
 class ValidationScenarios(FormLayoutFixture):
     def new_domain_object(self):
@@ -228,7 +247,7 @@ class ValidationScenarios(FormLayoutFixture):
         class FormWithInput(Form):
             def __init__(self, view):
                 super(FormWithInput, self).__init__(view, 'aform')
-                self.set_attribute('novalidate','novalidate')
+                self.set_attribute('novalidate', 'novalidate')
                 self.use_layout(FormLayout())
                 self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
                 self.layout.add_input(TextInput(self, fixture.domain_object.fields.another_attribute))
@@ -238,77 +257,85 @@ class ValidationScenarios(FormLayoutFixture):
 
     @scenario
     def with_javascript(self):
-        self.reahl_server.set_app(self.new_wsgi_app(child_factory=self.Form.factory(), enable_js=True))
-        self.browser = self.driver_browser
+        self.web_fixture.reahl_server.set_app(self.web_fixture.new_wsgi_app(child_factory=self.Form.factory(), enable_js=True))
+        self.browser = self.web_fixture.driver_browser
 
     @scenario
     def without_javascript(self):
-        self.browser = Browser(super(ValidationScenarios, self).new_wsgi_app(child_factory=self.Form.factory()))
+        self.browser = Browser(self.web_fixture.new_wsgi_app(child_factory=self.Form.factory()))
 
 
-@test(ValidationScenarios)
-def input_validation_cues(fixture):
+@with_fixtures(WebFixture, ValidationScenarios)
+def test_input_validation_cues(web_fixture, validation_scenarios):
     """Visible cues are inserted to indicate the current validation state
        and possible validation error messages to a user. """
+    fixture = validation_scenarios
+
 
     browser = fixture.browser
     browser.open('/')
 
-    vassert( not fixture.get_form_group_highlight_marks(browser, index=0) )
-    vassert( not fixture.get_form_group_errors(browser, index=0) )
+    assert not fixture.get_form_group_highlight_marks(browser, index=0)
+    assert not fixture.get_form_group_errors(browser, index=0)
 
     browser.type(XPath.input_labelled('Some input'), '')
     browser.click(XPath.button_labelled('Submit'))
 
-    vassert( ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    assert ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0)
     [error] = fixture.get_form_group_errors(browser, index=0)
-    vassert( error.text == 'Some input is required' )
+    assert error.text == 'Some input is required'
 
     browser.type(XPath.input_labelled('Some input'), 'valid value')
     browser.click(XPath.button_labelled('Submit'))
 
-    vassert( ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=0) )
-    vassert( not fixture.get_form_group_errors(browser, index=0) )
+    assert ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=0)
+    assert not fixture.get_form_group_errors(browser, index=0)
 
     browser.type(XPath.input_labelled('Another input'), 'valid value')
     browser.click(XPath.button_labelled('Submit'))
 
-    vassert( not fixture.get_form_group_highlight_marks(browser, index=0) )
-    vassert( not fixture.get_form_group_errors(browser, index=0) )
+    assert not fixture.get_form_group_highlight_marks(browser, index=0)
+    assert not fixture.get_form_group_errors(browser, index=0)
 
-@test(ValidationScenarios.with_javascript)
-def input_validation_cues_javascript_interaction(fixture):
+
+@with_fixtures(WebFixture, ValidationScenarios.with_javascript)
+def test_input_validation_cues_javascript_interaction(web_fixture, javascript_validation_scenario):
     """The visual cues rendered server-side can subsequently be manipulated via javascript."""
-    fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=False))
+    fixture = javascript_validation_scenario
+
+
+    web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=False))
 
     browser = fixture.browser
     browser.open('/')
     browser.type(XPath.input_labelled('Some input'), '')
     browser.click(XPath.button_labelled('Submit'))
 
-    vassert( ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    assert ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0)
     [error] = fixture.get_form_group_errors(browser, index=0)
-    vassert( error.text == 'Some input is required' )
+    assert error.text == 'Some input is required'
 
-    fixture.reahl_server.set_app(fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=True))
+    web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=True))
     browser.open('/')
 
     browser.click(XPath.button_labelled('Submit'))
 
-    vassert( ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0) )
+    assert ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0)
     [error] = fixture.get_form_group_errors(browser, index=0)
-    vassert( error.text == 'Some input is required' )
+    assert error.text == 'Some input is required'
 
     browser.type(XPath.input_labelled('Some input'), 'valid value')
     browser.press_tab(XPath.input_labelled('Some input'))
 
     def form_group_is_marked_success(index):
         return ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=index)
-    vassert( fixture.driver_browser.wait_for(form_group_is_marked_success, 0) )
-    vassert( not fixture.get_form_group_errors(browser, index=0) )
+    assert web_fixture.driver_browser.wait_for(form_group_is_marked_success, 0)
+    assert not fixture.get_form_group_errors(browser, index=0)
 
 
-class DisabledScenarios(WebFixture):
+@uses(web_fixture=WebFixture)
+class DisabledScenarios(Fixture):
+
     @scenario
     def disabled_input(self):
         self.field = Field(writable=lambda field: False)
@@ -320,28 +347,32 @@ class DisabledScenarios(WebFixture):
         self.expects_disabled_class = False
 
 
-@test(DisabledScenarios)
-def disabled_state(fixture):
+@with_fixtures(WebFixture, DisabledScenarios)
+def test_disabled_state(web_fixture, disabled_scenarios):
     """Visible cues are inserted to indicate that inputs are disabled. """
-    form = Form(fixture.view, 'test').use_layout(FormLayout())
+    fixture = disabled_scenarios
+
+
+    form = Form(web_fixture.view, 'test').use_layout(FormLayout())
     field = fixture.field
     field.bind('field', fixture)
 
     form.layout.add_input(TextInput(form, field))
-    
+
     tester = WidgetTester(form)
-    
+
     [form_group] = tester.xpath(FormLayoutFixture.form_group_xpath)
     if fixture.expects_disabled_class:
-        vassert( 'disabled ' in form_group.attrib['class'] )
+        assert 'disabled ' in form_group.attrib['class']
     else:
-        vassert( 'disabled' not in form_group.attrib['class'] )
+        assert 'disabled' not in form_group.attrib['class']
 
 
+@uses(web_fixture=WebFixture)
+class ChoicesLayoutFixture(Fixture):
 
-class ChoicesLayoutFixture(WebFixture):
     def new_form(self):
-        return Form(self.view, 'test')
+        return Form(self.web_fixture.view, 'test')
 
     def new_field(self):
         field = BooleanField()
@@ -353,26 +384,29 @@ class ChoicesLayoutFixture(WebFixture):
 
     def main_element(self, tester):
         return tester.xpath('//div/*')[0]
-        
 
-@test(ChoicesLayoutFixture)
-def choices_layout(fixture):
+
+@with_fixtures(WebFixture, ChoicesLayoutFixture)
+def test_choices_layout(web_fixture, choices_layout_fixture):
     """A ChoicesLayout can be used to add a PrimitiveCheckboxInput inlined or stacked."""
-    stacked_container = Div(fixture.view).use_layout(ChoicesLayout())
+    fixture = choices_layout_fixture
+
+
+    stacked_container = Div(web_fixture.view).use_layout(ChoicesLayout())
     stacked_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
 
     tester = WidgetTester(stacked_container)
-    vassert( fixture.input_is_wrapped_in_label(tester) )
-    vassert( fixture.main_element(tester).tag == 'div' )
-    vassert( fixture.main_element(tester).attrib['class'] == 'checkbox' )
+    assert fixture.input_is_wrapped_in_label(tester)
+    assert fixture.main_element(tester).tag == 'div'
+    assert fixture.main_element(tester).attrib['class'] == 'checkbox'
 
-    inlined_container = Div(fixture.view).use_layout(ChoicesLayout(inline=True))
+    inlined_container = Div(web_fixture.view).use_layout(ChoicesLayout(inline=True))
     inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
 
     tester = WidgetTester(inlined_container)
-    vassert( fixture.input_is_wrapped_in_label(tester) )
-    vassert( fixture.main_element(tester).tag == 'label' )
-    vassert( fixture.main_element(tester).attrib['class'] == 'checkbox-inline' )
+    assert fixture.input_is_wrapped_in_label(tester)
+    assert fixture.main_element(tester).tag == 'label'
+    assert fixture.main_element(tester).attrib['class'] == 'checkbox-inline'
 
 
 class RadioButtonFixture(ChoicesLayoutFixture):
@@ -385,71 +419,74 @@ class RadioButtonFixture(ChoicesLayoutFixture):
         return field
 
 
-@test(RadioButtonFixture)
-def layout_of_radio_button_input(fixture):
+@with_fixtures(WebFixture, RadioButtonFixture)
+def test_layout_of_radio_button_input(web_fixture, radio_button_fixture):
     """The PrimitiveRadioButtonInputs inside a RadioButtonInput are also laid out using a ChoicesLayout."""
+    fixture = radio_button_fixture
+
+
     stacked_radio = RadioButtonInput(fixture.form, fixture.field)
 
     tester = WidgetTester(stacked_radio)
-    vassert( fixture.input_is_wrapped_in_label(tester) )
-    vassert( fixture.main_element(tester).tag == 'div' )
-    vassert( fixture.main_element(tester).attrib['class'] == 'radio' )
+    assert fixture.input_is_wrapped_in_label(tester)
+    assert fixture.main_element(tester).tag == 'div'
+    assert fixture.main_element(tester).attrib['class'] == 'radio'
 
     inlined_radio = RadioButtonInput(fixture.form, fixture.field, button_layout=ChoicesLayout(inline=True))
 
     tester = WidgetTester(inlined_radio)
-    vassert( fixture.input_is_wrapped_in_label(tester) )
-    vassert( fixture.main_element(tester).tag == 'label' )
-    vassert( fixture.main_element(tester).attrib['class'] == 'radio-inline' )
+    assert fixture.input_is_wrapped_in_label(tester)
+    assert fixture.main_element(tester).tag == 'label'
+    assert fixture.main_element(tester).attrib['class'] == 'radio-inline'
 
 
-
-@test(WebFixture)
-def button_layouts(fixture):
+@with_fixtures(WebFixture)
+def test_button_layouts(web_fixture):
     """A ButtonLayout can be be used on a Button to customise various visual effects."""
 
+
     event = Event(label='click me')
-    event.bind('event', fixture)
-    form = Form(fixture.view, 'test')
+    event.bind('event', web_fixture)
+    form = Form(web_fixture.view, 'test')
     form.define_event_handler(event)
 
     # Case: the defaults
     button = Button(form, event).use_layout(ButtonLayout())
-    
+
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    vassert( button.attrib['class'] == 'btn' )
+    assert button.attrib['class'] == 'btn'
 
     # Case: possible effects
     button = Button(form, event).use_layout(ButtonLayout(style='default', size='sm', active=True, wide=True))
-    
+
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    vassert( button.attrib['class'] == 'active btn btn-block btn-default btn-sm' )
+    assert button.attrib['class'] == 'active btn btn-block btn-default btn-sm'
 
 
-@test(WebFixture)
-def button_layouts_on_anchors(fixture):
+@with_fixtures(WebFixture)
+def test_button_layouts_on_anchors(web_fixture):
     """A ButtonLayout can also be used to make an A (anchor) look like a button."""
 
-    anchor = A(fixture.view, href=Url('/an/href'), description='link text').use_layout(ButtonLayout())
+
+    anchor = A(web_fixture.view, href=Url('/an/href'), description='link text').use_layout(ButtonLayout())
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
-    vassert( rendered_anchor.attrib['class'] == 'btn' )
+    assert rendered_anchor.attrib['class'] == 'btn'
 
 
-@test(WebFixture)
-def button_layouts_on_disabled_anchors(fixture):
+@with_fixtures(WebFixture)
+def test_button_layouts_on_disabled_anchors(web_fixture):
     """Disabled A's are marked with a class so Bootstap can style them appropriately."""
     def can_write():
         return False
-    anchor = A(fixture.view, href=Url('/an/href'), description='link text', write_check=can_write).use_layout(ButtonLayout())
+
+
+    anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=can_write)
+    anchor.use_layout(ButtonLayout())
+
     tester = WidgetTester(anchor)
     [rendered_anchor] = tester.xpath(XPath.link_with_text('link text'))
-    vassert( rendered_anchor.attrib['class'] == 'btn disabled' )
-
-
-
-
-
+    assert rendered_anchor.attrib['class'] == 'btn disabled'
 

@@ -43,7 +43,8 @@ from babel import UnknownLocaleError, Locale
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, Field
-from reahl.web.fw import Layout, Bookmark, Url, WebExecutionContext
+from reahl.component.context import ExecutionContext
+from reahl.web.fw import Layout, Bookmark, Url
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget
 from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li
 
@@ -96,7 +97,7 @@ class Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         supported_locales = ReahlEgg.get_languages_supported_by_all(context.config.reahlsystem.root_egg)
         for locale in supported_locales:
             try:

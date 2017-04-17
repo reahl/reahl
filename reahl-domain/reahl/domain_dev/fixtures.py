@@ -20,18 +20,20 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import os
 
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, set_up, uses
 from reahl.stubble import stubclass, exempt
 from reahl.mailutil.mail import Mailer
 
 from reahl.sqlalchemysupport import Session
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyTestMixin
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain.partymodel import Party
-from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
+from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, AccountManagementInterface
 from reahl.domain.systemaccountmodel import SystemAccountConfig
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.web.egg import WebConfig
 from reahl.web.fw import UserInterface
+
+from reahl.dev.fixtures import ReahlSystemFixture
 
 
 @stubclass(Mailer)
@@ -63,39 +65,25 @@ class MailerStub(object):
         self.mail_sender = None
 
 
-class BasicModelZooMixin(SqlAlchemyTestMixin):
-    def new_accounts(self):
+@uses(reahl_system_fixture=ReahlSystemFixture, sql_alchemy_fixture=SqlAlchemyFixture)
+class PartyAccountFixture(Fixture):
+
+    @set_up
+    def add_system_account_config(self):
+        self.reahl_system_fixture.config.accounts = self.system_account_config
+        self.reahl_system_fixture.context.session = self.session
+
+    def new_system_account_config(self):
         accounts = SystemAccountConfig()
         accounts.admin_email = 'pietiskoning@home.org'
         accounts.mailer_class = MailerStub
         return accounts
-    
-    def new_webconfig(self):
-        web = WebConfig()
-        web.site_root = UserInterface
-        web.static_root = os.path.join(os.getcwd(), 'static')
-        web.session_class = UserSession
-        web.persisted_exception_class = PersistedException
-        web.persisted_file_class = PersistedFile
-        web.persisted_userinput_class = UserInput
-        return web
 
-    def new_config(self, reahlsystem=None, accounts=None, web=None):
-        config = super(BasicModelZooMixin, self).new_config(reahlsystem=reahlsystem)
-        config.web = web or self.new_webconfig()
-        config.accounts = accounts or self.accounts
-        return config
-
-    def new_session(self, system_account=None):
-        return UserSession()
-
-    
-class PartyModelZooMixin(BasicModelZooMixin):
     def new_system_account(self, party=None, email='johndoe@home.org', activated=True):
         password = 'topsecret'
         system_account = EmailAndPasswordSystemAccount(owner=party or self.party, email=email)
         system_account.set_new_password(email, password)
-        system_account.password = password # The unencrypted version for use in tests
+        system_account.password = password  # The unencrypted version for use in tests
         if activated:
             system_account.activate()
         Session.add(system_account)
@@ -111,11 +99,15 @@ class PartyModelZooMixin(BasicModelZooMixin):
     def new_mailer(self):
         return MailerStub.from_context()
 
+    def new_account_management_interface(self, system_account=None):
+        system_account = system_account or self.system_account
+        account_management_interface = AccountManagementInterface()
+        account_management_interface.password = system_account.password
+        account_management_interface.email = system_account.email
+        Session.add(account_management_interface)
+        Session.flush()
+        return account_management_interface
 
-class DemoSetup(Fixture, PartyModelZooMixin):
-    commit = True
-    def set_up(self):
-        super(DemoSetup, self).set_up()
-        self.party
-        self.system_account
-        self.system_control.commit()
+    def new_session(self, system_account=None):
+        return UserSession()
+

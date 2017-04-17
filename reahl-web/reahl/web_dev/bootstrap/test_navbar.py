@@ -21,10 +21,10 @@ import six
 import time
 
 
-from reahl.tofu import vassert, scenario, expected, test, Fixture
+from reahl.tofu import scenario, expected, Fixture, uses
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath
-from reahl.web_dev.fixtures import WebFixture, WebBasicsMixin
 from reahl.component.exceptions import IsInstance
 
 from reahl.web.fw import Bookmark
@@ -35,10 +35,14 @@ from reahl.web.bootstrap.navs import Nav
 
 from reahl.component.exceptions import ProgrammerError
 
+from reahl.web_dev.fixtures import WebFixture
 
-class NavbarFixture(WebFixture):
+
+@uses(web_fixture=WebFixture)
+class NavbarFixture(Fixture):
+
     def new_navbar(self):
-        return Navbar(self.view)
+        return Navbar(self.web_fixture.view)
 
     def new_navbar_with_layout(self):
         return self.navbar.use_layout(NavbarLayout())
@@ -47,17 +51,20 @@ class NavbarFixture(WebFixture):
         return [Bookmark('', '/one', 'One')]
 
     def new_nav(self):
-        return Nav(self.view).with_bookmarks(self.bookmarks)
+        return Nav(self.web_fixture.view).with_bookmarks(self.bookmarks)
 
     def new_form(self):
-        return Form(self.view, 'myform')
+        return Form(self.web_fixture.view, 'myform')
 
 
-@test(NavbarFixture)
-def navbar_basics(fixture):
+@with_fixtures(WebFixture, NavbarFixture)
+def test_navbar_basics(web_fixture, navbar_fixture):
     """A typical Navbar is created by using its layout to add some brand text, a nav and form in it."""
 
-    navbar = Navbar(fixture.view).use_layout(NavbarLayout())
+    fixture = navbar_fixture
+
+
+    navbar = Navbar(web_fixture.view).use_layout(NavbarLayout())
 
     navbar.layout.set_brand_text('Brandy')
     navbar.layout.add(fixture.nav)
@@ -67,20 +74,21 @@ def navbar_basics(fixture):
     [ul] = nav.children
 
     # The Navbar itself
-    vassert( navbar.children[0].tag_name == 'nav' )
-    vassert( 'navbar' in navbar.children[0].get_attribute('class').split(' ') )
+    assert navbar.children[0].tag_name == 'nav'
+    assert 'navbar' in navbar.children[0].get_attribute('class').split(' ')
 
     # The added contents
-    vassert( isinstance(brand, A) )
-    vassert( 'navbar-brand' in brand.get_attribute('class') )
+    assert isinstance(brand, A)
+    assert 'navbar-brand' in brand.get_attribute('class')
 
-    vassert( 'navbar-nav' in ul.get_attribute('class') )
+    assert 'navbar-nav' in ul.get_attribute('class')
 
-    vassert( isinstance(form, Form))
+    assert isinstance(form, Form)
 
 
+@uses(web_fixture=WebFixture)
+class LayoutScenarios(Fixture):
 
-class LayoutScenarios(NavbarFixture):
     @scenario
     def fixed_top(self):
         self.layout = NavbarLayout(fixed_to='top')
@@ -102,50 +110,55 @@ class LayoutScenarios(NavbarFixture):
         self.expected_css_class = None
 
 
-@test(LayoutScenarios)
-def navbar_can_have_layout(fixture):
+@with_fixtures(WebFixture, LayoutScenarios)
+def test_navbar_can_have_layout(web_fixture, layout_scenarios):
     """NavbarLayout is used to define the placement of a Navbar."""
 
-    widget = Navbar(fixture.view).use_layout(fixture.layout)
+    fixture = layout_scenarios
+
+
+    widget = Navbar(web_fixture.view).use_layout(fixture.layout)
 
     [navbar] = widget.children
     all_classes = ['navbar-fixed-bottom','navbar-fixed-top','navbar-full']
     if fixture.expected_css_class:
-        vassert( fixture.expected_css_class in navbar.get_attribute('class').split(' ') )
-    
+        assert fixture.expected_css_class in navbar.get_attribute('class').split(' ')
+
     for not_expected_class in [i for i in all_classes if i != fixture.expected_css_class]:
-        vassert( not_expected_class not in navbar.get_attribute('class').split(' ') )
+        assert not_expected_class not in navbar.get_attribute('class').split(' ')
 
 
-@test(NavbarFixture)
-def customised_colour_scheme(fixture):
+@with_fixtures(WebFixture)
+def test_customised_colour_scheme(web_fixture):
     """A ColourScheme is used to determine link colours and/or optionally a standard bootstrap background color."""
 
+
     layout = NavbarLayout(colour_theme='light', bg_scheme='inverse')
-    widget = Navbar(fixture.view).use_layout(layout)
+    widget = Navbar(web_fixture.view).use_layout(layout)
 
     [navbar] = widget.children
 
-    vassert( 'navbar-light' in navbar.get_attribute('class') )
-    vassert( 'bg-inverse' in navbar.get_attribute('class') )
+    assert 'navbar-light' in navbar.get_attribute('class')
+    assert 'bg-inverse' in navbar.get_attribute('class')
 
 
-@test(NavbarFixture)
-def adding_brand_widget(fixture):
+@with_fixtures(WebFixture, NavbarFixture)
+def test_adding_brand_widget(web_fixture, navbar_fixture):
     """Brand content can also be added as a Widget, instead of only text."""
 
-    navbar_widget = fixture.navbar.use_layout(NavbarLayout())
-    custom_brand = Div(fixture.view)
+
+    navbar_widget = navbar_fixture.navbar.use_layout(NavbarLayout())
+    custom_brand = Div(web_fixture.view)
     navbar_widget.layout.set_brand(custom_brand)
 
     [navbar] = navbar_widget.children
     [actual_brand_widget] = navbar.children
 
-    vassert( actual_brand_widget is custom_brand )
-    vassert( 'navbar-brand' in actual_brand_widget.get_attribute('class') )
+    assert actual_brand_widget is custom_brand
+    assert 'navbar-brand' in actual_brand_widget.get_attribute('class')
 
 
-class SpecifyPlacementScenarios(NavbarFixture):
+class SpecifyPlacementScenarios(Fixture):
     @scenario
     def adding_left(self):
         self.side = 'left'
@@ -155,79 +168,84 @@ class SpecifyPlacementScenarios(NavbarFixture):
         self.side = 'right'
 
 
-@test(SpecifyPlacementScenarios)
-def adding_to_navbar_with_specific_placement(fixture):
+@with_fixtures(WebFixture, NavbarFixture, SpecifyPlacementScenarios)
+def test_adding_to_navbar_with_specific_placement(web_fixture, navbar_fixture, specify_placement_scenarios):
     """Widgets can be added to a Navbar placed right or left in the NavBar."""
-    navbar = fixture.navbar.use_layout(NavbarLayout())
 
-    if fixture.side == 'left':
-        added_widget = navbar.layout.add(fixture.nav, left=True)
+    navbar = navbar_fixture.navbar.use_layout(NavbarLayout())
+
+    if specify_placement_scenarios.side == 'left':
+        added_widget = navbar.layout.add(navbar_fixture.nav, left=True)
     else:
-        added_widget = navbar.layout.add(fixture.nav, right=True)
+        added_widget = navbar.layout.add(navbar_fixture.nav, right=True)
 
     [wrapping_div] = navbar.children[0].children
 
-    vassert( 'pull-%s' % fixture.side in wrapping_div.get_attribute('class') )
-    vassert( added_widget is fixture.nav )
-    vassert( [added_widget] == wrapping_div.children )
+    assert'pull-%s' % specify_placement_scenarios.side in wrapping_div.get_attribute('class')
+    assert added_widget is navbar_fixture.nav
+    assert [added_widget] == wrapping_div.children
 
 
-@test(SpecifyPlacementScenarios)
-def adding_to_navbar_placement_for_device(fixture):
+@with_fixtures(WebFixture, NavbarFixture, SpecifyPlacementScenarios)
+def test_adding_to_navbar_placement_for_device(web_fixture, navbar_fixture, specify_placement_scenarios):
     """Placement of an added Widget can be specified to apply below a certain device size only."""
-    fixture.navbar.use_layout(NavbarLayout())
 
-    if fixture.side == 'left':
-        fixture.navbar.layout.add(fixture.nav, left='md')
+    navbar_fixture.navbar.use_layout(NavbarLayout())
+
+    if specify_placement_scenarios.side == 'left':
+        navbar_fixture.navbar.layout.add(navbar_fixture.nav, left='md')
     else:
-        fixture.navbar.layout.add(fixture.nav, right='md')
-    
-    [wrapping_div] = fixture.navbar.children[0].children
-    vassert( 'pull-md-%s' % fixture.side in wrapping_div.get_attribute('class') )
+        navbar_fixture.navbar.layout.add(navbar_fixture.nav, right='md')
+
+    [wrapping_div] = navbar_fixture.navbar.children[0].children
+    assert'pull-md-%s' % specify_placement_scenarios.side in wrapping_div.get_attribute('class')
 
 
-@test(NavbarFixture)
-def adding_to_navbar_with_both_left_and_right_alignment_not_allowed(fixture):
+@with_fixtures(WebFixture, NavbarFixture)
+def test_adding_to_navbar_with_both_left_and_right_alignment_not_allowed(web_fixture, navbar_fixture):
     """You cannot place an added Widget to both left and right sides."""
-    navbar = fixture.navbar.use_layout(NavbarLayout())
+
+    navbar = navbar_fixture.navbar.use_layout(NavbarLayout())
 
     def check_ex(ex):
-        vassert( six.text_type(ex).startswith('Both left= and right= have been given. Specify left or right, not both'))
+        assert six.text_type(ex).startswith('Both left= and right= have been given. Specify left or right, not both')
 
     with expected(ProgrammerError, test=check_ex):
-        navbar.layout.add(fixture.nav, left=True, right=True)
+        navbar.layout.add(navbar_fixture.nav, left=True, right=True)
 
 
-@test(NavbarFixture)
-def adding_other_than_form_or_nav_is_not_allowed(fixture):
+@with_fixtures(WebFixture, NavbarFixture)
+def test_adding_other_than_form_or_nav_is_not_allowed(web_fixture, navbar_fixture):
     """Only Navs and Forms may be added."""
 
-    navbar = fixture.navbar.use_layout(NavbarLayout())
-    not_a_form_or_nav = Div(fixture.view)
+
+    navbar = navbar_fixture.navbar.use_layout(NavbarLayout())
+    not_a_form_or_nav = Div(web_fixture.view)
 
     with expected(IsInstance):
         navbar.layout.add(not_a_form_or_nav)
 
     # Case: Form
-    navbar = fixture.new_navbar().use_layout(NavbarLayout())
-    navbar.layout.add(fixture.form)
+    navbar = navbar_fixture.new_navbar().use_layout(NavbarLayout())
+    navbar.layout.add(navbar_fixture.form)
     [added_widget] = navbar.children[0].children
-    vassert( added_widget is fixture.form )
+    assert added_widget is navbar_fixture.form
 
     # Case: Nav
-    navbar = fixture.new_navbar().use_layout(NavbarLayout())
-    vassert( 'navbar-nav' not in fixture.nav.html_representation.get_attribute('class').split(' ') )
-    navbar.layout.add(fixture.nav)
+    navbar = navbar_fixture.new_navbar().use_layout(NavbarLayout())
+    assert 'navbar-nav' not in navbar_fixture.nav.html_representation.get_attribute('class').split(' ')
+    navbar.layout.add(navbar_fixture.nav)
     [added_widget] = navbar.children[0].children
-    vassert( added_widget is fixture.nav )
-    vassert( 'navbar-nav' in fixture.nav.html_representation.get_attribute('class').split(' ') )
+    assert added_widget is navbar_fixture.nav
+    assert 'navbar-nav' in navbar_fixture.nav.html_representation.get_attribute('class').split(' ')
 
 
-@test(NavbarFixture)
-def navbar_with_centered_contents(fixture):
+@with_fixtures(WebFixture, NavbarFixture)
+def test_navbar_with_centered_contents(web_fixture, navbar_fixture):
     """Contents of a Navbar appears centered when center_contents is set to True"""
 
-    navbar_widget = fixture.navbar
+
+    navbar_widget = navbar_fixture.navbar
     navbar_widget.use_layout(NavbarLayout(center_contents=True))
     navbar_widget.layout.set_brand_text('Brandy') #adding something to illustrate the structure change
 
@@ -235,22 +253,23 @@ def navbar_with_centered_contents(fixture):
     [centering_div] = navbar.children
     [brand_widget] = centering_div.children
 
-    vassert( 'container' in centering_div.get_attribute('class') )
-    vassert( 'navbar-brand' in brand_widget.get_attribute('class') )
+    assert 'container' in centering_div.get_attribute('class')
+    assert 'navbar-brand' in brand_widget.get_attribute('class')
 
 
-class NavbarToggleFixture(Fixture, WebBasicsMixin):
+@uses(web_fixture=WebFixture)
+class NavbarToggleFixture(Fixture):
 
     def is_expanded(self, locator):
-        return self.driver_browser.is_visible(locator) and \
-               self.driver_browser.does_element_have_attribute(locator, 'aria-expanded', value='true') and\
-               self.driver_browser.does_element_have_attribute(locator, 'class', value='collapse in') 
+        return self.web_fixture.driver_browser.is_visible(locator) and \
+               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'aria-expanded', value='true') and\
+               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'class', value='collapse in')
 
     def panel_is_expanded(self):
         return self.is_expanded(XPath.paragraph_containing('Peek-A-Boo'))
 
     def panel_is_visible(self):
-        return self.driver_browser.is_visible(XPath.paragraph_containing('Peek-A-Boo'))
+        return self.web_fixture.driver_browser.is_visible(XPath.paragraph_containing('Peek-A-Boo'))
 
     def xpath_to_locate_toggle(self):
         return XPath('//button[contains(node(), "%s")]' % '☰')
@@ -271,76 +290,76 @@ class NavbarToggleFixture(Fixture, WebBasicsMixin):
         return MainWidget
 
 
-    def new_wsgi_app(self):
-        return super(NavbarToggleFixture, self).new_wsgi_app(enable_js=True,
-                                                       child_factory=self.MainWidget.factory())
-
-
-@test(NavbarToggleFixture)
-def navbar_toggle_collapses_html_element(fixture):
+@with_fixtures(WebFixture, NavbarToggleFixture)
+def test_navbar_toggle_collapses_html_element(web_fixture, navbar_toggle_fixture):
     """You can add a toggle to the navbar that hides another element on the page."""
 
-    fixture.reahl_server.set_app(fixture.wsgi_app)
-    browser = fixture.driver_browser
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=navbar_toggle_fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
     browser.open('/')
 
     #case: by default, the element to hide is not visible
-    vassert( browser.wait_for_not(fixture.panel_is_visible) )
+    assert browser.wait_for_not(navbar_toggle_fixture.panel_is_visible)
 
     #case: clicking on the toggle, causes the panel to appear
-    browser.click(fixture.xpath_to_locate_toggle())
-    browser.wait_for(fixture.panel_is_expanded)
+    browser.click(navbar_toggle_fixture.xpath_to_locate_toggle())
+    browser.wait_for(navbar_toggle_fixture.panel_is_expanded)
 
     #case: clicking on the toggle again, causes the panel to disappear
     time.sleep(0.5)
-    browser.click(fixture.xpath_to_locate_toggle())
-    browser.wait_for_not(fixture.panel_is_visible)
+    browser.click(navbar_toggle_fixture.xpath_to_locate_toggle())
+    browser.wait_for_not(navbar_toggle_fixture.panel_is_visible)
 
 
-@test(NavbarFixture)
-def navbar_toggle_requires_target_id(fixture):
+@with_fixtures(WebFixture, NavbarFixture)
+def test_navbar_toggle_requires_target_id(web_fixture, navbar_fixture):
     """To be able to hide an element, it is required to have an id"""
 
-    navbar = fixture.navbar
+
+    navbar = navbar_fixture.navbar
     navbar.use_layout(NavbarLayout())
-    element_without_id = P(fixture.view, text='Peek-A-Boo')
+    element_without_id = P(web_fixture.view, text='Peek-A-Boo')
 
     def check_ex(ex):
-        vassert( 'has no css_id set' in six.text_type(ex))
+        assert 'has no css_id set' in six.text_type(ex)
 
     with expected(ProgrammerError, test=check_ex):
         navbar.layout.add_toggle(element_without_id)
 
 
-@test(NavbarFixture)
-def navbar_toggle_customised(fixture):
+@with_fixtures(WebFixture, NavbarFixture)
+def test_navbar_toggle_customised(web_fixture, navbar_fixture):
     """The text on a toggle that hides an element is customisable"""
 
-    element_to_collapse = Div(fixture.view, css_id='my_id')
-    toggle = fixture.navbar_with_layout.layout.add_toggle(element_to_collapse, text='≎')
+
+    element_to_collapse = Div(web_fixture.view, css_id='my_id')
+    toggle = navbar_fixture.navbar_with_layout.layout.add_toggle(element_to_collapse, text='≎')
 
     [toggle_text_node] = toggle.children
 
-    vassert( '≎' == toggle_text_node.value )
+    assert '≎' == toggle_text_node.value
 
 
-@test(NavbarFixture)
-def responsive_navbar(fixture):
+@with_fixtures(WebFixture, NavbarFixture)
+def test_responsive_navbar(web_fixture, navbar_fixture):
     """A ResponsiveLayout hides its Navbar when the viewport becomes smaller than a given device size"""
-    navbar_widget = fixture.navbar
+
+    navbar_widget = navbar_fixture.navbar
     navbar_widget.set_id('my_navbar_id')
     navbar_widget.use_layout(ResponsiveLayout('sm'))
 
     [navbar] = navbar_widget.children
     [toggle, collapse_div] = navbar.children
 
-    vassert( 'navbar-toggler' in toggle.get_attribute('class') )
-    vassert( 'hidden-sm-up' in toggle.get_attribute('class') )
-    vassert( 'button' in toggle.get_attribute('type') )
-    vassert( 'collapse' in toggle.get_attribute('data-toggle') )
-    vassert( 'my_navbar_id' in toggle.get_attribute('data-target') )
+    assert 'navbar-toggler' in toggle.get_attribute('class')
+    assert 'hidden-sm-up' in toggle.get_attribute('class')
+    assert 'button' in toggle.get_attribute('type')
+    assert 'collapse' in toggle.get_attribute('data-toggle')
+    assert 'my_navbar_id' in toggle.get_attribute('data-target')
 
-    vassert( 'my_navbar_id' in collapse_div.get_attribute('id') )
-    vassert( 'collapse' in collapse_div.get_attribute('class') )
-    vassert( 'navbar-toggleable-xs' in collapse_div.get_attribute('class') )
+    assert 'my_navbar_id' in collapse_div.get_attribute('id')
+    assert 'collapse' in collapse_div.get_attribute('class')
+    assert 'navbar-toggleable-xs' in collapse_div.get_attribute('class')
 

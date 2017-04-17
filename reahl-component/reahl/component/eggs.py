@@ -50,8 +50,22 @@ class CircularDependencyDetected(Exception):
 
     
 class DependencyGraph(object):
-    def __init__(self, distributions):
-        self.graph = self.read_from_distributions(distributions)
+    @classmethod
+    def from_vertices(cls, vertices, find_dependencies):
+        graph = {}
+        def add_to_graph(v, graph):
+            dependencies = graph[v] = find_dependencies(v)
+            for dep in dependencies:
+                if dep not in graph:
+                    add_to_graph(dep, graph)
+
+        for v in vertices:
+            add_to_graph(v, graph)
+
+        return cls(graph)
+    
+    def __init__(self, graph):
+        self.graph = graph
         self.discovered = {}
         self.entered = {}
         self.exited = {}
@@ -59,20 +73,6 @@ class DependencyGraph(object):
         self.topological_order = []
         self.parents = {}
 
-    def read_from_distributions(self, distributions):
-        graph = {}
-        for dist in distributions:
-            dependencies = [working_set.find(i) for i in dist.requires()]
-            my_requirements =  dist.requires()
-            #we want the subset of stuff in the basket we actually depend on, not just the basket itself
-            basket_requirements = [i for i in my_requirements
-                                   if i.extras]
-            for basket in basket_requirements:
-                dependencies.extend([working_set.find(Requirement.parse(i)) for i in basket.extras])
-                
-            graph[dist] = dependencies
-        return graph
-        
     def path(self, from_vertex, to_vertex):
         path = []
         i = to_vertex
@@ -260,7 +260,17 @@ class ReahlEgg(object):
 
     @classmethod
     def topological_sort(cls, distributions):
-        return DependencyGraph(distributions).topological_sort()
+        def find_dependencies(dist):
+            dependencies = [working_set.find(i) for i in dist.requires()]
+            my_requirements =  dist.requires()
+            #we want the subset of stuff in the basket we actually depend on, not just the basket itself
+            basket_requirements = [i for i in my_requirements
+                                   if i.extras]
+            for basket in basket_requirements:
+                dependencies.extend([working_set.find(Requirement.parse(i)) for i in basket.extras])
+            return dependencies
+            
+        return DependencyGraph.from_vertices(distributions, find_dependencies).topological_sort()
 
 
     @classmethod 

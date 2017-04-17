@@ -17,20 +17,19 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-from nose.tools import istest
-from reahl.tofu import scenario
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import scenario, Fixture
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web.fw import Url
 from reahl.web.ui import Form, TextInput
 from reahl.component.modelinterface import EmailField, exposed
 
-from reahl.web_dev.inputandvalidation.test_eventhandling import FormFixture
 from reahl.webdev.tools import Browser
 
+from reahl.web_dev.fixtures import WebFixture
 
-class Scenarios(FormFixture):
+
+class ValidationScenarios(Fixture):
     @scenario
     def valid_field(self):
         # - a field that passes validation
@@ -67,32 +66,33 @@ class Scenarios(FormFixture):
         self.expected_content_type = 'application/json'
         self.expected_charset = 'utf-8'
 
-    
-@istest
-class FieldValidatorTests(object):
-    @test(Scenarios)
-    def remote_field_validator_handles_GET(self, fixture):
-        class ModelObject(object):
-            @exposed
-            def fields(self, fields):
-                fields.field_name = EmailField()
 
-        model_object = ModelObject()
+@with_fixtures(WebFixture, ValidationScenarios)
+def test_remote_field_validator_handles_GET(web_fixture, validation_scenarios):
+    fixture = validation_scenarios
 
-        class MyForm(Form):
-            def __init__(self, view, name):
-                super(MyForm, self).__init__(view, name)
-                self.add_child(TextInput(self, model_object.fields.field_name))
 
-        wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory(name='some_form'))
-        fixture.reahl_server.set_app(wsgi_app)
-        browser = Browser(wsgi_app)
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.field_name = EmailField()
 
-        browser.open(six.text_type(fixture.url))
-        response = browser.last_response
+    model_object = ModelObject()
 
-        vassert( response.unicode_body == fixture.expected_body )
-        vassert( response.status == fixture.expected_status )
-        vassert( response.content_type == fixture.expected_content_type )
-        vassert( response.charset == fixture.expected_charset )
+    class MyForm(Form):
+        def __init__(self, view, name):
+            super(MyForm, self).__init__(view, name)
+            self.add_child(TextInput(self, model_object.fields.field_name))
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory(name='some_form'))
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = Browser(wsgi_app)
+
+    browser.open(six.text_type(fixture.url))
+    response = browser.last_response
+
+    assert response.unicode_body == fixture.expected_body 
+    assert response.status == fixture.expected_status 
+    assert response.content_type == fixture.expected_content_type 
+    assert response.charset == fixture.expected_charset 
 

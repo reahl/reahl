@@ -17,21 +17,22 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
-from reahl.tofu import Fixture, test, set_up
-from reahl.tofu import vassert, temp_dir
+from reahl.tofu import Fixture, set_up, temp_dir
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass, replaced
 
-from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 
+from reahl.component.context import ExecutionContext
 from reahl.web.dhtml import DhtmlUI, DHTMLFile
-from reahl.web.fw import WebExecutionContext, UserInterface
+from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page
 
+from reahl.web_dev.fixtures import WebFixture
 
-class DjhtmlFixture(Fixture, WebBasicsMixin):
+
+class DhtmlFixture(Fixture):
     def new_static_dir(self):
         return temp_dir()
     
@@ -60,78 +61,81 @@ class DjhtmlFixture(Fixture, WebBasicsMixin):
         self.other_file
 
 
-@istest
-class BasicTests(object):
-    @test(DjhtmlFixture)
-    def basic_workings(self, fixture):
-        """A DhtmlUI provides a UserInterface which maps to the filesystem where there may be
-           a combination of .d.html and other files. When a d.html file is requested from
-           it, the contents of the specified div from inside the d.html file is inserted 
-           into the specified Slot. When a normal file is requested, the file is sent verbatim."""
-        
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
-                self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
-                                name='test_ui', static_div_name='astatic')
+@with_fixtures(WebFixture, DhtmlFixture)
+def test_basic_workings(web_fixture, dhtml_fixture):
+    """A DhtmlUI provides a UserInterface which maps to the filesystem where there may be
+       a combination of .d.html and other files. When a d.html file is requested from
+       it, the contents of the specified div from inside the d.html file is inserted
+       into the specified Slot. When a normal file is requested, the file is sent verbatim."""
 
-        # Djhtml files should be located in the web.static_root
-        fixture.config.web.static_root = fixture.static_dir.name
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
+                            name='test_ui', static_div_name='astatic')
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
-        browser = Browser(wsgi_app)
+    fixture = dhtml_fixture
 
-        # A dhtml file: HTML5Page's main_slot now contains the insides of the div in the dhtml file
+    # Dhtml files should be located in the web.static_root
+    web_fixture.config.web.static_root = fixture.static_dir.name
+
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
+    browser = Browser(wsgi_app)
+
+    # A dhtml file: HTML5Page's main_slot now contains the insides of the div in the dhtml file
+    browser.open('/dhtml_ui/correctfile.d.html')
+    html = fixture.get_inserted_html(browser)
+    assert html == fixture.div_internals
+
+    # A non-dhtml file is returned verbatim
+    browser.open('/dhtml_ui/otherfile.txt')
+    contents = browser.raw_html
+    assert contents == 'other'
+
+    # Files that do not exist are reported as such
+    browser.open('/dhtml_ui/idonotexist.txt', status=404)
+    browser.open('/dhtml_ui/idonotexist.d.html', status=404)
+
+
+@with_fixtures(WebFixture, DhtmlFixture)
+def test_i18n_dhtml(web_fixture, dhtml_fixture):
+    """Dhtml files can have i18nsed versions, which would be served up if applicable."""
+
+    @stubclass(ExecutionContext)
+    class AfrikaansContext(ExecutionContext):
+        @property
+        def interface_locale(self):
+            return 'af'
+
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
+                                       name='test_ui', static_div_name='astatic')
+
+    fixture = dhtml_fixture
+
+    # Dhtml files should be located in the web.static_root
+    web_fixture.config.web.static_root = fixture.static_dir.name
+
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+
+    browser = Browser(wsgi_app)
+
+    # request the file, but get the translated alternative for the locale
+    def stubbed_create_context_for_request():
+        return AfrikaansContext()
+    with replaced(wsgi_app.create_context_for_request, stubbed_create_context_for_request):
         browser.open('/dhtml_ui/correctfile.d.html')
-        html = fixture.get_inserted_html(browser)
-        vassert( html == fixture.div_internals )
 
-        # A non-dhtml file is returned verbatim
-        browser.open('/dhtml_ui/otherfile.txt')
-        contents = browser.raw_html
-        vassert( contents == 'other' )
+    assert browser.title == 'Afrikaans bo!'
 
-        # Files that do not exist are reported as such
-        browser.open('/dhtml_ui/idonotexist.txt', status=404)
-        browser.open('/dhtml_ui/idonotexist.d.html', status=404)
 
-    @test(DjhtmlFixture)
-    def i18n_dhtml(self, fixture):
-        """Djhtml files can have i18nsed versions, which would be served up if applicable."""
-
-        @stubclass(WebExecutionContext)
-        class AfrikaansContext(WebExecutionContext):
-            @property
-            def interface_locale(self):
-                return 'af'
-
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
-                self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
-                                   name='test_ui', static_div_name='astatic')
-
-        # Djhtml files should be located in the web.static_root
-        fixture.config.web.static_root = fixture.static_dir.name
-
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-            
-        browser = Browser(wsgi_app)
-
-        # request the file, but get the transalated alternative for the locale
-        def stubbed_create_context_for_request():
-            return AfrikaansContext()
-        with replaced(wsgi_app.create_context_for_request, stubbed_create_context_for_request):
-            browser.open('/dhtml_ui/correctfile.d.html')
-            
-        vassert( browser.title == 'Afrikaans bo!' )
-
-    @test(DjhtmlFixture)
-    def encoding_dammit(self, fixture):
-        """ """
-        dhtml_file = DHTMLFile(fixture.dhtml_file.name, ['astatic'])
-        dhtml_file.read()
-        vassert( dhtml_file.title == 'â title' )
-        vassert( dhtml_file.elements == {'astatic': fixture.div_internals} )
-        vassert( dhtml_file.original_encoding == 'utf-8' )
-        
+@with_fixtures(DhtmlFixture)
+def test_encoding_dammit(dhtml_fixture):
+    """ """
+    dhtml_file = DHTMLFile(dhtml_fixture.dhtml_file.name, ['astatic'])
+    dhtml_file.read()
+    assert dhtml_file.title == 'â title'
+    assert dhtml_file.elements == {'astatic': dhtml_fixture.div_internals}
+    assert dhtml_file.original_encoding == 'utf-8'

@@ -55,8 +55,8 @@ class ProductionCommand(Command):
         except DistributionNotFound as ex:
             ex.args = ('%s (In development? Did you forget to do a "reahl setup -- develop -N"?)' % ex.args[0],)
             raise
-        with self.context:
-            self.context.system_control = SystemControl(self.context.config)
+        self.context.install()
+        self.context.system_control = SystemControl(self.context.config)
 
     @property
     def sys_control(self):
@@ -78,37 +78,38 @@ class ListConfig(ProductionCommand):
                ('-i', '--info', dict(action='store_true', dest='print_description', help='prints a description'))]
 
     def create_context(self, config_directory):
-        self.context = ExecutionContext()
+        self.context = ExecutionContext(name=self.__class__.__name__)
 
     def execute(self, options, args):
         super(ListConfig, self).execute(options, args)
-        with self.context:
-            print('Listing config for %s' % self.directory)
-            config = StoredConfiguration(self.directory)
-            config.configure(validate=False)
-            for config_file, key, value, setting in config.list_all():
-                to_print = '%-35s' % key
-                if options.print_files:
-                    to_print += '\t%s' % config_file
-                if options.print_values:
-                    to_print += '\t%s' % value
-                if options.print_defaults:
-                    if setting.defaulted:
-                        message = six.text_type(setting.default)
-                        if setting.dangerous:
-                            message += ' (DANGEROUS DEFAULT)'
-                    elif setting.automatic:
-                        message = 'AUTOMATIC'
-                    else:
-                        message = 'NO DEFAULT'
-                    to_print += '\t%s' % message
-                if options.print_description:
-                    to_print += '\t%s' % setting.description
+        self.context.install()
 
-                if options.print_missing_only and not isinstance(value, MissingValue):
-                    pass
+        print('Listing config for %s' % self.directory)
+        config = StoredConfiguration(self.directory)
+        config.configure(validate=False)
+        for config_file, key, value, setting in config.list_all():
+            to_print = '%-35s' % key
+            if options.print_files:
+                to_print += '\t%s' % config_file
+            if options.print_values:
+                to_print += '\t%s' % value
+            if options.print_defaults:
+                if setting.defaulted:
+                    message = six.text_type(setting.default)
+                    if setting.dangerous:
+                        message += ' (DANGEROUS DEFAULT)'
+                elif setting.automatic:
+                    message = 'AUTOMATIC'
                 else:
-                    print(to_print)
+                    message = 'NO DEFAULT'
+                to_print += '\t%s' % message
+            if options.print_description:
+                to_print += '\t%s' % setting.description
+
+            if options.print_missing_only and not isinstance(value, MissingValue):
+                pass
+            else:
+                print(to_print)
 
 
 class CheckConfig(ProductionCommand):
@@ -220,9 +221,9 @@ class SizeDB(ProductionCommand):
     keyword = 'sizedb'
     def execute(self, options, args):
         super(SizeDB, self).execute(options, args)
-        with self.context:
-            with self.sys_control.auto_connected():
-                print('Database size: %s' % self.sys_control.size_database())
+        self.context.install()
+        with self.sys_control.auto_connected():
+            print('Database size: %s' % self.sys_control.size_database())
         return 0
 
 
@@ -231,9 +232,9 @@ class CreateDBTables(ProductionCommand):
     keyword = 'createdbtables'
     def execute(self, options, args):
         super(CreateDBTables, self).execute(options, args)
-        with self.context:
-            with self.sys_control.auto_connected():
-                return self.sys_control.create_db_tables()
+        self.context.install()
+        with self.sys_control.auto_connected():
+            return self.sys_control.create_db_tables()
 
 
 class DropDBTables(ProductionCommand):
@@ -241,9 +242,9 @@ class DropDBTables(ProductionCommand):
     keyword = 'dropdbtables'
     def execute(self, options, args):
         super(DropDBTables, self).execute(options, args)
-        with self.context:
-            with self.sys_control.auto_connected():
-                return self.sys_control.drop_db_tables()
+        self.context.install()
+        with self.sys_control.auto_connected():
+            return self.sys_control.drop_db_tables()
 
 
 class MigrateDB(ProductionCommand):
@@ -251,9 +252,9 @@ class MigrateDB(ProductionCommand):
     keyword = 'migratedb'
     def execute(self, options, args):
         super(MigrateDB, self).execute(options, args)
-        with self.context:
-            with self.sys_control.auto_connected():
-                return self.sys_control.migrate_db()
+        self.context.install()
+        with self.sys_control.auto_connected():
+            return self.sys_control.migrate_db()
 
 
 class DiffDB(ProductionCommand):
@@ -261,9 +262,9 @@ class DiffDB(ProductionCommand):
     keyword = 'diffdb'
     def execute(self, options, args):
         super(DiffDB, self).execute(options, args)
-        with self.context:
-            with self.sys_control.auto_connected():
-                pprint.pprint(self.sys_control.diff_db(), indent=2, width=20)
+        self.context.install()
+        with self.sys_control.auto_connected():
+            pprint.pprint(self.sys_control.diff_db(), indent=2, width=20)
 
 
 class ListDependencies(ProductionCommand):
@@ -273,13 +274,13 @@ class ListDependencies(ProductionCommand):
               [('-v', '--verbose', dict(action='store_true', dest='verbose', help='list direct dependencies too'))]
     def execute(self, options, args):
         super(ListDependencies, self).execute(options, args)
-        with self.context:
-            distributions = ReahlEgg.compute_ordered_dependent_distributions(self.config.reahlsystem.root_egg)
-            for distribution in distributions:
-                deps = ''
-                if options.verbose:
-                    deps = '[%s]' % (' | '.join([six.text_type(i) for i in distribution.requires()]))
-                print('%s %s' % (distribution, deps))
+        self.context.install()
+        distributions = ReahlEgg.compute_ordered_dependent_distributions(self.config.reahlsystem.root_egg)
+        for distribution in distributions:
+            deps = ''
+            if options.verbose:
+                deps = '[%s]' % (' | '.join([six.text_type(i) for i in distribution.requires()]))
+            print('%s %s' % (distribution, deps))
         return 0
 
 
@@ -288,9 +289,9 @@ class RunJobs(ProductionCommand):
     keyword = 'runjobs'
     def execute(self, options, args):
         super(RunJobs, self).execute(options, args)
-        with self.context:
-            with self.sys_control.auto_connected():
-                self.sys_control.do_daily_maintenance()
+        self.context.install()
+        with self.sys_control.auto_connected():
+            self.sys_control.do_daily_maintenance()
         return 0
 
 

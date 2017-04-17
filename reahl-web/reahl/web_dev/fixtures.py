@@ -23,19 +23,25 @@ from six.moves import http_cookies
 from webob import Request, Response
 
 from reahl.stubble import stubclass
-from reahl.tofu import Fixture
+from reahl.tofu import Fixture, set_up, uses
 
 from reahl.webdev.tools import DriverBrowser
-from reahl.webdeclarative.webdeclarative import UserSession
+from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 
-from reahl.domain_dev.fixtures import PartyModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
-from reahl.sqlalchemysupport import Session
 from reahl.component.i18n import Translator
 from reahl.component.py3compat import ascii_as_bytes_or_str
-from reahl.web.fw import ReahlWSGIApplication, WebExecutionContext, UrlBoundView, UserInterface, Url, Widget
+from reahl.component.context import ExecutionContext
+from reahl.web.fw import ReahlWSGIApplication, UrlBoundView, UserInterface, Url, Widget
 from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page
+from reahl.web.egg import WebConfig
+
+
+from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.webdev.fixtures import WebServerFixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
 
 
 _ = Translator('reahl-webdev')
@@ -43,55 +49,42 @@ _ = Translator('reahl-webdev')
         
 @stubclass(ReahlWSGIApplication)
 class ReahlWSGIApplicationStub(ReahlWSGIApplication):
-    def add_reahl_static_files(self): # To save time, this is costly...
-        pass  
+    def add_reahl_static_files(self):
+        static_files = self.config.web.frontend_libraries.packaged_files()
+        static_files_no_js = [packaged_file
+                              for packaged_file in static_files if not packaged_file.relative_name.endswith('.js')]
+        self.define_static_files('/static', static_files_no_js)
 
-    
-class WebBasicsMixin(PartyModelZooMixin):
-    def log_in(self, browser=None, session=None, system_account=None, stay_logged_in=False):
-        session = session or self.session
-        browser = browser or self.driver_browser
-        login_session = LoginSession.for_session(session)
-        login_session.set_as_logged_in(system_account or self.system_account, stay_logged_in)
-        # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
-        response = Response()
-        self.session.set_session_key(response)
-        cookies = http_cookies.BaseCookie(ascii_as_bytes_or_str(', '.join(response.headers.getall('set-cookie'))))
-        for name, morsel in cookies.items():
-            cookie = {'name':name, 'value':morsel.value}
-            cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
-            browser.create_cookie(cookie)
-    
-    def new_driver_browser(self, driver=None):
-        driver = driver or self.web_driver
-        return DriverBrowser(driver)
+
+@uses(reahl_system_fixture=ReahlSystemFixture, sql_alchemy_fixture=SqlAlchemyFixture,
+      party_account_fixture=PartyAccountFixture, web_server_fixture=WebServerFixture)
+class WebFixture(Fixture):
+
+    @set_up
+    def add_web_config(self):
+        self.reahl_system_fixture.config.web = self.webconfig
+
+    @set_up
+    def add_request_to_context(self):
+        self.reahl_system_fixture.context.request = self.request
 
     @property
-    def chrome_driver(self):
-        return self.run_fixture.chrome_driver
+    def context(self):
+        return self.reahl_system_fixture.context
+
     @property
-    def firefox_driver(self):
-        return self.run_fixture.firefox_driver
-    @property
-    def web_driver(self):
-        return self.run_fixture.web_driver
-    @property
-    def reahl_server(self):
-        return self.run_fixture.reahl_server
-        
-    def new_context(self, request=None, config=None, session=None):
-        context = WebExecutionContext()
-        context.set_config( config or self.config )
-        context.set_system_control( self.system_control )
-        context.set_request( request or self.request )
-        with context:
-            context.set_session( session or self.session )
-        return context
-        
-    def new_session(self):
-        web_user_session = UserSession()
-        Session.add(web_user_session)
-        return web_user_session
+    def config(self):
+        return self.reahl_system_fixture.config
+    
+    def new_webconfig(self):
+        web = WebConfig()
+        web.site_root = UserInterface
+        web.static_root = os.path.join(os.getcwd(), 'static')
+        web.session_class = UserSession
+        web.persisted_exception_class = PersistedException
+        web.persisted_file_class = PersistedFile
+        web.persisted_userinput_class = UserInput
+        return web
 
     def new_request(self, path=None, url_scheme=None):
         request = Request.blank(path or '/', charset='utf8')
@@ -104,7 +97,38 @@ class WebBasicsMixin(PartyModelZooMixin):
             request.host = 'localhost:8363'
         return Request(request.environ, charset='utf8')
 
-    def new_wsgi_app(self, site_root=None, enable_js=False, 
+    def log_in(self, browser=None, session=None, system_account=None, stay_logged_in=False):
+        session = session or self.party_account_fixture.session
+        browser = browser or self.driver_browser
+        login_session = LoginSession.for_session(session)
+        login_session.set_as_logged_in(system_account or self.party_account_fixture.system_account, stay_logged_in)
+        # quickly create a response so the fw sets the cookies, which we copy and explicitly set on selenium.
+        response = Response()
+        session.set_session_key(response)
+        cookies = http_cookies.BaseCookie(ascii_as_bytes_or_str(', '.join(response.headers.getall('set-cookie'))))
+        for name, morsel in cookies.items():
+            cookie = {'name':name, 'value':morsel.value}
+            cookie.update(dict([(key, value) for key, value in morsel.items() if value]))
+            browser.create_cookie(cookie)
+
+    def new_driver_browser(self, driver=None):
+        driver = driver or self.web_driver
+        return DriverBrowser(driver)
+
+    @property
+    def chrome_driver(self):
+        return self.web_server_fixture.chrome_driver
+    @property
+    def firefox_driver(self):
+        return self.web_server_fixture.firefox_driver
+    @property
+    def web_driver(self):
+        return self.web_server_fixture.web_driver
+    @property
+    def reahl_server(self):
+        return self.web_server_fixture.reahl_server
+
+    def new_wsgi_app(self, site_root=None, enable_js=False,
                          config=None, view_slots=None, child_factory=None):
         wsgi_app_class = ReahlWSGIApplicationStub
         if enable_js:
@@ -129,16 +153,10 @@ class WebBasicsMixin(PartyModelZooMixin):
         return Url(self.driver_browser.get_location())
 
     def new_view(self):
-        current_path = Url(WebExecutionContext.get_context().request.url).path
+        current_path = Url(ExecutionContext.get_context().request.url).path
         view = UrlBoundView(self.user_interface, current_path, 'A view', {})
         return view
 
     def new_user_interface(self):
         return UserInterface(None, '/', {}, False, 'test_ui')
-
-
-class WebFixture(Fixture, WebBasicsMixin):
-    pass
-
-
 

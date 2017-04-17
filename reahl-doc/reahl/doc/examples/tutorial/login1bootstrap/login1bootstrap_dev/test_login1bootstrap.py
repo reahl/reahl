@@ -1,19 +1,24 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import test, set_up
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.sqlalchemysupport import Session
-from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import Browser, XPath
 
+from reahl.sqlalchemysupport import Session
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount
 
 from reahl.doc.examples.tutorial.login1bootstrap.login1bootstrap import LoginUI
 
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.web_dev.fixtures import WebFixture
 
-class LoginFixture(WebFixture):
+
+@uses(web_fixture=WebFixture)
+class LoginFixture(Fixture):
+
     def new_browser(self):
-        return Browser(self.new_wsgi_app(site_root=LoginUI))
+        return Browser(self.web_fixture.new_wsgi_app(site_root=LoginUI))
 
     password = 'topsecret'
 
@@ -25,21 +30,20 @@ class LoginFixture(WebFixture):
         return account
 
 
-class DemoFixture(LoginFixture):
-    commit=True
-    @set_up
-    def do_demo_setup(self):
-        self.account
-        Session.commit()
+@with_fixtures(SqlAlchemyFixture, LoginFixture)
+def demo_setup(sql_alchemy_fixture, login_fixture):
+    sql_alchemy_fixture.commit = True
+
+    login_fixture.new_account()
 
 
-@test(LoginFixture)
-def logging_in(fixture):
+@with_fixtures(WebFixture, LoginFixture)
+def test_logging_in(web_fixture, login_fixture):
     """A user can log in by going to the Log in page.
        The name of the currently logged in user is displayed on the home page."""
 
-    browser = fixture.browser
-    account = fixture.account
+    browser = login_fixture.browser
+    login_fixture.new_account()
 
     browser.open('/')
     browser.click(XPath.link_with_text('Log in'))
@@ -50,14 +54,14 @@ def logging_in(fixture):
 
     browser.click(XPath.link_with_text('Home'))
     assert browser.is_element_present(XPath.paragraph_containing('Welcome johndoe@some.org'))
-        
 
-@test(LoginFixture)
-def domain_exception(fixture):
+
+@with_fixtures(WebFixture, LoginFixture)
+def test_domain_exception(web_fixture, login_fixture):
     """Typing the wrong password results in an error message being shown to the user."""
 
-    browser = fixture.browser
-    account = fixture.account
+    browser = login_fixture.browser
+    login_fixture.new_account()
 
     browser.open('/')
     browser.click(XPath.link_with_text('Log in'))

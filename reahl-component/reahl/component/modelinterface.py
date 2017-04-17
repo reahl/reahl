@@ -270,7 +270,8 @@ class ValidationConstraint(Exception):
                              references of this template string.
     """
     is_remote = False
-    name = '' #: A unique name for this type of constraint. Only one Constraint with a given name is allowed per Field.
+    name = ''  # A unique name for this type of constraint. Only one Constraint with a given name is allowed per Field.
+
     def __init__(self, error_message=None):
         error_message = error_message or _('$label is invalid')
         Exception.__init__(self)

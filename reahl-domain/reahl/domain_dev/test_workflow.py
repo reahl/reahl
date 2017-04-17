@@ -18,10 +18,9 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import datetime
 
-from nose.tools import istest
-from reahl.tofu import Fixture
-from reahl.tofu import test
-from reahl.tofu import vassert
+
+from reahl.tofu import Fixture, set_up, uses
+from reahl.tofu.pytestsupport import with_fixtures
 
 from sqlalchemy import Column, Integer, Boolean, UnicodeText, ForeignKey
 
@@ -29,11 +28,15 @@ from reahl.dev.tools import EventTester
 from reahl.sqlalchemysupport import Session, Base
 from reahl.domain.workflowmodel import DeferredAction, Requirement, WorkflowInterface, Queue, Task, Inbox
 from reahl.component.eggs import ReahlEgg
-from reahl.domain_dev.fixtures import PartyModelZooMixin, BasicModelZooMixin
 from reahl.domain.systemaccountmodel import LoginSession
 
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
 
-class DeferredActionFixture(Fixture, BasicModelZooMixin):
+
+@uses(party_account_fixture=PartyAccountFixture)
+class DeferredActionFixture(Fixture):
+
     def new_SomeObject(self):
         class SomeObject(Base):
             __tablename__ = 'someobject'
@@ -82,149 +85,155 @@ class DeferredActionFixture(Fixture, BasicModelZooMixin):
         another = self.SomeObject(name='another')
         Session.add(another)
         return another
-  
-    
-@istest
-class DeferredActionTests(object):
-    @test(DeferredActionFixture)
-    def deferred_action_completes(self, fixture):
-        """A DeferredAction will execute its primary action once all its Requirements are fulfilled; then, it and its Requirements are deleted."""
-        with fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
-            requirements = [Requirement(), Requirement(), Requirement()]
-            deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
-            Session.add(deferred_action)
-            Session.flush()
-            for requirement in requirements:
-                requirement.set_fulfilled()
-            vassert( fixture.one_object.done_flag )
-            vassert( not fixture.another_object.done_flag )
-
-            vassert( Session.query(Requirement).count() == 0 )
-            vassert( Session.query(DeferredAction).count() == 0 )
-
-    @test(DeferredActionFixture)
-    def deferred_action_times_out(self, fixture):
-        """If all its Requirements are not fulfilled before its deadline has been reached, a DeferredAction executes its deadline action; then, it and its Requirements are deleted"""
-        
-        with fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
-            requirements = [Requirement(), Requirement(), Requirement()]
-            deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
-            Session.add(deferred_action)
-            Session.flush()
-
-            vassert( deferred_action.deadline == fixture.future_time )
-            ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
-            vassert( not fixture.one_object.deadline_flag )
-            vassert( not fixture.another_object.deadline_flag )
-
-            vassert( Session.query(Requirement).count() == 3 )
-            vassert( Session.query(DeferredAction).count() == 1 )
-
-            deferred_action.deadline = fixture.past_time
-            ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
-            vassert( fixture.one_object.deadline_flag )
-            vassert( not fixture.another_object.deadline_flag )
-
-            vassert( Session.query(Requirement).count() == 0 )
-            vassert( Session.query(DeferredAction).count() == 0 )
-
-        
-    @test(DeferredActionFixture)
-    def deferred_action_completes_with_shared_requirements(self, fixture):
-        """A requirement could be linked to many DeferredActions, in which case it will notify all on success"""
- 
-        with fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
-            requirements1 = [Requirement()]
-            requirements2 = [Requirement(), Requirement()]
-            deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
-                                                        requirements=requirements2,
-                                                        deadline=fixture.future_time)
-            Session.add(deferred_action1)
-            deferred_action2 = fixture.MyDeferredAction(fixture.another_object,
-                                                        requirements=requirements1+requirements2,
-                                                        deadline=fixture.future_time)
-
-            Session.add(deferred_action2)
-            Session.flush()
-            # The requirements are linked back to the correct DeferredActions
-            for requirement in requirements2:
-                vassert( set(requirement.deferred_actions) == {deferred_action1, deferred_action2} )
-
-            for requirement in requirements1:
-                vassert( set(requirement.deferred_actions) == {deferred_action2} )
-
-            # If all of one DeferredAction's Requirements are fulfilled, ones also linked to another DeferrredAction
-            # are not deleted just yet
-            for requirement in requirements2:
-                requirement.set_fulfilled()
-            vassert( fixture.one_object.done_flag )
-            vassert( not fixture.another_object.done_flag )
-
-            for requirement in requirements1+requirements2:
-                vassert( set(requirement.deferred_actions) == {deferred_action2} )
-            vassert( Session.query(Requirement).count() == 3 )
-            vassert( Session.query(DeferredAction).count() == 1 )
-
-            # But as soon as all Requirements of the last DeferredAction are fulfilled, the last Requirements
-            # are deleted as usual
-            for requirement in requirements1:
-                requirement.set_fulfilled()
-            vassert( fixture.one_object.done_flag )
-            vassert( fixture.another_object.done_flag )
-
-            vassert( Session.query(Requirement).count() == 0 )
-            vassert( Session.query(DeferredAction).count() == 0 )
 
 
-    @test(DeferredActionFixture)
-    def deferred_action_times_out_with_shared_requirements(self, fixture):
-        """If a DeferredAction times out, it will not nuke Requirements shared with another DeferredAction."""
- 
-        with fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
-            requirements1 = [Requirement()]
-            requirements2 = [Requirement(), Requirement()]
-            deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
-                                                        requirements=requirements2,
-                                                        deadline=fixture.future_time)
-            Session.add(deferred_action1)
-            deferred_action2 = fixture.MyDeferredAction(fixture.another_object,
-                                                        requirements=requirements1+requirements2,
-                                                        deadline=fixture.future_time)
+@with_fixtures(SqlAlchemyFixture, DeferredActionFixture)
+def test_deferred_action_completes(sql_alchemy_fixture, deferred_action_fixture):
+    """A DeferredAction will execute its primary action once all its Requirements are fulfilled; then, it and its Requirements are deleted."""
 
-            Session.add(deferred_action2)
-            Session.flush()
+    fixture = deferred_action_fixture
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
+        requirements = [Requirement(), Requirement(), Requirement()]
+        deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
+        Session.add(deferred_action)
+        Session.flush()
+        for requirement in requirements:
+            requirement.set_fulfilled()
+        assert fixture.one_object.done_flag
+        assert not fixture.another_object.done_flag
 
-            # If one DeferredAction times out, the remaining one and its Requirements are left intact
-            deferred_action1.deadline=fixture.past_time
-
-            ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
-            vassert( fixture.one_object.deadline_flag )
-            vassert( not fixture.another_object.deadline_flag )
-
-            vassert( Session.query(Requirement).count() == 3 )
-            vassert( Session.query(DeferredAction).count() == 1 )
-
-            for requirement in requirements1+requirements2:
-                vassert( set(requirement.deferred_actions) == {deferred_action2} )
-
-            # When no more DeferredActions are held onto by Requirements, those Requirements are deleted
-            deferred_action2.deadline=fixture.past_time
-            ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
-
-            vassert( fixture.one_object.deadline_flag )
-            vassert( fixture.another_object.deadline_flag )
-
-            vassert( Session.query(Requirement).count() == 0 )
-            vassert( Session.query(DeferredAction).count() == 0 )
+        assert Session.query(Requirement).count() == 0
+        assert Session.query(DeferredAction).count() == 0
 
 
-class TaskQueueZooMixin(PartyModelZooMixin):
-    def new_session(self, system_account=None):
-        session = super(TaskQueueZooMixin, self).new_session()
-        system_account = self.new_system_account(party=self.party)
+@with_fixtures(SqlAlchemyFixture, DeferredActionFixture)
+def test_deferred_action_times_out(sql_alchemy_fixture, deferred_action_fixture):
+    """If all its Requirements are not fulfilled before its deadline has been reached, a DeferredAction executes its deadline action; then, it and its Requirements are deleted"""
+
+    fixture = deferred_action_fixture
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
+        requirements = [Requirement(), Requirement(), Requirement()]
+        deferred_action = fixture.MyDeferredAction(fixture.one_object, requirements=requirements, deadline=fixture.future_time)
+        Session.add(deferred_action)
+        Session.flush()
+
+        assert deferred_action.deadline == fixture.future_time
+        ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
+        assert not fixture.one_object.deadline_flag
+        assert not fixture.another_object.deadline_flag
+
+        assert Session.query(Requirement).count() == 3
+        assert Session.query(DeferredAction).count() == 1
+
+        deferred_action.deadline = fixture.past_time
+        ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
+        assert fixture.one_object.deadline_flag
+        assert not fixture.another_object.deadline_flag
+
+        assert Session.query(Requirement).count() == 0
+        assert Session.query(DeferredAction).count() == 0
+
+
+@with_fixtures(SqlAlchemyFixture, DeferredActionFixture)
+def test_deferred_action_completes_with_shared_requirements(sql_alchemy_fixture, deferred_action_fixture):
+    """A requirement could be linked to many DeferredActions, in which case it will notify all on success"""
+
+    fixture = deferred_action_fixture
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
+        requirements1 = [Requirement()]
+        requirements2 = [Requirement(), Requirement()]
+        deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
+                                                    requirements=requirements2,
+                                                    deadline=fixture.future_time)
+        Session.add(deferred_action1)
+        deferred_action2 = fixture.MyDeferredAction(fixture.another_object,
+                                                    requirements=requirements1+requirements2,
+                                                    deadline=fixture.future_time)
+
+        Session.add(deferred_action2)
+        Session.flush()
+        # The requirements are linked back to the correct DeferredActions
+        for requirement in requirements2:
+            assert set(requirement.deferred_actions) == {deferred_action1, deferred_action2}
+
+        for requirement in requirements1:
+            assert set(requirement.deferred_actions) == {deferred_action2}
+
+        # If all of one DeferredAction's Requirements are fulfilled, ones also linked to another DeferrredAction
+        # are not deleted just yet
+        for requirement in requirements2:
+            requirement.set_fulfilled()
+        assert fixture.one_object.done_flag
+        assert not fixture.another_object.done_flag
+
+        for requirement in requirements1+requirements2:
+            assert set(requirement.deferred_actions) == {deferred_action2}
+        assert Session.query(Requirement).count() == 3
+        assert Session.query(DeferredAction).count() == 1
+
+        # But as soon as all Requirements of the last DeferredAction are fulfilled, the last Requirements
+        # are deleted as usual
+        for requirement in requirements1:
+            requirement.set_fulfilled()
+        assert fixture.one_object.done_flag
+        assert fixture.another_object.done_flag
+
+        assert Session.query(Requirement).count() == 0
+        assert Session.query(DeferredAction).count() == 0
+
+
+@with_fixtures(SqlAlchemyFixture, DeferredActionFixture)
+def test_deferred_action_times_out_with_shared_requirements(sql_alchemy_fixture, deferred_action_fixture):
+    """If a DeferredAction times out, it will not nuke Requirements shared with another DeferredAction."""
+
+    fixture = deferred_action_fixture
+    with sql_alchemy_fixture.persistent_test_classes(fixture.MyDeferredAction, fixture.SomeObject):
+        requirements1 = [Requirement()]
+        requirements2 = [Requirement(), Requirement()]
+        deferred_action1 = fixture.MyDeferredAction(fixture.one_object,
+                                                    requirements=requirements2,
+                                                    deadline=fixture.future_time)
+        Session.add(deferred_action1)
+        deferred_action2 = fixture.MyDeferredAction(fixture.another_object,
+                                                    requirements=requirements1+requirements2,
+                                                    deadline=fixture.future_time)
+
+        Session.add(deferred_action2)
+        Session.flush()
+
+        # If one DeferredAction times out, the remaining one and its Requirements are left intact
+        deferred_action1.deadline=fixture.past_time
+
+        ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
+        assert fixture.one_object.deadline_flag
+        assert not fixture.another_object.deadline_flag
+
+        assert Session.query(Requirement).count() == 3
+        assert Session.query(DeferredAction).count() == 1
+
+        for requirement in requirements1+requirements2:
+            assert set(requirement.deferred_actions) == {deferred_action2}
+
+        # When no more DeferredActions are held onto by Requirements, those Requirements are deleted
+        deferred_action2.deadline=fixture.past_time
+        ReahlEgg.do_daily_maintenance_for_egg('reahl-domain')
+
+        assert fixture.one_object.deadline_flag
+        assert fixture.another_object.deadline_flag
+
+        assert Session.query(Requirement).count() == 0
+        assert Session.query(DeferredAction).count() == 0
+
+
+@uses(sql_alchemy_fixture=SqlAlchemyFixture, party_account_fixture=PartyAccountFixture)
+class TaskQueueFixture2(Fixture):
+
+    @set_up
+    def log_in_test_user(self):
+        session = self.party_account_fixture.session
+        system_account = self.party_account_fixture.system_account
         login_session = LoginSession.for_session(session)
         login_session.set_as_logged_in(system_account, True)
-        return session
 
     def new_workflow_interface(self):
         return WorkflowInterface()
@@ -244,79 +253,89 @@ class TaskQueueZooMixin(PartyModelZooMixin):
         return task
 
 
-class TaskQueueFixture(Fixture, TaskQueueZooMixin):
-    pass
+@with_fixtures(PartyAccountFixture, TaskQueueFixture2)
+def test_reserving_tasks(party_account_fixture, task_queue_fixture):
+    """Tasks can be reserved by a party; a reserved task can be released again."""
 
-@istest
-class TaskQueueTests(object):
-    @test(TaskQueueFixture)
-    def reserving_tasks(self, fixture):
-        """Tasks can be reserved by a party; a reserved task can be released again."""
-        task = fixture.task
+    fixture = task_queue_fixture
 
-        vassert( task.is_available() )
-        vassert( not task.is_reserved_for(fixture.party) )
+    task = fixture.task
 
-        task.reserve_for(fixture.party)
-        vassert( not task.is_available() )
-        vassert( task.is_reserved_for(fixture.party) )
+    assert task.is_available()
+    assert not task.is_reserved_for(party_account_fixture.party)
 
-        task.release()
-        vassert( task.is_available() )
-        vassert( not task.is_reserved_for(fixture.party) )
+    task.reserve_for(party_account_fixture.party)
+    assert not task.is_available()
+    assert task.is_reserved_for(party_account_fixture.party)
 
-    @test(TaskQueueFixture)
-    def inbox(self, fixture):
-        """An Inbox is a collection of tasks in a collection of queues."""
-        queue1 = fixture.new_queue(name='q1')
-        queue2 = fixture.new_queue(name='q2')
-        queue3 = fixture.new_queue(name='q3')
-        inbox = Inbox([queue1, queue2])
-        task1 = fixture.new_task(queue=queue1)
-        task2 = fixture.new_task(queue=queue2)
-        task3 = fixture.new_task(queue=queue3)
-
-        tasks = inbox.get_tasks()
-        vassert( tasks == [task1, task2] )
-        
-    @test(TaskQueueFixture)
-    def take_task_interface(self, fixture):
-        workflow_interface = fixture.workflow_interface
-        task = fixture.task
-
-        vassert( not task.is_reserved_for(fixture.party) )
-        take_task = EventTester(workflow_interface.events.take_task, task=task)
-        take_task.fire_event()
-        vassert( task.is_reserved_for(fixture.party) )
-        vassert( not take_task.can_write_event )
-
-        task.release()
-        vassert( take_task.can_write_event )
-
-    @test(TaskQueueFixture)
-    def go_to_task_interface(self, fixture):
-        workflow_interface = fixture.workflow_interface
-        task = fixture.task
-
-        vassert( not task.is_reserved_for(fixture.party) )
-        task.reserve_for(fixture.party)
-        go_to_task = EventTester(workflow_interface.events.go_to_task, task=task)
-        vassert( go_to_task.can_read_event )
-
-        task.release()
-        vassert( not go_to_task.can_read_event )
+    task.release()
+    assert task.is_available()
+    assert not task.is_reserved_for(party_account_fixture.party)
 
 
-    @test(TaskQueueFixture)
-    def release_task_interface(self, fixture):
-        workflow_interface = fixture.workflow_interface
-        task = fixture.task
+@with_fixtures(TaskQueueFixture2)
+def test_inbox(task_queue_fixture):
+    """An Inbox is a collection of tasks in a collection of queues."""
 
-        task.reserve_for(fixture.party)
-        release_task = EventTester(workflow_interface.events.release_task, task=task)
-        release_task.fire_event()
-        vassert( not task.is_reserved_for(fixture.party) )
-        vassert( not release_task.can_write_event )
+    fixture = task_queue_fixture
 
-        task.reserve_for(fixture.party)
-        vassert( release_task.can_write_event )
+    queue1 = fixture.new_queue(name='q1')
+    queue2 = fixture.new_queue(name='q2')
+    queue3 = fixture.new_queue(name='q3')
+    inbox = Inbox([queue1, queue2])
+    task1 = fixture.new_task(queue=queue1)
+    task2 = fixture.new_task(queue=queue2)
+    task3 = fixture.new_task(queue=queue3)
+
+    tasks = inbox.get_tasks()
+    assert tasks == [task1, task2]
+
+
+@with_fixtures(PartyAccountFixture, TaskQueueFixture2)
+def test_take_task_interface(party_account_fixture, task_queue_fixture):
+    fixture = task_queue_fixture
+
+    workflow_interface = fixture.workflow_interface
+    task = fixture.task
+
+    assert not task.is_reserved_for(party_account_fixture.party)
+    take_task = EventTester(workflow_interface.events.take_task, task=task)
+    take_task.fire_event()
+    assert task.is_reserved_for(party_account_fixture.party)
+    assert not take_task.can_write_event
+
+    task.release()
+    assert take_task.can_write_event
+
+
+@with_fixtures(PartyAccountFixture, TaskQueueFixture2)
+def test_go_to_task_interface(party_account_fixture, task_queue_fixture):
+    fixture = task_queue_fixture
+
+    workflow_interface = fixture.workflow_interface
+    task = fixture.task
+
+    assert not task.is_reserved_for(party_account_fixture.party)
+    task.reserve_for(party_account_fixture.party)
+    go_to_task = EventTester(workflow_interface.events.go_to_task, task=task)
+    assert go_to_task.can_read_event
+
+    task.release()
+    assert not go_to_task.can_read_event
+
+
+@with_fixtures(PartyAccountFixture, TaskQueueFixture2)
+def test_release_task_interface(party_account_fixture, task_queue_fixture):
+    fixture = task_queue_fixture
+
+    workflow_interface = fixture.workflow_interface
+    task = fixture.task
+
+    task.reserve_for(party_account_fixture.party)
+    release_task = EventTester(workflow_interface.events.release_task, task=task)
+    release_task.fire_event()
+    assert not task.is_reserved_for(party_account_fixture.party)
+    assert not release_task.can_write_event
+
+    task.reserve_for(party_account_fixture.party)
+    assert release_task.can_write_event

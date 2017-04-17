@@ -34,7 +34,7 @@ from reahl.component.config import Configuration
 from reahl.component.context import ExecutionContext
 from reahl.component.migration import Migration
 from reahl.web.interfaces import UserSessionProtocol, UserInputProtocol, PersistedExceptionProtocol, PersistedFileProtocol
-from reahl.web.fw import WebExecutionContext, Url
+from reahl.web.fw import Url
 
 class InvalidKeyException(Exception):
     pass
@@ -66,6 +66,10 @@ class UserSession(Base, UserSessionProtocol):
     def for_current_session(cls):
         return ExecutionContext.get_context().session
 
+    @classmethod
+    def initialise_web_session_on(cls, context):
+        context.session = cls.get_or_create_session()
+    
     def __init__(self, **kwargs):
         self.generate_salt()
         self.last_activity = datetime.fromordinal(1)
@@ -73,7 +77,7 @@ class UserSession(Base, UserSessionProtocol):
         super(UserSession, self).__init__(**kwargs)
 
     def is_secured(self):
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         return self.is_within_timeout(context.config.web.idle_secure_lifetime) \
                and context.request.scheme == 'https' \
                and self.secure_cookie_is_valid()
@@ -88,7 +92,7 @@ class UserSession(Base, UserSessionProtocol):
         self.last_activity = datetime.now()
 
     def set_idle_lifetime(self, use_max):
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         self.idle_lifetime = config.web.idle_lifetime_max if use_max else config.web.idle_lifetime
 
     @classmethod
@@ -107,7 +111,7 @@ class UserSession(Base, UserSessionProtocol):
         return '%s:%s' % (six.text_type(self.id), self.salt)
 
     def secure_cookie_is_valid(self):
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         try:
             salt = context.request.cookies[context.config.web.secure_key_name]
             return self.secure_salt == salt
@@ -132,7 +136,7 @@ class UserSession(Base, UserSessionProtocol):
 
     @classmethod
     def get_session_key(cls):
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         try:
             raw_cookie = context.request.cookies[context.config.web.session_key_name]
             return urllib_parse.unquote(raw_cookie)
@@ -140,7 +144,7 @@ class UserSession(Base, UserSessionProtocol):
             return None
 
     def set_session_key(self, response):
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         session_cookie = self.as_key()
         response.set_cookie(context.config.web.session_key_name, urllib_parse.quote(session_cookie), path='/')
         if self.is_secured():
@@ -153,7 +157,7 @@ class UserSession(Base, UserSessionProtocol):
         self.secure_salt = ''.join([random.choice(alphabet) for x in list(range(40))])        
 
     def get_interface_locale(self):
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         if not hasattr(context, 'request'):
             return 'en_gb'
 
@@ -186,12 +190,12 @@ class SessionData(Base):
 
     @classmethod
     def for_form(cls, form):
-        web_session = WebExecutionContext.get_context().session
+        web_session = ExecutionContext.get_context().session
         return Session.query(cls).filter_by(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name)
     
     @classmethod
     def new_for_form(cls, form, **kwargs):
-        web_session = WebExecutionContext.get_context().session
+        web_session = ExecutionContext.get_context().session
         instance = cls(web_session=web_session, ui_name=form.user_interface.name, channel_name=form.channel_name, **kwargs)
         Session.add(instance)
         return instance

@@ -37,14 +37,14 @@ Resource <|-- SubResource
 
 UserInterface -down-- "*" SubResource : sub_resources\n {url} >
 
-WebExecutionContext -down- Resource
+ExecutionContext -down- Resource
 
 class Request <<webob.Request>>
 class UserSession <<persisted>>
 note top of UserSession : ~spans many requests
 
-UserSession -left- WebExecutionContext
-Request -up- WebExecutionContext
+UserSession -left- ExecutionContext
+Request -up- ExecutionContext
 
 }
 

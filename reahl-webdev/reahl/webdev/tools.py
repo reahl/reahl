@@ -64,7 +64,7 @@ class BasicBrowser(object):
     def save_source(self, filename):
         with io.open(filename, 'w') as html_file:
             html_file.write(self.raw_html)
-        
+
     def is_element_present(self, locator):
         xpath = six.text_type(locator)
         return len(self.lxml_html.xpath(xpath)) == 1 

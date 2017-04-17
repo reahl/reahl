@@ -16,19 +16,19 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.tofu import test
-from reahl.tofu import vassert
 
-from reahl.web_dev.fixtures import WebFixture
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.component.i18n import Translator
 from reahl.web.fw import UserInterface, IdentityDictionary, Bookmark
 from reahl.web.ui import HTML5Page
 from reahl.webdev.tools import Browser
 
+from reahl.web_dev.fixtures import WebFixture
 
-@test(WebFixture)
-def i18n_urls(fixture):
+
+@with_fixtures(WebFixture)
+def test_i18n_urls(web_fixture):
     """The current locale is determined by reading the first segment of the path. If the locale is not present in the
     path, web.default_url_locale is used."""
     _ = Translator('reahl-web')
@@ -41,34 +41,35 @@ def i18n_urls(fixture):
         def assemble(self):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  I18nUI,  IdentityDictionary(), name='test_ui')
-            
-    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
     browser.open('/a_ui/aview')
-    vassert( browser.title == 'A View' )
+    assert browser.title == 'A View'
 
     browser.open('/af/a_ui/aview')
-    vassert( browser.title == '\'n Oogpunt' )
+    assert browser.title == '\'n Oogpunt'
 
-    fixture.context.config.web.default_url_locale = 'af'
+    web_fixture.config.web.default_url_locale = 'af'
     browser.open('/a_ui/aview')
-    vassert( browser.title == '\'n Oogpunt' )
-    
+    assert browser.title == '\'n Oogpunt'
+
     browser.open('/en_gb/a_ui/aview')
-    vassert( browser.title == 'A View' )
+    assert browser.title == 'A View'
 
 
-@test(WebFixture)
-def bookmarks(fixture):
+@with_fixtures(WebFixture)
+def test_bookmarks(web_fixture):
     """Bookmarks normally refer to the current locale. You can override that to be a specified locale instead.
     """
+
 
     bookmark = Bookmark('/base_path', '/relative_path', 'description')
     af_bookmark = Bookmark('/base_path', '/relative_path', 'description', locale='af')
 
-    vassert( af_bookmark.locale == 'af' )
-    vassert( af_bookmark.href.path == '/af/base_path/relative_path' )
+    assert af_bookmark.locale == 'af'
+    assert af_bookmark.href.path == '/af/base_path/relative_path'
 
-    vassert( bookmark.locale is None )
-    vassert( bookmark.href.path == '/base_path/relative_path' )
+    assert bookmark.locale is None
+    assert bookmark.href.path == '/base_path/relative_path'

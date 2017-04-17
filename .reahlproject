@@ -4,9 +4,14 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="pytest-runner"/>
   </deps>
 
-  <extras name="all">
+  <deps purpose="test">
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+  </deps>
+
+<extras name="all">
     <egg name="reahl-component"/>
     <egg name="reahl-web"/>
     <egg name="reahl-mailutil"/>
@@ -64,6 +69,6 @@
     <packageindex repository="pypi"/>
   </distpackage>
 
-  <alias name="unit" command="setup -- -q nosetests"/>
+  <alias name="unit" command="setup -- check"/>
 </project>
 

@@ -14,38 +14,31 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Tests for the reahl.dev.mailtest module
-===========================================
-
-Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www.reahl.org)
-
-""" 
-
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import Fixture, test
-from reahl.tofu import expected, vassert
+from reahl.tofu import Fixture
+from reahl.tofu import expected
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.mailutil.mail import Mailer, MailMessage, InvalidEmailAddressException
 from reahl.dev.mailtest import MailTester
 
-class EmailAddressFixture(Fixture):
-    def set_up(self):
-        self.valid_email_addresses = ['someone@home.co.za', 'something@somewhere.com', 'j@j.ca']
-        self.invalid_email_addresses = ['somethingWithoutTheAt', '@somethingThatBeginsWithTheAT',
-                                      'somethingThatEndsWithTheAt@', '@' ,None]
 
-
-class MailerFixture(EmailAddressFixture):
+# noinspection PyAttributeOutsideInit
+class MailerFixture(Fixture):
     def set_up(self):
         super(MailerFixture, self).set_up()
-        
+
+        self.valid_email_addresses = ['someone@home.co.za', 'something@somewhere.com', 'j@j.ca']
+        self.invalid_email_addresses = ['somethingWithoutTheAt', '@somethingThatBeginsWithTheAT',
+                                        'somethingThatEndsWithTheAt@', '@', None]
+
         self.mail_checker_started = False
         self.mail_recipients = None
         self.mail_message = None
-        
+
         self.mailer = Mailer()
-        
+
     def start_mail_checker(self):
         self.mail_tester = MailTester(self.mail_checker)
         self.mail_tester.start()
@@ -56,43 +49,42 @@ class MailerFixture(EmailAddressFixture):
         self.mail_recipients = email_message['To'].split(', ')
         self.mail_subject = email_message['Subject']
         self.mail_message = email_message.get_payload()[0].get_payload()[0].get_payload()
-        
+
     def tear_down(self):
         super(MailerFixture, self).tear_down()
         if self.mail_checker_started:
             self.mail_tester.stop()
- 
 
 
-@test(MailerFixture)
-def validation(fixture):
-   
+@with_fixtures(MailerFixture)
+def test_validation(mailer_fixture):
+    fixture = mailer_fixture
     with expected(InvalidEmailAddressException):
         MailMessage(fixture.invalid_email_addresses[0],
-                   fixture.valid_email_addresses, 
-                   'Hi', 
-                   'Some Message')
-    
+                    fixture.valid_email_addresses,
+                    'Hi',
+                    'Some Message')
+
     with expected(InvalidEmailAddressException):
         MailMessage(fixture.valid_email_addresses[0],
-                   fixture.invalid_email_addresses, 
-                   'Hi', 
-                   'Some Message')
-    
+                    fixture.invalid_email_addresses,
+                    'Hi',
+                    'Some Message')
 
-@test(MailerFixture)
-def sending(fixture):
+
+@with_fixtures(MailerFixture)
+def test_sending(mailer_fixture):
+    fixture = mailer_fixture
 
     fixture.start_mail_checker()
 
     mail_message = MailMessage(fixture.valid_email_addresses[0],
-                               fixture.valid_email_addresses, 
-                               'Hi', 
-                               'Some Message', 
+                               fixture.valid_email_addresses,
+                               'Hi',
+                               'Some Message',
                                charset='ascii')
     fixture.mailer.send_message(mail_message)
-    vassert( fixture.mail_sender == fixture.valid_email_addresses[0] )
-    vassert( fixture.mail_recipients == fixture.valid_email_addresses )
-    vassert( fixture.mail_subject == 'Hi' )
-    vassert( fixture.mail_message == 'Some Message' )
-    
+    assert fixture.mail_sender == fixture.valid_email_addresses[0]
+    assert fixture.mail_recipients == fixture.valid_email_addresses
+    assert fixture.mail_subject == 'Hi'
+    assert fixture.mail_message == 'Some Message'

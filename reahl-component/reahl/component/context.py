@@ -17,22 +17,13 @@
 """The Reahl context utilities."""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-import inspect
 
+import inspect
+import contextlib
 
 
 class NoContextFound(Exception):
     pass
-
-class NoContext(object):
-    def __getattr__(self, name):
-        raise NoContextFound('An attempt was made to access %s on the context, but not context was present in the call stack' % name)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        pass
 
 
 class ExecutionContext(object):
@@ -55,7 +46,7 @@ class ExecutionContext(object):
         config = StoredConfiguration(config_directory)
         config.configure()
         new_context = cls()
-        new_context.set_config(config)
+        new_context.config = config
         return new_context
 
     @classmethod
@@ -65,42 +56,40 @@ class ExecutionContext(object):
 
     @classmethod
     def get_context(cls):
-        """Returns the current call context, or :class:`NoContext` if there is none."""
-        no_context = NoContext()
-        context = no_context
+        """Returns the current call context, or raises :class:`NoContextFound` if there is none."""
+        context = None
         f = inspect.currentframe()
-        while context is no_context and f:
-            candidate = f.f_locals.get('__reahl_context__', None)
-            if isinstance(candidate, ExecutionContext):
-                context = candidate
+        while (not context) and f:
+            context = f.f_locals.get('__reahl_context__', None)
             to_delete = f
             f = f.f_back
             del to_delete
+        if not context:
+            raise NoContextFound('No %s is active in the call stack' % cls)
         return context
 
-    def __init__(self):
-        self.parent_context = self.get_context()
+    def __init__(self, name=None, parent_context=None):
+        self.name = name
+        try:
+            self.parent_context = parent_context or self.get_context()
+        except NoContextFound:
+            self.parent_context = None
         self.id = (self.parent_context.id if isinstance(self.parent_context, ExecutionContext) else id(self))
 
-    def set_session(self, session):
-        self.session = session
-
-    def set_system_control(self, system_control):
-        self.system_control = system_control
-
-    def set_config(self, config):
-        self.config = config
-
-    def __enter__(self):
+    def install(self, stop=None):
         f = inspect.currentframe()
-        calling_frame = f.f_back
+        i = 0
+        if not stop:
+            def stop(ff):
+                return i >= 1
+        while not stop(f):
+            calling_frame = f.f_back
+            i += 1
+            del f
+            f = calling_frame
         calling_frame.f_locals['__reahl_context__'] = self
         del calling_frame
-        del f
         return self
-
-    def __exit__(self, *args):
-        pass
 
     @property
     def interface_locale(self):
@@ -109,3 +98,13 @@ class ExecutionContext(object):
         if not session:
             return 'en_gb'
         return self.session.get_interface_locale()
+
+    def __getattr__(self, name):
+        raise AttributeError('%s has no attribute \'%s\'' % (self, name))
+
+    def __str__(self):
+        if self.name:
+            return '%s named \'%s\'' % (self.__class__.__name__, self.name)
+        return super(ExecutionContext, self).__str__()
+
+        
