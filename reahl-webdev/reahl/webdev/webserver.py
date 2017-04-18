@@ -33,6 +33,8 @@ import logging
 import functools
 import pkg_resources
 
+from six.moves.http_client import CannotSendRequest
+
 from webob import Request
 from webob.exc import HTTPInternalServerError
 
@@ -278,7 +280,13 @@ class WebDriverHandler(object):
             def doit():
                 try:
                     started.set()
-                    r = self.original_execute(command, params)
+                    try:
+                        r = self.original_execute(command, params)
+                    except CannotSendRequestError:
+                        # Retry in case the keep-alive connection state got mixed up
+                        # by, eg, the browser requesting a new url before all the
+                        # styleseets etc have loaded on the current one.
+                        r = self.original_execute(command, params)
                     results.append(r)
                 except Exception as e:
                     exceptions.append(e)
