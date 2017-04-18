@@ -283,9 +283,10 @@ class WebDriverHandler(object):
                     try:
                         r = self.original_execute(command, params)
                     except CannotSendRequestError:
-                        print('testing CannotSendRequestError, retrying...')
+                        # Retry in case the keep-alive connection state got mixed up
+                        # by, eg, the browser requesting a new url before all the
+                        # styleseets etc have loaded on the current one.
                         r = self.original_execute(command, params)
-                        print('..done.')
                     results.append(r)
                 except Exception as e:
                     exceptions.append(e)
