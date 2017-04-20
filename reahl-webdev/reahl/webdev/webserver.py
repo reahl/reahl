@@ -282,7 +282,7 @@ class WebDriverHandler(object):
                     started.set()
                     try:
                         r = self.original_execute(command, params)
-                    except CannotSendRequestError:
+                    except CannotSendRequest:
                         # Retry in case the keep-alive connection state got mixed up
                         # by, eg, the browser requesting a new url before all the
                         # styleseets etc have loaded on the current one.
