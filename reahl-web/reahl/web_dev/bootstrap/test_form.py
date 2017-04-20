@@ -142,7 +142,6 @@ def test_grid_form_layouts(web_fixture, form_layout_fixture):
             self.use_layout(GridFormLayout(ResponsiveSize(lg=4), ResponsiveSize(lg=8)))
             self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
 
-
     browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithGridFormLayout.factory()))
     browser.open('/')
 
@@ -399,7 +398,7 @@ def test_choices_layout(web_fixture, choices_layout_fixture):
 
     tester = WidgetTester(inlined_container)
     assert fixture.input_is_wrapped_in_label(tester)
-    assert fixture.main_element(tester).tag == 'label'
+    assert fixture.main_element(tester).tag == 'div'
     assert fixture.main_element(tester).attrib['class'] == 'form-check form-check-inline'
 
 
@@ -429,7 +428,7 @@ def test_layout_of_radio_button_input(web_fixture, radio_button_fixture):
 
     tester = WidgetTester(inlined_radio)
     assert fixture.input_is_wrapped_in_label(tester)
-    assert fixture.main_element(tester).tag == 'label'
+    assert fixture.main_element(tester).tag == 'div'
     assert fixture.main_element(tester).attrib['class'] == 'form-check form-check-inline'
 
 

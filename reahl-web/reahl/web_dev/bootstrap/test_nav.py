@@ -333,13 +333,6 @@ def test_nav_items_can_be_aligned_horizontally(web_fixture, different_layout_typ
     assert 'justify-content-center' in menu.html_representation.get_attribute('class')
 
 
-def test_pill_layouts_cannot_mix_justified_and_stacked():
-    """A PillLayout cannot be both stacked and justified at the same time."""
-
-    with expected(ProgrammerError):
-        PillLayout(stacked=True, justified=True)
-
-
 @with_fixtures(WebFixture)
 def test_dropdown_menus(web_fixture):
     """You can add a DropdownMenu as a dropdown inside a Nav."""
@@ -375,7 +368,7 @@ def test_dropdown_menus(web_fixture):
 
 
 @with_fixtures(WebFixture)
-def dropdown_menus_with_divider(web_fixture):
+def test_dropdown_menus_with_divider(web_fixture):
     """You can add a divider to a DropdownMenu."""
     sub_menu = DropdownMenu(web_fixture.view)
     sub_menu.add_a(A(web_fixture.view, Url('/an/url'), description='sub menu item'))

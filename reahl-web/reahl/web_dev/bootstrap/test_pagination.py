@@ -350,10 +350,10 @@ def test_pagination_basics(web_fixture, page_menu_fixture):
 
     #This is what the pager looks like: ← « 1 2 3 » →
     #With this query string we are indicating that we have clicked on page 3, and thus should be the current page
-    page_menu_fixture.request.query_string = 'current_page_number=3&start_page_number=1'
+    web_fixture.request.query_string = 'current_page_number=3&start_page_number=1'
     page_index = page_menu_fixture.PageIndexStub(3, 9)
-    page_container = page_menu_fixture.PageContainer(fixture.view, page_index)
-    pagemenu = PageMenu(page_menu_fixture.view, 'my_page_menu_widget', page_index, page_container)
+    page_container = page_menu_fixture.PageContainer(web_fixture.view, page_index)
+    pagemenu = PageMenu(web_fixture.view, 'my_page_menu_widget', page_index, page_container)
 
     [pagination_container] = pagemenu.children
     assert 'pagination' in pagination_container.html_representation.get_attribute('class')
@@ -385,6 +385,6 @@ def test_pagination_basics(web_fixture, page_menu_fixture):
 
         # current page is highlighted if you selected the page(are on the page)
         if i == current_page_link_index:
-            assert 'active' in page_item.get_attribute('class') )
+            assert 'active' in page_item.get_attribute('class')
         else:
-            assert 'active' not in page_item.get_attribute('class') )
+            assert 'active' not in page_item.get_attribute('class')

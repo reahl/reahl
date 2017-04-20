@@ -77,13 +77,6 @@ def test_table_layout_options(web_fixture, layout_scenarios):
 
 class LayoutHeaderThemeScenarios(WebFixture):
 
-    def new_data(self):
-        return [DataItem(1, 'T'), DataItem(2, 'H'), DataItem(3, 'E')]
-
-    def new_column_definitions(self):
-        return [StaticColumn(Field(label='Row Number'), 'row'),
-                StaticColumn(Field(label='Alpha'), 'alpha')]
-
     @scenario
     def no_theme(self):
         self.theme = None
@@ -103,12 +96,17 @@ class LayoutHeaderThemeScenarios(WebFixture):
 def test_table_layout_header_options(web_fixture, layout_scenarios):
     """TableLayout can style a table header row."""
 
+    data = [DataItem(1, 'T'), DataItem(2, 'H'), DataItem(3, 'E')]
+
+    column_definitions = [StaticColumn(Field(label='Row Number'), 'row'),
+                          StaticColumn(Field(label='Alpha'), 'alpha')]
+
     layout = TableLayout(heading_theme=layout_scenarios.theme)
-    table = Table(web_fixture.view).with_data(layout_scenarios.column_definitions, fixture.data)
+    table = Table(web_fixture.view).with_data(column_definitions, data)
     table.use_layout(layout)
 
     if layout_scenarios.theme is not None:
-        assert layout.widget.thead.get_attribute('class') == '%s' % fixture.expected_css_class
+        assert layout.widget.thead.get_attribute('class') == '%s' % layout_scenarios.expected_css_class
     else:
         assert not layout.widget.thead.has_attribute('class')
 

@@ -318,6 +318,13 @@ def test_clicking_on_sub_tab_switches(web_fixture, panel_switch_fixture, tabbed_
     # Clicking away from the multitab sub-tab removes its active status
     browser.click(XPath.link_with_text('tab 3 name'))
     # tab2 is not active anymore
-    assert fixture.driver_browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 2 name')
+    assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 2 name')
+    # TODO: cs Remove the next commented code - there used to be a problem with bootstrap4 alpha
+    # tab2 is not active anymore
+    # if fixture.enable_js:
+    #    pass
+    #    ### assert None, 'This is a bug in bootstrap v4.0 alpha javascript'
+    # else:
+    #     vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 2 name') )
 
 

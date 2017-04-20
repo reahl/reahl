@@ -57,7 +57,7 @@ class NavbarFixture(Fixture):
         return Form(self.web_fixture.view, 'myform')
 
     def new_textnode(self):
-        return TextNode(self.view, 'mytext')
+        return TextNode(self.web_fixture.view, 'mytext')
 
 
 @with_fixtures(WebFixture, NavbarFixture)
@@ -65,7 +65,6 @@ def test_navbar_basics(web_fixture, navbar_fixture):
     """A typical Navbar is created by using its layout to add some brand text, a nav and form in it."""
 
     fixture = navbar_fixture
-
 
     navbar = Navbar(web_fixture.view).use_layout(NavbarLayout())
 
@@ -120,7 +119,6 @@ def test_navbar_can_have_layout(web_fixture, layout_scenarios):
 
     fixture = layout_scenarios
 
-
     widget = Navbar(web_fixture.view).use_layout(fixture.layout)
 
     [navbar] = widget.children
@@ -136,7 +134,6 @@ def test_navbar_can_have_layout(web_fixture, layout_scenarios):
 def test_customised_colour_scheme(web_fixture):
     """A ColourScheme is used to determine link colours and/or optionally a standard bootstrap background color."""
 
-
     layout = NavbarLayout(colour_theme='light', bg_scheme='inverse')
     widget = Navbar(web_fixture.view).use_layout(layout)
 
@@ -149,7 +146,6 @@ def test_customised_colour_scheme(web_fixture):
 @with_fixtures(WebFixture, NavbarFixture)
 def test_adding_brand_widget(web_fixture, navbar_fixture):
     """Brand content can also be added as a Widget, instead of only text."""
-
 
     navbar_widget = navbar_fixture.navbar.use_layout(NavbarLayout())
     custom_brand = Div(web_fixture.view)
@@ -165,7 +161,6 @@ def test_adding_brand_widget(web_fixture, navbar_fixture):
 @with_fixtures(WebFixture, NavbarFixture)
 def test_adding_other_than_form_or_nav_is_not_allowed(web_fixture, navbar_fixture):
     """Only Navs, Forms and Text may be added."""
-
 
     navbar = navbar_fixture.navbar.use_layout(NavbarLayout())
     not_a_form_or_nav = Div(web_fixture.view)
@@ -227,17 +222,17 @@ class CenteredResponsiveLayoutScenarios(NavbarFixture):
 
 
 @with_fixtures(WebFixture, CenteredResponsiveLayoutScenarios)
-def test_responsive_navbar_with_centered_contents_brand_collapse(web_fixture, centered_responsive__fixture):
+def test_responsive_navbar_with_centered_contents_brand_collapse(web_fixture, centered_responsive_fixture):
     """Contents of a Navbar appears centered when center_contents is set to True"""
 
-    navbar_widget = centered_responsive__fixture.navbar
+    navbar_widget = centered_responsive_fixture.navbar
     navbar_widget.set_id('my_navbar_id')
     navbar_widget.use_layout(ResponsiveLayout('md', center_contents=True,
-                                              collapse_brand_with_content=fixture.collapse_brand))
+                                              collapse_brand_with_content=centered_responsive_fixture.collapse_brand))
     navbar_widget.layout.set_brand_text('Brandy') #adding something to illustrate the structure change
 
     [navbar] = navbar_widget.children
-    if not centered_responsive__fixture.collapse_brand:
+    if not centered_responsive_fixture.collapse_brand:
         [toggle, brand_widget, centering_div] = navbar.children
     else:
         [toggle, centering_div] = navbar.children
@@ -282,11 +277,12 @@ class NavbarToggleFixture(Fixture):
                 self.add_child(navbar)
         return MainWidget
 
+
 @with_fixtures(WebFixture, NavbarFixture)
-def navbar_toggle_basics(web_fixture, navbar_fixture):
+def test_navbar_toggle_basics(web_fixture, navbar_fixture):
     """The default bootstrap toggle icon is used when no text is given"""
 
-    element_to_collapse = Div(navbar_fixture.view, css_id='my_id')
+    element_to_collapse = Div(web_fixture.view, css_id='my_id')
     toggle = navbar_fixture.navbar_with_layout.layout.add_toggle(element_to_collapse, text=None)
 
     [toggle_span] = toggle.children
@@ -297,10 +293,10 @@ def navbar_toggle_basics(web_fixture, navbar_fixture):
 
 
 @with_fixtures(WebFixture, NavbarFixture)
-def navbar_toggle_customised(web_fixture, navbar_fixture):
+def test_navbar_toggle_customised(web_fixture, navbar_fixture):
     """The text on a toggle that hides an element is customisable"""
 
-    element_to_collapse = Div(navbar_fixture.view, css_id='my_id')
+    element_to_collapse = Div(web_fixture.view, css_id='my_id')
     toggle = navbar_fixture.navbar_with_layout.layout.add_toggle(element_to_collapse, text='≎')
 
     [toggle_text_node] = toggle.children
@@ -391,7 +387,7 @@ def test_responsive_navbar_toggle_alignment(web_fixture, toggle_alignment_fixtur
     [navbar] = navbar_widget.children
     [toggle, collapse_div] = navbar.children
 
-    assert fixture.expected_css_class in toggle.get_attribute('class')
+    assert toggle_alignment_fixture.expected_css_class in toggle.get_attribute('class')
 
 
 class BrandCollapseScenarios(NavbarFixture):
@@ -412,10 +408,10 @@ def test_brand_may_be_collapsed_with_toggleable_content(web_fixture, brand_colla
     responsive_navbar = brand_collapse_fixture.navbar
     responsive_navbar.set_id('my_navbar_id')
     responsive_navbar.use_layout(ResponsiveLayout('md',
-                                                  collapse_brand_with_content=fixture.brand_collapse))
+                                                  collapse_brand_with_content=brand_collapse_fixture.brand_collapse))
     responsive_navbar.layout.add(brand_collapse_fixture.nav)
 
-    brand_widget = Div(brand_collapse_fixture.view)
+    brand_widget = Div(web_fixture.view)
     responsive_navbar.layout.set_brand(brand_widget)
 
     if brand_collapse_fixture.brand_collapse:
