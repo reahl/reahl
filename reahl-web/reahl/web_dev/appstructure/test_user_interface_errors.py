@@ -16,32 +16,20 @@
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
-from reahl.tofu import scenario, test, expected
+
+from reahl.tofu import scenario, expected, Fixture
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import Browser
-from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UserInterface
 from reahl.web.ui import P, HTML5Page
 
+from reahl.web_dev.fixtures import WebFixture
 
-class UserInterfaceErrorScenarios(WebFixture):
-    def new_wsgi_app(self):
-        fixture = self
-        class SimpleUserInterface(UserInterface):
-            def assemble(self):
-                root = self.define_view('/', title='View')
-                root.set_slot('name', P.factory())
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(HTML5Page)
-                self.define_user_interface('/a_ui',  SimpleUserInterface,  {}, name='test_ui')
-
-        return super(UserInterfaceErrorScenarios, self).new_wsgi_app(site_root=MainUI)
-
+class UserInterfaceErrorScenarios(Fixture):
     @scenario
     def plug_in_to_nonexistant_name(self):
         self.slot_map = {'name': 'nonexistent'}
@@ -50,14 +38,24 @@ class UserInterfaceErrorScenarios(WebFixture):
     def view_name_not_mapped(self):
         self.slot_map = {}
 
-        
-@istest
-class UserInterfaceErrorTests(object):
-    @test(UserInterfaceErrorScenarios)
-    def ui_slots_map_error(self, fixture):
-        browser = Browser(fixture.wsgi_app)
 
-        with expected(ProgrammerError):
-            browser.open('/a_ui/')
+@with_fixtures(WebFixture, UserInterfaceErrorScenarios)
+def test_ui_slots_map_error(web_fixture, user_interface_error_scenarios):
+
+    class SimpleUserInterface(UserInterface):
+        def assemble(self):
+            root = self.define_view('/', title='View')
+            root.set_slot('name', P.factory())
+
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(HTML5Page)
+            self.define_user_interface('/a_ui',  SimpleUserInterface,  user_interface_error_scenarios.slot_map, name='test_ui')
+
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    with expected(ProgrammerError):
+        browser.open('/a_ui/')
 
 

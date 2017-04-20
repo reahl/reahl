@@ -1,6 +1,5 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from nose.tools import istest
 
 class Address(object):
     def __init__(self, name, email_address):
@@ -19,9 +18,6 @@ class AddressBook(object):
         self.addresses.append(address)
 
 
-
-
-@istest
 def test_model():
     contacts = AddressBook()
     Address('John', 'john@world.com').save(contacts)

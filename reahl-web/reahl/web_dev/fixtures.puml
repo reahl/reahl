@@ -2,109 +2,81 @@
 
 title Fixtures
 
-hide methods
 hide circle
 
-class ConfiguredFixture <<runfixture>>{
-	config
-	reahl_system
-	context
-	system_control
+package reahl-dev{
+	class ContextAwareFixture {
+	}
+
+	class ReahlSystemSessionFixture <<session-scoped>> {
+	    context
+	    config
+	    reahl_system
+	    system_control
+	}
+
+	class ReahlSystemFixture {
+	    context
+	    @system_control
+	    config
+	}
 }
 
-class CleanDatabase <<runfixture>>{
+package reahl-sqlalchemysupport{
+	class SqlAlchemyFixture {
+	    persistent_test_classes
+	    start_transaction()
+	    finalise_transaction()
+	}
 }
 
-class BrowserSetup <<runfixture>>{
-	reahl_server
-	web_driver
-	driver_browser
-	firefox_driver
-	chrome_driver
-	config
+package reahl-webdev{
+	class WebServerFixture <<session-scoped>> {
+	    reahl_server
+	    web_driver
+	    driver_browser
+	    firefox_driver
+	    chrome_driver
+	}
 }
 
-class SqlAlchemyTestMixin{
-	reahlsystem
-	config
-	context
-	@system_control
+package reahl-web_dev{
+	class WebFixture {
+	      request
+	      view
+	      current_location
+	      wsgi_app
+	      user_interface
+	      driver_browser
+	      log_in()
+	}
 }
 
-class BasicModelZooMixin{
-	systeminfo
-	config
-	session
-}
-
-class WebBasicsMixin{
-	webconfig
-	config
-	context
-	request
-	session
-	@page_checker
-	@reahl_server
+package reahl-domain_dev{
+	class PartyAccountFixture {
+	      session
+	      party
+	      system_account
+	}
 }
 
 
-ConfiguredFixture <|-- CleanDatabase
-CleanDatabase <|-- BrowserSetup
-BrowserSetup  -right- WebBasicsMixin
-CleanDatabase -right- SqlAlchemyTestMixin
+ContextAwareFixture <|-- ReahlSystemSessionFixture
+ContextAwareFixture <|-- ReahlSystemFixture
+ReahlSystemSessionFixture <-left- ReahlSystemFixture 
 
-SqlAlchemyTestMixin <|-- BasicModelZooMixin
-BasicModelZooMixin <|-- WebBasicsMixin
-BasicModelZooMixin <|--- PartyModelZooMixin
-PartyModelZooMixin <|-- TaskQueueZooMixin
+ReahlSystemFixture <-- SqlAlchemyFixture 
+WebServerFixture -up-> ReahlSystemSessionFixture
 
-
-class InputFixture <<fixture>>{
-	obj
-	field
-	view
-	region
-	form
-}
-class WebFixture <<fixture>>
+ReahlSystemFixture <-- WebFixture
+SqlAlchemyFixture <-- WebFixture
+WebServerFixture <-- WebFixture
+PartyAccountFixture <-- WebFixture
 
 
-class ElixirSiteFixture <<fixture>>
-class WidgetFixture <<fixture>>{
-	region_factory
-	region
-	view
-}
-class PageMenuFixture <<fixture>>
-InputFixture -right[hidden]- ElixirSiteFixture
+ReahlSystemFixture <-- PartyAccountFixture
+SqlAlchemyFixture <-- PartyAccountFixture
 
-WebBasicsMixin -- InputFixture
-WebBasicsMixin -- WebFixture
-WebBasicsMixin -- ElixirSiteFixture
-WebBasicsMixin -- WidgetFixture
-WebBasicsMixin -- PageMenuFixture
-WebBasicsMixin -- DjhtmlFixture
-
-class PartyDomainFixture <<fixture>>
-class TaskQueueFixture <<fixture>>
-
-class PartyModelZooMixin{
-	system_account
-	person
-	mailer
-}
-class DjhtmlFixture <<fixture>>{
-	region
-	static_dir
-	config
-	djhtml_file
-	other_file
-}
-
-TaskQueueZooMixin -right- TaskQueueFixture
-
-WorkflowWebFixture -left- BasicModelZooMixin
-WorkflowWebFixture -- TaskQueueZooMixin
 
 
 @enduml

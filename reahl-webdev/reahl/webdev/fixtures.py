@@ -22,10 +22,7 @@ import os
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
-from reahl.tofu import set_up
-from reahl.tofu import tear_down
-
-from reahl.dev.fixtures import CleanDatabase
+from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 
 from reahl.component.shelltools import Executable
 from reahl.webdev.webserver import ReahlWebServer
@@ -34,45 +31,41 @@ from reahl.web.fw import UserInterface
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 from reahl.domain.systemaccountmodel import SystemAccountConfig
 
+from reahl.dev.fixtures import ReahlSystemSessionFixture
 
-class BrowserSetup(CleanDatabase):
+@uses(reahl_system_fixture=ReahlSystemSessionFixture)
+@scope('session')
+class WebServerFixture(Fixture):
     """A Fixture to be used as run fixture. It inherits from :class:`reahl.dev.fixtures.CleanDatabase` and
        hence includes all its functionality, but adds a running, configured web server and more than one
        flavour of a `Selenium 2.x WebDriver <http://docs.seleniumhq.org/projects/webdriver/>`_. BrowserSetup
        also stops all the necessary servers upon tear down.
-       
+
        The web server started runs in the same thread as your tests, making debugging easier.
 
        .. data:: reahl_server
-       
+
           The :class:`reahl.webdev.webserver.ReahlWebServer` for this test process.
-          
+
        .. data:: firefox_driver
-       
+
           A WebDriver instance set up to work with the running `reahl_server`, via Firefox.
 
        .. data:: chrome_driver
-       
+
           A WebDriver instance set up to work with the running `reahl_server`, via Chrome.
           Note that this expects a Chrome binary to be present at /usr/lib/chromium-browser/chromium-browser
 
        .. data:: web_driver
-       
-          The default WebDriver instance (Chrome, by default).
-          
-       .. data:: config
-       
-          A :class:`reahl.component.config.Configuration` class used for the test process
-          and web server.
-          
-    """
-    def new_reahl_server(self):
-        server = ReahlWebServer(self.config, 8000)
-#        with self.context:
-#            server.start(in_separate_thread=False)
-        return server
 
-    @property 
+          The default WebDriver instance (Chrome, by default).
+
+    """
+
+    def new_reahl_server(self):
+        return ReahlWebServer(self.reahl_system_fixture.config, 8000)
+
+    @property
     def web_driver(self):
         return self.chrome_driver
 #        return self.phantomjs_driver
@@ -83,7 +76,7 @@ class BrowserSetup(CleanDatabase):
         driver.set_window_size(1024, 768) # optional
         self.reahl_server.install_handler(driver)
         return driver
-        
+
     def new_firefox_driver(self, javascript_enabled=True):
         assert javascript_enabled, 'Cannot disable javascript anymore, see: https://github.com/seleniumhq/selenium/issues/635'
         from selenium.webdriver import FirefoxProfile, DesiredCapabilities
@@ -125,7 +118,7 @@ class BrowserSetup(CleanDatabase):
         options = Options()
         options.add_argument('--disable-preconnect')
         options.add_argument('--dns-prefetch-disable')
-        options.add_argument('--start-maximized') 
+        options.add_argument('--start-maximized')
         options.add_argument('--no-sandbox')  # Needed to be able to run a user-installed version of chromium on travis
         options.binary_location = Executable('chromium-browser').executable_file  # To run a custom-installed chromium as picked up by the PATH
         #--enable-http-pipelining
@@ -170,9 +163,7 @@ class BrowserSetup(CleanDatabase):
 
     @set_up
     def start_servers(self):
-        with self.context:
-            # Create and start server
-            self.reahl_server.start(in_separate_thread=False, connect=False)
+        self.reahl_server.start(in_separate_thread=False, connect=False)
 
     def is_instantiated(self, name):
         return name in self.__dict__
@@ -192,18 +183,3 @@ class BrowserSetup(CleanDatabase):
     def new_test_dependencies(self):
         return ['reahl-web-declarative']
 
-    def new_config(self):
-        config = super(BrowserSetup, self).new_config()
-        # These are dependencies we inject or that are only test dependencies and therfore not read
-        config.web = WebConfig()
-        config.web.site_root = UserInterface
-        config.web.static_root = os.getcwd()
-        config.web.session_class = UserSession
-        config.web.persisted_exception_class = PersistedException
-        config.web.persisted_userinput_class = UserInput
-        config.web.persisted_file_class = PersistedFile
-
-        config.accounts = SystemAccountConfig()
-        config.accounts.admin_email = 'admin@example.org'
-        
-        return config

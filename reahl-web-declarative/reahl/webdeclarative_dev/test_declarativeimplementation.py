@@ -25,214 +25,229 @@ from six.moves.urllib import parse as urllib_parse
 from sqlalchemy import Column, ForeignKey, Integer
 from webob import Response
 
-from nose.tools import istest
-from reahl.tofu import test, scenario, vassert
+from reahl.tofu import scenario, Fixture, uses
 from reahl.stubble import stubclass
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.sqlalchemysupport import Session
-from reahl.web_dev.fixtures import WebFixture
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.webdeclarative.webdeclarative import UserSession, SessionData
 
-
-@istest
-class BasicTests(object):
-    @test(WebFixture)
-    def session_active_state(self, fixture):
-        """The session is active if the last user interaction was in the last idle_lifetime """     
-        user_session = fixture.context.session
-        config = fixture.config
-
-        # Case: recent interaction
-        user_session.set_last_activity_time()
-        vassert( user_session.is_active() )
-
-        # Case: last interaction not recent
-        user_session.last_activity = datetime.now() - timedelta(seconds=user_session.idle_lifetime+10)
-        vassert( not user_session.is_active() )
-
-    class SecureScenarios(WebFixture):
-        @scenario
-        def secure(self):
-            self.scheme = 'https'
-            self.last_activity = datetime.now()
-            self.secure_cookie = self.context.session.secure_salt
-            self.expect_secure = True
-
-        @scenario
-        def insecure_scheme(self):
-            self.secure()
-            self.scheme = 'http'
-            self.expect_secure = False
-
-        @scenario
-        def old_interaction(self):
-            self.secure()
-            self.last_activity = datetime.now() - timedelta(seconds=self.config.web.idle_secure_lifetime+10)
-            self.expect_secure = False
-
-        @scenario
-        def bad_cookie(self):
-            self.secure()
-            self.secure_cookie = 'bad cookie value'
-            self.expect_secure = False
-
-            
-    @test(SecureScenarios)
-    def session_secure_state(self, fixture):
-        """The session is only secured when used over https, the secure cookie is set correctly,
-           and the last interaction is within idle_secure_lifetime"""     
-        user_session = fixture.context.session
-        config = fixture.config
-        context = fixture.context
-        vassert( config.web.idle_secure_lifetime < config.web.idle_lifetime )
-        vassert( config.web.idle_lifetime < config.web.idle_lifetime_max )
-
-        fixture.request.scheme = fixture.scheme
-        user_session.last_activity = fixture.last_activity
-        context.request.cookies[context.config.web.secure_key_name] = fixture.secure_cookie
-        vassert( user_session.is_secured() is fixture.expect_secure )
-
-    @test(WebFixture)
-    def setting_cookies_on_response(self, fixture):
-        """How WebExecutionContext sets session and secure cookies in the response."""
-        @stubclass(UserSession)
-        class UserSessionStub(UserSession):
-            __tablename__ = 'usersessionstub'
-            __mapper_args__ = {'polymorphic_identity': 'usersessionstub'}
-            id = Column(Integer, ForeignKey('usersession.id'), primary_key=True)
-
-            secured = False
-            def is_secured(self):
-                return self.secured
-
-        with fixture.persistent_test_classes(UserSessionStub):
-            user_session = UserSessionStub()
-
-            class ResponseStub(Response):
-                @property
-                def cookies(self):
-                    cookies = http_cookies.SimpleCookie()
-                    for header, value in self.headerlist:
-                        if header == 'Set-Cookie':
-                            cookies.load(value)
-                    return cookies
-
-            # Case: with an unsecured session, set only the session cookie
-            user_session.secured = False
-            response = ResponseStub()
-
-            user_session.set_session_key(response)
-
-            session_cookie = response.cookies[fixture.config.web.session_key_name]
-            vassert( session_cookie.value == urllib_parse.quote(user_session.as_key()) )
-            vassert( session_cookie['path'] == '/' )
-            vassert( not session_cookie['max-age'] )
-            #vassert( 'httponly' in session_cookie )
-
-            vassert( fixture.config.web.secure_key_name not in response.cookies )
+from reahl.web_dev.fixtures import WebFixture
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.domain_dev.fixtures import PartyAccountFixture
 
 
-            # Case: with an secured session, set the session cookie and the secure cookie
-            user_session.secured = True
-            response = ResponseStub()
+@with_fixtures(WebFixture)
+def test_session_active_state(web_fixture):
+    """The session is active if the last user interaction was in the last idle_lifetime """
+    fixture = web_fixture
+    user_session = fixture.context.session
+    config = fixture.config
 
-            user_session.set_session_key(response)
+    # Case: recent interaction
+    user_session.set_last_activity_time()
+    assert user_session.is_active() 
 
-            vassert( fixture.config.web.session_key_name in response.cookies )
+    # Case: last interaction not recent
+    user_session.last_activity = datetime.now() - timedelta(seconds=user_session.idle_lifetime+10)
+    assert not user_session.is_active() 
 
-            secure_cookie = response.cookies[fixture.config.web.secure_key_name]
-            vassert( user_session.secure_salt == secure_cookie.value )
-            vassert( secure_cookie['path'] == '/' )
-            vassert( secure_cookie['max-age'] == '%s' % fixture.config.web.idle_secure_lifetime )
-            vassert( 'secure' in secure_cookie )
-            #vassert( 'httponly' in secure_cookie )
-        
 
-    @test(WebFixture)
-    def reading_cookies_on_initialising_a_session(self, fixture):
-        # Case: session cookie not set in Request
-        fixture.context.initialise_web_session()
-        vassert( not fixture.context.session.is_active() )
-        vassert( not fixture.context.session.is_secured() )
-        
-        # Case: session cookie set in Request
-        fixture.context.set_session(None)
-        user_session = UserSession()
-        user_session.set_last_activity_time()
-        Session.add(user_session)
+@uses(web_fixture=WebFixture)
+class SecureScenarios(Fixture):
 
-        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % user_session.as_key())
-        fixture.context.initialise_web_session()
-        
-        vassert( fixture.context.session is user_session )
-        vassert( fixture.context.session.is_active() )
-        vassert( not fixture.context.session.is_secured() )
+    @scenario
+    def secure(self):
+        self.scheme = 'https'
+        self.last_activity = datetime.now()
+        self.secure_cookie = self.web_fixture.context.session.secure_salt
+        self.expect_secure = True
 
-        # Case: session cookie set, secure cookie also set in Request, https
-        fixture.request.scheme = 'https'
-        fixture.context.set_session(None)
-        user_session = UserSession()
-        user_session.set_last_activity_time()
-        Session.add(user_session)
+    @scenario
+    def insecure_scheme(self):
+        self.secure()
+        self.scheme = 'http'
+        self.expect_secure = False
 
-        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                            (user_session.as_key(), user_session.secure_salt))
-        fixture.context.initialise_web_session()
+    @scenario
+    def old_interaction(self):
+        self.secure()
+        self.last_activity = datetime.now() - timedelta(seconds=self.web_fixture.config.web.idle_secure_lifetime+10)
+        self.expect_secure = False
 
-        vassert( fixture.context.session is user_session )
-        vassert( fixture.context.session.is_active() )
-        vassert( fixture.context.session.is_secured() )
+    @scenario
+    def bad_cookie(self):
+        self.secure()
+        self.secure_cookie = 'bad cookie value'
+        self.expect_secure = False
 
-        # Case: session cookie set, secure cookie also set in Request, http
-        fixture.request.scheme = 'http'
-        fixture.context.set_session(None)
-        user_session = UserSession()
-        user_session.set_last_activity_time()
-        Session.add(user_session)
-        fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
-                                            (user_session.as_key(), user_session.secure_salt))
-         
-        fixture.context.initialise_web_session()
 
-        vassert( fixture.context.session is user_session )
-        vassert( fixture.context.session.is_active() )
-        vassert( not fixture.context.session.is_secured() )
+@with_fixtures(WebFixture, SecureScenarios)
+def test_session_secure_state(web_fixture, secure_scenarios):
+    """The session is only secured when used over https, the secure cookie is set correctly,
+       and the last interaction is within idle_secure_lifetime"""
+    fixture = secure_scenarios
 
-    @test(WebFixture)
-    def session_data_disappears_when_session_does(self, fixture):
-        """When a UserSession is deleted, all associated SessionData disappear as well."""
+    user_session = web_fixture.context.session
+    config = web_fixture.config
+    context = web_fixture.context
+    assert config.web.idle_secure_lifetime < config.web.idle_lifetime
+    assert config.web.idle_lifetime < config.web.idle_lifetime_max
 
-        fixture.context.initialise_web_session()
-        user_session = fixture.context.session 
-        ui_name = 'user_interface'
-        channel_name = 'channel'
+    web_fixture.request.scheme = fixture.scheme
+    user_session.last_activity = fixture.last_activity
+    context.request.cookies[context.config.web.secure_key_name] = fixture.secure_cookie
+    assert user_session.is_secured() is fixture.expect_secure
 
-        session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
-        Session.add(session_data)
-        Session.flush()
 
-        Session.delete(user_session)
+@with_fixtures(SqlAlchemyFixture, WebFixture)
+def test_setting_cookies_on_response(sql_alchemy_fixture, web_fixture):
+    """How UserSession sets session and secure cookies in the response."""
+    fixture = web_fixture
+    @stubclass(UserSession)
+    class UserSessionStub(UserSession):
+        __tablename__ = 'usersessionstub'
+        __mapper_args__ = {'polymorphic_identity': 'usersessionstub'}
+        id = Column(Integer, ForeignKey('usersession.id'), primary_key=True)
 
-        vassert( Session.query(SessionData).filter_by(id=session_data.id).count() == 0 )
-        vassert( Session.query(UserSession).filter_by(id=user_session.id).count() == 0 )
+        secured = False
+        def is_secured(self):
+            return self.secured
 
-    @test(WebFixture)
-    def session_keeps_living(self, fixture):
-        """When SessionData is deleted, the associated UserSession is not affected."""
+    with sql_alchemy_fixture.persistent_test_classes(UserSessionStub):
+        user_session = UserSessionStub()
 
-        fixture.context.initialise_web_session()
-        user_session = fixture.context.session 
-        ui_name = 'user_interface'
-        channel_name = 'channel'
+        class ResponseStub(Response):
+            @property
+            def cookies(self):
+                cookies = http_cookies.SimpleCookie()
+                for header, value in self.headerlist:
+                    if header == 'Set-Cookie':
+                        cookies.load(value)
+                return cookies
 
-        session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
-        Session.add(session_data)
-        Session.flush()
+        # Case: with an unsecured session, set only the session cookie
+        user_session.secured = False
+        response = ResponseStub()
 
-        Session.delete(session_data)
+        user_session.set_session_key(response)
 
-        vassert( Session.query(SessionData).filter_by(id=session_data.id).count() == 0 )
-        vassert( Session.query(UserSession).filter_by(id=user_session.id).one() is user_session )
+        session_cookie = response.cookies[fixture.config.web.session_key_name]
+        assert session_cookie.value == urllib_parse.quote(user_session.as_key())
+        assert session_cookie['path'] == '/'
+        assert not session_cookie['max-age']
+        #assert 'httponly' in session_cookie
+
+        assert fixture.config.web.secure_key_name not in response.cookies
+
+
+        # Case: with an secured session, set the session cookie and the secure cookie
+        user_session.secured = True
+        response = ResponseStub()
+
+        user_session.set_session_key(response)
+
+        assert fixture.config.web.session_key_name in response.cookies
+
+        secure_cookie = response.cookies[fixture.config.web.secure_key_name]
+        assert user_session.secure_salt == secure_cookie.value
+        assert secure_cookie['path'] == '/'
+        assert secure_cookie['max-age'] == '%s' % fixture.config.web.idle_secure_lifetime
+        assert 'secure' in secure_cookie
+        #assert 'httponly' in secure_cookie
+
+
+@with_fixtures(WebFixture)
+def test_reading_cookies_on_initialising_a_session(web_fixture):
+    fixture = web_fixture
+
+    # Case: session cookie not set in Request
+    UserSession.initialise_web_session_on(fixture.context)
+    assert not fixture.context.session.is_active()
+    assert not fixture.context.session.is_secured()
+
+    # Case: session cookie set in Request
+    fixture.context.session = None
+    user_session = UserSession()
+    user_session.set_last_activity_time()
+    Session.add(user_session)
+
+    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s' % user_session.as_key())
+    UserSession.initialise_web_session_on(fixture.context)
+
+    assert fixture.context.session is user_session
+    assert fixture.context.session.is_active()
+    assert not fixture.context.session.is_secured()
+
+    # Case: session cookie set, secure cookie also set in Request, https
+    fixture.request.scheme = 'https'
+    fixture.context.session = None
+    user_session = UserSession()
+    user_session.set_last_activity_time()
+    Session.add(user_session)
+
+    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt))
+    UserSession.initialise_web_session_on(fixture.context)
+
+    assert fixture.context.session is user_session
+    assert fixture.context.session.is_active()
+    assert fixture.context.session.is_secured()
+
+    # Case: session cookie set, secure cookie also set in Request, http
+    fixture.request.scheme = 'http'
+    fixture.context.session = None
+    user_session = UserSession()
+    user_session.set_last_activity_time()
+    Session.add(user_session)
+    fixture.request.headers['Cookie'] = ascii_as_bytes_or_str('reahl=%s , reahl_secure=%s' % \
+                                        (user_session.as_key(), user_session.secure_salt))
+
+    UserSession.initialise_web_session_on(fixture.context)
+
+    assert fixture.context.session is user_session
+    assert fixture.context.session.is_active()
+    assert not fixture.context.session.is_secured()
+
+
+@with_fixtures(WebFixture)
+def test_session_data_disappears_when_session_does(web_fixture):
+    """When a UserSession is deleted, all associated SessionData disappear as well."""
+    fixture = web_fixture
+
+    UserSession.initialise_web_session_on(fixture.context)
+    user_session = fixture.context.session
+    ui_name = 'user_interface'
+    channel_name = 'channel'
+
+    session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
+    Session.add(session_data)
+    Session.flush()
+
+    Session.delete(user_session)
+
+    assert Session.query(SessionData).filter_by(id=session_data.id).count() == 0
+    assert Session.query(UserSession).filter_by(id=user_session.id).count() == 0
+
+
+@with_fixtures(WebFixture)
+def test_session_keeps_living(web_fixture):
+    """When SessionData is deleted, the associated UserSession is not affected."""
+    fixture = web_fixture
+
+    UserSession.initialise_web_session_on(fixture.context)
+    user_session = fixture.context.session
+    ui_name = 'user_interface'
+    channel_name = 'channel'
+
+    session_data = SessionData(web_session=user_session, ui_name=ui_name, channel_name=channel_name)
+    Session.add(session_data)
+    Session.flush()
+
+    Session.delete(session_data)
+
+    assert Session.query(SessionData).filter_by(id=session_data.id).count() == 0
+    assert Session.query(UserSession).filter_by(id=user_session.id).one() is user_session
 
 

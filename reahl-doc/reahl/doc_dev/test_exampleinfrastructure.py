@@ -17,7 +17,8 @@
     
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.tofu import Fixture, scenario, test, expected, temp_dir, NoException
+from reahl.tofu import Fixture, scenario, expected, temp_dir, NoException
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EasterEgg, EmptyStub, stubclass, SystemOutStub
 
 from reahl.doc.commands import Example, GetExample
@@ -30,15 +31,15 @@ from reahl.doc.commands import Example, GetExample
 
 "Some examples are whole packages, some are single modules."
 
+
 class ExampleFixture(Fixture):
     example_name = 'theexample'
     example_module_contents = ''
 
     def new_containing_egg(self):
-        return EasterEgg(name='example_egg', location=self.egg_directory.name)
-
-    def del_containing_egg(self, instance):
-        instance.deactivate()
+        egg = EasterEgg(name='example_egg', location=self.egg_directory.name)
+        yield egg
+        egg.deactivate()
 
     def new_egg_directory(self):
         return temp_dir()
@@ -82,20 +83,15 @@ class ImportErrorScenarios(ExampleFixture):
         self.command_line = self.example_name
 
 
-@test(ImportErrorScenarios)
-def handling_import_errors(fixture):
+@with_fixtures(ImportErrorScenarios)
+def test_handling_import_errors(import_error_scenarios):
     """Should example code be broken enough to cause ImportErrors, such errors are 
        reported when an attempt is made to check it out."""
 
-    fixture.example_module.change_contents(fixture.example_module_contents)
-    fixture.containing_egg.activate()
+    import_error_scenarios.example_module.change_contents(import_error_scenarios.example_module_contents)
+    import_error_scenarios.containing_egg.activate()
 
-    with SystemOutStub(), fixture.checkout_directory.as_cwd():
-        command = fixture.GetExample(EmptyStub())
-        with expected(fixture.expected_exception):
-            command.do(fixture.command_line)
-
-
-
-
-    
+    with SystemOutStub(), import_error_scenarios.checkout_directory.as_cwd():
+        command = import_error_scenarios.GetExample(EmptyStub())
+        with expected(import_error_scenarios.expected_exception):
+            command.do(import_error_scenarios.command_line)

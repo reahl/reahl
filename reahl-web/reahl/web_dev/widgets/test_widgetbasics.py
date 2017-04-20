@@ -1,5 +1,5 @@
 # Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -19,235 +19,244 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
-from nose.tools import istest
-from reahl.tofu import Fixture, test
-from reahl.tofu import vassert, expected
+from reahl.tofu import Fixture, expected, uses
+from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub, stubclass
 
 from reahl.webdev.tools import WidgetTester, Browser
-from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 from reahl.component.exceptions import IncorrectArgumentError, IsInstance
 from reahl.web.fw import UrlBoundView, UserInterface, Widget
 from reahl.web.ui import Div, P, Slot
 
 
-class WidgetFixture(Fixture, WebBasicsMixin):
+from reahl.web_dev.fixtures import WebFixture
+
+
+@uses(web_fixture=WebFixture)
+class WidgetFixture(Fixture):
+
     def new_user_interface_factory(self):
         factory = UserInterface.factory('test_user_interface_name')
         factory.attach_to('/', {})
         return factory
-        
+
     def new_user_interface(self):
         factory = self.ui_factory
-        with self.context:
-            return factory.create()
+        return factory.create()
 
     def new_view(self, user_interface=None, relative_path='/', title='A view', slot_definitions={}):
         user_interface = user_interface or self.user_interface
         return UrlBoundView(user_interface, relative_path, title, slot_definitions)
 
 
-@istest
-class WidgetBasics(object):
-    @test(WebFixture)
-    def basic_widget(self, fixture):
-        """Basic widgets are created by adding children widgets to them, and the result is rendered in HTML"""
-        
-        class MyMessage(Div):
-            def __init__(self, view):
-                super(MyMessage, self).__init__(view)
-                self.add_child(P(view, text='Hello World!'))
-                self.add_children([P(view, text='a'), P(view, text='b')])
+@with_fixtures(WebFixture)
+def test_basic_widget(web_fixture):
+    """Basic widgets are created by adding children widgets to them, and the result is rendered in HTML"""
 
-        message = MyMessage(fixture.view)
-        
-        widget_tester = WidgetTester(message)
-        actual = widget_tester.render_html()
-        
-        vassert( actual == '<div><p>Hello World!</p><p>a</p><p>b</p></div>' )
+    class MyMessage(Div):
+        def __init__(self, view):
+            super(MyMessage, self).__init__(view)
+            self.add_child(P(view, text='Hello World!'))
+            self.add_children([P(view, text='a'), P(view, text='b')])
 
+    fixture = web_fixture
 
-    @test(WebFixture)
-    def visibility(self, fixture):
-        """Widgets are rendered only if their .visible property is True."""
-        
-        class MyMessage(Widget):
-            is_visible = True
-            def __init__(self, view):
-                super(MyMessage, self).__init__(view)
-                self.add_child(P(view, text='你好世界!'))
-                
-            @property
-            def visible(self):
-                return self.is_visible
- 
-        message = MyMessage(fixture.view)
-        
-        widget_tester = WidgetTester(message)
+    message = MyMessage(fixture.view)
 
-        # Case: when visible
-        message.is_visible = True
-        actual = widget_tester.render_html()
-        vassert( actual == '<p>你好世界!</p>' )
+    widget_tester = WidgetTester(message)
+    actual = widget_tester.render_html()
 
-        # Case: when not visible
-        message.is_visible = False
-        actual = widget_tester.render_html()
-        vassert( actual == '' )
-
-    @test(WebFixture)
-    def widget_factories_and_args(self, fixture):
-        """Widgets can be created from factories which allow you to supply widget-specific args 
-           and/or kwargs before a view is available."""
-        
-        class WidgetWithArgs(Widget):
-            def __init__(self, view, arg, kwarg=None):
-                super(WidgetWithArgs, self).__init__(view)
-                self.saved_arg = arg
-                self.saved_kwarg = kwarg
-
-        factory = WidgetWithArgs.factory('a', kwarg='b')
-
-        widget = factory.create(fixture.view)
-        
-        vassert( widget.saved_arg == 'a' )
-        vassert( widget.saved_kwarg == 'b' )
-
-    @test(WebFixture)
-    def widget_factories_error(self, fixture):
-        """Supplying arguments to .factory that do not match those of the Widget's __init__ is reported to the programmer.."""
-        
-        class WidgetWithArgs(Widget):
-            def __init__(self, view, arg, kwarg=None):
-                super(WidgetWithArgs, self).__init__(view)
-                self.saved_arg = arg
-                self.saved_kwarg = kwarg
-
-        def check_exc(ex):
-            vassert( six.text_type(ex).startswith("An attempt was made to create a WidgetFactory for %r with arguments that do not match what is expected for %r" % (WidgetWithArgs, WidgetWithArgs)) )
-        with expected(IncorrectArgumentError, test=check_exc):
-            factory = WidgetWithArgs.factory('a', 'b', 'c')
-
-    @test(WebFixture)
-    def widget_construct_error(self, fixture):
-        """Passing anything other than a View as a Widget's view argument on construction results in an error."""
-
-        with expected(IsInstance):
-            Widget(EmptyStub())
-
-    @test(WebFixture)
-    def widget_adding_error(self, fixture):
-        """Passing anything other than other Widgets to .add_child or add_children results in an error."""
-
-        widget = Widget(fixture.view)
-
-        with expected(IsInstance):
-            widget.add_child(EmptyStub())
-
-        with expected(IsInstance):
-            widget.add_children([Widget(fixture.view), EmptyStub()])
-
-    @test(WebFixture)
-    def basic_working_of_slots(self, fixture):
-        """Slots are special Widgets that can be added to the page. The contents of a
-           Slot are then supplied (differently) by different Views."""
-
-        class MyPage(Widget):
-            def __init__(self, view):
-                super(MyPage, self).__init__(view)
-                self.add_child(Slot(view, 'slot1'))
-                self.add_child(Slot(view, 'slot2'))
-
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(MyPage)
-
-                home = self.define_view('/', title='Home')
-                home.set_slot('slot1', P.factory(text='a'))
-                home.set_slot('slot2', P.factory(text='b'))
-
-                other = self.define_view('/other', title='Other')
-                other.set_slot('slot1', P.factory(text='other'))
-
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
-        
-        browser.open('/')
-        [slot1_p, slot2_p] = browser.lxml_html.xpath('//p')
-        vassert( slot1_p.text == 'a' )
-        vassert( slot2_p.text == 'b' )
-
-        browser.open('/other')
-        [slot1_p] = browser.lxml_html.xpath('//p')
-        vassert( slot1_p.text == 'other' )
+    assert actual == '<div><p>Hello World!</p><p>a</p><p>b</p></div>'
 
 
-    @test(WebFixture)
-    def defaults_for_slots(self, fixture):
-        """A Widget can have defaults for its slots."""
+@with_fixtures(WebFixture)
+def test_visibility(web_fixture):
+    """Widgets are rendered only if their .visible property is True."""
 
-        class MyPage(Widget):
-            def __init__(self, view):
-                super(MyPage, self).__init__(view)
-                self.add_child(Slot(view, 'slot3'))
-                self.add_default_slot('slot3', P.factory(text='default'))
-               
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(MyPage)
-                self.define_view('/', title='Home')
+    class MyMessage(Widget):
+        is_visible = True
+        def __init__(self, view):
+            super(MyMessage, self).__init__(view)
+            self.add_child(P(view, text='你好世界!'))
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
-        
-        browser.open('/')
-        [slot3_p] = browser.lxml_html.xpath('//p')
-        vassert( slot3_p.text == 'default' )
+        @property
+        def visible(self):
+            return self.is_visible
 
+    fixture = web_fixture
 
-    @test(WebFixture)
-    def activating_javascript(self, fixture):
-        """The JavaScript snippets of all Widgets are collected in a jQuery.ready() function by"""
-        """ an automatically inserted Widget in the slot named reahl_footer.  Duplicate snippets are removed."""
-        @stubclass(Widget)
-        class WidgetWithJavaScript(Widget):
-            def __init__(self, view, fake_js):
-                super(WidgetWithJavaScript, self).__init__(view)
-                self.fake_js = fake_js
-                
-            def get_js(self, context=None):
-                return [self.fake_js]
+    message = MyMessage(fixture.view)
 
-        class MyPage(Widget):
-            def __init__(self, view):
-                super(MyPage, self).__init__(view)
-                self.add_child(WidgetWithJavaScript(view, 'js1'))
-                self.add_child(WidgetWithJavaScript(view, 'js2'))
-                self.add_child(WidgetWithJavaScript(view, 'js1'))
-                self.add_child(Slot(view, 'reahl_footer'))
+    widget_tester = WidgetTester(message)
 
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(MyPage)
-                self.define_view('/', title='Home')
+    # Case: when visible
+    message.is_visible = True
+    actual = widget_tester.render_html()
+    assert actual == '<p>你好世界!</p>'
 
-        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-        browser = Browser(wsgi_app)
-        
-        browser.open('/')
-        rendered_js = [i.text for i in browser.lxml_html.xpath('//script') if i.text][0]
-        vassert( rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n' )
-        
-        number_of_duplicates = rendered_js.count('js1') - 1
-        vassert( number_of_duplicates == 0 )
+    # Case: when not visible
+    message.is_visible = False
+    actual = widget_tester.render_html()
+    assert actual == ''
 
 
+@with_fixtures(WebFixture)
+def test_widget_factories_and_args(web_fixture):
+    """Widgets can be created from factories which allow you to supply widget-specific args
+       and/or kwargs before a view is available."""
+
+    class WidgetWithArgs(Widget):
+        def __init__(self, view, arg, kwarg=None):
+            super(WidgetWithArgs, self).__init__(view)
+            self.saved_arg = arg
+            self.saved_kwarg = kwarg
+
+    fixture = web_fixture
+
+    factory = WidgetWithArgs.factory('a', kwarg='b')
+
+    widget = factory.create(fixture.view)
+
+    assert widget.saved_arg == 'a'
+    assert widget.saved_kwarg == 'b'
 
 
+@with_fixtures(WebFixture)
+def test_widget_factories_error(web_fixture):
+    """Supplying arguments to .factory that do not match those of the Widget's __init__ is reported to the programmer.."""
+
+    class WidgetWithArgs(Widget):
+        def __init__(self, view, arg, kwarg=None):
+            super(WidgetWithArgs, self).__init__(view)
+            self.saved_arg = arg
+            self.saved_kwarg = kwarg
+
+    def check_exc(ex):
+        assert six.text_type(ex).startswith("An attempt was made to create a WidgetFactory for %r with arguments that do not match what is expected for %r" % (WidgetWithArgs, WidgetWithArgs))
+
+    with expected(IncorrectArgumentError, test=check_exc):
+        WidgetWithArgs.factory('a', 'b', 'c')
 
 
+@with_fixtures(WebFixture)
+def test_widget_construct_error(web_fixture):
+    """Passing anything other than a View as a Widget's view argument on construction results in an error."""
 
 
+    with expected(IsInstance):
+        Widget(EmptyStub())
 
 
+@with_fixtures(WebFixture)
+def test_widget_adding_error(web_fixture):
+    """Passing anything other than other Widgets to .add_child or add_children results in an error."""
+    fixture = web_fixture
+
+    widget = Widget(fixture.view)
+
+    with expected(IsInstance):
+        widget.add_child(EmptyStub())
+
+    with expected(IsInstance):
+        widget.add_children([Widget(fixture.view), EmptyStub()])
+
+
+@with_fixtures(WebFixture)
+def test_basic_working_of_slots(web_fixture):
+    """Slots are special Widgets that can be added to the page. The contents of a
+       Slot are then supplied (differently) by different Views."""
+
+    class MyPage(Widget):
+        def __init__(self, view):
+            super(MyPage, self).__init__(view)
+            self.add_child(Slot(view, 'slot1'))
+            self.add_child(Slot(view, 'slot2'))
+
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(MyPage)
+
+            home = self.define_view('/', title='Home')
+            home.set_slot('slot1', P.factory(text='a'))
+            home.set_slot('slot2', P.factory(text='b'))
+
+            other = self.define_view('/other', title='Other')
+            other.set_slot('slot1', P.factory(text='other'))
+
+    fixture = web_fixture
+
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/')
+    [slot1_p, slot2_p] = browser.lxml_html.xpath('//p')
+    assert slot1_p.text == 'a'
+    assert slot2_p.text == 'b'
+
+    browser.open('/other')
+    [slot1_p] = browser.lxml_html.xpath('//p')
+    assert slot1_p.text == 'other'
+
+
+@with_fixtures(WebFixture)
+def test_defaults_for_slots(web_fixture):
+    """A Widget can have defaults for its slots."""
+
+    class MyPage(Widget):
+        def __init__(self, view):
+            super(MyPage, self).__init__(view)
+            self.add_child(Slot(view, 'slot3'))
+            self.add_default_slot('slot3', P.factory(text='default'))
+
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(MyPage)
+            self.define_view('/', title='Home')
+
+    fixture = web_fixture
+
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/')
+    [slot3_p] = browser.lxml_html.xpath('//p')
+    assert slot3_p.text == 'default'
+
+
+@with_fixtures(WebFixture)
+def test_activating_javascript(web_fixture):
+    """The JavaScript snippets of all Widgets are collected in a jQuery.ready() function by"""
+    """ an automatically inserted Widget in the slot named reahl_footer.  Duplicate snippets are removed."""
+    @stubclass(Widget)
+    class WidgetWithJavaScript(Widget):
+        def __init__(self, view, fake_js):
+            super(WidgetWithJavaScript, self).__init__(view)
+            self.fake_js = fake_js
+
+        def get_js(self, context=None):
+            return [self.fake_js]
+
+    class MyPage(Widget):
+        def __init__(self, view):
+            super(MyPage, self).__init__(view)
+            self.add_child(WidgetWithJavaScript(view, 'js1'))
+            self.add_child(WidgetWithJavaScript(view, 'js2'))
+            self.add_child(WidgetWithJavaScript(view, 'js1'))
+            self.add_child(Slot(view, 'reahl_footer'))
+
+    class MainUI(UserInterface):
+        def assemble(self):
+            self.define_page(MyPage)
+            self.define_view('/', title='Home')
+
+    fixture = web_fixture
+    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+    browser = Browser(wsgi_app)
+
+    browser.open('/')
+    rendered_js = [i.text for i in browser.lxml_html.xpath('//script') if i.text][0]
+    assert rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n'
+
+    number_of_duplicates = rendered_js.count('js1') - 1
+    assert number_of_duplicates == 0

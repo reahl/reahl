@@ -43,7 +43,8 @@ from babel import UnknownLocaleError, Locale
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, Field
-from reahl.web.fw import Layout, Bookmark, WebExecutionContext
+from reahl.component.context import ExecutionContext
+from reahl.web.fw import Layout, Bookmark, Url
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget, HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li
 
@@ -95,7 +96,7 @@ class Menu(HTMLWidget):
 
            .. versionadded: 3.2
         """
-        context = WebExecutionContext.get_context()
+        context = ExecutionContext.get_context()
         supported_locales = ReahlEgg.get_languages_supported_by_all(context.config.reahlsystem.root_egg)
         for locale in supported_locales:
             try:
@@ -210,15 +211,13 @@ class Nav(Menu):
         ul.append_class('nav')
         return ul
     
-    def add_dropdown(self, title, dropdown_menu, drop_up=False, query_arguments=None):
+    def add_dropdown(self, title, dropdown_menu, drop_up=False, query_arguments={}):
         """Adds the dropdown_menu :class:`DropdownMenu` to this Nav. It appears as the
         top-level item with text `title`.
 
         :keyword drop_up: If True, the dropdown will drop upwards from its item, instead of down.
         :keyword query_arguments: (For internal use)
         """
-        if query_arguments is None:
-            query_arguments = {}
         if self.open_item == title:
             extra_query_arguments = {'open_item': ''}
         else:

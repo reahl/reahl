@@ -17,9 +17,16 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import sys
+import inspect
+import logging
+import atexit
+import contextlib
 from collections import OrderedDict 
 
 import six
+
+from reahl.component.exceptions import ProgrammerError
+
 
 
 #--------------------------------------------------[ MarkingDecorator ]
@@ -53,20 +60,30 @@ class MarkingDecorator(object):
 class Scenario(MarkingDecorator):
     """A Scenario is a variation on a :class:`Fixture`.
 
-       A Scenario is defined as a Fixture method which is decorated with @scenario.
-       The Scenario method is run after setup of the Fixture, to provide some extra
-       setup pertaining to that scenario only.
+       A Scenario is defined as a Fixture method which is decorated
+       with @scenario.  The Scenario method is run after setup of the
+       Fixture, to provide some extra setup pertaining to that
+       scenario only.
 
-       When a Fixture that contains more than one scenario is used with nosetests, 
-       the test will be run once for every Scenario defined on the Fixture. Before
-       each run of the Fixture, a new Fixture instance is set up, and only the current
-       scenario method is called to provide the needed variation on the Fixture.
+       When a Fixture that contains more than one scenario is used
+       with :py:func:`with_fixtures`, the test will be run once for
+       every Scenario defined on the Fixture. Before each run of the
+       Fixture, a new Fixture instance is set up, and only the current
+       scenario method is called to provide the needed variation on
+       the Fixture.
+
     """
     def get_scenarios(self):
         return [self]
 
-    def for_scenario(self, run_fixture, scenario):
-        return self.fixture_class(run_fixture, scenario)
+    def for_scenario(self, scenario, *args):
+        instance = self.fixture_class(*args)
+        instance.set_scenario(scenario)
+        return instance
+
+    @property
+    def _options(self):
+        return self.fixture_class._options
 
     
 class DefaultScenario(Scenario):
@@ -94,6 +111,14 @@ class AttributeErrorInFactoryMethod(Exception):
     pass
 
 
+
+
+class FixtureOptions(object):
+    def __init__(self):
+        self.dependencies = {}
+        self.scope = 'function'
+
+    
 class Fixture(object):
     """A test Fixture is a collection of objects defined and set up to be
        used together in a test.
@@ -109,32 +134,37 @@ class Fixture(object):
        `new_` method is called, and the resulting object cached as a singleton for
        future accesses.
 
-       If a corresponding `del_` method exists for a given `new_`
-       method, it will be called when the Fixture is torn down. This
-       mechanism exists so you can dispose of the singleton created by
-       the `new_` method. These `del_` methods are called only for singleton
-       instances that were actually created, and in reverse order of creation
-       of each instance. Singleton instances are also torn down before any other
-       tear down logic happens (because, presumably the instances are all
-       created after all other setup occurs).
-       
+       If the created singleton object also needs to be torn down, the new_ method 
+       should yield it (not return), and perform necessary tear down after the yield
+       statement.
+
+       Singletons are torn down using this mechanism in reverse order
+       of how they were created. (The last one created is torn down
+       first.) Singleton instances are also torn down before any other
+       tear down logic happens (because, presumably the instances are
+       all created after all other setup occurs).
 
        A Fixture instance can be used as a context manager. It is set up before 
        entering the block of code it manages, and torn down upon exiting it.
 
-       A Fixture instance also has a context manager available as its
-       '.context' attribute. Setup, test run and tear down code is run
-       within the context of '.context' as well. The default context
-       manager does not do anything, but you can supply your own by
-       creating a method named `new_context` on a subclass. If no custom
-       context is given and the fixture has a run_fixture, the run_fixture.context
-       is used.
-
        .. versionchanged:: 3.2
           Added support for `del_` methods.
-       
+
+       .. versionchanged:: 4.0 
+          Changed to work with pytest instead of nosetests
+          (:py:class:`with_fixtures`, :py:func:`scope`,
+          :py:func:`uses`).
+
+       .. versionchanged:: 4.0 
+          Removed `.run_fixture` and `.context`.
+
+       .. versionchanged:: 4.0 
+          Removed `_del` methods in favour of allowing `new_` methods to yield, then tear down.
+
     """
     factory_method_prefix = 'new'
+    _options = FixtureOptions()
+    _setup_done = False
 
     @classmethod
     def get_scenarios(cls):
@@ -142,17 +172,53 @@ class Fixture(object):
         return scenarios or [DefaultScenario()]
 
     @classmethod
-    def for_scenario(cls, run_fixture, scenario):
-        return cls(run_fixture, scenario)
-    
-    def __init__(self, fixture, scenario=DefaultScenario()):
+    def create_with_scenario(cls, scenario, *args):
+        instance = cls(*args)
+        instance.set_scenario(scenario)
+        return instance
+
+    @classmethod
+    def for_scenario(cls, scenario, *args):
+        assert cls._options.scope in ['function', 'session']
+        if cls._options.scope == 'function':
+            return cls.create_with_scenario(scenario, *args)
+
+        if not hasattr(cls, '_session_instances'):
+            cls._session_instances = {}
+            cls._session_setup_done = {}
+        try:
+            instance = cls._session_instances[scenario.name]
+        except KeyError:
+            instance = cls._session_instances[scenario.name] = cls.create_with_scenario(scenario, *args)
+
+        return instance
+
+
+    def __init__(self):
         self.attributes_set = OrderedDict()
-        self.run_fixture = fixture
+        self.scenario = DefaultScenario()
+        self.attribute_generators = []
+
+    def set_scenario(self, scenario):
         self.scenario = scenario
 
+    def setup_dependencies(self, all_fixtures):
+        self.dependencies = []
+        dependencies_by_class = {v: k for k, v in self._options.dependencies.items()}
+        for fixture in all_fixtures:
+            if fixture.__class__ in dependencies_by_class:
+                setattr(self, dependencies_by_class[fixture.__class__], fixture)
+                self.dependencies.append(fixture)
+        
     def tear_down_attributes(self):
-        for name, instance in reversed(list(self.attributes_set.items())):
-            self.get_tear_down_method_for(name)(instance)
+        for generator in reversed(self.attribute_generators):
+            try:
+                next(generator)
+            except StopIteration:
+                pass
+            else:
+                name = generator.__name__ if six.PY2 else generator.__qualname__ 
+                raise ProgrammerError('%s is yielding more than one element. \'new_\' methods should only yield a single element' % name)
 
     def clear(self):
         """Clears all existing singleton objects"""
@@ -160,27 +226,33 @@ class Fixture(object):
         for name in self.attributes_set.keys():
             delattr(self, name)
         self.attributes_set = OrderedDict()
+        self.attribute_generators = []
 
+    @contextlib.contextmanager
+    def wrapped_attribute_error(self):
+        try:
+            yield
+        except AttributeError as ex:
+            six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
+        
     def __getattr__(self, name):
         if name.startswith(self.factory_method_prefix):
             raise AttributeError(name)
 
         factory = self.get_factory_method_for(name)
-        
-        try:
-            instance = factory()
-        except AttributeError as ex:
-            six.reraise(AttributeErrorInFactoryMethod, AttributeErrorInFactoryMethod(ex), sys.exc_info()[2])
+        if inspect.isgeneratorfunction(factory):
+            with self.wrapped_attribute_error():
+                generator = factory()
+                instance = next(generator)
+            self.attribute_generators.append(generator)
+        else:
+            with self.wrapped_attribute_error():
+                instance = factory()
+            
         setattr(self, name, instance)
         self.attributes_set[name] = instance
         return instance
 
-    def create_default_context(self):
-        if self.run_fixture:
-            return self.run_fixture.context
-        else:
-            return NoContext()
-    
     def get_marked_methods(self, cls, marker):
         return [value for name, value in cls.__dict__.items() if isinstance(value, marker)]
 
@@ -192,25 +264,14 @@ class Fixture(object):
                     marked.method_for(self)()
                     done.add(marked.name)
 
-    def do_nothing(self):  # Used when no scenarions are defined
+    def do_nothing(self):  # Used when no scenarios are defined
         pass
         
     def set_up(self): pass
     def tear_down(self): pass    
 
     def get_factory_method_for(self, name):
-        try:
-            return self.get_prefixed_method_for(name, 'new')
-        except AttributeError:
-            if name == 'context':
-                return self.create_default_context
-            raise
-
-    def get_tear_down_method_for(self, name):
-        try:
-            return self.get_prefixed_method_for(name, 'del')
-        except AttributeError:
-            return lambda i: None
+        return self.get_prefixed_method_for(name, 'new')
 
     def get_prefixed_method_for(self, name, prefix):
         method_name = '%s_%s' % (prefix, name)
@@ -220,7 +281,13 @@ class Fixture(object):
         return '%s[%s]' % (self.__class__.__name__, self.scenario.name)
 
     def __enter__(self):
-        self.context.__enter__()
+        if self._setup_done:
+            return
+        self._setup_done = True
+
+        if self._options.scope == 'session':
+            atexit.register(self.run_tear_down_actions)
+
         try:
             self.set_up()
             self.run_marked_methods(SetUp, order=reversed)
@@ -231,15 +298,13 @@ class Fixture(object):
         return self
 
     def __exit__(self, exception_type, value, traceback):
-        self.context.__exit__(exception_type, value, traceback)
+        if self._options.scope == 'function':
+            return self.run_tear_down_actions()
+
+    def run_tear_down_actions(self):
         self.tear_down_attributes()
         self.run_marked_methods(TearDown)
         self.tear_down()
 
 
-class NoContext(object):
-    def __enter__(self):
-        return self
 
-    def __exit__(self, exception_type, value, traceback):
-        pass

@@ -1545,6 +1545,9 @@ class SetupMonitor(object):
     def flush(self):
         self.original_stdout.flush()
 
+    def isatty(self):
+        return self.original_stdout.isatty()
+
     def __exit__(self, *args):
         sys.stdout = self.original_stdout
 

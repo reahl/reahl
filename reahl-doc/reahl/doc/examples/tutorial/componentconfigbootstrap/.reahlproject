@@ -6,7 +6,12 @@
     <egg name="reahl-web-declarative"/>
   </deps>
 
+  <deps purpose="build">
+    <thirdpartyegg name="pytest-runner"/>
+  </deps>
+
   <deps purpose="test">
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
@@ -21,6 +26,6 @@
     <class locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=componentconfigbootstrap_dev -t -i '.*'"/>
-  
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap_dev'"/>
+
 </project>

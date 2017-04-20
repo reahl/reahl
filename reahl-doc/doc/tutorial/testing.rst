@@ -6,8 +6,8 @@ Testing
 .. sidebar:: Behind the scenes
 
    The Reahl testing tools are mostly wrappers and extensions of other
-   testing tools out there. `Nosetests
-   <https://nose.readthedocs.org/en/latest/>`_ has already been
+   testing tools out there. `Pytest
+   <https://docs.pytest.org/>`_ has already been
    mentioned. The other important tools are: `WebTest
    <http://webtest.pythopaste.org>`_ and `Selenium
    <https://pypi.python.org/pypi/selenium>`_ (the latter is used with
@@ -73,6 +73,10 @@ scenes to create the object. Subsequent accesses of `.my_object` will
 always bring back the same instance which was created on the first
 access.
 
+You instruct pytest to use the :class:`~reahl.tofu.Fixture` you want
+by decorating the test function with the
+:class:`~real.tofu.pytestsupport.WithFixtureDecorator`.
+
 Here is a simple test which illustrates how :class:`~reahl.tofu.Fixture`\ s work:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/testbasics.py
@@ -118,16 +122,13 @@ with `@set_up` or `@tear_down` respectively.
 
 Sometimes such setup can take a long time and would slow down tests if
 it happens for each and every test. When testing web applications, for
-example, you may want to fire up a browser before the test -- something
-that takes quite a long time.  For this reason Reahl provides an
-extension to nosetests to which you can specify a "run :class:`~reahl.tofu.Fixture`". A run
-:class:`~reahl.tofu.Fixture` is used for all tests that are run together. It is set up
-before all the tests are run, and torn down at the end of all test
-runs.  Normal :class:`~reahl.tofu.Fixture`\ s that are attached to individual tests also have
-access to the current run :class:`~reahl.tofu.Fixture`.
+example, you may want to fire up a browser before the test --
+something that takes quite a long time. For this reason, you may want
+set the scope of a :class:`~reahl.tofu.Fixture` to 'session'. Session
+scoped :class:`~reahl.tofu.Fixture`\s are set up only once test run,
+and are torn down only at the end of all tests.
 
-To specify which run :class:`~reahl.tofu.Fixture` should be used for a test run, use
-the ``--with-run-fixture`` (or -F) argument to nosetests.
+See :function:`~reahl.tofu.scope` for more information.
 
 
 Testing without a real browser
@@ -148,22 +149,49 @@ a test per explained fact; other times it is useful to write a test
 for a little scenario illustrating a "user story". This test is an
 example of the latter:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/parameterised2bootstraptests1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/test_parameterised2bootstrap1.py
 
-The test should be run with nosetests,
-using ``--with-run-fixture=reahl.webdev.fixtures:BrowserSetup``.
+The test should be run with pytest.
 
-There are a number of :class:`~reahl.tofu.Fixture`\ s available as part of Reahl to help you
+There are a number of :class:`~reahl.tofu.Fixture`\s available as part of Reahl to help you
 test applications. Explaining all of them is outside of the scope of
 this introductory section. For this test, it is useful to know some of
-the things that :class:`~reahl.webdev.fixtures.BrowserSetup` does: Before the tests start to run, it
-creates an empty database with the complete schema of your
-application. The Elixir/Sqlalchemy classes used by your application
-are also initialised properly (no need to create_all/setup_all, etc).
+the things that happen behind the scenes.
 
-The test is run with a :class:`~reahl.web_dev.fixtures.WebFixture`. :class:`~reahl.web_dev.fixtures.WebFixture` depends on the presence
-of a :class:`~reahl.webdev.fixtures.BrowserSetup` run :class:`~reahl.tofu.Fixture` -- that's why :class:`~reahl.webdev.fixtures.BrowserSetup` should be
-specified to nosetests when run.
+The test is run with a :class:`~reahl.web_dev.fixtures.WebFixture`. :class:`~reahl.web_dev.fixtures.WebFixture` in turn depends on
+a number of other :class:`~reahl.tofu.Fixture`\s, each responsible for something useful behind the scenes:
+
+ :class:`~reahl.dev.fixtures.ReahlSystemSessionFixture`
+    A session-scoped :class:`~reahl.tofu.Fixture` responsible for a number of basic concerns:
+        
+    It creates an empty database before any tests run, with the
+    correct database schema of your application. The Elixir/Sqlalchemy
+    classes used by your application are also initialised properly (no
+    need to create_all/setup_all, etc).
+
+    It also sets up an initial configuration for the system.
+
+ :class:`~reahl.dev.fixtures.ReahlSystemFixture`
+    A function-scoped copy of
+    :class:`~reahl.dev.fixtures.ReahlSystemSessionFixture` which can
+    be used and changed in tests. It ensures that changes you make to
+    things like the system configuration are torn down before the next
+    test
+        
+ :class:`~reahl.sqlalchemysupport_dev.fixtures.SqlAlchemyFixture`
+    This one ensures a transaction is started before each test run,
+    and rolled back after each test so as to leave the database
+    unchanged between tests. It also contains a handy method
+    :method:`~reahl.sqlalchemysupport_dev.fixtures.SqlAlchemyFixture.persistent_test_classes`
+    that can be used to add persistent classes to your database schema
+    just for purposes of the current test.
+        
+ :class:`~reahl.webdev.fixtures.WebServerFixture`
+    A session-scoped :class:`~reahl.tofu.Fixture` that ensures a
+    webserver is started before your tests run. It also maintains an
+    instance of a selenium WebDriver that you can use to programatically
+    surf to the currently served web application via a real web
+    browser.
 
 The only obvious feature of :class:`~reahl.web_dev.fixtures.WebFixture` used in this little test is the
 creation of a WSGI application. `WebFixture.new_wsgi_app()` can create a
@@ -171,10 +199,6 @@ WSGI application in various different ways. This example shows how to
 create a ReahlWSGIApplication from a supplied :class:`~reahl.web.fw.UserInterface`. By default javascript
 is not turned on (although, as you will see later, this can be
 specified as well).
-
-Behind the scenes, :class:`~reahl.web_dev.fixtures.WebFixture` also has the job of starting a new
-database transaction before each test, and rolling it back after each
-test. Hence no real need to tear down anything...
 
 Two other important tools introduced in this test are: :class:`~reahl.webdev.tools.Browser` and
 :class:`~reahl.webdev.tools.XPath`.  :class:`~reahl.webdev.tools.Browser` is not a real browser -- it is our thin wrapper on top
@@ -212,7 +236,7 @@ couple of things we'd like to assert about the application, as well as
 some objects used by the tests.  (Compare this implementation of
 `.adding_an_address()` to the previous implementation.)
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/parameterised2bootstraptests2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/test_parameterised2bootstrap2.py
 
 Testing JavaScript
 ------------------
@@ -248,21 +272,18 @@ WebDriver interface. It gives a programmer a similar set of methods
 to those provided by the :class:`~reahl.webdev.tools.Browser`, as used above. An instance of it is
 available on the :class:`~reahl.web_dev.fixtures.WebFixture` via its `.driver_browser` attribute.
 
-The standard :class:`~reahl.tofu.Fixture`\ s that form part of Reahl use Chromium by default
+The standard :class:`~reahl.tofu.Fixture`\s that form part of Reahl use Chromium by default
 in order to run tests, and they expect the executable for chromium to
 be in '/usr/lib/chromium-browser/chromium-browser'.
 
-You can change which browser is used by creating a new run :class:`~reahl.tofu.Fixture` that inherits
-from :class:`~reahl.webdev.fixtures.BrowserSetup`, and overriding its `.web_driver()` method.  Some
-details regarding how the browser is configured (such as the binary
-location of the browser) can similarly be changed by overriding the
-relevant `.new_` method of that class.
+You can change which browser is used by creating a new :class:`~reahl.tofu.Fixture` that inherits
+from :class:`~reahl.web_dev.fixtures.WebFixture`, and overriding its `.new_driver_browser()` method.  
 
 When the following is executed, a browser will be fired up, and
 Selenium used to test that the validation provided by :class:`~reahl.component.modelinterface.EmailField` works
 in javascript as expected. Note also how javascript is enabled for the
 web application upon creation:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/parameterised2bootstraptests3.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/test_parameterised2bootstrap3.py
 
 

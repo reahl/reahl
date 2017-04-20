@@ -17,28 +17,32 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
-from nose.tools import istest
-from reahl.tofu import Fixture
-from reahl.tofu import test
-from reahl.tofu import vassert
+from reahl.tofu import Fixture, uses
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.sqlalchemysupport import Session
 from reahl.web.fw import Url, UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web_dev.fixtures import WebBasicsMixin
 from reahl.webdev.tools import Browser
 from reahl.web.bootstrap.ui import HTML5Page
 from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
 from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
 from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domainui_dev.fixtures import BookmarkStub
-from reahl.domain_dev.fixtures import PartyModelZooMixin
 
-class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
+
+from reahl.domain_dev.fixtures import PartyAccountFixture
+from reahl.dev.fixtures import ReahlSystemFixture
+from reahl.web_dev.fixtures import WebFixture
+
+
+@uses(reahl_system_fixture=ReahlSystemFixture, web_fixture=WebFixture)
+class AccountsWebFixture(Fixture):
+
     def new_login_bookmark(self, request=None):
-        self.context.request = request or self.request
+        self.reahl_system_fixture.context.request = request or self.request
         return self.account_user_interface_factory.get_bookmark(relative_path='/login')
-    
+
     def new_MainUI(self):
         fixture = self
         class MainUI(UserInterface):
@@ -46,14 +50,13 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
                 page_layout = PageLayout(document_layout=Container(),
                                          contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots())
                 self.define_page(HTML5Page).use_layout(page_layout)
-                account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui', 
+                account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui',
                                                             bookmarks=fixture.bookmarks)
                 fixture.account_user_interface_factory = account_user_interface_factory
         return MainUI
-    
+
     def new_wsgi_app(self, enable_js=False):
-        return super(AccountsWebFixture, self).new_wsgi_app(enable_js=enable_js,
-                                                         site_root=self.MainUI)
+        return self.web_fixture.new_wsgi_app(enable_js=enable_js, site_root=self.MainUI)
 
     def new_browser(self):
         return Browser(self.wsgi_app)
@@ -65,146 +68,164 @@ class AccountsWebFixture(Fixture, WebBasicsMixin, PartyModelZooMixin):
             disclaimer_bookmark = BookmarkStub(Url('/#disclaimer'), 'Disclaimer')
         return Bookmarks()
 
-        
-@istest
-class Tests(object):
-    @test(AccountsWebFixture)
-    def login_with_detour(self, fixture):
-        account = fixture.system_account
 
-        fixture.browser.open('/a_ui/register?a=b&name=kitty')
-        vassert( fixture.browser.location_path == '/a_ui/register' )
-        vassert( fixture.browser.location_query_string == 'a=b&name=kitty' )
+@with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
+def test_login_with_detour(web_fixture, party_account_fixture, accounts_web_fixture):
+    fixture = accounts_web_fixture
 
-        fixture.browser.open(six.text_type(fixture.new_login_bookmark(request=fixture.browser.last_request).href))
-        fixture.browser.click('//a[text()="Forgot your password?"]')
-        fixture.browser.go_back()
-        fixture.browser.type('//input[@name="email"]', account.email)
-        fixture.browser.type('//input[@name="password"]', account.password)
-        fixture.browser.click('//input[@value="Log in"]')
+    account = party_account_fixture.system_account
 
-        vassert( fixture.browser.location_path == '/a_ui/register' )
-        vassert( fixture.browser.location_query_string == 'a=b&name=kitty' )
+    fixture.browser.open('/a_ui/register?a=b&name=kitty')
+    assert fixture.browser.location_path == '/a_ui/register'
+    assert fixture.browser.location_query_string == 'a=b&name=kitty'
 
-    @test(AccountsWebFixture)
-    def register(self, fixture):
-        verification_requests = Session.query(VerifyEmailRequest)
-        fixture.browser.open('/a_ui/register')
+    fixture.browser.open(six.text_type(fixture.new_login_bookmark(request=fixture.browser.last_request).href))
+    fixture.browser.click('//a[text()="Forgot your password?"]')
+    fixture.browser.go_back()
+    fixture.browser.type('//input[@name="email"]', account.email)
+    fixture.browser.type('//input[@name="password"]', account.password)
+    fixture.browser.click('//input[@value="Log in"]')
 
-        fixture.browser.type('//form[@id="register"]//*[@name="email"]', 'a@b.org')
-        fixture.browser.type('//form[@id="register"]//*[@name="password"]', '111111')
-        fixture.browser.type('//form[@id="register"]//*[@name="repeat_password"]', '111111')
-        fixture.browser.click('//form[@id="register"]//*[@name="accept_terms"]')
+    assert fixture.browser.location_path == '/a_ui/register'
+    assert fixture.browser.location_query_string == 'a=b&name=kitty'
 
-        vassert( verification_requests.count() == 0 )
-        # This will not work in selenium, see:
-        #  http://forum.jquery.com/topic/validate-possible-bug-for-corner-case-usage-of-remote
-        fixture.browser.click('//form[@id="register"]//*[@value="Register"]')
-        vassert( verification_requests.count() == 1 )
 
-    @test(AccountsWebFixture)
-    def register_help_duplicate(self, fixture):
-        fixture.browser.open('/a_ui/registerHelp')
+@with_fixtures(WebFixture, AccountsWebFixture)
+def test_register(web_fixture, accounts_web_fixture):
+    fixture = accounts_web_fixture
 
-        fixture.browser.type('//input[@name="email"]', fixture.system_account.email)
-        fixture.browser.click('//input[@value="Investigate"]')
+    verification_requests = Session.query(VerifyEmailRequest)
+    fixture.browser.open('/a_ui/register')
 
-        vassert( fixture.browser.location_path == '/a_ui/registerHelp/duplicate' )
-        fixture.browser.click('//a[text()=" password reset procedure"]')
+    fixture.browser.type('//form[@id="register"]//*[@name="email"]', 'a@b.org')
+    fixture.browser.type('//form[@id="register"]//*[@name="password"]', '111111')
+    fixture.browser.type('//form[@id="register"]//*[@name="repeat_password"]', '111111')
+    fixture.browser.click('//form[@id="register"]//*[@name="accept_terms"]')
 
-        vassert( fixture.browser.location_path == '/a_ui/resetPassword' )
+    assert verification_requests.count() == 0
+    # This will not work in selenium, see:
+    #  http://forum.jquery.com/topic/validate-possible-bug-for-corner-case-usage-of-remote
+    fixture.browser.click('//form[@id="register"]//*[@value="Register"]')
+    assert verification_requests.count() == 1
 
-    @test(AccountsWebFixture)
-    def register_help_not_found(self, fixture):
-        fixture.browser.open('/a_ui/registerHelp')
 
-        fixture.browser.type('//input[@name="email"]', 'another_%s' % fixture.system_account.email)
-        fixture.browser.click('//input[@value="Investigate"]')
+@with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
+def test_register_help_duplicate(web_fixture, party_account_fixture, accounts_web_fixture):
+    fixture = accounts_web_fixture
+    fixture.browser.open('/a_ui/registerHelp')
 
-        vassert( fixture.browser.location_path == '/a_ui/registerHelp/reregister' )
-        fixture.browser.click('//a[text()="register again"]')
+    fixture.browser.type('//input[@name="email"]', party_account_fixture.system_account.email)
+    fixture.browser.click('//input[@value="Investigate"]')
 
-        vassert( fixture.browser.location_path == '/a_ui/register' )
+    assert fixture.browser.location_path == '/a_ui/registerHelp/duplicate'
+    fixture.browser.click('//a[text()=" password reset procedure"]')
 
-    @test(AccountsWebFixture)
-    def register_help_pending(self, fixture):
-        verification_requests = Session.query(VerifyEmailRequest)
-        unactivated_account = fixture.new_system_account(email='unactivated_johndoe@home.org', activated=False)
-        activation_request = VerifyEmailRequest(email=unactivated_account.email,
-                                                subject_config='accounts.activation_subject',
-                                                email_config='accounts.activation_email')
-        Session.add(activation_request)
-        deferred_activation = ActivateAccount(system_account=unactivated_account, requirements=[activation_request])
-        Session.add(deferred_activation)
+    assert fixture.browser.location_path == '/a_ui/resetPassword'
 
-        fixture.browser.open('/a_ui/registerHelp')
-        fixture.browser.type('//input[@name="email"]', unactivated_account.email)
-        fixture.browser.click('//input[@value="Investigate"]')
 
-        vassert( fixture.browser.location_path == '/a_ui/registerHelp/pending' )
-        vassert( verification_requests.count() == 1 )
-        fixture.mailer.reset()
-        fixture.browser.click('//input[@value="Send"]')
+@with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
+def test_register_help_not_found(web_fixture, party_account_fixture, accounts_web_fixture):
+    fixture = accounts_web_fixture
 
-        vassert( verification_requests.count() == 1 )
-        vassert( fixture.mailer.mail_sent )
-        vassert( fixture.browser.location_path == '/a_ui/registerHelp/pending/sent' )
+    fixture.browser.open('/a_ui/registerHelp')
 
-    @test(AccountsWebFixture)
-    def verify_from_menu(self, fixture):
-        account = fixture.new_system_account(activated=False)
-        activation_request = VerifyEmailRequest(email=account.email,
-                                                subject_config='accounts.activation_subject',
-                                                email_config='accounts.activation_email')
-        Session.add(activation_request)
-        deferred_activation = ActivateAccount(system_account=account, requirements=[activation_request])
-        Session.add(deferred_activation)
-        secret_key = activation_request.as_secret_key()
+    fixture.browser.type('//input[@name="email"]', 'another_%s' % party_account_fixture.system_account.email)
+    fixture.browser.click('//input[@value="Investigate"]')
 
-        vassert( not account.status.is_active() )
-        fixture.browser.open('/a_ui/verify')
+    assert fixture.browser.location_path == '/a_ui/registerHelp/reregister'
+    fixture.browser.click('//a[text()="register again"]')
 
-        fixture.browser.type('//form[@id="verify"]//*[@name="email"]', account.email)
-        fixture.browser.type('//form[@id="verify"]//*[@name="secret"]', secret_key)
-        fixture.browser.type('//form[@id="verify"]//*[@name="password"]', account.password)
-        fixture.browser.click('//form[@id="verify"]//*[@value="Verify"]')
+    assert fixture.browser.location_path == '/a_ui/register'
 
-        vassert( fixture.browser.location_path == '/a_ui/thanks' )
-        vassert( account.status.is_active() )
 
-        # Case needed for when you supply invalid stuff???
+@with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
+def test_register_help_pending(web_fixture, party_account_fixture, accounts_web_fixture):
+    fixture = accounts_web_fixture
 
-    @test(AccountsWebFixture)
-    def reset_password(self, fixture):
-        account = fixture.system_account
+    verification_requests = Session.query(VerifyEmailRequest)
+    unactivated_account = party_account_fixture.new_system_account(email='unactivated_johndoe@home.org', activated=False)
+    activation_request = VerifyEmailRequest(email=unactivated_account.email,
+                                            subject_config='accounts.activation_subject',
+                                            email_config='accounts.activation_email')
+    Session.add(activation_request)
+    deferred_activation = ActivateAccount(system_account=unactivated_account, requirements=[activation_request])
+    Session.add(deferred_activation)
 
-        fixture.browser.open('/a_ui/resetPassword')
-        fixture.browser.type('//input[@name="email"]', account.email)
-        fixture.browser.click('//input[@value="Reset password"]')
-        vassert( fixture.browser.location_path == '/a_ui/choosePassword' )
+    fixture.browser.open('/a_ui/registerHelp')
+    fixture.browser.type('//input[@name="email"]', unactivated_account.email)
+    fixture.browser.click('//input[@value="Investigate"]')
 
-        reset_request = Session.query(NewPasswordRequest).filter_by(system_account=fixture.system_account).one()
-        fixture.browser.open('/a_ui/choosePassword')
-        fixture.browser.type('//input[@name="email"]', account.email )
-        fixture.browser.type('//input[@name="secret"]', reset_request.as_secret_key() )
-        new_password = '111111'
-        fixture.browser.type('//input[@name="password"]', new_password )
-        fixture.browser.type('//input[@name="repeat_password"]', new_password )
-        fixture.browser.click('//input[@value="Set new password"]')
+    assert fixture.browser.location_path == '/a_ui/registerHelp/pending'
+    assert verification_requests.count() == 1
+    party_account_fixture.mailer.reset()
+    fixture.browser.click('//input[@value="Send"]')
 
-        vassert( fixture.browser.location_path == '/a_ui/passwordChanged' )
+    assert verification_requests.count() == 1
+    assert party_account_fixture.mailer.mail_sent
+    assert fixture.browser.location_path == '/a_ui/registerHelp/pending/sent'
 
-    @test(AccountsWebFixture)
-    def reset_password_from_url(self, fixture):
-        account = fixture.system_account
-        new_password_request = NewPasswordRequest(system_account=account)
-        Session.add(new_password_request)
 
-        fixture.browser.open('/a_ui/choosePassword?email=%s&secret=%s' % \
-                             (account.email, new_password_request.as_secret_key()))
-        new_password = '111111'
-        fixture.browser.type('//input[@name="password"]', new_password )
-        fixture.browser.type('//input[@name="repeat_password"]', new_password )
-        fixture.browser.click('//input[@value="Set new password"]')
+@with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
+def test_verify_from_menu(web_fixture, party_account_fixture, accounts_web_fixture):
+    fixture = accounts_web_fixture
 
-        vassert( fixture.browser.location_path == '/a_ui/passwordChanged' )
+    account = party_account_fixture.new_system_account(activated=False)
+    activation_request = VerifyEmailRequest(email=account.email,
+                                            subject_config='accounts.activation_subject',
+                                            email_config='accounts.activation_email')
+    Session.add(activation_request)
+    deferred_activation = ActivateAccount(system_account=account, requirements=[activation_request])
+    Session.add(deferred_activation)
+    secret_key = activation_request.as_secret_key()
+
+    assert not account.status.is_active()
+    fixture.browser.open('/a_ui/verify')
+
+    fixture.browser.type('//form[@id="verify"]//*[@name="email"]', account.email)
+    fixture.browser.type('//form[@id="verify"]//*[@name="secret"]', secret_key)
+    fixture.browser.type('//form[@id="verify"]//*[@name="password"]', account.password)
+    fixture.browser.click('//form[@id="verify"]//*[@value="Verify"]')
+
+    assert fixture.browser.location_path == '/a_ui/thanks'
+    assert account.status.is_active()
+
+    # Case needed for when you supply invalid stuff???
+
+
+@with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
+def test_reset_password(web_fixture, party_account_fixture, accounts_web_fixture):
+    fixture = accounts_web_fixture
+    account = party_account_fixture.system_account
+
+    fixture.browser.open('/a_ui/resetPassword')
+    fixture.browser.type('//input[@name="email"]', account.email)
+    fixture.browser.click('//input[@value="Reset password"]')
+    assert fixture.browser.location_path == '/a_ui/choosePassword'
+
+    reset_request = Session.query(NewPasswordRequest).filter_by(system_account=party_account_fixture.system_account).one()
+    fixture.browser.open('/a_ui/choosePassword')
+    fixture.browser.type('//input[@name="email"]', account.email )
+    fixture.browser.type('//input[@name="secret"]', reset_request.as_secret_key() )
+    new_password = '111111'
+    fixture.browser.type('//input[@name="password"]', new_password )
+    fixture.browser.type('//input[@name="repeat_password"]', new_password )
+    fixture.browser.click('//input[@value="Set new password"]')
+
+    assert fixture.browser.location_path == '/a_ui/passwordChanged'
+
+
+@with_fixtures(WebFixture, PartyAccountFixture, AccountsWebFixture)
+def test_reset_password_from_url(web_fixture, party_account_fixture, accounts_web_fixture):
+    fixture = accounts_web_fixture
+    account = party_account_fixture.system_account
+    new_password_request = NewPasswordRequest(system_account=account)
+    Session.add(new_password_request)
+
+    fixture.browser.open('/a_ui/choosePassword?email=%s&secret=%s' % \
+                         (account.email, new_password_request.as_secret_key()))
+    new_password = '111111'
+    fixture.browser.type('//input[@name="password"]', new_password )
+    fixture.browser.type('//input[@name="repeat_password"]', new_password )
+    fixture.browser.click('//input[@value="Set new password"]')
+
+    assert fixture.browser.location_path == '/a_ui/passwordChanged'

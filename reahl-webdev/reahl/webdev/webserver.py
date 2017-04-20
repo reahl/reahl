@@ -33,6 +33,8 @@ import logging
 import functools
 import pkg_resources
 
+from six.moves.http_client import CannotSendRequest
+
 from webob import Request
 from webob.exc import HTTPInternalServerError
 
@@ -278,7 +280,13 @@ class WebDriverHandler(object):
             def doit():
                 try:
                     started.set()
-                    r = self.original_execute(command, params)
+                    try:
+                        r = self.original_execute(command, params)
+                    except CannotSendRequest:
+                        # Retry in case the keep-alive connection state got mixed up
+                        # by, eg, the browser requesting a new url before all the
+                        # styleseets etc have loaded on the current one.
+                        r = self.original_execute(command, params)
                     results.append(r)
                 except Exception as e:
                     exceptions.append(e)
@@ -462,17 +470,17 @@ class ReahlWebServer(object):
 
 
     def main_loop(self, context):
-        with context:
-            while self.running:
-                try:
-                    self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
-                    self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
-                except:  
-                    # When running as a standalone server, we keep the server running, but else break so tests break
-                    if self.in_separate_thread and self.running:
-                        print(traceback.format_exc(), file=sys.stderr)
-                    else:
-                        raise
+        context.install()
+        while self.running:
+            try:
+                self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
+                self.httpsd.serve_async(in_separate_thread=self.in_separate_thread)
+            except:  
+                # When running as a standalone server, we keep the server running, but else break so tests break
+                if self.in_separate_thread and self.running:
+                    print(traceback.format_exc(), file=sys.stderr)
+                else:
+                    raise
 
     def start_thread(self):
         assert not self.running

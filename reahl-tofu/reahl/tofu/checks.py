@@ -81,6 +81,7 @@ def expected(exception, test=None):
     else:
         raise NoExceptionRaised(exception)
 
+
 def assert_recent(date, seconds_threshold=5):
     if date is None:
         is_recent_check = False
@@ -92,6 +93,7 @@ def assert_recent(date, seconds_threshold=5):
             raise AssertionError( 'Date[%s] exceeds given threshold of %s with %s' % (date, seconds_threshold, delta ) )
         else:
             raise AssertionError( 'No date set' )
+
 
 def check_limitation(coded_version, msg):
     """Warns that a newer Python version is now used, which may have a fix for
@@ -113,78 +115,5 @@ def check_limitation(coded_version, msg):
     assert not( (coded_ma < current_ma) or ((coded_ma == current_ma) and (coded_mi < current_mi)) ), \
            'You are now on python %s.%s, code was written on %s: %s' % \
            (current_ma, current_mi, coded_version, msg)
-
-    
-class vassert(object):
-    """A replacement for the Python assert statement which shows the values of some variables
-       if the assertion fails.
-       
-       :param expression: A boolean expression. The assertion will fail if this expression does not evaluate to True.
-
-       For example, the following code will yield the stack trace shown below it:
-
-       .. code-block:: python
-       
-           i = 123
-           vassert( i == 1 )
-
-       .. parsed-literal:: 
-
-          AssertionError: vassert( i == 1 )
-
-          ----- values were -----
-          i: 123 (<type 'int'>)       
-    """
-    def find_names(self, source):
-        from six.moves import cStringIO
-                
-        tokens = [ (t[0], t[1])
-                   for t in tokenize.generate_tokens(cStringIO(source).readline)
-                   if t[0] == token.NAME or t[1] == '.']
-        names = []
-        concat = False
-        for t in tokens:
-            if t[0] == token.OP:
-                concat = True
-            if t[0] == token.NAME:
-                if concat:
-                    names[-1] = '%s.%s' % (names[-1], t[1])
-                else:
-                    names.append(t[1])
-                concat = False
-                
-        return names
-        
-    def __init__(self, expression):
-        if __debug__ and not expression:
-            try:
-                calling_context = inspect.stack()[1]
-                calling_frame = calling_context[0]
-
-                [source] = inspect.getframeinfo(calling_frame, 1)[3]
-                names = self.find_names(source)
-            
-                info = {}
-                for name in names:
-                    elements = name.split('.')
-                    if 'vassert' not in elements:
-                        first_element = elements[0]
-                        if first_element in calling_frame.f_locals \
-                               or first_element in calling_frame.f_globals:
-                            value = 'could not determine'
-                            try:
-                                value = eval(name, calling_frame.f_locals, calling_frame.f_globals)
-                            except:
-                                pass
-                            info[name] = value
-
-                message  = '%s\n\n\t----- values were -----\n' % source.strip()
-                for i in info.items():
-                    message += '\t%s: %s (%s)\n' % (i[0], i[1], type(i[1]))
-
-                raise AssertionError(message)
-
-            finally:
-                del calling_frame
 
 

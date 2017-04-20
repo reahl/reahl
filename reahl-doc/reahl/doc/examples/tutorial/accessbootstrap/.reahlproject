@@ -7,7 +7,12 @@
     <egg name="reahl-domain"/>
   </deps>
 
+  <deps purpose="build">
+    <thirdpartyegg name="pytest-runner"/>
+  </deps>
+
   <deps purpose="test">
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
@@ -20,8 +25,8 @@
     <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture --tests=accessbootstrap_dev -t -i '.*'"/>
-  <alias name="demosetup" command="setup -- -q nosetests -F reahl.webdev.fixtures:BrowserSetup --with-setup-fixture=reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap_dev.accessbootstraptests:DemoFixture"/>
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap_dev'"/>
+  <alias name="demosetup" command="setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap_dev'"/>
 
-  
+
 </project>

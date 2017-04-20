@@ -19,14 +19,15 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.stubble import EmptyStub
-from reahl.tofu import Fixture, test, scenario
-from reahl.tofu import vassert
+from reahl.tofu import Fixture, scenario, uses
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath, WidgetTester
 from reahl.web.ui import StaticColumn, DynamicColumn, Table, Thead, Span, Div, P
-from reahl.web_dev.fixtures import WebBasicsMixin, WebFixture
 
 from reahl.component.modelinterface import Field, BooleanField
+
+from reahl.web_dev.fixtures import WebFixture
 
 
 class DataItem(object):
@@ -35,34 +36,36 @@ class DataItem(object):
         self.alpha = alpha
 
 
-class TableFixture(Fixture, WebBasicsMixin):
+@uses(web_fixture=WebFixture)
+class TableFixture(Fixture):
+
     def new_data(self):
         return [DataItem(1, 'T'), DataItem(2, 'H'), DataItem(3, 'E')]
 
     def table_caption_is(self, expected):
-        return  self.driver_browser.find_element(XPath.caption_with_text(expected))
+        return  self.web_fixture.driver_browser.find_element(XPath.caption_with_text(expected))
 
     def table_summary_is(self, summary):
-        return  self.driver_browser.find_element(XPath.table_with_summary(summary))
+        return  self.web_fixture.driver_browser.find_element(XPath.table_with_summary(summary))
 
     def table_column_name_is(self, column_number, expected):
-        return self.driver_browser.web_driver.find_element_by_xpath('((//table/thead/tr/th)[%s]/span)[1]' % column_number).text == expected
+        return self.web_fixture.driver_browser.web_driver.find_element_by_xpath('((//table/thead/tr/th)[%s]/span)[1]' % column_number).text == expected
 
     def get_table_row(self, row_number):
         row_data = []
-        for column_number in list(range(1,self.table_number_columns()+1)):
-            row_data.append(self.driver_browser.web_driver.find_element_by_xpath('((//table/tbody/tr)[%s]/td)[%s]' % (row_number, column_number)).text)
+        for column_number in list(range(1, self.table_number_columns()+1)):
+            row_data.append(self.web_fixture.driver_browser.web_driver.find_element_by_xpath('((//table/tbody/tr)[%s]/td)[%s]' % (row_number, column_number)).text)
         return row_data
 
     def table_number_columns(self):
-        return len(self.driver_browser.web_driver.find_elements_by_xpath('//table/thead/tr/th'))
+        return len(self.web_fixture.driver_browser.web_driver.find_elements_by_xpath('//table/thead/tr/th'))
 
     def table_number_rows(self):
-        return len(self.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
+        return len(self.web_fixture.driver_browser.web_driver.find_elements_by_xpath('//table/tbody/tr'))
 
 
-@test(TableFixture)
-def table_basics(fixture):
+@with_fixtures(WebFixture, TableFixture)
+def test_table_basics(web_fixture, table_fixture):
     """A Table created .from_columns() displays a list of items as defined by a list of Columns"""
 
     class MainWidget(Div):
@@ -72,35 +75,38 @@ def table_basics(fixture):
             table.with_data(
                             [StaticColumn(Field(label='Row Number'), 'row'),
                              StaticColumn(Field(label='Alpha'), 'alpha')],
-                            fixture.data
+                             table_fixture.data
                             )
             self.add_child(table)
 
-    wsgi_app = fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
-    fixture.reahl_server.set_app(wsgi_app)
-    fixture.driver_browser.open('/')
-        
+    fixture = table_fixture
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
     # The table has a caption and summary
-    vassert( fixture.table_caption_is('All my friends') )
-    vassert( fixture.table_summary_is('Summary for screen reader') )
+    assert fixture.table_caption_is('All my friends')
+    assert fixture.table_summary_is('Summary for screen reader')
 
     # Column headings are derived from given Column Fields
-    vassert( fixture.table_column_name_is(1, 'Row Number') )
-    vassert( fixture.table_column_name_is(2, 'Alpha') )
+    assert fixture.table_column_name_is(1, 'Row Number')
+    assert fixture.table_column_name_is(2, 'Alpha')
 
     # A string representation of the value of each Field of a given data item is shown in the appropriate cell
-    vassert( fixture.table_number_rows() == 3 )
+    assert fixture.table_number_rows() == 3
 
-    vassert( fixture.get_table_row(1) == ['1' ,'T'] )
-    vassert( fixture.get_table_row(2) == ['2' ,'H'] )
-    vassert( fixture.get_table_row(3) == ['3' ,'E'] )
+    assert fixture.get_table_row(1) == ['1', 'T']
+    assert fixture.get_table_row(2) == ['2', 'H']
+    assert fixture.get_table_row(3) == ['3', 'E']
 
 
-class ColumnFixture(WebFixture):
+@uses(web_fixture=WebFixture)
+class ColumnScenarios(Fixture):
     sort_key = EmptyStub()
     heading = 'A heading'
     row_item = EmptyStub(some_attribute=True)
-    
+
     @scenario
     def static_column(self):
         """StaticColumn represents an attribute of the item in a row, using a Field to translate the value of that attribute into a string and to specify a column header."""
@@ -132,31 +138,33 @@ class ColumnFixture(WebFixture):
         self.expected_heading_html = '<p>A heading</p>'
 
 
-@test(ColumnFixture)
-def different_kinds_of_columns(fixture):
+@with_fixtures(WebFixture, ColumnScenarios)
+def test_different_kinds_of_columns(web_fixture, column_scenarios):
     """There are different kinds of Columns, allowing different levels of flexibility for defining a Table"""
 
-    vassert( fixture.column.sort_key is fixture.sort_key )
+    fixture = column_scenarios
+
+    assert fixture.column.sort_key is fixture.sort_key
 
     # The heading
-    widget_for_heading = fixture.column.heading_as_widget(fixture.view)
+    widget_for_heading = fixture.column.heading_as_widget(web_fixture.view)
     actual = WidgetTester(widget_for_heading).render_html()
 
-    vassert( actual == fixture.expected_heading_html )
+    assert actual == fixture.expected_heading_html
 
     # A cell
-    widget_for_cell = fixture.column.as_widget(fixture.view, fixture.row_item)
+    widget_for_cell = fixture.column.as_widget(web_fixture.view, fixture.row_item)
     actual = WidgetTester(widget_for_cell).render_html()
 
-    vassert( actual == fixture.expected_cell_html )
+    assert actual == fixture.expected_cell_html
 
 
-@test(TableFixture)
-def table_thead(fixture):
+@with_fixtures(WebFixture)
+def test_table_thead(web_fixture):
     """Table can find its Thead element"""
 
-    table = Table(fixture.view)
-    thead = table.add_child(Thead(fixture.view))
 
-    vassert( table.thead is thead )
+    table = Table(web_fixture.view)
+    thead = table.add_child(Thead(web_fixture.view))
 
+    assert table.thead is thead

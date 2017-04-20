@@ -5,5 +5,5 @@
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-web-declarative"/>
   </deps>
-  <alias name="unit" command="setup -- nosetests"/>
+  <alias name="unit" command="setup -- check"/>
 </project>

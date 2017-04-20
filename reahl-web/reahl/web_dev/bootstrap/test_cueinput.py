@@ -19,20 +19,21 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import test
+from reahl.tofu import Fixture
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath
-from reahl.web_dev.fixtures import WebFixture
 
 from reahl.component.modelinterface import exposed, Field
 
 from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import Form, FormLayout, CueInput, TextInput
 
+from reahl.web_dev.fixtures import WebFixture
 
-class CueInputFixture(WebFixture):
+
+class CueInputFixture(Fixture):
     cue_element_xpath = "//p"
-
 
     def new_domain_object(self):
         class DomainObject(object):
@@ -42,9 +43,10 @@ class CueInputFixture(WebFixture):
         return DomainObject()
 
 
-@test(CueInputFixture)
-def cue_input_display_basics(fixture):
+@with_fixtures(WebFixture, CueInputFixture)
+def test_cue_input_display_basics(web_fixture, cue_input_fixture):
     """A CueInput displays a given cue when its wrapped Input has focus and hides the cue otherwise."""
+    fixture = cue_input_fixture
 
     class FormWithCueInput(Form):
             def __init__(self, view):
@@ -53,10 +55,11 @@ def cue_input_display_basics(fixture):
                 cue_input = CueInput(TextInput(self, fixture.domain_object.fields.field), P(view, 'this is your cue'))
                 self.layout.add_input(cue_input)
 
-    wsgi_app = fixture.new_wsgi_app(child_factory=FormWithCueInput.factory(), enable_js=True)
 
-    fixture.reahl_server.set_app(wsgi_app)
-    browser = fixture.driver_browser
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=FormWithCueInput.factory(), enable_js=True)
+
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
     browser.open('/')
 
     #initially the cue is not visible
@@ -70,9 +73,10 @@ def cue_input_display_basics(fixture):
     browser.wait_for_element_not_visible(fixture.cue_element_xpath)
 
 
-@test(CueInputFixture)
-def cue_is_visible_when_js_disabled(fixture):
+@with_fixtures(WebFixture, CueInputFixture)
+def test_cue_is_visible_when_js_disabled(web_fixture, cue_input_fixture):
     """A CueInput degrades without JS to always display its cue."""
+    fixture = cue_input_fixture
 
     class FormWithCueInput(Form):
             def __init__(self, view):
@@ -81,10 +85,11 @@ def cue_is_visible_when_js_disabled(fixture):
                 cue_input = CueInput(TextInput(self, fixture.domain_object.fields.field), P(view, 'this is your cue'))
                 self.layout.add_input(cue_input)
 
-    wsgi_app = fixture.new_wsgi_app(child_factory=FormWithCueInput.factory(), enable_js=False)
 
-    fixture.reahl_server.set_app(wsgi_app)
-    browser = fixture.driver_browser
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=FormWithCueInput.factory(), enable_js=False)
+
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
     browser.open('/')
     browser.refresh() # To prevent flipper we don't understand
 

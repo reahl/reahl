@@ -8,7 +8,7 @@
 
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="run">
@@ -18,7 +18,7 @@
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
   </deps>
 
@@ -27,8 +27,8 @@
   </extras>
 
   <deps purpose="test">
-    <thirdpartyegg name="Sphinx"/>    
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <thirdpartyegg name="Sphinx"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
@@ -72,7 +72,7 @@
   <export entrypoint="reahl.dev.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.dev.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
-  <alias name="unit" command="setup -- -q nosetests -s --with-id --nologcapture -T (reahl/.*_dev/|.*/testbasics)"/>
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc_dev reahl.doc'"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

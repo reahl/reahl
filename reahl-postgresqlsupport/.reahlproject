@@ -5,7 +5,7 @@
   
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest-runner"/>
   </deps>
 
   <deps purpose="run">
@@ -14,13 +14,13 @@
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="nose"/>
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
   </deps>
 
   <export entrypoint="reahl.component.databasecontrols" name="PostgresqlControl" locator="reahl.postgresqlsupport:PostgresqlControl"/>
 
-  <alias name="unit" command="setup -- -q nosetests"/>
-  
+  <alias name="unit" command="setup -- check"/>
+
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
   </distpackage>

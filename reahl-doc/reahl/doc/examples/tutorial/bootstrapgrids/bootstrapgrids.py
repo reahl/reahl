@@ -94,7 +94,7 @@ class HomePage(HTML5Page):
 
         self.body.use_layout(Container())
         self.add_child(H(view, 1, text='Examples'))
-        self.add_child(Nav.from_bookmarks(view, bookmarks))
+        self.add_child(Nav(view).with_bookmarks(bookmarks))
 
 
 

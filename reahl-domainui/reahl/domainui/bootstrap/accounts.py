@@ -28,8 +28,8 @@ Widgets (:mod:`reahl.web.bootstrap`).
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 from reahl.component.i18n import Translator
+from reahl.component.context import ExecutionContext
 from reahl.web.fw import UserInterface
-from reahl.web.fw import WebExecutionContext
 from reahl.web.fw import Widget
 from reahl.web.bootstrap.ui import H, P, A, Alert
 from reahl.web.bootstrap.forms import Button, ButtonLayout, CueInput, TextInput, PasswordInput, \
@@ -226,7 +226,7 @@ class RegistrationDuplicatedWidget(TitledWidget):
 class RegistrationPendingWidget(TitledWidget):
     def __init__(self, view, account_management_interface):
         super(RegistrationPendingWidget, self).__init__(view)
-        config = WebExecutionContext.get_context().config
+        config = ExecutionContext.get_context().config
         self.add_child(P(view, text=_('There is a registration pending for email address "%s".') % account_management_interface.email))
         self.add_child(P(view, text=_('Before you can log in using it, you need to act on the automated email '
                                       'sent to that address. It looks like you did not do that.')))

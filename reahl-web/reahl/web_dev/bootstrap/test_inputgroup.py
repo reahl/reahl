@@ -19,20 +19,22 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import vassert, scenario, test
+from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import WidgetTester
-from reahl.web_dev.fixtures import WebFixture
-from reahl.web_dev.inputandvalidation.test_input import InputMixin
 
 from reahl.web.bootstrap.ui import P
 from reahl.web.bootstrap.forms import TextInput, InputGroup
 
+from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture
 
+@uses(web_fixture=WebFixture, simple_input_fixture=SimpleInputFixture)
+class InputGroupFixture(Fixture):
 
-class InputGroupFixture(WebFixture, InputMixin):
     def new_an_input(self):
-        return TextInput(self.form, self.field)
+        return TextInput(self.simple_input_fixture.form, self.simple_input_fixture.field)
 
     @scenario
     def plain_text(self):
@@ -48,37 +50,37 @@ class InputGroupFixture(WebFixture, InputMixin):
 
     @scenario
     def widgets(self):
-        self.input_group = InputGroup(P(self.view, text='before widget'), 
+        self.input_group = InputGroup(P(self.web_fixture.view, text='before widget'),
                                       self.an_input, 
-                                      P(self.view, text='after widget'))
+                                      P(self.web_fixture.view, text='after widget'))
         self.expects_before_html = '<span class="input-group-addon"><p>before widget</p></span>'
         self.expects_after_html = '<span class="input-group-addon"><p>after widget</p></span>'
 
 
-@test(InputGroupFixture)
-def input_group(fixture):
+@with_fixtures(WebFixture, InputGroupFixture)
+def test_input_group(web_fixture, input_group_fixture):
     """An InputGroup is a composition of an input with some text or Widget before and/or after an input."""
+    fixture = input_group_fixture
+
     tester = WidgetTester(fixture.input_group)
-    
+
     [outer_div] = tester.xpath('//div')
-    vassert( outer_div.attrib['class'] == 'input-group' )
-    
+    assert outer_div.attrib['class'] == 'input-group'
+
     if fixture.expects_before_html:
         rendered_html = tester.get_html_for('//div/input/preceding-sibling::span')
-        vassert( rendered_html == fixture.expects_before_html )
+        assert rendered_html == fixture.expects_before_html
     else:
-        vassert( not tester.is_element_present('//div/input/preceding-sibling::span') )
+        assert not tester.is_element_present('//div/input/preceding-sibling::span')
 
     children = outer_div.getchildren()
     the_input = children[1] if fixture.expects_before_html else children[0]
-    vassert( the_input.tag == 'input' )
-    vassert( the_input.name == 'an_attribute' )
+    assert the_input.tag == 'input'
+    assert the_input.name == 'an_attribute'
 
     if fixture.expects_after_html:
         rendered_html = tester.get_html_for('//div/input/following-sibling::span')
-        vassert( rendered_html == fixture.expects_after_html )
+        assert rendered_html == fixture.expects_after_html
     else:
-        vassert( not tester.is_element_present('//div/input/following-sibling::span') )
-
-
+        assert not tester.is_element_present('//div/input/following-sibling::span')
 

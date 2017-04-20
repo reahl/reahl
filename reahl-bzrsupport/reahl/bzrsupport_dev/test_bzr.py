@@ -21,9 +21,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import os
 import os.path
 
-from nose.tools import istest
-from reahl.tofu import test, Fixture
-from reahl.tofu import temp_dir, vassert, assert_recent
+from reahl.tofu import Fixture, temp_dir, assert_recent
+from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.bzrsupport import Bzr, Executable
 
@@ -36,47 +35,46 @@ class BzrFixture(Fixture):
                 Executable('bzr').check_call(['init'], cwd=bzr_directory.name, stdout=DEVNULL, stderr=DEVNULL)
         return bzr_directory
 
-        
-@istest
-class BzrTests(object):
-    @test(BzrFixture)
-    def is_version_controlled(self, fixture):
-        non_initialised_directory = fixture.new_bzr_directory(initialised=False)
-        bzr = Bzr(non_initialised_directory.name)
-        vassert( not bzr.is_version_controlled() )
 
-        bzr = Bzr(fixture.bzr_directory.name)
-        vassert( bzr.is_version_controlled() )
+@with_fixtures(BzrFixture)
+def test_is_version_controlled(bzr_fixture):
+    non_initialised_directory = bzr_fixture.new_bzr_directory(initialised=False)
+    bzr = Bzr(non_initialised_directory.name)
+    assert not bzr.is_version_controlled()
 
-    @test(BzrFixture)
-    def is_checked_in(self, fixture):
-        bzr = Bzr(fixture.bzr_directory.name)
-        vassert( bzr.is_checked_in() )
-
-        open(os.path.join(fixture.bzr_directory.name, 'afile'), 'w').close()
-        vassert( not bzr.is_checked_in() )
-        
-    @test(BzrFixture)
-    def last_commit_time(self, fixture):
-        bzr = Bzr(fixture.bzr_directory.name)
-        bzr.commit('testing', unchanged=True)
-
-        assert_recent( bzr.last_commit_time )
-
-    @test(BzrFixture)
-    def tag_related(self, fixture):
-        bzr = Bzr(fixture.bzr_directory.name)
-        bzr.commit('testing', unchanged=True)
-
-        vassert( bzr.get_tags() == [] )
-        bzr.tag('mytag')
-        vassert( bzr.get_tags(head_only=True) == ['mytag'] )
-        vassert( bzr.get_tags() == ['mytag'] )
-
-        bzr.commit('testing', unchanged=True)
-        bzr.tag('lasttag')
-        vassert( bzr.get_tags(head_only=True) == ['lasttag'] )
-        vassert( bzr.get_tags() == ['lasttag', 'mytag'] )
+    bzr = Bzr(bzr_fixture.bzr_directory.name)
+    assert bzr.is_version_controlled()
 
 
+@with_fixtures(BzrFixture)
+def test_is_checked_in(bzr_fixture):
+    bzr = Bzr(bzr_fixture.bzr_directory.name)
+    assert bzr.is_checked_in()
+
+    open(os.path.join(bzr_fixture.bzr_directory.name, 'afile'), 'w').close()
+    assert not bzr.is_checked_in()
+
+
+@with_fixtures(BzrFixture)
+def test_last_commit_time(bzr_fixture):
+    bzr = Bzr(bzr_fixture.bzr_directory.name)
+    bzr.commit('testing', unchanged=True)
+
+    assert_recent( bzr.last_commit_time )
+
+
+@with_fixtures(BzrFixture)
+def test_tag_related(bzr_fixture):
+    bzr = Bzr(bzr_fixture.bzr_directory.name)
+    bzr.commit('testing', unchanged=True)
+
+    assert bzr.get_tags() == []
+    bzr.tag('mytag')
+    assert bzr.get_tags(head_only=True) == ['mytag']
+    assert bzr.get_tags() == ['mytag']
+
+    bzr.commit('testing', unchanged=True)
+    bzr.tag('lasttag')
+    assert bzr.get_tags(head_only=True) == ['lasttag']
+    assert bzr.get_tags() == ['lasttag', 'mytag']
 
