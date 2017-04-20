@@ -2,58 +2,63 @@
 
 title Fixtures
 
-hide methods
 hide circle
 
-class ContextAwareFixture {
+package reahl-dev{
+	class ContextAwareFixture {
+	}
+
+	class ReahlSystemSessionFixture <<session-scoped>> {
+	    context
+	    config
+	    reahl_system
+	    system_control
+	}
+
+	class ReahlSystemFixture {
+	    context
+	    @system_control
+	    config
+	}
 }
 
-class ReahlSystemSessionFixture <<session-scoped>> {
-	context
-	config
-	reahl_system
-	system_control
+package reahl-sqlalchemysupport{
+	class SqlAlchemyFixture {
+	    persistent_test_classes
+	    start_transaction()
+	    finalise_transaction()
+	}
 }
 
-class ReahlSystemFixture {
-	context
-        @system_control
-	config
+package reahl-webdev{
+	class WebServerFixture <<session-scoped>> {
+	    reahl_server
+	    web_driver
+	    driver_browser
+	    firefox_driver
+	    chrome_driver
+	}
 }
 
-
-class SqlAlchemyFixture {
-      persistent_test_classes
-      start_transaction()
-      finalise_transaction()
+package reahl-web_dev{
+	class WebFixture {
+	      request
+	      view
+	      current_location
+	      wsgi_app
+	      user_interface
+	      driver_browser
+	      log_in()
+	}
 }
 
-
-class WebServerFixture <<session-scoped>> {
-	reahl_server
-	web_driver
-	driver_browser
-	firefox_driver
-	chrome_driver
+package reahl-domain_dev{
+	class PartyAccountFixture {
+	      session
+	      party
+	      system_account
+	}
 }
-
-class WebFixture {
-      request
-      view
-      current_location
-      wsgi_app
-      user_interface
-      driver_browser
-      log_in()
-}
-
-
-class PartyAccountFixture {
-      session
-      party
-      system_account
-}
-
 
 
 ContextAwareFixture <|-- ReahlSystemSessionFixture

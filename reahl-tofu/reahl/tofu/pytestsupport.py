@@ -138,7 +138,7 @@ class WithFixtureDecorator(object):
 
         ff = test_with_fixtures(f)
         arg_names = self.fixture_arg_names(ff)
-        return pytest.mark.parametrize(','.join(arg_names), self.fixture_permutations(len(arg_names)))(ff)
+        return pytest.mark.parametrize(','.join(arg_names), self.fixture_permutations())(ff)
 
     def instances_in_fixture_order(self, instances):
         fixture_instances = {i.__class__: i for i in instances if i.__class__ in self.fixture_classes}
@@ -164,7 +164,7 @@ class WithFixtureDecorator(object):
         dependency_graph = DependencyGraph.from_vertices(fixture_classes, find_dependencies)
         return list(dependency_graph.topological_sort())
 
-    def fixture_permutations(self, number_args):
+    def fixture_permutations(self):
         dependency_ordered_classes = self.topological_sort_classes(self.requested_fixtures)
         permutations = itertools.product(*([c.get_scenarios() for c in dependency_ordered_classes]))
 
@@ -173,8 +173,8 @@ class WithFixtureDecorator(object):
             for instance in instances:
                 instance.setup_dependencies(instances)
             ordered_instances = self.instances_in_fixture_order(instances)
-            yield (ordered_instances if number_args > 1 else ordered_instances[0])
+            yield (ordered_instances if len(self.requested_fixtures) > 1 else ordered_instances[0])
 
 
 with_fixtures = WithFixtureDecorator
-    
+

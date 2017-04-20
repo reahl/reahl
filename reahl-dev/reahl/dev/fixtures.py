@@ -32,8 +32,6 @@ from reahl.component.config import StoredConfiguration, ReahlSystemConfig
 from reahl.dev.exceptions import CouldNotConfigureServer
 from reahl.tofu.pytestsupport import WithFixtureDecorator
 
-from reahl.tofu import Fixture
-
 
 class ContextAwareFixture(Fixture):
     """A ContextAwareFixture is a :class:`~reahl.tofu.Fixture` which has
@@ -42,7 +40,7 @@ class ContextAwareFixture(Fixture):
 
     Such a Fixture ensures that its setup and teardown actions are
     done within its `.context`, and that tests using it are also run
-    withing its `.context`.
+    within its `.context`.
 
     """
     def new_context(self):

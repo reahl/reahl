@@ -286,7 +286,7 @@ class Fixture(object):
         self._setup_done = True
 
         if self._options.scope == 'session':
-            atexit.register(self.session_cleanup)
+            atexit.register(self.run_tear_down_actions)
 
         try:
             self.set_up()
@@ -296,9 +296,6 @@ class Fixture(object):
             self.__exit__(*sys.exc_info())
             raise
         return self
-
-    def session_cleanup(self):
-        return self.run_tear_down_actions()
 
     def __exit__(self, exception_type, value, traceback):
         if self._options.scope == 'function':
