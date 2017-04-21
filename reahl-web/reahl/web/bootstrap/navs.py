@@ -199,7 +199,6 @@ class Nav(Menu):
     :param view: (See :class:`~reahl.web.fw.Widget`)
     """
     def __init__(self, view):
-        self.open_item = None
         super(Nav, self).__init__(view)
 
     @exposed
@@ -232,7 +231,7 @@ class Nav(Menu):
         li.add_child(dropdown_menu)
 
         if self.open_item == title:
-            li.append_class('open')
+            li.append_class('show')
         submenu.a.append_class('dropdown-toggle')
         submenu.a.set_attribute('data-toggle', 'dropdown')
         submenu.a.set_attribute('data-target', '-')
