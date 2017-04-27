@@ -41,12 +41,20 @@ parent width. A size for a particular device class is thus an integer
 denoting a size in 1/12ths of its container's width.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
+import six
 
-import reahl.web.layout
+if six.PY2:
+    from collections import Mapping
+else:
+    from collections.abc import Mapping
+
+import copy
+from collections import OrderedDict
+
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.web.fw import Layout
-from reahl.web.ui import Div, HTMLAttributeValueOption
+from reahl.web.ui import Div, HTMLAttributeValueOption, Slot
 
 
 class Container(Layout):
@@ -83,6 +91,10 @@ class DeviceClass(HTMLAttributeValueOption):
         return self.option_string
 
     @property
+    def name(self):
+        return self.option_string
+
+    @property
     def one_smaller(self):
         index_of_one_smaller_class = self.device_classes.index(self.class_label) - 1
         if index_of_one_smaller_class < 0:
@@ -97,8 +109,12 @@ class DeviceClass(HTMLAttributeValueOption):
     def all_classes(cls):
         return [DeviceClass(i) for i in DeviceClass.device_classes]
 
+    def as_combined_css_class(self, before_parts, after_parts):
+        parts = before_parts + [None if self.option_string == 'xs' else self.option_string] + after_parts
+        return '-'.join([i for i in parts if i])
 
-class ResponsiveSize(reahl.web.layout.ResponsiveSize):
+
+class ResponsiveSize(Mapping):
     """A size used for layouts that can adapt depending on how big the user device is.
 
     Sizes kwargs for each device class are given as integers that denote a number of 12ths
@@ -118,14 +134,33 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
     :keyword lg: Size to use if the device is large.
     :keyword xl: Size to use if the device is extra large.
 
+    .. versionchanged:: 4.0
+       TODO: cs
+
     """
 
     @arg_checks(xs=IsInstance(int, allow_none=True), sm=IsInstance(int, allow_none=True),
                 md=IsInstance(int, allow_none=True), lg=IsInstance(int, allow_none=True),
                 xl=IsInstance(int, allow_none=True))
     def __init__(self, xs=None, sm=None, md=None, lg=None, xl=None):
-        super(ResponsiveSize, self).__init__(xs=xs, sm=sm, md=md, lg=lg, xl=xl)
+        all_sizes = {'xs':xs, 'sm':sm, 'md':md, 'lg':lg, 'xl':xl}
+        self.sizes = {DeviceClass(size_name): size_value for (size_name, size_value) in all_sizes.items() if size_value}
         self.offsets = {}
+
+    def __getitem__(self, item):
+        return self.sizes.__getitem__(item)
+
+    def __iter__(self):
+        return self.sizes.__iter__()
+
+    def __len__(self):
+        return self.sizes.__len__()
+
+    def get_by_device_class_name(self, name):
+        for device_class, value in self.sizes.items():
+            if device_class.name == name:
+                return value
+        raise KeyError(name)
 
     @arg_checks(xs=IsInstance(int, allow_none=True), sm=IsInstance(int, allow_none=True),
                 md=IsInstance(int, allow_none=True), lg=IsInstance(int, allow_none=True),
@@ -138,7 +173,7 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
         classes_that_impact = [device_class]+device_class.all_smaller
         for possible_class in reversed(classes_that_impact):
             try:
-                return self[possible_class.class_label]
+                return self.get_by_device_class_name(possible_class.class_label)
             except KeyError:
                 pass
         return 0
@@ -166,7 +201,7 @@ class ResponsiveSize(reahl.web.layout.ResponsiveSize):
         return total
 
 
-class ColumnLayout(reahl.web.layout.ColumnLayout):
+class ColumnLayout(Layout):
     """A Layout that divides an element into a number of columns.
 
     Each argument passed to the constructor defines a column. Columns
@@ -178,7 +213,7 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
     the first element is the column name, and the second an
     instance of :class:`ResponsiveSize`.
 
-    If an element is divided into a number of columns whose current 
+    If an element is divided into a number of columns whose current
     combined width is wider than 12/12ths, the overrun flows to make
     an additional row.
 
@@ -190,39 +225,68 @@ class ColumnLayout(reahl.web.layout.ColumnLayout):
     as "stacked" cells on a smaller device.
 
     By default, the smallest device classes are sized 12/12ths.
+
+    .. versionchanged:: 4.0
+       TODO:
     """
     def __init__(self, *column_definitions):
+        super(ColumnLayout, self).__init__()
         if not all([isinstance(column_definition, tuple) for column_definition in column_definitions]):
             raise ProgrammerError('All column definitions are expected a tuple of the form (name, %s), got %s' %\
                                   (ResponsiveSize, column_definitions))
         self.added_sizes = []
-        super(ColumnLayout, self).__init__(*column_definitions)
+        self.add_slots = False
+        self.columns = OrderedDict()  #: A dictionary containing the added columns, keyed by column name.
+        self.column_sizes = OrderedDict()
+        for column_definition in column_definitions:
+            if isinstance(column_definition, tuple):
+                name, size = column_definition
+            else:
+                name, size = column_definition, ResponsiveSize()
+            self.column_sizes[name] = size
+
+    def with_slots(self):
+        """Returns a copy of this ColumnLayout which will additionally add a Slot inside each added column,
+           named for that column.
+        """
+        copy_with_slots = copy.deepcopy(self)
+        copy_with_slots.add_slots = True
+        return copy_with_slots
 
     def customise_widget(self):
-        super(ColumnLayout, self).customise_widget()
+        for name, size in self.column_sizes.items():
+            column = self.add_column(size)
+            self.columns[name] = column
+            column.append_class('column-%s' % name)
+            if self.add_slots:
+                column.add_child(Slot(self.view, name))
         self.widget.append_class('row')
 
     def add_clearfix(self, column_size):
         clearfix = self.widget.add_child(Div(self.view))
         clearfix.append_class('clearfix')
-        for device_class in DeviceClass.all_classes():
-            if ResponsiveSize.wraps_for(device_class, self.added_sizes+[column_size]):
-                clearfix.append_class('visible-%s-block' % device_class.class_label)
+        wrapping_classes = [device_class for device_class in DeviceClass.all_classes()
+                            if ResponsiveSize.wraps_for(device_class, self.added_sizes+[column_size])]
+        if wrapping_classes:
+            device_class = wrapping_classes[0]
+            if device_class.one_smaller:
+                clearfix.append_class(device_class.one_smaller.as_combined_css_class(['hidden'], []))
 
     def add_column(self, column_size):
         """Called to add a column of given size.
 
         :param column_size: A :class:`ResponsiveSize`, used to size the column.
         """
+
         if ResponsiveSize.wraps_for_some_device_class(self.added_sizes+[column_size]):
             self.add_clearfix(column_size)
             
-        column = super(ColumnLayout, self).add_column(column_size)
-        
+        column = self.widget.add_child(Div(self.view))
+
         for device_class, value in column_size.items():
-            column.append_class('col-%s-%s' % (device_class, value))
+            column.append_class(device_class.as_combined_css_class(['col'], [six.text_type(value)]))
         for device_class, value in column_size.offsets.items():
-            column.append_class('col-%s-offset-%s' % (device_class, value))
+            column.append_class(device_class.as_combined_css_class(['offset'], [six.text_type(value)]))
 
         self.added_sizes.append(column_size)
         return column
