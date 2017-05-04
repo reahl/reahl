@@ -1454,7 +1454,6 @@ class SubResourceFactory(FactoryFromUrlRegex):
 
 class ViewFactory(FactoryFromUrlRegex):
     """Used to specify to the framework how it should create a
-
     :class:`View`, once needed. This class should not be instantiated
     directly. Programmers should use
     :meth:`UserInterface.define_view` and related methods to specify
@@ -1465,11 +1464,11 @@ class ViewFactory(FactoryFromUrlRegex):
     around to denote Views as the targets of Events or the source and
     target of Transitions.
     """
-    def __init__(self, regex_path, title, page_factory=None, detour=False, view_class=None, factory_method=None, read_check=None, write_check=None, cacheable=False, view_kwargs=None):
+    def __init__(self, regex_path, title, slot_definitions=None, page_factory=None, detour=False, view_class=None, factory_method=None, read_check=None, write_check=None, cacheable=False, view_kwargs=None):
         self.detour = detour
         self.preconditions = []
         self.title = title
-        self.slot_definitions = {}
+        self.slot_definitions = slot_definitions or {}
         self.view_class = view_class or UrlBoundView
         self.read_check = read_check
         self.write_check = write_check
@@ -1483,10 +1482,14 @@ class ViewFactory(FactoryFromUrlRegex):
         return (relative_path,)+args
 
     def create_view(self, relative_path, user_interface, **view_arguments):
-        view = self.view_class(user_interface, relative_path, self.title, page_factory=self.page_factory, detour=self.detour, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable, **view_arguments)
-        if not view.slot_definitions:
-            view.slot_definitions = dict(self.slot_definitions)
-        return view
+        return self.view_class(user_interface, relative_path, self.title,
+                               slot_definitions=dict(self.slot_definitions),
+                               page_factory=self.page_factory,
+                               detour=self.detour,
+                               read_check=self.read_check,
+                               write_check=self.write_check,
+                               cacheable=self.cacheable,
+                               **view_arguments)
 
     def __str__(self):
         return '<ViewFactory for %s>' % self.view_class
@@ -1696,7 +1699,8 @@ class UrlBoundView(View):
     """A View that is rendered to the browser when a user visits a particular URL on the site. An UrlBoundView
        defines how the named Slots of a page Widget should be populated for a particular URL.
 
-       A programmer *should* create subclasses of UrlBoundView when creating parameterised Views.
+       A programmer *should* create subclasses of UrlBoundView when creating parameterised Views. These subclasses
+       *should not* implement their own `__init__` methods, rather use `.assemble()` for customisation.
 
        A programmer *should not* construct instances of this class (or its subclasses). Rather use
        `UserInterface.define_view` and related methods to define ViewFactories which the framework will 
@@ -1708,11 +1712,16 @@ class UrlBoundView(View):
 
     def as_factory(self):
         regex_path = ParameterisedPath(self.relative_path, {})
-        factory = ViewFactory(regex_path, self.title, page_factory=self.page_factory, detour=self.detour, view_class=self.__class__, read_check=self.read_check, write_check=self.write_check, cacheable=self.cacheable)
-        factory.slot_definitions = dict(self.slot_definitions)
-        return factory
+        return ViewFactory(regex_path, self.title,
+                           slot_definitions=dict(self.slot_definitions),
+                           page_factory=self.page_factory,
+                           detour=self.detour,
+                           view_class=self.__class__,
+                           read_check=self.read_check,
+                           write_check=self.write_check,
+                           cacheable=self.cacheable)
 
-    def __init__(self, user_interface, relative_path, title, page_factory=None, detour=False, read_check=None, write_check=None, cacheable=False, **view_arguments):
+    def __init__(self, user_interface, relative_path, title, slot_definitions=None, page_factory=None, detour=False, read_check=None, write_check=None, cacheable=False, **view_arguments):
         if re.match('/_([^/]*)$', relative_path):
             raise ProgrammerError('you cannot create UrlBoundViews with /_ in them - those are reserved URLs for SubResources')
         super(UrlBoundView, self).__init__(user_interface)
@@ -1720,7 +1729,7 @@ class UrlBoundView(View):
         self.relative_path = relative_path
         self.title = title                          #: The title of this View
         self.preconditions = []       
-        self.slot_definitions = {}
+        self.slot_definitions = slot_definitions or {}
         self.detour = detour
         self.read_check = read_check or self.allowed
         self.write_check = write_check or self.allowed
