@@ -7,12 +7,12 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.bootstrap.forms import Form, TextInput, FormLayout, ButtonInput
-from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
+from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 
 
 class PageFlowUI(UserInterface):
     def assemble(self):
-        contents_layout = ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots()
+        contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6)), add_slots=True)
         page_layout = PageLayout(contents_layout=contents_layout, document_layout=Container())
         self.define_page(HTML5Page).use_layout(page_layout)  
 
@@ -65,6 +65,9 @@ class CommentForm(Form):
         self.layout.add_input(text_input)
 
         self.add_child(ButtonInput(self, comment.events.submit))
+
+
+
 
 
 

@@ -4,7 +4,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P, Div
 from reahl.web.bootstrap.forms import Form, TextInput, FormLayout
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, Field, EmailField
 
 def lots_of(message):
@@ -12,8 +12,8 @@ def lots_of(message):
 
 class LayoutUI(UserInterface):
     def assemble(self):
-        contents_layout = ColumnLayout( ('secondary', ResponsiveSize(lg=4)),
-                                        ('main', ResponsiveSize(lg=8))).with_slots()
+        contents_layout = ColumnLayout(ColumnOptions('secondary', ResponsiveSize(lg=4)),
+                                       ColumnOptions('main', ResponsiveSize(lg=8)), add_slots=True)
 
         self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
                                                           contents_layout=contents_layout))
@@ -56,12 +56,13 @@ class CommentForm(Form):
         text_input = TextInput(self, comment.fields.text)
         self.layout.add_input(text_input)
 
-        layout = ColumnLayout(('left', ResponsiveSize(lg=6)),
-                              ('right', ResponsiveSize(lg=6)))
+        layout = ColumnLayout(ColumnOptions('left', size=ResponsiveSize(lg=6)),
+                              ColumnOptions('right', size=ResponsiveSize(lg=6)))
         row = self.add_child(Div(view).use_layout(layout))
 
         left_p = P(view, text='This is in the left column of the row')
-        row.layout.columns['left'].add_child(left_p) 
+        row.layout.columns['left'].add_child(left_p)
 
         right_p = P(view, text='This is in the right column of the row')
-        row.layout.columns['right'].add_child(right_p) 
+        row.layout.columns['right'].add_child(right_p)
+

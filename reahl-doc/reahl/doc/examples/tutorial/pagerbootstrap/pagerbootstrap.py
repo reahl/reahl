@@ -4,14 +4,14 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P, H, Div
-from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
+from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 from reahl.web.bootstrap.pagination import PagedPanel, SequentialPageIndex, PageMenu
 
 
 class AddressBookUI(UserInterface):
     def assemble(self):
         page_layout = PageLayout(document_layout=Container(),
-                                 contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots())
+                                 contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize(lg=6)), add_slots=True))
         self.define_page(HTML5Page).use_layout(page_layout)
         find = self.define_view('/', title='Addresses')
         find.set_slot('main', AddressBookPanel.factory())
@@ -40,7 +40,7 @@ class Address(object):
     def __init__(self, name, email_address):
         self.name = name
         self.email_address = email_address
-        
+
     @classmethod
     def all_addresses(cls):
         return [Address('friend %s' % i,'friend%s@some.org' % i ) for i in list(range(200))]

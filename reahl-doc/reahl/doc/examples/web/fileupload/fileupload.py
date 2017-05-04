@@ -25,7 +25,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P
 from reahl.web.bootstrap.files import FileUploadInput
-from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
+from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput
 
 
@@ -34,7 +34,8 @@ class FileUploadUI(UserInterface):
     def assemble(self):
         self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
                                                           contents_layout=ColumnLayout(
-                                                              ('main', ResponsiveSize(lg=6))).with_slots()))
+                                                              ColumnOptions('main', size=ResponsiveSize(lg=6)),
+                                                              add_slots=True)))
         home = self.define_view('/', title='File upload demo')
         home.set_slot('main', CommentPostPanel.factory())
 
@@ -110,4 +111,6 @@ class CommentBox(Div):
         super(CommentBox, self).__init__(view)
         self.add_child(P(view, text='By %s: %s' % (comment.email_address, comment.text)))
         
+
+
 

@@ -9,7 +9,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.web.fw import UserInterface, UrlBoundView, CannotCreate, Widget
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.web.bootstrap.ui import HTML5Page, H, Alert, Div, P, A
 from reahl.web.bootstrap.forms import Form, TextInput, Button, PasswordInput, SelectInput,\
     CheckboxInput, FieldSet, FormLayout, ButtonLayout
@@ -20,7 +20,7 @@ from reahl.component.modelinterface import exposed, IntegerField, BooleanField, 
 class Address(Base):
     __tablename__ = 'access2bootstrap_address'
 
-    id              = Column(Integer, primary_key=True)    
+    id              = Column(Integer, primary_key=True)
     address_book_id = Column(Integer, ForeignKey('access2bootstrap_address_book.id'))
     address_book    = relationship('reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap.AddressBook')
     email_address   = Column(UnicodeText)
@@ -64,11 +64,11 @@ class AddressBook(Base):
         if address_books.count() != 1:
             raise exception_to_raise
         return address_books.one()
-    
+
     @classmethod
     def owned_by(cls, account):
         return Session.query(cls).filter_by(owner=account)
-        
+
     @classmethod
     def address_books_visible_to(cls, account):
         visible_books = Session.query(cls).join(Collaborator).filter(Collaborator.account == account).all()
@@ -105,26 +105,26 @@ class AddressBook(Base):
             can_edit_addresses=can_edit_addresses)
 
     def can_be_edited_by(self, account):
-        if account is self.owner: 
+        if account is self.owner:
             return True
-            
+
         collaborator = self.get_collaborator(account)
         return (collaborator and collaborator.can_edit_addresses) or self.can_be_added_to_by(account)
 
     def can_be_added_to_by(self, account):
-        if account is self.owner: 
+        if account is self.owner:
             return True
 
         collaborator = self.get_collaborator(account)
         return collaborator and collaborator.can_add_addresses
-        
+
     def collaborators_can_be_added_by(self, account):
         return self.owner is account
 
     def is_visible_to(self, account):
         return self in self.address_books_visible_to(account)
 
-    def get_collaborator(self, account):            
+    def get_collaborator(self, account):
         collaborators = self.collaborators.filter_by(account=account)
         count = collaborators.count()
         if count == 1:
@@ -142,7 +142,7 @@ class Collaborator(Base):
 
     account_id = Column(Integer, ForeignKey(EmailAndPasswordSystemAccount.id), nullable=False)
     account = relationship(EmailAndPasswordSystemAccount)
-    
+
     can_add_addresses = Column(Boolean, default=False)
     can_edit_addresses = Column(Boolean, default=False)
 
@@ -151,7 +151,7 @@ class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
         super(AddressAppPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout = ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots()
+        contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6)), add_slots=True)
         self.layout.contents.use_layout(contents_layout)
 
         login_session = LoginSession.for_current_session()
@@ -212,19 +212,19 @@ class AddressBookList(Div):
         for bookmark in bookmarks:
             p = self.add_child(P(view))
             p.add_child(A.from_bookmark(view, bookmark))
-        
+
 
 class AddressBookPanel(Div):
     def __init__(self, view, address_book, address_book_ui):
         self.address_book = address_book
         super(AddressBookPanel, self).__init__(view)
-        
+
         self.add_child(H(view, 1, text='Addresses in %s' % address_book.display_name))
         self.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(self.menu_bookmarks(address_book_ui)))
         self.add_children([AddressBox(view, address) for address in address_book.addresses])
 
     def menu_bookmarks(self, address_book_ui):
-        return [address_book_ui.get_add_address_bookmark(self.address_book), 
+        return [address_book_ui.get_add_address_bookmark(self.address_book),
                 address_book_ui.get_add_collaborator_bookmark(self.address_book)]
 
 
@@ -320,19 +320,19 @@ class AddressBookUI(UserInterface):
 
         home = self.define_view('/', title='Address books')
         home.set_slot('main', HomePageWidget.factory(self))
-      
-        self.address_book_page = self.define_view('/address_book', view_class=AddressBookView, 
+
+        self.address_book_page = self.define_view('/address_book', view_class=AddressBookView,
                                                   address_book_id=IntegerField(required=True),
                                                   address_book_ui=self)
-        self.add_address_page = self.define_view('/add_address', view_class=AddAddressView, 
+        self.add_address_page = self.define_view('/add_address', view_class=AddAddressView,
                                                  address_book_id=IntegerField(required=True))
 
         edit_address_page = self.define_view('/edit_address', view_class=EditAddressView,
                                              address_id=IntegerField(required=True))
 
-        self.add_collaborator_page = self.define_view('/add_collaborator', view_class=AddCollaboratorView, 
+        self.add_collaborator_page = self.define_view('/add_collaborator', view_class=AddCollaboratorView,
                                                      address_book_id=IntegerField(required=True))
-        
+
         self.define_transition(Address.events.save, self.add_address_page, self.address_book_page)
         self.define_transition(Address.events.edit, self.address_book_page, edit_address_page)
         self.define_transition(Address.events.update, edit_address_page, self.address_book_page)
@@ -345,9 +345,12 @@ class AddressBookUI(UserInterface):
 
     def get_add_address_bookmark(self, address_book, description='Add address'):
         return self.add_address_page.as_bookmark(self, description=description, address_book_id=address_book.id)
-        
+
     def get_add_collaborator_bookmark(self, address_book, description='Add collaborator'):
         return self.add_collaborator_page.as_bookmark(self, description=description, address_book_id=address_book.id)
+
+
+
 
 
 

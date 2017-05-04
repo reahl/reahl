@@ -25,7 +25,7 @@ from reahl.web.fw import Url, UserInterface
 from reahl.web.layout import PageLayout
 from reahl.webdev.tools import Browser
 from reahl.web.bootstrap.ui import HTML5Page
-from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
+from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 from reahl.domain.systemaccountmodel import VerifyEmailRequest, NewPasswordRequest, ActivateAccount
 from reahl.domainui.bootstrap.accounts import AccountUI
 from reahl.domainui_dev.fixtures import BookmarkStub
@@ -48,7 +48,7 @@ class AccountsWebFixture(Fixture):
         class MainUI(UserInterface):
             def assemble(self):
                 page_layout = PageLayout(document_layout=Container(),
-                                         contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots())
+                                         contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize(lg=6)), add_slots=True))
                 self.define_page(HTML5Page).use_layout(page_layout)
                 account_user_interface_factory = self.define_user_interface('/a_ui',  AccountUI,  {'main_slot': 'main'}, name='test_ui',
                                                             bookmarks=fixture.bookmarks)
@@ -229,3 +229,4 @@ def test_reset_password_from_url(web_fixture, party_account_fixture, accounts_we
     fixture.browser.click('//input[@value="Set new password"]')
 
     assert fixture.browser.location_path == '/a_ui/passwordChanged'
+

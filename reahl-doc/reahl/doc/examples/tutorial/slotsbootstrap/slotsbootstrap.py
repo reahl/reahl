@@ -5,7 +5,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 
 
 class MyCustomPage(HTML5Page):
@@ -13,8 +13,8 @@ class MyCustomPage(HTML5Page):
         super(MyCustomPage, self).__init__(view)
 
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout = ColumnLayout(('secondary', ResponsiveSize(md=3)),
-                                       ('main', ResponsiveSize(md=9))).with_slots()
+        contents_layout = ColumnLayout(ColumnOptions('secondary', size=ResponsiveSize(md=3)),
+                                       ColumnOptions('main', size=ResponsiveSize(md=9)), add_slots=True)
         self.layout.contents.use_layout(contents_layout)
 
         menu = Nav(view).use_layout(TabLayout()).with_bookmarks(bookmarks)
@@ -34,3 +34,4 @@ class SlotsUI(UserInterface):
 
         bookmarks = [home.as_bookmark(self), another.as_bookmark(self)]
         self.define_page(MyCustomPage, bookmarks)
+

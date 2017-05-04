@@ -439,7 +439,9 @@ class GridFormLayout(FormLayout):
 
     def create_form_group(self, html_input):
         form_group = super(GridFormLayout, self).create_form_group(html_input)
-        form_group.use_layout(ColumnLayout(('label', self.label_column_size), ('input', self.input_column_size)))
+        form_group.use_layout(ColumnLayout())
+        form_group.layout.add_column('label', size=self.label_column_size)
+        form_group.layout.add_column('input', size=self.input_column_size)
         return form_group
 
     def add_label_to(self, form_group, html_input, hidden):

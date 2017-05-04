@@ -27,7 +27,7 @@ from reahl.webdev.tools import WidgetTester
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.ui import HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container, DeviceClass
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container, DeviceClass
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -66,9 +66,10 @@ def test_responsive_size():
 
 @with_fixtures(WebFixture)
 def test_column_layout_basics(web_fixture):
-    """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Div laid out with the given width per device class."""
+    """A ColumnLayout turns its Widget into a sequence of columns, each of which is a Div laid with the given width per device class."""
 
-    layout = ColumnLayout(('column_a', ResponsiveSize(lg=4)), ('column_b', ResponsiveSize(lg=8)))
+    layout = ColumnLayout(ColumnOptions('column_a', size=ResponsiveSize(lg=4)),
+                          ColumnOptions('column_b', size=ResponsiveSize(lg=8)))
     widget = Div(web_fixture.view)
 
     assert not widget.has_attribute('class')
@@ -88,7 +89,7 @@ def test_column_layout_unspecified_size(web_fixture):
     """Specifying a size of True for a device class means that the size is automatically computed by dividing available
        space equally amongst all the columns so specified."""
 
-    layout = ColumnLayout(('column_a', ResponsiveSize(lg=True)), ('column_b', ResponsiveSize(lg=True)))
+    layout = ColumnLayout(ColumnOptions('column_a', size=ResponsiveSize(lg=True)), ColumnOptions('column_b', size=ResponsiveSize(lg=True)))
     widget = Div(web_fixture.view)
 
     widget.use_layout(layout)
@@ -100,11 +101,15 @@ def test_column_layout_unspecified_size(web_fixture):
 
 
 @with_fixtures(WebFixture)
-def test_column_layout_sizes(web_fixture):
-    """It is mandatory to specify sizes for all columns."""
+def test_column_layout_default_options(web_fixture):
+    """You can also pass only column names instead of ColumnOptions objects in which case the column will be configured with default ColumnOptions."""
+    widget = Div(web_fixture.view)
 
-    with expected(ProgrammerError):
-        ColumnLayout('column_a')
+    widget.use_layout(ColumnLayout('column_a'))
+
+    [column_a] = widget.children
+
+    assert 'col' in column_a.get_attribute('class')
 
 
 @with_fixtures(WebFixture)
@@ -114,7 +119,7 @@ def test_order_of_columns(web_fixture):
 
     fixture = web_fixture
 
-    widget = Div(fixture.view).use_layout(ColumnLayout(('column_name_a', ResponsiveSize()), ('column_name_b', ResponsiveSize())))
+    widget = Div(fixture.view).use_layout(ColumnLayout(ColumnOptions('column_name_a'), ColumnOptions('column_name_b')))
 
     column_a = widget.layout.columns['column_name_a']
     column_b = widget.layout.columns['column_name_b']
@@ -131,7 +136,7 @@ def test_columns_classes(web_fixture):
 
     fixture = web_fixture
 
-    widget = Div(fixture.view).use_layout(ColumnLayout(('column_name_a', ResponsiveSize())))
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a'))
     column_a = widget.layout.columns['column_name_a']
     assert 'column-column_name_a' in column_a.get_attribute('class')
 
@@ -142,26 +147,35 @@ def test_column_slots(web_fixture):
 
     fixture = web_fixture
 
-    widget = Div(fixture.view).use_layout(ColumnLayout(('column_name_a', ResponsiveSize()), ('column_name_b', ResponsiveSize())).with_slots())
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b', add_slots=True))
 
     column_a, column_b = widget.layout.columns.values()
     assert 'column_name_a' in column_a.available_slots
     assert 'column_name_b' in column_b.available_slots
 
+@with_fixtures(WebFixture)
+def test_column_gutters(web_fixture):
+    """A ColumnLayout can be made that does not include gutters in the layout."""
+
+    fixture = web_fixture
+
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b', add_gutters=False))
+
+    assert 'no-gutters' in widget.get_attribute('class').split()
 
 @with_fixtures(WebFixture)
-def test_adding_unnamed_columns(web_fixture):
+def test_adding_columns_later(web_fixture):
     """You can add additional columns after construction by calling add_column on the ColumnLayout."""
 
     widget = Div(web_fixture.view).use_layout(ColumnLayout())
 
     assert not widget.children
 
-    widget.layout.add_column(ResponsiveSize(lg=4))
+    widget.layout.add_column('a_column', size=ResponsiveSize(lg=4))
 
     [added_column] = widget.children
     assert isinstance(added_column, Div)
-    assert added_column.get_attribute('class') == 'col-lg-4'
+    assert added_column.get_attribute('class') == 'col-lg-4 column-a_column'
 
 
 def test_allowed_sizes():
@@ -176,7 +190,7 @@ def test_allowed_sizes():
 def test_column_offsets(web_fixture):
     """You can optionally specify space to leave empty (an offset) before a column at specific device sizes."""
 
-    layout = ColumnLayout(('column_a', ResponsiveSize(xl=2).offset(xs=2, sm=4, md=6, lg=3, xl=1)))
+    layout = ColumnLayout(ColumnOptions('column_a', size=ResponsiveSize(xl=2), offsets=ResponsiveSize(xs=2, sm=4, md=6, lg=3, xl=1)))
     widget = Div(web_fixture.view).use_layout(layout)
 
     [column_a] = layout.columns.values()
@@ -196,8 +210,8 @@ def test_column_clearfix(web_fixture):
     """
 
     # Case: Adding a correct clearfix in the right place
-    wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(md=8).offset(md=2)),
-                                   ('column_b', ResponsiveSize(md=2).offset(md=2))
+    wrapping_layout = ColumnLayout(ColumnOptions('column_a', size=ResponsiveSize(md=8), offsets=ResponsiveSize(md=2)),
+                                   ColumnOptions('column_b', size=ResponsiveSize(md=2), offsets=ResponsiveSize(md=2))
     )
     widget = Div(web_fixture.view).use_layout(wrapping_layout)
 
@@ -207,8 +221,8 @@ def test_column_clearfix(web_fixture):
     assert 'hidden-sm' in clearfix.get_attribute('class')
 
     # Case: When clearfix needs to take "implicit" sizes of smaller device classes into account
-    wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=8).offset(xs=2)),
-                                   ('column_b', ResponsiveSize(lg=2).offset(lg=2))
+    wrapping_layout = ColumnLayout(ColumnOptions('column_a', size=ResponsiveSize(xs=8), offsets=ResponsiveSize(xs=2)),
+                                   ColumnOptions('column_b', size=ResponsiveSize(lg=2), offsets=ResponsiveSize(lg=2))
     )
     widget = Div(web_fixture.view).use_layout(wrapping_layout)
 
@@ -218,8 +232,8 @@ def test_column_clearfix(web_fixture):
     assert 'hidden-md' in clearfix.get_attribute('class')
 
     # Case: When no clearfix must be added
-    non_wrapping_layout = ColumnLayout(('column_a', ResponsiveSize(xs=2).offset(xs=2)),
-                                       ('column_b', ResponsiveSize(xs=2))
+    non_wrapping_layout = ColumnLayout(ColumnOptions('column_a', size=ResponsiveSize(xs=2), offsets=ResponsiveSize(xs=2)),
+                                       ColumnOptions('column_b', size=ResponsiveSize(xs=2))
     )
     widget = Div(web_fixture.view).use_layout(non_wrapping_layout)
 
