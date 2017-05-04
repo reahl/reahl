@@ -23,7 +23,6 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Removed slot_definitions kwarg from define_view.
  * Changed ColumnLayout to be able to take more options per column beyond size only.
  * Changed the way one specifies offsets for columns - to be part of the ColumnOption and not part of ResponsiveSize.
- * Changed interface of ColumnLayout for with_slots to rather use kwargs on __init__ for global options.
  * Added support for not showing gutters between ColumnLayout columns.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Jun 2016 08:47:00 +0200

@@ -27,7 +27,7 @@ class AddressBookPage(HTML5Page):
         super(AddressBookPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
         contents_layout = ColumnLayout(ColumnOptions('secondary', size=ResponsiveSize(md=3)),
-                                       ColumnOptions('main', size=ResponsiveSize(md=9)), add_slots=True)
+                                       ColumnOptions('main', size=ResponsiveSize(md=9))).with_slots()
         self.layout.contents.use_layout(contents_layout)
         nav = Nav(view).use_layout(PillLayout(stacked=True))
         contents_layout.columns['secondary'].add_child(nav.with_languages())

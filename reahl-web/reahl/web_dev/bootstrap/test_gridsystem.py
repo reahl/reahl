@@ -147,7 +147,7 @@ def test_column_slots(web_fixture):
 
     fixture = web_fixture
 
-    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b', add_slots=True))
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b').with_slots())
 
     column_a, column_b = widget.layout.columns.values()
     assert 'column_name_a' in column_a.available_slots
@@ -159,7 +159,7 @@ def test_column_gutters(web_fixture):
 
     fixture = web_fixture
 
-    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b', add_gutters=False))
+    widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b').without_gutters())
 
     assert 'no-gutters' in widget.get_attribute('class').split()
 

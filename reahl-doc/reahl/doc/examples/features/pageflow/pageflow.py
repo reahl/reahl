@@ -12,7 +12,7 @@ from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions
 
 class PageFlowUI(UserInterface):
     def assemble(self):
-        contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6)), add_slots=True)
+        contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6))).with_slots()
         page_layout = PageLayout(contents_layout=contents_layout, document_layout=Container())
         self.define_page(HTML5Page).use_layout(page_layout)  
 

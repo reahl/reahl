@@ -13,7 +13,7 @@ def lots_of(message):
 class LayoutUI(UserInterface):
     def assemble(self):
         contents_layout = ColumnLayout(ColumnOptions('secondary', ResponsiveSize(lg=4)),
-                                       ColumnOptions('main', ResponsiveSize(lg=8)), add_slots=True)
+                                       ColumnOptions('main', ResponsiveSize(lg=8))).with_slots()
 
         self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
                                                           contents_layout=contents_layout))

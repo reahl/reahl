@@ -172,7 +172,7 @@ class AddressAppPage(HTML5Page):
     def __init__(self, view, home_bookmark):
         super(AddressAppPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6)), add_slots=True)
+        contents_layout = ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6))).with_slots()
         self.layout.contents.use_layout(contents_layout)
 
         login_session = LoginSession.for_current_session()

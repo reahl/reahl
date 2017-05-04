@@ -11,7 +11,7 @@ from reahl.web.bootstrap.pagination import PagedPanel, SequentialPageIndex, Page
 class AddressBookUI(UserInterface):
     def assemble(self):
         page_layout = PageLayout(document_layout=Container(),
-                                 contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize(lg=6)), add_slots=True))
+                                 contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots())
         self.define_page(HTML5Page).use_layout(page_layout)
         find = self.define_view('/', title='Addresses')
         find.set_slot('main', AddressBookPanel.factory())

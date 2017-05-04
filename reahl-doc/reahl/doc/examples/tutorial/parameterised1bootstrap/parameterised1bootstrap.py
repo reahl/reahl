@@ -20,7 +20,7 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize()), add_slots=True)
+        contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize())).with_slots()
         self.layout.contents.use_layout(contents_layout)
         self.layout.header.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(main_bookmarks))
 

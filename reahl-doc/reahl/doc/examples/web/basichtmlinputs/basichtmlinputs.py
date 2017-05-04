@@ -31,8 +31,7 @@ class BasicHTMLInputsUI(UserInterface):
     def assemble(self):
         self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
                                                           contents_layout=ColumnLayout(
-                                                              ColumnOptions('main', size=ResponsiveSize(lg=6)),
-                                                              add_slots=True)))
+                                                              ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots()))
         home = self.define_view('/', title='Basic HTML Inputs demo')
         home.set_slot('main', ExampleForm.factory('myform'))
 

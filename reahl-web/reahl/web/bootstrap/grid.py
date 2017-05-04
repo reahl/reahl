@@ -49,6 +49,7 @@ else:
     from collections.abc import Mapping
 
 from collections import OrderedDict
+import copy
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks, IsInstance
@@ -144,7 +145,6 @@ class ResponsiveSize(Mapping):
     def __init__(self, xs=None, sm=None, md=None, lg=None, xl=None):
         all_sizes = {'xs':xs, 'sm':sm, 'md':md, 'lg':lg, 'xl':xl}
         self.sizes = {DeviceClass(size_name): size_value for (size_name, size_value) in all_sizes.items() if size_value}
-        self.offsets = {}
 
     def __getitem__(self, item):
         return self.sizes.__getitem__(item)
@@ -170,12 +170,6 @@ class ResponsiveSize(Mapping):
                 pass
         return 0
 
-    def total_width_for(self, device_class):
-        total = self.calculated_size_for(device_class)
-        if self.offsets:
-            total += self.offsets.calculated_size_for(device_class)
-        return total
-
     @classmethod
     def wraps_for_some_device_class(cls, all_options):
         return any([cls.wraps_for(device_class, all_options)
@@ -189,8 +183,8 @@ class ResponsiveSize(Mapping):
     def sum_sizes_for(cls, device_class, all_options):
         total = 0
         for options in all_options:
-            total += options.size.total_width_for(device_class)
-            total += options.offsets.total_width_for(device_class)
+            total += options.size.calculated_size_for(device_class)
+            total += options.offsets.calculated_size_for(device_class)
         return total
 
 
@@ -245,13 +239,13 @@ class ColumnLayout(Layout):
        TODO:
 
     """
-    def __init__(self, *column_definitions, add_gutters=True, add_slots=False, vertical_align=None, horizontal_align=None):
+    def __init__(self, *column_definitions):
         super(ColumnLayout, self).__init__()
         if not all([isinstance(column_definition, six.string_types+(ColumnOptions,)) for column_definition in column_definitions]):
             raise ProgrammerError('All column definitions are expected be either a ColumnOptions object of a column name, got %s' % six.text_type(column_definitions))
         self.added_column_definitions = []
-        self.add_slots = add_slots
-        self.add_gutters = add_gutters
+        self.add_slots = False
+        self.add_gutters = True
         self.columns = OrderedDict()  #: A dictionary containing the added columns, keyed by column name.
         self.column_definitions = OrderedDict()
         for column_definition in column_definitions:
@@ -260,6 +254,21 @@ class ColumnLayout(Layout):
             else:
                 name, options = column_definition.name, column_definition
             self.column_definitions[name] = options
+
+    def with_slots(self):
+        """Returns a copy of this ColumnLayout which will additionally add a Slot inside each added column,
+           named for that column.
+        """
+        copy_with_slots = copy.deepcopy(self)
+        copy_with_slots.add_slots = True
+        return copy_with_slots
+
+    def without_gutters(self):
+        """Returns a copy of this ColumnLayout which will not display whitespace between columns.
+        """
+        copy_without_gutters = copy.deepcopy(self)
+        copy_without_gutters.add_gutters = False
+        return copy_without_gutters
 
     def customise_widget(self):
         for name, options in self.column_definitions.items():
