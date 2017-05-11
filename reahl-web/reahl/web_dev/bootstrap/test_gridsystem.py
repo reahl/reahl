@@ -27,7 +27,7 @@ from reahl.webdev.tools import WidgetTester
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.ui import HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div
-from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container, DeviceClass
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container, DeviceClass, Alignment, ContentJustification
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -51,17 +51,14 @@ def test_containers(web_fixture):
 
 
 def test_responsive_size():
-    """A ResponsiveSize acts like a dictionary mapping a DeviceClass to a size, but only if the size is not None."""
+    """A ResponsiveSize is a way to state what size something should be on each mentioned DeviceClass."""
 
     responsive_size = ResponsiveSize(xs=1, sm=2, lg=None)
 
-    specified_sizes = {device_class.option_string: size for device_class, size in responsive_size.items()}
+    specified_sizes = responsive_size.device_options
 
-    assert specified_sizes['xs'] == 1
-    assert specified_sizes['sm'] == 2
-    assert 'lg' not in specified_sizes
-
-    assert specified_sizes == {'xs': 1, 'sm': 2}
+    assert DeviceClass('lg') not in specified_sizes
+    assert specified_sizes == {DeviceClass('xs'): 1, DeviceClass('sm'): 2}
 
 
 @with_fixtures(WebFixture)
@@ -153,6 +150,7 @@ def test_column_slots(web_fixture):
     assert 'column_name_a' in column_a.available_slots
     assert 'column_name_b' in column_b.available_slots
 
+
 @with_fixtures(WebFixture)
 def test_column_gutters(web_fixture):
     """A ColumnLayout can be made that does not include gutters in the layout."""
@@ -162,6 +160,7 @@ def test_column_gutters(web_fixture):
     widget = Div(fixture.view).use_layout(ColumnLayout('column_name_a', 'column_name_b').without_gutters())
 
     assert 'no-gutters' in widget.get_attribute('class').split()
+
 
 @with_fixtures(WebFixture)
 def test_adding_columns_later(web_fixture):
@@ -182,8 +181,7 @@ def test_allowed_sizes():
     """The device classes for which sizes can be specified."""
     size = ResponsiveSize(xs=1, sm=2, md=3, lg=4, xl=5)
 
-    specified_sizes = {device_class.option_string: value for device_class, value in size.items()}
-    assert specified_sizes == {'xs':1, 'sm':2, 'md':3, 'lg':4, 'xl':5}
+    assert size.device_options == {DeviceClass('xs'):1, DeviceClass('sm'):2, DeviceClass('md'):3, DeviceClass('lg'):4, DeviceClass('xl'):5}
 
 
 @with_fixtures(WebFixture)
@@ -241,6 +239,29 @@ def test_column_clearfix(web_fixture):
     assert [column_a, column_b] == [i for i in non_wrapping_layout.columns.values()]
 
 
+@with_fixtures(WebFixture)
+def test_vertical_alignment(web_fixture):
+    """You can specify how columns are aligned vertically and override the alignment of a specific column."""
+
+    widget = Div(web_fixture.view).use_layout(ColumnLayout().with_vertical_alignment(Alignment(md='center')))
+
+    defaulted_column = widget.layout.add_column('default_column')
+    specifically_overridden_column = widget.layout.add_column('overridden_column', vertical_align=Alignment(md='end'))
+
+    assert 'align-items-md-center' in widget.get_attribute('class').split()
+    assert 'align-self-md-end' in specifically_overridden_column.get_attribute('class').split()
+    assert 'align' not in defaulted_column.get_attribute('class')
+
+
+@with_fixtures(WebFixture)
+def test_horizontal_alignment(web_fixture):
+    """You can specify how columns are aligned horizontally."""
+
+    widget = Div(web_fixture.view).use_layout(ColumnLayout().with_justified_content(ContentJustification(md='around')))
+
+    assert 'justify-content-md-around' in widget.get_attribute('class').split()
+
+
 def test_allowed_string_options():
     """The value of an HTMLAttributeValueOption is constrained to one of its stated valid options if it is set."""
     with expected(NoException):
@@ -261,7 +282,7 @@ def test_composed_class_string():
 
 def test_all_device_classes():
     """There is a specific list of supported DeviceClasses, in order of device size."""
-    device_classes = [ i.class_label for i in DeviceClass.all_classes()]
+    device_classes = [i.name for i in DeviceClass.all_classes()]
 
     assert device_classes == ['xs', 'sm', 'md', 'lg', 'xl']
 
@@ -271,10 +292,10 @@ def test_device_class_identity():
 
     device_class = DeviceClass('lg')
 
-    assert device_class.class_label == 'lg'
+    assert device_class.name == 'lg'
 
     def check_ex(ex):
-        assert six.text_type(ex).startswith('"unsupported" should be one of: "xs","sm","md","lg","xl"')
+        assert six.text_type(ex).startswith('Invalid device class name: unsupported, should be one of xs,sm,md,lg,xl')
 
     with expected(ProgrammerError, test=check_ex):
         DeviceClass('unsupported')
@@ -284,7 +305,7 @@ def test_previous_device_class():
     """You can find the supported DeviceClass smaller than a given one."""
 
     device_class = DeviceClass('sm')
-    assert device_class.one_smaller.class_label == 'xs'
+    assert device_class.one_smaller.name == 'xs'
 
     # Case: when there is no class smaller than given
 
@@ -297,7 +318,7 @@ def test_previous_device_classes():
 
     device_class = DeviceClass('md')
 
-    previous_device_classes = [ i.class_label for i in device_class.all_smaller]
+    previous_device_classes = [ i.name for i in device_class.all_smaller]
     assert previous_device_classes == ['xs', 'sm']
 
     # Case: when there is no class smaller than given

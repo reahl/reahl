@@ -148,6 +148,11 @@ class ReahlSystemFixture(ContextAwareFixture):
     def system_control(self):
         return self.reahl_system_fixture.system_control
 
+    @set_up
+    def ensure_connected(self): # In case a test nuked the connection
+        if not self.system_control.connected:
+            self.system_control.connect()
+
     def new_context(self, config=None, session=None):
         context = ExecutionContext(parent_context=self.reahl_system_fixture.context)
         context.config = config or self.config

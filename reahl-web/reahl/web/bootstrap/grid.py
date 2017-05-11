@@ -43,18 +43,13 @@ denoting a size in 1/12ths of its container's width.
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
 
-if six.PY2:
-    from collections import Mapping
-else:
-    from collections.abc import Mapping
-
 from collections import OrderedDict
 import copy
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.web.fw import Layout
-from reahl.web.ui import Div, HTMLAttributeValueOption, Slot
+from reahl.web.ui import Div, Slot
 
 
 class Container(Layout):
@@ -80,41 +75,111 @@ class Container(Layout):
         self.widget.append_class(container_class)
 
 
-class DeviceClass(HTMLAttributeValueOption):
+class DeviceClass(object):
     device_classes = ['xs', 'sm', 'md', 'lg', 'xl']
 
-    def __init__(self, class_label):
-        super(DeviceClass, self).__init__(class_label, class_label is not None, constrain_value_to=self.device_classes)
+    def __init__(self, name):
+        self.name = name
+        if not name in self.device_classes:
+            raise ProgrammerError('Invalid device class name: %s, should be one of %s' % (name, ','.join(self.device_classes)))
 
-    @property
-    def class_label(self):
-        return self.option_string
+    def __eq__(self, other):
+        return self.name == other.name
 
-    @property
-    def name(self):
-        return self.option_string
+    def __hash__(self):
+        return hash(self.name)
 
     @property
     def one_smaller(self):
-        index_of_one_smaller_class = self.device_classes.index(self.class_label) - 1
+        index_of_one_smaller_class = self.device_classes.index(self.name) - 1
         if index_of_one_smaller_class < 0:
             return None
         return DeviceClass(self.device_classes[index_of_one_smaller_class])
 
     @property
     def all_smaller(self):
-        return [DeviceClass(i) for i in self.device_classes[:self.device_classes.index(self.class_label)]]
+        return [DeviceClass(i) for i in self.device_classes[:self.device_classes.index(self.name)]]
 
     @classmethod
     def all_classes(cls):
         return [DeviceClass(i) for i in DeviceClass.device_classes]
 
     def as_combined_css_class(self, before_parts, after_parts):
-        parts = before_parts + [None if self.option_string == 'xs' else self.option_string] + after_parts
-        return '-'.join([i for i in parts if i])
+        parts = before_parts + list(filter(None, [None if self.name == 'xs' else self.name])) + after_parts
+        return '-'.join(parts)
 
 
-class ResponsiveSize(Mapping):
+class ResponsiveOption(object):
+    def __init__(self, allowed_options, prefix=None, xs=None, sm=None, md=None, lg=None, xl=None):
+        self.prefix = prefix
+        self.allowed_options = allowed_options
+        all_options = {'xs':xs, 'sm':sm, 'md':md, 'lg':lg, 'xl':xl}
+        self.device_options = {DeviceClass(device_class_name): option_value for (device_class_name, option_value) in all_options.items() if option_value}
+        if not all([i in self.allowed_options for i in self.device_options.values()]):
+            raise ProgrammerError('Illegal option. Allowed options: %s, got: %s' % (self.allowed_options, self.device_options))
+
+    def __len__(self):
+        return self.device_options.__len__()
+
+    def add_css_classes(self, html_widget, prefix=None):
+        for device_class, value in self.device_options.items():
+            html_widget.append_class(device_class.as_combined_css_class(list(filter(None, [prefix or self.prefix])),
+                                                                        [six.text_type(value)]))
+
+
+class ContentJustification(ResponsiveOption):
+    """Specifies how elements should be spaced horizontally inside a parent.
+
+    For each device size specify alignment as one of:
+      * 'start': to align at the start.
+      * 'end': to align at the end.
+      * 'center': to align in the center of available space.
+      * 'between': distribute all empty space evenly between items, but with no space before the first element or after the last element.
+      * 'around': distribute all empty space evenly between items, including before the first element and after the last element.
+
+    :keyword xs: Alignment to use if the device is extra small.
+    :keyword sm: Alignment to use if the device is small.
+    :keyword md: Alignment to use if the device is medium.
+    :keyword lg: Alignment to use if the device is large.
+    :keyword xl: Alignment to use if the device is extra large.
+
+    .. versionadded: 4.0
+    """
+    def __init__(self, **kwargs):
+        super(ContentJustification, self).__init__(['start', 'center', 'end', 'between', 'around'], prefix='justify-content', **kwargs)
+
+
+class Alignment(ResponsiveOption):
+    """Specifies how elements should be aligned vertically inside a parent.
+
+    For each device size specify alignment as one of:
+      * 'start': to align at the top.
+      * 'end': to align at the bottom.
+      * 'center': to align in the center of available space.
+      * 'baseline': to align with the bottom of the first text line of neighbouring elements.
+      * 'stretch': stretches to fill all vertical space.
+
+    :keyword xs: Alignment to use if the device is extra small.
+    :keyword sm: Alignment to use if the device is small.
+    :keyword md: Alignment to use if the device is medium.
+    :keyword lg: Alignment to use if the device is large.
+    :keyword xl: Alignment to use if the device is extra large.
+
+    .. versionadded: 4.0
+    """
+    def __init__(self, **kwargs):
+        super(Alignment, self).__init__(['start', 'end', 'center', 'baseline', 'stretch'], **kwargs)
+
+    def add_css_classes(self, html_widget, prefix=None):
+        if isinstance(html_widget.layout, ColumnLayout):
+            scope = 'items'
+        else:
+            scope = 'self'
+
+        return super(Alignment, self).add_css_classes(html_widget, prefix=prefix or 'align-%s' % scope)
+
+
+class ResponsiveSize(ResponsiveOption):
     """A size used for layouts that can adapt depending on how big the user device is.
 
     Sizes kwargs for each device class are given as integers that denote a number of 12ths
@@ -134,38 +199,15 @@ class ResponsiveSize(Mapping):
     :keyword lg: Size to use if the device is large.
     :keyword xl: Size to use if the device is extra large.
 
-    .. versionchanged:: 4.0
-       TODO: cs
-
     """
-
-    @arg_checks(xs=IsInstance(int, allow_none=True), sm=IsInstance(int, allow_none=True),
-                md=IsInstance(int, allow_none=True), lg=IsInstance(int, allow_none=True),
-                xl=IsInstance(int, allow_none=True))
-    def __init__(self, xs=None, sm=None, md=None, lg=None, xl=None):
-        all_sizes = {'xs':xs, 'sm':sm, 'md':md, 'lg':lg, 'xl':xl}
-        self.sizes = {DeviceClass(size_name): size_value for (size_name, size_value) in all_sizes.items() if size_value}
-
-    def __getitem__(self, item):
-        return self.sizes.__getitem__(item)
-
-    def __iter__(self):
-        return self.sizes.__iter__()
-
-    def __len__(self):
-        return self.sizes.__len__()
-
-    def get_by_device_class_name(self, name):
-        for device_class, value in self.sizes.items():
-            if device_class.name == name:
-                return value
-        raise KeyError(name)
+    def __init__(self, **sizes):
+        super(ResponsiveSize, self).__init__(range(1, 13), **sizes)
 
     def calculated_size_for(self, device_class):
         classes_that_impact = [device_class]+device_class.all_smaller
         for possible_class in reversed(classes_that_impact):
             try:
-                return self.get_by_device_class_name(possible_class.class_label)
+                return self.device_options[possible_class]
             except KeyError:
                 pass
         return 0
@@ -188,13 +230,25 @@ class ResponsiveSize(Mapping):
         return total
 
 
-
 class ColumnOptions(object):
+    """Various options to change how a column should be displayed.
+
+    :param name: The name of the column.
+    :keyword size: The :class:`ResponsiveSize` of the column.
+    :keyword offsets: A :class:`ResponsiveSize` representing extra space before the column.
+    :keyword vertical_align: An :class:`Alignment` stating how this column should be aligned vertically in its container.
+
+    .. versionadded: 4.0
+
+    """
+    @arg_checks(size=IsInstance(ResponsiveSize, allow_none=True),
+                offsets=IsInstance(ResponsiveSize, allow_none=True),
+                vertical_align=IsInstance(Alignment, allow_none=True))
     def __init__(self, name, size=None, offsets=None, vertical_align=None):
         self.name = name
         self.size = size or ResponsiveSize(xs=True)
         self.offsets = offsets or ResponsiveSize()
-        self.vertical_align = vertical_align
+        self.vertical_align = vertical_align or Alignment()
 
 
 class ColumnLayout(Layout):
@@ -208,10 +262,11 @@ class ColumnLayout(Layout):
 
     Each such column-defining argument to the constructor is a tuple
     of which the first element is the column name, and the second an
-    instance of :class:`ResponsiveSize`.
+    instance of :class:`ColumnOptions`. Besides the size of the column,
+    other adjustments can be made via :class:`ColumnOptions`.
 
-    The column-defining positional arguments are followed by
-    keyword arguments with further options.
+    You can also pass the column name only (no tuple) in which case
+    a default :class:`ColumnOptions` will be used.
 
     If an element is divided into a number of columns whose current
     combined width is wider than 12/12ths, the overrun flows to make
@@ -230,13 +285,8 @@ class ColumnLayout(Layout):
     but omit specifying a size for extra small (xs) devices, columns for xs
     devices are full width and thus stacked.
 
-    :keyword add_gutters: If False, omits white-space between columns.
-    :keyword add_slots:  If True, also adds a :class:`~reahl.web.ui.Slot` in each defined column.
-    :keyword vertical_align:
-    :keyword horizontal_align:
-
     .. versionchanged:: 4.0
-       TODO:
+       Each item in column_definitions can be just a string (the column name) or a tuple mapping a name to a :class:`ColumnOptions`.
 
     """
     def __init__(self, *column_definitions):
@@ -246,6 +296,8 @@ class ColumnLayout(Layout):
         self.added_column_definitions = []
         self.add_slots = False
         self.add_gutters = True
+        self.alignment = Alignment()
+        self.content_justification = ContentJustification()
         self.columns = OrderedDict()  #: A dictionary containing the added columns, keyed by column name.
         self.column_definitions = OrderedDict()
         for column_definition in column_definitions:
@@ -265,10 +317,32 @@ class ColumnLayout(Layout):
 
     def without_gutters(self):
         """Returns a copy of this ColumnLayout which will not display whitespace between columns.
+
+           .. versionadded:: 4.0
         """
         copy_without_gutters = copy.deepcopy(self)
         copy_without_gutters.add_gutters = False
         return copy_without_gutters
+
+    @arg_checks(content_justification=IsInstance(ContentJustification))
+    def with_justified_content(self, content_justification):
+        """Returns a copy of this ColumnLayout with justification options set on it.
+
+           .. versionadded:: 4.0
+        """
+        copy_with_content_justification = copy.deepcopy(self)
+        copy_with_content_justification.content_justification = content_justification
+        return copy_with_content_justification
+
+    @arg_checks(vertical_alignment=IsInstance(Alignment))
+    def with_vertical_alignment(self, vertical_alignment):
+        """Returns a copy of this ColumnLayout with the column alignment options set on it.
+
+           .. versionadded:: 4.0
+        """
+        copy_with_alignment = copy.deepcopy(self)
+        copy_with_alignment.alignment = vertical_alignment
+        return copy_with_alignment
 
     def customise_widget(self):
         for name, options in self.column_definitions.items():
@@ -276,6 +350,8 @@ class ColumnLayout(Layout):
         self.widget.append_class('row')
         if not self.add_gutters:
             self.widget.append_class('no-gutters')
+        self.alignment.add_css_classes(self.widget)
+        self.content_justification.add_css_classes(self.widget)
 
     def add_clearfix(self, column_options):
         clearfix = self.widget.add_child(Div(self.view))
@@ -304,10 +380,9 @@ class ColumnLayout(Layout):
 
         column = self.widget.add_child(Div(self.view))
 
-        for device_class, value in column_options.size.items():
-            column.append_class(device_class.as_combined_css_class(['col'], [six.text_type(value)]))
-        for device_class, value in column_options.offsets.items():
-            column.append_class(device_class.as_combined_css_class(['offset'], [six.text_type(value)]))
+        column_options.size.add_css_classes(column, prefix='col')
+        column_options.offsets.add_css_classes(column, prefix='offset')
+        column_options.vertical_align.add_css_classes(column)
 
         self.added_column_definitions.append(column_options)
         self.columns[column_options.name] = column
@@ -315,7 +390,4 @@ class ColumnLayout(Layout):
         if self.add_slots:
             column.add_child(Slot(self.view, column_options.name))
         return column
-
-
-
 

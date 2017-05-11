@@ -236,7 +236,7 @@ class ResponsiveLayout(NavbarLayout):
         toggle_widget = CollapseToggle(self.view, collapsable, text=self.text,
                                        alignment=self.toggle_button_alignment)
         toggle_size = self.collapse_below_device_class.one_smaller
-        self.nav.append_class('navbar-toggleable-%s' % toggle_size.class_label)
+        self.nav.append_class('navbar-toggleable-%s' % toggle_size.name)
         self.nav.insert_child(0, toggle_widget)
 
         self.contents_container.add_child(collapsable)
