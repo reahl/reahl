@@ -363,13 +363,14 @@ class ColumnLayout(Layout):
             if device_class.one_smaller:
                 clearfix.append_class(device_class.one_smaller.as_combined_css_class(['hidden'], []))
 
-    def add_column(self, name, size=None, offsets=None, vertical_align=None):
+    def add_column(self, name, size=None, offsets=None, vertical_align=None, column_widget=None):
         """Called to add a column with given options.
 
         :param name: (See :class:`ColumnOptions`)
         :keyword size: (See :class:`ColumnOptions`)
         :keyword offsets: (See :class:`ColumnOptions`)
         :keyword vertical_align: (See :class:`ColumnOptions`)
+        :keyword column_widget: If given, this Widget is added as the column instead of a Div (the default).
 
         .. versionchanged: 4.0
            Changed to create a named column with all possible options.
@@ -378,7 +379,7 @@ class ColumnLayout(Layout):
         if ResponsiveSize.wraps_for_some_device_class(self.added_column_definitions+[column_options]):
             self.add_clearfix(column_options)
 
-        column = self.widget.add_child(Div(self.view))
+        column = self.widget.add_child(column_widget or Div(self.view))
 
         column_options.size.add_css_classes(column, prefix='col')
         column_options.offsets.add_css_classes(column, prefix='offset')

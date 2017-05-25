@@ -1214,7 +1214,15 @@ class HTMLWidget(Widget):
         
     def set_html_representation(self, widget):
         self.html_representation = widget
-        
+
+    @property
+    def layout(self):
+        return self.html_representation.layout
+
+    def use_layout(self, layout):
+        self.html_representation.use_layout(layout)
+        return self
+
     def append_class(self, css_class):
         """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Widget in HTML to the user."""
         self.html_representation.append_class(css_class)
@@ -1836,7 +1844,7 @@ class Label(HTMLElement):
         super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
         self.for_input = for_input
         if self.for_input and self.for_input.html_control and not self.for_input.html_control.css_id_is_set:
-            self.for_input.html_control.generate_random_css_id() #TODO: 'tmpid-%s-%s' % (id(self), time.time()) why was self used with id ? and not html_control
+            self.for_input.html_control.generate_random_css_id()
         if text or for_input:
             self.text_node = self.add_child(TextNode(view, text or for_input.label))
 

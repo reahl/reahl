@@ -81,7 +81,7 @@ class ExampleForm(Form):
         self.layout.add_input(SelectInput(self, model_object.fields.choice_field))
         self.layout.add_input(SelectInput(self, model_object.fields.multi_choice_field))
         self.layout.add_input(RadioButtonInput(self, model_object.fields.radio_choice_field,
-                                               button_layout=ChoicesLayout(inline=True)))
+                                               contents_layout=ChoicesLayout(inline=True)))
         self.layout.add_input(TextInput(self, model_object.fields.fuzzy_date_field, fuzzy=True))
         self.layout.add_input(TextInput(self, model_object.fields.text_input_without_label, placeholder=True), hide_label=True)
         self.layout.add_input(CueInput(TextInput(self, model_object.fields.cue_field), P(view, text='This is a cue')))

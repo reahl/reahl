@@ -424,7 +424,7 @@ def test_layout_of_radio_button_input(web_fixture, radio_button_fixture):
     assert fixture.main_element(tester).tag == 'div'
     assert fixture.main_element(tester).attrib['class'] == 'form-check'
 
-    inlined_radio = RadioButtonInput(fixture.form, fixture.field, button_layout=ChoicesLayout(inline=True))
+    inlined_radio = RadioButtonInput(fixture.form, fixture.field, contents_layout=ChoicesLayout(inline=True))
 
     tester = WidgetTester(inlined_radio)
     assert fixture.input_is_wrapped_in_label(tester)
