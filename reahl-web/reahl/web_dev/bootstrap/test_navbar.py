@@ -210,41 +210,6 @@ def test_navbar_with_centered_contents(web_fixture, navbar_fixture):
     assert 'navbar-brand' in brand_widget.get_attribute('class')
 
 
-class CenteredResponsiveLayoutScenarios(NavbarFixture):
-
-    @scenario
-    def non_collapse_brand(self):
-        self.collapse_brand = False
-
-    @scenario
-    def collapse_brand(self):
-        self.collapse_brand = True
-
-
-@with_fixtures(WebFixture, CenteredResponsiveLayoutScenarios)
-def test_responsive_navbar_with_centered_contents_brand_collapse(web_fixture, centered_responsive_fixture):
-    """Contents of a Navbar appears centered when center_contents is set to True"""
-
-    navbar_widget = centered_responsive_fixture.navbar
-    navbar_widget.set_id('my_navbar_id')
-    navbar_widget.use_layout(ResponsiveLayout('md', center_contents=True,
-                                              collapse_brand_with_content=centered_responsive_fixture.collapse_brand))
-    navbar_widget.layout.set_brand_text('Brandy') #adding something to illustrate the structure change
-
-    [navbar] = navbar_widget.children
-    if not centered_responsive_fixture.collapse_brand:
-        [toggle, brand_widget, centering_div] = navbar.children
-    else:
-        [toggle, centering_div] = navbar.children
-        [collapsable] = centering_div.children
-        [brand_widget] = collapsable.children
-        assert 'navbar-collapse' in collapsable.get_attribute('class')
-
-    assert 'navbar-toggler' in toggle.get_attribute('class')
-    assert 'container' in centering_div.get_attribute('class')
-    assert 'navbar-brand' in brand_widget.get_attribute('class')
-
-
 @uses(web_fixture=WebFixture)
 class NavbarToggleFixture(Fixture):
 
@@ -280,10 +245,10 @@ class NavbarToggleFixture(Fixture):
 
 @with_fixtures(WebFixture, NavbarFixture)
 def test_navbar_toggle_basics(web_fixture, navbar_fixture):
-    """The default bootstrap toggle icon is used when no text is given"""
+    """You can add a toggle to the navbar that hides another element on the page."""
 
     element_to_collapse = Div(web_fixture.view, css_id='my_id')
-    toggle = navbar_fixture.navbar_with_layout.layout.add_toggle(element_to_collapse, text=None)
+    toggle = navbar_fixture.navbar_with_layout.layout.add_toggle(element_to_collapse)
 
     [toggle_span] = toggle.children
 
@@ -365,7 +330,7 @@ def test_responsive_navbar_basics(web_fixture, navbar_fixture):
     assert 'navbar-toggleable-xs' in navbar.get_attribute('class')
 
 
-class ToggleAlignmentScenarios(NavbarFixture):
+class ToggleAlignmentScenarios(Fixture):
     @scenario
     def aligned_right(self):
         self.layout = ResponsiveLayout('sm', toggle_button_alignment='right')
@@ -377,10 +342,10 @@ class ToggleAlignmentScenarios(NavbarFixture):
         self.expected_css_class = 'navbar-toggler-left'
 
 
-@with_fixtures(WebFixture, ToggleAlignmentScenarios)
-def test_responsive_navbar_toggle_alignment(web_fixture, toggle_alignment_fixture):
+@with_fixtures(NavbarFixture, ToggleAlignmentScenarios)
+def test_responsive_navbar_toggle_alignment(navbar_fixture, toggle_alignment_fixture):
     """A ResponsiveLayout hides its Navbar when the viewport becomes smaller than a given device size"""
-    navbar_widget = toggle_alignment_fixture.navbar
+    navbar_widget = navbar_fixture.navbar
     navbar_widget.set_id('my_navbar_id')
     navbar_widget.use_layout(toggle_alignment_fixture.layout)
 
@@ -390,7 +355,7 @@ def test_responsive_navbar_toggle_alignment(web_fixture, toggle_alignment_fixtur
     assert toggle_alignment_fixture.expected_css_class in toggle.get_attribute('class')
 
 
-class BrandCollapseScenarios(NavbarFixture):
+class BrandCollapseScenarios(Fixture):
 
     @scenario
     def brand_does_not_collapse_with_content(self):
@@ -401,15 +366,15 @@ class BrandCollapseScenarios(NavbarFixture):
         self.brand_collapse = True
 
 
-@with_fixtures(WebFixture, BrandCollapseScenarios)
-def test_brand_may_be_collapsed_with_toggleable_content(web_fixture, brand_collapse_fixture):
+@with_fixtures(WebFixture, NavbarFixture, BrandCollapseScenarios)
+def test_brand_may_be_collapsed_with_toggleable_content(web_fixture, navbar_fixture, brand_collapse_fixture):
     """Brands may be collapse along with the other content."""
 
-    responsive_navbar = brand_collapse_fixture.navbar
+    responsive_navbar = navbar_fixture.navbar
     responsive_navbar.set_id('my_navbar_id')
     responsive_navbar.use_layout(ResponsiveLayout('md',
                                                   collapse_brand_with_content=brand_collapse_fixture.brand_collapse))
-    responsive_navbar.layout.add(brand_collapse_fixture.nav)
+    responsive_navbar.layout.add(navbar_fixture.nav)
 
     brand_widget = Div(web_fixture.view)
     responsive_navbar.layout.set_brand(brand_widget)
