@@ -52,6 +52,7 @@ reahl.egg-info/
 reahl-bzrsupport/reahl_bzrsupport.egg-info/
 reahl-doc/reahl/doc/examples/tutorial/hellonginx/hellonginx.egg-info
 .idea
+*.iml
 .tox
 *~
 */.eggs
