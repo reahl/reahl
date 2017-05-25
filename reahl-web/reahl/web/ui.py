@@ -1215,14 +1215,6 @@ class HTMLWidget(Widget):
     def set_html_representation(self, widget):
         self.html_representation = widget
 
-    @property
-    def layout(self):
-        return self.html_representation.layout
-
-    def use_layout(self, layout):
-        self.html_representation.use_layout(layout)
-        return self
-
     def append_class(self, css_class):
         """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Widget in HTML to the user."""
         self.html_representation.append_class(css_class)
@@ -1334,8 +1326,7 @@ class WrappedInput(Input):
 class PrimitiveInput(Input):
     is_for_file = False
     registers_with_form = True
-    add_default_attribute_source = True
-    
+
     def __init__(self, form, bound_field, name=None):
         super(PrimitiveInput, self).__init__(form, bound_field)
         self.name = name
@@ -1357,8 +1348,6 @@ class PrimitiveInput(Input):
            .. versionadded: 3.2
         """
         html_widget = HTMLElement(self.view, 'input')
-        if self.add_default_attribute_source:
-            html_widget.add_attribute_source(ValidationStateAttributes(self))
         if self.name:
             html_widget.set_attribute('name', self.name)
         if self.disabled:
@@ -1492,8 +1481,6 @@ class TextArea(PrimitiveInput):
 
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
-        if self.add_default_attribute_source:
-            html_text_area.add_attribute_source(ValidationStateAttributes(self))
         html_text_area.set_attribute('name', self.name)
         if self.disabled:
             html_text_area.set_attribute('disabled', 'disabled')
@@ -1565,8 +1552,6 @@ class SelectInput(PrimitiveInput):
     """
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
-        if self.add_default_attribute_source:
-            html_select.add_attribute_source(ValidationStateAttributes(self))
         html_select.set_attribute('name', self.name)
         if self.disabled:
             html_select.set_attribute('disabled', 'disabled')
