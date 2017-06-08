@@ -85,7 +85,13 @@ class LibraryIndex(object):
 
     def __iter__(self):
         return iter(self.libraries_by_name.values())
-        
+
+    def prepend(self, library):
+        new_libraries = [library] + list(self.libraries_by_name.values())
+        self.libraries_by_name = OrderedDict()
+        for library in new_libraries:
+            self.add(library)
+
 
 class Library(object):
     """A frontend-library: a collection of CSS and JavaScript code that can be used with Reahl.
@@ -194,9 +200,8 @@ class JQuery(Library):
         result += self.document_ready_material(rendered_page)
         return result
         
-        
 
-        
+
 class JQueryUI(Library):
     """A heavily customised subset of version 1.12.0 of `JQuery UI <https://jqueryui.com>`_.
     

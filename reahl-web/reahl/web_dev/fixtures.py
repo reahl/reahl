@@ -67,6 +67,23 @@ class BasicPageLayout(Layout):
             slot_div.append_class('column-%s' % slot_name)
             slot_div.add_child(Slot(self.view, slot_name))
 
+from reahl.web.libraries import Library
+class FakeQUnit(Library):
+    """
+    """
+    def __init__(self):
+        super(FakeQUnit, self).__init__('fakequnit')
+        self.shipped_in_directory = '/reahl/web/static'
+        self.files = []
+
+    def footer_only_material(self, rendered_page):
+        result = super(FakeQUnit, self).footer_only_material(rendered_page)
+        result += '\n<script type="text/javascript">\n'
+        result += 'window.QUnit = true;'
+        result += '\n</script>\n'
+        return result
+
+
 
 @uses(reahl_system_fixture=ReahlSystemFixture, sql_alchemy_fixture=SqlAlchemyFixture,
       party_account_fixture=PartyAccountFixture, web_server_fixture=WebServerFixture)
@@ -96,6 +113,7 @@ class WebFixture(Fixture):
         web.persisted_exception_class = PersistedException
         web.persisted_file_class = PersistedFile
         web.persisted_userinput_class = UserInput
+        web.frontend_libraries.prepend(FakeQUnit())
         return web
 
     def new_request(self, path=None, url_scheme=None):

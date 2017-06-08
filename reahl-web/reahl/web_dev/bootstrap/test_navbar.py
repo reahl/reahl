@@ -216,8 +216,7 @@ class NavbarToggleFixture(Fixture):
     def is_expanded(self, locator):
         return self.web_fixture.driver_browser.is_visible(locator) and \
                self.web_fixture.driver_browser.does_element_have_attribute(locator, 'aria-expanded', value='true') and\
-               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'class', value='collapse in') and\
-               not self.web_fixture.driver_browser.is_animating(locator)
+               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'class', value='collapse in')
 
     def panel_is_visible(self):
         return self.web_fixture.driver_browser.is_visible(XPath.paragraph_containing('Peek-A-Boo'))

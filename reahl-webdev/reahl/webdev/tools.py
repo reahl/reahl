@@ -590,24 +590,6 @@ class DriverBrowser(BasicBrowser):
             return el
         return False
 
-    def is_animating(self, locator):
-        """Answers whether the element found by `locator` is in the midst of an ongoing animation.
-
-           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-
-           .. versionadded: 4.0
-        """
-        xpath = six.text_type(locator)
-        time.sleep(0.5) # Yes, this is ugly but:
-                        #  we already deal with js animations by just disabling them altogether(with fx.off),
-                        #  however, we have no way to reliably disable css3 transitions, so until then...
-                        #
-                        # See also:
-                        # https://stackoverflow.com/questions/11131875/what-is-the-cleanest-way-to-disable-css-transition-effects-temporarily
-                        # https://github.com/twbs/bootstrap/issues/5764
-                        # http://geekswithblogs.net/Aligned/archive/2015/05/27/disable-animations-for-selenium-testing.aspx
-        return False
-
     def is_element_value(self, locator, value):
         """Answers whether the element found by `locator` has a value equal to the contents of `value`.
 
@@ -692,23 +674,31 @@ class DriverBrowser(BasicBrowser):
             self.web_driver.execute_script('''
               if ( "undefined" !== typeof jQuery) { jQuery.fx.off = true; jQuery.support.transition = false; };
               var styleEl = document.createElement('style');
-              styleEl.textContent = '*{ transition-property: none !important; ' +
-                 '-o-transition-property: none !important;' +
-                 '-moz-transition-property: none !important;' +
-                 '-ms-transition-property: none !important;' +
-                 '-webkit-transition-property: none !important;' +
+              styleEl.textContent = '*{ ' +
+                 'transition-delay: 0s  !important; ' +
+                 '-o-transition-delay: 0s !important; ' +
+                 '-moz-transition-delay: 0s !important; ' +
+                 '-ms-transition-delay: 0s !important; ' +
+                 '-webkit-transition-delay: 0s !important; ' +
 
-                 'transform: none !important;' +
-                 '-o-transform: none !important;' +
-                 '-moz-transform: none !important;' +
-                 '-ms-transform: none !important;' +
-                 '-webkit-transform: none !important;' +
+                 'transition-duration: 0s !important; ' +
+                 '-o-transition-duration: 0s !important; ' +
+                 '-moz-transition-duration: 0s !important; ' +
+                 '-ms-transition-duration: 0s !important; ' +
+                 '-webkit-transition-duration: 0s !important; ' +
 
-                 'animation: none !important;' +
-                 '-o-animation: none !important;' +
-                 '-moz-animation: none !important;' +
-                 '-ms-animation: none !important;' +
-                 '-webkit-animation: none !important; ' + 
+                 'animation-delay: 0s !important; ' +
+                 '-o-animation-delay: 0s !important; ' +
+                 '-moz-animation-delay: 0s !important; ' +
+                 '-ms-animation-delay: 0s !important; ' +
+                 '-webkit-animation-delay: 0s !important; ' +
+
+                 'animation-duration: 0s !important; ' +
+                 '-o-animation-duration: 0s !important; ' +
+                 '-moz-animation-duration: 0s !important; ' +
+                 '-ms-animation-duration: 0s !important; ' +
+                 '-webkit-animation-duration: 0s !important; ' +
+
                  '}';
               document.head.appendChild(styleEl);
               return true;
