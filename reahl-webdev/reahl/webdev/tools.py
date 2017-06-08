@@ -590,6 +590,24 @@ class DriverBrowser(BasicBrowser):
             return el
         return False
 
+    def is_animating(self, locator):
+        """Answers whether the element found by `locator` is in the midst of an ongoing animation.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+
+           .. versionadded: 4.0
+        """
+        xpath = six.text_type(locator)
+        time.sleep(0.5) # Yes, this is ugly but:
+                        #  we already deal with js animations by just disabling them altogether(with fx.off),
+                        #  however, we have no way to reliably disable css3 transitions, so until then...
+                        #
+                        # See also:
+                        # https://stackoverflow.com/questions/11131875/what-is-the-cleanest-way-to-disable-css-transition-effects-temporarily
+                        # https://github.com/twbs/bootstrap/issues/5764
+                        # http://geekswithblogs.net/Aligned/archive/2015/05/27/disable-animations-for-selenium-testing.aspx
+        return False
+
     def is_element_value(self, locator, value):
         """Answers whether the element found by `locator` has a value equal to the contents of `value`.
 
@@ -668,8 +686,33 @@ class DriverBrowser(BasicBrowser):
         """Waits for the current page to load."""
         self.wait_for(self.is_page_loaded)
         try:
-            # Turn all jquery animations off for testing
-            self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) { jQuery.fx.off=true; }; return true;')  
+#              styleEl.textContent = '*{ transition: none !important; transition-property: none !important; transform: none !important; animation: none !important;  }';
+            # Turn all jquery and bootstrap animations off for testing
+#            self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) { jQuery.fx.off = true; jQuery.support.transition = false; }; return true;')
+            self.web_driver.execute_script('''
+              if ( "undefined" !== typeof jQuery) { jQuery.fx.off = true; jQuery.support.transition = false; };
+              var styleEl = document.createElement('style');
+              styleEl.textContent = '*{ transition-property: none !important; ' +
+                 '-o-transition-property: none !important;' +
+                 '-moz-transition-property: none !important;' +
+                 '-ms-transition-property: none !important;' +
+                 '-webkit-transition-property: none !important;' +
+
+                 'transform: none !important;' +
+                 '-o-transform: none !important;' +
+                 '-moz-transform: none !important;' +
+                 '-ms-transform: none !important;' +
+                 '-webkit-transform: none !important;' +
+
+                 'animation: none !important;' +
+                 '-o-animation: none !important;' +
+                 '-moz-animation: none !important;' +
+                 '-ms-animation: none !important;' +
+                 '-webkit-animation: none !important; ' + 
+                 '}';
+              document.head.appendChild(styleEl);
+              return true;
+            ''')
         except:
             pass # Will only work on HTML pages
 
@@ -781,12 +824,13 @@ class DriverBrowser(BasicBrowser):
         """
         return self.get_attribute(locator, 'value')
 
-    def execute_script(self, script):
+    def execute_script(self, script, *arguments):
         """Executes JavaScript in the browser.
 
-           :param script: A string containing the JavaScript to be executed.
+           :param script: A string containing the body of a JavaScript function to be executed.
+           :param arguments: Variable positional args passed into the function as an array named `arguments`.
         """
-        return self.web_driver.execute_script(script)
+        return self.web_driver.execute_script(script, *arguments)
 
     def switch_styling(self, javascript=True):
         """Switches styling for javascript enabled or javascript disabled.

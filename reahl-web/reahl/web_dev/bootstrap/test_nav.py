@@ -28,7 +28,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.web.fw import Bookmark, Url
 from reahl.web.bootstrap.ui import A, Div, P
-from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
+from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout, NavLayout
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -267,6 +267,33 @@ def test_language_menu(web_fixture):
     assert browser.is_element_present(XPath.paragraph_containing('This is an English sentence.'))
 
 
+def test_nav_layout_restricts_option_to_alignment_or_justfication():
+
+    def check_exc(ex):
+        assert six.text_type(ex).startswith('Cannot set content_alignment and content_justfication at the same time')
+
+    with expected(ProgrammerError, test=check_exc):
+        NavLayout(content_alignment='fill', content_justification='start')
+
+
+def test_nav_layout_ensures_valid_values_for_alignment():
+
+    def check_exc(ex):
+        assert six.text_type(ex).startswith('"invalid_value" should be one of: "center","end"')
+
+    with expected(ProgrammerError, test=check_exc):
+        NavLayout(content_alignment='invalid_value')
+
+
+def test_nav_layout_ensures_valid_values_for_justification():
+
+    def check_exc(ex):
+        assert six.text_type(ex).startswith('"invalid_value" should be one of: "fill","justified"')
+
+    with expected(ProgrammerError, test=check_exc):
+        NavLayout(content_justification='invalid_value')
+
+
 class LayoutScenarios(Fixture):
     @scenario
     def pill_layouts(self):
@@ -302,34 +329,34 @@ def test_nav_layouts(web_fixture, layout_scenarios):
 class DifferentLayoutTypes(Fixture):
     @scenario
     def pills(self):
-        self.layout_type = PillLayout
+        self.layout_class = PillLayout
 
     @scenario
     def tabs(self):
-        self.layout_type = TabLayout
+        self.layout_class = TabLayout
 
 
 @with_fixtures(WebFixture, DifferentLayoutTypes)
-def test_nav_items_can_fill_space(web_fixture, different_layout_types):
+def test_nav_layouts_can_be_used_to_fill_available_space(web_fixture, different_layout_types):
     """Both a PillLayout or TabLayout can be set to make the MenuItems of
        their Nav fill the width of the parent"""
 
-    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type())
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_class())
     assert 'nav-justified' not in menu.html_representation.get_attribute('class')
 
-    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type(horizontal_alignment_or_fill='nav-justified'))
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_class(content_justification='justified'))
     assert 'nav-justified' in menu.html_representation.get_attribute('class')
 
 
 @with_fixtures(WebFixture, DifferentLayoutTypes)
-def test_nav_items_can_be_aligned_horizontally(web_fixture, different_layout_types):
+def test_nav_layouts_can_be_used_to_align_items_horizontally(web_fixture, different_layout_types):
     """Both a PillLayout or TabLayout can be set to make the MenuItems of
        their Nav be aligned horizontal."""
 
-    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type())
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_class())
     assert 'justify-content-center' not in menu.html_representation.get_attribute('class')
 
-    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type(horizontal_alignment_or_fill='justify-content-center'))
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_class(content_alignment='center'))
     assert 'justify-content-center' in menu.html_representation.get_attribute('class')
 
 

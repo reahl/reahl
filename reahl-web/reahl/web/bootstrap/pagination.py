@@ -293,8 +293,7 @@ class PageMenu(HTMLWidget):
 
         self.enable_refresh(self.query_fields.start_page_number)
 
-    @classmethod
-    def add_styling_to_menu_item(cls, item):
+    def add_styling_to_menu_item(self, item):
         item.a.append_class('page-link')
         item.html_representation.append_class('page-item')
 

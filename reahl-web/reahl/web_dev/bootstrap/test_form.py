@@ -26,7 +26,7 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
 from reahl.web.fw import Url
-from reahl.web.bootstrap.ui import A, Div
+from reahl.web.bootstrap.ui import A, Div, FieldSet
 from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
                                    TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonInput, ButtonLayout
 from reahl.web.bootstrap.grid import ResponsiveSize
@@ -363,7 +363,7 @@ def test_disabled_state(web_fixture, disabled_scenarios):
 
 
 @uses(web_fixture=WebFixture)
-class ChoicesLayoutFixture(Fixture):
+class ChoicesFixture(Fixture):
 
     def new_form(self):
         return Form(self.web_fixture.view, 'test')
@@ -373,69 +373,103 @@ class ChoicesLayoutFixture(Fixture):
         field.bind('field', self)
         return field
 
-    def input_is_wrapped_in_label(self, tester):
-        return len(tester.xpath('//label/input')) > 0
 
-    def main_element(self, tester):
-        return tester.xpath('//div/*')[0]
-
-
-@with_fixtures(WebFixture, ChoicesLayoutFixture)
-def test_choices_layout(web_fixture, choices_layout_fixture):
-    """A ChoicesLayout can be used to add a PrimitiveCheckboxInput inlined or stacked."""
-    fixture = choices_layout_fixture
+@with_fixtures(WebFixture, ChoicesFixture)
+def test_checkbox_basics(web_fixture, choices_fixture):
+    """A ChoicesLayout lays out PrimitiveCheckboxInputs inside a Label containing the Field label, such that they will be stacked."""
+    fixture = choices_fixture
 
     stacked_container = Div(web_fixture.view).use_layout(ChoicesLayout())
     stacked_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
 
-    tester = WidgetTester(stacked_container)
-    assert fixture.input_is_wrapped_in_label(tester)
-    assert fixture.main_element(tester).tag == 'div'
-    assert fixture.main_element(tester).attrib['class'] == 'form-check'
+    assert 'form-check' in stacked_container.children[0].get_attribute('class').split(' ')
+
+    [label] = stacked_container.children[0].children
+    assert label.tag_name == 'label'
+
+    [checkbox_input, spacer, description_widget] = label.children
+    assert checkbox_input.input_type == 'checkbox'
+    assert spacer.value == ' '
+    assert description_widget.value == 'field'
+
+
+@with_fixtures(WebFixture, ChoicesFixture)
+def test_checkbox_with_inline_layout(web_fixture, choices_fixture):
+    """PrimitiveCheckboxInputs can be rendered inlined with each other by using the ChoicesLayout with the inline=True setting."""
+    fixture = choices_fixture
 
     inlined_container = Div(web_fixture.view).use_layout(ChoicesLayout(inline=True))
     inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
 
-    tester = WidgetTester(inlined_container)
-    assert fixture.input_is_wrapped_in_label(tester)
-    assert fixture.main_element(tester).tag == 'div'
-    assert fixture.main_element(tester).attrib['class'] == 'form-check form-check-inline'
+    assert 'form-check-inline' in inlined_container.children[0].get_attribute('class').split(' ')
 
 
-class RadioButtonFixture(ChoicesLayoutFixture):
+class RadioButtonFixture(ChoicesFixture):
     def new_field(self):
         choices = [Choice(1, Field(label='One')),
-                   Choice(2, Field(label='Two'))
-                  ]
+                   Choice(2, Field(label='Two'))]
         field = ChoiceField(choices)
         field.bind('field', self)
         return field
 
 
-@with_fixtures(WebFixture, RadioButtonFixture)
-def test_layout_of_radio_button_input(web_fixture, radio_button_fixture):
-    """The PrimitiveRadioButtonInputs inside a RadioButtonInput are also laid out using a ChoicesLayout."""
+@with_fixtures(RadioButtonFixture)
+def test_radio_button_basics(radio_button_fixture):
+    """A RadioButtonInput consists of a labelled radio button for each choice, rendered stacked on one another."""
     fixture = radio_button_fixture
 
     stacked_radio = RadioButtonInput(fixture.form, fixture.field)
+    [container] = stacked_radio.children
+    [choice1_container, choice2_container] = container.children
 
-    tester = WidgetTester(stacked_radio)
-    assert fixture.input_is_wrapped_in_label(tester)
-    assert fixture.main_element(tester).tag == 'div'
-    assert fixture.main_element(tester).attrib['class'] == 'form-check'
+    def check_choice_container_details(choice_container, expected_choice_text, expected_button_value):
+        assert 'form-check' in choice_container.get_attribute('class').split(' ')
+        [label] = choice_container.children
+        assert label.tag_name == 'label'
+        [primitive_radio_button, text_spacer, choice_text_node] = label.children
+        assert primitive_radio_button.value == expected_button_value
+        assert text_spacer.value == ' '
+        assert choice_text_node.value == expected_choice_text
 
-    inlined_radio = RadioButtonInput(fixture.form, fixture.field, contents_layout=ChoicesLayout(inline=True))
+    check_choice_container_details(choice1_container, 'One', '1')
+    check_choice_container_details(choice2_container, 'Two', '2')
 
-    tester = WidgetTester(inlined_radio)
-    assert fixture.input_is_wrapped_in_label(tester)
-    assert fixture.main_element(tester).tag == 'div'
-    assert fixture.main_element(tester).attrib['class'] == 'form-check form-check-inline'
+
+@with_fixtures(RadioButtonFixture)
+def test_radio_button_layout(radio_button_fixture):
+    """To make a RadioButtonInput inline, supply a suitable ChoicesLayout"""
+    fixture = radio_button_fixture
+
+    radio_input = RadioButtonInput(fixture.form, fixture.field, contents_layout=ChoicesLayout(inline=True))
+    assert radio_input.contents_layout.inline
+
+    choice_container = radio_input.children[0].children[0]
+    assert 'form-check-inline' in choice_container.get_attribute('class').split(' ')
+
+
+@with_fixtures(RadioButtonFixture)
+def test_radio_button_label_as_legend(radio_button_fixture):
+    """A FormLayout renders a RadioButtonInput in a FieldSet with its label in the Legend."""
+    fixture = radio_button_fixture
+
+    form = fixture.form
+    form.use_layout(FormLayout())
+    inlined_radio = RadioButtonInput(form, fixture.field)
+    fixture.form.layout.add_input(inlined_radio)
+
+    field_set = form.children[0]
+    assert isinstance(field_set, FieldSet)
+    assert 'form-group' in field_set.get_attribute('class').split(' ')
+
+    [label_widget, radio_input_in_form] = form.children[0].children
+    assert label_widget.tag_name == 'legend'
+    assert 'col-form-legend' in label_widget.get_attribute('class')
+    assert radio_input_in_form is inlined_radio
 
 
 @with_fixtures(WebFixture)
 def test_button_layouts(web_fixture):
     """A ButtonLayout can be be used on a Button to customise various visual effects."""
-
 
     event = Event(label='click me')
     event.bind('event', web_fixture)

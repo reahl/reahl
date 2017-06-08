@@ -32,7 +32,7 @@ from reahl.component.i18n import Translator
 
 import reahl.web.ui
 from reahl.web.ui import Label, HTMLAttributeValueOption
-from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend
+from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet
 from reahl.web.bootstrap.grid import ColumnLayout
 
 
@@ -85,17 +85,6 @@ class TextInput(reahl.web.ui.TextInput):
         self.append_class('form-control')
 
 
-class FieldSet(reahl.web.ui.FieldSet):
-    """A visual grouping of HTMLElements inside a Form.
-
-       :param view: (See :class:`reahl.web.fw.Widget`)
-       :keyword legend_text: If given, the FieldSet will have a Legend containing this text.
-       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
-
-    """
-    pass
-
-
 class PasswordInput(reahl.web.ui.PasswordInput):
     """A PasswordInput is a single line text input, but it does not show what the user is typing.
 
@@ -132,13 +121,7 @@ class SelectInput(reahl.web.ui.SelectInput):
         self.append_class('form-control')
 
 
-class PrimitiveCheckboxInput(reahl.web.ui.CheckboxInput):
-    """A primitive checkbox (only the box itself).
-
-       :param form: (See :class:`~reahl.web.ui.Input`)
-       :param bound_field: (See :class:`~reahl.web.ui.Input`)
-    """
-    pass
+PrimitiveCheckboxInput = reahl.web.ui.CheckboxInput
 
 
 class CheckboxInput(WrappedInput):
@@ -175,9 +158,10 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the many checkboxes in this input.
+       :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the many choices in this input.
     """
     def __init__(self, form, bound_field, contents_layout=None):
+        assert contents_layout is None or isinstance(contents_layout, ChoicesLayout), 'contents_layout should be an instance of ChoicesLayout but isn\'t' #TODO: this should be in @argchecks(...)
         self.contents_layout = contents_layout or ChoicesLayout(inline=False)
         super(RadioButtonInput, self).__init__(form, bound_field)
 
@@ -251,7 +235,6 @@ class CueInput(reahl.web.ui.WrappedInput):
         return self.input_widget.includes_label
 
 
-
 class ButtonStyle(HTMLAttributeValueOption):
     valid_options = ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link']
     def __init__(self, name):
@@ -264,7 +247,6 @@ class ButtonSize(HTMLAttributeValueOption):
     def __init__(self, size_string):
         super(ButtonSize, self).__init__(size_string, size_string is not None, prefix='btn', 
                                          constrain_value_to=self.valid_options)
-
 
 
 class ButtonLayout(reahl.web.fw.Layout):
@@ -322,7 +304,6 @@ class ChoicesLayout(reahl.web.fw.Layout):
         self.widget.add_child(outer_div)
 
         return outer_div
-
 
 
 class FormLayout(reahl.web.fw.Layout):
@@ -385,7 +366,7 @@ class FormLayout(reahl.web.fw.Layout):
             label.append_class('sr-only')
         return label
 
-    def add_input(self, html_input, hide_label=False, help_text=None, inline=False):
+    def add_input(self, html_input, hide_label=False, help_text=None):
         """Adds an input to the Form.
 
            :param html_input: The Input to add.

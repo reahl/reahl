@@ -199,6 +199,7 @@ class Nav(Menu):
     :param view: (See :class:`~reahl.web.fw.Widget`)
     """
     def __init__(self, view):
+        self.open_item = None
         super(Nav, self).__init__(view)
 
     @exposed
@@ -251,18 +252,27 @@ class Nav(Menu):
         return li
 
 
-class HorizontalAlignmentOrFill(HTMLAttributeValueOption):
-    valid_options = ['justify-content-center', 'justify-content-end', 'nav-fill', 'nav-justified']
+class ContentAlignment(HTMLAttributeValueOption):
+    valid_options = ['center', 'end']
+    def __init__(self, name):
+        super(ContentAlignment, self).__init__(name, name is not None, prefix='justify-content',
+                                                   constrain_value_to=self.valid_options)
+
+class ContentJustification(HTMLAttributeValueOption):
+    valid_options = ['fill', 'justified']
 
     def __init__(self, name):
-        super(HorizontalAlignmentOrFill, self).__init__(name, name is not None,
-                                                        constrain_value_to=self.valid_options)
+        super(ContentJustification, self).__init__(name, name is not None, prefix='nav',
+                                                   constrain_value_to=self.valid_options)
 
 
 class NavLayout(Layout):
-    def __init__(self, key=None, horizontal_alignment_or_fill=None):
+    def __init__(self, key=None, content_alignment=None, content_justification=None):
         super(NavLayout, self).__init__()
-        self.horizontal_alignment_or_fill = HorizontalAlignmentOrFill(horizontal_alignment_or_fill)
+        if content_alignment and content_justification:
+            raise ProgrammerError('Cannot set content_alignment and content_justfication at the same time')
+        self.content_alignment = ContentAlignment(content_alignment)
+        self.content_justification = ContentJustification(content_justification)
         self.key = key
 
     @property
@@ -273,22 +283,26 @@ class NavLayout(Layout):
         super(NavLayout, self).customise_widget()
         if self.key:
             self.widget.append_class(self.additional_css_class)
-        if self.horizontal_alignment_or_fill.is_set:
-            self.widget.append_class(self.horizontal_alignment_or_fill.as_html_snippet())
+        if self.content_alignment.is_set:
+            self.widget.append_class(self.content_alignment.as_html_snippet())
+        if self.content_justification.is_set:
+            self.widget.append_class(self.content_justification.as_html_snippet())
 
 
 class PillLayout(NavLayout):
     """This Layout makes a Nav appear as horizontally or vertically arranged pills (buttons).
 
     :keyword stacked: If True, the pills are stacked vertically.
-    :keyword horizontal_alignment_or_fill: Optional. how the space must be filled with the items. If omitted, the
-                    items will be left aligned.
-                    (One of: justify-content-center, justify-content-end, nav-fill, nav-justified)
+    :keyword content_alignment: If given, changes how content is aligned inside the Nav (default is start)
+                                (One of: center, end)
+    :keyword content_justification: If given, makes the content take up all space in the Nav. Either with elements having equal space (fill), or unequal space (justified)
+                                (One of: fill, justified)
+
     """
-    def __init__(self, stacked=False, horizontal_alignment_or_fill=None):
-        super(PillLayout, self).__init__(key='pill', horizontal_alignment_or_fill=horizontal_alignment_or_fill)
-        if all([stacked, horizontal_alignment_or_fill]):
-            raise ProgrammerError('Pills must be stacked or horizontal, but not both')
+    def __init__(self, stacked=False, content_alignment=None, content_justification=None):
+        super(PillLayout, self).__init__(key='pill', content_alignment=content_alignment, content_justification=content_justification)
+        if all([stacked, content_alignment or content_justification]):
+            raise ProgrammerError('Pills must be stacked, aligned or justified, but you cannot give all options together')
         self.stacked = stacked
 
     def customise_widget(self):
@@ -300,12 +314,13 @@ class PillLayout(NavLayout):
 class TabLayout(NavLayout):
     """This Layout makes a Nav appear as horizontal tabs.
 
-    :keyword horizontal_alignment_or_fill: Optional. how the space must be filled with the items. If omitted, the
-                    items will be left aligned.
-                    (One of: justify-content-center, justify-content-end, nav-fill, nav-justified)
+    :keyword content_alignment: If given, changes how content is aligned inside the Nav (default is start)
+                                (One of: center, end)
+    :keyword content_justification: If given, makes the content take up all space in the Nav. Either with elements having equal space (fill), or unequal space (justified)
+                                (One of: fill, justified)
     """
-    def __init__(self, horizontal_alignment_or_fill=None):
-        super(TabLayout, self).__init__(key='tab', horizontal_alignment_or_fill=horizontal_alignment_or_fill)
+    def __init__(self, content_alignment=None, content_justification=None):
+        super(TabLayout, self).__init__(key='tab', content_alignment=content_alignment, content_justification=content_justification)
 
 
 class DropdownMenu(Menu):

@@ -160,7 +160,7 @@ def test_adding_brand_widget(web_fixture, navbar_fixture):
 
 @with_fixtures(WebFixture, NavbarFixture)
 def test_adding_other_than_form_or_nav_is_not_allowed(web_fixture, navbar_fixture):
-    """Only Navs, Forms and Text may be added."""
+    """Only Navs, Forms and Text may be added to a NavbarLayout."""
 
     navbar = navbar_fixture.navbar.use_layout(NavbarLayout())
     not_a_form_or_nav = Div(web_fixture.view)
@@ -216,13 +216,14 @@ class NavbarToggleFixture(Fixture):
     def is_expanded(self, locator):
         return self.web_fixture.driver_browser.is_visible(locator) and \
                self.web_fixture.driver_browser.does_element_have_attribute(locator, 'aria-expanded', value='true') and\
-               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'class', value='collapse in')
-
-    def panel_is_expanded(self):
-        return self.is_expanded(XPath.paragraph_containing('Peek-A-Boo'))
+               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'class', value='collapse in') and\
+               not self.web_fixture.driver_browser.is_animating(locator)
 
     def panel_is_visible(self):
         return self.web_fixture.driver_browser.is_visible(XPath.paragraph_containing('Peek-A-Boo'))
+
+    def panel_is_expanded(self):
+        return self.is_expanded(XPath.paragraph_containing('Peek-A-Boo'))
 
     def xpath_to_locate_toggle(self):
         return XPath('//span[contains(@class,"navbar-toggler-icon")]')
@@ -286,15 +287,14 @@ def test_navbar_toggle_collapses_html_element(web_fixture, navbar_toggle_fixture
     browser.wait_for(navbar_toggle_fixture.panel_is_expanded)
 
     # case: clicking on the toggle again, causes the panel to disappear
-    time.sleep(0.5)
     browser.click(navbar_toggle_fixture.xpath_to_locate_toggle())
     browser.wait_for_not(navbar_toggle_fixture.panel_is_visible)
+
 
 
 @with_fixtures(WebFixture, NavbarFixture)
 def test_navbar_toggle_requires_target_id(web_fixture, navbar_fixture):
     """To be able to hide an element, it is required to have an id"""
-
 
     navbar = navbar_fixture.navbar
     navbar.use_layout(NavbarLayout())
@@ -345,6 +345,7 @@ class ToggleAlignmentScenarios(Fixture):
 @with_fixtures(NavbarFixture, ToggleAlignmentScenarios)
 def test_responsive_navbar_toggle_alignment(navbar_fixture, toggle_alignment_fixture):
     """A ResponsiveLayout hides its Navbar when the viewport becomes smaller than a given device size"""
+
     navbar_widget = navbar_fixture.navbar
     navbar_widget.set_id('my_navbar_id')
     navbar_widget.use_layout(toggle_alignment_fixture.layout)

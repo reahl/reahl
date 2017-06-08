@@ -66,6 +66,6 @@ def test_badges(web_fixture):
 def test_badge_as_pill(web_fixture):
     """A badge can be made to look like a pill"""
 
-    badge = Badge(web_fixture.view, 'On sale', 'success', as_pill=True)
+    badge = Badge(web_fixture.view, 'On sale', 'success', pill=True)
 
     assert badge.get_attribute('class') == 'badge badge-pill badge-success'

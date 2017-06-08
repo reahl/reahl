@@ -26,7 +26,7 @@ from reahl.webdev.tools import WidgetTester
 
 from reahl.component.exceptions import ProgrammerError
 from reahl.web.ui import HTMLAttributeValueOption
-from reahl.web.bootstrap.ui import Div
+from reahl.web.bootstrap.ui import Div, P
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container, DeviceClass, Alignment, ContentJustification
 
 from reahl.web_dev.fixtures import WebFixture
@@ -175,6 +175,19 @@ def test_adding_columns_later(web_fixture):
     [added_column] = widget.children
     assert isinstance(added_column, Div)
     assert added_column.get_attribute('class') == 'col-lg-4 column-a_column'
+
+
+@with_fixtures(WebFixture)
+def test_adding_columns_later_specifying_the_widget_to_use(web_fixture):
+    """Specify the widget to use as a wrapper for the column. By default it is a Div"""
+
+    widget = Div(web_fixture.view).use_layout(ColumnLayout())
+
+    column_widget_to_use = P(web_fixture.view)
+    widget.layout.add_column('a_column', column_widget=column_widget_to_use)
+
+    [added_column] = widget.children
+    assert added_column is column_widget_to_use
 
 
 def test_allowed_sizes():

@@ -71,8 +71,10 @@ class HTML5Page(reahl.web.ui.HTML5Page):
 class Alert(Div):
     """A message box meant to alert the user of some message.
 
+    See also: :class:`Badge`.
+
     :param view: (See :class:`reahl.web.fw.Widget`)
-    :param message_or_widget: The message or widget to display inside the Alert.
+    :param message_or_widget: Message text or a Widget to display inside the Alert.
     :param severity: One of 'success', 'info', 'warning', 'danger' to indicate the color scheme to be used for the Alert.
 
     """
@@ -90,19 +92,21 @@ class Alert(Div):
 
 
 class Badge(Span):
-    """A message box meant to alert the user of some message.
+    """An inline, visually highlighted message.
+
+    See also: :class:`Alert`.
 
     :param view: (See :class:`reahl.web.fw.Widget`)
     :param message: The message for the badge.
     :param level: One of 'default', 'primary', 'success', 'info', 'warning', 'danger' to indicate the color scheme to be used for the Badge.
-    :keyword as_pill: Defaults to False. If set to True the badge will look like a pill.
+    :keyword pill: Defaults to False. If set to True the badge will look like a pill.
     """
-    def __init__(self, view, message, level, as_pill=False):
+    def __init__(self, view, message, level, pill=False):
         super(Badge, self).__init__(view)
         severity_option = HTMLAttributeValueOption(level, level, prefix='badge',
                                                    constrain_value_to=['default', 'primary', 'success', 'info', 'warning', 'danger'])
         self.add_child(TextNode(view, message))
         self.append_class('badge')
-        if as_pill:
+        if pill:
             self.append_class('badge-pill')
         self.append_class(severity_option.as_html_snippet())

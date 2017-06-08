@@ -40,7 +40,7 @@ _ = Translator('reahl-web')
 
 
 class CollapseToggle(HTMLElement):
-    def __init__(self, view, target_widget, text=None, alignment=None):
+    def __init__(self, view, target_widget, text=None):
         super(CollapseToggle, self).__init__(view, 'button', children_allowed=True)
         self.set_attribute('type', 'button')
 
@@ -50,10 +50,6 @@ class CollapseToggle(HTMLElement):
         self.set_attribute('data-target', '#%s' % target_widget.css_id)
         self.set_attribute('aria-controls', '%s' % target_widget.css_id)
         self.set_attribute('aria-label', _('Toggle navigation'))
-
-        alignment = NavbarTogglerAlignment(alignment)
-        if alignment.is_set:
-            self.append_class(alignment.as_html_snippet())
 
         if text is None:
             collapse_toggle_widget = Span(self.view)
@@ -168,19 +164,22 @@ class NavbarLayout(Layout):
             widget = span
         return self.contents_container.add_child(widget)
 
-    def add_toggle(self, target_html_element, text=None, toggle_button_alignment=None):
+    def add_toggle(self, target_html_element, text=None, alignment=None):
         """Adds a link that toggles the display of the given `target_html_element`.
 
         :param target_html_element: A :class:`~reahl.web.ui.HTMLElement`
         :param text: Text to be used on the toggle link. If None, the boostrap navbar-toggler-icon is used
-        :param toggle_button_alignment: May be None(bootstrap default), 'left' or 'right' to indicate
+        :param alignment: May be None(bootstrap default), 'left' or 'right' to indicate
                                           where the toggle button should be displayed.
         """
         if not target_html_element.css_id_is_set:
             raise ProgrammerError('%s has no css_id set. A toggle is required to have a css_id' % target_html_element)
         target_html_element.append_class('collapse')
-        toggle = CollapseToggle(self.view, target_html_element, text=text, alignment=toggle_button_alignment)
-        self.contents_container.add_child(toggle)
+        toggle = CollapseToggle(self.view, target_html_element, text=text)
+        if alignment:
+            toggle.append_class(NavbarTogglerAlignment(alignment).as_html_snippet())
+
+        self.contents_container.insert_child(0, toggle)
         return toggle
 
 
@@ -218,7 +217,7 @@ class ResponsiveLayout(NavbarLayout):
 
     def insert_brand_widget(self, brand_html_element):
         if self.collapse_brand_with_content:
-            self.contents_container.insert_child(0, brand_html_element)
+            super(ResponsiveLayout, self).insert_brand_widget(brand_html_element)
         else:
             # child[0] is the toggle
             self.nav.insert_child(1, brand_html_element)
@@ -230,14 +229,12 @@ class ResponsiveLayout(NavbarLayout):
                                   (self.widget, self.__class__))
 
         collapsable = Div(self.view, css_id='%s_collapsable' % self.widget.css_id)
-        collapsable.append_class('collapse')
         collapsable.append_class('navbar-collapse')
 
-        toggle_widget = CollapseToggle(self.view, collapsable, text=self.text,
-                                       alignment=self.toggle_button_alignment)
+        self.add_toggle(collapsable, text=self.text, alignment=self.toggle_button_alignment)
+
         toggle_size = self.collapse_below_device_class.one_smaller
         self.nav.append_class('navbar-toggleable-%s' % toggle_size.name)
-        self.nav.insert_child(0, toggle_widget)
 
         self.contents_container.add_child(collapsable)
         self.contents_container = collapsable
