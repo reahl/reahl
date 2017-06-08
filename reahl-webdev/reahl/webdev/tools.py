@@ -763,7 +763,6 @@ class DriverBrowser(BasicBrowser):
            
         """
         self.wait_for_element_interactable(locator)
-        self.focus_on(locator)
         el = self.find_element(locator)
         if el.get_attribute('type') != 'file':
             el.clear()

@@ -125,14 +125,16 @@ def test_remote_constraints(web_fixture, constraint_rendering_fixture):
 
     # A passing value causes an ajax call resulting in clearing of any previous errors
     web_fixture.driver_browser.type('//input[@type="text"]', 'passing value')
-    web_fixture.driver_browser.press_tab('//input')
+    el = web_fixture.driver_browser.find_element('//input[@type="text"]')
+    web_fixture.web_driver.execute_script('jQuery(arguments[0]).focus().blur(); ', el)
+
+#    web_fixture.driver_browser.press_tab('//input')
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
     # A failing python value causes an ajax call resulting in an error
     web_fixture.driver_browser.type('//input[@type="text"]', 'failing_parsed_value')
     web_fixture.driver_browser.press_tab('//input')
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-    error_text = web_fixture.driver_browser.get_text("//form/label[@class='error']")
     assert fixture.is_error_text('an attribute is invalid')
 
 
