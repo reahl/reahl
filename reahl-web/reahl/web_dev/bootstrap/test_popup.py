@@ -40,7 +40,8 @@ class PopupAFixture(Fixture):
     poppedup_contents = "//div[@class='modal-body' and count(*)=1]/p[@id='contents']"
 
     def is_popped_up(self):
-        return self.web_fixture.driver_browser.is_visible(self.poppedup_contents)
+        return self.web_fixture.driver_browser.is_visible(self.poppedup_contents)\
+                and not self.web_fixture.driver_browser.is_animating(self.poppedup_contents)
 
 
 @with_fixtures(WebFixture, PopupAFixture)
