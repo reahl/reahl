@@ -763,6 +763,7 @@ class DriverBrowser(BasicBrowser):
            
         """
         self.wait_for_element_interactable(locator)
+        self.focus_on(locator)
         el = self.find_element(locator)
         if el.get_attribute('type') != 'file':
             el.clear()
@@ -791,7 +792,7 @@ class DriverBrowser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         el = self.find_element(xpath)
-        return self.web_driver.execute_script('$(arguments[0]).focus()', el)
+        return self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) {jQuery(arguments[0]).focus();};', el)
 
     @property
     def current_url(self):
