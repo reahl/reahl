@@ -52,7 +52,7 @@ class BasicScenarios(Fixture):
                 self.define_view('/', title='Hello', page=SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 3622
+        self.expected_content_length = 3645
         self.content_includes_p = True
 
     @scenario
@@ -68,7 +68,7 @@ class BasicScenarios(Fixture):
                 home.set_page(SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 3622
+        self.expected_content_length = 3645
         self.content_includes_p = True
 
     @scenario
@@ -79,7 +79,7 @@ class BasicScenarios(Fixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 3603
+        self.expected_content_length = 3626
         self.content_includes_p = False
 
 
