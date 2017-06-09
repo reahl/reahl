@@ -216,14 +216,14 @@ def test_activating_javascript(web_fixture):
             self.fake_js = fake_js
 
         def get_js(self, context=None):
-            return [self.fake_js]
+           return [self.fake_js]
 
     class MyPage(Widget):
         def __init__(self, view):
             super(MyPage, self).__init__(view)
             self.add_child(WidgetWithJavaScript(view, 'js1'))
             self.add_child(WidgetWithJavaScript(view, 'js2'))
-            self.add_child(WidgetWithJavaScript(view, 'js1'))
+            self.add_child(WidgetWithJavaScript(view, 'js1'))#intended duplicate
             self.add_child(Slot(view, 'reahl_footer'))
 
     class MainUI(UserInterface):
@@ -236,7 +236,7 @@ def test_activating_javascript(web_fixture):
     browser = Browser(wsgi_app)
 
     browser.open('/')
-    rendered_js = [i.text for i in browser.lxml_html.xpath('//script') if i.text][0]
+    rendered_js = [i.text for i in browser.lxml_html.xpath('//script[@id="reahl-jqueryready"]')][0]
     assert rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n'
 
     number_of_duplicates = rendered_js.count('js1') - 1

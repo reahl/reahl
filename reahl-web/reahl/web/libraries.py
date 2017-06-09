@@ -183,7 +183,7 @@ class JQuery(Library):
         self.files.append(file_name)
 
     def document_ready_material(self, rendered_page):
-        result = '\n<script type="text/javascript">\n'
+        result = '\n<script id="reahl-jqueryready" type="text/javascript">\n'
         result += 'jQuery(document).ready(function($){\n'
         result += '$(\'body\').addClass(\'enhanced\');\n'
         js = set()

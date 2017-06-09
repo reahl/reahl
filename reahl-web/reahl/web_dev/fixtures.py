@@ -67,6 +67,7 @@ class BasicPageLayout(Layout):
             slot_div.append_class('column-%s' % slot_name)
             slot_div.add_child(Slot(self.view, slot_name))
 
+
 from reahl.web.libraries import Library
 class FakeQUnit(Library):
     """
