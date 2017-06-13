@@ -571,7 +571,7 @@ def test_form_input_validation(web_fixture):
     fixture.driver_browser.open('/')
     fixture.driver_browser.wait_for_element_not_visible(error_xpath)
     fixture.driver_browser.type('//input[@type="text"]', 'not@notvalid')
-    fixture.driver_browser.press_tab('//input')
+    fixture.driver_browser.press_tab()
     fixture.driver_browser.wait_for_element_visible(error_xpath)
 
     with fixture.driver_browser.no_page_load_expected():

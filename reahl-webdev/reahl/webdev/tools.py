@@ -781,7 +781,7 @@ class DriverBrowser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         el = self.find_element(xpath)
-        return self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) {jQuery(arguments[0]).focus();};', el)
+        return self.web_driver.execute_script('arguments[0].focus();', el)
 
     @property
     def current_url(self):
@@ -954,12 +954,16 @@ class DriverBrowser(BasicBrowser):
         except ImportError:
             logging.warn('PILlow is not available, unable to crop screenshots')
 
-    def press_tab(self, locator):
-        """Simulates the user pressing the tab key while the element at `locator` has focus.
+    def press_tab(self):
+        """Simulates the user pressing the tab key on element that is currently focussed.
 
-           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        .. versionchanged: 4.0
+           Changed to operate on the currently focussed element.
         """
-        self.find_element(locator).send_keys(Keys.TAB)
+        el = self.web_driver.switch_to.active_element
+        el.send_keys(Keys.TAB)
+        # To ensure the element gets blur event which for some reason does not always happen when pressing TAB:
+        self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) {jQuery(arguments[0]).blur();};', el)
 
     def press_backspace(self, locator):
         """Simulates the user pressing the backspace key while the element at `locator` has focus.

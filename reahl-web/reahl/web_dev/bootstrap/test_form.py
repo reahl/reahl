@@ -320,7 +320,7 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
     assert error.text == 'Some input is required'
 
     browser.type(XPath.input_labelled('Some input'), 'valid value')
-    browser.press_tab(XPath.input_labelled('Some input'))
+    browser.press_tab()
 
     def form_group_is_marked_success(index):
         return ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=index)
