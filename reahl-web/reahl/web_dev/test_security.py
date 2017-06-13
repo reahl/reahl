@@ -24,11 +24,10 @@ from reahl.webdev.tools import WidgetTester, Browser, XPath
 
 from reahl.component.modelinterface import Action, Allowed, Event, Field, exposed
 from reahl.web.fw import Widget, UserInterface
-from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import Div, P, HTML5Page
 from reahl.web.ui import Form, TextInput, ButtonInput
 
-from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 
 @with_fixtures(WebFixture)
@@ -353,7 +352,7 @@ def test_posting_to_view(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/a_view', 'Title', write_check=disallowed)
             home.set_slot('main', MyForm.factory())
 

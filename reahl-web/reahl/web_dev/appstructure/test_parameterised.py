@@ -24,9 +24,8 @@ from reahl.webdev.tools import Browser, XPath
 from reahl.component.modelinterface import Field
 from reahl.web.fw import CannotCreate, IdentityDictionary, UrlBoundView, UserInterface
 from reahl.web.ui import HTML5Page, P
-from reahl.web.layout import PageLayout, ColumnLayout
 
-from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 
 @uses(web_fixture=WebFixture)
@@ -88,11 +87,11 @@ def test_views_with_parameters(web_fixture, parameterised_scenarios):
 
     class UIWithParameterisedViews(UserInterface):
         def assemble(self):
-            self.define_view('/aview', view_class=fixture.ParameterisedView, some_arg=fixture.argument) 
+            self.define_view('/aview', view_class=fixture.ParameterisedView, some_arg=fixture.argument)
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {'main': 'main'}, name='myui')
 
     fixture = parameterised_scenarios
@@ -102,8 +101,8 @@ def test_views_with_parameters(web_fixture, parameterised_scenarios):
 
     if fixture.should_exist:
         browser.open(fixture.url)
-        assert browser.title == 'View for: %s' % fixture.expected_value 
-        assert browser.is_element_present(XPath.paragraph_containing('content for %s' % fixture.expected_value)) 
+        assert browser.title == 'View for: %s' % fixture.expected_value
+        assert browser.is_element_present(XPath.paragraph_containing('content for %s' % fixture.expected_value))
     else:
         browser.open(fixture.url, status=404)
 
@@ -126,11 +125,10 @@ def test_views_from_regex(web_fixture):
             self.define_page(HTML5Page)
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  {}, name='myui')
 
-
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    # Parameterisedally constructing a View from an URL
+    # Parameterised constructing a View from an URL
     browser.open('/a_ui/someurl_test1')
     assert browser.title == 'View for: test1' 
 
@@ -159,7 +157,7 @@ def test_user_interfaces_from_regex(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
 
@@ -233,7 +231,7 @@ def test_parameterised_uis(web_fixture, parameterised_user_interface_scenarios):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithParameterisedUserInterfaces,  IdentityDictionary(), name='myui')
 
     fixture = parameterised_user_interface_scenarios

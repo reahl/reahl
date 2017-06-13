@@ -12,7 +12,7 @@ from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, ButtonInput, FormLayout, ButtonLayout, FieldSet
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
 
 
@@ -20,7 +20,7 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout = ColumnLayout(('main', ResponsiveSize())).with_slots()
+        contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize())).with_slots()
         self.layout.contents.use_layout(contents_layout)
         menu = Nav(view).use_layout(TabLayout()).with_bookmarks(main_bookmarks)
         self.layout.header.add_child(menu)
@@ -124,5 +124,8 @@ class Address(Base):
 
     def save(self):
         Session.add(self)
+
+
+
 
 

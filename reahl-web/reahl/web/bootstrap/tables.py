@@ -74,21 +74,19 @@ class TableLayout(Layout):
     :keyword compact: If True, make the table more compact by cutting cell padding in half.
     :keyword striped: If True, colour successive rows lighter and darker.
     :keyword highlight_hovered: If True, a row is highlighted when the mouse hovers over it.
-    :keyword transposed: If True, each row is displayed as a column instead, with its heading in the first cell.
     :keyword responsive: If True, the table will scroll horizontally on smaller devices.
     :keyword heading_theme: One of 'inverse' or 'default'. An inverse heading is one with light text on a darker background.
     """
     def __init__(self,
-                  inverse=False, border=False, compact=False,
-                  striped=False, highlight_hovered=False, transposed=False, responsive=False,
-                  heading_theme=None):
+                 inverse=False, border=False, compact=False,
+                 striped=False, highlight_hovered=False, responsive=False,
+                 heading_theme=None):
         super(TableLayout, self).__init__()
         self.table_properties = [HTMLAttributeValueOption('inverse', inverse, prefix='table'),
                                  HTMLAttributeValueOption('striped', striped, prefix='table'),
                                  HTMLAttributeValueOption('bordered', border, prefix='table'),
                                  HTMLAttributeValueOption('hover', highlight_hovered, prefix='table'),
                                  HTMLAttributeValueOption('sm', compact, prefix='table'),
-                                 HTMLAttributeValueOption('reflow', transposed, prefix='table'),
                                  HTMLAttributeValueOption('responsive', responsive, prefix='table')]
         self.heading_theme = HeadingTheme(heading_theme)
 
@@ -103,14 +101,16 @@ class TableLayout(Layout):
     def style_heading(self):
         if self.heading_theme.is_set:
             if not self.widget.thead:
-                raise ProgrammerError('No Thead found on %s, but you asked to style is using heading_theme' % self.widget)
-            self.widget.thead.append_class('thead-%s' % self.heading_theme)
-
+                raise ProgrammerError('No Thead found on %s, but you asked to style it using heading_theme' % self.widget)
+            self.widget.thead.append_class('thead-%s' % self.heading_theme.as_html_snippet())
 
 
 class TablePageIndex(SequentialPageIndex):
     def __init__(self, columns, items, items_per_page=10, current_page_number=1, start_page_number=1, max_page_links=5):
-        super(TablePageIndex, self).__init__(items, items_per_page=items_per_page, current_page_number=current_page_number, start_page_number=start_page_number, max_page_links=max_page_links)
+        super(TablePageIndex, self).__init__(items, items_per_page=items_per_page,
+                                             current_page_number=current_page_number,
+                                             start_page_number=start_page_number,
+                                             max_page_links=max_page_links)
         self.sort_column_number = None
         self.sort_descending = False
         self.columns = columns
@@ -182,7 +182,6 @@ class PagedTable(PagedPanel):
         fields.sort_descending = self.page_index.fields.sort_descending
 
 
-
 class DataTable(Div):
     """A table containing a potentially large set of data items. DataTable does not display all its items
        on the current page. It renders as a table spread over different pages between which a user can
@@ -220,8 +219,5 @@ class DataTable(Div):
     @property
     def table(self):
         return self.paged_contents.table
-
-
-
 
 

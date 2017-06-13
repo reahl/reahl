@@ -22,7 +22,7 @@ from reahl.component.modelinterface import exposed, Field, BooleanField, ChoiceF
 from reahl.web.fw import UserInterface
 from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.grid import ColumnLayout, Container, ResponsiveSize
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, Container, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, CueInput, TextArea, SelectInput, \
     RadioButtonInput, CheckboxInput, TextInput, PasswordInput, ButtonLayout, ChoicesLayout
 
@@ -31,7 +31,7 @@ class BasicHTMLInputsUI(UserInterface):
     def assemble(self):
         self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
                                                           contents_layout=ColumnLayout(
-                                                              ('main', ResponsiveSize(lg=6))).with_slots()))
+                                                              ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots()))
         home = self.define_view('/', title='Basic HTML Inputs demo')
         home.set_slot('main', ExampleForm.factory('myform'))
 
@@ -81,7 +81,7 @@ class ExampleForm(Form):
         self.layout.add_input(SelectInput(self, model_object.fields.choice_field))
         self.layout.add_input(SelectInput(self, model_object.fields.multi_choice_field))
         self.layout.add_input(RadioButtonInput(self, model_object.fields.radio_choice_field,
-                                               button_layout=ChoicesLayout(inline=True)))
+                                               contents_layout=ChoicesLayout(inline=True)))
         self.layout.add_input(TextInput(self, model_object.fields.fuzzy_date_field, fuzzy=True))
         self.layout.add_input(TextInput(self, model_object.fields.text_input_without_label, placeholder=True), hide_label=True)
         self.layout.add_input(CueInput(TextInput(self, model_object.fields.cue_field), P(view, text='This is a cue')))
@@ -89,3 +89,4 @@ class ExampleForm(Form):
 
         btn = self.add_child(ButtonInput(self, model_object.events.do_something))
         btn.use_layout(ButtonLayout(style='primary'))
+

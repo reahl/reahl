@@ -343,3 +343,48 @@ def test_sequential_page_index(sequential_scenarios):
     assert page.description == six.text_type(fixture.expected_pages)
     assert page.contents == fixture.last_page_contents
     assert fixture.page_index.max_page_links == 12
+
+
+@with_fixtures(WebFixture, PageMenuFixture)
+def test_pagination_basics(web_fixture, page_menu_fixture):
+
+    #This is what the pager looks like: ← « 1 2 3 » →
+    #With this query string we are indicating that we have clicked on page 3, and thus should be the current page
+    web_fixture.request.query_string = 'current_page_number=3&start_page_number=1'
+    page_index = page_menu_fixture.PageIndexStub(3, 9)
+    page_container = page_menu_fixture.PageContainer(web_fixture.view, page_index)
+    pagemenu = PageMenu(web_fixture.view, 'my_page_menu_widget', page_index, page_container)
+
+    [pagination_container] = pagemenu.children
+    assert 'pagination' in pagination_container.html_representation.get_attribute('class')
+
+    [items_container] = pagination_container.children
+    page_items = items_container.children
+    assert len(page_items) == 7
+
+    disabled_page_link_indexes = [0, 1] # These are disabled(unclickable): ← «
+    current_page_link_index = 4 # given the query string, the link to page 3, is active
+    for i, page_item in enumerate(page_items):
+        assert 'page-item' in page_item.get_attribute('class')
+
+        [page_link] = page_item.children
+        assert 'page-link' in page_link.get_attribute('class')
+        assert 'reahl-ajaxlink' in page_link.get_attribute('class')
+
+        # links you cannot click on (disabled)
+        if i in disabled_page_link_indexes:
+            assert 'disabled' in page_item.get_attribute('class')
+
+            assert '-1' == page_link.get_attribute('tabindex')
+            assert page_link.disabled
+        else:
+            assert 'disabled' not in page_item.get_attribute('class')
+
+            assert not page_link.has_attribute('tabindex')
+            assert not page_link.disabled
+
+        # current page is highlighted if you selected the page(are on the page)
+        if i == current_page_link_index:
+            assert 'active' in page_item.get_attribute('class')
+        else:
+            assert 'active' not in page_item.get_attribute('class')

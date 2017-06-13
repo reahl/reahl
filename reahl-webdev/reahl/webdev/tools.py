@@ -668,8 +668,41 @@ class DriverBrowser(BasicBrowser):
         """Waits for the current page to load."""
         self.wait_for(self.is_page_loaded)
         try:
-            # Turn all jquery animations off for testing
-            self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) { jQuery.fx.off=true; }; return true;')  
+#              styleEl.textContent = '*{ transition: none !important; transition-property: none !important; transform: none !important; animation: none !important;  }';
+            # Turn all jquery and bootstrap animations off for testing
+#            self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) { jQuery.fx.off = true; jQuery.support.transition = false; }; return true;')
+            self.web_driver.execute_script('''
+              if ( "undefined" !== typeof jQuery) { jQuery.fx.off = true; jQuery.support.transition = false; };
+              var styleEl = document.createElement('style');
+              styleEl.textContent = '*{ ' +
+                 'transition-delay: 0s  !important; ' +
+                 '-o-transition-delay: 0s !important; ' +
+                 '-moz-transition-delay: 0s !important; ' +
+                 '-ms-transition-delay: 0s !important; ' +
+                 '-webkit-transition-delay: 0s !important; ' +
+
+                 'transition-duration: 0s !important; ' +
+                 '-o-transition-duration: 0s !important; ' +
+                 '-moz-transition-duration: 0s !important; ' +
+                 '-ms-transition-duration: 0s !important; ' +
+                 '-webkit-transition-duration: 0s !important; ' +
+
+                 'animation-delay: 0s !important; ' +
+                 '-o-animation-delay: 0s !important; ' +
+                 '-moz-animation-delay: 0s !important; ' +
+                 '-ms-animation-delay: 0s !important; ' +
+                 '-webkit-animation-delay: 0s !important; ' +
+
+                 'animation-duration: 0s !important; ' +
+                 '-o-animation-duration: 0s !important; ' +
+                 '-moz-animation-duration: 0s !important; ' +
+                 '-ms-animation-duration: 0s !important; ' +
+                 '-webkit-animation-duration: 0s !important; ' +
+
+                 '}';
+              document.head.appendChild(styleEl);
+              return true;
+            ''')
         except:
             pass # Will only work on HTML pages
 
@@ -748,7 +781,7 @@ class DriverBrowser(BasicBrowser):
         """
         xpath = six.text_type(locator)
         el = self.find_element(xpath)
-        return self.web_driver.execute_script('$(arguments[0]).focus()', el)
+        return self.web_driver.execute_script('arguments[0].focus();', el)
 
     @property
     def current_url(self):
@@ -781,12 +814,13 @@ class DriverBrowser(BasicBrowser):
         """
         return self.get_attribute(locator, 'value')
 
-    def execute_script(self, script):
+    def execute_script(self, script, *arguments):
         """Executes JavaScript in the browser.
 
-           :param script: A string containing the JavaScript to be executed.
+           :param script: A string containing the body of a JavaScript function to be executed.
+           :param arguments: Variable positional args passed into the function as an array named `arguments`.
         """
-        return self.web_driver.execute_script(script)
+        return self.web_driver.execute_script(script, *arguments)
 
     def switch_styling(self, javascript=True):
         """Switches styling for javascript enabled or javascript disabled.
@@ -920,12 +954,16 @@ class DriverBrowser(BasicBrowser):
         except ImportError:
             logging.warn('PILlow is not available, unable to crop screenshots')
 
-    def press_tab(self, locator):
-        """Simulates the user pressing the tab key while the element at `locator` has focus.
+    def press_tab(self):
+        """Simulates the user pressing the tab key on element that is currently focussed.
 
-           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        .. versionchanged: 4.0
+           Changed to operate on the currently focussed element.
         """
-        self.find_element(locator).send_keys(Keys.TAB)
+        el = self.web_driver.switch_to.active_element
+        el.send_keys(Keys.TAB)
+        # To ensure the element gets blur event which for some reason does not always happen when pressing TAB:
+        self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) {jQuery(arguments[0]).blur();};', el)
 
     def press_backspace(self, locator):
         """Simulates the user pressing the backspace key while the element at `locator` has focus.

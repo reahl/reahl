@@ -69,7 +69,7 @@ def test_cue_input_display_basics(web_fixture, cue_input_fixture):
     browser.wait_for_element_visible(fixture.cue_element_xpath)
 
     #moving focus to another input causes the cue to be hidden
-    browser.press_tab(XPath.input_labelled('MyField'))
+    browser.press_tab()
     browser.wait_for_element_not_visible(fixture.cue_element_xpath)
 
 

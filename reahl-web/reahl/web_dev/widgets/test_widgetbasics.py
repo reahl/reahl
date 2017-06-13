@@ -33,22 +33,6 @@ from reahl.web.ui import Div, P, Slot
 from reahl.web_dev.fixtures import WebFixture
 
 
-@uses(web_fixture=WebFixture)
-class WidgetFixture(Fixture):
-
-    def new_user_interface_factory(self):
-        factory = UserInterface.factory('test_user_interface_name')
-        factory.attach_to('/', {})
-        return factory
-
-    def new_user_interface(self):
-        factory = self.ui_factory
-        return factory.create()
-
-    def new_view(self, user_interface=None, relative_path='/', title='A view', slot_definitions={}):
-        user_interface = user_interface or self.user_interface
-        return UrlBoundView(user_interface, relative_path, title, slot_definitions)
-
 
 @with_fixtures(WebFixture)
 def test_basic_widget(web_fixture):
@@ -122,8 +106,7 @@ def test_widget_factories_and_args(web_fixture):
     assert widget.saved_kwarg == 'b'
 
 
-@with_fixtures(WebFixture)
-def test_widget_factories_error(web_fixture):
+def test_widget_factories_error():
     """Supplying arguments to .factory that do not match those of the Widget's __init__ is reported to the programmer.."""
 
     class WidgetWithArgs(Widget):
@@ -139,10 +122,8 @@ def test_widget_factories_error(web_fixture):
         WidgetWithArgs.factory('a', 'b', 'c')
 
 
-@with_fixtures(WebFixture)
-def test_widget_construct_error(web_fixture):
+def test_widget_construct_error():
     """Passing anything other than a View as a Widget's view argument on construction results in an error."""
-
 
     with expected(IsInstance):
         Widget(EmptyStub())
@@ -235,14 +216,14 @@ def test_activating_javascript(web_fixture):
             self.fake_js = fake_js
 
         def get_js(self, context=None):
-            return [self.fake_js]
+           return [self.fake_js]
 
     class MyPage(Widget):
         def __init__(self, view):
             super(MyPage, self).__init__(view)
             self.add_child(WidgetWithJavaScript(view, 'js1'))
             self.add_child(WidgetWithJavaScript(view, 'js2'))
-            self.add_child(WidgetWithJavaScript(view, 'js1'))
+            self.add_child(WidgetWithJavaScript(view, 'js1'))#intended duplicate
             self.add_child(Slot(view, 'reahl_footer'))
 
     class MainUI(UserInterface):
@@ -255,7 +236,7 @@ def test_activating_javascript(web_fixture):
     browser = Browser(wsgi_app)
 
     browser.open('/')
-    rendered_js = [i.text for i in browser.lxml_html.xpath('//script') if i.text][0]
+    rendered_js = [i.text for i in browser.lxml_html.xpath('//script[@id="reahl-jqueryready"]')][0]
     assert rendered_js == '\njQuery(document).ready(function($){\n$(\'body\').addClass(\'enhanced\');\njs1\njs2\n\n});\n'
 
     number_of_duplicates = rendered_js.count('js1') - 1

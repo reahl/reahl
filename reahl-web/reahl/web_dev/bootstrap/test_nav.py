@@ -28,7 +28,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.web.fw import Bookmark, Url
 from reahl.web.bootstrap.ui import A, Div, P
-from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout
+from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout, NavLayout
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -267,6 +267,33 @@ def test_language_menu(web_fixture):
     assert browser.is_element_present(XPath.paragraph_containing('This is an English sentence.'))
 
 
+def test_nav_layout_restricts_option_to_alignment_or_justfication():
+
+    def check_exc(ex):
+        assert six.text_type(ex).startswith('Cannot set content_alignment and content_justfication at the same time')
+
+    with expected(ProgrammerError, test=check_exc):
+        NavLayout(content_alignment='fill', content_justification='start')
+
+
+def test_nav_layout_ensures_valid_values_for_alignment():
+
+    def check_exc(ex):
+        assert six.text_type(ex).startswith('"invalid_value" should be one of: "center","end"')
+
+    with expected(ProgrammerError, test=check_exc):
+        NavLayout(content_alignment='invalid_value')
+
+
+def test_nav_layout_ensures_valid_values_for_justification():
+
+    def check_exc(ex):
+        assert six.text_type(ex).startswith('"invalid_value" should be one of: "fill","justified"')
+
+    with expected(ProgrammerError, test=check_exc):
+        NavLayout(content_justification='invalid_value')
+
+
 class LayoutScenarios(Fixture):
     @scenario
     def pill_layouts(self):
@@ -278,7 +305,7 @@ class LayoutScenarios(Fixture):
     def stacked_pill_layouts(self):
         """Using a PillLayout, you can also make MenuItems appear stacked on top of
            one another instead of being placed next to one another."""
-        self.layout_css_class = {'nav-pills', 'nav-stacked'}
+        self.layout_css_class = {'nav-pills', 'flex-column'}
         self.layout = PillLayout(stacked=True)
 
     @scenario
@@ -302,31 +329,35 @@ def test_nav_layouts(web_fixture, layout_scenarios):
 class DifferentLayoutTypes(Fixture):
     @scenario
     def pills(self):
-        self.layout_type = PillLayout
+        self.layout_class = PillLayout
 
     @scenario
     def tabs(self):
-        self.layout_type = TabLayout
+        self.layout_class = TabLayout
 
 
 @with_fixtures(WebFixture, DifferentLayoutTypes)
-def test_justified_items(web_fixture, different_layout_types):
+def test_nav_layouts_can_be_used_to_fill_available_space(web_fixture, different_layout_types):
     """Both a PillLayout or TabLayout can be set to make the MenuItems of
-       their Nav fill the width of the parent, with the text of each item centered."""
+       their Nav fill the width of the parent"""
 
-
-    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type())
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_class())
     assert 'nav-justified' not in menu.html_representation.get_attribute('class')
 
-    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_type(justified=True))
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_class(content_justification='justified'))
     assert 'nav-justified' in menu.html_representation.get_attribute('class')
 
 
-def test_pill_layouts_cannot_mix_justified_and_stacked():
-    """A PillLayout cannot be both stacked and justified at the same time."""
+@with_fixtures(WebFixture, DifferentLayoutTypes)
+def test_nav_layouts_can_be_used_to_align_items_horizontally(web_fixture, different_layout_types):
+    """Both a PillLayout or TabLayout can be set to make the MenuItems of
+       their Nav be aligned horizontal."""
 
-    with expected(ProgrammerError):
-        PillLayout(stacked=True, justified=True)
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_class())
+    assert 'justify-content-center' not in menu.html_representation.get_attribute('class')
+
+    menu = Nav(web_fixture.view).use_layout(different_layout_types.layout_class(content_alignment='center'))
+    assert 'justify-content-center' in menu.html_representation.get_attribute('class')
 
 
 @with_fixtures(WebFixture)
@@ -345,6 +376,8 @@ def test_dropdown_menus(web_fixture):
 
     [toggle, added_sub_menu] = item.children
     assert 'dropdown-toggle' in toggle.get_attribute('class')
+    assert 'button' in toggle.get_attribute('role')
+    assert 'true' in toggle.get_attribute('aria-haspopup')
     assert 'dropdown' in toggle.get_attribute('data-toggle')
     assert '-' in toggle.get_attribute('data-target')
     assert 'caret' in toggle.children[1].get_attribute('class')
@@ -359,6 +392,18 @@ def test_dropdown_menus(web_fixture):
     [dropdown_item] = added_sub_menu.html_representation.children
     assert isinstance(dropdown_item, A)
     assert 'dropdown-item' in dropdown_item.get_attribute('class').split()
+
+
+@with_fixtures(WebFixture)
+def test_dropdown_menus_with_divider(web_fixture):
+    """You can add a divider to a DropdownMenu."""
+    sub_menu = DropdownMenu(web_fixture.view)
+    sub_menu.add_a(A(web_fixture.view, Url('/an/url'), description='sub menu item'))
+    sub_menu.add_divider()
+    sub_menu.add_a(A(web_fixture.view, Url('/another/url'), description='another sub menu item'))
+
+    [item1, divider, item2] = sub_menu.html_representation.children
+    assert 'dropdown-divider' in divider.get_attribute('class').split()
 
 
 @with_fixtures(WebFixture)

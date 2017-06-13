@@ -27,10 +27,9 @@ from reahl.component.modelinterface import Event, Field, Action, exposed, Intege
 from reahl.component.exceptions import ProgrammerError
 
 from reahl.web.fw import UserInterface, ViewPreCondition, Redirect, Detour, Return, IdentityDictionary, UrlBoundView
-from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, Form, ButtonInput, A
 
-from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 
 class FormWithButton(Form):
@@ -51,14 +50,15 @@ def test_basic_transition(web_fixture):
         def assemble(self):
             event = Event(label='Click me', action=Action(do_something))
             event.bind('anevent', None)
-            slot_definitions = {'main': FormWithButton.factory(event)}
-            viewa = self.define_view('/viewa', title='View a', slot_definitions=slot_definitions)
-            viewb = self.define_view('/viewb', title='View b', slot_definitions=slot_definitions)
+            viewa = self.define_view('/viewa', title='View a')
+            viewa.set_slot('main', FormWithButton.factory(event))
+            viewb = self.define_view('/viewb', title='View b')
+            viewb.set_slot('main', FormWithButton.factory(event))
             self.define_transition(event, viewa, viewb)
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithTwoViews,  IdentityDictionary(), name='test_ui')
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
@@ -92,8 +92,8 @@ def test_guards(web_fixture):
         def assemble(self):
             event = Event(label='Click me')
             event.bind('anevent', None)
-            slot_definitions = {'main': FormWithButton.factory(event)}
-            viewa = self.define_view('/viewa', title='View a', slot_definitions=slot_definitions)
+            viewa = self.define_view('/viewa', title='View a')
+            viewa.set_slot('main', FormWithButton.factory(event))
             viewb = self.define_view('/viewb', title='View b')
             viewc = self.define_view('/viewc', title='View c')
             self.define_transition(event, viewa, viewb, guard=false_guard)
@@ -101,7 +101,7 @@ def test_guards(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithGuardedTransitions,  IdentityDictionary(), name='test_ui')
 
 
@@ -135,13 +135,13 @@ def test_local_transition(web_fixture):
         def assemble(self):
             event = Event(label='Click me', action=Action(do_something))
             event.bind('anevent', None)
-            slot_definitions = {'main': FormWithButton.factory(event)}
-            viewa = self.define_view('/viewa', title='View a', slot_definitions=slot_definitions)
+            viewa = self.define_view('/viewa', title='View a')
+            viewa.set_slot('main', FormWithButton.factory(event))
             self.define_local_transition(event, viewa, guard=guard)
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithAView,  IdentityDictionary(), name='test_ui')
 
 
@@ -188,7 +188,7 @@ def test_transitions_to_parameterised_views(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
 
             other_view = self.define_view('/page2', title='Page 2',
@@ -232,14 +232,14 @@ def test_transitions_to_parameterised_views_error(web_fixture):
 
     class UIWithParameterisedViews(UserInterface):
         def assemble(self):
-            slot_definitions = {'main': FormWithIncorrectButtonToParameterisedView.factory()}
-            normal_view = self.define_view('/static', title='Static', slot_definitions=slot_definitions)
+            normal_view = self.define_view('/static', title='Static')
+            normal_view.set_slot('main', FormWithIncorrectButtonToParameterisedView.factory())
             parameterised_view = self.define_view('/dynamic', view_class=ParameterisedView, object_key=Field(required=True))
             self.define_transition(model_object.events.an_event, normal_view, parameterised_view)
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithParameterisedViews,  IdentityDictionary(), name='test_ui')
 
 
@@ -260,14 +260,13 @@ def test_view_preconditions(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
-            slot_definitions = {'main': Form.factory('the_form')}
-            view = self.define_view('/', title='Hello', slot_definitions=slot_definitions)
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
+            view = self.define_view('/', title='Hello')
+            view.set_slot('main', Form.factory('the_form'))
             failing_precondition = ViewPreCondition(lambda: False, exception=SomeException)
             passing_precondition = ViewPreCondition(lambda: True)
             view.add_precondition(passing_precondition)
             view.add_precondition(failing_precondition)
-
 
     wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
@@ -336,10 +335,11 @@ def test_detours_and_return_transitions(web_fixture):
             event = Event(label='Click me')
             event.bind('anevent', None)
             viewa = self.define_view('/viewa', title='View a')
-            slot_with_button = {'main': FormWithButton.factory(event)}
 
-            step1 = self.define_view('/firstStepOfDetour', title='Step 1', slot_definitions=slot_with_button)
-            step2 = self.define_view('/lastStepOfDetour', title='Step 2', slot_definitions=slot_with_button)
+            step1 = self.define_view('/firstStepOfDetour', title='Step 1')
+            step1.set_slot('main', FormWithButton.factory(event))
+            step2 = self.define_view('/lastStepOfDetour', title='Step 2')
+            step2.set_slot('main', FormWithButton.factory(event))
 
             viewa.add_precondition(ViewPreCondition(lambda: fixture.make_precondition_pass, exception=Detour(step1.as_bookmark(self))))
             self.define_transition(event, step1, step2)
@@ -347,7 +347,7 @@ def test_detours_and_return_transitions(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
 
@@ -381,15 +381,15 @@ def test_detours_and_explicit_return_view(web_fixture):
             viewa = self.define_view('/viewa', title='View a')
             explicit_return_view = self.define_view('/explicitReturnView', title='Explicit Return View')
 
-            slot_with_button = {'main': FormWithButton.factory(event)}
-            detour = self.define_view('/detour', title='Detour', slot_definitions=slot_with_button)
+            detour = self.define_view('/detour', title='Detour')
+            detour.set_slot('main', FormWithButton.factory(event))
 
             viewa.add_precondition(ViewPreCondition(lambda: False, exception=Detour(detour.as_bookmark(self), return_to=explicit_return_view.as_bookmark(self))))
             self.define_return_transition(event, detour)
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithDetour,  IdentityDictionary(), name='test_ui')
 
 
@@ -477,24 +477,25 @@ def test_linking_to_views_marked_as_detour(web_fixture):
     class UIWithLink(UserInterface):
         def assemble(self, bookmark=None):
             self.bookmark = bookmark
-            slot_definitions = {'main': A.factory_from_bookmark(self.bookmark)}
-            self.define_view('/initial', title='View a', slot_definitions=slot_definitions)
+            self.define_view('/initial', title='View a').set_slot('main', A.factory_from_bookmark(self.bookmark))
+
 
     class UIWithDetour(UserInterface):
         def assemble(self):
             event = Event(label='Click me')
             event.bind('anevent', None)
-            slot_with_button = {'main': FormWithButton.factory(event)}
 
-            step1 = self.define_view('/firstStepOfDetour', title='Step 1', slot_definitions=slot_with_button, detour=True)
-            step2 = self.define_view('/lastStepOfDetour', title='Step 2', slot_definitions=slot_with_button)
+            step1 = self.define_view('/firstStepOfDetour', title='Step 1', detour=True)
+            step1.set_slot('main', FormWithButton.factory(event))
+            step2 = self.define_view('/lastStepOfDetour', title='Step 2')
+            step2.set_slot('main', FormWithButton.factory(event))
 
             self.define_transition(event, step1, step2)
             self.define_return_transition(event, step2)
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             detour_ui = self.define_user_interface('/uiWithDetour',  UIWithDetour,  IdentityDictionary(), name='second_ui')
             bookmark = detour_ui.get_bookmark(relative_path='/firstStepOfDetour')
             self.define_user_interface('/uiWithLink',  UIWithLink,  IdentityDictionary(), name='first_ui', bookmark=bookmark)
@@ -525,7 +526,7 @@ def test_detour_is_non_reentrant(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
 
             step1 = self.define_view('/firstStepOfDetour', title='Step 1', detour=True)
             step1.set_slot('main', A.factory_from_bookmark(step1.as_bookmark(self)))

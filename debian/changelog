@@ -19,6 +19,16 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Removed vassert function from reahl.tofu (in favour of pytest's assert).
  * Removed support of Fixture.del_ methods in favour of letting new_ methods yield.
  * Merged WebExecutionContext into ExecutionContext.
+ * Merged reahl.web.layout.{ResponsiveSize and ColumnLayout} into similarly named classes in reahl.web.bootstrap.grid.
+ * Removed slot_definitions kwarg from define_view.
+ * Changed ColumnLayout to be able to take more options per column beyond size only.
+ * Changed the way one specifies offsets for columns - to be part of the ColumnOption and not part of ResponsiveSize.
+ * Added support for not showing gutters between ColumnLayout columns.
+ * Added support for alignment and justification of ColumnLayout columns.
+ * Changed how RadioButtonInput and CheckboxInput are laid out as inline/not.
+ * Changed DriverBrowser.press_tab to operate on the element with focus.
+ * Upgraded BS4(BeautifulSoup) version to 4.6.
+ * Upgraded Lxml version to 3.8.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Jun 2016 08:47:00 +0200
 

@@ -54,7 +54,6 @@ class CarouselFixture(Fixture):
 def test_carousel_basics(web_fixture):
     """A Carousel contains all the right classes and contents to act as a Bootstrap Carousel component."""
 
-
     widget = Carousel(web_fixture.view, 'my_carousel_id')
 
     [main_div] = widget.children
@@ -73,20 +72,20 @@ def test_carousel_basics(web_fixture):
     assert carousel_inner.get_attribute('role') == 'listbox'
 
     # Controls
-    def check_control(control, position, action, label):
-        assert control.get_attribute('class') == 'carousel-control %s' % position
+    def check_control(control, action, label):
+        assert control.get_attribute('class') == 'carousel-control-%s' % action
         assert control.get_attribute('role') == 'button'
         assert control.get_attribute('data-slide') == action
 
         [icon, text] = control.children
-        assert icon.get_attribute('class') == 'icon-%s' % action
+        assert icon.get_attribute('class') == 'carousel-control-%s-icon' % action
         assert icon.get_attribute('aria-hidden') == 'true'
 
         assert text.children[0].value == label
         assert text.get_attribute('class') == 'sr-only'
 
-    check_control(left_control, 'left', 'prev', 'Previous')
-    check_control(right_control, 'right', 'next', 'Next')
+    check_control(left_control, 'prev', 'Previous')
+    check_control(right_control, 'next', 'Next')
 
 
 @with_fixtures(WebFixture)
@@ -117,7 +116,6 @@ def test_i18n(web_fixture):
 @with_fixtures(WebFixture, CarouselFixture)
 def test_carousel_has_options(web_fixture, carousel_fixture):
     """Constructor allows you to set certain customizing options"""
-
 
     carousel = Carousel(web_fixture.view, 'my_carousel_id', interval=1000, pause='hover', wrap=True, keyboard=True)
     main_div = carousel_fixture.get_main_div_for(carousel)
@@ -219,3 +217,13 @@ def test_adding_items_with_captions(web_fixture):
 
     [actual_caption_widget] = div_containing_caption.children
     assert actual_caption_widget is caption_widget
+
+
+@with_fixtures(WebFixture)
+def test_check_classes_added_for_images(web_fixture):
+    """A Widget can be supplied to be used caption for an added image."""
+    carousel = Carousel(web_fixture.view, 'my_carousel_id')
+
+    img_widget = Img(web_fixture.view)
+    carousel.add_slide(img_widget)
+    assert img_widget.get_attribute('class') == 'd-block img-fluid'

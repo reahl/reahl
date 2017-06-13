@@ -88,7 +88,7 @@ def test_simple_sub_resources(web_fixture):
             super(WidgetWithSubResource, self).__init__(view)
             view.add_resource(ASimpleSubResource('uniquename'))
 
-    wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
+    wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithSubResource.factory())
     browser = Browser(wsgi_app)
     browser.open('/_uniquename_simple_resource')
 
@@ -124,7 +124,7 @@ def test_dynamic_sub_resources(web_fixture):
             super(WidgetWithSubResource, self).__init__(view)
             view.add_resource_factory(ParameterisedSubResource.factory('uniquename', {'param': Field(required=True)}))
 
-    wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
+    wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithSubResource.factory())
     browser = Browser(wsgi_app)
     browser.open('/_uniquename_dynamic_one')
     assert browser.raw_html == 'one'
@@ -166,7 +166,7 @@ def test_dynamic_sub_resources_factory_args(web_fixture):
 
     fixture = web_fixture
 
-    wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithSubResource.factory()})
+    wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithSubResource.factory())
     browser = Browser(wsgi_app)
     browser.open('/__uniquename_dynamic_one')
     assert browser.raw_html == 'arg to factory|kwarg to factory|one'
@@ -205,7 +205,7 @@ def test_disambiguating_between_factories(web_fixture):
 
     fixture = web_fixture
 
-    wsgi_app = fixture.new_wsgi_app(view_slots={'main': WidgetWithAmbiguousSubResources.factory()})
+    wsgi_app = fixture.new_wsgi_app(child_factory=WidgetWithAmbiguousSubResources.factory())
     browser = Browser(wsgi_app)
     browser.open('/__factory1_path')
     assert browser.raw_html == 'factory1'

@@ -45,9 +45,8 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, Field
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import Layout, Bookmark, Url
-from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget
+from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget, HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li
-
 
 
 class Menu(HTMLWidget):
@@ -58,8 +57,6 @@ class Menu(HTMLWidget):
           Rendered as a <ul class="reahl-menu"> element that contains a <li> for each MenuItem.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
-       :keyword a_list: (Deprecated) A list of :class:`A` instances to which each :class:`MenuItem` will lead.
-       :keyword css_id: (Deprecated) (See :class:`reahl.web.ui.HTMLElement`)
 
        .. versionchanged:: 3.2
           Deprecated use of `a_list` and changed it temporarily to a keyword argument for backwards compatibility.
@@ -67,6 +64,8 @@ class Menu(HTMLWidget):
           Deprecated the `from_xxx` methods and added `with_xxx` replacements to be used after construction.
           Deprecated `add_item` and replaced it with `add_submenu`.
           Added a number of `add_xxx` methods for adding items from different sources.
+       .. versionchanged:: 4.0
+          Removed deprecated a_list and css_id
     """
     def __init__(self, view):
         super(Menu, self).__init__(view)
@@ -220,9 +219,9 @@ class Nav(Menu):
         :keyword query_arguments: (For internal use)
         """
         if self.open_item == title:
-            extra_query_arguments={'open_item': ''}
+            extra_query_arguments = {'open_item': ''}
         else:
-            extra_query_arguments={'open_item': title}
+            extra_query_arguments = {'open_item': title}
         extra_query_arguments.update(query_arguments)
 
         bookmark = Bookmark.for_widget(title, query_arguments=extra_query_arguments).on_view(self.view)
@@ -233,14 +232,16 @@ class Nav(Menu):
         li.add_child(dropdown_menu)
 
         if self.open_item == title:
-            li.append_class('open')
+            li.append_class('show')
         submenu.a.append_class('dropdown-toggle')
         submenu.a.set_attribute('data-toggle', 'dropdown')
         submenu.a.set_attribute('data-target', '-')
+        submenu.a.set_attribute('role', 'button')
+        submenu.a.set_attribute('aria-haspopup', 'true')
+
         submenu.a.add_child(Span(self.view)).append_class('caret')
         li.append_class('drop%s' % ('up' if drop_up else 'down'))
         return submenu
-
 
     def add_html_for_item(self, item):
         li = super(Nav, self).add_html_for_item(item)
@@ -251,12 +252,27 @@ class Nav(Menu):
         return li
 
 
+class ContentAlignment(HTMLAttributeValueOption):
+    valid_options = ['center', 'end']
+    def __init__(self, name):
+        super(ContentAlignment, self).__init__(name, name is not None, prefix='justify-content',
+                                                   constrain_value_to=self.valid_options)
+
+class ContentJustification(HTMLAttributeValueOption):
+    valid_options = ['fill', 'justified']
+
+    def __init__(self, name):
+        super(ContentJustification, self).__init__(name, name is not None, prefix='nav',
+                                                   constrain_value_to=self.valid_options)
 
 
 class NavLayout(Layout):
-    def __init__(self, key=None, justified=False):
+    def __init__(self, key=None, content_alignment=None, content_justification=None):
         super(NavLayout, self).__init__()
-        self.justified = justified
+        if content_alignment and content_justification:
+            raise ProgrammerError('Cannot set content_alignment and content_justfication at the same time')
+        self.content_alignment = ContentAlignment(content_alignment)
+        self.content_justification = ContentJustification(content_justification)
         self.key = key
 
     @property
@@ -267,38 +283,44 @@ class NavLayout(Layout):
         super(NavLayout, self).customise_widget()
         if self.key:
             self.widget.append_class(self.additional_css_class)
-        if self.justified:
-            self.widget.append_class('nav-justified')
+        if self.content_alignment.is_set:
+            self.widget.append_class(self.content_alignment.as_html_snippet())
+        if self.content_justification.is_set:
+            self.widget.append_class(self.content_justification.as_html_snippet())
 
 
 class PillLayout(NavLayout):
     """This Layout makes a Nav appear as horizontally or vertically arranged pills (buttons).
 
     :keyword stacked: If True, the pills are stacked vertically.
-    :keyword justified: If True, the pills are widened to fill all available space.
+    :keyword content_alignment: If given, changes how content is aligned inside the Nav (default is start)
+                                (One of: center, end)
+    :keyword content_justification: If given, makes the content take up all space in the Nav. Either with elements having equal space (fill), or unequal space (justified)
+                                (One of: fill, justified)
+
     """
-    def __init__(self, stacked=False, justified=False):
-        super(PillLayout, self).__init__(key='pill', justified=justified)
-        if all([stacked, justified]):
-            raise ProgrammerError('Pills must be stacked or justified, but not both')
+    def __init__(self, stacked=False, content_alignment=None, content_justification=None):
+        super(PillLayout, self).__init__(key='pill', content_alignment=content_alignment, content_justification=content_justification)
+        if all([stacked, content_alignment or content_justification]):
+            raise ProgrammerError('Pills must be stacked, aligned or justified, but you cannot give all options together')
         self.stacked = stacked
-        self.justified = justified
 
     def customise_widget(self):
         super(PillLayout, self).customise_widget()
         if self.stacked:
-            self.widget.append_class('nav-stacked')
+            self.widget.append_class('flex-column')
 
 
 class TabLayout(NavLayout):
     """This Layout makes a Nav appear as horizontal tabs.
 
-    :keyword justified: If True, the tabs are widened to fill all available space.
+    :keyword content_alignment: If given, changes how content is aligned inside the Nav (default is start)
+                                (One of: center, end)
+    :keyword content_justification: If given, makes the content take up all space in the Nav. Either with elements having equal space (fill), or unequal space (justified)
+                                (One of: fill, justified)
     """
-    def __init__(self, justified=False):
-        super(TabLayout, self).__init__(key='tab', justified=justified)
-
-
+    def __init__(self, content_alignment=None, content_justification=None):
+        super(TabLayout, self).__init__(key='tab', content_alignment=content_alignment, content_justification=content_justification)
 
 
 class DropdownMenu(Menu):
@@ -317,6 +339,10 @@ class DropdownMenu(Menu):
         item.set_html_representation(item.a)
         return item.a
 
+    def add_divider(self):
+        divider = self.html_representation.add_child(Div(self.view))
+        divider.append_class('dropdown-divider')
+        return divider
 
 
 class DropdownMenuLayout(Layout):

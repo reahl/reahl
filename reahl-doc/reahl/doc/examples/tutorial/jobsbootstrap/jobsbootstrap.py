@@ -10,7 +10,7 @@ from reahl.web.fw import UserInterface, Widget
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, FieldSet
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 
 
@@ -24,7 +24,7 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout = ColumnLayout(('main', ResponsiveSize(md=4))).with_slots()
+        contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize(md=4))).with_slots()
         self.layout.contents.use_layout(contents_layout)
 
 
@@ -33,7 +33,7 @@ class AddressBookPanel(Div):
         super(AddressBookPanel, self).__init__(view)
 
         self.add_child(H(view, 1, text='Addresses'))
-        
+
         for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address))
 
@@ -87,4 +87,6 @@ class Address(Base):
 
     def save(self):
         Session.add(self)
+
+
 

@@ -85,7 +85,13 @@ class LibraryIndex(object):
 
     def __iter__(self):
         return iter(self.libraries_by_name.values())
-        
+
+    def prepend(self, library):
+        new_libraries = [library] + list(self.libraries_by_name.values())
+        self.libraries_by_name = OrderedDict()
+        for library in new_libraries:
+            self.add(library)
+
 
 class Library(object):
     """A frontend-library: a collection of CSS and JavaScript code that can be used with Reahl.
@@ -177,7 +183,7 @@ class JQuery(Library):
         self.files.append(file_name)
 
     def document_ready_material(self, rendered_page):
-        result = '\n<script type="text/javascript">\n'
+        result = '\n<script id="reahl-jqueryready" type="text/javascript">\n'
         result += 'jQuery(document).ready(function($){\n'
         result += '$(\'body\').addClass(\'enhanced\');\n'
         js = set()
@@ -194,9 +200,8 @@ class JQuery(Library):
         result += self.document_ready_material(rendered_page)
         return result
         
-        
 
-        
+
 class JQueryUI(Library):
     """A heavily customised subset of version 1.12.0 of `JQuery UI <https://jqueryui.com>`_.
     
@@ -270,21 +275,21 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.0.0 alpha 2 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.0.0 alpha 6 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super(Bootstrap4, self).__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.0.0-alpha.2/css/bootstrap.css',
-                      'bootstrap-4.0.0-alpha.2/css/bootstrap.css.map',
-                      'bootstrap-4.0.0-alpha.2/js/bootstrap.js'
+                      'bootstrap-4.0.0-alpha.6/css/bootstrap.css',
+                      'bootstrap-4.0.0-alpha.6/css/bootstrap.css.map',
+                      'bootstrap-4.0.0-alpha.6/js/bootstrap.js'
                       ]
 
 
     def header_only_material(self, rendered_page):
-        return '<meta http-equiv="x-ua-compatible" content="ie=edge">'\
-               '<meta name="viewport" content="width=device-width, initial-scale=1">' +\
+        return '<meta charset="utf-8">'\
+               '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">' +\
                super(Bootstrap4, self).header_only_material(rendered_page) 
 
 
@@ -315,11 +320,11 @@ class Tether(Library):
         super(Tether, self).__init__('tether')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'tether.1.1.1/css/tether.css',
-                      'tether.1.1.1/css/tether-theme-arrows.css',
-                      'tether.1.1.1/css/tether-theme-arrows-dark.css',
-                      'tether.1.1.1/css/tether-theme-basic.css',
-                      'tether.1.1.1/js/tether.js'
+                      'tether.1.4.0/css/tether.css',
+                      'tether.1.4.0/css/tether-theme-arrows.css',
+                      'tether.1.4.0/css/tether-theme-arrows-dark.css',
+                      'tether.1.4.0/css/tether-theme-basic.css',
+                      'tether.1.4.0/js/tether.js'
                       ]
 
 

@@ -42,7 +42,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.context import ExecutionContext
+from reahl.component.context import ExecutionContext, NoContextFound
 from reahl.component.config import StoredConfiguration
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.shelltools import Executable
@@ -158,7 +158,7 @@ class SingleWSGIRequestHandler(simple_server.WSGIRequestHandler):
             return
         finally:
             self.request.settimeout(None)
-            
+
         self.raw_requestline = self.raw_requestline + self.rfile.readline(65536)
         if len(self.raw_requestline) > 65536:
             self.requestline = ''
@@ -464,13 +464,13 @@ class ReahlWebServer(object):
             self.httpsd = SSLCapableWSGIServer.make_server('', https_port, certfile, self.reahl_wsgi_app)
         except socket.error as ex:
             message = ('Caught socket.error: %s\nThis means that another process is using one of these ports: %s, %s. ' % (ex, port, https_port)) \
-                     +'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html' \
-                      
+                     +'\nIf this happens while running tests, it probably means that a browser client did not close its side of a connection to a previous server you had running - and that the server socket now sits in TIME_WAIT state. Is there perhaps a browser hanging around from a previous run? I have no idea how to fix this automatically... see http://hea-www.harvard.edu/~fine/Tech/addrinuse.html'
+
             raise AssertionError(message)
 
-
-    def main_loop(self, context):
-        context.install()
+    def main_loop(self, context=None):
+        if context:
+            context.install()
         while self.running:
             try:
                 self.httpd.serve_async(in_separate_thread=self.in_separate_thread)
@@ -485,7 +485,11 @@ class ReahlWebServer(object):
     def start_thread(self):
         assert not self.running
         self.running = True
-        self.httpd_thread = Thread(target=functools.partial(self.main_loop, ExecutionContext.get_context()))
+        try:
+            context = ExecutionContext.get_context()
+        except NoContextFound:
+            context = None
+        self.httpd_thread = Thread(target=functools.partial(self.main_loop, context))
         self.httpd_thread.daemon = True
         self.httpd_thread.start()
 

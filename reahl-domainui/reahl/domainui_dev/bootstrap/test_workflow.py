@@ -35,7 +35,7 @@ from reahl.webdev.tools import Browser
 from reahl.web.fw import UserInterface, Url
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P
-from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, Container
+from reahl.web.bootstrap.grid import ResponsiveSize, ColumnLayout, ColumnOptions, Container
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
@@ -70,7 +70,7 @@ class WorkflowWebFixture(Fixture):
         class MainUI(UserInterface):
             def assemble(self):
                 self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
-                                                                  contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots()))
+                                                                  contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots()))
                 accounts = self.define_user_interface('/accounts', AccountUI, {'main_slot': 'main'},
                                                       name='test_ui', bookmarks=fixture.account_bookmarks)
                 login_bookmark = accounts.get_bookmark(relative_path='/login')
