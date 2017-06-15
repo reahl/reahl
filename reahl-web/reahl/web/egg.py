@@ -37,7 +37,8 @@ class WebConfig(Configuration):
                                      description='The name of this site\'s cookie in a user\'s a browser')
     guest_key_name = ConfigSetting(default='reahl-guest',
                                    description='The name of the cookie used to store information about anonymous visitors')
-    guest_key_lifetime = ConfigSetting(default=60*60*24*365, description='The expiry time in seconds of the anonymous visitors cookie')
+    guest_key_lifetime = ConfigSetting(default=60*60*24*365,
+                                       description='The expiry time in seconds of the anonymous visitors cookie')
 
     session_class = ConfigSetting(description='The class used for UserSessions',
                                   automatic=True)
@@ -61,11 +62,15 @@ class WebConfig(Configuration):
     default_url_locale = ConfigSetting(default='en_gb',
                                        description='The locale used when no locale is present in an URL')
     cache_max_age = ConfigSetting(default=10*60,
-                                       description='The max time (in seconds) a cacheable dynamic page should be cached for')
-    session_lifetime = ConfigSetting(default=60*60*24*7*2, description='The time in seconds a user session will be kept after last use')
-    idle_lifetime = ConfigSetting(default=60*60*2, description='The time in seconds after which a user session will be considered idle - normal setting')
-    idle_lifetime_max = ConfigSetting(default=60*60*24*7*2, description='The time in seconds after which a user session will be considered idle - "forever" setting')
-    idle_secure_lifetime = ConfigSetting(default=60*60, description='The time in seconds after which a secure session will be considered expired')
+                                  description='The max time (in seconds) a cacheable dynamic page should be cached for')
+    session_lifetime = ConfigSetting(default=60*60*24*7*2,
+                                     description='The time in seconds a user session will be kept after last use')
+    idle_lifetime = ConfigSetting(default=60*60*2,
+                                  description='The time in seconds after which a user session will be considered idle - normal setting')
+    idle_lifetime_max = ConfigSetting(default=60*60*24*7*2,
+                                      description='The time in seconds after which a user session will be considered idle - "forever" setting')
+    idle_secure_lifetime = ConfigSetting(default=60*60,
+                                         description='The time in seconds after which a secure session will be considered expired')
                                        
     @property
     def secure_key_name(self):
@@ -74,8 +79,7 @@ class WebConfig(Configuration):
     def __init__(self):
         super(WebConfig, self).__init__()
         # We create it here, so that each instance of a WebConfig will have its own LibraryIndex instance
-        self.frontend_libraries = LibraryIndex(JQuery(), JQueryUI(), HTML5Shiv(), IE9(), Reahl(), Holder(), Tether(), Bootstrap4(), ReahlBootstrap4Additions())
+        self.frontend_libraries = LibraryIndex(JQuery(), JQueryUI(), HTML5Shiv(), IE9(), Reahl(), Holder(),
+                                               Tether(),  # must be before Bootstrap in html script includes
+                                               Bootstrap4(), ReahlBootstrap4Additions())
 
-
-
-        

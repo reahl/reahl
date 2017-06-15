@@ -11,12 +11,12 @@ from reahl.web.fw import UserInterface, Widget
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, Div, P, H
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FieldSet, FormLayout, ButtonLayout
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.web.bootstrap.navs import Nav, PillLayout
 
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action
 from reahl.component.i18n import Translator
-import babel.dates 
+import babel.dates
 
 
 _ = Translator('reahl-doc')
@@ -26,8 +26,8 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout = ColumnLayout(('secondary', ResponsiveSize(md=3)),
-                                       ('main', ResponsiveSize(md=9))).with_slots()
+        contents_layout = ColumnLayout(ColumnOptions('secondary', size=ResponsiveSize(md=3)),
+                                       ColumnOptions('main', size=ResponsiveSize(md=9))).with_slots()
         self.layout.contents.use_layout(contents_layout)
         nav = Nav(view).use_layout(PillLayout(stacked=True))
         contents_layout.columns['secondary'].add_child(nav.with_languages())
@@ -45,7 +45,7 @@ class AddressBookPanel(Div):
         super(AddressBookPanel, self).__init__(view)
 
         self.add_child(H(view, 1, text=_.ngettext('Address', 'Addresses', Session.query(Address).count())))
-        
+
         for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address))
 
@@ -91,8 +91,10 @@ class Address(Base):
     def save(self):
         self.added_date = datetime.date.today()
         Session.add(self)
-        
+
     @exposed
     def events(self, events):
         events.save = Event(label=_('Save'), action=Action(self.save))
+
+
 

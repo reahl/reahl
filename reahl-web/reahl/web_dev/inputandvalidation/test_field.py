@@ -118,21 +118,20 @@ def test_remote_constraints(web_fixture, constraint_rendering_fixture):
 
     # A failing string value causes an ajax call resulting in an error
     web_fixture.driver_browser.type('//input[@type="text"]', 'failing_string_value')
-    web_fixture.driver_browser.press_tab('//input')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-    error_text = web_fixture.driver_browser.get_text("//form/label[@class='error']")
     assert fixture.is_error_text('an attribute is invalid')
 
     # A passing value causes an ajax call resulting in clearing of any previous errors
     web_fixture.driver_browser.type('//input[@type="text"]', 'passing value')
-    web_fixture.driver_browser.press_tab('//input')
+
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
     # A failing python value causes an ajax call resulting in an error
     web_fixture.driver_browser.type('//input[@type="text"]', 'failing_parsed_value')
-    web_fixture.driver_browser.press_tab('//input')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
-    error_text = web_fixture.driver_browser.get_text("//form/label[@class='error']")
     assert fixture.is_error_text('an attribute is invalid')
 
 
@@ -153,7 +152,7 @@ def test_required_constraint_js(web_fixture, constraint_rendering_fixture):
     web_fixture.driver_browser.open('/')
 
     web_fixture.driver_browser.type('//input[@type="text"]', 'something')
-    web_fixture.driver_browser.press_tab('//input')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
     web_fixture.driver_browser.type('//input[@type="text"]', '')
@@ -180,7 +179,7 @@ def test_min_length_constraint_js(web_fixture, constraint_rendering_fixture):
     web_fixture.driver_browser.open('/')
 
     web_fixture.driver_browser.type('//input[@type="text"]', '1234')
-    web_fixture.driver_browser.press_tab('//input')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
 
@@ -225,11 +224,11 @@ def test_pattern_constraint_js(web_fixture, constraint_rendering_fixture):
     web_fixture.driver_browser.open('/')
 
     web_fixture.driver_browser.type('//input[@type="text"]', 'aba')
-    web_fixture.driver_browser.press_tab('//input')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
     web_fixture.driver_browser.type('//input[@type="text"]', 'ababab')
-    web_fixture.driver_browser.press_tab('//input')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)
 
 
@@ -251,7 +250,7 @@ def test_allowed_values_constraint_js(web_fixture, constraint_rendering_fixture)
     web_fixture.driver_browser.open('/')
 
     web_fixture.driver_browser.type('//input[@type="text"]', 'ba')
-    web_fixture.driver_browser.press_tab('//input')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
 
 
@@ -283,12 +282,12 @@ def test_equal_to_constraint_js(web_fixture, constraint_rendering_fixture):
 
     web_fixture.driver_browser.open('/')
 
-    web_fixture.driver_browser.type('//input[@id="one"]', 'something else')
     web_fixture.driver_browser.type('//input[@id="other"]', 'something')
-    web_fixture.driver_browser.press_tab('//input[@id="one"]')
+    web_fixture.driver_browser.type('//input[@id="one"]', 'something else')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_visible(fixture.error_xpath)
     assert fixture.is_error_text('an attribute, other attribute')
 
     web_fixture.driver_browser.type('//input[@id="one"]', 'something')
-    web_fixture.driver_browser.press_tab('//input[@id="one"]')
+    web_fixture.driver_browser.press_tab()
     web_fixture.driver_browser.wait_for_element_not_visible(fixture.error_xpath)

@@ -5,7 +5,7 @@ from reahl.web.fw import UserInterface, Bookmark
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, P, H, Div
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import ColumnLayout, Container, ResponsiveSize
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, Container, ResponsiveSize
 from reahl.component.modelinterface import exposed, IntegerField
 
 
@@ -13,7 +13,7 @@ from reahl.component.modelinterface import exposed, IntegerField
 class WidgetRefreshUI(UserInterface):
     def assemble(self):
         page_layout = PageLayout(document_layout=Container(),
-                                 contents_layout=ColumnLayout(('main', ResponsiveSize(lg=6))).with_slots())
+                                 contents_layout=ColumnLayout(ColumnOptions('main', ResponsiveSize(lg=6))).with_slots())
         self.define_page(HTML5Page).use_layout(page_layout)
         find = self.define_view('/', title='Refreshing widget')
         find.set_slot('main', HomePanel.factory())
@@ -42,9 +42,12 @@ class RefreshedPanel(Div):
     @exposed
     def query_fields(self, fields):
         fields.selected = IntegerField(required=False, default=1)
-        
+
     def get_bookmark(self, for_selected):
         return Bookmark.for_widget('Select %s' % for_selected, query_arguments={'selected': for_selected}).on_view(self.view)
+
+
+
 
 
 

@@ -33,8 +33,8 @@ from reahl.component.i18n import Translator
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import ReahlWSGIApplication, UrlBoundView, UserInterface, Url, Widget
-from reahl.web.layout import PageLayout, ColumnLayout
-from reahl.web.ui import HTML5Page
+from reahl.web.ui import HTML5Page, Slot, Div
+from reahl.web.layout import Layout
 from reahl.web.egg import WebConfig
 
 
@@ -54,6 +54,36 @@ class ReahlWSGIApplicationStub(ReahlWSGIApplication):
         static_files_no_js = [packaged_file
                               for packaged_file in static_files if not packaged_file.relative_name.endswith('.js')]
         self.define_static_files('/static', static_files_no_js)
+
+
+class BasicPageLayout(Layout):
+    def __init__(self, slots=['main', 'footer']):
+        super(BasicPageLayout, self).__init__()
+        self.slots = slots
+
+    def customise_widget(self):
+        for slot_name in self.slots:
+            slot_div = self.widget.body.add_child(Div(self.view))
+            slot_div.append_class('column-%s' % slot_name)
+            slot_div.add_child(Slot(self.view, slot_name))
+
+
+from reahl.web.libraries import Library
+class FakeQUnit(Library):
+    """
+    """
+    def __init__(self):
+        super(FakeQUnit, self).__init__('fakequnit')
+        self.shipped_in_directory = '/reahl/web/static'
+        self.files = []
+
+    def footer_only_material(self, rendered_page):
+        result = super(FakeQUnit, self).footer_only_material(rendered_page)
+        result += '\n<script type="text/javascript">\n'
+        result += 'window.QUnit = true;'
+        result += '\n</script>\n'
+        return result
+
 
 
 @uses(reahl_system_fixture=ReahlSystemFixture, sql_alchemy_fixture=SqlAlchemyFixture,
@@ -84,6 +114,7 @@ class WebFixture(Fixture):
         web.persisted_exception_class = PersistedException
         web.persisted_file_class = PersistedFile
         web.persisted_userinput_class = UserInput
+        web.frontend_libraries.prepend(FakeQUnit())
         return web
 
     def new_request(self, path=None, url_scheme=None):
@@ -128,21 +159,18 @@ class WebFixture(Fixture):
     def reahl_server(self):
         return self.web_server_fixture.reahl_server
 
-    def new_wsgi_app(self, site_root=None, enable_js=False,
-                         config=None, view_slots=None, child_factory=None):
+    def new_wsgi_app(self, site_root=None, enable_js=False, config=None, child_factory=None):
         wsgi_app_class = ReahlWSGIApplicationStub
         if enable_js:
             wsgi_app_class = ReahlWSGIApplication
-        view_slots = view_slots or {}
         child_factory = child_factory or Widget.factory()
-        if 'main' not in view_slots:
-            view_slots['main'] = child_factory
         config = config or self.config
 
         class MainUI(UserInterface):
             def assemble(self):
-                self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout(*view_slots.keys()).with_slots()))
-                self.define_view('/', title='Home page', slot_definitions=view_slots)
+                self.define_page(HTML5Page).use_layout(BasicPageLayout())
+                view = self.define_view('/', title='Home page')
+                view.set_slot('main', child_factory)
 
         site_root = site_root or MainUI
         config.web.site_root = site_root
@@ -154,7 +182,7 @@ class WebFixture(Fixture):
 
     def new_view(self):
         current_path = Url(ExecutionContext.get_context().request.url).path
-        view = UrlBoundView(self.user_interface, current_path, 'A view', {})
+        view = UrlBoundView(self.user_interface, current_path, 'A view')
         return view
 
     def new_user_interface(self):

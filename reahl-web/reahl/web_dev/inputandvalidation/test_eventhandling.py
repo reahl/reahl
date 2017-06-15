@@ -34,12 +34,10 @@ from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
 from reahl.sqlalchemysupport import Session
 from reahl.web.fw import Url, UserInterface, ValidationException
-from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm
 
-from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.dev.fixtures import ReahlSystemFixture
-from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 
 @with_fixtures(WebFixture)
@@ -69,7 +67,7 @@ def test_basic_event_linkup(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
@@ -115,7 +113,7 @@ def test_arguments_to_actions(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform'))
@@ -189,7 +187,7 @@ def test_basic_field_linkup(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             home.set_slot('main', MyForm.factory('myform'))
 
@@ -326,7 +324,7 @@ def test_exception_handling(reahl_system_fixture, web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
@@ -385,7 +383,7 @@ def test_duplicate_forms(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main', 'secondary').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout(slots=['main', 'secondary']))
             home = self.define_view('/', title='Home page')
             home.set_slot('main', Form.factory('myform'))
             home.set_slot('secondary', Form.factory('myform'))
@@ -413,7 +411,7 @@ def test_check_input_placement(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            page = self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            page = self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             home.set_slot('main', MyForm.factory())
 
@@ -559,7 +557,7 @@ def test_form_input_validation(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
@@ -573,7 +571,7 @@ def test_form_input_validation(web_fixture):
     fixture.driver_browser.open('/')
     fixture.driver_browser.wait_for_element_not_visible(error_xpath)
     fixture.driver_browser.type('//input[@type="text"]', 'not@notvalid')
-    fixture.driver_browser.press_tab('//input')
+    fixture.driver_browser.press_tab()
     fixture.driver_browser.wait_for_element_visible(error_xpath)
 
     with fixture.driver_browser.no_page_load_expected():
@@ -696,7 +694,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
@@ -739,7 +737,7 @@ def test_event_names_are_canonicalised(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             home.set_slot('main', MyForm.factory('myform'))
 
@@ -779,7 +777,7 @@ def test_alternative_event_trigerring(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             home = self.define_view('/', title='Home page')
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))

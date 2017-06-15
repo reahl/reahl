@@ -416,5 +416,5 @@ def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
     browser.open('/')
 
     browser.type(XPath.input_named('an_attribute'), '20 November 2012')
-    browser.press_tab(XPath.input_named('an_attribute'))
+    browser.press_tab()
     browser.wait_for(browser.is_element_value, XPath.input_named('an_attribute'), '20 Nov 2012')

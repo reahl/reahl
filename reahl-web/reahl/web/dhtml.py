@@ -120,8 +120,9 @@ class DhtmlUI(UserInterface):
         logging.debug('Finding a static file on filesystem %s' % filename)
         if self.is_dynamic(filename):
             statics = self.statics(file_url_path)
-            slot_contents = {'main_slot': DJHTMLWidget.factory(statics['div'])}
-            return UrlBoundView(user_interface, file_url_path, statics['title'], slot_contents, cacheable=True)
+            view = UrlBoundView(user_interface, file_url_path, statics['title'], cacheable=True)
+            view.set_slot('main_slot', DJHTMLWidget.factory(statics['div']))
+            return view
         elif self.is_static(filename):
             return FileView(user_interface, FileOnDisk(filename, file_url_path))
         raise CannotCreate()

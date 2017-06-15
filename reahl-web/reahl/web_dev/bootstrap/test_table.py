@@ -61,12 +61,7 @@ class LayoutScenarios(Fixture):
         self.expected_css_class = 'table-sm'
 
     @scenario
-    def transposed(self):
-        self.layout_kwargs = dict(transposed=True)
-        self.expected_css_class = 'table-reflow'
-
-    @scenario
-    def transposed(self):
+    def responsive(self):
         self.layout_kwargs = dict(responsive=True)
         self.expected_css_class = 'table-responsive'
 
@@ -78,6 +73,42 @@ def test_table_layout_options(web_fixture, layout_scenarios):
     layout = TableLayout(**layout_scenarios.layout_kwargs)
     Table(web_fixture.view).use_layout(layout)
     assert layout.widget.get_attribute('class') == 'table %s' % layout_scenarios.expected_css_class
+
+
+class LayoutHeaderThemeScenarios(WebFixture):
+
+    @scenario
+    def no_theme(self):
+        self.theme = None
+
+    @scenario
+    def inverse(self):
+        self.theme = 'inverse'
+        self.expected_css_class = 'thead-inverse'
+
+    @scenario
+    def default(self):
+        self.theme = 'default'
+        self.expected_css_class = 'thead-default'
+
+
+@with_fixtures(WebFixture, LayoutHeaderThemeScenarios)
+def test_table_layout_header_options(web_fixture, layout_scenarios):
+    """TableLayout can style a table header row."""
+
+    data = [DataItem(1, 'T'), DataItem(2, 'H'), DataItem(3, 'E')]
+
+    column_definitions = [StaticColumn(Field(label='Row Number'), 'row'),
+                          StaticColumn(Field(label='Alpha'), 'alpha')]
+
+    layout = TableLayout(heading_theme=layout_scenarios.theme)
+    table = Table(web_fixture.view).with_data(column_definitions, data)
+    table.use_layout(layout)
+
+    if layout_scenarios.theme is not None:
+        assert layout.widget.thead.get_attribute('class') == '%s' % layout_scenarios.expected_css_class
+    else:
+        assert not layout.widget.thead.has_attribute('class')
 
 
 class DataItem(reahl.web_dev.widgets.test_table.DataItem):

@@ -24,10 +24,9 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.webdev.tools import Browser
 
 from reahl.web.fw import UserInterface, Widget, FactoryDict, UserInterfaceFactory, RegexPath, UrlBoundView
-from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page, P, A, Div, Slot
 
-from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 
 @with_fixtures(WebFixture)
@@ -69,7 +68,7 @@ def test_ui_slots_map_to_window(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui',  UIWithSlots,  {'text': 'main'}, name='myui')
 
     fixture = web_fixture
@@ -122,7 +121,7 @@ def test_ui_arguments(web_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/a_ui', UIWithArguments, {'text': 'main'},
                             name='myui', kwarg='the kwarg')
 
@@ -144,7 +143,7 @@ def test_bookmarks(web_fixture):
     """
     fixture = web_fixture
     user_interface = UserInterface(None, '/a_ui', {}, False, 'test_ui')
-    view = UrlBoundView(user_interface, '/aview', 'A View title', {})
+    view = UrlBoundView(user_interface, '/aview', 'A View title')
     bookmark = view.as_bookmark()
 
     # What the bookmark knows
@@ -165,7 +164,7 @@ def test_bookmarks_overrides(web_fixture):
     fixture = web_fixture
 
     user_interface = UserInterface(None, '/a_ui', {}, False, 'test_ui')
-    view = UrlBoundView(user_interface, '/aview', 'A View title', {})
+    view = UrlBoundView(user_interface, '/aview', 'A View title')
     bookmark = view.as_bookmark(description='different description',
                                 query_arguments={'arg1': 'val1'},
                                 locale='af')

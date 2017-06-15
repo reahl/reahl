@@ -26,10 +26,9 @@ from reahl.webdev.tools import Browser
 from reahl.component.context import ExecutionContext
 from reahl.web.dhtml import DhtmlUI, DHTMLFile
 from reahl.web.fw import UserInterface
-from reahl.web.layout import PageLayout, ColumnLayout
 from reahl.web.ui import HTML5Page
 
-from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 
 class DhtmlFixture(Fixture):
@@ -70,7 +69,7 @@ def test_basic_workings(web_fixture, dhtml_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
                             name='test_ui', static_div_name='astatic')
 
@@ -109,7 +108,7 @@ def test_i18n_dhtml(web_fixture, dhtml_fixture):
 
     class MainUI(UserInterface):
         def assemble(self):
-            self.define_page(HTML5Page).use_layout(PageLayout(contents_layout=ColumnLayout('main').with_slots()))
+            self.define_page(HTML5Page).use_layout(BasicPageLayout())
             self.define_user_interface('/dhtml_ui', DhtmlUI, {'main_slot': 'main'},
                                        name='test_ui', static_div_name='astatic')
 

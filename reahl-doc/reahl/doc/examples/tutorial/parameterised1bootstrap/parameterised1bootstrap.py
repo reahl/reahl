@@ -12,7 +12,7 @@ from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.ui import HTML5Page, Div, P, H, A
 from reahl.web.bootstrap.forms import Form, TextInput, Button, FormLayout, ButtonLayout, FieldSet
 from reahl.web.bootstrap.navs import Nav, TabLayout
-from reahl.web.bootstrap.grid import ColumnLayout, ResponsiveSize, Container
+from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize, Container
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, IntegerField, Action
 
 
@@ -20,7 +20,7 @@ class AddressBookPage(HTML5Page):
     def __init__(self, view, main_bookmarks):
         super(AddressBookPage, self).__init__(view)
         self.use_layout(PageLayout(document_layout=Container()))
-        contents_layout=ColumnLayout(('main', ResponsiveSize())).with_slots()
+        contents_layout=ColumnLayout(ColumnOptions('main', size=ResponsiveSize())).with_slots()
         self.layout.contents.use_layout(contents_layout)
         self.layout.header.add_child(Nav(view).use_layout(TabLayout()).with_bookmarks(main_bookmarks))
 
@@ -65,7 +65,7 @@ class AddressBookPanel(Div):
         super(AddressBookPanel, self).__init__(view)
 
         self.add_child(H(view, 1, text='Addresses'))
-        
+
         for address in Session.query(Address).all():
             self.add_child(AddressBox(view, address, address_book_ui))
 
@@ -109,7 +109,7 @@ class AddressBox(Widget):
 
 class Address(Base):
     __tablename__ = 'tutorial_parameterised1bootstrap_address'
-    
+
     id            = Column(Integer, primary_key=True)
     email_address = Column(UnicodeText)
     name          = Column(UnicodeText)
@@ -126,5 +126,8 @@ class Address(Base):
 
     def save(self):
         Session.add(self)
+
+
+
 
 

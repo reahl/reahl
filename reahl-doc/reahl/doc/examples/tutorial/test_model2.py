@@ -18,17 +18,22 @@ class Address(Base):
 
 
 def test_model():
-    metadata.bind = 'sqlite:///:memory:'
-    metadata.create_all()
     ExecutionContext().install()
 
-    Address(name='John', email_address='john@world.com').save()
-    Address(name='Jane', email_address='jane@world.com').save()
+    try:
+        metadata.bind = 'sqlite:///:memory:'
+        metadata.create_all()
 
-    addresses = Session.query(Address).all()
+        Address(name='John', email_address='john@world.com').save()
+        Address(name='Jane', email_address='jane@world.com').save()
 
-    assert addresses[0].name == 'John'
-    assert addresses[0].email_address == 'john@world.com'
+        addresses = Session.query(Address).all()
 
-    assert addresses[1].name == 'Jane'
-    assert addresses[1].email_address == 'jane@world.com'
+        assert addresses[0].name == 'John'
+        assert addresses[0].email_address == 'john@world.com'
+
+        assert addresses[1].name == 'Jane'
+        assert addresses[1].email_address == 'jane@world.com'
+
+    finally:
+        metadata.bind = None

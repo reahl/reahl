@@ -303,7 +303,14 @@ class HTMLElement(Widget):
         self._css_id = value
         self.set_attribute('id', value)
     css_id = property(get_css_id, set_css_id)
-    
+
+    def generate_random_css_id(self):
+        if not self.css_id_is_set:
+            self.set_css_id('tmpid-%s-%s' % (id(self), time.time()))
+        else:
+            raise ProgrammerError('%s already has a css_id set, will not overwrite it!' % self)
+        return self.css_id
+
     def contextualise_selector(self, selector, context):
         """Returns a JQuery selector for finding `selector` within the elements matched by `context` (another selector)."""
         context_str = ', "%s"' % context if context else ''
@@ -1116,6 +1123,7 @@ class FieldSet(HTMLElement):
     """
     def __init__(self, view, legend_text=None, css_id=None):
         super(FieldSet, self).__init__(view, 'fieldset', children_allowed=True, css_id=css_id)
+        self.legend = None
         if legend_text:
             self.legend = self.add_child(Legend(view, text=legend_text))
 
@@ -1206,7 +1214,7 @@ class HTMLWidget(Widget):
         
     def set_html_representation(self, widget):
         self.html_representation = widget
-        
+
     def append_class(self, css_class):
         """Adds the word `css_class` to the "class" attribute of the HTMLElement which represents this Widget in HTML to the user."""
         self.html_representation.append_class(css_class)
@@ -1318,8 +1326,7 @@ class WrappedInput(Input):
 class PrimitiveInput(Input):
     is_for_file = False
     registers_with_form = True
-    add_default_attribute_source = True
-    
+
     def __init__(self, form, bound_field, name=None):
         super(PrimitiveInput, self).__init__(form, bound_field)
         self.name = name
@@ -1341,8 +1348,6 @@ class PrimitiveInput(Input):
            .. versionadded: 3.2
         """
         html_widget = HTMLElement(self.view, 'input')
-        if self.add_default_attribute_source:
-            html_widget.add_attribute_source(ValidationStateAttributes(self))
         if self.name:
             html_widget.set_attribute('name', self.name)
         if self.disabled:
@@ -1476,8 +1481,6 @@ class TextArea(PrimitiveInput):
 
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
-        if self.add_default_attribute_source:
-            html_text_area.add_attribute_source(ValidationStateAttributes(self))
         html_text_area.set_attribute('name', self.name)
         if self.disabled:
             html_text_area.set_attribute('disabled', 'disabled')
@@ -1549,8 +1552,6 @@ class SelectInput(PrimitiveInput):
     """
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
-        if self.add_default_attribute_source:
-            html_select.add_attribute_source(ValidationStateAttributes(self))
         html_select.set_attribute('name', self.name)
         if self.disabled:
             html_select.set_attribute('disabled', 'disabled')
@@ -1828,7 +1829,7 @@ class Label(HTMLElement):
         super(Label, self).__init__(view, 'label', children_allowed=True, css_id=css_id)
         self.for_input = for_input
         if self.for_input and self.for_input.html_control and not self.for_input.html_control.css_id_is_set:
-            self.for_input.html_control.set_id('tmpid-%s-%s' % (id(self), time.time()))
+            self.for_input.html_control.generate_random_css_id()
         if text or for_input:
             self.text_node = self.add_child(TextNode(view, text or for_input.label))
 

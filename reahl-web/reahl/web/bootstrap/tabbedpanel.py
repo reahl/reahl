@@ -1,5 +1,5 @@
 # Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
 #
@@ -25,6 +25,7 @@ panel.
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+# noinspection PyUnresolvedReferences
 import six
 
 from reahl.component.modelinterface import exposed, Field
@@ -65,6 +66,7 @@ class TabbedPanel(Widget):
         return self.tab is not None
 
     def set_active(self, tab):
+        # noinspection PyAttributeOutsideInit
         self.tab = tab.default_active_tab_key
 
     def is_currently_open(self, tab):
@@ -108,7 +110,8 @@ class Tab(object):
     :param view: (See :class:`reahl.web.fw.Widget`)
     :param title: The label Text that is displayed inside the Tab itself.
     :param tab_key: A name for this tag identifying it uniquely amongst other Tabs in the same :class:`TabbedPanel`.
-    :param contents_factory: A :class:`reahl.web.fw.WidgetFactory` specifying how to create the contents of this Tab, once selected.
+    :param contents_factory: A :class:`reahl.web.fw.WidgetFactory` specifying how to create the contents of this Tab, 
+                            once selected.
     """
     def __init__(self, view, title, tab_key, contents_factory):
         self.title = title
@@ -189,7 +192,7 @@ class MultiTab(Tab):
         super(MultiTab, self).__init__(view, title, tab_key, None)
         
     def add_tab(self, tab):
-        menu_item = tab.add_to_menu(self.menu)
+        tab.add_to_menu(self.menu)
         tab.set_panel(self.panel)
         self.tabs.append(tab)
         return tab

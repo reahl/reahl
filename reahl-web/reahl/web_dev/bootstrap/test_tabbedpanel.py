@@ -106,7 +106,7 @@ def test_tabs_with_sub_options(web_fixture):
     expected_html = \
      '''<ul class="nav nav-tabs reahl-menu">'''\
      '''<li class="dropdown nav-item">'''\
-      '''<a data-target="-" data-toggle="dropdown" href="/?open_item=tab+1+name&amp;tab=mult2" class="active dropdown-toggle nav-link reahl-ajaxlink">tab 1 name<span class="caret"></span></a>'''\
+      '''<a aria-haspopup="true" data-target="-" data-toggle="dropdown" href="/?open_item=tab+1+name&amp;tab=mult2" role="button" class="active dropdown-toggle nav-link reahl-ajaxlink">tab 1 name<span class="caret"></span></a>'''\
       '''<div class="dropdown-menu">'''\
        '''<a data-target="#tab_mult1" data-toggle="tab" href="/?tab=mult1" class="dropdown-item">multi tab 1</a>'''\
        '''<a data-target="#tab_mult2" data-toggle="tab" href="/?tab=mult2" class="active dropdown-item">multi tab 2</a>'''\
@@ -293,7 +293,6 @@ def test_clicking_on_sub_tab_switches(web_fixture, panel_switch_fixture, tabbed_
     if not panel_switch_fixture.enable_js:
         panel_switch_fixture.ensure_disabled_js_files_not_cached()
 
-
     wsgi_app = tabbed_panel_ajax_fixture.new_wsgi_app(enable_js=panel_switch_fixture.enable_js)
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
@@ -319,8 +318,13 @@ def test_clicking_on_sub_tab_switches(web_fixture, panel_switch_fixture, tabbed_
     # Clicking away from the multitab sub-tab removes its active status
     browser.click(XPath.link_with_text('tab 3 name'))
     # tab2 is not active anymore
-    if panel_switch_fixture.enable_js:
-        pass
-        ### assert None, 'This is a bug in bootstrap v4.0 alpha javascript'
-    else:
-        assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 2 name')
+    assert browser.wait_for_not(tabbed_panel_ajax_fixture.tab_is_active, 'tab 2 name')
+    # TODO: cs Remove the next commented code - there used to be a problem with bootstrap4 alpha
+    # tab2 is not active anymore
+    # if fixture.enable_js:
+    #    pass
+    #    ### assert None, 'This is a bug in bootstrap v4.0 alpha javascript'
+    # else:
+    #     vassert( fixture.driver_browser.wait_for_not(fixture.tab_is_active, 'tab 2 name') )
+
+

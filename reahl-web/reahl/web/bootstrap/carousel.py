@@ -26,7 +26,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 from reahl.web.fw import Widget, Url
-from reahl.web.ui import HTMLAttributeValueOption, HTMLElement
+from reahl.web.ui import HTMLAttributeValueOption, HTMLElement, Img
 from reahl.web.bootstrap.ui import Div, A, Span, Li, Ol, TextNode
 from reahl.component.i18n import Translator
 
@@ -41,6 +41,10 @@ class Slide(Div):
         self.add_child(widget)
         if self.is_active:
             self.append_class('active')
+
+        if isinstance(widget, Img):
+            widget.append_class('d-block')
+            widget.append_class('img-fluid')
 
         if caption_widget:
             self.add_child(self.create_caption(caption_widget))
@@ -98,7 +102,7 @@ class Carousel(Widget):
         self.inner = self.carousel_panel.add_child(self.create_inner())
         self.slides = []
 
-        self.add_control(left=True)
+        self.add_control(previous=True)
         self.add_control()
 
     def create_inner(self):
@@ -128,18 +132,17 @@ class Carousel(Widget):
     def url(self):
         return Url('#%s' % self.carousel_panel.css_id)
 
-    def add_control(self, left=False):
+    def add_control(self, previous=False):
         control_a = self.carousel_panel.add_child(A(self.view, self.url))
-        control_a.append_class('carousel-control')
-        control_a.append_class('left' if left else 'right')
+        control_a.append_class('carousel-control-prev' if previous else 'carousel-control-next')
         control_a.set_attribute('role', 'button')
-        control_a.set_attribute('data-slide', 'prev' if left else 'next')
+        control_a.set_attribute('data-slide', 'prev' if previous else 'next')
 
         span_icon = control_a.add_child(Span(self.view))
-        span_icon.append_class('icon-%s' % ('prev' if left else 'next'))
+        span_icon.append_class('carousel-control-%s-icon' % ('prev' if previous else 'next'))
         span_icon.set_attribute('aria-hidden', 'true')
 
-        span_text = control_a.add_child(Span(self.view, text=_('Previous') if left else _('Next')))
+        span_text = control_a.add_child(Span(self.view, text=_('Previous') if previous else _('Next')))
         span_text.append_class('sr-only')
 
         return control_a
