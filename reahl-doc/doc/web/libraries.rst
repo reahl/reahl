@@ -35,12 +35,6 @@ JQuery
    :members:
 
 
-Pure
-""""
-.. autoclass:: Pure
-   :members:
-
-
 Bootstrap4
 """"""""""
 
@@ -86,9 +80,4 @@ JQueryUI
 .. autoclass:: JQueryUI
    :members:
 
-
-YuiGridsCss
-"""""""""""
-.. autoclass:: YuiGridsCss
-   :members:
 

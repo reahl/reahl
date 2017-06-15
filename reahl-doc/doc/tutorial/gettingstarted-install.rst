@@ -6,9 +6,11 @@ Reahl installation
 .. toctree::
    :hidden:
 
+   install-vagrant
    install-ubuntu
    install-mac
    install-win
+
 
 
 We recommend installing Reahl within a sandboxed Python environment
@@ -17,6 +19,10 @@ Doing this means that your main Python installation is left in the
 state it currently is, and that you do not need permissions of
 restricted users to install all the extra Python packages when
 developing.
+
+If you use `Vagrant <https://www.vagrantup.com>`_, you can skip all
+the installation steps here and `instead use our prepared Vagrant box
+<install-vagrant>`.
 
 
 .. sidebar:: The bottom line
@@ -43,8 +49,8 @@ developing.
 
 .. _prep_install:
 
-Prepare your platform for Python development
---------------------------------------------
+Prepare your platform
+---------------------
 
 Before you can install Reahl itself, you need to install several
 pieces of software on your platform (including Python and several

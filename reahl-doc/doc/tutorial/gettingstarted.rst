@@ -14,7 +14,7 @@ Getting started with Reahl
 
     - `virtualenv <https://pypi.python.org/pypi/virtualenv>`_
     - `setuptools <https://pypi.python.org/pypi/setuptools/>`_
-    - `nosetests <https://nose.readthedocs.org/en/latest/>`_
+    - `pytest <https://pytest.org/>`_
     - `SqlAlchemy <http://www.sqlalchemy.org/>`_; and
     - `Alembic <https://pypi.python.org/pypi/alembic/>`_.
 

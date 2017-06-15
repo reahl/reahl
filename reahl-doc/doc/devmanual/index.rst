@@ -6,10 +6,12 @@ Documentation for developers
 .. toctree::
    :maxdepth: 3
 
-   How to contribute <contributing>
+   Reahl source code <sourcecode>
+   Development environment <devenv>
    Coding and design conventions <conventions>
-   Understanding Reahl code <design>
-   Developing custom Widgets <widgetdevelopment>
-   Set up your development environment <devenv>
-   Testing infrastructure <testing>
-   Continuous integration and release process <ciprocesses>
+   Testing infrastructure <testing> ??
+
+..   How to contribute <contributing>
+     Understanding Reahl code <design>
+     Continuous integration and release process <ciprocesses>
+     Developing custom Widgets <widgetdevelopment>
