@@ -1582,6 +1582,65 @@ class SelectInput(PrimitiveInput):
             return super(SelectInput, self).get_value_from_input(input_values)
 
 
+class CheckboxOption(Option):
+    def create_html_widget(self):
+        option = HTMLElement(self.view, 'input', children_allowed=True)
+        option.add_child(TextNode(self.view, self.label))
+        option.set_attribute('name', self.select_input.name)
+        option.set_attribute('type', 'checkbox')
+        if self.selected:
+            option.set_attribute('value', self.value)
+            option.set_attribute('checked', 'checked')
+        return option
+
+
+class SelectMultipleCheckboxInput(PrimitiveInput):
+    """An Input that lets the user select many :class:`reahl.component.modelinterface.Choice` from the rendered list
+        by checking the associated checkbox.
+
+       .. admonition:: Styling
+
+          Represented in HTML as a  ...
+
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :param legend_text: The text to use as a description or heading for the list of choices.
+    """
+    def __init__(self, form, bound_field, legend_text=None):
+        # TODO:cs finish docs, puml, tutorial/example
+        self.legend_text = legend_text
+        self.name = bound_field.name
+        super(SelectMultipleCheckboxInput, self).__init__(form, bound_field)
+
+    def create_html_widget(self):
+        grouped_inputs = FieldSet(self.view, legend_text=self.legend_text)
+
+        common_parent = self
+
+        def create_checkbox(choice):
+            checkbox = CheckboxOption(common_parent, choice)
+            checkbox.set_attribute('form', self.form.css_id)
+            return checkbox
+
+        for choice_or_group in self.bound_field.grouped_choices:
+            checkboxes = [create_checkbox(choice) for choice in choice_or_group.choices]
+            grouped_inputs.add_children(checkboxes)
+
+        return grouped_inputs
+
+    def is_selected(self, choice):
+        if self.bound_field.allows_multiple_selections:
+            return choice.as_input() in self.value
+        else:
+            return self.value == choice.as_input()
+
+    def get_value_from_input(self, input_values):
+        if self.bound_field.allows_multiple_selections:
+            return input_values.get(self.name, '')
+        else:
+            return super(SelectMultipleCheckboxInput, self).get_value_from_input(input_values)
+
+
 class SingleRadioButton(InputTypeInput):
     registers_with_form = False
 
@@ -1744,8 +1803,6 @@ class CheckboxInput(InputTypeInput):
         if self.name in input_values:
             return self.bound_field.true_value
         return self.bound_field.false_value
-
-
 
 
 class ButtonInput(PrimitiveInput):

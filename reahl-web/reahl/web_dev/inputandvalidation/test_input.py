@@ -24,7 +24,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import EmptyStub
 
 from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
-                          PasswordInput, TextArea, SelectInput, RadioButtonInput
+                          PasswordInput, TextArea, SelectInput, RadioButtonInput, SelectMultipleCheckboxInput
 
 from reahl.component.modelinterface import Field, EmailField, BooleanField, Event, Allowed, exposed, \
     Action, Choice, ChoiceGroup, ChoiceField, IntegerField, MultiChoiceField, DateField
@@ -258,6 +258,26 @@ class InputScenarios(SimpleInputFixture):
         self.field_controls_visibility = True
 
     @scenario
+    def checkbox_input_multi(self):
+        selected_checkboxes = [2, 3]
+        self.model_object.an_attribute = selected_checkboxes
+
+        choices = [Choice(1, IntegerField(label='One')),
+                   Choice(2, IntegerField(label='Two')),
+                   Choice(3, IntegerField(label='Three'))
+                  ]
+        self.field = MultiChoiceField(choices)
+        self.field.bind('an_attribute', self.model_object)
+
+        self.widget = self.form.add_child(SelectMultipleCheckboxInput(self.form, self.field))
+        not_checked_option = r'<input name="an_attribute" form="test" type="checkbox">One</input>'
+        checked_options = r'<input name="an_attribute" checked="checked" form="test" type="checkbox" value="2">Two</input>'
+        checked_options += r'<input name="an_attribute" checked="checked" form="test" type="checkbox" value="3">Three</input>'
+        options = not_checked_option + checked_options
+        self.expected_html = r'<fieldset>%s</fieldset>' % (options)
+        self.field_controls_visibility = True
+
+    @scenario
     def radio_button(self):
         self.model_object.an_attribute = 2
 
@@ -283,8 +303,8 @@ class InputScenarios(SimpleInputFixture):
         self.field_controls_visibility = True
 
 
-@with_fixtures(WebFixture, InputScenarios)
-def test_basic_rendering(web_fixture, input_scenarios):
+@with_fixtures(InputScenarios)
+def test_basic_rendering(input_scenarios):
     """What the rendered html for a number of simple inputs look like."""
 
     fixture = input_scenarios
@@ -294,8 +314,8 @@ def test_basic_rendering(web_fixture, input_scenarios):
     assert re.match(fixture.expected_html, actual)
 
 
-@with_fixtures(WebFixture, InputScenarios)
-def test_rendering_when_not_allowed(web_fixture, input_scenarios):
+@with_fixtures(InputScenarios)
+def test_rendering_when_not_allowed(input_scenarios):
     """When not allowed to see the Widget, it is not rendered."""
     fixture = input_scenarios
 
@@ -310,8 +330,8 @@ def test_rendering_when_not_allowed(web_fixture, input_scenarios):
         assert re.match(fixture.expected_html, actual)
 
 
-@with_fixtures(WebFixture, FieldFixture, SimpleInputFixture)
-def test_input_wrapped_widgets(web_fixture, field_fixture, simple_input_fixture):
+@with_fixtures(FieldFixture, SimpleInputFixture)
+def test_input_wrapped_widgets(field_fixture, simple_input_fixture):
     """An Input is an empty Widget; its contents are supplied by overriding its 
        .create_html_widget() method. Several methods for setting HTML-things, like 
        css id are delegated to this Widget which represents the Input in HTML.
@@ -337,8 +357,8 @@ def test_input_wrapped_widgets(web_fixture, field_fixture, simple_input_fixture)
     assert rendered == '<x id="myid" an-attribute="a value" list-attribute="one two" title="mytitle">'
 
 
-@with_fixtures(WebFixture, SimpleInputFixture)
-def test_wrong_args_to_input(web_fixture, simple_input_fixture):
+@with_fixtures(SimpleInputFixture)
+def test_wrong_args_to_input(simple_input_fixture):
     """Passing the wrong arguments upon constructing an Input results in an error."""
 
     fixture = simple_input_fixture
