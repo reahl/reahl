@@ -1680,7 +1680,6 @@ class SingleRadioButton(InputTypeInput):
         return self.radio_button_input.value == self.value
 
 
-
 class RadioButtonInput(PrimitiveInput):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a list of valid ones
        shown as radio buttons.

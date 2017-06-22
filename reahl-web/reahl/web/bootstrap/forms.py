@@ -31,7 +31,7 @@ from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.component.i18n import Translator
 
 import reahl.web.ui
-from reahl.web.ui import Label, HTMLAttributeValueOption
+from reahl.web.ui import Label, HTMLAttributeValueOption, PrimitiveInput
 from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet
 from reahl.web.bootstrap.grid import ColumnLayout
 
@@ -124,7 +124,7 @@ class SelectInput(reahl.web.ui.SelectInput):
 PrimitiveCheckboxInput = reahl.web.ui.CheckboxInput
 
 
-class CheckboxInput(WrappedInput):
+class CheckboxInput(PrimitiveInput):
     """A checkbox (with its label).
 
        :param form: (See :class:`~reahl.web.ui.Input`)
@@ -132,11 +132,18 @@ class CheckboxInput(WrappedInput):
        :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the many checkboxes in this input.
     """
     def __init__(self, form, bound_field, contents_layout=None):
-        super(CheckboxInput, self).__init__(PrimitiveCheckboxInput(form, bound_field))
-        div = Div(self.view).use_layout(contents_layout or ChoicesLayout(inline=False))
-        div.layout.add_choice(self.input_widget)
-        self.add_child(div)
-        self.set_html_representation(div)
+        self.contents_layout = contents_layout
+        super(CheckboxInput, self).__init__(form, bound_field)
+
+    def create_html_widget(self):
+        self.checkbox_input = PrimitiveCheckboxInput(self.form, self.bound_field)
+        div = Div(self.view).use_layout(self.contents_layout or ChoicesLayout(inline=False))
+        div.layout.add_choice(self.checkbox_input)
+        return div
+
+    @property
+    def html_control(self):
+        return self.checkbox_input
 
     @property
     def includes_label(self):
@@ -144,7 +151,7 @@ class CheckboxInput(WrappedInput):
         
     @property
     def jquery_selector(self):
-        return '%s.closest("div")' % (self.input_widget.jquery_selector)
+        return '%s.closest("div")' % self.html_control.jquery_selector
         
 
 class PrimitiveRadioButtonInput(reahl.web.ui.SingleRadioButton):
