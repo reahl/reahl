@@ -28,7 +28,7 @@ from reahl.component.modelinterface import exposed, Field, BooleanField, Event, 
 from reahl.web.fw import Url
 from reahl.web.bootstrap.ui import A, Div, FieldSet
 from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
-                                   TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonInput, ButtonLayout
+                                   TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonSelectInput, ButtonLayout
 from reahl.web.bootstrap.grid import ResponsiveSize
 
 from reahl.web_dev.fixtures import WebFixture
@@ -415,10 +415,10 @@ class RadioButtonFixture(ChoicesFixture):
 
 @with_fixtures(RadioButtonFixture)
 def test_radio_button_basics(radio_button_fixture):
-    """A RadioButtonInput consists of a labelled radio button for each choice, rendered stacked on one another."""
+    """A RadioButtonSelectInput consists of a labelled radio button for each choice, rendered stacked on one another."""
     fixture = radio_button_fixture
 
-    stacked_radio = RadioButtonInput(fixture.form, fixture.field)
+    stacked_radio = RadioButtonSelectInput(fixture.form, fixture.field)
     [container] = stacked_radio.children
     [choice1_container, choice2_container] = container.children
 
@@ -437,10 +437,10 @@ def test_radio_button_basics(radio_button_fixture):
 
 @with_fixtures(RadioButtonFixture)
 def test_radio_button_layout(radio_button_fixture):
-    """To make a RadioButtonInput inline, supply a suitable ChoicesLayout"""
+    """To make a RadioButtonSelectInput inline, supply a suitable ChoicesLayout"""
     fixture = radio_button_fixture
 
-    radio_input = RadioButtonInput(fixture.form, fixture.field, contents_layout=ChoicesLayout(inline=True))
+    radio_input = RadioButtonSelectInput(fixture.form, fixture.field, contents_layout=ChoicesLayout(inline=True))
     assert radio_input.contents_layout.inline
 
     choice_container = radio_input.children[0].children[0]
@@ -449,12 +449,12 @@ def test_radio_button_layout(radio_button_fixture):
 
 @with_fixtures(RadioButtonFixture)
 def test_radio_button_label_as_legend(radio_button_fixture):
-    """A FormLayout renders a RadioButtonInput in a FieldSet with its label in the Legend."""
+    """A FormLayout renders a RadioButtonSelectInput in a FieldSet with its label in the Legend."""
     fixture = radio_button_fixture
 
     form = fixture.form
     form.use_layout(FormLayout())
-    inlined_radio = RadioButtonInput(form, fixture.field)
+    inlined_radio = RadioButtonSelectInput(form, fixture.field)
     fixture.form.layout.add_input(inlined_radio)
 
     field_set = form.children[0]

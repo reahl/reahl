@@ -24,7 +24,7 @@ from reahl.web.bootstrap.ui import HTML5Page, P
 from reahl.web.layout import PageLayout
 from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, Container, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, CueInput, TextArea, SelectInput, \
-    RadioButtonInput, CheckboxInput, TextInput, PasswordInput, ButtonLayout, ChoicesLayout
+    RadioButtonSelectInput, CheckboxInput, TextInput, PasswordInput, ButtonLayout, ChoicesLayout
 
 
 class BasicHTMLInputsUI(UserInterface):
@@ -61,7 +61,7 @@ class ModelObject(object):
         fields.radio_choice_field = ChoiceField([Choice(1, IntegerField(label='One')), 
                                                  Choice(2, IntegerField(label='Two')), 
                                                  Choice(3, IntegerField(label='Three'))],
-                                                label='A RadioButtonInput')
+                                                label='A RadioButtonSelectInput')
         fields.fuzzy_date_field = DateField(label='A fuzzy TextInput for a Date')
         
     @exposed
@@ -80,7 +80,7 @@ class ExampleForm(Form):
         self.layout.add_input(TextArea(self, model_object.fields.text_area_field, rows=5, columns=60))
         self.layout.add_input(SelectInput(self, model_object.fields.choice_field))
         self.layout.add_input(SelectInput(self, model_object.fields.multi_choice_field))
-        self.layout.add_input(RadioButtonInput(self, model_object.fields.radio_choice_field,
+        self.layout.add_input(RadioButtonSelectInput(self, model_object.fields.radio_choice_field,
                                                contents_layout=ChoicesLayout(inline=True)))
         self.layout.add_input(TextInput(self, model_object.fields.fuzzy_date_field, fuzzy=True))
         self.layout.add_input(TextInput(self, model_object.fields.text_input_without_label, placeholder=True), hide_label=True)

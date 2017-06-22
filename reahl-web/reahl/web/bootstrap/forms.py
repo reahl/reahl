@@ -29,9 +29,10 @@ import six
 
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.component.i18n import Translator
+from reahl.component.modelinterface import BooleanField
 
 import reahl.web.ui
-from reahl.web.ui import Label, HTMLAttributeValueOption, PrimitiveInput
+from reahl.web.ui import Label, HTMLAttributeValueOption
 from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Legend, FieldSet
 from reahl.web.bootstrap.grid import ColumnLayout
 
@@ -124,42 +125,68 @@ class SelectInput(reahl.web.ui.SelectInput):
 PrimitiveCheckboxInput = reahl.web.ui.CheckboxInput
 
 
-class CheckboxInput(PrimitiveInput):
-    """A checkbox (with its label).
-
-       :param form: (See :class:`~reahl.web.ui.Input`)
-       :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the many checkboxes in this input.
-    """
-    def __init__(self, form, bound_field, contents_layout=None):
-        self.contents_layout = contents_layout
-        super(CheckboxInput, self).__init__(form, bound_field)
-
-    def create_html_widget(self):
-        self.checkbox_input = PrimitiveCheckboxInput(self.form, self.bound_field)
-        div = Div(self.view).use_layout(self.contents_layout or ChoicesLayout(inline=False))
-        div.layout.add_choice(self.checkbox_input)
-        return div
-
-    @property
-    def html_control(self):
-        return self.checkbox_input
-
-    @property
-    def includes_label(self):
-        return True
-        
-    @property
-    def jquery_selector(self):
-        return '%s.closest("div")' % self.html_control.jquery_selector
-        
-
-class PrimitiveRadioButtonInput(reahl.web.ui.SingleRadioButton):
+class SingleChoice(reahl.web.ui.SingleChoice):
     def create_html_widget(self):
         return self.create_button_input()
 
 
-class RadioButtonInput(reahl.web.ui.RadioButtonInput):
+class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
+    """An Input that presents either a single checkbox or a list of them, depending on what Field
+       it is used with.
+
+       If used with a MultiChoiceField, the checkboxes represent which Choices are chosen; a single
+       checkbox represents a BooleanField.
+
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the checkboxes in this input.
+    """
+
+    def __init__(self, form, bound_field, contents_layout=None):
+        self.contents_layout = contents_layout
+        self.checkbox_input = None
+        super(CheckboxInput, self).__init__(form, bound_field)
+
+    @property
+    def html_control(self):
+        return self.checkbox_input if self.is_boolean else super(CheckboxInput, self).html_control
+
+    @property
+    def includes_label(self):
+        return self.is_boolean
+
+    @property
+    def is_boolean(self):
+        return isinstance(self.bound_field, BooleanField)
+
+    @property
+    def jquery_selector(self):
+        return '%s.closest("div")' % self.html_control.jquery_selector
+
+    def create_html_widget(self):
+        if self.is_boolean:
+            main_element = self.create_main_element()
+            self.checkbox_input = PrimitiveCheckboxInput(self.form, self.bound_field)
+            main_element.layout.add_choice(self.checkbox_input)
+        else:
+            main_element = super(CheckboxInput, self).create_html_widget()
+
+        return main_element
+
+    def get_value_from_input(self, input_values):
+        if self.is_boolean:
+            return input_values.get(self.name, '')
+        else:
+            return super(CheckboxInput, self).get_value_from_input(input_values)
+
+    def create_main_element(self):
+        return super(CheckboxInput, self).create_main_element().use_layout(self.contents_layout or ChoicesLayout(inline=False))
+
+    def add_choice_to(self, widget, choice):
+        return widget.layout.add_choice(SingleChoice(self, choice))
+
+
+class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
     """An Input that lets the user select a :class:`reahl.component.modelinterface.Choice` from a list of valid ones
        shown as radio buttons of which only one can be selected at a time.
 
@@ -170,15 +197,14 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
     def __init__(self, form, bound_field, contents_layout=None):
         assert contents_layout is None or isinstance(contents_layout, ChoicesLayout), 'contents_layout should be an instance of ChoicesLayout but isn\'t' #TODO: this should be in @argchecks(...)
         self.contents_layout = contents_layout or ChoicesLayout(inline=False)
-        super(RadioButtonInput, self).__init__(form, bound_field)
+        super(RadioButtonSelectInput, self).__init__(form, bound_field)
 
     def create_main_element(self):
-        main_element = super(RadioButtonInput, self).create_main_element().use_layout(self.contents_layout)
+        main_element = super(RadioButtonSelectInput, self).create_main_element().use_layout(self.contents_layout)
         return main_element
 
-    def add_button_for_choice_to(self, widget, choice):
-        button = PrimitiveRadioButtonInput(self, choice)
-        widget.layout.add_choice(button)
+    def add_choice_to(self, widget, choice):
+        return widget.layout.add_choice(SingleChoice(self, choice))
 
 
 class ButtonInput(reahl.web.ui.ButtonInput):
@@ -292,7 +318,7 @@ class ChoicesLayout(reahl.web.fw.Layout):
         super(ChoicesLayout, self).__init__()
         self.inline = inline
 
-    @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, PrimitiveRadioButtonInput)))
+    @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
         label_widget = Label(self.view)
         html_input.append_class('form-check-input')
@@ -328,7 +354,7 @@ class FormLayout(reahl.web.fw.Layout):
        FormLayout.
     """
     def create_form_group(self, html_input):
-        if isinstance(html_input, RadioButtonInput):
+        if isinstance(html_input, RadioButtonSelectInput):
             form_group = self.widget.add_child(FieldSet(self.view))
         else:
             form_group = self.widget.add_child(Div(self.view))
@@ -364,7 +390,7 @@ class FormLayout(reahl.web.fw.Layout):
         return help_text_widget
 
     def add_label_to(self, form_group, html_input, hidden):
-        if isinstance(html_input, RadioButtonInput):
+        if isinstance(html_input, RadioButtonSelectInput):
             label = form_group.add_child(Legend(self.view, text=html_input.label))
             label.append_class('col-form-legend')
         else:
