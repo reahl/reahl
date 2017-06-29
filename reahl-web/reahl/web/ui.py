@@ -36,7 +36,7 @@ from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.component.context import ExecutionContext
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
-    Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex
+    Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
@@ -1639,7 +1639,14 @@ class RadioButtonSelectInput(PrimitiveInput):
 
     choice_type = 'radio'
 
+    @arg_checks(bound_field=IsInstance(ChoiceField))
+    def __init__(self, form, bound_field):
+        # assert not bound_field.allows_multiple_selections, ''
+        super(RadioButtonSelectInput, self).__init__(form, bound_field)
+
     def is_choice_selected(self, value):
+        if self.bound_field.allows_multiple_selections:
+            return value in self.value
         return self.value == value
 
     def create_html_widget(self):
@@ -1719,7 +1726,7 @@ class PasswordInput(InputTypeInput):
 
 
 class CheckboxInput(InputTypeInput):
-    """A single checkbox.
+    """A single checkbox that represent a true or false value.
 
        .. admonition:: Styling
 
@@ -1729,6 +1736,7 @@ class CheckboxInput(InputTypeInput):
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     render_value_attribute = False
+    @arg_checks(bound_field=IsInstance(BooleanField))
     def __init__(self, form, bound_field):
         super(CheckboxInput, self).__init__(form, bound_field, 'checkbox')
 
@@ -1763,6 +1771,10 @@ class CheckboxSelectInput(PrimitiveInput):
     """
     choice_type = 'checkbox'
 
+    @arg_checks(bound_field=IsInstance(MultiChoiceField))
+    def __init__(self, form, bound_field):
+        super(CheckboxSelectInput, self).__init__(form, bound_field)
+
     @property
     def html_control(self):
         return None
@@ -1785,7 +1797,7 @@ class CheckboxSelectInput(PrimitiveInput):
         return value in self.value
 
     def get_value_from_input(self, input_values):
-        return input_values.get(self.name, [])
+        return input_values.getall(self.name)
 
     def create_main_element(self):
         main_element = Div(self.view)

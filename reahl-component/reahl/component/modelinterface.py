@@ -1391,8 +1391,13 @@ class ChoiceField(Field):
     allows_multiple_selections = False
     def __init__(self, grouped_choices, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         super(ChoiceField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
+        if not self.are_choices_unique(self.flatten_choices(grouped_choices)):
+            raise ProgrammerError('Duplicate choices are not allowed')
         self.grouped_choices = grouped_choices
         self.init_validation_constraints()
+
+    def are_choices_unique(self, flattened_choices):
+        return len(flattened_choices) == len(set([choice.value for choice in flattened_choices]))
 
     def init_validation_constraints(self):
         allowed_values = [choice.as_input() for choice in self.flattened_choices]
@@ -1400,8 +1405,11 @@ class ChoiceField(Field):
 
     @property
     def flattened_choices(self):
+        return self.flatten_choices(self.grouped_choices)
+
+    def flatten_choices(self, grouped_choices):
         flattened = []
-        for item in self.grouped_choices:
+        for item in grouped_choices:
             flattened.extend(item.choices)
         return flattened
 
@@ -1422,6 +1430,7 @@ class ChoiceField(Field):
 class MultiChoiceField(ChoiceField):
     """A Field that allows a selection of values from the given :class:`Choice` instances as input."""
     allows_multiple_selections = True
+
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
 

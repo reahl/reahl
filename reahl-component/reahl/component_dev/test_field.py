@@ -1028,6 +1028,16 @@ def test_choice_field_marshalling(choice_fixture):
         assert field.as_input() == expected_input
 
 
+@with_fixtures(ReahlSystemFixture) # For a context
+def test_unique_choices(fixture):
+    """All choices must have unique values."""
+    duplicate_choices = [Choice(1, IntegerField(label='One')),
+                         Choice(1, IntegerField(label='Two')),
+                         Choice(3, IntegerField(label='Three'))]
+    with expected(ProgrammerError, test='Duplicate choices are not allowed'):
+        ChoiceField(duplicate_choices)
+
+
 @with_fixtures(FieldFixture)
 def test_file_marshalling(fixture):
     """A FileField receives as input a list of UploadedFile objects.  Its marshalling job consists

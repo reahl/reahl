@@ -29,7 +29,7 @@ import six
 
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.component.i18n import Translator
-from reahl.component.modelinterface import BooleanField
+from reahl.component.modelinterface import BooleanField, MultiChoiceField
 
 import reahl.web.ui
 from reahl.web.ui import Label, HTMLAttributeValueOption
@@ -141,7 +141,7 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
        :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the checkboxes in this input.
     """
-
+    @arg_checks(bound_field=IsInstance( (MultiChoiceField, BooleanField) ))
     def __init__(self, form, bound_field, contents_layout=None):
         self.contents_layout = contents_layout
         self.checkbox_input = None

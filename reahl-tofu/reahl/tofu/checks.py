@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+import six
+import re
 import sys
 import inspect
 import token
@@ -53,10 +55,14 @@ def expected(exception, test=None):
        does indeed raise the given exception.
 
        :param exception: The class of exception to expect
-       :keyword test: A function that takes a single argument. Upon catching the expected exception, this\
-                      callable is called, passing the exception instance as argument. A programmer can do\
-                      more checks on the specific exception instance in this function, such as check its arguments.
-                             
+       :keyword test: Either a function that takes a single argument or a regex.\
+                      If `test` is a function, it will be called upon catching the expected exception,\
+                      passing the exception instance as argument. A programmer can do\
+                      more checks on the specific exception instance in this function, such as check its arguments.\
+                      If `test` is a regex in a string, break if str(exception) does not match the regex.
+
+       Specifying test and regex_test are mutually exclusive.
+
        For example, the following code will execute without letting a test break:
        
        .. code-block:: python
@@ -68,7 +74,17 @@ def expected(exception, test=None):
               raise AssertionError()
               #.....
 
+       .. versionchanged:: 4.0
+          Changed to allow a regex in test keyword argument.
     """
+
+    if test and not callable(test):
+        test_regex = test
+        def check_message(ex):
+            assert re.match(test_regex, six.text_type(ex)), \
+                'Expected exception to match "%s", got "%s"' % (test_regex, six.text_type(ex))
+        test = check_message
+
     if exception is NoException:
         yield
         return

@@ -393,7 +393,7 @@ class XPath(object):
     @classmethod
     def label_with_text(cls, text):
         """Returns an XPath to find an HTML <label> containing the text in `text`."""
-        return cls('//label[node()="%s"]' % text)
+        return cls('//label[normalize-space()=normalize-space("%s")]' % text)
 
     @classmethod
     def heading_with_text(cls, level, text):

@@ -24,11 +24,12 @@ from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
-from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField
+from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField,\
+    MultiChoiceField, IntegerField
 from reahl.web.fw import Url
 from reahl.web.bootstrap.ui import A, Div, FieldSet
 from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
-                                   TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonSelectInput, ButtonLayout
+    TextInput, CheckboxInput, PrimitiveCheckboxInput, RadioButtonSelectInput, ButtonLayout
 from reahl.web.bootstrap.grid import ResponsiveSize
 
 from reahl.web_dev.fixtures import WebFixture
@@ -260,12 +261,11 @@ class ValidationScenarios(FormLayoutFixture):
         self.browser = Browser(self.web_fixture.new_wsgi_app(child_factory=self.Form.factory()))
 
 
-@with_fixtures(WebFixture, ValidationScenarios)
-def test_input_validation_cues(web_fixture, validation_scenarios):
+@with_fixtures(ValidationScenarios)
+def test_input_validation_cues(validation_scenarios):
     """Visible cues are inserted to indicate the current validation state
        and possible validation error messages to a user. """
     fixture = validation_scenarios
-
 
     browser = fixture.browser
     browser.open('/')
@@ -362,25 +362,107 @@ def test_disabled_state(web_fixture, disabled_scenarios):
         assert 'disabled' not in form_group.attrib['class']
 
 
+
+class CheckboxFixture(Fixture):
+    def new_field(self):
+        return BooleanField(label='Subscribe to newsletter?')
+
+    def new_domain_object(self):
+        fixture = self
+        class ModelObject(object):
+            @exposed
+            def fields(self, fields):
+                fields.an_attribute = fixture.field
+            @exposed
+            def events(self, events):
+                events.submit = Event(label='Submit')
+        return ModelObject()
+
+    def new_Form(self):
+        fixture = self
+        class FormWithInput(Form):
+            def __init__(self, view):
+                super(FormWithInput, self).__init__(view, 'aform')
+                self.use_layout(FormLayout())
+                self.layout.add_input(CheckboxInput(self, fixture.domain_object.fields.an_attribute))
+                self.define_event_handler(fixture.domain_object.events.submit)
+                self.add_child(Button(self, fixture.domain_object.events.submit))
+        return FormWithInput
+
+
+@with_fixtures(WebFixture, CheckboxFixture)
+def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
+    """CheckboxInput can be used to toggle a single yes/no answer, in which case it renders a single checkbox."""
+
+    web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=checkbox_fixture.Form.factory()))
+    browser = web_fixture.driver_browser
+    browser.open('/')
+    checkbox = XPath.input_labelled('Subscribe to newsletter?')
+    assert not browser.is_checked(checkbox)
+    assert browser.is_element_present(XPath.label_with_text('Subscribe to newsletter?'))
+    assert browser.get_xpath_count('//label/input') == 1
+    assert browser.get_attribute('//div/label/input/../..', 'class') == 'form-check'
+    assert browser.get_attribute('//label', 'class') == 'form-check-label'
+    assert browser.get_attribute('//label/input', 'class') == 'form-check-input'
+
+    browser.check(checkbox)
+    browser.click(XPath.button_labelled('Submit'))
+
+    assert browser.is_checked(checkbox)
+
+
+@with_fixtures(WebFixture, CheckboxFixture)
+def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
+    """CheckboxInput can also be used to choose many things from a list, in which case it renders many checkboxes."""
+
+    choices = [Choice(1, IntegerField(label='One')),
+               Choice(2, IntegerField(label='Two')),
+               Choice(3, IntegerField(label='Three'))]
+    checkbox_fixture.field = MultiChoiceField(choices, label='Make your choice', default=[1])
+
+    web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=checkbox_fixture.Form.factory()))
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.is_element_present(XPath.label_with_text('Make your choice'))
+
+    assert browser.get_xpath_count('//label[@class="form-check-label"]/input[@class="form-check-input"]') == 3
+
+    checkbox_one = XPath.input_labelled('One')
+    checkbox_two = XPath.input_labelled('Two')
+    checkbox_three = XPath.input_labelled('Three')
+
+    assert browser.is_checked(checkbox_one)
+    assert not browser.is_checked(checkbox_two)
+    assert not browser.is_checked(checkbox_three)
+    browser.uncheck(checkbox_one)
+    browser.check(checkbox_two)
+    browser.check(checkbox_three)
+    browser.click(XPath.button_labelled('Submit'))
+    assert not browser.is_checked(checkbox_one)
+    assert browser.is_checked(checkbox_two)
+    assert browser.is_checked(checkbox_three)
+
+
 @uses(web_fixture=WebFixture)
 class ChoicesFixture(Fixture):
 
     def new_form(self):
         return Form(self.web_fixture.view, 'test')
 
-    def new_field(self):
+    def new_boolean_field(self):
         field = BooleanField()
         field.bind('field', self)
         return field
 
 
 @with_fixtures(WebFixture, ChoicesFixture)
-def test_checkbox_basics(web_fixture, choices_fixture):
+def test_choices_layout_applied_to_checkbox(web_fixture, choices_fixture):
     """A ChoicesLayout lays out PrimitiveCheckboxInputs inside a Label containing the Field label, such that they will be stacked."""
     fixture = choices_fixture
 
     stacked_container = Div(web_fixture.view).use_layout(ChoicesLayout())
-    stacked_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
+    stacked_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.boolean_field))
 
     assert 'form-check' in stacked_container.children[0].get_attribute('class').split(' ')
 
@@ -399,7 +481,7 @@ def test_checkbox_with_inline_layout(web_fixture, choices_fixture):
     fixture = choices_fixture
 
     inlined_container = Div(web_fixture.view).use_layout(ChoicesLayout(inline=True))
-    inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.field))
+    inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.boolean_field))
 
     assert 'form-check-inline' in inlined_container.children[0].get_attribute('class').split(' ')
 
