@@ -307,10 +307,7 @@ def test_device_class_identity():
 
     assert device_class.name == 'lg'
 
-    def check_ex(ex):
-        assert six.text_type(ex).startswith('Invalid device class name: unsupported, should be one of xs,sm,md,lg,xl')
-
-    with expected(ProgrammerError, test=check_ex):
+    with expected(ProgrammerError, test='Invalid device class name: unsupported, should be one of xs,sm,md,lg,xl.*'):
         DeviceClass('unsupported')
 
 

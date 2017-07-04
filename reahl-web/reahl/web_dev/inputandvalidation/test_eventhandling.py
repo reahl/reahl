@@ -284,10 +284,7 @@ def test_define_event_handler_not_called(web_fixture):
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
     browser = Browser(wsgi_app)
 
-    def check_exc(exc):
-        assert six.text_type(exc) == 'no Event/Transition available for name an_event'
-
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='no Event/Transition available for name an_event'):
         browser.open('/')
 
 
@@ -391,10 +388,7 @@ def test_duplicate_forms(web_fixture):
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    def check_exc(ex):
-        assert six.text_type(ex).startswith('More than one form was added using the same unique_name')
-
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='More than one form was added using the same unique_name.*'):
         browser.open('/')
 
 
@@ -430,10 +424,7 @@ def test_check_input_placement(web_fixture):
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    def check_exc(ex):
-        assert 'Inputs are not allowed where they can be refreshed separately from their forms.' in six.text_type(ex)
-
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='.*Inputs are not allowed where they can be refreshed separately from their forms\..*'):
         browser.open('/')
             
 
@@ -458,12 +449,10 @@ def test_check_missing_form(web_fixture):
     wsgi_app = fixture.new_wsgi_app(child_factory=MyPanel.factory())
     browser = Browser(wsgi_app)
 
-    def check_exc(ex):
-        expected_message = 'Could not find form for <TextInput name=name>. '\
-                           'Its form, <Form form id=myform> is not present on the current page'
-        assert six.text_type(ex) == expected_message
+    expected_message = 'Could not find form for <TextInput name=name>. '\
+                       'Its form, <Form form id=myform> is not present on the current page'
 
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test=expected_message):
         browser.open('/')
             
 

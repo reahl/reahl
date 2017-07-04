@@ -343,9 +343,7 @@ def test_helpers_for_events3(fixture):
             fields.event1 = Event()
             fields.event2 = Event()
 
-    def check_exc(exc):
-        assert six.text_type(exc).startswith('You promised to instantiate')
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='You promised to instantiate.*'):
         ModelObject().events
 
 

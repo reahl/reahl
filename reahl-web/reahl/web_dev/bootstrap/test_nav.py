@@ -269,28 +269,19 @@ def test_language_menu(web_fixture):
 
 def test_nav_layout_restricts_option_to_alignment_or_justfication():
 
-    def check_exc(ex):
-        assert six.text_type(ex).startswith('Cannot set content_alignment and content_justfication at the same time')
-
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='Cannot set content_alignment and content_justfication at the same time.*'):
         NavLayout(content_alignment='fill', content_justification='start')
 
 
 def test_nav_layout_ensures_valid_values_for_alignment():
 
-    def check_exc(ex):
-        assert six.text_type(ex).startswith('"invalid_value" should be one of: "center","end"')
-
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='"invalid_value" should be one of: "center","end"'):
         NavLayout(content_alignment='invalid_value')
 
 
 def test_nav_layout_ensures_valid_values_for_justification():
 
-    def check_exc(ex):
-        assert six.text_type(ex).startswith('"invalid_value" should be one of: "fill","justified"')
-
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='"invalid_value" should be one of: "fill","justified"'):
         NavLayout(content_justification='invalid_value')
 
 
