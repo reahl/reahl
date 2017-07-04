@@ -361,6 +361,7 @@ def test_disabled_state(web_fixture, disabled_scenarios):
         assert 'disabled' not in form_group.attrib['class']
 
 
+
 class CheckboxFixture(Fixture):
     def new_field(self):
         return BooleanField(label='Subscribe to newsletter?')
@@ -587,6 +588,7 @@ def test_button_layouts_on_disabled_anchors(web_fixture):
     """Disabled A's are marked with a class so Bootstap can style them appropriately."""
     def can_write():
         return False
+
 
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=can_write)
     anchor.use_layout(ButtonLayout())

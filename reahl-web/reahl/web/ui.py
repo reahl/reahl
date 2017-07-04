@@ -1303,8 +1303,6 @@ class Input(HTMLWidget):
         return False
 
 
-
-
 class WrappedInput(Input):
     def __init__(self, input_widget):
         super(WrappedInput, self).__init__(input_widget.form, input_widget.bound_field)
@@ -1528,7 +1526,6 @@ class Option(PrimitiveInput):
         if self.selected:
             option.set_attribute('selected', 'selected')
         return option
-
 
 
 class OptGroup(HTMLElement):

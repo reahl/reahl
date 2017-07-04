@@ -1171,7 +1171,6 @@ class PasswordField(Field):
         self.add_validation_constraint(MaxLengthConstraint(20))
 
 
-
 class IntegerField(Field):
     """A Field that yields an integer.
     

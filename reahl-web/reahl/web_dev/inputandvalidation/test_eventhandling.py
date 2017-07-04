@@ -339,7 +339,7 @@ def test_exception_handling(reahl_system_fixture, web_fixture):
 
     # any database stuff that happened when the form was submitted was rolled back
     with CallMonitor(reahl_system_fixture.system_control.orm_control.rollback) as monitor:
-        fixture.driver_browser.click("//input[@value='click me']")
+        fixture.driver_browser.click(XPath.button_labelled('click me'))
     assert monitor.times_called == 1
 
     # the value input by the user is still displayed on the form, NOT the actual value on the model object
@@ -619,7 +619,6 @@ def test_form_input_validation(web_fixture):
     assert model_object.field_name == 'valid@home.org'
 
     assert fixture.driver_browser.current_url.path == '/page2'
-
 
 
 @uses(web_fixture=WebFixture)
