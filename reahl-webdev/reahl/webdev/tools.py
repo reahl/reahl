@@ -952,7 +952,7 @@ class DriverBrowser(BasicBrowser):
             cropped = im.crop(bbox)
             cropped.save(output_file)
         except ImportError:
-            logging.warn('PILlow is not available, unable to crop screenshots')
+            logging.warning('PILlow is not available, unable to crop screenshots')
 
     def press_tab(self):
         """Simulates the user pressing the tab key on element that is currently focussed.

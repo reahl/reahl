@@ -1171,35 +1171,6 @@ class PasswordField(Field):
         self.add_validation_constraint(MaxLengthConstraint(20))
 
 
-class BooleanField(Field):
-    """A Field that can only have one of two parsed values: True or False. The string representation of
-       each of these values are given in `true_value` or `false_value`, respectively.  (These default
-       to 'on' and 'off' initially.)
-    """
-    def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, true_value=None, false_value=None):
-        true_value = true_value or _('on')
-        false_value = false_value or _('off')
-        label = label or ''
-        super(BooleanField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
-        self.true_value = true_value
-        self.false_value = false_value
-        allowed_values = [self.true_value]
-        if required:
-            error_message = required_message or _('$label is required')
-        else:
-            error_message = _('$label should be either "%s" or "%s"') % (self.true_value, self.false_value)
-            allowed_values.append(self.false_value)
-        self.add_validation_constraint(AllowedValuesConstraint(allowed_values, error_message=error_message))
-
-    def parse_input(self, unparsed_input):
-        value = True if unparsed_input == self.true_value else False
-        return value
-        
-    def unparse_input(self, parsed_value):
-        if parsed_value:
-            return self.true_value
-        return self.false_value 
-
 
 class IntegerField(Field):
     """A Field that yields an integer.
@@ -1379,7 +1350,6 @@ class MultiChoiceConstraint(ValidationConstraint):
             raise self
 
 
-
 class ChoiceField(Field):
     """A Field that only allows the value of one of the given :class:`Choice` instances as input.
     
@@ -1425,6 +1395,34 @@ class ChoiceField(Field):
             if choice.matches_input(unparsed_input):
                 return choice.value
         raise ProgrammerError('The AllowedValuesConstraint added to a ChoiceField should have prevented this line from being reached.')
+
+
+class BooleanField(ChoiceField):
+    """A Field that can only have one of two parsed values: True or False. The string representation of
+       each of these values are given in `true_value` or `false_value`, respectively.  (These default
+       to 'on' and 'off' initially.)
+    """
+    def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, true_value=None, false_value=None):
+        true_value = true_value or _('on')
+        false_value = false_value or _('off')
+        label = label or ''
+        if required:
+            error_message = required_message or _('$label is required')
+            grouped_choices = [Choice(true_value, Field(label=true_value))]
+        else:
+            error_message = None
+            grouped_choices = [Choice(true_value, Field(label=true_value)), Choice(false_value, Field(label=false_value))]
+        super(BooleanField, self).__init__(grouped_choices, default=default, required=required, required_message=error_message, label=label, readable=readable, writable=writable)
+        self.true_value = true_value
+        self.false_value = false_value
+
+    def parse_input(self, unparsed_input):
+        return self.true_value == super(BooleanField, self).parse_input(unparsed_input)
+
+    def unparse_input(self, parsed_value):
+        if parsed_value:
+            return self.true_value
+        return self.false_value
 
 
 class MultiChoiceField(ChoiceField):

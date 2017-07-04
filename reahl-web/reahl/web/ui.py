@@ -1577,7 +1577,7 @@ class SelectInput(PrimitiveInput):
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
-            return input_values.get(self.name, '')
+            return input_values.getall(self.name)
         else:
             return super(SelectInput, self).get_value_from_input(input_values)
 
@@ -1641,7 +1641,6 @@ class RadioButtonSelectInput(PrimitiveInput):
 
     @arg_checks(bound_field=IsInstance(ChoiceField))
     def __init__(self, form, bound_field):
-        # assert not bound_field.allows_multiple_selections, ''
         super(RadioButtonSelectInput, self).__init__(form, bound_field)
 
     def is_choice_selected(self, value):
@@ -1771,13 +1770,14 @@ class CheckboxSelectInput(PrimitiveInput):
     """
     choice_type = 'checkbox'
 
-    @arg_checks(bound_field=IsInstance(MultiChoiceField))
+    @arg_checks(bound_field=IsInstance(ChoiceField))
     def __init__(self, form, bound_field):
+        self.added_choices = []
         super(CheckboxSelectInput, self).__init__(form, bound_field)
 
     @property
     def html_control(self):
-        return None
+        return self.added_choices[0] if not self.bound_field.allows_multiple_selections else None
 
     @property
     def includes_label(self):
@@ -1790,14 +1790,17 @@ class CheckboxSelectInput(PrimitiveInput):
     def create_html_widget(self):
         main_element = self.create_main_element()
         for choice in self.bound_field.flattened_choices:
-            self.add_choice_to(main_element, choice)
+            self.added_choices.append(self.add_choice_to(main_element, choice))
         return main_element
 
     def is_choice_selected(self, value):
         return value in self.value
 
     def get_value_from_input(self, input_values):
-        return input_values.getall(self.name)
+        if self.bound_field.allows_multiple_selections:
+            return input_values.getall(self.name)
+        else:
+            return input_values.get(self.name, '')
 
     def create_main_element(self):
         main_element = Div(self.view)
@@ -1805,7 +1808,7 @@ class CheckboxSelectInput(PrimitiveInput):
         return main_element
 
     def add_choice_to(self, widget, choice):
-        widget.add_child(SingleChoice(self, choice))
+        return widget.add_child(SingleChoice(self, choice))
 
 
 class ButtonInput(PrimitiveInput):

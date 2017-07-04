@@ -509,59 +509,6 @@ def test_checkbox_input_restricted_to_use_with_boolean(web_fixture):
         CheckboxInput(form, not_a_boolean_field)
 
 
-@with_fixtures(WebFixture)
-def test_checkbox_select_input_restricted_to_use_with_choice_fields(web_fixture):
-    """CheckSelectInput is for choosing many things from a list."""
-    model_object = web_fixture
-    form = Form(web_fixture.view, 'test')
-
-    # case: with MultiChoiceField
-    choices = [Choice(1, IntegerField(label='One')),
-               Choice(2, IntegerField(label='Two'))]
-    valid_field_for_check_box = MultiChoiceField(choices)
-    model_object.a_choice = []
-    valid_field_for_check_box.bind('a_choice', model_object)
-
-    with expected(NoException):
-        CheckboxSelectInput(form, valid_field_for_check_box)
-
-    # case: invalid field type
-    not_a_multi_choice_field = ChoiceField(choices)
-    not_a_multi_choice_field.bind('not_a_multi_choice', model_object)
-
-    with expected(IsInstance):
-        CheckboxSelectInput(form, not_a_multi_choice_field)
-
-
-@with_fixtures(WebFixture)
-def test_radio_select_input_restricted_to_use_with_choice_fields(web_fixture):
-    """RadioSelectInput allows the user to select a single choice from a list."""
-    model_object = web_fixture
-    form = Form(web_fixture.view, 'test')
-
-    choices = [Choice(1, IntegerField(label='One'))]
-
-    # case: use with ChoiceField
-    choice_field = ChoiceField(choices)
-    choice_field.bind('a_choice', model_object)
-    with expected(NoException):
-        RadioButtonSelectInput(form, choice_field)
-
-    # case: use with MultiChoiceField
-    multi_choice_field = MultiChoiceField(choices)
-    model_object.many_choices = []
-    multi_choice_field.bind('many_choices', model_object)
-    with expected(ProgrammerError):
-        RadioButtonSelectInput(form, multi_choice_field)
-
-    # case: with invalid field type
-    not_a_choice_field = IntegerField(label='Other')
-    not_a_choice_field.bind('not_a_choice', model_object)
-
-    with expected(ProgrammerError):
-        RadioButtonSelectInput(form, not_a_choice_field)
-
-
 class FuzzyTextInputFixture(SimpleInputFixture2):
     def new_field(self, label='the label'):
         return DateField(label=label)

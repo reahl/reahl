@@ -397,6 +397,7 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
     web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=checkbox_fixture.Form.factory()))
     browser = web_fixture.driver_browser
     browser.open('/')
+
     checkbox = XPath.input_labelled('Subscribe to newsletter?')
     assert not browser.is_checked(checkbox)
     assert browser.is_element_present(XPath.label_with_text('Subscribe to newsletter?'))
