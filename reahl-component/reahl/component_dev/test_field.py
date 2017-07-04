@@ -167,7 +167,8 @@ def test_constraint_message(fixture):
     assert validation_constraint.message == expected
 
 
-def test_meaning_of_required():
+@with_fixtures(FieldFixture)
+def test_meaning_of_required(fixture):
     """Making a Field required means adding a RequiredConstraint to it"""
     # Case: construction with default value for required
 
@@ -180,7 +181,8 @@ def test_meaning_of_required():
     assert field.get_validation_constraint_named(RequiredConstraint.name)
 
 
-def test_getting_modified_copy():
+@with_fixtures(FieldFixture)
+def test_getting_modified_copy(fixture):
     """It is possible to get a modified copy of an existing field if you want to link it with
        different constraints on a different input"""
 
@@ -233,7 +235,8 @@ def test_getting_modified_copy():
     assert more_strict_field.required
 
 
-def test_helpers_for_fields():
+@with_fixtures(FieldFixture)
+def test_helpers_for_fields(fixture):
     """The @exposed decorator makes it simpler to bind Fields to an object."""
 
     class ModelObject(object):
@@ -249,7 +252,8 @@ def test_helpers_for_fields():
     assert model_object.fields.field2.bound_to is model_object
 
 
-def test_helpers_for_fields2():
+@with_fixtures(FieldFixture)
+def test_helpers_for_fields2(fixture):
     """The ReahlFields class is an alternative way to make it simpler to bind Fields to an object.
        This reads a bit nicer, BUT does not currently play well with internationalising strings."""
 
@@ -277,7 +281,8 @@ def test_helpers_for_fields2():
     assert inheriting_object.fields.field3.bound_to is inheriting_object
 
 
-def test_re_binding_behaviour_of_field_index():
+@with_fixtures(FieldFixture)
+def test_re_binding_behaviour_of_field_index(fixture):
     """FieldIndexes wont bind a field if it already is bound."""
 
     model_object1 = EmptyStub()
@@ -293,7 +298,8 @@ def test_re_binding_behaviour_of_field_index():
     assert bound_field.bound_to is model_object2
 
 
-def test_helpers_for_events():
+@with_fixtures(FieldFixture)
+def test_helpers_for_events(fixture):
     """The @exposed decorator makes it simpler to collect Events on an object similar to how it is used for Fields."""
 
     class ModelObject(object):
@@ -311,7 +317,8 @@ def test_helpers_for_events():
     assert model_object.events.event1.name == 'event1'
 
 
-def test_helpers_for_events2():
+@with_fixtures(FieldFixture)
+def test_helpers_for_events2(fixture):
     """The @exposed decorator can be used to get FakeEvents at a class level, provided the valid Event names are specified."""
 
     class ModelObject(object):
@@ -326,7 +333,8 @@ def test_helpers_for_events2():
         ModelObject.events.nonevent
 
 
-def test_helpers_for_events3():
+@with_fixtures(FieldFixture)
+def test_helpers_for_events3(fixture):
     """An Event has to be created for each of the names listed to the @exposed decorator, else an error is raised."""
 
     class ModelObject(object):
@@ -341,7 +349,8 @@ def test_helpers_for_events3():
         ModelObject().events
 
 
-def test_events():
+@with_fixtures(FieldFixture)
+def test_events(fixture):
     """An Event defines a signal that can be sent to the system, with the intention to
        possibly trigger the execution of an Action by the system. Metadata, such as what
        a human might label the Event, is also specified."""
@@ -363,7 +372,8 @@ def test_events():
     assert model_object.events.an_event.label == 'human readable label'
 
 
-def test_arguments_to_actions():
+@with_fixtures(FieldFixture)
+def test_arguments_to_actions(fixture):
     """Arguments can be defined on an Event in order to be able to pass them to the linked Action
        as args or kwargs as specified by the Action."""
 
@@ -394,7 +404,8 @@ def test_arguments_to_actions():
     assert model_object.passed_a_kwarg is expected_kwarg
 
 
-def test_arguments_to_event():
+@with_fixtures(FieldFixture)
+def test_arguments_to_event(fixture):
     """Only Action objects can be sent as action= when creating an Event. The arguments passed to readable and writable
        should be callable objects with correct signature."""
 
@@ -466,8 +477,8 @@ class ActionScenarios(Fixture):
         self.rights_flags = self
 
 
-@with_fixtures(ActionScenarios)
-def test_event_security(action_scenarios):
+@with_fixtures(FieldFixture, ActionScenarios)
+def test_event_security(field_fixture, action_scenarios):
     """If an Event specifies an Action, the access controls of the Action are
        used for access to the Event as well."""
 
@@ -491,7 +502,8 @@ def test_event_security(action_scenarios):
         event.fire()
 
 
-def test_event_security2():
+@with_fixtures(FieldFixture)
+def test_event_security2(fixture):
     """If an Event does not specify an Action, then Actions can be passed for its readable and writable."""
 
     class ModelObject(object):
@@ -532,7 +544,8 @@ def test_event_security_action_and_rw():
         Event(action=Action(do_nothing), writable=Action(do_nothing))
 
 
-def test_receiving_events():
+@with_fixtures(FieldFixture)
+def test_receiving_events(fixture):
     """An Event is said to have occurred if it received a querystring containing its arguments from user input.
        An Event can only be fired if it occurred."""
 
@@ -584,8 +597,8 @@ class AllowedScenarios(Fixture):
         self.expected_exception = NoException
 
 
-@with_fixtures(AllowedScenarios)
-def test_security_of_receiving_events(allowed_scenarios):
+@with_fixtures(FieldFixture, AllowedScenarios)
+def test_security_of_receiving_events(field_fixture, allowed_scenarios):
     """An Event can only occur if BOTH its access restrictions are allowed."""
 
 
@@ -609,7 +622,8 @@ def test_security_of_receiving_events(allowed_scenarios):
     assert event.occurred is fixture.expected_occurred
 
 
-def test_required_constraint():
+@with_fixtures(FieldFixture)
+def test_required_constraint(fixture):
     selector = 'find me'
     required_constraint = RequiredConstraint(selector_expression=selector)
 
@@ -637,7 +651,8 @@ def test_required_constraint():
         required_constraint.validate_input('.')
 
 
-def test_min_length_constraint():
+@with_fixtures(FieldFixture)
+def test_min_length_constraint(fixture):
 
     min_required_length = 5
     min_length_constraint = MinLengthConstraint(min_length=min_required_length)
@@ -662,7 +677,8 @@ def test_min_length_constraint():
         min_length_constraint.validate_input('')
 
 
-def test_max_length_constraint():
+@with_fixtures(FieldFixture)
+def test_max_length_constraint(fixture):
 
     max_allowed_length = 5
     max_length_constraint = MaxLengthConstraint(max_length=max_allowed_length)
@@ -687,7 +703,8 @@ def test_max_length_constraint():
         max_length_constraint.validate_input('ś'*(max_allowed_length+1))
 
 
-def test_pattern_constraint():
+@with_fixtures(FieldFixture)
+def test_pattern_constraint(fixture):
 
     allow_pattern = '(ab)+'
     pattern_constraint = PatternConstraint(pattern=allow_pattern)
@@ -710,7 +727,8 @@ def test_pattern_constraint():
         faulty_pattern_constraint.validate_input(valid_input)
 
 
-def test_allowed_values_constraint():
+@with_fixtures(FieldFixture)
+def test_allowed_values_constraint(fixture):
 
     allowed_values=['a','b']
     allowed_values_constraint = AllowedValuesConstraint(allowed_values=allowed_values)
@@ -727,7 +745,8 @@ def test_allowed_values_constraint():
         allowed_values_constraint.validate_input(invalid_input)
 
 
-def test_equal_to_constraint():
+@with_fixtures(FieldFixture)
+def test_equal_to_constraint(fixture):
 
     other_field = Field(label='other')
     equal_to_constraint = EqualToConstraint(other_field, '$label, $other_label')
@@ -742,7 +761,8 @@ def test_equal_to_constraint():
         equal_to_constraint.validate_parsed_value('this is not equal')
 
 
-def test_smaller_than_constraint():
+@with_fixtures(FieldFixture)
+def test_smaller_than_constraint(fixture):
 
     other_field = IntegerField(label='other')
     smaller_than_constraint = SmallerThanConstraint(other_field, '$label, $other_label')
@@ -757,7 +777,8 @@ def test_smaller_than_constraint():
         smaller_than_constraint.validate_parsed_value( 5 )
 
 
-def test_greater_than_constraint():
+@with_fixtures(FieldFixture)
+def test_greater_than_constraint(fixture):
 
     other_field = IntegerField(label='other')
     greater_than_constraint = GreaterThanConstraint(other_field, '$label, $other_label')
@@ -772,7 +793,8 @@ def test_greater_than_constraint():
         greater_than_constraint.validate_parsed_value( 5 )
 
 
-def test_email_validation():
+@with_fixtures(FieldFixture)
+def test_email_validation(fixture):
 
     field = EmailField()
 
@@ -792,7 +814,8 @@ def test_email_validation():
         assert not field.validation_error
 
 
-def test_password_validation():
+@with_fixtures(FieldFixture)
+def test_password_validation(fixture):
 
     field = PasswordField()
 
@@ -810,7 +833,8 @@ def test_password_validation():
     assert not field.validation_error
 
 
-def test_password_access():
+@with_fixtures(FieldFixture)
+def test_password_access(fixture):
     """A PasswordField is world writable, but not readable by anyone."""
 
     field = PasswordField()
@@ -819,7 +843,8 @@ def test_password_access():
     assert field.can_write()
 
 
-def test_boolean_validation():
+@with_fixtures(FieldFixture)
+def test_boolean_validation(fixture):
 
     obj = EmptyStub()
     field = BooleanField()
@@ -872,7 +897,8 @@ def test_boolean_i18n():
     assert field.as_input() == 'af'
 
 
-def test_integer_validation():
+@with_fixtures(FieldFixture)
+def test_integer_validation(fixture):
 
     field = IntegerField()
 
@@ -895,7 +921,8 @@ def test_integer_validation():
         field.set_user_input('3')
 
 
-def test_basic_marshalling():
+@with_fixtures(FieldFixture)
+def test_basic_marshalling(fixture):
 
     field = Field()
     obj = EmptyStub()
@@ -914,7 +941,8 @@ def test_basic_marshalling():
     assert field.as_input() == ''
 
 
-def test_integer_marshalling():
+@with_fixtures(FieldFixture)
+def test_integer_marshalling(fixture):
 
     field = IntegerField()
     obj = EmptyStub()
