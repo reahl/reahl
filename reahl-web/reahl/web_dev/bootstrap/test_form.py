@@ -298,7 +298,6 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
     """The visual cues rendered server-side can subsequently be manipulated via javascript."""
     fixture = javascript_validation_scenario
 
-
     web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=fixture.Form.factory(), enable_js=False))
 
     browser = fixture.browser
@@ -360,7 +359,6 @@ def test_disabled_state(web_fixture, disabled_scenarios):
         assert 'disabled ' in form_group.attrib['class']
     else:
         assert 'disabled' not in form_group.attrib['class']
-
 
 
 class CheckboxFixture(Fixture):
@@ -589,7 +587,6 @@ def test_button_layouts_on_disabled_anchors(web_fixture):
     """Disabled A's are marked with a class so Bootstap can style them appropriately."""
     def can_write():
         return False
-
 
     anchor = A(web_fixture.view, href=Url('/an/href'), description='link text', write_check=can_write)
     anchor.use_layout(ButtonLayout())
