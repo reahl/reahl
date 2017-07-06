@@ -29,12 +29,12 @@ from reahl.webdev.tools import WidgetTester, XPath, Browser
 
 from reahl.component.exceptions import DomainException, ProgrammerError, IsInstance
 from reahl.component.modelinterface import IntegerField, EmailField, DateField, \
-                                    exposed, Field, Event, Action
+    exposed, Field, Event, Action, MultiChoiceField, Choice, AllowedValuesConstraint
 from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
 from reahl.sqlalchemysupport import Session
 from reahl.web.fw import Url, UserInterface, ValidationException
-from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm
+from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput
 
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
@@ -42,8 +42,8 @@ from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 @with_fixtures(WebFixture)
 def test_basic_event_linkup(web_fixture):
-    """When a user clicks on a Button, the Event to which the Button is linked is triggered on 
-       the server, and its corresponding action is executed. After this, the 
+    """When a user clicks on a Button, the Event to which the Button is linked is triggered on
+       the server, and its corresponding action is executed. After this, the
        browser is transitioned to the target view as specified by the EventHandler.
     """
     fixture = web_fixture
@@ -87,7 +87,7 @@ def test_basic_event_linkup(web_fixture):
 
 @with_fixtures(WebFixture)
 def test_arguments_to_actions(web_fixture):
-    """If a Button is created for an Event with_arguments, those arguments are passed to the backend 
+    """If a Button is created for an Event with_arguments, those arguments are passed to the backend
        when the Button is clicked."""
 
     fixture = web_fixture
@@ -156,7 +156,7 @@ def test_basic_field_linkup(web_fixture):
     """When a form is rendered, the Inputs on it display either the default value as specified
        by the Field with which the Input is associated, or (if set) the value of the attribute
        that Field is bound to.
-       
+
        When a user clicks on a Button, the Input value is set via the Field on the
        model objects to which the Field is bound. This happens before the associated action
        is executed.
@@ -349,6 +349,67 @@ def test_exception_handling(reahl_system_fixture, web_fixture):
 
 
 @with_fixtures(WebFixture)
+def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_fixture):
+    """When a form is submitted and validation fails on the server, the user
+     is presented with the values that were originally entered (even if they were invalid)."""
+
+    fixture = web_fixture
+
+    class ModelObject(object):
+        @exposed
+        def events(self, events):
+            events.an_event = Event(label='click me')
+        @exposed
+        def fields(self, fields):
+            choices = [Choice(1, IntegerField(label='One')),
+                       Choice(2, IntegerField(label='Two')),
+                       Choice(3, IntegerField(label='Three'))]
+            fields.no_validation_exception_field = MultiChoiceField(choices, label='Make your invalid choice', default=[])
+            fields.validation_exception_field = MultiChoiceField(choices, label='Make your choice', default=[], required=True)
+
+    model_object = ModelObject()
+
+    class MyForm(Form):
+        def __init__(self, view):
+            super(MyForm, self).__init__(view, 'my_form')
+            self.define_event_handler(model_object.events.an_event)
+            self.add_child(ButtonInput(self, model_object.events.an_event))
+            input = self.add_child(SelectInput(self, model_object.fields.no_validation_exception_field))
+            if input.validation_error:
+                self.add_child(self.create_error_label(input))
+            input = self.add_child(SelectInput(self, model_object.fields.validation_exception_field))
+            if input.validation_error:
+                self.add_child(self.create_error_label(input))
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory())
+    browser = Browser(wsgi_app)
+
+    browser.open('/')
+
+    no_validation_exception_input = '//select[@name="no_validation_exception_field"]'
+    validation_exception_input = '//select[@name="validation_exception_field"]'
+
+    browser.select_many(no_validation_exception_input, ['One', 'Two'])
+    browser.select_none(validation_exception_input) # select none to trigger the RequiredConstraint
+    browser.click(XPath.button_labelled('click me'))
+
+    assert browser.get_value(no_validation_exception_input) == ['1', '2']
+    assert not browser.get_value(validation_exception_input)
+
+    label = browser.get_html_for('//label')
+    input_id = browser.get_id_of(validation_exception_input)
+    assert label == '<label for="%s" class="error">Make your choice is required</label>' % input_id
+
+    #2. Submit again ths time not expecting validation exceptions, also expecting the validation error to be cleared and the domain should have all input
+    browser.select_many(validation_exception_input, ['Two', 'Three'])
+    browser.click(XPath.button_labelled('click me'))
+
+    assert not browser.is_element_present('//label[@class="error"]')
+    assert browser.get_value(no_validation_exception_input) == ['1', '2']
+    assert browser.get_value(validation_exception_input) == ['2', '3']
+
+
+@with_fixtures(WebFixture)
 def test_rendering_of_form(web_fixture):
     """A Form is always set up to POST to its EventChannel url.  The current page's query string is
        propagated with the POST url if any.  The Form has an id and class to help style it etc."""
@@ -395,7 +456,7 @@ def test_duplicate_forms(web_fixture):
 @with_fixtures(WebFixture)
 def test_check_input_placement(web_fixture):
     """When a web request is handled, the framework throws an exception if an input might be seperated conceptually from the form they are bound to."""
-    
+
     fixture = web_fixture
 
     class ModelObject(object):
@@ -426,12 +487,12 @@ def test_check_input_placement(web_fixture):
 
     with expected(ProgrammerError, test='.*Inputs are not allowed where they can be refreshed separately from their forms\..*'):
         browser.open('/')
-            
+
 
 @with_fixtures(WebFixture)
 def test_check_missing_form(web_fixture):
     """All forms referred to by inputs on a page have to be present on that page."""
-    
+
     fixture = web_fixture
 
     class ModelObject(object):
@@ -454,11 +515,11 @@ def test_check_missing_form(web_fixture):
 
     with expected(ProgrammerError, test=expected_message):
         browser.open('/')
-            
+
 
 @with_fixtures(WebFixture)
 def test_nested_forms(web_fixture):
-    """HTML disallows nesting of forms. A NestedForm can be used to simulate 
+    """HTML disallows nesting of forms. A NestedForm can be used to simulate
        a form which is visually part of another Form. A NestedForm provides a
        form attribute which should be used when creating an Inputs for it.
     """
@@ -512,14 +573,14 @@ def test_nested_forms(web_fixture):
     assert not outer_model_object.handled_event
 
     assert nested_model_object.nested_field == 'some nested input'
-    
+
 
 @with_fixtures(WebFixture)
 def test_form_input_validation(web_fixture):
     """Validation of input happens in JS on the client, but also on the server if JS is bypassed."""
 
     error_xpath = '//form[contains(@class, "reahl-form")]/label[contains(@class, "error")]'
-    
+
     fixture = web_fixture
 
     class ModelObject(object):
@@ -816,7 +877,7 @@ def test_remote_field_validation(web_fixture):
 
     browser.open('/_myform_validate_method?a_field=valid@email.org')
     assert browser.raw_html == 'true'
-    
+
 
 @with_fixtures(WebFixture)
 def test_remote_field_formatting(web_fixture):

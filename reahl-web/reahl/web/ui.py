@@ -1330,8 +1330,7 @@ class PrimitiveInput(Input):
         self.name = name
         if self.registers_with_form:
             self.name = form.register_input(self) # bound_field must be set for this registration to work
-        
-        self.prepare_input()
+            self.prepare_input()
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
     def __str__(self):
@@ -1399,9 +1398,7 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        previously_entered_value = None
-        if self.registers_with_form:
-            previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name)
+        previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
         if previously_entered_value is not None:
             self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
@@ -1414,7 +1411,7 @@ class PrimitiveInput(Input):
 
     def enter_value(self, input_value):
         if self.registers_with_form:
-            self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
+            self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value, self.bound_field.entered_input_type)
 
 
 class InputTypeInput(PrimitiveInput):
@@ -1538,7 +1535,7 @@ class OptGroup(HTMLElement):
 
 class SelectInput(PrimitiveInput):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a dropdown
-       list of valid ones.
+       list of valid ones if used with a ChoiceField, or many choices if used with a MultiChoiceField.
 
        .. admonition:: Styling
 

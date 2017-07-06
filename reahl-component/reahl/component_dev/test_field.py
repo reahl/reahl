@@ -977,6 +977,7 @@ class ChoiceFixture(Fixture):
         self.choices = self.all_choices
         self.groups = []
         self.valid_inputs = ['1', '2']
+        self.invalid_input = 'not an valid option'
         self.input_to_value_map = {'1': 1, '2': '2'}
         self.expected_validation_constraint = AllowedValuesConstraint
 
@@ -987,6 +988,7 @@ class ChoiceFixture(Fixture):
         self.groups = [ChoiceGroup('', self.all_choices)]
         self.choices = self.groups
         self.valid_inputs = ['1', '2']
+        self.invalid_input = 'not an valid option'
         self.input_to_value_map = {'1': 1, '2': '2'}
         self.expected_validation_constraint = AllowedValuesConstraint
 
@@ -1000,8 +1002,22 @@ class ChoiceFixture(Fixture):
         self.field = self.new_field(MultiChoiceField)
 
         self.valid_inputs = [('1',), ['1', '2']]
-        self.input_to_value_map = {('1',): [1], ('1', '2'): [1,2]}
+        self.invalid_input = ['not an valid option', '1']
+        self.input_to_value_map = {('1',): [1], ('1', '2'): [1, 2]}
         self.expected_validation_constraint = MultiChoiceConstraint
+
+    @scenario
+    def multi_choices_required(self):
+        self.all_choices = [Choice(1, IntegerField(label='One'))]
+        self.groups = []
+        self.choices = self.all_choices
+        field = self.new_field(MultiChoiceField)
+        self.field = field.as_with_validation_constraint(RequiredConstraint())
+
+        self.valid_inputs = [('1',), ['1']]
+        self.invalid_input = []
+        self.input_to_value_map = {('1',): [1]}
+        self.expected_validation_constraint = RequiredConstraint
 
 
 @with_fixtures(ChoiceFixture)
@@ -1025,7 +1041,7 @@ def test_choice_validation(choice_fixture):
 
     # Case invalid
     with expected(fixture.expected_validation_constraint):
-        field.set_user_input('sdfdf')
+        field.set_user_input(fixture.invalid_input)
 
     # Case valid
     for i in fixture.valid_inputs:

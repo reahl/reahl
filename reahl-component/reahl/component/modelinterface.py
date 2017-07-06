@@ -676,6 +676,7 @@ class Field(object):
                         to this Field when it is not writable for that user. (See `error_message` of
                         :class:`ValidationConstraint`.)
     """
+    entered_input_type = six.text_type
     @arg_checks(readable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)), writable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)))
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, disallowed_message=None):
         self.name = None
@@ -762,10 +763,9 @@ class Field(object):
     
     def set_user_input(self, input_value, ignore_validation=False):
         self.clear_user_input()
-
         self.user_input = input_value
 
-        if not self.required and input_value == '':
+        if not self.required and (input_value == self.entered_input_type()):
             self.input_status = 'validly_entered'
         else:
             try:
@@ -1357,13 +1357,16 @@ class ChoiceField(Field):
                                
        (For other arguments, see :class:`Field`.)
     """
-    allows_multiple_selections = False
     def __init__(self, grouped_choices, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         super(ChoiceField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
         if not self.are_choices_unique(self.flatten_choices(grouped_choices)):
             raise ProgrammerError('Duplicate choices are not allowed')
         self.grouped_choices = grouped_choices
         self.init_validation_constraints()
+
+    @property
+    def allows_multiple_selections(self):
+        return self.entered_input_type is list
 
     def are_choices_unique(self, flattened_choices):
         return len(flattened_choices) == len(set([choice.value for choice in flattened_choices]))
@@ -1426,7 +1429,7 @@ class BooleanField(ChoiceField):
 
 class MultiChoiceField(ChoiceField):
     """A Field that allows a selection of values from the given :class:`Choice` instances as input."""
-    allows_multiple_selections = True
+    entered_input_type = list
 
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))

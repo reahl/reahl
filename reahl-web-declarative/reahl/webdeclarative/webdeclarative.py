@@ -218,7 +218,7 @@ class UserInput(SessionData, UserInputProtocol):
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
 
     key = Column(UnicodeText, nullable=False)
-    value = Column(UnicodeText, nullable=False)
+    value = Column(UnicodeText, nullable=True)
 
     __hash__ = None
     def __eq__(self, other):
@@ -227,17 +227,38 @@ class UserInput(SessionData, UserInputProtocol):
                self.value == other.value
 
     @classmethod
-    def get_previously_entered_for_form(cls, form, input_name):
+    def get_previously_entered_for_form(cls, form, input_name, entered_input_type):
         query = cls.for_form(form).filter_by(key=input_name)
-        if query.count() > 0:
-            return query.one().value
-        else:
+        if query.count() == 0:
             return None
 
+        values = [i.value for i in query.all()]
+
+        if entered_input_type is six.text_type:
+            assert len(values) == 1
+            return values[0]
+        elif entered_input_type is list:
+            if len(values) == 1 and values[0] is None:
+                return []
+            return values
+        else:
+            assert None, 'Cannot persist values of type: %s' % entered_input_type
+
+
     @classmethod
-    def save_input_value_for_form(cls, form, input_name, value):
-        assert isinstance(value, six.text_type)
-        cls.new_for_form(form, key=input_name, value=value)
+    def save_input_value_for_form(cls, form, input_name, value, entered_input_type):
+        if entered_input_type is six.text_type:
+            assert isinstance(value, six.text_type), 'Cannot handle the value: ' + six.text_type(value)
+            cls.new_for_form(form, key=input_name, value=value)
+        elif entered_input_type is list:
+            assert all([isinstance(i, six.text_type) for i in value]), 'Cannot handle the value: ' + six.text_type(value)
+            if value:
+                for i in value:
+                    cls.new_for_form(form, key=input_name, value=i)
+            else:
+                cls.new_for_form(form, key=input_name, value=None)
+        else:
+            assert None, 'Cannot persist values of type: %s' % entered_input_type
 
 
 class PersistedException(SessionData, PersistedExceptionProtocol):
