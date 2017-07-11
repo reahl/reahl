@@ -48,16 +48,22 @@ class ModelObject(object):
         fields.cue_field = Field(label='A TextInput in a CueInput')
         fields.choice_field = ChoiceField([Choice(False, BooleanField(label='None selected')),
                                            ChoiceGroup('Numbers', [Choice(1, IntegerField(label='One')), 
-                                                                    Choice(2, IntegerField(label='Two')), 
-                                                                    Choice(3, IntegerField(label='Three'))]),
+                                                                   Choice(2, IntegerField(label='Two')),
+                                                                   Choice(3, IntegerField(label='Three'))]),
                                            ChoiceGroup('Colours', [Choice('r', Field(label='Red')),
-                                                                    Choice('g', Field(label='Green'))])
-                                          ], label='A SelectInput')
+                                                                   Choice('g', Field(label='Green'))])
+                                           ], label='A SelectInput')
         fields.multi_choice_field = MultiChoiceField([Choice(1, IntegerField(label='One')), 
                                                       Choice(2, IntegerField(label='Two')), 
                                                       Choice(3, IntegerField(label='Three'))], 
-                                                      label='A SelectInput allowing multiple choices')
-        fields.boolean_field = BooleanField(label='A CheckboxInput')
+                                                     label='A SelectInput allowing multiple choices')
+        fields.another_multi_choice_field = MultiChoiceField([Choice('a', Field(label='Newton')),
+                                                              Choice('b', Field(label='Archimedes')),
+                                                              Choice('c', Field(label='Einstein')),
+                                                              ],
+                                                             default=['a', 'c'],
+                                                             label='A CheckboxInput allowing multiple choices')
+        fields.boolean_field = BooleanField(label='A CheckboxInput to toggle')
         fields.radio_choice_field = ChoiceField([Choice(1, IntegerField(label='One')), 
                                                  Choice(2, IntegerField(label='Two')), 
                                                  Choice(3, IntegerField(label='Three'))],
@@ -80,10 +86,12 @@ class ExampleForm(Form):
         self.layout.add_input(TextArea(self, model_object.fields.text_area_field, rows=5, columns=60))
         self.layout.add_input(SelectInput(self, model_object.fields.choice_field))
         self.layout.add_input(SelectInput(self, model_object.fields.multi_choice_field))
+        self.layout.add_input(CheckboxInput(self, model_object.fields.another_multi_choice_field))
         self.layout.add_input(RadioButtonSelectInput(self, model_object.fields.radio_choice_field,
-                                               contents_layout=ChoicesLayout(inline=True)))
+                                                     contents_layout=ChoicesLayout(inline=True)))
         self.layout.add_input(TextInput(self, model_object.fields.fuzzy_date_field, fuzzy=True))
-        self.layout.add_input(TextInput(self, model_object.fields.text_input_without_label, placeholder=True), hide_label=True)
+        self.layout.add_input(TextInput(self, model_object.fields.text_input_without_label, placeholder=True),
+                              hide_label=True)
         self.layout.add_input(CueInput(TextInput(self, model_object.fields.cue_field), P(view, text='This is a cue')))
         self.define_event_handler(model_object.events.do_something)
 
