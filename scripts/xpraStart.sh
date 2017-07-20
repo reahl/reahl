@@ -18,5 +18,5 @@ while getopts "v:d:" opt; do
 done
 
 set -x
-vagrant ssh $MACHINE_NAME -- xpra start --sharing=yes "$REMOTE_DISPLAY"
+vagrant ssh $MACHINE_NAME -- XPRA_SYSTEMD_RUN=0 xpra start --sharing=yes "$REMOTE_DISPLAY"
 vagrant ssh $MACHINE_NAME -- /vagrant/scripts/showHostFingerprints.sh
