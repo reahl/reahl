@@ -123,7 +123,7 @@ class RegisterForm(Form):
         error_message = _('Sorry, you can only register once per email address and someone is '
                           'already registered as $value. Did you perhaps register long ago?')
 
-        unique_email_field = self.account_management_interface.fields.email.as_with_validation_constraint(UniqueEmailConstraint(error_message))
+        unique_email_field = self.account_management_interface.fields.email.with_validation_constraint(UniqueEmailConstraint(error_message))
         identification_inputs.layout.add_input(CueInput(TextInput(self, unique_email_field), email_cue))
 
         password_cue = P(self.view, _('Upon logging in, you will be asked for your password. Your password should be a '

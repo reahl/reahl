@@ -181,6 +181,7 @@ class JQuery(Library):
 
     def add_shipped_plugin(self, file_name):
         self.files.append(file_name)
+        return file_name
 
     def document_ready_material(self, rendered_page):
         result = '\n<script id="reahl-jqueryready" type="text/javascript">\n'

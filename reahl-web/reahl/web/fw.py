@@ -2597,6 +2597,7 @@ class ReahlWSGIApplication(object):
     def add_reahl_static_files(self):
         static_files = self.config.web.frontend_libraries.packaged_files()
         self.define_static_files('/static', static_files)
+        return static_files
 
     def define_static_files(self, path, files):
         ui_name = 'static_%s' % path

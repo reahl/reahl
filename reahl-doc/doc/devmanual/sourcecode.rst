@@ -74,7 +74,8 @@ Making sense of code
 
 We use tests and UML designs to serve as a summary of the requirements
 for a component. These are all located in the `_dev` package of a
-component. In some cases there's also an outline to serve as table of contents.
+component. In some cases there's also an outline of such requirements
+which serves as table of contents.
 
 Our table of contents is called `contents.mm` and `can be viewed using
 the Freemind mind mapping tool

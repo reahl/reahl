@@ -75,20 +75,24 @@ class EasterEgg(pkg_resources.Distribution):
     def add_dependency(self, spec):
         requirement = pkg_resources.Requirement.parse(spec)
         self._dep_map[None] = [requirement]
+        return requirement
 
     def add_to_working_set(self):
         """Adds this EasterEgg to the global pkg_resources.working_set object."""
         pkg_resources.working_set.add(self, replace=True)
+        return self
 
     def add_entry_point_from_line(self, group_name, line):
         entry = pkg_resources.EntryPoint.parse(line, dist=self)
         self.entry_points[ (group_name, entry.name) ] = entry
+        return entry
 
     def add_entry_point(self, group_name, name, the_class):
         entry = pkg_resources.EntryPoint(name, the_class.__module__,
                                          attrs=(the_class.__name__,),
                                          dist=self)
         self.entry_points[ (group_name, entry.name) ] = entry
+        return entry
 
     def clear(self):
         self.entry_points = {}

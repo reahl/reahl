@@ -172,6 +172,7 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
     def add_button_for_choice_to(self, widget, choice):
         button = PrimitiveRadioButtonInput(self, choice)
         widget.layout.add_choice(button)
+        return button
 
 
 class ButtonInput(reahl.web.ui.ButtonInput):

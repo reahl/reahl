@@ -53,7 +53,7 @@ class ReahlWSGIApplicationStub(ReahlWSGIApplication):
         static_files = self.config.web.frontend_libraries.packaged_files()
         static_files_no_js = [packaged_file
                               for packaged_file in static_files if not packaged_file.relative_name.endswith('.js')]
-        self.define_static_files('/static', static_files_no_js)
+        return self.define_static_files('/static', static_files_no_js)
 
 
 class BasicPageLayout(Layout):
@@ -86,8 +86,9 @@ class FakeQUnit(Library):
 
 
 
-@uses(reahl_system_fixture=ReahlSystemFixture, sql_alchemy_fixture=SqlAlchemyFixture,
-      party_account_fixture=PartyAccountFixture, web_server_fixture=WebServerFixture)
+@uses(reahl_system_fixture=ReahlSystemFixture, 
+      party_account_fixture=PartyAccountFixture,
+      web_server_fixture=WebServerFixture)
 class WebFixture(Fixture):
 
     @set_up

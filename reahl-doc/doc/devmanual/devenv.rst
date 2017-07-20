@@ -22,7 +22,7 @@ know it already, but it is well worth it.
 The Reahl Vagrant box
 ---------------------
 
-The Reahl vagrant box is called 'reahl/xenial64', to use it put the
+The Reahl vagrant box is called 'reahl/xenial64'[#lts]_, to use it put the
 following in your Vagrantfile:
 
 .. code-block:: ruby
@@ -38,12 +38,12 @@ Inside the Vagrant box
 
 Inside the Vagrant box, we have:
  - Projects installed that Reahl depends on;
- - A postgresql database with the vagrant user set up as administrator;
+ - A postgresql database with the `vagrant` user set up as administrator;
  - A python3.5 virtualenv prepared for Reahl development;
  - A version of chromium-browser that works well with tests;
  - A matching version of chromedriver to enable selenium tests; 
  - Various ways to access the GUI on the Vagrant machine; and
- - Configuration for pip to allow installation of what is built.
+ - Configuration for pip to allow local installation of what is built (useful for tox tests).
 
 Running the tests
 -----------------
@@ -57,14 +57,14 @@ You should be able to run tests immediately:
    cd /vagrant
    reahl shell -sdX -- reahl unit
 
-This will change into the directory of each separate Reahl component,
+The last command changes into the directory of each separate Reahl component,
 and run its tests in turn.
 
 Browsers and seeing stuff
 -------------------------
 
 We use `an Xpra display server <https://xpra.org/>`_ for the Vagrant
-box. It allows headless operation and sharing GUI windows for pair
+machine. It allows headless operation and sharing GUI windows for pair
 programming.
 
 When you run tests a per above instructions, the browser is fired up
@@ -93,8 +93,8 @@ There's no IDE installed inside the Vagrant machine. You need to
 install and configure one of your choosing on your own machine. You
 need to use an IDE that is able to connect to a remote host (the
 Vagrant machine is "remote" from the perspective of an IDE). Your IDE
-also needs to be able to work with Python code on the remote host that
-is inside a virtualenv.
+also needs to be able to work with Python code *inside a specific
+virtualenv* on the remote host.
 
 To know to which machine to connect your IDE, run (on your own machine)::
 
@@ -133,22 +133,24 @@ to be in `~/bin`. Follow the instructions on the ngrok website to
 create an account and save your credentials locally.
 
 To share a locally running Vagrant machine (assuming ngrok is all set
-up), Jane can then run `./scripts/startNgrok.sh`.  This command will
-provide output in the form of a DNS name and port number that the
-remote party can use to access. Make a note of these for use later on.
+up), Jane can then run `./scripts/startNgrok.sh` from the root
+directory of the Reahl source.  This command will provide output in
+the form of a DNS name and port number that the remote party can use
+to access. Make a note of these for use later on.
    
 Let the remote connect securely
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We do not allow login via password for security reasons [#passlogin]_. For John to
-be able to log in, his ssh public key needs to be installed into
-Jane's Vagrant machine. To do this, John should send his public key to
-Jane. John's public key should be in `~/.ssh/id_rsa.pub` on his
-computer.
+We do not allow login via password for security reasons
+[#passlogin]_. For John to be able to log in, his ssh public key needs
+to be installed into Jane's Vagrant machine. To do this, John should
+send his public key to Jane. John's public key is in
+`~/.ssh/id_rsa.pub` on his computer.
 
-Jane should edit the `/home/vagrant/.ssh/authorized_keys` file on the
-Vagrant machine and append the contents of John's public key to
-whatever's in that file already.
+To enable John to log in, Jane edits the
+`/home/vagrant/.ssh/authorized_keys` file on the Vagrant machine and
+append the contents of John's public key to whatever's in that file
+already.
 
 Now John will be allowed in. John also needs to make sure when
 connecting that he is connecting to the correct machine and not some
@@ -194,8 +196,8 @@ the Vagrant machine and all GUI programs will be displayed there.
 
 In order to see that GUI, both Jane and John need to connect to it. It
 is often very useful NOT to connect to it, because its not very
-interesting to see the tests execute. But, in some circumstances (such
-as debugging), you do want to see what is going on.
+interesting to see the tests execute. In some circumstances (such
+as debugging) you *do* however want to see what is going on.
 
 Jane and John need to have xpra installed on their own machines for
 this to work, and John needs to download the `scripts/xpraAttach.sh`
@@ -222,6 +224,8 @@ collaborative editing from your own IDE. It also allows editing on the
 web.
 
 
+.. [#lts] We develop on the latest LTS version of Ubuntu.
+   
 .. [#passlogin] Once you expose a Vagrant machine to the Internet,
    malicious parties will discover it and start trying user name and
    password combinations to try and log in. We configured the Vagrant
