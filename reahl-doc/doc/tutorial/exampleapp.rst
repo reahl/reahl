@@ -1,12 +1,12 @@
 .. Copyright 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-An application that actually does something
-===========================================
+The goal
+========
 
-We introduce the Reahl basics by explaining the development of a
-simple address book application: it has a single page showing a list
-of names of people and their associated email addresses. Below the
-list of addresses is a means by which you can add a new email address.
+We are going to write a simple address book application. It has:
+
+- a single page showing a list of email addresses; and
+- a way to add a new email address on the same page.
 
    .. figure:: addressuischematic.png
       :align: center
@@ -32,6 +32,9 @@ this simple application are used to introduce other concepts.
 For now, though, this application will be built up bit by
 bit in these steps:
 
+ #. :doc:`We start by making a basic page with header and learn about layout. <styling>`
+
+Older:
  #. :doc:`First we build a silly model (an OO design) to show what is meant by that, and how we test models. <models>`
  #. :doc:`Next, the model is changed (with tests) so that it can be persisted in a database. <persistence>`
  #. :doc:`Then, a component is created for the app, and persisted classes registered with that component so that Reahl has the info it needs to create and maintain the underlying database schema for you. <housingmodels>`

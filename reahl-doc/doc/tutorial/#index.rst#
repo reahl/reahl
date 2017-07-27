@@ -12,7 +12,7 @@ The basic stuff
 
 .. toctree::
    :maxdepth: 1
-              
+
 
    gettingstarted-install
    gettingstarted-develop

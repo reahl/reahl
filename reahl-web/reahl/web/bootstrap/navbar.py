@@ -74,7 +74,7 @@ class NavbarTogglerAlignment(HTMLAttributeValueOption):
 class ColourTheme(HTMLAttributeValueOption):
     def __init__(self, name):
         super(ColourTheme, self).__init__(name, name is not None, 
-                                          prefix='navbar', constrain_value_to=['light', 'dark'])
+                                          prefix='navbar', constrain_value_to=['light', 'inverse'])
 
 
 class BackgroundScheme(HTMLAttributeValueOption):
@@ -89,7 +89,7 @@ class NavbarLayout(Layout):
     :param fixed_to: May be one of 'top','bottom' or 'stickytop'.
                     The Navbar will stick to the top or bottom of the viewport.
     :param center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
-    :param colour_theme: Whether the Navbar has a 'dark' or 'light' background.
+    :param colour_theme: Whether the Navbar has a 'light' or 'inverse' (dark) background.
     :param bg_scheme: Whether the Navbar should use 'primary' colors, an 'inverse' (light on dark) scheme
                         or a 'faded' background.
     """
@@ -252,9 +252,11 @@ class Navbar(HTMLWidget):
 
     :param view: (See :class:`reahl.web.fw.Widget`)
     """
-    def __init__(self, view):
+    def __init__(self, view, css_id=None):
         super(Navbar, self).__init__(view)
 
         self.navbar = self.add_child(Nav(view))
         self.navbar.append_class('navbar')
         self.set_html_representation(self.navbar)
+        if css_id:
+            self.set_id(css_id)

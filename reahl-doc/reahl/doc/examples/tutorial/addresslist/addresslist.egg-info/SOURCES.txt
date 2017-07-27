@@ -1,0 +1,8 @@
+addresslist.py
+addresslist.egg-info/PKG-INFO
+addresslist.egg-info/SOURCES.txt
+addresslist.egg-info/dependency_links.txt
+addresslist.egg-info/entry_points.txt
+addresslist.egg-info/namespace_packages.txt
+addresslist.egg-info/requires.txt
+addresslist.egg-info/top_level.txt

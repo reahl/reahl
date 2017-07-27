@@ -1,0 +1,10 @@
+addresslistdb.py
+addresslistdb.egg-info/PKG-INFO
+addresslistdb.egg-info/SOURCES.txt
+addresslistdb.egg-info/dependency_links.txt
+addresslistdb.egg-info/entry_points.txt
+addresslistdb.egg-info/namespace_packages.txt
+addresslistdb.egg-info/requires.txt
+addresslistdb.egg-info/top_level.txt
+addresslistdb_dev/__init__.py
+addresslistdb_dev/test_addresslist.py

@@ -1,26 +1,19 @@
 .. Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Reahl examples
-==============
+Run more examples
+=================
 
-Reahl comes with a number of examples ready for you to check out and
-play with. These are not self-explanatory -- *they are referred to all
-over* in :doc:`the rest of the tutorial<index>` to illustrate what is
-explained there.
+Reahl comes with a number of examples. These are not self-explanatory
+-- *they are referred to all over* in :doc:`the rest of the
+tutorial<index>` to illustrate what is explained there.
 
-This is just a quick guide you can use as a cheat sheet when you come
-across an example in :doc:`the rest of the tutorial<index>` and you
-wonder how to run it. 
-
-:doc:`gettingstarted-develop` contains a step-by-step explanation of
-all the details here.
-
+Here is a cheat sheet when you come across an example in
+and you wonder how to run it.
 
 Listing and checking out examples
 ---------------------------------
 
-Once inside the virtualenv where you installed Reahl, you can use this 
-command to list all the examples that come with Reahl:
+To list all the examples that come with Reahl:
 
 .. code-block:: python
 
@@ -42,28 +35,28 @@ example.
 Running examples
 ----------------
 
-After first checking out an example, you need to do the following
-before you can run it:
+After first checking out an example, do the following
+before trying to run it:
 
- - Go to the checked out example:
+- Go to the checked out example:
 
-   .. code-block:: bash
+  .. code-block:: bash
 
-      cd hello
+     cd hello
 
- - Prepare the example for development:
+- Prepare the example for development:
 
-   .. code-block:: bash
+  .. code-block:: bash
 
-      reahl setup -- develop -N
+     reahl setup -- develop -N
 
- - Create a database:
+- Create a database:
 
-   .. code-block:: bash
+  .. code-block:: bash
 
-      reahl-control createdbuser etc
-      reahl-control createdb etc
-      reahl-control createdbtables etc
+     reahl-control createdbuser etc
+     reahl-control createdb etc
+     reahl-control createdbtables etc
 
 
 Once that is done, run the example:

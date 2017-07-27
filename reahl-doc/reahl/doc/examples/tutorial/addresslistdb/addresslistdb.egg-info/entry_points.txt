@@ -1,0 +1,6 @@
+[reahl.eggs]
+Egg = reahl.component.eggs:ReahlEgg
+
+[reahl.persistlist]
+0 = reahl.doc.examples.tutorial.addresslistdb.addresslistdb:Address
+
