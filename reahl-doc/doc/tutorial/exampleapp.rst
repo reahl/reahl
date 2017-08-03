@@ -1,7 +1,7 @@
 .. Copyright 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-The goal
-========
+A first application
+===================
 
 We are going to write a simple address book application. It has:
 
@@ -32,7 +32,9 @@ this simple application are used to introduce other concepts.
 For now, though, this application will be built up bit by
 bit in these steps:
 
- #. :doc:`We start by making a basic page with header and learn about layout. <styling>`
+ #. :doc:`Start by making a basic page to learn about layout. <styling>`
+ #. :doc:`Create custom Widgets to display a list of Addresses. <addresslist>`
+ #. :doc:`Persist Address objects in the database. <addresslistdb>`
 
 Older:
  #. :doc:`First we build a silly model (an OO design) to show what is meant by that, and how we test models. <models>`

@@ -3,19 +3,10 @@
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |Layout| replace:: :class:`~reahl.web.fw.Layout`
 .. |HTML5Page| replace:: :class:`~reahl.web.ui.HTML5Page`
-.. |grid.ColumnLayout| replace:: :class:`~reahl.web.bootstrap.grid.ColumnLayout`
-.. |PageLayout| replace:: :class:`~reahl.web.layout.PageLayout`
-.. |ResponsiveSize| replace:: :class:`~reahl.web.bootstrap.grid.ResponsiveSize`
 .. |Navbar| replace:: :class:`~reahl.web.bootstrap.navbar.Navbar`
 .. |ResponsiveLayout| replace:: :class:`~reahl.web.bootstrap.navbar.ResponsiveLayout`
 .. |Container| replace:: :class:`~reahl.web.bootstrap.grid.Container`
 
-
-.. notes re how to change this
-   composing complicated widgets from simple ones
-   the concept of a Layout
-   bootstrap widgets vs plain ones
-   how to add your own styling
 
 
 Layout and styling
@@ -33,7 +24,8 @@ Layout and styling
 
 
 Reahl comes with |Widget|\s. You build your own by adding these
-together to form more complicated |Widget|\s of your own.
+together to form more complicated |Widget|\s that add up to a complete
+user interface.
 
 Use |Widget|\s from :doc:`the bootstrap package
 <../web/bootstrap/index>` for a styled site.
@@ -58,24 +50,26 @@ The |Container| |Layout| used on the body of our |HTML5Page| gives the page
 some margins and is necessary for Bootstrap to work.
 
 
-Custom styling
---------------
+.. note:: Custom styling
 
-Serve your own static files from a directory added using
-:meth:`~reahl.web.fw.UserInterface.define_static_directory` inside
-your :meth:`~reahl.web.fw.UserInterface.assemble`.
+   We dont want you to think of css anymore, but.. if you really want
+   to you can add your own css too:
+   
+   Serve your own static files from a directory added using
+   :meth:`~reahl.web.fw.UserInterface.define_static_directory` inside
+   your :meth:`~reahl.web.fw.UserInterface.assemble`.
 
-.. code-block:: python
+   .. code-block:: python
 
-   self.define_static_directory('/css')
+      self.define_static_directory('/css')
 
 
-To use your own CSS, add a link to such a static file on
-your HTML5Page subclass. For example in the `__init__`
-of your class, put:
+   To use your own CSS, add a link to such a static file on
+   your HTML5Page subclass. For example in the `__init__`
+   of your class, put:
 
-.. code-block:: python
+   .. code-block:: python
 
-   self.head.add_css(Url('/css/own.css'))
+      self.head.add_css(Url('/css/own.css'))
 
 

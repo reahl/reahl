@@ -1,4 +1,0 @@
-reahl-component>=4.0.0a1,<4.1
-reahl-web>=4.0.0a1,<4.1
-reahl-sqlalchemysupport>=4.0.0a1,<4.1
-reahl-web-declarative>=4.0.0a1,<4.1

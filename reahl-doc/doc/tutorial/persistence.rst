@@ -1,11 +1,27 @@
 .. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-A persistent model
-==================
+.. |Session| replace:: :class:`~reahl.sqlalchemysupport.sqlalchemysupport.Session`
+.. |Base| replace:: :class:`~reahl.sqlalchemysupport.sqlalchemysupport.Base`
+
+Fetch Addresses from the database
+=================================
+
+.. sidebar:: Behind the scenes
+
+   Persistence is done directly using `SqlAlchemy
+   <http://www.sqlalchemy.org/>`_. 
+
+
+Persisted Address instances
+---------------------------
+
+
+Reahl provides glue so you can persist Addresses in a database using
+`SqlAlchemy <http://www.sqlalchemy.org/>`_:
 
 .. sidebar:: Examples in this section
 
-   - tutorial.modeltests2
+   - tutorial.addresslistdb
 
    Get a copy of an example by running:
 
@@ -13,93 +29,75 @@ A persistent model
 
       reahl example <examplename>
 
+* Use the SqlAlchemy |Session| and |Base| provided by
+  :mod:`~reahl.sqlalchemysupport.sqlalchemysupport`.
+* __tablename__ identifies the table Address instances go into;
+* The `Column`\s map similarly named attributes to database columns;
+* The id `Column` is the primary key for Addresses;
+* Persist an Address instance with `Session.add()`.
 
 
-The model from :doc:`the previous chapter <models>` is a bit naive.
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addresslistdb/addresslistdb.py
+   :lines: 7-8
 
-Sure, you can create Addresses and save them to an AddressBook, but
-all of this is done in memory.  A real world application rarely works
-like this. Usually at least some of the objects would need to be saved
-to a database to avoid losing them. This is especially true for web
-applications.
-
-Persisting a model using SqlAlchemy
------------------------------------
-
-The problem of mapping Object Oriented models to relational databases
-is a considerable headache, but necessary if you want to work in
-an Object Oriented programming language like Python!
-Reahl does not implement persistence mechanisms by itself. That's a
-tough nut to crack. Besides there are cool tools for persisting
-objects in Python. Reahl merely provides some glue so these tools can
-be used easily. `SqlAlchemy <http://www.sqlalchemy.org/>`_ 
-deals with this persistence problem. 
-
-Let's shift to a more real world model for an address book application
-that uses SqlAlchemy for persistence. If Address instances can be
-persisted in a database, an AddressBook is not needed anymore. An
-AddressBook was merely the thing that held on to our Addresses and the
-database does the job just as well, if not better.
-
-That leaves a model consisting of a single class:
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/modeltests2.py
-   :lines: 5-7
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/modeltests2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addresslistdb/addresslistdb.py
    :pyobject: Address
 
-This shows mostly SqlAlchemy stuff, with a little Reahl help. Notice
-that Session, Base and metadata are imported from a Reahl
-package. These are provided for working with SqlAlchemy in a Reahl
-program.
-
-A discussion of SqlAlchemy is outside the scope of this tutorial, but here
-are some pointers to readers unfamiliar with SqlAlchemy:
-
-In order to map Address to a relational database table, we use SqlALchemy's
-Declarative extension:
-
-  * __tablename__ states which relational table Address instances go into;
-  * The assignment of `Column` instances to
-    `email_address` and `name` states that those attributes of Address
-    are to be inserted in similarly named columns on the relational database;
-  * The underlying database table columns will have types as indicated 
-    when constructing each Column object;
-  * The id `Column` provides a unique identifier for each Address instance 
-    (and is also its primary key in the database); and
-  * To actually persist an Address instance to the database, 
-    `Session.add()` is called.
-
-If you are not familiar with SqlAlchemy, please refer to its
-documentation: no short introduction can ever do it justice.
-
-Exercising a persistent model
------------------------------
-
-Exercising such database code involves a cinch: Reahl manages a few
-things related to the database behind the scenes.  For example, it
-takes care of creating and committing database transactions at the
-appropriate times.
-
-Usually this is done behind the scenes, out of the view (and concern)
-of the programmer. In a test, though, a lot of the Reahl framework is
-bypassed, so you have to do its job explicitly.  Luckily that is
-easy -- database code just needs to be executed within an
-:class:`~reahl.component.context.ExecutionContext`. This can be done as shown in the complete example
-below:
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/modeltests2.py
 
 
-.. note::
+Register Address with .reahlproject
+-----------------------------------
 
-   Have you noticed how the first few lines of the `test_model()`
-   connects to the database, ensuring that its schema is created for
-   the test run? That is all standard SqlAlchemy without any
-   Reahl influence.
+Reahl needs to know about persisted classes so it can (for example):
 
-   In a complete Reahl program, none of this database housekeeping is
-   visible in code -- Reahl provides tools that deal with it.
+* create database tables
+* migrate older databases to newer schemas
+
+Register Address in your project by adding it to the `<persisted>` section of the `.reahlproject` file:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addresslistdb/.reahlproject
+   :language: xml
+   :start-after: <persisted>
+   :end-before:  </persisted>
+   :prepend: <persisted>
+   :append: </persisted>
 
 
+Housekeeping and your database schema
+-------------------------------------
+
+Whenever you change a `.reahlproject` file though, be sure to run:
+
+.. code-block:: bash
+
+   reahl setup -- develop -N
+
+To create a database, run:
+
+.. code-block:: bash
+
+   reahl-control createdbuser etc  # If you have not already
+   reahl-control createdb etc
+   reahl-control createdbtables etc
+
+More useful commands:
+
+.. code-block:: bash
+
+   reahl-control dropdb etc
+   reahl-control dropdbtables etc   
+
+Configuration
+-------------
+
+Wonder where the database is? Check applicable config settings with:
+
+.. code-block:: bash
+
+   reahl-control listconfig etc -i
+
+To see the actual current values of those:
+
+.. code-block:: bash
+
+   reahl-control listconfig etc -v

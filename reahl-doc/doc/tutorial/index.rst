@@ -12,7 +12,7 @@ The basic stuff
 
 .. toctree::
    :maxdepth: 1
-              
+
 
    gettingstarted-install
    gettingstarted-develop
@@ -27,6 +27,11 @@ Layout
 
    exampleapp
    styling
+   uibasics
+   persistence
+   inputwidgets 
+   buttonwidgets
+   
    bootstrap/index
 
 An address book application
@@ -37,11 +42,11 @@ An address book application
 
    exampleapp
    models
-   persistence
-   housingmodels
-   uibasics
-   inputwidgets
-   buttonwidgets
+   persistence ()
+   housingmodels (dead)
+   uibasics ()
+   inputwidgets ()
+   buttonwidgets ()
 
 More stuff
 ---------------------------

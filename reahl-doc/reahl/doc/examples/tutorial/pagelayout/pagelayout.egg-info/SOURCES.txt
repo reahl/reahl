@@ -1,8 +1,0 @@
-pagelayout.py
-pagelayout.egg-info/PKG-INFO
-pagelayout.egg-info/SOURCES.txt
-pagelayout.egg-info/dependency_links.txt
-pagelayout.egg-info/entry_points.txt
-pagelayout.egg-info/namespace_packages.txt
-pagelayout.egg-info/requires.txt
-pagelayout.egg-info/top_level.txt
