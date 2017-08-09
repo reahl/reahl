@@ -42,7 +42,6 @@ class AddressBookUI(UserInterface):
     def assemble(self):
         self.define_view('/', title='Address book', page=AddressBookPage.factory())
 
-        
 
 class Address(Base):
     __tablename__ = 'addressbook1_address'
