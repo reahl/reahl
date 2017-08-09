@@ -1,0 +1,14 @@
+<project type="egg">
+  <deps purpose="run">
+    <egg name="reahl-component"/>
+    <egg name="reahl-web"/>
+    <egg name="reahl-sqlalchemysupport"/>
+    <egg name="reahl-web-declarative"/>
+  </deps>
+  <alias name="unit" command="setup -- check"/>
+  <persisted>
+    <class locator="reahl.doc.examples.tutorial.addresslistinput.addresslistinput:Address"/>
+  </persisted>
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.addresslistinput.addresslistinput_dev'"/>
+  <alias name="demosetup" command="setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.addresslistinput.addresslistinput_dev'"/>
+</project>
