@@ -1,17 +1,24 @@
-
 from __future__ import print_function, unicode_literals, absolute_import, division
+
 from reahl.web.fw import UserInterface, Widget
-from reahl.web.ui import HTML5Page, Div, P, H
-
-
-class AddressBookUI(UserInterface):
-    def assemble(self):
-        self.define_view('/', title='Addresses', page=AddressBookPage.factory())
+from reahl.web.bootstrap.ui import HTML5Page, TextNode, Div, H, P
+from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
+from reahl.web.bootstrap.grid import Container
+from reahl.sqlalchemysupport import Session, Base
+from sqlalchemy import Column, Integer, UnicodeText
 
 
 class AddressBookPage(HTML5Page):
     def __init__(self, view):
         super(AddressBookPage, self).__init__(view)
+        self.body.use_layout(Container())
+
+        layout = ResponsiveLayout('md', colour_theme='inverse', bg_scheme='primary', toggle_button_alignment='right')
+        navbar = Navbar(view, css_id='my_nav').use_layout(layout)
+        navbar.layout.set_brand_text('Address book')
+        navbar.layout.add(TextNode(view, 'All your addresses in one place'))
+
+        self.body.add_child(navbar)
         self.body.add_child(AddressBookPanel(view))
 
 
@@ -31,9 +38,10 @@ class AddressBox(Widget):
         self.add_child(P(view, text='%s: %s' % (address.name, address.email_address)))
 
 
-# The model from before:
-from sqlalchemy import Column, Integer, UnicodeText
-from reahl.sqlalchemysupport import Session, Base
+class AddressBookUI(UserInterface):
+    def assemble(self):
+        self.define_view('/', title='Address book', page=AddressBookPage.factory())
+
 
 class Address(Base):
     __tablename__ = 'addressbook1_address'
@@ -44,6 +52,5 @@ class Address(Base):
 
     def save(self):
         Session.add(self)
-
 
 

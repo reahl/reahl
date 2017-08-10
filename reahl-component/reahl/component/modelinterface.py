@@ -202,6 +202,7 @@ class ExposedDecorator(object):
 
 exposed = ExposedDecorator
 
+
 class FakeEvent(object):
     isEvent = True
     def __init__(self, name):

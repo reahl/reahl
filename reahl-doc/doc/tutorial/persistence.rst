@@ -21,7 +21,7 @@ Reahl provides glue so you can persist Addresses in a database using
 
 .. sidebar:: Examples in this section
 
-   - tutorial.addresslistdb
+   - tutorial.addressbook1
 
    Get a copy of an example by running:
 
@@ -37,14 +37,20 @@ Reahl provides glue so you can persist Addresses in a database using
 * Persist an Address instance with `Session.add()`.
 
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/addresslistdb/addresslistdb.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
    :lines: 7-8
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/addresslistdb/addresslistdb.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
    :pyobject: Address
 
 
+Change AddressBookPanel to query the database
+---------------------------------------------
 
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/addressbook1.py
+   :pyobject: AddressBookPanel
+
+	      
 Register Address with .reahlproject
 -----------------------------------
 
@@ -55,7 +61,7 @@ Reahl needs to know about persisted classes so it can (for example):
 
 Register Address in your project by adding it to the `<persisted>` section of the `.reahlproject` file:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/addresslistdb/.reahlproject
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook1/.reahlproject
    :language: xml
    :start-after: <persisted>
    :end-before:  </persisted>

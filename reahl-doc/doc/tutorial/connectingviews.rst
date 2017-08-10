@@ -1,14 +1,15 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
- 
+
+.. |UserInterface| ..replace:: :class:`~reahl.web.fw.UserInterface`
+.. |UrlBoundView| ..replace :class:`~reahl.web.fw.UrlBoundView`
+   
 Moving between Views
 ====================
 
 .. sidebar:: Examples in this section
 
    - tutorial.pageflow1
-   - tutorial.pageflow1bootstrap
    - tutorial.pageflow2
-   - tutorial.pageflow2bootstrap
 
    Get a copy of an example by running:
 
@@ -16,72 +17,54 @@ Moving between Views
 
       reahl example <examplename>
 
-Most :class:`~reahl.web.fw.UserInterface`\ s consist of several
-:class:`~reahl.web.fw.View`\ s that are designed to work together. It
-is useful to have a clear picture of which
-:class:`~reahl.web.fw.View`\ s exist in a user interface, and how the
-user can move between them.
-
-For example, the user interface of the address book application can be
-split up into two different :class:`~reahl.web.fw.View`\ s : one that
+The user interface of the address book application can be
+split up into two :class:`~reahl.web.fw.View`\ s : one that
 lists all the addresses, and another on which you can add a new
 address.
 
 .. figure:: addressbooksplit.png
    :align: center
+   :alt: A diagram showing two Views, and how one can move between them.
 
-   The address book application with two  :class:`~reahl.web.fw.View`\ s .
+   The address book application with two |UrlBoundView|\s.
 
-Notice the :class:`~reahl.web.ui.Menu` that was added to the application. 
-From the :class:`~reahl.web.ui.Menu`, a user can choose to navigate to the
-"Addresses" :class:`~reahl.web.fw.View`, or the "Add Address" :class:`~reahl.web.fw.View`. This is an example of
-navigation provided which is under the control of the user.
 
-Also shown in the schematic is that when a user is on the "Add
-Address" :class:`~reahl.web.fw.View`, and clicks on the Add button, the user is automatically
-transitioned back to the "Addresses" :class:`~reahl.web.fw.View`. In this case, the web
-application itself controls the navigation.
+Bookmarks and Navs
+------------------
 
-Each of these modes of navigation are dealt with differently:
+A |Bookmark| marks a particular |UrlBoundView|.  A |Nav| is a menu
+created from a list of |Bookmark|\s. It is a means for the user to
+move around in the application.
 
-Navigation under the user's control: Bookmarks
-----------------------------------------------
-
-To allow a user to navigate, one can provide anchors (:class:`~reahl.web.ui.A`) or :class:`~reahl.web.ui.Menu`\ s
-or something similar to the user. All of these just allow a user to jump directly to another :class:`~reahl.web.fw.View`.
-In order to refer to these :class:`~reahl.web.fw.View`\ s, you need a 
-:class:`~reahl.web.fw.Bookmark` for the :class:`~reahl.web.fw.View`.
-
-:class:`~reahl.web.fw.Bookmark` is a more abstract concept than that of an URL
-and contains a number of other bits of information about the :class:`~reahl.web.fw.View` it
-refers to, such as the title of that :class:`~reahl.web.fw.View`, or the access rights of the
-current user with regard to the given :class:`~reahl.web.fw.View`. The meta-information in a
-:class:`~reahl.web.fw.Bookmark` is useful for :class:`~reahl.web.fw.Widget`\ s that use :class:`~reahl.web.fw.Bookmark`\ s.
-
-The example below shows the application designed above with its two
-:class:`~reahl.web.fw.View`\ s , and a :class:`~reahl.web.ui.Menu` which is created from :class:`~reahl.web.fw.Bookmark`\ s.  Note how the
-:class:`~reahl.web.fw.Bookmark`\ s are obtained: using the :class:`~reahl.web.fw.View` and the :class:`~reahl.web.fw.UserInterface` of which the
-:class:`~reahl.web.fw.View` forms part.  
-
-The :class:`~reahl.web.ui.Menu` should be on every page. We accomplish
-this by creating AddressBookPage, and letting the page for each
-:class:`~reahl.web.fw.View` inherit from AddressBookPage. An
-AddressBookPage is literally just a :class:`~reahl.web.ui.HTML5Page`,
-with a :class:`~reahl.web.ui.Menu` added to its `.body`. The
-:class:`~reahl.web.ui.Menu` uses the textual description for each
-:class:`~reahl.web.fw.View` as obtained from the
-:class:`~reahl.web.fw.Bookmark`\ s from which it is constructed. Such
-a description defaults to being the title of the
-:class:`~reahl.web.fw.View`.
-
-In order to be able to create the :class:`~reahl.web.ui.Menu`, AddressBookPage and its subclasses need a
-:class:`~reahl.web.fw.Bookmark` for every :class:`~reahl.web.fw.View` in the application. This leaves us with 
-a bit of a chicken-and-egg problem: We usually set the page for a particular :class:`~reahl.web.fw.View` when 
-it is defined. However, each page needs all the bookmarks to all :class:`~reahl.web.fw.View`\ s. To get around
-this issue, you can omit setting the page when defining a :class:`~reahl.web.fw.View` and set it later
-using `.set_page()` as is done here.
+The simplest way to have all pages look similar is to create a common
+page from which you inherit all other pages in the application.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+   :pyobject: AddressBookPage
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+   :pyobject: HomePage
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+   :pyobject: AddPage
+
+
+Notice how the bookmarks are collected in `AddressBookUI.assemble`,
+and passed to |WidgetFactory| of each page. The |WidgetFactory|
+arguments match those of the `__init__` method of each page.
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+   :pyobject: AddressBookUI
+
+AddressBookForm is unchanged in this example. AddressBookPanel though
+contains a list of AddressBoxes, but no AddressBookForm---which is on
+the other |UrlBoundView|.
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+   :pyobject: AddressBookPanel
+
+
+---------------------------------------------------------
 
 
 Transitions

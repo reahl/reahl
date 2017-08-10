@@ -7,8 +7,8 @@ This tutorial is intended for those who'd like to understand Reahl and
 what it is about.
 
 
-The basic stuff
----------------
+Get started
+-----------
 
 .. toctree::
    :maxdepth: 1
@@ -19,8 +19,8 @@ The basic stuff
    gettingstarted-examples
 
 
-Layout
-------
+An address book application
+---------------------------
 
 .. toctree::
    :maxdepth: 1
@@ -30,23 +30,10 @@ Layout
    uibasics
    persistence
    inputwidgets 
-   buttonwidgets
    
-   bootstrap/index
 
-An address book application
----------------------------
 
-.. toctree::
-   :maxdepth: 1
 
-   exampleapp
-   models
-   persistence ()
-   housingmodels (dead)
-   uibasics ()
-   inputwidgets ()
-   buttonwidgets ()
 
 More stuff
 ---------------------------
@@ -55,7 +42,8 @@ More stuff
    :maxdepth: 1
 
    connectingviews
-   slots
+   slots #and add layout things from bootsrap/index)
+   bootstrap/index  # To nuke
    parameterised
    testing
    
