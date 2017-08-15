@@ -30,7 +30,7 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
-from reahl.doc.examples.tutorial.slotsbootstrap.slotsbootstrap import SlotsUI
+from reahl.doc.examples.tutorial.slots.slots import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 from reahl.doc.examples.features.carousel.carousel import CarouselUI
 from reahl.doc.examples.features.validation.validation import ValidationUI
