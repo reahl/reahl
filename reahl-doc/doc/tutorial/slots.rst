@@ -10,7 +10,6 @@ Make light work of similar-looking pages
 .. sidebar:: Examples in this section
 
    - tutorial.slots
-   - tutorial.slotsbootstrap
 
    Get a copy of an example by running:
 
