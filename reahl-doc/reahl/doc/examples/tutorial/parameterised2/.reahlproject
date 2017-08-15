@@ -19,9 +19,9 @@
   </deps>
 
   <persisted>
-    <class locator="reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap:Address"/>
+    <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap_dev'"/>
+  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.parameterised2.parameterised2_dev'"/>
   
 </project>

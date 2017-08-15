@@ -51,7 +51,7 @@ from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootst
 from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
 from reahl.doc.examples.tutorial.pageflow1 import pageflow1
 from reahl.doc.examples.tutorial.pageflow2 import pageflow2
-from reahl.doc.examples.tutorial.parameterised1bootstrap import parameterised1bootstrap
+from reahl.doc.examples.tutorial.parameterised1 import parameterised1
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -176,7 +176,7 @@ class ExampleFixture(Fixture):
 
     @scenario
     def parameterised1(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=parameterised1bootstrap.AddressBookUI)
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=parameterised1.AddressBookUI)
 
     @scenario
     def addressbook2bootstrap(self):
@@ -524,7 +524,7 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     assert browser.location_path == '/' 
     browser.click(XPath.link_with_text('edit'))
 
-    john = Session.query(parameterised1bootstrap.Address).one()
+    john = Session.query(parameterised1.Address).one()
     assert browser.location_path == '/edit/%s' % john.id 
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')

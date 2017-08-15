@@ -37,7 +37,6 @@ Fixtures
 
    - tutorial.testbasics
    - tutorial.parameterised2
-   - tutorial.parameterised2bootstrap
 
    Get a copy of an example by running:
 
@@ -149,7 +148,7 @@ a test per explained fact; other times it is useful to write a test
 for a little scenario illustrating a "user story". This test is an
 example of the latter:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/test_parameterised2bootstrap1.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2_dev/test_parameterised2_1.py
 
 The test should be run with pytest.
 
@@ -236,7 +235,7 @@ couple of things we'd like to assert about the application, as well as
 some objects used by the tests.  (Compare this implementation of
 `.adding_an_address()` to the previous implementation.)
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/test_parameterised2bootstrap2.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2_dev/test_parameterised2_2.py
 
 Testing JavaScript
 ------------------
@@ -284,6 +283,6 @@ Selenium used to test that the validation provided by :class:`~reahl.component.m
 in javascript as expected. Note also how javascript is enabled for the
 web application upon creation:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap_dev/test_parameterised2bootstrap3.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2_dev/test_parameterised2_3.py
 
 

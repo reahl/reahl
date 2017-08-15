@@ -1,12 +1,8 @@
-
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.tofu.pytestsupport import with_fixtures
-
 from reahl.webdev.tools import Browser, XPath
-
-from reahl.doc.examples.tutorial.parameterised2bootstrap.parameterised2bootstrap import AddressBookUI
-
+from reahl.doc.examples.tutorial.parameterised2.parameterised2 import AddressBookUI
 from reahl.web_dev.fixtures import WebFixture
 
 
