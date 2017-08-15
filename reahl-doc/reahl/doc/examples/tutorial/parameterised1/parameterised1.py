@@ -89,7 +89,7 @@ class AddressBox(Widget):
 class AddressBookUI(UserInterface):
     def assemble(self):
         show = self.define_view('/', title='Show')
-        add = self.define_view('/add', title='Add an address')
+        add = self.define_view('/add', title='Add')
         edit = self.define_view('/edit', view_class=EditView, address_id=IntegerField())
 
         show.set_slot('main', AddressBookPanel.factory(self))
@@ -124,5 +124,5 @@ class Address(Base):
 
     @exposed('save', 'update')
     def events(self, events):
-        events.save = Event(label='Add', action=Action(self.save))
+        events.save = Event(label='Save', action=Action(self.save))
         events.update = Event(label='Update')

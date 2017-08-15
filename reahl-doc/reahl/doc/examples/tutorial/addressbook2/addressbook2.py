@@ -80,4 +80,4 @@ class Address(Base):
 
     @exposed
     def events(self, events):
-        events.save = Event(label='Add', action=Action(self.save))
+        events.save = Event(label='Save', action=Action(self.save))

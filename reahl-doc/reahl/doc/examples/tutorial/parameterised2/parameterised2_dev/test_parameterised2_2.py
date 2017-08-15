@@ -19,10 +19,10 @@ class AddressAppFixture(Fixture):
         return address
 
     def is_on_home_page(self):
-        return self.browser.title == 'Addresses'
+        return self.browser.title == 'Show'
         
     def is_on_add_page(self):
-        return self.browser.title == 'Add an address'
+        return self.browser.title == 'Add'
 
     def is_on_edit_page_for(self, address):
         return self.browser.title == 'Edit %s' % address.name
@@ -40,7 +40,7 @@ def test_adding_an_address(web_fixture, address_app_fixture):
     browser = address_app_fixture.browser
 
     browser.open('/')
-    browser.click(XPath.link_with_text('Add an address'))
+    browser.click(XPath.link_with_text('Add'))
 
     assert address_app_fixture.is_on_add_page()
     browser.type(XPath.input_labelled('Name'), 'John Doe')

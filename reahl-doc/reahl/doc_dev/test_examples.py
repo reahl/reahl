@@ -477,7 +477,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
 
     assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
-    browser.click(XPath.link_with_text('Add an address'))
+    browser.click(XPath.link_with_text('Add'))
     assert browser.location_path == '/add' 
 
     browser.type(XPath.input_labelled('Name'), 'John') 
@@ -486,7 +486,7 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
 
     assert browser.location_path == '/add' 
 
-    browser.click(XPath.link_with_text('Addresses'))
+    browser.click(XPath.link_with_text('Show'))
     assert browser.location_path == '/' 
     assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
 
@@ -499,7 +499,7 @@ def test_pageflow2(web_fixture, pageflow2_scenario):
 
     assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
-    browser.click(XPath.link_with_text('Add an address'))
+    browser.click(XPath.link_with_text('Add'))
     assert browser.location_path == '/add' 
 
     browser.type(XPath.input_labelled('Name'), 'John') 
@@ -516,7 +516,7 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     browser = Browser(parameterised1_scenario.wsgi_app)
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Add an address'))
+    browser.click(XPath.link_with_text('Add'))
     browser.type(XPath.input_labelled('Name'), 'John') 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
