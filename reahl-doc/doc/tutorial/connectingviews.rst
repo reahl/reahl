@@ -39,13 +39,13 @@ move around in the application.
 The simplest way to have all pages look similar is to create a common
 page from which you inherit all other pages in the application.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
    :pyobject: AddressBookPage
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
    :pyobject: HomePage
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
    :pyobject: AddPage
 
 
@@ -53,14 +53,14 @@ Notice how the bookmarks are collected in `AddressBookUI.assemble`,
 and passed to |WidgetFactory| of each page. The |WidgetFactory|
 arguments match those of the `__init__` method of each page.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
    :pyobject: AddressBookUI
 
 AddressBookForm is unchanged in this example. AddressBookPanel though
 contains a list of AddressBoxes, but no AddressBookForm---which is on
 the other |UrlBoundView|.
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1bootstrap/pageflow1bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
    :pyobject: AddressBookPanel
 
 

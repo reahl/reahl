@@ -1,0 +1,99 @@
+from __future__ import print_function, unicode_literals, absolute_import, division
+
+from reahl.web.fw import UserInterface, Widget
+from reahl.web.bootstrap.ui import HTML5Page, TextNode, Div, H, P, FieldSet
+from reahl.web.bootstrap.navbar import Navbar, ResponsiveLayout
+from reahl.web.bootstrap.navs import Nav
+from reahl.web.bootstrap.grid import Container
+from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button, ButtonLayout
+from reahl.component.modelinterface import exposed, Field, EmailField, Action, Event
+from reahl.sqlalchemysupport import Session, Base
+from sqlalchemy import Column, Integer, UnicodeText
+
+
+class AddressBookPage(HTML5Page):
+    def __init__(self, view, bookmarks):
+        super(AddressBookPage, self).__init__(view)
+        self.body.use_layout(Container())
+
+        layout = ResponsiveLayout('md', colour_theme='inverse', bg_scheme='primary', toggle_button_alignment='right')
+        navbar = Navbar(view, css_id='my_nav').use_layout(layout)
+        navbar.layout.set_brand_text('Address book')
+        navbar.layout.add(Nav(view).with_bookmarks(bookmarks))
+        navbar.layout.add(TextNode(view, 'All your addresses in one place'))
+
+        self.body.add_child(navbar)
+
+
+class HomePage(AddressBookPage):
+    def __init__(self, view, main_bookmarks):
+        super(HomePage, self).__init__(view, main_bookmarks)
+        self.body.add_child(AddressBookPanel(view))
+
+
+class AddAddressPage(AddressBookPage):
+    def __init__(self, view, main_bookmarks):
+        super(AddAddressPage, self).__init__(view, main_bookmarks)
+        self.body.add_child(AddressForm(view))
+
+
+class AddressForm(Form):
+    def __init__(self, view):
+        super(AddressForm, self).__init__(view, 'address_form')
+
+        inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
+        inputs.use_layout(FormLayout())
+
+        new_address = Address()
+        inputs.layout.add_input(TextInput(self, new_address.fields.name))
+        inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
+
+        self.define_event_handler(new_address.events.save)
+        button = inputs.add_child(Button(self, new_address.events.save))
+        button.use_layout(ButtonLayout(style='primary'))
+
+
+class AddressBookPanel(Div):
+    def __init__(self, view):
+        super(AddressBookPanel, self).__init__(view)
+
+        self.add_child(H(view, 1, text='Addresses'))
+
+        for address in Session.query(Address).all():
+            self.add_child(AddressBox(view, address))
+
+
+class AddressBox(Widget):
+    def __init__(self, view, address):
+        super(AddressBox, self).__init__(view)
+        self.add_child(P(view, text='%s: %s' % (address.name, address.email_address)))
+
+
+class AddressBookUI(UserInterface):
+    def assemble(self):
+        show = self.define_view('/', title='Show')
+        add = self.define_view('/add', title='Add')
+
+        bookmarks = [v.as_bookmark(self) for v in [show, add]]
+        show.set_page(HomePage.factory(bookmarks))
+        add.set_page(AddAddressPage.factory(bookmarks))
+
+
+class Address(Base):
+    __tablename__ = 'pageflow1_address'
+
+    id            = Column(Integer, primary_key=True)
+    email_address = Column(UnicodeText)
+    name          = Column(UnicodeText)
+
+    @exposed
+    def fields(self, fields):
+        fields.name = Field(label='Name', required=True)
+        fields.email_address = EmailField(label='Email', required=True)
+
+    def save(self):
+        Session.add(self)
+
+    @exposed
+    def events(self, events):
+        events.save = Event(label='Add', action=Action(self.save))

@@ -49,8 +49,8 @@ from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
 from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootstrap
 from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
-from reahl.doc.examples.tutorial.pageflow1bootstrap import pageflow1bootstrap
-from reahl.doc.examples.tutorial.pageflow2bootstrap import pageflow2bootstrap
+from reahl.doc.examples.tutorial.pageflow1 import pageflow1
+from reahl.doc.examples.tutorial.pageflow2 import pageflow2
 from reahl.doc.examples.tutorial.parameterised1bootstrap import parameterised1bootstrap
 
 from reahl.web_dev.fixtures import WebFixture
@@ -168,11 +168,11 @@ class ExampleFixture(Fixture):
 
     @scenario
     def pageflow1(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=pageflow1bootstrap.AddressBookUI)
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=pageflow1.AddressBookUI)
 
     @scenario
     def pageflow2(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=pageflow2bootstrap.AddressBookUI)
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=pageflow2.AddressBookUI)
 
     @scenario
     def parameterised1(self):
