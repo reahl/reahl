@@ -42,8 +42,8 @@ More stuff
    :maxdepth: 1
 
    connectingviews
-   slots #and add layout things from bootsrap/index)
-   bootstrap/index  # To nuke
+   pagelayout
+   slots
    parameterised
    testing
    

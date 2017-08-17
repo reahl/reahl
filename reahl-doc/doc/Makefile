@@ -141,6 +141,6 @@ PNGS =$(SVGS:%.svg=%.png)
 pngs: $(PNGS)
 
 $(PNGS): %.png: %.svg
-	@echo cd $(PWD) && convert -background none $@  $<
-	cd $(PWD) && convert -background none $@  $<
+	@echo cd $(PWD) && convert -background none $< $@
+	cd $(PWD) && convert -background none $< $@
 

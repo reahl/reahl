@@ -20,7 +20,6 @@ class AddressBookPage(HTML5Page):
         navbar = Navbar(view, css_id='my_nav').use_layout(layout)
         navbar.layout.set_brand_text('Address book')
         navbar.layout.add(Nav(view).with_bookmarks(bookmarks))
-        navbar.layout.add(TextNode(view, 'All your addresses in one place'))
 
         self.body.add_child(navbar)
 
@@ -48,7 +47,6 @@ class AddressForm(Form):
         inputs.layout.add_input(TextInput(self, new_address.fields.name))
         inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
-        self.define_event_handler(new_address.events.save)
         button = inputs.add_child(Button(self, new_address.events.save))
         button.use_layout(ButtonLayout(style='primary'))
 
@@ -79,7 +77,6 @@ class AddressBookUI(UserInterface):
         add.set_page(AddAddressPage.factory(bookmarks))
 
         self.define_transition(Address.events.save, add, show)
-
 
 class Address(Base):
     __tablename__ = 'pageflow2_address'

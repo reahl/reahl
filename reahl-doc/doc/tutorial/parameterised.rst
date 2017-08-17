@@ -22,21 +22,16 @@ Parameterised  Views
 
       reahl example <examplename>
 
-Not all  |View|\s  can be statically defined in the `.assemble()` method of
-a |UserInterface|. In our AddressBook example you might want to add an
-EditAddress |View| for each Address in the database as shown in the
-following diagram:
-
+The AddressBook example can be changed further, so that existing
+Addresses can be edited:
 
 .. figure:: parameterised.png
    :align: center
 
    Views for editing addresses.
 
+This requires a single EditView that can edit any Address. 
 
-This may result in a very large number of  |View|\s -- an
-"Edit" |View| would have to be added to the |UserInterface| for each Address in
-the database. That is clearly not an acceptable solution.
 
 In order to solve the problem a |View| can have arguments -- so that a
 single "Edit" |View| can be defined *for an as yet unknown Address*.  Computing

@@ -10,7 +10,6 @@ We are going to write a simple address book application. It has:
 
    .. figure:: addressuischematic.png
       :align: center
-      :width: 40%
       :alt: A visual schematic showing what the application home page should contain.
 
       The home page -- schematically.

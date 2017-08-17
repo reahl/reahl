@@ -35,7 +35,6 @@ class AddressForm(Form):
         inputs.layout.add_input(TextInput(self, new_address.fields.name))
         inputs.layout.add_input(TextInput(self, new_address.fields.email_address))
 
-        self.define_event_handler(new_address.events.save)
         button = inputs.add_child(Button(self, new_address.events.save))
         button.use_layout(ButtonLayout(style='primary'))
 
@@ -60,7 +59,8 @@ class AddressBox(Widget):
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        self.define_view('/', title='Address book', page=AddressBookPage.factory())
+        home = self.define_view('/', title='Address book', page=AddressBookPage.factory())
+        self.define_transition(Address.events.save, home, home)
 
 
 class Address(Base):
@@ -78,6 +78,6 @@ class Address(Base):
     def save(self):
         Session.add(self)
 
-    @exposed
+    @exposed('save')
     def events(self, events):
         events.save = Event(label='Save', action=Action(self.save))

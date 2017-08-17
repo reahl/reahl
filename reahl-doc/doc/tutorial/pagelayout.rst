@@ -23,48 +23,20 @@ Layout of pages
       reahl example <examplename>
 
 
-The :mod:`reahl.web.bootstrap.grid` module provides tools with which
-you can control the basic layout of a page. Layout is responsive,
-meaning that it adapts depending on the size of the device used to
-view the page.
-
-The basic tools for laying out a page are
-:class:`reahl.web.bootstrap.grid.Container`,
-:class:`reahl.web.bootstrap.grid.ColumnLayout` and
-:class:`reahl.web.bootstrap.grid.ResponsiveSize`.
-
-
 Containers
 ----------
 
-Some web sites present all their contents in an area of fixed size,
-with the entire "content area" itself centered on the browser viewport.
+A |Container| manages how the contents of an |HTMLElement| fills its
+width. The contents can be confined to a fixed width (with margins),
+or the contents can be fluid and expand to fill the whole width.
 
 .. figure:: container-fixed.png
   :align: center
-  :width: 40%
   :alt: A site with fixed container showing how the contents are centered on the viewport.
-
-On other sites, the contents of the site span the entire width of the
-viewport instead:
 
 .. figure:: container-fluid.png
   :align: center
-  :width: 40%
   :alt: A site with fluid container showing how the contents stretch to fill the viewport.
-
-A |Container| manages the layout of an |HTMLElement| and its contents
-to conform to one of these schemes.
-
-A |Container| is by default "fixed", which means its contents will be
-confined to a fixed-size area that is centered on the viewport. The
-size of this fixed-size area does change if a browser is resized --
-but it changes only at fixed intervals and stays centered on the
-viewport.
-
-When constructing a |Container| it can be set to be "fluid" in order
-to make it behave like the second example above where the contents of the
-|HTMLElement| will fill the available width.
 
 Different areas of a site may be laid out using different
 |Container|\s. For example, you might want your pages to have a
@@ -79,21 +51,15 @@ by a |Container|.
 Responsive grids
 ----------------
 
-A |ColumnLayout| is used to turn an |HTMLElement| such as a |Div| into
-one row of an invisible grid with a number of columns inside that one
-row. The |Widget|\s added as children to a particular column are then
-positioned inside that (otherwise invisible) column.
+A responsive layout is one that arranges its contents differently,
+depending on the size of the device it is being displayed on.
 
-When adding a column, you need to specify the size of that
-column. This is done using a |ResponsiveSize|. A |ResponsiveSize| lets
-you specify how wide the column should be on each possible size of
-user device. User device sizes (called device classes) can be one of:
-
- - xs (extra small)
- - sm (small)
- - md (medium)
- - lg (large)
- - xl (extra large)
+A |ColumnLayout| turns an |HTMLElement| such as a |Div| into one row
+of an invisible grid. You can add |Widget|\s into each of its columns.
+A |ResponsiveSize| states how wide a column should be for all the
+different sizes of device. Sizes are stated in 1/12ths of the parent's
+width. If the total width of all the columns in your row is more than
+12/12ths, the row flows over and forms a grid.
 
 
 In the code below, 12 columns of 1/12th the page width are added to a

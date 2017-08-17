@@ -25,7 +25,6 @@ class AddressBookPage(HTML5Page):
         navbar = Navbar(view, css_id='my_nav').use_layout(layout)
         navbar.layout.set_brand_text('Address book')
         navbar.layout.add(Nav(view).with_bookmarks(bookmarks))
-        navbar.layout.add(TextNode(view, 'All your addresses in one place'))
 
         self.layout.header.add_child(navbar)
 

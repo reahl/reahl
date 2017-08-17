@@ -9,6 +9,7 @@
 .. |Button| replace:: :class:`~reahl.web.bootstrap.forms.Button`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
 .. |EmailField| replace:: :class:`~reahl.component.modelinterface.EmailField`
+.. |Transition| replace:: :class:`~reahl.web.fw.Transition`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
 .. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
 .. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
@@ -32,11 +33,14 @@ Forms and Inputs
 ----------------
 
 |Form|\s get input from users. Build up the |Form| by adding |Input|
-|Widget|\s to it, via an appropriate |FormLayout|.
+|Widget|\s to it (or one of its children), via an appropriate |FormLayout|.
 
-Below, we use a |FieldSet| for visual effect, and apply a |FormLayout|
-to the |FieldSet| in order to add a |TextInput| for both the name and
-email of a newly created Address.
+To group some |TextInput|\s visually, add them to |FieldSet| via a
+|FormLayout|. The |FormLayout| arranges the |TextInput|\s with their
+associated labels and validation error messages. Call
+:meth:`~reahl.web.fw.Widget.add_child` to add the |FieldSet| to the
+|Form|.
+
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: AddressForm
@@ -46,7 +50,7 @@ email of a newly created Address.
 Fields provide metadata
 -----------------------
 
-Notice how each |Input| is wired to an associated |Field|. A |Field|
+Each |Input| is wired to an associated |Field|. A |Field|
 holds more information about the similarly named attribute of the
 Address. |EmailField| constrains the input to be a valid email
 address. Invalid input is blocked by the |EmailField| and the
@@ -54,7 +58,6 @@ address. Invalid input is blocked by the |EmailField| and the
 
 .. figure:: inputs.png
    :align: center
-   :width: 80%
    :alt: A diagram showing a TextInput linking to an EmailField, in turn linking the email_address attribute of an Address object
 
    A rough design sketch
@@ -64,6 +67,7 @@ address. Invalid input is blocked by the |EmailField| and the
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: Address
+   :end-before: def save
 
 .. note:: Don't confuse |Field|\s with SQLAlchemy's Columns.
 
@@ -81,14 +85,25 @@ Buttons and Events
 To save an Address to the database, create a `save()` method on it. Expose
 an |Event| for `save()` so that it can be tied to a |Button|.
 
-When the |Button| is clicked, the `save` |Event| occurs and its
-|Action| is executed. Call
-:meth:`~reahl.web.fw.Widget.define_event_handler` to specify which
-|UrlBoundView| to display next. (The default is to stay on the same
-|UrlBoundView|.)
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
+   :pyobject: Address
+	      
+Add a |Button|, linked to the `save` |Event|. When the |Button| is
+clicked, its |Event| occurs and the |Action| is executed.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: AddressForm
+
+|Transition|\s are defined in `AddressBookUI.assemble` to control how
+the user is moved between |UrlBoundView|\s in response to |Event|\s.
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
+   :pyobject: AddressBookUI
+
+No instance of Address is available at the time |Transition|\s are
+defined. `'save'` is added to the `@exposed` decorator of `Address.events`
+to be able to reference `Address.events.save` instead.
+
 
 
 
