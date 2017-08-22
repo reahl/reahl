@@ -55,9 +55,9 @@ class EditAddressForm(Form):
         button.use_layout(ButtonLayout(style='primary'))
 
 
-class AddAddressForm(Form):
+class AddressForm(Form):
     def __init__(self, view):
-        super(AddAddressForm, self).__init__(view, 'address_form')
+        super(AddressForm, self).__init__(view, 'address_form')
 
         new_address = Address()
         grouped_inputs = self.add_child(FieldSet(view, legend_text='Add an address'))
@@ -89,19 +89,19 @@ class AddressBox(Form):
 
 class AddressBookUI(UserInterface):
     def assemble(self):
-        show = self.define_view('/', title='Show')
+        home = self.define_view('/', title='Show')
         add = self.define_view('/add', title='Add')
         edit = self.define_view('/edit', view_class=EditView, address_id=IntegerField())
 
-        show.set_slot('main', AddressBookPanel.factory())
-        add.set_slot('main', AddAddressForm.factory())
+        home.set_slot('main', AddressBookPanel.factory())
+        add.set_slot('main', AddressForm.factory())
 
-        bookmarks = [f.as_bookmark(self) for f in [show, add]]
+        bookmarks = [f.as_bookmark(self) for f in [home, add]]
         self.define_page(AddressBookPage, bookmarks)
 
-        self.define_transition(Address.events.save, add, show)
-        self.define_transition(Address.events.update, edit, show)
-        self.define_transition(Address.events.edit, show, edit)
+        self.define_transition(Address.events.save, add, home)
+        self.define_transition(Address.events.update, edit, home)
+        self.define_transition(Address.events.edit, home, edit)
 
 
 class Address(Base):
