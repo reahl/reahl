@@ -44,7 +44,6 @@
         <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
         <class locator="reahl.doc.examples.tutorial.addressbook2bootstrap.addressbook2bootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.addressbook1.addressbook1:Address"/>
-        <class locator="reahl.doc.examples.tutorial.pageflow2.pageflow2:Address"/>
         <class locator="reahl.doc.examples.tutorial.pageflow1.pageflow1:Address"/>
         <class locator="reahl.doc.examples.tutorial.parameterised1.parameterised1:Address"/>
         <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>

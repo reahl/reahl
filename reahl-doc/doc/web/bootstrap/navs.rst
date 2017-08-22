@@ -5,7 +5,7 @@ Module reahl.web.bootstrap.navs
 
 .. sidebar:: Examples in this section
 
-   - tutorial.pageflow2bootstrap
+   - (deleted) tutorial.pageflow2bootstrap
 
    Get a copy of an example by running:
 
