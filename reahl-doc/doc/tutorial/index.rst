@@ -33,8 +33,6 @@ An address book application
    
 
 
-
-
 More stuff
 ---------------------------
 

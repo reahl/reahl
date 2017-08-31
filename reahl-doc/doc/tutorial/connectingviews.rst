@@ -9,6 +9,7 @@
 .. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
 .. |WidgetFactory| replace:: :class:`~reahl.web.fw.WidgetFactory`
 .. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
+.. |Navbar| replace:: :class:`~reahl.web.bootstrap.navbar.Navbar`
 
    
 Moving between Views
@@ -40,7 +41,8 @@ Deriving similar looking pages
 ------------------------------
 
 The simplest way to have many pages look similar is to create a common
-page from which you derive pages, each with different extra content.
+page from which you derive pages, each with different extra
+content. Add AddressBookPanel to HomePage, and AddressForm to AddAddressPage:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
    :pyobject: HomePage
@@ -56,7 +58,8 @@ A |Bookmark| marks a particular |UrlBoundView|.  A |Nav| is a menu
 created from a list of |Bookmark|\s. It is a means for the user to
 move around in the application.
 
-Add a |Nav| to the common AddressBookPage:
+Create the common AddressBookPage with a |Navbar| just like before, but
+add a |Nav| to it:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pageflow1/pageflow1.py
    :pyobject: AddressBookPage
