@@ -34,7 +34,7 @@ from reahl.web_dev.fixtures import WebFixture
 
 
 @uses(web_fixture=WebFixture)
-class TabbedPanelAjaxFixture(Fixture):
+class   TabbedPanelAjaxFixture(Fixture):
 
     def new_PopulatedTabbedPanel(self):
         class PopulatedTabbedPanel(TabbedPanel):

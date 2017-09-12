@@ -75,13 +75,16 @@ class Alert(Div):
 
     :param view: (See :class:`reahl.web.fw.Widget`)
     :param message_or_widget: Message text or a Widget to display inside the Alert.
-    :param severity: One of 'success', 'info', 'warning', 'danger' to indicate the color scheme to be used for the Alert.
+    :param severity: One of 'primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark'
+        to indicate the color scheme for the Alert.
 
     """
     def __init__(self, view, message_or_widget, severity):
         super(Alert, self).__init__(view)
         severity_option = HTMLAttributeValueOption(severity, severity, prefix='alert', 
-                                                   constrain_value_to=['success', 'info', 'warning', 'danger'])
+                                                   constrain_value_to=['primary', 'secondary',
+                                                                       'success', 'info', 'warning', 'danger',
+                                                                       'light', 'dark'])
         child_widget = message_or_widget
         if isinstance(message_or_widget, six.string_types):
             child_widget = TextNode(view, message_or_widget)
@@ -104,7 +107,9 @@ class Badge(Span):
     def __init__(self, view, message, level, pill=False):
         super(Badge, self).__init__(view)
         severity_option = HTMLAttributeValueOption(level, level, prefix='badge',
-                                                   constrain_value_to=['default', 'primary', 'success', 'info', 'warning', 'danger'])
+                                                   constrain_value_to=['primary', 'secondary',
+                                                                       'success', 'info', 'warning', 'danger',
+                                                                       'light', 'dark'])
         self.add_child(TextNode(view, message))
         self.append_class('badge')
         if pill:

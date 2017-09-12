@@ -11,7 +11,7 @@ class AddressBookPage(HTML5Page):
         super(AddressBookPage, self).__init__(view)
         self.body.use_layout(Container())
 
-        layout = ResponsiveLayout('md', colour_theme='inverse', bg_scheme='primary', toggle_button_alignment='right')
+        layout = ResponsiveLayout('md', colour_theme='dark', bg_scheme='primary', toggle_button_alignment='right')
         navbar = Navbar(view, css_id='my_nav').use_layout(layout)
         navbar.layout.set_brand_text('Address book')
         navbar.layout.add(TextNode(view, 'All your addresses in one place'))

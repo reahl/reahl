@@ -200,7 +200,6 @@ class JQuery(Library):
         #from http://ryanpricemedia.com/2008/03/19/jquery-broken-in-internet-explorer-put-your-documentready-at-the-bottom/
         result += self.document_ready_material(rendered_page)
         return result
-        
 
 
 class JQueryUI(Library):
@@ -212,7 +211,6 @@ class JQueryUI(Library):
         super(JQueryUI, self).__init__('jqueryui')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = ['jquery-ui-1.12.0.custom/jquery-ui.js']
-
 
 
 class HTML5Shiv(Library):
@@ -283,6 +281,7 @@ class Bootstrap4(Library):
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
                       'bootstrap-4.0.0-beta/css/bootstrap.css',
+                      'bootstrap-4.0.0-beta/css/reahl-patch.css',
                       'bootstrap-4.0.0-beta/css/bootstrap.css.map',
                       # 'bootstrap-4.0.0-beta/css/bootstrap-grid.css',
                       # 'bootstrap-4.0.0-beta/css/bootstrap-grid.css.map',
@@ -318,19 +317,13 @@ class ReahlBootstrap4Additions(Library):
                       'reahl.datatable.css'                      
                       ]
 
+
 class Popper(Library):
-    """Version 1.12.0 of `Popper <https://popper.js.org/>`_.
+    """Version 1.12.5 (umd) of `Popper <https://popper.js.org/>`_.
     """
     def __init__(self):
         super(Popper, self).__init__('popper')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'popper-1.12.0/popper-utils.js',
-                      'popper-1.12.0/popper.js'
-                      ]
-
-
-
-
-
-
+                      'popper-1.12.5/popper.js' #make sure it is the umd edition
+                     ]
