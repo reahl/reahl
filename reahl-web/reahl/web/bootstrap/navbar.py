@@ -74,13 +74,13 @@ class NavbarTogglerAlignment(HTMLAttributeValueOption):
 class ColourTheme(HTMLAttributeValueOption):
     def __init__(self, name):
         super(ColourTheme, self).__init__(name, name is not None, 
-                                          prefix='navbar', constrain_value_to=['light', 'inverse'])
+                                          prefix='navbar', constrain_value_to=['light', 'dark'])
 
 
 class BackgroundScheme(HTMLAttributeValueOption):
     def __init__(self, name):
         super(BackgroundScheme, self).__init__(name, name is not None, 
-                                               prefix='bg', constrain_value_to=['primary', 'inverse', 'faded']) 
+                                               prefix='bg', constrain_value_to=['primary', 'dark', 'light'])
 
 
 class NavbarLayout(Layout):
@@ -89,9 +89,9 @@ class NavbarLayout(Layout):
     :param fixed_to: May be one of 'top','bottom' or 'stickytop'.
                     The Navbar will stick to the top or bottom of the viewport.
     :param center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
-    :param colour_theme: Whether the Navbar has a 'light' or 'inverse' (dark) background.
-    :param bg_scheme: Whether the Navbar should use 'primary' colors, an 'inverse' (light on dark) scheme
-                        or a 'faded' background.
+    :param colour_theme: Whether the Navbar has a 'light' or 'dark' background.
+    :param bg_scheme: Whether the Navbar should use 'primary' colors, a 'dark' (light on dark) scheme
+                        or a 'light' background.
     """
     def __init__(self, fixed_to=None, center_contents=False, colour_theme=None, bg_scheme=None):
         super(NavbarLayout, self).__init__()
@@ -234,7 +234,7 @@ class ResponsiveLayout(NavbarLayout):
         self.add_toggle(collapsable, text=self.text, alignment=self.toggle_button_alignment)
 
         toggle_size = self.collapse_below_device_class.one_smaller
-        self.nav.append_class('navbar-toggleable-%s' % toggle_size.name)
+        self.nav.append_class('navbar-expand-%s' % toggle_size.name)
 
         self.contents_container.add_child(collapsable)
         self.contents_container = collapsable

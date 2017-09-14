@@ -1689,6 +1689,7 @@ class TextInput(InputTypeInput):
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
             self.set_attribute('placeholder', placeholder_text)
+            self.set_attribute('aria-label', placeholder_text)
 
         if fuzzy:
             self.append_class('fuzzy')
@@ -1746,8 +1747,6 @@ class CheckboxInput(InputTypeInput):
         if self.name in input_values:
             return self.bound_field.true_value
         return self.bound_field.false_value
-
-
 
 
 class ButtonInput(PrimitiveInput):
