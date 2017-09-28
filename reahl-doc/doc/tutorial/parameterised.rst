@@ -71,7 +71,7 @@ passes these into the call to |assemble|.
 
 |Field|\s describe how the framework manages arguments sent to the
 |View| via its URL. Each |Field| sent as a keyword argument to
-:meth:`~reahl.web.fw.UserInterface.define_view`, is used to compute
+:meth:`~reahl.web.fw.UserInterface.define_view` is used to compute
 the value of a matching keyword argument in |assemble|.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
@@ -81,9 +81,10 @@ the value of a matching keyword argument in |assemble|.
 Bookmarks to parameterised Views
 --------------------------------
 
-In any Reahl application there are two ways to get to a View:
+In any Reahl application there are two ways to get to a |UrlBoundView|:
+
 - click on an |A| created from a |Bookmark|
-- automatically because of transition.
+- the application automatically switches to the |UrlBoundView| because of a transition.
 
 Our 'tutorial.parameterised1' example creates an |A| next to each
 listed address:
@@ -101,23 +102,26 @@ A distinct |Bookmark| is computed for each Address. This is done in
 Transitions to parameterised Views
 ----------------------------------
 
-In the 'tutorial.parameterised2' , an edit |Button| is instead placed
-next to each Address.
+The 'tutorial.parameterised2' example shows how you would
+automatically transition a user to a parameterised view. The example
+has an edit |Button| instead of a link placed next to each
+Address. First, define a transition that will fire when the "edit"
+|Button| gets clicked:
 
-A |Button| has to be in a |Form|, so AddressBox much change to be a
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2.py
+   :pyobject: AddressBookUI
+
+A |Button| has to be in a |Form|, so AddressBox must change to be a
 |Form|.  Call
 :meth:`~reahl.component.modelinterface.Event.with_arguments` on the
 |Event| to which the |Button| is tied so that the user will transition
-to a matching EditView.
+to an EditView matching that specific Address.
 
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2.py
    :pyobject: AddressBox
 
-Lastly, define a transition as usual:
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2.py
-   :pyobject: AddressBookUI
 
 
 Programmatic arguments

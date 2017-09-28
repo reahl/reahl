@@ -28,6 +28,8 @@ A page with varying contents
 were made to look similar by deriving each page from a common
 superclass.
 
+There is an easier way.
+
 An |UrlBoundView| can plug different contents into the same page
 provided that that page contains placeholders, called |Slot|\s. Each
 |Slot| on a page is referred to by name.
@@ -54,7 +56,7 @@ Create a page with Slots
 ------------------------
 
 MyCustomPage calls :meth:`~reahl.web.layout.PageLayout.with_slots` to
-let the |PageLayout| create a |Slot| inside each added column.
+let the |PageLayout| create a |Slot| inside each added column:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/slots/slots.py
    :pyobject: MyCustomPage
@@ -67,6 +69,9 @@ MyCustomPage is defined as a single |UserInterface|\-wide page with the
 call to :meth:`~reahl.web.fw.UserInterface.define_page`.  Call
 :meth:`~reahl.web.fw.UrlBoundViewFactory.set_slot` to define how each
 |UrlBoundView| populates the placeholders.
+
+The arguments expected by the __init__ of MyPage are passed along in
+the call to :meth:`~reahl.web.fw.UserInterface.define_page`.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/slots/slots.py
    :pyobject: SlotsUI
