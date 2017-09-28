@@ -1,0 +1,9 @@
+/*!
+ * This is a patch to enable .dropdown-menu to work when js is disabled.
+ * Bootstrap has removed this support(since bs4-beta) as they rather rely on Popper.js,
+ * which requires javascript to be enabled. When JS is enabled this fix does not interfere
+ * with the workings of dropdown-menu.
+ */
+.show > .dropdown-menu {
+  display: block;
+}

@@ -61,7 +61,7 @@ def test_default_behaviour(web_fixture, popup_a_fixture):
     browser.open('/')
 
     # The A is rendered correctly
-    browser.is_element_present("//a[@title='Home page' and text()='Home page' and @href='/']")
+    assert browser.is_element_present("//a[@title='Home page' and text()='Home page' and @href='/']")
 
     # subsequent behaviour
     browser.click(XPath.link_with_text('Home page'))

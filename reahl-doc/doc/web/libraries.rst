@@ -67,10 +67,10 @@ Holder
    :members:
 
 
-Tether
+Popper
 """"""
 
-.. autoclass:: Tether
+.. autoclass:: Popper
    :members:
 
 

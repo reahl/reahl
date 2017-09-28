@@ -200,7 +200,6 @@ class JQuery(Library):
         #from http://ryanpricemedia.com/2008/03/19/jquery-broken-in-internet-explorer-put-your-documentready-at-the-bottom/
         result += self.document_ready_material(rendered_page)
         return result
-        
 
 
 class JQueryUI(Library):
@@ -212,7 +211,6 @@ class JQueryUI(Library):
         super(JQueryUI, self).__init__('jqueryui')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = ['jquery-ui-1.12.0.custom/jquery-ui.js']
-
 
 
 class HTML5Shiv(Library):
@@ -276,15 +274,20 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.0.0 alpha 6 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.0.0 beta of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super(Bootstrap4, self).__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.0.0-alpha.6/css/bootstrap.css',
-                      'bootstrap-4.0.0-alpha.6/css/bootstrap.css.map',
-                      'bootstrap-4.0.0-alpha.6/js/bootstrap.js'
+                      'bootstrap-4.0.0-beta/css/bootstrap.css',
+                      'bootstrap-4.0.0-beta/css/reahl-patch.css',
+                      'bootstrap-4.0.0-beta/css/bootstrap.css.map',
+                      # 'bootstrap-4.0.0-beta/css/bootstrap-grid.css',
+                      # 'bootstrap-4.0.0-beta/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.0.0-beta/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.0.0-beta/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.0.0-beta/js/bootstrap.js'
                       ]
 
 
@@ -314,22 +317,13 @@ class ReahlBootstrap4Additions(Library):
                       'reahl.datatable.css'                      
                       ]
 
-class Tether(Library):
-    """Version 1.1.1 of `Tether <http://github.hubspot.com/tether/>`_.
+
+class Popper(Library):
+    """Version 1.12.5 (umd) of `Popper <https://popper.js.org/>`_.
     """
     def __init__(self):
-        super(Tether, self).__init__('tether')
+        super(Popper, self).__init__('popper')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'tether.1.4.0/css/tether.css',
-                      'tether.1.4.0/css/tether-theme-arrows.css',
-                      'tether.1.4.0/css/tether-theme-arrows-dark.css',
-                      'tether.1.4.0/css/tether-theme-basic.css',
-                      'tether.1.4.0/js/tether.js'
-                      ]
-
-
-
-
-
-
+                      'popper-1.12.5/popper.js' #make sure it is the umd edition
+                     ]

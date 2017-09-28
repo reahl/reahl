@@ -479,11 +479,8 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
 
-    assert browser.location_path == '/add' 
-
-    browser.click(XPath.link_with_text('Show'))
-    assert browser.location_path == '/' 
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    assert browser.location_path == '/'
+    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org'))
 
 
 @with_fixtures(WebFixture, ExampleFixture.parameterised1)
@@ -508,5 +505,3 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
 
     assert browser.location_path == '/' 
     assert browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) 
-
-
