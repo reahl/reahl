@@ -50,7 +50,7 @@ def scope(scope):
 
     .. code-block:: python
 
-       @uses('session')
+       @scope('session')
        class MyFixture(Fixture):
            pass
 

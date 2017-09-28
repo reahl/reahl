@@ -14,67 +14,21 @@ The web session problem
 
       reahl example <examplename>
 
-:ref:`Earlier on <factories>`, the oddities underlying a web
-application are explained. In short -- there is no program that stays
-in memory for the entire time during which a user uses a web
-application. This is troublesome not only for web application
-framework developers, but for programmers writing web applications as
-well.
-
-One crucial example of this issue is when you want users to be able to
-log into your application. Let's say you have a separate login page on
-which a user can log in. When the user does the actual logging in,
-some code is executed on the server (to check login credentials,
-etc). After this, the server sends a response back to the browser and
-promptly releases from memory all the information thus gathered. 
-
-Since nothing stays in memory between requests, what do you do? Where
-do you save the User object (for example) representing the user who is
-currently logged in so that it is available in subsequent requests?
-
 
 User sessions
 -------------
 
-.. sidebar:: GUI Sessions
+You can persist objects on the server for the duration of a
+|UserSession| by making them "session scoped". Session scoped
+persisted objects are retained for as long as the |UserSession|
+exists.
 
-   Did you notice the similarity? For a GUI program, the user starts
-   the application, and exits it when done using it. The GUI process
-   itself is thus pretty much the GUI equivalent of a UserSession on
-   the web.
+Reahl has functionality to let users log into your site as
+:doc:`explained later on <loggingin>`. In the example here we build a
+simplified version of similar functionality to show how session
+scoped objects can be used.
 
-In order to deal with this problem, Reahl has the notion of a
-UserSession -- a class implementing :class:`~reahl.web.interfaces.UserSessionProtocol`. An
-implementation of :class:`~reahl.web.interfaces.UserSessionProtocol` is an object which represents one sitting
-of a user while the user is interacting with the web application. When
-a user first visits the web application, such a UserSession is created and
-saved to the database. On subsequent visits, Reahl checks behind the
-scenes (currently using cookies) for an existing UserSession matching
-the browser which sent the current request. The UserSession is
-automatically destroyed if a specified amount of time passes with no
-further interaction from the user.
-
-The UserSession provides a way for the programmer to persist objects
-on the server side -- for a particular user while that user uses the
-web application. The programmer can get to objects stored "in the
-session" from any page. The stuff persisted as part of the UserSession
-typically disappears automatically when the UserSession expires. An Object
-that lives in the UserSession is said to be *session scoped*. 
-
-
-An example: logging in
-----------------------
-
-To see how one can use the UserSession in Reahl, let's build an
-example which allows users to log in using an email address and
-password. Reahl has a built-in way of dealing with user logins
-:doc:`explained later on <loggingin>`, but doing this from scratch
-provides for a nice example.
-
-Firstly, we'll need a bit of a model. This model needs some object
-to represent the User(s) that can log in, and some session scoped object
-that keeps track of who is currently logged in. How about a User
-object then, and a LoginSession object:
+The example consists of User object and a LoginSession object:
 
 .. figure:: sessions.png
    :align: center
@@ -84,37 +38,25 @@ object then, and a LoginSession object:
    A model for letting Users log in.
 
 
-The application itself will have two pages -- a home page on which the
+The application itself has two pages---a home page on which the
 name of the User who is currently logged in is displayed, and a page
-on which you can log in by specifying your email address and a
-password. There should also be a :class:`~reahl.web.ui.Menu` you can use to navigate to the
-two different pages.
+on which you can log in using your email address and a
+password. 
+
 
 
 Declaring the LoginSession
 --------------------------
 
-In Reahl, if you want to persist an object in session scope, that
-object should be persisted via the same persistence mechanism used by
-your other persistent objects. Your session-scoped object should also
-hold onto the UserSession so that the session-scoped object can be
-discovered from the UserSession it is a part of.
-
-When using SqlAlchemy, creating an object that has a `session scoped` lifetime is really
-easy: just use the `@session_scoped` class decorator:
+Create a LoginSession persisted class and decorate it using the
+:meth:`~reahl.sqlalchemysupport.sqlalchemysupport.session_scoped`
+decorator.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
    :pyobject: LoginSession
-   :prepend: @session_scoped
 
-The responsibility of a LoginSession starts by keeping track of who is
-logged in. That is why it has a `.current_user` attribute. Since
-LoginSession is a persisted object itself, it is trivial to make it
-hold onto another persisted object (User) via a relationship.
-
-The other responsibility of the LoginSession is to actually log someone
-in. The logic of doing this is quite easily followed by looking at
-the implementation of the `.log_in()` method.
+The LoginSession keeps track of who is currently logged in through its
+`.current_user` relationship to a User.
 
 Just one trick: the `email_address` and `password` needed to actually
 log someone in have to be provided by a user. That is why these are

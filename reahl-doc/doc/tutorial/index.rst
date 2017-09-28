@@ -43,7 +43,6 @@ More stuff
    pagelayout
    slots
    parameterised
-   testing
    
    sessions
    loggingin 
@@ -56,6 +55,7 @@ More stuff
    ownwidget 
 
    deployment
+   testing
 
 
 
