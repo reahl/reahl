@@ -23,7 +23,7 @@ Objects created during a request to the web browser only exist for the
 duration of that request. If you want them to live longer, :doc:`they need
 to be persisted in a database <persistence>`.
 
-Sometimes persisted objects are only needed for for use in the current
+Sometimes persisted objects are only needed for use in the current
 sequence of interactions between a browser and server, after which
 they can be safely deleted.
 
@@ -32,10 +32,9 @@ You can persist objects on the server for the duration of a
 persisted objects are retained for as long as the |UserSession|
 exists.
 
-Reahl has functionality to let users log into your site as
-:doc:`explained later on <loggingin>`. In the example here we build a
-simplified version of similar functionality to show how session
-scoped objects can be used.
+In the example here we build a simplified version of :doc:`the login
+functionality already provided by Reahl<loggingin>` to show how
+session scoped objects can be used.
 
 The example consists of User object and a LoginSession object:
 
@@ -101,23 +100,24 @@ A |DomainException| is an exception that can be raised
 to communicate a domain-specific error condition to the user.
 
 In this example it may happen that a user supplies an incorrect
-password. That's why an InvalidPassword exception is raised in this
-case inside the `.log_in()` method of LoginSession.
+password. That's why an InvalidPassword exception is raised inside the
+`.log_in()` method of LoginSession.
 
-When the InvalidPassword (a |DomainException|) is raised, the Reahl framework ignores all
-:class:`~reahl.web.fw.Transition`\ s defined, and keeps the user on the current |UrlBoundView|.
-
-When the |UrlBoundView| is shown again, :attr:`~reahl.web.ui.Form.exception` will contain the |DomainException| that is keeping the user from progressing. A programmer can use this to inform the user:
+When the InvalidPassword (a |DomainException|) is raised, the Reahl
+framework ignores all :class:`~reahl.web.fw.Transition`\ s defined,
+and re-displays the current |UrlBoundView|.  The
+:attr:`~reahl.web.ui.Form.exception` will then contain the
+|DomainException| that is keeping the user from progressing. Display
+this exception using an :class:`~reahl.web.bootstrap.ui.Alert` to
+inform the user of the issue:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
    :pyobject: LoginForm
 
 
 
-The final example
------------------
-
-Here is the complete code for the example:
+The complete example
+--------------------
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
 

@@ -3,21 +3,8 @@
 Security and access control
 ===========================
 
-.. toctree::
-   :hidden:
-
-   accesscontrolinc1
-   accesscontrolinc2
-   accesscontrolinc3
-   accesscontrolinc4
-
 .. sidebar:: Examples in this section
 
-   - tutorial.access1
-   - tutorial.access1bootstrap
-   - tutorial.access2
-   - tutorial.access2bootstrap
-   - tutorial.access
    - tutorial.accessbootstrap
 
    Get a copy of an example by running:
@@ -26,87 +13,16 @@ Security and access control
 
       reahl example <examplename>
 
-In most useful applications different users are allowed to do
-different things, depending on rules that form part of the underlying
-model. Implementing such access control complicates even simple
-applications, and the smallest mistake can be a big deal.
 
-To try and mitigate this problem, Reahl makes it possible for a
-programmer to state the access to various different user interface
-elements and elements of a model. Using this information, the
-framework selectively greys out elements, completely hides others or
-outright refuses requests to resources that are off-limits.
+Multi user address book
+-----------------------
 
-Some security features are also needed to prevent malicious users with
-enough technical knowledge to circumvent such rules that have been put
-in place.
+The example in this section is a multi-user address book
+application. Each user has his or her own address book. Users can also
+grant other users (called collaborators) the rights to see, change or
+add to the address books of one another.
 
-
-An example model
-----------------
-
-In order to show these access control features at work, a more
-involved example is needed. Our example application is an extension of
-the address book application used before. To spice it up, users now
-have to log into the application, and each user has a separate address
-book. Of course, one user is not allowed to see the address book of
-another.
-
-Users can share their own address book with other users though -- let's
-call these other users the collaborators to the shared
-AddressBook. When sharing your address book with another user, you
-specify what rights the other users have to your address book. There
-are three possibilities:
-
-- If someone can collaborate, but has no special rights, that someone
-  is merely allowed to see addresses in your address book, but not
-  allowed to change anything; or
-- Someone can collaborate and be granted the right to edit existing
-  addresses in your address book; or
-- Someone who collaborates can be granted the right to add new
-  addresses to your address book.
-
-There is one final rule: if you're only allowed to edit (not add)
-addresses in someone else's address book, you'll be able to change the
-email address part, but not the actual name of the person it belongs
-to.
-
-Here is a little model implementing the basic concepts of the
-application. To keep things simple, a user is represented by an
-EmailAndPasswordSystemAccount -- something that's already built, and
-can be re-used.
-
-.. figure:: accessmodel.png
-   :align: center
-   :width: 90%
-
-   A model for users with address books
-
-.. note:: 
-
-   The way the Collaborator relationhip is modelled here in `UML
-   <http://en.wikipedia.org/wiki/Unified_Modeling_Language>`_, is
-   interesting. To just indicate that an AddressBook has
-   Collaborators, the line representing the relationship would
-   suffice. In this case, that line is also modelled as a class in its
-   own right because each relationship has to hold some more info: the
-   rights a particular EmailAndPasswordSystemAccount has to the
-   particular AddressBook for a particular instance of the
-   relationship.
-
-An example user interface
--------------------------
-
-The user interface works as follows: the home page looks different,
-depending on whether you are logged in or not. To users that are not
-logged in, it presents a way to log in. Once logged in, it changes to
-show a list of address books you are allowed to view. Each address
-book listed also links to a page where you can see the contents of the
-address book.
-
-Once on the page of an address book, there is a menu from which you
-can choose to add an address or add a collaborator. Each address in
-the address book has an edit button as before.
+Here's how you can navigate the application:
 
 .. figure:: accessapp.png
    :align: center
@@ -114,60 +30,133 @@ the address book has an edit button as before.
 
    A schematic plan of the user interface
 
-The schematic of the user interface above includes everything any user
-could possibly do with the application. That is how applications are
-planned and built. Access control for an individual user will just
-have the effect that some elements would be missing for that user, or
-greyed out.
 
-For example: if you are on someone else's address book you can't see
-the "Add Collaborator" item in the :class:`~reahl.web.ui.Menu` at all. For a variation on the
-theme, the "Add Address" item is always visible, but is disabled
-unless you are allowed to add addresses in the address book
-viewed. The same goes for the "Edit" :class:`~reahl.web.ui.Button` next to each address -- it
-is always there, but greyed out unless you are allowed to add
-addresses in the address book viewed. When editing an address, the
-:class:`~reahl.web.ui.Input` for "Name" is only editable if you are allowed to add addresses
-to the address book.
+Access control rules
+--------------------
 
-Even if you've taken care to implement all the above, a malicious user
-can quite easily figure out how to manually type an URL to, for
-example view an address book that they are not allowed to see. If this
-happens, the server responds with `an error indicating to the browser
-that the user is not allowed access to the entire View
-<http://en.wikipedia.org/wiki/HTTP_403>`_.
+* By default, no-one can see another's address book.
+* Only the owner of an address book can add others as collaborators to her own address book or change their collaborating rights.
+* If user A adds user B as collaborator (with NO rights), user B can see the address book of A but cannot change anything.
+* If user A gives collaborator B "can modify" rights, B can only edit the existing email addresses in A's address book, but cannot edit the names those addresses belong to.
+* If user A gives collaborator B "can add" rights, B can add addresses to A's address book and modify any field of existing addresses.
 
-Another possible place where an attacker could try to break in is
-right at the start when the user has to log in to the
-application. Since the user has to type a password, that password will
-be sent back to the server and could be seen by a malicious party
-scanning the traffic between the server and the browser.  Reahl
-automatically detects this potential problem, and serves the home page
-via an encrypted connection.
+User interface requirements
+---------------------------
 
-Implementing the application
-----------------------------
-
-This is not a trivial example. Its code touches on quite a number of
-topics. We will proceed to build the application in
-increments -- please familiarise yourself with the code as we go
-along. That way, it is easier to focus your attention on the bits that
-form part of the topic of this section.
+In order to ensure these rules are adhered to, there are lots of things to look out for on the user interface:
 
 
-- :doc:`The first step is to build some basic parts of the model
-  <accesscontrolinc1>`. 
+* Where addresses are edited or added, you need to make sure that its "email_address" and "name" |Field|\s are editable or grayed out or not shown at all, depending on the rules.
 
-- :doc:`Next, we build all the functionality of the user interface, but
-  without any access control <accesscontrolinc2>`. 
-  There is quite a number of things to understand just in this code
-  (which is not even about access control). So lets get it out of the
-  way in order to focus on the real topic of this chapter.
+* The "Edit" button next to each email address must be grayed out unless the user is allowed to edit that Address.
 
-- :doc:`The last step is to add all the access control bits <accesscontrolinc3>`. 
-  Seen on its own like this, it is quite easy.
+* The "Add collaborator" and "Add address" menu items must be grayed out if the user is not allowed to perform the specific function on the current address book.
+
+* If a malicious user figures out what URL to type in order to visit a |UrlBoundView| for something she is not allowed to visit (ie, someone else's address book), that page should not be displayed.
 
 
-Before we can move on completely, it is good to know a bit more about
-:doc:`the underlying mechanisms that safeguard the security of the
-access control mechanisms now put in place <accesscontrolinc4>`.
+Protect the fields on Address
+-----------------------------
+
+Pass an |Action| (which returns a boolean) as a `readable` or `writable`
+keyword argument to the |Field|\s assigned in Address.fields in order
+to control the access granted by any |Input| that displays that
+|Field|\.
+
+- If a |Field| is readable, but not writable, an |Input| using it
+  will be present, but greyed out.
+
+- If the |Field| is both readable and writable, the |Input| will be
+  displayed and active.
+
+- If the |Field| is not readable and also not writable, the
+  corresponding |Input| will not be displayed on the page at all.
+
+- It is also possible for some |Field|\ s to be writable, but yet not
+  readable (as used for passwords---that may be written but not
+  read). In this case, an |Input| would be displayed and be active,
+  but it will always be rendered without any contents.
+
+
+Here it is in the code of Address:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
+   :pyobject: Address.fields
+
+The `name` |Field| is required, but that only applies when it is writable.
+
+The methods used by the |Action|\s:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
+   :pyobject: Address.can_be_added
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
+   :pyobject: Address.can_be_edited
+
+
+
+Protect the "Edit" button
+-------------------------
+
+The same principle applies to the `edit` |Event| of an
+Address, and the |Button| for it:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
+   :pyobject: Address.events
+
+
+Disable menu items as necessary
+-------------------------------
+
+Specify access control on each |UrlBoundView| by setting its
+:attr:`~reahl.web.fw.UrlBoundView.read_check` or
+:attr:`~reahl.web.fw.UrlBoundView.write_check` to a callable that
+returns True only if the user is granted the relevant right.
+
+An item on a menu (|Nav|) is a link to another |UrlBoundView|. It is
+automatically disabled (or not shown at all) depending on the access
+of its target |UrlBoundView|.
+
+For example, for EditAddressView:
+
+.. literalinclude:: ../../reahl/doc/examples/tutorial/accessbootstrap/accessbootstrap.py
+   :pyobject: EditAddressView
+
+
+Protect URLs from malicious users
+---------------------------------
+
+What if a malicious user discover what the URL is for an addresses she
+is not allowed to see?
+
+Since EditAddressView is already aware of access rights (as per the
+previous section), visiting that URL will result in an HTTP 403 error
+if the user does not qualify to see it.
+
+
+Out of sight
+------------
+
+Reahl safeguards against many potential ways that malicious attackers
+could try to bypass your restrictions.
+
+A malicious user could edit the HTML in the browser to enable inputs
+that were originally disabled. However, the same access control rules
+that generate that HTML is again checked server side when input is
+received to ensure this cannot happen.
+
+A malicious user can also snoop on network traffic to the browser and
+see sensitive information, such as a password. To guard against this,
+a |Widget| can be made "security sensitive". If any security sensitive
+|Widget| is detected on an |UrlBoundView|, that |UrlBoundView| is
+automatically served via HTTPs.
+
+Any |Widget| that has a non-default `read_check` is deemed security
+sensitive. Alternatively, call
+:meth:`~reahl.web.fw.Widget.set_as_security_sensitive` explicitly.
+
+In the case of :class:`~reahl.web.ui.Input`
+:class:`~reahl.web.fw.Widget`\ s, the same inference is made from the
+access rights of the :class:`~reahl.component.modelinterface.Field` to
+which it is linked.
+

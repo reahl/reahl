@@ -1731,8 +1731,8 @@ class UrlBoundView(View):
         self.preconditions = []       
         self.slot_definitions = slot_definitions or {}
         self.detour = detour
-        self.read_check = read_check or self.allowed
-        self.write_check = write_check or self.allowed
+        self.read_check = read_check or self.allowed    #: The UrlBoundView will only be allowed to be viewed if this no-arg callable returns True.
+        self.write_check = write_check or self.allowed  #: The UrlBoundView will only be allowed to receive user input if this no-arg callable returns True.
         self.cacheable = cacheable
         self.page_factory = page_factory
         self.assemble(**view_arguments)
