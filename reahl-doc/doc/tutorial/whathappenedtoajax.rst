@@ -1,7 +1,22 @@
 .. Copyright 2013, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-What ever happened to Ajax?
-===========================
+.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
+.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
+.. |View| replace:: :class:`~reahl.web.fw.View`
+.. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
+.. |Div| replace:: :class:`~reahl.web.bootstrap.ui.Div`
+.. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
+.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |SequentialPageIndex| replace:: :class:`~reahl.web.bootstrap.paging.SequentialPageIndex`
+.. |PageIndex| replace:: :class:`~reahl.web.bootstrap.paging.PageIndex`
+.. |PagedPanel| replace:: :class:`~reahl.web.bootstrap.paging.PagedPanel`
+.. |PageMenu| replace:: :class:`~reahl.web.bootstrap.paging.PageMenu`
+.. |AnnualPageIndex| replace:: :class:`~reahl.web.bootstrap.paging.PageMenu`
+
+
+
+What about Ajax?
+================
 
 .. sidebar:: Examples in this section
 
@@ -37,9 +52,9 @@ assigning a |Field| to an attribute of `fields`:
 .. literalinclude:: ../../reahl/doc/examples/tutorial/ajaxbootstrap/ajaxbootstrap.py
    :pyobject: RefreshedPanel.query_fields
 
-This makes the value of `self.selected` available in `__init__` to be
+This makes the value of `self.selected` available in `RefreshedPanel.__init__` to be
 used when generating the RefreshedPanel (`self.selected` is set from
-the URL or its default):
+the URL or the default of the |Field|):
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/ajaxbootstrap/ajaxbootstrap.py
    :pyobject: RefreshedPanel
@@ -84,7 +99,7 @@ Three objects play a role in this scenario:
    :pyobject: AddressBookPanel
 
 Since AddressList is a |PagedPanel|, it automatically refreshes and
-computes its `current_contents` based on the given
+computes its :attr:`~reahl.web.bootstrap.pagination.PagedPanel.current_contents` based on the given
 |SequentialPageIndex|.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/pagerbootstrap/pagerbootstrap.py
