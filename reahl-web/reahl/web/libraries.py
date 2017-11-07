@@ -280,14 +280,14 @@ class Bootstrap4(Library):
         super(Bootstrap4, self).__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.0.0-beta/css/bootstrap.css',
-                      'bootstrap-4.0.0-beta/css/reahl-patch.css',
-                      'bootstrap-4.0.0-beta/css/bootstrap.css.map',
-                      # 'bootstrap-4.0.0-beta/css/bootstrap-grid.css',
-                      # 'bootstrap-4.0.0-beta/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.0.0-beta/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.0.0-beta/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.0.0-beta/js/bootstrap.js'
+                      'bootstrap-4.0.0-beta2/css/bootstrap.css',
+                      'bootstrap-4.0.0-beta2/css/reahl-patch.css',
+                      'bootstrap-4.0.0-beta2/css/bootstrap.css.map',
+                      # 'bootstrap-4.0.0-beta2/css/bootstrap-grid.css',
+                      # 'bootstrap-4.0.0-beta2/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.0.0-beta2/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.0.0-beta2/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.0.0-beta2/js/bootstrap.bundle.js'
                       ]
 
 
@@ -316,14 +316,3 @@ class ReahlBootstrap4Additions(Library):
                       'reahl.bootstrapfileuploadpanel.js',
                       'reahl.datatable.css'                      
                       ]
-
-
-class Popper(Library):
-    """Version 1.12.5 (umd) of `Popper <https://popper.js.org/>`_.
-    """
-    def __init__(self):
-        super(Popper, self).__init__('popper')
-        self.shipped_in_directory = '/reahl/web/static'
-        self.files = [
-                      'popper-1.12.5/popper.js' #make sure it is the umd edition
-                     ]

@@ -67,13 +67,6 @@ Holder
    :members:
 
 
-Popper
-""""""
-
-.. autoclass:: Popper
-   :members:
-
-
 
 JQueryUI
 """"""""
