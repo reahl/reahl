@@ -235,11 +235,9 @@ class Nav(Menu):
             li.append_class('show')
         submenu.a.append_class('dropdown-toggle')
         submenu.a.set_attribute('data-toggle', 'dropdown')
-        submenu.a.set_attribute('data-target', '-')
         submenu.a.set_attribute('role', 'button')
         submenu.a.set_attribute('aria-haspopup', 'true')
 
-        submenu.a.add_child(Span(self.view)).append_class('caret')
         li.append_class('drop%s' % ('up' if drop_up else 'down'))
         return submenu
 

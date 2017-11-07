@@ -379,8 +379,6 @@ def test_dropdown_menus(web_fixture):
     assert 'button' in toggle.get_attribute('role')
     assert 'true' in toggle.get_attribute('aria-haspopup')
     assert 'dropdown' in toggle.get_attribute('data-toggle')
-    assert '-' in toggle.get_attribute('data-target')
-    assert 'caret' in toggle.children[1].get_attribute('class')
 
     title_text = toggle.children[0].value
     assert title_text == 'Dropdown title'
