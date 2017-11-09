@@ -3,7 +3,9 @@
 git config --global user.email $EMAIL
 git config --global user.name "$DEBFULLNAME"
 
-cat > /vagrant/.git/hooks/pre-commit <<EOF
+GIT_HOOKS=$(git rev-parse --git-dir)/hooks
+
+cat > $GIT_HOOKS/pre-commit <<EOF
 #!/bin/sh
 
 if [ "$USER" = "vagrant" ] 
@@ -16,5 +18,5 @@ fi
 
 EOF
 
-chmod u+x /vagrant/.git/hooks/pre-commit
+chmod u+x $GIT_HOOKS/pre-commit
 
