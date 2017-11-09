@@ -1,7 +1,7 @@
 #!/bin/bash -ev
 
 # Generate the key
-ssh-keygen -f ~/.ssh/id_localhost -N ""
+ssh-keygen -t rsa -f ~/.ssh/id_localhost -N ""
 echo 'Host localhost' >> ~/.ssh/config
 echo '  IdentityFile ~/.ssh/id_localhost' >> ~/.ssh/config
 cat ~/.ssh/id_localhost.pub >> ~/.ssh/authorized_keys
@@ -11,4 +11,6 @@ cat ~/.ssh/id_localhost.pub >> ~/.ssh/authorized_keys
 # ssh-add
 
 # Accept localhost server key
-ssh -o StrictHostKeyChecking=no localhost ls
+ssh-keyscan -t rsa localhost >> ~/.ssh/known_hosts
+ssh -vvv localhost ls
+

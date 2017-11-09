@@ -115,10 +115,8 @@ def test_widget_factories_error():
             self.saved_arg = arg
             self.saved_kwarg = kwarg
 
-    def check_exc(ex):
-        assert six.text_type(ex).startswith("An attempt was made to create a WidgetFactory for %r with arguments that do not match what is expected for %r" % (WidgetWithArgs, WidgetWithArgs))
-
-    with expected(IncorrectArgumentError, test=check_exc):
+    expected_message = 'An attempt was made to create a WidgetFactory for %r with arguments that do not match what is expected for %r' % (WidgetWithArgs, WidgetWithArgs)
+    with expected(IncorrectArgumentError, test=expected_message):
         WidgetWithArgs.factory('a', 'b', 'c')
 
 

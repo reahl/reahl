@@ -99,3 +99,8 @@ class RenameContentType(Migration):
         self.schedule('cleanup', op.drop_column, 'persistedfile', 'content_type')
 
 
+class AllowNullUserInputValue(Migration):
+    version = '4.0.0a1'
+    def schedule_upgrades(self):
+        self.schedule('alter', op.alter_column, 'userinput', 'value', nullable=True)
+

@@ -54,9 +54,7 @@ def test_missing_variable_in_regex(web_fixture):
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    def check_message(ex):
-        return six.text_type(ex).startswith('The arguments contained in URL')
-    with expected(ProgrammerError, test=check_message):
+    with expected(ProgrammerError, test='The arguments contained in URL.*'):
         browser.open('/a_ui/test1/')
 
 

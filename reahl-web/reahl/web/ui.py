@@ -35,7 +35,7 @@ from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Translator
 from reahl.component.context import ExecutionContext
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
-    Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex
+    Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
@@ -718,6 +718,26 @@ class P(HTMLElement):
         self.available_slots[name].fill(widget)
 
 
+class Small(HTMLElement):
+    """A paragraph of text with tag name `small`.
+
+       .. admonition:: Styling
+
+          Renders as an HTML <small> element.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword text: The text value displayed in the paragraph (if given)
+       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
+       :keyword html_escape: If `text` is given, by default such text is HTML-escaped. Pass False in here to prevent this from happening.
+
+       .. versionadded:: 4.0
+    """
+    def __init__(self, view, text=None, css_id=None, html_escape=True):
+        super(Small, self).__init__(view, 'small', children_allowed=True, css_id=css_id)
+        if text:
+            self.add_child(TextNode(view, text, html_escape=html_escape))
+
+
 class Div(HTMLElement):
     """A logical grouping of other HTMLElements.
 
@@ -1305,8 +1325,6 @@ class Input(HTMLWidget):
         return False
 
 
-
-
 class WrappedInput(Input):
     def __init__(self, input_widget):
         super(WrappedInput, self).__init__(input_widget.form, input_widget.bound_field)
@@ -1334,8 +1352,7 @@ class PrimitiveInput(Input):
         self.name = name
         if self.registers_with_form:
             self.name = form.register_input(self) # bound_field must be set for this registration to work
-        
-        self.prepare_input()
+            self.prepare_input()
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
     def __str__(self):
@@ -1403,9 +1420,7 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        previously_entered_value = None
-        if self.registers_with_form:
-            previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name)
+        previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
         if previously_entered_value is not None:
             self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
@@ -1418,7 +1433,7 @@ class PrimitiveInput(Input):
 
     def enter_value(self, input_value):
         if self.registers_with_form:
-            self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value)
+            self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value, self.bound_field.entered_input_type)
 
 
 class InputTypeInput(PrimitiveInput):
@@ -1532,7 +1547,6 @@ class Option(PrimitiveInput):
         return option
 
 
-
 class OptGroup(HTMLElement):
     def __init__(self, view, label, options, css_id=None):
         super(OptGroup, self).__init__(view, 'optgroup', children_allowed=True, css_id=css_id)
@@ -1543,7 +1557,7 @@ class OptGroup(HTMLElement):
 
 class SelectInput(PrimitiveInput):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a dropdown
-       list of valid ones.
+       list of valid ones if used with a ChoiceField, or many choices if used with a MultiChoiceField.
 
        .. admonition:: Styling
 
@@ -1579,33 +1593,32 @@ class SelectInput(PrimitiveInput):
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
-            return input_values.get(self.name, '')
+            return input_values.getall(self.name)
         else:
             return super(SelectInput, self).get_value_from_input(input_values)
 
 
-class SingleRadioButton(InputTypeInput):
+class SingleChoice(InputTypeInput):
     registers_with_form = False
 
-    def __init__(self, radio_button_input, choice):
+    def __init__(self, containing_input, choice):
         self.choice = choice
-        self.radio_button_input = radio_button_input
-        super(SingleRadioButton, self).__init__(radio_button_input.form, radio_button_input.bound_field, 
-                                                'radio', name=radio_button_input.name)
+        self.containing_input = containing_input
+        super(SingleChoice, self).__init__(containing_input.form, containing_input.bound_field,
+                                           self.containing_input.choice_type, name=containing_input.name)
 
     def create_html_widget(self):
-        span = Span(self.view)
-        span.set_attribute('class', 'reahl-radio-button')
-        span.add_child(self.create_button_input())
-        span.add_child(TextNode(self.view, self.label))
-        return span
+        label = Label(self.view)
+        label.add_child(self.create_button_input())
+        label.add_child(TextNode(self.view, self.label))
+        return label
 
     @property
     def html_control(self):
         return self.html_representation.children[0]
 
     def create_button_input(self):
-        button = super(SingleRadioButton, self).create_html_widget()
+        button = super(SingleChoice, self).create_html_widget()
         if self.checked:
             button.set_attribute('checked', 'checked')
         return button
@@ -1620,11 +1633,10 @@ class SingleRadioButton(InputTypeInput):
 
     @property
     def checked(self):
-        return self.radio_button_input.value == self.value
+        return self.containing_input.is_choice_selected(self.value)
 
 
-
-class RadioButtonInput(PrimitiveInput):
+class RadioButtonSelectInput(PrimitiveInput):
     """An Input that lets the user select an :class:`reahl.component.modelinterface.Choice` from a list of valid ones
        shown as radio buttons.
 
@@ -1636,13 +1648,27 @@ class RadioButtonInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+
+       .. versionchanged:: 4.0
+          Renamed from RadioButtonInput
     """
+
+    choice_type = 'radio'
+
+    @arg_checks(bound_field=IsInstance(ChoiceField))
+    def __init__(self, form, bound_field):
+        super(RadioButtonSelectInput, self).__init__(form, bound_field)
+
+    def is_choice_selected(self, value):
+        if self.bound_field.allows_multiple_selections:
+            return value in self.value
+        return self.value == value
 
     def create_html_widget(self):
         main_element = self.create_main_element()
         main_element.append_class('reahl-radio-button-input')
         for choice in self.bound_field.flattened_choices:
-            self.add_button_for_choice_to(main_element, choice)
+            self.add_choice_to(main_element, choice)
         return main_element
 
     @property
@@ -1655,8 +1681,8 @@ class RadioButtonInput(PrimitiveInput):
     def create_main_element(self):
         return Div(self.view)
 
-    def add_button_for_choice_to(self, widget, choice):
-        return widget.add_child(SingleRadioButton(self, choice))
+    def add_choice_to(self, widget, choice):
+        return widget.add_child(SingleChoice(self, choice))
 
 
 
@@ -1716,7 +1742,7 @@ class PasswordInput(InputTypeInput):
 
 
 class CheckboxInput(InputTypeInput):
-    """A checkbox.
+    """A single checkbox that represent a true or false value.
 
        .. admonition:: Styling
 
@@ -1726,6 +1752,7 @@ class CheckboxInput(InputTypeInput):
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     render_value_attribute = False
+    @arg_checks(bound_field=IsInstance(BooleanField))
     def __init__(self, form, bound_field):
         super(CheckboxInput, self).__init__(form, bound_field, 'checkbox')
 
@@ -1747,6 +1774,58 @@ class CheckboxInput(InputTypeInput):
         if self.name in input_values:
             return self.bound_field.true_value
         return self.bound_field.false_value
+
+
+class CheckboxSelectInput(PrimitiveInput):
+    """An Input that lets the user select more than one :class:`reahl.component.modelinterface.Choice` from a
+       list of valid ones shown as checkboxes.
+
+        :param form: (See :class:`~reahl.web.ui.Input`)
+        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+
+        .. versionadded:: 4.0
+    """
+    choice_type = 'checkbox'
+
+    @arg_checks(bound_field=IsInstance(ChoiceField))
+    def __init__(self, form, bound_field):
+        self.added_choices = []
+        super(CheckboxSelectInput, self).__init__(form, bound_field)
+
+    @property
+    def html_control(self):
+        return self.added_choices[0] if not self.bound_field.allows_multiple_selections else None
+
+    @property
+    def includes_label(self):
+        return False
+
+    @property
+    def jquery_selector(self):
+        return '%s.closest("div")' % self.html_control.jquery_selector
+
+    def create_html_widget(self):
+        main_element = self.create_main_element()
+        for choice in self.bound_field.flattened_choices:
+            self.added_choices.append(self.add_choice_to(main_element, choice))
+        return main_element
+
+    def is_choice_selected(self, value):
+        return value in self.value
+
+    def get_value_from_input(self, input_values):
+        if self.bound_field.allows_multiple_selections:
+            return input_values.getall(self.name)
+        else:
+            return input_values.get(self.name, '')
+
+    def create_main_element(self):
+        main_element = Div(self.view)
+        main_element.append_class('reahl-checkbox-input')
+        return main_element
+
+    def add_choice_to(self, widget, choice):
+        return widget.add_child(SingleChoice(self, choice))
 
 
 class ButtonInput(PrimitiveInput):

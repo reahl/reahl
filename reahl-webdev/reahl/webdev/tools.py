@@ -311,7 +311,44 @@ class Browser(BasicBrowser):
                 form[select.attrib['name']] = list(option.values())[0]
                 return
         raise AssertionError('Option %s not found' % label_to_choose)
-   
+
+    def select_many(self, locator, labels_to_choose):
+        """Finds the select element indicated by `locator` and selects the options labelled as such.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :param labels_to_choose: The labels of the options that should be selected.
+        """
+        xpath = six.text_type(locator)
+        select = self.xpath(xpath)
+        assert len(select) == 1, 'Could not find one (and only one) element for %s' % locator
+        select = select[0]
+        assert select.tag == 'select', 'Expected %s to find a select tag' % locator
+
+        form = self.get_form_for(xpath)
+
+        options_to_select = []
+        for option in select.findall('option'):
+            if option.text in labels_to_choose:
+                options_to_select.append(option)
+        form[select.attrib['name']] = [option.values()[0] for option in options_to_select]
+
+        if len(options_to_select) != len(options_to_select):
+            raise AssertionError('Could only select options labelled[] not all of []' % (','.join([option.text for option in options_to_select]), ','.join(labels_to_choose) ))
+
+    def select_none(self, locator):
+        """Finds the select element indicated by `locator` and ensure nothing is selected.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+        """
+        xpath = six.text_type(locator)
+        select = self.xpath(xpath)
+        assert len(select) == 1, 'Could not find one (and only one) element for %s' % locator
+        select = select[0]
+        assert select.tag == 'select', 'Expected %s to find a select tag' % locator
+
+        form = self.get_form_for(xpath)
+        form[select.attrib['name']] = []
+
     def get_value(self, locator):
         """Returns the value of the input indicated by `locator`.
 
@@ -393,7 +430,7 @@ class XPath(object):
     @classmethod
     def label_with_text(cls, text):
         """Returns an XPath to find an HTML <label> containing the text in `text`."""
-        return cls('//label[node()="%s"]' % text)
+        return cls('//label[normalize-space()=normalize-space("%s")]' % text)
 
     @classmethod
     def heading_with_text(cls, level, text):
@@ -952,7 +989,7 @@ class DriverBrowser(BasicBrowser):
             cropped = im.crop(bbox)
             cropped.save(output_file)
         except ImportError:
-            logging.warn('PILlow is not available, unable to crop screenshots')
+            logging.warning('PILlow is not available, unable to crop screenshots')
 
     def press_tab(self):
         """Simulates the user pressing the tab key on element that is currently focussed.

@@ -299,10 +299,7 @@ def test_navbar_toggle_requires_target_id(web_fixture, navbar_fixture):
     navbar.use_layout(NavbarLayout())
     element_without_id = P(web_fixture.view, text='Peek-A-Boo')
 
-    def check_ex(ex):
-        assert 'has no css_id set' in six.text_type(ex)
-
-    with expected(ProgrammerError, test=check_ex):
+    with expected(ProgrammerError, test='.*has no css_id set.*'):
         navbar.layout.add_toggle(element_without_id)
 
 

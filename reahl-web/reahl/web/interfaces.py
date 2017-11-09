@@ -98,16 +98,23 @@ class UserInputProtocol(SessionDataProtocol):
     """
     @classmethod
     @abstractmethod
-    def get_previously_entered_for_form(cls, form, input_name): 
+    def get_previously_entered_for_form(cls, form, input_name, entered_input_type):
         """Returns the user input associated with the given :class:`reahl.web.ui.Form`, as previously saved using
-           `input_name` as name."""
+           `input_name` as name.
+
+           .. versionchanged:: 4.0
+              Added entered_input_type
+        """
 
     @classmethod
     @abstractmethod
-    def save_input_value_for_form(cls, form, input_name, value):
+    def save_input_value_for_form(cls, form, input_name, value, entered_input_type):
         """Persists `value` as the value of the user input associated with the given :class:`reahl.web.ui.Form`,
-           using `input_name` as name."""
+           using `input_name` as name.
 
+           .. versionchanged:: 4.0
+              Added entered_input_type
+        """
 
 
 class PersistedExceptionProtocol(SessionDataProtocol):
