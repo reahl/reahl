@@ -162,10 +162,7 @@ def test_basic_error2(web_fixture):
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    def check_exc(ex):
-        msg = six.text_type(ex)
-        assert msg.startswith('define_page was called with arguments that do not match those expected by')
-    with expected(IncorrectArgumentError, test=check_exc):
+    with expected(IncorrectArgumentError, test='define_page was called with arguments that do not match those expected by.*'):
         browser.open('/')
 
 
@@ -181,10 +178,7 @@ def test_basic_error3(web_fixture):
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    def check_exc(ex):
-        msg = six.text_type(ex)
-        assert msg == 'there is no page defined for /'
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='there is no page defined for /'):
         browser.open('/')
 
 
@@ -241,10 +235,7 @@ def test_slot_error(web_fixture):
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
 
-    def check_exc(ex):
-        assert six.text_type(ex).startswith('An attempt was made to plug Widgets into the following slots that do not exist')
-
-    with expected(ProgrammerError, test=check_exc):
+    with expected(ProgrammerError, test='An attempt was made to plug Widgets into the following slots that do not exist.*'):
         browser.open('/')
 
 

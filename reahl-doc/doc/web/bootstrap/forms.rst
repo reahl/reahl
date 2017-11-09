@@ -77,10 +77,10 @@ SelectInput
    :members:
    
 
-RadioButtonInput
-""""""""""""""""
+RadioButtonSelectInput
+""""""""""""""""""""""
 
-.. autoclass:: RadioButtonInput
+.. autoclass:: RadioButtonSelectInput
    :members:
    
 TextInput

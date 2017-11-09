@@ -29,6 +29,7 @@ import six
 
 from reahl.component.exceptions import arg_checks, IsInstance
 from reahl.component.i18n import Translator
+from reahl.component.modelinterface import BooleanField, MultiChoiceField, Choice, Field
 
 import reahl.web.ui
 from reahl.web.ui import Label, HTMLAttributeValueOption
@@ -41,8 +42,8 @@ _ = Translator('reahl-web')
 
 class Form(reahl.web.ui.Form):
     """A Form is a container for Inputs. Any Input has to belong to a Form. When a user clicks on
-       a Button associated with a Form, the Event to which the Button is linked occurs at the 
-       server. The value of every Input that is associated with the Form is sent along with the 
+       a Button associated with a Form, the Event to which the Button is linked occurs at the
+       server. The value of every Input that is associated with the Form is sent along with the
        Event to the server.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
@@ -53,13 +54,13 @@ class Form(reahl.web.ui.Form):
 
 class NestedForm(reahl.web.ui.NestedForm):
     """A NestedForm can create the appearance of one Form being visually contained in
-       another. Forms are not allowed to be children of other Forms but this restriction does 
-       not apply to NestedForms. 
+       another. Forms are not allowed to be children of other Forms but this restriction does
+       not apply to NestedForms.
 
        :param view: (See :class:`reahl.web.fw.Widget`)
        :param unique_name: (See :class:`Form`)
        :keyword css_id: (See :class:`HTMLElement`)
-       
+
     """
     def create_out_of_bound_form(self, view, unique_name):
         return Form(view, unique_name, rendered_form=self)
@@ -76,8 +77,8 @@ class TextInput(reahl.web.ui.TextInput):
                      such "fuzzy input". If fuzzy=True, the typed value will be changed on the fly to
                      the system's interpretation of what the user originally typed as soon as the TextInput
                      looses focus.
-       :param placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput 
-                     is empty in order to provide a hint to the user of what may be entered into the TextInput. 
+       :param placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
+                     is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given True instead of a string, the label of the TextInput is used.
     """
     def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
@@ -124,35 +125,53 @@ class SelectInput(reahl.web.ui.SelectInput):
 PrimitiveCheckboxInput = reahl.web.ui.CheckboxInput
 
 
-class CheckboxInput(WrappedInput):
-    """A checkbox (with its label).
-
-       :param form: (See :class:`~reahl.web.ui.Input`)
-       :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the many checkboxes in this input.
-    """
-    def __init__(self, form, bound_field, contents_layout=None):
-        super(CheckboxInput, self).__init__(PrimitiveCheckboxInput(form, bound_field))
-        div = Div(self.view).use_layout(contents_layout or ChoicesLayout(inline=False))
-        div.layout.add_choice(self.input_widget)
-        self.add_child(div)
-        self.set_html_representation(div)
-
-    @property
-    def includes_label(self):
-        return True
-        
-    @property
-    def jquery_selector(self):
-        return '%s.closest("div")' % (self.input_widget.jquery_selector)
-        
-
-class PrimitiveRadioButtonInput(reahl.web.ui.SingleRadioButton):
+class SingleChoice(reahl.web.ui.SingleChoice):
     def create_html_widget(self):
         return self.create_button_input()
 
 
-class RadioButtonInput(reahl.web.ui.RadioButtonInput):
+class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
+    """An Input that presents either a single checkbox or a list of them, depending on what Field
+       it is used with.
+
+       If used with a MultiChoiceField, the checkboxes represent which Choices are chosen; a single
+       checkbox represents a BooleanField.
+
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the checkboxes in this input.
+    """
+    def __init__(self, form, bound_field, contents_layout=None):
+        self.contents_layout = contents_layout
+        self.checkbox_input = None
+        super(CheckboxInput, self).__init__(form, bound_field)
+
+    def create_html_widget(self):
+        if isinstance(self.bound_field, BooleanField):
+            main_element = self.create_main_element()
+            self.added_choices.append(self.add_choice_to(main_element, Choice(self.bound_field.true_value, Field(label=self.bound_field.label))))
+        else:
+            main_element = super(CheckboxInput, self).create_html_widget()
+        return main_element
+
+    @property
+    def includes_label(self):
+        return not self.bound_field.allows_multiple_selections
+
+    @property
+    def jquery_selector(self):
+        return '%s.closest("div")' % self.html_control.jquery_selector
+
+    def create_main_element(self):
+        return super(CheckboxInput, self).create_main_element().use_layout(self.contents_layout or ChoicesLayout(inline=False))
+
+    def add_choice_to(self, widget, choice):
+        single_choice = SingleChoice(self, choice)
+        widget.layout.add_choice(single_choice)
+        return single_choice
+
+
+class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
     """An Input that lets the user select a :class:`reahl.component.modelinterface.Choice` from a list of valid ones
        shown as radio buttons of which only one can be selected at a time.
 
@@ -163,16 +182,14 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
     def __init__(self, form, bound_field, contents_layout=None):
         assert contents_layout is None or isinstance(contents_layout, ChoicesLayout), 'contents_layout should be an instance of ChoicesLayout but isn\'t' #TODO: this should be in @argchecks(...)
         self.contents_layout = contents_layout or ChoicesLayout(inline=False)
-        super(RadioButtonInput, self).__init__(form, bound_field)
+        super(RadioButtonSelectInput, self).__init__(form, bound_field)
 
     def create_main_element(self):
-        main_element = super(RadioButtonInput, self).create_main_element().use_layout(self.contents_layout)
+        main_element = super(RadioButtonSelectInput, self).create_main_element().use_layout(self.contents_layout)
         return main_element
 
-    def add_button_for_choice_to(self, widget, choice):
-        button = PrimitiveRadioButtonInput(self, choice)
-        widget.layout.add_choice(button)
-        return button
+    def add_choice_to(self, widget, choice):
+        return widget.layout.add_choice(SingleChoice(self, choice))
 
 
 class ButtonInput(reahl.web.ui.ButtonInput):
@@ -190,10 +207,10 @@ Button = ButtonInput
 
 
 class StaticData(reahl.web.ui.Input):
-    """A fake input which just displays the value of the :class:`~reahl.component.modelinterface.Field` 
+    """A fake input which just displays the value of the :class:`~reahl.component.modelinterface.Field`
        to which the StaticData is attached, but does not include a way to change the value.
 
-       This is useful in cases where you want to display some data that is exposed via a 
+       This is useful in cases where you want to display some data that is exposed via a
        :class:`~reahl.component.modelinterface.Field` in a Form amongst normal Inputs.
 
        :param form: (See :class:`~reahl.web.ui.Input`)
@@ -210,7 +227,7 @@ class StaticData(reahl.web.ui.Input):
 
 class CueInput(reahl.web.ui.WrappedInput):
     """A Widget that wraps around a given Input to augment it with a "cue" - a hint that
-       appears only when the Input has focus. The intention of the cue is to give the 
+       appears only when the Input has focus. The intention of the cue is to give the
        user a hint as to what to input into the Input.
 
        :param html_input: The :class:`~reahl.web.ui.Input` to be augmented.
@@ -237,36 +254,36 @@ class CueInput(reahl.web.ui.WrappedInput):
 
 
 class ButtonStyle(HTMLAttributeValueOption):
-    valid_options = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark']
-    def __init__(self, name):
-        super(ButtonStyle, self).__init__(name, name is not None, prefix='btn', 
+    valid_options = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'link', 'light', 'dark']
+    def __init__(self, name, outline=False):
+        super(ButtonStyle, self).__init__(name, name is not None, prefix='btn' if not outline else 'btn-outline',
                                           constrain_value_to=self.valid_options)
 
 
 class ButtonSize(HTMLAttributeValueOption):
     valid_options = ['lg', 'sm', 'xs']
     def __init__(self, size_string):
-        super(ButtonSize, self).__init__(size_string, size_string is not None, prefix='btn', 
+        super(ButtonSize, self).__init__(size_string, size_string is not None, prefix='btn',
                                          constrain_value_to=self.valid_options)
 
 
 class ButtonLayout(reahl.web.fw.Layout):
     """A ButtonLayout can be used to make something (like an :class:`A`) look like
-       a :class:`Button`. It has a few options controlling specifics of that look, 
+       a :class:`Button`. It has a few options controlling specifics of that look,
        and can be used to change the default look of a :class:`Button` as well.
 
-       :keyword style: The general style of the button 
-                   (one of: 'primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark')
+       :keyword style: The general style of the button
+                   (one of: 'default', 'primary', 'success', 'info', 'warning', 'danger', 'link', 'light', 'dark')
        :keyword size: The size of the button (one of: 'xs', 'sm', 'lg')
-       :keyword active: If True, the button is visually altered to indicate it is active 
-                        (buttons can be said to be active in the same sense that a menu item can 
+       :keyword active: If True, the button is visually altered to indicate it is active
+                        (buttons can be said to be active in the same sense that a menu item can
                         be the currently active menu item).
        :keyword wide: If True, the button stretches to the entire width of its parent.
 
     """
-    def __init__(self, style=None, size=None, active=False, wide=False):
+    def __init__(self, style=None, outline=False, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
-        self.style = ButtonStyle(style)
+        self.style = ButtonStyle(style, outline=outline)
         self.size = ButtonSize(size)
         self.active = HTMLAttributeValueOption('active', active)
         self.wide = HTMLAttributeValueOption('btn-block', wide)
@@ -277,16 +294,16 @@ class ButtonLayout(reahl.web.fw.Layout):
         if isinstance(self.widget, A) and self.widget.disabled:
             self.widget.append_class('disabled')
         for option in [self.style, self.size, self.active, self.wide]:
-            if option.is_set: 
+            if option.is_set:
                 self.widget.append_class(option.as_html_snippet())
-        
+
 
 class ChoicesLayout(reahl.web.fw.Layout):
     def __init__(self, inline=False):
         super(ChoicesLayout, self).__init__()
         self.inline = inline
 
-    @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, PrimitiveRadioButtonInput)))
+    @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
         label_widget = Label(self.view)
         html_input.append_class('form-check-input')
@@ -308,8 +325,8 @@ class ChoicesLayout(reahl.web.fw.Layout):
 
 
 class FormLayout(reahl.web.fw.Layout):
-    """A FormLayout is used to create Forms that have a consistent look by arranging 
-       all its Inputs, their Labels and possible validation error messages in a 
+    """A FormLayout is used to create Forms that have a consistent look by arranging
+       all its Inputs, their Labels and possible validation error messages in a
        certain way.
 
        This basic FormLayout positions Labels above added Inputs and allow for an
@@ -318,17 +335,17 @@ class FormLayout(reahl.web.fw.Layout):
        Different kinds of FormLayouts allow different kinds of arrangements.
 
        Different FormLayouts can be used on different sub-parts of a Form by
-       composing a Form of Divs of FieldSets that each use a different 
+       composing a Form of Divs of FieldSets that each use a different
        FormLayout.
     """
     def create_form_group(self, html_input):
-        if isinstance(html_input, RadioButtonInput):
+        if isinstance(html_input, RadioButtonSelectInput):
             form_group = self.widget.add_child(FieldSet(self.view))
         else:
             form_group = self.widget.add_child(Div(self.view))
         form_group.append_class('form-group')
-        form_group.add_attribute_source(reahl.web.ui.ValidationStateAttributes(html_input, 
-                                                             error_class='has-danger', 
+        form_group.add_attribute_source(reahl.web.ui.ValidationStateAttributes(html_input,
+                                                             error_class='has-danger',
                                                              success_class='has-success'))
         form_group.add_attribute_source(reahl.web.ui.AccessRightAttributes(html_input, disabled_class='disabled'))
         return form_group
@@ -358,7 +375,7 @@ class FormLayout(reahl.web.fw.Layout):
         return help_text_widget
 
     def add_label_to(self, form_group, html_input, hidden):
-        if isinstance(html_input, RadioButtonInput):
+        if isinstance(html_input, RadioButtonSelectInput):
             label = form_group.add_child(Legend(self.view, text=html_input.label))
             label.append_class('col-form-legend')
         else:
@@ -391,7 +408,7 @@ class FormLayout(reahl.web.fw.Layout):
 
 
 class GridFormLayout(FormLayout):
-    """A GridFormLayout arranges its Labels and Inputs in a grid with two columns. Labels 
+    """A GridFormLayout arranges its Labels and Inputs in a grid with two columns. Labels
        go into the left column and Inputs into the right column. The programmer specifies
        how wide each column should be.
 

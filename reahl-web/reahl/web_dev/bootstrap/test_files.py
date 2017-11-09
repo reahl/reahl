@@ -489,10 +489,8 @@ def test_file_upload_input_list_files(web_fixture, file_upload_input_fixture):
 
 @with_fixtures(WebFixture, FileUploadInputFixture)
 def test_file_upload_input_remove_files(web_fixture, file_upload_input_fixture):
-    """A user can remove files that were uploaded before the Form which contains the 
-       FileUploadInput is submitted."""
+    """A user can remove files that were uploaded but not yet submitted."""
     fixture = file_upload_input_fixture
-
 
     web_fixture.reahl_server.set_app(fixture.wsgi_app)
 
@@ -522,7 +520,6 @@ def test_file_upload_input_double_uploads(web_fixture, file_upload_input_fixture
     """
     fixture = file_upload_input_fixture
 
-
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=False))
 
     browser = web_fixture.driver_browser
@@ -546,7 +543,6 @@ def test_async_upload(web_fixture, file_upload_input_fixture):
        uploading starts automatically upon choosing a file. The list of uploaded files is appropriately updated.
     """
     fixture = file_upload_input_fixture
-
 
     web_fixture.reahl_server.set_app(fixture.new_wsgi_app(enable_js=True))
 

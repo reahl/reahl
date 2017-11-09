@@ -124,10 +124,12 @@ class ResponsiveOption(object):
     def add_css_classes(self, html_widget, prefix=None):
         classes = []
         for device_class, value in self.device_options.items():
-            css_class = device_class.as_combined_css_class(list(filter(None, [prefix or self.prefix])),
-                                                           [six.text_type(value)])
+            prefix_to_use = prefix or self.prefix
+            css_class = device_class.as_combined_css_class([prefix_to_use] if prefix_to_use else [],
+                                                           [six.text_type(value)] if value is not True else [])
             html_widget.append_class(css_class)
             classes.append(css_class)
+
         return classes
 
 
