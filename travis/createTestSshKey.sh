@@ -11,4 +11,4 @@ cat ~/.ssh/id_localhost.pub >> ~/.ssh/authorized_keys
 # ssh-add
 
 # Accept localhost server key
-ssh -o StrictHostKeyChecking=no localhost ls
+ssh -vvv -o StrictHostKeyChecking=no localhost ls
