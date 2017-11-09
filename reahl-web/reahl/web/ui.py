@@ -1681,8 +1681,9 @@ class RadioButtonSelectInput(PrimitiveInput):
     def create_main_element(self):
         return Div(self.view)
 
-    def add_button_for_choice_to(self, widget, choice):
-        return widget.add_child(SingleRadioButton(self, choice))
+    def add_choice_to(self, widget, choice):
+        return widget.add_child(SingleChoice(self, choice))
+
 
 
 # Uses: reahl/web/reahl.textinput.js

@@ -188,10 +188,8 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
         main_element = super(RadioButtonSelectInput, self).create_main_element().use_layout(self.contents_layout)
         return main_element
 
-    def add_button_for_choice_to(self, widget, choice):
-        button = PrimitiveRadioButtonInput(self, choice)
-        widget.layout.add_choice(button)
-        return button
+    def add_choice_to(self, widget, choice):
+        return widget.layout.add_choice(SingleChoice(self, choice))
 
 
 class ButtonInput(reahl.web.ui.ButtonInput):

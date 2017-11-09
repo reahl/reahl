@@ -1012,7 +1012,7 @@ class ChoiceFixture(Fixture):
         self.groups = []
         self.choices = self.all_choices
         field = self.new_field(MultiChoiceField)
-        self.field = field.as_with_validation_constraint(RequiredConstraint())
+        self.field = field.with_validation_constraint(RequiredConstraint())
 
         self.valid_inputs = [('1',), ['1']]
         self.invalid_input = []
