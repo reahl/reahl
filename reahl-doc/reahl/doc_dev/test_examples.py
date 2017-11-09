@@ -30,7 +30,7 @@ from reahl.webdev.tools import XPath, Browser
 from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
-from reahl.doc.examples.tutorial.slotsbootstrap.slotsbootstrap import SlotsUI
+from reahl.doc.examples.tutorial.slots.slots import SlotsUI
 from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
 from reahl.doc.examples.features.carousel.carousel import CarouselUI
 from reahl.doc.examples.features.validation.validation import ValidationUI
@@ -49,9 +49,8 @@ from reahl.doc.examples.tutorial.addressbook1 import addressbook1
 from reahl.doc.examples.tutorial.addressbook2 import addressbook2
 from reahl.doc.examples.tutorial.addressbook2bootstrap import addressbook2bootstrap
 from reahl.doc.examples.tutorial.bootstrapgrids import bootstrapgrids
-from reahl.doc.examples.tutorial.pageflow1bootstrap import pageflow1bootstrap
-from reahl.doc.examples.tutorial.pageflow2bootstrap import pageflow2bootstrap
-from reahl.doc.examples.tutorial.parameterised1bootstrap import parameterised1bootstrap
+from reahl.doc.examples.tutorial.pageflow1 import pageflow1
+from reahl.doc.examples.tutorial.parameterised1 import parameterised1
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -168,15 +167,11 @@ class ExampleFixture(Fixture):
 
     @scenario
     def pageflow1(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=pageflow1bootstrap.AddressBookUI)
-
-    @scenario
-    def pageflow2(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=pageflow2bootstrap.AddressBookUI)
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=pageflow1.AddressBookUI)
 
     @scenario
     def parameterised1(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=parameterised1bootstrap.AddressBookUI)
+        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=parameterised1.AddressBookUI)
 
     @scenario
     def addressbook2bootstrap(self):
@@ -477,37 +472,15 @@ def test_pageflow1(web_fixture, pageflow1_scenario):
 
     assert browser.is_element_present('//ul[contains(@class,"nav")]') 
 
-    browser.click(XPath.link_with_text('Add an address'))
+    browser.click(XPath.link_with_text('Add'))
     assert browser.location_path == '/add' 
 
     browser.type(XPath.input_labelled('Name'), 'John') 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
 
-    assert browser.location_path == '/add' 
-
-    browser.click(XPath.link_with_text('Addresses'))
-    assert browser.location_path == '/' 
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
-
-
-@with_fixtures(WebFixture, ExampleFixture.pageflow2)
-def test_pageflow2(web_fixture, pageflow2_scenario):
-    
-    browser = Browser(pageflow2_scenario.wsgi_app)
-    browser.open('/')
-
-    assert browser.is_element_present('//ul[contains(@class,"nav")]') 
-
-    browser.click(XPath.link_with_text('Add an address'))
-    assert browser.location_path == '/add' 
-
-    browser.type(XPath.input_labelled('Name'), 'John') 
-    browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
-    browser.click(XPath.button_labelled('Save'))
-
-    assert browser.location_path == '/' 
-    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org')) 
+    assert browser.location_path == '/'
+    assert browser.is_element_present(XPath.paragraph_containing('John: johndoe@some.org'))
 
 
 @with_fixtures(WebFixture, ExampleFixture.parameterised1)
@@ -516,7 +489,7 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     browser = Browser(parameterised1_scenario.wsgi_app)
     browser.open('/')
 
-    browser.click(XPath.link_with_text('Add an address'))
+    browser.click(XPath.link_with_text('Add'))
     browser.type(XPath.input_labelled('Name'), 'John') 
     browser.type(XPath.input_labelled('Email'), 'johndoe@some.org')
     browser.click(XPath.button_labelled('Save'))
@@ -524,7 +497,7 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
     assert browser.location_path == '/' 
     browser.click(XPath.link_with_text('edit'))
 
-    john = Session.query(parameterised1bootstrap.Address).one()
+    john = Session.query(parameterised1.Address).one()
     assert browser.location_path == '/edit/%s' % john.id 
     browser.type(XPath.input_labelled('Name'), 'Johnny') 
     browser.type(XPath.input_labelled('Email'), 'johnny@walker.org')
@@ -532,5 +505,3 @@ def test_parameterised1(web_fixture, parameterised1_scenario):
 
     assert browser.location_path == '/' 
     assert browser.is_element_present(XPath.paragraph_containing('Johnny: johnny@walker.org')) 
-
-

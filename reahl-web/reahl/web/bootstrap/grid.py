@@ -122,9 +122,13 @@ class ResponsiveOption(object):
         return self.device_options.__len__()
 
     def add_css_classes(self, html_widget, prefix=None):
+        classes = []
         for device_class, value in self.device_options.items():
-            html_widget.append_class(device_class.as_combined_css_class(list(filter(None, [prefix or self.prefix])),
-                                                                        [six.text_type(value)]))
+            css_class = device_class.as_combined_css_class(list(filter(None, [prefix or self.prefix])),
+                                                           [six.text_type(value)])
+            html_widget.append_class(css_class)
+            classes.append(css_class)
+        return classes
 
 
 class ContentJustification(ResponsiveOption):
@@ -362,6 +366,7 @@ class ColumnLayout(Layout):
             device_class = wrapping_classes[0]
             if device_class.one_smaller:
                 clearfix.append_class(device_class.one_smaller.as_combined_css_class(['hidden'], []))
+        return clearfix
 
     def add_column(self, name, size=None, offsets=None, vertical_align=None, column_widget=None):
         """Called to add a column with given options.

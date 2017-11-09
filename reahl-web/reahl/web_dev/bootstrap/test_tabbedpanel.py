@@ -34,7 +34,7 @@ from reahl.web_dev.fixtures import WebFixture
 
 
 @uses(web_fixture=WebFixture)
-class TabbedPanelAjaxFixture(Fixture):
+class   TabbedPanelAjaxFixture(Fixture):
 
     def new_PopulatedTabbedPanel(self):
         class PopulatedTabbedPanel(TabbedPanel):
@@ -258,7 +258,6 @@ def test_clicking_on_multi_tab(web_fixture, panel_switch_fixture, tabbed_panel_a
     """Clicking on a multitab just opens and closes its dropdown without affecting the current open tab."""
     if not panel_switch_fixture.enable_js:
         panel_switch_fixture.ensure_disabled_js_files_not_cached()
-
 
     wsgi_app = tabbed_panel_ajax_fixture.new_wsgi_app(enable_js=panel_switch_fixture.enable_js)
     web_fixture.reahl_server.set_app(wsgi_app)

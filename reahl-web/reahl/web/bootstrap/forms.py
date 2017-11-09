@@ -172,6 +172,7 @@ class RadioButtonInput(reahl.web.ui.RadioButtonInput):
     def add_button_for_choice_to(self, widget, choice):
         button = PrimitiveRadioButtonInput(self, choice)
         widget.layout.add_choice(button)
+        return button
 
 
 class ButtonInput(reahl.web.ui.ButtonInput):
@@ -185,7 +186,7 @@ class ButtonInput(reahl.web.ui.ButtonInput):
         super(ButtonInput, self).__init__(form, event)
         self.append_class('btn')
 
-Button = ButtonInput
+Button = ButtonInput 
 
 
 class StaticData(reahl.web.ui.Input):
@@ -236,7 +237,7 @@ class CueInput(reahl.web.ui.WrappedInput):
 
 
 class ButtonStyle(HTMLAttributeValueOption):
-    valid_options = ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link']
+    valid_options = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark']
     def __init__(self, name):
         super(ButtonStyle, self).__init__(name, name is not None, prefix='btn', 
                                           constrain_value_to=self.valid_options)
@@ -255,14 +256,14 @@ class ButtonLayout(reahl.web.fw.Layout):
        and can be used to change the default look of a :class:`Button` as well.
 
        :keyword style: The general style of the button 
-                   (one of: 'default', 'primary', 'success', 'info', 'warning', 'danger', 'link')
+                   (one of: 'primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark')
        :keyword size: The size of the button (one of: 'xs', 'sm', 'lg')
        :keyword active: If True, the button is visually altered to indicate it is active 
                         (buttons can be said to be active in the same sense that a menu item can 
                         be the currently active menu item).
        :keyword wide: If True, the button stretches to the entire width of its parent.
 
-    """ 
+    """
     def __init__(self, style=None, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
         self.style = ButtonStyle(style)

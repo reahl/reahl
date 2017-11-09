@@ -141,5 +141,6 @@ PNGS =$(SVGS:%.svg=%.png)
 pngs: $(PNGS)
 
 $(PNGS): %.png: %.svg
-	@echo ssh localhost "cd $(PWD) && inkscape -z -e $@  $<"
-	ssh localhost "cd $(PWD) && inkscape -z -e $@  $<"
+	@echo cd $(PWD) && convert -background none $< $@
+	cd $(PWD) && convert -background none $< $@
+

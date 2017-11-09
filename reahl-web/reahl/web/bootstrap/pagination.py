@@ -332,6 +332,7 @@ class PageMenu(HTMLWidget):
         item = menu.add_a(link)
         item.html_representation.add_attribute_source(AccessRightAttributes(link))
         self.add_styling_to_menu_item(item)
+        return link
         
     def get_bookmark(self, start_page_number=1, disabled=False):
         bookmark = Bookmark.for_widget(None,

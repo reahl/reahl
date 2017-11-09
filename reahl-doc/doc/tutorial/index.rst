@@ -7,23 +7,42 @@ This tutorial is intended for those who'd like to understand Reahl and
 what it is about.
 
 
-Contents:
+Get started
+-----------
 
 .. toctree::
    :maxdepth: 1
 
-   gettingstarted
-   exampleapp
-   models
-   persistence
-   housingmodels
-   uibasics
-   inputwidgets
-   buttonwidgets
 
+   gettingstarted-install
+   gettingstarted-develop
+   gettingstarted-examples
+
+
+An address book application
+---------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   exampleapp
    styling
-   bootstrap/index
+   uibasics
+   persistence
+   inputwidgets 
+   
+
+
+
+
+More stuff
+---------------------------
+
+.. toctree::
+   :maxdepth: 1
+
    connectingviews
+   pagelayout
    slots
    parameterised
    testing

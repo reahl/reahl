@@ -1,23 +1,33 @@
 .. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Reahl installation
-==================
+Install Reahl
+=============
 
 .. toctree::
    :hidden:
 
+   install-vagrant
    install-ubuntu
    install-mac
    install-win
 
+This version of Reahl requires version 2.7 of Python 2 or versions
+of Python greater than 3.3.
 
-We recommend installing Reahl within a sandboxed Python environment
-provided by `virtualenv <http://pypi.python.org/pypi/virtualenv>`_.
-Doing this means that your main Python installation is left in the
-state it currently is, and that you do not need permissions of
-restricted users to install all the extra Python packages when
-developing.
+Vagrant
+-------
 
+If you know `Vagrant <https://www.vagrantup.com>`_ then :doc:`use our
+Vagrant box <install-vagrant>`. It contains a virtualenv with Reahl
+installed as per the instructions below.
+
+
+Without Vagrant
+---------------
+
+If you don't use Vagrant you should install Reahl within a sandboxed
+Python environment provided by `virtualenv
+<http://pypi.python.org/pypi/virtualenv>`_.
 
 .. sidebar:: The bottom line
 
@@ -43,113 +53,104 @@ developing.
 
 .. _prep_install:
 
-Prepare your platform for Python development
---------------------------------------------
+#. Prepare your platform
 
-Before you can install Reahl itself, you need to install several
-pieces of software on your platform (including Python and several
-Python development tools like virtualenv). This differs from platform
-to platform -- please follow the instructions for your platform:
+   Before you can install Reahl itself, you need to install several
+   pieces of software on your platform (including Python and several
+   Python development tools like virtualenv). This differs from platform
+   to platform -- please follow the instructions for your platform:
 
-- :doc:`Ubuntu (or other Debian-based Linux distributions) <install-ubuntu>`
-- :doc:`Mac OS/X <install-mac>`
-- :doc:`Windows <install-win>`
+   - :doc:`Ubuntu (or other Debian-based Linux distributions) <install-ubuntu>`
+   - :doc:`Mac OS/X <install-mac>`
+   - :doc:`Windows <install-win>`
 
-Once you have prepared your system, install Reahl itself in a virtualenv:
+   Once you have prepared your system, install Reahl itself in a virtualenv:
 
-.. _install-reahl-itself:
+   .. _install-reahl-itself:
 
-Create a virtualenv and install Reahl inside it
------------------------------------------------
+#. Create a virtualenv
 
-Next, you need to create a virtual environment using virtualenv and
-install Reahl inside it.
+   Next, you need to create a virtual environment using virtualenv and
+   install Reahl inside it.
 
-On Linux or Mac, do:
+   On Linux or Mac, do:
 
-.. code-block:: bash
+   .. code-block:: bash
 
-   virtualenv ./reahl_env
+      virtualenv ./reahl_env
 
-.. note:: 
+   .. note::
 
-   If you have more than one version of Python installed, also pass the `-p` argument
-   to virtualenv, specifying the path to the Python interpreter you want this
-   virtualenv for.
+      If you have more than one version of Python installed, also pass the `-p` argument
+      to virtualenv, specifying the path to the Python interpreter you want this
+      virtualenv for.
 
-On Windows, do (in a command shell):
+   On Windows, do (in a command shell):
 
-.. code-block:: bash
+   .. code-block:: bash
 
-   virtualenv reahl_env
-   
-This creates a new directory `reahl_env` with an isolated Python
-environment inside it.
+      virtualenv reahl_env
 
-In order to work inside that isolated environment, you need to execute
-the following on the command line:
+   This creates a new directory `reahl_env` with an isolated Python
+   environment inside it.
 
-On Linux or Mac:
+   In order to work inside that isolated environment, you need to execute
+   the following on the command line:
 
-.. code-block:: bash
+   On Linux or Mac:
 
-   source ./reahl_env/bin/activate
+   .. code-block:: bash
 
-On Windows:
+      source ./reahl_env/bin/activate
 
-.. code-block:: bash
+   On Windows:
 
-   reahl_env\Scripts\activate.bat
+   .. code-block:: bash
 
-After activating your new environment, the prompt of the command line
-changes to reflect the environment that is currently active.
+      reahl_env\Scripts\activate.bat
 
-With your `virtualenv` activated, Reahl can be installed into it by
-issuing (regardless of platform):
+   After activating your new environment, the prompt of the command line
+   changes to reflect the environment that is currently active.
 
-.. code-block:: bash
+#. Install Reahl in the virtualenv
 
-   pip install reahl[declarative,sqlite,dev,doc]  
+   Reahl is composed of different components---you only need some of them
+   (you probably do not want the development tools in a production
+   environment).
 
-.. note::
+   You can install:
 
-   Some of Reahl's dependencies are distributed in binary form for 
-   Windows. These have to be installed using the wheel format when
-   using pip, so do ensure that you are using a version of Pip > 6.
+       declarative
+         The declarative implementation of the web framework
 
-This may run a while, as it installs all of the projects Reahl depends
-on as well. Some of these dependencies are installed and built from
-source (on platforms other than windows), hence, this process needs
-:ref:`your platform to be prepared properly for Python development 
-<prep_install>` before you attempt to install Reahl.
+       dev
+         The development tools
 
-Choose what to install
-----------------------
+       doc
+         Documentation and examples
 
-Reahl is composed of a number of different components that you
-can mix and match depending on your requirements. For example, 
-you probably do not want the development tools in a production
-environment, so they are packaged in a component you can omit.
+       sqlite
+         Support for sqlite databases
 
-In order to specify which sets of components you want installed,
-you use keywords in square brackets behind `reahl` in the command
-to pip as shown above. Here is a list of keywords you can 
-include, and what they install:
+       postgresql
+         Support for postgresql databases
 
- declarative
-   The declarative implementation of the web framework
+   With your `virtualenv` activated, Reahl can be installed into it by
+   issuing (regardless of platform):
 
- dev
-   The development tools
+   .. code-block:: bash
 
- doc
-   Documentation and examples
+      pip install reahl[declarative,sqlite,dev,doc]
 
- sqlite
-   Support for sqlite databases
+   .. note::
 
- postgresql
-   Support for postgresql databases 
- 
+      Some of Reahl's dependencies are distributed in binary form for
+      Windows. These have to be installed using the wheel format when
+      using pip, so do ensure that you are using a version of Pip > 6.
 
+   This may run a while, as it installs all of the projects Reahl depends
+   on as well. Some of these dependencies are installed and built from
+   source (on platforms other than windows), hence, this process needs
+   :ref:`your platform to be prepared properly for Python development
+   <prep_install>` before you attempt to install Reahl.
 

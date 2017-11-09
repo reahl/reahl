@@ -15,6 +15,12 @@ FieldIndex
 .. autoclass:: FieldIndex
    :members:
 
+exposed
+"""""""
+
+.. autoclass:: exposed
+   :members:
+      
 ExposedDecorator
 """"""""""""""""
 

@@ -34,6 +34,12 @@ for i in $(ls /etc/ssh/ssh_host_*.pub); do
 done
 EOF
 
+cat << 'EOF' >> $HOME/.screenrc
+hardstatus on
+hardstatus alwayslastline
+hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %H %{..Y} %m/%d %C%a "
+EOF
+
 # User installs and config
 ./travis/installChromium.sh
 ./travis/createTestSshKey.sh

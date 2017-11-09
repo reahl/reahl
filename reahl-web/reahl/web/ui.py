@@ -22,7 +22,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import time
 from string import Template
-
 import collections
 import copy
 import re
@@ -103,6 +102,7 @@ class HTMLAttribute(object):
 
     def add_values(self, values):
         self.value |= set(values)
+        return values
 
 
 class HTMLAttributeValues(object):
@@ -149,7 +149,7 @@ class HTMLAttributeDict(dict):
     def add_to(self, name, values):
         assert all(value is not None for value in values)
         attribute = self.setdefault(name, HTMLAttribute(name, []))
-        attribute.add_values(values)
+        return attribute.add_values(values)
 
     def remove_from(self, name, values):
         attribute = self.get(name)
@@ -247,12 +247,13 @@ class HTMLElement(Widget):
 
     def add_attribute_source(self, attribute_source):
         self.attribute_sources.append(attribute_source)
+        return attribute_source
 
     def add_to_attribute(self, name, values):
         """Ensures that the value of the attribute `name` of this HTMLElement includes the words listed in `values` 
            (a list of strings).
         """
-        self.constant_attributes.add_to(name, values)
+        return self.constant_attributes.add_to(name, values)
     
     def set_attribute(self, name, value):
         """Sets the value of the attribute `name` of this HTMLElement to the string `value`."""
@@ -282,6 +283,7 @@ class HTMLElement(Widget):
     def add_hash_change_handler(self, for_fields):
         assert not self.ajax_handler
         self.ajax_handler = HashChangeHandler(self, for_fields)
+        return self.ajax_handler
         
     def render(self):
         if self.visible:
@@ -480,7 +482,7 @@ class Head(HTMLElement):
         self.add_child(Slot(view, name='reahl_header'))
 
     def add_css(self, href):
-        self.add_child(Link(self.view, 'stylesheet', href, 'text/css'))
+        return self.add_child(Link(self.view, 'stylesheet', href, 'text/css'))
 
 
 class Body(HTMLElement):
@@ -1241,7 +1243,7 @@ class HTMLWidget(Widget):
         """Ensures that the value of the attribute `name` of the HTMLElement which represents this Widget in
            HTML to the user includes the words listed in `values` (a list of strings).
         """
-        self.html_representation.add_to_attribute(name, values)
+        return self.html_representation.add_to_attribute(name, values)
 
     def set_attribute(self, name, value):
         """Sets the value of the attribute `name` of the HTMLElement which represents this Widget in HTML to the user
@@ -1654,7 +1656,7 @@ class RadioButtonInput(PrimitiveInput):
         return Div(self.view)
 
     def add_button_for_choice_to(self, widget, choice):
-        widget.add_child(SingleRadioButton(self, choice))
+        return widget.add_child(SingleRadioButton(self, choice))
 
 
 
@@ -1687,6 +1689,7 @@ class TextInput(InputTypeInput):
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
             self.set_attribute('placeholder', placeholder_text)
+            self.set_attribute('aria-label', placeholder_text)
 
         if fuzzy:
             self.append_class('fuzzy')
@@ -1744,8 +1747,6 @@ class CheckboxInput(InputTypeInput):
         if self.name in input_values:
             return self.bound_field.true_value
         return self.bound_field.false_value
-
-
 
 
 class ButtonInput(PrimitiveInput):

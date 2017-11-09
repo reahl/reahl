@@ -44,7 +44,7 @@ class Slide(Div):
 
         if isinstance(widget, Img):
             widget.append_class('d-block')
-            widget.append_class('img-fluid')
+            widget.append_class('w-100')
 
         if caption_widget:
             self.add_child(self.create_caption(caption_widget))
@@ -72,7 +72,7 @@ class Carousel(Widget):
     :param css_id: (See :class:`~reahl.web.ui.HTMLElement`)
     :keyword show_indicators: If True (the default), includes indicators showing the number of slides and which one is visible.
     :keyword interval: The number (an int) of milliseconds to delay between cycling content. If not given (the default), the Carousel will not cycle automatically.
-    :keyword pause: If not None, a string stating when to pause the cycling. Currently only 'hover' is supported.
+    :keyword pause: If set to 'false', hovering over the carousel will not pause it. Another option, 'hover' is supported.
     :keyword wrap: If True, the Carousel cycles contiuously, else it stops at the last slide.
     :keyword keyboard: If True, the Carousel reacts to keyboard events.
     :keyword min_height: If given, force slides to be at least this high (useful to prevent
@@ -108,7 +108,6 @@ class Carousel(Widget):
     def create_inner(self):
         inner = Div(self.view)
         inner.append_class('carousel-inner')
-        inner.set_attribute('role', 'listbox')
         return inner
 
     def add_slide(self, widget, caption_widget=None):

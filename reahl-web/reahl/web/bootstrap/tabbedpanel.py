@@ -165,7 +165,7 @@ class Tab(object):
         return 'tab_%s' % self.tab_key
 
     def add_contents_to(self, content_panel):
-        self.add_pane(content_panel, self)
+        return self.add_pane(content_panel, self)
 
     def add_pane(self, content_panel, tab):
         div = content_panel.add_child(Div(self.view))

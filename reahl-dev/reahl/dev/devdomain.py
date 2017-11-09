@@ -1944,6 +1944,7 @@ class EggProject(Project):
                     '--domain', source_egg.name,
                     '-d', self.locale_dirname,
                     '--locale', locale])
+        return locale
 
 
 class ChickenProject(EggProject):

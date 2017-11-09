@@ -143,6 +143,7 @@ class FileUploadPanel(Div):
         self.upload_form.define_event_handler(self.events.upload_file)
         self.upload_form.define_event_handler(self.events.remove_file)
         self.upload_form.form.set_attribute('novalidate','novalidate')
+        return self.upload_form
 
     @property
     def name(self):
@@ -152,6 +153,7 @@ class FileUploadPanel(Div):
         ul = self.upload_form.add_child(Ul(self.view))
         for persisted_file in self.persisted_file_class.get_persisted_for_form(self.input_form, self.name):
             ul.add_child(FileUploadLi(self.upload_form.form, self.events.remove_file, persisted_file))
+        return ul
 
     def add_upload_controls(self):
         controls_panel = self.upload_form.add_child(Div(self.view)).use_layout(FormLayout())
@@ -160,7 +162,7 @@ class FileUploadPanel(Div):
         button_addon = file_input.html_representation.add_child(Span(self.view))
         button_addon.append_class('input-group-btn')
         button_addon.add_child(Button(self.upload_form.form, self.events.upload_file))
-
+        return controls_panel
 
     @property
     def persisted_file_class(self):

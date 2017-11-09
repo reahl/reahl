@@ -39,7 +39,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.modelinterface import exposed, IntegerField, BooleanField
 from reahl.web.fw import Bookmark, Widget, Layout
 
-from reahl.web.ui import HTMLAttributeValueOption, StaticColumn
+from reahl.web.ui import HTMLAttributeValueOption, StaticColumn, ColGroup, Col, Th, Tr, Td, Tbody, Thead, Tfoot, DynamicColumn, Caption
 
 import reahl.web.ui
 from reahl.web.bootstrap.ui import A, Div
