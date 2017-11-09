@@ -716,6 +716,26 @@ class P(HTMLElement):
         self.available_slots[name].fill(widget)
 
 
+class Small(HTMLElement):
+    """A paragraph of text with tag name `small`.
+
+       .. admonition:: Styling
+
+          Renders as an HTML <small> element.
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword text: The text value displayed in the paragraph (if given)
+       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
+       :keyword html_escape: If `text` is given, by default such text is HTML-escaped. Pass False in here to prevent this from happening.
+
+       .. versionadded:: 4.0
+    """
+    def __init__(self, view, text=None, css_id=None, html_escape=True):
+        super(Small, self).__init__(view, 'small', children_allowed=True, css_id=css_id)
+        if text:
+            self.add_child(TextNode(view, text, html_escape=html_escape))
+
+
 class Div(HTMLElement):
     """A logical grouping of other HTMLElements.
 

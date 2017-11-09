@@ -254,9 +254,9 @@ class CueInput(reahl.web.ui.WrappedInput):
 
 
 class ButtonStyle(HTMLAttributeValueOption):
-    valid_options = ['default', 'primary', 'success', 'info', 'warning', 'danger', 'link']
-    def __init__(self, name):
-        super(ButtonStyle, self).__init__(name, name is not None, prefix='btn',
+    valid_options = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'link']
+    def __init__(self, name, outline=False):
+        super(ButtonStyle, self).__init__(name, name is not None, prefix='btn' if not outline else 'btn-outline',
                                           constrain_value_to=self.valid_options)
 
 
@@ -281,9 +281,9 @@ class ButtonLayout(reahl.web.fw.Layout):
        :keyword wide: If True, the button stretches to the entire width of its parent.
 
     """
-    def __init__(self, style=None, size=None, active=False, wide=False):
+    def __init__(self, style=None, outline=False, size=None, active=False, wide=False):
         super(ButtonLayout, self).__init__()
-        self.style = ButtonStyle(style)
+        self.style = ButtonStyle(style, outline=outline)
         self.size = ButtonSize(size)
         self.active = HTMLAttributeValueOption('active', active)
         self.wide = HTMLAttributeValueOption('btn-block', wide)
