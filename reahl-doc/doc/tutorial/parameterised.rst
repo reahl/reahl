@@ -14,9 +14,7 @@ Parameterised  Views
 .. sidebar:: Examples in this section
 
    - tutorial.parameterised1
-   - tutorial.parameterised1bootstrap
    - tutorial.parameterised2
-   - tutorial.parameterised2bootstrap
 
    Get a copy of an example by running:
 
@@ -24,21 +22,16 @@ Parameterised  Views
 
       reahl example <examplename>
 
-Not all  |View|\s  can be statically defined in the `.assemble()` method of
-a |UserInterface|. In our AddressBook example you might want to add an
-EditAddress |View| for each Address in the database as shown in the
-following diagram:
-
+The AddressBook example can be changed further, so that existing
+Addresses can be edited:
 
 .. figure:: parameterised.png
    :align: center
 
    Views for editing addresses.
 
+This requires a single EditView that can edit any Address. 
 
-This may result in a very large number of  |View|\s -- an
-"Edit" |View| would have to be added to the |UserInterface| for each Address in
-the database. That is clearly not an acceptable solution.
 
 In order to solve the problem a |View| can have arguments -- so that a
 single "Edit" |View| can be defined *for an as yet unknown Address*.  Computing
@@ -82,10 +75,10 @@ overridden with custom logic that deals with these arguments.
 In the AddressBookUI class shown below, a |View| is added for editing,
 parameterised by the id of an Address:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1bootstrap/parameterised1bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
    :pyobject: EditView
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1bootstrap/parameterised1bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
    :pyobject: AddressBookUI		  
 
 Notice how the arguments of the |View| are specified. They are passed as
@@ -123,7 +116,7 @@ arguments of the bookmarked |View|.
 
 Here is the complete application thus far:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1bootstrap/parameterised1bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
 
 
 Programmatic arguments
@@ -193,7 +186,7 @@ The changed implementation of AddressBox below shows how AddressBox
 has been changed to a |Form|, and also how the |Button| is created with an
 |Event| which is bound to argument values:
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2.py
    :pyobject: AddressBox
 
 .. note:: 
@@ -209,5 +202,5 @@ AddressBookUI. Note how the structure of our initial schematic design
 is visible in this method -- each |View| is defined, and then all the
 transitions between the  |View|\s :
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2bootstrap/parameterised2bootstrap.py
+.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2.py
    :pyobject: AddressBookUI

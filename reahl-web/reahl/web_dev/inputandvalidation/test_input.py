@@ -175,13 +175,13 @@ class InputScenarios(SimpleInputFixture):
     @scenario
     def text_input_placeholder_default(self):
         self.widget = TextInput(self.form, self.field, placeholder=True)
-        self.expected_html = r'<input name="an_attribute" form="test" placeholder="the label" type="text" value="field value" class="reahl-textinput">'
+        self.expected_html = r'<input name="an_attribute" aria-label="the label" form="test" placeholder="the label" type="text" value="field value" class="reahl-textinput">'
         self.field_controls_visibility = True
 
     @scenario
     def text_input_placeholder_specified(self):
         self.widget = TextInput(self.form, self.field, placeholder="some text")
-        self.expected_html = r'<input name="an_attribute" form="test" placeholder="some text" type="text" value="field value" class="reahl-textinput">'
+        self.expected_html = r'<input name="an_attribute" aria-label="some text" form="test" placeholder="some text" type="text" value="field value" class="reahl-textinput">'
         self.field_controls_visibility = True
 
     @scenario

@@ -16,9 +16,12 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import warnings
-
 import six
+
+import os.path
+import warnings
+import io
+
 from six.moves import zip_longest
 from reahl.tofu import expected, scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -35,6 +38,12 @@ from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 
 @uses(web_fixture=WebFixture)
 class BasicScenarios(Fixture):
+
+    def get_file_content(self, filename):
+        with(io.open('%s/%s' % (os.path.dirname(__file__), filename))) as f:
+            file_content = ''.join(f.readlines())
+        return file_content
+
     @property
     def view(self):
         return self.web_fixture.view
@@ -52,7 +61,7 @@ class BasicScenarios(Fixture):
                 self.define_view('/', title='Hello', page=SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 3645
+        self.expected_content = self.get_file_content('artifact_hello_world.html')
         self.content_includes_p = True
 
     @scenario
@@ -68,7 +77,7 @@ class BasicScenarios(Fixture):
                 home.set_page(SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content_length = 3645
+        self.expected_content = self.get_file_content('artifact_hello_world.html')
         self.content_includes_p = True
 
     @scenario
@@ -79,7 +88,7 @@ class BasicScenarios(Fixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content_length = 3626
+        self.expected_content = self.get_file_content('artifact_hello_world_without_p.html')
         self.content_includes_p = False
 
 
@@ -113,7 +122,7 @@ def test_basic_assembly(web_fixture, basic_scenarios):
 
     # The headers are set correctly
     response = browser.last_response
-    assert response.content_length == fixture.expected_content_length
+    assert response.text == fixture.expected_content
     assert response.content_type == 'text/html'
     assert response.charset == 'utf-8'
 

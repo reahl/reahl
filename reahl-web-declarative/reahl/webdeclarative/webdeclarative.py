@@ -347,7 +347,7 @@ class PersistedFile(SessionData, PersistedFileProtocol):
         file_data = uploaded_file.contents
         mime_type = uploaded_file.mime_type
         size = uploaded_file.size
-        cls.new_for_form(form, input_name=input_name, filename=filename, file_data=file_data, mime_type=mime_type, size=size)
+        return cls.new_for_form(form, input_name=input_name, filename=filename, file_data=file_data, mime_type=mime_type, size=size)
 
     @classmethod
     def remove_persisted_for_form(cls, form, input_name, filename):

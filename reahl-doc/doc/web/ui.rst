@@ -15,12 +15,6 @@ HTML5Page
 .. autoclass:: HTML5Page
    :members:
 
-TwoColumnPage
-"""""""""""""
-
-.. autoclass:: TwoColumnPage
-   :members:
-
 Slot
 """"
 
@@ -33,7 +27,13 @@ RunningOnBadge
 .. autoclass:: RunningOnBadge
    :members:
 
+LiteralHTML
+"""""""""""
 
+.. autoclass:: LiteralHTML
+   :members:
+
+      
 Very low-level Widgets that correspond to HTML 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -170,12 +170,6 @@ NestedForm
 .. autoclass:: NestedForm
    :members:
 
-InputGroup
-""""""""""
-
-.. autoclass:: InputGroup
-   :members:
-
 FieldSet
 """"""""
 
@@ -232,10 +226,10 @@ CheckboxInput
 .. autoclass:: CheckboxInput
    :members:
    
-Button
-""""""
+ButtonInput
+"""""""""""
 
-.. autoclass:: Button
+.. autoclass:: ButtonInput
    :members:
    
 
@@ -243,94 +237,6 @@ Label
 """""
 
 .. autoclass:: Label
-   :members:
-
-InputLabel
-""""""""""
-
-.. autoclass:: InputLabel
-   :members:
-
-ErrorLabel
-""""""""""
-
-.. autoclass:: ErrorLabel
-   :members:
-
-
-Widgets to help with layout of Inputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-HorizontalLayout
-""""""""""""""""
-
-.. autoclass:: HorizontalLayout
-   :members:
-
-VerticalLayout
-""""""""""""""
-
-.. autoclass:: VerticalLayout
-   :members:
-
-LabelledInlineInput
-"""""""""""""""""""
-
-.. autoclass:: LabelledInlineInput
-   :members:
-   
-LabelledBlockInput
-""""""""""""""""""
-
-.. autoclass:: LabelledBlockInput
-   :members:
-
-CueInput
-""""""""
-
-.. autoclass:: CueInput
-   :members:
-
-LabelOverInput
-""""""""""""""
-
-.. autoclass:: LabelOverInput
-   :members:
-
-
-Menus
-^^^^^
-
-MenuItem
-""""""""
-
-.. autoclass:: MenuItem
-   :members:
-
-Menu
-""""
-
-.. autoclass:: Menu
-   :members:
-   
-SubMenu
-"""""""
-
-.. autoclass:: SubMenu
-   :members:
-   
-
-HMenu
-"""""
-
-.. autoclass:: HMenu
-   :members:
-
-
-VMenu
-"""""
-
-.. autoclass:: VMenu
    :members:
 
 
@@ -410,34 +316,6 @@ Th
    :members:
 
 
-Tabbed or sliding panels
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Tab
-"""
-
-.. autoclass:: Tab
-   :members:
-
-MultiTab
-""""""""
-
-.. autoclass:: MultiTab
-   :members:
-
-TabbedPanel
-"""""""""""
-
-.. autoclass:: TabbedPanel
-   :members:
-
-SlidingPanel
-""""""""""""
-
-.. autoclass:: SlidingPanel
-   :members:
-
-
 Uploading of files
 ^^^^^^^^^^^^^^^^^^
 
@@ -447,68 +325,6 @@ SimpleFileInput
 .. autoclass:: SimpleFileInput
    :members:
 
-FileUploadInput
-"""""""""""""""
-
-.. autoclass:: FileUploadInput
-   :members:
-
-Support for Yui 2 CSS Grids
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. deprecated:: 3.1
-   Please use the new :doc:`layout concepts based on Pure<pure>` instead.
 
 
-YuiDoc
-""""""
-
-.. autoclass:: YuiDoc
-   :members:
-
-YuiUnit
-"""""""
-
-.. autoclass:: YuiUnit
-   :members:
-
-YuiGrid
-"""""""
-
-.. autoclass:: YuiGrid
-   :members:
-
-YuiBlock
-""""""""
-
-.. autoclass:: YuiBlock
-   :members:
-
-
-Misc
-^^^^
-
-Panel
-"""""
-
-.. autoclass:: Panel
-   :members:
-
-LiteralHTML
-"""""""""""
-
-.. autoclass:: LiteralHTML
-   :members:
-
-PriorityGroup
-"""""""""""""
-
-.. autoclass:: PriorityGroup
-   :members:
-
-ErrorFeedbackMessage
-""""""""""""""""""""
-
-.. autoclass:: ErrorFeedbackMessage
-   :members:
 

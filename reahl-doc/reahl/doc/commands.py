@@ -39,9 +39,11 @@ class CheckoutChanges(object):
 
     def add_replace_text(self, from_text, to_text):
         self.source_text_replacements[from_text] = to_text
+        return to_text
 
     def add_file_rename(self, from_name, to_name):
         self.files_to_rename[from_name] = to_name
+        return to_name
 
     def get_output_filename(self, source_file_path, dest_dirname):
         filename = os.path.basename(source_file_path)

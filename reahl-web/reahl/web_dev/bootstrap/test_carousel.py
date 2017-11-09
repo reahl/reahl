@@ -69,7 +69,6 @@ def test_carousel_basics(web_fixture):
 
     # Inner (container of the images)
     assert carousel_inner.get_attribute('class') == 'carousel-inner'
-    assert carousel_inner.get_attribute('role') == 'listbox'
 
     # Controls
     def check_control(control, action, label):
@@ -226,4 +225,4 @@ def test_check_classes_added_for_images(web_fixture):
 
     img_widget = Img(web_fixture.view)
     carousel.add_slide(img_widget)
-    assert img_widget.get_attribute('class') == 'd-block img-fluid'
+    assert img_widget.get_attribute('class') == 'd-block w-100'

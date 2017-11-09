@@ -566,11 +566,11 @@ def test_button_layouts(web_fixture):
     assert button.attrib['class'] == 'btn'
 
     # Case: possible effects
-    button = Button(form, event).use_layout(ButtonLayout(style='default', size='sm', active=True, wide=True))
+    button = Button(form, event).use_layout(ButtonLayout(style='secondary', size='sm', active=True, wide=True))
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    assert button.attrib['class'] == 'active btn btn-block btn-default btn-sm'
+    assert button.attrib['class'] == 'active btn btn-block btn-secondary btn-sm'
 
 
 @with_fixtures(WebFixture)

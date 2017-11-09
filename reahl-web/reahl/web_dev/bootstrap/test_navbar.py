@@ -134,13 +134,13 @@ def test_navbar_can_have_layout(web_fixture, layout_scenarios):
 def test_customised_colour_scheme(web_fixture):
     """A ColourScheme is used to determine link colours and/or optionally a standard bootstrap background color."""
 
-    layout = NavbarLayout(colour_theme='light', bg_scheme='inverse')
+    layout = NavbarLayout(colour_theme='light', bg_scheme='dark')
     widget = Navbar(web_fixture.view).use_layout(layout)
 
     [navbar] = widget.children
 
     assert 'navbar-light' in navbar.get_attribute('class')
-    assert 'bg-inverse' in navbar.get_attribute('class')
+    assert 'bg-dark' in navbar.get_attribute('class')
 
 
 @with_fixtures(WebFixture, NavbarFixture)
@@ -215,8 +215,7 @@ class NavbarToggleFixture(Fixture):
 
     def is_expanded(self, locator):
         return self.web_fixture.driver_browser.is_visible(locator) and \
-               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'aria-expanded', value='true') and\
-               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'class', value='collapse in')
+               self.web_fixture.driver_browser.does_element_have_attribute(locator, 'class', value='collapse show')
 
     def panel_is_visible(self):
         return self.web_fixture.driver_browser.is_visible(XPath.paragraph_containing('Peek-A-Boo'))
@@ -234,7 +233,7 @@ class NavbarToggleFixture(Fixture):
                 super(MainWidget, self).__init__(view)
 
                 navbar = Navbar(view)
-                navbar.use_layout(NavbarLayout())
+                navbar.use_layout(NavbarLayout(colour_theme='dark', bg_scheme='dark'))
                 fixture.element_to_collapse = P(view, text='Peek-A-Boo', css_id='my_id')
                 navbar.layout.add_toggle(fixture.element_to_collapse)
 
@@ -277,6 +276,7 @@ def test_navbar_toggle_collapses_html_element(web_fixture, navbar_toggle_fixture
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
+
 
     #case: by default, the element to hide is not visible
     assert browser.wait_for_not(navbar_toggle_fixture.panel_is_visible)
@@ -323,7 +323,7 @@ def test_responsive_navbar_basics(web_fixture, navbar_fixture):
     assert 'collapse' in collapse_div.get_attribute('class').split()
     assert 'navbar-collapse' in collapse_div.get_attribute('class').split()
 
-    assert 'navbar-toggleable-xs' in navbar.get_attribute('class')
+    assert 'navbar-expand-xs' in navbar.get_attribute('class')
 
 
 class ToggleAlignmentScenarios(Fixture):
@@ -364,7 +364,7 @@ class BrandCollapseScenarios(Fixture):
 
 
 @with_fixtures(WebFixture, NavbarFixture, BrandCollapseScenarios)
-def test_brand_may_be_collapsed_with_toggleable_content(web_fixture, navbar_fixture, brand_collapse_fixture):
+def test_brand_may_be_collapsed_with_expandable_content(web_fixture, navbar_fixture, brand_collapse_fixture):
     """Brands may be collapse along with the other content."""
 
     responsive_navbar = navbar_fixture.navbar

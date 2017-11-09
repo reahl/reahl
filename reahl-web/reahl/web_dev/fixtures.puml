@@ -69,7 +69,6 @@ ReahlSystemFixture <-- SqlAlchemyFixture
 WebServerFixture -up-> ReahlSystemSessionFixture
 
 ReahlSystemFixture <-- WebFixture
-SqlAlchemyFixture <-- WebFixture
 WebServerFixture <-- WebFixture
 PartyAccountFixture <-- WebFixture
 

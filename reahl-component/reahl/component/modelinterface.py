@@ -91,6 +91,7 @@ class FieldIndex(object):
 
     def add_bound_field(self, field):
         setattr(self, field.name, field)
+        return field
 
     def as_kwargs(self):
         return dict([(name, field.get_model_value()) for name, field in self.items()])
@@ -155,9 +156,13 @@ class ExposedDecorator(object):
             self.func = args[0]
 
     def add_fake_events(self, event_names):
+        events = []
         self.expected_event_names.extend(event_names)
         for name in event_names:
-            setattr(self, name, FakeEvent(name))
+            event = FakeEvent(name)
+            setattr(self, name, event)
+            events.append(event)
+        return events
 
     def __call__(self, func):
         self.func = func
@@ -196,6 +201,7 @@ class ExposedDecorator(object):
 
 
 exposed = ExposedDecorator
+
 
 class FakeEvent(object):
     isEvent = True
@@ -741,16 +747,24 @@ class Field(object):
         new_version.unbind()
         return new_version
 
-    def as_without_validation_constraint(self, validation_constraint_class):
+    def without_validation_constraint(self, validation_constraint_class):
         """Returns a new Field which is exactly like this one, except that the new Field does not include 
-           a ValidationConstraint of the class given as `validation_constraint_class`."""
+           a ValidationConstraint of the class given as `validation_constraint_class`.
+
+        .. versionchanged:: 4.0
+           Changed name to be consistent with conventions for with_ methods.
+        """
         new_version = self.copy()
         new_version.remove_validation_constraint(validation_constraint_class)
         return new_version
         
-    def as_with_validation_constraint(self, validation_constraint):
+    def with_validation_constraint(self, validation_constraint):
         """Returns a new Field which is exactly like this one, except that the new Field also includes 
-           the ValidationConstraint given as `validation_constraint`."""
+           the ValidationConstraint given as `validation_constraint`.
+
+        .. versionchanged:: 4.0
+           Changed name to be consistent with conventions for with_ methods.
+        """
         new_version = self.copy()
         new_version.add_validation_constraint(validation_constraint)
         return new_version
@@ -854,6 +868,7 @@ class Field(object):
            Field are used in order, to validate input supplied to the Field."""
         validation_constraint.set_field(self)
         self.validation_constraints.append(validation_constraint)
+        return validation_constraint
 
 
 class AdaptedMethod(object):

@@ -224,15 +224,15 @@ def test_getting_modified_copy(fixture):
     assert not optional_field.required
 
     # Getting copy with a ValidationConstraint of certain type removed
-    assert field.required
-    more_lax_field = field.as_without_validation_constraint(RequiredConstraint)
-    assert not more_lax_field.required
+    assert field.required 
+    more_lax_field = field.without_validation_constraint(RequiredConstraint)
+    assert not more_lax_field.required 
 
     # Getting copy with a new ValidationConstraint added
     field.make_optional()
-    assert not field.required
-    more_strict_field = field.as_with_validation_constraint(RequiredConstraint())
-    assert more_strict_field.required
+    assert not field.required 
+    more_strict_field = field.with_validation_constraint(RequiredConstraint())
+    assert more_strict_field.required 
 
 
 @with_fixtures(FieldFixture)

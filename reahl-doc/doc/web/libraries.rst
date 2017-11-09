@@ -35,12 +35,6 @@ JQuery
    :members:
 
 
-Pure
-""""
-.. autoclass:: Pure
-   :members:
-
-
 Bootstrap4
 """"""""""
 
@@ -73,10 +67,10 @@ Holder
    :members:
 
 
-Tether
+Popper
 """"""
 
-.. autoclass:: Tether
+.. autoclass:: Popper
    :members:
 
 
@@ -86,9 +80,4 @@ JQueryUI
 .. autoclass:: JQueryUI
    :members:
 
-
-YuiGridsCss
-"""""""""""
-.. autoclass:: YuiGridsCss
-   :members:
 
