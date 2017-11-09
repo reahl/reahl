@@ -1882,7 +1882,7 @@ class Resource(object):
 
     def handle_request(self, request):
         if request.method.lower() not in self.http_methods:
-            return HTTPMethodNotAllowed(headers={ascii_as_bytes_or_str('allow'): ascii_as_bytes_or_string(', '.join(self.http_methods))})
+            return HTTPMethodNotAllowed(headers={ascii_as_bytes_or_str('allow'): ascii_as_bytes_or_str(', '.join(self.http_methods))})
 
         method_handler = getattr(self, 'handle_%s' % request.method.lower())
         return method_handler(request)
