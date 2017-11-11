@@ -22,6 +22,5 @@
     <class locator="reahl.doc.examples.tutorial.parameterised1.parameterised1:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.parameterised1.parameterised1_dev'"/>
   
 </project>

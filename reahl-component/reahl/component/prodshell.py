@@ -24,16 +24,12 @@ import six
 from pkg_resources import DistributionNotFound
 
 from reahl.component.dbutils import SystemControl
-from reahl.component.shelltools import Command, ReahlCommandline
+from reahl.component.shelltools import Command, ReahlCommandline, AliasFile
 from reahl.component.context import ExecutionContext
 from reahl.component.config import EntryPointClassList, Configuration, StoredConfiguration, MissingValue
 from reahl.component.eggs import ReahlEgg
 
 
-
-
-class ProdShellConfig(Configuration):
-    commands = EntryPointClassList('reahl.component.prodcommands', description='The commands (classes) available to the production commandline shell')
 
 
 class ProductionCommand(Command):
@@ -295,9 +291,4 @@ class RunJobs(ProductionCommand):
         return 0
 
 
-
-class ProductionCommandline(ReahlCommandline):
-    """The main class for invoking commands on projects in production environments."""
-    def __init__(self, options):
-        super(ProductionCommandline, self).__init__(options, ProdShellConfig())
 

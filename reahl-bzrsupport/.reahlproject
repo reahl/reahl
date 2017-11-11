@@ -19,7 +19,6 @@
 
   <export entrypoint="reahl.dev.xmlclasses" name="BzrSourceControl" locator="reahl.bzrsupport:BzrSourceControl"/>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.bzrsupport_dev'"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

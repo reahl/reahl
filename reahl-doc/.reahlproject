@@ -71,7 +71,6 @@
   <export entrypoint="reahl.dev.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
   <export entrypoint="reahl.dev.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc_dev reahl.doc'"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

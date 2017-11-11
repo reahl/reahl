@@ -36,7 +36,6 @@
 
   <export entrypoint="reahl.dev.commands" name="ServeCurrentProject" locator="reahl.webdev.commands:ServeCurrentProject"/>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.webdev_dev'"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

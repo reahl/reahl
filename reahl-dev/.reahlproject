@@ -26,8 +26,6 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <script name="reahl" locator="reahl.dev.devshell:WorkspaceCommandline.execute_one"/>
-  
   <export entrypoint="reahl.dev.xmlclasses" name="MetaInfo" locator="reahl.dev.devdomain:MetaInfo"/>
   <export entrypoint="reahl.dev.xmlclasses" name="HardcodedMetadata" locator="reahl.dev.devdomain:HardcodedMetadata"/>
   <export entrypoint="reahl.dev.xmlclasses" name="DebianPackageMetadata" locator="reahl.dev.devdomain:DebianPackageMetadata"/>
@@ -67,35 +65,34 @@
   <export entrypoint="reahl.dev.xmlclasses" name="ExtraPath" locator="reahl.dev.devdomain:ExtraPath"/>
   <export entrypoint="reahl.dev.xmlclasses" name="ProjectTag" locator="reahl.dev.devdomain:ProjectTag"/>
 
-  <export entrypoint="reahl.dev.commands" name="Refresh" locator="reahl.dev.devshell:Refresh"/>
-  <export entrypoint="reahl.dev.commands" name="ExplainLegend" locator="reahl.dev.devshell:ExplainLegend"/>
-  <export entrypoint="reahl.dev.commands" name="List" locator="reahl.dev.devshell:List"/>
-  <export entrypoint="reahl.dev.commands" name="Select" locator="reahl.dev.devshell:Select"/>
-  <export entrypoint="reahl.dev.commands" name="ClearSelection" locator="reahl.dev.devshell:ClearSelection"/>
-  <export entrypoint="reahl.dev.commands" name="ListSelections" locator="reahl.dev.devshell:ListSelections"/>
-  <export entrypoint="reahl.dev.commands" name="Save" locator="reahl.dev.devshell:Save"/>
-  <export entrypoint="reahl.dev.commands" name="Read" locator="reahl.dev.devshell:Read"/>
-  <export entrypoint="reahl.dev.commands" name="DeleteSelection" locator="reahl.dev.devshell:DeleteSelection"/>
-  <export entrypoint="reahl.dev.commands" name="Shell" locator="reahl.dev.devshell:Shell"/>
-  <export entrypoint="reahl.dev.commands" name="Setup" locator="reahl.dev.devshell:Setup"/>
-  <export entrypoint="reahl.dev.commands" name="Build" locator="reahl.dev.devshell:Build"/>
-  <export entrypoint="reahl.dev.commands" name="ListMissingDependencies" locator="reahl.dev.devshell:ListMissingDependencies"/>
-  <export entrypoint="reahl.dev.commands" name="DebInstall" locator="reahl.dev.devshell:DebInstall"/>
-  <export entrypoint="reahl.dev.commands" name="Upload" locator="reahl.dev.devshell:Upload"/>
-  <export entrypoint="reahl.dev.commands" name="MarkReleased" locator="reahl.dev.devshell:MarkReleased"/>
-  <export entrypoint="reahl.dev.commands" name="SubstVars" locator="reahl.dev.devshell:SubstVars"/>
-  <export entrypoint="reahl.dev.commands" name="Debianise" locator="reahl.dev.devshell:Debianise"/>
-  <export entrypoint="reahl.dev.commands" name="Info" locator="reahl.dev.devshell:Info"/>
+  <export entrypoint="reahl.component.commands" name="Refresh" locator="reahl.dev.devshell:Refresh"/>
+  <export entrypoint="reahl.component.commands" name="ExplainLegend" locator="reahl.dev.devshell:ExplainLegend"/>
+  <export entrypoint="reahl.component.commands" name="List" locator="reahl.dev.devshell:List"/>
+  <export entrypoint="reahl.component.commands" name="Select" locator="reahl.dev.devshell:Select"/>
+  <export entrypoint="reahl.component.commands" name="ClearSelection" locator="reahl.dev.devshell:ClearSelection"/>
+  <export entrypoint="reahl.component.commands" name="ListSelections" locator="reahl.dev.devshell:ListSelections"/>
+  <export entrypoint="reahl.component.commands" name="Save" locator="reahl.dev.devshell:Save"/>
+  <export entrypoint="reahl.component.commands" name="Read" locator="reahl.dev.devshell:Read"/>
+  <export entrypoint="reahl.component.commands" name="DeleteSelection" locator="reahl.dev.devshell:DeleteSelection"/>
+  <export entrypoint="reahl.component.commands" name="Shell" locator="reahl.dev.devshell:Shell"/>
+  <export entrypoint="reahl.component.commands" name="Setup" locator="reahl.dev.devshell:Setup"/>
+  <export entrypoint="reahl.component.commands" name="Build" locator="reahl.dev.devshell:Build"/>
+  <export entrypoint="reahl.component.commands" name="ListMissingDependencies" locator="reahl.dev.devshell:ListMissingDependencies"/>
+  <export entrypoint="reahl.component.commands" name="DebInstall" locator="reahl.dev.devshell:DebInstall"/>
+  <export entrypoint="reahl.component.commands" name="Upload" locator="reahl.dev.devshell:Upload"/>
+  <export entrypoint="reahl.component.commands" name="MarkReleased" locator="reahl.dev.devshell:MarkReleased"/>
+  <export entrypoint="reahl.component.commands" name="SubstVars" locator="reahl.dev.devshell:SubstVars"/>
+  <export entrypoint="reahl.component.commands" name="Debianise" locator="reahl.dev.devshell:Debianise"/>
+  <export entrypoint="reahl.component.commands" name="Info" locator="reahl.dev.devshell:Info"/>
 
-  <export entrypoint="reahl.dev.commands" name="ExtractMessages" locator="reahl.dev.devshell:ExtractMessages"/>
-  <export entrypoint="reahl.dev.commands" name="MergeTranslations" locator="reahl.dev.devshell:MergeTranslations"/>
-  <export entrypoint="reahl.dev.commands" name="CompileTranslations" locator="reahl.dev.devshell:CompileTranslations"/>
-  <export entrypoint="reahl.dev.commands" name="AddLocale" locator="reahl.dev.devshell:AddLocale"/>
+  <export entrypoint="reahl.component.commands" name="ExtractMessages" locator="reahl.dev.devshell:ExtractMessages"/>
+  <export entrypoint="reahl.component.commands" name="MergeTranslations" locator="reahl.dev.devshell:MergeTranslations"/>
+  <export entrypoint="reahl.component.commands" name="CompileTranslations" locator="reahl.dev.devshell:CompileTranslations"/>
+  <export entrypoint="reahl.component.commands" name="AddLocale" locator="reahl.dev.devshell:AddLocale"/>
 
-  <export entrypoint="reahl.dev.commands" name="UpdateAptRepository" locator="reahl.dev.devshell:UpdateAptRepository"/>
-  <export entrypoint="reahl.dev.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
+  <export entrypoint="reahl.component.commands" name="UpdateAptRepository" locator="reahl.dev.devshell:UpdateAptRepository"/>
+  <export entrypoint="reahl.component.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.dev_dev'"/>
   
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

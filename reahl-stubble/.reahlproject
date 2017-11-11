@@ -17,7 +17,6 @@
     <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
   </deps>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.stubble_dev'"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

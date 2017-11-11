@@ -288,22 +288,6 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
         pass
 
 
-class AliasWorkspaceCommand(ForAllWorkspaceCommand):
-    def __init__(self, commandline, keyword):
-        super(AliasWorkspaceCommand, self).__init__(commandline)
-        self.keyword = keyword
-        self.failures = []
-
-    def function(self, project, options, args):
-        full_command = project.command_aliases.get(self.keyword, None)
-        if not full_command:
-            self.failures.append(project)
-            return -1
-        command = self.commandline.command_named(full_command[0])
-        dash_index = full_command.index('--')
-        return command.execute_one(project, options, full_command[dash_index+1:]+args)
-
-
 class Debianise(ForAllWorkspaceCommand):
     """Debianises a project."""
     keyword = 'debianise'
@@ -552,25 +536,6 @@ class AddLocale(ForAllWorkspaceCommand):
         return 0
 
 
-class WorkspaceCommandline(ReahlCommandline):
-    """The main class for invoking commands on the commandline of a development Workspace."""
-    usage_string = '[options] <command> [command options] [-- [command_argument...]]'
-    def __init__(self, options):
-        super(WorkspaceCommandline, self).__init__(options, DevShellConfig())
-
-    def execute_command(self, command, line, options, parser):
-        self.set_log_level(options.loglevel)
-        if command in self.command_names:
-            return self.command_named(command).do(line)
-
-        alias_command = AliasWorkspaceCommand(self, command)
-        retcode = alias_command.do(line)
-        if alias_command.failures:
-            print('\nThere is no command named %s\nAlso, no aliases found for it in project(s):\n' % command, file=sys.stderr)
-            print(', '.join([i.project_name for i in alias_command.failures]), file=sys.stderr)
-            self.print_usage(parser)
-            retcode = -1
-        return retcode
 
 
 

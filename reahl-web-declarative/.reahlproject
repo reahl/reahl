@@ -44,7 +44,6 @@
     <class locator="reahl.webdeclarative.migrations:AllowNullUserInputValue"/>
   </migrations>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.webdeclarative_dev'"/>
   
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

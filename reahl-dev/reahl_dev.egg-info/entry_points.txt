@@ -1,7 +1,4 @@
-[console_scripts]
-reahl = reahl.dev.devshell:WorkspaceCommandline.execute_one
-
-[reahl.dev.commands]
+[reahl.component.commands]
 AddLocale = reahl.dev.devshell:AddLocale
 Build = reahl.dev.devshell:Build
 ClearSelection = reahl.dev.devshell:ClearSelection
