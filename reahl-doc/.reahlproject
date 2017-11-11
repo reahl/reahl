@@ -68,8 +68,8 @@
 
   <schedule locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address.clear_added_flags"/>
 
-  <export entrypoint="reahl.dev.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
-  <export entrypoint="reahl.dev.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
+  <export entrypoint="reahl.component.commands" name="GetExample" locator="reahl.doc.commands:GetExample"/>
+  <export entrypoint="reahl.component.commands" name="ListExamples" locator="reahl.doc.commands:ListExamples"/>
 
 
   <distpackage type="wheel">

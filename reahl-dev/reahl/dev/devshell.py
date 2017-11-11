@@ -29,7 +29,6 @@ import traceback
 import shlex
 
 from reahl.component.shelltools import Command, ReahlCommandline, Executable
-from reahl.component.config import EntryPointClassList, Configuration
 
 from reahl.dev.devdomain import Workspace, Project, ProjectList, ProjectNotFound, LocalAptRepository, SetupCommandFailed
 from reahl.dev.exceptions import StatusException, AlreadyUploadedException, \
@@ -39,10 +38,6 @@ from reahl.dev.exceptions import StatusException, AlreadyUploadedException, \
     AlreadyMarkedAsReleasedException, NotBuiltAfterLastCommitException, NotBuiltException, \
     NotAValidProjectException
 from functools import reduce
-
-
-class DevShellConfig(Configuration):
-    commands = EntryPointClassList('reahl.dev.commands', description='All commands (classes) that can be handled by the development shell')
 
 
 class WorkspaceCommand(Command):
