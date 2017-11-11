@@ -32,7 +32,7 @@ if [ "$TRAVIS_SECURE_ENV_VARS" == 'true' ]; then
   echo "SECRETS are available, fetching reahl GPG signing key"
   pip install awscli
   aws s3 cp s3://$AWS_BUCKET/keys.tgz.enc /tmp/keys.tgz.enc
-  openssl aes-256-cbc -K $encrypted_8ad69f44e444_key -iv $encrypted_8ad69f44e444_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
+  openssl aes-256-cbc -K $encrypted_f7a01544e957_key -iv $encrypted_f7a01544e957_iv -in /tmp/keys.tgz.enc -out /tmp/keys.tgz -d
   tar -C /tmp -zxvf /tmp/keys.tgz 
   import_gpg_keys /tmp/keys
   mkdir -p ~/.gnupg
