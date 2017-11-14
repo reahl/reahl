@@ -289,8 +289,9 @@ class ChoicesLayout(reahl.web.fw.Layout):
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, PrimitiveRadioButtonInput)))
     def add_choice(self, html_input):
         label_widget = Label(self.view)
-        html_input.append_class('form-check-input')
         label_widget.append_class('form-check-label')
+
+        html_input.append_class('form-check-input')
 
         outer_div = Div(self.view)
         outer_div.append_class('form-check')
@@ -413,7 +414,6 @@ class GridFormLayout(FormLayout):
     def add_label_to(self, form_group, html_input, hidden):
         column = form_group.layout.columns['label']
         label = super(GridFormLayout, self).add_label_to(column, html_input, hidden)
-        label.append_class('form-control-label')
         label.append_class('col-form-label')
         return label
 
