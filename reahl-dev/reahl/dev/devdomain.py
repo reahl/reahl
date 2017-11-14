@@ -1315,7 +1315,6 @@ class Project(object):
 
         self.packages = []
         self.python_path = []
-        self.command_aliases = {}
         self._tags = []
         self.metadata = ProjectMetadata(self)
         self.source_control = SourceControlSystem(self)
@@ -1367,9 +1366,6 @@ class Project(object):
         finally:
             sys.path[:] = path
             os.chdir(cwd)
-
-    def command_for_alias(self, alias):
-        return self.command_aliases.get(alias, None)
 
     def list_missing_dependencies(self, for_development=None):
         pass

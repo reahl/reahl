@@ -402,8 +402,6 @@ def test_setup_project_file_queries():
 
 <excludepackage name="this.pack2"/>
 
-<alias name="accept" command="tofu -f Piet"/>
-
 <pythonpath path="stuff"/>
 <pythonpath path="stuff2"/>
 
@@ -455,9 +453,6 @@ def test_setup_project_file_queries():
                 }
 
     assert project.entry_points_for_setup() == expected_value
-
-    assert project.command_for_alias('accept') == ['tofu', '-f', 'Piet']
-    assert project.command_for_alias('niemand') == None
 
     assert project.python_path == ['stuff','stuff2']
 
