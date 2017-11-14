@@ -95,7 +95,7 @@ locator attribute
 <schedule>
 """"""""""
 
-  Used to indicate a function or class method to be called every time ``reahl-control runjobs``
+  Used to indicate a function or class method to be called every time ``reahl runjobs``
   is run. It requires a :ref:`locator-attribute` for the relevant function or class method.
 
 <namespace>
@@ -179,17 +179,5 @@ Development and packaging
   
   A particular `<distpackage>` may be uploaded to several different repositories, each named in a 
   `<packageindex>` element.
-
-<alias>
-"""""""
-
-  The `<alias>` element is used to define an alias for a command just for this project. The alias
-  is for a command that the `reahl` script can perform, but it may include arguments. It is useful
-  to, for example, declare ``reahl unit`` in different ways for different projects to run the
-  unit tests of each project.
-  
-  This element requires a `name` attribute -- the name that will be used to invoke the alias. It
-  also required a `command` attribute -- the full command that will be specified when invoked
-  including all arguments.
 
 

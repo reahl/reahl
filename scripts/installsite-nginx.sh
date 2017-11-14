@@ -26,7 +26,7 @@ pip install --no-index -f file:///home/craig/develop/.reahlworkspace/dist-egg/ h
 
 su - www-data
 . /usr/local/hellonginx/virtualenv/bin/activate
-reahl-control createdbtables /etc/reahl.d/hellonginx
+reahl createdbtables /etc/reahl.d/hellonginx
 
 exit
 

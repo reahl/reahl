@@ -18,7 +18,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     cd /vagrant
     python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs
-    reahl-control createdb reahl-web/etc
+    reahl createdb reahl-web/etc
   SHELL
 end
 
