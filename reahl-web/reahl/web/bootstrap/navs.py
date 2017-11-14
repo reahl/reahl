@@ -46,7 +46,7 @@ from reahl.component.modelinterface import exposed, Field
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import Layout, Bookmark, Url
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget, HTMLAttributeValueOption
-from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li
+from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li, H
 
 
 class Menu(HTMLWidget):
@@ -336,6 +336,17 @@ class DropdownMenu(Menu):
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         item.set_html_representation(item.a)
         return item.a
+
+    def add_form(self, form):
+        self.html_representation.add_child(form)
+        form.append_class('px-4') #padding/margin
+        form.append_class('py-3') #padding/margin
+        return form
+
+    def add_header(self, header):
+        self.html_representation.add_child(header)
+        header.append_class('dropdown-header')
+        return header
 
     def add_divider(self):
         divider = self.html_representation.add_child(Div(self.view))

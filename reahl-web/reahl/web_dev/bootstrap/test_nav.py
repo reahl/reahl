@@ -27,7 +27,8 @@ from reahl.webdev.tools import WidgetTester, Browser, XPath
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.i18n import Translator
 from reahl.web.fw import Bookmark, Url
-from reahl.web.bootstrap.ui import A, Div, P
+from reahl.web.bootstrap.ui import A, Div, P, H
+from reahl.web.bootstrap.forms import Form
 from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout, NavLayout
 
 from reahl.web_dev.fixtures import WebFixture
@@ -393,6 +394,32 @@ def test_dropdown_menus_with_divider(web_fixture):
 
     [item1, divider, item2] = sub_menu.html_representation.children
     assert 'dropdown-divider' in divider.get_attribute('class').split()
+
+
+@with_fixtures(WebFixture)
+def test_dropdown_menu_with_header(web_fixture):
+    """You can add a header item to a DropdownMenu."""
+    sub_menu = DropdownMenu(web_fixture.view)
+    my_header = H(web_fixture.view, 6, text='My header text')
+    header = sub_menu.add_header(my_header)
+
+    assert header is my_header
+    [header] = sub_menu.html_representation.children
+    assert 'dropdown-header' in header.get_attribute('class').split()
+
+
+@with_fixtures(WebFixture)
+def test_dropdown_menu_with_form(web_fixture):
+    """You can add form to a DropdownMenu."""
+    sub_menu = DropdownMenu(web_fixture.view)
+
+    my_form = Form(web_fixture.view, 'myform')
+    form = sub_menu.add_form(my_form)
+
+    assert form is my_form
+    [form] = sub_menu.html_representation.children
+    assert 'px-4' in form.get_attribute('class').split()
+    assert 'py-3' in form.get_attribute('class').split()
 
 
 @with_fixtures(WebFixture)
