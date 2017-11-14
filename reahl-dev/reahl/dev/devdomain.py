@@ -876,30 +876,6 @@ class NoBasket(object):
         self.project_name = 'NO BASKET'
 
 
-
-class CommandAlias(object):
-    @classmethod
-    def get_xml_registration_info(cls):
-        return ('alias', cls, None)
-
-    def __init__(self, name, full_command):
-        self.full_command = full_command
-        self.name = name
-
-    def inflate_attributes(self, reader, attributes, parent):
-        assert 'command' in attributes, 'No command specified'
-        assert 'name' in attributes, 'No arguments specified'
-        self.__init__(attributes['name'], attributes['command'])
-
-    @property
-    def arg_list(self):
-        return shlex.split(self.full_command)[1:]
-
-    @property
-    def command(self):
-        return shlex.split(self.full_command)[0]
-
-
 class ExtraPath(object):
     @classmethod
     def get_xml_registration_info(cls):
@@ -1349,8 +1325,6 @@ class Project(object):
         self.__init__(workspace, directory)
 
     def inflate_child(self, reader, child, tag, parent):
-        if isinstance(child, CommandAlias):
-            self.command_aliases[child.name] = [child.command]+child.arg_list
         elif isinstance(child, ProjectTag):
             self._tags.append(child.name)
         elif isinstance(child, ProjectMetadata):

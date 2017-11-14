@@ -60,8 +60,6 @@
   <export entrypoint="reahl.dev.xmlclasses" name="ExcludedPackage" locator="reahl.dev.devdomain:ExcludedPackage"/>
   <export entrypoint="reahl.dev.xmlclasses" name="TranslationPackage" locator="reahl.dev.devdomain:TranslationPackage"/>
 
-  <export entrypoint="reahl.dev.xmlclasses" name="CommandAlias" locator="reahl.dev.devdomain:CommandAlias"/>
-
   <export entrypoint="reahl.dev.xmlclasses" name="ExtraPath" locator="reahl.dev.devdomain:ExtraPath"/>
   <export entrypoint="reahl.dev.xmlclasses" name="ProjectTag" locator="reahl.dev.devdomain:ProjectTag"/>
 
