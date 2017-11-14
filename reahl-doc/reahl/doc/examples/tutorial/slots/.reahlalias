@@ -1,0 +1,1 @@
+  unit setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.slots.slots_dev'

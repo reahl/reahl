@@ -1,4 +1,5 @@
 .bzrignore
+.reahlalias
 .reahlproject
 COPYING
 LICENSE

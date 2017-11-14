@@ -29,7 +29,7 @@ import six
 from reahl.component.exceptions import arg_checks, IsInstance, ProgrammerError
 
 from reahl.web.fw import Layout
-from reahl.web.ui import Url, HTMLElement, HTMLWidget, HTMLAttributeValueOption
+from reahl.web.ui import Url, Widget, HTMLWidget, HTMLElement, HTMLAttributeValueOption
 from reahl.component.i18n import Translator
 from reahl.web.bootstrap.ui import Div, Nav, A, TextNode, Span
 from reahl.web.bootstrap.forms import Form
@@ -127,24 +127,25 @@ class NavbarLayout(Layout):
 
         :param brand_text: Text to use for branding.
         """
-        brand_a = A(self.view, Url('/#'), description=brand_text)
+        brand_a = A(self.view, Url('#'), description=brand_text)
         self.set_brand(brand_a)
 
     def insert_brand_widget(self, brand_html_element):
         self.contents_container.insert_child(0, brand_html_element)
 
-    @arg_checks(brand_html_element=IsInstance(HTMLElement))
-    def set_brand(self, brand_html_element):
-        """Sets `brand_html_element` to be used as branding.
+    @arg_checks(brand_html_element=IsInstance(HTMLWidget))
+    def set_brand(self, brand_htmlwidget):
+        """Sets `brand_widget` to be used as branding.
 
-        :param brand_html_element: An :class:`~reahl.web.ui.HTMLElement` to be used as branding.
+        :param brand_htmlwidget: An :class:`~reahl.web.ui.HTMLWidget` to be used as branding.
         """
         if self.brand:
             raise ProgrammerError('Brand has already been set to: %s' % self.brand)
 
-        self.insert_brand_widget(brand_html_element)
-        brand_html_element.append_class('navbar-brand')
-        self.brand = brand_html_element
+        self.insert_brand_widget(brand_htmlwidget)
+        brand_htmlwidget.append_class('navbar-brand')
+        self.brand = brand_htmlwidget
+        return self.brand
 
     @arg_checks(widget=IsInstance((reahl.web.bootstrap.navs.Nav, Form, TextNode)))
     def add(self, widget):
@@ -189,7 +190,7 @@ class ResponsiveLayout(NavbarLayout):
 
     :param collapse_below_device_class: Which device class should trigger responsive collapsing.
                                         Valid values: xs, sm, md, lg, xl
-    :param fixed_to: May be one of 'top','bottom' or 'stickytop'.
+    :param fixed_to: May be one of 'fixed-top','fixed-bottom' or 'sticky-top'.
                     The Navbar will stick to the top or bottom of the viewport.
     :param center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
     :param toggle_button_alignment: May be None, 'left' or 'right' to indicate where the toggle button is displayed.
@@ -251,6 +252,7 @@ class Navbar(HTMLWidget):
     are present and how they are composed themselves.
 
     :param view: (See :class:`reahl.web.fw.Widget`)
+    :param css_id: (See :class:`reahl.web.fw.Widget`)
     """
     def __init__(self, view, css_id=None):
         super(Navbar, self).__init__(view)

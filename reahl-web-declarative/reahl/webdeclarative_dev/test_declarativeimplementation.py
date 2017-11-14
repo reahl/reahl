@@ -26,13 +26,14 @@ from sqlalchemy import Column, ForeignKey, Integer
 from webob import Response
 
 from reahl.tofu import scenario, Fixture, uses
-from reahl.stubble import stubclass
+from reahl.stubble import stubclass, EmptyStub
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.sqlalchemysupport import Session
 from reahl.component.py3compat import ascii_as_bytes_or_str
-from reahl.webdeclarative.webdeclarative import UserSession, SessionData
+from reahl.webdeclarative.webdeclarative import UserSession, SessionData, UserInput
 
+from reahl.web.ui import Form
 from reahl.web_dev.fixtures import WebFixture
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
@@ -47,11 +48,11 @@ def test_session_active_state(web_fixture):
 
     # Case: recent interaction
     user_session.set_last_activity_time()
-    assert user_session.is_active() 
+    assert user_session.is_active()
 
     # Case: last interaction not recent
     user_session.last_activity = datetime.now() - timedelta(seconds=user_session.idle_lifetime+10)
-    assert not user_session.is_active() 
+    assert not user_session.is_active()
 
 
 @uses(web_fixture=WebFixture)
@@ -249,5 +250,51 @@ def test_session_keeps_living(web_fixture):
 
     assert Session.query(SessionData).filter_by(id=session_data.id).count() == 0
     assert Session.query(UserSession).filter_by(id=user_session.id).one() is user_session
+
+
+class InputScenarios(Fixture):
+    @scenario
+    def text(self):
+        self.entered_input_type = six.text_type
+        self.entered_input = 'some value to save'
+        self.empty_entered_input = ''
+
+    @scenario
+    def lists(self):
+        self.entered_input_type = list
+        self.entered_input = ['one', 'two']
+        self.empty_entered_input = []
+
+
+@with_fixtures(PartyAccountFixture, InputScenarios)
+def test_persisting_input(party_account_fixture, input_scenarios):
+    """UserInput can persist and find user input entered as a string or a list of strings (useful for things
+       like multiple select boxes or multiple checkboxes with the same name).
+    """
+    @stubclass(Form)
+    class FormStub(object):
+        user_interface = EmptyStub(name='myui')
+        channel_name = 'myform'
+
+    fixture = input_scenarios
+    form = FormStub()
+
+    # If never persisted, getting it returns None
+    previously_entered = UserInput.get_previously_entered_for_form(form, 'aninput', fixture.entered_input_type)
+    assert previously_entered is None
+
+    # Once persisted, getting it returns what you persisted
+    UserInput.save_input_value_for_form(form, 'aninput', fixture.entered_input, fixture.entered_input_type)
+    previously_entered = UserInput.get_previously_entered_for_form(form, 'aninput', fixture.entered_input_type)
+    assert previously_entered == fixture.entered_input
+
+    # Persisting empty values returns them correctly, not None (None means was not entered previously)
+    UserInput.clear_for_form(form)
+    previously_entered = UserInput.get_previously_entered_for_form(form, 'aninput', fixture.entered_input_type)
+    assert previously_entered is None
+
+    UserInput.save_input_value_for_form(form, 'aninput', fixture.empty_entered_input, fixture.entered_input_type)
+    previously_entered = UserInput.get_previously_entered_for_form(form, 'aninput', fixture.entered_input_type)
+    assert previously_entered == fixture.empty_entered_input
 
 

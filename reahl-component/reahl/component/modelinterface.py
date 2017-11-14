@@ -682,6 +682,7 @@ class Field(object):
                         to this Field when it is not writable for that user. (See `error_message` of
                         :class:`ValidationConstraint`.)
     """
+    entered_input_type = six.text_type
     @arg_checks(readable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)), writable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)))
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, disallowed_message=None):
         self.name = None
@@ -776,10 +777,9 @@ class Field(object):
     
     def set_user_input(self, input_value, ignore_validation=False):
         self.clear_user_input()
-
         self.user_input = input_value
 
-        if not self.required and input_value == '':
+        if not self.required and (input_value == self.entered_input_type()):
             self.input_status = 'validly_entered'
         else:
             try:
@@ -1186,36 +1186,6 @@ class PasswordField(Field):
         self.add_validation_constraint(MaxLengthConstraint(20))
 
 
-class BooleanField(Field):
-    """A Field that can only have one of two parsed values: True or False. The string representation of
-       each of these values are given in `true_value` or `false_value`, respectively.  (These default
-       to 'on' and 'off' initially.)
-    """
-    def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, true_value=None, false_value=None):
-        true_value = true_value or _('on')
-        false_value = false_value or _('off')
-        label = label or ''
-        super(BooleanField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
-        self.true_value = true_value
-        self.false_value = false_value
-        allowed_values = [self.true_value]
-        if required:
-            error_message = required_message or _('$label is required')
-        else:
-            error_message = _('$label should be either "%s" or "%s"') % (self.true_value, self.false_value)
-            allowed_values.append(self.false_value)
-        self.add_validation_constraint(AllowedValuesConstraint(allowed_values, error_message=error_message))
-
-    def parse_input(self, unparsed_input):
-        value = True if unparsed_input == self.true_value else False
-        return value
-        
-    def unparse_input(self, parsed_value):
-        if parsed_value:
-            return self.true_value
-        return self.false_value 
-
-
 class IntegerField(Field):
     """A Field that yields an integer.
     
@@ -1394,7 +1364,6 @@ class MultiChoiceConstraint(ValidationConstraint):
             raise self
 
 
-
 class ChoiceField(Field):
     """A Field that only allows the value of one of the given :class:`Choice` instances as input.
     
@@ -1403,11 +1372,19 @@ class ChoiceField(Field):
                                
        (For other arguments, see :class:`Field`.)
     """
-    allows_multiple_selections = False
     def __init__(self, grouped_choices, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         super(ChoiceField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
+        if not self.are_choices_unique(self.flatten_choices(grouped_choices)):
+            raise ProgrammerError('Duplicate choices are not allowed')
         self.grouped_choices = grouped_choices
         self.init_validation_constraints()
+
+    @property
+    def allows_multiple_selections(self):
+        return self.entered_input_type is list
+
+    def are_choices_unique(self, flattened_choices):
+        return len(flattened_choices) == len(set([choice.value for choice in flattened_choices]))
 
     def init_validation_constraints(self):
         allowed_values = [choice.as_input() for choice in self.flattened_choices]
@@ -1415,8 +1392,11 @@ class ChoiceField(Field):
 
     @property
     def flattened_choices(self):
+        return self.flatten_choices(self.grouped_choices)
+
+    def flatten_choices(self, grouped_choices):
         flattened = []
-        for item in self.grouped_choices:
+        for item in grouped_choices:
             flattened.extend(item.choices)
         return flattened
 
@@ -1434,9 +1414,38 @@ class ChoiceField(Field):
         raise ProgrammerError('The AllowedValuesConstraint added to a ChoiceField should have prevented this line from being reached.')
 
 
+class BooleanField(ChoiceField):
+    """A Field that can only have one of two parsed values: True or False. The string representation of
+       each of these values are given in `true_value` or `false_value`, respectively.  (These default
+       to 'on' and 'off' initially.)
+    """
+    def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, true_value=None, false_value=None):
+        true_value = true_value or _('on')
+        false_value = false_value or _('off')
+        label = label or ''
+        if required:
+            error_message = required_message or _('$label is required')
+            grouped_choices = [Choice(true_value, Field(label=true_value))]
+        else:
+            error_message = None
+            grouped_choices = [Choice(true_value, Field(label=true_value)), Choice(false_value, Field(label=false_value))]
+        super(BooleanField, self).__init__(grouped_choices, default=default, required=required, required_message=error_message, label=label, readable=readable, writable=writable)
+        self.true_value = true_value
+        self.false_value = false_value
+
+    def parse_input(self, unparsed_input):
+        return self.true_value == super(BooleanField, self).parse_input(unparsed_input)
+
+    def unparse_input(self, parsed_value):
+        if parsed_value:
+            return self.true_value
+        return self.false_value
+
+
 class MultiChoiceField(ChoiceField):
     """A Field that allows a selection of values from the given :class:`Choice` instances as input."""
-    allows_multiple_selections = True
+    entered_input_type = list
+
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
 

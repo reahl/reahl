@@ -22,7 +22,5 @@
     <class locator="reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap_dev'"/>
-  <alias name="demosetup" command="setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.datatablebootstrap.datatablebootstrap_dev'"/>
 
 </project>

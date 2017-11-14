@@ -22,8 +22,6 @@
     <class locator="reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap_dev'"/>
-  <alias name="demosetup" command="setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap_dev'"/>
 
 
 </project>

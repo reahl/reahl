@@ -2377,7 +2377,7 @@ class FileOnDisk(ViewableFile):
 class FileFromBlob(ViewableFile):
     def __init__(self, name, content_bytes, mime_type, encoding, size, mtime):
         if not isinstance(content_bytes, six.binary_type):
-            raise ProgrammerError('When content_bytes should be bytes')
+            raise ProgrammerError('content_bytes should be bytes')
 
         super(FileFromBlob, self).__init__(name, mime_type, encoding, size, mtime)
         self.content_bytes = content_bytes

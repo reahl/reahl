@@ -23,7 +23,5 @@
     <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap_dev'"/>
-  <alias name="demosetup" command="setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap_dev'"/>
 
 </project>

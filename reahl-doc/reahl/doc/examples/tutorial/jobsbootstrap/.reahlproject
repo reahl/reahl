@@ -24,7 +24,5 @@
 
   <schedule locator="reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap:Address.clear_added_flags"/>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap_dev'"/>
-  <alias name="demosetup" command="setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.jobsbootstrap.jobsbootstrap_dev'"/>
 
 </project>
