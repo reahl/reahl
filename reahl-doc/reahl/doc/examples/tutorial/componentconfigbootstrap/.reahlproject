@@ -26,6 +26,5 @@
     <class locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap_dev'"/>
 
 </project>

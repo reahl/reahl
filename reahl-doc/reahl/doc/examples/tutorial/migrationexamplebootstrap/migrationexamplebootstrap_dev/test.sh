@@ -19,9 +19,9 @@ function fail() {
 }
 
 reahl setup -- develop -N
-reahl-control dropdb etc
-reahl-control createdb etc
-reahl-control createdbtables etc
+reahl dropdb etc
+reahl createdb etc
+reahl createdbtables etc
 
 $( version_is "0.0" ) || fail "Version 0.0 expected"
 $( ! schema_is_new ) || fail "Old schema expected"
@@ -31,7 +31,7 @@ sed -i 's|<info name="version">0.0</info>|<info name="version">0.1</info>|g' .re
 sed -Ei 's|^#( *)added_date|\1added_date|g' migrationexamplebootstrap.py
 sed -Ei 's|^(.*)TODO(.*)|#\1TODO\2|g' migrationexamplebootstrap.py
 reahl setup -- develop -N
-reahl-control migratedb etc
+reahl migratedb etc
 
 $( version_is "0.1" ) || fail "Version 0.1 expected"
 $( schema_is_new ) || fail "New schema expected"

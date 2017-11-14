@@ -32,7 +32,6 @@
   
   <export entrypoint="reahl.workflowui.task_widgets" name="bootstrap.TaskWidget" locator="reahl.domainui.bootstrap.workflow:TaskWidget"/>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.domainui_dev'"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

@@ -33,7 +33,6 @@
     <class locator="reahl.sqlalchemysupport.elixirmigration:ElixirToDeclarativeSqlAlchemySupportChanges"/>
   </migrations>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.sqlalchemysupport_dev'"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

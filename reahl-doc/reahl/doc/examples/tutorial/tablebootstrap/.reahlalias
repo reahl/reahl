@@ -1,0 +1,2 @@
+  unit setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap_dev'
+  demosetup setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.tablebootstrap.tablebootstrap_dev'

@@ -35,7 +35,5 @@
     <class locator="reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap:AddDate"/>
   </migrations>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap_dev'"/>
-  <alias name="demosetup" command="setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.migrationexamplebootstrap.migrationexamplebootstrap_dev'"/>
 
 </project>

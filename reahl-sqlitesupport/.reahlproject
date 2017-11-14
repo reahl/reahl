@@ -18,7 +18,6 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="SQLiteControl" locator="reahl.sqlitesupport:SQLiteControl"/>
 
-  <alias name="unit" command="setup -- check"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

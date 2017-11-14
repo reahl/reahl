@@ -1,0 +1,2 @@
+  unit setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.login1bootstrap.login1bootstrap_dev'
+  demosetup setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.login1bootstrap.login1bootstrap_dev'

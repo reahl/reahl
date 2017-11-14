@@ -18,7 +18,7 @@ pip install --no-index -f file:///home/craig/develop/.reahlworkspace/dist-egg/ h
 
 su - www-data
 source /usr/local/helloapache/virtualenv/bin/activate
-reahl-control createdbtables /etc/reahl.d/helloapache
+reahl createdbtables /etc/reahl.d/helloapache
 
 exit
 
