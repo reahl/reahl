@@ -69,6 +69,5 @@
     <packageindex repository="pypi"/>
   </distpackage>
 
-  <alias name="unit" command="setup -- check"/>
 </project>
 

@@ -1,0 +1,3 @@
+  unit setup -- check
+  unit setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.addressbook2.addressbook2_dev'
+  demosetup setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.addressbook2.addressbook2_dev'

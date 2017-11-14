@@ -19,7 +19,6 @@
 
   <export entrypoint="reahl.component.databasecontrols" name="PostgresqlControl" locator="reahl.postgresqlsupport:PostgresqlControl"/>
 
-  <alias name="unit" command="setup -- check"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

@@ -39,7 +39,6 @@
   <persisted>
   </persisted>
 
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.web_dev'"/>
 
   <distpackage type="wheel">
     <packageindex repository="pypi"/>

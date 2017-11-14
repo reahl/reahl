@@ -25,7 +25,5 @@
     <class locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap:Address"/>
   </persisted>
   
-  <alias name="unit" command="setup -- -q pytest --addopts '-s --pyargs reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap_dev'"/>
-  <alias name="demosetup" command="setup -- -q pytest --addopts '-s -o python_functions=demo_setup --pyargs reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrap_dev'"/>
 
 </project>

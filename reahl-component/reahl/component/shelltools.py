@@ -1,5 +1,5 @@
 # Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
-#
+
 #    This file is part of Reahl.
 #
 #    Reahl is free software: you can redistribute it and/or modify
@@ -24,10 +24,12 @@ import re
 import subprocess
 import os
 import distutils
+import collections
 
 from optparse import OptionParser
 import shlex
 
+from reahl.component.config import Configuration, EntryPointClassList
 
 class ExecutableNotInstalledException(Exception):
     def __init__(self, executable_name):
@@ -105,18 +107,26 @@ class Command(object):
         pass
 
 
+class ReahlCommandlineConfig(Configuration):
+    commands = EntryPointClassList('reahl.component.commands', description='The commands (classes) available to the commandline shell')
+    
 class ReahlCommandline(object):
     """A generic class for invoking commands on the commandline."""
     command_entry_point = None
-    usage_string = '[options] <command> [command options]'
+    usage_string = '[options] <command> [command options] [-- [command_argument...]]'
     args_re = '((-l|--loglevel) +[\w\+\-\'"\>]+)?'
     options = [('-l', '--loglevel', dict(dest='loglevel', default='WARNING',
                                          help='set log level to this'))]
 
-    def __init__(self, options, config):
+    def __init__(self, options, config=None):
+        config = config or ReahlCommandlineConfig()
         self.options = options
-        self.commands = config.commands
+        self.commands = config.commands[:]
 
+    @property
+    def aliasses(self):
+        return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
+        
     @property
     def command_names(self):
         return [i.keyword for i in self.commands]
@@ -132,8 +142,12 @@ class ReahlCommandline(object):
         print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(sys.argv[0]), file=sys.stderr)
         max_len = max([len(command.keyword) for command in self.commands])
         format_template = '{0: <%s}\t{1}' % max_len
-        for command in self.commands:
+        for command in sorted(self.commands, key=lambda x: x.keyword):
             print(format_template.format(command.keyword, command.__doc__), file=sys.stderr)
+
+        print('\nAliasses:\n')
+        for name, value in sorted(self.aliasses.items(), key=lambda x: x[0]):
+            print(format_template.format(name, '"%s"' % value), file=sys.stderr)
         print('', file=sys.stderr)
 
     @classmethod
@@ -160,20 +174,24 @@ class ReahlCommandline(object):
         self.set_log_level(options.loglevel)
         if command in self.command_names:
             return self.command_named(command).do(line)
+        if command in self.aliasses:
+            return self.execute_command(*self.parse_commandline(raw_line=self.aliasses[command]))
         self.print_usage(parser)
         return None
 
     @classmethod
-    def parse_commandline(cls):
+    def parse_commandline(cls, raw_line=None):
+        
         parser = OptionParser(usage='%s %s' % (os.path.basename(sys.argv[0]), cls.usage_string))
         for (short_version, long_version, kwargs) in cls.options:
             parser.add_option(short_version, long_version, **kwargs)
 
-        args_string = ' '.join(sys.argv[1:])
+        args = shlex.split(raw_line) if raw_line else sys.argv[1:]
+        args_string = ' '.join(args)
         args_match = re.match(cls.args_re, args_string)
         if args_match:
             initial_args = shlex.split(args_string[:args_match.end()])
-            remaining_args = sys.argv[len(initial_args)+1:]
+            remaining_args = args[len(initial_args):]
         else:
             parser.error('Could not parse commandline')
 
@@ -189,4 +207,48 @@ class ReahlCommandline(object):
             parser.error('No commands specified, try %s --help for usage' % os.path.basename(sys.argv[0]))
         return command, line, options, parser
 
+    
+class AddAlias(Command):
+    """Adds an alias."""
+    keyword = 'addalias'
+    options = [('-l', '--local', dict(action='store_true', dest='local', help='store the added alias in the current directory'))]
+    def execute(self, options, args):
+        super(AddAlias, self).execute(options, args)
+        alias_file = AliasFile.get_file(local=options.local)
+        alias_file.add_alias(args[0], ' '.join(args[1:]))
+        alias_file.write()
+        return 0
 
+    
+class AliasFile(object):
+    @classmethod
+    def get_file(cls, local=False):
+        filename = '.reahlalias' if local else os.path.expanduser('~/.reahlalias')
+        alias_file = cls(filename)
+        if alias_file.exists:
+            alias_file.read()
+        return alias_file
+    
+    def __init__(self, filename):
+        self.filename = filename
+        self.aliasses = {}
+
+    def add_alias(self, name, value):
+        self.aliasses[name] = value
+
+    @property
+    def exists(self):
+        return os.path.isfile(self.filename)
+    
+    def read(self):
+        for line in open(self.filename, 'r'):
+            line = line.strip()
+            if line:
+                alias_name = line.split(' ')[0]
+                alias_value = ' '.join(line.split(' ')[1:])
+                self.aliasses[alias_name] = alias_value
+
+    def write(self):
+        with open(self.filename, 'w', encoding='utf-8') as open_file:
+            for alias_name, alias_value in self.aliasses.items():
+                open_file.write('%s %s\n' % (alias_name, alias_value))

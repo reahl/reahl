@@ -1,7 +1,4 @@
-[console_scripts]
-reahl = reahl.dev.devshell:WorkspaceCommandline.execute_one
-
-[reahl.dev.commands]
+[reahl.component.commands]
 AddLocale = reahl.dev.devshell:AddLocale
 Build = reahl.dev.devshell:Build
 ClearSelection = reahl.dev.devshell:ClearSelection
@@ -30,7 +27,6 @@ Upload = reahl.dev.devshell:Upload
 
 [reahl.dev.xmlclasses]
 ChickenProject = reahl.dev.devdomain:ChickenProject
-CommandAlias = reahl.dev.devdomain:CommandAlias
 ConfigurationSpec = reahl.dev.devdomain:ConfigurationSpec
 DebianPackage = reahl.dev.devdomain:DebianPackage
 DebianPackageMetadata = reahl.dev.devdomain:DebianPackageMetadata

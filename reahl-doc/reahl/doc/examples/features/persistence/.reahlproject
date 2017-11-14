@@ -17,5 +17,4 @@
     <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
   </persisted>
 
-  <alias name="unit" command="setup -- check"/>
 </project>
