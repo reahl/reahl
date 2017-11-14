@@ -1325,7 +1325,7 @@ class Project(object):
         self.__init__(workspace, directory)
 
     def inflate_child(self, reader, child, tag, parent):
-        elif isinstance(child, ProjectTag):
+        if isinstance(child, ProjectTag):
             self._tags.append(child.name)
         elif isinstance(child, ProjectMetadata):
             self.metadata = child
