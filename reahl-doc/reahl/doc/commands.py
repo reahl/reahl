@@ -182,7 +182,7 @@ class Example(object):
 class ListExamples(WorkspaceCommand):
     """Lists available examples."""
     keyword = 'listexamples'
-    def execute(self, options, args):
+    def execute(self, args):
         for example in Example.get_all():
             print(example.name)
 
@@ -190,21 +190,23 @@ class ListExamples(WorkspaceCommand):
 class GetExample(WorkspaceCommand):
     """Give you a copy of an example."""
     keyword = 'example'
-    usage_args = '<example_name>'
-    options = [('-f', '--force-overwrite', 
-                dict(action='store_true', dest='force', default=False, help='overwrite an existing example if in the way'))]
 
-    def verify_commandline(self, options, args):
-        if len(args) != 1:
-            self.parser.error('You need to specify one and only one example name as argument')
-        if not self.create_example(args[0]).exists:
-            self.parser.error('Could not find example %s' % args[0])
+    def assemble(self):
+        super(GetExample, self).assemble()
+        self.parser.add_argument('-f', '--force-overwrite', action='store_true', dest='force', default=False,
+                                 help='overwrite an existing example if in the way')
+        self.parser.add_argument('example_name', help='the name of the wanted example')
 
-    def execute(self, options, args):
-        example = self.create_example(args[0])
+
+    def verify_commandline(self, args):
+        if not self.create_example(args.example_name).exists:
+            self.parser.error('Could not find example %s' % args.example_name)
+
+    def execute(self, args):
+        example = self.create_example(args.example_name)
 
         if example.is_checked_out:
-            if options.force:
+            if args.force:
                 print('Deleting %s, it is in the way' % os.path.abspath(example.checkout_dest))
                 example.delete()
             else:

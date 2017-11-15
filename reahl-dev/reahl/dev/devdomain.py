@@ -2125,6 +2125,7 @@ class Workspace(object):
 
         if not append:
             self.projects = ProjectList(self)
+
         self.projects.collect_projects(directories or [self.directory])
         self.selection = ProjectList(self)
         self.save()
