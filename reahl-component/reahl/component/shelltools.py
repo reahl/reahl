@@ -117,10 +117,11 @@ class ReahlCommandline(Command):
         config = config or ReahlCommandlineConfig()
         self.commands = config.commands[:]
         self.keyword = prog
+        self.parser.epilog = '"%s help-commands" gives a list of available commands' % self.parser.prog
 
     def assemble(self):
-        self.parser.add_argument('-l', '--loglevel', default='WARNING', help='set log level to this')
-        self.parser.add_argument('command', type=str,  help='a command')
+        self.parser.add_argument('-l', '--loglevel', default='WARNING', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'], help='set log level to this')
+        self.parser.add_argument('command', help='a command')
         self.parser.add_argument('command_args', nargs=argparse.REMAINDER)
 
     @classmethod
@@ -154,28 +155,28 @@ class ReahlCommandline(Command):
         elif args.command in self.aliasses:
             return self.do(shlex.split(self.aliasses[args.command]))
         else:
-            print('No such command: %s' % args.command, file=sys.stderr)
+            if args.command != 'help-commands':
+                print('No such command: %s' % args.command, file=sys.stderr)
             self.print_help()
             return -1
             
     def print_help(self):
         print(self.parser.format_help(), file=sys.stderr)
-        print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(sys.argv[0]), file=sys.stderr)
+        print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(self.keyword), file=sys.stderr)
         max_len = max([len(command.keyword) for command in self.commands])
         format_template = '{0: <%s}\t{1}' % max_len
         for command in sorted(self.commands, key=lambda x: x.keyword):
             print(format_template.format(command.keyword, command.__doc__), file=sys.stderr)
 
-        print('\nAliasses:\n')
+        print('\nAliasses:\n', file=sys.stderr)
         for name, value in sorted(self.aliasses.items(), key=lambda x: x[0]):
-            print(format_template.format(name, '"%s"' % value), file=sys.stderr)
-        print('', file=sys.stderr)
+            print(format_template.format(name, '"%s"\n' % value), file=sys.stderr)
+        print('\n', file=sys.stderr)
 
-        
+
 class AddAlias(Command):
     """Adds an alias."""
     keyword = 'addalias'
-    options = [('-l', '--local', dict(action='store_true', dest='local', help='store the added alias in the current directory'))]
     def assemble(self):
         self.parser.add_argument('-l', '--local', action='store_true', dest='local', help='store the added alias in the current directory')
         self.parser.add_argument('alias', type=str,  help='what to call this alias')
