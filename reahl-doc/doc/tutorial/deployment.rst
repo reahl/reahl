@@ -253,9 +253,9 @@ correct virtualenv, as the correct user:
 
    sudo su - www-data
    source /usr/local/helloapache/virtualenv/bin/activate
-   reahl-control createdbuser /etc/reahl.d/helloapache 
-   reahl-control createdb /etc/reahl.d/helloapache 
-   reahl-control createdbtables /etc/reahl.d/helloapache 
+   reahl createdbuser /etc/reahl.d/helloapache 
+   reahl createdb /etc/reahl.d/helloapache 
+   reahl createdbtables /etc/reahl.d/helloapache 
 
 Of course, all of this assumes you are installing a new
 application. If you are just upgrading your application to a new
@@ -266,7 +266,7 @@ to the new schema with:
 
    sudo su - www-data
    source /usr/local/helloapache/virtualenv/bin/activate
-   reahl-control migratedb /etc/reahl.d/helloapache 
+   reahl migratedb /etc/reahl.d/helloapache 
 
 
 Apache config

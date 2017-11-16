@@ -91,7 +91,7 @@
   <export entrypoint="reahl.component.commands" name="UpdateAptRepository" locator="reahl.dev.devshell:UpdateAptRepository"/>
   <export entrypoint="reahl.component.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
 
-  
+
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
   </distpackage>

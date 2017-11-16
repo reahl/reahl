@@ -61,7 +61,7 @@ class attribute of AddressConfig with the name you want:
 
    .. code-block:: bash
 
-      reahl-control listconfig -i etc/
+      reahl listconfig -i etc/
 
 In the `.reahlproject` file, AddressConfig is added as the configuration of the component:
 
@@ -125,7 +125,7 @@ To try it out, do:
    reahl example tutorial.migrationexamplebootstrap
    cd migrationexamplebootstrap
    reahl setup -- develop -N
-   reahl-control createdbtables etc
+   reahl createdbtables etc
    reahl demosetup
 
 Doing all of this simulates an application that ran somewhere for a
@@ -149,7 +149,7 @@ following in order to migrate the old database:
 
 .. code-block:: bash
 
-   reahl-control migratedb etc
+   reahl migratedb etc
 
 
 Migration basics
@@ -250,7 +250,7 @@ are scheduled to run:
 
 .. code-block:: bash
 
-   reahl-control runjobs etc
+   reahl runjobs etc
 
 
 The `tutorial.jobsbootstrap` example needs its
@@ -271,7 +271,7 @@ To register this job with the component, add a `<schedule>` tag in the
 A job, such as `Address.clear_added_flags()` should
 include code that makes sure it only does its work when necessary. You
 can then use your operating system tools (such as cron) to run
-``reahl-control runjobs etc`` very regularly -- say once every 10
+``reahl runjobs etc`` very regularly -- say once every 10
 minutes. Each scheduled job will now be invoked regularly, and can
 check at each invocation whether it is time for it to do its work, or
 whether it should ignore the current run until a future time.  This

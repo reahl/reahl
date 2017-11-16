@@ -16,7 +16,7 @@ Build a user interface with Widgets
 
    .. code-block:: bash
 
-      reahl example <examplename>a
+      reahl example <examplename>
 
 
 The next step is to change the page to display the list of Addresses in the address book.

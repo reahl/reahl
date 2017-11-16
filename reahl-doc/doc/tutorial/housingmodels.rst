@@ -75,7 +75,7 @@ Of course, at this point your database schema needs to be updated to include tab
 
 .. code-block:: bash
 
-   reahl-control createdbtables etc
+   reahl createdbtables etc
 
 .. note::
 
@@ -84,5 +84,5 @@ Of course, at this point your database schema needs to be updated to include tab
 
    .. code-block:: bash
 
-      reahl-control dropdbtables etc
+      reahl dropdbtables etc
 

@@ -82,16 +82,16 @@ To create a database, run:
 
 .. code-block:: bash
 
-   reahl-control createdbuser etc  # If you have not already
-   reahl-control createdb etc
-   reahl-control createdbtables etc
+   reahl createdbuser etc  # If you have not already
+   reahl createdb etc
+   reahl createdbtables etc
 
 More useful commands:
 
 .. code-block:: bash
 
-   reahl-control dropdb etc
-   reahl-control dropdbtables etc   
+   reahl dropdb etc
+   reahl dropdbtables etc   
 
 Configuration
 -------------
@@ -100,10 +100,10 @@ Wonder where the database is? Check applicable config settings with:
 
 .. code-block:: bash
 
-   reahl-control listconfig etc -i
+   reahl listconfig etc -i
 
 To see the actual current values of those:
 
 .. code-block:: bash
 
-   reahl-control listconfig etc -v
+   reahl listconfig etc -v

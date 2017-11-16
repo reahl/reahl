@@ -23,9 +23,9 @@ You can get a local copy of *this* example by using the
   reahl example tutorial.hello
   cd hello
   reahl setup -- develop -N
-  reahl-control createuser etc
-  reahl-control createdb etc
-  reahl-control createdbtables etc
+  reahl createuser etc
+  reahl createdb etc
+  reahl createdbtables etc
   reahl serve etc
 
 Then browse to http://localhost:8000.
@@ -175,7 +175,7 @@ access settings:
 Each component you use has its own config file in `etc`. Most are
 optional. To see what is missing, do::
 
-  reahl-control listconfig --missing --files --info etc
+  reahl listconfig --missing --files --info etc
 
 Here's example output::
 
@@ -185,11 +185,11 @@ Here's example output::
 
 You can see info about all the configuration settings used by executing::
 
-  reahl-control listconfig --files --info etc
+  reahl listconfig --files --info etc
 
 Or, to see the other possibilities related to `listconfig`, use::
 
-  reahl-control listconfig -h etc
+  reahl listconfig -h etc
 
 
 Prepare the database
@@ -197,11 +197,11 @@ Prepare the database
 
 Even a Hello World app needs a database. To create it, do::
 
-  reahl-control createdbuser etc
+  reahl createdbuser etc
 
-  reahl-control createdb etc
+  reahl createdb etc
 
-  reahl-control createdbtables etc
+  reahl createdbtables etc
 
 .. note::
 

@@ -66,6 +66,8 @@ class SystemWideTranslator(object):
 class Translator(object):
     """Create an instance of this class at the top of your module, in module scope and assign it to the name `_` for
        use in translating literal strings to the language of the current locale.
+
+       .. note:: Don't ever `.call` an instance of Translator in module scope. It only works once the locale is known.
        
        :param domain: A name identifying which translation catalogue use with this Translator. Always set this
                       to the name of the component where the code resides where this Translator instance is instantiated.

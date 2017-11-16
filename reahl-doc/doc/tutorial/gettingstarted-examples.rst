@@ -54,9 +54,9 @@ before trying to run it:
 
   .. code-block:: bash
 
-     reahl-control createdbuser etc
-     reahl-control createdb etc
-     reahl-control createdbtables etc
+     reahl createdbuser etc
+     reahl createdb etc
+     reahl createdbtables etc
 
 
 Once that is done, run the example:
@@ -74,7 +74,7 @@ example, you need to remove the previous database:
 
 .. code-block:: bash
 
-   reahl-control dropdb etc
+   reahl dropdb etc
 
 To remove a previous example from development, run:
 
