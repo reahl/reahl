@@ -17,6 +17,7 @@
 """A basic framework for writing commandline utilities."""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+import six
 import sys
 import os.path
 import logging
@@ -27,6 +28,9 @@ import distutils
 import collections
 import argparse 
 import shlex
+import shutil
+import textwrap
+import datetime
 
 from reahl.component.config import Configuration, EntryPointClassList
 
@@ -108,22 +112,73 @@ class ReahlCommandlineConfig(Configuration):
     commands = EntryPointClassList('reahl.component.commands', description='The commands (classes) available to the commandline shell')
 
 
-class ReahlCommandline(Command):
+class CompositeCommand(Command):
+    def __init__(self):
+        super(CompositeCommand, self).__init__()
+        self.parser.epilog = '"%s help-commands" gives a list of available commands' % self.parser.prog
+
+    def assemble(self):
+        super(CompositeCommand, self).assemble()
+        self.parser.add_argument('command', help='a command')
+        self.parser.add_argument('command_args', nargs=argparse.REMAINDER)
+
+    @property
+    def commands(self):
+        return []
+
+    def command_named(self, name, args):
+        for i in self.commands:
+            if i.keyword == name:
+                return i()
+        raise CommandNotFound(name)
+
+    def execute(self, args):
+        try:
+            command = self.command_named(args.command, args)
+        except CommandNotFound:
+            out_stream = sys.stdout
+            if args.command != 'help-commands':
+                out_stream = sys.stderr
+                print('No such command: %s' % args.command, file=out_stream)
+            self.print_help(out_stream)
+            return -1
+            
+        command.do(args.command_args)
+
+    def print_help(self, out_stream):
+        print(self.parser.format_help(), file=out_stream)
+        print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(self.keyword), file=out_stream)
+        max_len = max([len(command.keyword) for command in self.commands])
+        for command in sorted(self.commands, key=lambda x: x.keyword):
+            self.print_command(command.keyword, command.__doc__, max_len, out_stream)
+
+    def print_command(self, keyword, description, max_len, out_stream):
+        keyword_column = ('{0: <%s}  ' % max_len).format(keyword)
+        if six.PY3:
+            width = shutil.get_terminal_size().columns or 80
+        else:
+            width = 80
+        output = textwrap.fill(description, width=width, initial_indent=keyword_column, subsequent_indent=' '*(max_len+2))
+        print(output, file=out_stream)
+        
+    
+class ReahlCommandline(CompositeCommand):
     """Invoke reahl commands on the commandline."""
     keyword = 'reahl'
 
     def __init__(self, prog=sys.argv[0], config=None):
+        self.config = config or ReahlCommandlineConfig()
         super(ReahlCommandline, self).__init__()
-        config = config or ReahlCommandlineConfig()
-        self.commands = config.commands[:]
-        self.keyword = prog
-        self.parser.epilog = '"%s help-commands" gives a list of available commands' % self.parser.prog
+        self.keyword = self.parser.prog
 
     def assemble(self):
+        super(ReahlCommandline, self).assemble()
         self.parser.add_argument('-l', '--loglevel', default='WARNING', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'], help='set log level to this')
-        self.parser.add_argument('command', help='a command')
-        self.parser.add_argument('command_args', nargs=argparse.REMAINDER)
 
+    @property
+    def commands(self):
+        return self.config.commands[:]
+        
     @classmethod
     def execute_one(cls):
         """The entry point for running command from the commandline."""
@@ -133,16 +188,6 @@ class ReahlCommandline(Command):
     def aliasses(self):
         return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
         
-    @property
-    def command_names(self):
-        return [i.keyword for i in self.commands]
-
-    def command_named(self, name):
-        for i in self.commands:
-            if i.keyword == name:
-                return i()
-        raise CommandNotFound(name)
-
     def set_log_level(self, log_level):
         log_level = getattr(logging, log_level)
         logging.getLogger('').setLevel(log_level)
@@ -150,28 +195,19 @@ class ReahlCommandline(Command):
     def execute(self, args):
         self.set_log_level(args.loglevel)
 
-        if args.command in self.command_names:
-            return self.command_named(args.command).do(args.command_args)
-        elif args.command in self.aliasses:
+        if args.command in self.aliasses:
             return self.do(shlex.split(self.aliasses[args.command]))
         else:
-            if args.command != 'help-commands':
-                print('No such command: %s' % args.command, file=sys.stderr)
-            self.print_help()
-            return -1
+            return super(ReahlCommandline, self).execute(args)
             
-    def print_help(self):
-        print(self.parser.format_help(), file=sys.stderr)
-        print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(self.keyword), file=sys.stderr)
-        max_len = max([len(command.keyword) for command in self.commands])
-        format_template = '{0: <%s}\t{1}' % max_len
-        for command in sorted(self.commands, key=lambda x: x.keyword):
-            print(format_template.format(command.keyword, command.__doc__), file=sys.stderr)
+    def print_help(self, out_stream):
+        super(ReahlCommandline, self).print_help(out_stream)
 
-        print('\nAliasses:\n', file=sys.stderr)
+        max_len = max([len(alias_name) for alias_name in self.aliasses.keys()])
+        print('\nAliasses:\n', file=out_stream)
         for name, value in sorted(self.aliasses.items(), key=lambda x: x[0]):
-            print(format_template.format(name, '"%s"\n' % value), file=sys.stderr)
-        print('\n', file=sys.stderr)
+            self.print_command(name, '"%s"\n' % value, max_len, out_stream)
+        print('\n', file=out_stream)
 
 
 class AddAlias(Command):

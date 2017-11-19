@@ -34,9 +34,6 @@ from reahl.component.eggs import ReahlEgg
 
 class ProductionCommand(Command):
     """Superclass used for all production shell commands."""
-    options = []
-    usage_args = '<config_directory>'
-    
     def assemble(self):
         self.parser.add_argument('config_directory', type=str,  help='a reahl configuration directory')
 
@@ -215,7 +212,7 @@ class BackupAllDB(ProductionCommand):
         
     def execute(self, args):
         super(BackupAllDB, self).execute(args)
-        return self.sys_control.backup_all_databases(options.directory, super_user_name=options.super_user_name)
+        return self.sys_control.backup_all_databases(args.directory, super_user_name=args.super_user_name)
 
 
 class RestoreAllDB(ProductionCommand):
