@@ -10,6 +10,7 @@
 
   <deps purpose="run">
     <egg name="reahl-component"/>
+    <egg name="reahl-commands"/>
   </deps>
 
   <deps purpose="test">

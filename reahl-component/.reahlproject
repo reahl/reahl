@@ -31,23 +31,6 @@
 
   <script name="reahl" locator="reahl.component.shelltools:ReahlCommandline.execute_one"/>
   
-  <export entrypoint="reahl.component.commands" name="CreateDBUser" locator="reahl.component.prodshell:CreateDBUser"/>
-  <export entrypoint="reahl.component.commands" name="DropDBUser" locator="reahl.component.prodshell:DropDBUser"/>
-  <export entrypoint="reahl.component.commands" name="CreateDB" locator="reahl.component.prodshell:CreateDB"/>
-  <export entrypoint="reahl.component.commands" name="DropDB" locator="reahl.component.prodshell:DropDB"/>
-  <export entrypoint="reahl.component.commands" name="BackupDB" locator="reahl.component.prodshell:BackupDB"/>
-  <export entrypoint="reahl.component.commands" name="RestoreDB" locator="reahl.component.prodshell:RestoreDB"/>
-  <export entrypoint="reahl.component.commands" name="BackupAllDB" locator="reahl.component.prodshell:BackupAllDB"/>
-  <export entrypoint="reahl.component.commands" name="RestoreAllDB" locator="reahl.component.prodshell:RestoreAllDB"/>
-  <export entrypoint="reahl.component.commands" name="SizeDB" locator="reahl.component.prodshell:SizeDB"/>
-  <export entrypoint="reahl.component.commands" name="RunJobs" locator="reahl.component.prodshell:RunJobs"/>
-  <export entrypoint="reahl.component.commands" name="CreateDBTables" locator="reahl.component.prodshell:CreateDBTables"/>
-  <export entrypoint="reahl.component.commands" name="DropDBTables" locator="reahl.component.prodshell:DropDBTables"/>
-  <export entrypoint="reahl.component.commands" name="MigrateDB" locator="reahl.component.prodshell:MigrateDB"/>
-  <export entrypoint="reahl.component.commands" name="DiffDB" locator="reahl.component.prodshell:DiffDB"/>
-  <export entrypoint="reahl.component.commands" name="ListConfig" locator="reahl.component.prodshell:ListConfig"/>
-  <export entrypoint="reahl.component.commands" name="CheckConfig" locator="reahl.component.prodshell:CheckConfig"/>
-  <export entrypoint="reahl.component.commands" name="ListDependencies" locator="reahl.component.prodshell:ListDependencies"/>
   <export entrypoint="reahl.component.commands" name="AddAlias" locator="reahl.component.shelltools:AddAlias"/>
 
   <export entrypoint="reahl.component.databasecontrols" name="NullDatabaseControl" locator="reahl.component.dbutils:NullDatabaseControl"/>
