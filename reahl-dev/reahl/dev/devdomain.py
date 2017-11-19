@@ -1696,10 +1696,11 @@ class EggProject(Project):
                          if (not i.is_in_development) and (not i.is_installed) ]
         return [i.as_string_for_egg().replace(' ', '') for i in dependencies]
 
-    def setup(self, setup_command):
+    def setup(self, setup_command, script_name=''):
         with self.paths_set():
             with SetupMonitor() as monitor:
-                distribution = setup(script_args=setup_command,
+                distribution = setup(script_name=script_name,
+                     script_args=setup_command,
                      name=ascii_as_bytes_or_str(self.project_name),
                      version=self.version_for_setup(),
                      description=self.get_description_for(self),

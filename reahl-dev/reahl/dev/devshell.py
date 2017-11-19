@@ -126,7 +126,7 @@ class List(WorkspaceCommand):
     def assemble(self):
         super(Save, self).assemble()
         self.parser.add_argument('-s', '--state', action='store_true', dest='with_status',
-                                      help='outputs the status too')
+                                 help='outputs the status too')
         self.parser.add_argument('-a', '--all', action='store_true', dest='all',
                                  help='lists all, not only selection')
         self.parser.add_argument('-d', '--directories', action='store_true', dest='directories',
@@ -353,11 +353,11 @@ class Shell(ForAllWorkspaceCommand):
         super(Shell, self).assemble()
         self.parser.add_argument('-g', '--generate_setup_py', action='store_true', dest='generate_setup_py', default=False,
                                  help='temporarily generate a setup.py for the duration of the shell command (it is removed afterwards)')
-        self.parser.add_argument('shell_command')
-        self.parser.add_argument('shell_command_args', nargs=argparse.REMAINDER)
+        self.parser.add_argument('shell_commandline', nargs=argparse.REMAINDER, 
+                                 help='the shell command (and any arguments) that should be executed')
 
     def format_individual_message(self, project, args, template):
-        return template % ('%s %s' % (project.relative_directory, ' '.join([args.shell_command]+args.shell_command_args)))
+        return template % ('%s %s' % (project.relative_directory, ' '.join(args.shell_commandline)))
     
     def function(self, project, args):
         @contextmanager
@@ -366,7 +366,7 @@ class Shell(ForAllWorkspaceCommand):
 
         context_manager = project.generated_setup_py if args.generate_setup_py else nop_context_manager
         with context_manager():
-            command = self.do_shell_expansions(project.directory, [args.shell_command]+args.shell_command_args)
+            command = self.do_shell_expansions(project.directory, args.shell_commandline)
             return Executable(command[0]).call(command[1:], cwd=project.directory)
 
     def do_shell_expansions(self, directory, commandline):
@@ -388,16 +388,16 @@ class Setup(ForAllWorkspaceCommand):
     keyword = 'setup'
     def assemble(self):
         super(Setup, self).assemble()
-        self.parser.add_argument('setup_py_command_and_args', nargs=argparse.REMAINDER)
+        self.parser.add_argument('setup_py_args', nargs=argparse.REMAINDER, help='arguments to setup.py')
 
     def parse_commandline(self, argv):
         args = super(Setup, self).parse_commandline(['--']+argv)
-        if args.setup_py_command_and_args[0] == '--':
-            args.setup_py_command_and_args[:] = args.setup_py_command_and_args[1:]
+        if args.setup_py_args[0] == '--':
+            args.setup_py_args[:] = args.setup_py_args[1:]
         return args
 
     def function(self, project, args):
-        project.setup(args.setup_py_command_and_args)
+        project.setup(args.setup_py_args, script_name='%s %s' % (sys.argv[0], self.keyword))
         return 0
 
 
