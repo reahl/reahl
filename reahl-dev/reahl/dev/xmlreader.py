@@ -97,11 +97,6 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from xml.dom.minidom import parse
 
-from reahl.component.config import Configuration, EntryPointClassList
-
-
-class XMLReaderConfig(Configuration):
-    xmlclasses = EntryPointClassList('reahl.dev.xmlclasses', description='All classes that can be read by the xmlreader')
 
 #--------------------------------------------------[ XMLReaderException ]
 class XMLReaderException(Exception):
@@ -133,13 +128,9 @@ class TagTypeTuple(tuple):
 #--------------------------------------------------[ XMLReader ]
 class XMLReader(object):
     """This class is used to read python objects from an XML file."""
-    def __init__(self):
+    def __init__(self, xml_classes):
         self.map = {}
-        self.register_classes_from_plugins()
-
-    def register_classes_from_plugins(self):
-        config = XMLReaderConfig()
-        for cls in config.xmlclasses:
+        for cls in xml_classes:
             self.register(*cls.get_xml_registration_info())
 
     def register(self, tag_name, class_to_instantiate, type_name=None):

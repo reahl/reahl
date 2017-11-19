@@ -66,7 +66,6 @@ class EggNotFound(Exception):
     pass
 
 
-
 class Git(object):
     def __init__(self, directory):
         self.directory = directory
@@ -1300,7 +1299,7 @@ class Project(object):
             raise NotAValidProjectException(project_filename)
         input_file = io.open(project_filename, 'r')
         try:
-            reader = XMLReader()
+            reader = XMLReader(all_xml_classes)
             project = reader.read_file(input_file, (workspace, directory))
         except (TagNotRegisteredException, ExpatError, InvalidXMLException) as ex:
             raise InvalidProjectFileException(project_filename, ex)
@@ -2230,3 +2229,9 @@ class SubstvarsFile(list):
     def items(self):
         return [i for i in self]
 
+all_xml_classes = [MetaInfo, HardcodedMetadata, DebianPackageMetadata, GitSourceControl, Project, \
+                   ChickenProject, EggProject, DebianPackage, SshRepository, PythonSourcePackage, \
+                   PythonWheelPackage, PackageIndex, Dependency, ThirdpartyDependency, XMLDependencyList, \
+                   ExtrasList, EntryPointExport, ScriptExport, NamespaceList, NamespaceEntry, PersistedClassesList, \
+                   OrderedPersistedClass, MigrationList, ConfigurationSpec, ScheduledJobSpec, \
+                   ExcludedPackage, TranslationPackage, ExtraPath, ProjectTag]

@@ -26,42 +26,6 @@
     <egg name="reahl-stubble"/>
   </deps>
 
-  <export entrypoint="reahl.dev.xmlclasses" name="MetaInfo" locator="reahl.dev.devdomain:MetaInfo"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="HardcodedMetadata" locator="reahl.dev.devdomain:HardcodedMetadata"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="DebianPackageMetadata" locator="reahl.dev.devdomain:DebianPackageMetadata"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="GitSourceControl" locator="reahl.dev.devdomain:GitSourceControl"/>
-
-  <export entrypoint="reahl.dev.xmlclasses" name="Project" locator="reahl.dev.devdomain:Project"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="ChickenProject" locator="reahl.dev.devdomain:ChickenProject"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="EggProject" locator="reahl.dev.devdomain:EggProject"/>
-
-  <export entrypoint="reahl.dev.xmlclasses" name="DebianPackage" locator="reahl.dev.devdomain:DebianPackage"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="SshRepository" locator="reahl.dev.devdomain:SshRepository"/>
-
-  <export entrypoint="reahl.dev.xmlclasses" name="PythonSourcePackage" locator="reahl.dev.devdomain:PythonSourcePackage"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="PythonWheelPackage" locator="reahl.dev.devdomain:PythonWheelPackage"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="PackageIndex" locator="reahl.dev.devdomain:PackageIndex"/>
-
-  <export entrypoint="reahl.dev.xmlclasses" name="Dependency" locator="reahl.dev.devdomain:Dependency"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="ThirdpartyDependency" locator="reahl.dev.devdomain:ThirdpartyDependency"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="XMLDependencyList" locator="reahl.dev.devdomain:XMLDependencyList"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="ExtrasList" locator="reahl.dev.devdomain:ExtrasList"/>
-
-  <export entrypoint="reahl.dev.xmlclasses" name="EntryPointExport" locator="reahl.dev.devdomain:EntryPointExport"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="ScriptExport" locator="reahl.dev.devdomain:ScriptExport"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="NamespaceList" locator="reahl.dev.devdomain:NamespaceList"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="NamespaceEntry" locator="reahl.dev.devdomain:NamespaceEntry"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="PersistedClassesList" locator="reahl.dev.devdomain:PersistedClassesList"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="OrderedPersistedClass" locator="reahl.dev.devdomain:OrderedPersistedClass"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="MigrationList" locator="reahl.dev.devdomain:MigrationList"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="ConfigurationSpec" locator="reahl.dev.devdomain:ConfigurationSpec"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="ScheduledJobSpec" locator="reahl.dev.devdomain:ScheduledJobSpec"/>
-
-  <export entrypoint="reahl.dev.xmlclasses" name="ExcludedPackage" locator="reahl.dev.devdomain:ExcludedPackage"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="TranslationPackage" locator="reahl.dev.devdomain:TranslationPackage"/>
-
-  <export entrypoint="reahl.dev.xmlclasses" name="ExtraPath" locator="reahl.dev.devdomain:ExtraPath"/>
-  <export entrypoint="reahl.dev.xmlclasses" name="ProjectTag" locator="reahl.dev.devdomain:ProjectTag"/>
 
   <export entrypoint="reahl.component.commands" name="Refresh" locator="reahl.dev.devshell:Refresh"/>
   <export entrypoint="reahl.component.commands" name="ExplainLegend" locator="reahl.dev.devshell:ExplainLegend"/>
