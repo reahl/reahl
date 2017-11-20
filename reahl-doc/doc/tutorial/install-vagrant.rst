@@ -14,7 +14,7 @@ all Reahl installation instructions and instead just do the following:
 
 * Create a directory somewhere with the following VagrantFile:
 
-  literalinclude:: ../../../vagrant/Vagrantfile.example
+  .. literalinclude:: ../../../vagrant/Vagrantfile.example
 
 * Then do:
 

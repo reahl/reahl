@@ -23,7 +23,7 @@ You can get a local copy of *this* example by using the
   reahl example tutorial.hello
   cd hello
   reahl setup -- develop -N
-  reahl createuser etc
+  reahl createdbuser etc
   reahl createdb etc
   reahl createdbtables etc
   reahl serve etc
