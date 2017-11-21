@@ -63,26 +63,26 @@ class Table(reahl.web.ui.Table):
 
 class HeadingTheme(HTMLAttributeValueOption):
     def __init__(self, name):
-        super(HeadingTheme, self).__init__(name, name is not None, constrain_value_to=['inverse', 'default'])
+        super(HeadingTheme, self).__init__(name, name is not None, constrain_value_to=['light', 'dark'])
 
 
 class TableLayout(Layout):
     """A Layout for customising details of how a Table is displayed.
 
-    :keyword inverse: If True, table text is light text on dark background.
+    :keyword dark: If True, table text is light text on dark background.
     :keyword border: If True, a border is rendered around the table and each cell.
     :keyword compact: If True, make the table more compact by cutting cell padding in half.
     :keyword striped: If True, colour successive rows lighter and darker.
     :keyword highlight_hovered: If True, a row is highlighted when the mouse hovers over it.
     :keyword responsive: If True, the table will scroll horizontally on smaller devices.
-    :keyword heading_theme: One of 'inverse' or 'default'. An inverse heading is one with light text on a darker background.
+    :keyword heading_theme: One of 'light' or 'dark'. An light heading is one with light text on a darker background.
     """
     def __init__(self,
-                 inverse=False, border=False, compact=False,
+                 dark=False, border=False, compact=False,
                  striped=False, highlight_hovered=False, responsive=False,
                  heading_theme=None):
         super(TableLayout, self).__init__()
-        self.table_properties = [HTMLAttributeValueOption('inverse', inverse, prefix='table'),
+        self.table_properties = [HTMLAttributeValueOption('dark', dark, prefix='table'),
                                  HTMLAttributeValueOption('striped', striped, prefix='table'),
                                  HTMLAttributeValueOption('bordered', border, prefix='table'),
                                  HTMLAttributeValueOption('hover', highlight_hovered, prefix='table'),
