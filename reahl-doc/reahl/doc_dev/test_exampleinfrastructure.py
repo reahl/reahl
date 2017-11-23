@@ -68,19 +68,19 @@ class ImportErrorScenarios(ExampleFixture):
     def no_errors(self):
         self.example_module_contents = ''
         self.expected_exception = NoException
-        self.command_line = self.example_name
+        self.command_line = [self.example_name]
 
     @scenario
     def nonexistant_example_error(self):
         self.example_module_contents = ''
         self.expected_exception = NoException
-        self.command_line = 'anexamplethatdoesnotexist'
+        self.command_line = ['anexamplethatdoesnotexist']
 
     @scenario
     def error_in_example_itself(self):
         self.example_module_contents = 'import somethingthatdoesnotexist'
         self.expected_exception = ImportError
-        self.command_line = self.example_name
+        self.command_line = [self.example_name]
 
 
 @with_fixtures(ImportErrorScenarios)
@@ -92,6 +92,6 @@ def test_handling_import_errors(import_error_scenarios):
     import_error_scenarios.containing_egg.activate()
 
     with SystemOutStub(), import_error_scenarios.checkout_directory.as_cwd():
-        command = import_error_scenarios.GetExample(EmptyStub())
+        command = import_error_scenarios.GetExample()
         with expected(import_error_scenarios.expected_exception):
             command.do(import_error_scenarios.command_line)

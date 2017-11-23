@@ -36,33 +36,33 @@ class ServeCurrentProject(WorkspaceCommand):
     """Serves the project configured in the given directory (defaults to ./etc)."""
     keyword = 'serve'
 
-    options = [('-p', '--port', dict(action='store', type='int', dest='port', default=8000, help='port (optional)')),
-               ('-s', '--seconds-between-restart', dict(action='store', type='int', dest='max_seconds_between_restarts', 
-                                                        default=3, 
-                                                        help='poll only every n seconds for filesystem changes (optional)')),
-               ('-d', '--monitor-directory', dict(action='append', dest='monitored_directories', default=[],
-                                                 help='add a directory to monitor for changes'
-                                                 ' (the current directory is always included)')),
-               ('-D', '--dont-restart', dict(action='store_false', dest='restart', default=True, 
-                                             help='run as unsupervised server which does not monitor for filesystem changes'))]
+    def assemble(self):
+        super(ServeCurrentProject, self).assemble()
+        self.parser.add_argument('-p', '--port', action='store', type=int, dest='port', default=8000, help='port (optional)')
+        self.parser.add_argument('-s', '--seconds-between-restart', action='store', type=int, dest='max_seconds_between_restarts', 
+                                 default=3, help='poll only every n seconds for filesystem changes (optional)')
+        self.parser.add_argument('-d', '--monitor-directory', action='append', dest='monitored_directories', default=[],
+                                 help='add a directory to monitor for changes'
+                                 ' (the current directory is always included)')
+        self.parser.add_argument('-D', '--dont-restart', action='store_false', dest='restart', default=True, 
+                                 help='run as unsupervised server which does not monitor for filesystem changes')
+        self.parser.add_argument('config_directory', default='etc', nargs='?',
+                                 help='the configuration directory of the system to serve')
 
-    def execute(self, options, args):
+    def execute(self, args):
         project = Project.from_file(self.workspace, self.workspace.startup_directory)
         with project.paths_set():
             try:
-                if options.restart:
+                if args.restart:
                     ServerSupervisor(sys.argv[1:]+['--dont-restart'],
-                                     options.max_seconds_between_restarts,
-                                     ['.']+options.monitored_directories).run()
+                                     args.max_seconds_between_restarts,
+                                     ['.']+args.monitored_directories).run()
                 else:
-                    config_directory = 'etc'
-                    if args:
-                        config_directory = args[0]
-
+                    config_directory = args.config_directory
                     print('\nUsing config from %s\n' % config_directory)
                     
                     try:
-                        reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, options.port)
+                        reahl_server = ReahlWebServer.fromConfigDirectory(config_directory, args.port)
                     except pkg_resources.DistributionNotFound as ex:
                         terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
                         print('\nPress %s to terminate\n\n' % terminate_keys)
@@ -70,7 +70,7 @@ class ServeCurrentProject(WorkspaceCommand):
 
                     reahl_server.start(connect=True)
                     print('\n\nServing http on port %s, https on port %s (config=%s)' % \
-                                     (options.port, options.port+363, config_directory))
+                                     (args.port, args.port+363, config_directory))
                     terminate_keys = 'Ctrl+Break' if platform.system() == 'Windows' else 'Ctrl+C'
                     print('\nPress %s to terminate\n\n' % terminate_keys)
 

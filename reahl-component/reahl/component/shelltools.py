@@ -17,6 +17,7 @@
 """A basic framework for writing commandline utilities."""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+import six
 import sys
 import os.path
 import logging
@@ -25,9 +26,11 @@ import subprocess
 import os
 import distutils
 import collections
-
-from optparse import OptionParser
+import argparse 
 import shlex
+import shutil
+import textwrap
+import datetime
 
 from reahl.component.config import Configuration, EntryPointClassList
 
@@ -66,160 +69,184 @@ class Executable(object):
 class CommandNotFound(Exception):
     pass
 
+
 class Command(object):
-    """This is the superclass of all Commands that a ReahlCommandline can perform.
+    """This is the superclass of all Commands executed from the commandline.
 
-    It provides a common place where optparse is invoked. New commands are implemented by subclassing
-    this one and overriding its execute method. The class attributes can also be overridden to specify
-    how the commandline should be parsed.
+    New commands are implemented by subclassing this one and overriding its 
+    execute method. Override its `assemble` method to customise its commandline 
+    arguments by adding arguments to its `self.parser` :class:`argparse.ArgumentParser`
+
     """
-
-    options = []
     keyword = 'not implemented'
-    usage_args = ''
+    def __init__(self):
+        self.parser = argparse.ArgumentParser(prog=self.keyword, description=self.__doc__)
+        self.assemble()
 
-    def __init__(self, commandline):
-        self.commandline = commandline
-        self.parser = OptionParser()
-        self.parser.set_usage('%s %s' % (os.path.basename(sys.argv[0]), '%s [options] %s' % (self.keyword, self.usage_args)))
-        for (short_version, long_version, kwargs) in self.options:
-            self.parser.add_option(short_version, long_version, **kwargs)
+    def assemble(self):
+        pass
 
-    def parse_commandline(self, line):
-        options, args = self.parser.parse_args(shlex.split(line))
-        self.verify_commandline(options, args)
-        return options, args
+    def parse_commandline(self, argv):
+        args = self.parser.parse_args(argv)
+        self.verify_commandline(args)
+        return args
 
-    def do(self, line):
+    def do(self, argv):
         try:
-            options, args = self.parse_commandline(line)
-            return self.execute(options, args)
+            args = self.parse_commandline(argv)
+            return self.execute(args)
         except SystemExit as ex:
             return ex.code
 
     def help(self):
         self.parser.print_help()
 
-    def verify_commandline(self, options, args):
+    def verify_commandline(self, args):
         pass
 
-    def execute(self, options, args):
+    def execute(self, args):
         pass
 
-
+    
 class ReahlCommandlineConfig(Configuration):
     commands = EntryPointClassList('reahl.component.commands', description='The commands (classes) available to the commandline shell')
+
+
+class CompositeCommand(Command):
+    def __init__(self):
+        super(CompositeCommand, self).__init__()
+        self.parser.epilog = '"%s help-commands" gives a list of available commands' % self.parser.prog
+
+    def assemble(self):
+        super(CompositeCommand, self).assemble()
+        self.parser.add_argument('command', help='a command')
+        self.parser.add_argument('command_args', nargs=argparse.REMAINDER)
+
+    @property
+    def commands(self):
+        return []
+
+    def command_named(self, name, args):
+        for i in self.commands:
+            if i.keyword == name:
+                return i()
+        raise CommandNotFound(name)
+
+    def execute(self, args):
+        try:
+            command = self.command_named(args.command, args)
+        except CommandNotFound:
+            out_stream = sys.stdout
+            if args.command != 'help-commands':
+                out_stream = sys.stderr
+                print('No such command: %s' % args.command, file=out_stream)
+            self.print_help(out_stream)
+            return -1
+            
+        command.do(args.command_args)
+
+    def print_help(self, out_stream):
+        print(self.parser.format_help(), file=out_stream)
+        print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(self.keyword), file=out_stream)
+        max_len = max([len(command.keyword) for command in self.commands])
+        for command in sorted(self.commands, key=lambda x: x.keyword):
+            self.print_command(command.keyword, command.__doc__, max_len, out_stream)
+
+    def print_command(self, keyword, description, max_len, out_stream):
+        keyword_column = ('{0: <%s}  ' % max_len).format(keyword)
+        if six.PY3:
+            width = shutil.get_terminal_size().columns or 80
+        else:
+            width = 80
+        output = textwrap.fill(description, width=width, initial_indent=keyword_column, subsequent_indent=' '*(max_len+2))
+        print(output, file=out_stream)
+        
     
-class ReahlCommandline(object):
-    """A generic class for invoking commands on the commandline."""
-    command_entry_point = None
-    usage_string = '[options] <command> [command options] [-- [command_argument...]]'
-    args_re = '((-l|--loglevel) +[\w\+\-\'"\>]+)?'
-    options = [('-l', '--loglevel', dict(dest='loglevel', default='WARNING',
-                                         help='set log level to this'))]
+class ReahlCommandline(CompositeCommand):
+    """Invoke reahl commands on the commandline."""
+    keyword = 'reahl'
 
-    def __init__(self, options, config=None):
-        config = config or ReahlCommandlineConfig()
-        self.options = options
-        self.commands = config.commands[:]
+    def __init__(self, prog=sys.argv[0], config=None):
+        self.config = config or ReahlCommandlineConfig()
+        super(ReahlCommandline, self).__init__()
+        self.keyword = self.parser.prog
 
+    def assemble(self):
+        super(ReahlCommandline, self).assemble()
+        self.parser.add_argument('-l', '--loglevel', default='WARNING', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'], help='set log level to this')
+
+    @property
+    def commands(self):
+        return self.config.commands[:]
+        
+    @classmethod
+    def execute_one(cls):
+        """The entry point for running command from the commandline."""
+        return cls(sys.argv[0]).do(sys.argv[1:])
+        
     @property
     def aliasses(self):
         return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
         
-    @property
-    def command_names(self):
-        return [i.keyword for i in self.commands]
-
-    def command_named(self, name):
-        for i in self.commands:
-            if i.keyword == name:
-                return i(self)
-        raise CommandNotFound(name)
-
-    def print_usage(self, parser):
-        print(parser.format_help(), file=sys.stderr)
-        print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(sys.argv[0]), file=sys.stderr)
-        max_len = max([len(command.keyword) for command in self.commands])
-        format_template = '{0: <%s}\t{1}' % max_len
-        for command in sorted(self.commands, key=lambda x: x.keyword):
-            print(format_template.format(command.keyword, command.__doc__), file=sys.stderr)
-
-        print('\nAliasses:\n')
-        for name, value in sorted(self.aliasses.items(), key=lambda x: x[0]):
-            print(format_template.format(name, '"%s"' % value), file=sys.stderr)
-        print('', file=sys.stderr)
-
-    @classmethod
-    def execute_one(cls):
-        """The entry point for running command from the commandline."""
-
-        command, line, options, parser = cls.parse_commandline()
-        return_code = None
-
-        if command:
-            commandline = cls(options)
-            if command in ['-h', '--help']:
-                commandline.print_usage(parser)
-                return_code = -1
-            else:
-                return_code = commandline.execute_command(command, line, options, parser)
-        return return_code
-
     def set_log_level(self, log_level):
         log_level = getattr(logging, log_level)
         logging.getLogger('').setLevel(log_level)
-        
-    def execute_command(self, command, line, options, parser):
-        self.set_log_level(options.loglevel)
-        if command in self.command_names:
-            return self.command_named(command).do(line)
-        if command in self.aliasses:
-            return self.execute_command(*self.parse_commandline(raw_line=self.aliasses[command]))
-        self.print_usage(parser)
-        return None
 
-    @classmethod
-    def parse_commandline(cls, raw_line=None):
-        
-        parser = OptionParser(usage='%s %s' % (os.path.basename(sys.argv[0]), cls.usage_string))
-        for (short_version, long_version, kwargs) in cls.options:
-            parser.add_option(short_version, long_version, **kwargs)
+    def execute(self, args):
+        self.set_log_level(args.loglevel)
 
-        args = shlex.split(raw_line) if raw_line else sys.argv[1:]
-        args_string = ' '.join(args)
-        args_match = re.match(cls.args_re, args_string)
-        if args_match:
-            initial_args = shlex.split(args_string[:args_match.end()])
-            remaining_args = args[len(initial_args):]
+        if args.command in self.aliasses:
+            return self.do(shlex.split(self.aliasses[args.command]))
         else:
-            parser.error('Could not parse commandline')
+            return super(ReahlCommandline, self).execute(args)
+            
+    def print_help(self, out_stream):
+        super(ReahlCommandline, self).print_help(out_stream)
 
-        options, args = parser.parse_args(initial_args)
+        max_len = max([len(alias_name) for alias_name in self.aliasses.keys()])
+        print('\nAliasses:\n', file=out_stream)
+        for name, value in sorted(self.aliasses.items(), key=lambda x: x[0]):
+            self.print_command(name, '"%s"\n' % value, max_len, out_stream)
+        print('\n', file=out_stream)
 
-        if not len(remaining_args) >= 1:
-            return ('-h', None, options, parser)
 
-        # Note: its necessary to quote parts before we join them, else " chars are nuked (if there were any)
-        try:
-            command, line = remaining_args[0], ' '.join(['\'%s\'' % i for i in remaining_args[1:]])
-        except IndexError:
-            parser.error('No commands specified, try %s --help for usage' % os.path.basename(sys.argv[0]))
-        return command, line, options, parser
-
-    
 class AddAlias(Command):
     """Adds an alias."""
-    keyword = 'addalias'
-    options = [('-l', '--local', dict(action='store_true', dest='local', help='store the added alias in the current directory'))]
-    def execute(self, options, args):
-        super(AddAlias, self).execute(options, args)
-        alias_file = AliasFile.get_file(local=options.local)
-        alias_file.add_alias(args[0], ' '.join(args[1:]))
+    keyword = 'alias'
+    def assemble(self):
+        self.parser.add_argument('-l', '--local', action='store_true', dest='local',
+                                 help='store the added alias in the current directory')
+        self.parser.add_argument('alias', type=str,  help='what to call this alias')
+        self.parser.add_argument('aliassed_command', nargs=argparse.REMAINDER,
+                                 help='the command (and arguments) to remember')
+
+    def execute(self, args):
+        super(AddAlias, self).execute(args)
+        alias_file = AliasFile.get_file(local=args.local)
+        alias_file.add_alias(args.alias, ' '.join(args.aliassed_command))
         alias_file.write()
         return 0
 
-    
+class RemoveAlias(Command):
+    """Removes an alias."""
+    keyword = 'unalias'
+    def assemble(self):
+        self.parser.add_argument('-l', '--local', action='store_true', dest='local',
+                                 help='store the added alias in the current directory')
+        self.parser.add_argument('alias', type=str,  help='which alias to remove')
+
+    def execute(self, args):
+        super(RemoveAlias, self).execute(args)
+        alias_file = AliasFile.get_file(local=args.local)
+        if args.alias in alias_file.aliasses:
+            alias_file.remove_alias(args.alias)
+            alias_file.write()
+            return 0
+        else:
+            print('No such alias: %s' % args.alias)
+            return 1
+
+
 class AliasFile(object):
     @classmethod
     def get_file(cls, local=False):
@@ -235,6 +262,9 @@ class AliasFile(object):
 
     def add_alias(self, name, value):
         self.aliasses[name] = value
+
+    def remove_alias(self, name):
+        del self.aliasses[name]
 
     @property
     def exists(self):

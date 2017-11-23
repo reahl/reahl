@@ -1,0 +1,48 @@
+<project type="egg">
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="pytest-runner"/>
+  </deps>
+
+  <deps purpose="run">
+    <thirdpartyegg name="six"/> 
+  </deps>
+
+  <deps purpose="test">
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+  </deps>
+
+  <export entrypoint="reahl.component.commands" name="CreateDBUser" locator="reahl.commands.prodshell:CreateDBUser"/>
+  <export entrypoint="reahl.component.commands" name="DropDBUser" locator="reahl.commands.prodshell:DropDBUser"/>
+  <export entrypoint="reahl.component.commands" name="CreateDB" locator="reahl.commands.prodshell:CreateDB"/>
+  <export entrypoint="reahl.component.commands" name="DropDB" locator="reahl.commands.prodshell:DropDB"/>
+  <export entrypoint="reahl.component.commands" name="BackupDB" locator="reahl.commands.prodshell:BackupDB"/>
+  <export entrypoint="reahl.component.commands" name="RestoreDB" locator="reahl.commands.prodshell:RestoreDB"/>
+  <export entrypoint="reahl.component.commands" name="BackupAllDB" locator="reahl.commands.prodshell:BackupAllDB"/>
+  <export entrypoint="reahl.component.commands" name="RestoreAllDB" locator="reahl.commands.prodshell:RestoreAllDB"/>
+  <export entrypoint="reahl.component.commands" name="SizeDB" locator="reahl.commands.prodshell:SizeDB"/>
+  <export entrypoint="reahl.component.commands" name="RunJobs" locator="reahl.commands.prodshell:RunJobs"/>
+  <export entrypoint="reahl.component.commands" name="CreateDBTables" locator="reahl.commands.prodshell:CreateDBTables"/>
+  <export entrypoint="reahl.component.commands" name="DropDBTables" locator="reahl.commands.prodshell:DropDBTables"/>
+  <export entrypoint="reahl.component.commands" name="MigrateDB" locator="reahl.commands.prodshell:MigrateDB"/>
+  <export entrypoint="reahl.component.commands" name="DiffDB" locator="reahl.commands.prodshell:DiffDB"/>
+  <export entrypoint="reahl.component.commands" name="ListConfig" locator="reahl.commands.prodshell:ListConfig"/>
+  <export entrypoint="reahl.component.commands" name="CheckConfig" locator="reahl.commands.prodshell:CheckConfig"/>
+  <export entrypoint="reahl.component.commands" name="ListDependencies" locator="reahl.commands.prodshell:ListDependencies"/>
+
+
+  <distpackage type="wheel">
+    <packageindex repository="pypi"/>
+  </distpackage>
+  <distpackage type="sdist">
+    <packageindex repository="pypi"/>
+  </distpackage>
+
+
+</project>

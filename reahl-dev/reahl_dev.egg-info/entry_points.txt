@@ -25,37 +25,6 @@ SubstVars = reahl.dev.devshell:SubstVars
 UpdateAptRepository = reahl.dev.devshell:UpdateAptRepository
 Upload = reahl.dev.devshell:Upload
 
-[reahl.dev.xmlclasses]
-ChickenProject = reahl.dev.devdomain:ChickenProject
-ConfigurationSpec = reahl.dev.devdomain:ConfigurationSpec
-DebianPackage = reahl.dev.devdomain:DebianPackage
-DebianPackageMetadata = reahl.dev.devdomain:DebianPackageMetadata
-Dependency = reahl.dev.devdomain:Dependency
-EggProject = reahl.dev.devdomain:EggProject
-EntryPointExport = reahl.dev.devdomain:EntryPointExport
-ExcludedPackage = reahl.dev.devdomain:ExcludedPackage
-ExtraPath = reahl.dev.devdomain:ExtraPath
-ExtrasList = reahl.dev.devdomain:ExtrasList
-GitSourceControl = reahl.dev.devdomain:GitSourceControl
-HardcodedMetadata = reahl.dev.devdomain:HardcodedMetadata
-MetaInfo = reahl.dev.devdomain:MetaInfo
-MigrationList = reahl.dev.devdomain:MigrationList
-NamespaceEntry = reahl.dev.devdomain:NamespaceEntry
-NamespaceList = reahl.dev.devdomain:NamespaceList
-OrderedPersistedClass = reahl.dev.devdomain:OrderedPersistedClass
-PackageIndex = reahl.dev.devdomain:PackageIndex
-PersistedClassesList = reahl.dev.devdomain:PersistedClassesList
-Project = reahl.dev.devdomain:Project
-ProjectTag = reahl.dev.devdomain:ProjectTag
-PythonSourcePackage = reahl.dev.devdomain:PythonSourcePackage
-PythonWheelPackage = reahl.dev.devdomain:PythonWheelPackage
-ScheduledJobSpec = reahl.dev.devdomain:ScheduledJobSpec
-ScriptExport = reahl.dev.devdomain:ScriptExport
-SshRepository = reahl.dev.devdomain:SshRepository
-ThirdpartyDependency = reahl.dev.devdomain:ThirdpartyDependency
-TranslationPackage = reahl.dev.devdomain:TranslationPackage
-XMLDependencyList = reahl.dev.devdomain:XMLDependencyList
-
 [reahl.eggs]
 Egg = reahl.component.eggs:ReahlEgg
 

@@ -55,7 +55,7 @@ You should be able to run tests immediately:
    vagrant up
    vagrant ssh
    cd /vagrant
-   reahl shell -sdX -- reahl unit
+   reahl shell -sdX reahl unit
 
 The last command changes into the directory of each separate Reahl component,
 and run its tests in turn.
