@@ -80,10 +80,10 @@ class ExampleFixture(Fixture):
         return self.web_fixture.driver_browser.execute_script('return window.jQuery("div.carousel-caption:visible p").html() == "%s"' % expected_contents)
 
     def error_is_visible(self):
-        return self.web_fixture.driver_browser.execute_script('return window.jQuery(".reahl-form span.has-danger").is(":visible")')
+        return self.web_fixture.driver_browser.execute_script('return window.jQuery(".reahl-form span.is-invalid").is(":visible")')
 
     def is_error_text(self, text):
-        return text == self.web_fixture.driver_browser.get_text("//form//span[contains(@class,'has-danger')]")
+        return text == self.web_fixture.driver_browser.get_text("//form//span[contains(@class,'is-invalid')]")
 
     def get_text_in_p(self):
         return self.web_fixture.driver_browser.get_text('//p')

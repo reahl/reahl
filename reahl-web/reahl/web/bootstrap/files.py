@@ -96,6 +96,7 @@ class FileInput(reahl.web.ui.WrappedInput):
 
         self.input_group = self.add_child(Div(self.view))
         self.input_group.append_class('input-group')
+        self.input_group.append_class('form-control')
         self.input_group.append_class('reahl-bootstrapfileinput')
         self.set_html_representation(self.input_group)
 

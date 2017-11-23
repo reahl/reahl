@@ -1725,7 +1725,6 @@ class TextInput(InputTypeInput):
         return super(TextInput, self).get_js(context=context) + js
 
 
-
 class PasswordInput(InputTypeInput):
     """A PasswordInput is a single line text input, but it does not show what the user is typing.
 

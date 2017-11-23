@@ -88,15 +88,18 @@ class FormLayoutFixture(Fixture):
         return form_groups[index]
 
     def get_form_group_highlight_marks(self, browser, index=0):
-        form_group = self.get_form_group(browser, index=index)
-        return [mark for mark in form_group.attrib['class'].split(' ')
-                     if mark.startswith('has-')]
+        def is_form_control_element(element):
+            return 'class' in element.attrib \
+                   and 'form-control' in element.attrib['class']
+        [input] = [element for element in self.get_form_group_children(browser, index=index)
+                           if is_form_control_element(element)]
+        return [mark for mark in input.attrib['class'].split(' ')
+                     if mark.startswith('is-')]
 
     def get_form_group_errors(self, browser, index=0):
         def is_error_element(element):
             return 'class' in element.attrib \
-                   and 'text-help' in element.attrib['class'] \
-                   and 'has-danger' in element.attrib['class']
+                   and 'invalid-feedback' in element.attrib['class']
         def is_visible(element):
             return not (('style' in element.attrib) and ('display: none' in element.attrib['style']))
 
@@ -276,14 +279,14 @@ def test_input_validation_cues(validation_scenarios):
     browser.type(XPath.input_labelled('Some input'), '')
     browser.click(XPath.button_labelled('Submit'))
 
-    assert ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0)
+    assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
     [error] = fixture.get_form_group_errors(browser, index=0)
     assert error.text == 'Some input is required'
 
     browser.type(XPath.input_labelled('Some input'), 'valid value')
     browser.click(XPath.button_labelled('Submit'))
 
-    assert ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=0)
+    assert ['is-valid'] == fixture.get_form_group_highlight_marks(browser, index=0)
     assert not fixture.get_form_group_errors(browser, index=0)
 
     browser.type(XPath.input_labelled('Another input'), 'valid value')
@@ -305,7 +308,7 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
     browser.type(XPath.input_labelled('Some input'), '')
     browser.click(XPath.button_labelled('Submit'))
 
-    assert ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0)
+    assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
     [error] = fixture.get_form_group_errors(browser, index=0)
     assert error.text == 'Some input is required'
 
@@ -314,7 +317,7 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
 
     browser.click(XPath.button_labelled('Submit'))
 
-    assert ['has-danger'] == fixture.get_form_group_highlight_marks(browser, index=0)
+    assert ['is-invalid'] == fixture.get_form_group_highlight_marks(browser, index=0)
     [error] = fixture.get_form_group_errors(browser, index=0)
     assert error.text == 'Some input is required'
 
@@ -322,7 +325,7 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
     browser.press_tab()
 
     def form_group_is_marked_success(index):
-        return ['has-success'] == fixture.get_form_group_highlight_marks(browser, index=index)
+        return ['is-valid'] == fixture.get_form_group_highlight_marks(browser, index=index)
     assert web_fixture.driver_browser.wait_for(form_group_is_marked_success, 0)
     assert not fixture.get_form_group_errors(browser, index=0)
 
