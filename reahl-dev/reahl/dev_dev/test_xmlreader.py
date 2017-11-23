@@ -54,7 +54,7 @@ class BasicObjectSetup(Fixture):
         return easter_egg
 
     def new_reader(self):
-        return XMLReader()
+        return XMLReader([])
 
     @tear_down
     def close_file(self):
@@ -75,11 +75,6 @@ class ConfiguredReader(Fixture):
             return ('2', cls, 'asd')
 
     def new_reader(self):
-        egg = self.basic_object_setup.easter_egg
-        egg.add_entry_point_from_line('reahl.dev.xmlclasses',
-                                      'test1 = reahl.dev_dev.test_xmlreader:ConfiguredReader.TestClass1')
-        egg.add_entry_point_from_line('reahl.dev.xmlclasses',
-                                      'test2 = reahl.dev_dev.test_xmlreader:ConfiguredReader.TestClass2')
 
         @stubclass(XMLReader)
         class XMLReaderStub(XMLReader):
@@ -88,7 +83,7 @@ class ConfiguredReader(Fixture):
             def register(self, tag_name, class_to_instantiate, type_name=None):
                 self.registered[class_to_instantiate] = (tag_name, class_to_instantiate, type_name)
 
-        return XMLReaderStub()
+        return XMLReaderStub([ConfiguredReader.TestClass1, ConfiguredReader.TestClass2])
 
 
 class TextObjectSetup(BasicObjectSetup):

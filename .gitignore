@@ -25,6 +25,7 @@ debian/python-reahl-postgresqlsupport/
 debian/python-reahl-sqlitesupport/
 debian/python-reahl-webdev/
 debian/python-reahl-component/
+debian/python-reahl-commands/
 debian/python-reahl-dev/
 debian/python-reahl-bzrsupport/
 debian/python-reahl-stubble/
@@ -35,6 +36,7 @@ debian/python-reahl-web/
 debian/python-reahl-web-declarative/
 debian/*.debhelper.log
 reahl-component/reahl_component.egg-info/
+reahl-commands/reahl_commands.egg-info/
 reahl-doc/reahl_doc.egg-info/
 reahl-domain/reahl_domain.egg-info/
 reahl-domainui/reahl_domainui.egg-info/
