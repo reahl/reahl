@@ -28,9 +28,9 @@ import six
 from reahl.web.fw import Widget, Url
 from reahl.web.ui import HTMLAttributeValueOption, HTMLElement, Img
 from reahl.web.bootstrap.ui import Div, A, Span, Li, Ol, TextNode
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class Slide(Div):

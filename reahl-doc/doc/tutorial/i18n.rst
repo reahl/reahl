@@ -1,5 +1,10 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
+.. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
+.. |NavBar| replace:: :class:`~reahl.web.bootstrap.navbar.Navbar`
+.. |Catalogue| replace:: :class:`~reahl.component.i18n.Catalogue`
+
+
 Internationalised applications
 ==============================
 
@@ -20,6 +25,13 @@ language displayed on the user interface. The chosen locale also
 formats the display of dates.
 
 
+Making your component translatable
+----------------------------------
+
+
+Add a |Nav| to choose a different locale
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. sidebar:: Behind the scenes
 
    Reahl uses the `Babel <http://babel.pocoo.org//>`_
@@ -29,42 +41,35 @@ formats the display of dates.
    Babel itself uses data regarding different locales that is derived
    from the `CLDR locale database <http://cldr.unicode.org/>`_.
 
-
-Making your component translatable
-----------------------------------
-
-Add a |Menu| to choose a different locale
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 Add a |Nav| containing all locales supported by your application to
 the main |Navbar|. Call
-:meth:`~reahl.web.bootstrap.navs.Nav.with_languages` to populates your
+:meth:`~reahl.web.bootstrap.navs.Nav.with_languages` to populate your
 |Nav| with the available locales.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py
    :pyobject: AddressBookPage
 
 
-Mark strings as messages that need translation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mark the messages that need to be translated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a global |Translator| in your module and assign it to the
+Create a global |Catalogue| in your module and assign it to the
 variable name ``_`` (underscore):
 
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py
-   :start-after: Declare a Translator for your component
+   :start-after: Declare a Catalogue for your component
    :end-before: class AddressBookPage
 
 Wrap all strings destined for the user interface in a call to the
-|Translator| similar to the brand text in AddressBookPage above.
+|Catalogue| similar to the brand text in AddressBookPage above.
 
 Each ``_()`` call marks the relevant string so it can be found by
 tools that search your source. These tools compile a catalogue of
-strings that need translation. Translations for these messages are
-added in the same catalogue.
+strings that need translation. You will later add translated versions
+for these messages in the same catalogue.
 
-When creating the |Translator|, pass it the name of the catalogue
+When creating the |Catalogue|, pass it the name of the catalogue
 where it should search for translations to strings wrapped in ``_()``.
 By convention the catalogue is named the same as your component.
 
@@ -80,7 +85,7 @@ Dealing with plural messages
 In some languages there are many distinct plural forms that differ
 depending on the number of items you are talking about.
 
-Use :meth:`~reahl.component.i18n.Translator.ngettext` for messages
+Use :meth:`~reahl.component.i18n.Catalogue.ngettext` for messages
 that need plural translations. It takes the English singular and
 plural form and returns the correct plural form for the target
 language, given the number of items:
@@ -92,10 +97,9 @@ language, given the number of items:
 Other customisations
 ~~~~~~~~~~~~~~~~~~~~
 
-Many other things can be done differently, depending on the chosen
-locale. For all of these things, you can use the `Babel
-<http://babel.pocoo.org//>`_ library directly, usually passing it a
-locale string which is obtainable from ``_.current_locale``.
+Many other things can be customised depending on the chosen locale by
+using the `Babel <http://babel.pocoo.org//>`_ library directly. Obtain
+the current locale string from ``_.current_locale``.
 
 Format the date inside an AddressBox for the current locale:
 
@@ -135,7 +139,12 @@ i18nexamplebootstrapmessages/i18nexamplebootstrap.
 Add translated messages
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Add the `af` locale to i18nexamplebootstrap by running (from the i18nexamplebootstrap directory):
+Before you can start translating messages to another language, add a
+locale for it to the package housing all your translations.
+
+Here we add the `af` locale (for the Afrikaans language) to
+i18nexamplebootstrap by running (from the i18nexamplebootstrap
+directory):
 
 .. code-block:: bash
 
@@ -153,62 +162,50 @@ application:
    reahl compiletranslations
 
 
-Add translated messages for a different component
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Supplying translations to another component
 -------------------------------------------
 
+A component can supply translations for use by another
+component. First, make your component dependent on the one to which it
+supplies translations.
+
+Then, the process is exactly the same as before:
+ - add a `<translations>` package in your component to hold the translated messages;
+ - add the new locale to your new component, stating the catalogue name for which the locale is intended:
+
+ .. code-block:: bash
+
+    reahl addlocale fr theothercomponentcataloguename
+
+ - translate the messages in the text file created; and
+ - compile the messages as usual.
+
 .. warning::
 
-   A Reahl application only supports a given locale if all the
-   components it uses also support that locale. Hence, when adding
-   a new locale that is not supported by Reahl itself, you will have
-   to provide the translations for your new locale for all of the
-   Reahl components as well! Luckily you can do that easily, in your
-   own component.
-
-
-At this point, our example is translatable. That means that anyone can
-make it support a new locale by adding translations of our user
-messages to the natural language of the needed locale. These new
-translations can be added in a totally different component without
-touching the original component at all, but nothing prevents us from
-adding a set of translations in the original component either.
-
-In this example, the latter approach is taken because it keeps
-everything nicely together in a single egg, simplifying our example
-infrastructure somewhat. Whether you choose to provide translations
-inside the original component, or in a different one, the process is
-the same.
-
-If you do provide translations for egg A in egg B, it is advisable to
-let egg B depend on the particular version of egg A for which it
-provides translations. Different versions of egg A may have a
-different set of user messages to translate, meaning different
-versions of your egg B!
-
-Also, you can only provide translations in a component once you have
-notified the Reahl component infrastructure in which package to look
-for language catalogues in your component. Since we have already added
-a ``<translations>`` tag to the `.reahlproject` file of `i18nexample`
-this has already been taken care of.
+   If you add a locale that is not included by Reahl itself, you need
+   to supply translations for all the Reahl components you use.
 
 
 
-Maintaining translations
-~~~~~~~~~~~~~~~~~~~~~~~~
 
-Software keeps changing. Chances are that newer versions of a
-component for which you provide translations may contain a different
-list of user messages than it had in a previous version. When this
-happens the bulk of the messages already translated usually stay
-unchanged, with a change or a new message here and there.
+Updating translations
+---------------------
 
-Running the following command updates all existing translations found
-in the "translations" package of the current component, merging new
-changes into the set of translations you already have::
+When your software changes, the messages used in it also
+change. Extract the new set of original messages as usual:
 
-  reahl mergetranslations
+.. code-block:: bash
+
+   reahl extractmessages
+
+Then update your already-translated list of messages using the new list:
+
+.. code-block:: bash
+
+   reahl mergetranslations
+
+Finally, edit the merged messages to supply translated versions of new
+messages before compiling them as before.
 
 
 

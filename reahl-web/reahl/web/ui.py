@@ -32,7 +32,7 @@ from collections import OrderedDict
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
     Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
@@ -40,7 +40,7 @@ from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 

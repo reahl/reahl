@@ -65,12 +65,12 @@ from reahl.component.exceptions import IsSubclass
 from reahl.component.exceptions import NotYetAvailable
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
                                              Allowed, exposed, Event
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class ValidationException(DomainException):

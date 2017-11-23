@@ -27,12 +27,12 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import json
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 
 from reahl.web.bootstrap.ui import A
 from reahl.web.bootstrap.forms import ButtonStyle, ButtonSize
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class JsObject(object):

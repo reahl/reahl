@@ -26,7 +26,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
 from reahl.component.context import ExecutionContext
 import reahl.web.ui
@@ -35,7 +35,7 @@ from reahl.web.bootstrap.ui import Div, Span, Li, Ul
 from reahl.web.bootstrap.forms import Button, NestedForm, FormLayout, Label
 
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):

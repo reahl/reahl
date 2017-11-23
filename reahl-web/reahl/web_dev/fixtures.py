@@ -29,7 +29,7 @@ from reahl.webdev.tools import DriverBrowser
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 
 from reahl.domain.systemaccountmodel import LoginSession
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import ReahlWSGIApplication, UrlBoundView, UserInterface, Url, Widget
@@ -44,7 +44,7 @@ from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
 
 
-_ = Translator('reahl-webdev')
+_ = Catalogue('reahl-webdev')
 
         
 @stubclass(ReahlWSGIApplication)

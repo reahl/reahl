@@ -23,7 +23,7 @@ import babel.dates
 from reahl.stubble import stubclass, InitMonitor, EmptyStub
 
 from reahl.component.context import ExecutionContext
-from reahl.component.i18n import Translator, SystemWideTranslator
+from reahl.component.i18n import Catalogue, SystemWideCatalogue
 from reahl.component.config import Configuration, ConfigSetting
 
 
@@ -36,11 +36,11 @@ class LocaleContextStub(ExecutionContext):
 
 
 def test_basic_usage():
-    """A Translator for a particular component can translate messages for that component into
+    """A Catalogue for a particular component can translate messages for that component into
        the interface_locale on its current ExecutionContext."""
 
 
-    _ = Translator('reahl-component')  # Will find its translations in the compiled messages of reahl-component
+    _ = Catalogue('reahl-component')  # Will find its translations in the compiled messages of reahl-component
 
     context = LocaleContextStub().install()
 
@@ -58,10 +58,10 @@ def test_basic_usage():
 
 
 def test_formatting():
-    """A Translator can be used to easily obtain the current locale for use
+    """A Catalogue can be used to easily obtain the current locale for use
        by other i18n tools."""
 
-    _ = Translator('reahl-component')
+    _ = Catalogue('reahl-component')
 
     date = datetime.date(2012, 1, 10)
 
@@ -79,13 +79,13 @@ def test_formatting():
 
 
 def test_translator_singleton():
-    """Only one SystemwideTranslator is ever present per process."""
+    """Only one SystemWideCatalogue is ever present per process."""
 
-    SystemWideTranslator.instance = None  # To "reset" the singleton, else its __init__ will NEVER be called in this test
+    SystemWideCatalogue.instance = None  # To "reset" the singleton, else its __init__ will NEVER be called in this test
 
-    with InitMonitor(SystemWideTranslator) as monitor:
-        _ = Translator('reahl-component')
-        _2 = Translator('reahl-component')
+    with InitMonitor(SystemWideCatalogue) as monitor:
+        _ = Catalogue('reahl-component')
+        _2 = Catalogue('reahl-component')
 
         context = LocaleContextStub().install()
 
@@ -99,18 +99,18 @@ def test_translator_singleton():
 
 
 def test_translator_singleton_thread_safety():
-    """The SystemwideTranslator.get_instance() is this thread-safe."""
-    SystemWideTranslator.instance = None  # To "reset" the singleton, else its __init__ will NEVER be called in this test
-    SystemWideTranslator.get_instance().map_lock.acquire()
+    """The SystemWideCatalogue.get_instance() is this thread-safe."""
+    SystemWideCatalogue.instance = None  # To "reset" the singleton, else its __init__ will NEVER be called in this test
+    SystemWideCatalogue.get_instance().map_lock.acquire()
     saved_state = EmptyStub()
     saved_state.lock_released = False
     def release_lock():
-        SystemWideTranslator.get_instance().map_lock.release()
+        SystemWideCatalogue.get_instance().map_lock.release()
         saved_state.lock_released = True
     timer = Timer(.1, release_lock)
     timer.start()
     context = LocaleContextStub().install()
-    _ = Translator('reahl-component')
+    _ = Catalogue('reahl-component')
     _.gettext('test string')
     timer.cancel()
     assert saved_state.lock_released

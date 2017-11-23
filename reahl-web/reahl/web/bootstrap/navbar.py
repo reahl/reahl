@@ -30,13 +30,13 @@ from reahl.component.exceptions import arg_checks, IsInstance, ProgrammerError
 
 from reahl.web.fw import Layout
 from reahl.web.ui import Url, Widget, HTMLWidget, HTMLElement, HTMLAttributeValueOption
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.web.bootstrap.ui import Div, Nav, A, TextNode, Span
 from reahl.web.bootstrap.forms import Form
 import reahl.web.bootstrap.navs
 from reahl.web.bootstrap.grid import Container, DeviceClass
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class CollapseToggle(HTMLElement):

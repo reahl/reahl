@@ -138,7 +138,7 @@ class Example(object):
     def checkout_changes(self):    
         if self.name == 'tutorial.i18nexamplebootstrap':
             changes = CheckoutChanges(self)
-            changes.add_replace_text('Translator(\'reahl-doc\')', 'Translator(\'i18nexamplebootstrap\')')
+            changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'i18nexamplebootstrap\')')
             changes.add_file_rename('reahl-doc.po', 'i18nexamplebootstrap.po')
             changes.add_file_rename('reahl-doc', 'i18nexamplebootstrap')
             return changes        

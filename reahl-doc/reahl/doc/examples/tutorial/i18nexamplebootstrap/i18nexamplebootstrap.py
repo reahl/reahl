@@ -11,13 +11,13 @@ from reahl.web.bootstrap.grid import Container
 from reahl.web.bootstrap.forms import TextInput, Form, FormLayout, Button, ButtonLayout
 from reahl.component.modelinterface import exposed, Field, EmailField, Action, Event
 from reahl.sqlalchemysupport import Session, Base
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from sqlalchemy import Column, Integer, UnicodeText, Date
 import babel.dates
 
 
-# Declare a Translator for your component
-_ = Translator('reahl-doc')
+# Declare a Catalogue for your component
+_ = Catalogue('reahl-doc')
 
 
 class AddressBookPage(HTML5Page):

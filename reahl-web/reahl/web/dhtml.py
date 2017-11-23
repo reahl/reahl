@@ -29,12 +29,12 @@ from bs4 import BeautifulSoup, SoupStrainer
 
 from reahl.component.modelinterface import Field
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import UrlBoundView, FileOnDisk, UserInterface, FileView, CannotCreate
 from reahl.web.ui import LiteralHTML
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 class DJHTMLWidget(LiteralHTML):
     def __init__(self, view, html_content):

@@ -9,9 +9,9 @@ Internationalisation
    `Babel <http://babel.pocoo.org//>`_.
 
 To make it possible to switch languages depending on who is viewing a
-page, you have to instantiate a Translator at the top of a module and
+page, you have to instantiate a Catalogue at the top of a module and
 assign it to the variable named `_`. Each translatable string is then
-marked using a call to the Translator.
+marked using a call to the Catalogue.
 
 Existing tools are used to collect these strings all over your code so
 that humans can translate them.
@@ -55,7 +55,7 @@ Here is the code of the example, with some explanation:
 .. literalinclude:: ../../reahl/doc/examples/features/i18nexample/i18nexample.py
 
 
-Note that the Translator instance is created for the `reahl-doc`
+Note that the Catalogue instance is created for the `reahl-doc`
 component -- the component in which the example resides, and that
 contains its translated messages.
 

@@ -28,7 +28,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.component.exceptions import arg_checks, IsInstance
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import BooleanField, MultiChoiceField, Choice, Field
 
 import reahl.web.ui
@@ -37,7 +37,7 @@ from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Lege
 from reahl.web.bootstrap.grid import ColumnLayout
 
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class Form(reahl.web.ui.Form):

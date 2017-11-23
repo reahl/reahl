@@ -20,9 +20,9 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from sqlalchemy import Column, Integer
 
 from reahl.sqlalchemysupport import Base
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 
-_ = Translator('reahl-domain')
+_ = Catalogue('reahl-domain')
 
 
 class Party(Base):

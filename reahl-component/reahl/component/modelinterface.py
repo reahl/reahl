@@ -34,11 +34,11 @@ import babel.dates
 from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 import collections
 
-_ = Translator('reahl-component')
+_ = Catalogue('reahl-component')
 
 class ConstraintNotFound(Exception):
     pass

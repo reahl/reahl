@@ -24,10 +24,10 @@ import functools
 import wrapt
 import inspect
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 import collections
 
-_ = Translator('reahl-component')
+_ = Catalogue('reahl-component')
 
 class DomainException(Exception):
     """Any exception indicating an application-specific error condition that 

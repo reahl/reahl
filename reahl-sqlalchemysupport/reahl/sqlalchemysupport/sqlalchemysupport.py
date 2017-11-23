@@ -33,7 +33,7 @@ from alembic.migration import MigrationContext
 from alembic.operations import Operations
 from alembic.autogenerate import compare_metadata
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.eggs import ReahlEgg
 from reahl.component.dbutils import ORMControl
 from reahl.component.context import ExecutionContext, NoContextFound
@@ -41,7 +41,7 @@ from reahl.component.modelinterface import Field, IntegerConstraint
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.config import Configuration
 
-_ = Translator('reahl-sqlalchemysupport')
+_ = Catalogue('reahl-sqlalchemysupport')
 
 
 class SqlAlchemyConfig(Configuration):

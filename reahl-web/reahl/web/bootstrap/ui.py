@@ -30,7 +30,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 
 import reahl.web.ui
 from reahl.web.ui import A, Article, Body, Br, Div, Footer, H, Head, Header, Img, \
@@ -40,7 +40,7 @@ from reahl.web.ui import A, Article, Body, Br, Div, Footer, H, Head, Header, Img
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ResponsiveSize
 
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class HTML5Page(reahl.web.ui.HTML5Page):

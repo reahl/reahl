@@ -27,7 +27,7 @@ Widgets (:mod:`reahl.web.bootstrap`).
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Widget
@@ -40,7 +40,7 @@ from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException,\
     AccountManagementInterface
 
-_ = Translator('reahl-domainui')
+_ = Catalogue('reahl-domainui')
 
 
 class TitledWidget(Widget):

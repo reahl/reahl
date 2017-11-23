@@ -28,7 +28,7 @@ import datetime
 from sqlalchemy import Column, Table, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.sqlalchemysupport import Session, PersistedField, Base
 from reahl.component.modelinterface import Action
 from reahl.component.modelinterface import CurrentUser
@@ -37,7 +37,7 @@ from reahl.component.modelinterface import exposed
 from reahl.component.modelinterface import secured
 from reahl.domain.partymodel import Party
 
-_ = Translator('reahl-domain')
+_ = Catalogue('reahl-domain')
 
 class WorkflowInterface(object):
     """An object that @exposes a number of Events that user interface 
