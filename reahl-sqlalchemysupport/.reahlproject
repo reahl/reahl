@@ -12,6 +12,7 @@
 
   <deps purpose="run">
     <egg name="reahl-component"/>
+    <egg name="reahl-commands"/>
     <thirdpartyegg name="sqlalchemy" minversion="0.9.2" maxversion="0.9.999"/>
     <thirdpartyegg name="alembic" minversion="0.6" maxversion="0.6.999"/>
   </deps>

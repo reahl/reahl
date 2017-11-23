@@ -66,7 +66,6 @@ class EggNotFound(Exception):
     pass
 
 
-
 class Git(object):
     def __init__(self, directory):
         self.directory = directory
@@ -1300,7 +1299,7 @@ class Project(object):
             raise NotAValidProjectException(project_filename)
         input_file = io.open(project_filename, 'r')
         try:
-            reader = XMLReader()
+            reader = XMLReader(all_xml_classes)
             project = reader.read_file(input_file, (workspace, directory))
         except (TagNotRegisteredException, ExpatError, InvalidXMLException) as ex:
             raise InvalidProjectFileException(project_filename, ex)
@@ -1697,10 +1696,11 @@ class EggProject(Project):
                          if (not i.is_in_development) and (not i.is_installed) ]
         return [i.as_string_for_egg().replace(' ', '') for i in dependencies]
 
-    def setup(self, setup_command):
+    def setup(self, setup_command, script_name=''):
         with self.paths_set():
             with SetupMonitor() as monitor:
-                distribution = setup(script_args=setup_command,
+                distribution = setup(script_name=script_name,
+                     script_args=setup_command,
                      name=ascii_as_bytes_or_str(self.project_name),
                      version=self.version_for_setup(),
                      description=self.get_description_for(self),
@@ -2125,6 +2125,7 @@ class Workspace(object):
 
         if not append:
             self.projects = ProjectList(self)
+
         self.projects.collect_projects(directories or [self.directory])
         self.selection = ProjectList(self)
         self.save()
@@ -2229,3 +2230,9 @@ class SubstvarsFile(list):
     def items(self):
         return [i for i in self]
 
+all_xml_classes = [MetaInfo, HardcodedMetadata, DebianPackageMetadata, GitSourceControl, Project, \
+                   ChickenProject, EggProject, DebianPackage, SshRepository, PythonSourcePackage, \
+                   PythonWheelPackage, PackageIndex, Dependency, ThirdpartyDependency, XMLDependencyList, \
+                   ExtrasList, EntryPointExport, ScriptExport, NamespaceList, NamespaceEntry, PersistedClassesList, \
+                   OrderedPersistedClass, MigrationList, ConfigurationSpec, ScheduledJobSpec, \
+                   ExcludedPackage, TranslationPackage, ExtraPath, ProjectTag]

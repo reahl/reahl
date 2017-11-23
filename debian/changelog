@@ -32,6 +32,10 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Upgraded Lxml version to 3.8.
  * Changed 'reahl' alias mechanism to not be read from .reahlproject.
  * Merged 'reahl' and 'reahl-control' into a single command.
+ * Removed reahl-bzrsupport as it is not used anymore and simplified other changes.
+ * Changed shelltools to use argparse instead of optparse.
+ * Changed XMLReader to use a passed list of classes instead of discovering them from an entrypoint.
+ * Moved prodshell commands into a new component reahl-commands.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 12 Jun 2016 08:47:00 +0200
 
