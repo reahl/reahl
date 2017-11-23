@@ -91,7 +91,7 @@ before_script:
   - "(reahl build -sdX || (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
 
 script:
-  - "(reahl shell -sdXg -- tox -e $TOX_ENV && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
+  - "(reahl shell -sdXg tox -e $TOX_ENV && (EXITCODE=$?; shred -f $HOME/.gnupg/*; exit $EXITCODE))"
 
 before_deploy:
   - travis/configurePypi.sh
