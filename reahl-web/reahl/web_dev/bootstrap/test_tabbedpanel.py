@@ -79,11 +79,11 @@ def test_basic_rendering(web_fixture):
     expected_html = \
       '''<ul class="nav nav-tabs reahl-menu">'''\
        '''<li class="nav-item">'''\
-       '''<a data-target="#tab_tab1" data-toggle="tab" href="/?tab=tab1" class="active nav-link">tab 1 name</a>'''\
+       '''<a id="nav_tab_tab1_tab" aria-controls="tab_tab1" data-target="#tab_tab1" data-toggle="tab" href="/?tab=tab1" role="tab" class="active nav-link">tab 1 name</a>'''\
        '''</li>'''\
       '''</ul>'''\
       '''<div class="tab-content">'''\
-       '''<div id="tab_tab1" class="active tab-pane"><p>tab 1 content</p></div>'''\
+       '''<div id="tab_tab1" aria-labelledby="nav_tab_tab1_tab" role="tabpanel" class="active tab-pane"><p>tab 1 content</p></div>'''\
       '''</div>'''\
 
     actual = tester.render_html()
@@ -108,14 +108,14 @@ def test_tabs_with_sub_options(web_fixture):
      '''<li class="dropdown nav-item">'''\
       '''<a aria-haspopup="true" data-toggle="dropdown" href="/?open_item=tab+1+name&amp;tab=mult2" role="button" class="active dropdown-toggle nav-link reahl-ajaxlink">tab 1 name</a>'''\
       '''<div class="dropdown-menu">'''\
-       '''<a data-target="#tab_mult1" data-toggle="tab" href="/?tab=mult1" class="dropdown-item">multi tab 1</a>'''\
-       '''<a data-target="#tab_mult2" data-toggle="tab" href="/?tab=mult2" class="active dropdown-item">multi tab 2</a>'''\
+       '''<a id="nav_tab_mult1_tab" aria-controls="tab_mult1" data-target="#tab_mult1" data-toggle="tab" href="/?tab=mult1" role="tab" class="dropdown-item">multi tab 1</a>'''\
+       '''<a id="nav_tab_mult2_tab" aria-controls="tab_mult2" data-target="#tab_mult2" data-toggle="tab" href="/?tab=mult2" role="tab" class="active dropdown-item">multi tab 2</a>'''\
       '''</div>'''\
      '''</li>'''\
     '''</ul>'''\
     '''<div class="tab-content">'''\
-     '''<div id="tab_mult1" class="tab-pane"><p>tab 1/1 content</p></div>'''\
-     '''<div id="tab_mult2" class="active tab-pane"><p>tab 1/2 content</p></div>'''\
+     '''<div id="tab_mult1" aria-labelledby="nav_tab_mult1_tab" role="tabpanel" class="tab-pane"><p>tab 1/1 content</p></div>'''\
+     '''<div id="tab_mult2" aria-labelledby="nav_tab_mult2_tab" role="tabpanel" class="active tab-pane"><p>tab 1/2 content</p></div>'''\
     '''</div>'''
 
     actual = tester.render_html()

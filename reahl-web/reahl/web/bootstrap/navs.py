@@ -237,6 +237,7 @@ class Nav(Menu):
         submenu.a.set_attribute('data-toggle', 'dropdown')
         submenu.a.set_attribute('role', 'button')
         submenu.a.set_attribute('aria-haspopup', 'true')
+        # submenu.a.set_attribute('aria-expanded', 'true') #FYI no need to set this this as it is handled by bootstrap js
 
         li.append_class('drop%s' % ('up' if drop_up else 'down'))
         return submenu

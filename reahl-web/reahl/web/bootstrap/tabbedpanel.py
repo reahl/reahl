@@ -100,7 +100,28 @@ class TabJavaScriptAttributes(DelegatedAttributes):
         super(TabJavaScriptAttributes, self).set_attributes(attributes)
 
         attributes.set_to('data-toggle', self.tab.data_toggle)
-        attributes.set_to('data-target', '#%s' % self.tab.css_id)
+        attributes.set_to('data-target', '#%s' % self.tab.css_id) #TODO: why do we have to set this? according to  https://getbootstrap.com/docs/4.0/components/navs/, we should not need it, yet removing it breaks stuff. "Tab should have either a data-target or an href targeting a container node in the DOM."
+
+
+class TabAriaAttributes(DelegatedAttributes):
+    def __init__(self, tab):
+        super(TabAriaAttributes, self).__init__()
+        self.tab = tab
+
+    def set_attributes(self, attributes):
+        super(TabAriaAttributes, self).set_attributes(attributes)
+        attributes.set_to('aria-controls', '%s' % self.tab.css_id)
+        attributes.set_to('role', 'tab')
+
+
+class TabNavItemAttributes(DelegatedAttributes):
+    def __init__(self, menu_item):
+        super(TabNavItemAttributes, self).__init__()
+        self.menu_item = menu_item
+
+    def set_attributes(self, attributes):
+        super(TabNavItemAttributes, self).set_attributes(attributes)
+        attributes.set_to('aria-labelledby', '%s' % self.menu_item.a.css_id)
 
 
 class Tab(object):
@@ -157,7 +178,10 @@ class Tab(object):
     def add_to_menu(self, menu):
         menu_item = menu.add_bookmark(self.get_bookmark(menu.view))
         menu_item.determine_is_active_using(lambda: self.is_active)
+        menu_item.a.set_css_id('nav_%s_tab' % self.css_id)
         menu_item.a.add_attribute_source(TabJavaScriptAttributes(self))
+        menu_item.a.add_attribute_source(TabAriaAttributes(self))
+        self.menu_item = menu_item
         return menu_item
 
     @property
@@ -168,11 +192,14 @@ class Tab(object):
         return self.add_pane(content_panel, self)
 
     def add_pane(self, content_panel, tab):
+        assert hasattr(tab, 'menu_item'), 'need to add tab to menu first before adding it to a pane'
         div = content_panel.add_child(Div(self.view))
         div.add_child(tab.contents)
         div.append_class('tab-pane')
+        div.set_attribute('role', 'tabpanel')
         div.set_id(tab.css_id)
         div.add_attribute_source(ActiveStateAttributes(tab, active_class='active'))
+        div.add_attribute_source(TabNavItemAttributes(tab.menu_item))
         return div
 
 
@@ -234,4 +261,3 @@ class MultiTab(Tab):
         menu_item = menu.add_dropdown(self.title, self.menu, query_arguments=self.query_arguments)
         menu_item.determine_is_active_using(lambda: self.is_active)
         return menu_item
-
