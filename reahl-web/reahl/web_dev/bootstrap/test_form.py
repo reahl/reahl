@@ -106,6 +106,9 @@ class FormLayoutFixture(Fixture):
         return [element for element in self.get_form_group_children(browser, index=index)
                         if is_error_element(element) and is_visible(element) ]
 
+    def get_label_in_form_group(self, browser, form_group_index=0):
+        return browser.xpath('%s[%s]/div/label' % (self.form_group_xpath, form_group_index+1))
+
 
 @with_fixtures(WebFixture, FormLayoutFixture)
 def test_adding_basic_input(web_fixture, form_layout_fixture):
@@ -153,6 +156,9 @@ def test_grid_form_layouts(web_fixture, form_layout_fixture):
     assert label_column.tag == 'div'
     assert 'col-lg-4' in label_column.attrib['class']
     assert 'column-label' in label_column.attrib['class']
+
+    [label] = fixture.get_label_in_form_group(browser)
+    assert 'col-form-label' in label.attrib['class']
 
     assert input_column.tag == 'div'
     assert 'col-lg-8' in input_column.attrib['class']
