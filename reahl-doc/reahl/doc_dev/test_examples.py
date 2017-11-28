@@ -80,10 +80,10 @@ class ExampleFixture(Fixture):
         return self.web_fixture.driver_browser.execute_script('return window.jQuery("div.carousel-caption:visible p").html() == "%s"' % expected_contents)
 
     def error_is_visible(self):
-        return self.web_fixture.driver_browser.execute_script('return window.jQuery(".reahl-form span.is-invalid").is(":visible")')
+        return self.web_fixture.driver_browser.execute_script('return window.jQuery(".reahl-form span.invalid-feedback").is(":visible")')
 
     def is_error_text(self, text):
-        return text == self.web_fixture.driver_browser.get_text("//form//span[contains(@class,'is-invalid')]")
+        return text == self.web_fixture.driver_browser.get_text("//form//span[contains(@class,'invalid-feedback')]")
 
     def get_text_in_p(self):
         return self.web_fixture.driver_browser.get_text('//p')
@@ -225,7 +225,7 @@ def test_validation(web_fixture, validation_scenario):
     
     web_fixture.driver_browser.type('//input', 'johndoe')
     web_fixture.driver_browser.press_tab()
-    assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
+    assert web_fixture.driver_browser.wait_for(fixture.error_is_visible)
     assert fixture.is_error_text('Email address should be a valid email address') 
     web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation2.png'))
 
