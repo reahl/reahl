@@ -44,6 +44,7 @@ from reahl.web.ui import HTMLAttributeValueOption, StaticColumn, ColGroup, Col, 
 import reahl.web.ui
 from reahl.web.bootstrap.ui import A, Div
 from reahl.web.bootstrap.pagination import PageMenu, PagedPanel, SequentialPageIndex
+from reahl.web.bootstrap.grid import DeviceClass
 
 
 class Table(reahl.web.ui.Table):
@@ -74,20 +75,20 @@ class TableLayout(Layout):
     :keyword compact: If True, make the table more compact by cutting cell padding in half.
     :keyword striped: If True, colour successive rows lighter and darker.
     :keyword highlight_hovered: If True, a row is highlighted when the mouse hovers over it.
-    :keyword responsive: If True, the table will scroll horizontally on smaller devices.
-    :keyword heading_theme: One of 'light' or 'dark'. An light heading is one with light text on a darker background.
+    :keyword responsive_device_class: Set the device class(excluding) up to which the table should scroll horizontal.
+                                      Allowed values : 'xs', 'sm', 'md', 'lg' and 'xl'
+    :keyword heading_theme: One of 'light' or 'dark'. An light heading is one with darker text on a lighter background.
     """
-    def __init__(self,
-                 dark=False, border=False, compact=False,
-                 striped=False, highlight_hovered=False, responsive=False,
-                 heading_theme=None):
+    def __init__(self, dark=False, border=False, compact=False, striped=False, highlight_hovered=False,
+                 responsive_device_class=None, heading_theme=None):
         super(TableLayout, self).__init__()
         self.table_properties = [HTMLAttributeValueOption('dark', dark, prefix='table'),
                                  HTMLAttributeValueOption('striped', striped, prefix='table'),
                                  HTMLAttributeValueOption('bordered', border, prefix='table'),
                                  HTMLAttributeValueOption('hover', highlight_hovered, prefix='table'),
                                  HTMLAttributeValueOption('sm', compact, prefix='table'),
-                                 HTMLAttributeValueOption('responsive', responsive, prefix='table')]
+                                 HTMLAttributeValueOption(responsive_device_class, responsive_device_class is not None, prefix='table-responsive',
+                                                          constrain_value_to=DeviceClass.device_classes)]
         self.heading_theme = HeadingTheme(heading_theme)
 
     def customise_widget(self):

@@ -62,8 +62,8 @@ class LayoutScenarios(Fixture):
 
     @scenario
     def responsive(self):
-        self.layout_kwargs = dict(responsive=True)
-        self.expected_css_class = 'table-responsive'
+        self.layout_kwargs = dict(responsive_device_class='lg')
+        self.expected_css_class = 'table-responsive-lg'
 
 
 @with_fixtures(WebFixture, LayoutScenarios)
