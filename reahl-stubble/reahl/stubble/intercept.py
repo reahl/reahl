@@ -69,7 +69,7 @@ class MonitoredCall(object):
         self.kwargs = kwargs #: The dictionary with keyword arguments passed during the call
 
         
-class CallMonitorBase(object):
+class CallableMonitor(object):
     def __init__(self, obj, method):
         self.obj = obj
         self.method_name = method.__name__
@@ -95,7 +95,7 @@ class CallMonitorBase(object):
         setattr(self.obj, self.method_name, self.original_method)
 
 
-class CallMonitor(CallMonitorBase):
+class CallMonitor(CallableMonitor):
     """The CallMonitor is a context manager which records calls to a single method of an object or class.
        The calls are recorded, but the original method is also executed.
 
@@ -121,7 +121,7 @@ class CallMonitor(CallMonitorBase):
         super(CallMonitor, self).__init__(six.get_method_self(method), method)
 
 
-class InitMonitor(CallMonitorBase):
+class InitMonitor(CallableMonitor):
     """An InitMonitor is like a :class:`reahl.stubble.intercept.CallMonitor`, except it is used to intercept 
        calls to the __init__ of a class. (See :class:`reahl.stubble.intercept.CallMonitor` for attributes.)
     """
@@ -153,7 +153,7 @@ class InitMonitor(CallMonitorBase):
 
 
 @contextmanager
-def replaced(method, replacement):
+def replaced(method, replacement, cls=None):
     """A context manager which replaces the method passed in as `method` with the callable
        in `replacement` for the duration of the managed context.
 
@@ -175,18 +175,15 @@ def replaced(method, replacement):
           assert s.foo(2) == 'yyy'
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
-    if inspect.isfunction(method):
-        raise ValueError('%s should be a method' % method)
-    method_self = six.get_method_self(method)
-    if inspect.ismethod(method) and method_self is not None:
-        target = method_self
+
+    if not inspect.ismethod(method) and not cls:
+        raise ValueError('You have to supply a cls= when stubbing an unbound method')
+    target = cls or six.get_method_self(method)
+
+    if inspect.isfunction(method) or inspect.isbuiltin(method):
+        method_name = method.__name__
     else:
-        #in six.PY3 this code will not be reached - the ValueError above would be raised
-        warnings.warn(
-            'Stubbing by passing in unbound methods is deprecated.',
-            DeprecationWarning)
-        target = method.im_class
-    method_name = six.get_method_function(method).__name__
+        method_name = six.get_method_function(method).__name__
     saved_method = getattr(target, method_name)
     try:
         setattr(target, method_name, replacement)
@@ -196,4 +193,4 @@ def replaced(method, replacement):
 
 
     
-        
+

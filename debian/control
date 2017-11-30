@@ -44,7 +44,6 @@ Description: The component framework of Reahl.
  See http://www.reahl.org/docs/3.2/tutorial/gettingstarted.d.html for 
  installation instructions.
 
-
 Package: python-reahl-commands
 Architecture: all
 Depends: python-setuptools, ${python:Depends}, ${reahl:Depends}
@@ -54,6 +53,20 @@ Description: The component framework of Reahl.
  terms of useful abstractions - using a single programming language.
  .
  Reahl-commands contains useful commandline commands for reahl components.
+ .
+ See http://www.reahl.org/docs/3.2/tutorial/gettingstarted.d.html for 
+ installation instructions.
+
+Package: python-reahl-workstation
+Architecture: all
+Depends: ${python:Depends}, ${reahl:Depends}
+Provides: ${python:Provides}
+Description: Useful commands to ease development.
+ Reahl is a web application framework that allows a Python programmer to work in 
+ terms of useful abstractions - using a single programming language.
+ .
+ Reahl-workstation contains a few utilities that helps to have available
+ on a developer workstation.
  .
  See http://www.reahl.org/docs/3.2/tutorial/gettingstarted.d.html for 
  installation instructions.

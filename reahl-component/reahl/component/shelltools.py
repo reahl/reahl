@@ -21,7 +21,6 @@ import six
 import sys
 import os.path
 import logging
-import re
 import subprocess
 import os
 import distutils
@@ -30,7 +29,7 @@ import argparse
 import shlex
 import shutil
 import textwrap
-import datetime
+import inspect
 
 from reahl.component.config import Configuration, EntryPointClassList
 
@@ -42,14 +41,16 @@ class ExecutableNotInstalledException(Exception):
 
 
 class Executable(object):
-    def __init__(self, name):
+    def __init__(self, name, verbose=False):
         self.name = name
+        self.verbose = verbose
 
     @property
     def executable_file(self):
         return self.which(self.name)
         
     def which(self, program):
+        return program
         #on windows os, some entrypoints installed in the virtualenv
         #need their full path(with extension) to be able to be used as a spawn command.
         #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
@@ -58,12 +59,17 @@ class Executable(object):
             return executable
         raise ExecutableNotInstalledException(program)
 
+    def execute(self, method, commandline_arguments, *args, **kwargs):
+        if self.verbose:
+            print(' '.join([self.executable_file]+commandline_arguments))
+        return method([self.executable_file]+commandline_arguments, *args, **kwargs)
+
     def call(self, commandline_arguments, *args, **kwargs):
-        return subprocess.call([self.executable_file]+commandline_arguments, *args, **kwargs)
+        return self.execute(subprocess.call, commandline_arguments, *args, **kwargs)
     def check_call(self, commandline_arguments, *args, **kwargs):
-        return subprocess.check_call([self.executable_file]+commandline_arguments, *args, **kwargs)
+        return self.execute(subprocess.check_call, commandline_arguments, *args, **kwargs)
     def Popen(self, commandline_arguments, *args, **kwargs):
-        return subprocess.Popen([self.executable_file]+commandline_arguments, *args, **kwargs)
+        return self.execute(subprocess.Popen, commandline_arguments, *args, **kwargs)
 
 
 class CommandNotFound(Exception):
@@ -80,8 +86,12 @@ class Command(object):
     """
     keyword = 'not implemented'
     def __init__(self):
-        self.parser = argparse.ArgumentParser(prog=self.keyword, description=self.__doc__)
+        self.parser = argparse.ArgumentParser(prog=self.keyword, description=self.format_description())
         self.assemble()
+
+    @classmethod
+    def format_description(cls):
+        return cls.__doc__
 
     def assemble(self):
         pass
@@ -126,15 +136,18 @@ class CompositeCommand(Command):
     def commands(self):
         return []
 
-    def command_named(self, name, args):
+    def command_named(self, name):
         for i in self.commands:
             if i.keyword == name:
-                return i()
+                if inspect.isclass(i):
+                    return i()
+                else:
+                    return i
         raise CommandNotFound(name)
 
     def execute(self, args):
         try:
-            command = self.command_named(args.command, args)
+            command = self.command_named(args.command)
         except CommandNotFound:
             out_stream = sys.stdout
             if args.command != 'help-commands':
@@ -150,7 +163,7 @@ class CompositeCommand(Command):
         print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(self.keyword), file=out_stream)
         max_len = max([len(command.keyword) for command in self.commands])
         for command in sorted(self.commands, key=lambda x: x.keyword):
-            self.print_command(command.keyword, command.__doc__, max_len, out_stream)
+            self.print_command(command.keyword, command.format_description(), max_len, out_stream)
 
     def print_command(self, keyword, description, max_len, out_stream):
         keyword_column = ('{0: <%s}  ' % max_len).format(keyword)
