@@ -153,7 +153,7 @@ class InitMonitor(CallableMonitor):
 
 
 @contextmanager
-def replaced(method, replacement, cls=None):
+def replaced(method, replacement, on=None):
     """A context manager which replaces the method passed in as `method` with the callable
        in `replacement` for the duration of the managed context.
 
@@ -176,9 +176,9 @@ def replaced(method, replacement, cls=None):
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
 
-    if not inspect.ismethod(method) and not cls:
-        raise ValueError('You have to supply a cls= when stubbing an unbound method')
-    target = cls or six.get_method_self(method)
+    if not inspect.ismethod(method) and not on:
+        raise ValueError('You have to supply a on= when stubbing an unbound method')
+    target = on or six.get_method_self(method)
 
     if inspect.isfunction(method) or inspect.isbuiltin(method):
         method_name = method.__name__

@@ -23,14 +23,17 @@ import six
 import sys
 import copy
 import pkg_resources
+import contextlib
 
 from reahl.tofu import Fixture, set_up, tear_down, scope, uses
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.context import ExecutionContext
 from reahl.component.dbutils import SystemControl
 from reahl.component.config import StoredConfiguration, ReahlSystemConfig
+from reahl.component.shelltools import Executable
 from reahl.dev.exceptions import CouldNotConfigureServer
 from reahl.tofu.pytestsupport import WithFixtureDecorator
+from reahl.stubble import stubclass, exempt, replaced
 
 
 class ContextAwareFixture(Fixture):
@@ -172,3 +175,58 @@ class ReahlSystemFixture(ContextAwareFixture):
         reahlsystem.debug = True
         return reahlsystem
             
+
+class MonitoredInvocation(object):
+    def __init__(self, method, commandline_arguments, args, kwargs):
+        self.method = method
+        self.commandline_arguments = commandline_arguments
+        self.args = args
+        self.kwargs = kwargs
+
+    @property
+    def argv(self):
+        return self.commandline_arguments
+
+
+@stubclass(Executable)
+class ExecutableStub(Executable):
+    def __init__(self, name='fake executable', stdout=''):
+        super(ExecutableStub, self).__init__(name)
+        self.calls = []
+        self.stdout = stdout
+
+    def __repr__(self):
+        return 'StubExecutable(\'%s\')' % self.name
+    
+    @exempt
+    @property
+    def times_called(self):
+        return len(self.calls)
+
+    def execute(self, method, commandline_arguments, *args, **kwargs):
+        self.calls.append(MonitoredInvocation(method, commandline_arguments, args, kwargs))
+        if self.stdout:
+            out = kwargs.get('stdout', sys.stdout)
+            print(self.stdout, file=out)
+
+    @exempt
+    @contextlib.contextmanager
+    def inserted_as_shim(self):
+        executable = self
+        saved_which = Executable.which
+        def stub_which(self, program):
+            if executable.name == program:
+                return program
+            else:
+                return saved_which(self, program)
+
+        saved_execute = Executable.execute
+        def stub_execute(self, method, commandline_arguments, *args, **kwargs):
+            if executable.name == self.name:
+                return executable.execute(method, commandline_arguments, *args, **kwargs)
+            else:
+                return saved_execute(self, method, commandline_arguments, *args, **kwargs)
+
+        with replaced(Executable.which, stub_which, Executable), replaced(Executable.execute, stub_execute, Executable):
+            yield executable
+    
