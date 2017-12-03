@@ -32,7 +32,7 @@ class NgrokStart(Command):
         env_with_path = dict(os.environ)
         env_with_path['PATH'] += '%s%s' % (os.pathsep, os.path.expanduser(args.path))
         if args.named_tunnel:
-            return Executable('ngrok', verbose=True).check_call(['tcp', '--region=%s' % args.region]+args.named_tunnel, env=env_with_path)
+            return Executable('ngrok', verbose=True).check_call(['start', '--region=%s' % args.region]+args.named_tunnel, env=env_with_path)
         else:
             if args.vagrant:
                 vagrant_ssh_config = VagrantMachine(args.vagrant).get_ssh_config()

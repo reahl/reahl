@@ -227,6 +227,8 @@ class ExecutableStub(Executable):
             else:
                 return saved_execute(self, method, commandline_arguments, *args, **kwargs)
 
+        stub_which.__name__ = 'which'
+        stub_execute.__name__ = 'execute'
         with replaced(Executable.which, stub_which, Executable), replaced(Executable.execute, stub_execute, Executable):
             yield executable
     

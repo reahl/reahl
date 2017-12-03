@@ -10,7 +10,6 @@ from reahl.dev.fixtures import ExecutableStub
 
 
 
-    
 class WhatFixture(Fixture):
     @scenario
     def start(self):
