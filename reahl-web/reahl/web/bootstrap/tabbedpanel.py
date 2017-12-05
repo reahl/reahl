@@ -181,6 +181,7 @@ class Tab(object):
         menu_item.a.set_css_id('nav_%s_tab' % self.css_id)
         menu_item.a.add_attribute_source(TabJavaScriptAttributes(self))
         menu_item.a.add_attribute_source(TabAriaAttributes(self))
+        menu_item.a.add_attribute_source(ActiveStateAttributes(menu_item, attribute_name='aria-selected', active_value='true', inactive_value='false'))
         self.menu_item = menu_item
         return menu_item
 
@@ -198,7 +199,7 @@ class Tab(object):
         div.append_class('tab-pane')
         div.set_attribute('role', 'tabpanel')
         div.set_id(tab.css_id)
-        div.add_attribute_source(ActiveStateAttributes(tab, active_class='active'))
+        div.add_attribute_source(ActiveStateAttributes(tab, active_value='active'))
         div.add_attribute_source(TabNavItemAttributes(tab.menu_item))
         return div
 

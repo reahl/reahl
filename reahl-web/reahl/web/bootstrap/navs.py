@@ -246,7 +246,7 @@ class Nav(Menu):
         li = super(Nav, self).add_html_for_item(item)
         li.append_class('nav-item')
         item.a.append_class('nav-link')
-        item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
+        item.a.add_attribute_source(ActiveStateAttributes(item, active_value='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
 
@@ -333,7 +333,7 @@ class DropdownMenu(Menu):
     def add_html_for_item(self, item):
         self.html_representation.add_child(item.a)
         item.a.append_class('dropdown-item')
-        item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
+        item.a.add_attribute_source(ActiveStateAttributes(item, active_value='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         item.set_html_representation(item.a)
         return item.a

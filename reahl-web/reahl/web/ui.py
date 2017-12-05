@@ -1928,19 +1928,20 @@ class Label(HTMLElement):
 
 
 class ActiveStateAttributes(DelegatedAttributes):
-    def __init__(self, widget, active_class='active', inactive_class=None):
+    def __init__(self, widget, attribute_name='class', active_value='active', inactive_value=None):
         super(ActiveStateAttributes, self).__init__()
         self.widget = widget
-        self.active_class = active_class
-        self.inactive_class = inactive_class
+        self.attribute_name = attribute_name
+        self.active_value = active_value
+        self.inactive_value = inactive_value
 
     def set_attributes(self, attributes):
         super(ActiveStateAttributes, self).set_attributes(attributes)
 
-        if self.widget.is_active and self.active_class:
-            attributes.add_to('class', [self.active_class])
-        elif not self.widget.is_active and self.inactive_class:
-            attributes.add_to('class', [self.inactive_class])
+        if self.widget.is_active and self.active_value:
+            attributes.add_to(self.attribute_name, [self.active_value])
+        elif not self.widget.is_active and self.inactive_value:
+            attributes.add_to(self.attribute_name, [self.inactive_value])
 
 
 class SimpleFileInput(InputTypeInput):
