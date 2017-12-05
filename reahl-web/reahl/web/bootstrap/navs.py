@@ -257,6 +257,7 @@ class ContentAlignment(HTMLAttributeValueOption):
         super(ContentAlignment, self).__init__(name, name is not None, prefix='justify-content',
                                                    constrain_value_to=self.valid_options)
 
+
 class ContentJustification(HTMLAttributeValueOption):
     valid_options = ['fill', 'justified']
 

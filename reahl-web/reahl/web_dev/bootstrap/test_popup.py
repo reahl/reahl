@@ -67,6 +67,10 @@ def test_default_behaviour(web_fixture, popup_a_fixture):
     browser.click(XPath.link_with_text('Home page'))
     browser.wait_for(popup_a_fixture.is_popped_up)
 
+    #check some bootstrap attributes
+    dialog_xpath = "//div[@class='modal fade show' and @tabindex='-1' and @role='dialog']/div[@class='modal-dialog']/div[@class='modal-content']"
+    assert browser.is_element_present(dialog_xpath)
+
     browser.click(XPath.button_labelled('Close'))
     browser.wait_for_not(popup_a_fixture.is_popped_up)
 
