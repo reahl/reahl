@@ -145,6 +145,12 @@ class CompositeCommand(Command):
                     return i
         raise CommandNotFound(name)
 
+    def parse_commandline(self, argv):
+        args = super(CompositeCommand, self).parse_commandline(argv)
+        if argv[1:] and argv[1] == '--':
+            args.command_args.insert(0, '--')
+        return args
+
     def execute(self, args):
         try:
             command = self.command_named(args.command)
