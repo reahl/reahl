@@ -392,7 +392,7 @@ class Setup(ForAllWorkspaceCommand):
         self.parser.add_argument('setup_py_args', nargs=argparse.REMAINDER, help='arguments to setup.py')
 
     def parse_commandline(self, argv):
-        args = super(Setup, self).parse_commandline(['--']+argv)
+        args = super(Setup, self).parse_commandline(argv)
         if args.setup_py_args[0] == '--':
             args.setup_py_args[:] = args.setup_py_args[1:]
         return args
