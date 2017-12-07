@@ -50,7 +50,6 @@ class Executable(object):
         return self.which(self.name)
         
     def which(self, program):
-        return program
         #on windows os, some entrypoints installed in the virtualenv
         #need their full path(with extension) to be able to be used as a spawn command.
         #Python 3 now offers shutil.which() - see also http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
