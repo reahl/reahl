@@ -141,9 +141,9 @@ class CompositeCommand(Command):
                 out_stream = sys.stderr
                 print('No such command: %s' % args.command, file=out_stream)
             self.print_help(out_stream)
-            return -1
+            return 2
             
-        command.do(args.command_args)
+        return command.do(args.command_args)
 
     def print_help(self, out_stream):
         print(self.parser.format_help(), file=out_stream)
@@ -182,8 +182,8 @@ class ReahlCommandline(CompositeCommand):
     @classmethod
     def execute_one(cls):
         """The entry point for running command from the commandline."""
-        return cls(sys.argv[0]).do(sys.argv[1:])
-        
+        exit(cls(sys.argv[0]).do(sys.argv[1:]))
+
     @property
     def aliasses(self):
         return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))

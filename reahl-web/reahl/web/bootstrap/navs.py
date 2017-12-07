@@ -46,7 +46,7 @@ from reahl.component.modelinterface import exposed, Field
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import Layout, Bookmark, Url
 from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidget, HTMLAttributeValueOption
-from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li
+from reahl.web.bootstrap.ui import Div, Span, A, Ul, Li, H
 
 
 class Menu(HTMLWidget):
@@ -235,11 +235,10 @@ class Nav(Menu):
             li.append_class('show')
         submenu.a.append_class('dropdown-toggle')
         submenu.a.set_attribute('data-toggle', 'dropdown')
-        submenu.a.set_attribute('data-target', '-')
         submenu.a.set_attribute('role', 'button')
         submenu.a.set_attribute('aria-haspopup', 'true')
+        # submenu.a.set_attribute('aria-expanded', 'true') #FYI no need to set this this as it is handled by bootstrap js
 
-        submenu.a.add_child(Span(self.view)).append_class('caret')
         li.append_class('drop%s' % ('up' if drop_up else 'down'))
         return submenu
 
@@ -247,7 +246,7 @@ class Nav(Menu):
         li = super(Nav, self).add_html_for_item(item)
         li.append_class('nav-item')
         item.a.append_class('nav-link')
-        item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
+        item.a.add_attribute_source(ActiveStateAttributes(item, active_value='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
 
@@ -257,6 +256,7 @@ class ContentAlignment(HTMLAttributeValueOption):
     def __init__(self, name):
         super(ContentAlignment, self).__init__(name, name is not None, prefix='justify-content',
                                                    constrain_value_to=self.valid_options)
+
 
 class ContentJustification(HTMLAttributeValueOption):
     valid_options = ['fill', 'justified']
@@ -334,10 +334,21 @@ class DropdownMenu(Menu):
     def add_html_for_item(self, item):
         self.html_representation.add_child(item.a)
         item.a.append_class('dropdown-item')
-        item.a.add_attribute_source(ActiveStateAttributes(item, active_class='active'))
+        item.a.add_attribute_source(ActiveStateAttributes(item, active_value='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         item.set_html_representation(item.a)
         return item.a
+
+    def add_form(self, form):
+        self.html_representation.add_child(form)
+        form.append_class('px-4') #padding/margin
+        form.append_class('py-3') #padding/margin
+        return form
+
+    def add_header(self, header):
+        self.html_representation.add_child(header)
+        header.append_class('dropdown-header')
+        return header
 
     def add_divider(self):
         divider = self.html_representation.add_child(Div(self.view))

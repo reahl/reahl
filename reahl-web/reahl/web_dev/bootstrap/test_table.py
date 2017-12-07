@@ -36,9 +36,9 @@ from reahl.web_dev.widgets.test_table import TableFixture
 
 class LayoutScenarios(Fixture):
     @scenario
-    def header_inverse(self):
-        self.layout_kwargs = dict(inverse=True)
-        self.expected_css_class = 'table-inverse'
+    def header_dark(self):
+        self.layout_kwargs = dict(dark=True)
+        self.expected_css_class = 'table-dark'
 
     @scenario
     def border(self):
@@ -62,6 +62,11 @@ class LayoutScenarios(Fixture):
 
     @scenario
     def responsive(self):
+        self.layout_kwargs = dict(responsive='lg')
+        self.expected_css_class = 'table-responsive-lg'
+
+    @scenario
+    def responsive_for_device(self):
         self.layout_kwargs = dict(responsive=True)
         self.expected_css_class = 'table-responsive'
 
@@ -82,14 +87,14 @@ class LayoutHeaderThemeScenarios(WebFixture):
         self.theme = None
 
     @scenario
-    def inverse(self):
-        self.theme = 'inverse'
-        self.expected_css_class = 'thead-inverse'
+    def light(self):
+        self.theme = 'light'
+        self.expected_css_class = 'thead-light'
 
     @scenario
-    def default(self):
-        self.theme = 'default'
-        self.expected_css_class = 'thead-default'
+    def dark(self):
+        self.theme = 'dark'
+        self.expected_css_class = 'thead-dark'
 
 
 @with_fixtures(WebFixture, LayoutHeaderThemeScenarios)

@@ -58,7 +58,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         return $(this.element).find('input[type="file"]');
     },
     getValidationError: function() {
-        return $(this.element).find('span[for="'+this.fileInputName+'"][class~="has-danger"]');
+        return $(this.element).find('span[for="'+this.fileInputName+'"][class~="invalid-feedback"]');
     },
     getNumberOfUploadedFiles: function() {
         return $(this.element).find('li').length;
@@ -69,7 +69,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         this.queuedUploads = [];
         this.uploadInputName = this.getUploadInput().attr('name');
         this.fileInputName = this.getFileInput().attr('name');
-        this.duplicateValidationError = $('<span for="'+this.fileInputName+'" class="has-danger text-help">'+this.options.duplicateValidationErrorMessage+'</span>');
+        this.duplicateValidationError = $('<span for="'+this.fileInputName+'" class="invalid-feedback">'+this.options.duplicateValidationErrorMessage+'</span>');
         this.uploadCounter = 0;
 
         $(this.element).on('click', 'input[name="'+this_.uploadInputName+'"]', function(e){

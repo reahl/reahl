@@ -89,7 +89,7 @@ class NavbarLayout(Layout):
     :param fixed_to: May be one of 'top','bottom' or 'stickytop'.
                     The Navbar will stick to the top or bottom of the viewport.
     :param center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
-    :param colour_theme: Whether the Navbar has a 'light' or 'dark' background.
+    :param colour_theme: Use 'light' for use with light background colors, or 'dark' with dark background colors.
     :param bg_scheme: Whether the Navbar should use 'primary' colors, a 'dark' (light on dark) scheme
                         or a 'light' background.
     """
@@ -195,9 +195,9 @@ class ResponsiveLayout(NavbarLayout):
     :param center_contents: If True, all the contents of the Navbar is centered within the Navbar itself.
     :param toggle_button_alignment: May be None, 'left' or 'right' to indicate where the toggle button is displayed.
     :param collapse_brand_with_content: When set to True, the brand should collapse with the content.
-    :param colour_theme: Whether the Navbar has a 'dark' or 'light' background.
-    :param bg_scheme: Whether the Navbar should use 'primary' colors, an 'inverse' (light on dark) scheme
-                        or a 'faded' background.
+    :param colour_theme: Use 'light' for use with light background colors, or 'dark' with dark background colors.
+    :param bg_scheme: Whether the Navbar should use 'primary' colors, a 'dark' (light on dark) scheme
+                        or a 'light' background.
     :param text: Text to be used on the toggle link. If None, the boostrap navbar-toggler-icon is used.
 
     """

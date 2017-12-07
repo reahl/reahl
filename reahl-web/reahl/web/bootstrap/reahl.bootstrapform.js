@@ -23,8 +23,8 @@
     options: $.extend(true, {}, $.validator.defaults, {
       meta: 'validate',
       errorElement: 'span',
-      errorClass: 'has-danger',
-      validClass: 'has-success',
+      errorClass: 'invalid-feedback',
+      validClass: 'is-valid',
       onclick: function(element, event) {
         // click on selects, radiobuttons and checkboxes
         if ( element.name in this.submitted ) {
@@ -36,13 +36,12 @@
         }
       },
       highlight: function(element) {
-        $(element).closest('.form-group').removeClass('has-success').addClass('has-danger');
+        $(element).closest('.form-control').removeClass('is-valid').addClass('is-invalid');
       },
       unhighlight: function(element) {
-        $(element).closest('.form-group').removeClass('has-danger').addClass('has-success');
+        $(element).closest('.form-control').removeClass('is-invalid').addClass('is-valid');
       },
       errorPlacement: function (error, element) {
-        error.addClass('text-help')
         element.closest('.form-group').append(error);
       }
     }),
