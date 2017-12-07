@@ -83,45 +83,23 @@ class TabbedPanel(Widget):
 
         self.tabs.append(tab)
         tab.add_to_menu(self.nav)
+        tab.add_contents_to(self.content_panel)
 
-        self.add_pane_for(tab)
         return tab
 
-    def add_pane_for(self, tab):
-        return tab.add_contents_to(self.content_panel)
 
-
-class TabJavaScriptAttributes(DelegatedAttributes):
+class TabContentAttributes(DelegatedAttributes):
     def __init__(self, tab):
-        super(TabJavaScriptAttributes, self).__init__()
+        super(TabContentAttributes, self).__init__()
         self.tab = tab
 
     def set_attributes(self, attributes):
-        super(TabJavaScriptAttributes, self).set_attributes(attributes)
+        super(TabContentAttributes, self).set_attributes(attributes)
 
         attributes.set_to('data-toggle', self.tab.data_toggle)
-        attributes.set_to('data-target', '#%s' % self.tab.css_id) #TODO: why do we have to set this? according to  https://getbootstrap.com/docs/4.0/components/navs/, we should not need it, yet removing it breaks stuff. "Tab should have either a data-target or an href targeting a container node in the DOM."
-
-
-class TabAriaAttributes(DelegatedAttributes):
-    def __init__(self, tab):
-        super(TabAriaAttributes, self).__init__()
-        self.tab = tab
-
-    def set_attributes(self, attributes):
-        super(TabAriaAttributes, self).set_attributes(attributes)
+        attributes.set_to('data-target', '#%s' % self.tab.css_id)
         attributes.set_to('aria-controls', '%s' % self.tab.css_id)
         attributes.set_to('role', 'tab')
-
-
-class TabNavItemAttributes(DelegatedAttributes):
-    def __init__(self, menu_item):
-        super(TabNavItemAttributes, self).__init__()
-        self.menu_item = menu_item
-
-    def set_attributes(self, attributes):
-        super(TabNavItemAttributes, self).set_attributes(attributes)
-        attributes.set_to('aria-labelledby', '%s' % self.menu_item.a.css_id)
 
 
 class Tab(object):
@@ -140,6 +118,7 @@ class Tab(object):
         self.contents_factory = contents_factory
         self.view = view
         self.panel = None
+        self.menu_item = None
 
     def get_bookmark(self, view):
         return view.as_bookmark(description=self.title, query_arguments=self.query_arguments)
@@ -179,8 +158,7 @@ class Tab(object):
         menu_item = menu.add_bookmark(self.get_bookmark(menu.view))
         menu_item.determine_is_active_using(lambda: self.is_active)
         menu_item.a.set_css_id('nav_%s_tab' % self.css_id)
-        menu_item.a.add_attribute_source(TabJavaScriptAttributes(self))
-        menu_item.a.add_attribute_source(TabAriaAttributes(self))
+        menu_item.a.add_attribute_source(TabContentAttributes(self))
         menu_item.a.add_attribute_source(ActiveStateAttributes(menu_item, attribute_name='aria-selected', active_value='true', inactive_value='false'))
         self.menu_item = menu_item
         return menu_item
@@ -190,17 +168,17 @@ class Tab(object):
         return 'tab_%s' % self.tab_key
 
     def add_contents_to(self, content_panel):
-        return self.add_pane(content_panel, self)
+        return self.add_contents_of_tab_to(content_panel, self)
 
-    def add_pane(self, content_panel, tab):
-        assert hasattr(tab, 'menu_item'), 'need to add tab to menu first before adding it to a pane'
+    def add_contents_of_tab_to(self, content_panel, tab):
+        assert tab.menu_item, 'add the tab to a menu first before adding its contents'
         div = content_panel.add_child(Div(self.view))
         div.add_child(tab.contents)
         div.append_class('tab-pane')
         div.set_attribute('role', 'tabpanel')
         div.set_id(tab.css_id)
         div.add_attribute_source(ActiveStateAttributes(tab, active_value='active'))
-        div.add_attribute_source(TabNavItemAttributes(tab.menu_item))
+        div.set_attribute('aria-labelledby', '%s' % tab.menu_item.a.css_id)
         return div
 
 
@@ -243,7 +221,7 @@ class MultiTab(Tab):
 
     def add_contents_to(self, content_panel):
         for tab in self.tabs:
-            self.add_pane(content_panel, tab)
+            self.add_contents_of_tab_to(content_panel, tab)
 
     def set_panel(self, tabbed_panel):
         super(MultiTab, self).set_panel(tabbed_panel)

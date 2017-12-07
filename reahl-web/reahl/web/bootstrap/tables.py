@@ -75,19 +75,22 @@ class TableLayout(Layout):
     :keyword compact: If True, make the table more compact by cutting cell padding in half.
     :keyword striped: If True, colour successive rows lighter and darker.
     :keyword highlight_hovered: If True, a row is highlighted when the mouse hovers over it.
-    :keyword responsive: Set to True to activate horizontal scrolling, or set it to the device class(excluding)
-                         up to which the table should scroll horizontal. Allowed values : 'xs', 'sm', 'md', 'lg' and 'xl'
-    :keyword heading_theme: One of 'light' or 'dark'. An light heading is one with darker text on a lighter background.
+    :keyword responsive: If True, activate horizontal scrolling.  If set to a device class activate
+                         horizontal scrolling only for devices smaller than the device class.
+                         Allowed values : 'xs', 'sm', 'md', 'lg' and 'xl'
+    :keyword heading_theme: One of 'light' or 'dark'. A light heading is one with darker text on a lighter background.
     """
     def __init__(self, dark=False, border=False, compact=False, striped=False, highlight_hovered=False,
-                 responsive=None, heading_theme=None):
+                 responsive=False, heading_theme=None):
         super(TableLayout, self).__init__()
-        if responsive is True or False:
-            responsive_attribute_option = HTMLAttributeValueOption('table-responsive', responsive is True)
-        else:
-            responsive_attribute_option = HTMLAttributeValueOption(responsive, responsive is not None,
+
+        if isinstance(responsive, six.string_types):
+            responsive_attribute_option = HTMLAttributeValueOption(responsive, True,
                                                                    prefix='table-responsive',
                                                                    constrain_value_to=DeviceClass.device_classes)
+        else:
+            responsive_attribute_option = HTMLAttributeValueOption('table-responsive', responsive)
+
         self.table_properties = [HTMLAttributeValueOption('dark', dark, prefix='table'),
                                  HTMLAttributeValueOption('striped', striped, prefix='table'),
                                  HTMLAttributeValueOption('bordered', border, prefix='table'),
