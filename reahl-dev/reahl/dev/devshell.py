@@ -224,13 +224,14 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
                     print('\nERROR: Script exited: %s' % ex, file=sys.stderr)
                     retcode = ex.code
                 else:
+                    import pdb; pdb.set_trace()
                     retcode = 0
             except OSError as ex:
                 print('\nERROR: Execution failed: %s' % ex, file=sys.stderr)
                 retcode = ex.errno
             except SetupCommandFailed as ex:
                 print('\nERROR: Execution failed: %s' % ex, file=sys.stderr)
-                retcode = -1
+                retcode = 1
             except (NotVersionedException, NotCheckedInException, MetaInformationNotAvailableException, AlreadyDebianisedException,
                     MetaInformationNotReadableException, UnchangedException, NeedsNewVersionException,
                     NotUploadedException, AlreadyMarkedAsReleasedException,
@@ -246,9 +247,9 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             if isinstance(retcode, six.string_types):
                 print('ERROR: Child was terminated with error message: %s\n' % retcode, file=sys.stderr)
             elif retcode < 0:
-                print('ERROR: Child was terminated by signal %s\n' % -retcode, file=sys.stderr)
+                print('ERROR: Child was terminated by signal %s\n' % retcode, file=sys.stderr)
             elif retcode > 0:
-                print('ERROR: Child returned %s\n' % -retcode, file=sys.stderr)
+                print('ERROR: Child returned %s\n' % retcode, file=sys.stderr)
 
         return retcode
 
@@ -298,7 +299,7 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
 
         if success:
             return 0
-        return -1
+        return 1
 
     def format_individual_message(self, project, args, template):
         return template % project.relative_directory
