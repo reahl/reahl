@@ -32,6 +32,7 @@
   <script name="reahl" locator="reahl.component.shelltools:ReahlCommandline.execute_one"/>
   
   <export entrypoint="reahl.component.commands" name="AddAlias" locator="reahl.component.shelltools:AddAlias"/>
+  <export entrypoint="reahl.component.commands" name="RemoveAlias" locator="reahl.component.shelltools:RemoveAlias"/>
 
   <export entrypoint="reahl.component.databasecontrols" name="NullDatabaseControl" locator="reahl.component.dbutils:NullDatabaseControl"/>
 

@@ -154,9 +154,9 @@ class CompositeCommand(Command):
                 out_stream = sys.stderr
                 print('No such command: %s' % args.command, file=out_stream)
             self.print_help(out_stream)
-            return -1
+            return 2
             
-        command.do(args.command_args)
+        return command.do(args.command_args)
 
     def print_help(self, out_stream):
         print(self.parser.format_help(), file=out_stream)
@@ -195,8 +195,8 @@ class ReahlCommandline(CompositeCommand):
     @classmethod
     def execute_one(cls):
         """The entry point for running command from the commandline."""
-        return cls(sys.argv[0]).do(sys.argv[1:])
-        
+        exit(cls(sys.argv[0]).do(sys.argv[1:]))
+
     @property
     def aliasses(self):
         return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
@@ -225,11 +225,13 @@ class ReahlCommandline(CompositeCommand):
 
 class AddAlias(Command):
     """Adds an alias."""
-    keyword = 'addalias'
+    keyword = 'alias'
     def assemble(self):
-        self.parser.add_argument('-l', '--local', action='store_true', dest='local', help='store the added alias in the current directory')
+        self.parser.add_argument('-l', '--local', action='store_true', dest='local',
+                                 help='store the added alias in the current directory')
         self.parser.add_argument('alias', type=str,  help='what to call this alias')
-        self.parser.add_argument('aliassed_command', nargs=argparse.REMAINDER, help='the command (and arguments) to remember')
+        self.parser.add_argument('aliassed_command', nargs=argparse.REMAINDER,
+                                 help='the command (and arguments) to remember')
 
     def execute(self, args):
         super(AddAlias, self).execute(args)
@@ -238,7 +240,26 @@ class AddAlias(Command):
         alias_file.write()
         return 0
 
-    
+class RemoveAlias(Command):
+    """Removes an alias."""
+    keyword = 'unalias'
+    def assemble(self):
+        self.parser.add_argument('-l', '--local', action='store_true', dest='local',
+                                 help='store the added alias in the current directory')
+        self.parser.add_argument('alias', type=str,  help='which alias to remove')
+
+    def execute(self, args):
+        super(RemoveAlias, self).execute(args)
+        alias_file = AliasFile.get_file(local=args.local)
+        if args.alias in alias_file.aliasses:
+            alias_file.remove_alias(args.alias)
+            alias_file.write()
+            return 0
+        else:
+            print('No such alias: %s' % args.alias)
+            return 1
+
+
 class AliasFile(object):
     @classmethod
     def get_file(cls, local=False):
@@ -254,6 +275,9 @@ class AliasFile(object):
 
     def add_alias(self, name, value):
         self.aliasses[name] = value
+
+    def remove_alias(self, name):
+        del self.aliasses[name]
 
     @property
     def exists(self):

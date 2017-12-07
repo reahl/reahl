@@ -306,8 +306,9 @@ class ChoicesLayout(reahl.web.fw.Layout):
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
         label_widget = Label(self.view)
-        html_input.append_class('form-check-input')
         label_widget.append_class('form-check-label')
+
+        html_input.append_class('form-check-input')
 
         outer_div = Div(self.view)
         outer_div.append_class('form-check')
@@ -344,9 +345,9 @@ class FormLayout(reahl.web.fw.Layout):
         else:
             form_group = self.widget.add_child(Div(self.view))
         form_group.append_class('form-group')
-        form_group.add_attribute_source(reahl.web.ui.ValidationStateAttributes(html_input,
-                                                             error_class='has-danger',
-                                                             success_class='has-success'))
+        html_input.add_attribute_source(reahl.web.ui.ValidationStateAttributes(html_input,
+                                                             error_class='is-invalid',
+                                                             success_class='is-valid'))
         form_group.add_attribute_source(reahl.web.ui.AccessRightAttributes(html_input, disabled_class='disabled'))
         return form_group
 
@@ -355,9 +356,8 @@ class FormLayout(reahl.web.fw.Layout):
 
     def add_validation_error_to(self, form_group, html_input):
         error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
-        error_text.append_class('text-help')
-        error_text.append_class('has-danger')
-        error_text.set_attribute('for', html_input.name)
+        error_text.append_class('invalid-feedback')
+        error_text.set_attribute('for', html_input.name) #need for our custom fileupload js
         error_text.set_attribute('generated', 'true')
         return error_text
 
@@ -400,6 +400,9 @@ class FormLayout(reahl.web.fw.Layout):
 
         if html_input.get_input_status() == 'invalidly_entered':
             self.add_validation_error_to(form_group, html_input)
+            html_input.append_class('is-invalid')
+        if html_input.get_input_status() == 'validly_entered':
+            html_input.append_class('is-valid')
 
         if help_text:
             self.add_help_text_to(form_group, html_input, help_text)
@@ -430,7 +433,6 @@ class GridFormLayout(FormLayout):
     def add_label_to(self, form_group, html_input, hidden):
         column = form_group.layout.columns['label']
         label = super(GridFormLayout, self).add_label_to(column, html_input, hidden)
-        label.append_class('form-control-label')
         label.append_class('col-form-label')
         return label
 
