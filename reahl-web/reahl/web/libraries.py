@@ -158,7 +158,7 @@ class JQuery(Library):
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery-migrate      1.2.1
+     jquery-migrate      1.4.1
      jquery.cookie       1.0
      jquery.validate     1.15.0 (a heavily modified version)
      jquery.ba-bbq       1.2.1
@@ -171,12 +171,12 @@ class JQuery(Library):
         self.files = ['jquery-1.11.2/jquery-1.11.2.js',
                       'jquery-1.11.2/jquery-1.11.2.min.map']
         self.shipped_in_directory = '/reahl/web/static'
-        for i in ['jquery-migrate-1.2.1.js',
+        for i in ['jquery-migrate-1.4.1.js',
                   'jquery.cookie-1.0.js', 
                   'jquery.validate-1.15.0.modified.js',
                   'jquery.ba-bbq-1.2.1.js',
                   'jquery.blockUI-2.70.0.js',
-                  'jquery.form-3.14.js']:
+                  'jquery.form-4.22.js']:
             self.add_shipped_plugin('jquery/%s' % i)
 
     def add_shipped_plugin(self, file_name):
