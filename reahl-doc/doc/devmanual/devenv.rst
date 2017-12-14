@@ -120,20 +120,38 @@ connection to Jane's Vagrant machine.
 From a security point of view, Jane never puts her real workstation at
 risk of tampering by John.
 
+Install reahl-workstation on your development machine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The reahl-workstation component of Reahl is meant to be installed
+separately on your own development workstation. It contains the
+`reahl` commandline and a few commands that are useful for pair
+programming.
+
+If you are on ubuntu install it like this:
+
+.. code-block: bash
+
+   sudo apt-get install python-pip
+   sudo pip install reahl-workstation
+
+(The rest of this text assumed that you have reahl-workstation installed.)
+
+
 Use ngrok to expose the Vagrant machine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We use `ngrok <https://ngrok.com/>`_ to make a local Vagrant machine
 accessible on the Internet to all the tools we use.
 
-Jane must have an account at ngrok, and share her Vagrant box.
+Jane must have an account at ngrok, and share her Vagrant machine.
 
 In order to setup ngrok, download it--our scripts expect its executable
 to be in `~/bin`. Follow the instructions on the ngrok website to
 create an account and save your credentials locally.
 
 To share a locally running Vagrant machine (assuming ngrok is all set
-up), Jane can then run `./scripts/startNgrok.sh` from the root
+up), Jane can then run `reahl ngrok start -V` from the root
 directory of the Reahl source.  This command will provide output in
 the form of a DNS name and port number that the remote party can use
 to access. Make a note of these for use later on.
@@ -158,7 +176,7 @@ impostor. When Jane logs into her Vagrant machine via `vagrant ssh`,
 the various fingerprints belonging to the Vagrant machine are printed
 out in various formats. Jane should send this to John.
 
-John can now ssh as the user called vagrant to the host and port
+John can now ssh as the user called `vagrant` to the host and port
 reported to Jane when she started ngrok. John will be presented with
 one of the fingerprints of the machine he is connecting to. This
 fingerprint should match one of the ones Jane sent earlier. If it
@@ -168,7 +186,8 @@ fingerprint was OK, and not ask again.
 Sharing a terminal with screen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Gnu screen is a program used to share a terminal between two people. It is configured for this use on the Vagrant machine.
+Gnu screen is a program used to share a terminal between two
+people. It is configured for this use on the Vagrant machine.
 
 One user starts a screen session by doing (on the Vagrant machine):
 
@@ -199,29 +218,27 @@ is often very useful NOT to connect to it, because its not very
 interesting to see the tests execute. In some circumstances (such
 as debugging) you *do* however want to see what is going on.
 
-Jane and John need to have xpra installed on their own machines for
-this to work, and John needs to download the `scripts/xpraAttach.sh`
-script from the Reahl repository.
+Jane and John need to have xpra and `reahl-workstation` installed on
+their own machines for this to work.
 
-Jane can connect easily by running (on her own machine, from within
-the root of the Reahl source code): `./scripts/xpraAttach.sh`
+Jane connects by running (on her own machine, from within
+the root of the Reahl source code): `reahl xpra attach -V`
 
-John again connects via ngrok using the machine name and port number
-provided earlier. John needs to specify the remote host and port
-number when running the startXpra script, for example:
+John connects via ngrok using the machine name and port number
+provided earlier:
 
 .. code-block:: bash
 
-   ./scripts/xpraAttach.sh -r 0.tcp.eu.ngrok.io -p 19837 -- --quality=30
+   reahl xpra attach -s vagrant@0.tcp.eu.ngrok.io -p 19837
 
 
 Editing code together
 ~~~~~~~~~~~~~~~~~~~~~
 
-To edit code collaboratively, we use floobits. Floobits is a hosted
-service, which provides plugins for various IDEs to allow such
-collaborative editing from your own IDE. It also allows editing on the
-web.
+To edit code collaboratively, we use `floobits
+<https://floobits.com/>`_. Floobits is a hosted service, which
+provides plugins for various IDEs to allow such collaborative editing
+from your own IDE. It also allows editing on the web.
 
 
 .. [#lts] We develop on the latest LTS version of Ubuntu.

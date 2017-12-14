@@ -93,7 +93,6 @@ the `reahl-web-declarative` component. Diagrammatically this is the scenario:
 
 .. figure:: depinjection.png
    :align: center
-   :width: 90%
 
 Normally, `reahl-web` would merely import the classes it needs from
 `reahl-web-declarative`, but that would make `reahl-web` dependent on
@@ -155,6 +154,7 @@ component. For this reason such an "injected" :class:`~reahl.component.config.Co
 declared with the `automatic=True` keyword argument when created. This
 serves as a marker for the configuration system to allow them to be
 set only later on.
+
 
 
 

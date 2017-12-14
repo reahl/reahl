@@ -3,6 +3,8 @@
 Testing
 =======
 
+TODO: explain all the new fixture stuff
+
 .. sidebar:: Behind the scenes
 
    The Reahl testing tools are mostly wrappers and extensions of other

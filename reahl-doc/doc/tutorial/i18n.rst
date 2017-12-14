@@ -5,8 +5,8 @@
 .. |Catalogue| replace:: :class:`~reahl.component.i18n.Catalogue`
 
 
-Internationalised applications
-==============================
+Multilingual and multi-regional applications
+============================================
 
 .. sidebar:: Examples in this section
 
@@ -25,8 +25,8 @@ language displayed on the user interface. The chosen locale also
 formats the display of dates.
 
 
-Making your component translatable
-----------------------------------
+Make your component translatable
+--------------------------------
 
 
 Add a |Nav| to choose a different locale

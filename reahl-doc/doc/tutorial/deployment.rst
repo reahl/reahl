@@ -3,6 +3,8 @@
 Deploying a production site
 ===========================
 
+TODO: Change this to deploying to python anywhere, keep the harder examples
+
 .. sidebar:: Examples in this section
 
    - tutorial.helloapache

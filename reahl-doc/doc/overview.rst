@@ -16,8 +16,8 @@ start experimenting and working with Reahl.
 To start learning Reahl in earnest, you can work through the :doc:`web
 application tutorial <tutorial/index>`.
 
-.. The :doc:`programmer's guide <devmanual/index>` contains information
-   on how we work and how the internals of Reahl is structured.
+The :doc:`programmer's guide <devmanual/index>` contains information
+on how we work and how the internals of Reahl is structured.
 
 Reference material
 ------------------

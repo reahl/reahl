@@ -24,6 +24,7 @@ Contents:
    web/index
    domain/index
    devtools/index
+   devmanual/index
 
 
 Indices and tables

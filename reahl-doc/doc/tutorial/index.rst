@@ -33,8 +33,8 @@ An address book application
    
 
 
-More stuff
----------------------------
+More interesting user interface variations
+------------------------------------------
 
 .. toctree::
    :maxdepth: 1
@@ -43,19 +43,38 @@ More stuff
    pagelayout
    slots
    parameterised
-   
+   whathappenedtoajax
+
+
+Catering for different users
+----------------------------
+
+.. toctree::
+   :maxdepth: 1
+
    sessions
    loggingin 
    accesscontrol
-   whathappenedtoajax 
 
-   owncomponent 
+Component level considerations
+------------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   owncomponent
+   schemaevolution
+   jobs
    i18n
-   dependencyinjection
-   ownwidget 
+
+Deployment
+----------
+
+.. toctree::
+   :maxdepth: 2
 
    deployment
-   testing
+
 
 
 

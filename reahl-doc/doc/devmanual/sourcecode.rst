@@ -67,10 +67,10 @@ Making sense of code
    plugins to our IDEs while editing code. These are installed outside
    of the Vagrant box.
 
-   We'd love to replace Freemind with something that graphically shows
-   the `_dev` directory structure, and each file or subdirectory in it
-   as a node in the presented outline. This way we won't duplicate
-   information.
+   We'd love to replace Freeplane with something that graphically
+   shows the `_dev` directory structure, and each file or subdirectory
+   in it as a node in the presented outline. This way we won't
+   duplicate information.
 
 We use tests and UML designs to serve as a summary of the requirements
 for a component. These are all located in the `_dev` package of a
@@ -78,12 +78,12 @@ component. In some cases there's also an outline of such requirements
 which serves as table of contents.
 
 Our table of contents is called `contents.mm` and `can be viewed using
-the Freemind mind mapping tool
-<http://freemind.sourceforge.net/wiki/index.php/Main_Page>`_. The
-structure of this outline should resemble the directory structure if
-the `_dev` package.
+the Freeplane mind mapping tool
+<https://sourceforge.net/projects/freeplane/>`_. The structure of this
+outline should resemble the directory structure if the `_dev` package.
 
-Each subdirectory or `test_*.py` file represent some topic. Inside
+Each subdirectory or `test_*.py` file represent some topic in the
+table of contents. Inside
 each test file there are test functions. Each test function has a
 docstring that explains something about that topic. The test expresses
 that "fact" in code and provides more detail.
