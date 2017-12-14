@@ -101,7 +101,8 @@ class Badge(Span):
 
     :param view: (See :class:`reahl.web.fw.Widget`)
     :param message: The message for the badge.
-    :param level: One of 'default', 'primary', 'success', 'info', 'warning', 'danger' to indicate the color scheme to be used for the Badge.
+    :param level: One of 'primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark' to indicate
+                  the color scheme to be used for the Badge.
     :keyword pill: Defaults to False. If set to True the badge will look like a pill.
     """
     def __init__(self, view, message, level, pill=False):

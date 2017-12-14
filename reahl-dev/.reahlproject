@@ -11,6 +11,7 @@
   <deps purpose="run">
     <egg name="reahl-component"/>
     <egg name="reahl-tofu"/> 
+    <egg name="reahl-stubble"/> 
     <thirdpartyegg name="six"/>
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
     <thirdpartyegg name="twine" minversion="1.8.0" maxversion="1.8.9999"/>
@@ -22,8 +23,6 @@
 
   <deps purpose="test">
     <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
-    <egg name="reahl-tofu"/>
-    <egg name="reahl-stubble"/>
   </deps>
 
 

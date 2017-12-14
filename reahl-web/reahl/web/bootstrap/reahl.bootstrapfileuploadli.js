@@ -191,10 +191,11 @@ $.widget('reahl.bootstrapfileuploadli', {
         this.state = 'uploaded';
     },
     changeToFailed: function(errorMessage){
-        var errorLabel = $('<span class="has-danger text-help">'+errorMessage+'</span>');
+        var errorLabel = $('<span class="invalid-feedback">'+errorMessage+'</span>');
         var formGroup = $(this.element).closest('.form-group');
+        var formControl = $(this.element).closest('.form-control');
 
-        formGroup.addClass('has-danger');
+        formControl.addClass('is-invalid');
         if (this.state === 'uploaded' ) {
             formGroup.append(errorLabel);
             this.getRemoveButton().prop('disabled', true);

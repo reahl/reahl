@@ -21,7 +21,6 @@ import six
 import sys
 import os.path
 import logging
-import re
 import subprocess
 import os
 import distutils
@@ -30,7 +29,7 @@ import argparse
 import shlex
 import shutil
 import textwrap
-import datetime
+import inspect
 
 from reahl.component.config import Configuration, EntryPointClassList
 
@@ -42,8 +41,9 @@ class ExecutableNotInstalledException(Exception):
 
 
 class Executable(object):
-    def __init__(self, name):
+    def __init__(self, name, verbose=False):
         self.name = name
+        self.verbose = verbose
 
     @property
     def executable_file(self):
@@ -58,12 +58,17 @@ class Executable(object):
             return executable
         raise ExecutableNotInstalledException(program)
 
+    def execute(self, method, commandline_arguments, *args, **kwargs):
+        if self.verbose:
+            print(' '.join([self.executable_file]+commandline_arguments))
+        return method([self.executable_file]+commandline_arguments, *args, **kwargs)
+
     def call(self, commandline_arguments, *args, **kwargs):
-        return subprocess.call([self.executable_file]+commandline_arguments, *args, **kwargs)
+        return self.execute(subprocess.call, commandline_arguments, *args, **kwargs)
     def check_call(self, commandline_arguments, *args, **kwargs):
-        return subprocess.check_call([self.executable_file]+commandline_arguments, *args, **kwargs)
+        return self.execute(subprocess.check_call, commandline_arguments, *args, **kwargs)
     def Popen(self, commandline_arguments, *args, **kwargs):
-        return subprocess.Popen([self.executable_file]+commandline_arguments, *args, **kwargs)
+        return self.execute(subprocess.Popen, commandline_arguments, *args, **kwargs)
 
 
 class CommandNotFound(Exception):
@@ -80,8 +85,12 @@ class Command(object):
     """
     keyword = 'not implemented'
     def __init__(self):
-        self.parser = argparse.ArgumentParser(prog=self.keyword, description=self.__doc__)
+        self.parser = argparse.ArgumentParser(prog=self.keyword, description=self.format_description())
         self.assemble()
+
+    @classmethod
+    def format_description(cls):
+        return cls.__doc__
 
     def assemble(self):
         pass
@@ -126,31 +135,40 @@ class CompositeCommand(Command):
     def commands(self):
         return []
 
-    def command_named(self, name, args):
+    def command_named(self, name):
         for i in self.commands:
             if i.keyword == name:
-                return i()
+                if inspect.isclass(i):
+                    return i()
+                else:
+                    return i
         raise CommandNotFound(name)
+
+    def parse_commandline(self, argv):
+        args = super(CompositeCommand, self).parse_commandline(argv)
+        if argv[1:] and argv[1] == '--':
+            args.command_args.insert(0, '--')
+        return args
 
     def execute(self, args):
         try:
-            command = self.command_named(args.command, args)
+            command = self.command_named(args.command)
         except CommandNotFound:
             out_stream = sys.stdout
             if args.command != 'help-commands':
                 out_stream = sys.stderr
                 print('No such command: %s' % args.command, file=out_stream)
             self.print_help(out_stream)
-            return -1
+            return 2
             
-        command.do(args.command_args)
+        return command.do(args.command_args)
 
     def print_help(self, out_stream):
         print(self.parser.format_help(), file=out_stream)
         print('\nCommands: ( %s <command> --help for usage on a specific command)\n' % os.path.basename(self.keyword), file=out_stream)
         max_len = max([len(command.keyword) for command in self.commands])
         for command in sorted(self.commands, key=lambda x: x.keyword):
-            self.print_command(command.keyword, command.__doc__, max_len, out_stream)
+            self.print_command(command.keyword, command.format_description(), max_len, out_stream)
 
     def print_command(self, keyword, description, max_len, out_stream):
         keyword_column = ('{0: <%s}  ' % max_len).format(keyword)
@@ -182,11 +200,17 @@ class ReahlCommandline(CompositeCommand):
     @classmethod
     def execute_one(cls):
         """The entry point for running command from the commandline."""
-        return cls(sys.argv[0]).do(sys.argv[1:])
-        
+        exit(cls(sys.argv[0]).do(sys.argv[1:]))
+
     @property
     def aliasses(self):
-        return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
+        if six.PY2:
+            aliasses = {}
+            aliasses.update(AliasFile.get_file(local=True).aliasses)
+            aliasses.update(AliasFile.get_file(local=False).aliasses)
+            return aliasses
+        else:
+            return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
         
     def set_log_level(self, log_level):
         log_level = getattr(logging, log_level)

@@ -1,0 +1,35 @@
+<project type="egg">
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="pytest-runner"/>
+  </deps>
+
+  <deps purpose="run">
+    <thirdpartyegg name="six"/> 
+    <egg name="reahl-component"/>
+  </deps>
+
+  <deps purpose="test">
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <egg name="reahl-tofu"/>
+    <egg name="reahl-stubble"/>
+    <egg name="reahl-dev"/>
+  </deps>
+
+  <export entrypoint="reahl.component.commands" name="Xpra" locator="reahl.workstation.xprasupport:ControlXpra"/>
+  <export entrypoint="reahl.component.commands" name="Ngrok" locator="reahl.workstation.ngroksupport:Ngrok"/>
+
+
+  <distpackage type="wheel">
+    <packageindex repository="pypi"/>
+  </distpackage>
+  <distpackage type="sdist">
+    <packageindex repository="pypi"/>
+  </distpackage>
+
+
+</project>
