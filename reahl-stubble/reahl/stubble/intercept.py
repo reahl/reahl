@@ -176,7 +176,8 @@ def replaced(method, replacement, on=None):
     """
     StubClass.signatures_match(method, replacement, ignore_self=True)
 
-    if not inspect.ismethod(method) and not on:
+    is_unbound_method = six.PY2 and inspect.ismethod(method) and not method.im_self
+    if (not inspect.ismethod(method) or is_unbound_method) and not on:
         raise ValueError('You have to supply a on= when stubbing an unbound method')
     target = on or six.get_method_self(method)
 

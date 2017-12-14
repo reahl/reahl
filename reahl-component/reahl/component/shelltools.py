@@ -204,7 +204,13 @@ class ReahlCommandline(CompositeCommand):
 
     @property
     def aliasses(self):
-        return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
+        if six.PY2:
+            aliasses = {}
+            aliasses.update(AliasFile.get_file(local=True).aliasses)
+            aliasses.update(AliasFile.get_file(local=False).aliasses)
+            return aliasses
+        else:
+            return dict(collections.ChainMap(AliasFile.get_file(local=True).aliasses, AliasFile.get_file(local=False).aliasses))
         
     def set_log_level(self, log_level):
         log_level = getattr(logging, log_level)
