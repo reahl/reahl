@@ -120,38 +120,30 @@ def test_replace():
     and https://mail.python.org/pipermail/python-dev/2005-January/050625.html
     for the rationale.
 
-    If stubble wishes to support them under Python 3, the signature of
-    stubble.replaced will need to change to take the class as a parameter.
-    But since reahl itself does not use this feature, we just deprecate
-    it under Python 2 and make it illegal under Python 3.
-
-    Note that we are only talking about instance methods here, not class
-    methods. Instance methods always require an instance to be called on, so
-    there should always be an instance they can be stubbed on, i.e. by using
-    replaced(instance.method, ...) instead of replaced(someclass.method, ...).
+    To be able to support them under Python3, on= is mandatory.
     """
 
     s = SomethingElse()
     def replacement(self, n, y=None):
         return y
-    if six.PY2:
-        original_method = six.get_method_function(SomethingElse.foo)
 
-        with warnings.catch_warnings(record=True) as raised_warnings:
-            warnings.simplefilter("always")
-            with replaced(SomethingElse.foo, replacement):
-                assert s.foo(1, y='a') == 'a'
-                assert s.foo(2) == None
-                assert six.get_method_function(SomethingElse.foo) is not original_method
-        assert six.get_method_function(SomethingElse.foo) is original_method
+    original_method = six.get_unbound_function(SomethingElse.foo)
 
-        [deprecation] = raised_warnings
-        assert issubclass(deprecation.category, DeprecationWarning)
-    else:
-        with pytest.raises(ValueError):
-            with replaced(SomethingElse.foo, replacement):
-                pass
+    with replaced(SomethingElse.foo, replacement, on=SomethingElse):
+        assert s.foo(1, y='a') == 'a'
+        assert s.foo(2) == None
 
+    restored_method = six.get_unbound_function(SomethingElse.foo)
+    assert restored_method is original_method
+
+    # Case: unbound method (no on= given)
+    s = SomethingElse()
+    def replacement(self, n, y=None):
+        return y
+
+    with pytest.raises(ValueError, message='You have to supply a on= when stubbing an unbound method'):
+        with replaced(SomethingElse.foo, replacement):
+            pass
 
 def test_replacing_functions_is_disallowed():
     """Functions can not be replaced, only methods can."""
