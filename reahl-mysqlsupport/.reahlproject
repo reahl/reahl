@@ -1,0 +1,31 @@
+<project type="egg">
+  <namespaces>
+    <package name="reahl"/>
+  </namespaces>
+  
+  <deps purpose="build">
+    <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
+    <thirdpartyegg name="pytest-runner"/>
+  </deps>
+
+  <deps purpose="run">
+    <egg name="reahl-component"/>
+    <egg name="reahl-commands"/>
+    <thirdpartyegg name="mysqlclient" minversion="1.3" maxversion="1.3.9999"/>
+  </deps>
+
+  <deps purpose="test">
+    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+  </deps>
+
+  <export entrypoint="reahl.component.databasecontrols" name="MysqlControl" locator="reahl.mysqlsupport:MysqlControl"/>
+
+
+  <distpackage type="wheel">
+    <packageindex repository="pypi"/>
+  </distpackage>
+  <distpackage type="sdist">
+    <packageindex repository="pypi"/>
+  </distpackage>
+
+</project>

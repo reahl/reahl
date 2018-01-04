@@ -50,6 +50,12 @@ EOF
 # Setup postgresql user and test database
 sudo /etc/init.d/postgresql start
 sudo su - postgres -c "createuser --superuser $USER"
+sudo mysql -uroot <<EOF
+  CREATE USER $USER@'localhost' IDENTIFIED WITH 'auth_socket';
+  GRANT PROXY on 'root' TO $USER@'localhost' WITH GRANT OPTION;
+  FLUSH PRIVILEGES
+EOF
+
 
 
 
