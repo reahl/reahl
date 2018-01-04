@@ -7,6 +7,7 @@ TODO: Change this to deploying to python anywhere, keep the harder examples
 
 .. sidebar:: Examples in this section
 
+   - tutorial.helloanywhere
    - tutorial.helloapache
    - tutorial.hellonginx
 
@@ -15,6 +16,20 @@ TODO: Change this to deploying to python anywhere, keep the harder examples
    .. code-block:: bash
 
       reahl example <examplename>
+
+The easiest way to run your application is at `PythonAnywhere
+<https://www.pythonanywhere.com/?affiliate_id=0017b17d>`_. See the other examples in this
+section for more options.
+
+
+Your PythonAnywhere account
+---------------------------
+
+Head over to `PythonAnywhere <https://pythonanywhere.com/?affiliate_id=0017b17d>`_ and create
+a free account. The user name you choose for this account will become
+the name of your web application. For example if you use `myname`,
+your app will be on `myname.pythonanywhere.com`.
+
 
 Many things influence the details of how one deploys a web application
 to a production site. Some people have root access to the machine on

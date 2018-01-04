@@ -10,7 +10,7 @@ In order to get an idea of what Reahl is, please :doc:`take a tour of
 its features <features/index>`.  Several defining features are listed
 there, with links to pages with more detail and examples.
 
-The :doc:`Getting started guide <tutorial/gettingstarted>` will enable you to
+The :doc:`Getting started guide <tutorial/gettingstarted-install>` will enable you to
 start experimenting and working with Reahl.
 
 To start learning Reahl in earnest, you can work through the :doc:`web
