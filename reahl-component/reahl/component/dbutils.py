@@ -236,7 +236,13 @@ class DatabaseControl(object):
     def matches_uri(cls, url):
         return re.match(cls.control_matching_regex, url) is not None
 
+    def create_db_user(self, super_user_name=None, create_with_password=True):
+        assert self.user_name, 'No user name in URI %s' % self.connection_uri
 
+    def drop_db_user(self, super_user_name=None):
+        assert self.user_name, 'No user name in URI %s' % self.connection_uri
+
+    
 class NullDatabaseControl(DatabaseControl):
     """A stubbed-out :class:`DatabaseControl` for systems that do not have any database at all."""
     uri_regex_string = r''

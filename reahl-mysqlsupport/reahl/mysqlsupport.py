@@ -46,12 +46,14 @@ class MysqlControl(DatabaseControl):
         return args
 
     def create_db_user(self, super_user_name=None, create_with_password=True):
+        super(MysqlControl, self).create_db_user(super_user_name=super_user_name, create_with_password=create_with_password)
         identified = 'by \'%s\'' % self.password if create_with_password else 'with \'auth_sock\'' 
         Executable('mysql').check_call( self.login_args(login_username=super_user_name)
                                         + ['-e', 'create user %s identified %s;' % (self.user_name, identified)])
         return 0
 
     def drop_db_user(self, super_user_name=None):
+        super(MysqlControl, self).drop_db_user(super_user_name=super_user_name)
         Executable('mysql').check_call( self.login_args(login_username=super_user_name)
                                         + ['-e', 'drop user %s;' % self.user_name])
         return 0
@@ -112,8 +114,8 @@ class MysqlControl(DatabaseControl):
         return 0
 
     def size_database(self, orm_control):
-        sql = '''SELECT  SUM(ROUND(((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024 ), 2)) AS "SIZE IN MB"
+        sql = '''SELECT  SUM(ROUND(((DATA_LENGTH + INDEX_LENGTH) / 1024 ), 2)) AS "SIZE IN kB"
           FROM INFORMATION_SCHEMA.TABLES
           WHERE TABLE_SCHEMA = "%s";''' % self.database_name
         result = orm_control.execute_one(sql)
-        return result[0]
+        return '%s kB' % (result[0] if result[0] else 0)
