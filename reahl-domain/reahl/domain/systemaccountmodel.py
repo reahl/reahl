@@ -480,7 +480,7 @@ class NewPasswordRequest(VerificationRequest):
     __mapper_args__ = {'polymorphic_identity': 'newpasswordrequest'}
     id = Column(Integer, ForeignKey(VerificationRequest.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'),
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id'),
                                nullable=False, primary_key=True, index=True)
     system_account = relationship(SystemAccount)
 
@@ -524,7 +524,7 @@ class ActivateAccount(DeferredAction):
 
     id = Column(Integer, ForeignKey(DeferredAction.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'), index=True)
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
     system_account = relationship(SystemAccount)
 
     def __init__(self, system_account=None, **kwargs):
@@ -546,7 +546,7 @@ class ChangeAccountEmail(DeferredAction):
 
     id = Column(Integer, ForeignKey(DeferredAction.id, ondelete='CASCADE'), primary_key=True)
 
-    system_account_id = Column(Integer, ForeignKey('systemaccount.id', deferrable=True, initially='deferred'), index=True)
+    system_account_id = Column(Integer, ForeignKey('systemaccount.id'), index=True)
     system_account = relationship(SystemAccount)
 
     def __init__(self, system_account, new_email):

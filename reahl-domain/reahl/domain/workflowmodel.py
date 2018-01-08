@@ -124,8 +124,8 @@ class DeferredAction(Base):
         Session.delete(self)
         
     def deadline_expired(self):
-        self.deadline_action()
         self.expire()
+        self.deadline_action()
 
 
 class Requirement(Base):

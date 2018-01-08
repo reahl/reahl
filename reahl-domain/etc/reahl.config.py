@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.sqlalchemysupport import SqlAlchemyControl
 
 reahlsystem.root_egg = 'reahl-domain'
+#reahlsystem.connection_uri = 'mysql:///reahl'
 reahlsystem.connection_uri = 'postgresql:///reahl'
 #reahlsystem.connection_uri = 'sqlite:////tmp/test.db'
 
