@@ -146,4 +146,13 @@ class AddLoginSession(Migration):
         self.schedule('indexes', op.create_index, ix_name('loginsession', 'user_session_id'), 'loginsession', ['user_session_id'])
 
 
+class RemoveDeferrableForeignKeys(Migration):
+    version = '4.0.0a1'
+    def schedule_upgrades(self):
+        #the fk's were defined as DEFERRABLE INITIALLY deferred. Since MySQL does not cater for it, we need to remove it.
+        other_table_name = 'systemaccount'
+        for table_name in ['newpasswordrequest', 'changeaccountemail', 'activateaccount']:
+            self.schedule('drop_fk', op.drop_constraint, fk_name(table_name, 'system_account_id', other_table_name), table_name)
+            self.schedule('create_fk', op.create_foreign_key, fk_name(table_name, 'system_account_id', other_table_name), table_name,
+                          other_table_name , ['system_account_id'], ['id'])
 

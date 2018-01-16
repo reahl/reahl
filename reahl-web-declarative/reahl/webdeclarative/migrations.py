@@ -104,3 +104,4 @@ class AllowNullUserInputValue(Migration):
     def schedule_upgrades(self):
         self.schedule('alter', op.alter_column, 'userinput', 'value', nullable=True)
 
+

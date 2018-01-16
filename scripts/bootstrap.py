@@ -159,14 +159,18 @@ def find_missing_dependencies(workspace):
     return list(missing)
 
 
-def print_final_message():
+def print_final_message(success=True):
     debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-all', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev', 'libmysqlclient-dev']
     general_debs_needed = ['equivs', 'openssh-client', 'dpkg-dev', 'chromium-browser', 'chromium-chromedriver']
 
     print('')
     print('')
-    print('-- ALL DONE --------------------------------------------------------------------------')
-    print('Done. All python dependencies satisfied.')
+    if success:
+      print('-- ALL DONE --------------------------------------------------------------------------')
+      print('Done. All python dependencies satisfied.')
+    else:
+      print('-- ERROR --------------------------------------------------------------------------')
+      print('Something went wrong....please check that all the dependencies listed here are installed:')
     print('')
     print('In order to develop on Reahl, you will need other (non-python) packages as well.')
     print('What these are called may differ depending on your distribution/OS.')
@@ -233,9 +237,10 @@ def ensure_reahl_project_dependencies_installed():
     if missing_dependencies:
         run_setup(workspace, workspace.selection, uninstall=True)
         if install_with_pip(list(set(missing_dependencies).union(find_all_prerequisits_for(core_project_dirs))), upgrade=False) != 0:
-                exit(1)
+            print("Error trying to install one of: " + ','.join(missing_dependencies))
+            return False
         run_setup(workspace, workspace.selection)
-        missing_dependencies = find_missing_dependencies(workspace)
+    return True
 
 
 
@@ -247,8 +252,8 @@ if "--script-dependencies" in sys.argv:
        print('Successfully installed prerequisites - please re-run with --pip-installs')
        
 elif "--pip-installs" in sys.argv:
-   ensure_reahl_project_dependencies_installed()
-   print_final_message()
+   success=ensure_reahl_project_dependencies_installed()
+   print_final_message(success=success)
 else:
    print('Usage: %s [--script-dependencies|--pip-installs]' % sys.argv[0])
    exit(123)

@@ -23,7 +23,7 @@ import re
 import random
 from string import Template
 
-from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
+from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean, Unicode
 from sqlalchemy.orm import relationship
 
 from reahl.sqlalchemysupport import Base, Session, session_scoped
@@ -121,7 +121,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
 
     password_md5 = Column(String(32), nullable=False)
-    email = Column(UnicodeText, nullable=False, unique=True, index=True)
+    email = Column(Unicode(254), nullable=False, unique=True, index=True)
     apache_digest = Column(String(32), nullable=False)
     
     @classmethod
@@ -281,7 +281,7 @@ class AccountManagementInterface(Base):
     """
     __tablename__ = 'accountmanagementinterface'
     id = Column(Integer, primary_key=True)
-    email = Column(UnicodeText, default=None, index=True)
+    email = Column(Unicode(254), default=None, index=True)
 
     stay_logged_in = False
 
@@ -504,7 +504,7 @@ class VerifyEmailRequest(VerificationRequest):
 
     id = Column(Integer, ForeignKey(VerificationRequest.id, ondelete='CASCADE'), primary_key=True)
 
-    email = Column(UnicodeText, nullable=False, unique=True, index=True)
+    email = Column(Unicode(254), nullable=False, unique=True, index=True)
     subject_config = Column(UnicodeText, nullable=False)
     email_config = Column(UnicodeText, nullable=False)
 

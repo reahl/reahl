@@ -187,7 +187,7 @@ class BackupDB(ProductionCommand):
 
 
 class RestoreDB(ProductionCommand):
-    """Restores up the database."""
+    """Restores the database."""
     keyword = 'restoredb'
 
     def assemble(self):

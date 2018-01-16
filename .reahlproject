@@ -21,6 +21,7 @@
     <egg name="reahl-domainui"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-sqlitesupport"/>
+    <egg name="reahl-mysqlsupport"/>
     <egg name="reahl-dev"/>
     <egg name="reahl-webdev"/>
     <egg name="reahl-stubble"/>
@@ -40,7 +41,11 @@
 
   <extras name="postgresql">
     <egg name="reahl-postgresqlsupport"/>
-  </extras>  
+  </extras>
+
+  <extras name="mysql">
+    <egg name="reahl-mysqlsupport"/>
+  </extras>
 
   <extras name="declarative">
     <egg name="reahl-sqlalchemysupport"/>
