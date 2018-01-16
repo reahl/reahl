@@ -16,7 +16,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from alembic import op
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, String, Integer, ForeignKey, UnicodeText, Unicode
 
 from reahl.component.migration import Migration
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
@@ -155,4 +155,11 @@ class RemoveDeferrableForeignKeys(Migration):
             self.schedule('drop_fk', op.drop_constraint, fk_name(table_name, 'system_account_id', other_table_name), table_name)
             self.schedule('create_fk', op.create_foreign_key, fk_name(table_name, 'system_account_id', other_table_name), table_name,
                           other_table_name , ['system_account_id'], ['id'])
+
+
+class ChangeColumnsToBoundedUnicode(Migration):
+    version = '4.0.0a1'
+    def schedule_upgrades(self):
+        for table_name in ['emailandpasswordsystemaccount', 'accountmanagementinterface', 'verifyemailrequest']:
+            self.schedule('alter', op.alter_column, table_name, 'email', existing_type=UnicodeText, type_=Unicode(254))
 
