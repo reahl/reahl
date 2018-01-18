@@ -146,7 +146,7 @@ class AddLoginSession(Migration):
         self.schedule('indexes', op.create_index, ix_name('loginsession', 'user_session_id'), 'loginsession', ['user_session_id'])
 
 
-class RemoveDeferrableForeignKeys(Migration):
+class ChangeSchemaToBeMySqlCompatible(Migration):
     version = '4.0.0a1'
     def schedule_upgrades(self):
         #the fk's were defined as DEFERRABLE INITIALLY deferred. Since MySQL does not cater for it, we need to remove it.
@@ -156,10 +156,10 @@ class RemoveDeferrableForeignKeys(Migration):
             self.schedule('create_fk', op.create_foreign_key, fk_name(table_name, 'system_account_id', other_table_name), table_name,
                           other_table_name , ['system_account_id'], ['id'])
 
-
-class ChangeColumnsToBoundedUnicode(Migration):
-    version = '4.0.0a1'
-    def schedule_upgrades(self):
+        # MySql does not allow unbounded Unicode/UnicodeText to be indexed etc
         for table_name in ['emailandpasswordsystemaccount', 'accountmanagementinterface', 'verifyemailrequest']:
-            self.schedule('alter', op.alter_column, table_name, 'email', existing_type=UnicodeText, type_=Unicode(254))
+            self.schedule('alter', op.alter_column, table_name, 'email', existing_type=UnicodeText, type_=Unicode(254),
+                          existing_nullable=False)
+        self.schedule('alter', op.alter_column, 'queue', 'name', existing_type=UnicodeText, type_=Unicode(120),
+                      existing_nullable=False)
 

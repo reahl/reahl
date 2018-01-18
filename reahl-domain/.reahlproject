@@ -51,8 +51,7 @@
   <migrations>
       <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
       <class locator="reahl.domain.migrations:AddLoginSession"/>
-      <class locator="reahl.domain.migrations:RemoveDeferrableForeignKeys"/>
-      <class locator="reahl.domain.migrations:ChangeColumnsToBoundedUnicode"/>
+      <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>
   </migrations>
 
 
