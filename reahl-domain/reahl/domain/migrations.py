@@ -16,7 +16,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from alembic import op
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, String, Integer, ForeignKey, UnicodeText, Unicode
 
 from reahl.component.migration import Migration
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
@@ -146,4 +146,20 @@ class AddLoginSession(Migration):
         self.schedule('indexes', op.create_index, ix_name('loginsession', 'user_session_id'), 'loginsession', ['user_session_id'])
 
 
+class ChangeSchemaToBeMySqlCompatible(Migration):
+    version = '4.0.0a1'
+    def schedule_upgrades(self):
+        #the fk's were defined as DEFERRABLE INITIALLY deferred. Since MySQL does not cater for it, we need to remove it.
+        other_table_name = 'systemaccount'
+        for table_name in ['newpasswordrequest', 'changeaccountemail', 'activateaccount']:
+            self.schedule('drop_fk', op.drop_constraint, fk_name(table_name, 'system_account_id', other_table_name), table_name)
+            self.schedule('create_fk', op.create_foreign_key, fk_name(table_name, 'system_account_id', other_table_name), table_name,
+                          other_table_name , ['system_account_id'], ['id'])
+
+        # MySql does not allow unbounded Unicode/UnicodeText to be indexed etc
+        for table_name in ['emailandpasswordsystemaccount', 'accountmanagementinterface', 'verifyemailrequest']:
+            self.schedule('alter', op.alter_column, table_name, 'email', existing_type=UnicodeText, type_=Unicode(254),
+                          existing_nullable=False)
+        self.schedule('alter', op.alter_column, 'queue', 'name', existing_type=UnicodeText, type_=Unicode(120),
+                      existing_nullable=False)
 
