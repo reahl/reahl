@@ -4,6 +4,7 @@
     <egg name="reahl-web"/>
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-web-declarative"/>
+    <egg name="reahl-sqlitesupport"/>
   </deps>
 
 
