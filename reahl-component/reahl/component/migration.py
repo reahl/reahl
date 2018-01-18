@@ -20,6 +20,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from pkg_resources import parse_version
 import logging
 import warnings
+import inspect
 
 from reahl.component.exceptions import ProgrammerError
 
@@ -52,6 +53,7 @@ class MigrationRun(object):
             logging.getLogger(__name__).info(message)
             for migration in migration_list:
                 if hasattr(migration, method_name):
+                    logging.getLogger(__name__).info('Scheduling %s for %s' % (method_name, migration))
                     getattr(migration, method_name)()
 
     def execute_migrations(self):
@@ -134,4 +136,9 @@ class Migration(object):
         warnings.warn('Ignoring %s.schedule_upgrades(): it does not override schedule_upgrades() (method name typo perhaps?)' % self.__class__.__name__ , 
                       UserWarning, stacklevel=-1)
 
+    @property
+    def name(self):
+        return '%s.%s' % (inspect.getmodule(self).__name__, self.__class__.__name__)
 
+    def __str__(self):
+        return '%s %s' % (self.name, self.version)

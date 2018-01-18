@@ -27,6 +27,7 @@
     <egg name="reahl-dev"/>
     <egg name="reahl-sqlalchemysupport"/>
     <egg name="reahl-sqlitesupport"/>
+    <egg name="reahl-mysqlsupport"/>
   </deps>
 
   <script name="reahl" locator="reahl.component.shelltools:ReahlCommandline.execute_one"/>

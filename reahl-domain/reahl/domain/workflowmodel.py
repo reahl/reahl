@@ -25,7 +25,7 @@ import six
 
 import datetime
 
-from sqlalchemy import Column, Table, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean
+from sqlalchemy import Column, Table, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean, Unicode
 from sqlalchemy.orm import relationship, backref
 
 from reahl.component.i18n import Catalogue
@@ -124,8 +124,8 @@ class DeferredAction(Base):
         Session.delete(self)
         
     def deadline_expired(self):
-        self.deadline_action()
         self.expire()
+        self.deadline_action()
 
 
 class Requirement(Base):
@@ -159,7 +159,7 @@ class Queue(Base):
     id = Column(Integer, primary_key=True)
 
     tasks = relationship('Task', backref='queue')
-    name = Column(UnicodeText, nullable=False, unique=True, index=True)
+    name = Column(Unicode(120), nullable=False, unique=True, index=True)
 
 
 class Task(Base):

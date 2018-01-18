@@ -43,7 +43,8 @@ addons:
         # - phantomjs  # for reference... not allowed in apt addon
 
 services:
-  - postgresql  
+  - postgresql
+  #- mysql
 
 language: python
 python:

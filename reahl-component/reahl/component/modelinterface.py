@@ -523,7 +523,7 @@ class MinLengthConstraint(ValidationConstraint):
         return six.text_type(self.min_length)
 
     def validate_input(self, unparsed_input):
-        if len(unparsed_input) <  self.min_length:
+        if (unparsed_input is not None) and (len(unparsed_input) <  self.min_length):
             raise self
 
 
@@ -545,7 +545,7 @@ class MaxLengthConstraint(ValidationConstraint):
         return six.text_type(self.max_length)
 
     def validate_input(self, unparsed_input):
-        if len(unparsed_input) > self.max_length:
+        if (unparsed_input is not None) and (len(unparsed_input) > self.max_length):
             raise self
 
 
@@ -681,10 +681,17 @@ class Field(object):
        :param disallowed_message: An error message to be displayed when a user attempts to supply input
                         to this Field when it is not writable for that user. (See `error_message` of
                         :class:`ValidationConstraint`.)
+       :param min_length: The minimum number of characters allowed in the user supplied input.
+       :param max_length: The maximum number of characters allowed in the user supplied input.
+
+       .. versionchanged:: 4.0
+          Added min_length and max_length kwargs.
     """
     entered_input_type = six.text_type
     @arg_checks(readable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)), writable=IsCallable(allow_none=True, args=(NotYetAvailable('field'),)))
-    def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None, disallowed_message=None):
+    def __init__(self, default=None, required=False, required_message=None, label=None,
+                 readable=None, writable=None, disallowed_message=None,
+                 min_length=None, max_length=None):
         self.name = None
         self.storage_object = None
         self.default = default
@@ -694,6 +701,11 @@ class Field(object):
         self.access_rights = AccessRights(readable=readable, writable=writable)
         if required:
             self.make_required(required_message)
+        if min_length:
+            self.add_validation_constraint(MinLengthConstraint(min_length))
+        if max_length:
+            self.add_validation_constraint(MaxLengthConstraint(max_length))
+
         self.clear_user_input()
 
     def validate_default(self):
@@ -1171,7 +1183,7 @@ class EmailField(Field):
     """A Field representing a valid email address. Its parsed value is the given string."""
     def __init__(self, default=None, required=False, required_message=None, label=None, readable=None, writable=None):
         label = label or ''
-        super(EmailField, self).__init__(default, required, required_message, label, readable=readable, writable=writable)
+        super(EmailField, self).__init__(default, required, required_message, label, readable=readable, writable=writable, max_length=254)
         error_message=_('$label should be a valid email address')
         self.add_validation_constraint(PatternConstraint('[^\s]+@[^\s]+\.[^\s]{2,4}', error_message))
 
@@ -1179,11 +1191,9 @@ class EmailField(Field):
 class PasswordField(Field):
     """A Field representing a password. Its parsed value is the given string, but the user is not
        allowed to see its current value."""
-    def __init__(self, default=None, required=False, required_message=None, label=None, writable=None):
+    def __init__(self, default=None, required=False, required_message=None, label=None, writable=None, min_length=6, max_length=20):
         label = label or ''
-        super(PasswordField, self).__init__(default, required, required_message, label, readable=Allowed(False), writable=writable)
-        self.add_validation_constraint(MinLengthConstraint(6))
-        self.add_validation_constraint(MaxLengthConstraint(20))
+        super(PasswordField, self).__init__(default, required, required_message, label, readable=Allowed(False), writable=writable, min_length=min_length, max_length=max_length)
 
 
 class IntegerField(Field):
