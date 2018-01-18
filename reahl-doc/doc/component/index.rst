@@ -14,5 +14,6 @@ Component framework
    General exceptions (reahl.component.exceptions) <exceptions>
 
    Support for PostgreSQL (reahl.postgresqlsupport) <postgresqlsupport>
+   Support for MySQL (reahl.mysqlsupport) <mysqlsupport>
    Support for SQLite (reahl.sqlitesupport) <sqlitesupport>
    Support for SQLAlchemy (reahl.sqlalchemysupport) <sqlalchemysupport>
