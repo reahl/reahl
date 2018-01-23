@@ -29,7 +29,7 @@ from reahl.component.i18n import Translator
 from reahl.web.fw import Bookmark, Url
 from reahl.web.bootstrap.ui import A, Div, P, H
 from reahl.web.bootstrap.forms import Form
-from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout, NavLayout
+from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuAlignmentLayout, NavLayout
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -422,27 +422,48 @@ def test_dropdown_menu_with_form(web_fixture):
     assert 'py-3' in form.get_attribute('class').split()
 
 
-@with_fixtures(WebFixture)
-def test_dropdown_menus_can_drop_up(web_fixture):
-    """Dropdown menus can drop upwards instead of downwards."""
+class DifferentDropPositions(Fixture):
+    @scenario
+    def dropup(self):
+        self.direction = 'dropup'
+        self.expected_class = 'dropup'
+
+    @scenario
+    def dropdown(self):
+        self.direction = 'dropdown'
+        self.expected_class = 'dropdown'
+
+    @scenario
+    def dropleft(self):
+        self.direction = 'dropleft'
+        self.expected_class = 'dropleft'
+
+    @scenario
+    def dropright(self):
+        self.direction = 'dropright'
+        self.expected_class = 'dropright'
+
+
+@with_fixtures(WebFixture, DifferentDropPositions)
+def test_dropdown_menus_drop_positions(web_fixture, drop_position_fixture):
+    """Dropdown menus can drop to many positions."""
 
     menu = Nav(web_fixture.view)
     sub_menu = Nav(web_fixture.view)
-    menu.add_dropdown('Dropdown title', sub_menu, drop_up=True)
+    menu.add_dropdown('Dropdown title', sub_menu, drop_position=drop_position_fixture.direction)
 
     [item] = menu.html_representation.children
 
     assert item.tag_name == 'li'
-    assert 'dropup' in item.get_attribute('class')
+    assert drop_position_fixture.expected_class in item.get_attribute('class')
 
 
 @with_fixtures(WebFixture)
 def test_dropdown_menus_right_align(web_fixture):
     """Dropdown menus can be aligned to the bottom right of their toggle, instead of the default (left)."""
 
-
-    defaulted_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout())
+    defaulted_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuAlignmentLayout())
     assert 'dropdown-menu-right' not in defaulted_sub_menu.html_representation.get_attribute('class')
 
-    right_aligned_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout(align_right=True))
+    right_aligned_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuAlignmentLayout(align_right=True))
     assert 'dropdown-menu-right' in right_aligned_sub_menu.html_representation.get_attribute('class')

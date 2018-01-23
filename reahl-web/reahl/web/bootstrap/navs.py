@@ -211,11 +211,11 @@ class Nav(Menu):
         ul.append_class('nav')
         return ul
     
-    def add_dropdown(self, title, dropdown_menu, drop_up=False, query_arguments={}):
+    def add_dropdown(self, title, dropdown_menu, drop_position='dropdown', query_arguments={}):
         """Adds the dropdown_menu :class:`DropdownMenu` to this Nav. It appears as the
         top-level item with text `title`.
 
-        :keyword drop_up: If True, the dropdown will drop upwards from its item, instead of down.
+        :keyword drop_position: Position relative to the item, where the dropdown should appear.
         :keyword query_arguments: (For internal use)
         """
         if self.open_item == title:
@@ -239,7 +239,7 @@ class Nav(Menu):
         submenu.a.set_attribute('aria-haspopup', 'true')
         # submenu.a.set_attribute('aria-expanded', 'true') #FYI no need to set this this as it is handled by bootstrap js
 
-        li.append_class('drop%s' % ('up' if drop_up else 'down'))
+        li.append_class(DropdownMenuPosition(drop_position).as_html_snippet())
         return submenu
 
     def add_html_for_item(self, item):
@@ -249,6 +249,12 @@ class Nav(Menu):
         item.a.add_attribute_source(ActiveStateAttributes(item, active_value='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
+
+
+class DropdownMenuPosition(HTMLAttributeValueOption):
+    def __init__(self, name):
+        super(DropdownMenuPosition, self).__init__(name, name is not None, constrain_value_to=['dropup', 'dropdown',
+                                                                                               'dropleft', 'dropright'])
 
 
 class ContentAlignment(HTMLAttributeValueOption):
@@ -356,13 +362,13 @@ class DropdownMenu(Menu):
         return divider
 
 
-class DropdownMenuLayout(Layout):
+class DropdownMenuAlignmentLayout(Layout):
     """Changes a DropdownMenu alignment.
 
     :keyword align_right: If True, align the dropdown to the right side of its parent item, else to the left.
     """
     def __init__(self, align_right=False):
-        super(DropdownMenuLayout, self).__init__()
+        super(DropdownMenuAlignmentLayout, self).__init__()
         self.align_right = align_right
 
     def customise_widget(self):
