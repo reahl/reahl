@@ -305,7 +305,8 @@ class ChoicesLayout(reahl.web.fw.Layout):
 
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
-        label_widget = Label(self.view)
+        label_widget = Label(self.view, for_input=html_input)
+        label_widget.insert_child(0, TextNode(self.view, ' '))
         label_widget.append_class('form-check-label')
 
         html_input.append_class('form-check-input')
@@ -314,11 +315,8 @@ class ChoicesLayout(reahl.web.fw.Layout):
         outer_div.append_class('form-check')
         if self.inline:
             outer_div.append_class('form-check-inline')
+        outer_div.add_child(html_input)
         outer_div.add_child(label_widget)
-
-        label_widget.add_child(html_input)
-        label_widget.add_child(TextNode(self.view, ' '))
-        label_widget.add_child(TextNode(self.view, html_input.label))
 
         self.widget.add_child(outer_div)
 
@@ -377,7 +375,7 @@ class FormLayout(reahl.web.fw.Layout):
     def add_label_to(self, form_group, html_input, hidden):
         if isinstance(html_input, RadioButtonSelectInput):
             label = form_group.add_child(Legend(self.view, text=html_input.label))
-            label.append_class('col-form-legend')
+            label.append_class('col-form-label')
         else:
             label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
         if hidden:
