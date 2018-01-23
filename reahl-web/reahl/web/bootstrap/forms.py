@@ -466,17 +466,20 @@ class InputGroup(reahl.web.ui.WrappedInput):
         self.div = self.add_child(Div(self.view))
         self.div.append_class('input-group')
         if prepend:
-            self.add_as_addon(prepend)
+            self.add_as_addon(prepend, prepend=True)
         self.input_widget = self.div.add_child(input_widget)
         if append:
-            self.add_as_addon(append)
+            self.add_as_addon(append, prepend=False)
         self.set_html_representation(self.div)
 
-    def add_as_addon(self, addon):
+    def add_as_addon(self, addon, prepend=True):
         if isinstance(addon, six.string_types):
             span = Span(self.view, text=addon)
         else:
             span = Span(self.view)
             span.add_child(addon)
-        span.append_class('input-group-addon')
+        if prepend:
+            span.append_class('input-group-prepend')
+        else:
+            span.append_class('input-group-append')
         return self.div.add_child(span)
