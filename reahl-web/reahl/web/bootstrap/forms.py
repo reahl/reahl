@@ -377,7 +377,7 @@ class FormLayout(reahl.web.fw.Layout):
             label = form_group.add_child(Legend(self.view, text=html_input.label))
             label.append_class('col-form-label')
         else:
-            label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
+            label = form_group.add_child(Label(self.view, for_input=html_input))
         if hidden:
             label.append_class('sr-only')
         return label
