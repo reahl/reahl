@@ -253,8 +253,8 @@ class Nav(Menu):
 
 class DropdownMenuPosition(HTMLAttributeValueOption):
     def __init__(self, name):
-        super(DropdownMenuPosition, self).__init__(name, name is not None, constrain_value_to=['dropup', 'dropdown',
-                                                                                               'dropleft', 'dropright'])
+        super(DropdownMenuPosition, self).__init__(name, True, constrain_value_to=['dropup', 'dropdown',
+                                                                                   'dropleft', 'dropright'])
 
 
 class ContentAlignment(HTMLAttributeValueOption):
