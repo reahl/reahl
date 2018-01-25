@@ -129,6 +129,10 @@ class SingleChoice(reahl.web.ui.SingleChoice):
     def create_html_widget(self):
         return self.create_button_input()
 
+    @property
+    def html_control(self):
+        return self.html_representation
+
 
 class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
     """An Input that presents either a single checkbox or a list of them, depending on what Field

@@ -47,7 +47,7 @@ from reahl.web.bootstrap.pagination import PageMenu, PagedPanel, SequentialPageI
 from reahl.web.bootstrap.grid import DeviceClass
 
 
-class Table(reahl.web.ui.Table):
+class Table(reahl.web.ui.HTMLWidget):
     """Tabular data displayed as rows broken into columns.
 
        :param view: (See :class:`~reahl.web.fw.Widget`)
@@ -58,8 +58,19 @@ class Table(reahl.web.ui.Table):
 
     """
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
-        super(Table, self).__init__(view, caption_text=caption_text, summary=summary, css_id=css_id)
-        self.append_class('table')
+        super(Table, self).__init__(view)
+        self.responsive_div_wrapper = self.add_child(Div(view, css_id=css_id))
+        self.set_html_representation(self.responsive_div_wrapper)
+        self.table = self.responsive_div_wrapper.add_child(reahl.web.ui.Table(view, caption_text=caption_text, summary=summary))
+        self.table.append_class('table')
+
+    def with_data(self, columns, items):
+        self.table.with_data(columns, items)
+        return self
+
+    @property
+    def thead(self):
+        return self.table.thead
 
 
 class HeadingTheme(HTMLAttributeValueOption):
@@ -85,34 +96,37 @@ class TableLayout(Layout):
         super(TableLayout, self).__init__()
 
         if isinstance(responsive, six.string_types):
-            responsive_attribute_option = HTMLAttributeValueOption(responsive, True,
+            self.responsive_attribute_option = HTMLAttributeValueOption(responsive, True,
                                                                    prefix='table-responsive',
                                                                    constrain_value_to=DeviceClass.device_classes)
         else:
-            responsive_attribute_option = HTMLAttributeValueOption('table-responsive', responsive)
+            self.responsive_attribute_option = HTMLAttributeValueOption('table-responsive', responsive)
 
         self.table_properties = [HTMLAttributeValueOption('dark', dark, prefix='table'),
                                  HTMLAttributeValueOption('striped', striped, prefix='table'),
                                  HTMLAttributeValueOption('bordered', border, prefix='table'),
                                  HTMLAttributeValueOption('hover', highlight_hovered, prefix='table'),
-                                 HTMLAttributeValueOption('sm', compact, prefix='table'),
-                                 responsive_attribute_option]
+                                 HTMLAttributeValueOption('sm', compact, prefix='table')
+                                 ]
 
         self.heading_theme = HeadingTheme(heading_theme)
 
     def customise_widget(self):
         super(TableLayout, self).customise_widget()
 
+        if self.responsive_attribute_option.is_set:
+            self.widget.responsive_div_wrapper.append_class(self.responsive_attribute_option.as_html_snippet())
+
         for table_property in self.table_properties:
             if table_property.is_set:
-                self.widget.append_class(table_property.as_html_snippet())
+                self.widget.table.append_class(table_property.as_html_snippet())
         self.style_heading()
 
     def style_heading(self):
         if self.heading_theme.is_set:
-            if not self.widget.thead:
-                raise ProgrammerError('No Thead found on %s, but you asked to style it using heading_theme' % self.widget)
-            self.widget.thead.append_class('thead-%s' % self.heading_theme.as_html_snippet())
+            if not self.widget.table.thead:
+                raise ProgrammerError('No Thead found on %s, but you asked to style it using heading_theme' % self.widget.table)
+            self.widget.table.thead.append_class('thead-%s' % self.heading_theme.as_html_snippet())
 
 
 class TablePageIndex(SequentialPageIndex):

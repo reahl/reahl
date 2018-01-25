@@ -27,7 +27,9 @@ InputTypeInput -up-|> PrimitiveInput
 TextArea -up-|> PrimitiveInput
 SelectInput -up-|> PrimitiveInput
 Option -up-|> PrimitiveInput
-RadioButton -up-|> PrimitiveInput
+RadioButtonSelectInput -up-|> PrimitiveInput
+CheckboxSelectInput -up-|> PrimitiveInput
 TextInput -up-|> InputTypeInput
+SingleChoice -up-|> InputTypeInput
 
 @enduml

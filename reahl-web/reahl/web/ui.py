@@ -1613,6 +1613,9 @@ class SingleChoice(InputTypeInput):
         label.add_child(TextNode(self.view, self.label))
         return label
 
+    @property
+    def html_control(self):
+        return self.html_representation.children[0]
 
     def create_button_input(self):
         button = super(SingleChoice, self).create_html_widget()
