@@ -29,7 +29,7 @@ from reahl.component.i18n import Translator
 from reahl.web.fw import Bookmark, Url
 from reahl.web.bootstrap.ui import A, Div, P, H
 from reahl.web.bootstrap.forms import Form
-from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuAlignmentLayout, NavLayout
+from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownMenu, DropdownMenuLayout, NavLayout
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -425,22 +425,22 @@ def test_dropdown_menu_with_form(web_fixture):
 class DifferentDropPositions(Fixture):
     @scenario
     def dropup(self):
-        self.direction = 'dropup'
+        self.direction = 'up'
         self.expected_class = 'dropup'
 
     @scenario
     def dropdown(self):
-        self.direction = 'dropdown'
+        self.direction = 'down'
         self.expected_class = 'dropdown'
 
     @scenario
     def dropleft(self):
-        self.direction = 'dropleft'
+        self.direction = 'left'
         self.expected_class = 'dropleft'
 
     @scenario
     def dropright(self):
-        self.direction = 'dropright'
+        self.direction = 'right'
         self.expected_class = 'dropright'
 
 
@@ -462,8 +462,8 @@ def test_dropdown_menus_drop_positions(web_fixture, drop_position_fixture):
 def test_dropdown_menus_right_align(web_fixture):
     """Dropdown menus can be aligned to the bottom right of their toggle, instead of the default (left)."""
 
-    defaulted_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuAlignmentLayout())
+    defaulted_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout())
     assert 'dropdown-menu-right' not in defaulted_sub_menu.html_representation.get_attribute('class')
 
-    right_aligned_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuAlignmentLayout(align_right=True))
+    right_aligned_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout(align_right=True))
     assert 'dropdown-menu-right' in right_aligned_sub_menu.html_representation.get_attribute('class')

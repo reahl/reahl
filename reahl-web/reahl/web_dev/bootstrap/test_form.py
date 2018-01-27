@@ -407,10 +407,8 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
     browser.open('/')
 
     checkbox = XPath.input_labelled('Subscribe to newsletter?')
-    checkbox_id = browser.get_attribute(checkbox.xpath, 'id')
     assert not browser.is_checked(checkbox)
     assert browser.is_element_present(XPath.label_with_text('Subscribe to newsletter?'))
-    assert browser.get_xpath_count('//div/label[@for="%s"]' % checkbox_id) == 1
     assert browser.is_element_present('//div/input/following-sibling::label')
     assert browser.get_attribute('//label', 'class') == 'form-check-label'
     assert browser.get_attribute('//div/input[@type="checkbox"]/..', 'class') == 'form-check'
@@ -419,6 +417,20 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
     browser.check(checkbox)
     browser.click(XPath.button_labelled('Submit'))
 
+    assert browser.is_checked(checkbox)
+
+
+@with_fixtures(WebFixture, CheckboxFixture)
+def test_click_checkbox_label_with_boolean_field(web_fixture, checkbox_fixture):
+    """Clickin on the label of a single checkbox, toggles the checkbox itself."""
+
+    web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=checkbox_fixture.Form.factory()))
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    checkbox = XPath.input_labelled('Subscribe to newsletter?')
+    assert not browser.is_checked(checkbox)
+    browser.click(XPath.label_with_text('Subscribe to newsletter?'))
     assert browser.is_checked(checkbox)
 
 
@@ -478,11 +490,10 @@ def test_choices_layout_applied_to_checkbox(web_fixture, choices_fixture):
     assert 'form-check' in stacked_container.children[0].get_attribute('class').split(' ')
 
     [checkbox_input, label] = stacked_container.children[0].children
-    [spacer, description_widget] = label.children
+    [description_widget] = label.children
     assert label.tag_name == 'label'
 
     assert checkbox_input.input_type == 'checkbox'
-    assert spacer.value == ' '
     assert description_widget.value == 'field'
 
 
@@ -519,9 +530,8 @@ def test_radio_button_basics(radio_button_fixture):
         assert 'form-check' in choice_container.get_attribute('class').split(' ')
         [primitive_radio_button, label] = choice_container.children
         assert label.tag_name == 'label'
-        [text_spacer, choice_text_node] = label.children
+        [choice_text_node] = label.children
         assert primitive_radio_button.value == expected_button_value
-        assert text_spacer.value == ' '
         assert choice_text_node.value == expected_choice_text
 
     check_choice_container_details(choice1_container, 'One', '1')
@@ -538,8 +548,6 @@ def test_radio_button_layout(radio_button_fixture):
 
     choice_container = radio_input.children[0].children[0]
     assert 'form-check-inline' in choice_container.get_attribute('class').split(' ')
-    [input, label] = choice_container.children
-    assert label.get_attribute('for') == input.css_id
 
 
 @with_fixtures(RadioButtonFixture)

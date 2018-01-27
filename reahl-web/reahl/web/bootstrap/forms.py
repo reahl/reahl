@@ -310,7 +310,6 @@ class ChoicesLayout(reahl.web.fw.Layout):
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
         label_widget = Label(self.view, for_input=html_input)
-        label_widget.insert_child(0, TextNode(self.view, ' '))
         label_widget.append_class('form-check-label')
 
         html_input.append_class('form-check-input')
@@ -470,20 +469,17 @@ class InputGroup(reahl.web.ui.WrappedInput):
         self.div = self.add_child(Div(self.view))
         self.div.append_class('input-group')
         if prepend:
-            self.add_as_addon(prepend, prepend=True)
+            self.add_as_addon(prepend, 'prepend')
         self.input_widget = self.div.add_child(input_widget)
         if append:
-            self.add_as_addon(append, prepend=False)
+            self.add_as_addon(append, 'append')
         self.set_html_representation(self.div)
 
-    def add_as_addon(self, addon, prepend=True):
+    def add_as_addon(self, addon, position):
         if isinstance(addon, six.string_types):
             span = Span(self.view, text=addon)
         else:
             span = Span(self.view)
             span.add_child(addon)
-        if prepend:
-            span.append_class('input-group-prepend')
-        else:
-            span.append_class('input-group-append')
+        span.append_class('input-group-%s' % position)
         return self.div.add_child(span)

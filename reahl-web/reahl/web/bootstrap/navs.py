@@ -211,11 +211,11 @@ class Nav(Menu):
         ul.append_class('nav')
         return ul
     
-    def add_dropdown(self, title, dropdown_menu, drop_position='dropdown', query_arguments={}):
+    def add_dropdown(self, title, dropdown_menu, drop_position='down', query_arguments={}):
         """Adds the dropdown_menu :class:`DropdownMenu` to this Nav. It appears as the
         top-level item with text `title`.
 
-        :keyword drop_position: Position relative to the item, where the dropdown should appear.
+        :keyword drop_position: Position relative to the item where the dropdown should appear ('up', 'down', 'left' or 'right').
         :keyword query_arguments: (For internal use)
         """
         if self.open_item == title:
@@ -253,8 +253,8 @@ class Nav(Menu):
 
 class DropdownMenuPosition(HTMLAttributeValueOption):
     def __init__(self, name):
-        super(DropdownMenuPosition, self).__init__(name, True, constrain_value_to=['dropup', 'dropdown',
-                                                                                   'dropleft', 'dropright'])
+        super(DropdownMenuPosition, self).__init__(name, True, prefix='drop', delimiter='',
+                                                   constrain_value_to=['up', 'down', 'left', 'right'])
 
 
 class ContentAlignment(HTMLAttributeValueOption):
@@ -362,13 +362,13 @@ class DropdownMenu(Menu):
         return divider
 
 
-class DropdownMenuAlignmentLayout(Layout):
+class DropdownMenuLayout(Layout):
     """Changes a DropdownMenu alignment.
 
     :keyword align_right: If True, align the dropdown to the right side of its parent item, else to the left.
     """
     def __init__(self, align_right=False):
-        super(DropdownMenuAlignmentLayout, self).__init__()
+        super(DropdownMenuLayout, self).__init__()
         self.align_right = align_right
 
     def customise_widget(self):
