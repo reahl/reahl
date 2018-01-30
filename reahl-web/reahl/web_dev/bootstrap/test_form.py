@@ -336,41 +336,6 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
     assert not fixture.get_form_group_errors(browser, index=0)
 
 
-@uses(web_fixture=WebFixture)
-class DisabledScenarios(Fixture):
-
-    @scenario
-    def disabled_input(self):
-        self.field = Field(writable=lambda field: False)
-        self.expects_disabled_class = True
-
-    @scenario
-    def enabled_input(self):
-        self.field = Field(writable=lambda field: True)
-        self.expects_disabled_class = False
-
-
-@with_fixtures(WebFixture, DisabledScenarios)
-def test_disabled_state(web_fixture, disabled_scenarios):
-    """Visible cues are inserted to indicate that inputs are disabled. """
-    fixture = disabled_scenarios
-
-    form = Form(web_fixture.view, 'test').use_layout(FormLayout())
-    field = fixture.field
-    field.bind('field', fixture)
-
-    form.layout.add_input(TextInput(form, field))
-
-    tester = WidgetTester(form)
-
-    [form_group] = tester.xpath(FormLayoutFixture.form_group_xpath)
-    if fixture.expects_disabled_class:
-        assert 'disabled ' in form_group.attrib['class']
-    else:
-        assert 'disabled' not in form_group.attrib['class']
-
-
-
 class CheckboxFixture(Fixture):
     def new_field(self):
         return BooleanField(label='Subscribe to newsletter?')
@@ -506,6 +471,52 @@ def test_checkbox_with_inline_layout(web_fixture, choices_fixture):
     inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.boolean_field))
 
     assert 'form-check-inline' in inlined_container.children[0].get_attribute('class').split(' ')
+
+
+@uses(web_fixture=WebFixture)
+class DisabledScenarios(Fixture):
+
+    @scenario
+    def disabled_input(self):
+        self.field = Field(writable=lambda field: False)
+        self.expects_disabled_class = True
+
+    @scenario
+    def enabled_input(self):
+        self.field = Field(writable=lambda field: True)
+        self.expects_disabled_class = False
+
+@uses(web_fixture=WebFixture)
+class DisabledScenarios(Fixture):
+
+    @scenario
+    def disabled_input(self):
+        self.field = BooleanField(writable=lambda field: False)
+        self.expects_disabled_class = True
+
+    @scenario
+    def enabled_input(self):
+        self.field = BooleanField(writable=lambda field: True)
+        self.expects_disabled_class = False
+
+
+@with_fixtures(WebFixture, DisabledScenarios)
+def test_choice_disabled_state(web_fixture, disabled_scenarios):
+    """Visible cues are inserted to indicate that inputs are disabled. """
+    fixture = disabled_scenarios
+
+    form = Form(web_fixture.view, 'test')
+    field = fixture.field
+    field.bind('field', fixture)
+
+    inlined_container = Div(web_fixture.view).use_layout(ChoicesLayout())
+    inlined_container.layout.add_choice(PrimitiveCheckboxInput(form, field))
+
+    form_check = inlined_container.children[0]
+    if fixture.expects_disabled_class:
+        assert 'disabled' in form_check.get_attribute('class').split(' ')
+    else:
+        assert 'disabled' not in form_check.get_attribute('class').split(' ')
 
 
 class RadioButtonFixture(ChoicesFixture):

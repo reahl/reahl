@@ -316,6 +316,9 @@ class ChoicesLayout(reahl.web.fw.Layout):
 
         outer_div = Div(self.view)
         outer_div.append_class('form-check')
+        if not html_input.can_write():
+            outer_div.append_class('disabled')
+
         if self.inline:
             outer_div.append_class('form-check-inline')
         outer_div.add_child(html_input)
@@ -349,7 +352,6 @@ class FormLayout(reahl.web.fw.Layout):
         html_input.add_attribute_source(reahl.web.ui.ValidationStateAttributes(html_input,
                                                              error_class='is-invalid',
                                                              success_class='is-valid'))
-        form_group.add_attribute_source(reahl.web.ui.AccessRightAttributes(html_input, disabled_class='disabled'))
         return form_group
 
     def add_input_to(self, parent_element, html_input):
