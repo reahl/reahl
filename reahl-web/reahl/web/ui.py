@@ -1545,6 +1545,8 @@ class Option(PrimitiveInput):
         option.set_attribute('value', self.value)
         if self.selected:
             option.set_attribute('selected', 'selected')
+        if not self.choice.field.can_write():
+            option.set_attribute('disabled', 'disabled')
         return option
 
 
@@ -1622,6 +1624,8 @@ class SingleChoice(InputTypeInput):
         button = super(SingleChoice, self).create_html_widget()
         if self.checked:
             button.set_attribute('checked', 'checked')
+        if not self.choice.field.can_write():
+            button.set_attribute('disabled', 'disabled')
         return button
 
     @property

@@ -443,6 +443,11 @@ class XPath(object):
         return cls('//caption[node()="%s"]' % (text))
 
     @classmethod
+    def option_with_text(cls, text):
+        """Returns an XPath to find an HTML <option> containing the text in `text`."""
+        return cls('//option[node()="%s"]' % (text))
+
+    @classmethod
     def table_with_summary(cls, text):
         """Returns an XPath to find an HTML <table summary='...'> matching the text in `text` in its summary attribute value."""
         return cls('//table[@summary="%s"]' % (text))

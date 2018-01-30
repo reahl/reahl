@@ -509,6 +509,38 @@ def test_checkbox_input_restricted_to_use_with_boolean(web_fixture):
         CheckboxInput(form, not_a_boolean_field)
 
 
+class ManyChoicesScenarios(Fixture):
+    @scenario
+    def checkbox_select_input(self):
+        self.input_type = CheckboxSelectInput
+        self.xpath_function_to_choice = XPath.input_labelled
+
+    @scenario
+    def select_input(self):
+        self.input_type = SelectInput
+        self.xpath_function_to_choice = XPath.option_with_text
+
+
+@with_fixtures(WebFixture, SimpleInputFixture2, ManyChoicesScenarios)
+def test_choices_disabled(web_fixture, checkbox_fixture, choice_type_scenario):
+    """A choice that is not writable renders as disabled."""
+
+    fixture = checkbox_fixture
+    choices = [Choice(1, IntegerField(label='One')),
+               Choice(2, IntegerField(label='Two', writable=Allowed(False)))]
+    fixture.field = MultiChoiceField(choices)
+
+    model_object = fixture.model_object
+    model_object.an_attribute = [1]
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.new_Form(input_widget_class=choice_type_scenario.input_type).factory('myform'))
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    assert web_fixture.driver_browser.is_element_enabled(choice_type_scenario.xpath_function_to_choice('One'))
+    assert not web_fixture.driver_browser.is_element_enabled(choice_type_scenario.xpath_function_to_choice('Two'))
+
+
+
 class FuzzyTextInputFixture(SimpleInputFixture2):
     def new_field(self, label='the label'):
         return DateField(label=label)
