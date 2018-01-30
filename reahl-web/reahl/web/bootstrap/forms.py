@@ -479,9 +479,9 @@ class InputGroup(reahl.web.ui.WrappedInput):
 
     def add_as_addon(self, addon, position):
         if isinstance(addon, six.string_types):
-            span = Span(self.view, text=addon)
-        else:
-            span = Span(self.view)
-            span.add_child(addon)
+            addon = Span(self.view, text=addon)
+        span = Span(self.view)
+        span.add_child(addon)
         span.append_class('input-group-%s' % position)
+        addon.append_class('input-group-text')
         return self.div.add_child(span)
