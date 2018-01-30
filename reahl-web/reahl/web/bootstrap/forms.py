@@ -462,9 +462,9 @@ class InlineFormLayout(FormLayout):
 class InputGroup(reahl.web.ui.WrappedInput):
     """A composition of an Input with something preceding and/or following it.
 
-    :param prepend: A :class:`~reahl.web.fw.Widget` to prepend to the :class:`~reahl.web.ui.Input`.
+    :param prepend: A :class:`~reahl.web.fw.Widget` or text to prepend to the :class:`~reahl.web.ui.Input`.
     :param input_widget: The :class:`~reahl.web.ui.Input` to use.
-    :param append: A :class:`~reahl.web.fw.Widget` to append to the :class:`~reahl.web.ui.Input`.
+    :param append: A :class:`~reahl.web.fw.Widget` or text to append to the :class:`~reahl.web.ui.Input`.
     """
     def __init__(self, prepend, input_widget, append):
         super(InputGroup, self).__init__(input_widget)
