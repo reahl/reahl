@@ -59,9 +59,9 @@ class Table(reahl.web.ui.HTMLWidget):
     """
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
         super(Table, self).__init__(view)
-        self.responsive_div_wrapper = self.add_child(Div(view, css_id=css_id))
-        self.set_html_representation(self.responsive_div_wrapper)
-        self.table = self.responsive_div_wrapper.add_child(reahl.web.ui.Table(view, caption_text=caption_text, summary=summary))
+        self.main_div = self.add_child(Div(view, css_id=css_id))
+        self.set_html_representation(self.main_div)
+        self.table = self.main_div.add_child(reahl.web.ui.Table(view, caption_text=caption_text, summary=summary))
         self.table.append_class('table')
 
     def with_data(self, columns, items):
@@ -115,7 +115,7 @@ class TableLayout(Layout):
         super(TableLayout, self).customise_widget()
 
         if self.responsive_attribute_option.is_set:
-            self.widget.responsive_div_wrapper.append_class(self.responsive_attribute_option.as_html_snippet())
+            self.widget.main_div.append_class(self.responsive_attribute_option.as_html_snippet())
 
         for table_property in self.table_properties:
             if table_property.is_set:
