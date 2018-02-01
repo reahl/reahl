@@ -1346,11 +1346,11 @@ class WrappedInput(Input):
 
 class PrimitiveInput(Input):
     is_for_file = False
-    registers_with_form = True
 
-    def __init__(self, form, bound_field, name=None):
+    def __init__(self, form, bound_field, name=None, registers_with_form=True):
         super(PrimitiveInput, self).__init__(form, bound_field)
         self.name = name
+        self.registers_with_form = registers_with_form
         if self.registers_with_form:
             self.name = form.register_input(self) # bound_field must be set for this registration to work
             self.prepare_input()
@@ -1438,10 +1438,10 @@ class PrimitiveInput(Input):
 
 
 class InputTypeInput(PrimitiveInput):
-    render_value_attribute = True
-    def __init__(self, form, bound_field, input_type, name=None):
+    def __init__(self, form, bound_field, input_type, name=None, registers_with_form=True, render_value_attribute=True):
         self.input_type = input_type
-        super(InputTypeInput, self).__init__(form, bound_field, name=name)
+        self.render_value_attribute = render_value_attribute
+        super(InputTypeInput, self).__init__(form, bound_field, name=name, registers_with_form=registers_with_form)
 
     def create_html_widget(self):
         html_widget = super(InputTypeInput, self).create_html_widget()
@@ -1518,11 +1518,10 @@ class TextArea(PrimitiveInput):
 
 
 class Option(PrimitiveInput):
-    registers_with_form = False
     def __init__(self, select_input, choice):
         self.choice = choice
         self.select_input = select_input
-        super(Option, self).__init__(select_input.form, choice.field)
+        super(Option, self).__init__(select_input.form, choice.field, registers_with_form=False)
 
     @property
     def selected(self):
@@ -1625,13 +1624,12 @@ class SelectInput(PrimitiveInput):
 
 
 class SingleChoice(InputTypeInput):
-    registers_with_form = False
-
     def __init__(self, containing_input, choice):
         self.choice = choice
         self.containing_input = containing_input
         super(SingleChoice, self).__init__(containing_input.form, choice.field,
-                                           self.containing_input.choice_type, name=containing_input.name)
+                                           self.containing_input.choice_type, name=containing_input.name,
+                                           registers_with_form=False)
 
     def create_html_widget(self):
         label = Label(self.view)
@@ -1787,9 +1785,8 @@ class PasswordInput(InputTypeInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
-    render_value_attribute = False
     def __init__(self, form, bound_field):
-        super(PasswordInput, self).__init__(form, bound_field, 'password')
+        super(PasswordInput, self).__init__(form, bound_field, 'password', render_value_attribute=False)
 
 
 class CheckboxInput(InputTypeInput):
@@ -1802,10 +1799,9 @@ class CheckboxInput(InputTypeInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
-    render_value_attribute = False
     @arg_checks(bound_field=IsInstance(BooleanField))
     def __init__(self, form, bound_field):
-        super(CheckboxInput, self).__init__(form, bound_field, 'checkbox')
+        super(CheckboxInput, self).__init__(form, bound_field, 'checkbox', render_value_attribute=False)
 
     def create_html_widget(self):
         checkbox_widget = super(CheckboxInput, self).create_html_widget()
