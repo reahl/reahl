@@ -289,6 +289,7 @@ class NavLayout(Layout):
         super(NavLayout, self).customise_widget()
         if self.key:
             self.widget.append_class(self.additional_css_class)
+            self.widget.set_attribute('role', 'tablist')
         if self.content_alignment.is_set:
             self.widget.append_class(self.content_alignment.as_html_snippet())
         if self.content_justification.is_set:
