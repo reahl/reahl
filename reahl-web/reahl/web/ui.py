@@ -1522,19 +1522,11 @@ class Option(PrimitiveInput):
     def __init__(self, select_input, choice):
         self.choice = choice
         self.select_input = select_input
-        super(Option, self).__init__(select_input.form, select_input.bound_field)
-
-    @property
-    def label(self):
-        return self.choice.label
-
-    @property
-    def value(self):
-        return self.choice.as_input()
+        super(Option, self).__init__(select_input.form, choice.field)
 
     @property
     def selected(self):
-        if self.bound_field.allows_multiple_selections:
+        if self.select_input.bound_field.allows_multiple_selections:
             return self.value in self.select_input.value
         else:
             return self.value == self.select_input.value
@@ -1545,9 +1537,40 @@ class Option(PrimitiveInput):
         option.set_attribute('value', self.value)
         if self.selected:
             option.set_attribute('selected', 'selected')
-        if not self.choice.field.can_write():
+        if self.disabled:
             option.set_attribute('disabled', 'disabled')
         return option
+
+    def get_input_status(self):
+        return 'defaulted'
+
+    @property
+    def validation_error(self):
+        return self.select_input.validation_error
+
+    def validate_input(self, input_values):
+        return self.select_input.validate_input(input_values)
+
+    def format_input(self, input_values):
+        return self.select_input.format_input(input_values)
+
+    def accept_input(self, input_values):
+        return self.select_input.format_input(input_values)
+
+    def get_ocurred_event(self):
+        return self.select_input.get_ocurred_event()
+
+    def get_value_from_input(self, input_values):
+        return self.select_input.get_value_from_input(input_values)
+
+    def prepare_input(self):
+        return self.select_input.prepare_input()
+
+    def persist_input(self, input_values):
+        return self.select_input.persist_input(input_values)
+
+    def enter_value(self, input_value):
+        return self.select_input.enter_value(input_value)
 
 
 class OptGroup(HTMLElement):
@@ -1607,7 +1630,7 @@ class SingleChoice(InputTypeInput):
     def __init__(self, containing_input, choice):
         self.choice = choice
         self.containing_input = containing_input
-        super(SingleChoice, self).__init__(containing_input.form, containing_input.bound_field,
+        super(SingleChoice, self).__init__(containing_input.form, choice.field,
                                            self.containing_input.choice_type, name=containing_input.name)
 
     def create_html_widget(self):
@@ -1624,21 +1647,45 @@ class SingleChoice(InputTypeInput):
         button = super(SingleChoice, self).create_html_widget()
         if self.checked:
             button.set_attribute('checked', 'checked')
-        if not self.choice.field.can_write():
-            button.set_attribute('disabled', 'disabled')
         return button
-
-    @property
-    def label(self):
-        return self.choice.label
-
-    @property
-    def value(self):
-        return self.choice.as_input()
 
     @property
     def checked(self):
         return self.containing_input.is_choice_selected(self.value)
+
+    def get_input_status(self):
+        return 'defaulted'
+
+    @property
+    def validation_error(self):
+        return self.containing_input.validation_error
+
+    def validation_constraints_to_render(self):
+        return ValidationConstraintList([constraint for constraint in self.containing_input.bound_field.validation_constraints if constraint.name])
+
+    def validate_input(self, input_values):
+        return self.containing_input.validate_input(input_values)
+
+    def format_input(self, input_values):
+        return self.containing_input.format_input(input_values)
+
+    def accept_input(self, input_values):
+        return self.containing_input.format_input(input_values)
+
+    def get_ocurred_event(self):
+        return self.containing_input.get_ocurred_event()
+
+    def get_value_from_input(self, input_values):
+        return self.containing_input.get_value_from_input(input_values)
+
+    def prepare_input(self):
+        return self.containing_input.prepare_input()
+
+    def persist_input(self, input_values):
+        return self.containing_input.persist_input(input_values)
+
+    def enter_value(self, input_value):
+        return self.containing_input.enter_value(input_value)
 
 
 class RadioButtonSelectInput(PrimitiveInput):
