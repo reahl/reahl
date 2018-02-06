@@ -73,8 +73,18 @@ class CheckCheckboxScript(JsFunction):
         super(CheckCheckboxScript, self).__init__(body_text=body_text)
 
 
+class JsBooleanOption(object):
+    def __init__(self, attribute_name, boolean_value=False):
+        self.attribute_name = attribute_name
+        self.boolean_value = boolean_value
+
+    def as_html_snippet(self):
+        return '%s: %s' % (self.attribute_name, 'true' if self.boolean_value else 'false')
+
+
 class PopupA(A):
-    def __init__(self, view, target_bookmark, show_for_selector, dismiss_label=None, close_button=True, css_id=None):
+    def __init__(self, view, target_bookmark, show_for_selector, dismiss_label=None, close_button=True,
+                 center_vertically=False, css_id=None):
         super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
         self.set_title(target_bookmark.description)
         self.title = target_bookmark.description
@@ -82,6 +92,7 @@ class PopupA(A):
         self.show_for_selector = show_for_selector
         self.buttons = JsObject()
         self.dismiss_label = dismiss_label
+        self.center_vertically = JsBooleanOption('center_vertically', center_vertically)
         if dismiss_label is None:
             self.dismiss_label = _('Close')
         if close_button:
@@ -104,7 +115,8 @@ class PopupA(A):
 
     def get_js(self, context=None):
         selector = self.contextualise_selector(self.jquery_selector, context)
-        return ['$(%s).bootstrappopupa({showForSelector: "%s", buttons: %s, title: "%s", dismiss_label: "%s" });' % \
-              (selector, self.show_for_selector, self.buttons_as_jquery(), self.title, self.dismiss_label)]
+        return ['$(%s).bootstrappopupa({showForSelector: "%s", buttons: %s, title: "%s", dismiss_label: "%s", %s });' % \
+              (selector, self.show_for_selector, self.buttons_as_jquery(), self.title,
+               self.dismiss_label, self.center_vertically.as_html_snippet())]
 
 

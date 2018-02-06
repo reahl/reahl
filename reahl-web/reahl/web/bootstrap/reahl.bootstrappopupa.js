@@ -26,14 +26,19 @@ $.widget("reahl.bootstrappopupa", {
         showForSelector: 'body',
         title: '',
         dismiss_label: '',
+        center_vertically: false,
     },
     _create: function() {
         var o = this.options;
         var this_ = this;
         this.element.addClass("reahl-bootstrappopupa");
+        var modal_dialog_class = 'modal-dialog';
+        if(o.center_vertically){
+           modal_dialog_class += ' modal-dialog-centered';
+        };
 
         this_.$dialog = $("<div class='modal fade' tabindex='-1' role='dialog'> "+
-                        "  <div class='modal-dialog' role='document'>"+
+                        "  <div class='"+modal_dialog_class+"' role='document'>"+
                         "    <div class='modal-content'>"+
                         "      <div class='modal-header'>"+
                         "        <h4 class='modal-title'>"+o.title+"</h4>"+
