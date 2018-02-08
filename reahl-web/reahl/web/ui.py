@@ -1437,30 +1437,29 @@ class PrimitiveInput(Input):
             self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value, self.bound_field.entered_input_type)
 
 
-
-class InputTypeInput(PrimitiveInput):
-    def __init__(self, form, bound_field, input_type, name=None, registers_with_form=True, render_value_attribute=True):
+class HTMLInputElement(HTMLElement):
+    def __init__(self, input_widget, input_type, render_value_attribute=True):
         self.input_type = input_type
         self.render_value_attribute = render_value_attribute
-        super(InputTypeInput, self).__init__(form, bound_field, name=name, registers_with_form=registers_with_form)
+        super(HTMLInputElement, self).__init__(input_widget.view, 'input')
+        self.set_attributes(input_widget)
 
-    def create_html_widget(self):
-        html_widget = HTMLElement(self.view, 'input')
-        if self.name:
-            html_widget.set_attribute('name', self.name)
-        if self.disabled:
-            html_widget.set_attribute('disabled', 'disabled')
-        html_widget.set_attribute('type', self.input_type)
-        html_widget.set_attribute('form', self.form.css_id)
+    def set_attributes(self, input_widget):
+        if input_widget.name:
+            self.set_attribute('name', input_widget.name)
+        if input_widget.disabled:
+            self.set_attribute('disabled', 'disabled')
+        self.set_attribute('type', self.input_type)
+        self.set_attribute('form', input_widget.form.css_id)
         if self.render_value_attribute:
-            html_widget.set_attribute('value', self.value)
-        self.add_validation_constraints_to(html_widget)
-        return html_widget
+            self.set_attribute('value', input_widget.value)
+        self.add_validation_constraints_from(input_widget)
+        return input_widget
 
-    def validation_constraints_to_render(self):
-        return ValidationConstraintList([constraint for constraint in self.validation_constraints if constraint.name])
+    def validation_constraints_to_render(self, input_widget):
+        return ValidationConstraintList([constraint for constraint in input_widget.validation_constraints if constraint.name])
 
-    def add_validation_constraints_to(self, html_widget):
+    def add_validation_constraints_from(self, input_widget):
         html5_validations = ['pattern', 'required', 'maxlength', 'minlength', 'accept', 'minvalue', 'maxvalue']
 
         def jquery_rule_attribute_name_for(validation_constraint):
@@ -1470,19 +1469,19 @@ class InputTypeInput(PrimitiveInput):
 
         def jquery_validate_parameters_for(validation_constraint):
             if validation_constraint.is_remote:
-                return six.text_type(self.form.field_validator.get_url())
+                return six.text_type(input_widget.form.field_validator.get_url())
             elif validation_constraint.name in html5_validations:
                 return validation_constraint.parameters
             return validation_constraint.parameters or 'true'
 
-        for validation_constraint in self.validation_constraints_to_render():
-            html_widget.set_attribute(jquery_rule_attribute_name_for(validation_constraint),
+        for validation_constraint in self.validation_constraints_to_render(input_widget):
+            self.set_attribute(jquery_rule_attribute_name_for(validation_constraint),
                                       jquery_validate_parameters_for(validation_constraint))
             if not validation_constraint.is_remote:
                 validation_message_name = 'data-msg-%s' % validation_constraint.name
-                html_widget.set_attribute(validation_message_name, validation_constraint.message)
+                self.set_attribute(validation_message_name, validation_constraint.message)
             if validation_constraint.name == 'pattern':
-                html_widget.set_attribute('title', html_escape(validation_constraint.message))
+                self.set_attribute('title', html_escape(validation_constraint.message))
 
 
 class TextArea(PrimitiveInput):
@@ -1628,13 +1627,17 @@ class SelectInput(PrimitiveInput):
             return super(SelectInput, self).get_value_from_input(input_values)
 
 
-class SingleChoice(InputTypeInput):
+class SingleChoice(PrimitiveInput):
     def __init__(self, containing_input, choice):
         self.choice = choice
         self.containing_input = containing_input
         super(SingleChoice, self).__init__(containing_input.form, choice.field,
-                                           self.containing_input.choice_type, name=containing_input.name,
+                                           name=containing_input.name,
                                            registers_with_form=False)
+
+    @property
+    def html_control(self):
+        return self.html_representation.children[0]
 
     def create_html_widget(self):
         label = Label(self.view)
@@ -1642,12 +1645,8 @@ class SingleChoice(InputTypeInput):
         label.add_child(TextNode(self.view, self.label))
         return label
 
-    @property
-    def html_control(self):
-        return self.html_representation.children[0]
-
     def create_button_input(self):
-        button = super(SingleChoice, self).create_html_widget()
+        button = HTMLInputElement(self, self.containing_input.choice_type)
         if self.checked:
             button.set_attribute('checked', 'checked')
         return button
@@ -1743,7 +1742,7 @@ class RadioButtonSelectInput(PrimitiveInput):
 
 
 # Uses: reahl/web/reahl.textinput.js
-class TextInput(InputTypeInput):
+class TextInput(PrimitiveInput):
     """A single line Input for typing plain text.
 
        .. admonition:: Styling
@@ -1766,7 +1765,7 @@ class TextInput(InputTypeInput):
           Added `placeholder`.
     """
     def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
-        super(TextInput, self).__init__(form, bound_field, 'text')
+        super(TextInput, self).__init__(form, bound_field)
         self.append_class('reahl-textinput')
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
@@ -1780,8 +1779,11 @@ class TextInput(InputTypeInput):
         js = ['$(%s).textinput();' % self.html_representation.contextualise_selector('".reahl-textinput"', context)]
         return super(TextInput, self).get_js(context=context) + js
 
+    def create_html_widget(self):
+        return HTMLInputElement(self, 'text')
 
-class PasswordInput(InputTypeInput):
+
+class PasswordInput(PrimitiveInput):
     """A PasswordInput is a single line text input, but it does not show what the user is typing.
 
        .. admonition:: Styling
@@ -1792,10 +1794,13 @@ class PasswordInput(InputTypeInput):
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
     def __init__(self, form, bound_field):
-        super(PasswordInput, self).__init__(form, bound_field, 'password', render_value_attribute=False)
+        super(PasswordInput, self).__init__(form, bound_field)
+
+    def create_html_widget(self):
+        return HTMLInputElement(self, 'password', render_value_attribute=False)
 
 
-class CheckboxInput(InputTypeInput):
+class CheckboxInput(PrimitiveInput):
     """A single checkbox that represent a true or false value.
 
        .. admonition:: Styling
@@ -1807,14 +1812,14 @@ class CheckboxInput(InputTypeInput):
     """
     @arg_checks(bound_field=IsInstance(BooleanField))
     def __init__(self, form, bound_field):
-        super(CheckboxInput, self).__init__(form, bound_field, 'checkbox', render_value_attribute=False)
+        super(CheckboxInput, self).__init__(form, bound_field)
 
     @property
     def checked(self):
         return self.value == self.bound_field.true_value
 
     def create_html_widget(self):
-        checkbox_widget = super(CheckboxInput, self).create_html_widget()
+        checkbox_widget = HTMLInputElement(self, 'checkbox', render_value_attribute=False)
         if self.checked:
             checkbox_widget.set_attribute('checked', 'checked')
         return checkbox_widget
@@ -1886,9 +1891,9 @@ class CheckboxSelectInput(PrimitiveInput):
         return widget.add_child(SingleChoice(self, choice))
 
 
-class ButtonInput(InputTypeInput):
+class ButtonInput(PrimitiveInput):
     def __init__(self, form, event):
-        super(ButtonInput, self).__init__(form, event, 'submit')
+        super(ButtonInput, self).__init__(form, event)
         if not self.controller.has_event_named(event.name):
             raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
@@ -1941,6 +1946,9 @@ class ButtonInput(InputTypeInput):
         if self.bound_field.occurred:
             return self.bound_field
         return None
+
+    def create_html_widget(self):
+        return HTMLInputElement(self, 'submit')
 
 
 class Label(HTMLElement):
@@ -2000,7 +2008,7 @@ class ActiveStateAttributes(DelegatedAttributes):
             attributes.add_to(self.attribute_name, [self.inactive_value])
 
 
-class SimpleFileInput(InputTypeInput):
+class SimpleFileInput(PrimitiveInput):
     """An Input for selecting a single file which will be uploaded once the user clicks on any :class:`Button`
        associated with the same :class:`Form` as this Input.
 
@@ -2015,10 +2023,10 @@ class SimpleFileInput(InputTypeInput):
     is_for_file = True
 
     def __init__(self, form, bound_field):
-        super(SimpleFileInput, self).__init__(form, bound_field, 'file')
+        super(SimpleFileInput, self).__init__(form, bound_field)
 
     def create_html_widget(self):
-        file_input = super(SimpleFileInput, self).create_html_widget()
+        file_input = HTMLInputElement(self, 'file')
         if self.allow_multiple:
             file_input.set_attribute('multiple', 'multiple')
         return file_input

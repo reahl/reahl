@@ -24,7 +24,7 @@ from reahl.stubble import stubclass
 from reahl.component.modelinterface import Field, ValidationConstraint, RequiredConstraint, MinLengthConstraint, \
                              MaxLengthConstraint, PatternConstraint, AllowedValuesConstraint, \
                              EqualToConstraint, RemoteConstraint, exposed
-from reahl.web.ui import InputTypeInput, Form, TextInput, ButtonInput
+from reahl.web.ui import PrimitiveInput, HTMLInputElement, Form, TextInput, ButtonInput
 from reahl.webdev.tools import WidgetTester
 
 from reahl.web_dev.inputandvalidation.test_input import SimpleInputFixture2
@@ -44,7 +44,12 @@ class ConstraintRenderingFixture(SimpleInputFixture2):
         return text == self.web_fixture.driver_browser.get_text(self.error_xpath)
 
     def new_input(self, field=None):
-        return InputTypeInput(self.form, field or self.field, 'inputtype')
+        @stubclass(PrimitiveInput)
+        class InputStub(PrimitiveInput):
+            def create_html_widget(self):
+                return HTMLInputElement(self, 'inputtype')
+
+        return InputStub(self.form, field or self.field)
 
 
 @with_fixtures(WebFixture, ConstraintRenderingFixture)
