@@ -1,4 +1,4 @@
-
+# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -1224,7 +1224,6 @@ class ValidationStateAttributes(DelegatedAttributes):
             attributes.add_to('class', [self.error_class])
         elif self.is_validly_entered and self.success_class:
             attributes.add_to('class', [self.success_class])
-
 
 
 class HTMLWidget(Widget):

@@ -316,7 +316,7 @@ class ChoicesLayout(reahl.web.fw.Layout):
 
         outer_div = Div(self.view)
         outer_div.append_class('form-check')
-        if not html_input.can_write():
+        if html_input.disabled:
             outer_div.append_class('disabled')
 
         if self.inline:

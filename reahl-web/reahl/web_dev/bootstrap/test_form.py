@@ -478,19 +478,6 @@ class DisabledScenarios(Fixture):
 
     @scenario
     def disabled_input(self):
-        self.field = Field(writable=lambda field: False)
-        self.expects_disabled_class = True
-
-    @scenario
-    def enabled_input(self):
-        self.field = Field(writable=lambda field: True)
-        self.expects_disabled_class = False
-
-@uses(web_fixture=WebFixture)
-class DisabledScenarios(Fixture):
-
-    @scenario
-    def disabled_input(self):
         self.field = BooleanField(writable=lambda field: False)
         self.expects_disabled_class = True
 
