@@ -21,7 +21,7 @@ import re
 
 from reahl.tofu import Fixture, scenario, expected, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import EmptyStub
+from reahl.stubble import EmptyStub, stubclass
 
 from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
                           PasswordInput, TextArea, SelectInput, RadioButtonSelectInput, CheckboxSelectInput
@@ -84,7 +84,6 @@ class SimpleInputFixture2(SimpleInputFixture):
         return MyForm
 
 
-
 class InputStateFixture(SimpleInputFixture):
     def new_field(self):
         field = EmailField(default='default value')
@@ -92,7 +91,12 @@ class InputStateFixture(SimpleInputFixture):
         return field
 
     def new_input(self):
-        return PrimitiveInput(self.form, self.field)
+        @stubclass(PrimitiveInput)
+        class InputStub(PrimitiveInput):
+            def create_html_widget(self):
+                return HTMLElement(self.view, 'input')
+
+        return InputStub(self.form, self.field)
 
     @scenario
     def defaulted_input_no_value_on_domain(self):

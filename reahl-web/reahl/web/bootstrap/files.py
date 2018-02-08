@@ -222,8 +222,6 @@ class FileUploadPanel(Div):
             self.persisted_file_class.add_persisted_for_form(self.input_form, self.name, self.uploaded_file)
 
 
-
-
 class FileUploadInput(PrimitiveInput):
     """A Widget that allows the user to upload several files.  FileUploadInput
     makes use of JavaScript to save a user some time: once you choose a file, 

@@ -458,7 +458,7 @@ def test_choices_layout_applied_to_checkbox(web_fixture, choices_fixture):
     [description_widget] = label.children
     assert label.tag_name == 'label'
 
-    assert checkbox_input.input_type == 'checkbox'
+    assert checkbox_input.html_representation.input_type == 'checkbox'
     assert description_widget.value == 'field'
 
 
