@@ -1437,6 +1437,7 @@ class PrimitiveInput(Input):
             self.persisted_userinput_class.save_input_value_for_form(self.form, self.name, input_value, self.bound_field.entered_input_type)
 
 
+
 class InputTypeInput(PrimitiveInput):
     def __init__(self, form, bound_field, input_type, name=None, registers_with_form=True, render_value_attribute=True):
         self.input_type = input_type
