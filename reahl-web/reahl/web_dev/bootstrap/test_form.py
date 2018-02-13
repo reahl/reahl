@@ -232,7 +232,9 @@ def test_adding_checkboxes(web_fixture, form_layout_fixture):
     assert not any(child.tag == 'label' for child in fixture.get_form_group_children(browser))
     [div] = fixture.get_form_group_children(browser)
     [checkbox] = div.getchildren()
-    assert checkbox.attrib['class'] == 'form-check'
+    checkbox_classes = checkbox.attrib['class'].split(' ')
+    assert 'custom-control' in checkbox_classes
+    assert 'custom-checkbox' in checkbox_classes
 
 
 class ValidationScenarios(FormLayoutFixture):
@@ -375,9 +377,11 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
     assert not browser.is_checked(checkbox)
     assert browser.is_element_present(XPath.label_with_text('Subscribe to newsletter?'))
     assert browser.is_element_present('//div/input/following-sibling::label')
-    assert browser.get_attribute('//label', 'class') == 'form-check-label'
-    assert browser.get_attribute('//div/input[@type="checkbox"]/..', 'class') == 'form-check'
-    assert browser.get_attribute('//div/input[@type="checkbox"]', 'class') == 'form-check-input'
+    assert browser.get_attribute('//label', 'class') == 'custom-control-label'
+    checkbox_classes = browser.get_attribute('//div/input[@type="checkbox"]/..', 'class').split(' ')
+    assert 'custom-control' in checkbox_classes
+    assert 'custom-checkbox' in checkbox_classes
+    assert browser.get_attribute('//div/input[@type="checkbox"]', 'class') == 'custom-control-input'
 
     browser.check(checkbox)
     browser.click(XPath.button_labelled('Submit'))
@@ -414,7 +418,7 @@ def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
 
     assert browser.is_element_present(XPath.label_with_text('Make your choice'))
 
-    assert browser.get_xpath_count('//input[@class="form-check-input"]/following-sibling::label[@class="form-check-label"]') == 3
+    assert browser.get_xpath_count('//input[@class="custom-control-input"]/following-sibling::label[@class="custom-control-label"]') == 3
 
     checkbox_one = XPath.input_labelled('One')
     checkbox_two = XPath.input_labelled('Two')
@@ -452,7 +456,9 @@ def test_choices_layout_applied_to_checkbox(web_fixture, choices_fixture):
     stacked_container = Div(web_fixture.view).use_layout(ChoicesLayout())
     stacked_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.boolean_field))
 
-    assert 'form-check' in stacked_container.children[0].get_attribute('class').split(' ')
+    stacked_container_classes = stacked_container.children[0].get_attribute('class').split(' ')
+    assert 'custom-control' in stacked_container_classes
+    assert 'custom-checkbox' in stacked_container_classes
 
     [checkbox_input, label] = stacked_container.children[0].children
     [description_widget] = label.children
@@ -470,7 +476,7 @@ def test_checkbox_with_inline_layout(web_fixture, choices_fixture):
     inlined_container = Div(web_fixture.view).use_layout(ChoicesLayout(inline=True))
     inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.boolean_field))
 
-    assert 'form-check-inline' in inlined_container.children[0].get_attribute('class').split(' ')
+    assert 'custom-control-inline' in inlined_container.children[0].get_attribute('class').split(' ')
 
 
 @uses(web_fixture=WebFixture)
@@ -525,7 +531,9 @@ def test_radio_button_basics(radio_button_fixture):
     [choice1_container, choice2_container] = container.children
 
     def check_choice_container_details(choice_container, expected_choice_text, expected_button_value):
-        assert 'form-check' in choice_container.get_attribute('class').split(' ')
+        choice_container_classes = choice_container.get_attribute('class').split(' ')
+        assert 'custom-control' in choice_container_classes
+        assert 'custom-radio' in choice_container_classes
         [primitive_radio_button, label] = choice_container.children
         assert label.tag_name == 'label'
         [choice_text_node] = label.children
@@ -545,7 +553,7 @@ def test_radio_button_layout(radio_button_fixture):
     assert radio_input.contents_layout.inline
 
     choice_container = radio_input.children[0].children[0]
-    assert 'form-check-inline' in choice_container.get_attribute('class').split(' ')
+    assert 'custom-control-inline' in choice_container.get_attribute('class').split(' ')
 
 
 @with_fixtures(RadioButtonFixture)

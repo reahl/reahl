@@ -119,7 +119,7 @@ class SelectInput(reahl.web.ui.SelectInput):
     """
     def __init__(self, form, bound_field):
         super(SelectInput, self).__init__(form, bound_field)
-        self.append_class('form-control')
+        self.append_class('custom-select')
 
 
 PrimitiveCheckboxInput = reahl.web.ui.CheckboxInput
@@ -309,18 +309,22 @@ class ChoicesLayout(reahl.web.fw.Layout):
 
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
-        label_widget = Label(self.view, for_input=html_input)
-        label_widget.append_class('form-check-label')
+        input_type_custom_control = HTMLAttributeValueOption(html_input.choice_type, True, prefix='custom',
+                                                             constrain_value_to=['radio', 'checkbox'])
 
-        html_input.append_class('form-check-input')
+        label_widget = Label(self.view, for_input=html_input)
+        label_widget.append_class('custom-control-label')
+
+        html_input.append_class('custom-control-input')
 
         outer_div = Div(self.view)
-        outer_div.append_class('form-check')
+        outer_div.append_class('custom-control')
+        outer_div.append_class(input_type_custom_control.as_html_snippet())
+        if self.inline:
+            outer_div.append_class('custom-control-inline')
         if html_input.disabled:
             outer_div.append_class('disabled')
 
-        if self.inline:
-            outer_div.append_class('form-check-inline')
         outer_div.add_child(html_input)
         outer_div.add_child(label_widget)
 

@@ -147,7 +147,7 @@ def test_simple_file_input_exceptions(web_fixture):
 
     browser = web_fixture.driver_browser
     browser.open('/')
-
+    
     browser.type(XPath.input_of_type('file'), file_to_upload.name)
     browser.click(XPath.button_labelled('Upload'))
     assert browser.is_element_present('//label[text()="I am breaking"]')
