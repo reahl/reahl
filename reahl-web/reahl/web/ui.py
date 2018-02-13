@@ -1648,6 +1648,10 @@ class SingleChoice(ContainedInput):
                                            name=containing_input.name)
 
     @property
+    def choice_type(self):
+        return self.containing_input.choice_type
+
+    @property
     def html_control(self):
         return self.html_representation.children[0]
 
@@ -1787,6 +1791,8 @@ class CheckboxInput(PrimitiveInput):
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
     """
+    choice_type = 'checkbox'
+
     @arg_checks(bound_field=IsInstance(BooleanField))
     def __init__(self, form, bound_field):
         super(CheckboxInput, self).__init__(form, bound_field)
@@ -1796,7 +1802,7 @@ class CheckboxInput(PrimitiveInput):
         return self.value == self.bound_field.true_value
 
     def create_html_widget(self):
-        checkbox_widget = HTMLInputElement(self, 'checkbox', render_value_attribute=False)
+        checkbox_widget = HTMLInputElement(self, self.choice_type, render_value_attribute=False)
         if self.checked:
             checkbox_widget.set_attribute('checked', 'checked')
         return checkbox_widget
