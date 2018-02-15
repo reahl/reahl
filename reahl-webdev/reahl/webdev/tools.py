@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 import io
-import time
+import re
 import contextlib
 from six.moves.urllib import parse as urllib_parse
 import logging
@@ -779,7 +779,7 @@ class DriverBrowser(BasicBrowser):
         """Clicks on the element found by `locator`.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
-           :keyword wait: If False, don't wait_for_page_to_load after having typed into the input.
+           :keyword wait: If False, don't wait_for_page_to_load after having clicked the input.
         """
         self.wait_for_element_interactable(locator)
         self.find_element(locator).click()
@@ -911,7 +911,7 @@ class DriverBrowser(BasicBrowser):
         """
         return self.get_attribute(locator, 'href') is not None
     
-    def is_checked(self, locator): 
+    def is_checked(self, locator):
         """Answers whether the CheckBoxInput element found by `locator` is currently checked.
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
@@ -924,7 +924,7 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         if not self.is_checked(locator):
-            self.click(locator)
+           self.click(self.checkbox_clickable_element(locator))
 
     def uncheck(self, locator):
         """Ensures the CheckBoxInput element found by `locator` is currently **not** checked.
@@ -932,7 +932,16 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
         if self.is_checked(locator):
-            self.click(locator)
+            self.click(self.checkbox_clickable_element(locator))
+
+    def checkbox_clickable_element(self, locator):
+        if not self.is_visible(locator):
+            #it may be that the input type=checkbox may not be visible and represented by another visual element
+            #as my be in the case of for example with bootstrap .custom-checkbox.
+            #We simply click on the label, which checks the checkbox too.
+            label_for_input = XPath('(%s)/following-sibling::label' % locator.xpath)
+            return label_for_input
+        return locator
 
     def create_cookie(self, cookie_dict):
         """Creates a cookie from the given `cookie_dict`.
