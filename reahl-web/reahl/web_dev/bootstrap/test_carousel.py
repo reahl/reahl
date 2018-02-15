@@ -116,10 +116,9 @@ def test_i18n(web_fixture):
 def test_carousel_has_options(web_fixture, carousel_fixture):
     """Constructor allows you to set certain customizing options"""
 
-    carousel = Carousel(web_fixture.view, 'my_carousel_id', interval=1000, transition='carousel-fade', pause='hover', wrap=True, keyboard=True)
+    carousel = Carousel(web_fixture.view, 'my_carousel_id', interval=1000, pause='hover', wrap=True, keyboard=True)
     main_div = carousel_fixture.get_main_div_for(carousel)
 
-    assert 'carousel-fade' in main_div.get_attribute('class').split(' ')
     assert main_div.get_attribute('data-interval') == '1000'
     assert main_div.get_attribute('data-pause') == 'hover'
     assert main_div.get_attribute('data-wrap') == 'true'

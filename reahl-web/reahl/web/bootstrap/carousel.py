@@ -72,7 +72,6 @@ class Carousel(Widget):
     :param css_id: (See :class:`~reahl.web.ui.HTMLElement`)
     :keyword show_indicators: If True (the default), includes indicators showing the number of slides and which one is visible.
     :keyword interval: The number (an int) of milliseconds to delay between cycling content. If not given (the default), the Carousel will not cycle automatically.
-    :keyword transition: Set it to either 'slide' or 'carousel-fade' for your desired transition effect.
     :keyword pause: If set to 'false', hovering over the carousel will not pause it. Another option, 'hover' is supported.
     :keyword wrap: If True, the Carousel cycles contiuously, else it stops at the last slide.
     :keyword keyboard: If True, the Carousel reacts to keyboard events.
@@ -80,12 +79,11 @@ class Carousel(Widget):
              resizing of the Carousel between slides that are unequal in height). The value 
              is an int denoting a height in terms of the size of the font of the contents (em). 
     """
-    def __init__(self, view, css_id, show_indicators=True, interval=5000, transition='slide', pause='hover', wrap=True, keyboard=True, min_height=None):
+    def __init__(self, view, css_id, show_indicators=True, interval=5000, pause='hover', wrap=True, keyboard=True, min_height=None):
         super(Carousel, self).__init__(view)
         self.carousel_panel = self.add_child(Div(view, css_id=css_id))
         self.carousel_panel.append_class('carousel')
-        transition_option = HTMLAttributeValueOption(transition, True, constrain_value_to=['slide', 'carousel-fade'])
-        self.carousel_panel.append_class(transition_option.as_html_snippet())
+        self.carousel_panel.append_class('slide')
         self.carousel_panel.set_attribute('data-ride', 'carousel')
 
         self.carousel_panel.set_attribute('data-interval', six.text_type(interval))
