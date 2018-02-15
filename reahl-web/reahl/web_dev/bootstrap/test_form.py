@@ -19,13 +19,13 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu import scenario, Fixture, uses, expected
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField,\
-    MultiChoiceField, IntegerField
+    MultiChoiceField, IntegerField, Action
 from reahl.web.fw import Url
 from reahl.web.bootstrap.ui import A, Div, FieldSet
 from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
@@ -408,8 +408,10 @@ def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
     """CheckboxInput can also be used to choose many things from a list, in which case it renders many checkboxes."""
 
     choices = [Choice(1, IntegerField(label='One')),
-               Choice(2, IntegerField(label='Two')),
-               Choice(3, IntegerField(label='Three'))]
+               Choice(2, IntegerField(label='Two', writable=Action(lambda:False))),
+               Choice(3, IntegerField(label='Three')),
+               Choice(4, IntegerField(label='Four')),
+               ]
     checkbox_fixture.field = MultiChoiceField(choices, label='Make your choice', default=[1])
 
     web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=checkbox_fixture.Form.factory()))
@@ -418,22 +420,26 @@ def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
 
     assert browser.is_element_present(XPath.label_with_text('Make your choice'))
 
-    assert browser.get_xpath_count('//input[@class="custom-control-input"]/following-sibling::label[@class="custom-control-label"]') == 3
+    assert browser.get_xpath_count('//input[@class="custom-control-input"]/following-sibling::label[@class="custom-control-label"]') == 4
 
     checkbox_one = XPath.input_labelled('One')
     checkbox_two = XPath.input_labelled('Two')
     checkbox_three = XPath.input_labelled('Three')
+    checkbox_four = XPath.input_labelled('Four')
 
     assert browser.is_checked(checkbox_one)
     assert not browser.is_checked(checkbox_two)
+    assert not browser.is_element_enabled(checkbox_two)
+    # assert browser.is_visible(checkbox_two) #cannot do this as the way bootsrap renders, the actual html input has opacity=0
     assert not browser.is_checked(checkbox_three)
+    assert not browser.is_checked(checkbox_four)
     browser.uncheck(checkbox_one)
-    browser.check(checkbox_two)
     browser.check(checkbox_three)
+    browser.check(checkbox_four)
     browser.click(XPath.button_labelled('Submit'))
     assert not browser.is_checked(checkbox_one)
-    assert browser.is_checked(checkbox_two)
     assert browser.is_checked(checkbox_three)
+    assert browser.is_checked(checkbox_four)
 
 
 @uses(web_fixture=WebFixture)
@@ -502,14 +508,19 @@ def test_choice_disabled_state(web_fixture, disabled_scenarios):
     field = fixture.field
     field.bind('field', fixture)
 
-    inlined_container = Div(web_fixture.view).use_layout(ChoicesLayout())
-    inlined_container.layout.add_choice(PrimitiveCheckboxInput(form, field))
+    container = Div(web_fixture.view).use_layout(ChoicesLayout())
+    container.layout.add_choice(PrimitiveCheckboxInput(form, field))
 
-    form_check = inlined_container.children[0]
+    [checkbox_container] = container.children
+    [checkbox_input, label] = checkbox_container.children
+    checkbox_container_classes = checkbox_container.get_attribute('class').split(' ')
     if fixture.expects_disabled_class:
-        assert 'disabled' in form_check.get_attribute('class').split(' ')
+        assert 'disabled' in checkbox_container_classes
+        assert checkbox_input.html_representation.get_attribute('disabled') == 'disabled'
     else:
-        assert 'disabled' not in form_check.get_attribute('class').split(' ')
+        assert 'disabled' not in checkbox_container_classes
+        with expected(KeyError):
+            checkbox_input.html_representation.get_attribute('disabled')
 
 
 class RadioButtonFixture(ChoicesFixture):
