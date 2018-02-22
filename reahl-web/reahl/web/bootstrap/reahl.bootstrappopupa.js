@@ -57,7 +57,7 @@ $.widget("reahl.bootstrappopupa", {
                     $.each(o.buttons, function(label, opts) { this_.add_button(label, opts) });
                     this_.$dialog.modal({});
 
-                    $link.click(function(e) {
+                    $link.on('click', function(e) {
                         this_.$dialog.modal('show');
                         return e.preventDefault();
                     });
@@ -68,7 +68,7 @@ $.widget("reahl.bootstrappopupa", {
     },
     add_button: function(label, opts) {
         var button = $("<button type='button' class='btn' data-dismiss='modal'>"+label+"</button>");
-        button.click(opts.function);
+        button.on('click', opts.function);
         for (var i = 0; i < opts.css_classes.length; i+=1) {
             button.addClass(opts.css_classes[i])
         };

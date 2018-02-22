@@ -30,10 +30,10 @@ $.widget("reahl.bootstrapcueinput", {
         cue.attr('hidden', 'true');
 
         input
-            .focus(function(ev){
+            .on('focus', function(ev){
                 cue.removeAttr('hidden');
             })
-            .blur(function(ev){
+            .on('blur', function(ev){
                 cue.attr('hidden', 'true');
 			}); 
 	}

@@ -110,7 +110,7 @@ $.widget('reahl.bootstrapfileuploadli', {
                 if (data.success) {
                     var fileInput = this_.getFileInputPanel().getFileInput(); /* has to be found before element is removed */
                     this_.element.remove();
-                    fileInput.focusout().focus(); /* to revalidate the input after removal */
+                    fileInput.trigger('focusout').trigger('focus'); /* to revalidate the input after removal */
                 } else {
                     this_.replaceNestedFormContents(data.widget);
                 }
@@ -139,7 +139,7 @@ $.widget('reahl.bootstrapfileuploadli', {
     },
     startUpload: function(submitName, ajaxOptions) {
         var this_ = this;
-        $(this.element).append(this.createCancelButton().click(function(){
+        $(this.element).append(this.createCancelButton().on('click', function(){
 	    this_.cancelUpload();
 	}));
         $(this.element).append(this.createFileNameSpan());

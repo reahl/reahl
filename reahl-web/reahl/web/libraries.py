@@ -151,27 +151,27 @@ class Library(object):
 
     
 class JQuery(Library):
-    """Version 1.11.2 of `JQuery <https://jquery.com>`_.
+    """Version 3.3.1 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery-migrate      1.4.1
+     jquery-migrate      3.0.1
      jquery.cookie       1.0
      jquery.validate     1.15.0 (a heavily modified version)
      jquery.ba-bbq       1.2.1
      jquery.blockUI      2.70.0
-     jquery.form         3.14
+     jquery.form         4.22
     =================== ==================================
     """
     def __init__(self):
         super(JQuery, self).__init__('jquery')
-        self.files = ['jquery-1.11.2/jquery-1.11.2.js',
-                      'jquery-1.11.2/jquery-1.11.2.min.map']
+        self.files = ['jquery-3.3.1/jquery-3.3.1.js',
+                      'jquery-3.3.1/jquery-3.3.1.min.map']
         self.shipped_in_directory = '/reahl/web/static'
-        for i in ['jquery-migrate-1.4.1.js',
+        for i in ['jquery-migrate-3.0.1.js',
                   'jquery.cookie-1.0.js', 
                   'jquery.validate-1.15.0.modified.js',
                   'jquery.ba-bbq-1.2.1.js',

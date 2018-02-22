@@ -31,7 +31,7 @@ $.widget("reahl.textinput", {
 
         if ( input.hasClass('fuzzy') ) {
             input
-                .bind('blur', function(){
+                .on('blur', function(){
                     var data = {};
                     data[input.prop('name')] = input.prop('value');
                     var url = $(input[0].form).attr('data-formatter'); /*xxxxxx*/
