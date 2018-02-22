@@ -135,6 +135,9 @@ Python environment provided by `virtualenv
        postgresql
          Support for postgresql databases
 
+       mysql
+         Support for MySQL databases
+
    With your `virtualenv` activated, Reahl can be installed into it by
    issuing (regardless of platform):
 

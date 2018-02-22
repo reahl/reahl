@@ -786,7 +786,6 @@ class Bookmark(object):
     def is_page_internal(self):
         """Answers whether this Bookmark is for a Widget on the current page only."""
         return self.ajax and not (self.base_path or self.relative_path)
-#iwan        return not (self.base_path or self.relative_path)
 
     def on_view(self, view):
         """For page-internal Bookmarks, answers a new Bookmark which is to the current Bookmark, but on the given View.

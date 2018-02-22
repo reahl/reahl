@@ -22,6 +22,7 @@ debian/python-reahl-doc/
 debian/python-reahl-sqlalchemysupport/
 debian/python-reahl-mailutil/
 debian/python-reahl-postgresqlsupport/
+debian/python-reahl-mysqlsupport/
 debian/python-reahl-sqlitesupport/
 debian/python-reahl-webdev/
 debian/python-reahl-component/
@@ -42,6 +43,7 @@ reahl-domain/reahl_domain.egg-info/
 reahl-domainui/reahl_domainui.egg-info/
 reahl-mailutil/reahl_mailutil.egg-info/
 reahl-postgresqlsupport/reahl_postgresqlsupport.egg-info/
+reahl-mysqlsupport/reahl_mysqlsupport.egg-info/
 reahl-sqlalchemysupport/reahl_sqlalchemysupport.egg-info/
 reahl-sqlitesupport/reahl_sqlitesupport.egg-info/
 reahl-stubble/reahl_stubble.egg-info/
@@ -56,6 +58,7 @@ reahl-doc/reahl/doc/examples/tutorial/hellonginx/hellonginx.egg-info
 .idea
 *.iml
 .tox
+*.mo
 *~
 */.eggs
 

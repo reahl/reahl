@@ -17,11 +17,11 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
-import re
+
 
 from reahl.tofu import Fixture, scenario, expected, uses, NoException
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import EmptyStub
+from reahl.stubble import EmptyStub, stubclass
 
 from reahl.web.ui import HTMLElement, PrimitiveInput, Form, CheckboxInput, TextInput, Label, ButtonInput,\
                           PasswordInput, TextArea, SelectInput, RadioButtonSelectInput, CheckboxSelectInput
@@ -84,7 +84,6 @@ class SimpleInputFixture2(SimpleInputFixture):
         return MyForm
 
 
-
 class InputStateFixture(SimpleInputFixture):
     def new_field(self):
         field = EmailField(default='default value')
@@ -92,7 +91,12 @@ class InputStateFixture(SimpleInputFixture):
         return field
 
     def new_input(self):
-        return PrimitiveInput(self.form, self.field)
+        @stubclass(PrimitiveInput)
+        class InputStub(PrimitiveInput):
+            def create_html_widget(self):
+                return HTMLElement(self.view, 'input')
+
+        return InputStub(self.form, self.field)
 
     @scenario
     def defaulted_input_no_value_on_domain(self):
@@ -169,45 +173,45 @@ class InputScenarios(SimpleInputFixture):
     @scenario
     def text_input(self):
         self.widget = TextInput(self.form, self.field)
-        self.expected_html = r'<input name="an_attribute" form="test" type="text" value="field value" class="reahl-textinput">'
+        self.expected_html = '<input name="an_attribute" form="test" type="text" value="field value" class="reahl-textinput">'
         self.field_controls_visibility = True
 
     @scenario
     def text_input_placeholder_default(self):
         self.widget = TextInput(self.form, self.field, placeholder=True)
-        self.expected_html = r'<input name="an_attribute" aria-label="the label" form="test" placeholder="the label" type="text" value="field value" class="reahl-textinput">'
+        self.expected_html = '<input name="an_attribute" aria-label="the label" form="test" placeholder="the label" type="text" value="field value" class="reahl-textinput">'
         self.field_controls_visibility = True
 
     @scenario
     def text_input_placeholder_specified(self):
         self.widget = TextInput(self.form, self.field, placeholder="some text")
-        self.expected_html = r'<input name="an_attribute" aria-label="some text" form="test" placeholder="some text" type="text" value="field value" class="reahl-textinput">'
+        self.expected_html = '<input name="an_attribute" aria-label="some text" form="test" placeholder="some text" type="text" value="field value" class="reahl-textinput">'
         self.field_controls_visibility = True
 
     @scenario
     def input_label(self):
         html_input = TextInput(self.form, self.field)
         self.widget = Label(self.web_fixture.view, for_input=html_input)
-        self.expected_html = r'<label for="%s">the label</label>' % html_input.css_id
+        self.expected_html = '<label for="%s">the label</label>' % html_input.css_id
         self.field_controls_visibility = True
 
     @scenario
     def input_label_with_text(self):
         html_input = TextInput(self.form, self.field)
         self.widget = Label(self.web_fixture.view, for_input=html_input, text='some text')
-        self.expected_html = r'<label for="%s">some text</label>' % html_input.css_id
+        self.expected_html = '<label for="%s">some text</label>' % html_input.css_id
         self.field_controls_visibility = True
 
     @scenario
     def button_input(self):
         self.widget = self.form.add_child(ButtonInput(self.form, self.event))
-        self.expected_html = r'<input name="event.aname\?" form="test" type="submit" value="click me">'
+        self.expected_html = '<input name="event.aname?" form="test" type="submit" value="click me">'
         self.field_controls_visibility = False
 
     @scenario
     def password(self):
         self.widget = self.form.add_child(PasswordInput(self.form, self.field))
-        self.expected_html = r'<input name="an_attribute" form="test" type="password">'
+        self.expected_html = '<input name="an_attribute" form="test" type="password">'
         self.field_controls_visibility = True
 
     def setup_checkbox_scenario(self, boolean_value):
@@ -224,17 +228,17 @@ class InputScenarios(SimpleInputFixture):
         """A checkbox needs a 'checked' an_attribute if its field is True. It also renders ONLY the
             validation message for its required validation_constraint, not for all constraints"""
         self.setup_checkbox_scenario(True)
-        self.expected_html = r'<input name="an_attribute" checked="checked" data-msg-required="my text is needed here" form="test" required="\*" type="checkbox">'
+        self.expected_html = '<input name="an_attribute" checked="checked" data-msg-required="my text is needed here" form="test" required="*" type="checkbox">'
 
     @scenario
     def checkbox_false(self):
         self.setup_checkbox_scenario(False)
-        self.expected_html = r'<input name="an_attribute" data-msg-required="my text is needed here" form="test" required="\*" type="checkbox">'
+        self.expected_html = '<input name="an_attribute" data-msg-required="my text is needed here" form="test" required="*" type="checkbox">'
 
     @scenario
     def text_area_input(self):
         self.widget = self.form.add_child(TextArea(self.form, self.field, rows=30, columns=20))
-        self.expected_html = r'<textarea name="an_attribute" cols="20" rows="30">field value</textarea>'
+        self.expected_html = '<textarea name="an_attribute" cols="20" rows="30">field value</textarea>'
         self.field_controls_visibility = True
 
     @scenario
@@ -250,8 +254,8 @@ class InputScenarios(SimpleInputFixture):
         self.field.bind('an_attribute', self.model_object)
 
         self.widget = self.form.add_child(SelectInput(self.form, self.field))
-        group = r'<optgroup label="grouped"><option value="1">One</option><option selected="selected" value="2">Two</option></optgroup>'
-        option = r'<option value="off">None</option>'
+        group = '<optgroup label="grouped"><option value="1">One</option><option selected="selected" value="2">Two</option></optgroup>'
+        option = '<option value="off">None</option>'
         self.expected_html = r'<select name="an_attribute" form="test">%s%s</select>' % (option, group)
         self.field_controls_visibility = True
 
@@ -260,14 +264,13 @@ class InputScenarios(SimpleInputFixture):
         self.model_object.an_attribute = [2]
 
         choices = [Choice(1, IntegerField(label='One')),
-                   Choice(2, IntegerField(label='Two'))
-                  ]
+                   Choice(2, IntegerField(label='Two'))]
         self.field = MultiChoiceField(choices)
         self.field.bind('an_attribute', self.model_object)
 
         self.widget = self.form.add_child(SelectInput(self.form, self.field))
-        options = r'<option value="1">One</option><option selected="selected" value="2">Two</option>'
-        self.expected_html = r'<select name="an_attribute" form="test" multiple="multiple">%s</select>' % (options)
+        options = '<option value="1">One</option><option selected="selected" value="2">Two</option>'
+        self.expected_html = '<select name="an_attribute" form="test" multiple="multiple">%s</select>' % (options)
         self.field_controls_visibility = True
 
     @scenario
@@ -295,23 +298,24 @@ class InputScenarios(SimpleInputFixture):
         self.model_object.an_attribute = 2
 
         choices = [ Choice(1, IntegerField(label='One')),
-                    Choice(2, IntegerField(label='Two')) ]
+                    Choice(2, IntegerField(label='Two'))]
         self.field = ChoiceField(choices)
         self.field.bind('an_attribute', self.model_object)
 
         self.widget = self.form.add_child(RadioButtonSelectInput(self.form, self.field))
 
-        radio_button = r'<label>'\
-                       r'<input name="an_attribute"%s '\
-                              r'data-msg-pattern="an_attribute should be one of the following: 1|2" '\
-                              r'form="test" pattern="\(1\|2\)" '\
-                              r'title="an_attribute should be one of the following: 1\|2" '\
-                              r'type="radio" value="%s">%s'\
-                       r'</label>'
+        radio_button = '<label>'\
+                       '<input name="an_attribute"%s '\
+                              'data-msg-pattern="an_attribute should be one of the following: 1|2" '\
+                              '%s'\
+                              'form="test" pattern="(1|2)" '\
+                              'title="an_attribute should be one of the following: 1|2" '\
+                              'type="radio" value="%s">%s'\
+                       '</label>'
 
-        outer_div = r'<div class="reahl-radio-button-input">%s</div>'
-        buttons = (radio_button % ('', '1', 'One')) +\
-                  (radio_button % (' checked="checked"', '2', 'Two'))
+        outer_div = '<div class="reahl-radio-button-input">%s</div>'
+        buttons = (radio_button % ('', '', '1', 'One')) +\
+                  (radio_button % (' checked="checked"', '', '2', 'Two'))
         self.expected_html = outer_div % buttons
         self.field_controls_visibility = True
 
@@ -324,7 +328,7 @@ def test_basic_rendering(input_scenarios):
 
     tester = WidgetTester(fixture.widget)
     actual = tester.render_html()
-    assert re.match(fixture.expected_html, actual)
+    assert actual == fixture.expected_html
 
 
 @with_fixtures(InputScenarios)
@@ -340,7 +344,7 @@ def test_rendering_when_not_allowed(input_scenarios):
     if fixture.field_controls_visibility:
         assert actual == ''
     else:
-        assert re.match(fixture.expected_html, actual)
+        assert actual == fixture.expected_html
 
 
 @with_fixtures(FieldFixture, SimpleInputFixture)
@@ -507,6 +511,37 @@ def test_checkbox_input_restricted_to_use_with_boolean(web_fixture):
 
     with expected(IsInstance):
         CheckboxInput(form, not_a_boolean_field)
+
+
+class ManyChoicesScenarios(Fixture):
+    @scenario
+    def checkbox_select_input(self):
+        self.input_type = CheckboxSelectInput
+        self.xpath_function_to_choice = XPath.input_labelled
+
+    #@scenario
+    def select_input(self):
+        self.input_type = SelectInput
+        self.xpath_function_to_choice = XPath.option_with_text
+
+
+@with_fixtures(WebFixture, SimpleInputFixture2, ManyChoicesScenarios)
+def test_choices_disabled(web_fixture, checkbox_fixture, choice_type_scenario):
+    """A choice that is not writable renders as disabled."""
+
+    fixture = checkbox_fixture
+    choices = [Choice(1, IntegerField(label='One')),
+               Choice(2, IntegerField(label='Two', writable=Allowed(False)))]
+    fixture.field = MultiChoiceField(choices)
+
+    model_object = fixture.model_object
+    model_object.an_attribute = [1]
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=fixture.new_Form(input_widget_class=choice_type_scenario.input_type).factory('myform'))
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    assert web_fixture.driver_browser.is_element_enabled(choice_type_scenario.xpath_function_to_choice('One'))
+    assert not web_fixture.driver_browser.is_element_enabled(choice_type_scenario.xpath_function_to_choice('Two'))
 
 
 class FuzzyTextInputFixture(SimpleInputFixture2):

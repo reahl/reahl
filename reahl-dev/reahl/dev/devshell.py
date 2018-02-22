@@ -224,7 +224,6 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
                     print('\nERROR: Script exited: %s' % ex, file=sys.stderr)
                     retcode = ex.code
                 else:
-                    import pdb; pdb.set_trace()
                     retcode = 0
             except OSError as ex:
                 print('\nERROR: Execution failed: %s' % ex, file=sys.stderr)

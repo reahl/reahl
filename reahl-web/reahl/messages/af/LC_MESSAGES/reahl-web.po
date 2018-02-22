@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2017-03-14 10:06+0000\n"
+"POT-Creation-Date: 2018-02-15 10:13+0000\n"
 "PO-Revision-Date: 2012-04-22 10:40+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/web/dhtml.py:60 reahl/web/fw.py:554
+#: reahl/web/dhtml.py:61 reahl/web/fw.py:521
 msgid "Untitled"
 msgstr "Ongetiteld"
 
@@ -25,39 +25,39 @@ msgstr "Ongetiteld"
 msgid "Invalid data supplied"
 msgstr "Ongeldige data verskaf"
 
-#: reahl/web/ui.py:169
+#: reahl/web/ui.py:171
 msgid "An error occurred when contacting the server. Please try again later."
 msgstr ""
 "'n Fout het gebeur tydens kommunikasie met die bediener. Probeer "
 "asseblief later weer."
 
-#: reahl/web/ui.py:170
+#: reahl/web/ui.py:172
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 "Die bediener het te lank gevat om te antwoord. Probeer asseblief later "
 "weer."
 
-#: reahl/web/ui.py:1929
+#: reahl/web/ui.py:2050
 msgid "uploaded files should all have different names"
 msgstr "opgelaaide lêers moet almal verskillende name hê"
 
-#: reahl/web/bootstrap/carousel.py:145
+#: reahl/web/bootstrap/carousel.py:144
 msgid "Previous"
 msgstr "Vorige"
 
-#: reahl/web/bootstrap/carousel.py:145
+#: reahl/web/bootstrap/carousel.py:144
 msgid "Next"
 msgstr "Volgende"
 
-#: reahl/web/bootstrap/files.py:65
+#: reahl/web/bootstrap/files.py:62
 msgid "Choose file(s)"
 msgstr "Kies lêer(s)"
 
-#: reahl/web/bootstrap/files.py:109 reahl/web/bootstrap/files.py:115
+#: reahl/web/bootstrap/files.py:107 reahl/web/bootstrap/files.py:113
 msgid "No files chosen"
 msgstr "Geen lêers gekies"
 
-#: reahl/web/bootstrap/files.py:115
+#: reahl/web/bootstrap/files.py:113
 msgid "files chosen"
 msgstr "gekose lêers"
 
@@ -87,11 +87,11 @@ msgstr "Kanselleer"
 msgid "Please try again when all files have finished uploading."
 msgstr "Probeer asseblief weer nadat alle lêers opgelaai het."
 
-#: reahl/web/bootstrap/navbar.py:51
+#: reahl/web/bootstrap/navbar.py:52
 msgid "Toggle navigation"
 msgstr "Skakel navigasie aan of af"
 
-#: reahl/web/bootstrap/popups.py:85
+#: reahl/web/bootstrap/popups.py:86 reahl/web/bootstrap/popups.py:88
 msgid "Close"
 msgstr "Maak toe"
 
@@ -99,7 +99,7 @@ msgstr "Maak toe"
 msgid "A View"
 msgstr "'n Oogpunt"
 
-#: reahl/web_dev/bootstrap/test_nav.py:240
+#: reahl/web_dev/bootstrap/test_nav.py:254
 msgid "This is an English sentence."
 msgstr "Hierdie is 'n sin in Afrikaans."
 

@@ -119,7 +119,7 @@ class SelectInput(reahl.web.ui.SelectInput):
     """
     def __init__(self, form, bound_field):
         super(SelectInput, self).__init__(form, bound_field)
-        self.append_class('form-control')
+        self.append_class('custom-select')
 
 
 PrimitiveCheckboxInput = reahl.web.ui.CheckboxInput
@@ -128,6 +128,10 @@ PrimitiveCheckboxInput = reahl.web.ui.CheckboxInput
 class SingleChoice(reahl.web.ui.SingleChoice):
     def create_html_widget(self):
         return self.create_button_input()
+
+    @property
+    def html_control(self):
+        return self.html_representation
 
 
 class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
@@ -305,20 +309,24 @@ class ChoicesLayout(reahl.web.fw.Layout):
 
     @arg_checks(html_input=IsInstance((PrimitiveCheckboxInput, SingleChoice)))
     def add_choice(self, html_input):
-        label_widget = Label(self.view)
-        label_widget.append_class('form-check-label')
+        input_type_custom_control = HTMLAttributeValueOption(html_input.choice_type, True, prefix='custom',
+                                                             constrain_value_to=['radio', 'checkbox'])
 
-        html_input.append_class('form-check-input')
+        label_widget = Label(self.view, for_input=html_input)
+        label_widget.append_class('custom-control-label')
+
+        html_input.append_class('custom-control-input')
 
         outer_div = Div(self.view)
-        outer_div.append_class('form-check')
+        outer_div.append_class('custom-control')
+        outer_div.append_class(input_type_custom_control.as_html_snippet())
         if self.inline:
-            outer_div.append_class('form-check-inline')
-        outer_div.add_child(label_widget)
+            outer_div.append_class('custom-control-inline')
+        if html_input.disabled:
+            outer_div.append_class('disabled')
 
-        label_widget.add_child(html_input)
-        label_widget.add_child(TextNode(self.view, ' '))
-        label_widget.add_child(TextNode(self.view, html_input.label))
+        outer_div.add_child(html_input)
+        outer_div.add_child(label_widget)
 
         self.widget.add_child(outer_div)
 
@@ -348,7 +356,6 @@ class FormLayout(reahl.web.fw.Layout):
         html_input.add_attribute_source(reahl.web.ui.ValidationStateAttributes(html_input,
                                                              error_class='is-invalid',
                                                              success_class='is-valid'))
-        form_group.add_attribute_source(reahl.web.ui.AccessRightAttributes(html_input, disabled_class='disabled'))
         return form_group
 
     def add_input_to(self, parent_element, html_input):
@@ -377,9 +384,9 @@ class FormLayout(reahl.web.fw.Layout):
     def add_label_to(self, form_group, html_input, hidden):
         if isinstance(html_input, RadioButtonSelectInput):
             label = form_group.add_child(Legend(self.view, text=html_input.label))
-            label.append_class('col-form-legend')
+            label.append_class('col-form-label')
         else:
-            label = form_group.add_child(Label(self.view, text=html_input.label, for_input=html_input))
+            label = form_group.add_child(Label(self.view, for_input=html_input))
         if hidden:
             label.append_class('sr-only')
         return label
@@ -459,26 +466,26 @@ class InlineFormLayout(FormLayout):
 class InputGroup(reahl.web.ui.WrappedInput):
     """A composition of an Input with something preceding and/or following it.
 
-    :param prepend: A :class:`~reahl.web.fw.Widget` to prepend to the :class:`~reahl.web.ui.Input`.
+    :param prepend: A :class:`~reahl.web.fw.Widget` or text to prepend to the :class:`~reahl.web.ui.Input`.
     :param input_widget: The :class:`~reahl.web.ui.Input` to use.
-    :param append: A :class:`~reahl.web.fw.Widget` to append to the :class:`~reahl.web.ui.Input`.
+    :param append: A :class:`~reahl.web.fw.Widget` or text to append to the :class:`~reahl.web.ui.Input`.
     """
     def __init__(self, prepend, input_widget, append):
         super(InputGroup, self).__init__(input_widget)
         self.div = self.add_child(Div(self.view))
         self.div.append_class('input-group')
         if prepend:
-            self.add_as_addon(prepend)
+            self.add_as_addon(prepend, 'prepend')
         self.input_widget = self.div.add_child(input_widget)
         if append:
-            self.add_as_addon(append)
+            self.add_as_addon(append, 'append')
         self.set_html_representation(self.div)
 
-    def add_as_addon(self, addon):
+    def add_as_addon(self, addon, position):
         if isinstance(addon, six.string_types):
-            span = Span(self.view, text=addon)
-        else:
-            span = Span(self.view)
-            span.add_child(addon)
-        span.append_class('input-group-addon')
+            addon = Span(self.view, text=addon)
+        span = Span(self.view)
+        span.add_child(addon)
+        span.append_class('input-group-%s' % position)
+        addon.append_class('input-group-text')
         return self.div.add_child(span)

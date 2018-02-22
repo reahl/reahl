@@ -35,6 +35,7 @@
     <egg name="reahl-webdev"/>
     <egg name="reahl-postgresqlsupport"/>
     <egg name="reahl-sqlitesupport"/>
+    <egg name="reahl-mysqlsupport"/>
   </deps>
 
     <persisted>

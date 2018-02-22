@@ -18,6 +18,10 @@
     <egg name="reahl-stubble"/>
   </deps>
 
+  <migrations>
+      <class locator="reahl.commands.migrations:ReahlCommandsReahlSchemaInitialise"/>
+  </migrations>
+
   <export entrypoint="reahl.component.commands" name="CreateDBUser" locator="reahl.commands.prodshell:CreateDBUser"/>
   <export entrypoint="reahl.component.commands" name="DropDBUser" locator="reahl.commands.prodshell:DropDBUser"/>
   <export entrypoint="reahl.component.commands" name="CreateDB" locator="reahl.commands.prodshell:CreateDB"/>
