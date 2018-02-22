@@ -161,7 +161,7 @@ class JQuery(Library):
      jquery-migrate      3.0.1
      jquery.cookie       1.0
      jquery.validate     1.15.0 (a heavily modified version)
-     jquery.ba-bbq       1.2.1
+     jquery.ba-bbq       1.3pre
      jquery.blockUI      2.70.0
      jquery.form         4.22
     =================== ==================================
@@ -174,7 +174,7 @@ class JQuery(Library):
         for i in ['jquery-migrate-3.0.1.js',
                   'jquery.cookie-1.0.js', 
                   'jquery.validate-1.15.0.modified.js',
-                  'jquery.ba-bbq-1.2.1.js',
+                  'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
                   'jquery.form-4.22.js']:
             self.add_shipped_plugin('jquery/%s' % i)
