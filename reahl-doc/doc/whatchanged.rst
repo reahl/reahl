@@ -197,7 +197,7 @@ Updated dependencies
 
 Some thirdparty JavaScript libraries were updated:
 
-  - JQueryUI to 1.12.0 - but our distribution includes *only* the widget factory, nothing else.
+  - JQueryUI to 1.12.1 - but our distribution includes *only* the widget factory, nothing else.
   - JQuery.validation was updated to 1.17.0
   - jquery-metadata plugin was removed
 

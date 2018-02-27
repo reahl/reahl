@@ -112,7 +112,7 @@ see also https://mathiasbynens.be/demo/url-regex
 modified to allow protocol-relative URLs
 
 
-reahl-web/reahl/web/static/jquery-ui-1.12.0.custom/jquery-ui.js
+reahl-web/reahl/web/static/jquery-ui-1.12.1.custom/jquery-ui.js
 ===============================================================
 
 Includes: widget.js

@@ -163,7 +163,7 @@ class JQuery(Library):
      jquery.validate     1.17.0 (a heavily modified version)
      jquery.ba-bbq       1.3pre
      jquery.blockUI      2.70.0
-     jquery.form         4.22
+     jquery.form         4.2.2
     =================== ==================================
     """
     def __init__(self):
@@ -176,7 +176,7 @@ class JQuery(Library):
                   'jquery.validate-1.17.0.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
-                  'jquery.form-4.22.js']:
+                  'jquery.form-4.2.2.js']:
             self.add_shipped_plugin('jquery/%s' % i)
 
     def add_shipped_plugin(self, file_name):
@@ -203,14 +203,14 @@ class JQuery(Library):
 
 
 class JQueryUI(Library):
-    """A heavily customised subset of version 1.12.0 of `JQuery UI <https://jqueryui.com>`_.
+    """A heavily customised subset of version 1.12.1 of `JQuery UI <https://jqueryui.com>`_.
     
    Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_.
     """
     def __init__(self):
         super(JQueryUI, self).__init__('jqueryui')
         self.shipped_in_directory = '/reahl/web/static'
-        self.files = ['jquery-ui-1.12.0.custom/jquery-ui.js']
+        self.files = ['jquery-ui-1.12.1.custom/jquery-ui.js']
 
 
 class HTML5Shiv(Library):
@@ -319,11 +319,11 @@ class ReahlBootstrap4Additions(Library):
 
 
 class Popper(Library):
-    """Version 1.12.5 (umd) of `Popper <https://popper.js.org/>`_.
+    """Version 1.12.9 (umd) of `Popper <https://popper.js.org/>`_.
     """
     def __init__(self):
         super(Popper, self).__init__('popper')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-            'popper-1.12.5/popper.js' #make sure it is the umd edition
+            'popper-1.12.9/popper.js' #make sure it is the umd edition
         ]
