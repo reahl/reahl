@@ -214,13 +214,13 @@ class JQueryUI(Library):
 
 
 class HTML5Shiv(Library):
-    """Version 3.6.3 of `html5shiv <https://github.com/aFarkas/html5shiv>`_.
+    """Version 3.7.3 of `html5shiv <https://github.com/aFarkas/html5shiv>`_.
     
     """
     def __init__(self):
         super(HTML5Shiv, self).__init__('html5shiv')
         self.shipped_in_directory = '/reahl/web/static'
-        self.files = ['html5shiv-printshiv-3.6.3.js']
+        self.files = ['html5shiv-printshiv-3.7.3.js']
 
     def footer_only_material(self, rendered_page):
         # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
