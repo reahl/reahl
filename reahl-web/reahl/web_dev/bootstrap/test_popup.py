@@ -91,10 +91,10 @@ def test_customising_dialog_buttons(web_fixture, popup_a_fixture):
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=PopupTestPanel.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
-    browser.open('/')
 
     button1_xpath = XPath.button_labelled('Butt1')
     button2_xpath = XPath.button_labelled('Butt2')
+
     browser.open('/')
 
     browser.click(XPath.link_with_text('Home page'))
@@ -135,3 +135,26 @@ def test_workings_of_check_checkbox_button(web_fixture, popup_a_fixture):
     browser.wait_for_not(popup_a_fixture.is_popped_up)
 
     assert browser.is_checked(XPath.input_labelled('a checkbox'))
+
+
+@with_fixtures(WebFixture, PopupAFixture)
+def test_centering_dialog_vertically(web_fixture, popup_a_fixture):
+    """The dialog can be centered vertically."""
+
+    class PopupTestPanel(Div):
+        def __init__(self, view):
+            super(PopupTestPanel, self).__init__(view)
+            self.add_child(PopupA(view, view.as_bookmark(), '#contents', center_vertically=True))
+            popup_contents = self.add_child(P(view, text='this is the content of the popup'))
+            popup_contents.set_id('contents')
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=PopupTestPanel.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    browser.click(XPath.link_with_text('Home page'))
+    browser.wait_for(popup_a_fixture.is_popped_up)
+
+    dialog_xpath = "//div[@class='modal fade show' and @tabindex='-1' and @role='dialog']/div[@class='modal-dialog modal-dialog-centered']/div[@class='modal-content']"
+    assert browser.is_element_present(dialog_xpath)
