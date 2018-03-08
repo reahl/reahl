@@ -422,24 +422,45 @@ def test_dropdown_menu_with_form(web_fixture):
     assert 'py-3' in form.get_attribute('class').split()
 
 
-@with_fixtures(WebFixture)
-def test_dropdown_menus_can_drop_up(web_fixture):
-    """Dropdown menus can drop upwards instead of downwards."""
+class DifferentDropPositions(Fixture):
+    @scenario
+    def dropup(self):
+        self.direction = 'up'
+        self.expected_class = 'dropup'
+
+    @scenario
+    def dropdown(self):
+        self.direction = 'down'
+        self.expected_class = 'dropdown'
+
+    @scenario
+    def dropleft(self):
+        self.direction = 'left'
+        self.expected_class = 'dropleft'
+
+    @scenario
+    def dropright(self):
+        self.direction = 'right'
+        self.expected_class = 'dropright'
+
+
+@with_fixtures(WebFixture, DifferentDropPositions)
+def test_dropdown_menus_drop_positions(web_fixture, drop_position_fixture):
+    """Dropdown menus can drop to many positions."""
 
     menu = Nav(web_fixture.view)
     sub_menu = Nav(web_fixture.view)
-    menu.add_dropdown('Dropdown title', sub_menu, drop_up=True)
+    menu.add_dropdown('Dropdown title', sub_menu, drop_position=drop_position_fixture.direction)
 
     [item] = menu.html_representation.children
 
     assert item.tag_name == 'li'
-    assert 'dropup' in item.get_attribute('class')
+    assert drop_position_fixture.expected_class in item.get_attribute('class')
 
 
 @with_fixtures(WebFixture)
 def test_dropdown_menus_right_align(web_fixture):
     """Dropdown menus can be aligned to the bottom right of their toggle, instead of the default (left)."""
-
 
     defaulted_sub_menu = DropdownMenu(web_fixture.view).use_layout(DropdownMenuLayout())
     assert 'dropdown-menu-right' not in defaulted_sub_menu.html_representation.get_attribute('class')

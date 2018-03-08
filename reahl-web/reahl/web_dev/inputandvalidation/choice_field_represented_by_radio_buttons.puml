@@ -1,0 +1,41 @@
+@startuml
+
+title ChoiceField represented by radio buttons
+
+hide members
+hide circle
+
+RadioButtonSelectInput -up-|> PrimitiveInput
+PrimitiveInput -right- HTMLElement : html_representation >
+PrimitiveInput -right- HTMLElement : html_control >
+PrimitiveInput -left- Field : bound_field
+SingleChoice -up-|> PrimitiveInput
+HMLInputElement -up-|> HTMLElement
+RadioButtonSelectInput -right- None : html_control >
+SingleChoice "*" -right- RadioButtonSelectInput : containing_input >
+note left of SingleChoice: "{ bound_field of SingleChoice \nis its containing_input's \nbound_field }"
+
+object ":<u>RadioButtonSelectInput</u>" as RadioButtonSelectInput_instance
+object "input type=radio:<u>HTMLElement</u>" as HTMLElement_instance
+object ":<u>SingleChoice</u>" as SingleChoice_instance
+RadioButtonSelectInput_instance ..up RadioButtonSelectInput
+together {
+ object "None:<u>object</u>" as None_instance
+ object ":<u>Div</u>" as Div_instance
+}
+object ":<u>ChoiceField</u>" as ChoiceField_instance
+object ":<u>Choice</u>" as Choice_instance
+object ":<u>Label</u>" as Label_instance
+RadioButtonSelectInput_instance -right-> Div_instance : html_representation >
+RadioButtonSelectInput_instance -right- None_instance : html_control >
+RadioButtonSelectInput_instance -left-> ChoiceField_instance : bound_field >
+SingleChoice_instance -up-> ChoiceField_instance : bound_field >
+SingleChoice_instance -up-- RadioButtonSelectInput_instance : containing_input >
+SingleChoice_instance -left- Choice_instance : choice >
+Div_instance -down-> SingleChoice_instance : children >
+SingleChoice_instance -right-> Label_instance : html_representation >
+SingleChoice_instance -right-> HTMLElement_instance : html_control >
+ChoiceField_instance -down-> Choice_instance
+Label_instance -down-> HTMLElement_instance : children[0] >
+
+@enduml

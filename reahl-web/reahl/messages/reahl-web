@@ -1,14 +1,14 @@
 # Translations template for reahl-web.
-# Copyright (C) 2017 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the reahl-web project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: reahl-web 4.0.0a1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-03-14 10:06+0000\n"
+"POT-Creation-Date: 2018-02-15 10:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/web/dhtml.py:60 reahl/web/fw.py:554
+#: reahl/web/dhtml.py:61 reahl/web/fw.py:521
 msgid "Untitled"
 msgstr ""
 
@@ -25,35 +25,35 @@ msgstr ""
 msgid "Invalid data supplied"
 msgstr ""
 
-#: reahl/web/ui.py:169
+#: reahl/web/ui.py:171
 msgid "An error occurred when contacting the server. Please try again later."
 msgstr ""
 
-#: reahl/web/ui.py:170
+#: reahl/web/ui.py:172
 msgid "The server took too long to respond. Please try again later."
 msgstr ""
 
-#: reahl/web/ui.py:1929
+#: reahl/web/ui.py:2050
 msgid "uploaded files should all have different names"
 msgstr ""
 
-#: reahl/web/bootstrap/carousel.py:145
+#: reahl/web/bootstrap/carousel.py:144
 msgid "Previous"
 msgstr ""
 
-#: reahl/web/bootstrap/carousel.py:145
+#: reahl/web/bootstrap/carousel.py:144
 msgid "Next"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:65
+#: reahl/web/bootstrap/files.py:62
 msgid "Choose file(s)"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:109 reahl/web/bootstrap/files.py:115
+#: reahl/web/bootstrap/files.py:107 reahl/web/bootstrap/files.py:113
 msgid "No files chosen"
 msgstr ""
 
-#: reahl/web/bootstrap/files.py:115
+#: reahl/web/bootstrap/files.py:113
 msgid "files chosen"
 msgstr ""
 
@@ -81,11 +81,11 @@ msgstr ""
 msgid "Please try again when all files have finished uploading."
 msgstr ""
 
-#: reahl/web/bootstrap/navbar.py:51
+#: reahl/web/bootstrap/navbar.py:52
 msgid "Toggle navigation"
 msgstr ""
 
-#: reahl/web/bootstrap/popups.py:85
+#: reahl/web/bootstrap/popups.py:86 reahl/web/bootstrap/popups.py:88
 msgid "Close"
 msgstr ""
 
@@ -93,7 +93,7 @@ msgstr ""
 msgid "A View"
 msgstr ""
 
-#: reahl/web_dev/bootstrap/test_nav.py:240
+#: reahl/web_dev/bootstrap/test_nav.py:254
 msgid "This is an English sentence."
 msgstr ""
 

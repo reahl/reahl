@@ -101,7 +101,7 @@ class FileInput(reahl.web.ui.WrappedInput):
         self.set_html_representation(self.input_group)
 
         span = self.input_group.add_child(Span(form.view))
-        span.append_class('input-group-btn')
+        span.append_class('input-group-append')
         span.add_child(file_input)
 
         filename_input = self.input_group.add_child(Span(self.view, text=_('No files chosen')))
@@ -161,7 +161,7 @@ class FileUploadPanel(Div):
         file_input = controls_panel.layout.add_input(FileInput(self.upload_form.form, self.fields.uploaded_file), hide_label=True)
 
         button_addon = file_input.html_representation.add_child(Span(self.view))
-        button_addon.append_class('input-group-btn')
+        button_addon.append_class('input-group-append')
         button_addon.add_child(Button(self.upload_form.form, self.events.upload_file))
         return controls_panel
 
@@ -220,8 +220,6 @@ class FileUploadPanel(Div):
     def upload_file(self):
         if self.uploaded_file is not None:
             self.persisted_file_class.add_persisted_for_form(self.input_form, self.name, self.uploaded_file)
-
-
 
 
 class FileUploadInput(PrimitiveInput):

@@ -25,19 +25,24 @@ $.widget("reahl.bootstrappopupa", {
         buttons: {},
         showForSelector: 'body',
         title: '',
-        dismiss_label: '',
+        dismissLabel: '',
+        centerVertically: false,
     },
     _create: function() {
         var o = this.options;
         var this_ = this;
         this.element.addClass("reahl-bootstrappopupa");
+        var modal_dialog_class = 'modal-dialog';
+        if(o.centerVertically){
+           modal_dialog_class += ' modal-dialog-centered';
+        };
 
         this_.$dialog = $("<div class='modal fade' tabindex='-1' role='dialog'> "+
-                        "  <div class='modal-dialog' role='document'>"+
+                        "  <div class='"+modal_dialog_class+"' role='document'>"+
                         "    <div class='modal-content'>"+
                         "      <div class='modal-header'>"+
                         "        <h4 class='modal-title'>"+o.title+"</h4>"+
-                        "        <button type='button' class='close' data-dismiss='modal' aria-label='"+o.dismiss_label+"'><span aria-hidden='true'>&times;</span></button>"+
+                        "        <button type='button' class='close' data-dismiss='modal' aria-label='"+o.dismissLabel+"'><span aria-hidden='true'>&times;</span></button>"+
                         "      </div>"+
                         "      <div class='modal-body'>"+
                         "      </div>"+
@@ -57,7 +62,7 @@ $.widget("reahl.bootstrappopupa", {
                     $.each(o.buttons, function(label, opts) { this_.add_button(label, opts) });
                     this_.$dialog.modal({});
 
-                    $link.click(function(e) {
+                    $link.on('click', function(e) {
                         this_.$dialog.modal('show');
                         return e.preventDefault();
                     });
@@ -68,7 +73,7 @@ $.widget("reahl.bootstrappopupa", {
     },
     add_button: function(label, opts) {
         var button = $("<button type='button' class='btn' data-dismiss='modal'>"+label+"</button>");
-        button.click(opts.function);
+        button.on('click', opts.function);
         for (var i = 0; i < opts.css_classes.length; i+=1) {
             button.addClass(opts.css_classes[i])
         };

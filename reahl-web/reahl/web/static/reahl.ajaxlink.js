@@ -41,7 +41,7 @@ $.widget('reahl.ajaxlink', {
             var staysOnPage = ( (!cleanHref) || cleanHref == window.location.pathname);
             if (staysOnPage) {
                 var element = this.element;
-                this.element.click( function() {
+                this.element.on('click', function() {
                     var current_state = $.deparam.fragment();
                     var current_href = _this.element.attr('href');
                     var newHref = $.param.fragment(current_href, current_state, 1);

@@ -101,7 +101,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
             $('#'+this_.getFormId()).clearForm();
         });
         $(this.element).on('change', 'input[type="file"]', function(){
-            this_.getUploadInput().click();
+            this_.getUploadInput().trigger("click");
         });
         $('#'+this.getInputFormId()).on('submit', function() {
             if (this_.uploadCounter > 0) {
@@ -155,7 +155,7 @@ $.widget('reahl.bootstrapfileuploadpanel', {
         this.processUploadQueue();
     },
     clearFileInput: function() {
-        this.getFileInput().val('').change();
+        this.getFileInput().val('').trigger('change');
     }
 });
 

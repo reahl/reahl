@@ -27,7 +27,7 @@
                   _this.changeCurrentPage(_this.pageNumberOf(event.target))
               }
           });
-          $(window).bind('hashchange', function(e) {
+          $(window).on('hashchange', function(e) {
               var newState = e.getState()
               if ('current_page_number' in newState) {
                   _this.changeCurrentPage(newState['current_page_number']);

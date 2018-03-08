@@ -1323,10 +1323,6 @@ class Choice(object):
         return self.field.as_input()
 
     @property
-    def label(self):
-        return self.field.label
-
-    @property
     def choices(self):
         return [self]
 

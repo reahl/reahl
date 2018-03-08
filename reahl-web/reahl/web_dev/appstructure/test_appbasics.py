@@ -61,7 +61,7 @@ class BasicScenarios(Fixture):
                 self.define_view('/', title='Hello', page=SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content = self.get_file_content('artifact_hello_world.html')
+        self.expected_content = self.get_file_content('expected_hello_world.html')
         self.content_includes_p = True
 
     @scenario
@@ -77,7 +77,7 @@ class BasicScenarios(Fixture):
                 home.set_page(SimplePage.factory())
 
         self.MainUI = MainUI
-        self.expected_content = self.get_file_content('artifact_hello_world.html')
+        self.expected_content = self.get_file_content('expected_hello_world.html')
         self.content_includes_p = True
 
     @scenario
@@ -88,7 +88,7 @@ class BasicScenarios(Fixture):
                 self.define_view('/', title='Hello')
 
         self.MainUI = MainUI
-        self.expected_content = self.get_file_content('artifact_hello_world_without_p.html')
+        self.expected_content = self.get_file_content('expected_hello_world_without_p.html')
         self.content_includes_p = False
 
 

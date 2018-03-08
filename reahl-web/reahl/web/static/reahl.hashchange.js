@@ -34,7 +34,7 @@ $.widget('reahl.hashchange', {
         var _this = this;
         
         _this.options.previousHashValues = $.extend(true, {}, _this.options.params);
-        $(window).bind( 'hashchange', function(e) {
+        $(window).on( 'hashchange', function(e) {
             var allCurrentHashValues = e.getState();
             var changedRelevantHashValues = _this.calculateChangedRelevantHashValues(allCurrentHashValues);
 

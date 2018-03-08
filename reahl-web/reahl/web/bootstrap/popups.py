@@ -73,8 +73,11 @@ class CheckCheckboxScript(JsFunction):
         super(CheckCheckboxScript, self).__init__(body_text=body_text)
 
 
+
+
 class PopupA(A):
-    def __init__(self, view, target_bookmark, show_for_selector, dismiss_label=None, close_button=True, css_id=None):
+    def __init__(self, view, target_bookmark, show_for_selector, dismiss_label=None, close_button=True,
+                 center_vertically=False, css_id=None):
         super(PopupA, self).__init__(view, target_bookmark.href, target_bookmark.description, css_id=css_id)
         self.set_title(target_bookmark.description)
         self.title = target_bookmark.description
@@ -82,6 +85,7 @@ class PopupA(A):
         self.show_for_selector = show_for_selector
         self.buttons = JsObject()
         self.dismiss_label = dismiss_label
+        self.center_vertically = center_vertically
         if dismiss_label is None:
             self.dismiss_label = _('Close')
         if close_button:
@@ -95,16 +99,17 @@ class PopupA(A):
         self.buttons[label] = JsObject(function=js_function, css_classes=css_classes)
         return self.buttons[label]
 
-    def buttons_as_jquery(self):
-        return self.buttons.as_html_snippet()
-
     @property
     def jquery_selector(self):
         return '"a.reahl-bootstrappopupa[href=\'%s\']"' % self.href
 
     def get_js(self, context=None):
         selector = self.contextualise_selector(self.jquery_selector, context)
-        return ['$(%s).bootstrappopupa({showForSelector: "%s", buttons: %s, title: "%s", dismiss_label: "%s" });' % \
-              (selector, self.show_for_selector, self.buttons_as_jquery(), self.title, self.dismiss_label)]
+        options = JsObject(showForSelector=self.show_for_selector,
+                           buttons=self.buttons,
+                           title=self.title,
+                           dismissLabel=self.dismiss_label,
+                           centerVertically=self.center_vertically)
+        return ['$(%s).bootstrappopupa(%s);' % (selector, options.as_html_snippet())]
 
 
