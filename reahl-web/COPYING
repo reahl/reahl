@@ -1,4 +1,4 @@
-This file is part of Reahl. The following copyright notice applies to 
+This file is part of Reahl. The following copyright notice applies to
 all files in the directory containing this file, and all files (recursively)
 in contained directories, except where otherwise indicated (see below).
 
@@ -19,15 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-Several files from other projects are included in this code. See the copyright information 
+Several files from other projects are included in this code. See the copyright information
 of each applicable file below:
 
 
-reahl-web/reahl/web/static/bootstrap-4.0.0-beta3/
+reahl-web/reahl/web/static/bootstrap-4.0.0/
 ===================================================
 
-Bootstrap v4.0.0-beta.3 (https://getbootstrap.com)
-Copyright 2011-2017 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+Bootstrap v4.0.0 (https://getbootstrap.com)
+Copyright 2011-2018 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
 Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
 
 Forked from github.com/necolas/normalize.css:
@@ -122,6 +122,23 @@ reahl-web/reahl/web/static/jquery/jquery.validate-1.17.0.modified.js
 ===========================================================
 
 Copyright (c) 2017 Jörn Zaefferer
+Released under the MIT license
+
+Which includes http://jqueryvalidation.org/url-method/ :
+
+Copyright (c) 2010-2013 Diego Perini, MIT licensed
+https://gist.github.com/dperini/729294
+see also https://mathiasbynens.be/demo/url-regex
+modified to allow protocol-relative URLs
+
+
+reahl-web/reahl/web/static/jquery-ui-1.12.1.custom/jquery-ui.js
+===============================================================
+
+Includes: widget.js
+Copyright jQuery Foundation and other contributors; Licensed MIT
+
+7 Jörn Zaefferer
 Released under the MIT license
 
 Which includes http://jqueryvalidation.org/url-method/ :
