@@ -274,20 +274,20 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.0.0 beta of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.0.0 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super(Bootstrap4, self).__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.0.0-beta3/css/bootstrap.css',
-                      'bootstrap-4.0.0-beta3/css/reahl-patch.css',
-                      'bootstrap-4.0.0-beta3/css/bootstrap.css.map',
-                      # 'bootstrap-4.0.0-beta3/css/bootstrap-grid.css',
-                      # 'bootstrap-4.0.0-beta3/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.0.0-beta3/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.0.0-beta3/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.0.0-beta3/js/bootstrap.js'
+                      'bootstrap-4.0.0/css/bootstrap.css',
+                      'bootstrap-4.0.0/css/reahl-patch.css',
+                      'bootstrap-4.0.0/css/bootstrap.css.map',
+                      # 'bootstrap-4.0.0/css/bootstrap-grid.css',
+                      # 'bootstrap-4.0.0/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.0.0/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.0.0/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.0.0/js/bootstrap.js'
                       ]
 
 
