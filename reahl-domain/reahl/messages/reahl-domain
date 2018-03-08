@@ -1,15 +1,15 @@
 # Translations template for reahl-domain.
-# Copyright (C) 2016 ORGANIZATION
+# Copyright (C) 2018 ORGANIZATION
 # This file is distributed under the same license as the reahl-domain
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-domain 3.2.0\n"
+"Project-Id-Version: reahl-domain 4.0.0a1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-06-09 11:57+0200\n"
+"POT-Creation-Date: 2018-02-15 10:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -114,35 +114,35 @@ msgstr ""
 msgid "The email address supplied is not unique."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:619
+#: reahl/domain/systemaccountmodel.py:618
 msgid "Unknown status"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:626
+#: reahl/domain/systemaccountmodel.py:625
 msgid "Please verify your account before logging in"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:631
+#: reahl/domain/systemaccountmodel.py:630
 msgid "Account is locked: too many failed attempts"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:636
+#: reahl/domain/systemaccountmodel.py:635
 msgid "Account is active"
 msgstr ""
 
-#: reahl/domain/workflowmodel.py:58
+#: reahl/domain/workflowmodel.py:57
 msgid "Take"
 msgstr ""
 
-#: reahl/domain/workflowmodel.py:62
+#: reahl/domain/workflowmodel.py:61
 msgid "Defer"
 msgstr ""
 
-#: reahl/domain/workflowmodel.py:63
+#: reahl/domain/workflowmodel.py:62
 msgid "Go to"
 msgstr ""
 
-#: reahl/domain/workflowmodel.py:67
+#: reahl/domain/workflowmodel.py:66
 msgid "Release"
 msgstr ""
 

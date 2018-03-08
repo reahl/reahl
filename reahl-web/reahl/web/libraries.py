@@ -280,14 +280,14 @@ class Bootstrap4(Library):
         super(Bootstrap4, self).__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.0.0-beta2/css/bootstrap.css',
-                      'bootstrap-4.0.0-beta2/css/reahl-patch.css',
-                      'bootstrap-4.0.0-beta2/css/bootstrap.css.map',
-                      # 'bootstrap-4.0.0-beta2/css/bootstrap-grid.css',
-                      # 'bootstrap-4.0.0-beta2/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.0.0-beta2/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.0.0-beta2/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.0.0-beta2/js/bootstrap.js'
+                      'bootstrap-4.0.0-beta3/css/bootstrap.css',
+                      'bootstrap-4.0.0-beta3/css/reahl-patch.css',
+                      'bootstrap-4.0.0-beta3/css/bootstrap.css.map',
+                      # 'bootstrap-4.0.0-beta3/css/bootstrap-grid.css',
+                      # 'bootstrap-4.0.0-beta3/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.0.0-beta3/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.0.0-beta3/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.0.0-beta3/js/bootstrap.js'
                       ]
 
 

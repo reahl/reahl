@@ -211,11 +211,11 @@ class Nav(Menu):
         ul.append_class('nav')
         return ul
     
-    def add_dropdown(self, title, dropdown_menu, drop_up=False, query_arguments={}):
+    def add_dropdown(self, title, dropdown_menu, drop_position='down', query_arguments={}):
         """Adds the dropdown_menu :class:`DropdownMenu` to this Nav. It appears as the
         top-level item with text `title`.
 
-        :keyword drop_up: If True, the dropdown will drop upwards from its item, instead of down.
+        :keyword drop_position: Position relative to the item where the dropdown should appear ('up', 'down', 'left' or 'right').
         :keyword query_arguments: (For internal use)
         """
         if self.open_item == title:
@@ -239,7 +239,7 @@ class Nav(Menu):
         submenu.a.set_attribute('aria-haspopup', 'true')
         # submenu.a.set_attribute('aria-expanded', 'true') #FYI no need to set this this as it is handled by bootstrap js
 
-        li.append_class('drop%s' % ('up' if drop_up else 'down'))
+        li.append_class(DropdownMenuPosition(drop_position).as_html_snippet())
         return submenu
 
     def add_html_for_item(self, item):
@@ -249,6 +249,12 @@ class Nav(Menu):
         item.a.add_attribute_source(ActiveStateAttributes(item, active_value='active'))
         item.a.add_attribute_source(AccessRightAttributes(item.a, disabled_class='disabled'))
         return li
+
+
+class DropdownMenuPosition(HTMLAttributeValueOption):
+    def __init__(self, name):
+        super(DropdownMenuPosition, self).__init__(name, True, prefix='drop', delimiter='',
+                                                   constrain_value_to=['up', 'down', 'left', 'right'])
 
 
 class ContentAlignment(HTMLAttributeValueOption):
@@ -283,6 +289,7 @@ class NavLayout(Layout):
         super(NavLayout, self).customise_widget()
         if self.key:
             self.widget.append_class(self.additional_css_class)
+            self.widget.set_attribute('role', 'tablist')
         if self.content_alignment.is_set:
             self.widget.append_class(self.content_alignment.as_html_snippet())
         if self.content_justification.is_set:

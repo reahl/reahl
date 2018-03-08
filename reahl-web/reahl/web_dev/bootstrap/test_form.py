@@ -19,13 +19,13 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import scenario, Fixture, uses
+from reahl.tofu import scenario, Fixture, uses, expected
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath, Browser
 from reahl.webdev.tools import WidgetTester
 from reahl.component.modelinterface import exposed, Field, BooleanField, Event, Choice, ChoiceField,\
-    MultiChoiceField, IntegerField
+    MultiChoiceField, IntegerField, Action
 from reahl.web.fw import Url
 from reahl.web.bootstrap.ui import A, Div, FieldSet
 from reahl.web.bootstrap.forms import Button, FormLayout, InlineFormLayout, GridFormLayout, Form, ChoicesLayout,\
@@ -232,7 +232,9 @@ def test_adding_checkboxes(web_fixture, form_layout_fixture):
     assert not any(child.tag == 'label' for child in fixture.get_form_group_children(browser))
     [div] = fixture.get_form_group_children(browser)
     [checkbox] = div.getchildren()
-    assert checkbox.attrib['class'] == 'form-check'
+    checkbox_classes = checkbox.attrib['class'].split(' ')
+    assert 'custom-control' in checkbox_classes
+    assert 'custom-checkbox' in checkbox_classes
 
 
 class ValidationScenarios(FormLayoutFixture):
@@ -336,41 +338,6 @@ def test_input_validation_cues_javascript_interaction(web_fixture, javascript_va
     assert not fixture.get_form_group_errors(browser, index=0)
 
 
-@uses(web_fixture=WebFixture)
-class DisabledScenarios(Fixture):
-
-    @scenario
-    def disabled_input(self):
-        self.field = Field(writable=lambda field: False)
-        self.expects_disabled_class = True
-
-    @scenario
-    def enabled_input(self):
-        self.field = Field(writable=lambda field: True)
-        self.expects_disabled_class = False
-
-
-@with_fixtures(WebFixture, DisabledScenarios)
-def test_disabled_state(web_fixture, disabled_scenarios):
-    """Visible cues are inserted to indicate that inputs are disabled. """
-    fixture = disabled_scenarios
-
-    form = Form(web_fixture.view, 'test').use_layout(FormLayout())
-    field = fixture.field
-    field.bind('field', fixture)
-
-    form.layout.add_input(TextInput(form, field))
-
-    tester = WidgetTester(form)
-
-    [form_group] = tester.xpath(FormLayoutFixture.form_group_xpath)
-    if fixture.expects_disabled_class:
-        assert 'disabled ' in form_group.attrib['class']
-    else:
-        assert 'disabled' not in form_group.attrib['class']
-
-
-
 class CheckboxFixture(Fixture):
     def new_field(self):
         return BooleanField(label='Subscribe to newsletter?')
@@ -409,10 +376,12 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
     checkbox = XPath.input_labelled('Subscribe to newsletter?')
     assert not browser.is_checked(checkbox)
     assert browser.is_element_present(XPath.label_with_text('Subscribe to newsletter?'))
-    assert browser.get_xpath_count('//label/input') == 1
-    assert browser.get_attribute('//div/label/input/../..', 'class') == 'form-check'
-    assert browser.get_attribute('//label', 'class') == 'form-check-label'
-    assert browser.get_attribute('//label/input', 'class') == 'form-check-input'
+    assert browser.is_element_present('//div/input/following-sibling::label')
+    assert browser.get_attribute('//label', 'class') == 'custom-control-label'
+    checkbox_classes = browser.get_attribute('//div/input[@type="checkbox"]/..', 'class').split(' ')
+    assert 'custom-control' in checkbox_classes
+    assert 'custom-checkbox' in checkbox_classes
+    assert browser.get_attribute('//div/input[@type="checkbox"]', 'class') == 'custom-control-input'
 
     browser.check(checkbox)
     browser.click(XPath.button_labelled('Submit'))
@@ -421,12 +390,28 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
 
 
 @with_fixtures(WebFixture, CheckboxFixture)
+def test_click_checkbox_label_with_boolean_field(web_fixture, checkbox_fixture):
+    """Clickin on the label of a single checkbox, toggles the checkbox itself."""
+
+    web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=checkbox_fixture.Form.factory()))
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    checkbox = XPath.input_labelled('Subscribe to newsletter?')
+    assert not browser.is_checked(checkbox)
+    browser.click(XPath.label_with_text('Subscribe to newsletter?'))
+    assert browser.is_checked(checkbox)
+
+
+@with_fixtures(WebFixture, CheckboxFixture)
 def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
     """CheckboxInput can also be used to choose many things from a list, in which case it renders many checkboxes."""
 
     choices = [Choice(1, IntegerField(label='One')),
-               Choice(2, IntegerField(label='Two')),
-               Choice(3, IntegerField(label='Three'))]
+               Choice(2, IntegerField(label='Two', writable=Action(lambda:False))),
+               Choice(3, IntegerField(label='Three')),
+               Choice(4, IntegerField(label='Four')),
+               ]
     checkbox_fixture.field = MultiChoiceField(choices, label='Make your choice', default=[1])
 
     web_fixture.reahl_server.set_app(web_fixture.new_wsgi_app(child_factory=checkbox_fixture.Form.factory()))
@@ -435,22 +420,26 @@ def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
 
     assert browser.is_element_present(XPath.label_with_text('Make your choice'))
 
-    assert browser.get_xpath_count('//label[@class="form-check-label"]/input[@class="form-check-input"]') == 3
+    assert browser.get_xpath_count('//input[@class="custom-control-input"]/following-sibling::label[@class="custom-control-label"]') == 4
 
     checkbox_one = XPath.input_labelled('One')
     checkbox_two = XPath.input_labelled('Two')
     checkbox_three = XPath.input_labelled('Three')
+    checkbox_four = XPath.input_labelled('Four')
 
     assert browser.is_checked(checkbox_one)
     assert not browser.is_checked(checkbox_two)
+    assert not browser.is_element_enabled(checkbox_two)
+    # assert browser.is_visible(checkbox_two) #cannot do this as the way bootsrap renders, the actual html input has opacity=0
     assert not browser.is_checked(checkbox_three)
+    assert not browser.is_checked(checkbox_four)
     browser.uncheck(checkbox_one)
-    browser.check(checkbox_two)
     browser.check(checkbox_three)
+    browser.check(checkbox_four)
     browser.click(XPath.button_labelled('Submit'))
     assert not browser.is_checked(checkbox_one)
-    assert browser.is_checked(checkbox_two)
     assert browser.is_checked(checkbox_three)
+    assert browser.is_checked(checkbox_four)
 
 
 @uses(web_fixture=WebFixture)
@@ -473,14 +462,15 @@ def test_choices_layout_applied_to_checkbox(web_fixture, choices_fixture):
     stacked_container = Div(web_fixture.view).use_layout(ChoicesLayout())
     stacked_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.boolean_field))
 
-    assert 'form-check' in stacked_container.children[0].get_attribute('class').split(' ')
+    stacked_container_classes = stacked_container.children[0].get_attribute('class').split(' ')
+    assert 'custom-control' in stacked_container_classes
+    assert 'custom-checkbox' in stacked_container_classes
 
-    [label] = stacked_container.children[0].children
+    [checkbox_input, label] = stacked_container.children[0].children
+    [description_widget] = label.children
     assert label.tag_name == 'label'
 
-    [checkbox_input, spacer, description_widget] = label.children
-    assert checkbox_input.input_type == 'checkbox'
-    assert spacer.value == ' '
+    assert checkbox_input.html_representation.input_type == 'checkbox'
     assert description_widget.value == 'field'
 
 
@@ -492,7 +482,45 @@ def test_checkbox_with_inline_layout(web_fixture, choices_fixture):
     inlined_container = Div(web_fixture.view).use_layout(ChoicesLayout(inline=True))
     inlined_container.layout.add_choice(PrimitiveCheckboxInput(fixture.form, fixture.boolean_field))
 
-    assert 'form-check-inline' in inlined_container.children[0].get_attribute('class').split(' ')
+    assert 'custom-control-inline' in inlined_container.children[0].get_attribute('class').split(' ')
+
+
+@uses(web_fixture=WebFixture)
+class DisabledScenarios(Fixture):
+
+    @scenario
+    def disabled_input(self):
+        self.field = BooleanField(writable=lambda field: False)
+        self.expects_disabled_class = True
+
+    @scenario
+    def enabled_input(self):
+        self.field = BooleanField(writable=lambda field: True)
+        self.expects_disabled_class = False
+
+
+@with_fixtures(WebFixture, DisabledScenarios)
+def test_choice_disabled_state(web_fixture, disabled_scenarios):
+    """Visible cues are inserted to indicate that inputs are disabled. """
+    fixture = disabled_scenarios
+
+    form = Form(web_fixture.view, 'test')
+    field = fixture.field
+    field.bind('field', fixture)
+
+    container = Div(web_fixture.view).use_layout(ChoicesLayout())
+    container.layout.add_choice(PrimitiveCheckboxInput(form, field))
+
+    [checkbox_container] = container.children
+    [checkbox_input, label] = checkbox_container.children
+    checkbox_container_classes = checkbox_container.get_attribute('class').split(' ')
+    if fixture.expects_disabled_class:
+        assert 'disabled' in checkbox_container_classes
+        assert checkbox_input.html_representation.get_attribute('disabled') == 'disabled'
+    else:
+        assert 'disabled' not in checkbox_container_classes
+        with expected(KeyError):
+            checkbox_input.html_representation.get_attribute('disabled')
 
 
 class RadioButtonFixture(ChoicesFixture):
@@ -514,12 +542,13 @@ def test_radio_button_basics(radio_button_fixture):
     [choice1_container, choice2_container] = container.children
 
     def check_choice_container_details(choice_container, expected_choice_text, expected_button_value):
-        assert 'form-check' in choice_container.get_attribute('class').split(' ')
-        [label] = choice_container.children
+        choice_container_classes = choice_container.get_attribute('class').split(' ')
+        assert 'custom-control' in choice_container_classes
+        assert 'custom-radio' in choice_container_classes
+        [primitive_radio_button, label] = choice_container.children
         assert label.tag_name == 'label'
-        [primitive_radio_button, text_spacer, choice_text_node] = label.children
+        [choice_text_node] = label.children
         assert primitive_radio_button.value == expected_button_value
-        assert text_spacer.value == ' '
         assert choice_text_node.value == expected_choice_text
 
     check_choice_container_details(choice1_container, 'One', '1')
@@ -535,7 +564,7 @@ def test_radio_button_layout(radio_button_fixture):
     assert radio_input.contents_layout.inline
 
     choice_container = radio_input.children[0].children[0]
-    assert 'form-check-inline' in choice_container.get_attribute('class').split(' ')
+    assert 'custom-control-inline' in choice_container.get_attribute('class').split(' ')
 
 
 @with_fixtures(RadioButtonFixture)
@@ -554,7 +583,7 @@ def test_radio_button_label_as_legend(radio_button_fixture):
 
     [label_widget, radio_input_in_form] = form.children[0].children
     assert label_widget.tag_name == 'legend'
-    assert 'col-form-legend' in label_widget.get_attribute('class')
+    assert 'col-form-label' in label_widget.get_attribute('class')
     assert radio_input_in_form is inlined_radio
 
 

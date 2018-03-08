@@ -39,8 +39,8 @@ class InputGroupFixture(Fixture):
     @scenario
     def plain_text(self):
         self.input_group = InputGroup('before text', self.an_input, 'after text')
-        self.expects_before_html = '<span class="input-group-addon">before text</span>'
-        self.expects_after_html = '<span class="input-group-addon">after text</span>'
+        self.expects_before_html = '<span class="input-group-prepend"><span class="input-group-text">before text</span></span>'
+        self.expects_after_html = '<span class="input-group-append"><span class="input-group-text">after text</span></span>'
 
     @scenario
     def none_specified(self):
@@ -53,8 +53,8 @@ class InputGroupFixture(Fixture):
         self.input_group = InputGroup(P(self.web_fixture.view, text='before widget'),
                                       self.an_input, 
                                       P(self.web_fixture.view, text='after widget'))
-        self.expects_before_html = '<span class="input-group-addon"><p>before widget</p></span>'
-        self.expects_after_html = '<span class="input-group-addon"><p>after widget</p></span>'
+        self.expects_before_html = '<span class="input-group-prepend"><p class="input-group-text">before widget</p></span>'
+        self.expects_after_html = '<span class="input-group-append"><p class="input-group-text">after widget</p></span>'
 
 
 @with_fixtures(WebFixture, InputGroupFixture)

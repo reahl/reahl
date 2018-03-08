@@ -38,37 +38,44 @@ class LayoutScenarios(Fixture):
     @scenario
     def header_dark(self):
         self.layout_kwargs = dict(dark=True)
-        self.expected_css_class = 'table-dark'
+        self.expected_table_css_class = 'table table-dark'
+        self.expected_main_css_class = None
 
     @scenario
     def border(self):
         self.layout_kwargs = dict(border=True)
-        self.expected_css_class = 'table-bordered'
+        self.expected_table_css_class = 'table table-bordered'
+        self.expected_main_css_class = None
 
     @scenario
     def striped_rows(self):
         self.layout_kwargs = dict(striped=True)
-        self.expected_css_class = 'table-striped'
+        self.expected_table_css_class = 'table table-striped'
+        self.expected_main_css_class = None
 
     @scenario
     def hovered_rows(self):
         self.layout_kwargs = dict(highlight_hovered=True)
-        self.expected_css_class = 'table-hover'
+        self.expected_table_css_class = 'table table-hover'
+        self.expected_main_css_class = None
 
     @scenario
     def compacted_cells(self):
         self.layout_kwargs = dict(compact=True)
-        self.expected_css_class = 'table-sm'
+        self.expected_table_css_class = 'table table-sm'
+        self.expected_main_css_class = None
 
     @scenario
     def responsive(self):
         self.layout_kwargs = dict(responsive='lg')
-        self.expected_css_class = 'table-responsive-lg'
+        self.expected_table_css_class = 'table'
+        self.expected_main_css_class = 'table-responsive-lg'
 
     @scenario
     def responsive_for_device(self):
         self.layout_kwargs = dict(responsive=True)
-        self.expected_css_class = 'table-responsive'
+        self.expected_table_css_class = 'table'
+        self.expected_main_css_class = 'table-responsive'
 
 
 @with_fixtures(WebFixture, LayoutScenarios)
@@ -77,7 +84,9 @@ def test_table_layout_options(web_fixture, layout_scenarios):
 
     layout = TableLayout(**layout_scenarios.layout_kwargs)
     Table(web_fixture.view).use_layout(layout)
-    assert layout.widget.get_attribute('class') == 'table %s' % layout_scenarios.expected_css_class
+    assert layout.widget.table.get_attribute('class') == layout_scenarios.expected_table_css_class
+    if layout_scenarios.expected_main_css_class:
+        assert layout.widget.html_representation.get_attribute('class') == layout_scenarios.expected_main_css_class
 
 
 class LayoutHeaderThemeScenarios(WebFixture):
