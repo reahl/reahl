@@ -112,7 +112,7 @@ def test_standard_reahl_files(web_fixture):
     wsgi_app = ReahlWSGIApplication(config)
     browser = Browser(wsgi_app)
 
-    browser.open('/static/html5shiv-printshiv-3.6.3.js')
+    browser.open('/static/html5shiv-printshiv-3.7.3.js')
     assert browser.last_response.content_length > 0
 
     browser.open('/static/IE9.js')

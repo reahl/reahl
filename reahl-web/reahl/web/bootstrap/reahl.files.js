@@ -25,7 +25,7 @@
       },
       _create: function() {
 	  var this_ = this;
-	  $(this.element).find("input[type='file']").change(function(e) {
+	  $(this.element).find("input[type='file']").on('change', function(e) {
 
 	      var fileName = '';
 
@@ -58,10 +58,10 @@
 	  var this_ = this;
 	  var $fileInput = $(this.element).find("input[type='file']");
 	  $fileInput
-	      .focus(function(){ 
+	      .on('focus', function(){
 		  $(this_.element).addClass('focus'); 
 	      })
-	      .blur(function(){ 
+	      .on('blur', function(){
 		  $(this_.element).removeClass('focus'); 
 	      });
       }

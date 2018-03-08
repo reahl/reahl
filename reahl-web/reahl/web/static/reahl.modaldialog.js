@@ -64,8 +64,8 @@ $.widget("reahl.modaldialog", {
         for (var name in buttons) {
            var js = buttons[name];
            var button = $('<span class=".reahl-button"><input type="submit" name="'+name+'" value="'+name+'"></span>');
-           button.click(eval(js)); 
-           button.click(function(){
+           button.on('click', eval(js));
+           button.on('click', function(){
                $(o.coveredElement).unblock();  
                return false;
            });

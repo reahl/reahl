@@ -151,32 +151,32 @@ class Library(object):
 
     
 class JQuery(Library):
-    """Version 1.11.2 of `JQuery <https://jquery.com>`_.
+    """Version 3.3.1 of `JQuery <https://jquery.com>`_.
 
     This Library also includes a number of plugins we use internally:
 
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery-migrate      1.2.1
+     jquery-migrate      3.0.1
      jquery.cookie       1.0
-     jquery.validate     1.15.0 (a heavily modified version)
-     jquery.ba-bbq       1.2.1
+     jquery.validate     1.17.0 (a heavily modified version)
+     jquery.ba-bbq       1.3pre
      jquery.blockUI      2.70.0
-     jquery.form         3.14
+     jquery.form         4.2.2
     =================== ==================================
     """
     def __init__(self):
         super(JQuery, self).__init__('jquery')
-        self.files = ['jquery-1.11.2/jquery-1.11.2.js',
-                      'jquery-1.11.2/jquery-1.11.2.min.map']
+        self.files = ['jquery-3.3.1/jquery-3.3.1.js',
+                      'jquery-3.3.1/jquery-3.3.1.min.map']
         self.shipped_in_directory = '/reahl/web/static'
-        for i in ['jquery-migrate-1.2.1.js',
+        for i in ['jquery-migrate-3.0.1.js',
                   'jquery.cookie-1.0.js', 
-                  'jquery.validate-1.15.0.modified.js',
-                  'jquery.ba-bbq-1.2.1.js',
+                  'jquery.validate-1.17.0.modified.js',
+                  'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
-                  'jquery.form-3.14.js']:
+                  'jquery.form-4.2.2.js']:
             self.add_shipped_plugin('jquery/%s' % i)
 
     def add_shipped_plugin(self, file_name):
@@ -203,24 +203,24 @@ class JQuery(Library):
 
 
 class JQueryUI(Library):
-    """A heavily customised subset of version 1.12.0 of `JQuery UI <https://jqueryui.com>`_.
+    """A heavily customised subset of version 1.12.1 of `JQuery UI <https://jqueryui.com>`_.
     
    Only contains the `Widget Factory <http://api.jqueryui.com/jQuery.widget/>`_.
     """
     def __init__(self):
         super(JQueryUI, self).__init__('jqueryui')
         self.shipped_in_directory = '/reahl/web/static'
-        self.files = ['jquery-ui-1.12.0.custom/jquery-ui.js']
+        self.files = ['jquery-ui-1.12.1.custom/jquery-ui.js']
 
 
 class HTML5Shiv(Library):
-    """Version 3.6.3 of `html5shiv <https://github.com/aFarkas/html5shiv>`_.
+    """Version 3.7.3 of `html5shiv <https://github.com/aFarkas/html5shiv>`_.
     
     """
     def __init__(self):
         super(HTML5Shiv, self).__init__('html5shiv')
         self.shipped_in_directory = '/reahl/web/static'
-        self.files = ['html5shiv-printshiv-3.6.3.js']
+        self.files = ['html5shiv-printshiv-3.7.3.js']
 
     def footer_only_material(self, rendered_page):
         # From: http://remysharp.com/2009/01/07/html5-enabling-script/ 
@@ -319,11 +319,11 @@ class ReahlBootstrap4Additions(Library):
 
 
 class Popper(Library):
-    """Version 1.12.5 (umd) of `Popper <https://popper.js.org/>`_.
+    """Version 1.12.9 (umd) of `Popper <https://popper.js.org/>`_.
     """
     def __init__(self):
         super(Popper, self).__init__('popper')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-            'popper-1.12.5/popper.js' #make sure it is the umd edition
+            'popper-1.12.9/popper.js' #make sure it is the umd edition
         ]
