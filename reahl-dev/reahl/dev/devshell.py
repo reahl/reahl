@@ -124,7 +124,7 @@ class List(WorkspaceCommand):
     """Lists all the projects currently selected (or, optionally, all projects in the workspace)"""
     keyword = 'list'
     def assemble(self):
-        super(Save, self).assemble()
+        super(List, self).assemble()
         self.parser.add_argument('-s', '--state', action='store_true', dest='with_status',
                                  help='outputs the status too')
         self.parser.add_argument('-a', '--all', action='store_true', dest='all',

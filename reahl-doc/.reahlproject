@@ -50,12 +50,6 @@
         <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
         <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
         <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:LoginSession"/>
-        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:AddressBook"/>
-        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:Collaborator"/>
-        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:AddressBook"/>
-        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:Collaborator"/>
-        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:AddressBook"/>
         <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Collaborator"/>
         <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Address"/>

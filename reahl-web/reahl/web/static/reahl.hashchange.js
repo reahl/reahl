@@ -49,7 +49,7 @@ $.widget('reahl.hashchange', {
     triggerChange: function(allCurrentHashValues, changedRelevantHashValues) {
         var _this = this;
         var allNewHashValues = $.extend(true, {}, _this.options.previousHashValues, allCurrentHashValues);
-        var loading = _this.element.block({message: ''});
+        var loading = _this.element.block({overlayCSS: {opacity: 0.03}, message: ''});
         $.ajax({url:     _this.options.url,
                 cache:   _this.options.cache,
                 data:    allNewHashValues,

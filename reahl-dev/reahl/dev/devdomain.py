@@ -1002,6 +1002,13 @@ class HardcodedMetadata(ProjectMetadata):
     def version(self):
         return Version(self.info['version'].contents)
 
+    @property
+    def project_name(self):
+        try:
+            return self.info['project_name'].contents
+        except KeyError:
+            return super(HardcodedMetadata, self).project_name
+
     def get_long_description_for(self, project):
         return self.info['long_description'].contents
 
@@ -1023,7 +1030,7 @@ class HardcodedMetadata(ProjectMetadata):
         return self.info_completed()
 
     def info_completed(self):
-        expected_info = {'url', 'version', 'description', 'long_description', 'maintainer_name', 'maintainer_email'}
+        expected_info = {'project_name', 'url', 'version', 'description', 'long_description', 'maintainer_name', 'maintainer_email'}
         completed_info = set(self.info.keys())
         return expected_info == completed_info
 
