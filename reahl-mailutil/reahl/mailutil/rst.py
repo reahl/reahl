@@ -51,6 +51,6 @@ class RestructuredText(object):
             settings_overrides=settings,
             config_section=None,
             enable_exit_status=None)
-        return pub.writer.parts['fragment']
+        return pub.writer.parts['html_body']
 
 
