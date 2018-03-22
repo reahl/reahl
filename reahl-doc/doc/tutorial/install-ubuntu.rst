@@ -50,8 +50,8 @@ instructions for completeness.)
 The next step is to :ref:`install Reahl itself in a virtualenv <install-reahl-itself>`.
 
 
-Chromedriver
-------------
+Chromedriver (optional)
+-----------------------
 
 You do not need to install chromedriver in order to follow this
 tutorial. However, if you are going to use chromium for testing, you

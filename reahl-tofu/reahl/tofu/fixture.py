@@ -123,16 +123,35 @@ class Fixture(object):
     """A test Fixture is a collection of objects defined and set up to be
        used together in a test.
 
-       Programmers should extend this class by creating subclasses of Fixture.
+       To create your own Fixture, create a subclasses of Fixture.
        On such a subclass, a new member of the Fixture is defined by a specially
        named method that is able to create the object.
        
        The name of such a 'factory method' is `new_` with the name of the object
        appended.
 
-       When an object is referenced by name on the fixture, the corresponding 
-       `new_` method is called, and the resulting object cached as a singleton for
-       future accesses.
+       .. code-block:: python
+
+          class MyFixture(Fixture):
+                def new_name(self):
+                    return 'myname'
+
+       A Fixture is used inside a with statement or as using a plugin for a test
+       framework.
+
+       A member of the Fixture can be accessed by referencing it by
+       name on the fixture as if it were an attribute.
+
+       The first time a program references a member on the Fixture
+       instance, the corresponding `new_` method will be called behind
+       the scenes (without arguments) to create the object. Subsequent
+       accesses of the same member will always bring back the same
+       instance which was created on the first access.
+
+       .. code-block:: python
+
+          with MyFixture() as fixture:
+               assert fixture.name is fixture.name
 
        If the created singleton object also needs to be torn down, the new_ method 
        should yield it (not return), and perform necessary tear down after the yield

@@ -5,6 +5,11 @@ Testing
 
 TODO: explain all the new fixture stuff
 
+Tests are central to our development process., :ref:'as alluded to
+before<making_sense>'. We depend on a testing infrastructure build
+using :class:`~reahl.tofu.Fixture`\s.
+
+
 .. sidebar:: Behind the scenes
 
    The Reahl testing tools are mostly wrappers and extensions of other
@@ -16,121 +21,36 @@ TODO: explain all the new fixture stuff
    `chromedriver
    <http://code.google.com/p/selenium/wiki/ChromeDriver>`_).
 
-Tests are central to our development process and hence some
-understanding of how testing is done will also help you to understand
-Reahl -- and the rest of this tutorial.
 
-Here's how we like to think of tests: if you had to explain a system
-to a newcomer from scratch, you'd explain a number of facts -- some
-facts also build upon on other facts that have already been
-explained. We try to identify these explanatory facts, and write a
-test *per fact*. The code of the test itself provides an example
-and/or more detail about that fact. Tests are thus a specification of
-the requirements of the system, and can be used to explain the system
-to someone.
+Foundational fixtures
+---------------------
 
-In order to facilitate these ideas, some testing tools grew with
-Reahl. This section gives a brief introduction.
+ ReahlSystemSessionFixture and RealSystemFixture
 
-Fixtures
---------
+ database connection, schema creation(?), config, copying of config
+ 
 
-.. sidebar:: Examples in this section
+Keeping the database clean
+--------------------------
 
-   - tutorial.testbasics
-   - tutorial.parameterised2
+ SqlAlchemyFixture
 
-   Get a copy of an example by running:
-
-   .. code-block:: bash
-
-      reahl example <examplename>
-
-In order to test something, you usually need to create a number of
-related objects first for use in the test itself. Creating these
-objects can be tedious -- especially if they depend on each other.
-
-Such a collection of objects used together by a test is called a test
-:class:`~reahl.tofu.Fixture`. Reahl allows one to write a :class:`~reahl.tofu.Fixture` as a separate
-class. Defining a :class:`~reahl.tofu.Fixture` separately from the test that is using it
-allows for the :class:`~reahl.tofu.Fixture` to be re-used by different tests, and even by
-other :class:`~reahl.tofu.Fixture` classes. Separating the :class:`~reahl.tofu.Fixture` also helps keep the test
-itself to read more like a requirements specification and less like
-code.
-
-Here's how :class:`~reahl.tofu.Fixture`\ s work: For each object that will form part of the
-:class:`~reahl.tofu.Fixture`, a programmer writes a method on the :class:`~reahl.tofu.Fixture` class which will
-create the object when called.  The name of the method is "`new_`"
-prefixed to the name of the object.  (Assuming an object named
-`my_object`, you would add a method to the fixture named
-`new_my_object`.) In order to use a :class:`~reahl.tofu.Fixture` with a specific test,
-decorate the test using the `@test()` decorator, passing the :class:`~reahl.tofu.Fixture`
-class to `@test()`.  The test method or function should also
-expect a single argument in its signature: the :class:`~reahl.tofu.Fixture` instance.
-
-The first time a program references `.my_object` on the :class:`~reahl.tofu.Fixture`
-instance, the corresponding `new_` method will be called behind the
-scenes to create the object. Subsequent accesses of `.my_object` will
-always bring back the same instance which was created on the first
-access.
-
-You instruct pytest to use the :class:`~reahl.tofu.Fixture` you want
-by decorating the test function with the
-:class:`~real.tofu.pytestsupport.WithFixtureDecorator`.
-
-Here is a simple test which illustrates how :class:`~reahl.tofu.Fixture`\ s work:
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/testbasics.py
-   :end-before: # ------- dependent setup objects example
+ explain transactions
 
 
-:class:`~reahl.tofu.Fixture`\ s are all about objects that depend on one another. The
-following example shows a :class:`~reahl.tofu.Fixture` with two objects: a `.name`, and a
-`.user`. The User object is initialised using the `.name` which
-accompanies it on the :class:`~reahl.tofu.Fixture`. For simplicity, the actual code of User
-is just included in the test. Note also how SimpleFixture is reused
-here, by deriving from it:
+Testing web stuff
+-----------------
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/testbasics.py
-   :start-after: # ------- dependent setup objects example
-   :end-before: # ------- using new_ methods directly
+ WebSessionFixture, WebFixture
 
-Things can get more interesting though. A useful convention is to
-create `new_*` methods with keyword arguments.  This way one can use
-the `new_*` method to create slightly modified versions of the default
-object available on the :class:`~reahl.tofu.Fixture`:
+ Browser, DriverBrowser etc
 
-.. literalinclude:: ../../reahl/doc/examples/tutorial/testbasics.py
-   :start-after: # ------- using new_ methods directly
+ Process in one thread, transactions and exception stacks in this context
 
-Running the tests:
+ JavaScript
 
-.. code-block:: bash
-
-   nosetests testbasics.py
-
-
-Set_up, tear_down, and run fixtures
------------------------------------
-
-Since :class:`~reahl.tofu.Fixture`\ s mostly consist of a bunch of `new_` methods, they
-usually do not need traditional methods for settting up a fixture, or
-tearing the fixture down afterwards. In some rare cases this is still
-needed though. One may want to start a web server before a test, and
-stop it afterwards, for example. Any method on a :class:`~reahl.tofu.Fixture` can be run
-before or after the test it is used with. Just annotate the method
-with `@set_up` or `@tear_down` respectively.
-
-Sometimes such setup can take a long time and would slow down tests if
-it happens for each and every test. When testing web applications, for
-example, you may want to fire up a browser before the test --
-something that takes quite a long time. For this reason, you may want
-set the scope of a :class:`~reahl.tofu.Fixture` to 'session'. Session
-scoped :class:`~reahl.tofu.Fixture`\s are set up only once test run,
-and are torn down only at the end of all tests.
-
-See :function:`~reahl.tofu.scope` for more information.
-
+ in_background?
+ 
 
 Testing without a real browser
 ------------------------------

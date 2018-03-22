@@ -57,6 +57,7 @@ The package with code is named the same as the `<unique name>` part of the subdi
 
 The package with testing code is named the same as the one with production code, but with `_dev` appended.
 
+.. _making_sense:
 
 Making sense of code
 --------------------
@@ -88,8 +89,15 @@ each test file there are test functions. Each test function has a
 docstring that explains something about that topic. The test expresses
 that "fact" in code and provides more detail.
 
+In fact, the docstrings of our tests are an attempt at explaining (in
+summarised fashion) everything a newcomer would need to know to
+understand the system. The code of the test itself provides an example
+or more detail about that fact. The table of contents give meaningful
+structure to this body of knowledge.
+
 There can also be `*.puml` files in the `_dev` package. Each one of
 these contains a UML diagram which elucidates some topic as well. The
 `*.puml` files `can be viewed graphically with any tool that supports
 Plantuml format <http://plantuml.com/>`_.
+
 

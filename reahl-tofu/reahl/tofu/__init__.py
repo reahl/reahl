@@ -19,7 +19,7 @@
 integrated to work as a plugin with `pytest
 <http://docs.pytest.org>`_.
 
-The main feature of Tofu is its ability to let you write a hierarchy
+The main feature of Tofu is its ability to let you write
 of test :py:class:`Fixture` classes, each of which contains a
 collection of related objects used in a test.
 
