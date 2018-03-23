@@ -529,7 +529,7 @@ class AddLocale(ForAllWorkspaceCommand):
         self.parser.add_argument('source_egg', nargs='?', default=None, help='the egg to which this locale applies (its name is used as the domain of the locale)')
 
     def function(self, project, args):
-        project.add_locale(args.locale, args.translated_egg or args.locale)
+        project.add_locale(args.locale, args.source_egg)
         return 0
 
 
@@ -537,3 +537,4 @@ class AddLocale(ForAllWorkspaceCommand):
 
 
 
+    

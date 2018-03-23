@@ -1913,9 +1913,9 @@ class EggProject(Project):
         except ValueError:
             raise InvalidLocaleString(locale)
         try:
-            source_egg = ReahlEgg(get_distribution(source_dist_spec))
+            source_egg = ReahlEgg(get_distribution(source_dist_spec or self.project_name))
         except DistributionNotFound:
-            raise EggNotFound(source_dist_spec)
+            raise EggNotFound(source_dist_spec or self.project_name)
         self.setup(['init_catalog',
                     '--input-file', source_egg.translation_pot_filename,
                     '--domain', source_egg.name,
