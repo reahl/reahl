@@ -11,18 +11,30 @@
 Hello World!
 ============
 
+.. sidebar:: Other projects used
+
+    - `virtualenv <https://pypi.python.org/pypi/virtualenv>`_
+    - `setuptools <https://pypi.python.org/pypi/setuptools/>`_
+    - `pytest <https://pytest.org/>`_
+    - `SqlAlchemy <http://www.sqlalchemy.org/>`_
+    - `Alembic <https://pypi.python.org/pypi/alembic/>`_
+    - `SQLite <http://www.sqlite.org>`_
+    - `PostgreSQL <http://www.postgresql.org>`_
+    - `Babel <http://babel.pocoo.org>`_
+
 This explanation assumes :ref:`that you have installed Reahl in a
 virtualenv, and that you have activated the virtualenv <install-reahl-itself>`.
 
 Run it
 ------
 
+
 You can get a local copy of *this* example by using the
 `reahl` script and then run the example by doing::
 
   reahl example tutorial.hello
   cd hello
-  reahl setup -- develop -N
+  reahl setup develop -N
   reahl createdbuser etc
   reahl createdb etc
   reahl createdbtables etc
@@ -41,18 +53,6 @@ are available by running::
 
 Source code
 -----------
-
-
-.. sidebar:: Other projects used
-
-    - `virtualenv <https://pypi.python.org/pypi/virtualenv>`_
-    - `setuptools <https://pypi.python.org/pypi/setuptools/>`_
-    - `pytest <https://pytest.org/>`_
-    - `SqlAlchemy <http://www.sqlalchemy.org/>`_
-    - `Alembic <https://pypi.python.org/pypi/alembic/>`_
-    - `SQLite <http://www.sqlite.org>`_
-    - `PostgreSQL <http://www.postgresql.org>`_
-
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/hello/hello.py
 
@@ -145,7 +145,7 @@ When you are still busy developing a project, you must install it in
 <http://setuptools.readthedocs.io/en/latest/setuptools.html?#development-mode>`_. From
 *within* the newly created `hello` directory, run::
 
-  reahl setup -- develop -N
+  reahl setup develop -N
 
 This does a ``python setup.py develop -N`` using the `.reahlproject` file.
 

@@ -764,7 +764,7 @@ class Field(object):
            a ValidationConstraint of the class given as `validation_constraint_class`.
 
         .. versionchanged:: 4.0
-           Changed name to be consistent with conventions for with_ methods.
+           Changed name to be consistent with conventions for `with_` methods.
         """
         new_version = self.copy()
         new_version.remove_validation_constraint(validation_constraint_class)
@@ -775,7 +775,7 @@ class Field(object):
            the ValidationConstraint given as `validation_constraint`.
 
         .. versionchanged:: 4.0
-           Changed name to be consistent with conventions for with_ methods.
+           Changed name to be consistent with conventions for `with_` methods.
         """
         new_version = self.copy()
         new_version.add_validation_constraint(validation_constraint)

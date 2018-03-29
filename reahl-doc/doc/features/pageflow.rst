@@ -16,7 +16,7 @@ the home View, and *did* enter some text for the comment, the next
 View shown is '/thanks'. If the user *did not* enter any text, '/none'
 is shown instead:
 
-   .. figure:: pageflow.png
+   .. figure:: pageflow.svg
       :align: center
       :width: 80%
       :alt: A graph showing each View as a node, with arrows showing how the user would transition between the views.

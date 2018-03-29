@@ -156,8 +156,8 @@ directory of the Reahl source.  This command will provide output in
 the form of a DNS name and port number that the remote party can use
 to access. Make a note of these for use later on.
    
-Let the remote connect securely
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let the remote user connect securely
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We do not allow login via password for security reasons
 [#passlogin]_. For John to be able to log in, his ssh public key needs

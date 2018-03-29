@@ -39,6 +39,7 @@ from reahl.component.modelinterface import ValidationConstraintList, ValidationC
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
+from reahl.mailutil.rst import RestructuredText
 
 _ = Catalogue('reahl-web')
 
@@ -65,6 +66,10 @@ class LiteralHTML(Widget):
     def render(self):
         return self.transform(self.contents)
 
+    @classmethod
+    def from_restructured_text(cls, view, text, heading_level_start=1):
+        return cls(view, RestructuredText(text).as_HTML_fragment(header_start=heading_level_start))
+    
 
 class HTMLAttributeValueOption(object):
     def __init__(self, option_string, is_set, prefix='', delimiter='-', constrain_value_to=None):

@@ -33,6 +33,7 @@
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-webdev"/>
+    <egg name="reahl-mailutil"/>
     <egg name="reahl-dev"/>
   </deps>
 

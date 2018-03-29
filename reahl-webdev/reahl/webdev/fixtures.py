@@ -36,10 +36,10 @@ from reahl.dev.fixtures import ReahlSystemSessionFixture
 @uses(reahl_system_fixture=ReahlSystemSessionFixture)
 @scope('session')
 class WebServerFixture(Fixture):
-    """A Fixture to be used as run fixture. It inherits from :class:`reahl.dev.fixtures.CleanDatabase` and
-       hence includes all its functionality, but adds a running, configured web server and more than one
-       flavour of a `Selenium 2.x WebDriver <http://docs.seleniumhq.org/projects/webdriver/>`_. BrowserSetup
-       also stops all the necessary servers upon tear down.
+    """A Fixture to be used as session fixture.
+       It sets up a running, configured web server before any test runs, and more than one
+       flavour of a `Selenium 2.x WebDriver <http://docs.seleniumhq.org/projects/webdriver/>`_.
+       WebServerFixture also stops all the necessary servers upon tear down.
 
        The web server started runs in the same thread as your tests, making debugging easier.
 
