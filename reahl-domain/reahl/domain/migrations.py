@@ -172,5 +172,6 @@ class ChangePasswordHash(Migration):
         self.schedule('alter', op.alter_column, 'emailandpasswordsystemaccount',
                                                 'password_md5', new_column_name='password_hash',
                                                 existing_type=String(32), type_=PasswordType,
-                                                existing_nullable=False, nullable=False)
+                                                existing_nullable=False, nullable=False,
+                                                postgresql_using='password_md5::bytea')
 
