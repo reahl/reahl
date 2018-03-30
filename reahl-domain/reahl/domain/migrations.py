@@ -21,6 +21,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey, UnicodeText, Unicode
 from reahl.component.migration import Migration
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
 from reahl.sqlalchemysupport import fk_name, ix_name
+from sqlalchemy_utils.types.password import PasswordType
 
 
 class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
@@ -162,4 +163,14 @@ class ChangeSchemaToBeMySqlCompatible(Migration):
                           existing_nullable=False)
         self.schedule('alter', op.alter_column, 'queue', 'name', existing_type=UnicodeText, type_=Unicode(120),
                       existing_nullable=False)
+
+
+class ChangePasswordHash(Migration):
+    version = '4.0.0a1'
+
+    def schedule_upgrades(self):
+        self.schedule('alter', op.alter_column, 'emailandpasswordsystemaccount',
+                                                'password_md5', new_column_name='password_hash',
+                                                existing_type=String(32), type_=PasswordType,
+                                                existing_nullable=False, nullable=False)
 

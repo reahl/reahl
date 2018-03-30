@@ -26,6 +26,10 @@ from string import Template
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean, Unicode
 from sqlalchemy.orm import relationship
 
+from sqlalchemy_utils.types.password import PasswordType
+from sqlalchemy_utils import force_auto_coercion
+force_auto_coercion()
+
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
 from reahl.component.exceptions import DomainException, ProgrammerError
@@ -120,7 +124,10 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     __mapper_args__ = {'polymorphic_identity': 'emailandpasswordsystemaccount'}
     id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
 
-    password_md5 = Column(String(32), nullable=False)
+    password_hash = Column(PasswordType(
+                            schemes=["pbkdf2_sha512", "hex_md5"],#all alg. are considered deprecated, except first one
+                            deprecated="auto"), nullable=False)
+
     email = Column(Unicode(254), nullable=False, unique=True, index=True)
     apache_digest = Column(String(32), nullable=False)
     
@@ -201,8 +208,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     def authenticate(self, password):
         self.assert_account_live()
 
-        password_md5 = self.password_hash(password)
-        if self.password_md5 != password_md5:
+        if password != self.password_hash:
             self.failed_logins += 1
             if self.failed_logins >= 3:
                 self.disable()
@@ -228,7 +234,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         if self.email != email:
             raise InvalidEmailException()
         new_password = password
-        self.password_md5 = self.password_hash(password)
+        self.password_hash = password
         self.apache_digest = hashlib.md5(('%s:%s:%s' % (self.email,'',new_password)).encode('utf-8')).hexdigest()
 
     def request_email_change(self, new_email):
@@ -246,10 +252,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         self.authenticate(password)
         self.email = new_login
 
-    def password_hash(self, password):
-        return hashlib.md5(password.encode('utf-8')).hexdigest()
 
-    
 @session_scoped
 class AccountManagementInterface(Base):
     """A session scoped object that @exposes a number of Fields and Events that user interface 

@@ -80,7 +80,6 @@ def test_create_account(reahl_system_fixture, party_account_fixture):
     assert mailer_stub.mail_sent
     assert system_account.email == account_management_interface.email
     # FIXME: These are those dubious tests where the assert just repeats the implementation verbatim
-    assert system_account.password_md5 == hashlib.md5(account_management_interface.password.encode('utf-8')).hexdigest()
     assert system_account.apache_digest == hashlib.md5(('%s:%s:%s' %
                                           (account_management_interface.email,'',account_management_interface.password)).encode('utf-8')).hexdigest()
     assert_recent( activation_action.deadline - timedelta(days=10) )
@@ -553,5 +552,4 @@ def test_login_queries(party_account_fixture, web_fixture):
     user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime_max+50)
     assert not login_session.is_logged_in()
     assert not login_session.is_logged_in(secured=True)
-
 
