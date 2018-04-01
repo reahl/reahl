@@ -57,7 +57,7 @@ class EndPoint(object):
         else:
             arguments = [self.display]
         if self.ssh_arguments:
-            arguments.append('--ssh="ssh %s"' % (' '.join(self.ssh_arguments)))
+            arguments.append('--ssh=ssh %s' % (' '.join(self.ssh_arguments)))
         return arguments
 
     def as_ssh_arguments(self):
