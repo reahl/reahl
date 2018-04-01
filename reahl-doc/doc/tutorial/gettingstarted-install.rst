@@ -38,12 +38,7 @@ things first.
 
 If you know `Vagrant <https://www.vagrantup.com>`_ then :doc:`use our
 Vagrant box <install-vagrant>`. It contains a virtualenv with Reahl
-installed as per the instructions below. Otherwise, follow the instructions below:
-
-If you don't use Vagrant you should install Reahl within a sandboxed
-Python environment provided by `virtualenv
-<http://pypi.python.org/pypi/virtualenv>`_.
-
+installed. Otherwise, follow the instructions below:
 
 
 .. _prep_install:
@@ -84,7 +79,7 @@ Python environment provided by `virtualenv
 
    On Windows:
 
-   .. code-block:: cmd
+   .. code-block:: doscon
 
       reahl_env\Scripts\activate.bat
 
@@ -92,7 +87,14 @@ Python environment provided by `virtualenv
 
 4. Install Reahl in the virtualenv
 
-   Reahl is composed of different components---you only need some of them.
+   With your `virtualenv` activated, install Reahl:
+
+   .. code-block:: bash
+
+      pip install reahl[declarative,sqlite,dev,doc]
+
+   Reahl is composed of different components---you only need some of them. The pip extras
+   (given in :code:`[]` above) let you choose what to install. 
 
    You can install:
 
@@ -113,12 +115,6 @@ Python environment provided by `virtualenv
 
        mysql
          Support for MySQL databases
-
-   With your `virtualenv` activated, install Reahl:
-
-   .. code-block:: bash
-
-      pip install reahl[declarative,sqlite,dev,doc]
 
    .. note::
 

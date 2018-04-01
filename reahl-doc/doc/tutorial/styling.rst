@@ -8,7 +8,7 @@
 .. |Container| replace:: :class:`~reahl.web.bootstrap.grid.Container`
 
 
-
+                         
 Layout and styling
 ==================
 

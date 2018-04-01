@@ -12,6 +12,8 @@ Fixture overview
 Basic fixtures
 ^^^^^^^^^^^^^^
 
+.. automodule:: reahl.dev.fixtures
+
 ContextAwareFixture
 """""""""""""""""""
 

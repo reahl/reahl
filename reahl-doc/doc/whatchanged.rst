@@ -5,18 +5,155 @@ What changed in version 4.0
 
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |Fixture| replace:: :class:`~reahl.tofu.Fixture`
-.. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`                       
+.. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
+.. |ColumnLayout| replace:: :class:`~reahl.web.bootstrap.grid.ColumnLayout`
+.. |ColumnOptions| replace:: :class:`~reahl.web.bootstrap.grid.ColumnOptions`
+.. |ResponsiveSize| replace:: :class:`~reahl.web.bootstrap.grid.ResponsiveSize`
+.. |Menu| replace:: :class:`~reahl.web.bootstrap.navs.Menu`
+.. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
+.. |Menu.add_a| replace:: :meth:`~reahl.web.bootstrap.navs.Menu.add_a`
+.. |Menu.add_bookmark| replace:: :meth:`~reahl.web.bootstrap.navs.Menu.add_bookmark`
+.. |Nav.add_dropdown| replace:: :meth:`~reahl.web.bootstrap.navs.Nav.add_dropdown`
+.. |forms.CheckboxInput| replace:: :class:`~reahl.web.bootstrap.forms.CheckboxInput`
+.. |ui.CheckboxInput| replace:: :class:`~reahl.web.ui.CheckboxInput`
+.. |ui.CheckboxSelectInput| replace:: :class:`~reahl.web.ui.CheckboxSelectInput`
+.. |forms.RadioButtonSelectInput| replace:: :class:`~reahl.web.bootstrap.forms.RadioButtonSelectInput`
+.. |ui.RadioButtonSelectInput| replace:: :class:`~reahl.web.ui.RadioButtonSelectInput`
+.. |ViewFactory| replace:: :class:`~reahl.web.fw.ViewFactory`
+.. |UserInterface.define_view| replace:: :meth:`~reahl.web.fw.UserInterface.define_view`
+.. |ViewFactory.set_slot| replace:: :meth:`~reahl.web.fw.ViewFactory.set_slot`
+.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |Field.with_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.with_validation_constraint`
+.. |Field.without_validation_constraint| replace:: :meth:`~reahl.component.modelinterface.Field.without_validation_constraint`
+.. |BooleanField| replace:: :class:`~reahl.component.modelinterface.BooleanField`
+.. |MultiChoiceField| replace:: :class:`~reahl.component.modelinterface.MultiChoiceField`
+.. |DomainException| replace:: :class:`~reahl.component.exceptions.DomainException`
+.. |UserInputProtocol| replace:: :class:`~reahl.web.interfaces.UserInputProtocol`
 
+
+
+
+Upgrading
+---------
+
+This release harbours many changes, big and small. Various changes
+have been made to the underlying database schema. To upgrade a
+production system, install the new system in a new virtualenv, then
+migrate your database:
+
+.. code-block:: bash
+
+   reahl migratedb etc
+   
+                                
 Bootstrap
 ---------
 
-As promised with the release of Reahl 3.2, all the |Widget|\s in this
-release are based on `Bootstrap <http://getbootstrap.com>`_.
+All the |Widget|\s in this release are based on `Bootstrap
+<http://getbootstrap.com>`_. The older home-rolled |Widget| styling we
+had was removed.
 
-The basic |Widget|\s in :mod:`reahl.web.ui` represent basic HTML, and
-thus are unstyled but the complicated |Widget|\s only have
-Bootstrap-based versions. It is recommended to import even basic HTML
-|Widget|\s from :mod:`reahl.web.bootstrap.ui`.
+The basic |Widget|\s in :mod:`reahl.web.ui` represent basic HTML and
+thus are unstyled. These are not really meant to be used directly.
+More interesting |Widget|\s only have Bootstrap-based versions and
+they live in modules inside :doc:`the reahl.web.bootstrap
+package <web/bootstrap/index>`.
+
+If you develop a site and use basic HTML |Widget|\s, like
+:class:`~reahl.web.bootstrap.ui.P`, import all of them from from:
+:mod:`reahl.web.bootstrap.ui`.
+
+
+Backwards-incompatible changes
+------------------------------
+
+Since this version is a major version update it is not
+backwards-compatible with previous versions.  Everything what was
+deprecated in older versions is removed now.
+
+Internationalisation
+  :code:`Translator` was renamed to :class:`~reahl.component.i18n.Catalogue`.
+
+Layout
+ The way one creates a |ColumnLayout| and specifies options for
+ creating columns has changed. A new class, |ColumnOptions| is now 
+ used to specify various options relating to a specific column. This
+ includes the offset of the column, which previously used to be
+ specified as part of its |ResponsiveSize|.
+
+ The arguments to :meth:`~reahl.web.bootstrap.grid.ColumnLayout` that
+ define the columns can now be one of:
+    - either just the column name as a string (which assumes default
+      |ColumnOptions|); or
+    - a tuple with the column name and a |ColumnOptions| object
+      (previously this had to be a |ResponsiveSize|).
+
+Basic Widgets
+ A single checkbox is used fetch boolean input from a user, but a list
+ of related checkboxes lets the user choose from a list of
+ choices.
+
+ The |forms.CheckboxInput| is a high-level construct which can be
+ used for either purpose, depending on whether it is used with a
+ |BooleanField| or a |MultiChoiceField|.
+
+ :code:`reahl.web.bootstrap.forms.RadioButtonInput` is now named
+ |forms.RadioButtonSelectInput| and `reahl.web.ui.RadioButtonInput` is
+ :code:now named |ui.RadioButtonSelectInput|.
+ 
+ Amongst the plain HTML |Widget|\s, |ui.CheckboxInput| serves
+ the first purpose; |ui.CheckboxSelectInput| was added for the
+ second. 
+
+ 
+
+Fields and app construction
+ The `slot_definitions` kwarg no longer exists on
+ |UserInterface.define_view|. Rather call |ViewFactory.set_slot| on
+ the returned |ViewFactory| to define the contents of the new view.
+ 
+ The methods :code:`as_with_validation_constraint` and
+ :code:`as_without_validation_constraint` on |Field| have been renamed
+ to |Field.with_validation_constraint| and
+ |Field.without_validation_constraint| for consistency with :doc:`our coding
+ conventions <devmanual/conventions>`.
+
+ 
+Menus
+ |Menu| was moved to :mod:`reahl.web.bootstrap.navs`. It is not
+ meant to be used directly, rather use |Nav|.  The :code:`.add_item`
+ and :code:`.add_submenu` methods were removed in favour of the
+ consistently named variants for adding items: |Menu.add_a|,
+ |Menu.add_bookmark| and |Nav.add_dropdown|.
+
+
+Declarative implementation
+ An issue was discovered regarding the correct handling of
+ |MultiChoiceField|\s when a |DomainException| occurred. In order to
+ correctly save the input provided by a user, the methods on
+ |UserInputProtocol| were changed to take an extra argument,
+ `entered_input_type`.
+
+   
+Passwords
+---------
+
+Previous releases used md5 to encrypt passwords in the database. This
+practice is no longer viewed as being secure. This release uses
+`pbkdf2_sha512` password hashes.
+
+Older passwords will automatically be changed to `pbkdf2_sha512` upon
+a successful login.
+
+
+Commandline tools
+-----------------
+
+The `reahl` and `reahl-control` tools have both been rolled into a
+single `reahl` commandline tool. The commands it has vary, depending
+on which parts of Reahl you have installed. With reahl-dev installed,
+for example, it will include commands only used in development.
+
 
 
 Tofu - pytest instead of nosetests
@@ -61,7 +198,7 @@ Here is an example of how to use a |Fixture| with pytest::
 
 
 Previously a test could only have a single |Fixture|. That has been
-changed: multiple |Fixture|\s can be used. Note that the argument
+changed: multiple |Fixture|\s can be used now. Note that the argument
 names declared with the test function are not important. |Fixture|\s
 are assigned to arguments based on position only::
 
@@ -128,7 +265,7 @@ process ends::
 Tofu - other changes
 ---------------------
 
-Some change in |Fixture| is not related to the pytest move.
+Some changes in |Fixture| is not related to the pytest move.
 
 
 Previously, you could add a method with name starting with 'del_' if
@@ -157,37 +294,46 @@ The idea of |ExecutionContext| does not belong in the domain of
 
 For these reasons, |Fixture| now does not support or need an extra
 contextmanager.  Instead, a new
-:class:`~reahl.web_dev.fixtures.ContextAwareFixture` was added--as
-part of :package:`reahl.web_dev`\--making the design of a |Fixture|
+:class:`~reahl.dev.fixtures.ContextAwareFixture` was added--as
+part of :mod:`reahl.dev.fixtures`\--making the design of a |Fixture|
 simpler.
          
-Vagrant
--------
+Development environment
+-----------------------
 
 Development on Reahl itself now happens on a `Vagrant
-<https://www.vagrantup.com//>`_ image. Using a publicly available box,
+<https://www.vagrantup.com//>`_ image using a publicly available box,
 called `reahl/xenial64`.  This may be useful for projects using Reahl
 as well. An example Vagrantfile for your projects is supplied in file
 `vagrant/Vagrantfile.example` in the Reahl source code.
+
+See :doc:`devmanual/devenv` for details.
+
+As part of the move to develop in a Vagrant machine, we added a new
+component, `reahl-workstation`.  You can `pip install
+reahl-workstation` on your actual host. This gives you a simple
+`reahl` commandline outside of the vagrant machine which helps with a
+fes simple things such as attaching to the xpra display running
+inside. 
 
 
 Git vs Bzr
 ----------
 
-We have switched internally to use `git <https://git-scm.com/\>`_ and
-`GitHub <https://github.com/reahl/reahl\>`. Previously, we needed to
+We have switched internally to use `git <https://git-scm.com/>`_ and
+`GitHub <https://github.com/reahl/reahl/>`_. Previously, we needed to
 provide our own `file_finder` function so that setuptools would know
 which source files to include in a distribution, based on whether the
-wile was added to `Bzr <http://bazaar.canonical.com/en/\>`_. Since
+file was added to `Bzr <http://bazaar.canonical.com/en/>`_. Since
 we're not using Bzr anymore, the Bzr `file_finder` was removed. If you
 still use Bzr, `you can easily roll your own
-<http://code.activestate.com/recipes/577910-bazaar-as-a-setuptools-file-finder/\>`_.
+<http://code.activestate.com/recipes/577910-bazaar-as-a-setuptools-file-finder//>`_.
 
 
 Devpi
 -----
 
-We have also stopped using `Devpi <http://doc.devpi.net/latest/\>`_
+We have also stopped using `Devpi <http://doc.devpi.net/latest//>`_
 internally and hence removed the `devpitest` and `devpipush` commands
 from the `reahl` commandline tool.
 
@@ -195,21 +341,29 @@ from the `reahl` commandline tool.
 Updated dependencies
 --------------------
 
-Some thirdparty JavaScript libraries were updated:
+Some included thirdparty JavaScript and CSS libraries were updated:
 
+  - JQuery to 3.3.1 with JQuery-migrate 3.0.1.
   - JQueryUI to 1.12.1 - but our distribution includes *only* the widget factory, nothing else.
-  - JQuery.validation was updated to 1.17.0
-  - jquery-metadata plugin was removed
+  - JQuery.validation was updated to 1.17.0 (and patched).
+  - jquery-metadata plugin was removed.
+  - Bootstrap to 4.0.0.
+  - JQuery BBQ to 1.3pre (patched).
+  - JQuery-form to 4.2.2.
+  - HTML5shiv to 3.7.3.
+
+Some were added:
+
+  - Added Popper 1.12.9.
 
 The versions of some external dependencies were updated:
 
-  - BeautifulSoup to version 4.4
-  - wheel to version 0.29
-  - setuptools to version 32.3
-
-
-
-
+  - BeautifulSoup to 4.6
+  - Wheel to 0.29.
+  - setuptools to 32.3.
+  - Lxml version to 3.8.
+  - SqlAlchemy to 1.2.0.
+  - Alembic to 0.9.6.
 
 
 

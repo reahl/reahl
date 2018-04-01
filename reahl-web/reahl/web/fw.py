@@ -1013,7 +1013,9 @@ class Widget(object):
 
     @arg_checks(child=IsInstance('reahl.web.fw:Widget'))
     def add_child(self, child):
-        """Adds another Widget (`child`) as a child Widget of this one."""
+        """Adds another Widget (`child`) as a child Widget of this one. 
+        
+        :returns: the added child for convenience."""
         self.children.append(child)
         return child
         
@@ -1024,7 +1026,9 @@ class Widget(object):
         return child
 
     def add_children(self, children):
-        """Adds all Widgets in `children` children Widgets of this one."""
+        """Adds all Widgets in `children` children Widgets of this one. 
+
+        :returns: the list of added children for convenience."""
         for child in children:
             self.add_child(child)
         return children

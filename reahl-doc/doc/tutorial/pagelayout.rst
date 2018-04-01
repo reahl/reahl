@@ -9,7 +9,9 @@
 .. |ResponsiveSize| replace:: :class:`~reahl.web.bootstrap.grid.ResponsiveSize`
 .. |Container| replace:: :class:`~reahl.web.bootstrap.grid.Container`
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
-.. |PageLayout| replace:: :class:`~reahl.web.bootstrap.grid.PageLayout`
+.. |PageLayout| replace:: :class:`~reahl.web.layout.PageLayout`
+.. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
+.. |Navbar| replace:: :class:`~reahl.web.bootstrap.navbar.Navbar`
 
 Layout of pages
 ===============
@@ -23,7 +25,6 @@ Layout of pages
    .. code-block:: bash
 
       reahl example <examplename>
-
 
 Containers
 ----------

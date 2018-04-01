@@ -6,7 +6,6 @@
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
 .. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
 .. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
-.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
 .. |WidgetFactory| replace:: :class:`~reahl.web.fw.WidgetFactory`
 .. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
 .. |Navbar| replace:: :class:`~reahl.web.bootstrap.navbar.Navbar`
@@ -91,20 +90,7 @@ Guards
 |Transition| for the same |Event| with an |Action| guarding each. The
 |Transition| whose guard returns True when evaluated is followed.
 
-See :doc:`../features/pageflow` for an example:
 
-.. literalinclude:: ../../reahl/doc/examples/features/pageflow/pageflow.py
-   :pyobject: PageFlowUI
-   :end-before: contents_layout =
-
-...
-		
-.. literalinclude:: ../../reahl/doc/examples/features/pageflow/pageflow.py
-   :pyobject: PageFlowUI
-   :start-after: none_submitted.set_slot
-
-.. literalinclude:: ../../reahl/doc/examples/features/pageflow/pageflow.py
-   :pyobject: Comment
 
 
 

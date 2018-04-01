@@ -55,10 +55,10 @@ class EasterEgg(pkg_resources.Distribution):
        :keyword name: A unique name for this Distribution.
        :keyword location: The location on disk where the contents of this Distribution reside. 
 
-       .. versionchanged: 3.2
+       .. versionchanged:: 3.2
           Added the location keyword argument and deprecated set_module_path().
        
-       .. versionchanged: 4.0
+       .. versionchanged:: 4.0
           Removed set_module_path()
     """
     def __init__(self, name='test', location=None):

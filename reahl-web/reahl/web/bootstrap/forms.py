@@ -339,13 +339,16 @@ class FormLayout(reahl.web.fw.Layout):
        certain way.
 
        This basic FormLayout positions Labels above added Inputs and allow for an
-       optional helpful text message with each input.
+       optional helpful text message with each input. Validation error messages are
+       displayed underneath invalid Inputs.
 
        Different kinds of FormLayouts allow different kinds of arrangements.
 
-       Different FormLayouts can be used on different sub-parts of a Form by
-       composing a Form of Divs of FieldSets that each use a different
-       FormLayout.
+       A FormLayout need not be applied directly to a Form itself. It
+       can also be applied to, say, a Div (or FieldSet) which is a child of a
+       Form. This makes the arrangement quite flexible, since you
+       could have different parts of a Form that are laid out using
+       different FormLayouts or even by different types of FormLayout.
     """
     def create_form_group(self, html_input):
         if isinstance(html_input, RadioButtonSelectInput):

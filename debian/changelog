@@ -14,7 +14,6 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Upgraded HTML5shiv to 3.7.3.
  * Added Popper 1.12.9.
  * Removed dependency on jquery-metadata plugin, and removed the plugin.
- * Upgraded version of BeautifulSoup to 4.4 for python 3.5 compatibility.
  * Removed the file_finder for bzr, roll your own instead: http://code.activestate.com/recipes/577910-bazaar-as-a-setuptools-file-finder/.
  * Removed devpitest and devpipush commands.
  * Changed DatabaseControl descendents and related commands to allow explicitly specifying the superuser to log in as when performing privileged actions.
@@ -32,6 +31,8 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Added support for not showing gutters between ColumnLayout columns.
  * Added support for alignment and justification of ColumnLayout columns.
  * Changed how RadioButtonInput and CheckboxInput are laid out as inline/not.
+ * Renamed as_with methods to with_ for consistency.
+ * Fixed the handling of MultiChoice fields upon a DomainException.
  * Added CheckboxSelectInput and renamed RadioButtonInput to RadioButtonSelectInput for consistency.
  * Changed DriverBrowser.press_tab to operate on the element with focus.
  * Upgraded BS4(BeautifulSoup) version to 4.6.

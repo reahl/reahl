@@ -4,7 +4,7 @@
 .. |Input| replace:: :class:`~reahl.web.ui.Input`
 .. |Form| replace:: :class:`~reahl.web.bootstrap.forms.Form`
 .. |FormLayout| replace:: :class:`~reahl.web.bootstrap.forms.FormLayout`
-.. |FieldSet| replace:: :class:`~reahl.web.bootstrap.ui.FieldSet`
+.. |FieldSet| replace:: :class:`~reahl.web.bootstrap.forms.FieldSet`
 .. |TextInput| replace:: :class:`~reahl.web.bootstrap.forms.TextInput`
 .. |Button| replace:: :class:`~reahl.web.bootstrap.forms.Button`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
@@ -41,10 +41,9 @@ associated labels and validation error messages. Call
 :meth:`~reahl.web.fw.Widget.add_child` to add the |FieldSet| to the
 |Form|.
 
-
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: AddressForm
-   :end-before: define_event_handler
+   :end-before: button =
 
 
 Fields provide metadata
@@ -94,8 +93,9 @@ clicked, its |Event| occurs and the |Action| is executed.
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: AddressForm
 
-|Transition|\s are defined in `AddressBookUI.assemble` to control how
-the user is moved between |UrlBoundView|\s in response to |Event|\s.
+A |Transition| is defined in `AddressBookUI.assemble` to say that, if
+the `save` |Event| occurs on the `home` |UrlBoundView|, the user
+should just stay on the `home` |UrlBoundView|.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: AddressBookUI

@@ -93,9 +93,9 @@ Re-using the user interface as well
       reahl servesmtp
 
 If you want to use the provided user interface as well, you can graft
-an :class:`~reahl.domainui.accounts.AccountUI` onto its own new URL
+an :class:`~reahl.domainui.bootstrap.accounts.AccountUI` onto its own new URL
 underneath LoginUI. The URLs of the :class:`~reahl.web.fw.View`\ s of
-:class:`~reahl.domainui.accounts.AccountUI` are then appended to that
+:class:`~reahl.domainui.bootstrap.accounts.AccountUI` are then appended to that
 URL.
 
 Call :meth:`~reahl.web.fw.UserInterface.define_user_interface` to graft |AccountUI| onto LoginUI.

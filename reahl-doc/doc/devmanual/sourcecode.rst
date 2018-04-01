@@ -29,7 +29,7 @@ together. In the source code, it contains:
  - the metadata used to provide information about all the components
  - the current version of all components
 
-To make :ref:`our development environment <devenv>` manageable and
+To make :doc:`our development environment <devenv>` manageable and
 reproducible, the root directory contains a Vagrantfile and a few
 useful scripts in the `scripts/` subdirectory.
 

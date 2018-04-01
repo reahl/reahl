@@ -225,6 +225,12 @@ CheckboxInput
 
 .. autoclass:: CheckboxInput
    :members:
+
+CheckboxSelectInput
+"""""""""""""""""""
+
+.. autoclass:: CheckboxSelectInput
+   :members:
    
 ButtonInput
 """""""""""

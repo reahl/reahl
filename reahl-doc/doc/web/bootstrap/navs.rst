@@ -47,3 +47,10 @@ DropdownMenuLayout
 
 .. autoclass:: DropdownMenuLayout
    :members:
+
+Menu
+""""
+
+.. autoclass:: Menu
+   :members:
+      

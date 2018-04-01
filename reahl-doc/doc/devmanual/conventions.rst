@@ -146,12 +146,12 @@ If you understand above mentioned context stuff, you can pretty much live in tes
 Testing
 -------
 
-Tests are difficult to write. We want tests that:
+We write tests that:
 
-- Serve as a summary of how we understand our problem domain
-- Each test has a docstring stating that summary in words
-- The test itself may elaborate more details or show that summary in code
-- We do not aim for complete coverage of code execution paths, but good enough coverage of problem domain understanding
+- Serve as a summary of how we understand our problem domain.
+- Each test has a docstring stating that summary in words.
+- The test itself may elaborate more details or show that summary in code.
+- We do not aim for complete coverage of code execution paths, but good enough coverage of problem domain understanding.
 - We organise tests into a hierarchy of directories resembling an outline of the topics covered by the component the tests are for.
 - We do not necessarily write tests first; but we always write them before we're done and make sure they fit into the above.
 

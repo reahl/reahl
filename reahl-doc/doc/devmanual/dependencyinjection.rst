@@ -6,7 +6,7 @@ Using a different persistence mechanism
 The Reahl framework itself contains a few classes that need to be
 persisted to a database. For example, the
 :class:`~reahl.webdeclarative.webdeclarative.UserSession` implements
-:doc:`session functionality <sessions>`. There is a handful of other
+:doc:`session functionality <../tutorial/sessions>`. There is a handful of other
 classes that work in concert with the
 :class:`~reahl.webdeclarative.webdeclarative.UserSession`.
 
@@ -36,7 +36,7 @@ means in your application as well.
 Dependencies
 ------------
 
-Right at the beginning of this tutorial, in the :doc:`gettingstarted`, we
+Right at the beginning of this tutorial, in the :doc:`../tutorial/gettingstarted-develop`, we
 state that all code in a Reahl program is packaged into some or
 other component. This component is packaged as a Python Egg. When you
 write your web application, you write it as such an Egg. As it goes
