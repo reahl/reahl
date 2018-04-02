@@ -32,6 +32,8 @@ ReahlSystemFixture
 .. autoclass:: reahl.dev.fixtures.ReahlSystemFixture
    :members:
 
+Managing a SqlAlchemy database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 SqlAlchemyFixture
 """""""""""""""""
@@ -75,6 +77,13 @@ Browser
    :members:
    :inherited-members:
 
+DriverBrowser
+"""""""""""""
+
+.. autoclass:: reahl.webdev.tools.DriverBrowser
+   :members:
+   :inherited-members:
+      
 XPath
 """""
 
@@ -87,10 +96,4 @@ ReahlWebServer
 .. autoclass:: reahl.webdev.webserver.ReahlWebServer
    :members:
 
-DriverBrowser
-"""""""""""""
-
-.. autoclass:: reahl.webdev.tools.DriverBrowser
-   :members:
-   :inherited-members:
 

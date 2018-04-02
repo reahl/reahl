@@ -26,6 +26,14 @@ from reahl.dev.fixtures import ReahlSystemFixture
 
 @uses(reahl_system_fixture=ReahlSystemFixture)
 class SqlAlchemyFixture(Fixture):
+    """SqlAlchemyFixture ensures that a transaction is started before each test run, and
+    rolled back after each test so as to leave the database unchanged
+    between tests. It also contains a handy method
+    :meth:`~reahl.sqlalchemysupport_dev.fixtures.SqlAlchemyFixture.persistent_test_classes`
+    that can be used to add persistent classes to your database schema
+    just for purposes of the current test.
+
+    """
     commit = False
 
     @set_up
@@ -49,6 +57,14 @@ class SqlAlchemyFixture(Fixture):
 
     @contextmanager
     def persistent_test_classes(self, *entities):
+        """A context manager that creates the tables needed for the entities passed to it, and which sets
+        the necessary SqlAlchemy wiring up for thos entities to work. The tables are destroyed again
+        after the context is exited.
+
+        This is useful for having persistent classes that may even need their own tables in the database
+        but which should stay part of test code only, and are thus not listed in the <persisted> section
+        of any egg.
+        """
         try:
             self.create_test_tables()
             yield

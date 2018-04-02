@@ -140,7 +140,7 @@ class ReahlSystemFixture(ContextAwareFixture):
     ReahlSystemFixture does its work by using a
     :class:`ReahlSystemSessionFixture` behind the
     scenes. ReahlSystemFixture provides copies of most of the
-    session-lived stuff in the
+    session-scoped stuff in the
     :class:`ReahlSystemSessionFixture`. This allows you to "inherit"
     the configuration set up for the session by default, but also
     allows you to change the configuration and ExecutionContext for a

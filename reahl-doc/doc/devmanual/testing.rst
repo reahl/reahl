@@ -1,146 +1,88 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
- 
+
+.. |Browser| replace::  :class:`~reahl.webdev.tools.Browser`
+.. |XPath| replace::  :class:`~reahl.webdev.tools.XPath`
+.. |Fixture| replace::  :class:`~reahl.tofu.Fixture`
+.. |ExecutionContext| replace::  :class:`~reahl.component.context.ExecutionContext`
+.. |Configuration| replace::  :class:`~reahl.component.config.Configuration`
+.. |SystemControl| replace::  :class:`~reahl.component.dbutils.SystemControl`
+.. |WebFixture| replace::  :class:`~reahl.web_dev.fixtures.WebFixture`
+.. |WebServerFixture| replace::  :class:`~reahl.web_dev.fixtures.WebServerFixture`
+.. |DriverBrowser| replace::  :class:`~reahl.webdev.tools.DriverBrowser`
+.. |ReahlSystemFixture| replace:: :class:`~reahl.dev.fixtures.ReahlSystemFixture`
+.. |ReahlSystemSessionFixture| replace:: :class:`~reahl.dev.fixtures.ReahlSystemSessionFixture`
+.. |SqlAlchemyFixture| replace:: :class:`~reahl.sqlalchemysupport_dev.fixtures.SqlAlchemyFixture`
+
+       
 Testing
 =======
 
-TODO: explain all the new fixture stuff
-
-Tests are central to our development process., :ref:'as alluded to
-before<making_sense>'. We depend on a testing infrastructure build
-using :class:`~reahl.tofu.Fixture`\s.
-
+Tests are central to our development process. We depend on a testing
+infrastructure build using |Fixture|\s and some other testing tools.
 
 .. sidebar:: Behind the scenes
 
-   The Reahl testing tools are mostly wrappers and extensions of other
-   testing tools out there. `Pytest
-   <https://docs.pytest.org/>`_ has already been
-   mentioned. The other important tools are: `WebTest
-   <http://webtest.pythopaste.org>`_ and `Selenium
-   <https://pypi.python.org/pypi/selenium>`_ (the latter is used with
-   `chromedriver
-   <http://code.google.com/p/selenium/wiki/ChromeDriver>`_).
+   The Reahl testing tools rely on other projects:
+   
+   - `Pytest <https://docs.pytest.org/>`_ 
+   - `WebTest <http://webtest.pythopaste.org>`_
+   - `Selenium <https://pypi.python.org/pypi/selenium>`_ 
+   - `chromedriver <http://code.google.com/p/selenium/wiki/ChromeDriver>`_
 
+      
+Fixtures
+--------
 
-Foundational fixtures
----------------------
+A selection of |Fixture|\s are described in :doc:`the reference docs
+<../devtools/tools>`. Here is a short summary of what each is used for:
 
- ReahlSystemSessionFixture and RealSystemFixture
-
- database connection, schema creation(?), config, copying of config
+|ReahlSystemFixture| and |ReahlSystemSessionFixture| 
+  These are used to set up a database connection and create its schema
+  once, at the start of a test run. They give access to the global
+  system |Configuration|, the |ExecutionContext| in which tests using
+  them are run, and to a |SystemControl| --- an object used to control
+  anything related to the database.
  
+|SqlAlchemyFixture|
+  If a test uses a |SqlAlchemyFixture|, a database transaction is
+  started before the test is run, and rolled back after it
+  completed. This ensures that the database state stays clean between
+  test runs. |SqlAlchemyFixture| can also create tables (and
+  associated persisted classes) on the fly for use in tests.
 
-Keeping the database clean
---------------------------
+|WebFixture| and |WebServerFixture|
+  These Fixtures work together to start up a web server, and a
+  selenium-driven web browser for use in tests. The web server runs in
+  the same thread and database transaction as your tests. This means
+  that if a breakage occurs server-side your test will break
+  immediately, with a relevant stack trace. It also means that the
+  idea of rolling back transactions after each test still works, even
+  when used with Selenium tests.
 
- SqlAlchemyFixture
+Web browser interfaces
+----------------------
 
- explain transactions
-
-
-Testing web stuff
------------------
-
- WebSessionFixture, WebFixture
-
- Browser, DriverBrowser etc
-
- Process in one thread, transactions and exception stacks in this context
-
- JavaScript
-
- in_background?
- 
-
-Testing without a real browser
-------------------------------
-
-Enough talk. Its time for a first test.
-
-In the :doc:`previous section <parameterised>` an application was
-developed which lets one add, view and edit Addresses on different
-:class:`~reahl.web.fw.View`\ s. The second version of it used :class:`~reahl.web.ui.Button`\ s to navigate to the edit
-:class:`~reahl.web.fw.View`\ s  of individual Addresses. This application is starting to get
-cumbersome to test by hand each time a change is made to it. It needs
-a test. A Test for it will also make it possible to set breakpoints
-and investigate its internals while running.
-
-Here is a first stab at a test for it. Sometimes it is useful to write
-a test per explained fact; other times it is useful to write a test
-for a little scenario illustrating a "user story". This test is an
-example of the latter:
-
-.. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2_dev/test_parameterised2_1.py
-
-The test should be run with pytest.
-
-There are a number of :class:`~reahl.tofu.Fixture`\s available as part of Reahl to help you
-test applications. Explaining all of them is outside of the scope of
-this introductory section. For this test, it is useful to know some of
-the things that happen behind the scenes.
-
-The test is run with a :class:`~reahl.web_dev.fixtures.WebFixture`. :class:`~reahl.web_dev.fixtures.WebFixture` in turn depends on
-a number of other :class:`~reahl.tofu.Fixture`\s, each responsible for something useful behind the scenes:
-
- :class:`~reahl.dev.fixtures.ReahlSystemSessionFixture`
-    A session-scoped :class:`~reahl.tofu.Fixture` responsible for a number of basic concerns:
-        
-    It creates an empty database before any tests run, with the
-    correct database schema of your application. The Elixir/Sqlalchemy
-    classes used by your application are also initialised properly (no
-    need to create_all/setup_all, etc).
-
-    It also sets up an initial configuration for the system.
-
- :class:`~reahl.dev.fixtures.ReahlSystemFixture`
-    A function-scoped copy of
-    :class:`~reahl.dev.fixtures.ReahlSystemSessionFixture` which can
-    be used and changed in tests. It ensures that changes you make to
-    things like the system configuration are torn down before the next
-    test
-        
- :class:`~reahl.sqlalchemysupport_dev.fixtures.SqlAlchemyFixture`
-    This one ensures a transaction is started before each test run,
-    and rolled back after each test so as to leave the database
-    unchanged between tests. It also contains a handy method
-    :method:`~reahl.sqlalchemysupport_dev.fixtures.SqlAlchemyFixture.persistent_test_classes`
-    that can be used to add persistent classes to your database schema
-    just for purposes of the current test.
-        
- :class:`~reahl.webdev.fixtures.WebServerFixture`
-    A session-scoped :class:`~reahl.tofu.Fixture` that ensures a
-    webserver is started before your tests run. It also maintains an
-    instance of a selenium WebDriver that you can use to programatically
-    surf to the currently served web application via a real web
-    browser.
-
-The only obvious feature of :class:`~reahl.web_dev.fixtures.WebFixture` used in this little test is the
-creation of a WSGI application. `WebFixture.new_wsgi_app()` can create a
-WSGI application in various different ways. This example shows how to
-create a ReahlWSGIApplication from a supplied :class:`~reahl.web.fw.UserInterface`. By default javascript
-is not turned on (although, as you will see later, this can be
-specified as well).
-
-Two other important tools introduced in this test are: :class:`~reahl.webdev.tools.Browser` and
-:class:`~reahl.webdev.tools.XPath`.  :class:`~reahl.webdev.tools.Browser` is not a real browser -- it is our thin wrapper on top
-of what is available from WebTest. :class:`~reahl.webdev.tools.Browser` has the interface of a
-:class:`~reahl.webdev.tools.Browser` though. It has methods like `.open()` (to open an url),
+Other important tools introduced are: |Browser| and |XPath|.
+|Browser| is not a real browser -- it is our thin wrapper on top of
+what is available from WebTest. |Browser| has the interface of a
+|Browser| though. It has methods like `.open()` (to open an url),
 `.click()` (to click on anything), and `.type()` (to type something
 into an element of the web page).
 
-We like this interface, because it makes the tests more readable to a
-non-programmer.
+We like this interface, because it makes the tests more readable.
 
 When the browser is instructed to click on something or type into
-something, an :class:`~reahl.webdev.tools.XPath` expression is used to specify how to find that
-element on the web page. :class:`~reahl.webdev.tools.XPath` has handy methods for constructing
-:class:`~reahl.webdev.tools.XPath` expressions while keeping the code readable. Compare, for
-example the following two lines to appreciate what :class:`~reahl.webdev.tools.XPath` does. Isn't
-the one using :class:`~reahl.webdev.tools.XPath` much more explicit and readable?
+something, an |XPath| expression is used to specify how to find that
+element on the web page. |XPath| has handy methods for constructing
+|XPath| expressions while keeping the code readable. Compare, for
+example the following two lines to appreciate what |XPath| does. Isn't
+the one using |XPath| much more explicit and readable?
 
 .. code-block:: python
    
    browser.click('//a[href="/news"]')
+
+.. code-block:: python
 
    browser.click(XPath.link_labelled('News'))
 
@@ -149,13 +91,11 @@ Readable tests
 
 Often in tests, there are small bits of code which would be more
 readable if it was extracted into properly named methods (as done with
-:class:`~reahl.webdev.tools.XPath` above). If you create a :class:`~reahl.tofu.Fixture` specially for testing the
-AddressBookUI, such a fixture is an ideal home for such methods.  In
-the expanded version of our test below, AddressAppFixture was
-added. AddressAppFixture now contains the nasty implementation of a
-couple of things we'd like to assert about the application, as well as
-some objects used by the tests.  (Compare this implementation of
-`.adding_an_address()` to the previous implementation.)
+|XPath| above). If you create a |Fixture| specially for testing the
+AddressBookUI (in the example below), such a fixture is an ideal home
+for extracted methods.  In the test below, AddressAppFixture contains
+the nasty implementation of a couple of things we'd like to assert
+about the application, as well as some objects used by the tests.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2_dev/test_parameterised2_2.py
 
@@ -170,7 +110,7 @@ Testing JavaScript
 
    Using Selenium's WebDriver module with Chromium takes a bit more
    effort at the time of this writing. Since Chromium is the browser
-   used by the Reahl :class:`~reahl.tofu.Fixture`\ s, this may trip you up when running the
+   used by the Reahl |Fixture|\s, this may trip you up when running the
    test above.
 
    In order to make it work, you will have to also install
@@ -181,24 +121,24 @@ Testing JavaScript
    (:doc:`See our instructions for installing chromedriver in Ubuntu <install-ubuntu>`.)
 
 
-The :class:`~reahl.webdev.tools.Browser` class used above cannot be used for all tests, since it
+The |Browser| class used above cannot be used for all tests, since it
 cannot execute javascript.  If you want to test something which makes
 use of javascript, you'd need the tests (or part of them) to execute
 in something like an actual browser. Doing this requires Selenium, and
-the use of the web server started by :class:`~reahl.webdev.fixtures.BrowserSetup` for exactly this
+the use of the web server started by |WebFixture| for exactly this
 eventuality.
 
-:class:`~reahl.webdev.tools.DriverBrowser` is a class which provides a thin layer over Selenium's
+|DriverBrowser| is a class which provides a thin layer over Selenium's
 WebDriver interface. It gives a programmer a similar set of methods
-to those provided by the :class:`~reahl.webdev.tools.Browser`, as used above. An instance of it is
-available on the :class:`~reahl.web_dev.fixtures.WebFixture` via its `.driver_browser` attribute.
+to those provided by the |Browser|, as used above. An instance of it is
+available on the |WebFixture| via its `.driver_browser` attribute.
 
-The standard :class:`~reahl.tofu.Fixture`\s that form part of Reahl use Chromium by default
+The standard |Fixture|\s that form part of Reahl use Chromium by default
 in order to run tests, and they expect the executable for chromium to
 be in '/usr/lib/chromium-browser/chromium-browser'.
 
-You can change which browser is used by creating a new :class:`~reahl.tofu.Fixture` that inherits
-from :class:`~reahl.web_dev.fixtures.WebFixture`, and overriding its `.new_driver_browser()` method.  
+You can change which browser is used by creating a new |Fixture| that inherits
+from |WebFixture|, and overriding its `.new_driver_browser()` method.  
 
 When the following is executed, a browser will be fired up, and
 Selenium used to test that the validation provided by :class:`~reahl.component.modelinterface.EmailField` works
