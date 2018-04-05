@@ -29,6 +29,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from sqlalchemy.ext.declarative import instrument_declarative, declarative_base, DeclarativeMeta
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy import Column, Integer, ForeignKey
+import sqlalchemy_utils
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 from alembic.autogenerate import compare_metadata
@@ -99,6 +100,8 @@ def ix_name(table_name, column_name):
 
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base
+sqlalchemy_utils.force_auto_coercion()
+
 
 class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
     """ Prevent metaclass conflict in subclasses that want multiply inherit from
@@ -379,6 +382,7 @@ class SchemaVersion(Base):
     id = Column(Integer, primary_key=True)
     version =  Column(String(50))
     egg_name = Column(String(80))
+
 
 
 

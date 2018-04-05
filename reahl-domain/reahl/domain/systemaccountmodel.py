@@ -27,8 +27,6 @@ from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTim
 from sqlalchemy.orm import relationship
 
 from sqlalchemy_utils.types.password import PasswordType
-from sqlalchemy_utils import force_auto_coercion
-force_auto_coercion()
 
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
@@ -44,7 +42,8 @@ from reahl.domain.partymodel import Party
 from reahl.domain.workflowmodel import DeferredAction, Requirement
 
 _ = Translator('reahl-domain')
-                             
+
+
 class SystemAccountConfig(Configuration):
     filename = 'systemaccountmodel.config.py'
     config_key = 'accounts'
@@ -125,12 +124,10 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
 
     password_hash = Column(PasswordType(
-                            schemes=["pbkdf2_sha512", "hex_md5"],#all alg. are considered deprecated, except first one
+                            schemes=["pbkdf2_sha512", "hex_md5"], #all alg. are considered deprecated, except first one
                             deprecated="auto"), nullable=False)
-
     email = Column(Unicode(254), nullable=False, unique=True, index=True)
-    apache_digest = Column(String(32), nullable=False)
-    
+
     @classmethod
     def by_email(cls, email):
         matches = Session.query(cls).filter_by(email=email)
@@ -233,9 +230,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     def set_new_password(self, email, password):
         if self.email != email:
             raise InvalidEmailException()
-        new_password = password
         self.password_hash = password
-        self.apache_digest = hashlib.md5(('%s:%s:%s' % (self.email,'',new_password)).encode('utf-8')).hexdigest()
 
     def request_email_change(self, new_email):
         self.assert_account_live()

@@ -79,9 +79,6 @@ def test_create_account(reahl_system_fixture, party_account_fixture):
 
     assert mailer_stub.mail_sent
     assert system_account.email == account_management_interface.email
-    # FIXME: These are those dubious tests where the assert just repeats the implementation verbatim
-    assert system_account.apache_digest == hashlib.md5(('%s:%s:%s' %
-                                          (account_management_interface.email,'',account_management_interface.password)).encode('utf-8')).hexdigest()
     assert_recent( activation_action.deadline - timedelta(days=10) )
     assert not system_account.registration_activated
     assert not system_account.account_enabled

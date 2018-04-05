@@ -175,3 +175,9 @@ class ChangePasswordHash(Migration):
                                                 existing_nullable=False, nullable=False,
                                                 postgresql_using='password_md5::bytea')
 
+
+class RemoveDeadApacheDigestColumn(Migration):
+    version = '4.0.0a1'
+
+    def schedule_upgrades(self):
+        self.schedule('cleanup', op.drop_column, 'emailandpasswordsystemaccount', 'apache_digest')
