@@ -27,6 +27,8 @@ from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTim
 from sqlalchemy.orm import relationship
 
 from sqlalchemy_utils.types.password import PasswordType
+import sqlalchemy_utils
+sqlalchemy_utils.force_auto_coercion()
 
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
