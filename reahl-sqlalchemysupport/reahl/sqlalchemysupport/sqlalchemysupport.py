@@ -100,7 +100,7 @@ def ix_name(table_name, column_name):
 
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base
-#sqlalchemy_utils.force_auto_coercion()
+sqlalchemy_utils.force_auto_coercion()
 
 
 class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
