@@ -118,7 +118,7 @@ Testing JavaScript
    <http://code.google.com/p/selenium/wiki/ChromeDriver>`_ as per the
    instructions for your platform. 
 
-   (:doc:`See our instructions for installing chromedriver in Ubuntu <install-ubuntu>`.)
+   (:doc:`See our instructions for installing chromedriver in Ubuntu <../tutorial/install-ubuntu>`.)
 
 
 The |Browser| class used above cannot be used for all tests, since it

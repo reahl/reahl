@@ -1,5 +1,8 @@
 .. Copyright 2014, 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
- 
+
+
+
+
 What changed in version 4.0
 ===========================
 
@@ -140,7 +143,7 @@ Passwords
 
 Previous releases used md5 to encrypt passwords in the database. This
 practice is no longer viewed as being secure. This release uses
-`pbkdf2_sha512` password hashes.
+`pbkdf2_sha512` password hashes `via passlib <https://passlib.readthedocs.io/en/stable/>`_.
 
 Older passwords will automatically be changed to `pbkdf2_sha512` upon
 a successful login.

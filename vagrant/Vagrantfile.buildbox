@@ -12,38 +12,28 @@ Vagrant.configure(2) do |config|
   config.vm.hostname = 'reahl-development-machine'
 
   config.vm.provider :lxc do |lxc, override|
-    override.vm.box = "nhinds/xenial64"
+    override.vm.box = "reahl-base-bionic64" # Built locally from https://github.com/Anapaya/vagrant-lxc-base-boxes
     if exists? "lxc-ls"
       LXC_VERSION = `lxc-ls --version`.strip unless defined? LXC_VERSION
       if LXC_VERSION >= "2.0.0"
         lxc.backingstore = 'dir'
       end
     end
-    override.vm.provision "shell", privileged: false, inline: <<-SHELL
-      # Setup virtualenv, virtualenvwrapper
-      mkdir -p $HOME/virtualenv
-      echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.profile
-      echo "workon python3.5" >> $HOME/.profile
-
-      # Create a development virtualenv
-      source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
-      mkvirtualenv -p $(which python3.5) python3.5 || true
-    SHELL
   end
 
   config.vm.provider :virtualbox do |vb, override|
-    override.vm.box = "bento/ubuntu-16.04"
+    override.vm.box = "ubuntu/bionic64"
     vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
   end
 
   config.vm.provision "shell", inline: "/vagrant/scripts/installDebs.sh"
-  config.vm.provision "shell", privileged: false, inline: "cd /vagrant; ./vagrant/setupDevEnv.sh"
   config.vm.provision "shell", inline: <<-SHELL
       rm -f /var/cache/apt/*.bin
       if [ "$(sudo dmidecode -s system-product-name)" = "VirtualBox" ]; then
         dd if=/dev/zero of=/EMPTY bs=1M || true
         rm /EMPTY
       fi
+
       cat /dev/null > ~/.bash_history && history -c
   SHELL
 
