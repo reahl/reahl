@@ -1,6 +1,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-import hashlib
+
+
+from passlib.hash import pbkdf2_sha256
 
 from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, String
 from sqlalchemy.orm import relationship
@@ -17,23 +19,19 @@ from reahl.web.bootstrap.grid import ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.component.modelinterface import Action, EmailField, Event, PasswordField, exposed
 
 
-
 class User(Base):
     __tablename__ = 'sessionscopebootstrap_user'
     
     id            = Column(Integer, primary_key=True)
     email_address = Column(UnicodeText, nullable=False) 
     name          = Column(UnicodeText, nullable=False)
-    password_md5  = Column(String, nullable=False)
+    password_hash = Column(String, nullable=False)
 
     def set_password(self, password):
-        self.password_md5 = self.password_hash(password)
+        self.password_hash = pbkdf2_sha256.hash(password)
         
     def matches_password(self, password):
-        return self.password_md5 == self.password_hash(password)
-
-    def password_hash(self, password):
-        return hashlib.md5(password.encode('utf-8')).hexdigest()
+        return pbkdf2_sha256.verify(password, self.password_hash)
 
 
 @session_scoped
