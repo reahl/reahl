@@ -43,8 +43,14 @@ class LayoutScenarios(Fixture):
 
     @scenario
     def border(self):
-        self.layout_kwargs = dict(border=True)
+        self.layout_kwargs = dict(border='bordered')
         self.expected_table_css_class = 'table table-bordered'
+        self.expected_main_css_class = None
+
+    @scenario
+    def border(self):
+        self.layout_kwargs = dict(border='borderless')
+        self.expected_table_css_class = 'table table-borderless'
         self.expected_main_css_class = None
 
     @scenario
