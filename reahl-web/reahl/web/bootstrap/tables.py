@@ -124,9 +124,8 @@ class TableLayout(Layout):
 
     def style_heading(self):
         if self.heading_theme.is_set:
-            if not self.widget.table.thead:
-                raise ProgrammerError('No Thead found on %s, but you asked to style it using heading_theme' % self.widget.table)
-            self.widget.table.thead.append_class('thead-%s' % self.heading_theme.as_html_snippet())
+            table_header = self.widget.table.get_or_create_header()
+            table_header.append_class('thead-%s' % self.heading_theme.as_html_snippet())
 
 
 class TablePageIndex(SequentialPageIndex):
