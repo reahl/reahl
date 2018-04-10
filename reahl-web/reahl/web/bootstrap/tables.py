@@ -228,17 +228,18 @@ class DataTable(Div):
        :param css_id: (See :class:`HTMLElement`)
 
        :keyword items_per_page: The maximum number of rows allowed per page.
+       :keyword max_page_links: The maximum number of page links to show in the page menu.
        :keyword caption_text: If given, a :class:`Caption` is added with this text.
        :keyword summary: If given, this text will be set as the summary of the contained :class:`Table` (See :class:`Table`).
        :keyword table_layout: If given, the layout is applied to the contained :class:`Table`.
 
     """
-    def __init__(self, view, columns, items, css_id, items_per_page=10, caption_text=None, summary=None, table_layout=None):
+    def __init__(self, view, columns, items, css_id, items_per_page=10, max_page_links=5, caption_text=None, summary=None, table_layout=None):
         super(DataTable, self).__init__(view, css_id=css_id)
 
         self.append_class('reahl-datatable')
 
-        self.page_index = TablePageIndex(columns, items, items_per_page=items_per_page)
+        self.page_index = TablePageIndex(columns, items, items_per_page=items_per_page, max_page_links=max_page_links)
 
         paged_css_id = '%s_paged' % css_id
         self.paged_contents = PagedTable(view, self.page_index, columns, caption_text=caption_text, summary=summary, 
