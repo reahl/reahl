@@ -5,7 +5,7 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Removed a_list argument to Menu constructor.
  * Removed Menu.add_submenu.
  * Removed Menu.add_item, made MenuItem class hierachy private.
- * Upgraded Bootstrap to 4.0.0.
+ * Upgraded Bootstrap to 4.1.0.
  * Upgraded JQuery to 3.3.1 with JQuery-migrate 3.0.1.
  * Upgraded JQueryUI to 1.12.1, but trimmed it down to only the widget factory.
  * Upgraded jQuery Validation Plugin 1.17.0 (patched).
