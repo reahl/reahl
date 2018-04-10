@@ -82,7 +82,9 @@ class TableLayout(Layout):
     """A Layout for customising details of how a Table is displayed.
 
     :keyword dark: If True, table text is light text on dark background.
-    :keyword border: If True, a border is rendered around the table and each cell.
+    :keyword border: If set to 'bordered', a border is rendered around the table and each cell.
+                     When set to 'default' only row delimeters are shown.
+                     Allowed values: 'default', 'bordered' and 'borderless'.
     :keyword compact: If True, make the table more compact by cutting cell padding in half.
     :keyword striped: If True, colour successive rows lighter and darker.
     :keyword highlight_hovered: If True, a row is highlighted when the mouse hovers over it.
@@ -91,7 +93,7 @@ class TableLayout(Layout):
                          Allowed values : 'xs', 'sm', 'md', 'lg' and 'xl'
     :keyword heading_theme: One of 'light' or 'dark'. A light heading is one with darker text on a lighter background.
     """
-    def __init__(self, dark=False, border=False, compact=False, striped=False, highlight_hovered=False,
+    def __init__(self, dark=False, border='default', compact=False, striped=False, highlight_hovered=False,
                  responsive=False, heading_theme=None):
         super(TableLayout, self).__init__()
 
@@ -102,9 +104,13 @@ class TableLayout(Layout):
         else:
             self.responsive_attribute_option = HTMLAttributeValueOption('table-responsive', responsive)
 
+        border_option = HTMLAttributeValueOption(border, border and border != 'default',
+                                                 prefix='table',
+                                                 constrain_value_to=['bordered', 'borderless'])
+
         self.table_properties = [HTMLAttributeValueOption('dark', dark, prefix='table'),
                                  HTMLAttributeValueOption('striped', striped, prefix='table'),
-                                 HTMLAttributeValueOption('bordered', border, prefix='table'),
+                                 border_option,
                                  HTMLAttributeValueOption('hover', highlight_hovered, prefix='table'),
                                  HTMLAttributeValueOption('sm', compact, prefix='table')
                                  ]
