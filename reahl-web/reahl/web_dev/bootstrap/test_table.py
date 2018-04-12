@@ -284,17 +284,9 @@ def test_which_columns_can_cause_sorting(web_fixture, data_table_fixture):
 def test_layout_for_contained_table(web_fixture, data_table_fixture):
     """You can specify a Layout to use for the actual table inside the DataTable."""
 
-    layout = TableLayout()
+    layout = TableLayout(heading_theme='light')  # heading_theme is here to give coverage of a previous bug
     data_table = DataTable(web_fixture.view, data_table_fixture.columns, data_table_fixture.data, 'my_css_id', table_layout=layout)
 
     assert data_table.table.layout is layout
 
 
-@with_fixtures(WebFixture, DataTableFixture)
-def test_layout_for_contained_table_with_options(web_fixture, data_table_fixture):
-    """Specifying some layout options."""
-
-    layout = TableLayout(heading_theme='light', highlight_hovered=True)
-    data_table = DataTable(web_fixture.view, data_table_fixture.columns, data_table_fixture.data, 'my_css_id', table_layout=layout)
-
-    assert data_table.table.layout is layout
