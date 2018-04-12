@@ -17,14 +17,14 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import hashlib
+import passlib.hash
 from string import Template
 from datetime import datetime, timedelta
 
 from sqlalchemy import Column, ForeignKey, Integer
 
 from reahl.sqlalchemysupport import Session
-from reahl.tofu import assert_recent, expected
+from reahl.tofu import assert_recent, expected, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass
 
@@ -79,10 +79,6 @@ def test_create_account(reahl_system_fixture, party_account_fixture):
 
     assert mailer_stub.mail_sent
     assert system_account.email == account_management_interface.email
-    # FIXME: These are those dubious tests where the assert just repeats the implementation verbatim
-    assert system_account.password_md5 == hashlib.md5(account_management_interface.password.encode('utf-8')).hexdigest()
-    assert system_account.apache_digest == hashlib.md5(('%s:%s:%s' %
-                                          (account_management_interface.email,'',account_management_interface.password)).encode('utf-8')).hexdigest()
     assert_recent( activation_action.deadline - timedelta(days=10) )
     assert not system_account.registration_activated
     assert not system_account.account_enabled
@@ -353,6 +349,21 @@ def test_set_new_password(party_account_fixture):
     system_account.authenticate(new_password) # Should not raise exception
 
 
+@with_fixtures(PartyAccountFixture)
+def test_migrate_password_hash_scheme(party_account_fixture):
+    fixture = party_account_fixture
+
+    system_account = fixture.system_account
+    md5_hash = passlib.hash.hex_md5.hash(system_account.password)
+    system_account.password_hash = md5_hash
+
+    system_account.authenticate(system_account.password)
+    assert system_account.password_hash != md5_hash
+
+    with expected(NoException):
+        system_account.authenticate(system_account.password)
+
+
 @with_fixtures(ReahlSystemFixture, PartyAccountFixture)
 def test_request_email_change(reahl_system_fixture, party_account_fixture):
     fixture = party_account_fixture
@@ -553,5 +564,4 @@ def test_login_queries(party_account_fixture, web_fixture):
     user_session.last_activity = datetime.now() - timedelta(seconds=config.web.idle_lifetime_max+50)
     assert not login_session.is_logged_in()
     assert not login_session.is_logged_in(secured=True)
-
 
