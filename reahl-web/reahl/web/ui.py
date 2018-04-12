@@ -2266,6 +2266,7 @@ class Table(HTMLElement):
     """
     def __init__(self, view, caption_text=None, summary=None, css_id=None):
         super(Table, self).__init__(view, 'table', children_allowed=True, css_id=css_id)
+        self.has_data = False
         if caption_text:
             self.add_child(Caption(view, text=caption_text))
         if summary:
@@ -2278,18 +2279,22 @@ class Table(HTMLElement):
            :param columns: The :class:`DynamicColumn` instances that define the contents of the table.
            :param items: A list containing objects represented in each row of the table.
         """
-        if self.thead:
+        if self.has_data:
             raise ProgrammerError('This table has already been populated.')
+        self.has_data = True
         self.create_header_columns(columns)
         self.create_rows(columns, items)
         return self
 
     def create_header_columns(self, columns):
-        table_header = self.add_child(Thead(self.view))
+        table_header = self.get_or_create_header()
         header_tr = table_header.add_child(Tr(self.view))
         for column_number, column in enumerate(columns):
             column_th = header_tr.add_child(Th(self.view))
             column_th.add_child(column.heading_as_widget(self.view))
+
+    def get_or_create_header(self):
+        return self.thead or self.add_child(Thead(self.view))
 
     @property
     def thead(self):
