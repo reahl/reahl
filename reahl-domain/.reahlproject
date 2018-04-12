@@ -15,7 +15,6 @@
 
   <deps purpose="run">
     <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
-    <thirdpartyegg name="sqlalchemy-utils" minversion="0.33.1" maxversion="0.33.9999"/>
     <egg name="reahl-component"/>
     <egg name="reahl-mailutil"/>
     <egg name="reahl-sqlalchemysupport"/>

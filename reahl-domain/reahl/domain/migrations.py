@@ -21,7 +21,6 @@ from sqlalchemy import Column, String, Integer, ForeignKey, UnicodeText, Unicode
 from reahl.component.migration import Migration
 from reahl.sqlalchemysupport.elixirmigration import MigrateElixirToDeclarative
 from reahl.sqlalchemysupport import fk_name, ix_name
-from sqlalchemy_utils.types.password import PasswordType
 
 
 class ElixirToDeclarativeDomainChanges(MigrateElixirToDeclarative):
@@ -171,9 +170,8 @@ class ChangePasswordHash(Migration):
     def schedule_upgrades(self):
         self.schedule('alter', op.alter_column, 'emailandpasswordsystemaccount',
                                                 'password_md5', new_column_name='password_hash',
-                                                existing_type=String(32), type_=PasswordType,
-                                                existing_nullable=False, nullable=False,
-                                                postgresql_using='password_md5::bytea')
+                                                existing_type=String(32), type_=Unicode(1024),
+                                                existing_nullable=False, nullable=False)
 
 
 class RemoveDeadApacheDigestColumn(Migration):

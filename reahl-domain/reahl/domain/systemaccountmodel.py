@@ -17,16 +17,15 @@
 """A collection of classes to deal with accounts for different parties on a system."""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+import six
 from datetime import datetime, timedelta
-import hashlib
+import passlib.context
 import re
 import random
 from string import Template
 
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean, Unicode
-from sqlalchemy.orm import relationship
-
-from sqlalchemy_utils.types.password import PasswordType
+from sqlalchemy.orm import relationship, reconstructor
 
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
@@ -123,10 +122,17 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     __mapper_args__ = {'polymorphic_identity': 'emailandpasswordsystemaccount'}
     id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
 
-    password_hash = Column(PasswordType(
-                            schemes=["pbkdf2_sha512", "hex_md5"], #all alg. are considered deprecated, except first one
-                            deprecated="auto"), nullable=False)
+    password_hash = Column(Unicode(1024), nullable=False)
     email = Column(Unicode(254), nullable=False, unique=True, index=True)
+
+    def __init__(self, **kwargs):
+        super(EmailAndPasswordSystemAccount, self).__init__(**kwargs)
+        self.init_on_load()
+
+    @reconstructor
+    def init_on_load(self):
+        self.crypt_context = passlib.context.CryptContext(schemes=["pbkdf2_sha512", "hex_md5"],
+                                                          deprecated="auto")
 
     @classmethod
     def by_email(cls, email):
@@ -190,7 +196,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         system_account.send_activation_notification()
 
         return system_account
-        
+
     @classmethod
     def log_in(cls, email, password, stay_logged_in):
         try:
@@ -205,11 +211,16 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     def authenticate(self, password):
         self.assert_account_live()
 
-        if password != self.password_hash:
+        valid, new_hash = self.crypt_context.verify_and_update(password, self.password_hash)
+        if not valid:
             self.failed_logins += 1
             if self.failed_logins >= 3:
                 self.disable()
             raise InvalidPasswordException(commit=True)
+        if new_hash:
+            if six.PY2:
+                new_hash = new_hash.decode('utf-8')
+            self.password_hash = new_hash
 
     def send_activation_notification(self):
         verification_request = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ActivateAccount)\
@@ -230,7 +241,11 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     def set_new_password(self, email, password):
         if self.email != email:
             raise InvalidEmailException()
-        self.password_hash = password
+
+        new_hash = self.crypt_context.hash(password)
+        if six.PY2:
+            new_hash = new_hash.decode('utf-8')
+        self.password_hash = new_hash
 
     def request_email_change(self, new_email):
         self.assert_account_live()

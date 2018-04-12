@@ -17,14 +17,14 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-import hashlib
+import passlib.hash
 from string import Template
 from datetime import datetime, timedelta
 
 from sqlalchemy import Column, ForeignKey, Integer
 
 from reahl.sqlalchemysupport import Session
-from reahl.tofu import assert_recent, expected
+from reahl.tofu import assert_recent, expected, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 from reahl.stubble import stubclass
 
@@ -347,6 +347,21 @@ def test_set_new_password(party_account_fixture):
     account_management_interface.password = new_password
     account_management_interface.choose_new_password()
     system_account.authenticate(new_password) # Should not raise exception
+
+
+@with_fixtures(PartyAccountFixture)
+def test_migrate_password_hash_scheme(party_account_fixture):
+    fixture = party_account_fixture
+
+    system_account = fixture.system_account
+    md5_hash = passlib.hash.hex_md5.hash(system_account.password)
+    system_account.password_hash = md5_hash
+
+    system_account.authenticate(system_account.password)
+    assert system_account.password_hash != md5_hash
+
+    with expected(NoException):
+        system_account.authenticate(system_account.password)
 
 
 @with_fixtures(ReahlSystemFixture, PartyAccountFixture)

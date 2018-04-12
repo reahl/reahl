@@ -11,7 +11,6 @@
   </deps>
 
   <deps purpose="run">
-    <thirdpartyegg name="sqlalchemy-utils" minversion="0.33.1" maxversion="0.33.9999"/>
     <egg name="reahl-component"/>
     <egg name="reahl-commands"/>
     <thirdpartyegg name="sqlalchemy" minversion="1.2.0" maxversion="1.2.999"/>
