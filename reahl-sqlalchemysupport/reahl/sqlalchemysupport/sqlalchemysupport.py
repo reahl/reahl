@@ -100,10 +100,12 @@ def ix_name(table_name, column_name):
 Session = scoped_session(sessionmaker(autoflush=True, autocommit=False), scopefunc=reahl_scope) #: A shared SQLAlchemy session, scoped using the current :class:`reahl.component.context.ExecutionContext`
 metadata = MetaData(naming_convention=naming_convention)  #: a metadata for use with other SqlAlchemy tables, shared with declarative classes using Base
 
+
 class DeclarativeABCMeta(DeclarativeMeta, ABCMeta):
     """ Prevent metaclass conflict in subclasses that want multiply inherit from
     ancestors that have ABCMeta as metaclass """
     pass
+
 
 Base = declarative_base(class_registry=weakref.WeakValueDictionary(), metadata=metadata, metaclass=DeclarativeABCMeta)    #: A Base for using with declarative
 
@@ -379,6 +381,7 @@ class SchemaVersion(Base):
     id = Column(Integer, primary_key=True)
     version =  Column(String(50))
     egg_name = Column(String(80))
+
 
 
 

@@ -17,14 +17,15 @@
 """A collection of classes to deal with accounts for different parties on a system."""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
+import six
 from datetime import datetime, timedelta
-import hashlib
+import passlib.context
 import re
 import random
 from string import Template
 
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean, Unicode
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, reconstructor
 
 from reahl.sqlalchemysupport import Base, Session, session_scoped
 
@@ -40,7 +41,8 @@ from reahl.domain.partymodel import Party
 from reahl.domain.workflowmodel import DeferredAction, Requirement
 
 _ = Translator('reahl-domain')
-                             
+
+
 class SystemAccountConfig(Configuration):
     filename = 'systemaccountmodel.config.py'
     config_key = 'accounts'
@@ -120,10 +122,18 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     __mapper_args__ = {'polymorphic_identity': 'emailandpasswordsystemaccount'}
     id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
 
-    password_md5 = Column(String(32), nullable=False)
+    password_hash = Column(Unicode(1024), nullable=False)
     email = Column(Unicode(254), nullable=False, unique=True, index=True)
-    apache_digest = Column(String(32), nullable=False)
-    
+
+    def __init__(self, **kwargs):
+        super(EmailAndPasswordSystemAccount, self).__init__(**kwargs)
+        self.init_on_load()
+
+    @reconstructor
+    def init_on_load(self):
+        self.crypt_context = passlib.context.CryptContext(schemes=["pbkdf2_sha512", "hex_md5"],
+                                                          deprecated="auto")
+
     @classmethod
     def by_email(cls, email):
         matches = Session.query(cls).filter_by(email=email)
@@ -186,7 +196,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         system_account.send_activation_notification()
 
         return system_account
-        
+
     @classmethod
     def log_in(cls, email, password, stay_logged_in):
         try:
@@ -201,12 +211,16 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     def authenticate(self, password):
         self.assert_account_live()
 
-        password_md5 = self.password_hash(password)
-        if self.password_md5 != password_md5:
+        valid, new_hash = self.crypt_context.verify_and_update(password, self.password_hash)
+        if not valid:
             self.failed_logins += 1
             if self.failed_logins >= 3:
                 self.disable()
             raise InvalidPasswordException(commit=True)
+        if new_hash:
+            if six.PY2:
+                new_hash = new_hash.decode('utf-8')
+            self.password_hash = new_hash
 
     def send_activation_notification(self):
         verification_request = Session.query(VerifyEmailRequest).join(VerifyEmailRequest.deferred_actions, ActivateAccount)\
@@ -227,9 +241,11 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     def set_new_password(self, email, password):
         if self.email != email:
             raise InvalidEmailException()
-        new_password = password
-        self.password_md5 = self.password_hash(password)
-        self.apache_digest = hashlib.md5(('%s:%s:%s' % (self.email,'',new_password)).encode('utf-8')).hexdigest()
+
+        new_hash = self.crypt_context.hash(password)
+        if six.PY2:
+            new_hash = new_hash.decode('utf-8')
+        self.password_hash = new_hash
 
     def request_email_change(self, new_email):
         self.assert_account_live()
@@ -246,10 +262,7 @@ class EmailAndPasswordSystemAccount(SystemAccount):
         self.authenticate(password)
         self.email = new_login
 
-    def password_hash(self, password):
-        return hashlib.md5(password.encode('utf-8')).hexdigest()
 
-    
 @session_scoped
 class AccountManagementInterface(Base):
     """A session scoped object that @exposes a number of Fields and Events that user interface 

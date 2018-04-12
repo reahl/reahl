@@ -14,6 +14,7 @@
   </deps>
 
   <deps purpose="run">
+    <thirdpartyegg name="passlib" minversion="1.7.1" maxversion="1.7.9999"/>
     <egg name="reahl-component"/>
     <egg name="reahl-mailutil"/>
     <egg name="reahl-sqlalchemysupport"/>
@@ -52,6 +53,8 @@
       <class locator="reahl.domain.migrations:ElixirToDeclarativeDomainChanges"/>
       <class locator="reahl.domain.migrations:AddLoginSession"/>
       <class locator="reahl.domain.migrations:ChangeSchemaToBeMySqlCompatible"/>
+      <class locator="reahl.domain.migrations:ChangePasswordHash"/>
+      <class locator="reahl.domain.migrations:RemoveDeadApacheDigestColumn"/>
   </migrations>
 
 
@@ -61,5 +64,5 @@
   <distpackage type="sdist">
     <packageindex repository="pypi"/>
   </distpackage>
-    
+
 </project>
