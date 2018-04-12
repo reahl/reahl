@@ -15,7 +15,7 @@ class GridBasicsPage(HTML5Page):
         self.body.use_layout(Container())
 
         self.add_four()
-        self.add_two()
+        self.add_twelve()
 
     def add_four(self):
         layout = ColumnLayout(ColumnOptions('first', ResponsiveSize(md=6)),

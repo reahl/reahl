@@ -133,8 +133,8 @@ class Fixture(object):
        .. code-block:: python
 
           class MyFixture(Fixture):
-                def new_name(self):
-                    return 'myname'
+              def new_name(self):
+                  return 'myname'
 
        A Fixture is used inside a with statement or as using a plugin for a test
        framework.
@@ -153,7 +153,7 @@ class Fixture(object):
           with MyFixture() as fixture:
                assert fixture.name is fixture.name
 
-       If the created singleton object also needs to be torn down, the new_ method 
+       If the created singleton object also needs to be torn down, the new\_ method
        should yield it (not return), and perform necessary tear down after the yield
        statement.
 
