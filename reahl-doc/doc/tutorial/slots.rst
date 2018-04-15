@@ -67,7 +67,7 @@ Define views in terms of Slots
 
 MyCustomPage is defined as a single |UserInterface|\-wide page with the
 call to :meth:`~reahl.web.fw.UserInterface.define_page`.  Call
-:meth:`~reahl.web.fw.UrlBoundViewFactory.set_slot` to define how each
+:meth:`~reahl.web.fw.ViewFactory.set_slot` to define how each
 |UrlBoundView| populates the placeholders.
 
 The arguments expected by the __init__ of MyPage are passed along in

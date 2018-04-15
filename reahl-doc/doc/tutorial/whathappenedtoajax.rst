@@ -3,6 +3,7 @@
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
 .. |View| replace:: :class:`~reahl.web.fw.View`
+.. |HTMLElement| replace:: :class:`~reahl.web.ui.HTMLElement`
 .. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
 .. |Div| replace:: :class:`~reahl.web.bootstrap.ui.Div`
 .. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
@@ -40,8 +41,10 @@ The `tutorial.ajaxbootstrap` example has |Nav| and a |Div|. The
 contents of the |Div| changes each time an item is selected on the
 |Nav| without reloading the entire page.
 
-To let a |Widget| refresh, it needs arguments, and needs to call
-:meth:`~reahl.web.fw.Widget.enable_refresh` in its `__init__` method.
+Only |HTMLElement|\s can refresh. To let an |HTMLElement| refresh, it
+needs arguments and needs to call
+:meth:`~reahl.web.ui.HTMLElement.enable_refresh` in its `__init__`
+method.
 
 In the example, RefreshedPanel is given arguments in an
 :class:`~reahl.component.modelinterface.exposed` method named

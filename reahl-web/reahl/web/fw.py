@@ -971,7 +971,9 @@ class Widget(object):
     
     @exposed
     def query_fields(self, fields):
-        """Override this method to parameterise this this Widget. The Widget will find its arguments from the current
+        """query_fields(self, fields)
+
+           Override this method to parameterise this this Widget. The Widget will find its arguments from the current
            query string, using the names and validation details as given by the Field instances assigned to `fields`.
            
            The `@exposed query_fields` of a Widget is exactly like the `@exposed fields` used for input to a model object.
