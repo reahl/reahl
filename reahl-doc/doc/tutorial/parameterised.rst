@@ -2,11 +2,17 @@
 
 .. |View| replace:: :class:`~reahl.web.fw.View`
 .. |UserInterface| replace:: :class:`~reahl.web.fw.UserInterface`
+.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
+.. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
+.. |A| replace:: :class:`~reahl.web.ui.A`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
 .. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
-.. |Button| replace:: :class:`~reahl.web.ui.Button`
+.. |Button| replace:: :class:`~reahl.web.bootstrap.forms.Button`
 .. |Form| replace:: :class:`~reahl.web.ui.Form`
 .. |Transition| replace:: :class:`~reahl.web.fw.Transition`
+.. |Slot| replace:: :class:`~reahl.web.ui.Slot`
+.. |assemble| replace:: :meth:`~reahl.web.fw.UserInterface.assemble`
+
 
 Parameterised  Views
 ====================
@@ -48,7 +54,7 @@ arguments that represent the arguments to the
 Customise the |View| based on the arguments given inside this
 :meth:`~reahl.web.fw.UrlBoundView.assemble` method. The title of the
 |UrlBoundView| is set by setting
-:attr:`~reahl.web.fw.UrlBoundView.title`. Populate the |Slots| by
+:attr:`~reahl.web.fw.UrlBoundView.title`. Populate the |Slot|\s by
 calling :meth:`~reahl.web.fw.UrlBoundView.set_slot`
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py

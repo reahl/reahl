@@ -22,12 +22,12 @@ know it already, but it is well worth it.
 The Reahl Vagrant box
 ---------------------
 
-The Reahl vagrant box is called 'reahl/xenial64'[#lts]_, to use it put the
+The Reahl vagrant box is called 'reahl/bionic64'[#lts]_, to use it put the
 following in your Vagrantfile:
 
 .. code-block:: ruby
 
-   config.vm.box = "reahl/xenial64"
+   config.vm.box = "reahl/bionic64"
 
 Reahl already has a correct Vagrantfile in the root of its source
 tree. A project using Reahl can use the `vagrant/Vagrantfile.example`
@@ -64,7 +64,7 @@ Browsers and seeing stuff
 -------------------------
 
 We use `an Xpra display server <https://xpra.org/>`_ for the Vagrant
-machine. It allows headless operation and sharing GUI windows for pair
+machine. It allows headless operation and sharing of GUI windows for pair
 programming.
 
 When you run tests a per above instructions, the browser is fired up

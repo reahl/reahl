@@ -76,11 +76,15 @@ All these are discussed in :doc:`domain/index`.
 Development tools
 ~~~~~~~~~~~~~~~~~
 
-The `reahl-tofu` component contains an extension to the `Nose
-<https://nose.readthedocs.org/en/latest/>`_ unit test framework as
-well as a small collection of other test utilities which can be used
-with any test framework. Its reason for being is that it allows one to
-separate a test fixture from tests themselves.
+We do all development :doc:`inside a Vagrant machine
+<devmanual/devenv>`. The `reahl-workstation` component is meant to
+be installed on your main workstation. It contains a stripped-down
+version of the `reahl` command containing commands that help deal with
+whats inside the Vagrant machine.
+
+The `reahl-tofu` component contains our test Fixture framework and
+extensions that bolt it onto `pytest <https://pytest.org/>`_. It also
+contains a small collection of other test utilities.
 
 Stubble (in `reahl-stubble`) enables one to write stub classes that
 will break if the interfaces of the classes they stub should change.
@@ -91,3 +95,4 @@ tool. This includes a web server for development purposes and a number
 of special tofu Fixtures that are useful when developing Reahl.
 
 The development tools are discussed in detail in :doc:`devtools/index`
+

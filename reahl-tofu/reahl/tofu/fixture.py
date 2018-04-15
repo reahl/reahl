@@ -121,7 +121,15 @@ class FixtureOptions(object):
     
 class Fixture(object):
     """A test Fixture is a collection of objects defined and set up to be
-       used together in a test.
+       used together in a test. 
+
+       A Fixture can be used by many tests and also by other Fixtures.
+
+       .. note:: 
+          
+          Do not confuse Fixtures with Django's Fixtures or with
+          pytest's Fixtures. They are all related, but work
+          differently.
 
        To create your own Fixture, create a subclasses of Fixture.
        On such a subclass, a new member of the Fixture is defined by a specially
@@ -324,6 +332,3 @@ class Fixture(object):
         self.tear_down_attributes()
         self.run_marked_methods(TearDown)
         self.tear_down()
-
-
-

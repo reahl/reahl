@@ -1,5 +1,10 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
- 
+
+.. |AccountUI| replace:: :class:`~reahl.domainui.bootstrap.accounts.AccountUI`
+.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
+.. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
+.. |Slot| replace:: :class:`~reahl.web.ui.Slot`
+   
 Re-use: Allowing users to log in to your system
 ===============================================
 

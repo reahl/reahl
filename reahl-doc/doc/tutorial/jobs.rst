@@ -40,7 +40,7 @@ To register this job with the component, add a `<schedule>` tag in the
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/jobsbootstrap/.reahlproject
    :start-after:   </persisted>
-   :end-before:   <alias
+   :end-before:   </project>
 
 
 A job, such as `Address.clear_added_flags()` should

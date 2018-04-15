@@ -25,8 +25,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="338.06972"
-     inkscape:cy="80"
+     inkscape:cx="195.06972"
+     inkscape:cy="65"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -126,7 +126,7 @@
        width="159.16171"
        height="22"
        x="179"
-       y="968.36206"
+       y="967.36212"
        ry="8" />
     <text
        xml:space="preserve"
@@ -422,7 +422,7 @@
        width="117.20683"
        height="21"
        x="50.396584"
-       y="969.86212"
+       y="967.36212"
        ry="8" />
     <text
        xml:space="preserve"
@@ -435,5 +435,43 @@
          id="tspan3783-1-5"
          x="62.594727"
          y="984.39679">reahl-commands</tspan></text>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.52561682;stroke-miterlimit:4;stroke-dasharray:0.52561681, 0.52561681;stroke-dashoffset:0"
+       id="rect3779-5-5-90-8-3"
+       width="114.1361"
+       height="21.974382"
+       x="368.43195"
+       y="888.37494"
+       ry="7.990685" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="381.1499"
+       y="903.46295"
+       id="text3781-2-9-7-4-7-6"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3783-1-9-6-6-0-7"
+         x="381.1499"
+         y="903.46295">reahl-workstation</tspan></text>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
+       id="rect3779-5-5-9-3"
+       width="134.16171"
+       height="22"
+       x="350.91913"
+       y="967.36212"
+       ry="8" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="363.91913"
+       y="981.36212"
+       id="text3781-2-9-0-6"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3783-1-9-7-7"
+         x="363.91913"
+         y="981.36212">reahl-mysqlsupport</tspan></text>
   </g>
 </svg>

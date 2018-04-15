@@ -39,10 +39,10 @@ What changed in version 4.0
 Upgrading
 ---------
 
-This release harbours many changes, big and small. Various changes
-have been made to the underlying database schema. To upgrade a
-production system, install the new system in a new virtualenv, then
-migrate your database:
+This release has been a long time in the making and comes with many
+changes. Various changes have been made to the underlying database
+schema. To upgrade a production system, install the new system in a
+new virtualenv, then migrate your database:
 
 .. code-block:: bash
 
@@ -86,6 +86,7 @@ Layout
 
  The arguments to :meth:`~reahl.web.bootstrap.grid.ColumnLayout` that
  define the columns can now be one of:
+ 
     - either just the column name as a string (which assumes default
       |ColumnOptions|); or
     - a tuple with the column name and a |ColumnOptions| object
@@ -153,16 +154,42 @@ Commandline tools
 -----------------
 
 The `reahl` and `reahl-control` tools have both been rolled into a
-single `reahl` commandline tool. The commands it has vary, depending
+single `reahl` commandline tool. The commands it has vary depending
 on which parts of Reahl you have installed. With reahl-dev installed,
 for example, it will include commands only used in development.
 
+
+Development environment
+-----------------------
+
+Development on Reahl itself now happens on a `Vagrant
+<https://www.vagrantup.com//>`_ image using a publicly available box,
+called `reahl/bionic64`.  This may be useful for projects using Reahl
+as well. An example Vagrantfile for your projects is supplied in file
+`vagrant/Vagrantfile.example` in the Reahl source code.
+
+See :doc:`devmanual/devenv` for details.
+
+As part of the move to develop in a Vagrant machine, we added a new
+component, `reahl-workstation`.  You can `pip install
+reahl-workstation` on your actual host. This gives you a simple
+`reahl` commandline outside of the vagrant machine which helps with a
+few simple things such as attaching to the xpra display running
+inside. 
+
+Mysql
+-----
+
+In addition to `PostgreSQL <https://www.postgresql.org>`_ and `Sqlite
+<https://www.sqlite.org>`_ we now support `MySql
+<https://www.mysql.com>`_ as well. Include `reahl-mysqlsupport` in
+your dependencies to be able to use mysql as a backend.
 
 
 Tofu - pytest instead of nosetests
 ----------------------------------
 
-A lot of changes in this release happened behind the scenes, and in
+A lot of changes in this release happened behind the scenes and in
 our development environment. One such change is that our tests run on
 `pytest <https://docs.pytest.org/en/latest/>`_ now, instead of on
 `nosetests <http://nose.readthedocs.io/en/latest/>`_.
@@ -271,10 +298,10 @@ Tofu - other changes
 Some changes in |Fixture| is not related to the pytest move.
 
 
-Previously, you could add a method with name starting with 'del_' if
+Previously, you could add a method with name starting with 'del\_' if
 you needed to tear down one of the |Fixture| attributes created with a
-corresponding 'new_' method. Support for these 'del_' methods have now
-been removed. Instead, tear down can now happen inside the 'new_'
+corresponding 'new\_' method. Support for these 'del\_' methods have now
+been removed. Instead, tear down can now happen inside the 'new\_'
 method which creates the instance by making use of a yield statement::
 
   from reahl.tofu import Fixture
@@ -292,7 +319,7 @@ test code always ran within an appropriate |ExecutionContext|.
 
 The idea of |ExecutionContext| does not belong in the domain of
 |Fixture|\s, however, and it was really impossible to explain why a
-|Fixture| should have an additional context manager without invoking
+|Fixture| should have an additional context manager without explaining
 |ExecutionContext|.
 
 For these reasons, |Fixture| now does not support or need an extra
@@ -301,24 +328,6 @@ contextmanager.  Instead, a new
 part of :mod:`reahl.dev.fixtures`\--making the design of a |Fixture|
 simpler.
          
-Development environment
------------------------
-
-Development on Reahl itself now happens on a `Vagrant
-<https://www.vagrantup.com//>`_ image using a publicly available box,
-called `reahl/xenial64`.  This may be useful for projects using Reahl
-as well. An example Vagrantfile for your projects is supplied in file
-`vagrant/Vagrantfile.example` in the Reahl source code.
-
-See :doc:`devmanual/devenv` for details.
-
-As part of the move to develop in a Vagrant machine, we added a new
-component, `reahl-workstation`.  You can `pip install
-reahl-workstation` on your actual host. This gives you a simple
-`reahl` commandline outside of the vagrant machine which helps with a
-fes simple things such as attaching to the xpra display running
-inside. 
-
 
 Git vs Bzr
 ----------

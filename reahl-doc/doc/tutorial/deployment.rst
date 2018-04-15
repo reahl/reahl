@@ -15,16 +15,14 @@ Deploying a production site
 
       reahl example <examplename>
 
-The easiest way to run your application is at `PythonAnywhere
-<https://www.pythonanywhere.com/?affiliate_id=0017b17d>`_. See the other examples in this
+The easiest way to run your application is at PythonAnywhere_. See the other examples in this
 section for more options.
 
 
 Your PythonAnywhere account
 ---------------------------
 
-Head over to `PythonAnywhere
-<https://pythonanywhere.com/?affiliate_id=0017b17d>`_ and create a
+Head over to PythonAnywhere_ and create a
 free account. The user name you choose for this account will become
 the name of your web application. For example if you use `myname`,
 your app will be accessable on something like
@@ -52,8 +50,7 @@ This `builds a wheel <https://pythonwheels.com/>`_ as specified in your `.reahlp
 
 Once built, the wheel is in your home directory, in: `.reahlworkspace/dist-egg`.
 
-In your browser on `PythonAnywhere
-<https://pythonanywhere.com/?affiliate_id=0017b17d>`_, go to the
+In your browser on PythonAnywhere_, go to the
 "Files" tab. Add a directory named `dist` in your home directory and
 upload the wheel into `dist`.
 
@@ -61,8 +58,7 @@ upload the wheel into `dist`.
 Install
 -------
 
-Head over to the "Consoles" tab on `PythonAnywhere
-<https://pythonanywhere.com/?affiliate_id=0017b17d>`_ and start a new
+Head over to the "Consoles" tab on PythonAnywhere_ and start a new
 `bash` console. In the console, create a virtualenv for python
 3.5:
 
@@ -87,8 +83,7 @@ An application in production should not have any "dangerous default"
 settings. The helloanywhere example contains the necessary production
 config in its `prod/etc` directory.
 
-Head over to `PythonAnywhere
-<https://pythonanywhere.com/?affiliate_id=0017b17d>`_ again, to the
+Head over to PythonAnywhere_ again, to the
 "Files" tab and create an `etc` directory inside your home
 directory. Upload the config files from the example's `prod/etc`
 to that new directory.
@@ -97,8 +92,7 @@ to that new directory.
 Create a database
 -----------------
 
-Head back to the `PythonAnywhere
-<https://pythonanywhere.com/?affiliate_id=0017b17d>`_ "Consoles" tab,
+Head back to the PythonAnywhere_ "Consoles" tab,
 and from there to the previously created bash console.
 
 In the console, create the database:
@@ -112,8 +106,7 @@ In the console, create the database:
 Serve your app
 --------------
 
-The last step is to point `PythonAnywhere
-<https://pythonanywhere.com/?affiliate_id=0017b17d>`_ to your app.
+The last step is to point PythonAnywhere_ to your app.
 
 Go to the "Web" tab, and click on the "Add new web app" button. You will be asked to make a few choices:
 
@@ -139,5 +132,8 @@ virtualenv if desired".
 Click on the green "Reload" button right at the beginning of the web app configuration page.
 
 Your site is now live! Click on the link in the heading "Configuration for..." to visit it.
+
+
+.. _PythonAnywhere: https://www.pythonanywhere.com/?affiliate_id=0017b17d
 
 

@@ -207,7 +207,7 @@ class ButtonInput(reahl.web.ui.ButtonInput):
         super(ButtonInput, self).__init__(form, event)
         self.append_class('btn')
 
-Button = ButtonInput 
+Button = ButtonInput
 
 
 class StaticData(reahl.web.ui.Input):

@@ -1,5 +1,17 @@
 .. Copyright 2013, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
- 
+
+.. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
+.. |Event| replace:: :class:`~reahl.component.modelinterface.Event`
+.. |Action| replace:: :class:`~reahl.component.modelinterface.Action`
+.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
+.. |Widget| replace:: :class:`~reahl.web.fw.Widget`
+.. |Input| replace:: :class:`~reahl.web.ui.Input`
+.. |Button| replace:: :class:`~reahl.web.bootstrap.forms.Button`
+.. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
+
+
+
+                            
 Security and access control
 ===========================
 

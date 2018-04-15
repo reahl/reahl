@@ -33,8 +33,8 @@ Database schema evolution
    data very well, and as a result migration is only possible on
    PostgreSQL databases. See these posts for more information on
    the issue: `one of the last bullets of goals of alembic
-   <https://bitbucket.org/zzzeek/alembic>`_ and `Christopher Allan's
-   rant about the issue < >`_.
+   <https://bitbucket.org/zzzeek/alembic>`_ and `Christopher Webber's
+   rant about the issue <https://dustycloud.org/blog/sqlite-alter-pain/>`_.
 
 
 Once your application is running in production you may want to

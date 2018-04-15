@@ -3,14 +3,13 @@
 Preparing for installation on Mac OS/X
 ======================================
 
+.. sidebar:: Behind the scenes
+
+   `Homebrew <http://brew.sh/>`_, the "missing package manager for OS
+   X" is a tool with which you can easily install certain packages on
+   the Mac.
 
 1. Python and basic development tools
-
-   .. sidebar:: Behind the scenes
-
-      `Homebrew <http://brew.sh/>`_, the "missing package manager for OS
-      X" is a tool with which you can easily install certain packages on
-      the Mac.
 
    On Mac OS/X, you need a proper installation of Python (ie., not the
    standard Python that comes with the OS), you need a C compiler, Python
@@ -18,8 +17,8 @@ Preparing for installation on Mac OS/X
    installing what you need easier.
 
    Follow the installation instructions for Python on `The Hitchhiker's guide to Python
-   <http://python-guide.readthedocs.org/en/latest/starting/install/osx/>`_.
-
+   <https://python-guide.readthedocs.io/en/latest/starting/install3/osx/#install3-osx>`_.
+   
    Here is the super-short summary:
 
    - Install XCode, open it, go to Preferences, select Download and install "Command Line Tools"

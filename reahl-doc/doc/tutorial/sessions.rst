@@ -1,6 +1,8 @@
 .. Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
-.. |DomainException| replace:: :class:`~reahl.web.fw.DomainException`
+.. |DomainException| replace:: :class:`~reahl.component.exceptions.DomainException`
+.. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
+.. |UserSession| replace:: :class:`~reahl.webdeclarative.webdeclarative.UserSession`
 
 The web session problem
 =======================
@@ -57,7 +59,7 @@ Declaring the LoginSession
 --------------------------
 
 Create a LoginSession persisted class and decorate it using the
-:meth:`~reahl.sqlalchemysupport.sqlalchemysupport.session_scoped`
+:func:`~reahl.sqlalchemysupport.sqlalchemysupport.session_scoped`
 decorator.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/sessionscopebootstrap/sessionscopebootstrap.py
