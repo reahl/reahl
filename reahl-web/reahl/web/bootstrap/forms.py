@@ -462,6 +462,16 @@ class InlineFormLayout(FormLayout):
     def create_help_text_widget(self, help_text):
         return Span(self.view, text=help_text)
 
+    def add_label_to(self, form_group, html_input, hidden):
+        label = super(InlineFormLayout, self).add_label_to(form_group, html_input, hidden)
+        label.append_class('mr-2')
+        return label
+
+    def add_help_text_to(self, parent_element, html_input, help_text):
+        help_text = super(InlineFormLayout, self).add_help_text_to(parent_element, html_input, help_text)
+        help_text.append_class('ml-2')
+        return help_text
+
 
 class InputGroup(reahl.web.ui.WrappedInput):
     """A composition of an Input with something preceding and/or following it.
