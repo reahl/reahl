@@ -82,9 +82,10 @@ class TableLayout(Layout):
     """A Layout for customising details of how a Table is displayed.
 
     :keyword dark: If True, table text is light text on dark background.
-    :keyword border: If set to 'bordered', a border is rendered around the table and each cell.
-                     When set to 'default' only row delimeters are shown.
-                     Allowed values: 'default', 'bordered' and 'borderless'.
+    :keyword border: If set to 'cells', a border is rendered around each cell.
+                     When set to 'rows' (the default) only row delimeters are shown.
+                     If 'borderless', no borders are rendered.
+                     Allowed values: 'rows', 'cells' and 'borderless'.
     :keyword compact: If True, make the table more compact by cutting cell padding in half.
     :keyword striped: If True, colour successive rows lighter and darker.
     :keyword highlight_hovered: If True, a row is highlighted when the mouse hovers over it.
@@ -93,7 +94,7 @@ class TableLayout(Layout):
                          Allowed values : 'xs', 'sm', 'md', 'lg' and 'xl'
     :keyword heading_theme: One of 'light' or 'dark'. A light heading is one with darker text on a lighter background.
     """
-    def __init__(self, dark=False, border='default', compact=False, striped=False, highlight_hovered=False,
+    def __init__(self, dark=False, border='rows', compact=False, striped=False, highlight_hovered=False,
                  responsive=False, heading_theme=None):
         super(TableLayout, self).__init__()
 
@@ -104,9 +105,10 @@ class TableLayout(Layout):
         else:
             self.responsive_attribute_option = HTMLAttributeValueOption('table-responsive', responsive)
 
-        border_option = HTMLAttributeValueOption(border, border and border != 'default',
+        border_option = HTMLAttributeValueOption(border, border and border != 'rows',
                                                  prefix='table',
-                                                 constrain_value_to=['bordered', 'borderless'])
+                                                 map_values_using={'cells': 'bordered', 'rows':''},
+                                                 constrain_value_to=['borderless', 'cells', 'rows'])
 
         self.table_properties = [HTMLAttributeValueOption('dark', dark, prefix='table'),
                                  HTMLAttributeValueOption('striped', striped, prefix='table'),
@@ -116,6 +118,7 @@ class TableLayout(Layout):
                                  ]
 
         self.heading_theme = HeadingTheme(heading_theme)
+
 
     def customise_widget(self):
         super(TableLayout, self).customise_widget()
