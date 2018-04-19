@@ -1,10 +1,12 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 .. |AccountUI| replace:: :class:`~reahl.domainui.bootstrap.accounts.AccountUI`
+.. |AccountManagementInterface| replace:: :class:`~reahl.domain.systemaccountmodel.AccountManagementInterface`
 .. |UrlBoundView| replace:: :class:`~reahl.web.fw.UrlBoundView`
 .. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
 .. |Slot| replace:: :class:`~reahl.web.ui.Slot`
-   
+.. |defineUserInterface| replace:: :meth:`~reahl.web.fw.UserInterface.define_user_interface`
+
 Re-use: Allowing users to log in to your system
 ===============================================
 
@@ -35,7 +37,7 @@ Re-using only a domain model
    :doc:`persistence` for the commands to manage the database schema.
 
 The user and system account functionality is in the `reahl-domain` component,
-in the module :mod:`reahl.systemaccountmodel`.
+in the module :mod:`reahl.domain.systemaccountmodel`.
 
 To be able to use it in your code, list the `reahl-domain` component as a dependency in the
 `.reahlproject` file of your own project:
@@ -47,12 +49,12 @@ To be able to use it in your code, list the `reahl-domain` component as a depend
           run ``reahl setup -- develop -N``, as explained in :doc:`persistence`.
 
 
-Use :class:`~reahl.systemaccountmodel.AccountManagementInterface` in
+Use |AccountManagementInterface| in
 your code to find the current
-:class:`~reahl.systemaccountmodel.LoginSession`.
+:class:`~reahl.domain.systemaccountmodel.LoginSession`.
 
 
-An :class:`~reahl.systemaccountmodel.AccountManagementInterface` has
+An |AccountManagementInterface| has
 many :class:`~reahl.component.modelinterface.Field`\ s and
 :class:`~reahl.component.modelinterface.Event`\ s available for use by
 user interface code. It allows for logging in and out, but also for
@@ -98,12 +100,12 @@ Re-using the user interface as well
       reahl servesmtp
 
 If you want to use the provided user interface as well, you can graft
-an :class:`~reahl.domainui.bootstrap.accounts.AccountUI` onto its own new URL
+an |AccountUI| onto its own new URL
 underneath LoginUI. The URLs of the :class:`~reahl.web.fw.View`\ s of
-:class:`~reahl.domainui.bootstrap.accounts.AccountUI` are then appended to that
+|AccountUI| are then appended to that
 URL.
 
-Call :meth:`~reahl.web.fw.UserInterface.define_user_interface` to graft |AccountUI| onto LoginUI.
+Call |defineUserInterface| to graft |AccountUI| onto LoginUI.
 
 In this call you need to specify which |Slot| name as declared by
 |AccountUI| plugs into which |Slot| names we have available on MenuPage.
@@ -111,7 +113,7 @@ In this call you need to specify which |Slot| name as declared by
 |AccountUI| expects a number of |Bookmark|\s to |UrlBoundView|\s that
 contain legal text specific to your site. These |Bookmark|\s are sent
 as an additional keyword argument to
-:meth:`~reahl.web.fw.UserInterface.define_user_interface`, from where
+|defineUserInterface|, from where
 it will be delivered to |AccountUI|.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/login2bootstrap/login2bootstrap.py

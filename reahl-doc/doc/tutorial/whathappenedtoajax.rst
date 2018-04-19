@@ -8,11 +8,11 @@
 .. |Div| replace:: :class:`~reahl.web.bootstrap.ui.Div`
 .. |Nav| replace:: :class:`~reahl.web.bootstrap.navs.Nav`
 .. |Field| replace:: :class:`~reahl.component.modelinterface.Field`
-.. |SequentialPageIndex| replace:: :class:`~reahl.web.bootstrap.paging.SequentialPageIndex`
-.. |PageIndex| replace:: :class:`~reahl.web.bootstrap.paging.PageIndex`
-.. |PagedPanel| replace:: :class:`~reahl.web.bootstrap.paging.PagedPanel`
-.. |PageMenu| replace:: :class:`~reahl.web.bootstrap.paging.PageMenu`
-.. |AnnualPageIndex| replace:: :class:`~reahl.web.bootstrap.paging.PageMenu`
+.. |SequentialPageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.SequentialPageIndex`
+.. |PageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.PageIndex`
+.. |PagedPanel| replace:: :class:`~reahl.web.bootstrap.pagination.PagedPanel`
+.. |PageMenu| replace:: :class:`~reahl.web.bootstrap.pagination.PageMenu`
+.. |AnnualPageIndex| replace:: :class:`~reahl.web.bootstrap.pagination.AnnualPageIndex`
 
 
 

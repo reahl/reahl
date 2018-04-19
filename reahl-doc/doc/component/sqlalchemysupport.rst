@@ -13,7 +13,7 @@ For using SqlAlchemy with Reahl
 
 .. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.Base
 
-.. autofunction:: reahl.sqlalchemysupport.sqlalchemysupport.metadata
+.. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.metadata
 
 
 Sessions
