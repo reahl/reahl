@@ -147,22 +147,53 @@ def test_grid_form_layouts(web_fixture, form_layout_fixture):
         def __init__(self, view):
             super(FormWithGridFormLayout, self).__init__(view, 'aform')
             self.use_layout(GridFormLayout(ResponsiveSize(lg=4), ResponsiveSize(lg=8)))
-            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute))
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
 
     browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithGridFormLayout.factory()))
     browser.open('/')
 
     [label_column, input_column] = fixture.get_form_group_children(browser)
     assert label_column.tag == 'div'
-    assert 'col-lg-4' in label_column.attrib['class']
-    assert 'column-label' in label_column.attrib['class']
+    assert 'col-lg-4' in label_column.attrib['class'].split(' ')
+    assert 'column-label' in label_column.attrib['class'].split(' ')
 
     [label] = fixture.get_label_in_form_group(browser)
-    assert 'col-form-label' in label.attrib['class']
+    assert 'col-form-label' in label.attrib['class'].split(' ')
 
     assert input_column.tag == 'div'
-    assert 'col-lg-8' in input_column.attrib['class']
-    assert 'column-input' in input_column.attrib['class']
+    assert 'col-lg-8' in input_column.attrib['class'].split(' ')
+    assert 'column-input' in input_column.attrib['class'].split(' ')
+
+    [input_, help_text] = input_column.getchildren()
+    assert input_.tag == 'input'
+    assert help_text.tag == 'p'
+    assert 'form-text' in help_text.attrib['class'].split(' ')
+
+
+@with_fixtures(WebFixture, FormLayoutFixture)
+def test_inline_form_layouts(web_fixture, form_layout_fixture):
+    """An InlineFormLayout adds the Label and Input of each added input next to each other, with some space between them."""
+    fixture = form_layout_fixture
+
+    class FormWithInlineFormLayout(Form):
+        def __init__(self, view):
+            super(FormWithInlineFormLayout, self).__init__(view, 'aform')
+            self.use_layout(InlineFormLayout())
+            self.layout.add_input(TextInput(self, fixture.domain_object.fields.an_attribute), help_text='some help')
+
+    browser = Browser(web_fixture.new_wsgi_app(child_factory=FormWithInlineFormLayout.factory()))
+    browser.open('/')
+
+    [label, input_, help_text] = fixture.get_form_group_children(browser)
+
+    #check spacing specified between label, input and help_text
+    assert label.tag == 'label'
+    assert 'mr-2' == label.attrib['class']
+
+    assert input_.tag == 'input'
+
+    assert help_text.tag == 'span'
+    assert 'ml-2' in help_text.attrib['class'].split(' ')
 
 
 @with_fixtures(WebFixture, FormLayoutFixture)
