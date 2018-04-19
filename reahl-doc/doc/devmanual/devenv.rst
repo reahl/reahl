@@ -39,7 +39,7 @@ Inside the Vagrant box
 Inside the Vagrant box, we have:
  - Projects installed that Reahl depends on;
  - A postgresql database with the `vagrant` user set up as administrator;
- - A python3.5 virtualenv prepared for Reahl development;
+ - A Python3 virtualenv prepared for Reahl development;
  - A version of chromium-browser that works well with tests;
  - A matching version of chromedriver to enable selenium tests; 
  - Various ways to access the GUI on the Vagrant machine; and

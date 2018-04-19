@@ -40,7 +40,7 @@ used by user interface code.
 The core of the Reahl component framework is implemented in
 `reahl-component`. Support for different databases or ORM tools is
 implemented in separate components: `reahl-postgresqlsupport`,
-`reahl-sqlalchemysupport` and `reahl-sqllitesupport`.
+`reahl-sqlalchemysupport`, `reahl-sqllitesupport` and `reahl-mysqlsupport`.
 
 All of these components are discussed under the heading of
 :doc:`component/index`.

@@ -71,6 +71,9 @@ class Catalogue(object):
        
        :param domain: A name identifying which translation catalogue use with this Catalogue. Always set this
                       to the name of the component where the code resides where this Catalogue instance is instantiated.
+
+       .. versionchanged:: 4.0
+          Renamed to Catalogue (previously Translator)
     """
     def __init__(self, domain):
         self.domain = domain

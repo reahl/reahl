@@ -6,19 +6,25 @@ hide members
 hide circle
 
 note as N1
-	How we control the database
-	and persisted classes
-	using a system control
-	as the interface to a database control
-	(for dealing with database-specific
-	things regardless of ORM used) and a
-	ORM Control (for dealing with ORM-specific
-	things regardless of database used)
+   Use the system-wide SystemControl to control any database
+   related operations. It keeps an ORMControl for the ORM in use,
+   and a DatabaseControl for the database in use.
+
+   The ReahlSystemConfig specifies which ORMControl to use and from
+   its connection_uri we deduce which DatabaseControl to use.
+
+   Subclasses are written for supporting specific ORMs or Database
+   backends.
+
+   Find the SystemControl from the current ExecutionContext.
 end note
 
-class "<b>ExecutionContext</b>" as ExecutionContext
+class ExecutionContext
 class "<b>SystemControl</b>" as SystemControl
-class "<b>Configuration</b>" as Configuration
+class Configuration
+class ReahlSystemConfig
+class "<b>ORMControl</b>" as ORMControl
+class "<b>DatabaseControl</b>" as DatabaseControl
 
 ExecutionContext -down- SystemControl
 SystemControl -down- DatabaseControl
@@ -26,17 +32,5 @@ SystemControl -down- ORMControl
 
 Configuration <|-- ReahlSystemConfig
 ReahlSystemConfig -- ORMControl
-
-package reahl-sqlalchemysupport{
-	class SQLAlchemyControl
-}
-
-ORMControl <|-- SQLAlchemyControl
-
-package reahl-postgrgesqlsupport{
-	class PostgresqlControl
-}
-
-DatabaseControl <|-- PostgresqlControl
 
 @enduml

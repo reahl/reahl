@@ -35,6 +35,8 @@ class RestructuredText(object):
            :param header_start: The n of the top-level <hn> for top-level heading in this text.
            :param report_level: Reports ReST error messages at or higher than this level.
            :param halt_level:   Error messages above this level result in exceptions.
+
+           .. versionadded:: 4.0
         """
         settings = {'initial_header_level': header_start,
                     'doctitle_xform': False,

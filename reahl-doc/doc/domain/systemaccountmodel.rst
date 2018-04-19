@@ -11,7 +11,7 @@ AccountManagementInterface
 """"""""""""""""""""""""""
 
 .. autoclass:: AccountManagementInterface
-   :members:
+
 
 
 LoginSession
@@ -30,7 +30,7 @@ EmailAndPasswordSystemAccount
 """""""""""""""""""""""""""""
 
 .. autoclass:: EmailAndPasswordSystemAccount
-   :members:
+   :members: password_hash, email
 
 
 PasswordException

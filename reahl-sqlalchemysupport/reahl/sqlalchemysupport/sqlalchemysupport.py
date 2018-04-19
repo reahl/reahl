@@ -161,20 +161,14 @@ def session_scoped(cls):
        Two classmethods are also added to the decorated class:
 
 
-       ``
-       @classmethod
-       def for_session(cls, user_session, \*\*kwargs)
-       ``
+       **classmethod** for_session(cls, user_session, \*\*kwargs)
 
           This method assumes that there should be only one instance of the Entity class
           for a given UserSession. When called, it will return that instance if it exists.
           If it does not exist, it will construct the instance. The kwargs supplied will be
           passed along when creating the instance.
 
-       ``
-       @classmethod
-       def for_current_session(cls, \*\*kwargs)
-       ``
+       **classmethod** for_current_session(cls, \*\*kwargs)
 
           Works the same as for_session() except that you need not pass a UserSession, the
           current UserSession is assumed.

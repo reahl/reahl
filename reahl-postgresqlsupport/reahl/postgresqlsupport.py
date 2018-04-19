@@ -14,7 +14,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Support for the PostgreSQL database backend."""
+"""Support for the PostgreSQL database backend.
+
+To use Postgresql:
+
+- install reahl-postgresqlsupport;
+- add it as a dependency in your .reahlproject; and
+- in reahl.config.py, set reahlsystem.connection_uri to a postgresql URI.
+
+URIs are as `defined by SqlAlchemy <http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls>`_
+
+"""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 

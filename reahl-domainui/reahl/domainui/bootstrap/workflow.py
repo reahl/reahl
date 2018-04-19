@@ -19,8 +19,6 @@
 A User interface that allows a user to monitor tasks allocated to the
 user's queues and to complete those tasks.
 
-This (experimental) version is based on the new bootstrap-based Widgets (:mod:`reahl.web.bootstrap`).
-
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division

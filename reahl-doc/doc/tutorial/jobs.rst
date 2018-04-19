@@ -2,7 +2,7 @@
 
 
 .. |Migration| replace:: :class:`~reahl.component.migration.Migration`
-.. |Configuration| replace:: :class:`~reahl.component.confi.Configuration`
+.. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
 .. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
 
 

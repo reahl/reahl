@@ -79,7 +79,7 @@ class SystemAccount(Base):
     registration_date = Column(DateTime)  #: The date when this account was first registered.
     account_enabled = Column(Boolean, nullable=False, default=False) #: Whether this account is enabled or not
 
-    failed_logins = Column(Integer, nullable=False, default=0) #: The number of failed loin attempts using this account.
+    failed_logins = Column(Integer, nullable=False, default=0) #: The number of failed login attempts using this account.
 
     @property
     def registration_activated(self):
@@ -121,8 +121,8 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     __mapper_args__ = {'polymorphic_identity': 'emailandpasswordsystemaccount'}
     id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
 
-    password_hash = Column(Unicode(1024), nullable=False)
-    email = Column(Unicode(254), nullable=False, unique=True, index=True)
+    password_hash = Column(Unicode(1024), nullable=False)  #: The hashed password
+    email = Column(Unicode(254), nullable=False, unique=True, index=True) #: The email address of this account
 
     def __init__(self, **kwargs):
         super(EmailAndPasswordSystemAccount, self).__init__(**kwargs)

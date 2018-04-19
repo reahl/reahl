@@ -14,7 +14,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The Reahl configuration utilities."""
+"""Classes in this module manage system configuration.
+
+Each Reahl component can have its own config file. The config files of
+all components used by an application are stored in a common
+directory. If the config file for a component is missing, defaults are
+assumed.
+
+Config files are Python code. Inside a config file, an instance of the
+component's Configuration is bound to a variable name.
+
+"""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import sys

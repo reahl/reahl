@@ -20,9 +20,6 @@
 A user interface for logging in, registering, etc using
 :class:`~reahl.domain.systemaccountmodel.EmailAndPasswordSystemAccount`.
 
-This (still experimental) version is based on the new bootstrap-based
-Widgets (:mod:`reahl.web.bootstrap`).
-
 """
 
 
