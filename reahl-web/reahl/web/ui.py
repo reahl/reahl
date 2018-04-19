@@ -72,14 +72,14 @@ class LiteralHTML(Widget):
     
 
 class HTMLAttributeValueOption(object):
-    def __init__(self, option_string, is_set, prefix='', delimiter='-', constrain_value_to=None):
+    def __init__(self, option_string, is_set, prefix='', delimiter='-', constrain_value_to=None, map_values_using=None):
         if is_set and (constrain_value_to and option_string not in constrain_value_to):
             allowed_strings = ','.join(['"%s"' % i for i in constrain_value_to])
             raise ProgrammerError('"%s" should be one of: %s' % (option_string, allowed_strings))
         self.is_set = is_set
         self.delimiter = delimiter
         self.prefix = prefix
-        self.option_string = option_string
+        self.option_string = map_values_using.get(option_string, option_string) if map_values_using else option_string
 
     def as_html_snippet(self):
         if not self.is_set:
