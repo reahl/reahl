@@ -7,6 +7,7 @@ What changed in version 4.0
 ===========================
 
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
+.. |ReahlWSGIApplication| replace:: :class:`~reahl.web.fw.ReahlWSGIApplication`
 .. |Fixture| replace:: :class:`~reahl.tofu.Fixture`
 .. |ExecutionContext| replace:: :class:`~reahl.component.context.ExecutionContext`
 .. |ColumnLayout| replace:: :class:`~reahl.web.bootstrap.grid.ColumnLayout`
@@ -74,6 +75,10 @@ Since this version is a major version update it is not
 backwards-compatible with previous versions.  Everything what was
 deprecated in older versions is removed now.
 
+
+Infrastructure
+ :code:`ReahlApplication` (which is used to fire up you app via WSGI) was renamed to |ReahlWSGIApplication|.
+ 
 Internationalisation
   :code:`Translator` was renamed to :class:`~reahl.component.i18n.Catalogue`.
 
@@ -92,6 +97,7 @@ Layout
     - a tuple with the column name and a |ColumnOptions| object
       (previously this had to be a |ResponsiveSize|).
 
+      
 Basic Widgets
  A single checkbox is used fetch boolean input from a user, but a list
  of related checkboxes lets the user choose from a list of
@@ -108,7 +114,6 @@ Basic Widgets
  Amongst the plain HTML |Widget|\s, |ui.CheckboxInput| serves
  the first purpose; |ui.CheckboxSelectInput| was added for the
  second. 
-
  
 
 Fields and app construction
@@ -376,6 +381,7 @@ The versions of some external dependencies were updated:
   - Lxml version to 3.8.
   - SqlAlchemy to 1.2.0.
   - Alembic to 0.9.6.
+  - Twine to 1.11.
 
 
 

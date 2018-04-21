@@ -2576,7 +2576,11 @@ class IdentityDictionary(object):
 
 class ReahlWSGIApplication(object):
     """A web application. This class should only ever be instantiated in a WSGI script, using the `from_directory`
-       method."""
+       method.
+
+       .. changedversion:: 4.0
+          Renamed from ReahlApplication to ReahlWSGIApplication
+    """
 
     @classmethod
     def from_directory(cls, directory):

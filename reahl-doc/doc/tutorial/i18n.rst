@@ -157,7 +157,7 @@ you must edit to supply the translated versions for the `af` locale.
 Once done, compile the catalogue so that it can be used by a running
 application:
 
-.. code-block::
+.. code-block:: bash
 
    reahl compiletranslations
 
