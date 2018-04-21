@@ -33,12 +33,15 @@ class DomainException(Exception):
     """Any exception indicating an application-specific error condition that 
        should be communicated to a user.
 
-       :param commit: Set to True to indicate that the current database transaction 
-                      should be committed. By default transactions are rolled back
-                      when a DomainException is raised.
+       :keyword commit: Set to True to indicate that the current database transaction 
+                        should be committed. By default transactions are rolled back
+                        when a DomainException is raised.
+       :keyword message: Optional error message.
     """
-    def __init__(self, commit=False):
+    def __init__(self, commit=False, message=None):
+        super(DomainException, self).__init__(message)
         self.commit = commit
+        self.message = message
 
 #    __hash__ = None
 #    def __eq__(self, other):
@@ -46,10 +49,10 @@ class DomainException(Exception):
 #        return isinstance(other, self.__class__) and self.commit == other.commit
     
     def __reduce__(self):
-        return (self.__class__, (self.commit,))
+        return (self.__class__, (self.commit, self.message))
     
     def as_user_message(self):
-        return _('An error occurred: %s' % self.__class__.__name__)
+        return self.message if self.message else _('An error occurred: %s' % self.__class__.__name__)
 
 
 class AccessRestricted(Exception):

@@ -20,13 +20,18 @@ import six
 
 import platform
 import sys
+import os
+import os.path
+import re
+import subprocess
 
 import pkg_resources
 
 
 from reahl.dev.devdomain import Project
 from reahl.dev.devshell import WorkspaceCommand
-from reahl.component.shelltools import Executable
+from reahl.component.shelltools import Executable, Command
+from reahl.component.exceptions import DomainException
 
 from reahl.dev.exceptions import CouldNotConfigureServer
 from reahl.webdev.webserver import ReahlWebServer, ServerSupervisor
@@ -88,4 +93,38 @@ class ServeCurrentProject(WorkspaceCommand):
         return 0
 
 
+class SyncFiles(Command):
+    """Uses the sitecopy program to upload / sync static files to a remote webserver."""
+    keyword = 'syncfiles'
 
+    def get_site_name(self):
+        if not os.path.isfile('sitecopy.rc'):
+            raise DomainException(message='Could not find a sitecopy config file "sitecopy.rc" in the current directory')
+        with open('sitecopy.rc') as config_file:
+            for line in config_file:
+                match = re.match('.*(?!#).*site\s+(\S+)', line)
+                if match:
+                    return match.group(1)
+        raise DomainException(message='Cannot find the site name in sitecopy.rc')
+
+    
+    def assemble(self):
+        self.parser.add_argument('-f', '--fetch-first', action='store_true', dest='fetch_first',
+                                 help='first fetch data from the site to ensure we are in sync')
+        self.parser.add_argument('site_name', default=None, nargs='?',
+                                 help='the name of the site as listed in sitecopy.rc')
+
+    def execute(self, args):
+        super(SyncFiles, self).execute(args)
+        self.sitecopy = Executable('sitecopy')
+
+        try:
+            site_name = args.site_name or self.get_site_name()
+            local_info_file = os.path.expanduser(os.path.join('~', '.sitecopy', site_name))
+            if args.fetch_first or not os.path.exists(local_info_file):
+                if os.path.exists(local_info_file):
+                    os.remove(local_info_file)
+                self.sitecopy.check_call('-r sitecopy.rc --fetch'.split()+[site_name])
+            self.sitecopy.check_call('-r sitecopy.rc --update'.split()+[site_name])
+        except subprocess.CalledProcessError as ex:
+            raise DomainException(message='Running "%s" failed with exit code %s' % (' '.join(ex.cmd), ex.returncode))
