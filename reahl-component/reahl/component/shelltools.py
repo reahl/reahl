@@ -32,6 +32,8 @@ import textwrap
 import inspect
 
 from reahl.component.config import Configuration, EntryPointClassList
+from reahl.component.exceptions import DomainException
+
 
 class ExecutableNotInstalledException(Exception):
     def __init__(self, executable_name):
@@ -200,7 +202,12 @@ class ReahlCommandline(CompositeCommand):
     @classmethod
     def execute_one(cls):
         """The entry point for running command from the commandline."""
-        exit(cls(sys.argv[0]).do(sys.argv[1:]))
+        try:
+            result = cls(sys.argv[0]).do(sys.argv[1:])
+        except DomainException as ex:
+            print('Error: %s' % ex, file=sys.stderr)
+            result = 1
+        exit(result)
 
     @property
     def aliasses(self):
