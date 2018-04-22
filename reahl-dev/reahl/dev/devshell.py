@@ -19,16 +19,18 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 import sys
 import os
+import re
 import os.path
 import subprocess
+import shutil
 import argparse
 import string
 from subprocess import CalledProcessError
 from contextlib import contextmanager
 import traceback
-
-
 import shlex
+
+from six.moves import cStringIO
 
 from reahl.component.shelltools import Command, ReahlCommandline, Executable
 
@@ -534,7 +536,44 @@ class AddLocale(ForAllWorkspaceCommand):
 
 
 
+class UpdateCopyright(Command):
+    """Updates the dates found in copyright statements found on the first line of files based on git history."""
+    keyword = 'update-copyright'
 
+    def assemble(self):
+        super(UpdateCopyright, self).assemble()
+        self.parser.add_argument('copyright_holder_string', nargs='?', default='.*',
+                                 help='requires this copyright holder to be present in a copyright line (by default any comment line with Copyright is matched)')
 
+    def execute(self, args):
+        super(UpdateCopyright, self).execute(args)
+        self.git = Executable('git')
+        for filename in self.get_all_filenames():
+            if os.path.splitext(filename)[1] not in ['.mo', '.png', '.jpg']:
+                self.process_file(filename, args.copyright_holder_string)
+        return 0
 
-    
+    def process_file(self, filename, copyright_holder_string):
+        with open(filename, encoding='utf-8') as infile:
+            first_line = infile.readline()
+            match = re.match('^(?P<start>(#|/[*])\s*Copyright\s*)(?P<years>[0-9, -]+)(?P<end>.*%s.*$)' % copyright_holder_string, first_line)
+            if match:
+                new_line = '%s%s %s\n' % (match.group('start'), self.get_date_string(filename), match.group('end'))
+                out_filename = '%s.t' % filename
+                with open(out_filename, 'w', encoding='utf-8') as outfile:
+                    outfile.write(new_line)
+                    shutil.copyfileobj(infile, outfile)
+                shutil.move(out_filename, filename)
+        
+    def get_all_filenames(self):
+        return [filename.decode('utf-8') for filename in self.git.check_output(['ls-files']).split()]
+
+    def get_date_string(self, filename):
+        years = sorted({ date[:4].decode('utf-8') for date in self.git.check_output('log --pretty=format:%ad --date=short --follow'.split()+[filename]).split() })
+        if len(years) > 3:
+            date_string = '%s-%s' % (years[0], years[-1])
+        else:
+            date_string = ', '.join(years)
+        return date_string
+
+        

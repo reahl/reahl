@@ -71,6 +71,8 @@ class Executable(object):
         return self.execute(subprocess.check_call, commandline_arguments, *args, **kwargs)
     def Popen(self, commandline_arguments, *args, **kwargs):
         return self.execute(subprocess.Popen, commandline_arguments, *args, **kwargs)
+    def check_output(self, commandline_arguments, *args, **kwargs):
+        return self.execute(subprocess.check_output, commandline_arguments, *args, **kwargs)
 
 
 class CommandNotFound(Exception):
