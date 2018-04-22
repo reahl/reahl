@@ -375,13 +375,14 @@ Some were added:
 
 The versions of some external dependencies were updated:
 
-  - BeautifulSoup to 4.6
+  - BeautifulSoup to 4.6.
   - Wheel to 0.29.
   - setuptools to 32.3.
   - Lxml version to 3.8.
   - SqlAlchemy to 1.2.0.
   - Alembic to 0.9.6.
   - Twine to 1.11.
+  - Lxml to 4.2.
 
 
 

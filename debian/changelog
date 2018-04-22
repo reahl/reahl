@@ -46,8 +46,9 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Renamed Translator to Catalogue.
  * Renamed ReahlApplication to ReahlWSGIApplication.
  * Upgraded sqlalchemy to 1.2.0
- * Upgraded twine to 1.11
  * Upgraded alembic to 0.9.6
+ * Upgraded twine to 1.11
+ * Upgraded lxml to 4.2
  * Added min_length and max_length kwargs for convenience to Field.
 
  -- Iwan Vosloo <iwan@reahl.org>  Sat, 21 Jan 2018 11:10:00 +0200
