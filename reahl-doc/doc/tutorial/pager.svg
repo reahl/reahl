@@ -11,7 +11,7 @@
    viewBox="0 0 484.46875 208.59375"
    stroke-miterlimit="10"
    id="svg3058"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.91 r13725"
    width="100%"
    height="100%"
    sodipodi:docname="pager.svg"
@@ -39,16 +39,16 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1301"
-     inkscape:window-height="744"
+     inkscape:window-width="990"
+     inkscape:window-height="677"
      id="namedview3087"
      showgrid="false"
-     inkscape:zoom="0.73430317"
-     inkscape:cx="276.44469"
-     inkscape:cy="-21.008947"
-     inkscape:window-x="65"
-     inkscape:window-y="24"
-     inkscape:window-maximized="1"
+     inkscape:zoom="1.0384615"
+     inkscape:cx="196.11024"
+     inkscape:cy="0.25864205"
+     inkscape:window-x="2162"
+     inkscape:window-y="259"
+     inkscape:window-maximized="0"
      inkscape:current-layer="svg3058"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -80,7 +80,7 @@
      height="37.54142"
      width="135.60062"
      id="rect3122"
-     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.21154833;stroke-opacity:1" />
+     style="fill:#ffffee;fill-opacity:1;stroke:#909066;stroke-width:1.21154833;stroke-opacity:1" />
   <text
      xml:space="preserve"
      style="font-size:18.69030952px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -93,7 +93,7 @@
        x="15.646982"
        y="24.536333">PageMenu</tspan></text>
   <rect
-     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.21154833;stroke-opacity:1"
+     style="fill:#ffffee;fill-opacity:1;stroke:#909066;stroke-width:1.21154833;stroke-opacity:1"
      id="rect3074"
      width="135.60062"
      height="37.54142"
@@ -116,7 +116,7 @@
      height="37.54142"
      width="135.60062"
      id="rect3080"
-     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.21154833;stroke-opacity:1" />
+     style="fill:#ffffee;fill-opacity:1;stroke:#909066;stroke-width:1.21154833;stroke-opacity:1" />
   <text
      xml:space="preserve"
      style="font-size:18.69030952px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -129,13 +129,13 @@
        x="207.94328"
        y="90.017815">PageIndex</tspan></text>
   <path
-     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.21154833;stroke-opacity:1"
+     style="fill:#ffffee;fill-opacity:1;stroke:#909066;stroke-width:1.21154833;stroke-opacity:1"
      d="m 250.02858,113.27603 18.11912,26 -36.41542,-0.0141 z"
      id="rect3100"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="cccc" />
   <path
-     style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="fill:none;stroke:#909066;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
      d="m 131.92593,171.63889 c -2.2501,-20.54391 118.45162,-11.28014 117.96296,-31.77778"
      id="path3103"
      inkscape:connector-curvature="0"
@@ -145,9 +145,9 @@
      inkscape:connector-curvature="0"
      id="path3105"
      d="m 368.30375,171.63889 c 2.2501,-20.54391 -118.45162,-11.28014 -117.96296,-31.77778"
-     style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+     style="fill:none;stroke:#909066;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1" />
   <rect
-     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.21154833;stroke-opacity:1"
+     style="fill:#ffffee;fill-opacity:1;stroke:#909066;stroke-width:1.21154833;stroke-opacity:1"
      id="rect3086"
      width="177.97099"
      height="37.54142"
@@ -170,7 +170,7 @@
      height="36.578457"
      width="213.60062"
      id="rect3092"
-     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.21154833;stroke-opacity:1" />
+     style="fill:#ffffee;fill-opacity:1;stroke:#909066;stroke-width:1.21154833;stroke-opacity:1" />
   <text
      xml:space="preserve"
      style="font-size:18.69030952px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -183,19 +183,19 @@
        x="280.1655"
        y="196.08334">SequentialPageIndex</tspan></text>
   <path
-     style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="fill:none;stroke:#909066;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
      d="M 250.20015,113.40884 249.8889,103.75"
      id="path3107"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="cc" />
   <path
-     style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     style="fill:none;stroke:#909066;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
      d="m 135.77778,19.49074 59.3426,66.083335 -58.37963,9.027779"
      id="path3109"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccc" />
   <path
-     style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:1;stroke-miterlimit:10;stroke-dasharray:none"
+     style="fill:none;stroke:#909066;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:1;stroke-miterlimit:10;stroke-dasharray:none;fill-opacity:1"
      d="m 65.368096,38.364334 c 0,36.769554 0,36.769554 0,36.769554 l 1.361835,1.361835"
      id="path3005"
      inkscape:connector-curvature="0" />
