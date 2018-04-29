@@ -8,7 +8,6 @@ echo "export EMAIL=noone@example.org" >> $HOME/.profile
 echo "export DEBFULLNAME=\"Travis Tester\"" >> $HOME/.profile
 echo "export DEBEMAIL=\$EMAIL" >> $HOME/.profile
 echo "export PACKAGESIGNKEYID=DE633F86" >> $HOME/.profile
-echo "export WORKON_HOME=\$HOME/virtualenv" >> $HOME/.profile
 echo "export PATH=\$HOME/bin:\$PATH" >> $HOME/.profile
 source $HOME/.profile
 

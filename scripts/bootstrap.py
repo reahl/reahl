@@ -21,6 +21,7 @@ except:
     if 'raw_input' in dir(__builtins__):
         input = raw_input
 import sys
+import subprocess
 import pkg_resources
 import os
 import shutil
@@ -102,9 +103,8 @@ def find_missing_prerequisites(project_dirs):
     return list(missing)
 
 def install_with_pip(package_list, upgrade=False):
-    import pip
     args = ['-U'] if upgrade else []
-    return pip.main(['install'] + args + package_list)
+    return subprocess.call([sys.executable, '-m', 'pip', 'install'] + args + package_list)
 
 def install_prerequisites(missing):
     print('----------------------------------------------------------------------------------')
