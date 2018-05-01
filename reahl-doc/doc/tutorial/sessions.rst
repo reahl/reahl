@@ -42,7 +42,6 @@ The example consists of User object and a LoginSession object:
 
 .. figure:: sessions.png
    :align: center
-   :width: 50%
 
 
    A model for letting Users log in.

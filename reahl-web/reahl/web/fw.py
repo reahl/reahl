@@ -2578,7 +2578,7 @@ class ReahlWSGIApplication(object):
     """A web application. This class should only ever be instantiated in a WSGI script, using the `from_directory`
        method.
 
-       .. changedversion:: 4.0
+       .. versionchanged:: 4.0
           Renamed from ReahlApplication to ReahlWSGIApplication
     """
 

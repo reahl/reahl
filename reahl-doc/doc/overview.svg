@@ -9,8 +9,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="524.40942"
-   height="372.04724"
+   width="529.45508"
+   height="378.94534"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
@@ -24,17 +24,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="195.06972"
-     inkscape:cy="65"
+     inkscape:zoom="2"
+     inkscape:cx="190.87357"
+     inkscape:cy="219.94905"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1535"
-     inkscape:window-height="876"
-     inkscape:window-x="65"
-     inkscape:window-y="24"
-     inkscape:window-maximized="1" />
+     inkscape:window-width="2048"
+     inkscape:window-height="1016"
+     inkscape:window-x="1600"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -43,7 +47,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -51,19 +55,19 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-680.3149)">
+     transform="translate(-41.490784,-652.74451)">
     <rect
        style="fill:none;stroke:#000000;stroke-width:1.74166858;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect2985"
-       width="449.47549"
-       height="94.611389"
-       x="42.358776"
-       y="936.21051"
+       width="527.71344"
+       height="111.1048"
+       x="42.361618"
+       y="919.71423"
        ry="0" />
     <flowRoot
        xml:space="preserve"
        id="flowRoot3755"
-       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Bitstream Vera Sans;font-style:normal;font-weight:normal;font-size:16px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+       style="font-style:normal;font-weight:normal;font-size:16px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><flowRegion
          id="flowRegion3757"><rect
            id="rect3759"
            width="314"
@@ -74,7 +78,7 @@
          id="flowPara3761" /></flowRoot>    <flowRoot
        xml:space="preserve"
        id="flowRoot3763"
-       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Bitstream Vera Sans;font-style:normal;font-weight:normal;font-size:16px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+       style="font-style:normal;font-weight:normal;font-size:16px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><flowRegion
          id="flowRegion3765"><rect
            id="rect3767"
            width="355"
@@ -85,90 +89,98 @@
          id="flowPara3769" /></flowRoot>    <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
        id="rect3779-9"
-       width="157"
-       height="22"
-       x="181"
-       y="997.36206"
-       ry="8" />
+       width="184.3282"
+       height="25.835218"
+       x="203.62656"
+       y="991.52618"
+       ry="8"
+       rx="8" />
     <text
        xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="194"
-       y="1011.3621"
+       style="font-style:normal;font-weight:normal;font-size:12.91616154px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="215.13564"
+       y="1007.854"
        id="text3781-5"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan3783-5"
-         x="194"
-         y="1011.3621">reahl-sqlalchemysupport</tspan></text>
+         x="215.13564"
+         y="1007.854">reahl-sqlalchemysupport</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
        id="rect3779-5"
-       width="117.20683"
-       height="21"
-       x="51"
-       y="998.36212"
-       ry="8" />
+       width="137.60844"
+       height="24.660889"
+       x="51.891109"
+       y="992.70068"
+       ry="8"
+       rx="8" />
     <text
        xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="64"
-       y="1012.3621"
+       style="font-style:normal;font-weight:normal;font-size:12.91616154px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="65.033134"
+       y="1009.0283"
        id="text3781-2"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan3783-1"
-         x="64"
-         y="1012.3621">reahl-component</tspan></text>
+         x="65.033134"
+         y="1009.0283">reahl-component</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
        id="rect3779-5-5"
-       width="159.16171"
-       height="22"
-       x="179"
-       y="967.36212"
-       ry="8" />
+       width="186.8662"
+       height="25.835218"
+       x="202.35757"
+       y="956.29645"
+       ry="8"
+       rx="8" />
     <text
        xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="192"
-       y="982.36206"
+       style="font-style:normal;font-weight:normal;font-size:12.91616154px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="218.07457"
+       y="972.66882"
        id="text3781-2-9"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan3783-1-9"
-         x="192"
-         y="982.36206">reahl-postgresqlsupport</tspan></text>
+         x="218.07457"
+         y="972.66882">reahl-postgresqlsupport</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
        id="rect3779-5-5-9"
-       width="134.16171"
-       height="22"
-       x="350.39658"
-       y="998.36218"
-       ry="8" />
+       width="157.51457"
+       height="25.835218"
+       x="404.63153"
+       y="992.70074"
+       ry="8"
+       rx="8" />
     <text
        xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="363.39658"
-       y="1012.3622"
+       style="font-style:normal;font-weight:normal;font-size:12.91616154px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="420.16138"
+       y="1009.0283"
        id="text3781-2-9-0"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan3783-1-9-7"
-         x="363.39658"
-         y="1012.3622">reahl-sqllitesupport</tspan></text>
+         x="420.16138"
+         y="1009.0283">reahl-sqllitesupport</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:1.53600454;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect2985-0"
-       width="144.25818"
-       height="215.61139"
-       x="42.762253"
-       y="709.55646"
+       width="169.36848"
+       height="253.1985"
+       x="42.835323"
+       y="653.5481"
        ry="0" />
     <text
        xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="76.396584"
        y="793.36218"
        id="text3781-2-9-0-2"
@@ -180,298 +192,356 @@
     <rect
        style="fill:none;stroke:#000000;stroke-width:1.60716438;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect2985-0-8"
-       width="141.93414"
-       height="216.61139"
-       x="349.19498"
-       y="709.55646"
+       width="166.63991"
+       height="254.37283"
+       x="402.60724"
+       y="653.5481"
        ry="0" />
     <rect
        style="fill:none;stroke:#000000;stroke-width:1.44476891;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect2985-0-8-6"
-       width="148.62982"
-       height="215.61139"
-       x="193.21176"
-       y="709.55646"
+       width="174.50107"
+       height="253.1985"
+       x="219.47281"
+       y="653.5481"
        ry="0" />
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-1"
-       width="103.20683"
-       height="22"
-       x="368.39658"
-       y="767.36212"
-       ry="8" />
+    <g
+       id="g14702"
+       transform="matrix(1.174065,0,0,1.174328,4.4367473,-179.70403)">
+      <rect
+         rx="6.8139324"
+         ry="6.8124065"
+         y="760.36212"
+         x="366.25204"
+         height="22"
+         width="87.706833"
+         id="rect3779-5-1"
+         style="fill:none;stroke:#000000;stroke-width:0.42582306;stroke-miterlimit:4;stroke-dasharray:0.42582308, 0.42582308;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-0"
+         y="775.46295"
+         x="372.34399"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="775.46295"
+           x="372.34399"
+           id="tspan3783-1-7"
+           sodipodi:role="line">reahl-webdev</tspan></text>
+    </g>
+    <g
+       id="g14697"
+       transform="matrix(1.174065,0,0,1.174328,13.535756,-180.73165)">
+      <rect
+         rx="6.8139329"
+         ry="6.8124065"
+         y="791.86218"
+         x="366.2746"
+         height="22"
+         width="72.16172"
+         id="rect3779-5-5-90"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-9-7"
+         y="806.96301"
+         x="375.96997"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="806.96301"
+           x="375.96997"
+           id="tspan3783-1-9-6"
+           sodipodi:role="line">reahl-dev</tspan></text>
+    </g>
+    <g
+       id="g14692"
+       transform="matrix(1.174065,0,0,1.174328,3.849715,-178.82329)">
+      <rect
+         rx="6.8139329"
+         ry="6.8124065"
+         y="820.86212"
+         x="366.25204"
+         height="22"
+         width="88.706833"
+         id="rect3779-5-1-6"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.4258231, 0.4258231;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-9-7-4"
+         y="835.96295"
+         x="374.0686"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="835.96295"
+           x="374.0686"
+           id="tspan3783-1-9-6-6"
+           sodipodi:role="line">reahl-stubble</tspan></text>
+    </g>
+    <g
+       id="g14687"
+       transform="matrix(1.174065,0,0,1.174328,13.829272,-178.08939)">
+      <rect
+         rx="6.8139329"
+         ry="6.8124065"
+         y="850.86218"
+         x="366.2746"
+         height="22"
+         width="71.66172"
+         id="rect3779-5-5-90-8"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-9-7-4-7"
+         y="865.96301"
+         x="375.24463"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="865.96301"
+           x="375.24463"
+           id="tspan3783-1-9-6-6-0"
+           sodipodi:role="line">reahl-tofu</tspan></text>
+    </g>
+    <g
+       id="g14677"
+       transform="matrix(1.174065,0,0,1.174328,10.858992,-186.16283)">
+      <rect
+         rx="6.8139324"
+         ry="6.8124065"
+         y="765.86212"
+         x="211.39658"
+         height="22"
+         width="81.206833"
+         id="rect3779-5-1-2"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-0-6"
+         y="780.96295"
+         x="215.44971"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="780.96295"
+           x="215.44971"
+           id="tspan3783-1-7-4"
+           sodipodi:role="line">reahl-domain</tspan></text>
+    </g>
+    <g
+       id="g14672"
+       transform="matrix(1.174065,0,0,1.174328,3.254052,-185.42896)">
+      <rect
+         rx="6.8139329"
+         ry="6.8124065"
+         y="795.86218"
+         x="211.39658"
+         height="22"
+         width="94.16172"
+         id="rect3779-5-5-90-7"
+         style="fill:none;stroke:#000000;stroke-width:0.42582306;stroke-miterlimit:4;stroke-dasharray:0.4258231, 0.4258231;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-9-7-9"
+         y="810.96301"
+         x="216.95082"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="810.96301"
+           x="216.95082"
+           id="tspan3783-1-9-6-3"
+           sodipodi:role="line">reahl-domainui</tspan></text>
+    </g>
+    <g
+       id="g14720">
+      <rect
+         rx="7.9999995"
+         ry="7.9999995"
+         y="785.13806"
+         x="256.05231"
+         height="25.835217"
+         width="101.3421"
+         id="rect3779-5-1-6-2"
+         style="fill:none;stroke:#000000;stroke-width:0.49999997;stroke-miterlimit:4;stroke-dasharray:0.49999998, 0.49999998;stroke-dashoffset:0" />
+      <text
+         transform="scale(0.99988801,1.000112)"
+         sodipodi:linespacing="125%"
+         id="text3781-2-0-4-8"
+         y="802.78149"
+         x="264.02655"
+         style="font-style:normal;font-weight:normal;font-size:12.91616154px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="802.78149"
+           x="264.02655"
+           id="tspan3783-1-7-9-7"
+           sodipodi:role="line">reahl-mailutil</tspan></text>
+    </g>
+    <g
+       id="g14712"
+       transform="matrix(1.174065,0,0,1.174328,29.485136,-186.16283)">
+      <rect
+         rx="6.8139329"
+         ry="6.8124065"
+         y="765.86212"
+         x="50.396584"
+         height="22"
+         width="66.206833"
+         id="rect3779-5-1-26"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-0-0"
+         y="780.96295"
+         x="56.005371"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="780.96295"
+           x="56.005371"
+           id="tspan3783-1-7-1"
+           sodipodi:role="line">reahl-web</tspan></text>
+    </g>
+    <g
+       id="g14707"
+       transform="matrix(1.174065,0,0,1.174328,-7.7649401,-184.84181)">
+      <rect
+         rx="6.8139329"
+         ry="6.8124065"
+         y="795.86218"
+         x="49.896584"
+         height="21"
+         width="130.66171"
+         id="rect3779-5-5-90-4"
+         style="fill:none;stroke:#000000;stroke-width:0.42582309;stroke-miterlimit:4;stroke-dasharray:0.42582309, 0.42582309;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-9-7-1"
+         y="810.46301"
+         x="54.971825"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="810.46301"
+           x="54.971825"
+           id="tspan3783-1-9-6-5"
+           sodipodi:role="line">reahl-web-declarative</tspan></text>
+    </g>
     <text
        xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="381.39658"
-       y="781.36212"
-       id="text3781-2-0"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-7"
-         x="381.39658"
-         y="781.36212">reahl-webdev</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-5-90"
-       width="103.16172"
-       height="22"
-       x="368.39658"
-       y="797.36218"
-       ry="8" />
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="381.39658"
-       y="811.36218"
-       id="text3781-2-9-7"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-9-6"
-         x="381.39658"
-         y="811.36218">reahl-dev</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-1-6"
-       width="103.20683"
-       height="22"
-       x="368.39658"
-       y="826.36212"
-       ry="8" />
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-5-90-8"
-       width="103.16172"
-       height="22"
-       x="368.39658"
-       y="856.36218"
-       ry="8" />
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="381.39658"
-       y="840.36218"
-       id="text3781-2-9-7-4"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-9-6-6"
-         x="381.39658"
-         y="840.36218">reahl-stubble</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="381.41913"
-       y="870.36212"
-       id="text3781-2-9-7-4-7"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-9-6-6-0"
-         x="381.41913"
-         y="870.36212">reahl-tofu</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-1-2"
-       width="103.20683"
-       height="22"
-       x="211.39658"
-       y="765.86212"
-       ry="8" />
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="224.39658"
-       y="779.86212"
-       id="text3781-2-0-6"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-7-4"
-         x="224.39658"
-         y="779.86212">reahl-domain</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-5-90-7"
-       width="103.16172"
-       height="22"
-       x="211.39658"
-       y="795.86218"
-       ry="8" />
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="224.39658"
-       y="809.86218"
-       id="text3781-2-9-7-9"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-9-6-3"
-         x="224.39658"
-         y="809.86218">reahl-domainui</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-1-6-2"
-       width="103.20683"
-       height="22"
-       x="211.39658"
-       y="824.86212"
-       ry="8" />
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="224.39658"
-       y="838.86212"
-       id="text3781-2-0-4-8"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-7-9-7"
-         x="224.39658"
-         y="838.86212">reahl-mailutil</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-1-26"
-       width="103.20683"
-       height="22"
-       x="50.396584"
-       y="765.86212"
-       ry="8" />
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="55.396584"
-       y="779.86212"
-       id="text3781-2-0-0"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-7-1"
-         x="55.396584"
-         y="779.86212">reahl-web</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
-       id="rect3779-5-5-90-4"
-       width="130.16171"
-       height="21"
-       x="50.396584"
-       y="795.86218"
-       ry="8" />
-    <text
-       xml:space="preserve"
-       style="font-size:11px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
-       x="55.396584"
-       y="809.86218"
-       id="text3781-2-9-7-1"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-9-6-5"
-         x="55.396584"
-         y="809.86218">reahl-web-declarative</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:AlHor;-inkscape-font-specification:AlHor"
-       x="57"
-       y="732.36212"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.78714561px;line-height:125%;font-family:AlHor;-inkscape-font-specification:AlHor;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="53.174187"
+       y="680.25323"
        id="text4357"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan4359"
-         x="57"
-         y="732.36212">Web framework</tspan></text>
+         x="53.174187"
+         y="680.25323">Web framework</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:AlHor;-inkscape-font-specification:AlHor"
-       x="261.40631"
-       y="726.03772"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.78714561px;line-height:125%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+       x="306.82193"
+       y="672.82709"
        id="text4357-2"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan4359-0"
-         x="261.40631"
-         y="726.03772">End-user</tspan><tspan
+         x="306.82193"
+         y="672.82709">End-user</tspan><tspan
          sodipodi:role="line"
-         x="261.40631"
-         y="746.03772"
+         x="306.82193"
+         y="696.31104"
          id="tspan4382">functionality</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:AlHor;-inkscape-font-specification:AlHor"
-       x="418.03555"
-       y="726.45544"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.78714561px;line-height:125%;font-family:AlHor;-inkscape-font-specification:AlHor;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
+       x="485.28906"
+       y="673.31757"
        id="text4357-2-8"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
-         x="418.03555"
-         y="726.45544"
+         x="485.28906"
+         y="673.31757"
          id="tspan4382-3">Development</tspan><tspan
          sodipodi:role="line"
-         x="418.03555"
-         y="746.45544"
+         x="485.28906"
+         y="696.80151"
          id="tspan4410">tools</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:AlHor;-inkscape-font-specification:AlHor"
-       x="51.538818"
-       y="956.03772"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.78714561px;line-height:125%;font-family:AlHor;-inkscape-font-specification:AlHor;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="53.145535"
+       y="942.89227"
        id="text4357-5"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan4359-4"
-         x="51.538818"
-         y="956.03772">Component framework</tspan></text>
+         x="53.145535"
+         y="942.89227">Component framework</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
        id="rect3779-5-6"
-       width="117.20683"
-       height="21"
-       x="50.396584"
-       y="967.36212"
-       ry="8" />
+       width="137.60844"
+       height="24.660889"
+       x="51.891109"
+       y="956.88361"
+       ry="8"
+       rx="8" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="62.594727"
-       y="984.39679"
+       style="font-style:normal;font-weight:normal;font-size:12.91616154px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="66.12735"
+       y="973.92072"
        id="text3781-2-7"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan3783-1-5"
-         x="62.594727"
-         y="984.39679">reahl-commands</tspan></text>
-    <rect
-       style="fill:none;stroke:#000000;stroke-width:0.52561682;stroke-miterlimit:4;stroke-dasharray:0.52561681, 0.52561681;stroke-dashoffset:0"
-       id="rect3779-5-5-90-8-3"
-       width="114.1361"
-       height="21.974382"
-       x="368.43195"
-       y="888.37494"
-       ry="7.990685" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="381.1499"
-       y="903.46295"
-       id="text3781-2-9-7-4-7-6"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan3783-1-9-6-6-0-7"
-         x="381.1499"
-         y="903.46295">reahl-workstation</tspan></text>
+         x="66.12735"
+         y="973.92072">reahl-commands</tspan></text>
+    <g
+       id="g14682"
+       transform="matrix(1.174065,0,0,1.174328,-2.0206145,-179.70403)">
+      <rect
+         rx="6.8059988"
+         ry="6.8044739"
+         y="882.87494"
+         x="360.78741"
+         height="21.974382"
+         width="109.6361"
+         id="rect3779-5-5-90-8-3"
+         style="fill:none;stroke:#000000;stroke-width:0.44763955;stroke-miterlimit:4;stroke-dasharray:0.44763957, 0.44763957;stroke-dashoffset:0" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3781-2-9-7-4-7-6"
+         y="897.96295"
+         x="367.3999"
+         style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           y="897.96295"
+           x="367.3999"
+           id="tspan3783-1-9-6-6-0-7"
+           sodipodi:role="line">reahl-workstation</tspan></text>
+    </g>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:0.5, 0.5;stroke-dashoffset:0"
        id="rect3779-5-5-9-3"
-       width="134.16171"
-       height="22"
-       x="350.91913"
-       y="967.36212"
-       ry="8" />
+       width="157.51457"
+       height="25.835218"
+       x="404.63153"
+       y="956.29645"
+       ry="8"
+       rx="8" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:11px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="363.91913"
-       y="981.36212"
+       style="font-style:normal;font-weight:normal;font-size:12.91616154px;line-height:125%;font-family:'Bitstream Vera Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       x="420.13611"
+       y="972.66882"
        id="text3781-2-9-0-6"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       transform="scale(0.99988797,1.000112)"><tspan
          sodipodi:role="line"
          id="tspan3783-1-9-7-7"
-         x="363.91913"
-         y="981.36212">reahl-mysqlsupport</tspan></text>
+         x="420.13611"
+         y="972.66882">reahl-mysqlsupport</tspan></text>
   </g>
 </svg>

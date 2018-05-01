@@ -23,7 +23,7 @@ class AddressBookPage(HTML5Page):
         contents_layout = ColumnLayout(ColumnOptions('main', size=ResponsiveSize())).with_slots()
         self.layout.contents.use_layout(contents_layout)
 
-        layout = ResponsiveLayout('md', colour_theme='dark', bg_scheme='primary', toggle_button_alignment='right')
+        layout = ResponsiveLayout('md', colour_theme='dark', bg_scheme='primary')
         navbar = Navbar(view, css_id='my_nav').use_layout(layout)
         navbar.layout.set_brand_text('Address book')
         navbar.layout.add(Nav(view).with_bookmarks(bookmarks))
