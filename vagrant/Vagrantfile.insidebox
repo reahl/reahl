@@ -24,7 +24,6 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
       # Setup virtualenv, virtualenvwrapper
-      mkdir -p $HOME/virtualenv
       echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> $HOME/.profile
       echo "workon python3.6" >> $HOME/.profile
   

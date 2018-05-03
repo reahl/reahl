@@ -13,6 +13,14 @@ CHROMIUM_DEPS="gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 lib
 # liblcms1-dev -> liblcms2-dev
 # libjpeg62-dev -> libjpeg62-turbo-dev
 
+
+while (ps aux | grep apt | grep -qv grep )
+do
+  echo 'Waiting for systemd daily apt jobs to complete'; sleep 1;
+done
+
+
+
 apt-get update
 apt-get install --no-install-recommends -y $PYTHON_DEPS $UTILS $CHROMIUM_DEPS $OS_DEPS
 
