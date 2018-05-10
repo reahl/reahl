@@ -4,7 +4,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from passlib.hash import pbkdf2_sha256
 
-from sqlalchemy import Column, ForeignKey, Integer, UnicodeText, String
+from sqlalchemy import Column, ForeignKey, Integer, Unicode, UnicodeText, String
 from sqlalchemy.orm import relationship
 
 from reahl.sqlalchemysupport import Session, Base, session_scoped
@@ -20,12 +20,12 @@ from reahl.component.modelinterface import Action, EmailField, Event, PasswordFi
 
 
 class User(Base):
-    __tablename__ = 'sessionscopebootstrap_user'
+    __tablename__ = 'sesscope_user'
     
     id            = Column(Integer, primary_key=True)
     email_address = Column(UnicodeText, nullable=False) 
     name          = Column(UnicodeText, nullable=False)
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(Unicode(1024), nullable=False)
 
     def set_password(self, password):
         self.password_hash = pbkdf2_sha256.hash(password)
@@ -36,7 +36,7 @@ class User(Base):
 
 @session_scoped
 class LoginSession(Base):
-    __tablename__ = 'sessionscopebootstrap_loginsession'
+    __tablename__ = 'sessscope_loginsession'
 
     id              = Column(Integer, primary_key=True)
     current_user_id = Column(Integer, ForeignKey(User.id))

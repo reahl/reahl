@@ -19,10 +19,10 @@ from reahl.component.modelinterface import exposed, IntegerField, BooleanField, 
 
 
 class Address(Base):
-    __tablename__ = 'accessbootstrap_address'
+    __tablename__ = 'access_address'
 
     id              = Column(Integer, primary_key=True)
-    address_book_id = Column(Integer, ForeignKey('accessbootstrap_address_book.id'))
+    address_book_id = Column(Integer, ForeignKey('access_address_book.id'))
     address_book    = relationship('reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap.AddressBook')
     email_address   = Column(UnicodeText)
     name            = Column(UnicodeText)
@@ -58,7 +58,7 @@ class Address(Base):
 
 
 class AddressBook(Base):
-    __tablename__ = 'accessbootstrap_address_book'
+    __tablename__ = 'access_address_book'
 
     id              = Column(Integer, primary_key=True)
 
@@ -156,7 +156,7 @@ class AddressBook(Base):
 
 
 class Collaborator(Base):
-    __tablename__ = 'accessbootstrap_collaborator'
+    __tablename__ = 'access_collaborator'
     id      = Column(Integer, primary_key=True)
 
     address_book_id = Column(Integer, ForeignKey(AddressBook.id))
