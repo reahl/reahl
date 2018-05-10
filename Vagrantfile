@@ -24,7 +24,7 @@ Vagrant.configure(2) do |config|
     cd /vagrant
     python scripts/bootstrap.py --script-dependencies && python scripts/bootstrap.py --pip-installs
     reahl createdb reahl-web/etc
-    pip install pillow sphinx sphinxcontrib-plantuml
+    pip install pillow sphinx sphinxcontrib-plantuml graphviz
   SHELL
 end
 

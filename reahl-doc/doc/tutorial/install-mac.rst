@@ -11,24 +11,17 @@ Preparing for installation on Mac OS/X
 
 1. Python and basic development tools
 
-   On Mac OS/X, you need a proper installation of Python (ie., not the
-   standard Python that comes with the OS), you need a C compiler, Python
-   development header files and `homebrew <http://brew.sh/>`_ to make
-   installing what you need easier.
-
    Follow the installation instructions for Python on `The Hitchhiker's guide to Python
    <https://python-guide.readthedocs.io/en/latest/starting/install3/osx/#install3-osx>`_.
    
    Here is the super-short summary:
 
-   - Install XCode, open it, go to Preferences, select Download and install "Command Line Tools"
    - Install Homebrew:
 
      .. code-block:: bash
 
-        ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-   - Put Homebrew in your path
    - Install python:
 
      .. code-block:: bash
