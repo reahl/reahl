@@ -1,11 +1,7 @@
-
 @startuml
+!include ../base.iuml
 
 title Getting the current locale urlpath
-
-'hide members
-hide methods
-hide circle
 
 
 package reahl.component{

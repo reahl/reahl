@@ -1,9 +1,11 @@
 @startuml
+!include base.iuml
+show members
+skinparam class {
+ BorderColor Black
+}
 
 title Workflow Action and Requirement
-
-'hide members
-hide circle
 
 class DeferredAction{
 	deadline

@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title SystemAccount and Party
-
-hide members
-hide circle
 
 package reahl.domain.partymodel{
 	class Party

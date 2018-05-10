@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title Building packages and distributing them to remote repositories
-
-hide members
-hide circle
 
 EggProject -right- "*" DistributionPackage : packages >
 DistributionPackage -right- "*" RemoteRepository : repositories >

@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title Factories
-
-hide members
-hide circle
 
 
 FactoryFromUrlRegex -up-|> Factory

@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title Database components
-
-hide members
-hide circle
 
 note as N1
    Use the system-wide SystemControl to control any database

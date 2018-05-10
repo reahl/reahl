@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title Projects and Workspace
-
-hide members
-hide circle
 
 class "<b>Project</b>" as Project
 class "<b>Workspace</b>" as Workspace

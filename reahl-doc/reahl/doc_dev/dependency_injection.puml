@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title Dependency Injection
-
-hide methods
-hide circle
 
 component "reahl-web-declarative" as rwd{
 	interface "WebUserSession" as WebUserSession

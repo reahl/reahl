@@ -1,11 +1,8 @@
 
 @startuml
+!include base.iuml
 
 title Accounts
-
-'hide members
-'hide methods
-hide circle
 
 class OpenIDSystemAccount ##[dashed]
 class Payment ##[dashed]

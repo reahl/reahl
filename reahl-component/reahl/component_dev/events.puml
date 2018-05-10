@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title Events
-
-hide members
-hide circle
 
 Field <|-- Event
 Event -right- Action

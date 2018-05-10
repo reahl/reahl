@@ -1,10 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title Menus and Layout
-
-hide members
-hide circle
-
 
 class A #grey
 class Layout #grey

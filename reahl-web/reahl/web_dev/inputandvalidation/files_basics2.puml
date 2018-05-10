@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title Files - basics: SimpleFileInput
-
-hide members
-hide circle
 
 class python <<object>>
 SimpleFileInput -right- FileField

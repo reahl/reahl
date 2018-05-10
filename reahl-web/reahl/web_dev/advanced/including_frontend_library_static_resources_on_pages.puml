@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title Including frontend library static resources on pages
-
-hide members
-hide circle
 
 
 HTML5Page -right- Head

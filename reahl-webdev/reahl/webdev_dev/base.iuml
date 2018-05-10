@@ -1,0 +1,21 @@
+
+'skinparam handwritten true
+'skinparam roundcorner 15
+
+skinparam class {
+ BackgroundColor #ffffee
+ ArrowColor #909066
+ BorderColor #909066
+}
+
+skinparam object {
+ BackgroundColor #ffffee
+ ArrowColor #909066
+ BorderColor #909066
+}
+
+
+ 'hide methods
+ hide members
+ hide circle
+

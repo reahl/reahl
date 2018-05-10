@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title How static file resources work
-
-hide members
-hide circle
 
 class "<b>StaticFileResource</b>" as StaticFileResource
 class "<b>FileView</b>" as FileView

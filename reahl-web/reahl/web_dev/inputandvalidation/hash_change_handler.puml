@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title Hash change handler (Ajax)
-
-hide members
-hide circle
 
 HTMLElement -up--|> Widget
 HTMLElement -right- HashChangeHandler

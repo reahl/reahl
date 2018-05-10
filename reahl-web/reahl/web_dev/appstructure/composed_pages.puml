@@ -1,10 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title How composed pages work
-
-hide members
-hide circle
-
 
 ComposedPage -up-|> Resource
 

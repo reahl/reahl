@@ -24,9 +24,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="538.86337"
-     inkscape:cy="-25.385651"
+     inkscape:zoom="1.979899"
+     inkscape:cx="772.31498"
+     inkscape:cy="92.239696"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -34,11 +34,11 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1210"
-     inkscape:window-height="661"
-     inkscape:window-x="2010"
-     inkscape:window-y="253"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="2048"
+     inkscape:window-height="1016"
+     inkscape:window-x="1600"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata5809">
     <rdf:RDF>
@@ -56,6 +56,12 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(876.09872,-260.49008)">
+    <path
+       d="m -454.68717,339.98293 c 57.15373,61.17384 283.15589,57.6105 349.16613,-2.20161"
+       id="path5020"
+       inkscape:connector-curvature="0"
+       style="fill:none;stroke:#909066;stroke-width:2.61038136;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
+       sodipodi:nodetypes="cc" />
     <path
        d="m -761.51151,307.00655 272.58301,0"
        id="path5018"
@@ -149,12 +155,6 @@
          x="-373.52878"
          id="tspan5016"
          sodipodi:role="line">Collaborator</tspan></text>
-    <path
-       d="m -454.68717,339.98293 c 57.15373,61.17384 283.15589,57.6105 349.16613,-2.20161"
-       id="path5020"
-       inkscape:connector-curvature="0"
-       style="fill:none;stroke:#909066;stroke-width:2.61038136;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
-       sodipodi:nodetypes="cc" />
     <path
        d="m -281.83482,416.14394 0,-28.5731"
        id="path5022"

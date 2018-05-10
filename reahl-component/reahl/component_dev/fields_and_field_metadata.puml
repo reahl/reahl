@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title Fields and field metadata
-
-hide members
-hide circle
 
 Field -left- object : storage_object >
 Field -- ValidationConstraintList

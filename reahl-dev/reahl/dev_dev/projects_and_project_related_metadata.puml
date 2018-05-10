@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title Projects and project related metadata
-
-hide members
-hide circle
 
 Project <|-- EggProject
 Dependency <|-- ThirdpartyDependency

@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title Shipped files
-
-hide members
-hide circle
 
 class "..." as other_classes
 Library -right- "*" FileOnDisk : packaged_files

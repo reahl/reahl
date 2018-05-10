@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title Serving frontend library static resources
-
-hide members
-hide circle
 
 WebConfig -down- LibraryIndex : frontend_libraries >
 LibraryIndex -down- "*" Library

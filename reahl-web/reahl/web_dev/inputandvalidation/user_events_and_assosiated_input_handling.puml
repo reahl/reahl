@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title User events and associated input handling
-
-hide members
-hide circle
 
 callable <<python>>
 attribute <<python>>

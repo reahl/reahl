@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title ChoiceField represented by radio buttons
-
-hide members
-hide circle
 
 RadioButtonSelectInput -up-|> PrimitiveInput
 PrimitiveInput -right- HTMLElement : html_representation >

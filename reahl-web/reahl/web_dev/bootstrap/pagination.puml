@@ -1,9 +1,7 @@
 @startuml
+!include ../base.iuml
 
 title Pagination
-
-hide methods
-hide circle
 
 class "<b>Menu</b>" as Menu
 class "<b>PageMenu</b>" as PageMenu{

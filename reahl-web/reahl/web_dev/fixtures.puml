@@ -1,8 +1,11 @@
 @startuml
+!include base.iuml
+show members
+skinparam class{
+ BorderColor Black
+}
 
 title Fixtures
-
-hide circle
 
 package reahl-dev{
 	class ContextAwareFixture {

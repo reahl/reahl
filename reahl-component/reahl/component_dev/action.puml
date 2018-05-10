@@ -1,9 +1,7 @@
 @startuml
+!include base.iuml
 
 title Action
-
-hide members
-hide circle
 
 class callable <<interface>>
 

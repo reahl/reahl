@@ -1,9 +1,7 @@
 @startuml
+!include ../../base.iuml
 
 title Invoking server-side methods from a browser
-
-hide members
-hide circle
 
 SubResource -up-|> Resource
 RemoteMethod -up-|> SubResource
