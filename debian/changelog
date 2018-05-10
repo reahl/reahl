@@ -1,4 +1,4 @@
-python-reahl (4.0.0a1) unstable; urgency=low
+python-reahl (4.0.0) unstable; urgency=low
 
  * Removed all previously deprecated functionality.
  * Removed css_id kwarg to Nav, Menu.
@@ -51,7 +51,7 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Upgraded lxml to 4.2
  * Added min_length and max_length kwargs for convenience to Field.
 
- -- Iwan Vosloo <iwan@reahl.org>  Sat, 21 Jan 2018 11:10:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 10 May 2018 10:04:00 +0200
 
 
 python-reahl (3.2.0) unstable; urgency=low

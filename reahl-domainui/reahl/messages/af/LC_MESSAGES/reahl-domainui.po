@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-domainui 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2018-02-15 10:13+0000\n"
+"POT-Creation-Date: 2018-05-10 08:29+0000\n"
 "PO-Revision-Date: 2012-05-31 12:07+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -17,32 +17,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/domainui/bootstrap/accounts.py:66
+#: reahl/domainui/bootstrap/accounts.py:63
 #, fuzzy
 msgid "Please specify"
 msgstr "Spesifiseer asseblief:"
 
-#: reahl/domainui/bootstrap/accounts.py:67
+#: reahl/domainui/bootstrap/accounts.py:64
 msgid "The email address you used to register here."
 msgstr "Die epos adres wat jy gebruik het om hier te registreer."
 
-#: reahl/domainui/bootstrap/accounts.py:70
+#: reahl/domainui/bootstrap/accounts.py:67
 msgid "The secret password you supplied upon registration."
 msgstr "Die geheime wagwoord wat jy gegee het tydens registrasie."
 
-#: reahl/domainui/bootstrap/accounts.py:73
+#: reahl/domainui/bootstrap/accounts.py:70
 msgid "Forgot your password?"
 msgstr "Jou wagwoord vergeet?"
 
-#: reahl/domainui/bootstrap/accounts.py:77
+#: reahl/domainui/bootstrap/accounts.py:74
 msgid "If selected, you will stay logged in for longer."
 msgstr "As gekies, sal jy vir langer aangeteken bly."
 
-#: reahl/domainui/bootstrap/accounts.py:119
+#: reahl/domainui/bootstrap/accounts.py:116
 msgid "How will you identify yourself?"
 msgstr "Hoe sal jy jouself identifiseer?"
 
-#: reahl/domainui/bootstrap/accounts.py:121
+#: reahl/domainui/bootstrap/accounts.py:118
 msgid ""
 "You identify yourself to us by your email address.This information is not"
 " divulged to others."
@@ -50,7 +50,7 @@ msgstr ""
 "Jy identifiseer jouself aan ons deur middel van jou epos adres.  Hierdie "
 "inligting word nie aan ander bekendgestel nie."
 
-#: reahl/domainui/bootstrap/accounts.py:123
+#: reahl/domainui/bootstrap/accounts.py:120
 msgid ""
 "Sorry, you can only register once per email address and someone is "
 "already registered as $value. Did you perhaps register long ago?"
@@ -58,7 +58,7 @@ msgstr ""
 "Jammer, jy kan slegs eenkeer registreer per epos adres. Iemand het reeds "
 "geregistreer as $value. Het jy miskien lank terug al geregistreer?"
 
-#: reahl/domainui/bootstrap/accounts.py:129
+#: reahl/domainui/bootstrap/accounts.py:126
 msgid ""
 "Upon logging in, you will be asked for your password. Your password "
 "should be a secret, known only to yourself, and be difficult to guess."
@@ -66,7 +66,7 @@ msgstr ""
 "Wanneer jy aanteken sal jy gevra word vir jou wagwoord. Jou wagwoord moet"
 " 'n geheim wees, net aan jouself bekend, en moeilik om te raai."
 
-#: reahl/domainui/bootstrap/accounts.py:133
+#: reahl/domainui/bootstrap/accounts.py:130
 msgid ""
 "By typing the same password again you help us to make sure you did not "
 "make any typing mistakes."
@@ -74,11 +74,11 @@ msgstr ""
 "Deur dieselfde wagwoord weer in te tik help jy ons om seker te maak dat "
 "jy nie per ongeluk 'n tikfout gemaak het nie."
 
-#: reahl/domainui/bootstrap/accounts.py:139
+#: reahl/domainui/bootstrap/accounts.py:136
 msgid "Terms and conditions"
 msgstr "Terme en kondisies"
 
-#: reahl/domainui/bootstrap/accounts.py:141
+#: reahl/domainui/bootstrap/accounts.py:138
 msgid ""
 "Please read and accept our {terms}. You may also be interested to read "
 "our {privacypolicy} and our {disclaimer}."
@@ -86,33 +86,33 @@ msgstr ""
 "Lees asseblief ons {terms} en aanvaar dit. Jy mag ook geïnteresseerd wees"
 " om ons {privacypolicy} en {disclaimer} te lees."
 
-#: reahl/domainui/bootstrap/accounts.py:148
+#: reahl/domainui/bootstrap/accounts.py:145
 msgid "You can only register if you agree to the terms and conditions."
 msgstr "Jy kan slegs registreer as jy instem tot die terme en kondisies."
 
-#: reahl/domainui/bootstrap/accounts.py:152
+#: reahl/domainui/bootstrap/accounts.py:149
 msgid "Accept"
 msgstr "Aanvaar"
 
-#: reahl/domainui/bootstrap/accounts.py:153
+#: reahl/domainui/bootstrap/accounts.py:150
 msgid "Cancel"
 msgstr "Kanselleer"
 
-#: reahl/domainui/bootstrap/accounts.py:175
+#: reahl/domainui/bootstrap/accounts.py:172
 msgid "Please supply the following details"
 msgstr "Verskaf asseblief die volgende inligting"
 
-#: reahl/domainui/bootstrap/accounts.py:204
-#: reahl/domainui/bootstrap/accounts.py:206
+#: reahl/domainui/bootstrap/accounts.py:201
+#: reahl/domainui/bootstrap/accounts.py:203
 msgid "Please supply the email address you tried to register with."
 msgstr "Verskaf asseblief die epos adres waarmee jy probeer het om te registreer."
 
-#: reahl/domainui/bootstrap/accounts.py:216
+#: reahl/domainui/bootstrap/accounts.py:213
 #, python-format
 msgid "You are trying to register using the email address \"%s\""
 msgstr "Jy probeer registreer met die epos adres \"%s\""
 
-#: reahl/domainui/bootstrap/accounts.py:217
+#: reahl/domainui/bootstrap/accounts.py:214
 msgid ""
 "That address is already registered and active on the system.This means "
 "that you (or someone else) must have registered using that email address "
@@ -122,20 +122,20 @@ msgstr ""
 "beteken dat jy (of iemand anders) reeds voorheen geregistreer het met "
 "daardie epos adres."
 
-#: reahl/domainui/bootstrap/accounts.py:222
+#: reahl/domainui/bootstrap/accounts.py:219
 msgid "You can gain access to this account by following our {procedure}."
 msgstr "Jy kan toegang verkry tot hierdie rekening deur ons {procedure}."
 
-#: reahl/domainui/bootstrap/accounts.py:223
+#: reahl/domainui/bootstrap/accounts.py:220
 msgid " password reset procedure"
 msgstr " wagwoord veranderings prosedure te volg"
 
-#: reahl/domainui/bootstrap/accounts.py:230
+#: reahl/domainui/bootstrap/accounts.py:227
 #, python-format
 msgid "There is a registration pending for email address \"%s\"."
 msgstr "Daar is 'n registrasie hangende vir epos adres \"%s\"."
 
-#: reahl/domainui/bootstrap/accounts.py:231
+#: reahl/domainui/bootstrap/accounts.py:228
 msgid ""
 "Before you can log in using it, you need to act on the automated email "
 "sent to that address. It looks like you did not do that."
@@ -144,7 +144,7 @@ msgstr ""
 " ons gestuur het in 'n outomatiese epos na daardie adres. Dit wil voorkom"
 " dat jy dit nog nie gedoen het nie."
 
-#: reahl/domainui/bootstrap/accounts.py:233
+#: reahl/domainui/bootstrap/accounts.py:230
 msgid ""
 "You should receive the automated email anything between a minute to an "
 "hour after registration. Sometimes though, your email software may "
@@ -157,11 +157,11 @@ msgstr ""
 "gebeur, sal die epos dalk iewers in 'n spesiale leêr vir daardie doel  "
 "weggesteek word."
 
-#: reahl/domainui/bootstrap/accounts.py:237
+#: reahl/domainui/bootstrap/accounts.py:234
 msgid "You can have the email re-sent to you by clicking on the button below."
 msgstr "As jy op die knoppie hieronder kliek, sal ons die epos weer oor stuur."
 
-#: reahl/domainui/bootstrap/accounts.py:238
+#: reahl/domainui/bootstrap/accounts.py:235
 #, python-format
 msgid ""
 "Before you do that, however, please make sure that your email system will"
@@ -170,18 +170,18 @@ msgstr ""
 "Maar, voordat jy dit doen, maak tog asseblief seker dat jou epos "
 "sagteware eposse van \"%s\" af sal deurlaat na jou toe."
 
-#: reahl/domainui/bootstrap/accounts.py:251
+#: reahl/domainui/bootstrap/accounts.py:248
 msgid "Re-send registration email"
 msgstr "Stuur registrasie epos weer"
 
-#: reahl/domainui/bootstrap/accounts.py:259
+#: reahl/domainui/bootstrap/accounts.py:256
 #, python-format
 msgid "There is no record of someone trying to register the email address \"%s\"."
 msgstr ""
 "Daar is geen rekord dat enigeen probeer het om die epos adres \"%s\" "
 "probeer registreer het nie."
 
-#: reahl/domainui/bootstrap/accounts.py:260
+#: reahl/domainui/bootstrap/accounts.py:257
 msgid ""
 "Perhaps you mistyped your email address when registering? The system also"
 " removes such a registration request if you take a long time to get "
@@ -191,28 +191,28 @@ msgstr ""
 "stelsel verwyder versoeke om te registreer as die versoeker baie lank "
 "neem om dit te verifiëer."
 
-#: reahl/domainui/bootstrap/accounts.py:264
+#: reahl/domainui/bootstrap/accounts.py:261
 msgid "Whatever the case, please {register} to rectify the problem."
 msgstr "Watookal die geval, {register} om die probleem op te los."
 
-#: reahl/domainui/bootstrap/accounts.py:265
+#: reahl/domainui/bootstrap/accounts.py:262
 msgid "register again"
 msgstr "registreer asseblief weer"
 
-#: reahl/domainui/bootstrap/accounts.py:271
+#: reahl/domainui/bootstrap/accounts.py:268
 #, python-format
 msgid "A new registration email was sent to \"%s\""
 msgstr "'n Nuwe registrasie epos is aan \"%s\" gestuur"
 
-#: reahl/domainui/bootstrap/accounts.py:272
+#: reahl/domainui/bootstrap/accounts.py:269
 msgid "Please watch your inbox and follow the instructions in the email."
 msgstr "Hou asseblief jou epos posbus dop en volg die instruksies in die epos."
 
-#: reahl/domainui/bootstrap/accounts.py:279
+#: reahl/domainui/bootstrap/accounts.py:276
 msgid "Thank you for verifying your email address."
 msgstr "Dankie dat jy jou epos geverifiëer het."
 
-#: reahl/domainui/bootstrap/accounts.py:280
+#: reahl/domainui/bootstrap/accounts.py:277
 msgid ""
 "Your account is now active, and you can proceed to log in using the "
 "details you provided."
@@ -220,11 +220,11 @@ msgstr ""
 "Jou rekening is nou aktief, en jy kan maar voortgaan on aan te teken met "
 "die besonderhede verskaf."
 
-#: reahl/domainui/bootstrap/accounts.py:286
+#: reahl/domainui/bootstrap/accounts.py:283
 msgid "You have successfully registered."
 msgstr "Jy het suksesvol geregistreer."
 
-#: reahl/domainui/bootstrap/accounts.py:287
+#: reahl/domainui/bootstrap/accounts.py:284
 #, python-format
 msgid ""
 "Before we can allow you to log in, however, you need to prove to us that "
@@ -233,17 +233,17 @@ msgstr ""
 "Voordat ons jou kan toelaat om aan te teken, moet jy net eers bewys dat "
 "jy regtig die eienaar is van %s."
 
-#: reahl/domainui/bootstrap/accounts.py:288
+#: reahl/domainui/bootstrap/accounts.py:285
 msgid "You can do that by following instructions just emailed to that address."
 msgstr "Jy kan dit doen deur die instruksies te volg in ons epos na daardie adres."
 
-#: reahl/domainui/bootstrap/accounts.py:289
+#: reahl/domainui/bootstrap/accounts.py:286
 msgid "Sometimes these emails arrive immediately, but they may also be delayed."
 msgstr ""
 "Partymaal arriveer hierdie eposse dadelik, maar hulle kan ook vertraag "
 "word."
 
-#: reahl/domainui/bootstrap/accounts.py:290
+#: reahl/domainui/bootstrap/accounts.py:287
 msgid ""
 "If you do not receive the email within an hour or so, please follow "
 "{trouble}."
@@ -251,11 +251,11 @@ msgstr ""
 "As jy die epos nie so binne 'n uur of wat ontvang nie, volg asseblief "
 "{trouble}."
 
-#: reahl/domainui/bootstrap/accounts.py:291
+#: reahl/domainui/bootstrap/accounts.py:288
 msgid "our troubleshooting procedure"
 msgstr "ons prosedure om die fout te soek"
 
-#: reahl/domainui/bootstrap/accounts.py:298
+#: reahl/domainui/bootstrap/accounts.py:295
 msgid ""
 "To ensure you are not an impostor, resetting your password is a two step "
 "process: First, we send a \"secret key\" to your registered email "
@@ -269,15 +269,15 @@ msgstr ""
 "geheime kodewoord wat ons vir jou gestuur het nodig in die laaste stap om"
 " te bewys jy is wel die eienaar van die geregistreerde adres."
 
-#: reahl/domainui/bootstrap/accounts.py:302
+#: reahl/domainui/bootstrap/accounts.py:299
 msgid "you can choose a new password"
 msgstr "kan jy 'n nuwe wagwoord kies"
 
-#: reahl/domainui/bootstrap/accounts.py:315
+#: reahl/domainui/bootstrap/accounts.py:312
 msgid "Request a secret key"
 msgstr "Vra 'n geheime kodewoord aan"
 
-#: reahl/domainui/bootstrap/accounts.py:326
+#: reahl/domainui/bootstrap/accounts.py:323
 msgid ""
 "Do you have your secret key? You can only choose a new password if you "
 "{reset_password}."
@@ -285,7 +285,7 @@ msgstr ""
 "Het jy jou geheime kodewoord? Jy kan slegs 'n nuwe wagwoord kies as jy "
 "{reset_password}."
 
-#: reahl/domainui/bootstrap/accounts.py:328
+#: reahl/domainui/bootstrap/accounts.py:325
 msgid ""
 "previously requested a secret key to be sent to your registered email "
 "address"
@@ -293,68 +293,68 @@ msgstr ""
 "voorheen aangevra het dat ons 'n geheime wagwoord stuur na jou "
 "geregistreerde epos adres"
 
-#: reahl/domainui/bootstrap/accounts.py:343
+#: reahl/domainui/bootstrap/accounts.py:340
 msgid "Choose a new password"
 msgstr "Kies 'n nuwe wagwoord"
 
-#: reahl/domainui/bootstrap/accounts.py:362
+#: reahl/domainui/bootstrap/accounts.py:359
 msgid "Thank you, your password has been changed successfully."
 msgstr "Dankie. Jou wagwoord is verander."
 
-#: reahl/domainui/bootstrap/accounts.py:408
+#: reahl/domainui/bootstrap/accounts.py:405
 msgid "Log in with email and password"
 msgstr "Teken aan met jou epos adres en wagwoord"
 
-#: reahl/domainui/bootstrap/accounts.py:415
+#: reahl/domainui/bootstrap/accounts.py:412
 msgid "Reset a password: Step 1"
 msgstr "Herwin 'n wagwoord: Stap 1"
 
-#: reahl/domainui/bootstrap/accounts.py:418
+#: reahl/domainui/bootstrap/accounts.py:415
 msgid "Reset a password: Step 2"
 msgstr "Herwin 'n wagwoord: Stap 2"
 
-#: reahl/domainui/bootstrap/accounts.py:421
+#: reahl/domainui/bootstrap/accounts.py:418
 msgid "Password change complete"
 msgstr "Wagwoord verandering klaar"
 
-#: reahl/domainui/bootstrap/accounts.py:431
+#: reahl/domainui/bootstrap/accounts.py:428
 msgid "Problems registering?"
 msgstr "Registrasieprobleme?"
 
-#: reahl/domainui/bootstrap/accounts.py:434
+#: reahl/domainui/bootstrap/accounts.py:431
 msgid "Address already registered"
 msgstr "Adres reeds regegistreer"
 
-#: reahl/domainui/bootstrap/accounts.py:437
+#: reahl/domainui/bootstrap/accounts.py:434
 msgid "Registration still pending"
 msgstr "Registrasie nog hangende"
 
-#: reahl/domainui/bootstrap/accounts.py:440
+#: reahl/domainui/bootstrap/accounts.py:437
 msgid "Registration not found"
 msgstr "Kon nie registrasie vind nie "
 
-#: reahl/domainui/bootstrap/accounts.py:443
+#: reahl/domainui/bootstrap/accounts.py:440
 msgid "Registration email sent"
 msgstr "Registrasie epos gestuur"
 
-#: reahl/domainui/bootstrap/accounts.py:462
+#: reahl/domainui/bootstrap/accounts.py:459
 msgid "Register with us"
 msgstr "Registreer by ons"
 
-#: reahl/domainui/bootstrap/accounts.py:465
+#: reahl/domainui/bootstrap/accounts.py:462
 msgid "Congratulations"
 msgstr "Geluk"
 
-#: reahl/domainui/bootstrap/accounts.py:468
+#: reahl/domainui/bootstrap/accounts.py:465
 msgid "Verify pending registration"
 msgstr "Verifiëer hangende registrasie"
 
-#: reahl/domainui/bootstrap/accounts.py:471
+#: reahl/domainui/bootstrap/accounts.py:468
 msgid "Thanks for all your troubles"
 msgstr "Dankie vir jou moeite"
 
-#: reahl/domainui/bootstrap/workflow.py:60
-#: reahl/domainui/bootstrap/workflow.py:145
+#: reahl/domainui/bootstrap/workflow.py:58
+#: reahl/domainui/bootstrap/workflow.py:143
 msgid "Inbox"
 msgstr "Taak leêr"
 

@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-domainui 4.0.0a1\n"
+"Project-Id-Version: reahl-domainui 4.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-02-15 10:13+0000\n"
+"POT-Creation-Date: 2018-05-10 08:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,117 +18,117 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/domainui/bootstrap/accounts.py:66
+#: reahl/domainui/bootstrap/accounts.py:63
 msgid "Please specify"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:67
+#: reahl/domainui/bootstrap/accounts.py:64
 msgid "The email address you used to register here."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:70
+#: reahl/domainui/bootstrap/accounts.py:67
 msgid "The secret password you supplied upon registration."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:73
+#: reahl/domainui/bootstrap/accounts.py:70
 msgid "Forgot your password?"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:77
+#: reahl/domainui/bootstrap/accounts.py:74
 msgid "If selected, you will stay logged in for longer."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:119
+#: reahl/domainui/bootstrap/accounts.py:116
 msgid "How will you identify yourself?"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:121
+#: reahl/domainui/bootstrap/accounts.py:118
 msgid ""
 "You identify yourself to us by your email address.This information is not"
 " divulged to others."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:123
+#: reahl/domainui/bootstrap/accounts.py:120
 msgid ""
 "Sorry, you can only register once per email address and someone is "
 "already registered as $value. Did you perhaps register long ago?"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:129
+#: reahl/domainui/bootstrap/accounts.py:126
 msgid ""
 "Upon logging in, you will be asked for your password. Your password "
 "should be a secret, known only to yourself, and be difficult to guess."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:133
+#: reahl/domainui/bootstrap/accounts.py:130
 msgid ""
 "By typing the same password again you help us to make sure you did not "
 "make any typing mistakes."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:139
+#: reahl/domainui/bootstrap/accounts.py:136
 msgid "Terms and conditions"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:141
+#: reahl/domainui/bootstrap/accounts.py:138
 msgid ""
 "Please read and accept our {terms}. You may also be interested to read "
 "our {privacypolicy} and our {disclaimer}."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:148
+#: reahl/domainui/bootstrap/accounts.py:145
 msgid "You can only register if you agree to the terms and conditions."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:152
+#: reahl/domainui/bootstrap/accounts.py:149
 msgid "Accept"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:153
+#: reahl/domainui/bootstrap/accounts.py:150
 msgid "Cancel"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:175
+#: reahl/domainui/bootstrap/accounts.py:172
 msgid "Please supply the following details"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:204
-#: reahl/domainui/bootstrap/accounts.py:206
+#: reahl/domainui/bootstrap/accounts.py:201
+#: reahl/domainui/bootstrap/accounts.py:203
 msgid "Please supply the email address you tried to register with."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:216
+#: reahl/domainui/bootstrap/accounts.py:213
 #, python-format
 msgid "You are trying to register using the email address \"%s\""
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:217
+#: reahl/domainui/bootstrap/accounts.py:214
 msgid ""
 "That address is already registered and active on the system.This means "
 "that you (or someone else) must have registered using that email address "
 "previously."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:222
+#: reahl/domainui/bootstrap/accounts.py:219
 msgid "You can gain access to this account by following our {procedure}."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:223
+#: reahl/domainui/bootstrap/accounts.py:220
 msgid " password reset procedure"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:230
+#: reahl/domainui/bootstrap/accounts.py:227
 #, python-format
 msgid "There is a registration pending for email address \"%s\"."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:231
+#: reahl/domainui/bootstrap/accounts.py:228
 msgid ""
 "Before you can log in using it, you need to act on the automated email "
 "sent to that address. It looks like you did not do that."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:233
+#: reahl/domainui/bootstrap/accounts.py:230
 msgid ""
 "You should receive the automated email anything between a minute to an "
 "hour after registration. Sometimes though, your email software may "
@@ -136,90 +136,90 @@ msgid ""
 "hidden away in a \"junk email\" folder or just not shown to you."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:237
+#: reahl/domainui/bootstrap/accounts.py:234
 msgid "You can have the email re-sent to you by clicking on the button below."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:238
+#: reahl/domainui/bootstrap/accounts.py:235
 #, python-format
 msgid ""
 "Before you do that, however, please make sure that your email system will"
 " allow emails from \"%s\" through to you."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:251
+#: reahl/domainui/bootstrap/accounts.py:248
 msgid "Re-send registration email"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:259
+#: reahl/domainui/bootstrap/accounts.py:256
 #, python-format
 msgid "There is no record of someone trying to register the email address \"%s\"."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:260
+#: reahl/domainui/bootstrap/accounts.py:257
 msgid ""
 "Perhaps you mistyped your email address when registering? The system also"
 " removes such a registration request if you take a long time to get "
 "around to verifying it."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:264
+#: reahl/domainui/bootstrap/accounts.py:261
 msgid "Whatever the case, please {register} to rectify the problem."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:265
+#: reahl/domainui/bootstrap/accounts.py:262
 msgid "register again"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:271
+#: reahl/domainui/bootstrap/accounts.py:268
 #, python-format
 msgid "A new registration email was sent to \"%s\""
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:272
+#: reahl/domainui/bootstrap/accounts.py:269
 msgid "Please watch your inbox and follow the instructions in the email."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:279
+#: reahl/domainui/bootstrap/accounts.py:276
 msgid "Thank you for verifying your email address."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:280
+#: reahl/domainui/bootstrap/accounts.py:277
 msgid ""
 "Your account is now active, and you can proceed to log in using the "
 "details you provided."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:286
+#: reahl/domainui/bootstrap/accounts.py:283
 msgid "You have successfully registered."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:287
+#: reahl/domainui/bootstrap/accounts.py:284
 #, python-format
 msgid ""
 "Before we can allow you to log in, however, you need to prove to us that "
 "you are indeed the owner of %s."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:288
+#: reahl/domainui/bootstrap/accounts.py:285
 msgid "You can do that by following instructions just emailed to that address."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:289
+#: reahl/domainui/bootstrap/accounts.py:286
 msgid "Sometimes these emails arrive immediately, but they may also be delayed."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:290
+#: reahl/domainui/bootstrap/accounts.py:287
 msgid ""
 "If you do not receive the email within an hour or so, please follow "
 "{trouble}."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:291
+#: reahl/domainui/bootstrap/accounts.py:288
 msgid "our troubleshooting procedure"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:298
+#: reahl/domainui/bootstrap/accounts.py:295
 msgid ""
 "To ensure you are not an impostor, resetting your password is a two step "
 "process: First, we send a \"secret key\" to your registered email "
@@ -228,88 +228,88 @@ msgid ""
 "registered email address."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:302
+#: reahl/domainui/bootstrap/accounts.py:299
 msgid "you can choose a new password"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:315
+#: reahl/domainui/bootstrap/accounts.py:312
 msgid "Request a secret key"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:326
+#: reahl/domainui/bootstrap/accounts.py:323
 msgid ""
 "Do you have your secret key? You can only choose a new password if you "
 "{reset_password}."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:328
+#: reahl/domainui/bootstrap/accounts.py:325
 msgid ""
 "previously requested a secret key to be sent to your registered email "
 "address"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:343
+#: reahl/domainui/bootstrap/accounts.py:340
 msgid "Choose a new password"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:362
+#: reahl/domainui/bootstrap/accounts.py:359
 msgid "Thank you, your password has been changed successfully."
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:408
+#: reahl/domainui/bootstrap/accounts.py:405
 msgid "Log in with email and password"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:415
+#: reahl/domainui/bootstrap/accounts.py:412
 msgid "Reset a password: Step 1"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:418
+#: reahl/domainui/bootstrap/accounts.py:415
 msgid "Reset a password: Step 2"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:421
+#: reahl/domainui/bootstrap/accounts.py:418
 msgid "Password change complete"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:431
+#: reahl/domainui/bootstrap/accounts.py:428
 msgid "Problems registering?"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:434
+#: reahl/domainui/bootstrap/accounts.py:431
 msgid "Address already registered"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:437
+#: reahl/domainui/bootstrap/accounts.py:434
 msgid "Registration still pending"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:440
+#: reahl/domainui/bootstrap/accounts.py:437
 msgid "Registration not found"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:443
+#: reahl/domainui/bootstrap/accounts.py:440
 msgid "Registration email sent"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:462
+#: reahl/domainui/bootstrap/accounts.py:459
 msgid "Register with us"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:465
+#: reahl/domainui/bootstrap/accounts.py:462
 msgid "Congratulations"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:468
+#: reahl/domainui/bootstrap/accounts.py:465
 msgid "Verify pending registration"
 msgstr ""
 
-#: reahl/domainui/bootstrap/accounts.py:471
+#: reahl/domainui/bootstrap/accounts.py:468
 msgid "Thanks for all your troubles"
 msgstr ""
 
-#: reahl/domainui/bootstrap/workflow.py:60
-#: reahl/domainui/bootstrap/workflow.py:145
+#: reahl/domainui/bootstrap/workflow.py:58
+#: reahl/domainui/bootstrap/workflow.py:143
 msgid "Inbox"
 msgstr ""
 
