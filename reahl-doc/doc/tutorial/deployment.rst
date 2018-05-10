@@ -73,7 +73,7 @@ Install your app inside the activated virtualenv:
 
 .. code-block:: bash
 
-   pip install -f ~/dist/ reahl==4.0.0a1 helloanywhere
+   pip install -f ~/dist/ reahl==4.0.0 helloanywhere
 
 
 Configure
