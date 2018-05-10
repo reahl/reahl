@@ -158,7 +158,6 @@ class JQuery(Library):
     =================== ==================================
      Plugin              Version
     =================== ==================================
-     jquery-migrate      3.0.1
      jquery.cookie       1.0
      jquery.validate     1.17.0 (a heavily modified version)
      jquery.ba-bbq       1.3pre
@@ -171,8 +170,7 @@ class JQuery(Library):
         self.files = ['jquery-3.3.1/jquery-3.3.1.js',
                       'jquery-3.3.1/jquery-3.3.1.min.map']
         self.shipped_in_directory = '/reahl/web/static'
-        for i in ['jquery-migrate-3.0.1.js',
-                  'jquery.cookie-1.0.js', 
+        for i in ['jquery.cookie-1.0.js',
                   'jquery.validate-1.17.0.modified.js',
                   'jquery.ba-bbq-1.3pre.js',
                   'jquery.blockUI-2.70.0.js',
@@ -274,20 +272,20 @@ class Holder(Library):
 
 
 class Bootstrap4(Library):
-    """Version 4.1.0 of `Bootstrap <http://getbootstrap.com/>`_.
+    """Version 4.1.1 of `Bootstrap <http://getbootstrap.com/>`_.
     """
     def __init__(self):
         super(Bootstrap4, self).__init__('bootstrap4')
         self.shipped_in_directory = '/reahl/web/static'
         self.files = [
-                      'bootstrap-4.1.0/css/bootstrap.css',
-                      'bootstrap-4.1.0/css/reahl-patch.css',
-                      'bootstrap-4.1.0/css/bootstrap.css.map',
-                      # 'bootstrap-4.1.0/css/bootstrap-grid.css',
-                      # 'bootstrap-4.1.0/css/bootstrap-grid.css.map',
-                      # 'bootstrap-4.1.0/css/bootstrap-reboot.css',
-                      # 'bootstrap-4.1.0/css/bootstrap-reboot.css.map',
-                      'bootstrap-4.1.0/js/bootstrap.js'
+                      'bootstrap-4.1.1/css/bootstrap.css',
+                      'bootstrap-4.1.1/css/reahl-patch.css',
+                      'bootstrap-4.1.1/css/bootstrap.css.map',
+                      # 'bootstrap-4.1.1/css/bootstrap-grid.css',
+                      # 'bootstrap-4.1.1/css/bootstrap-grid.css.map',
+                      # 'bootstrap-4.1.1/css/bootstrap-reboot.css',
+                      # 'bootstrap-4.1.1/css/bootstrap-reboot.css.map',
+                      'bootstrap-4.1.1/js/bootstrap.js'
                       ]
 
 
