@@ -1,3 +1,5 @@
+' Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
 
 skinparam class {
