@@ -1,23 +1,19 @@
 .. Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
  
-Overview
-========
+Documentation overview
+======================
 
 Introductory material
 ---------------------
 
-In order to get an idea of what Reahl is, please :doc:`take a tour of
-its features <features/index>`.  Several defining features are listed
-there, with links to pages with more detail and examples.
-
-The :doc:`Getting started guide <tutorial/gettingstarted>` will enable you to
-start experimenting and working with Reahl.
+The :doc:`Getting started guide <tutorial/gettingstarted-install>` will enable you to
+install Reahl, and start experimenting.
 
 To start learning Reahl in earnest, you can work through the :doc:`web
 application tutorial <tutorial/index>`.
 
-.. The :doc:`programmer's guide <devmanual/index>` contains information
-   on how we work and how the internals of Reahl is structured.
+The :doc:`programmer's guide <devmanual/index>` contains information
+on how we work and how the internals of Reahl is structured.
 
 Reference material
 ------------------
@@ -29,7 +25,6 @@ Python.
 The main components of Reahl are illustrated in the figure below:
 
 .. figure:: overview.png
-   :width:  90%
    :alt: A visual depiction of Reahl components and how they depend on each other.
 
 
@@ -44,7 +39,7 @@ used by user interface code.
 The core of the Reahl component framework is implemented in
 `reahl-component`. Support for different databases or ORM tools is
 implemented in separate components: `reahl-postgresqlsupport`,
-`reahl-sqlalchemysupport` and `reahl-sqllitesupport`.
+`reahl-sqlalchemysupport`, `reahl-sqllitesupport` and `reahl-mysqlsupport`.
 
 All of these components are discussed under the heading of
 :doc:`component/index`.
@@ -80,11 +75,15 @@ All these are discussed in :doc:`domain/index`.
 Development tools
 ~~~~~~~~~~~~~~~~~
 
-The `reahl-tofu` component contains an extension to the `Nose
-<https://nose.readthedocs.org/en/latest/>`_ unit test framework as
-well as a small collection of other test utilities which can be used
-with any test framework. Its reason for being is that it allows one to
-separate a test fixture from tests themselves.
+We do all development :doc:`inside a Vagrant machine
+<devmanual/devenv>`. The `reahl-workstation` component is meant to
+be installed on your main workstation. It contains a stripped-down
+version of the `reahl` command containing commands that help deal with
+whats inside the Vagrant machine.
+
+The `reahl-tofu` component contains our test Fixture framework and
+extensions that bolt it onto `pytest <https://pytest.org/>`_. It also
+contains a small collection of other test utilities.
 
 Stubble (in `reahl-stubble`) enables one to write stub classes that
 will break if the interfaces of the classes they stub should change.
@@ -95,3 +94,4 @@ tool. This includes a web server for development purposes and a number
 of special tofu Fixtures that are useful when developing Reahl.
 
 The development tools are discussed in detail in :doc:`devtools/index`
+

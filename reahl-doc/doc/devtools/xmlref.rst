@@ -175,7 +175,7 @@ Development and packaging
 
   Can be specified as child of a `<distpackage>` to indicate that the package should be uploaded to this
   repository. A `<packageindex>` represents a PyPi repository. It requires an attribute named `repository`
-  which should be set to the URL of the repository (for example: http://pypi.python.org/pypi).
+  which should be set to the URL of the repository (for example: https://pypi.org/project/reahl-workspace/).
   
   A particular `<distpackage>` may be uploaded to several different repositories, each named in a 
   `<packageindex>` element.

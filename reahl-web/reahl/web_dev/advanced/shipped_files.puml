@@ -1,9 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include ../base.iuml
 
 title Shipped files
-
-hide members
-hide circle
 
 class "..." as other_classes
 Library -right- "*" FileOnDisk : packaged_files

@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -21,6 +21,7 @@ except:
     if 'raw_input' in dir(__builtins__):
         input = raw_input
 import sys
+import subprocess
 import pkg_resources
 import os
 import shutil
@@ -102,9 +103,8 @@ def find_missing_prerequisites(project_dirs):
     return list(missing)
 
 def install_with_pip(package_list, upgrade=False):
-    import pip
     args = ['-U'] if upgrade else []
-    return pip.main(['install'] + args + package_list)
+    return subprocess.call([sys.executable, '-m', 'pip', 'install'] + args + package_list)
 
 def install_prerequisites(missing):
     print('----------------------------------------------------------------------------------')
@@ -160,7 +160,7 @@ def find_missing_dependencies(workspace):
 
 
 def print_final_message(success=True):
-    debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-all', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev', 'libmysqlclient-dev']
+    debs_needed_to_compile_python = ['python-virtualenv', 'python-dev', 'gcc', 'cython', 'libxml2-dev', 'libxslt-dev', 'libsqlite3-0', 'sqlite3', 'postgresql-server-dev-all', 'zlib1g-dev', 'libjpeg62-dev', 'libfreetype6-dev', 'liblcms1-dev', 'mysql-client', 'libmysqlclient-dev']
     general_debs_needed = ['equivs', 'openssh-client', 'dpkg-dev', 'chromium-browser', 'chromium-chromedriver']
 
     print('')

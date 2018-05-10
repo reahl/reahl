@@ -1,9 +1,9 @@
+' Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include ../base.iuml
 
 title Files - FileUploadInput
-
-hide members
-hide circle
 
 note "Note that the FileFields are always \nsent a list of UploadedFile objects.\nIn some scenarios, UploadedFiles are \nmade from PersistedFiles, and in other instances \nthey are made from FieldStorages. \n\nDoing this is the responsibility of the Widget." as N1
 

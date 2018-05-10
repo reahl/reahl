@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -34,11 +34,11 @@ import babel.dates
 from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
 import collections
 
-_ = Translator('reahl-component')
+_ = Catalogue('reahl-component')
 
 class ConstraintNotFound(Exception):
     pass
@@ -764,7 +764,7 @@ class Field(object):
            a ValidationConstraint of the class given as `validation_constraint_class`.
 
         .. versionchanged:: 4.0
-           Changed name to be consistent with conventions for with_ methods.
+           Changed name to be consistent with conventions for `with_` methods.
         """
         new_version = self.copy()
         new_version.remove_validation_constraint(validation_constraint_class)
@@ -775,7 +775,7 @@ class Field(object):
            the ValidationConstraint given as `validation_constraint`.
 
         .. versionchanged:: 4.0
-           Changed name to be consistent with conventions for with_ methods.
+           Changed name to be consistent with conventions for `with_` methods.
         """
         new_version = self.copy()
         new_version.add_validation_constraint(validation_constraint)

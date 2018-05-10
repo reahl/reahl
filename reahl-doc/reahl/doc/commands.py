@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -136,15 +136,9 @@ class Example(object):
 
     @property
     def checkout_changes(self):    
-        if self.name == 'tutorial.i18nexample':
+        if self.name == 'tutorial.i18nexamplebootstrap':
             changes = CheckoutChanges(self)
-            changes.add_replace_text('Translator(u\'reahl-doc\')', 'Translator(u\'i18nexample\')')
-            changes.add_file_rename('reahl-doc.po', 'i18nexample.po')
-            changes.add_file_rename('reahl-doc', 'i18nexample')
-            return changes
-        elif self.name == 'tutorial.i18nexamplebootstrap':
-            changes = CheckoutChanges(self)
-            changes.add_replace_text('Translator(u\'reahl-doc\')', 'Translator(u\'i18nexamplebootstrap\')')
+            changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'i18nexamplebootstrap\')')
             changes.add_file_rename('reahl-doc.po', 'i18nexamplebootstrap.po')
             changes.add_file_rename('reahl-doc', 'i18nexamplebootstrap')
             return changes        

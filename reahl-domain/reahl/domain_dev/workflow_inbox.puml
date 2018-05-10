@@ -1,9 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include base.iuml
 
 title Workflow Inbox
-
-hide members
-hide circle
 
 Inbox "*" --right- "*" Queue
 Queue "1" --right-- "*" Task

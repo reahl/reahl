@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -31,14 +31,6 @@ from reahl.doc.examples.tutorial.hello.hello import HelloUI
 from reahl.doc.examples.tutorial.helloapache import helloapache
 from reahl.doc.examples.tutorial.hellonginx import hellonginx
 from reahl.doc.examples.tutorial.slots.slots import SlotsUI
-from reahl.doc.examples.features.tabbedpanel.tabbedpanel import TabbedPanelUI
-from reahl.doc.examples.features.carousel.carousel import CarouselUI
-from reahl.doc.examples.features.validation.validation import ValidationUI
-from reahl.doc.examples.features.layout.layout import LayoutUI
-from reahl.doc.examples.features.pageflow.pageflow import PageFlowUI
-from reahl.doc.examples.features.persistence.persistence import PersistenceUI
-from reahl.doc.examples.features.access.access import AccessUI
-from reahl.doc.examples.features.i18nexample.i18nexample import TranslatedUI
 
 from reahl.doc.examples.web.fileupload.fileupload import FileUploadUI, AttachedFile
 
@@ -110,38 +102,6 @@ class ExampleFixture(Fixture):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=hellonginx.HelloUI)
 
     @scenario
-    def tabbed_panel(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=TabbedPanelUI, enable_js=True)
-
-    @scenario
-    def carousel_panel(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=CarouselUI, enable_js=True)
-
-    @scenario
-    def validation(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=ValidationUI, enable_js=True)
-
-    @scenario
-    def layout(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=LayoutUI, enable_js=True)
-
-    @scenario
-    def pageflow(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=PageFlowUI, enable_js=True)
-
-    @scenario
-    def persistence(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=PersistenceUI, enable_js=True)
-
-    @scenario
-    def access_control(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=AccessUI, enable_js=True)
-
-    @scenario
-    def i18n(self):
-        self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=TranslatedUI, enable_js=True)
-
-    @scenario
     def basichtmlinputs(self):
         self.wsgi_app = self.web_fixture.new_wsgi_app(site_root=BasicHTMLInputsUI, enable_js=True)
 
@@ -186,154 +146,6 @@ class ExampleFixture(Fixture):
 def test_hit_home_page(web_fixture, example_fixture):
     example_fixture.start_example_app()
     web_fixture.driver_browser.open('/')
-
-
-@with_fixtures(WebFixture, ExampleFixture.tabbed_panel)
-def test_widgets_using_factories(web_fixture, tabbed_panel_scenario):
-    fixture = tabbed_panel_scenario
-    fixture.start_example_app()
-    web_fixture.driver_browser.open('/')
-    assert web_fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 1')
-    assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'A paragraph to give content to the first tab.')
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel1.png'))
-
-    web_fixture.driver_browser.click(XPath.link_with_text('Tab 2'))
-    assert web_fixture.driver_browser.wait_for(fixture.tab_is_active, 'Tab 2')
-    assert web_fixture.driver_browser.wait_for(fixture.tab_contents_equals, 'And another ...  to give content to the second tab.')
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('tabbedpanel2.png'))
-
-
-@with_fixtures(WebFixture, ExampleFixture.carousel_panel)
-def test_widgets(web_fixture, carousel_panel_scenario):
-    fixture = carousel_panel_scenario
-    fixture.start_example_app()
-    web_fixture.driver_browser.open('/')
-    assert web_fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a paragraph with text')
-    web_fixture.driver_browser.click(XPath.link_with_text('Next'))
-    assert web_fixture.driver_browser.wait_for(fixture.carousel_caption_equals, 'a different paragraph')
-
-
-@with_fixtures(WebFixture, ExampleFixture.validation)
-def test_validation(web_fixture, validation_scenario):
-    fixture = validation_scenario
-    
-    fixture.start_example_app()
-    web_fixture.driver_browser.open('/')
-    assert web_fixture.driver_browser.wait_for_not(fixture.error_is_visible) 
-    assert web_fixture.driver_browser.is_element_present('//input') 
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation1.png'))
-    
-    web_fixture.driver_browser.type('//input', 'johndoe')
-    web_fixture.driver_browser.press_tab()
-    assert web_fixture.driver_browser.wait_for(fixture.error_is_visible)
-    assert fixture.is_error_text('Email address should be a valid email address') 
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation2.png'))
-
-    web_fixture.driver_browser.type('//input', '')
-    web_fixture.driver_browser.press_tab()
-    assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
-    assert fixture.is_error_text('Email address is required') 
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation3.png'))
-
-    web_fixture.driver_browser.type('//input', 'johndoe@some.org')
-    web_fixture.driver_browser.press_tab()
-    assert web_fixture.driver_browser.wait_for_not(fixture.error_is_visible) 
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('validation4.png'))
-
-
-@with_fixtures(WebFixture, ExampleFixture.layout)
-def test_layout(web_fixture, layout_scenario):
-    fixture = layout_scenario
-
-    fixture.start_example_app()
-    web_fixture.driver_browser.open('/')
-    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe')
-    web_fixture.driver_browser.press_tab()
-    assert web_fixture.driver_browser.wait_for(fixture.error_is_visible) 
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('layout.png'))
-
-
-@with_fixtures(WebFixture, ExampleFixture.pageflow)
-def test_pageflow(web_fixture, pageflow_scenario):
-    fixture = pageflow_scenario
-    
-    fixture.start_example_app()
-    web_fixture.driver_browser.open('/')
-    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
-    web_fixture.driver_browser.type(XPath.input_labelled('Comment'), '')
-    with SystemOutStub() as output:
-        web_fixture.driver_browser.click(XPath.button_labelled('Submit'))
-        
-        assert output.captured_output == 'johndoe@some.org submitted a comment:\nNone\n' 
-        assert web_fixture.driver_browser.current_url.path == '/none' 
-        output.capture_console_screenshot(fixture.new_screenshot_path('pageflow1.txt'))
-
-        web_fixture.driver_browser.open('/')
-        web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
-        web_fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
-        with SystemOutStub() as output:
-            web_fixture.driver_browser.click(XPath.button_labelled('Submit'))
-
-        assert output.captured_output == 'johndoe@some.org submitted a comment:\nsome comment text\n' 
-        assert web_fixture.driver_browser.current_url.path == '/thanks' 
-        output.capture_console_screenshot(fixture.new_screenshot_path('pageflow2.txt'))
-
-
-@with_fixtures(WebFixture, ExampleFixture.persistence)
-def test_persistence(web_fixture, persistence_scenario):
-    fixture = persistence_scenario
-
-    fixture.start_example_app()
-    web_fixture.driver_browser.open('/')
-
-    assert not web_fixture.driver_browser.is_element_present('//h1') 
-    assert web_fixture.driver_browser.is_element_present('//form') 
-
-    web_fixture.driver_browser.type(XPath.input_labelled('Email address'), 'johndoe@some.org')
-    web_fixture.driver_browser.type(XPath.input_labelled('Comment'), 'some comment text')
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('persistence1.png'))
-
-    web_fixture.driver_browser.click(XPath.button_labelled('Submit'))
-
-    assert web_fixture.driver_browser.is_element_present('//form') 
-    assert web_fixture.driver_browser.is_element_present('//form/following-sibling::div/p') 
-    comment_text = web_fixture.driver_browser.get_text('//form/following-sibling::div/p')
-    assert comment_text == 'By johndoe@some.org: some comment text' 
-
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('persistence2.png'))
-
-
-@with_fixtures(WebFixture, ExampleFixture.access_control)
-def test_access(web_fixture, access_control_scenario):
-    fixture = access_control_scenario
-    fixture.start_example_app()
-    web_fixture.driver_browser.open('/')
-    assert web_fixture.driver_browser.is_element_present(XPath.input_labelled('Greyed out') )
-    assert not web_fixture.driver_browser.is_editable(XPath.input_labelled('Greyed out')) 
-    assert web_fixture.driver_browser.is_element_present(XPath.button_labelled('Greyed out button')) 
-    assert not web_fixture.driver_browser.is_editable(XPath.button_labelled('Greyed out button')) 
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('access.png'))
-
-    from reahl.doc.examples.features.access.access import Comment
-    from reahl.component.exceptions import AccessRestricted
-    comment = Comment()
-    with expected(AccessRestricted):
-        comment.do_something()
-
-
-@with_fixtures(WebFixture, ExampleFixture.i18n)
-def test_i18n(web_fixture, i18n_scenario):
-    fixture = i18n_scenario
-    fixture.start_example_app()
-    web_fixture.driver_browser.open('/some_page')
-    assert fixture.get_text_in_p() == 'This is a translated string. The current URL is "/some_page".' 
-    assert web_fixture.driver_browser.title == 'Translated example' 
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n1.png'))
-
-    web_fixture.driver_browser.click(XPath.link_with_text('Afrikaans'))
-    assert fixture.get_text_in_p() == 'Hierdie is \'n vertaalde string. Die huidige URL is "/af/some_page".' 
-    assert web_fixture.driver_browser.title == 'Vertaalde voorbeeld' 
-    web_fixture.driver_browser.capture_cropped_screenshot(fixture.new_screenshot_path('i18n2.png'))
 
 
 @with_fixtures(WebFixture, ExampleFixture.basichtmlwidgets)

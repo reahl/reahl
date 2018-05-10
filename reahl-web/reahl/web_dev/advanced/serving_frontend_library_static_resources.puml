@@ -1,9 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include ../base.iuml
 
 title Serving frontend library static resources
-
-hide members
-hide circle
 
 WebConfig -down- LibraryIndex : frontend_libraries >
 LibraryIndex -down- "*" Library

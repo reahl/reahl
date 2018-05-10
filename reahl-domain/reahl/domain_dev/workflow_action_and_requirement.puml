@@ -1,9 +1,13 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include base.iuml
+show members
+skinparam class {
+ BorderColor Black
+}
 
 title Workflow Action and Requirement
-
-'hide members
-hide circle
 
 class DeferredAction{
 	deadline

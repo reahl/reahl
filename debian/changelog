@@ -1,4 +1,4 @@
-python-reahl (4.0.0a1) unstable; urgency=low
+python-reahl (4.0.0) unstable; urgency=low
 
  * Removed all previously deprecated functionality.
  * Removed css_id kwarg to Nav, Menu.
@@ -14,7 +14,6 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Upgraded HTML5shiv to 3.7.3.
  * Added Popper 1.12.9.
  * Removed dependency on jquery-metadata plugin, and removed the plugin.
- * Upgraded version of BeautifulSoup to 4.4 for python 3.5 compatibility.
  * Removed the file_finder for bzr, roll your own instead: http://code.activestate.com/recipes/577910-bazaar-as-a-setuptools-file-finder/.
  * Removed devpitest and devpipush commands.
  * Changed DatabaseControl descendents and related commands to allow explicitly specifying the superuser to log in as when performing privileged actions.
@@ -32,6 +31,8 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Added support for not showing gutters between ColumnLayout columns.
  * Added support for alignment and justification of ColumnLayout columns.
  * Changed how RadioButtonInput and CheckboxInput are laid out as inline/not.
+ * Renamed as_with methods to with_ for consistency.
+ * Fixed the handling of MultiChoice fields upon a DomainException.
  * Added CheckboxSelectInput and renamed RadioButtonInput to RadioButtonSelectInput for consistency.
  * Changed DriverBrowser.press_tab to operate on the element with focus.
  * Upgraded BS4(BeautifulSoup) version to 4.6.
@@ -42,11 +43,15 @@ python-reahl (4.0.0a1) unstable; urgency=low
  * Changed shelltools to use argparse instead of optparse.
  * Changed XMLReader to use a passed list of classes instead of discovering them from an entrypoint.
  * Moved prodshell commands into a new component reahl-commands.
+ * Renamed Translator to Catalogue.
+ * Renamed ReahlApplication to ReahlWSGIApplication.
  * Upgraded sqlalchemy to 1.2.0
  * Upgraded alembic to 0.9.6
+ * Upgraded twine to 1.11
+ * Upgraded lxml to 4.2
  * Added min_length and max_length kwargs for convenience to Field.
 
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 16 Jan 2018 08:47:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 10 May 2018 10:04:00 +0200
 
 
 python-reahl (3.2.0) unstable; urgency=low

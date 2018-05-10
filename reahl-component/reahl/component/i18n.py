@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -25,12 +25,12 @@ from reahl.component.context import ExecutionContext
 from reahl.component.config import ReahlSystemConfig
 
 
-class SystemWideTranslator(object):
+class SystemWideCatalogue(object):
     instance = None
     @classmethod
     def get_instance(cls):
         if not cls.instance:
-            cls.instance = SystemWideTranslator()
+            cls.instance = SystemWideCatalogue()
         return cls.instance
 
     def __init__(self):
@@ -63,12 +63,17 @@ class SystemWideTranslator(object):
         return self.get_translation_for(self.current_locale, domain).ungettext(message_singular, message_plural, n)
 
 
-class Translator(object):
+class Catalogue(object):
     """Create an instance of this class at the top of your module, in module scope and assign it to the name `_` for
        use in translating literal strings to the language of the current locale.
+
+       .. note:: Don't ever `.call` an instance of Catalogue in module scope. It only works once the locale is known.
        
-       :param domain: A name identifying which translation catalogue use with this Translator. Always set this
-                      to the name of the component where the code resides where this Translator instance is instantiated.
+       :param domain: A name identifying which translation catalogue use with this Catalogue. Always set this
+                      to the name of the component where the code resides where this Catalogue instance is instantiated.
+
+       .. versionchanged:: 4.0
+          Renamed to Catalogue (previously Translator)
     """
     def __init__(self, domain):
         self.domain = domain
@@ -81,16 +86,16 @@ class Translator(object):
     def gettext(self, message):
         """Returns a six.text_type literal containing a translation of `message` to the correct language according to the current locale.
         """
-        return SystemWideTranslator.get_instance().dgettext(self.domain, message)
+        return SystemWideCatalogue.get_instance().dgettext(self.domain, message)
 
     def ngettext(self, message_singular, message_plural, n):
         """Returns a six.text_type literal containing a translation of the given messages in the correct plural (or singular) 
            form of the target language for `n` items.
         """
-        return SystemWideTranslator.get_instance().dngettext(self.domain, message_singular, message_plural, n)
+        return SystemWideCatalogue.get_instance().dngettext(self.domain, message_singular, message_plural, n)
 
     @property
     def current_locale(self):
         """Returns a string identifying the current locale to be used for the interface."""
-        return SystemWideTranslator.get_instance().current_locale
+        return SystemWideCatalogue.get_instance().current_locale
 

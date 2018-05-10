@@ -1,4 +1,4 @@
-# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -28,7 +28,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import six
 
 from reahl.component.exceptions import arg_checks, IsInstance
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import BooleanField, MultiChoiceField, Choice, Field
 
 import reahl.web.ui
@@ -37,7 +37,7 @@ from reahl.web.bootstrap.ui import Div, P, WrappedInput, A, TextNode, Span, Lege
 from reahl.web.bootstrap.grid import ColumnLayout
 
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class Form(reahl.web.ui.Form):
@@ -207,7 +207,7 @@ class ButtonInput(reahl.web.ui.ButtonInput):
         super(ButtonInput, self).__init__(form, event)
         self.append_class('btn')
 
-Button = ButtonInput 
+Button = ButtonInput
 
 
 class StaticData(reahl.web.ui.Input):
@@ -339,13 +339,16 @@ class FormLayout(reahl.web.fw.Layout):
        certain way.
 
        This basic FormLayout positions Labels above added Inputs and allow for an
-       optional helpful text message with each input.
+       optional helpful text message with each input. Validation error messages are
+       displayed underneath invalid Inputs.
 
        Different kinds of FormLayouts allow different kinds of arrangements.
 
-       Different FormLayouts can be used on different sub-parts of a Form by
-       composing a Form of Divs of FieldSets that each use a different
-       FormLayout.
+       A FormLayout need not be applied directly to a Form itself. It
+       can also be applied to, say, a Div (or FieldSet) which is a child of a
+       Form. This makes the arrangement quite flexible, since you
+       could have different parts of a Form that are laid out using
+       different FormLayouts or even by different types of FormLayout.
     """
     def create_form_group(self, html_input):
         if isinstance(html_input, RadioButtonSelectInput):

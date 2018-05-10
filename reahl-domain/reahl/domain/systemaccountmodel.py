@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -33,15 +33,14 @@ from reahl.component.exceptions import DomainException, ProgrammerError
 
 from reahl.mailutil.mail import Mailer, MailMessage
 from reahl.component.config import Configuration, ConfigSetting
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import EmailField, PasswordField, BooleanField, EqualToConstraint, \
                                             Field, Event, exposed, Action
 from reahl.component.context import ExecutionContext
 from reahl.domain.partymodel import Party
 from reahl.domain.workflowmodel import DeferredAction, Requirement
 
-_ = Translator('reahl-domain')
-
+_ = Catalogue('reahl-domain')
 
 class SystemAccountConfig(Configuration):
     filename = 'systemaccountmodel.config.py'
@@ -80,7 +79,7 @@ class SystemAccount(Base):
     registration_date = Column(DateTime)  #: The date when this account was first registered.
     account_enabled = Column(Boolean, nullable=False, default=False) #: Whether this account is enabled or not
 
-    failed_logins = Column(Integer, nullable=False, default=0) #: The number of failed loin attempts using this account.
+    failed_logins = Column(Integer, nullable=False, default=0) #: The number of failed login attempts using this account.
 
     @property
     def registration_activated(self):
@@ -122,8 +121,8 @@ class EmailAndPasswordSystemAccount(SystemAccount):
     __mapper_args__ = {'polymorphic_identity': 'emailandpasswordsystemaccount'}
     id = Column(Integer, ForeignKey(SystemAccount.id, ondelete='CASCADE'), primary_key=True)
 
-    password_hash = Column(Unicode(1024), nullable=False)
-    email = Column(Unicode(254), nullable=False, unique=True, index=True)
+    password_hash = Column(Unicode(1024), nullable=False)  #: The hashed password
+    email = Column(Unicode(254), nullable=False, unique=True, index=True) #: The email address of this account
 
     def __init__(self, **kwargs):
         super(EmailAndPasswordSystemAccount, self).__init__(**kwargs)

@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.web.fw import UserInterface, IdentityDictionary, Bookmark
 from reahl.web.ui import HTML5Page
 from reahl.webdev.tools import Browser
@@ -31,7 +31,7 @@ from reahl.web_dev.fixtures import WebFixture
 def test_i18n_urls(web_fixture):
     """The current locale is determined by reading the first segment of the path. If the locale is not present in the
     path, web.default_url_locale is used."""
-    _ = Translator('reahl-web')
+    _ = Catalogue('reahl-web')
 
     class I18nUI(UserInterface):
         def assemble(self):

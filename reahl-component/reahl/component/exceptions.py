@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -24,10 +24,10 @@ import functools
 import wrapt
 import inspect
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 import collections
 
-_ = Translator('reahl-component')
+_ = Catalogue('reahl-component')
 
 class DomainException(Exception):
     """Any exception indicating an application-specific error condition that 

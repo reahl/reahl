@@ -22,7 +22,18 @@ Container
 .. autoclass:: Container
    :members:
 
+ColumnLayout
+""""""""""""
 
+.. autoclass:: ColumnLayout
+   :members:
+
+ColumnOptions
+"""""""""""""
+
+.. autoclass:: ColumnOptions
+   :members:
+   
 ResponsiveSize
 """"""""""""""
 
@@ -30,8 +41,14 @@ ResponsiveSize
    :members:
 
 
-ColumnLayout
-""""""""""""
+ContentJustification
+""""""""""""""""""""
 
-.. autoclass:: ColumnLayout
+.. autoclass:: ContentJustification
+   :members:
+
+Alignment
+"""""""""
+
+.. autoclass:: Alignment
    :members:

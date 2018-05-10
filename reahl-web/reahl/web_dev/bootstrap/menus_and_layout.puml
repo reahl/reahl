@@ -1,10 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include ../base.iuml
 
 title Menus and Layout
-
-hide members
-hide circle
-
 
 class A #grey
 class Layout #grey

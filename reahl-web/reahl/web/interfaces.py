@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -26,7 +26,7 @@ from abc import ABCMeta, abstractmethod
 
 @six.add_metaclass(ABCMeta)
 class UserSessionProtocol(object):
-    """A UserSession represents a potentially lengthy interaction of a particular the user with the system."""
+    """A UserSession represents a potentially lengthy interaction of a particular user with the system."""
 
     @classmethod
     @abstractmethod

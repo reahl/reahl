@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 #    This file is part of Reahl.
 #
@@ -23,7 +23,7 @@ import os.path
 import logging
 import subprocess
 import os
-import distutils
+import distutils.spawn
 import collections
 import argparse 
 import shlex
@@ -71,6 +71,8 @@ class Executable(object):
         return self.execute(subprocess.check_call, commandline_arguments, *args, **kwargs)
     def Popen(self, commandline_arguments, *args, **kwargs):
         return self.execute(subprocess.Popen, commandline_arguments, *args, **kwargs)
+    def check_output(self, commandline_arguments, *args, **kwargs):
+        return self.execute(subprocess.check_output, commandline_arguments, *args, **kwargs)
 
 
 class CommandNotFound(Exception):

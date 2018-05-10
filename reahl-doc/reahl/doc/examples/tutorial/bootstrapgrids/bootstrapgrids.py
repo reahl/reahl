@@ -14,18 +14,24 @@ class GridBasicsPage(HTML5Page):
 
         self.body.use_layout(Container())
 
+        self.add_four()
         self.add_twelve()
-        self.add_two()
 
-    def add_two(self):
-        layout = ColumnLayout(ColumnOptions('left', ResponsiveSize(md=4)),
-                              ColumnOptions('right', ResponsiveSize(md=8)))
+    def add_four(self):
+        layout = ColumnLayout(ColumnOptions('first', ResponsiveSize(md=6)),
+                              ColumnOptions('second', ResponsiveSize(md=6)),
+                              ColumnOptions('third', ResponsiveSize(md=6)),
+                              ColumnOptions('fourth', ResponsiveSize(md=6)))
 
         div = Div(self.view).use_layout(layout)
         self.body.add_child(div)
 
-        div.layout.columns['left'].add_child(P(self.view, text='4/12ths on md and larger'))
-        div.layout.columns['right'].add_child(P(self.view, text='8/12ths on md and larger'))
+        message = '6/12ths on md and larger, else defaults to 12/12ths'
+        div.layout.columns['first'].add_child(P(self.view, text=message))
+        div.layout.columns['second'].add_child(P(self.view, text=message))
+        div.layout.columns['third'].add_child(P(self.view, text=message))
+        div.layout.columns['fourth'].add_child(P(self.view, text=message))
+
 
     def add_twelve(self):
         div = Div(self.view).use_layout(ColumnLayout())
@@ -39,10 +45,10 @@ class GridBasicsPage(HTML5Page):
 class PageLayoutPage(HTML5Page):
     def __init__(self, view):
         super(PageLayoutPage, self).__init__(view)
-
+        self.body.use_layout(Container())
         column_layout = ColumnLayout(ColumnOptions('left', ResponsiveSize(md=4)),
                                      ColumnOptions('right', ResponsiveSize(md=8)))
-        self.use_layout(PageLayout(document_layout=Container(), contents_layout=column_layout))
+        self.use_layout(PageLayout(contents_layout=column_layout))
 
         self.layout.header.add_child(P(view, text='The header'))
         self.layout.footer.add_child(P(view, text='The footer'))

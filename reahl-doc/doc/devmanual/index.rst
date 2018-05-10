@@ -4,14 +4,14 @@ Documentation for developers
 ============================
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    Reahl source code <sourcecode>
    Development environment <devenv>
    Coding and design conventions <conventions>
-   Testing infrastructure <testing> ??
+   testing
 
-..   How to contribute <contributing>
-     Understanding Reahl code <design>
-     Continuous integration and release process <ciprocesses>
-     Developing custom Widgets <widgetdevelopment>
+   ownwidget
+   dependencyinjection
+
+

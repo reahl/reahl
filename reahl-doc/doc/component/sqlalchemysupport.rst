@@ -16,6 +16,12 @@ For using SqlAlchemy with Reahl
 .. autoattribute:: reahl.sqlalchemysupport.sqlalchemysupport.metadata
 
 
+Sessions
+""""""""
+           
+.. autofunction:: reahl.sqlalchemysupport.sqlalchemysupport.session_scoped
+
+
 Names of database objects
 """""""""""""""""""""""""
 

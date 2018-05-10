@@ -14,11 +14,11 @@
     <egg name="reahl-stubble"/> 
     <thirdpartyegg name="six"/>
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/>
-    <thirdpartyegg name="twine" minversion="1.8.0" maxversion="1.8.9999"/>
+    <thirdpartyegg name="twine" minversion="1.11.0" maxversion="1.11.9999"/>
     <thirdpartyegg name="wheel" minversion="0.29.0" maxversion="0.29.9999"/> 
     <thirdpartyegg name="tzlocal" minversion="1.2.0" maxversion="1.2.9999"/> 
     <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/> 
-    <thirdpartyegg name="pip" minversion="9.0.0" maxversion="9.0.999"/> 
+    <thirdpartyegg name="pip" minversion="10.0.0" maxversion="10.0.999"/> 
   </deps>
 
   <deps purpose="test">
@@ -54,7 +54,8 @@
   <export entrypoint="reahl.component.commands" name="UpdateAptRepository" locator="reahl.dev.devshell:UpdateAptRepository"/>
   <export entrypoint="reahl.component.commands" name="ServeSMTP" locator="reahl.dev.mailtest:ServeSMTP"/>
 
-  
+  <export entrypoint="reahl.component.commands" name="UpdateCopyright" locator="reahl.dev.devshell:UpdateCopyright"/>
+
   <distpackage type="wheel">
     <packageindex repository="pypi"/>
   </distpackage>

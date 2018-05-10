@@ -1,4 +1,4 @@
-# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -20,14 +20,11 @@
 A user interface for logging in, registering, etc using
 :class:`~reahl.domain.systemaccountmodel.EmailAndPasswordSystemAccount`.
 
-This (still experimental) version is based on the new bootstrap-based
-Widgets (:mod:`reahl.web.bootstrap`).
-
 """
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import UserInterface
 from reahl.web.fw import Widget
@@ -40,7 +37,7 @@ from reahl.component.modelinterface import RemoteConstraint, Action, exposed
 from reahl.domain.systemaccountmodel import EmailAndPasswordSystemAccount, NotUniqueException,\
     AccountManagementInterface
 
-_ = Translator('reahl-domainui')
+_ = Catalogue('reahl-domainui')
 
 
 class TitledWidget(Widget):

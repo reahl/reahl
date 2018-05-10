@@ -1,0 +1,48 @@
+' Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
+@startuml
+
+skinparam class {
+ ArrowColor #007bff
+}
+skinparam node {
+ BackgroundColor #909066ff
+}
+skinparam component {
+ BackgroundColor #909066ff
+ BorderColor Black
+}
+
+node "Web framework" as WF{
+ component "reahl-web"
+ component "reahl-web-declarative"
+}
+
+node "End-user functionality" as EUF{
+component "reahl-domain"
+component "reahl-domain"
+component "reahl-mailutil"
+}
+
+node "Development tools" as DT{
+component "reahl-webdev"
+component "reahl-dev"
+component "reahl-stubble"
+component "reahl-tofu"
+component "reahl-workstation"
+}
+
+node "Component framework" as CF{
+component "reahl-commands"
+component "reahl-postgresqlsupport"
+component "reahl-mysqlsupport"
+component "reahl-component"
+component "reahl-sqlalchemysupport"
+component "reahl-sqlitesupport"
+}
+WF --> CF
+EUF --> CF
+DT --> CF
+
+@enduml
+

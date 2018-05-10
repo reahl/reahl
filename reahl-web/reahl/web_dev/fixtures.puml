@@ -1,8 +1,13 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include base.iuml
+show members
+skinparam class{
+ BorderColor Black
+}
 
 title Fixtures
-
-hide circle
 
 package reahl-dev{
 	class ContextAwareFixture {

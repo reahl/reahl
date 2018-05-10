@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -14,7 +14,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Utilities to manipulate underlying databases - sometimes via an ORM tool."""
+"""Utilities to manipulate underlying databases - sometimes via an ORM tool.
+
+.. uml:: ../../../reahl-component/reahl/component_dev/database_components.puml
+
+"""
 
 
 from __future__ import print_function, unicode_literals, absolute_import, division
@@ -211,6 +215,10 @@ class DatabaseControl(object):
     In order to support a new type of database, subclass this class
     and implement its methods appropriately for that backend.
 
+    Don't use this class directly, rather call the methods on the
+    :class:`SystemControl`. It delegates to the appropriate underlying
+    :class:`ORMControl` and/or :class:`DatabaseControl` as
+    appropriate.
     """
     control_matching_regex = r'^$'
     def __init__(self, url, config):
@@ -263,6 +271,11 @@ class ORMControl(object):
 
     In order to support a new type of ORM, subclass this class
     and implement its methods appropriately for that ORM.
+
+    Don't use this class directly, rather call the methods on the
+    :class:`SystemControl`. It delegates to the appropriate underlying
+    :class:`ORMControl` and/or :class:`DatabaseControl` as
+    appropriate.
 
     """
     def migrate_db(self, eggs_in_order):

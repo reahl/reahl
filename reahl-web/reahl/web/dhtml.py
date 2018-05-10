@@ -1,4 +1,4 @@
-# Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -29,12 +29,12 @@ from bs4 import BeautifulSoup, SoupStrainer
 
 from reahl.component.modelinterface import Field
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import UrlBoundView, FileOnDisk, UserInterface, FileView, CannotCreate
 from reahl.web.ui import LiteralHTML
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 class DJHTMLWidget(LiteralHTML):
     def __init__(self, view, html_content):
@@ -62,6 +62,9 @@ class DHTMLFile(object):
             for an_id in self.ids:
                 found_elements = soup.find_all(id=an_id)
                 if found_elements:
+                    number_of_ids = len(found_elements)
+                    if number_of_ids != 1:
+                        raise ProgrammerError('Expected to find one element with id "%s", but found %s' % (an_id, number_of_ids))
                     [element] = found_elements
                     self.elements[an_id] = element.decode_contents()
                 else:

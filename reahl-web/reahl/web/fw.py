@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -65,12 +65,12 @@ from reahl.component.exceptions import IsSubclass
 from reahl.component.exceptions import NotYetAvailable
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import StandaloneFieldIndex, FieldIndex, Field, ValidationConstraint,\
                                              Allowed, exposed, Event
 from reahl.component.py3compat import ascii_as_bytes_or_str
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class ValidationException(DomainException):
@@ -971,7 +971,9 @@ class Widget(object):
     
     @exposed
     def query_fields(self, fields):
-        """Override this method to parameterise this this Widget. The Widget will find its arguments from the current
+        """query_fields(self, fields)
+
+           Override this method to parameterise this this Widget. The Widget will find its arguments from the current
            query string, using the names and validation details as given by the Field instances assigned to `fields`.
            
            The `@exposed query_fields` of a Widget is exactly like the `@exposed fields` used for input to a model object.
@@ -1013,7 +1015,9 @@ class Widget(object):
 
     @arg_checks(child=IsInstance('reahl.web.fw:Widget'))
     def add_child(self, child):
-        """Adds another Widget (`child`) as a child Widget of this one."""
+        """Adds another Widget (`child`) as a child Widget of this one. 
+        
+        :returns: the added child for convenience."""
         self.children.append(child)
         return child
         
@@ -1024,7 +1028,9 @@ class Widget(object):
         return child
 
     def add_children(self, children):
-        """Adds all Widgets in `children` children Widgets of this one."""
+        """Adds all Widgets in `children` children Widgets of this one. 
+
+        :returns: the list of added children for convenience."""
         for child in children:
             self.add_child(child)
         return children
@@ -1730,8 +1736,8 @@ class UrlBoundView(View):
         self.preconditions = []       
         self.slot_definitions = slot_definitions or {}
         self.detour = detour
-        self.read_check = read_check or self.allowed
-        self.write_check = write_check or self.allowed
+        self.read_check = read_check or self.allowed    #: The UrlBoundView will only be allowed to be viewed if this no-arg callable returns True.
+        self.write_check = write_check or self.allowed  #: The UrlBoundView will only be allowed to receive user input if this no-arg callable returns True.
         self.cacheable = cacheable
         self.page_factory = page_factory
         self.assemble(**view_arguments)
@@ -2570,7 +2576,11 @@ class IdentityDictionary(object):
 
 class ReahlWSGIApplication(object):
     """A web application. This class should only ever be instantiated in a WSGI script, using the `from_directory`
-       method."""
+       method.
+
+       .. versionchanged:: 4.0
+          Renamed from ReahlApplication to ReahlWSGIApplication
+    """
 
     @classmethod
     def from_directory(cls, directory):

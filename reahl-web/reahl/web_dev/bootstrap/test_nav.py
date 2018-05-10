@@ -1,4 +1,4 @@
-# Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -25,7 +25,7 @@ from reahl.tofu.pytestsupport import with_fixtures
 from reahl.webdev.tools import WidgetTester, Browser, XPath
 
 from reahl.component.exceptions import ProgrammerError
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.web.fw import Bookmark, Url
 from reahl.web.bootstrap.ui import A, Div, P, H
 from reahl.web.bootstrap.forms import Form
@@ -33,7 +33,7 @@ from reahl.web.bootstrap.navs import Menu, Nav, PillLayout, TabLayout, DropdownM
 
 from reahl.web_dev.fixtures import WebFixture
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 @with_fixtures(WebFixture)

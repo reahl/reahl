@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: reahl-domain 4.0.0a1\n"
+"Project-Id-Version: reahl-domain 4.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-02-15 10:13+0000\n"
+"POT-Creation-Date: 2018-05-10 08:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,115 +18,115 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/domain/systemaccountmodel.py:291
+#: reahl/domain/systemaccountmodel.py:303
 msgid "Email"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:292
+#: reahl/domain/systemaccountmodel.py:304
 msgid "New email"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:293
+#: reahl/domain/systemaccountmodel.py:305
 msgid "Password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:294
+#: reahl/domain/systemaccountmodel.py:306
 msgid "Remember me?"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:295
+#: reahl/domain/systemaccountmodel.py:307
 msgid "Secret key"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:296
+#: reahl/domain/systemaccountmodel.py:308
 msgid "Re-type password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:296
+#: reahl/domain/systemaccountmodel.py:308
 msgid "Please type your password again."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:298
+#: reahl/domain/systemaccountmodel.py:310
 msgid "Please accept the terms of service"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:299
+#: reahl/domain/systemaccountmodel.py:311
 msgid "I accept the terms of service"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:303
+#: reahl/domain/systemaccountmodel.py:315
 msgid "Verify"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:304
+#: reahl/domain/systemaccountmodel.py:316
 msgid "Register"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:305
+#: reahl/domain/systemaccountmodel.py:317
 msgid "Change email address"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:306
+#: reahl/domain/systemaccountmodel.py:318
 msgid "Investigate"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:307
+#: reahl/domain/systemaccountmodel.py:319
 msgid "Set new password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:308
+#: reahl/domain/systemaccountmodel.py:320
 msgid "Reset password"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:309
+#: reahl/domain/systemaccountmodel.py:321
 msgid "Log in"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:310
+#: reahl/domain/systemaccountmodel.py:322
 msgid "Send"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:311
+#: reahl/domain/systemaccountmodel.py:323
 msgid "Log out"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:365
+#: reahl/domain/systemaccountmodel.py:377
 msgid "Passwords do not match"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:371
+#: reahl/domain/systemaccountmodel.py:383
 msgid "Invalid login credentials"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:377
+#: reahl/domain/systemaccountmodel.py:389
 msgid "The secret key supplied is invalid."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:383
+#: reahl/domain/systemaccountmodel.py:395
 msgid "The email address supplied is invalid."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:389
+#: reahl/domain/systemaccountmodel.py:401
 msgid "Could not find an account matching the supplied email address."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:396
+#: reahl/domain/systemaccountmodel.py:408
 msgid "The email address supplied is not unique."
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:618
+#: reahl/domain/systemaccountmodel.py:630
 msgid "Unknown status"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:625
+#: reahl/domain/systemaccountmodel.py:637
 msgid "Please verify your account before logging in"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:630
+#: reahl/domain/systemaccountmodel.py:642
 msgid "Account is locked: too many failed attempts"
 msgstr ""
 
-#: reahl/domain/systemaccountmodel.py:635
+#: reahl/domain/systemaccountmodel.py:647
 msgid "Account is active"
 msgstr ""
 

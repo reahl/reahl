@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -1002,6 +1002,13 @@ class HardcodedMetadata(ProjectMetadata):
     def version(self):
         return Version(self.info['version'].contents)
 
+    @property
+    def project_name(self):
+        try:
+            return self.info['project_name'].contents
+        except KeyError:
+            return super(HardcodedMetadata, self).project_name
+
     def get_long_description_for(self, project):
         return self.info['long_description'].contents
 
@@ -1023,7 +1030,7 @@ class HardcodedMetadata(ProjectMetadata):
         return self.info_completed()
 
     def info_completed(self):
-        expected_info = {'url', 'version', 'description', 'long_description', 'maintainer_name', 'maintainer_email'}
+        expected_info = {'project_name', 'url', 'version', 'description', 'long_description', 'maintainer_name', 'maintainer_email'}
         completed_info = set(self.info.keys())
         return expected_info == completed_info
 
@@ -1739,8 +1746,9 @@ class EggProject(Project):
             setup_file.write('class InstallTestDependencies(Command):\n')
             setup_file.write('    user_options = []\n')
             setup_file.write('    def run(self):\n')
-            setup_file.write('        import pip\n')
-            setup_file.write('        if self.distribution.tests_require: pip.main(["install", "-q"]+self.distribution.tests_require)\n')
+            setup_file.write('        import sys\n')
+            setup_file.write('        import subprocess\n')
+            setup_file.write('        if self.distribution.tests_require: subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"]+self.distribution.tests_require)\n')
             setup_file.write('\n')
             setup_file.write('    def initialize_options(self):\n')
             setup_file.write('        pass\n')
@@ -1906,9 +1914,9 @@ class EggProject(Project):
         except ValueError:
             raise InvalidLocaleString(locale)
         try:
-            source_egg = ReahlEgg(get_distribution(source_dist_spec))
+            source_egg = ReahlEgg(get_distribution(source_dist_spec or self.project_name))
         except DistributionNotFound:
-            raise EggNotFound(source_dist_spec)
+            raise EggNotFound(source_dist_spec or self.project_name)
         self.setup(['init_catalog',
                     '--input-file', source_egg.translation_pot_filename,
                     '--domain', source_egg.name,

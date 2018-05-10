@@ -1,4 +1,4 @@
-# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2014-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -185,9 +185,9 @@ class PagedTable(PagedPanel):
             columns_with_sort_controls.append(column.with_overridden_heading_widget(make_heading_partial))
 
         self.table = self.add_child(Table(view, caption_text=caption_text, summary=summary))
+        self.table.with_data(columns_with_sort_controls, self.current_contents)
         if table_layout:
             self.table.use_layout(table_layout)
-        self.table.with_data(columns_with_sort_controls, self.current_contents)
 
     def create_sorter_link(self, column_number, heading_widget):
         show_control = (column_number == self.page_index.sort_column_number)

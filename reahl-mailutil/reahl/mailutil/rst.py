@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013, 2014, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -29,21 +29,24 @@ class RestructuredText(object):
     def __init__(self, rst_text):
         self.rst_text = rst_text
         
-    def as_HTML_fragment(self, header_start=3, report_level=6, halt_level=4):
+    def as_HTML_fragment(self, header_start=1, report_level=6, halt_level=4):
         """Returns this RestructuredText formatted as an HTML fragment.
         
            :param header_start: The n of the top-level <hn> for top-level heading in this text.
            :param report_level: Reports ReST error messages at or higher than this level.
            :param halt_level:   Error messages above this level result in exceptions.
+
+           .. versionadded:: 4.0
         """
         settings = {'initial_header_level': header_start,
+                    'doctitle_xform': False,
+                    'output_encoding': 'unicode',
+                    'input_encoding': 'unicode',
                     'report_level': report_level,
                     'halt_level': halt_level}
 
-        output, pub = docutils.core.publish_programmatically(
+        parts = docutils.core.publish_parts(
             source_class=docutils.io.StringInput, source=self.rst_text, source_path=None,
-            destination_class=docutils.io.StringOutput,
-            destination=None, destination_path=None,
             reader=None, reader_name='standalone',
             parser=None, parser_name='restructuredtext',
             writer=None, writer_name='html',
@@ -51,6 +54,6 @@ class RestructuredText(object):
             settings_overrides=settings,
             config_section=None,
             enable_exit_status=None)
-        return pub.writer.parts['fragment']
+        return parts['fragment']
 
 

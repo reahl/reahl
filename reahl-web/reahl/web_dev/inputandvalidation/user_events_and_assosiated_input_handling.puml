@@ -1,9 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include ../base.iuml
 
 title User events and associated input handling
-
-hide members
-hide circle
 
 callable <<python>>
 attribute <<python>>

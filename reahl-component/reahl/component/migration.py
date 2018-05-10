@@ -1,4 +1,4 @@
-# Copyright 2013, 2014 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -99,7 +99,9 @@ class Migration(object):
        Never use code imported from your component in a Migration, since Migration code is kept around in
        future versions of a component and may be run to migrate a schema with different versions of the code in your component.
     """
+
     version = None
+
     @classmethod
     def is_applicable(cls, current_schema_version, new_version):
         if not cls.version:

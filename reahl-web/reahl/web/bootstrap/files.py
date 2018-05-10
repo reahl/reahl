@@ -1,4 +1,4 @@
-# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -26,7 +26,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import exposed, Action, Event, Field, UploadedFile
 from reahl.component.context import ExecutionContext
 import reahl.web.ui
@@ -35,7 +35,7 @@ from reahl.web.bootstrap.ui import Div, Span, Li, Ul
 from reahl.web.bootstrap.forms import Button, NestedForm, FormLayout, Label
 
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 class _UnstyledHTMLFileInput(reahl.web.ui.SimpleFileInput):

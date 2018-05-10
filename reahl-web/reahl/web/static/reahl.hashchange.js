@@ -1,4 +1,4 @@
-/* Copyright 2013, 2014, 2015 Reahl Software Services (Pty) Ltd. All rights reserved. */
+/* Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved. */
 /*
     This file is part of Reahl.
 
@@ -49,7 +49,7 @@ $.widget('reahl.hashchange', {
     triggerChange: function(allCurrentHashValues, changedRelevantHashValues) {
         var _this = this;
         var allNewHashValues = $.extend(true, {}, _this.options.previousHashValues, allCurrentHashValues);
-        var loading = _this.element.block({message: ''});
+        var loading = _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         $.ajax({url:     _this.options.url,
                 cache:   _this.options.cache,
                 data:    allNewHashValues,

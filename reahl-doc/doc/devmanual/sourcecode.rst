@@ -29,7 +29,7 @@ together. In the source code, it contains:
  - the metadata used to provide information about all the components
  - the current version of all components
 
-To make :ref:`our development environment <devenv>` manageable and
+To make :doc:`our development environment <devenv>` manageable and
 reproducible, the root directory contains a Vagrantfile and a few
 useful scripts in the `scripts/` subdirectory.
 
@@ -57,6 +57,7 @@ The package with code is named the same as the `<unique name>` part of the subdi
 
 The package with testing code is named the same as the one with production code, but with `_dev` appended.
 
+.. _making_sense:
 
 Making sense of code
 --------------------
@@ -67,10 +68,10 @@ Making sense of code
    plugins to our IDEs while editing code. These are installed outside
    of the Vagrant box.
 
-   We'd love to replace Freemind with something that graphically shows
-   the `_dev` directory structure, and each file or subdirectory in it
-   as a node in the presented outline. This way we won't duplicate
-   information.
+   We'd love to replace Freeplane with something that graphically
+   shows the `_dev` directory structure, and each file or subdirectory
+   in it as a node in the presented outline. This way we won't
+   duplicate information.
 
 We use tests and UML designs to serve as a summary of the requirements
 for a component. These are all located in the `_dev` package of a
@@ -78,18 +79,25 @@ component. In some cases there's also an outline of such requirements
 which serves as table of contents.
 
 Our table of contents is called `contents.mm` and `can be viewed using
-the Freemind mind mapping tool
-<http://freemind.sourceforge.net/wiki/index.php/Main_Page>`_. The
-structure of this outline should resemble the directory structure if
-the `_dev` package.
+the Freeplane mind mapping tool
+<https://sourceforge.net/projects/freeplane/>`_. The structure of this
+outline should resemble the directory structure if the `_dev` package.
 
-Each subdirectory or `test_*.py` file represent some topic. Inside
+Each subdirectory or `test_*.py` file represent some topic in the
+table of contents. Inside
 each test file there are test functions. Each test function has a
 docstring that explains something about that topic. The test expresses
 that "fact" in code and provides more detail.
+
+In fact, the docstrings of our tests are an attempt at explaining (in
+summarised fashion) everything a newcomer would need to know to
+understand the system. The code of the test itself provides an example
+or more detail about that fact. The table of contents give meaningful
+structure to this body of knowledge.
 
 There can also be `*.puml` files in the `_dev` package. Each one of
 these contains a UML diagram which elucidates some topic as well. The
 `*.puml` files `can be viewed graphically with any tool that supports
 Plantuml format <http://plantuml.com/>`_.
+
 

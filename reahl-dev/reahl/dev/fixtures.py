@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -140,7 +140,7 @@ class ReahlSystemFixture(ContextAwareFixture):
     ReahlSystemFixture does its work by using a
     :class:`ReahlSystemSessionFixture` behind the
     scenes. ReahlSystemFixture provides copies of most of the
-    session-lived stuff in the
+    session-scoped stuff in the
     :class:`ReahlSystemSessionFixture`. This allows you to "inherit"
     the configuration set up for the session by default, but also
     allows you to change the configuration and ExecutionContext for a

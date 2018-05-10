@@ -1,4 +1,4 @@
-# Copyright 2015, 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2015-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 # -*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -34,7 +34,7 @@ import six
 from functools import partial
 from abc import ABCMeta, abstractproperty, abstractmethod
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.modelinterface import exposed, IntegerField
 from reahl.component.decorators import memoized
 from reahl.web.fw import Bookmark
@@ -42,7 +42,7 @@ from reahl.web.ui import AccessRightAttributes, ActiveStateAttributes, HTMLWidge
 from reahl.web.bootstrap.ui import A, Span, Div
 from reahl.web.bootstrap.navs import Menu
 
-_ = Translator('reahl-web')
+_ = Catalogue('reahl-web')
 
 
 @six.add_metaclass(ABCMeta)

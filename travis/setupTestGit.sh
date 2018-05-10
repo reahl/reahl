@@ -5,7 +5,7 @@ git config --global user.name "$DEBFULLNAME"
 
 GIT_HOOKS=$(git rev-parse --git-dir)/hooks
 
-cat > $GIT_HOOKS/pre-commit <<EOF
+cat > $GIT_HOOKS/pre-commit <<"EOF"
 #!/bin/sh
 
 if [ "$USER" = "vagrant" ] 

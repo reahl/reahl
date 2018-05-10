@@ -1,11 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 
 @startuml
+!include ../base.iuml
 
 title Getting the current locale urlpath
-
-'hide members
-hide methods
-hide circle
 
 
 package reahl.component{

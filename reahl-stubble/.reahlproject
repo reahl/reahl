@@ -6,7 +6,7 @@
   <deps purpose="build">
     <thirdpartyegg name="setuptools-git" minversion="1.1" maxversion="1.1.999"/>
     <thirdpartyegg name="pytest-runner"/>
-    <thirdpartyegg name="pip" minversion="9.0.0" maxversion="9.0.999"/>
+    <thirdpartyegg name="pip" minversion="10.0.0" maxversion="10.0.999"/> 
   </deps>
 
   <deps purpose="run">

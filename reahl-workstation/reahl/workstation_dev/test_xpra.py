@@ -1,3 +1,19 @@
+# Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+#
+#    This file is part of Reahl.
+#
+#    Reahl is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation; version 3 of the License.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import sys
 import textwrap
 
@@ -46,14 +62,14 @@ class WhereFixture(Fixture):
         self.input_arguments = ['-V', 'somemachine']
         self.expected_executable = self.command_fixture.ssh_executable
         self.expected_commandline = ['somemachine', '-o', 'HostName=ahostname', '-o', 'Port=aport', '--', 'xpra']
-        self.expected_xpra_attach_commandline = ['ssh:somemachine:100', '--ssh="ssh -o HostName=ahostname -o Port=aport"']
+        self.expected_xpra_attach_commandline = ['ssh:somemachine:100', '--ssh=ssh -o HostName=ahostname -o Port=aport']
 
     @scenario
     def ssh(self):
         self.input_arguments = ['-s', 'auser@somemachine', '-p', 'aport']
         self.expected_executable = self.command_fixture.ssh_executable
         self.expected_commandline = ['auser@somemachine', '-p', 'aport', '-o', 'PasswordAuthentication=no', '-o', 'ServerAliveInterval=30', '--', 'xpra']
-        self.expected_xpra_attach_commandline = ['ssh:auser@somemachine:100', '--ssh="ssh -p aport -o PasswordAuthentication=no -o ServerAliveInterval=30"']
+        self.expected_xpra_attach_commandline = ['ssh:auser@somemachine:100', '--ssh=ssh -p aport -o PasswordAuthentication=no -o ServerAliveInterval=30']
 
 
 @with_fixtures(CommandFixture, WhereFixture)

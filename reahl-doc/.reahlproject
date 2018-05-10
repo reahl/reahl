@@ -18,6 +18,7 @@
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
+    <egg name="reahl-commands"/>
     <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
     <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
   </deps>
@@ -39,7 +40,6 @@
   </deps>
 
     <persisted>
-        <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
         <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>
@@ -50,12 +50,6 @@
         <class locator="reahl.doc.examples.tutorial.parameterised2.parameterised2:Address"/>
         <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:User"/>
         <class locator="reahl.doc.examples.tutorial.sessionscopebootstrap.sessionscopebootstrap:LoginSession"/>
-        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:AddressBook"/>
-        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:Collaborator"/>
-        <class locator="reahl.doc.examples.tutorial.access1bootstrap.access1bootstrap:Address"/>
-        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:AddressBook"/>
-        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:Collaborator"/>
-        <class locator="reahl.doc.examples.tutorial.access2bootstrap.access2bootstrap:Address"/>
         <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:AddressBook"/>
         <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Collaborator"/>
         <class locator="reahl.doc.examples.tutorial.accessbootstrap.accessbootstrap:Address"/>

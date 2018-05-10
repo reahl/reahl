@@ -5,9 +5,9 @@ Module reahl.component.i18n
 
 .. automodule:: reahl.component.i18n
 
-Translator
+Catalogue
 """"""""""
 
-.. autoclass:: Translator
+.. autoclass:: Catalogue
    :members:
    

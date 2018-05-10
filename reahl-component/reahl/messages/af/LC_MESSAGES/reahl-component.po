@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights
 # reserved.
 #
 # Afrikaans translations for reahl-component.
@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-component 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2018-02-15 10:13+0000\n"
+"POT-Creation-Date: 2018-05-10 08:29+0000\n"
 "PO-Revision-Date: 2012-04-13 08:38+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/component/exceptions.py:52
+#: reahl/component/exceptions.py:55
 #, python-format
 msgid "An error occurred: %s"
 msgstr "'n Fout het gebeur: %s"
@@ -376,10 +376,4 @@ msgid "thing"
 msgid_plural "things"
 msgstr[0] "ding"
 msgstr[1] "goeters"
-
-#~ msgid "MISSING!!"
-#~ msgstr "NIE GESPESIFISEER!!"
-
-#~ msgid "$label should be either \"%s\" or \"%s\""
-#~ msgstr "$label moet óf \"%s\" óf \"%s\" wees"
 

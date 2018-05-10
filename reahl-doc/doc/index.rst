@@ -16,14 +16,14 @@ Contents:
    :maxdepth: 1
 
    overview
-   features/index
-   tutorial/gettingstarted
+   tutorial/gettingstarted-develop
    whatchanged
    tutorial/index
    component/index
    web/index
    domain/index
    devtools/index
+   devmanual/index
 
 
 Indices and tables

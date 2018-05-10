@@ -1,9 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include ../base.iuml
 
 title Forms and exception handling
-
-hide members
-hide circle
 
 class UserInput <<Persisted>>
 class SessionData <<Persisted>>

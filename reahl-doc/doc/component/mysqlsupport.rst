@@ -6,9 +6,10 @@ Module reahl.mysqlsupport
 .. automodule:: reahl.mysqlsupport
 
 
-
 MysqlControl
 """"""""""""
 
 .. autoclass:: MysqlControl
    :members:
+   :show-inheritance:
+   :inherited-members:

@@ -3,20 +3,62 @@
 Tools for unit testing
 ======================
 
-Run fixtures
-^^^^^^^^^^^^
+Fixture overview
+^^^^^^^^^^^^^^^^
 
-CleanDatabase
-"""""""""""""
+.. uml:: ../../../reahl-web/reahl/web_dev/fixtures.puml
 
-.. autoclass:: reahl.dev.fixtures.CleanDatabase
+
+Basic fixtures
+^^^^^^^^^^^^^^
+
+.. automodule:: reahl.dev.fixtures
+
+ContextAwareFixture
+"""""""""""""""""""
+
+.. autoclass:: reahl.dev.fixtures.ContextAwareFixture
    :members:
 
-BrowserSetup
-""""""""""""
+ReahlSystemSessionFixture
+"""""""""""""""""""""""""
 
-.. autoclass:: reahl.webdev.fixtures.BrowserSetup
+.. autoclass:: reahl.dev.fixtures.ReahlSystemSessionFixture
    :members:
+
+ReahlSystemFixture
+""""""""""""""""""
+
+.. autoclass:: reahl.dev.fixtures.ReahlSystemFixture
+   :members:
+
+Managing a SqlAlchemy database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+SqlAlchemyFixture
+"""""""""""""""""
+
+.. autoclass:: reahl.sqlalchemysupport_dev.fixtures.SqlAlchemyFixture
+   :members:
+
+Web development fixtures
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+WebServerFixture
+""""""""""""""""
+
+.. autoclass:: reahl.web_dev.fixtures.WebServerFixture
+   :members:
+
+
+WebFixture
+""""""""""
+
+.. autoclass:: reahl.web_dev.fixtures.WebFixture
+   :members:
+
+
+
 
 Testing tools
 ^^^^^^^^^^^^^
@@ -35,6 +77,13 @@ Browser
    :members:
    :inherited-members:
 
+DriverBrowser
+"""""""""""""
+
+.. autoclass:: reahl.webdev.tools.DriverBrowser
+   :members:
+   :inherited-members:
+      
 XPath
 """""
 
@@ -47,10 +96,4 @@ ReahlWebServer
 .. autoclass:: reahl.webdev.webserver.ReahlWebServer
    :members:
 
-DriverBrowser
-"""""""""""""
-
-.. autoclass:: reahl.webdev.tools.DriverBrowser
-   :members:
-   :inherited-members:
 

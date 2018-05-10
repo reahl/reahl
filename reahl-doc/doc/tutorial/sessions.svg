@@ -11,10 +11,10 @@
    viewBox="0 0 338.59375 43.75"
    stroke-miterlimit="10"
    id="svg3058"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="0.91 r13725"
    width="100%"
    height="100%"
-   sodipodi:docname="session.svg"
+   sodipodi:docname="sessions.svg"
    style="fill:none;stroke:none">
   <metadata
      id="metadata3091">
@@ -39,15 +39,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1600"
-     inkscape:window-height="876"
+     inkscape:window-width="2048"
+     inkscape:window-height="1016"
      id="namedview3087"
      showgrid="false"
-     inkscape:zoom="1.0384615"
-     inkscape:cx="221.53241"
-     inkscape:cy="-84.4375"
-     inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:zoom="5.8744253"
+     inkscape:cx="235.51579"
+     inkscape:cy="-4.6720163"
+     inkscape:window-x="1600"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg3058"
      fit-margin-top="0"
@@ -68,10 +68,10 @@
      id="path3065"
      d="m -283.375,-222.8125 1239.8398,0 0,702.7192 -1239.8398,0 z" />
   <path
-     style="stroke:#000000;stroke-width:1.68495202;stroke-linecap:butt;stroke-linejoin:round"
+     style="stroke:#909066;stroke-width:1.39018655;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
      inkscape:connector-curvature="0"
      id="path3081"
-     d="m 142.45998,20.97339 175.94719,0" />
+     d="m 154.37604,20.97339 119.77148,0" />
   <text
      xml:space="preserve"
      style="font-size:13.30772972px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -84,7 +84,7 @@
        x="170.98666"
        y="15.556671">current_user</tspan></text>
   <rect
-     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:0.88463503;stroke-opacity:1"
+     style="fill:#ffffee;fill-opacity:1;stroke:#909066;stroke-width:1.4;stroke-opacity:1;stroke-miterlimit:10;stroke-dasharray:none"
      id="rect3120"
      width="64.055557"
      height="42.370369"
@@ -107,7 +107,7 @@
      height="42.370369"
      width="153.04291"
      id="rect3122"
-     style="fill:#c87137;fill-opacity:1;stroke:#000000;stroke-width:1.3673898;stroke-opacity:1" />
+     style="fill:#ffffee;fill-opacity:1;stroke:#909066;stroke-width:1.4;stroke-opacity:1;stroke-miterlimit:10;stroke-dasharray:none" />
   <text
      xml:space="preserve"
      style="font-size:21.09444237px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"

@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -29,7 +29,7 @@ from reahl.webdev.tools import DriverBrowser
 from reahl.webdeclarative.webdeclarative import UserSession, PersistedException, PersistedFile, UserInput
 
 from reahl.domain.systemaccountmodel import LoginSession
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.context import ExecutionContext
 from reahl.web.fw import ReahlWSGIApplication, UrlBoundView, UserInterface, Url, Widget
@@ -44,7 +44,7 @@ from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.domain_dev.fixtures import PartyAccountFixture
 
 
-_ = Translator('reahl-webdev')
+_ = Catalogue('reahl-webdev')
 
         
 @stubclass(ReahlWSGIApplication)
@@ -90,7 +90,12 @@ class FakeQUnit(Library):
       party_account_fixture=PartyAccountFixture,
       web_server_fixture=WebServerFixture)
 class WebFixture(Fixture):
+    """A function-scoped Fixture for use when testing a website via selenium 
+    or to test things as if you are inside the server.
 
+    For example, it supplies a View for when you want to instantiate a Widget.
+    """
+    
     @set_up
     def add_web_config(self):
         self.reahl_system_fixture.config.web = self.webconfig
@@ -101,10 +106,12 @@ class WebFixture(Fixture):
 
     @property
     def context(self):
+        """The current :class:`ExecutionContext`."""
         return self.reahl_system_fixture.context
 
     @property
     def config(self):
+        """The current :class:`Configuration`."""
         return self.reahl_system_fixture.config
     
     def new_webconfig(self):
@@ -119,6 +126,7 @@ class WebFixture(Fixture):
         return web
 
     def new_request(self, path=None, url_scheme=None):
+        """A :class:`Request` for testing."""
         request = Request.blank(path or '/', charset='utf8')
         request.environ['wsgi.url_scheme'] = url_scheme or 'http'
         if request.scheme == 'http':
@@ -130,6 +138,7 @@ class WebFixture(Fixture):
         return Request(request.environ, charset='utf8')
 
     def log_in(self, browser=None, session=None, system_account=None, stay_logged_in=False):
+        """Logs the user into the current webapp without having to navigate to a login page."""
         session = session or self.party_account_fixture.session
         browser = browser or self.driver_browser
         login_session = LoginSession.for_session(session)
@@ -144,23 +153,40 @@ class WebFixture(Fixture):
             browser.create_cookie(cookie)
 
     def new_driver_browser(self, driver=None):
+        """A :class:`DriverBrowser` instance for controlling the browser."""
         driver = driver or self.web_driver
         return DriverBrowser(driver)
 
     @property
     def chrome_driver(self):
+        """A selenium WebDriver instance for Chromium."""
         return self.web_server_fixture.chrome_driver
     @property
     def firefox_driver(self):
+        """A selenium WebDriver instance for Firefox."""
         return self.web_server_fixture.firefox_driver
     @property
     def web_driver(self):
+        """The default selenium WebDriver instance."""
         return self.web_server_fixture.web_driver
     @property
     def reahl_server(self):
+        """The running Reahl webserver.
+
+        To use it, you will have to call
+        :meth:`~reahl.webdev.webserver.ReahlWebServer.set_app` to
+        specify the WSGI application to serve.
+        """
         return self.web_server_fixture.reahl_server
 
     def new_wsgi_app(self, site_root=None, enable_js=False, config=None, child_factory=None):
+        """Creates a :class:`ReahlWSGIApplication` containing a :class:`UserInterface` with a single View.
+
+        :keyword site_root: an optional supplied :class:`UserInterface` for the webapp 
+        :keyword enable_js: If True, JS files will be served. The default is False, to save time.
+        :keyword config: A configuration to use.
+        :keyword child_factory: A Widget to include in the single-view site (only applicable if no site_root) is given.
+        """
         wsgi_app_class = ReahlWSGIApplicationStub
         if enable_js:
             wsgi_app_class = ReahlWSGIApplication
@@ -179,13 +205,16 @@ class WebFixture(Fixture):
 
     @property
     def current_location(self):
+        """The current :class:`Url` as displayed in the browser location bar."""
         return Url(self.driver_browser.get_location())
 
     def new_view(self):
+        """An :class:`UrlBoundView` to use when constructing :class:`Widget`\s for testing."""
         current_path = Url(ExecutionContext.get_context().request.url).path
         view = UrlBoundView(self.user_interface, current_path, 'A view')
         return view
 
     def new_user_interface(self):
+        """A :class:`UserInterface` for testing."""
         return UserInterface(None, '/', {}, False, 'test_ui')
 

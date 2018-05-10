@@ -1,11 +1,10 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 
 @startuml
+!include base.iuml
 
 title Accounts
-
-'hide members
-'hide methods
-hide circle
 
 class OpenIDSystemAccount ##[dashed]
 class Payment ##[dashed]

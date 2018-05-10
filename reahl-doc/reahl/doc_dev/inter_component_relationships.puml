@@ -1,9 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include base.iuml
 
 title Dependency Injection
-
-hide members
-hide circle
 
 package implementation{
 class "reahl_domain" as reahl_domain <<component>>

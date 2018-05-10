@@ -18,3 +18,10 @@ NavbarLayout
 
 .. autoclass:: NavbarLayout
    :members:
+
+
+ResponsiveLayout
+""""""""""""""""
+
+.. autoclass:: ResponsiveLayout
+   :members:      

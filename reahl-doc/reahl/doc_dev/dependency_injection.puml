@@ -1,9 +1,9 @@
+' Copyright 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
 @startuml
+!include base.iuml
 
 title Dependency Injection
-
-hide methods
-hide circle
 
 component "reahl-web-declarative" as rwd{
 	interface "WebUserSession" as WebUserSession

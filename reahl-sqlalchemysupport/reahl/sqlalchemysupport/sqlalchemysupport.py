@@ -1,4 +1,4 @@
-# Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -33,7 +33,7 @@ from alembic.migration import MigrationContext
 from alembic.operations import Operations
 from alembic.autogenerate import compare_metadata
 
-from reahl.component.i18n import Translator
+from reahl.component.i18n import Catalogue
 from reahl.component.eggs import ReahlEgg
 from reahl.component.dbutils import ORMControl
 from reahl.component.context import ExecutionContext, NoContextFound
@@ -41,7 +41,7 @@ from reahl.component.modelinterface import Field, IntegerConstraint
 from reahl.component.exceptions import ProgrammerError
 from reahl.component.config import Configuration
 
-_ = Translator('reahl-sqlalchemysupport')
+_ = Catalogue('reahl-sqlalchemysupport')
 
 
 class SqlAlchemyConfig(Configuration):
@@ -153,6 +153,26 @@ class QueryAsSequence(object):
 
 
 def session_scoped(cls):
+    """A decorator for making a class session-scoped.
+
+       It adds a relationship to the user_session on any decorated Entity and ensures that
+       the Entity will be deleted if the UserSession is deleted.
+
+       Two classmethods are also added to the decorated class:
+
+
+       **classmethod** for_session(cls, user_session, \*\*kwargs)
+
+          This method assumes that there should be only one instance of the Entity class
+          for a given UserSession. When called, it will return that instance if it exists.
+          If it does not exist, it will construct the instance. The kwargs supplied will be
+          passed along when creating the instance.
+
+       **classmethod** for_current_session(cls, \*\*kwargs)
+
+          Works the same as for_session() except that you need not pass a UserSession, the
+          current UserSession is assumed.
+    """
     cls.user_session_id = Column(Integer, ForeignKey('usersession.id', ondelete='CASCADE'), index=True)
     cls.user_session = relationship('UserSession', cascade='all, delete')
 

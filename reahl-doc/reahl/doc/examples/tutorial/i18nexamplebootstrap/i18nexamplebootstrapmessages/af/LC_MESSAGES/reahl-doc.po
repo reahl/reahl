@@ -1,4 +1,4 @@
-# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights
+# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights
 # reserved.
 #
 # Afrikaans translations for reahl-doc.
@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: reahl-doc 2.0.0a1\n"
 "Report-Msgid-Bugs-To: info@reahl.org\n"
-"POT-Creation-Date: 2018-02-15 10:13+0000\n"
+"POT-Creation-Date: 2018-05-10 08:29+0000\n"
 "PO-Revision-Date: 2012-05-31 12:02+0200\n"
 "Last-Translator: Iwan Vosloo <iwan@reahl.org>\n"
 "Language: af\n"
@@ -17,28 +17,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.1.1\n"
 
-#: reahl/doc/examples/features/i18nexample/i18nexample.py:13
-msgid "Translated example"
-msgstr "Vertaalde voorbeeld"
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:30
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:74
+msgid "Address book"
+msgstr "Adres boek"
 
-#: reahl/doc/examples/features/i18nexample/i18nexample.py:25
-#, python-format
-msgid "This is a translated string. The current URL is \"%s\"."
-msgstr "Hierdie is 'n vertaalde string. Die huidige URL is \"%s\"."
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:41
+msgid "Add an address"
+msgstr "Voeg 'n adres by"
 
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:39
-msgid "Address Book"
-msgstr "Adres Boek"
-
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:47
+#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:57
 msgid "Address"
 msgid_plural "Addresses"
 msgstr[0] "Adres"
 msgstr[1] "Adresse"
-
-#: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:62
-msgid "Add an address"
-msgstr "Voeg 'n adres by"
 
 #: reahl/doc/examples/tutorial/i18nexamplebootstrap/i18nexamplebootstrap.py:88
 msgid "Name"

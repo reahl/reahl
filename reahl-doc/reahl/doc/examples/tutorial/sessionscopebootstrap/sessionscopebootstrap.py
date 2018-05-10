@@ -41,7 +41,6 @@ class LoginSession(Base):
     id              = Column(Integer, primary_key=True)
     current_user_id = Column(Integer, ForeignKey(User.id))
     current_user    = relationship(User)
-    email_address   = Column(UnicodeText)
 
     @exposed
     def fields(self, fields):
@@ -53,7 +52,11 @@ class LoginSession(Base):
         events.log_in = Event(label='Log in', action=Action(self.log_in))
 
     def log_in(self):
-        user = Session.query(User).filter_by(email_address=self.email_address).one()
+        matching_users = Session.query(User).filter_by(email_address=self.email_address)
+        if matching_users.count() != 1:
+            raise InvalidPassword()
+
+        user = matching_users.one()
         if user.matches_password(self.password):
             self.current_user = user
         else:

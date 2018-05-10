@@ -1,4 +1,4 @@
-# Copyright 2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2016, 2017, 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #-*- encoding: utf-8 -*-
 #
 #    This file is part of Reahl.
@@ -30,7 +30,7 @@ from reahl.component.exceptions import IsInstance
 from reahl.web.fw import Bookmark
 from reahl.web.bootstrap.ui import A, Div, P, TextNode, Span
 from reahl.web.bootstrap.forms import Form
-from reahl.web.bootstrap.navbar import Navbar, NavbarLayout, ResponsiveLayout
+from reahl.web.bootstrap.navbar import Navbar, NavbarLayout, ResponsiveLayout, CollapseToggle
 from reahl.web.bootstrap.navs import Nav
 
 from reahl.component.exceptions import ProgrammerError
@@ -329,13 +329,13 @@ def test_responsive_navbar_basics(web_fixture, navbar_fixture):
 class ToggleAlignmentScenarios(Fixture):
     @scenario
     def aligned_right(self):
-        self.layout = ResponsiveLayout('sm', toggle_button_alignment='right')
-        self.expected_css_class = 'navbar-toggler-right'
+        self.layout = ResponsiveLayout('sm', align_toggle_left=False)
+        self.expected_order = [A, CollapseToggle, Div]
 
     @scenario
     def aligned_left(self):
-        self.layout = ResponsiveLayout('sm', toggle_button_alignment='left')
-        self.expected_css_class = 'navbar-toggler-left'
+        self.layout = ResponsiveLayout('sm', align_toggle_left=True)
+        self.expected_order = [CollapseToggle, A, Div]
 
 
 @with_fixtures(NavbarFixture, ToggleAlignmentScenarios)
@@ -345,11 +345,11 @@ def test_responsive_navbar_toggle_alignment(navbar_fixture, toggle_alignment_fix
     navbar_widget = navbar_fixture.navbar
     navbar_widget.set_id('my_navbar_id')
     navbar_widget.use_layout(toggle_alignment_fixture.layout)
+    navbar_widget.layout.set_brand_text('brand')
 
     [navbar] = navbar_widget.children
-    [toggle, collapse_div] = navbar.children
 
-    assert toggle_alignment_fixture.expected_css_class in toggle.get_attribute('class')
+    assert [c.__class__ for c in navbar.children] == toggle_alignment_fixture.expected_order
 
 
 class BrandCollapseScenarios(Fixture):
@@ -369,8 +369,7 @@ def test_brand_may_be_collapsed_with_expandable_content(web_fixture, navbar_fixt
 
     responsive_navbar = navbar_fixture.navbar
     responsive_navbar.set_id('my_navbar_id')
-    responsive_navbar.use_layout(ResponsiveLayout('md',
-                                                  collapse_brand_with_content=brand_collapse_fixture.brand_collapse))
+    responsive_navbar.use_layout(ResponsiveLayout('md', collapse_brand_with_content=brand_collapse_fixture.brand_collapse))
     responsive_navbar.layout.add(navbar_fixture.nav)
 
     brand_widget = Div(web_fixture.view)
@@ -380,7 +379,7 @@ def test_brand_may_be_collapsed_with_expandable_content(web_fixture, navbar_fixt
         [toggle, collapse_div] = responsive_navbar.children[0].children
         [brand, navbar_nav] = collapse_div.children
     else:
-        [toggle, brand, collapse_div] = responsive_navbar.children[0].children
+        [brand, toggle, collapse_div] = responsive_navbar.children[0].children
         [navbar_nav] = collapse_div.children
 
     assert brand is brand_widget

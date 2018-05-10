@@ -74,6 +74,7 @@ UrlBoundView
 .. autoclass:: UrlBoundView
    :members:
 
+
 ParameterisedPath
 """""""""""""""""
 
