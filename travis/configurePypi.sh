@@ -5,6 +5,6 @@ cat > $HOME/.pypirc <<EOF
 index-servers=pypi
 
 [pypi]
-repository = https://pypi.python.org/pypi
+
 
 EOF
