@@ -14,6 +14,7 @@ env:
     - TOX_ENV=py27 
     - TOX_ENV=py34
 #    - TOX_ENV=py35
+    - TOX_ENV=py36
 
 addons:
   apt:
@@ -48,7 +49,7 @@ services:
 
 language: python
 python:
-  - 3.5
+  - 3.6
 
 cache: 
   pip: true
@@ -102,4 +103,4 @@ deploy:
   script: reahl upload -rusdX
   on:
     tags: true
-    condition: "$TOX_ENV = py34"
+    condition: "$TOX_ENV = py36"

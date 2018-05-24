@@ -36,7 +36,10 @@ from reahl.dev.devshell import WorkspaceCommand
 
 class EchoSMTPServer(DebuggingServer):
     def __init__(self):
-        init_kwargs = {} if six.PY2 else dict(decode_data=True)
+        if six.PY2 or (sys.version_info.major=3 and sys.version_info.minor<5):
+           init_kwargs = {}
+        else:
+            init_kwargs = dict(decode_data=True)
         DebuggingServer.__init__(self, ('localhost', 8025), (None, 0), **init_kwargs)
  
     def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
