@@ -28,6 +28,9 @@ import logging
 from smtpd import DebuggingServer, SMTPServer
 from threading import Thread
 import email
+import platform
+
+from pkg_resources import parse_version
 
 from reahl.dev.devshell import WorkspaceCommand
 
@@ -36,8 +39,8 @@ from reahl.dev.devshell import WorkspaceCommand
 
 class EchoSMTPServer(DebuggingServer):
     def __init__(self):
-        if six.PY2 or (sys.version_info.major==3 and sys.version_info.minor<5):
-           init_kwargs = {}
+        if six.PY2 or parse_version(platform.python_version()) < parse_version('3.5.0'):
+            init_kwargs = {}
         else:
             init_kwargs = dict(decode_data=True)
         DebuggingServer.__init__(self, ('localhost', 8025), (None, 0), **init_kwargs)

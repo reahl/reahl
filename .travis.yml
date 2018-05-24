@@ -49,7 +49,7 @@ services:
 
 language: python
 python:
-  - 3.6
+  - 3.5
 
 cache: 
   pip: true
