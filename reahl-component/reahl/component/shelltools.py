@@ -159,7 +159,7 @@ class CompositeCommand(Command):
             command = self.command_named(args.command)
         except CommandNotFound:
             out_stream = sys.stdout
-            command_name = args.command #vars(args)['command']
+            command_name = args.command
             if command_name != 'help-commands':
                 out_stream = sys.stderr
                 print('No such command: %s' % command_name, file=out_stream)
@@ -237,7 +237,7 @@ class ReahlCommandline(CompositeCommand):
     def print_help(self, out_stream):
         super(ReahlCommandline, self).print_help(out_stream)
 
-        if len(self.aliasses.keys()) != 0:
+        if self.aliasses:
             max_len = max([len(alias_name) for alias_name in self.aliasses.keys()])
             print('\nAliasses:\n', file=out_stream)
             for name, value in sorted(self.aliasses.items(), key=lambda x: x[0]):
