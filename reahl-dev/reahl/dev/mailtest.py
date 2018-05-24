@@ -22,11 +22,15 @@ Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import six
 import asyncore
 import logging
 from smtpd import DebuggingServer, SMTPServer
 from threading import Thread
 import email
+import platform
+
+from pkg_resources import parse_version
 
 from reahl.dev.devshell import WorkspaceCommand
 
@@ -35,12 +39,15 @@ from reahl.dev.devshell import WorkspaceCommand
 
 class EchoSMTPServer(DebuggingServer):
     def __init__(self):
-        DebuggingServer.__init__(self, ('localhost', 8025), (None, 0))
-
-    def process_message(self, peer, mailfrom, rcpttos, data):
+        if six.PY2 or parse_version(platform.python_version()) < parse_version('3.5.0'):
+            init_kwargs = {}
+        else:
+            init_kwargs = dict(decode_data=True)
+        DebuggingServer.__init__(self, ('localhost', 8025), (None, 0), **init_kwargs)
+ 
+    def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
         #Parse the message into an email.Message instance
         logging.debug("Recieved Message")
-        email.message_from_string(data)
         m = email.message_from_string(data)
         logging.debug("Parsed Message")
 
@@ -79,7 +86,7 @@ class ServeSMTP(WorkspaceCommand):
 class FakeSMTPServer(EchoSMTPServer):
 
     def __init__(self, call_back_function=None):
-        SMTPServer.__init__(self, ('localhost', 8025), (None, 0))
+        EchoSMTPServer.__init__(self)
         self.call_back_function = call_back_function
 
     #A place to store the current ID of the message that we are processing.

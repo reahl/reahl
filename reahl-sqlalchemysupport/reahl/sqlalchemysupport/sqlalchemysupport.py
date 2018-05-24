@@ -237,7 +237,7 @@ class SqlAlchemyControl(ORMControl):
         config = context.config
         db_api_connection_creator = context.system_control.db_control.get_dbapi_connection_creator()
 
-        create_args = {}
+        create_args = {'pool_pre_ping': True}
         if db_api_connection_creator:
             create_args['creator']=db_api_connection_creator
 
