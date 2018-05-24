@@ -100,7 +100,7 @@ class Command(object):
         pass
 
     def parse_commandline(self, argv):
-        args = self.parser.parse_args(argv)
+        args = self.parser.parse_args(args=argv)
         self.verify_commandline(args)
         return args
 
@@ -159,9 +159,10 @@ class CompositeCommand(Command):
             command = self.command_named(args.command)
         except CommandNotFound:
             out_stream = sys.stdout
-            if args.command != 'help-commands':
+            command_name = args.command
+            if command_name != 'help-commands':
                 out_stream = sys.stderr
-                print('No such command: %s' % args.command, file=out_stream)
+                print('No such command: %s' % command_name, file=out_stream)
             self.print_help(out_stream)
             return 2
             
@@ -236,11 +237,15 @@ class ReahlCommandline(CompositeCommand):
     def print_help(self, out_stream):
         super(ReahlCommandline, self).print_help(out_stream)
 
-        max_len = max([len(alias_name) for alias_name in self.aliasses.keys()])
-        print('\nAliasses:\n', file=out_stream)
-        for name, value in sorted(self.aliasses.items(), key=lambda x: x[0]):
-            self.print_command(name, '"%s"\n' % value, max_len, out_stream)
-        print('\n', file=out_stream)
+        if self.aliasses:
+            max_len = max([len(alias_name) for alias_name in self.aliasses.keys()])
+            print('\nAliasses:\n', file=out_stream)
+            for name, value in sorted(self.aliasses.items(), key=lambda x: x[0]):
+                self.print_command(name, '"%s"\n' % value, max_len, out_stream)
+            print('\n', file=out_stream)
+        else:
+            print('\nNo Aliasses\n', file=out_stream)
+
 
 
 class AddAlias(Command):
