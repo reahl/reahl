@@ -22,6 +22,7 @@ Copyright (C) 2006 Reahl Software Services (Pty) Ltd.  All rights reserved. (www
 """
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import six
 import asyncore
 import logging
 from smtpd import DebuggingServer, SMTPServer
@@ -36,12 +37,14 @@ from reahl.dev.devshell import WorkspaceCommand
 class EchoSMTPServer(DebuggingServer):
     def __init__(self):
         DebuggingServer.__init__(self, ('localhost', 8025), (None, 0))
-
-    def process_message(self, peer, mailfrom, rcpttos, data):
+ 
+    def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
         #Parse the message into an email.Message instance
         logging.debug("Recieved Message")
-        email.message_from_string(data)
-        m = email.message_from_string(data)
+        if six.PY2:
+            m = email.message_from_string(data)
+        else:
+            m = email.message_from_bytes(data)
         logging.debug("Parsed Message")
 
         self.current_id = m['Message-Id']
