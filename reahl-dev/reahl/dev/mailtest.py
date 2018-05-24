@@ -36,15 +36,13 @@ from reahl.dev.devshell import WorkspaceCommand
 
 class EchoSMTPServer(DebuggingServer):
     def __init__(self):
-        DebuggingServer.__init__(self, ('localhost', 8025), (None, 0))
+        init_kwargs = {} if six.PY2 else dict(decode_data=True)
+        DebuggingServer.__init__(self, ('localhost', 8025), (None, 0), **init_kwargs)
  
     def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
         #Parse the message into an email.Message instance
         logging.debug("Recieved Message")
-        if six.PY2:
-            m = email.message_from_string(data)
-        else:
-            m = email.message_from_bytes(data)
+        m = email.message_from_string(data)
         logging.debug("Parsed Message")
 
         self.current_id = m['Message-Id']
@@ -82,7 +80,7 @@ class ServeSMTP(WorkspaceCommand):
 class FakeSMTPServer(EchoSMTPServer):
 
     def __init__(self, call_back_function=None):
-        SMTPServer.__init__(self, ('localhost', 8025), (None, 0))
+        EchoSMTPServer.__init__(self)
         self.call_back_function = call_back_function
 
     #A place to store the current ID of the message that we are processing.
