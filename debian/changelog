@@ -1,7 +1,9 @@
 python-reahl (4.0.1) unstable; urgency=low
+ * Fixed breakage when running reahl help-commands #117.
+ * Updated PYPI project doc links #116.
+ * Implemented SQLAlchemy pessimistic disconnect handling #118.
 
-
- -- Iwan Vosloo <iwan@reahl.org>  Tue, 15 May 2018 12:07:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 24 May 2018 15:07:00 +0200
 
 
 python-reahl (4.0.0) unstable; urgency=low
