@@ -192,10 +192,10 @@ class PagedTable(PagedPanel):
     def create_sorter_link(self, column_number, heading_widget):
         show_control = (column_number == self.page_index.sort_column_number)
         if show_control:
-            sort_descending = 'off' if self.page_index.sort_descending else 'on'
-            link_class = 'sorted-descending' if sort_descending=='off' else 'sorted-ascending'
+            sort_descending = self.fields.toggle_sort_descending.as_input()
+            link_class = 'sorted-descending' if self.page_index.sort_descending else 'sorted-ascending'
         else:
-            sort_descending = 'off'
+            sort_descending = self.fields.toggle_sort_descending.false_value
             link_class = None
 
         bookmark = Bookmark.for_widget(None,
@@ -207,6 +207,14 @@ class PagedTable(PagedPanel):
             link.append_class(link_class)
         return link
 
+    @property
+    def toggle_sort_descending(self):
+        return not self.page_index.sort_descending
+
+    @exposed
+    def fields(self, fields):
+        fields.toggle_sort_descending = BooleanField(writable=lambda field: False)
+        
     @exposed
     def query_fields(self, fields):
         fields.update_copies(super(PagedTable, self).query_fields)

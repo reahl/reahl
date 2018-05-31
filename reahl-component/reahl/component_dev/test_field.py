@@ -40,7 +40,7 @@ from reahl.component.modelinterface import Field, FieldIndex, ReahlFields, expos
     MimeTypeConstraint, MaxFilesConstraint, SmallerThanConstraint, GreaterThanConstraint
 
 from reahl.dev.fixtures import ReahlSystemFixture
-
+from reahl.component_dev.test_i18n import LocaleContextStub
 
 @uses(reahl_system_fixture = ReahlSystemFixture) # For a context
 class FieldFixture(Fixture):
@@ -874,13 +874,7 @@ def test_boolean_validation(fixture):
 
 
 def test_boolean_i18n():
-    @stubclass(ExecutionContext)
-    class AfrikaansContext(ExecutionContext):
-        @property
-        def interface_locale(self):
-            return 'af'
-
-    context = AfrikaansContext().install()
+    context = LocaleContextStub(locale='af').install()
 
     obj = EmptyStub()
     field = BooleanField()

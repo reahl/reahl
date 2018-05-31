@@ -20,18 +20,21 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import six
 
-from reahl.tofu import scenario, Fixture
+from reahl.stubble import stubclass
+from reahl.tofu import scenario, Fixture, expected, NoException
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.webdev.tools import XPath
 
 import reahl.web_dev.widgets.test_table
 from reahl.component.modelinterface import Field, IntegerField, exposed
+from reahl.component.context import ExecutionContext
 from reahl.web.bootstrap.ui import Div
 from reahl.web.bootstrap.tables import Table, StaticColumn, TableLayout, DataTable
 
 from reahl.web_dev.fixtures import WebFixture
 from reahl.web_dev.widgets.test_table import TableFixture
+from reahl.component_dev.test_i18n import LocaleContextStub
 
 
 class LayoutScenarios(Fixture):
@@ -263,6 +266,22 @@ def test_sorting(web_fixture, data_table_fixture):
     assert data_table_fixture.get_table_row(1) == ['10' ,'R']
     assert data_table_fixture.get_table_row(2) == ['11' ,'O']
     assert data_table_fixture.get_table_row(3) == ['12' ,'W']
+
+
+@with_fixtures(WebFixture, DataTableFixture)
+def test_sorting_i18n(web_fixture, data_table_fixture):
+    """Sorting works correctly when the current View is translated to another i18n locale."""
+
+    LocaleContextStub(locale='af').install()
+
+    web_fixture.reahl_server.set_app(data_table_fixture.wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/af/')
+
+    assert not data_table_fixture.is_column_sorted(1, 'ascending')
+    assert not data_table_fixture.is_column_sorted(1, 'descending')
+    browser.click(data_table_fixture.xpath_for_sort_link_for_column(1))
+    assert data_table_fixture.is_column_sorted(1, 'ascending')
 
 
 @with_fixtures(WebFixture, DataTableFixture)

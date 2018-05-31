@@ -217,4 +217,3 @@ class WebFixture(Fixture):
     def new_user_interface(self):
         """A :class:`UserInterface` for testing."""
         return UserInterface(None, '/', {}, False, 'test_ui')
-
