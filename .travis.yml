@@ -103,4 +103,4 @@ deploy:
   script: reahl upload -rusdX
   on:
     tags: true
-    condition: "$TOX_ENV = py36"
+    condition: "$TOX_ENV = py34"
