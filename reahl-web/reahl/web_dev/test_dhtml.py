@@ -29,6 +29,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.ui import HTML5Page
 
 from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
+from reahl.component_dev.test_i18n import LocaleContextStub
 
 
 class DhtmlFixture(Fixture):
@@ -100,12 +101,6 @@ def test_basic_workings(web_fixture, dhtml_fixture):
 def test_i18n_dhtml(web_fixture, dhtml_fixture):
     """Dhtml files can have i18nsed versions, which would be served up if applicable."""
 
-    @stubclass(ExecutionContext)
-    class AfrikaansContext(ExecutionContext):
-        @property
-        def interface_locale(self):
-            return 'af'
-
     class MainUI(UserInterface):
         def assemble(self):
             self.define_page(HTML5Page).use_layout(BasicPageLayout())
@@ -123,7 +118,7 @@ def test_i18n_dhtml(web_fixture, dhtml_fixture):
 
     # request the file, but get the translated alternative for the locale
     def stubbed_create_context_for_request():
-        return AfrikaansContext()
+        return LocaleContextStub(locale='af')
     with replaced(wsgi_app.create_context_for_request, stubbed_create_context_for_request):
         browser.open('/dhtml_ui/correctfile.d.html')
 

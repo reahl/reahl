@@ -205,7 +205,7 @@ class DebianPackageStubWithRealFiles(DebianPackageStub):
     def create_files(self):
         control_file_contents = """Section: misc
 Priority: optional
-Standards-Version: 3.6.2
+Standards-Version: 4.0.0
 
 Package: equivs-dummy
 Version: 1.0

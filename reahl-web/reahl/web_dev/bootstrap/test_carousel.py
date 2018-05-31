@@ -31,6 +31,7 @@ from reahl.web.ui import Img
 from reahl.web.bootstrap.carousel import Carousel
 
 from reahl.web_dev.fixtures import WebFixture
+from reahl.component_dev.test_i18n import LocaleContextStub
 
 
 class CarouselFixture(Fixture):
@@ -90,15 +91,10 @@ def test_carousel_basics(web_fixture):
 @with_fixtures(WebFixture)
 def test_i18n(web_fixture):
     """User-visible labels are internationalised."""
-    @stubclass(ExecutionContext)
-    class AfrikaansContext(ExecutionContext):
-        request = webob.Request.blank('/', charset='utf8')
-        @property
-        def interface_locale(self):
-            return 'af'
 
-    AfrikaansContext().install()
-
+    context = LocaleContextStub(locale='af').install()
+    context.request = webob.Request.blank('/', charset='utf8')
+    
     widget = Carousel(web_fixture.view, 'my_carousel_id')
 
     [main_div] = widget.children
