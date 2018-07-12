@@ -18,11 +18,11 @@
     <egg name="reahl-web"/>
     <egg name="reahl-web-declarative"/>
     <egg name="reahl-domain"/>
-    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
+    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
