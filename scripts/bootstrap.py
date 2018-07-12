@@ -115,7 +115,7 @@ def install_prerequisites(missing):
     print('')
     print('  '+(' '.join(missing)))
     print('')
-    print('I will no go ahead and "pip install" the eggs listed above')
+    print('I will now go ahead and "pip install" the eggs listed above')
     print('')
     return install_with_pip(missing, upgrade=True) == 0
 

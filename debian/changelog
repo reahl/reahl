@@ -1,4 +1,14 @@
+python-reahl (4.0.2) unstable; urgency=low
+
+ * Fixed Vagrantfile to wait for apt when starting up #123.
+ * Fixed reahl script to use correct sys.argv[0] #124.
+ * Relaxed dependency upper version limits on pip, setuptools, pytest #125.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 31 Jul 2018 15:15:00 +0200
+
+
 python-reahl (4.0.1) unstable; urgency=low
+
  * Fixed breakage when running reahl help-commands #117.
  * Updated PYPI project doc links #116.
  * Implemented SQLAlchemy pessimistic disconnect handling #118.
