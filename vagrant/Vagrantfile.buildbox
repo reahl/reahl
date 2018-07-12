@@ -42,6 +42,9 @@ Vagrant.configure(2) do |config|
       (cd /vagrant;
        ./vagrant/setupDevEnv.sh
       )
+      if [ -L $HOME/testdownloads ]; then
+         unlink $HOME/testdownloads
+      fi
   SHELL
 end
 
