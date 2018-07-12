@@ -15,7 +15,7 @@
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
   <export entrypoint="reahl.component.databasecontrols" name="MysqlControl" locator="reahl.mysqlsupport:MysqlControl"/>

@@ -19,8 +19,8 @@
     <egg name="reahl-domain"/>
     <egg name="reahl-domainui"/>
     <egg name="reahl-commands"/>
-    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
-    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
+    <thirdpartyegg name="pytest" minversion="3.0"/>
+    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
   </deps>
 
   <extras name="pillow">
@@ -28,7 +28,7 @@
   </extras>
 
   <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <thirdpartyegg name="pytest" minversion="3.0"/>
     <thirdpartyegg name="Sphinx"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>

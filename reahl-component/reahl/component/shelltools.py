@@ -187,12 +187,11 @@ class CompositeCommand(Command):
     
 class ReahlCommandline(CompositeCommand):
     """Invoke reahl commands on the commandline."""
-    keyword = 'reahl'
+    keyword = os.path.basename(sys.argv[0])
 
-    def __init__(self, prog=sys.argv[0], config=None):
+    def __init__(self, config=None):
         self.config = config or ReahlCommandlineConfig()
         super(ReahlCommandline, self).__init__()
-        self.keyword = self.parser.prog
 
     def assemble(self):
         super(ReahlCommandline, self).assemble()
@@ -206,7 +205,7 @@ class ReahlCommandline(CompositeCommand):
     def execute_one(cls):
         """The entry point for running command from the commandline."""
         try:
-            result = cls(sys.argv[0]).do(sys.argv[1:])
+            result = cls().do(sys.argv[1:])
         except DomainException as ex:
             print('Error: %s' % ex, file=sys.stderr)
             result = 1
@@ -233,7 +232,7 @@ class ReahlCommandline(CompositeCommand):
             return self.do(shlex.split(self.aliasses[args.command]))
         else:
             return super(ReahlCommandline, self).execute(args)
-            
+
     def print_help(self, out_stream):
         super(ReahlCommandline, self).print_help(out_stream)
 

@@ -17,12 +17,12 @@
     <thirdpartyegg name="twine" minversion="1.11.0" maxversion="1.11.9999"/>
     <thirdpartyegg name="wheel" minversion="0.29.0" maxversion="0.29.9999"/> 
     <thirdpartyegg name="tzlocal" minversion="1.2.0" maxversion="1.2.9999"/> 
-    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/> 
-    <thirdpartyegg name="pip" minversion="10.0.0" maxversion="10.0.999"/> 
+    <thirdpartyegg name="setuptools" minversion="32.3.1"/> 
+    <thirdpartyegg name="pip" minversion="10.0.0"/> 
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <thirdpartyegg name="pytest" minversion="3.0"/>
   </deps>
 
 
