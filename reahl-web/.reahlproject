@@ -21,12 +21,12 @@
     <thirdpartyegg name="BeautifulSoup4" minversion="4.6" maxversion="4.6.999"/>
     <thirdpartyegg name="webob" minversion="1.4" maxversion="1.4.999"/> 
     <thirdpartyegg name="Babel" minversion="2.1" maxversion="2.1.999"/> 
-    <thirdpartyegg name="setuptools" minversion="32.3.1" maxversion="32.3.9999"/>
+    <thirdpartyegg name="setuptools" minversion="32.3.1"/>
     <thirdpartyegg name="lxml" minversion="4.2" maxversion="4.2.999"/>
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-sqlalchemysupport"/>

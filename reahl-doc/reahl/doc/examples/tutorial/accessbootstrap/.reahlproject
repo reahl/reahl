@@ -12,7 +12,7 @@
   </deps>
 
   <deps purpose="test">
-    <thirdpartyegg name="pytest" minversion="3.0" maxversion="3.9999"/>
+    <thirdpartyegg name="pytest" minversion="3.0"/>
     <egg name="reahl-tofu"/>
     <egg name="reahl-stubble"/>
     <egg name="reahl-dev"/>
