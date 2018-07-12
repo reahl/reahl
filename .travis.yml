@@ -17,7 +17,7 @@ env:
 #    - TOX_ENV=py36
 
 addons:
-  postgresql: "10"
+  postgresql: "9.2"
   apt:
     packages:
        # Basic apt dependencies
@@ -37,9 +37,9 @@ addons:
         - libxml2-dev
         - libsqlite3-0
         - sqlite3
-        - postgresql-server-dev-10
-        - postgresql-10
-        - postgresql-client-10
+        - postgresql-9.2
+        - postgresql-client-9.2
+        - postgresql-server-dev-9.2
         - zlib1g-dev
         - libjpeg62-dev
         - libfreetype6-dev
