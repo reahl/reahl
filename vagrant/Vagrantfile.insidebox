@@ -5,6 +5,12 @@ Vagrant.require_version ">= 1.8.1"
 
 Vagrant.configure(2) do |config|
   config.vm.provision "shell", privileged: true, inline: <<-SHELL
+      # Wait for apt to finish
+      while (ps aux | grep apt | grep -qv grep )
+      do
+        echo 'Waiting for systemd daily apt jobs to complete'; sleep 1;
+      done
+
       # Update if possible
       apt-get update && apt-get upgrade || true
 
