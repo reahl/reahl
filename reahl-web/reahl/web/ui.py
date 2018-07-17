@@ -1298,6 +1298,7 @@ class Input(HTMLWidget):
     def __init__(self, form, bound_field):
         self.form = form
         self.bound_field = bound_field
+        self.notify_change = False
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
 
     def can_write(self):
@@ -1329,6 +1330,17 @@ class Input(HTMLWidget):
     def includes_label(self):
         """If True, the Label of this Input forms part of the input itself."""
         return False
+
+    def enable_notify_change(self):
+        self.notify_change = True
+        # TODO: add javascript to say: onChange: update hash named (bound_field_name) to stringified new value
+
+    def get_js(self, context=None):
+        js = super(Input, self).get_js(context)
+
+        if self.notify_change:
+            js += ['$("#me").changenotifier({name="choice"})']
+        return js
 
 
 class WrappedInput(Input):
