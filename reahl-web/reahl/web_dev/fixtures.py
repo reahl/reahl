@@ -217,3 +217,7 @@ class WebFixture(Fixture):
     def new_user_interface(self):
         """A :class:`UserInterface` for testing."""
         return UserInterface(None, '/', {}, False, 'test_ui')
+
+    def pdb(self):
+        with self.reahl_server.in_background():
+            import pdb; pdb.set_trace()

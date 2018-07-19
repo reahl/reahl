@@ -43,6 +43,9 @@ class QueryStringFixture(Fixture):
     def change_fragment(self, fragment):
         self.web_fixture.driver_browser.execute_script('return (window.location.hash="%s")' % fragment)
 
+    def get_fragment(self):
+        return self.web_fixture.driver_browser.execute_script('return window.location.hash')
+
     def new_FancyWidget(self):
         fixture = self
         class MyFancyWidget(Div):

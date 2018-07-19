@@ -1856,6 +1856,11 @@ class CheckboxSelectInput(PrimitiveInput):
 
     @property
     def html_control(self):
+        # Note: seems like the html_control is only used ever to target this thing via css_id
+        #       when you do <label for=> and for use in jquery selectors that target this input.
+        #       Feels wrong in this case to use added_choices[0], should rather be the enclosing
+        #       Div, which is not an html control. Naming issue? Also a single test breaks if
+        #       we do change this: reahl/web_dev/bootstrap/test_popup.py
         return self.added_choices[0] if not self.bound_field.allows_multiple_selections else None
 
     @property
