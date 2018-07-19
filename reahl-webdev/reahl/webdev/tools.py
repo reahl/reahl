@@ -28,7 +28,7 @@ from six.moves.http_client import CannotSendRequest
 
 from webtest import TestApp
 from lxml import html
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -801,6 +801,17 @@ class DriverBrowser(BasicBrowser):
         el.send_keys(text)
         if wait:
             self.wait_for_page_to_load()
+
+    def select(self, locator, label_to_choose):
+        """Finds the select element indicated by `locator` and selects one of its options.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :param label_to_choose: The label of the option that should be selected.
+        """
+        self.wait_for_element_interactable(locator)
+        el = self.find_element(locator)
+        select = Select(el)
+        select.select_by_visible_text(label_to_choose)
 
     def mouse_over(self, locator):
         """Moves the mouse pointer over the element found by the `locator`.

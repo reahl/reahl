@@ -44,85 +44,22 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture)
                                         label='Choice')
 
     class MyChangingWidget(Div):
-        def __init__(self, view, trigger_input):
-            self.trigger_input = trigger_input
-            super(MyChangingWidget, self).__init__(view, css_id='dave')
-            self.enable_refresh()
-            self.trigger_input.enable_notify_change()
-            self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
-            fixture.widget = self
-
-        @property
-        def fancy_state(self):
-            return self.trigger_input.bound_field.get_model_value()
-
-        @exposed
-        def query_fields(self, fields):
-            fields.fancy_state = self.trigger_input.bound_field
-
-    class MyForm(Form):
-        def __init__(self, view):
-            super(MyForm, self).__init__(view, 'myform')
-            an_object = ModelObject()
-            self.select_input = SelectInput(self, an_object.fields.choice)
-            self.add_child(Label(view, for_input=self.select_input))
-            self.add_child(self.select_input)
-
-    class MainWidget(Widget):
-        def __init__(self, view):
-            super(MainWidget, self).__init__(view)
-            form = self.add_child(MyForm(view))
-            self.add_child(MyChangingWidget(view, form.select_input))
-
-
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-
-    browser.open('/')
-
-    with web_fixture.reahl_server.in_background():
-        import pdb; pdb.set_trace()
-
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 1)
-
-    browser.select(XPath.select_labelled('Choice'), 'Three')
-
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 3)
-
-@with_fixtures(WebFixture, QueryStringFixture)
-def test_koos(web_fixture, query_string_fixture):
-
-    fixture = query_string_fixture
-
-    class ModelObject(object):
-        @exposed
-        def fields(self, fields):
-           fields.choice = ChoiceField([Choice(1, IntegerField(label='One')), 
-                                        Choice(2, IntegerField(label='Two')), 
-                                        Choice(3, IntegerField(label='Three'))], 
-                                        default=1,
-                                        label='Choice')
-
-    class MyChangingWidget(Div):
         def __init__(self, view, trigger_input, model_object):
             self.trigger_input = trigger_input
             self.model_object = model_object
             super(MyChangingWidget, self).__init__(view, css_id='dave')
             self.enable_refresh()
+            trigger_input.enable_notify_change(self.query_fields.fancy_state)
             self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
             fixture.widget = self
 
         @property
         def fancy_state(self):
             return self.model_object.choice
-#            return self.trigger_input.bound_field.get_model_value()
 
         @exposed
         def query_fields(self, fields):
             fields.fancy_state = self.model_object.fields.choice
-#            fields.fancy_state = IntegerField(required=False, default=1)
-#            fields.fancy_state = self.trigger_input.bound_field
 
 
     class MyForm(Form):
@@ -141,26 +78,16 @@ def test_koos(web_fixture, query_string_fixture):
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
-    web_fixture.driver_browser.open('/')
+    browser = web_fixture.driver_browser
+    browser.open('/')
 
-    # Case: the default
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 1)
-    assert fixture.widget.fancy_state == 1
+    assert browser.wait_for(fixture.is_state_now, 1)
+    browser.select(XPath.select_labelled('Choice'), 'Three')
+    assert browser.wait_for(fixture.is_state_now, 3)
 
-    with web_fixture.reahl_server.in_background():
-        import pdb; pdb.set_trace()
 
-    # Case: change without page load
-    fixture.change_fragment('#fancy_state=2')
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
-    assert fixture.widget.fancy_state == 2
-
-    with web_fixture.reahl_server.in_background():
-        import pdb; pdb.set_trace()
-
-    # Case: unrelated fragment changes do not trigger a reload of the widget
-    previous_widget = fixture.widget
-    fixture.change_fragment('#fancy_state=2&other_var=other_value')
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
-    assert fixture.widget is previous_widget
+# What about funny types of input, such as checkboxes/radiobuttons/text vs select....?
+# Overriding other things on the hash?
+# Naming of notifier.
+# Clashing names of things on the hash (larger issue)
 

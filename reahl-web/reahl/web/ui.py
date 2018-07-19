@@ -315,7 +315,7 @@ class HTMLElement(Widget):
 
     def generate_random_css_id(self):
         if not self.css_id_is_set:
-            self.set_css_id('tmpid-%s-%s' % (id(self), time.time()))
+            self.set_css_id('tmpid-%s-%s' % (id(self), six.text_type(time.time()).replace('.','-')))
         else:
             raise ProgrammerError('%s already has a css_id set, will not overwrite it!' % self)
         return self.css_id
@@ -1298,7 +1298,7 @@ class Input(HTMLWidget):
     def __init__(self, form, bound_field):
         self.form = form
         self.bound_field = bound_field
-        self.notify_change = False
+        self.fields_to_notify = []
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
 
     def can_write(self):
@@ -1331,15 +1331,14 @@ class Input(HTMLWidget):
         """If True, the Label of this Input forms part of the input itself."""
         return False
 
-    def enable_notify_change(self):
-        self.notify_change = True
-        # TODO: add javascript to say: onChange: update hash named (bound_field_name) to stringified new value
+    def enable_notify_change(self, field):
+        self.fields_to_notify.append(field)
 
     def get_js(self, context=None):
         js = super(Input, self).get_js(context)
 
-        if self.notify_change:
-            js += ['$("#me").changenotifier({name="choice"})']
+        for field in self.fields_to_notify:
+            js += ['$(%s).changenotifier({name:"%s"})' % (self.html_representation.jquery_selector, field.name)]
         return js
 
 
