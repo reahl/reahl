@@ -101,7 +101,7 @@ class FieldIndex(object):
 
     def accept_input(self, input_dict):
         for name, field in self.items():
-            field.from_input(input_dict.get(field.name, field.as_input()))
+            field.from_input(field.extract_input_from_multidict(input_dict))
 
     def update(self, other):
         for name, value in other.items():
@@ -850,9 +850,19 @@ class Field(object):
     def format_input(self, unparsed_input):
         return self.unparse_input(self.parse_input(unparsed_input))
     
+    def input_as_string(self, unparsed_input):
+        return unparsed_input
+
     def validate_parsed(self, parsed_value, ignore=None):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
-        
+
+    def extract_input_from_multidict(self, input_dict):
+        list_of_input = input_dict.getall(self.name)
+        if list_of_input:
+            return list_of_input[0]
+        else:
+            return self.as_input()
+
     def parse_input(self, unparsed_input):
         """Override this method on a subclass to specify how that subclass transforms the `unparsed_input`
            (a string) into a representative Python object."""
@@ -1454,6 +1464,12 @@ class MultiChoiceField(ChoiceField):
 
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
+
+    def extract_input_from_multidict(self, input_dict):
+        return input_dict.getall(self.name)
+
+    def input_as_string(self, unparsed_input):
+        return ','.join(unparsed_input)
 
     def parse_input(self, unparsed_inputs):
         selected = []

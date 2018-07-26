@@ -54,6 +54,7 @@ from webob.exc import HTTPMethodNotAllowed
 from webob.exc import HTTPNotFound
 from webob.exc import HTTPSeeOther
 from webob.request import DisconnectionError
+from webob.multidict import MultiDict
 
 from reahl.component.config import StoredConfiguration
 from reahl.component.context import ExecutionContext
@@ -1309,9 +1310,10 @@ class RegexPath(object):
         assert isinstance(relative_path, six.text_type) # Scaffolding for Py3 port
         matched_arguments = self.match(relative_path).match.groupdict()
         fields = self.get_temp_url_argument_field_index(for_fields)
-        raw_input_values = dict(
-            [(self.convert_str_to_identifier(key), urllib_parse.unquote(value or ''))
-             for key, value in matched_arguments.items()])
+
+        raw_input_values = MultiDict()
+        raw_input_values.update([(self.convert_str_to_identifier(key), urllib_parse.unquote(value or ''))
+                                 for key, value in matched_arguments.items()])
         fields.accept_input(raw_input_values)
         return fields.as_kwargs()
 

@@ -1315,8 +1315,10 @@ class Input(HTMLWidget):
     @property
     def value(self):
         if self.get_input_status() == 'defaulted' or self.disabled:
-            return self.bound_field.as_input()
-        return self.bound_field.user_input
+            raw_value = self.bound_field.as_input()
+        else:
+            raw_value = self.bound_field.user_input
+        return self.bound_field.input_as_string(raw_value)
 
     def get_input_status(self):
         return self.bound_field.input_status

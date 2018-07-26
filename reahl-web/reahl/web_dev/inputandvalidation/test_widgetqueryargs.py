@@ -39,6 +39,7 @@ class ValueScenarios(Fixture):
         self.field = IntegerField(required=False, default=1)
         self.field_on_query_string = '{field_name}=123'
         self.field_value_marshalled = 123
+        self.field_value_as_string = '123'
 
     @scenario
     def multi_value(self):
@@ -48,35 +49,7 @@ class ValueScenarios(Fixture):
                                        default=[])
         self.field_on_query_string = '{field_name}=1&{field_name}=3'
         self.field_value_marshalled = [1,3]
-
-
-@uses(web_fixture=WebFixture, value_scenarios=ValueScenarios)
-class QueryStringFixture(Fixture):    
-    
-    def is_state_now(self, state):
-        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('My state is now %s' % state))
-        return self.is_state_labelled_now('My state', state)
-
-    def new_FancyWidget(self):
-        fixture = self
-        class MyFancyWidget(Div):
-            def __init__(self, view):
-                super(MyFancyWidget, self).__init__(view, css_id='sedrick')
-                self.enable_refresh()
-                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
-                fixture.widget = self
-
-            @exposed
-            def query_fields(self, fields):
-                fields.fancy_state = fixture.value_scenarios.field.unbound_copy()
-
-        return MyFancyWidget
-
-    def new_wsgi_app(self, widget_factory=None):
-        widget_factory = widget_factory or self.FancyWidget.factory()
-        return self.web_fixture.new_wsgi_app(enable_js=True, child_factory=widget_factory)
-
-
+        self.field_value_as_string = '1,3'
 
 
 @with_fixtures(WebFixture, ValueScenarios)
@@ -126,7 +99,35 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
     browser = Browser(wsgi_app)
 
     browser.open('/?%s' % fixture.field_on_query_string.format(field_name='arg_on_other_object'))
-    assert browser.lxml_html.xpath('//input')[0].value == six.text_type(fixture.field_value_marshalled)
+    assert browser.lxml_html.xpath('//input')[0].value == fixture.field_value_as_string
+
+
+@uses(web_fixture=WebFixture, value_scenarios=ValueScenarios)
+class QueryStringFixture(Fixture):    
+    
+    def is_state_now(self, state):
+        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('My state is now %s' % state))
+        return self.is_state_labelled_now('My state', state)
+
+    def new_FancyWidget(self):
+        fixture = self
+        class MyFancyWidget(Div):
+            def __init__(self, view):
+                super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+                self.enable_refresh()
+                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+                fixture.widget = self
+
+            @exposed
+            def query_fields(self, fields):
+                fields.fancy_state = fixture.value_scenarios.field.unbound_copy()
+
+        return MyFancyWidget
+
+    def new_wsgi_app(self, widget_factory=None):
+        widget_factory = widget_factory or self.FancyWidget.factory()
+        return self.web_fixture.new_wsgi_app(enable_js=True, child_factory=widget_factory)
+
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ValueScenarios)
@@ -143,8 +144,8 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture, valu
     web_fixture.driver_browser.open('/')
 
     # Case: the default
-    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 1)
-    assert fixture.widget.fancy_state == 1
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, six.text_type(value_scenarios.field.default))
+    assert fixture.widget.fancy_state == value_scenarios.field.default
 
     # Case: change without page load
     web_fixture.driver_browser.set_fragment('#%s' % value_scenarios.field_on_query_string.format(field_name='fancy_state'))

@@ -218,4 +218,5 @@ def test_checkboxselect_multi(web_fixture, query_string_fixture, responsive_disc
 # Clashing names of things on the hash (larger issue)
 
 # TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
+# TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
 
