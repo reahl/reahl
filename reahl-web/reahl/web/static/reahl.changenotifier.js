@@ -31,7 +31,6 @@
                 if (!o.name) { throw new Error("No name given in options. This is a required option.")}
 
                 $(element).on( 'change', function(e) {
-                    console.log("asd", e);
                     var newHashName = o.name;
                     var newHashValue = e.target.value;
 

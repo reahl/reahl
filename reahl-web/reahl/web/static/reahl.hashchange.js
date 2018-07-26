@@ -59,7 +59,8 @@ $.widget('reahl.hashchange', {
                 },
                 complete: function(data){
                     _this.element.unblock();
-                }
+                },
+                traditional: true
         });
     },
     hasChanged: function(newRelevantHashValues){
