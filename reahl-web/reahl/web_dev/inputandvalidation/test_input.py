@@ -521,7 +521,6 @@ class ManyChoicesScenarios(Fixture):
 
     @scenario
     def select_input(self):
-        #TODO cs was commented out
         self.input_type = SelectInput
         self.xpath_function_to_choice = XPath.option_with_text
 

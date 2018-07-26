@@ -852,6 +852,20 @@ class DriverBrowser(BasicBrowser):
         """
         self.web_driver.refresh()
 
+    def get_fragment(self):
+        """Returns the fragment part (the bit after the #) on the current URL.
+        
+        .. versionadded:: 4.1
+        """
+        return self.execute_script('return window.location.hash')
+
+    def set_fragment(self, fragment):
+        """Changes only the fragment part (the bit after the #) on the current URL.
+        
+        .. versionadded:: 4.1
+        """
+        self.execute_script('return (window.location.hash="%s")' % fragment)
+
     def get_attribute(self, locator, attribute_name):
         """Returns the value of the HTML attribute of the element found by `locator`.
 
