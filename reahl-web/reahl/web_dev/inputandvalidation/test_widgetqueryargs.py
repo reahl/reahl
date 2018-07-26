@@ -24,9 +24,9 @@ from reahl.component.exceptions import ProgrammerError
 
 from reahl.webdev.tools import Browser, XPath
 
-from reahl.component.modelinterface import Field, exposed, IntegerField
+from reahl.component.modelinterface import Field, exposed, IntegerField, MultiChoiceField, Choice
 from reahl.web.fw import Bookmark, Widget
-from reahl.web.ui import A, P, Form, TextInput, Div
+from reahl.web.ui import A, P, Form, TextInput, Div, CheckboxSelectInput, SelectInput, Label
 
 from reahl.web_dev.fixtures import WebFixture
 
@@ -63,7 +63,6 @@ class QueryStringFixture(Fixture):
         return MyFancyWidget
 
     def new_wsgi_app(self, widget_factory=None):
-        # xxxxx
         widget_factory = widget_factory or self.FancyWidget.factory()
         return self.web_fixture.new_wsgi_app(enable_js=True, child_factory=widget_factory)
 
@@ -115,6 +114,100 @@ def test_query_string_prepopulates_form(web_fixture):
 
     browser.open('/?arg_on_other_object=metoo')
     assert browser.lxml_html.xpath('//input')[0].value == 'metoo'
+
+
+@uses(web_fixture=WebFixture)
+class MultiChoiceFieldFixture(Fixture):
+#TODO cs
+    def new_ModelObject(self):
+        class ModelObject(object):
+            @exposed
+            def fields(self, fields):
+                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                             Choice(2, IntegerField(label='Two')),
+                                             Choice(3, IntegerField(label='Three'))],
+                                            default=[],
+                                            label='Choice')
+        return ModelObject
+
+    def new_MyChangingWidget(self):
+        class MyChangingWidget(Div):
+            def __init__(self, view, trigger_input, model_object):
+                self.trigger_input = trigger_input
+                self.model_object = model_object
+                super(MyChangingWidget, self).__init__(view, css_id='dave')
+                self.enable_refresh()
+                trigger_input.enable_notify_change(self.query_fields.fancy_state)
+                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+
+            @property
+            def fancy_state(self):
+                return self.model_object.choice
+
+            @exposed
+            def query_fields(self, fields):
+                fields.fancy_state = self.model_object.fields.choice
+
+        return MyChangingWidget
+
+    def new_MyForm(self):
+        class MyForm(Form):
+            def __init__(self, view, an_object):
+                super(MyForm, self).__init__(view, 'myform')
+                self.select_input = CheckboxSelectInput(self, an_object.fields.choice, )
+                #self.select_input = SelectInput(self, an_object.fields.choice)
+                self.add_child(Label(view, for_input=self.select_input))
+                self.add_child(self.select_input)
+
+        return MyForm
+
+    def new_MainWidget(self):
+        fixture = self
+        class MainWidget(Widget):
+            def __init__(self, view):
+                super(MainWidget, self).__init__(view)
+                an_object = fixture.ModelObject()
+                form = self.add_child(fixture.MyForm(view, an_object))
+                self.add_child(fixture.MyChangingWidget(view, form.select_input, an_object))
+
+        return MainWidget
+
+
+@with_fixtures(WebFixture, MultiChoiceFieldFixture)
+def test_query_string_prepopulates_multi_value_input(web_fixture, multi_choice_fixture):
+    #TODO cs
+    """Widget query string arguments can be used on forms to pre-populate multi value inputs based on the query string."""
+
+
+    fixture = multi_choice_fixture
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    browser = Browser(wsgi_app)
+
+    browser.open('/?choice=3&choice=2')
+    assert browser.lxml_html.xpath('//input')[0].checked == False
+    assert browser.lxml_html.xpath('//input')[1].checked == True
+    assert browser.lxml_html.xpath('//input')[2].checked == True
+
+
+@with_fixtures(WebFixture, QueryStringFixture, MultiChoiceFieldFixture)
+def test_multiple_values_state(web_fixture, query_string_fixture, multi_choice_fixture):
+    #TODO cs
+    """Similar to query strings, when the hash changes, inputs that allow multiple values that affect other widgets,
+    should refresh the state of all affected widgets."""
+
+    fixture = multi_choice_fixture
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    web_fixture.driver_browser.open('/')
+
+    query_string_fixture.change_fragment('#choice=2&choice=3')
+    #assert web_fixture.driver_browser.wait_for_not(web_fixture.driver_browser.is_checked(XPath.input_labelled('One'))
+    web_fixture.pdb()
+    assert web_fixture.driver_browser.wait_for(web_fixture.driver_browser.is_checked(XPath.input_labelled('Three')))
+    assert web_fixture.driver_browser.wait_for(web_fixture.driver_browser.is_checked(XPath.input_labelled('Two')))
+    assert web_fixture.driver_browser.wait_for(web_fixture.driver_browser.is_checked(XPath.input_labelled('Three')))
+    assert web_fixture.driver_browser.wait_for(fixture.is_state_now, 2)
 
 
 @with_fixtures(WebFixture, QueryStringFixture)

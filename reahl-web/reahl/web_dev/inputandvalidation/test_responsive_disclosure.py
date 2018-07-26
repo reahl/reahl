@@ -92,16 +92,16 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    #web_fixture.pdb()
-
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    assert browser.is_element_present(XPath.paragraph_containing("My state is now 1"))
     browser.select(XPath.select_labelled('Choice'), 'Three')
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
+    assert browser.is_element_present(XPath.paragraph_containing("My state is now 3"))
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_string_fixture, responsive_disclosure_fixture):
-    """..."""
+    """When the hash is changed to display the selected value, the rest of the hash should be preserved."""
 
     fixture = responsive_disclosure_fixture
 
@@ -109,8 +109,6 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
-
-    #web_fixture.pdb()
 
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
     query_string_fixture.change_fragment('#choice=2&other_var=other_value')
@@ -120,7 +118,7 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_radio(web_fixture, query_string_fixture, responsive_disclosure_fixture):
-    """..."""
+    """Changing radio button selection causes all concerned widgets to refresh."""
 
     fixture = responsive_disclosure_fixture
 
@@ -139,16 +137,14 @@ def test_radio(web_fixture, query_string_fixture, responsive_disclosure_fixture)
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    web_fixture.pdb()
-
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
-    browser.click(XPath.radio_button_labelled('Three'))
+    browser.click(XPath.input_labelled('Three'))
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_checkbox_single(web_fixture, query_string_fixture, responsive_disclosure_fixture):
-    """..."""
+    """Toggling a checkbox input triggers a refresh of all concerned widgets."""
 
     fixture = responsive_disclosure_fixture
 
@@ -183,7 +179,7 @@ def test_checkbox_single(web_fixture, query_string_fixture, responsive_disclosur
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_checkboxselect_multi(web_fixture, query_string_fixture, responsive_disclosure_fixture):
-    """..."""
+    """Selecting any combination of values triggers a refresh of concerned widgets."""
 
     fixture = responsive_disclosure_fixture
     class ModelObject(object):
@@ -211,11 +207,13 @@ def test_checkboxselect_multi(web_fixture, query_string_fixture, responsive_disc
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    web_fixture.pdb()
+    #web_fixture.pdb()
 
+    assert browser.is_element_present(XPath.paragraph_containing("My state is now 1"))
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
     browser.click(XPath.checkbox_labelled('Three'))
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
+    assert browser.is_element_present(XPath.paragraph_containing("My state is now 1,3"))
 
 # What about funny types of input, such as checkboxes/radiobuttons/text vs select....?
 #   what to do with a list of values
