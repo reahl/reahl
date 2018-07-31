@@ -326,3 +326,14 @@ class Popper(Library):
         self.files = [
             'popper-1.12.9/popper.js' #make sure it is the umd edition
         ]
+
+
+class Underscore(Library):
+    """Version 1.9.1 of `Underscore.js <https://underscorejs.org>`_.
+    """
+    def __init__(self):
+        super(Underscore, self).__init__('underscore')
+        self.shipped_in_directory = '/reahl/web/static'
+        self.files = [
+            'underscore-min-1.9.1.js'
+        ]

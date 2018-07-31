@@ -43,6 +43,16 @@ Copyright (c) 2016 Federico Zivolo and contributors
 FezVrasta/popper.js is licensed under the MIT License
 
 
+reahl/reahl-web/reahl/web/static/underscore-min-1.9.1.js
+========================================================
+
+Underscore is a JavaScript library that provides a whole mess of useful functional programming helpers without extending any built-in objects.
+Underscore.js 1.9.1
+http://underscorejs.org
+(c) 2009-2018 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+Underscore may be freely distributed under the MIT license.
+
+
 reahl-web/reahl/web/static/IE9.js
 =================================
 
