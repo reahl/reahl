@@ -25,9 +25,13 @@ from reahl.webdev.tools import XPath
 from reahl.web.fw import Widget
 from reahl.web.ui import A, Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, CheckboxInput
 from reahl.component.modelinterface import BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, IntegerField
-from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
 
+@uses(web_fixture=WebFixture)
 class ResponsiveDisclosureFixture(Fixture):
+
+    def is_state_now(self, state):
+        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('My state is now %s' % state))
+
     def new_ModelObject(self):
         class ModelObject(object):
             @exposed
@@ -81,8 +85,8 @@ class ResponsiveDisclosureFixture(Fixture):
         return MainWidget
 
 
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+@with_fixtures(WebFixture, ResponsiveDisclosureFixture)
+def test_input_values_can_be_widget_arguments(web_fixture, responsive_disclosure_fixture):
     """Widget query arguments can be linked to the value of an input, which means the Widget will be re-rendered if the input value changes."""
 
     fixture = responsive_disclosure_fixture
@@ -92,13 +96,13 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    assert browser.wait_for(fixture.is_state_now, 1)
     browser.select(XPath.select_labelled('Choice'), 'Three')
-    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+    assert browser.wait_for(fixture.is_state_now, 3)
 
 
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+@with_fixtures(WebFixture, ResponsiveDisclosureFixture)
+def test_changing_values_do_not_disturb_other_hash_state(web_fixture, responsive_disclosure_fixture):
     """When an Input updates a linked Widget, other values in the hash are preserved."""
 
     fixture = responsive_disclosure_fixture
@@ -108,14 +112,14 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    assert browser.wait_for(fixture.is_state_now, 1)
     browser.set_fragment('#choice=2&other_var=other_value')
     browser.select(XPath.select_labelled('Choice'), 'Three')
-    assert browser.get_fragment == '#choice=3&other_var=other_value'
+    assert browser.get_fragment() == '#choice=3&other_var=other_value'
 
 
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_radio(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+@with_fixtures(WebFixture, ResponsiveDisclosureFixture)
+def test_radio(web_fixture, responsive_disclosure_fixture):
     """Changing radio button selection causes all concerned widgets to refresh."""
 
     fixture = responsive_disclosure_fixture
@@ -135,13 +139,13 @@ def test_radio(web_fixture, query_string_fixture, responsive_disclosure_fixture)
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    assert browser.wait_for(fixture.is_state_now, 1)
     browser.click(XPath.input_labelled('Three'))
-    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+    assert browser.wait_for(fixture.is_state_now, 3)
 
 
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_checkbox_single(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+@with_fixtures(WebFixture, ResponsiveDisclosureFixture)
+def test_checkbox_single(web_fixture, responsive_disclosure_fixture):
     """Toggling a checkbox input triggers a refresh of all concerned widgets."""
 
     fixture = responsive_disclosure_fixture
@@ -168,15 +172,13 @@ def test_checkbox_single(web_fixture, query_string_fixture, responsive_disclosur
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    web_fixture.pdb()
-
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
-    browser.click(XPath.checkbox_labelled('Three'))
-    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+    assert browser.wait_for(fixture.is_state_now, 'False')
+    browser.click(XPath.input_labelled('Choice'))
+    assert browser.wait_for(fixture.is_state_now, 'True')
 
 
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_checkboxselect_multi(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+@with_fixtures(WebFixture, ResponsiveDisclosureFixture)
+def test_checkboxselect_multi(web_fixture, responsive_disclosure_fixture):
     """Selecting multiple values on a CheckboxSelectInput communicates its value as a list to concerned widgets."""
 
     fixture = responsive_disclosure_fixture
@@ -205,11 +207,9 @@ def test_checkboxselect_multi(web_fixture, query_string_fixture, responsive_disc
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    #web_fixture.pdb()
-
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
-    browser.click(XPath.checkbox_labelled('Three'))
-    assert browser.wait_for(query_string_fixture.is_state_now, [1,3])
+    assert browser.wait_for(fixture.is_state_now, [1])
+    browser.click(XPath.input_labelled('Three'))
+    assert browser.wait_for(fixture.is_state_now, [1, 3])
 
 # What about funny types of input, such as checkboxes/radiobuttons/text vs select....?
 #   what to do with a list of values

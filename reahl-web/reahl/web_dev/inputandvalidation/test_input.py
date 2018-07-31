@@ -442,7 +442,7 @@ def test_marshalling_of_checkbox_select_input(web_fixture, checkbox_fixture):
     web_fixture.driver_browser.click(XPath.button_labelled('click me'))
 
     assert model_object.an_attribute == [2, 3]
-    assert fixture.checkbox.value == ['2', '3']
+    assert fixture.checkbox.value == '2,3'
     assert not web_fixture.driver_browser.is_checked(XPath.input_labelled('One'))
     assert web_fixture.driver_browser.is_checked(XPath.input_labelled('Two'))
     assert web_fixture.driver_browser.is_checked(XPath.input_labelled('Three'))

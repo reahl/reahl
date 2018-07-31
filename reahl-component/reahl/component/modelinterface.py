@@ -100,8 +100,13 @@ class FieldIndex(object):
         return dict([(name, field.as_input()) for name, field in self.items()])
 
     def accept_input(self, input_dict):
+        is_multi_dict = hasattr(input_dict, 'getall')
         for name, field in self.items():
-            field.from_input(field.extract_input_from_multidict(input_dict))
+            if is_multi_dict:
+                #TODO cs refactor needed
+                field.from_input(field.extract_input_from_multidict(input_dict))
+            else:
+                field.from_input(input_dict.get(field.name, field.as_input()))
 
     def update(self, other):
         for name, value in other.items():
@@ -673,10 +678,10 @@ class Field(object):
        :param required_message: See `error_message` of :class:`RequiredConstraint`.
        :param label: A text label by which to identify this Field to a user.
        :param readable: A callable that takes one argument (this Field). It is executed to determine whether
-                        the current user is allowed to see this Field. Returns True is the user is allowed, 
+                        the current user is allowed to see this Field. Returns True if the user is allowed,
                         else False.
        :param writable: A callable that takes one argument (this Field). It is executed to determine whether
-                        the current user is allowed supply input for this Field. Returns True is the user is 
+                        the current user is allowed supply input for this Field. Returns True if the user is
                         allowed, else False.
        :param disallowed_message: An error message to be displayed when a user attempts to supply input
                         to this Field when it is not writable for that user. (See `error_message` of

@@ -3,8 +3,9 @@ python-reahl (4.1) unstable; urgency=low
  * Added the ability for onchange events to cause Widgets to be refreshed via ajax (responsive-disclosure #132).
  * Fixed Widget query_arguments mechanism to work correctly with list-like values.
  * Added fragment getter/setter on DriverBrowser.
+ * Added UNDERSCORE.JS
  
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 31 Jul 2018 15:15:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 1 Aug 2018 15:15:00 +0200
 
 
 python-reahl (4.0.2) unstable; urgency=low

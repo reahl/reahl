@@ -32,7 +32,20 @@
 
                 $(element).on( 'change', function(e) {
                     var newHashName = o.name;
-                    var newHashValue = e.target.value;
+                    var newHashValue = undefined;
+
+                    var isMultiInput = $('input[name="'+newHashName+'"]').length > 1;
+                    if (isMultiInput){
+                        //need to get the already selected values too - as they would not be on the fragment in case of multi value inputs
+                        var checkboxValues = [];
+                        $('input[name="'+newHashName+'"]:checked').map(function() {
+                                    var checkbox = this
+                                    checkboxValues.push($(checkbox).val());
+                        });
+                        newHashValue = checkboxValues;
+                    }else{
+                        newHashValue = e.target.value
+                    }
 
                     var originalHash = window.location.hash;
                     var currentFragment = $.deparam.fragment(originalHash);

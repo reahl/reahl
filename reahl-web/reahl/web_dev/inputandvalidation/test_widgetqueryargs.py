@@ -48,7 +48,7 @@ class ValueScenarios(Fixture):
                                        Choice(3, IntegerField(label='Three'))],
                                        default=[])
         self.field_on_query_string = '{field_name}=1&{field_name}=3'
-        self.field_value_marshalled = [1,3]
+        self.field_value_marshalled = [1, 3]
         self.field_value_as_string = '1,3'
 
 
@@ -107,7 +107,6 @@ class QueryStringFixture(Fixture):
     
     def is_state_now(self, state):
         return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('My state is now %s' % state))
-        return self.is_state_labelled_now('My state', state)
 
     def new_FancyWidget(self):
         fixture = self

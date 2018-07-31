@@ -32,7 +32,7 @@ $.widget('reahl.hashchange', {
         var o = this.options;
         var element = this.element;
         var _this = this;
-        
+
         _this.options.previousHashValues = $.extend(true, {}, _this.options.params);
         $(window).on( 'hashchange', function(e) {
             var allCurrentHashValues = e.getState();
@@ -67,7 +67,7 @@ $.widget('reahl.hashchange', {
         var _this = this;
         var changed = false;
         for (var name in _this.options.previousHashValues) {
-            if (newRelevantHashValues[name] != _this.options.previousHashValues[name]) {
+            if ( ! _.isEqual(newRelevantHashValues[name], _this.options.previousHashValues[name])) {
                 changed = true;
             };
         };
