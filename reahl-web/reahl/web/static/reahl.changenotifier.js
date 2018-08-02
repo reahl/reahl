@@ -31,32 +31,46 @@
                 if (!o.name) { throw new Error("No name given in options. This is a required option.")}
 
                 $(element).on( 'change', function(e) {
-                    var newHashName = o.name;
-                    var newHashValue = undefined;
-
-                    var isMultiInput = $('input[name="'+newHashName+'"]').length > 1;
-                    if (isMultiInput){
-                        //need to get the already selected values too - as they would not be on the fragment in case of multi value inputs
-                        var checkboxValues = [];
-                        $('input[name="'+newHashName+'"]:checked').map(function() {
-                                    var checkbox = this
-                                    checkboxValues.push($(checkbox).val());
-                        });
-                        newHashValue = checkboxValues;
-                    }else{
-                        newHashValue = e.target.value
-                    }
-
-                    var originalHash = window.location.hash;
-                    var currentFragment = $.deparam.fragment(originalHash);
-                    currentFragment[newHashName] = newHashValue;
-                    var newHash = $.param.fragment(originalHash, currentFragment, 2);
-                    window.location.hash = newHash;
-
+                    _this.updateHashWithCurrentInputValue(e.target);
                     $(window).hashchange();
                     return true;
                 });
-            },
+        },
+
+        getAllRelatedCheckboxes: function(checkbox, filter) {
+            return $('input[name="'+$(checkbox).attr("name")+'"][form="'+$(checkbox).attr("form")+'"]'+filter);
+        },
+
+        isCheckboxSelectInputWithMultipleValues: function(checkbox) {
+            return this.getAllRelatedCheckboxes(checkbox, '').length > 1;
+        },
+
+        getAllRelatedCheckedValues: function(checkbox) {
+            var checkboxValues = [];
+            this.getAllRelatedCheckboxes(checkbox, ':checked').map(function() {
+                var checkbox = this;
+                checkboxValues.push($(checkbox).val());
+            });
+            return checkboxValues;
+        },
+
+        getCurrentInputValue: function(currentInput) {
+            if (this.isCheckboxSelectInputWithMultipleValues(currentInput)){
+                return this.getAllRelatedCheckedValues(currentInput);
+            } else {
+                return currentInput.value;
+            }
+        },
+        
+        updateHashWithCurrentInputValue: function(currentInput) {
+            var hashName = this.options.name;
+            var originalHash = window.location.hash;
+            var currentFragment = $.deparam.fragment(originalHash);
+            
+            currentFragment[hashName] = this.getCurrentInputValue(currentInput);
+            var newHash = $.param.fragment(originalHash, currentFragment, 2);
+            window.location.hash = newHash;
+        }
     });
     
 $.extend($.reahl.changenotifier, {
