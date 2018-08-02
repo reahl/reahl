@@ -102,31 +102,13 @@ def test_query_string_prepopulates_form(web_fixture, value_scenarios):
     assert browser.lxml_html.xpath('//input')[0].value == fixture.field_value_as_string
 
 
-@uses(web_fixture=WebFixture, value_scenarios=ValueScenarios)
+@uses(web_fixture=WebFixture)
 class QueryStringFixture(Fixture):    
-    
     def is_state_now(self, state):
-        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('My state is now %s' % state))
+        return self.is_state_labelled_now('My state', state)
 
-    def new_FancyWidget(self):
-        fixture = self
-        class MyFancyWidget(Div):
-            def __init__(self, view):
-                super(MyFancyWidget, self).__init__(view, css_id='sedrick')
-                self.enable_refresh()
-                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
-                fixture.widget = self
-
-            @exposed
-            def query_fields(self, fields):
-                fields.fancy_state = fixture.value_scenarios.field.unbound_copy()
-
-        return MyFancyWidget
-
-    def new_wsgi_app(self, widget_factory=None):
-        widget_factory = widget_factory or self.FancyWidget.factory()
-        return self.web_fixture.new_wsgi_app(enable_js=True, child_factory=widget_factory)
-
+    def is_state_labelled_now(self, label, state):
+        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('%s is now %s' % (label, state)))
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ValueScenarios)
@@ -138,7 +120,18 @@ def test_widgets_with_bookmarkable_state(web_fixture, query_string_fixture, valu
 
     fixture = query_string_fixture
 
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
+    class MyFancyWidget(Div):
+        def __init__(self, view):
+            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            self.enable_refresh()
+            self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+            fixture.widget = self
+
+        @exposed
+        def query_fields(self, fields):
+            fields.fancy_state = value_scenarios.field.unbound_copy()
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/')
 
@@ -171,39 +164,30 @@ def test_css_id_is_mandatory(web_fixture):
         MyFancyWidget(web_fixture.view)
 
 
-@uses(web_fixture=WebFixture)
-class PartialRefreshFixture(Fixture):
-    def is_state_labelled_now(self, label, state):
-        return self.web_fixture.driver_browser.is_element_present(XPath.paragraph_containing('%s is now %s' % (label, state)))
 
-    def new_FancyWidget(self):
-        fixture = self
-        class MyFancyWidget(Div):
-            def __init__(self, view):
-                super(MyFancyWidget, self).__init__(view, css_id='sedrick')
-                self.enable_refresh(self.query_fields.refreshing_state)
-                self.add_child(P(self.view, text='My refreshing state is now %s' % self.refreshing_state))
-                self.add_child(P(self.view, text='My non-refreshing state is now %s' % self.non_refreshing_state))
-                fixture.widget = self
-
-            @exposed
-            def query_fields(self, fields):
-                fields.refreshing_state = IntegerField(required=False, default=1)
-                fields.non_refreshing_state = IntegerField(required=False, default=2)
-
-        return MyFancyWidget
-
-
-@with_fixtures(WebFixture, PartialRefreshFixture)
-def test_refreshing_only_for_specific_args(web_fixture, partial_refresh_fixture):
+@with_fixtures(WebFixture, QueryStringFixture)
+def test_refreshing_only_for_specific_args(web_fixture, query_string_fixture):
     """Calling `.enable_refresh()` only with specific query_fields has the effect that
        the Widget is only refreshed automatically for the particular fields passed, not
        for any of its query_fields.
     """
 
-    fixture = partial_refresh_fixture
+    fixture = query_string_fixture
 
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.FancyWidget.factory())
+    class MyFancyWidget(Div):
+        def __init__(self, view):
+            super(MyFancyWidget, self).__init__(view, css_id='sedrick')
+            self.enable_refresh(self.query_fields.refreshing_state)
+            self.add_child(P(self.view, text='My refreshing state is now %s' % self.refreshing_state))
+            self.add_child(P(self.view, text='My non-refreshing state is now %s' % self.non_refreshing_state))
+            fixture.widget = self
+
+        @exposed
+        def query_fields(self, fields):
+            fields.refreshing_state = IntegerField(required=False, default=1)
+            fields.non_refreshing_state = IntegerField(required=False, default=2)
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyFancyWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/')
 

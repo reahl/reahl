@@ -951,7 +951,8 @@ class Form(HTMLElement):
                                           immutable=True)
         self.view.add_resource(self.field_validator)
 
-    def validate_single_input(self, **input_values):
+    def validate_single_input(self, **input_names_and_value):
+        input_values = {k: [v] for k,v in input_names_and_value.items()}
         try:
             name = list(input_values.keys())[0]
             self.inputs[name].validate_input(input_values)
@@ -968,7 +969,8 @@ class Form(HTMLElement):
                                             immutable=True)
         self.view.add_resource(self.input_formatter)
 
-    def format_single_input(self, **input_values):
+    def format_single_input(self, **input_names_and_value):
+        input_values = {k: [v] for k,v in input_names_and_value.items()}
         try:
             name = list(input_values.keys())[0]
             return self.inputs[name].format_input(input_values)
@@ -1426,7 +1428,7 @@ class PrimitiveInput(Input):
            Override this method if your Input needs special handling to obtain its value.
         """
         try:
-            return input_values[self.name]
+            return input_values[self.name][0]
         except KeyError:
             if self.disabled:
                 return ''
@@ -1653,7 +1655,7 @@ class SelectInput(PrimitiveInput):
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
-            return input_values.getall(self.name)
+            return input_values.get(self.name, [])
         else:
             return super(SelectInput, self).get_value_from_input(input_values)
 
@@ -1730,7 +1732,7 @@ class RadioButtonSelectInput(PrimitiveInput):
         return None
 
     def get_value_from_input(self, input_values):
-        return input_values.get(self.name, '')
+        return input_values.get(self.name, [''])[0]
 
     def create_main_element(self):
         return Div(self.view)
@@ -1884,9 +1886,9 @@ class CheckboxSelectInput(PrimitiveInput):
 
     def get_value_from_input(self, input_values):
         if self.bound_field.allows_multiple_selections:
-            return input_values.getall(self.name)
+            return input_values.get(self.name, [])
         else:
-            return input_values.get(self.name, '')
+            return input_values.get(self.name, [''])[0]
 
     def create_main_element(self):
         main_element = Div(self.view)
@@ -2038,7 +2040,7 @@ class SimpleFileInput(PrimitiveInput):
         return file_input
 
     def get_value_from_input(self, input_values):
-        field_storages = input_values.getall(self.name)
+        field_storages = input_values.get(self.name, [])
 
         return [UploadedFile(six.text_type(field_storage.filename), field_storage.file.read(), six.text_type(field_storage.type))
                  for field_storage in field_storages

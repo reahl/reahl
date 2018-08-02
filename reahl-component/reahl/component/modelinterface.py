@@ -101,13 +101,10 @@ class FieldIndex(object):
 
     def accept_input(self, input_dict):
         is_multi_dict = hasattr(input_dict, 'getall')
+        assert not is_multi_dict
         for name, field in self.items():
-            if is_multi_dict:
-                #TODO cs refactor needed
-                field.from_input(field.extract_input_from_multidict(input_dict))
-            else:
-                field.from_input(input_dict.get(field.name, field.as_input()))
-
+            field.from_input(field.extract_unparsed_input_from_dict_of_lists(input_dict))
+            
     def update(self, other):
         for name, value in other.items():
             setattr(self, name, value)
@@ -861,8 +858,8 @@ class Field(object):
     def validate_parsed(self, parsed_value, ignore=None):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
 
-    def extract_input_from_multidict(self, input_dict):
-        list_of_input = input_dict.getall(self.name)
+    def extract_unparsed_input_from_dict_of_lists(self, input_dict):
+        list_of_input = input_dict.get(self.name, [])
         if list_of_input:
             return list_of_input[0]
         else:
@@ -1060,12 +1057,14 @@ class Event(Field):
     def parse_input(self, unparsed_input):
         if unparsed_input:
             arguments_query_string = unparsed_input[1:]
-            raw_input_values = dict([(k,v[0]) for k, v in urllib_parse.parse_qs(arguments_query_string).items()])
+            raw_input_values = dict([(k,v) for k, v in urllib_parse.parse_qs(arguments_query_string).items()])
             fields = StandaloneFieldIndex()
             fields.update_copies(self.event_argument_fields)
             fields.accept_input(raw_input_values)
             
-            arguments = raw_input_values.copy()
+            view_arguments = dict([(k,v[0]) for k, v in urllib_parse.parse_qs(arguments_query_string).items()
+                                   if not k in fields.items()])
+            arguments = view_arguments.copy()
             arguments.update(fields.as_kwargs())
             return arguments
         return None
@@ -1470,8 +1469,8 @@ class MultiChoiceField(ChoiceField):
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
 
-    def extract_input_from_multidict(self, input_dict):
-        return input_dict.getall(self.name)
+    def extract_unparsed_input_from_dict_of_lists(self, input_dict):
+        return input_dict.get(self.name, [])
 
     def input_as_string(self, unparsed_input):
         return ','.join(unparsed_input)

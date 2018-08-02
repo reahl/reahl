@@ -982,7 +982,7 @@ class Widget(object):
         
     def set_arguments_from_query_string(self):
         request = ExecutionContext.get_context().request
-        self.query_fields.accept_input(request.GET)
+        self.query_fields.accept_input(request.GET.dict_of_lists())
 
     def add_default_slot(self, slot_name, widget_factory):
         """If this Widget contains a :class:`Slot` named `slot_name`, and no contents are available to be plugged into
@@ -1314,7 +1314,7 @@ class RegexPath(object):
         raw_input_values = MultiDict()
         raw_input_values.update([(self.convert_str_to_identifier(key), urllib_parse.unquote(value or ''))
                                  for key, value in matched_arguments.items()])
-        fields.accept_input(raw_input_values)
+        fields.accept_input(raw_input_values.dict_of_lists())
         return fields.as_kwargs()
 
     def get_arguments_as_input(self, arguments):
@@ -2188,7 +2188,7 @@ class RemoteMethod(SubResource):
         return ['post']
 
     def parse_arguments(self, input_values):
-        return dict(input_values)
+        return {k: v[0] for k, v in input_values.items()}
 
     def cleanup_after_exception(self, input_values, ex):
         """Override this method in a subclass to trigger custom behaviour after the method
@@ -2239,10 +2239,10 @@ class RemoteMethod(SubResource):
         return response
 
     def handle_post(self, request):
-        return self.handle_get_or_post(request, request.POST)
+        return self.handle_get_or_post(request, request.POST.dict_of_lists())
 
     def handle_get(self, request):
-        return self.handle_get_or_post(request, request.GET)
+        return self.handle_get_or_post(request, request.GET.dict_of_lists())
 
 
 class CheckedRemoteMethod(RemoteMethod): 
@@ -2264,7 +2264,7 @@ class CheckedRemoteMethod(RemoteMethod):
         exception = None
         for name, field in self.parameters.items():
             try:
-                field.from_input(input_values.get(name, ''))
+                field.from_input(input_values.get(name, [''])[0])
             except ValidationConstraint as ex:
                 exception = ex
         if exception:
