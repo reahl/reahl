@@ -1,0 +1,3 @@
+[reahl.eggs]
+Egg = reahl.component.eggs:ReahlEgg
+
