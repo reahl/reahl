@@ -200,6 +200,30 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     assert browser.get_fragment() == '#choice=3&other_var=other_value'
 
 
+def test_inputs_effect_other_parts_of_form():
+    """Inputs can trigger refresh of Widgets that contain other inputs in the same form"""
+    assert None, 'TODO: relax check_input_placement so that it only breaks if the form does NOT have a specific ID set (it should still break if the form ID is auto-generated' 
+    # We need to think carefully about this one.
+    # It makes sense to let an input be refreshed anywhere on the page, as long as its form's ID is always going to be unchanged.
+    # Perhaps the test to change first is test_check_input_placement (inputandvalidation/test_eventhandling.py)
+    # ...but I still think we need to have a test here? because this is a requirement relating to responsive disclosure?
+
+def test_validation():
+    """If a Field is required, but its Input is not currently displayed as part of the form (because of the 
+       state of another Input), the form should not expect input for it."""
+    assert None, 'This might just already work, but I think we need a test'
+
+def test_input_values_are_retained():
+    """When input is intered into an input which is not always displayed, that previously entered input should be 
+       saved when the input is not visible, and displayed once the input becomes visible again."""
+    assert None, 'Not sure if we really want it to work this way...but this is a possible requirement'
+    # If I understand the code correctly, this will already work if the underlying model object is persisted.
+    # However, if you really want things to work this way, you should probably make it work regardless of
+    # whether the underlying model object is persisted because one would expect such a feature to always just work.
+    # I have not thought whether or not you really want this in a real world use case. Perhaps you DO want to 
+    # start from scratch each time the user flips? Perhaps because we're unsure we should not spend time on this now?
+
+
 # Naming of notifier.
 # Clashing names of things on the hash (larger issue)
 

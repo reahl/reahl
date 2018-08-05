@@ -84,8 +84,6 @@ class IDInputsSection(Div):
     def query_fields(self, fields):
         fields.document_type = self.document.fields.document_type
 
-
-
 class PassportInputs(Div):
     def __init__(self, form, document):
         super(PassportInputs, self).__init__(form.view)
