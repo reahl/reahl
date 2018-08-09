@@ -55,9 +55,16 @@
         },
 
         getCurrentInputValue: function(currentInput) {
+
             if (this.isCheckboxSelectInputWithMultipleValues(currentInput)){
                 return this.getAllRelatedCheckedValues(currentInput);
-            } else {
+            } else if ($(currentInput).attr('type') == 'checkbox'){
+                if($(currentInput).is(":checked"))
+                     return 'on';
+                else
+                     return 'off';
+            }
+            else  {
                 return currentInput.value;
             }
         },
@@ -68,6 +75,7 @@
             var currentFragment = $.deparam.fragment(originalHash);
             
             currentFragment[hashName] = this.getCurrentInputValue(currentInput);
+
             var newHash = $.param.fragment(originalHash, currentFragment, 2);
             window.location.hash = newHash;
         }
