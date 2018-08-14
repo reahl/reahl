@@ -273,7 +273,7 @@ def test_validation(web_fixture):
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    #web_fixture.pdb()
+    web_fixture.pdb()
 
     assert browser.is_element_present(XPath.input_labelled('Email'))
     browser.click(XPath.input_labelled('Subscribe to newsletter'))
@@ -300,4 +300,6 @@ def test_input_values_are_retained():
 
 # TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
 # TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
-
+# TODO: test that you cannot trigger one of your parents to refresh.
+# TODO: that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
+# TODO: form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
