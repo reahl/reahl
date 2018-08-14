@@ -1136,7 +1136,7 @@ class Widget(object):
 
         self.check_forms_unique(forms.keys())
         self.check_all_inputs_forms_exist(forms.keys(), [i for i, refresh_set in inputs])
-        self.check_input_placement(forms, inputs)
+        #self.check_input_placement(forms, inputs)
 
     def check_all_inputs_forms_exist(self, forms_found_on_page, inputs_on_page):
         for i in inputs_on_page:

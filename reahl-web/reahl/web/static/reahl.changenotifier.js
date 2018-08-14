@@ -42,7 +42,11 @@
         },
 
         isCheckboxSelectInputWithMultipleValues: function(checkbox) {
-            return this.getAllRelatedCheckboxes(checkbox, '').length > 1;
+            return !this.isCheckboxInputBoolean(checkbox) && this.getAllRelatedCheckboxes(checkbox, '').length >= 1;
+        },
+
+        isCheckboxInputBoolean: function(checkbox) {
+            return $(checkbox).attr('type') === 'checkbox' && !$(checkbox).attr('value'); //explicitly use attr instead of .prop
         },
 
         getAllRelatedCheckedValues: function(checkbox) {
@@ -54,17 +58,22 @@
             return checkboxValues;
         },
 
+        getCheckboxBooleanValue: function(checkbox) {
+           if($(checkbox).is(":checked"))
+                return 'on';
+           else
+                return 'off';
+        },
+
         getCurrentInputValue: function(currentInput) {
 
+            if (this.isCheckboxInputBoolean(currentInput)){
+                return this.getCheckboxBooleanValue(currentInput)
+            } else
             if (this.isCheckboxSelectInputWithMultipleValues(currentInput)){
                 return this.getAllRelatedCheckedValues(currentInput);
-            } else if ($(currentInput).attr('type') == 'checkbox'){
-                if($(currentInput).is(":checked"))
-                     return 'on';
-                else
-                     return 'off';
             }
-            else  {
+            else {
                 return currentInput.value;
             }
         },

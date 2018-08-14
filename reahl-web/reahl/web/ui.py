@@ -241,6 +241,8 @@ class HTMLElement(Widget):
         """
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
+        if self.query_fields.is_empty:
+            raise ProgrammerError('You must have some query fields to enable_refresh')
         assert all([(field in self.query_fields.values()) for field in for_fields])
 
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())

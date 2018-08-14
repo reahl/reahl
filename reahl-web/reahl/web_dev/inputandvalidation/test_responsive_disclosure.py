@@ -24,9 +24,10 @@ from reahl.web_dev.fixtures import WebFixture
 from reahl.webdev.tools import XPath
 from reahl.web.fw import Widget
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
-                         CheckboxInput, ButtonInput, TextInput
-from reahl.component.modelinterface import BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, IntegerField, \
-                                           EmailField, Event
+    CheckboxInput, ButtonInput, TextInput
+from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, IntegerField, \
+    EmailField, Event
+from reahl.component.exceptions import ProgrammerError
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
 
 @uses(web_fixture=WebFixture)
@@ -36,9 +37,9 @@ class ResponsiveDisclosureFixture(Fixture):
         class ModelObject(object):
             @exposed
             def fields(self, fields):
-                fields.choice = ChoiceField([Choice(1, IntegerField(label='One')), 
-                                            Choice(2, IntegerField(label='Two')), 
-                                            Choice(3, IntegerField(label='Three'))], 
+                fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
+                                             Choice(2, IntegerField(label='Two')),
+                                             Choice(3, IntegerField(label='Three'))],
                                             default=1,
                                             label='Choice')
         return ModelObject
@@ -62,7 +63,7 @@ class ResponsiveDisclosureFixture(Fixture):
                 fields.fancy_state = self.model_object.fields.choice
 
         return MyChangingWidget
-    
+
     def new_MainWidget(self):
         fixture = self
         class MainWidget(Widget):
@@ -90,7 +91,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         fixture = self
 
         def change_value(browser):
-              browser.select(XPath.select_labelled('Choice'), 'Three')
+            browser.select(XPath.select_labelled('Choice'), 'Three')
         self.change_value = change_value
         self.initial_state = 1
         self.changed_state = 3
@@ -146,11 +147,11 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         class ModelObject(object):
             @exposed
             def fields(self, fields):
-                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')), 
-                                            Choice(2, IntegerField(label='Two')), 
-                                            Choice(3, IntegerField(label='Three'))], 
-                                            default=[1],
-                                            label='Choice')
+                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                                  Choice(2, IntegerField(label='Two')),
+                                                  Choice(3, IntegerField(label='Three'))],
+                                                 default=[1],
+                                                 label='Choice')
         self.ModelObject = ModelObject
 
         class MyForm(Form):
@@ -204,19 +205,64 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
 
 def test_inputs_effect_other_parts_of_form(web_fixture):
     """Inputs can trigger refresh of Widgets that contain other inputs in the same form"""
-    assert None, 'TODO: relax check_input_placement so that it only breaks if the form does NOT have a specific ID set (it should still break if the form ID is auto-generated' 
+    assert None, 'TODO: relax check_input_placement so that it only breaks if the form does NOT have a specific ID set (it should still break if the form ID is auto-generated'
     # We need to think carefully about this one.
     # It makes sense to let an input be refreshed anywhere on the page, as long as its form's ID is always going to be unchanged.
     # Perhaps the test to change first is test_check_input_placement (inputandvalidation/test_eventhandling.py)
     # ...but I still think we need to have a test here? because this is a requirement relating to responsive disclosure?
 
 
-@with_fixtures(WebFixture)
-def test_validation(web_fixture):
-    """If a Field is required, but its Input is not currently displayed as part of the form (because of the 
-       state of another Input), the form should not expect input for it."""
+class OptionalInputToRequiredFieldFixture(Fixture):
 
-    fixture = web_fixture
+    def new_MyForm(self, model_object):
+        fixture = self
+        class MyForm(Form):
+            def __init__(self, view):
+                super(MyForm, self).__init__(view, 'myform')
+                self.add_child(fixture.QuestionSection(self, model_object))
+                self.define_event_handler(model_object.events.an_event)
+                self.add_child(ButtonInput(self, model_object.events.an_event))
+        return MyForm
+
+    def new_QuestionSection(self):
+        fixture = self
+        class QuestionSection(Div):
+            def __init__(self, form, model_object):
+                super(QuestionSection, self).__init__(form.view)
+
+                checkbox_input = CheckboxInput(form, model_object.fields.subscribe_to_newsletter)
+                self.add_child(Label(form.view, for_input=checkbox_input))
+                self.add_child(checkbox_input)
+
+                self.add_child(fixture.RequiredInfo(form, checkbox_input, model_object))
+        return QuestionSection
+
+    def new_RequiredInfo(self):
+        fixture = self
+        class RequiredInfo(Div):
+            def __init__(self, form, trigger_input, model_object):
+                self.model_object = model_object
+                super(RequiredInfo, self).__init__(form.view, css_id='requiredinfoid')
+                self.enable_refresh()
+                trigger_input.enable_notify_change(self.query_fields.subscribe_to_newsletter)
+
+                if self.model_object.subscribe_to_newsletter:
+                    text_input = TextInput(form, self.model_object.fields.email)
+                    self.add_child(Label(form.view, for_input=text_input))
+                    self.add_child(text_input)
+
+            @exposed
+            def query_fields(self, fields):
+                fields.subscribe_to_newsletter = self.model_object.fields.subscribe_to_newsletter
+        return RequiredInfo
+
+
+@with_fixtures(WebFixture, OptionalInputToRequiredFieldFixture)
+def test_validation(web_fixture, required_field_fixture):
+    """If a Field has a required constraint, but its Input is not currently displayed as part of the form (because of the
+       state of another Input), and the form is submitted, the constraint should not cause an exception(input was omitted)."""
+
+    fixture = required_field_fixture
 
     class ModelObject(object):
         def __init__(self):
@@ -230,50 +276,15 @@ def test_validation(web_fixture):
         @exposed
         def fields(self, fields):
             fields.subscribe_to_newsletter = BooleanField(default=True, label='Subscribe to newsletter')
-            fields.email = EmailField(required=True, label='Email')
+            fields.email = EmailField(required=True, label='Email') #has required Validation Constrstraint
 
     model_object = ModelObject()
-
-    class MyForm(Form):
-        def __init__(self, view):
-            super(MyForm, self).__init__(view, 'myform')
-
-            self.add_child(QuestionSection(self))
-            self.define_event_handler(model_object.events.an_event)
-            self.add_child(ButtonInput(self, model_object.events.an_event))
-
-    class QuestionSection(Div):
-        def __init__(self, form):
-            super(QuestionSection, self).__init__(form.view)
-
-            checkbox_input = CheckboxInput(form, model_object.fields.subscribe_to_newsletter)
-            self.add_child(Label(form.view, for_input=checkbox_input))
-            self.add_child(checkbox_input)
-
-            self.add_child(RequiredInfo(form, checkbox_input))
-
-    class RequiredInfo(Div):
-        def __init__(self, form, trigger_input):
-            super(RequiredInfo, self).__init__(form.view, css_id='requiredinfoid')
-            self.enable_refresh()
-            trigger_input.enable_notify_change(self.query_fields.subscribe_to_newsletter)
-
-            if model_object.subscribe_to_newsletter:
-                text_input = TextInput(form, model_object.fields.email)
-                self.add_child(Label(form.view, for_input=text_input))
-                self.add_child(text_input)
-
-        @exposed
-        def query_fields(self, fields):
-            fields.subscribe_to_newsletter = model_object.fields.subscribe_to_newsletter
-
-
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.new_MyForm(model_object).factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    web_fixture.pdb()
+    #web_fixture.pdb()
 
     assert browser.is_element_present(XPath.input_labelled('Email'))
     browser.click(XPath.input_labelled('Subscribe to newsletter'))
@@ -284,8 +295,40 @@ def test_validation(web_fixture):
     assert not model_object.email
 
 
+@with_fixtures(WebFixture)
+def test_trigger_input_my_not_be_on_refreshing_widget(web_fixture):
+    """You may not trigger one of your parents to refresh"""
+
+    fixture = web_fixture
+
+    field = Field()
+    field.bind('an_attribute', fixture)
+    form = Form(fixture.view, 'myform')
+
+    class RefreshingWidget(Div):
+        def __init__(self, form):
+            super(RefreshingWidget, self).__init__(form.view)
+
+            trigger_input = TextInput(form, field)
+            trigger_input.set_id('triggerid') #TODO: why do we need to set this?
+            self.add_child(Label(form.view, for_input=trigger_input))
+            self.add_child(trigger_input)
+
+            self.enable_refresh()
+            trigger_input.enable_notify_change(self.query_fields.an_attribute)
+
+            @exposed
+            def query_fields(self, fields):
+                fields.an_attribute = field
+
+    with expected(ProgrammerError, test='xxx'):
+        RefreshingWidget(form)
+
+
+
+
 def test_input_values_are_retained():
-    """When input is intered into an input which is not always displayed, that previously entered input should be 
+    """When input is entered into an input which is not always displayed, that previously entered input should be
        saved when the input is not visible, and displayed once the input becomes visible again."""
     assert None, 'Not sure if we really want it to work this way...but this is a possible requirement'
     # If I understand the code correctly, this will already work if the underlying model object is persisted.
@@ -301,5 +344,7 @@ def test_input_values_are_retained():
 # TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
 # TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
 # TODO: test that you cannot trigger one of your parents to refresh.
-# TODO: that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
+# DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
 # TODO: form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
+# TODO: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
+# TODO: on and off for checkboxes (how to get translated values for changenotfier.js)
