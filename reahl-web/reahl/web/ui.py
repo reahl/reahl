@@ -186,9 +186,9 @@ class HashChangeHandler(object):
     @property
     def argument_defaults(self):
         i = StandaloneFieldIndex()
-        i.update(dict([(field.name, field) for field in self.for_fields]))
+        i.update(dict([(field.qualified_name, field) for field in self.for_fields]))
         field_defaults = i.as_kwargs()
-        argument_defaults = ['%s: "%s"' % (name, default_value or '') \
+        argument_defaults = ['"%s": "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
         return '{%s}' % ','.join(argument_defaults)
 
@@ -1344,7 +1344,7 @@ class Input(HTMLWidget):
         js = super(Input, self).get_js(context)
 
         for field in self.fields_to_notify:
-            js += ['$(%s).changenotifier({name:"%s"})' % (self.html_representation.jquery_selector, field.name)]
+            js += ['$(%s).changenotifier({name:"%s"})' % (self.html_representation.jquery_selector, field.qualified_name)]
         return js
 
 
@@ -1392,7 +1392,7 @@ class PrimitiveInput(Input):
         self.not_implemented()
 
     def make_name(self, discriminator):
-        return '%s%s' % (self.bound_field.variable_name, discriminator)
+        return self.bound_field.make_qualified_name(discriminator)
 
     @property
     def channel_name(self):

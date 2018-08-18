@@ -169,6 +169,55 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.initial_state = [1]
         self.changed_state = [1, 3]
 
+    @scenario
+    def multi_valued_checkbox_select_with_single_choice_corner_case(self):
+        self.multi_valued_checkbox_select()
+        fixture = self
+
+        class ModelObject(object):
+            @exposed
+            def fields(self, fields):
+                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One'))],
+                                                 default=[1],
+                                                 label='Choice')
+        self.ModelObject = ModelObject
+        #self.MyForm from multi_valued_checkbox_select
+
+        def change_value(browser):
+            browser.click(XPath.input_labelled('One'))
+        self.change_value = change_value
+        self.initial_state = [1]
+        self.changed_state = []
+
+    @scenario
+    def multi_valued_select(self):
+        fixture = self
+
+        class ModelObject(object):
+            @exposed
+            def fields(self, fields):
+                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                                  Choice(2, IntegerField(label='Two')),
+                                                  Choice(3, IntegerField(label='Three'))],
+                                                 default=[1],
+                                                 label='Choice')
+        self.ModelObject = ModelObject
+
+        class MyForm(Form):
+            def __init__(self, view, an_object):
+                super(MyForm, self).__init__(view, 'myform')
+                self.select_input = SelectInput(self, an_object.fields.choice)
+                self.select_input.set_id('marvin')
+                self.add_child(Label(view, for_input=self.select_input))
+                self.add_child(self.select_input)
+        self.MyForm = MyForm
+
+        def change_value(browser):
+            browser.select(XPath.select_labelled('Choice'), 'Three')
+        self.change_value = change_value
+        self.initial_state = [1]
+        self.changed_state = [1, 3]
+
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveWidgetScenarios)
 def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture, responsive_widget_scenarios):
@@ -181,6 +230,7 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     browser = web_fixture.driver_browser
     browser.open('/')
 
+#    web_fixture.pdb()
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
@@ -203,6 +253,7 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     assert browser.get_fragment() == '#choice=3&other_var=other_value'
 
 
+@with_fixtures(WebFixture)
 def test_inputs_effect_other_parts_of_form(web_fixture):
     """Inputs can trigger refresh of Widgets that contain other inputs in the same form"""
     assert None, 'TODO: relax check_input_placement so that it only breaks if the form does NOT have a specific ID set (it should still break if the form ID is auto-generated'
@@ -296,7 +347,7 @@ def test_validation(web_fixture, required_field_fixture):
 
 
 @with_fixtures(WebFixture)
-def test_trigger_input_my_not_be_on_refreshing_widget(web_fixture):
+def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture):
     """You may not trigger one of your parents to refresh"""
 
     fixture = web_fixture
@@ -307,6 +358,7 @@ def test_trigger_input_my_not_be_on_refreshing_widget(web_fixture):
 
     class RefreshingWidget(Div):
         def __init__(self, form):
+            self.set_id('refreshing')
             super(RefreshingWidget, self).__init__(form.view)
 
             trigger_input = TextInput(form, field)
@@ -348,3 +400,4 @@ def test_input_values_are_retained():
 # TODO: form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
 # TODO: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 # TODO: on and off for checkboxes (how to get translated values for changenotfier.js)
+# TODO: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow?

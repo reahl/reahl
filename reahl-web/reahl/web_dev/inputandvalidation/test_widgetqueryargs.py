@@ -47,10 +47,29 @@ class ValueScenarios(Fixture):
                                        Choice(2, IntegerField(label='Two')),
                                        Choice(3, IntegerField(label='Three'))],
                                        default=[])
-        self.field_on_query_string = '{field_name}=1&{field_name}=3'
+        self.field_on_query_string = '{field_name}[]=1&{field_name}[]=3'
         self.field_value_marshalled = [1, 3]
         self.field_value_as_string = '1,3'
 
+    @scenario
+    def multi_value_not_submitted(self):
+        self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                       Choice(2, IntegerField(label='Two')),
+                                       Choice(3, IntegerField(label='Three'))],
+                                       default=[2])
+        self.field_on_query_string = ''
+        self.field_value_marshalled = [2]
+        self.field_value_as_string = '2'
+
+    @scenario
+    def multi_value_empty_the_list(self):
+        self.field = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                       Choice(2, IntegerField(label='Two')),
+                                       Choice(3, IntegerField(label='Three'))],
+                                       default=[2])
+        self.field_on_query_string = '{field_name}[]-'
+        self.field_value_marshalled = []
+        self.field_value_as_string = ''
 
 @with_fixtures(WebFixture, ValueScenarios)
 def test_query_string_widget_arguments(web_fixture, value_scenarios):

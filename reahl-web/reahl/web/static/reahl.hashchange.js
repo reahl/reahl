@@ -37,7 +37,6 @@ $.widget('reahl.hashchange', {
         $(window).on( 'hashchange', function(e) {
             var allCurrentHashValues = e.getState();
             var changedRelevantHashValues = _this.calculateChangedRelevantHashValues(allCurrentHashValues);
-
             if (_this.hasChanged(changedRelevantHashValues)) {
                 _this.triggerChange(allCurrentHashValues, changedRelevantHashValues);
             };
@@ -48,7 +47,26 @@ $.widget('reahl.hashchange', {
     },
     triggerChange: function(allCurrentHashValues, changedRelevantHashValues) {
         var _this = this;
-        var allNewHashValues = $.extend(true, {}, _this.options.previousHashValues, allCurrentHashValues);
+        var allNewHashValues = $.extend({}, allCurrentHashValues);
+
+        for (var name in _this.options.previousHashValues) {
+            var isList = name.match('\\[\\]$');
+            var cleanName;
+            if (isList) {
+                cleanName = name.match('(.*)\\[\\]$')[1];
+            } else {
+                cleanName = name;
+            };
+            if (!allNewHashValues[cleanName]) {
+                var emptySentinelName = name+'-';
+                if (isList && allNewHashValues[emptySentinelName]) {
+                    allNewHashValues[emptySentinelName] = ""; 
+                } else {
+                    allNewHashValues[cleanName] = _this.options.previousHashValues[name]; 
+                }
+            }
+        };
+        
         var loading = _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         $.ajax({url:     _this.options.url,
                 cache:   _this.options.cache,
@@ -60,7 +78,7 @@ $.widget('reahl.hashchange', {
                 complete: function(data){
                     _this.element.unblock();
                 },
-                traditional: true
+                traditional: false
         });
     },
     hasChanged: function(newRelevantHashValues){
@@ -70,6 +88,14 @@ $.widget('reahl.hashchange', {
             if ( ! _.isEqual(newRelevantHashValues[name], _this.options.previousHashValues[name])) {
                 changed = true;
             };
+            var isList = name.match('\\[\\]$');
+            if (isList) {
+                var cleanName = name.match('(.*)\\[\\]$')[1];
+                var emptySentinelName = name+'-';
+                if (_.isEqual(newRelevantHashValues[emptySentinelName], _this.options.previousHashValues[emptySentinelName])) {
+                    changed = true;
+                }
+            }
         };
         return changed;
     },
@@ -77,8 +103,24 @@ $.widget('reahl.hashchange', {
         var _this = this;
         var changedRelevantHashValues = {};
         for (var name in _this.options.previousHashValues) {
-            if (allCurrentHashValues[name]) {
-                changedRelevantHashValues[name]=allCurrentHashValues[name];
+            var isList = name.match('\\[\\]$');
+            var currentValue;
+            var cleanName;
+            if (isList) {
+                cleanName = name.match('(.*)\\[\\]$')[1];
+            } else {
+                cleanName = name;
+            }
+            currentValue = allCurrentHashValues[cleanName];
+            if (currentValue) {
+                changedRelevantHashValues[name]=currentValue;
+            } else if (isList) {
+                var emptySentinelName = name+'-';
+                if (allCurrentHashValues[emptySentinelName]) {
+                    changedRelevantHashValues[emptySentinelName] = "";
+                } else {
+                    changedRelevantHashValues[name]=_this.options.previousHashValues[name];
+                }
             } else {
                 changedRelevantHashValues[name]=_this.options.previousHashValues[name];
             }

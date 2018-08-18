@@ -37,21 +37,18 @@
                 });
         },
 
-        getAllRelatedCheckboxes: function(checkbox, filter) {
-            return $('input[name="'+$(checkbox).attr("name")+'"][form="'+$(checkbox).attr("form")+'"]'+filter);
+        isCheckbox: function(input) {
+            return $(input).attr('type') === 'checkbox';
         },
 
-        isCheckboxSelectInputWithMultipleValues: function(checkbox) {
-            return !this.isCheckboxInputBoolean(checkbox) && this.getAllRelatedCheckboxes(checkbox, '').length >= 1;
+        isCheckboxForBooleanValue: function(checkbox) {
+            return this.isCheckbox(checkbox) && !$(checkbox).is('[value]'); 
         },
 
-        isCheckboxInputBoolean: function(checkbox) {
-            return $(checkbox).attr('type') === 'checkbox' && !$(checkbox).attr('value'); //explicitly use attr instead of .prop
-        },
-
-        getAllRelatedCheckedValues: function(checkbox) {
+        getCheckboxListValue: function(checkbox) {
             var checkboxValues = [];
-            this.getAllRelatedCheckboxes(checkbox, ':checked').map(function() {
+            var checkedCheckboxes = $('input[name="' + $(checkbox).attr("name") + '"][form="' + $(checkbox).attr("form") + '"]:checked');
+            checkedCheckboxes.map(function() {
                 var checkbox = this;
                 checkboxValues.push($(checkbox).val());
             });
@@ -66,15 +63,14 @@
         },
 
         getCurrentInputValue: function(currentInput) {
-
-            if (this.isCheckboxInputBoolean(currentInput)){
-                return this.getCheckboxBooleanValue(currentInput)
-            } else
-            if (this.isCheckboxSelectInputWithMultipleValues(currentInput)){
-                return this.getAllRelatedCheckedValues(currentInput);
-            }
-            else {
-                return currentInput.value;
+            if (this.isCheckbox(currentInput)) {
+                if (this.isCheckboxForBooleanValue(currentInput)){
+                    return this.getCheckboxBooleanValue(currentInput)
+                } else {
+                    return this.getCheckboxListValue(currentInput);
+                }
+            } else {
+                return $(currentInput).val();
             }
         },
         
@@ -83,9 +79,20 @@
             var originalHash = window.location.hash;
             var currentFragment = $.deparam.fragment(originalHash);
             
-            currentFragment[hashName] = this.getCurrentInputValue(currentInput);
+            var currentInputValue = this.getCurrentInputValue(currentInput);
+            if (Array.isArray(currentInputValue)) {
+                var cleanName = hashName.match('(.*)\\[\\]$')[1];
+                if ( _.isEqual(currentInputValue,[])) {
+                    currentFragment[hashName+'-'] = "";
+                } else {
+                    delete currentFragment[hashName+'-'];
+                    currentFragment[cleanName] = currentInputValue;
+                }    
+            } else {
+                currentFragment[hashName] = currentInputValue;
+            }
 
-            var newHash = $.param.fragment(originalHash, currentFragment, 2);
+            var newHash = $.param(currentFragment, false);
             window.location.hash = newHash;
         }
     });

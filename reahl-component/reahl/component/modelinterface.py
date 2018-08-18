@@ -100,8 +100,6 @@ class FieldIndex(object):
         return dict([(name, field.as_input()) for name, field in self.items()])
 
     def accept_input(self, input_dict):
-        is_multi_dict = hasattr(input_dict, 'getall')
-        assert not is_multi_dict
         for name, field in self.items():
             field.from_input(field.extract_unparsed_input_from_dict_of_lists(input_dict))
             
@@ -789,11 +787,14 @@ class Field(object):
         self.user_input = None
         self.parsed_input = self.default
     
+    def is_input_empty(self, input_value):
+        return input_value == ''
+
     def set_user_input(self, input_value, ignore_validation=False):
         self.clear_user_input()
         self.user_input = input_value
 
-        if not self.required and (input_value == self.entered_input_type()):
+        if not self.required and self.is_input_empty(input_value):
             self.input_status = 'validly_entered'
         else:
             try:
@@ -839,6 +840,13 @@ class Field(object):
         if not self.name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
         return self.name
+
+    @property
+    def qualified_name(self):
+        return self.make_qualified_name('')
+
+    def make_qualified_name(self, discriminator):
+        return '%s%s' % (self.variable_name, discriminator)
         
     def get_model_value(self):
         return getattr(self.storage_object, self.variable_name, self.default)
@@ -859,7 +867,7 @@ class Field(object):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
 
     def extract_unparsed_input_from_dict_of_lists(self, input_dict):
-        list_of_input = input_dict.get(self.name, [])
+        list_of_input = input_dict.get(self.qualified_name, [])
         if list_of_input:
             return list_of_input[0]
         else:
@@ -1401,7 +1409,7 @@ class ChoiceField(Field):
 
     @property
     def allows_multiple_selections(self):
-        return self.entered_input_type is list
+        return False
 
     def are_choices_unique(self, flattened_choices):
         return len(flattened_choices) == len(set([choice.value for choice in flattened_choices]))
@@ -1466,11 +1474,33 @@ class MultiChoiceField(ChoiceField):
     """A Field that allows a selection of values from the given :class:`Choice` instances as input."""
     entered_input_type = list
 
+    def make_qualified_name(self, discriminator):
+        return '%s[]%s' % (self.variable_name, discriminator)
+
+    def is_input_empty(self, input_value):
+        return input_value is None
+
+    @property
+    def allows_multiple_selections(self):
+        return True
+
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
 
+    @property
+    def empty_sentinel_name(self):
+        return '%s-' % self.qualified_name
+
     def extract_unparsed_input_from_dict_of_lists(self, input_dict):
-        return input_dict.get(self.name, [])
+        submitted_as_empty = len(input_dict.get(self.empty_sentinel_name, [])) > 0
+        if submitted_as_empty:
+            return []
+        else:
+            list_value = input_dict.get(self.qualified_name, [])
+            if not list_value:
+                return None
+            else:
+                return list_value
 
     def input_as_string(self, unparsed_input):
         return ','.join(unparsed_input)
