@@ -270,7 +270,7 @@ class InputScenarios(SimpleInputFixture):
 
         self.widget = self.form.add_child(SelectInput(self.form, self.field))
         options = '<option value="1">One</option><option selected="selected" value="2">Two</option>'
-        self.expected_html = '<select name="an_attribute" form="test" multiple="multiple">%s</select>' % (options)
+        self.expected_html = '<select name="an_attribute[]" form="test" multiple="multiple">%s</select>' % (options)
         self.field_controls_visibility = True
 
     @scenario
@@ -286,9 +286,9 @@ class InputScenarios(SimpleInputFixture):
         self.field.bind('an_attribute', self.model_object)
 
         self.widget = self.form.add_child(CheckboxSelectInput(self.form, self.field))
-        not_checked_option = r'<label><input name="an_attribute" form="test" type="checkbox" value="1">One</label>'
-        checked_options = r'<label><input name="an_attribute" checked="checked" form="test" type="checkbox" value="2">Two</label>'
-        checked_options += r'<label><input name="an_attribute" checked="checked" form="test" type="checkbox" value="3">Three</label>'
+        not_checked_option = r'<label><input name="an_attribute[]" form="test" type="checkbox" value="1">One</label>'
+        checked_options = r'<label><input name="an_attribute[]" checked="checked" form="test" type="checkbox" value="2">Two</label>'
+        checked_options += r'<label><input name="an_attribute[]" checked="checked" form="test" type="checkbox" value="3">Three</label>'
         options = not_checked_option + checked_options
         self.expected_html = r'<div class="reahl-checkbox-input">%s</div>' % (options)
         self.field_controls_visibility = True

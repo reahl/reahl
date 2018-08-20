@@ -45,21 +45,28 @@ $.widget('reahl.hashchange', {
         
         $(window).trigger( 'hashchange' );
     },
+    getIsList: function(name) {
+        return name.match('\\[\\]$');
+    },
+    getCleanName: function(name) {
+        if (this.getIsList(name)) {
+            return name.match('(.*)\\[\\]$')[1];
+        } else {
+            return name;
+        }
+    },
+    getEmptyListSentinel: function(name) {
+        return name+'-';
+    },
     triggerChange: function(allCurrentHashValues, changedRelevantHashValues) {
         var _this = this;
         var allNewHashValues = $.extend({}, allCurrentHashValues);
 
         for (var name in _this.options.previousHashValues) {
-            var isList = name.match('\\[\\]$');
-            var cleanName;
-            if (isList) {
-                cleanName = name.match('(.*)\\[\\]$')[1];
-            } else {
-                cleanName = name;
-            };
+            var cleanName = _this.getCleanName(name);
             if (!allNewHashValues[cleanName]) {
                 var emptySentinelName = name+'-';
-                if (isList && allNewHashValues[emptySentinelName]) {
+                if (_this.getIsList(name) && allNewHashValues[emptySentinelName]) {
                     allNewHashValues[emptySentinelName] = ""; 
                 } else {
                     allNewHashValues[cleanName] = _this.options.previousHashValues[name]; 
@@ -88,11 +95,9 @@ $.widget('reahl.hashchange', {
             if ( ! _.isEqual(newRelevantHashValues[name], _this.options.previousHashValues[name])) {
                 changed = true;
             };
-            var isList = name.match('\\[\\]$');
-            if (isList) {
-                var cleanName = name.match('(.*)\\[\\]$')[1];
-                var emptySentinelName = name+'-';
-                if (_.isEqual(newRelevantHashValues[emptySentinelName], _this.options.previousHashValues[emptySentinelName])) {
+            if (_this.getIsList(name)) {
+                var emptySentinelName = _this.getEmptyListSentinel(name);
+                if (!_.isEqual(newRelevantHashValues[emptySentinelName], _this.options.previousHashValues[emptySentinelName])) {
                     changed = true;
                 }
             }
@@ -103,20 +108,13 @@ $.widget('reahl.hashchange', {
         var _this = this;
         var changedRelevantHashValues = {};
         for (var name in _this.options.previousHashValues) {
-            var isList = name.match('\\[\\]$');
-            var currentValue;
-            var cleanName;
-            if (isList) {
-                cleanName = name.match('(.*)\\[\\]$')[1];
-            } else {
-                cleanName = name;
-            }
-            currentValue = allCurrentHashValues[cleanName];
+            var cleanName = _this.getCleanName(name);
+            var currentValue = allCurrentHashValues[cleanName];
             if (currentValue) {
                 changedRelevantHashValues[name]=currentValue;
-            } else if (isList) {
-                var emptySentinelName = name+'-';
-                if (allCurrentHashValues[emptySentinelName]) {
+            } else if (_this.getIsList(name)) {
+                var emptySentinelName = _this.getEmptyListSentinel(name);
+                if (allCurrentHashValues[emptySentinelName] != undefined) {
                     changedRelevantHashValues[emptySentinelName] = "";
                 } else {
                     changedRelevantHashValues[name]=_this.options.previousHashValues[name];

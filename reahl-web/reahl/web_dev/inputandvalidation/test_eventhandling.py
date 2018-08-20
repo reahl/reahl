@@ -386,8 +386,8 @@ def test_form_preserves_user_input_after_validation_exceptions_multichoice(web_f
 
     browser.open('/')
 
-    no_validation_exception_input = '//select[@name="no_validation_exception_field"]'
-    validation_exception_input = '//select[@name="validation_exception_field"]'
+    no_validation_exception_input = '//select[@name="no_validation_exception_field[]"]'
+    validation_exception_input = '//select[@name="validation_exception_field[]"]'
 
     browser.select_many(no_validation_exception_input, ['One', 'Two'])
     browser.select_none(validation_exception_input) # select none to trigger the RequiredConstraint
@@ -481,6 +481,10 @@ def test_check_input_placement(web_fixture):
             self.enable_refresh()
             model_object = ModelObject()
             self.add_child(TextInput(form, model_object.fields.name))
+        
+        @exposed
+        def query_fields(self, fields):
+            fields.some_attribute = Field()
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
     browser = Browser(wsgi_app)
