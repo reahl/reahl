@@ -67,9 +67,11 @@ class WebServerFixture(Fixture):
 
     @property
     def web_driver(self):
-        return self.chrome_driver
+        driver = self.chrome_driver
+        driver.set_window_size(1800, 900)
 #        return self.phantomjs_driver
 #        return self.firefox_driver
+        return driver
 
     def new_phantomjs_driver(self):
         driver = webdriver.PhantomJS() # or add to your PATH
@@ -118,7 +120,7 @@ class WebServerFixture(Fixture):
         options = Options()
         options.add_argument('--disable-preconnect')
         options.add_argument('--dns-prefetch-disable')
-        options.add_argument('--start-maximized')
+#        options.add_argument('--start-maximized')  # This breaks xpra pair programming currently.
         options.add_argument('--no-sandbox')  # Needed to be able to run a user-installed version of chromium on travis
         options.binary_location = Executable('chromium-browser').executable_file  # To run a custom-installed chromium as picked up by the PATH
         #--enable-http-pipelining
