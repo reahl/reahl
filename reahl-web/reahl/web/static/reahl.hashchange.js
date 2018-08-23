@@ -19,6 +19,8 @@
 (function($) {
 "use strict";
 
+
+
 $.widget('reahl.hashchange', {
     options: {
             url: '',
@@ -35,89 +37,104 @@ $.widget('reahl.hashchange', {
 
         _this.options.previousHashValues = $.extend(true, {}, _this.options.params);
         $(window).on( 'hashchange', function(e) {
-            var allCurrentHashValues = e.getState();
-            var changedRelevantHashValues = _this.calculateChangedRelevantHashValues(allCurrentHashValues);
+            var currentFragment = _this.getTraditionallyNamedFragment();
+            var changedRelevantHashValues = _this.calculateChangedRelevantHashValues(currentFragment);
             if (_this.hasChanged(changedRelevantHashValues)) {
-                _this.triggerChange(allCurrentHashValues, changedRelevantHashValues);
+                _this.triggerChange(currentFragment, changedRelevantHashValues);
             };
             return true;
         });
         
         $(window).trigger( 'hashchange' );
     },
+    getTraditionallyNamedFragment: function() {
+        var untraditionallyNamedFragment = $.deparam.fragment(window.location.hash);
+        var traditionallyNamedFragment = {};
+        for (var cleanName in untraditionallyNamedFragment) {
+            var value = untraditionallyNamedFragment[cleanName];
+            var traditionalName;
+            if (Array.isArray(value)) {
+                traditionalName = cleanName+'[]';
+            } else {
+                traditionalName = cleanName;
+            }
+            traditionallyNamedFragment[traditionalName] = value;
+        }
+        return traditionallyNamedFragment;
+    },
     getIsList: function(name) {
         return name.match('\\[\\]$');
-    },
-    getCleanName: function(name) {
-        if (this.getIsList(name)) {
-            return name.match('(.*)\\[\\]$')[1];
-        } else {
-            return name;
-        }
     },
     getEmptyListSentinel: function(name) {
         return name+'-';
     },
-    triggerChange: function(allCurrentHashValues, changedRelevantHashValues) {
-        var _this = this;
-        var allNewHashValues = $.extend({}, allCurrentHashValues);
-
-        for (var name in _this.options.previousHashValues) {
-            var cleanName = _this.getCleanName(name);
-            if (!allNewHashValues[cleanName]) {
-                var emptySentinelName = name+'-';
-                if (_this.getIsList(name) && allNewHashValues[emptySentinelName]) {
-                    allNewHashValues[emptySentinelName] = ""; 
-                } else {
-                    allNewHashValues[cleanName] = _this.options.previousHashValues[name]; 
-                }
+    isEmptyListSentinel: function(name) {
+        return name.match('\\[\\]-$');
+    },
+    getNameFromSentinel: function(name) {
+        return name.match('(.*\\[\\])-$')[1];
+    },
+    getArgumentNames: function() {
+        var names = [];
+        for (var name in this.options.previousHashValues) {
+            if (this.isEmptyListSentinel(name)) {
+                name = this.getNameFromSentinel(name);
             }
-        };
-        
+            names.push(name);
+        }
+        return names;
+    },
+    triggerChange: function(currentHashValues, changedHashValues) {
+        var _this = this;
+        var updatedHashValues = $.extend({}, currentHashValues, changedHashValues);
+
         var loading = _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         $.ajax({url:     _this.options.url,
                 cache:   _this.options.cache,
-                data:    allNewHashValues,
+                data:    updatedHashValues,
                 success: function(data){
                     _this.element.html(data);
-                    _this.options.previousHashValues = changedRelevantHashValues;
+                    _this.options.previousHashValues = changedHashValues;
                 },
                 complete: function(data){
                     _this.element.unblock();
                 },
-                traditional: false
+                traditional: true
         });
     },
-    hasChanged: function(newRelevantHashValues){
+    hasChanged: function(newHashValues){
         var _this = this;
         var changed = false;
         for (var name in _this.options.previousHashValues) {
-            if ( ! _.isEqual(newRelevantHashValues[name], _this.options.previousHashValues[name])) {
+            if ( ! _.isEqual(newHashValues[name], _this.options.previousHashValues[name])) {
                 changed = true;
             };
             if (_this.getIsList(name)) {
                 var emptySentinelName = _this.getEmptyListSentinel(name);
-                if (!_.isEqual(newRelevantHashValues[emptySentinelName], _this.options.previousHashValues[emptySentinelName])) {
+                if (!_.isEqual(newHashValues[emptySentinelName], _this.options.previousHashValues[emptySentinelName])) {
                     changed = true;
                 }
             }
         };
+        console.log("hasChanged", changed);
         return changed;
     },
-    calculateChangedRelevantHashValues: function(allCurrentHashValues) {
+    calculateChangedRelevantHashValues: function(currentHashValues) {
         var _this = this;
         var changedRelevantHashValues = {};
-        for (var name in _this.options.previousHashValues) {
-            var cleanName = _this.getCleanName(name);
-            var currentValue = allCurrentHashValues[cleanName];
+        var argumentNames = _this.getArgumentNames();
+        for (var i=0; i<argumentNames.length; i++) {
+            var name = argumentNames[i];
+
+            var currentValue = currentHashValues[name];
             if (currentValue) {
                 changedRelevantHashValues[name]=currentValue;
             } else if (_this.getIsList(name)) {
                 var emptySentinelName = _this.getEmptyListSentinel(name);
-                if (allCurrentHashValues[emptySentinelName] != undefined) {
+                if (currentHashValues[emptySentinelName] != undefined) {
                     changedRelevantHashValues[emptySentinelName] = "";
                 } else {
-                    changedRelevantHashValues[name]=_this.options.previousHashValues[name];
+                    changedRelevantHashValues[name]=[];
                 }
             } else {
                 changedRelevantHashValues[name]=_this.options.previousHashValues[name];

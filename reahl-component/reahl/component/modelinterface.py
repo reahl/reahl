@@ -1475,7 +1475,7 @@ class MultiChoiceField(ChoiceField):
     entered_input_type = list
 
     def make_qualified_name(self, discriminator):
-        return '%s[]%s' % (self.variable_name, discriminator)
+        return '%s%s[]' % (self.variable_name, discriminator)
 
     def is_input_empty(self, input_value):
         return input_value is None

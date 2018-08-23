@@ -73,26 +73,48 @@
                 return $(currentInput).val();
             }
         },
-        
+        getIsList: function(name) {
+            return name.match('\\[\\]$');
+        },
+        getEmptyListSentinel: function(name) {
+            return name+'-';
+        },            
+        getTraditionallyNamedFragment: function() {
+            var untraditionallyNamedFragment = $.deparam.fragment(window.location.hash);
+            var traditionallyNamedFragment = {};
+            for (var cleanName in untraditionallyNamedFragment) {
+                var value = untraditionallyNamedFragment[cleanName];
+                var traditionalName;
+                if (Array.isArray(value)) {
+                    traditionalName = cleanName+'[]';
+                } else {
+                    traditionalName = cleanName;
+                }
+                traditionallyNamedFragment[traditionalName] = value;
+            }
+            return traditionallyNamedFragment;
+        },    
         updateHashWithCurrentInputValue: function(currentInput) {
+            var _this = this;
             var hashName = this.options.name;
-            var originalHash = window.location.hash;
-            var currentFragment = $.deparam.fragment(originalHash);
+            var currentFragment = _this.getTraditionallyNamedFragment();
             
             var currentInputValue = this.getCurrentInputValue(currentInput);
-            if (Array.isArray(currentInputValue)) {
-                var cleanName = hashName.match('(.*)\\[\\]$')[1];
+//            if (Array.isArray(currentInputValue)) {
+            if (_this.getIsList(hashName)) {
+                var emptySentinelName = _this.getEmptyListSentinel(hashName);
                 if ( _.isEqual(currentInputValue,[])) {
-                    currentFragment[hashName+'-'] = "";
+                    delete currentFragment[hashName];
+                    currentFragment[emptySentinelName] = "";
                 } else {
-                    delete currentFragment[hashName+'-'];
-                    currentFragment[cleanName] = currentInputValue;
+                    delete currentFragment[emptySentinelName];
+                    currentFragment[hashName] = currentInputValue;
                 }    
             } else {
                 currentFragment[hashName] = currentInputValue;
             }
 
-            var newHash = $.param(currentFragment, false);
+            var newHash = $.param(currentFragment, true);
             window.location.hash = newHash;
         }
     });

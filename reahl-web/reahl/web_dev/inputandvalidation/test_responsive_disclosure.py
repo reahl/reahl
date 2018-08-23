@@ -230,7 +230,7 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     browser = web_fixture.driver_browser
     browser.open('/')
 
-#    web_fixture.pdb()
+    #web_fixture.pdb()
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
