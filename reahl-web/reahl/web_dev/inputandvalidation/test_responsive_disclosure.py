@@ -250,7 +250,7 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
     browser.set_fragment('#choice=2&other_var=other_value')
     browser.select(XPath.select_labelled('Choice'), 'Three')
-    assert browser.get_fragment() == '#choice=3&other_var=other_value'
+    assert browser.get_fragment() == '#other_var=other_value&choice=3'
 
 
 @with_fixtures(WebFixture)
@@ -393,11 +393,11 @@ def test_input_values_are_retained():
 # Naming of notifier.
 # Clashing names of things on the hash (larger issue)
 
-# TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
-# TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
+# TODO: on and off for checkboxes (how to get translated values for changenotfier.js): pass internationalised values of on and off to notifier from get_js and use them; test this...
 # TODO: test that you cannot trigger one of your parents to refresh.
 # DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
+# TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
+# TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
 # TODO: form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
 # TODO: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
-# TODO: on and off for checkboxes (how to get translated values for changenotfier.js)
-# TODO: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow?
+# TODO: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.

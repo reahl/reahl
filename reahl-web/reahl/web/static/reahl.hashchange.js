@@ -91,13 +91,6 @@ class HashArgument {
         hashObject[nameInHash] = valueInHash;
     }
 
-    isEmptyListSentinel(sentinelName) {
-        return sentinelName.match('\\[\\]-$');
-    }
-
-    get nameFromSentinel() {
-        return this.name.match('(.*\\[\\])-$')[1];
-    }
 }
 
 
@@ -184,6 +177,79 @@ $.widget('reahl.hashchange', {
 $.extend($.reahl.hashchange, {
     version: '1.8'
 });
+
+
+$.widget('reahl.changenotifier', {
+    options: {
+        name: undefined,
+    },
+    _create: function() {
+            var o = this.options;
+            var element = this.element;
+            var _this = this;
+
+            if (!o.name) { throw new Error("No name given in options. This is a required option.")}
+
+            $(element).on( 'change', function(e) {
+                _this.updateHashWithCurrentInputValue(e.target);
+                $(window).hashchange();
+                return true;
+            });
+    },
+
+    isCheckbox: function(input) {
+        return $(input).attr('type') === 'checkbox';
+    },
+
+    isCheckboxForBooleanValue: function(checkbox) {
+        return this.isCheckbox(checkbox) && !$(checkbox).is('[value]'); 
+    },
+
+    getCheckboxListValue: function(checkbox) {
+        var checkboxValues = [];
+        var checkedCheckboxes = $('input[name="' + $(checkbox).attr("name") + '"][form="' + $(checkbox).attr("form") + '"]:checked');
+        checkedCheckboxes.map(function() {
+            var checkbox = this;
+            checkboxValues.push($(checkbox).val());
+        });
+        return checkboxValues;
+    },
+
+    getCheckboxBooleanValue: function(checkbox) {
+       if($(checkbox).is(":checked"))
+            return 'on';
+       else
+            return 'off';
+    },
+
+    getCurrentInputValue: function(currentInput) {
+        if (this.isCheckbox(currentInput)) {
+            if (this.isCheckboxForBooleanValue(currentInput)){
+                return this.getCheckboxBooleanValue(currentInput)
+            } else {
+                return this.getCheckboxListValue(currentInput);
+            }
+        } else {
+            return $(currentInput).val();
+        }
+    },
+    updateHashWithCurrentInputValue: function(currentInput) {
+        var _this = this;
+        var currentFragment = getTraditionallyNamedFragment();
+        var currentInputValue = this.getCurrentInputValue(currentInput);
+        var argument = new HashArgument(this.options.name, currentInputValue);
+
+        argument.updateHashObject(currentFragment);
+
+        var newHash = $.param(currentFragment, true);
+        window.location.hash = newHash;
+    }
+});
+
+$.extend($.reahl.changenotifier, {
+version: '1.0'
+});
+
 
 })(jQuery);
 
