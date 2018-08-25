@@ -21,6 +21,7 @@ import six
 import io
 import re
 import contextlib
+import time
 from six.moves.urllib import parse as urllib_parse
 import logging
 from six.moves.http_cookiejar import Cookie
@@ -568,12 +569,13 @@ class DriverBrowser(BasicBrowser):
 
     def set_window_size(self, size):
         sizes = {'xs': (576-20, 600),
-                 'sm': (576+2, 600),
-                 'md': (768+2, 600),
-                 'lg': (922+2, 900),
-                 'xl': (1200+2, 900)}
+                 'sm': (768-20, 600),
+                 'md': (922-20, 600),
+                 'lg': (1200-20, 900),
+                 'xl': (1200+300, 900)}
         assert size in sizes.keys(), 'size should be one of: %' % (', '.join(sizes.keys()))
-        self.web_driver.set_window_size(*sizes[size])
+        self.web_driver.set_window_size(*sizes[size]) # Setting it once requires some sort of delay before it actually happens, twice does that trick.
+        self.web_driver.set_window_size(*sizes[size]) 
         
     @property
     def raw_html(self):
