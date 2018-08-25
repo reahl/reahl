@@ -67,11 +67,9 @@ class WebServerFixture(Fixture):
 
     @property
     def web_driver(self):
-        driver = self.chrome_driver
-        driver.set_window_size(1800, 900)
+        return self.chrome_driver
 #        return self.phantomjs_driver
 #        return self.firefox_driver
-        return driver
 
     def new_phantomjs_driver(self):
         driver = webdriver.PhantomJS() # or add to your PATH

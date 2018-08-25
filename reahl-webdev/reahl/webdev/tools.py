@@ -564,7 +564,17 @@ class DriverBrowser(BasicBrowser):
         self.default_host = host
         self.default_scheme = scheme
         self.default_port = port
+        self.set_window_size('xl')
 
+    def set_window_size(self, size):
+        sizes = {'xs': (576-20, 600),
+                 'sm': (576+2, 600),
+                 'md': (768+2, 600),
+                 'lg': (922+2, 900),
+                 'xl': (1200+2, 900)}
+        assert size in sizes.values()
+        self.web_driver.set_window_size(*sizes[size])
+        
     @property
     def raw_html(self):
         """Returns the HTML for the current location unchanged."""
