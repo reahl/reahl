@@ -42,7 +42,7 @@ class BasicScenarios(Fixture):
     def get_file_content(self, filename):
         with(io.open('%s/%s' % (os.path.dirname(__file__), filename))) as f:
             file_content = ''.join(f.readlines())
-        return file_content
+        return file_content[:-1]
 
     @property
     def view(self):
