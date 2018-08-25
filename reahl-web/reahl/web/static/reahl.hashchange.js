@@ -35,53 +35,49 @@ function getTraditionallyNamedFragment() {
     return traditionallyNamedFragment;
 }
 
-class HashArgument {
-
-    constructor(name, defaultValue) {
-        this.name = name;
-        this.value = defaultValue;
-        this.changed = false;
-    }
-
-    changeValue(value) {
+function HashArgument(name, defaultValue) {
+    this.name = name;
+    this.value = defaultValue;
+    this.changed = false;
+    this.changeValue = function(value) {
         if (!_.isEqual(this.value, value)) {
             this.changed = true;
             this.value = value;
         }
     }
 
-    get isList() {
+    this.getIsList = function() {
         return this.name.match('\\[\\]$');
     }
 
-    get isEmptyList() {
-        return this.isList && (_.isEqual(this.value, []));
+    this.getIsEmptyList = function() {
+        return this.getIsList() && (_.isEqual(this.value, []));
     }
 
-    get emptyListSentinelName() {
+    this.getEmptyListSentinelName = function() {
         return this.name+'-';
     }
 
-    updateFromHashObject(hashObject) {
+    this.updateFromHashObject = function(hashObject) {
         this.changed = false;
         var currentValue = hashObject[this.name];
         if (currentValue) {
             this.changeValue(currentValue);
-        } else if (this.isList) {
-            if (hashObject[this.emptyListSentinelName] != undefined) {
+        } else if (this.getIsList()) {
+            if (hashObject[this.getEmptyListSentinelName()] != undefined) {
                 this.changeValue([]);
             }
         } 
     }
 
-    updateHashObject(hashObject) {
+    this.updateHashObject = function(hashObject) {
         delete hashObject[this.name];
-        delete hashObject[this.emptyListSentinelName];
+        delete hashObject[this.getEmptyListSentinelName()];
 
         var nameInHash;
         var valueInHash;
-        if (this.isEmptyList) {
-            nameInHash = this.emptyListSentinelName;
+        if (this.getIsEmptyList()) {
+            nameInHash = this.getEmptyListSentinelName();
             valueInHash = "";
         } else {
             nameInHash = this.name;
