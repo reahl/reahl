@@ -572,7 +572,7 @@ class DriverBrowser(BasicBrowser):
                  'md': (768+2, 600),
                  'lg': (922+2, 900),
                  'xl': (1200+2, 900)}
-        assert size in sizes.values()
+        assert size in sizes.keys(), 'size should be one of: %' % (', '.join(sizes.keys()))
         self.web_driver.set_window_size(*sizes[size])
         
     @property
