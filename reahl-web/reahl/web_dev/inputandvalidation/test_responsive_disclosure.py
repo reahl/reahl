@@ -172,7 +172,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.changed_state = [1, 3]
 
     @scenario
-    def multi_valued_checkbox_select_with_single_choice_corner_case(self):
+    def multi_valued_checkbox_select_with_single_choice_corner_case_empty_a_list(self):
         self.multi_valued_checkbox_select()
         fixture = self
 
@@ -190,6 +190,26 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.change_value = change_value
         self.initial_state = [1]
         self.changed_state = []
+
+    @scenario
+    def multi_valued_checkbox_select_with_single_choice_corner_case_add_to_empty_list(self):
+        self.multi_valued_checkbox_select()
+        fixture = self
+
+        class ModelObject(object):
+            @exposed
+            def fields(self, fields):
+                fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One'))],
+                                                 default=[],
+                                                 label='Choice')
+        self.ModelObject = ModelObject
+        #self.MyForm from multi_valued_checkbox_select
+
+        def change_value(browser):
+            browser.click(XPath.input_labelled('One'))
+        self.change_value = change_value
+        self.initial_state = []
+        self.changed_state = [1]
 
     @scenario
     def multi_valued_select(self):
@@ -354,11 +374,10 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture):
 
     class RefreshingWidget(Div):
         def __init__(self, form):
-            self.set_id('refreshing')
             super(RefreshingWidget, self).__init__(form.view)
+            self.set_id('refreshing')
 
             trigger_input = TextInput(form, field)
-            trigger_input.set_id('triggerid') #TODO: why do we need to set this?
             self.add_child(Label(form.view, for_input=trigger_input))
             self.add_child(trigger_input)
 
@@ -390,22 +409,16 @@ def test_input_values_are_retained():
 # Clashing names of things on the hash (larger issue)
 
 # TODO: test that you cannot trigger one of your parents to refresh.
+# TODO: if you tab out of something, you should tab to the next thing as per the regenerated screen
 # DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
 # TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
 # TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
 # TODO: form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
-# TODO: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
+# DONE: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 # TODO: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
 
 
-# TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
-# TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
-# TODO: test that you cannot trigger one of your parents to refresh.
-# DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error) see: test_refresh_widget_without_query_fields_raises_error
-# TODO: form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
 # DONE: see: multi_value_empty_the_list when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
-# DONE: see test_change_notifier_with_custom_boolean_field_true_false : on and off for checkboxes (how to get translated values for changenotfier.js)
-# TODO: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow?
 # TODO: found that this test seems to hang regularly(not when run individually, and the xpra chrome window stays open): pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::test_clicking_on_multi_tab, more spcifically: pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::"test_clicking_on_multi_tab[web_fixture1-panel_switch_fixture1-tabbed_panel_ajax_fixture1]"
 
 

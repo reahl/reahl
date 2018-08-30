@@ -71,6 +71,7 @@ class ValueScenarios(Fixture):
         self.field_value_marshalled = []
         self.field_value_as_string = ''
 
+
 @with_fixtures(WebFixture, ValueScenarios)
 def test_query_string_widget_arguments(web_fixture, value_scenarios):
     """Widgets can have arguments that are read from a query string"""
