@@ -118,7 +118,7 @@ $.widget('reahl.hashchange', {
             };
             return true;
         });
-        
+
         $(window).trigger( 'hashchange' );
     },
     getArguments: function() {
@@ -134,6 +134,7 @@ $.widget('reahl.hashchange', {
     },
     triggerChange: function(currentHashValues, newArguments) {
         var _this = this;
+
         _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         $.ajax({url:     _this.options.url,
                 cache:   _this.options.cache,
@@ -178,6 +179,8 @@ $.extend($.reahl.hashchange, {
 $.widget('reahl.changenotifier', {
     options: {
         name: undefined,
+        true_boolean_value: 'on',
+        false_boolean_value: 'off',
     },
     _create: function() {
             var o = this.options;
@@ -212,10 +215,11 @@ $.widget('reahl.changenotifier', {
     },
 
     getCheckboxBooleanValue: function(checkbox) {
+       var _this = this;
        if($(checkbox).is(":checked"))
-            return 'on';
+            return _this.options.true_boolean_value;
        else
-            return 'off';
+            return _this.options.false_boolean_value;
     },
 
     getCurrentInputValue: function(currentInput) {
@@ -230,6 +234,7 @@ $.widget('reahl.changenotifier', {
         }
     },
     updateHashWithCurrentInputValue: function(currentInput) {
+
         var _this = this;
         var currentFragment = getTraditionallyNamedFragment();
         var currentInputValue = this.getCurrentInputValue(currentInput);
