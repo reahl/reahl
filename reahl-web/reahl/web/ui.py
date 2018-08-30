@@ -1342,10 +1342,21 @@ class Input(HTMLWidget):
 
     def get_js(self, context=None):
         js = super(Input, self).get_js(context)
+        true_boolean_value, false_boolean_value = self.boolean_field_true_false_values()
 
         for field in self.fields_to_notify:
-            js += ['$(%s).changenotifier({name:"%s"})' % (self.html_representation.jquery_selector, field.qualified_name)]
+            js += ['$(%s).changenotifier({name:"%s", true_boolean_value:"%s", false_boolean_value:"%s"})'
+                   % (self.html_representation.jquery_selector, field.qualified_name,
+                      true_boolean_value, false_boolean_value)]
         return js
+
+    def boolean_field_true_false_values(self):
+        true_boolean_value = _('on')
+        false_boolean_value = _('off')
+        if isinstance(self.bound_field, BooleanField):
+            true_boolean_value = self.bound_field.true_value
+            false_boolean_value = self.bound_field.false_value
+        return true_boolean_value, false_boolean_value
 
 
 class WrappedInput(Input):
