@@ -179,8 +179,9 @@ $.extend($.reahl.hashchange, {
 $.widget('reahl.changenotifier', {
     options: {
         name: undefined,
-        true_boolean_value: 'on',
-        false_boolean_value: 'off',
+        is_boolean: false,
+        true_boolean_value: undefined,
+        false_boolean_value: undefined,
     },
     _create: function() {
             var o = this.options;
@@ -200,8 +201,8 @@ $.widget('reahl.changenotifier', {
         return $(input).attr('type') === 'checkbox';
     },
 
-    isCheckboxForBooleanValue: function(checkbox) {
-        return this.isCheckbox(checkbox) && !$(checkbox).is('[value]'); 
+    isForBooleanValue: function(checkbox) {
+        return this.options.is_boolean;
     },
 
     getCheckboxListValue: function(checkbox) {
@@ -224,7 +225,7 @@ $.widget('reahl.changenotifier', {
 
     getCurrentInputValue: function(currentInput) {
         if (this.isCheckbox(currentInput)) {
-            if (this.isCheckboxForBooleanValue(currentInput)){
+            if (this.isForBooleanValue(currentInput)){
                 return this.getCheckboxBooleanValue(currentInput)
             } else {
                 return this.getCheckboxListValue(currentInput);

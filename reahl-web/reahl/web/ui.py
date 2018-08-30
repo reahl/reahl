@@ -22,6 +22,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import time
 from string import Template
+import json
 import collections
 import copy
 import re
@@ -1342,21 +1343,19 @@ class Input(HTMLWidget):
 
     def get_js(self, context=None):
         js = super(Input, self).get_js(context)
-        true_boolean_value, false_boolean_value = self.boolean_field_true_false_values()
 
         for field in self.fields_to_notify:
-            js += ['$(%s).changenotifier({name:"%s", true_boolean_value:"%s", false_boolean_value:"%s"})'
-                   % (self.html_representation.jquery_selector, field.qualified_name,
-                      true_boolean_value, false_boolean_value)]
+            js += ['$(%s).changenotifier(%s)'
+                   % (self.html_representation.jquery_selector, self.changenotifier_js_options(field))]
         return js
 
-    def boolean_field_true_false_values(self):
-        true_boolean_value = _('on')
-        false_boolean_value = _('off')
+    def changenotifier_js_options(self, field):
+        options = {'name': field.qualified_name}
         if isinstance(self.bound_field, BooleanField):
-            true_boolean_value = self.bound_field.true_value
-            false_boolean_value = self.bound_field.false_value
-        return true_boolean_value, false_boolean_value
+            options['is_boolean'] = True
+            options['true_boolean_value'] = self.bound_field.true_value
+            options['false_boolean_value'] = self.bound_field.false_value
+        return json.dumps(options)
 
 
 class WrappedInput(Input):

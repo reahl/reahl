@@ -87,7 +87,7 @@ class ResponsiveDisclosureFixture(Fixture):
 
 
 class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
-    #@scenario
+    @scenario
     def select_input(self):
         fixture = self
 
@@ -97,7 +97,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.initial_state = 1
         self.changed_state = 3
 
-    #@scenario
+    @scenario
     def radio_buttons(self):
         fixture = self
 
@@ -116,14 +116,15 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.initial_state = 1
         self.changed_state = 3
 
-    #@scenario
+    @scenario
     def single_valued_checkbox(self):
         fixture = self
 
         class ModelObject(object):
             @exposed
             def fields(self, fields):
-                fields.choice = BooleanField(default=False, label='Choice')
+                fields.choice = BooleanField(default=False, label='Choice',
+                                             true_value='✓', false_value='⍻')
         self.ModelObject = ModelObject
 
         class MyForm(Form):
@@ -170,7 +171,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.initial_state = [1]
         self.changed_state = [1, 3]
 
-    #@scenario
+    @scenario
     def multi_valued_checkbox_select_with_single_choice_corner_case(self):
         self.multi_valued_checkbox_select()
         fixture = self
@@ -190,7 +191,7 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         self.initial_state = [1]
         self.changed_state = []
 
-    #@scenario
+    @scenario
     def multi_valued_select(self):
         fixture = self
 
@@ -267,35 +268,28 @@ def test_inputs_effect_other_parts_of_form(web_fixture):
 
 class BooleanInputTriggerFixture(Fixture):
 
-    def new_MyForm(self, model_object):
+    def new_MyForm(self):
         fixture = self
         class MyForm(Form):
-            def __init__(self, view):
+            def __init__(self, view, model_object):
                 super(MyForm, self).__init__(view, 'myform')
-                self.add_child(fixture.QuestionSection(self, model_object))
+
+                checkbox_input = CheckboxInput(self, model_object.fields.subscribe_to_newsletter)
+                self.add_child(Label(view, for_input=checkbox_input))
+                self.add_child(checkbox_input)
+
+                self.add_child(fixture.MyChangingWidget(self, checkbox_input, model_object))
+
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(ButtonInput(self, model_object.events.an_event))
         return MyForm
 
-    def new_QuestionSection(self):
+    def new_MyChangingWidget(self):
         fixture = self
-        class QuestionSection(Div):
-            def __init__(self, form, model_object):
-                super(QuestionSection, self).__init__(form.view)
-
-                checkbox_input = CheckboxInput(form, model_object.fields.subscribe_to_newsletter)
-                self.add_child(Label(form.view, for_input=checkbox_input))
-                self.add_child(checkbox_input)
-
-                self.add_child(fixture.RequiredInfo(form, checkbox_input, model_object))
-        return QuestionSection
-
-    def new_RequiredInfo(self):
-        fixture = self
-        class RequiredInfo(Div):
+        class MyChangingWidget(Div):
             def __init__(self, form, trigger_input, model_object):
                 self.model_object = model_object
-                super(RequiredInfo, self).__init__(form.view, css_id='requiredinfoid')
+                super(MyChangingWidget, self).__init__(form.view, css_id='requiredinfoid')
                 self.enable_refresh()
                 trigger_input.enable_notify_change(self.query_fields.subscribe_to_newsletter)
 
@@ -307,7 +301,7 @@ class BooleanInputTriggerFixture(Fixture):
             @exposed
             def query_fields(self, fields):
                 fields.subscribe_to_newsletter = self.model_object.fields.subscribe_to_newsletter
-        return RequiredInfo
+        return MyChangingWidget
 
 
 @with_fixtures(WebFixture, BooleanInputTriggerFixture)
@@ -332,7 +326,7 @@ def test_validation_of_undisclosed_yet_required_input(web_fixture, boolean_input
             fields.email = EmailField(required=True, label='Email') #has required Validation Constraint
 
     model_object = ModelObject()
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.new_MyForm(model_object).factory())
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory(model_object))
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
@@ -346,44 +340,6 @@ def test_validation_of_undisclosed_yet_required_input(web_fixture, boolean_input
 
     assert model_object.subscribe_to_newsletter == False
     assert not model_object.email
-
-
-@with_fixtures(WebFixture, BooleanInputTriggerFixture)
-def test_change_notifier_with_custom_boolean_field_true_false(web_fixture, boolean_input_fixture):
-    """Responsive disclosure functionality is retained when using non-standard on/off BooleanField value."""
-
-    fixture = boolean_input_fixture
-
-    true_value = '✓'
-    false_value = '⍻'
-
-    class ModelObject(object):
-        def __init__(self):
-            self.subscribe_to_newsletter = True
-            self.email = None
-
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me')
-
-        @exposed
-        def fields(self, fields):
-            fields.subscribe_to_newsletter = BooleanField(true_value=true_value, false_value=false_value,
-                                                          default=True, label='Subscribe to newsletter')
-            fields.email = EmailField(required=True, label='Email')
-
-    model_object = ModelObject()
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.new_MyForm(model_object).factory())
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-    browser.open('/')
-
-    #web_fixture.pdb()
-
-    browser.click(XPath.input_labelled('Subscribe to newsletter'))
-    browser.click(XPath.button_labelled('click me'))
-
-    assert model_object.subscribe_to_newsletter == False
 
 
 @with_fixtures(WebFixture)
@@ -433,7 +389,6 @@ def test_input_values_are_retained():
 # Naming of notifier.
 # Clashing names of things on the hash (larger issue)
 
-# TODO: on and off for checkboxes (how to get translated values for changenotfier.js): pass internationalised values of on and off to notifier from get_js and use them; test this...
 # TODO: test that you cannot trigger one of your parents to refresh.
 # DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
 # TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
