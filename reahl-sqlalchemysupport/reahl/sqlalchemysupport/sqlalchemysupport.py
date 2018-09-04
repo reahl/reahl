@@ -200,7 +200,23 @@ class SqlAlchemyControl(ORMControl):
     def __init__(self, echo=False):
         self.echo = echo
         self.engine = None
-        
+
+    @contextmanager
+    def nested_transaction2(self):
+        # TODO: this is an experiment...
+        """A context manager for code that needs to run in a nested transaction."""
+        transaction = Session.begin_nested()
+        class TransactionVote(object):
+            should_commit = False
+        transaction_vote = TransactionVote()
+        try:
+            yield transaction_vote
+        finally:
+            if transaction_vote.should_commit:
+                self.commit()
+            else:
+                self.rollback()
+
     @contextmanager
     def nested_transaction(self):
         """A context manager for code that needs to run in a nested transaction."""
@@ -209,13 +225,14 @@ class SqlAlchemyControl(ORMControl):
             yield transaction
         except Exception as ex:
             commit = getattr(ex, 'commit', False)
+            raise
+        else:
+            commit = True
+        finally:
             if commit:
                 self.commit()
             else:
                 self.rollback()
-            raise
-        else:
-            self.commit()
 
     @contextmanager
     def managed_transaction(self):

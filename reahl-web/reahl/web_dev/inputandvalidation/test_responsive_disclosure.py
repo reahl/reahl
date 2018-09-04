@@ -17,6 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+from sqlalchemy import Column, Integer
+
 from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
@@ -29,6 +31,8 @@ from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField
     EmailField, Event
 from reahl.component.exceptions import ProgrammerError
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
+from reahl.sqlalchemysupport import Base, Session
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 
 
 @uses(web_fixture=WebFixture)
@@ -274,6 +278,69 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     browser.set_fragment('#choice=2&other_var=other_value')
     browser.select(XPath.select_labelled('Choice'), 'Three')
     assert browser.get_fragment() == '#other_var=other_value&choice=3'
+
+
+@with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture)
+def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, responsive_disclosure_fixture, sql_alchemy_fixture):
+
+    fixture = responsive_disclosure_fixture
+
+    class ModelObject(Base):
+        __tablename__ = 'test_responsive_disclosure_rollback'
+        id = Column(Integer, primary_key=True)
+        number = Column(Integer)
+        choice = Column(Integer, default=1)
+
+        @exposed
+        def fields(self, fields):
+            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
+                                         Choice(2, IntegerField(label='Two')),
+                                         Choice(3, IntegerField(label='Three'))],
+                                         label='Choice')
+    fixture.ModelObject = ModelObject
+
+    class FormWithButton(fixture.MyForm):
+        def __init__(self, view, an_object):
+            super(FormWithButton, self).__init__(view, an_object)
+
+            self.define_event_handler(self.events.submit)
+            self.add_child(ButtonInput(self, self.events.submit))
+
+        @exposed
+        def events(self, events):
+            events.submit = Event(label='Submit')
+
+    fixture.MyForm = FormWithButton
+
+    with sql_alchemy_fixture.persistent_test_classes(ModelObject):
+
+        model_object = ModelObject(number=123)
+        Session.add(model_object)
+
+        class MainWidget(Widget):
+            def __init__(self, view):
+                super(MainWidget, self).__init__(view)
+                an_object = model_object
+                form = self.add_child(fixture.MyForm(view, an_object))
+                self.add_child(fixture.MyChangingWidget(view, form.select_input, an_object))
+        fixture.MainWidget = MainWidget
+
+        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
+        web_fixture.reahl_server.set_app(wsgi_app)
+        browser = web_fixture.driver_browser
+        browser.open('/')
+
+        assert model_object.choice == 1
+        browser.click(XPath.option_with_text('Three'))
+#        Session.refresh(model_object)
+
+#        import pdb; pdb.set_trace()
+        assert model_object.choice == 1
+
+        browser.click(XPath.button_labelled('Submit'))
+#        Session.refresh(model_object)
+        assert model_object.choice == 3
+
 
 
 @with_fixtures(WebFixture)

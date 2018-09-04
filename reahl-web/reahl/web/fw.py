@@ -1878,6 +1878,10 @@ class FooterContent(Widget):
 
 class Resource(object):
     @property
+    def should_commit(self):
+        return True
+
+    @property
     def http_methods(self):
         regex = re.compile(r'handle_(?!(request)$)([a-z]+)?')
         methods = []
@@ -1894,6 +1898,8 @@ class Resource(object):
         method_handler = getattr(self, 'handle_%s' % request.method.lower())
         return method_handler(request)
 
+    def cleanup_after_transaction(self):
+        pass
 
 
 class SubResource(Resource):
@@ -2176,6 +2182,12 @@ class RemoteMethod(SubResource):
         self.immutable = immutable
         self.callable_object = callable_object
         self.default_result = default_result
+        self.caught_exception = None
+        self.input_values = None
+
+    @property
+    def should_commit(self):
+        return ((self.caught_exception is None) or getattr(self.caught_exception, 'commit', False)) and (not self.immutable)
 
     @property
     def name(self):
@@ -2203,15 +2215,18 @@ class RemoteMethod(SubResource):
         caught_exception = None
         return_value = None
         try:
-            with context.system_control.nested_transaction():
-                return_value = self.callable_object(**self.parse_arguments(input_values))
+            return_value = self.callable_object(**self.parse_arguments(input_values))
         except catch_exception as ex:
-            context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
-            self.cleanup_after_exception(input_values, ex)
-            caught_exception = ex
+            self.caught_exception = caught_exception = ex
+            self.input_values = input_values
+        return (return_value, caught_exception)
+
+    def cleanup_after_transaction(self):
+        super(RemoteMethod, self).cleanup_after_transaction()
+        if self.caught_exception:
+            self.cleanup_after_exception(self.input_values, self.caught_exception)
         else:
             self.cleanup_after_success()
-        return (return_value, caught_exception)
 
     def make_result(self, input_values):
         """Override this method to be able to determine (at run time) what MethodResult to use
@@ -2693,6 +2708,30 @@ class ReahlWSGIApplication(object):
             return self.serialise_requests()
         return self.allow_parallel_requests()
 
+    def handle_request(self, request):
+        context = ExecutionContext.get_context()
+        # TODO: move transaction stuff out of here to system_control somehow
+        from reahl.sqlalchemysupport.sqlalchemysupport import Session
+        transaction = Session.begin_nested()
+        should_commit = False
+        resource = None
+        try:
+            resource = self.resource_for(request)
+            response = resource.handle_request(request) 
+            should_commit = resource.should_commit
+        except InternalRedirect as e:
+            should_commit = resource.should_commit
+            raise
+        finally:
+            if should_commit:
+                self.system_control.commit()
+            else:
+                self.system_control.rollback()
+                context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
+            if resource:
+                resource.cleanup_after_transaction()
+        return response
+
     def __call__(self, environ, start_response):
         request = Request(environ, charset='utf8')
         context = self.create_context_for_request()
@@ -2706,12 +2745,10 @@ class ReahlWSGIApplication(object):
             try:
                 try:
                     try:
-                        resource = self.resource_for(request)
-                        response = resource.handle_request(request) 
+                        response = self.handle_request(request)
                     except InternalRedirect as e:
                         request.internal_redirect = e
-                        resource = self.resource_for(request)
-                        response = resource.handle_request(request)
+                        response = self.handle_request(request)
                 except HTTPException as e:
                     response = e
                 except DisconnectionError as e:

@@ -120,6 +120,9 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
     with CallMonitor(reahl_system_fixture.system_control.orm_control.commit) as monitor:
         @stubclass(Resource)
         class ResourceStub(object):
+            should_commit = True
+            def cleanup_after_transaction(self):
+                pass
             def handle_request(self, request):
                 context = ExecutionContext.get_context()
                 assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
@@ -174,6 +177,8 @@ def test_internal_redirects(web_fixture):
 
     @stubclass(Resource)
     class ResourceStub(object):
+        should_commit = True
+        def cleanup_after_transaction(self): pass
         def handle_request(self, request):
             fixture.requests_handled.append(request)
             fixture.handling_resources.append(self)

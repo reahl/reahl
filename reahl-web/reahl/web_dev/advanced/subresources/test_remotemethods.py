@@ -19,6 +19,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 import json
 from webob import Response
 
+from sqlalchemy import Column, UnicodeText, Integer
+
 from reahl.stubble import stubclass, CallMonitor
 from reahl.tofu import scenario, expected, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -29,6 +31,7 @@ from reahl.web.fw import CheckedRemoteMethod, JsonResult, MethodResult, RemoteMe
 from reahl.component.modelinterface import Field, IntegerField
 
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
+from reahl.sqlalchemysupport import Base, Session
 from reahl.dev.fixtures import ReahlSystemFixture
 from reahl.web_dev.fixtures import WebFixture
 
@@ -103,7 +106,6 @@ def test_exception_handling(web_fixture, remote_method_fixture):
 def test_immutable_remote_methods(web_fixture, remote_method_fixture):
     """A RemoteMethod that is immutable is accessible via GET (instead of POST)."""
 
-
     def callable_object():
         return 'value returned from method'
     remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
@@ -117,6 +119,33 @@ def test_immutable_remote_methods(web_fixture, remote_method_fixture):
 
     # POSTing to the URL, is not supported
     browser.post('/_amethod_method', {}, status=405)
+
+
+@with_fixtures(WebFixture, RemoteMethodFixture, SqlAlchemyFixture)
+def test_immutable_remote_methods_rollback(web_fixture, remote_method_fixture, sql_alchemy_fixture):
+    """The database is always rolled back at the end of an immutable RemoteMethod."""
+
+    class TestObject(Base):
+        __tablename__ = 'test_remotemethods_test_object'
+        id = Column(Integer, primary_key=True)
+        name = Column(UnicodeText)
+
+    with sql_alchemy_fixture.persistent_test_classes(TestObject):
+        def callable_object():
+            Session.add(TestObject(name='new object'))
+            assert Session.query(TestObject).count() == 1
+            return 'value returned from method'
+        
+        remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
+
+        wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
+        browser = Browser(wsgi_app)
+
+        browser.open('/_amethod_method')
+        assert browser.raw_html == 'value returned from method'
+
+        # The database is rolled back to ensure immutability
+        assert Session.query(TestObject).count() == 0
 
 
 class ArgumentScenarios(Fixture):
