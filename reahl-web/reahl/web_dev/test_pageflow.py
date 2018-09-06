@@ -68,7 +68,7 @@ def test_basic_transition(web_fixture):
     fixture.did_something = False
     browser.open('/a_ui/viewa')
     browser.click('//input[@value="Click me"]')
-    assert browser.location_path == '/a_ui/viewb'
+    assert browser.current_url.path == '/a_ui/viewb'
     assert fixture.did_something
 
     # The transition does not work from viewb
@@ -112,7 +112,7 @@ def test_guards(web_fixture):
     fixture.guard_value = True
     browser.open('/a_ui/viewa')
     browser.click('//input[@value="Click me"]')
-    assert browser.location_path == '/a_ui/viewc'
+    assert browser.current_url.path == '/a_ui/viewc'
 
     # If there is no Transition with a True guard, fail
     fixture.guard_value = False
@@ -152,7 +152,7 @@ def test_local_transition(web_fixture):
     fixture.did_something = False
     browser.open('/a_ui/viewa')
     browser.click('//input[@value="Click me"]')
-    assert browser.location_path == '/a_ui/viewa'
+    assert browser.current_url.path == '/a_ui/viewa'
     assert fixture.did_something
 
     # But it is also guarded
@@ -319,7 +319,7 @@ def test_redirect(web_fixture):
     browser = Browser(wsgi_app)
 
     browser.open('/a_ui/viewa')
-    assert browser.location_path == '/a_ui/viewb'
+    assert browser.current_url.path == '/a_ui/viewb'
 
 
 @with_fixtures(WebFixture)
@@ -357,17 +357,17 @@ def test_detours_and_return_transitions(web_fixture):
 
     fixture.make_precondition_pass = False
     browser.open('/a_ui/viewa')
-    assert browser.location_path == '/a_ui/firstStepOfDetour'
+    assert browser.current_url.path == '/a_ui/firstStepOfDetour'
 
     browser.click('//input[@type="submit"]')
-    assert browser.location_path == '/a_ui/lastStepOfDetour'
+    assert browser.current_url.path == '/a_ui/lastStepOfDetour'
 
     fixture.make_precondition_pass = True
     browser.click('//input[@type="submit"]')
-    assert browser.location_path == '/a_ui/viewa'
+    assert browser.current_url.path == '/a_ui/viewa'
 
     # The query string is cleared after such a return (it is used to remember where to return to)
-    assert browser.location_query_string == ''
+    assert browser.current_url.query == ''
 
 
 @with_fixtures(WebFixture)
@@ -397,13 +397,13 @@ def test_detours_and_explicit_return_view(web_fixture):
     browser = Browser(wsgi_app)
 
     browser.open('/a_ui/viewa')
-    assert browser.location_path == '/a_ui/detour'
+    assert browser.current_url.path == '/a_ui/detour'
 
     browser.click('//input[@type="submit"]')
-    assert browser.location_path == '/a_ui/explicitReturnView'
+    assert browser.current_url.path == '/a_ui/explicitReturnView'
 
     # The query string is cleared after such a return (it is used to remember where to return to)
-    assert browser.location_query_string == ''
+    assert browser.current_url.query == ''
 
 
 @with_fixtures(WebFixture)
@@ -432,17 +432,17 @@ def test_redirect_used_to_return(web_fixture):
 
     # Normal operation - when a caller can be determined
     browser.open('/a_ui/viewa')
-    assert browser.location_path == '/a_ui/explicitReturnView'
+    assert browser.current_url.path == '/a_ui/explicitReturnView'
 
     #  - the query string is cleared after such a return (it is used to remember where to return to)
-    assert browser.location_query_string == ''
+    assert browser.current_url.query == ''
 
     # When a caller cannot be determined, the default is used
     browser.open('/a_ui/detour')
-    assert browser.location_path == '/a_ui/defaultReturnView'
+    assert browser.current_url.path == '/a_ui/defaultReturnView'
 
     #  - the query string is cleared after such a return (it is used to remember where to return to)
-    assert browser.location_query_string == ''
+    assert browser.current_url.query == ''
 
 
 @with_fixtures(WebFixture)
@@ -464,7 +464,7 @@ def test_unconditional_redirection(web_fixture):
     browser = Browser(wsgi_app)
 
     browser.open('/a_ui/redirected')
-    assert browser.location_path == '/a_ui/target'
+    assert browser.current_url.path == '/a_ui/target'
 
 
 @with_fixtures(WebFixture)
@@ -506,16 +506,16 @@ def test_linking_to_views_marked_as_detour(web_fixture):
 
     browser.open('/uiWithLink/initial')
     browser.click('//a')
-    assert browser.location_path == '/uiWithDetour/firstStepOfDetour'
+    assert browser.current_url.path == '/uiWithDetour/firstStepOfDetour'
 
     browser.click('//input[@type="submit"]')
-    assert browser.location_path == '/uiWithDetour/lastStepOfDetour'
+    assert browser.current_url.path == '/uiWithDetour/lastStepOfDetour'
 
     browser.click('//input[@type="submit"]')
-    assert browser.location_path == '/uiWithLink/initial'
+    assert browser.current_url.path == '/uiWithLink/initial'
 
     # The query string is cleared after such a return (it is used to remember where to return to)
-    assert browser.location_query_string == ''
+    assert browser.current_url.query == ''
 
 
 @with_fixtures(WebFixture)
@@ -539,13 +539,13 @@ def test_detour_is_non_reentrant(web_fixture):
     browser = Browser(wsgi_app)
 
     def locationIsSetToReturnTo(url_path):
-        return urllib_parse.parse_qs(browser.location_query_string)['returnTo'] == [url_path]
+        return urllib_parse.parse_qs(browser.current_url.query)['returnTo'] == [url_path]
 
     browser.open('/initial')
     browser.click(XPath.link_with_text('Step 1'))
-    assert browser.location_path == '/firstStepOfDetour'
+    assert browser.current_url.path == '/firstStepOfDetour'
     assert locationIsSetToReturnTo('http://localhost/initial')
 
     browser.click(XPath.link_with_text('Step 1'))
-    assert browser.location_path == '/firstStepOfDetour'
+    assert browser.current_url.path == '/firstStepOfDetour'
     assert locationIsSetToReturnTo('http://localhost/initial')

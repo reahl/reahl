@@ -122,11 +122,11 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         class ResourceStub(object):
             should_commit = True
             def cleanup_after_transaction(self):
-                pass
+                assert monitor.times_called == 2  # The database has been committed after user code started executed, before cleanup
             def handle_request(self, request):
                 context = ExecutionContext.get_context()
                 assert context.session is UserSessionStub.session  # By the time user code executes, the session is set
-                assert monitor.times_called == 1  # The database has been committed
+                assert monitor.times_called == 1  # The database has been committed before user code started executing
                 assert not context.session.last_activity_time_set
                 assert not UserSessionStub.session.key_is_set
                 return Response()
@@ -143,7 +143,7 @@ def test_web_session_handling(reahl_system_fixture, web_fixture):
         assert monitor.times_called == 0  # ... and the database is not yet committed
         browser.open('/')
 
-        assert monitor.times_called == 1  # The database is committed after user code executed
+        assert monitor.times_called == 2  # The database is committed to save session changes before user code and again after user code executed
         assert UserSessionStub.session  # The session was set
         assert UserSessionStub.session.key_is_set  # The set_session_key was called
         assert UserSessionStub.session.saved_response.status_int is 200  # The correct response was passed to set_session_key

@@ -105,7 +105,7 @@ def test_ui_redirect(web_fixture):
 
     browser.open('/a_ui')
     assert browser.title == 'UserInterface root view' 
-    assert browser.location_path == '/a_ui/' 
+    assert browser.current_url.path == '/a_ui/' 
 
 
 @with_fixtures(WebFixture)

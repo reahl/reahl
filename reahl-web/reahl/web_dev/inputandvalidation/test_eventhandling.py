@@ -327,25 +327,25 @@ def test_exception_handling(reahl_system_fixture, web_fixture):
             home.set_slot('main', MyForm.factory('myform', other_view))
 
     wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-    fixture.reahl_server.set_app(wsgi_app)
 
-    fixture.driver_browser.open('/')
+    browser = Browser(wsgi_app)  # Dont use a real browser, because it will also hit many other URLs for js and css which confuse the issue
+    browser.open('/')
 
     assert not hasattr(model_object, 'field_name')
-    fixture.driver_browser.type("//input[@type='text']", '5')
+    browser.type("//input[@type='text']", '5')
 
     # any database stuff that happened when the form was submitted was rolled back
     with CallMonitor(reahl_system_fixture.system_control.orm_control.rollback) as monitor:
-        fixture.driver_browser.click(XPath.button_labelled('click me'))
+        browser.click(XPath.button_labelled('click me'))
     assert monitor.times_called == 1
 
     # the value input by the user is still displayed on the form, NOT the actual value on the model object
     assert model_object.field_name == 1
-    retained_value = fixture.driver_browser.get_value("//input[@type='text']")
+    retained_value = browser.get_value("//input[@type='text']")
     assert retained_value == '5'
 
     # the browser is still on the page with the form which triggered the exception
-    assert fixture.driver_browser.current_url.path == '/'
+    assert browser.current_url.path == '/'
 
 
 @with_fixtures(WebFixture)
@@ -662,7 +662,7 @@ def test_form_input_validation(web_fixture):
     assert Session.query(UserInput).filter_by(key='field_name').count() == 0  # The invalid input was removed
     assert Session.query(PersistedException).count() == 0  # The exception was removed
 
-    assert browser.location_path == '/page2'
+    assert browser.current_url.path == '/page2'
 
     # Case: form validation passes (js)
     #  - no ValidationException
@@ -842,8 +842,8 @@ def test_alternative_event_trigerring(web_fixture):
     browser.post('/__myform_method', {'event.an_event?': '', '_noredirect': ''})
     browser.follow_response()  # Needed to make the test break should a HTTPTemporaryRedirect response be sent
     assert model_object.handled_event
-    assert browser.location_path != '/page2'
-    assert browser.location_path == '/__myform_method'
+    assert browser.current_url.path != '/page2'
+    assert browser.current_url.path == '/__myform_method'
 
     # the response is a json object reporting the success of the event and a new rendition of the form
     json_dict = json.loads(browser.raw_html)

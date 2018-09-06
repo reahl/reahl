@@ -34,6 +34,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 from reahl.component.py3compat import ascii_as_bytes_or_str
+from reahl.component.decorators import deprecated
 from reahl.web.fw import Url
 
 
@@ -229,15 +230,26 @@ class Browser(BasicBrowser):
         return self.last_response.request
     
     @property
+    def current_url(self):
+        """Returns the :class:`reahl.web.fw.Url` of the current location.
+        
+        .. versionadded:: 4.1
+        """
+        return Url(self.last_response.request.url)
+
+    @deprecated('Please use .current_url.path instead', '4.1')
+    @property
     def location_path(self):
         """Returns the current location url path."""
         return self.last_response.request.path
 
+    @deprecated('Please use .current_url.scheme instead', '4.1')
     @property
     def location_scheme(self):
         """Returns the the last request scheme(HTTP/HTTPS)."""
         return self.last_response.request.scheme
 
+    @deprecated('Please use .current_url.query instead', '4.1')
     @property
     def location_query_string(self):
         """Returns the current query string."""
