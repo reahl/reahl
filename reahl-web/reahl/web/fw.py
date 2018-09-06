@@ -2164,19 +2164,26 @@ class RemoteMethod(SubResource):
     """A server-side method that can be invoked from a browser via an URL. The method will return its result
        back to the browser in different ways, depending on which type of `default_result` it is constructed 
        with.
-
+           
        :param name: A unique name from which the URL of this RemoteMethod will be constructed.
        :param callable_object: A callable object which will receive either the raw query arguments (if immutable),
                                or the raw POST data (if not immutable) as keyword arguments.
-       :param immutable: Whether this method will yield the same side-effects and results when called more than 
-                         once, or not. Immutable methods are accessible via GET method, non-immutable methods
-                         via POST.
+       :param idempotent: Whether this method will yield the same side-effects and results when called more than 
+                         once, or not. Idempotent methods are accessible via GET method. Methods that are not idempotent
+                         are accessible by POST http method.
+       :param immutable: Pass True to guarantee that this method will not make changes in the database (the database 
+                         is rolled back to ensure this). Immutable methods are idempotent.
+
+        .. versionchanged:: 4.1
+           idempotent and immutable kwargs split up into two and better defined.
+                         
     """
     sub_regex = 'method'
     sub_path_template = 'method'
 
-    def __init__(self, name, callable_object, default_result, immutable=False):
+    def __init__(self, name, callable_object, default_result, idempotent=False, immutable=False):
         super(RemoteMethod, self).__init__(name)
+        self.idempotent = idempotent or immutable
         self.immutable = immutable
         self.callable_object = callable_object
         self.default_result = default_result
@@ -2193,7 +2200,7 @@ class RemoteMethod(SubResource):
     
     @property
     def http_methods(self):
-        if self.immutable:
+        if self.immutable or self.idempotent:
             return ['get']
         return ['post']
 
@@ -2264,11 +2271,15 @@ class CheckedRemoteMethod(RemoteMethod):
        :param name: (See :class:`RemoteMethod`.)
        :param callable_object: (See :class:`RemoteMethod`.) Should expect a keyword argument for each key in `parameters`.
        :param result: (See :class:`RemoteMethod`.)
+       :param idempotent: (See :class:`RemoteMethod`.)
        :param immutable: (See :class:`RemoteMethod`.)
        :param parameters: A dictionary containing a Field for each argument name expected.
+
+       .. versionchanged:: 4.1
+          Split immutable into immutable and idempotent kwargs.
     """
-    def __init__(self, name, callable_object, result, immutable=False, **parameters):
-        super(CheckedRemoteMethod, self).__init__(name, callable_object, result, immutable=immutable)
+    def __init__(self, name, callable_object, result, idempotent=False, immutable=False, **parameters):
+        super(CheckedRemoteMethod, self).__init__(name, callable_object, result, idempotent=idempotent, immutable=immutable)
         self.parameters = FieldIndex(self)
         for name, field in parameters.items():
             self.parameters.set(name, field)
@@ -2291,7 +2302,7 @@ class EventChannel(RemoteMethod):
        Programmers should not need to work with an EventChannel directly.
     """
     def __init__(self, form, controller, name):
-        super(EventChannel, self).__init__(name, self.delegate_event, None, immutable=False)
+        super(EventChannel, self).__init__(name, self.delegate_event, None, idempotent=False, immutable=False)
         self.controller = controller
         self.form = form
 

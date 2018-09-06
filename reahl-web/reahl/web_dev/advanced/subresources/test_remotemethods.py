@@ -103,17 +103,17 @@ def test_exception_handling(web_fixture, remote_method_fixture):
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture)
-def test_immutable_remote_methods(web_fixture, remote_method_fixture):
-    """A RemoteMethod that is immutable is accessible via GET (instead of POST)."""
+def test_idempotent_remote_methods(web_fixture, remote_method_fixture):
+    """A RemoteMethod that is idempotent is accessible via GET (instead of POST)."""
 
     def callable_object():
         return 'value returned from method'
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
+    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), idempotent=True)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
 
-    # GET, since the method is immutable
+    # GET, since the method is idempotent
     browser.open('/_amethod_method')
     assert browser.raw_html == 'value returned from method'
 
@@ -122,7 +122,7 @@ def test_immutable_remote_methods(web_fixture, remote_method_fixture):
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture, SqlAlchemyFixture)
-def test_immutable_remote_methods_rollback(web_fixture, remote_method_fixture, sql_alchemy_fixture):
+def test_immutable_remote_methods(web_fixture, remote_method_fixture, sql_alchemy_fixture):
     """The database is always rolled back at the end of an immutable RemoteMethod."""
 
     class TestObject(Base):
@@ -138,6 +138,8 @@ def test_immutable_remote_methods_rollback(web_fixture, remote_method_fixture, s
         
         remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=True)
 
+        assert remote_method.idempotent  # Immutable methods are idempotent
+
         wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
         browser = Browser(wsgi_app)
 
@@ -151,10 +153,10 @@ def test_immutable_remote_methods_rollback(web_fixture, remote_method_fixture, s
 class ArgumentScenarios(Fixture):
     @scenario
     def get(self):
-        self.immutable = True
+        self.idempotent = True
     @scenario
     def post(self):
-        self.immutable = False
+        self.idempotent = False
 
 
 @with_fixtures(WebFixture, RemoteMethodFixture, ArgumentScenarios)
@@ -166,13 +168,14 @@ def test_arguments_to_remote_methods(web_fixture, remote_method_fixture, argumen
     def callable_object(**kwargs):
         fixture.method_kwargs = kwargs
         return ''
-    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), immutable=fixture.immutable)
+
+    remote_method = RemoteMethod('amethod', callable_object, MethodResult(), idempotent=fixture.idempotent)
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
 
     kwargs_sent = {'a':'AAA', 'b':'BBB'}
-    if fixture.immutable:
+    if fixture.idempotent:
         browser.open('/_amethod_method?a=AAA&b=BBB')
     else:
         browser.post('/_amethod_method', kwargs_sent)
@@ -188,15 +191,16 @@ def test_checked_arguments(web_fixture, remote_method_fixture, argument_scenario
     def callable_object(anint=None, astring=None):
         fixture.method_kwargs = {'anint': anint, 'astring': astring}
         return ''
+
     remote_method = CheckedRemoteMethod('amethod', callable_object, MethodResult(),
-                                        immutable=fixture.immutable,
+                                        idempotent=fixture.idempotent,
                                         anint=IntegerField(),
                                         astring=Field())
 
     wsgi_app = remote_method_fixture.new_wsgi_app(remote_method=remote_method)
     browser = Browser(wsgi_app)
 
-    if fixture.immutable:
+    if fixture.idempotent:
         browser.open('/_amethod_method?anint=5&astring=SupercalifraGilisticexpialidocious')
     else:
         browser.post('/_amethod_method', {'anint':'5', 'astring':'SupercalifraGilisticexpialidocious'})

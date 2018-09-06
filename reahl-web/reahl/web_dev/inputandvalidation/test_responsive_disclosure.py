@@ -280,8 +280,8 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     assert browser.get_fragment() == '#other_var=other_value&choice=3'
 
 
-@with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture)
-def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, responsive_disclosure_fixture, sql_alchemy_fixture):
+@with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture, QueryStringFixture)
+def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, responsive_disclosure_fixture, sql_alchemy_fixture, query_string_fixture):
 
     fixture = responsive_disclosure_fixture
 
@@ -332,14 +332,13 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
 
         assert model_object.choice == 1
         browser.click(XPath.option_with_text('Three'))
-#        Session.refresh(model_object)
-
-#        import pdb; pdb.set_trace()
-        assert model_object.choice == 1
+    
+        assert browser.wait_for(query_string_fixture.is_state_now, 3)  # The screen was updated,
+        assert model_object.choice == 1                                # but the database not.
 
         browser.click(XPath.button_labelled('Submit'))
-#        Session.refresh(model_object)
-        assert model_object.choice == 3
+        assert browser.wait_for(query_string_fixture.is_state_now, 3) 
+        assert model_object.choice == 3                                # Now the database is updated too.
 
 
 
