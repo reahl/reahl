@@ -2718,29 +2718,25 @@ class ReahlWSGIApplication(object):
                 self.config.web.session_class.initialise_web_session_on(context)
             try:
                 try:
-                    from reahl.sqlalchemysupport.sqlalchemysupport import Session
-                    transaction = Session.begin_nested()
-                    should_commit = False
-                    resource = None
-                    try:
-                        resource = self.resource_for(request)
-                        response = resource.handle_request(request) 
-                        should_commit = resource.should_commit
-                    except InternalRedirect as e:
-                        if resource:
-                            resource.cleanup_after_transaction()
-                        request.internal_redirect = e
-                        resource = self.resource_for(request)
-                        response = resource.handle_request(request) 
-                        should_commit = resource.should_commit
-                    finally:
-                        if should_commit:
-                            self.system_control.commit()
-                        else:
-                            self.system_control.rollback()
-                            context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
-                        if resource:
-                            resource.cleanup_after_transaction()
+                    with self.system_control.nested_transaction() as veto:
+                        veto.should_commit = False
+                        resource = None
+                        try:
+                            resource = self.resource_for(request)
+                            response = resource.handle_request(request) 
+                            veto.should_commit = resource.should_commit
+                        except InternalRedirect as e:
+                            if resource:
+                                resource.cleanup_after_transaction()
+                            resource = None
+                            request.internal_redirect = e
+                            resource = self.resource_for(request)
+                            response = resource.handle_request(request) 
+                            veto.should_commit = resource.should_commit
+                    if not veto.should_commit:
+                        context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
+                    if resource:
+                        resource.cleanup_after_transaction()
                 except HTTPException as e:
                     response = e
                 except DisconnectionError as e:

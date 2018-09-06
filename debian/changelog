@@ -4,7 +4,8 @@ python-reahl (4.1) unstable; urgency=low
  * Fixed Widget query_arguments mechanism to work correctly with list-like values.
  * Added fragment getter/setter on DriverBrowser.
  * Added UNDERSCORE.JS
- * Added current_url to Browser and deprecated older methods for compatibility with DriverBrowser 
+ * Added current_url to Browser and deprecated older methods for compatibility with DriverBrowser. 
+ * Changed nested_transaction to yield a TransactionVeto object.
  
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 1 Aug 2018 15:15:00 +0200
 
