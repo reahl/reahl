@@ -2014,7 +2014,6 @@ class MethodResult(object):
           Added the replay_request functionality.
           Set the default for catch_exception to DomainException
     """
-    redirects_internally = False
     def __init__(self, catch_exception=DomainException, mime_type='text/html', encoding='utf-8', replay_request=False):
         self.catch_exception = catch_exception
         self.mime_type = mime_type
@@ -2049,7 +2048,7 @@ class MethodResult(object):
         return six.text_type(exception)
 
     def get_response(self, return_value, is_internal_redirect):
-        if self.redirects_internally and not is_internal_redirect:
+        if self.replay_request and not is_internal_redirect:
             raise RegenerateMethodResult(return_value, None)
         response = self.create_response(return_value)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
@@ -2057,7 +2056,7 @@ class MethodResult(object):
         return response
 
     def get_exception_response(self, exception, is_internal_redirect):
-        if self.redirects_internally and not is_internal_redirect:
+        if self.replay_request and not is_internal_redirect:
             raise RegenerateMethodResult(None, exception)
         response = self.create_exception_response(exception)
         response.content_type = ascii_as_bytes_or_str(self.mime_type)
@@ -2099,7 +2098,7 @@ class JsonResult(MethodResult):
     """
     redirects_internally = True
     def __init__(self, result_field, **kwargs):
-        super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', **kwargs)
+        super(JsonResult, self).__init__(mime_type='application/json', encoding='utf-8', replay_request=True, **kwargs)
         self.fields = FieldIndex(self)
         self.fields.result = result_field
 
@@ -2130,7 +2129,6 @@ class WidgetResult(MethodResult):
        A JavaScript `<script>` tag is rendered also, containing the JavaScript activating code for the 
        new contents of this refreshed Widget.
     """
-    redirects_internally = True
 
     def __init__(self, result_widget, as_json_and_result=False):
         mime_type = 'application/json' if as_json_and_result else 'text/html'
@@ -2708,30 +2706,6 @@ class ReahlWSGIApplication(object):
             return self.serialise_requests()
         return self.allow_parallel_requests()
 
-    def handle_request(self, request):
-        context = ExecutionContext.get_context()
-        # TODO: move transaction stuff out of here to system_control somehow
-        from reahl.sqlalchemysupport.sqlalchemysupport import Session
-        transaction = Session.begin_nested()
-        should_commit = False
-        resource = None
-        try:
-            resource = self.resource_for(request)
-            response = resource.handle_request(request) 
-            should_commit = resource.should_commit
-        except InternalRedirect as e:
-            should_commit = resource.should_commit
-            raise
-        finally:
-            if should_commit:
-                self.system_control.commit()
-            else:
-                self.system_control.rollback()
-                context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
-            if resource:
-                resource.cleanup_after_transaction()
-        return response
-
     def __call__(self, environ, start_response):
         request = Request(environ, charset='utf8')
         context = self.create_context_for_request()
@@ -2744,11 +2718,29 @@ class ReahlWSGIApplication(object):
                 self.config.web.session_class.initialise_web_session_on(context)
             try:
                 try:
+                    from reahl.sqlalchemysupport.sqlalchemysupport import Session
+                    transaction = Session.begin_nested()
+                    should_commit = False
+                    resource = None
                     try:
-                        response = self.handle_request(request)
+                        resource = self.resource_for(request)
+                        response = resource.handle_request(request) 
+                        should_commit = resource.should_commit
                     except InternalRedirect as e:
+                        if resource:
+                            resource.cleanup_after_transaction()
                         request.internal_redirect = e
-                        response = self.handle_request(request)
+                        resource = self.resource_for(request)
+                        response = resource.handle_request(request) 
+                        should_commit = resource.should_commit
+                    finally:
+                        if should_commit:
+                            self.system_control.commit()
+                        else:
+                            self.system_control.rollback()
+                            context.config.web.session_class.initialise_web_session_on(context) # Because the rollback above nuked it
+                        if resource:
+                            resource.cleanup_after_transaction()
                 except HTTPException as e:
                     response = e
                 except DisconnectionError as e:
