@@ -417,8 +417,6 @@ def test_validation_of_undisclosed_yet_required_input(web_fixture, boolean_input
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    #web_fixture.pdb()
-
     assert browser.is_element_present(XPath.input_labelled('Email'))
     browser.click(XPath.input_labelled('Subscribe to newsletter'))
     assert not browser.is_element_present(XPath.input_labelled('Email'))
@@ -455,21 +453,10 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
         browser.open('/')
 
 
-def test_input_values_are_retained():
-    """When input is entered into an input which is not always displayed, that previously entered input should be
-       saved when the input is not visible, and displayed once the input becomes visible again."""
-    assert None, 'Not sure if we really want it to work this way...but this is a possible requirement'
-    # If I understand the code correctly, this will already work if the underlying model object is persisted.
-    # However, if you really want things to work this way, you should probably make it work regardless of
-    # whether the underlying model object is persisted because one would expect such a feature to always just work.
-    # I have not thought whether or not you really want this in a real world use case. Perhaps you DO want to 
-    # start from scratch each time the user flips? Perhaps because we're unsure we should not spend time on this now?
-
-
 # Naming of notifier.
 # Clashing names of things on the hash (larger issue)
 
-# TODO: test that you cannot trigger one of your parents to refresh.
+# DONE: test that you cannot trigger one of your parents to refresh.
 # TODO: if you tab out of something, you should tab to the next thing as per the regenerated screen
 # DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
 # TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
