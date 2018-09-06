@@ -713,6 +713,12 @@ class Field(object):
         self.validate_input(unparsed_input, ignore=AccessRightsConstraint)
         self.validate_parsed(self.parse_input(unparsed_input), ignore=AccessRightsConstraint)
 
+    def __str__(self):
+        name_part = '(not bound)'
+        if self.is_bound:
+            name_part = 'name=%s' % self.name
+        return '<%s %s>' % (self.__class__.__name__, name_part)
+
     @property
     def can_read(self):
         return self.access_rights.get_bound_read_rights(self)

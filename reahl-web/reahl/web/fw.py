@@ -1136,6 +1136,7 @@ class Widget(object):
 
         self.check_forms_unique(forms.keys())
         self.check_all_inputs_forms_exist(forms.keys(), [i for i, refresh_set in inputs])
+        self.check_trigger_inputs_dont_refresh_their_ancestors(inputs)
         #self.check_input_placement(forms, inputs)
 
     def check_all_inputs_forms_exist(self, forms_found_on_page, inputs_on_page):
@@ -1145,6 +1146,20 @@ class Widget(object):
                           % (six.text_type(i), six.text_type(i.form))
                 raise ProgrammerError(message)
         
+    def check_trigger_inputs_dont_refresh_their_ancestors(self, inputs_with_refresh_sets):
+        inputs_in_error = []
+        for i, i_refresh_set in inputs_with_refresh_sets:
+            for trigger_field in i.fields_to_notify:
+                for ancestor in i_refresh_set:
+                    if trigger_field.qualified_name in [field.qualified_name for field in ancestor.query_fields.values()]:
+                        inputs_in_error.append((i, ancestor, trigger_field))
+        if inputs_in_error:
+            message = 'Inputs are not allowed where they can trigger themselves to be refreshed. '
+            message += 'Some inputs were incorrectly placed:\n'
+            for i, ancestor, trigger_field in inputs_in_error:
+                message += '\t%s is refreshed by %s via field %s\n' % (six.text_type(i), six.text_type(ancestor), six.text_type(trigger_field))
+            raise ProgrammerError(message)
+
     def check_input_placement(self, forms_with_refresh_sets, inputs_with_refresh_sets):
         inputs_in_error = []
         for i, i_refresh_set in inputs_with_refresh_sets:

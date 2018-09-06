@@ -428,36 +428,31 @@ def test_validation_of_undisclosed_yet_required_input(web_fixture, boolean_input
     assert not model_object.email
 
 
-@with_fixtures(WebFixture)
-def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture):
+@with_fixtures(WebFixture, ResponsiveDisclosureFixture)
+def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_disclosure_fixture):
     """You may not trigger one of your parents to refresh"""
 
-    fixture = web_fixture
+    fixture = responsive_disclosure_fixture
 
-    field = Field()
-    field.bind('an_attribute', fixture)
-    form = Form(fixture.view, 'myform')
+    class ChangingWidget(fixture.MyChangingWidget):
+        def __init__(self, view, form, model_object):
+            super(ChangingWidget, self).__init__(view, form.select_input, model_object)
+            self.add_child(form)
 
-    class RefreshingWidget(Div):
-        def __init__(self, form):
-            super(RefreshingWidget, self).__init__(form.view)
-            self.set_id('refreshing')
-
-            trigger_input = TextInput(form, field)
-            self.add_child(Label(form.view, for_input=trigger_input))
-            self.add_child(trigger_input)
-
-            self.enable_refresh()
-            trigger_input.enable_notify_change(self.query_fields.an_attribute)
-
-            @exposed
-            def query_fields(self, fields):
-                fields.an_attribute = field
-
-    with expected(ProgrammerError, test='xxx'):
-        RefreshingWidget(form)
+    class MainWidget(Widget):
+        def __init__(self, view):
+            super(MainWidget, self).__init__(view)
+            model_object = fixture.ModelObject()
+            form = fixture.MyForm(view, model_object)
+            self.add_child(ChangingWidget(view, form, model_object))
 
 
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    
+    with expected(ProgrammerError, test='Inputs are not allowed where they can trigger themselves to be refreshed. Some inputs were incorrectly placed:\n\t<SelectInput name=choice> is refreshed by <ChangingWidget div id=dave> via field <ChoiceField name=choice>\n'):
+        browser.open('/')
 
 
 def test_input_values_are_retained():
