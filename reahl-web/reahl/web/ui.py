@@ -1867,6 +1867,8 @@ class CheckboxSelectInput(PrimitiveInput):
 
     @arg_checks(bound_field=IsInstance(ChoiceField))
     def __init__(self, form, bound_field):
+        if type(bound_field) == ChoiceField:
+            raise ProgrammerError('ChoiceField is not allowed to be used with CheckboxSelectInput')
         self.added_choices = []
         super(CheckboxSelectInput, self).__init__(form, bound_field)
 
