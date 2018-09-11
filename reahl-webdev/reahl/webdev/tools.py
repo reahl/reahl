@@ -860,6 +860,20 @@ class DriverBrowser(BasicBrowser):
         el = self.find_element(xpath)
         return self.web_driver.execute_script('arguments[0].focus();', el)
 
+    def is_focus_on(self, locator):
+        """Answers whether the tab-focus is on the element found by the `locator`.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+
+           ..versionadded:: 4.1
+
+        """
+        xpath = six.text_type(locator)
+        el = self.find_element(xpath)
+        active_element = self.web_driver.switch_to.active_element
+        #self.web_driver.switch_to.default_content #restore the focus
+        return el == active_element
+
     @property
     def current_url(self):
         """Returns the :class:`reahl.web.fw.Url` of the current location."""
