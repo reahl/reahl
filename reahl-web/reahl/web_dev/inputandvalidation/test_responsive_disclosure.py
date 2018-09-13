@@ -499,13 +499,13 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_tri
 # Naming of notifier.
 # Clashing names of things on the hash (larger issue)
 
-# TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
+# DONE: break if a user sends a ChoiceField to a CheckboxSelectInput
 # TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
 # DONE: test that you cannot trigger one of your parents to refresh.
-# SEEMS to work anyways - see test_correct_tab_order_for_responsive_widgets: TODO: if you tab out of something, you should tab to the next thing as per the regenerated screen
+# TODO see test_correct_tab_order_for_responsive_widgets: TODO: if you tab out of something, you should tab to the next thing as per the regenerated screen
 # DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
-# TODO: form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
-# TODO: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
+# TODO: (related to xsrf token implementation maybe?) form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
+# DONE: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
 # DONE: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 
 
