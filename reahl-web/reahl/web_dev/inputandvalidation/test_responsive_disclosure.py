@@ -453,13 +453,52 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
         browser.open('/')
 
 
+@with_fixtures(WebFixture, BooleanInputTriggerFixture)
+def test_correct_tab_order_for_responsive_widgets(web_fixture, responsive_disclosure_fixture):
+    """When a user TAB's through inputs on the page, the tab order is adjusted to include the new input in logical order"""
+
+    fixture = responsive_disclosure_fixture
+    class ModelObject(object):
+        def __init__(self):
+            self.subscribe_to_newsletter = False
+            self.email = None
+
+        @exposed
+        def events(self, events):
+            events.an_event = Event(label='click me')
+
+        @exposed
+        def fields(self, fields):
+            fields.subscribe_to_newsletter = BooleanField(default=True, label='Subscribe to newsletter')
+            fields.email = EmailField(required=True, label='Email') #has required Validation Constraint
+
+    model_object = ModelObject()
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory(model_object))
+
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    browser.press_tab()
+    assert browser.is_focus_on(XPath.input_labelled('Subscribe to newsletter'))
+    browser.press_tab()
+    assert browser.is_focus_on(XPath.button_labelled('click me'))
+
+    # introduce a new input by selecting subscribe
+    browser.click(XPath.input_labelled('Subscribe to newsletter'))
+    browser.press_tab()
+    #the new input has focus in corrrect order
+    assert browser.is_focus_on(XPath.input_labelled('Email'))
+    browser.press_tab()
+    assert browser.is_focus_on(XPath.button_labelled('click me'))
+
 # Naming of notifier.
 # Clashing names of things on the hash (larger issue)
 
 # TODO: break if a user sends a ChoiceField to a CheckboxSelectInput
 # TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
 # DONE: test that you cannot trigger one of your parents to refresh.
-# TODO: if you tab out of something, you should tab to the next thing as per the regenerated screen
+# SEEMS to work anyways - see test_correct_tab_order_for_responsive_widgets: TODO: if you tab out of something, you should tab to the next thing as per the regenerated screen
 # DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
 # TODO: form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
 # TODO: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
