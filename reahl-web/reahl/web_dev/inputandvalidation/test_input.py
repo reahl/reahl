@@ -449,21 +449,23 @@ def test_marshalling_of_checkbox_select_input(web_fixture, checkbox_fixture):
 
 
 @with_fixtures(WebFixture)
-def test_checkbox_select_input_may_not_be_associated_with_choice_field(web_fixture):
-    """It does not make sense to bind a CheckboxSelectInput, that allows many choice to be selected,
-    to a ChoiceField which is intended to yield only one of the choices"""
+def test_checkbox_select_input_allowed_fields(web_fixture):
+    """A CheckboxSelectInput can only be used with a MultiChoiceField."""
 
     model_object = web_fixture
     form = Form(web_fixture.view, 'test')
 
-    choice_field = ChoiceField([Choice(1, IntegerField(label='One')),
-                                Choice(2, IntegerField(label='Two')),
-                                Choice(3, IntegerField(label='Three'))]
-                               )
+    choice_field = ChoiceField([])
     choice_field.bind('an_attribute', model_object)
 
-    with expected(ProgrammerError, test='ChoiceField is not allowed to be used with CheckboxSelectInput'):
+    with expected(ProgrammerError, test='<class \'reahl.component.modelinterface.ChoiceField\'> is not allowed to be used with <class \'reahl.web.ui.CheckboxSelectInput\'>'):
         CheckboxSelectInput(form, choice_field)
+
+    multi_choice_field = MultiChoiceField([])
+    multi_choice_field.bind('another_attribute', model_object)
+
+    with expected(NoException):
+        CheckboxSelectInput(form, multi_choice_field)
 
 
 class RadioButtonInputFieldScenarios(Fixture):

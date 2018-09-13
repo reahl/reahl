@@ -354,13 +354,16 @@ def test_inputs_effect_other_parts_of_form(web_fixture):
 
 class BooleanInputTriggerFixture(Fixture):
 
+    def new_trigger_input_type(self):
+        return CheckboxInput
+
     def new_MyForm(self):
         fixture = self
         class MyForm(Form):
             def __init__(self, view, model_object):
                 super(MyForm, self).__init__(view, 'myform')
 
-                checkbox_input = CheckboxInput(self, model_object.fields.subscribe_to_newsletter)
+                checkbox_input = fixture.trigger_input_type(self, model_object.fields.subscribe_to_newsletter)
                 self.add_child(Label(view, for_input=checkbox_input))
                 self.add_child(checkbox_input)
 
@@ -454,10 +457,11 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
 
 
 @with_fixtures(WebFixture, BooleanInputTriggerFixture)
-def test_correct_tab_order_for_responsive_widgets(web_fixture, responsive_disclosure_fixture):
+def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_trigger_fixture):
     """When a user TAB's through inputs on the page, the tab order is adjusted to include the new input in logical order"""
 
-    fixture = responsive_disclosure_fixture
+    fixture = boolean_input_trigger_fixture
+    fixture.trigger_input_type = TextInput
     class ModelObject(object):
         def __init__(self):
             self.subscribe_to_newsletter = False
@@ -469,7 +473,7 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, responsive_disclo
 
         @exposed
         def fields(self, fields):
-            fields.subscribe_to_newsletter = BooleanField(default=True, label='Subscribe to newsletter')
+            fields.subscribe_to_newsletter = BooleanField(label='Subscribe to newsletter')
             fields.email = EmailField(required=True, label='Email') #has required Validation Constraint
 
     model_object = ModelObject()
@@ -479,16 +483,16 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, responsive_disclo
     browser = web_fixture.driver_browser
     browser.open('/')
 
+    # When a new input appears in next tab order position, the user should tab to it
+    assert browser.get_value(XPath.input_labelled('Subscribe to newsletter')) == 'off'
     browser.press_tab()
     assert browser.is_focus_on(XPath.input_labelled('Subscribe to newsletter'))
+    browser.type(XPath.input_labelled('Subscribe to newsletter'), 'on')
     browser.press_tab()
-    assert browser.is_focus_on(XPath.button_labelled('click me'))
-
-    # introduce a new input by selecting subscribe
-    browser.click(XPath.input_labelled('Subscribe to newsletter'))
-    browser.press_tab()
-    #the new input has focus in corrrect order
     assert browser.is_focus_on(XPath.input_labelled('Email'))
+
+    # When an input disappears from the tab order, the user should tab to the next one
+    browser.type(XPath.input_labelled('Subscribe to newsletter'), 'off')
     browser.press_tab()
     assert browser.is_focus_on(XPath.button_labelled('click me'))
 
