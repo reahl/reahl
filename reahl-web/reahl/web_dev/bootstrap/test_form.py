@@ -635,6 +635,8 @@ def test_button_layouts(web_fixture):
     assert button.attrib['class'] == 'btn'
 
     # Case: possible effects
+    form = Form(web_fixture.view, 'test')
+    form.define_event_handler(event)
     button = Button(form, event).use_layout(ButtonLayout(style='secondary', size='sm', active=True, wide=True))
 
     tester = WidgetTester(button)

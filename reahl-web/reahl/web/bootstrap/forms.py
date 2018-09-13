@@ -71,18 +71,22 @@ class TextInput(reahl.web.ui.TextInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :param fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
+       :keyword name: (See :class:`~reahl.web.ui.TextInput`)
+       :keyword fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
                      when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
                      such "fuzzy input". If fuzzy=True, the typed value will be changed on the fly to
                      the system's interpretation of what the user originally typed as soon as the TextInput
                      looses focus.
-       :param placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
+       :keyword placeholder: If given a string, placeholder is displayed in the TextInput if the TextInput
                      is empty in order to provide a hint to the user of what may be entered into the TextInput.
                      If given True instead of a string, the label of the TextInput is used.
+
+       .. versionchanged:: 4.1
+          Added `name`                     
     """
-    def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
-        super(TextInput, self).__init__(form, bound_field, fuzzy=fuzzy, placeholder=placeholder)
+    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False):
+        super(TextInput, self).__init__(form, bound_field, name=name, fuzzy=fuzzy, placeholder=placeholder)
         self.append_class('form-control')
 
 
@@ -91,9 +95,13 @@ class PasswordInput(reahl.web.ui.PasswordInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: (See :class:`~reahl.web.ui.PasswordInput`)
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
-    def __init__(self, form, bound_field):
-        super(PasswordInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None):
+        super(PasswordInput, self).__init__(form, bound_field, name=name)
         self.append_class('form-control')
 
 
@@ -102,11 +110,15 @@ class TextArea(reahl.web.ui.TextArea):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: (See :class:`~reahl.web.ui.TextArea`)
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
-    def __init__(self, form, bound_field, rows=None, columns=None):
-        super(TextArea, self).__init__(form, bound_field, rows=rows, columns=columns)
+    def __init__(self, form, bound_field, name=None, rows=None, columns=None):
+        super(TextArea, self).__init__(form, bound_field, name=name, rows=rows, columns=columns)
         self.append_class('form-control')
 
 
@@ -116,9 +128,13 @@ class SelectInput(reahl.web.ui.SelectInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: (See :class:`~reahl.web.ui.SelectInput`)
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
-    def __init__(self, form, bound_field):
-        super(SelectInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None):
+        super(SelectInput, self).__init__(form, bound_field, name=name)
         self.append_class('custom-select')
 
 
@@ -143,13 +159,17 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
-       :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the checkboxes in this input.
+       :keyword name: (See :class:`~reahl.web.ui.CheckboxSelectInput`)
+       :keyword contents_layout: An optional :class:`ChoicesLayout` used to lay out the checkboxes in this input.
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
     allowed_field_types = [ChoiceField]
-    def __init__(self, form, bound_field, contents_layout=None):
+    def __init__(self, form, bound_field, name=None, contents_layout=None):
         self.contents_layout = contents_layout
         self.checkbox_input = None
-        super(CheckboxInput, self).__init__(form, bound_field)
+        super(CheckboxInput, self).__init__(form, bound_field, name=name)
 
     def create_html_widget(self):
         if isinstance(self.bound_field, BooleanField):
@@ -182,12 +202,16 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: (See :class:`~reahl.web.ui.RadioButtonSelectInput`)
        :param contents_layout: An optional :class:`ChoicesLayout` used to lay out the many choices in this input.
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
-    def __init__(self, form, bound_field, contents_layout=None):
+    def __init__(self, form, bound_field, name=None, contents_layout=None):
         assert contents_layout is None or isinstance(contents_layout, ChoicesLayout), 'contents_layout should be an instance of ChoicesLayout but isn\'t' #TODO: this should be in @argchecks(...)
         self.contents_layout = contents_layout or ChoicesLayout(inline=False)
-        super(RadioButtonSelectInput, self).__init__(form, bound_field)
+        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name)
 
     def create_main_element(self):
         main_element = super(RadioButtonSelectInput, self).create_main_element().use_layout(self.contents_layout)
@@ -202,10 +226,14 @@ class ButtonInput(reahl.web.ui.ButtonInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param event: The :class:`~reahl.web.component.modelinterface.Event` that will fire when the user clicks on this ButtonInput.
+       :keyword name: (See :class:`~reahl.web.ui.ButtonInput`)
        :keyword css_id: (See :class:`HTMLElement`)
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
-    def __init__(self, form, event):
-        super(ButtonInput, self).__init__(form, event)
+    def __init__(self, form, event, name=None):
+        super(ButtonInput, self).__init__(form, event, name=name)
         self.append_class('btn')
 
 Button = ButtonInput

@@ -932,7 +932,6 @@ class Form(HTMLElement):
     def __init__(self, view, unique_name, rendered_form=None):
         self.view = view
         self.inputs = OrderedDict()
-        self.registered_input_names = {}
         self.set_up_event_channel(unique_name)
         self.set_up_field_validator('%s_validate' % unique_name)
         self.set_up_input_formatter('%s_format' % unique_name)
@@ -1013,14 +1012,8 @@ class Form(HTMLElement):
 
     def register_input(self, input_widget):
         assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' #xxx
-        proposed_name = input_widget.make_name('')
-        name = proposed_name
-        clashing_names_count = self.registered_input_names.setdefault(proposed_name, 0)
-        if clashing_names_count > 0:
-            name = input_widget.make_name(six.text_type(clashing_names_count))
-        self.registered_input_names[proposed_name] += 1
-        self.inputs[name] = input_widget
-        return name
+        assert input_widget.name not in self.inputs, 'Cannot add an input with same name as another'
+        self.inputs[input_widget.name] = input_widget
 
     @property
     def channel_name(self):
@@ -1381,15 +1374,22 @@ class PrimitiveInput(Input):
 
     def __init__(self, form, bound_field, name=None, registers_with_form=True):
         super(PrimitiveInput, self).__init__(form, bound_field)
-        self.name = name
+        self.overridden_name = name
         self.registers_with_form = registers_with_form
         if self.registers_with_form:
-            self.name = form.register_input(self) # bound_field must be set for this registration to work
+            form.register_input(self) # bound_field must be set for this registration to work
             self.prepare_input()
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
+
+    @property
+    def name(self):
+        if self.overridden_name:
+            return self.overridden_name
+        else:
+            return self.bound_field.qualified_name
 
     @property
     def html_control(self):
@@ -1400,9 +1400,6 @@ class PrimitiveInput(Input):
            .. versionadded: 3.2
         """
         self.not_implemented()
-
-    def make_name(self, discriminator):
-        return self.bound_field.make_qualified_name(discriminator)
 
     @property
     def channel_name(self):
@@ -1524,13 +1521,17 @@ class TextArea(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
        :param rows: The number of rows that this Input should have.
        :param columns: The number of columns that this Input should have.
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
-    def __init__(self, form, bound_field, rows=None, columns=None):
+    def __init__(self, form, bound_field, name=None, rows=None, columns=None):
         self.rows = rows
         self.columns = columns
-        super(TextArea, self).__init__(form, bound_field)
+        super(TextArea, self).__init__(form, bound_field, name=name)
 
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
@@ -1639,6 +1640,10 @@ class SelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
     def create_html_widget(self):
         html_select = HTMLElement(self.view, 'select', children_allowed=True)
@@ -1716,16 +1721,20 @@ class RadioButtonSelectInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
 
        .. versionchanged:: 4.0
           Renamed from RadioButtonInput
+
+       .. versionchanged:: 4.1
+          Added `name`
     """
 
     choice_type = 'radio'
 
     @arg_checks(bound_field=IsInstance(ChoiceField))
-    def __init__(self, form, bound_field):
-        super(RadioButtonSelectInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None):
+        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name)
 
     def is_choice_selected(self, value):
         if self.bound_field.allows_multiple_selections:
@@ -1764,6 +1773,7 @@ class TextInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
        :keyword fuzzy: If True, the typed input will be dealt with as "fuzzy input". Fuzzy input is
                      when a user is allowed to type almost free-form input for structured types of input,
                      such as a date. The assumption is that the `bound_field` used should be able to parse
@@ -1776,9 +1786,12 @@ class TextInput(PrimitiveInput):
 
        .. versionchanged:: 3.2
           Added `placeholder`.
+
+       .. versionchanged:: 4.1
+          Added `name`
     """
-    def __init__(self, form, bound_field, fuzzy=False, placeholder=False):
-        super(TextInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False):
+        super(TextInput, self).__init__(form, bound_field, name=name)
         self.append_class('reahl-textinput')
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
@@ -1805,9 +1818,13 @@ class PasswordInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
-    def __init__(self, form, bound_field):
-        super(PasswordInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None):
+        super(PasswordInput, self).__init__(form, bound_field, name=name)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'password', render_value_attribute=False)
@@ -1822,12 +1839,16 @@ class CheckboxInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
     choice_type = 'checkbox'
 
     @arg_checks(bound_field=IsInstance(BooleanField))
-    def __init__(self, form, bound_field):
-        super(CheckboxInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None):
+        super(CheckboxInput, self).__init__(form, bound_field, name=name)
 
     @property
     def checked(self):
@@ -1858,18 +1879,22 @@ class CheckboxSelectInput(PrimitiveInput):
     """An Input that lets the user select more than one :class:`reahl.component.modelinterface.Choice` from a
        list of valid ones shown as checkboxes.
 
-        :param form: (See :class:`~reahl.web.ui.Input`)
-        :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :param form: (See :class:`~reahl.web.ui.Input`)
+       :param bound_field: (See :class:`~reahl.web.ui.Input`)
+       :keyword name: An optional name for this input (overrides the default).
 
-        .. versionadded:: 4.0
+       .. versionadded:: 4.0
+
+       .. versionchanged:: 4.1
+          Added `name`        
     """
     choice_type = 'checkbox'
     allowed_field_types = [MultiChoiceField]
-    def __init__(self, form, bound_field):
+    def __init__(self, form, bound_field, name=None):
         if not isinstance(bound_field, *self.allowed_field_types):
             raise ProgrammerError('%s is not allowed to be used with %s' % (bound_field.__class__, self.__class__))
         self.added_choices = []
-        super(CheckboxSelectInput, self).__init__(form, bound_field)
+        super(CheckboxSelectInput, self).__init__(form, bound_field, name=name)
 
 
     @property
@@ -1914,8 +1939,8 @@ class CheckboxSelectInput(PrimitiveInput):
 
 
 class ButtonInput(PrimitiveInput):
-    def __init__(self, form, event):
-        super(ButtonInput, self).__init__(form, event)
+    def __init__(self, form, event, name=None):
+        super(ButtonInput, self).__init__(form, event, name=name)
         if not self.controller.has_event_named(event.name):
             raise ProgrammerError('no Event/Transition available for name %s' % event.name)
         try:
@@ -1924,6 +1949,10 @@ class ButtonInput(PrimitiveInput):
             message = 'Arguments for %s are not valid: %s' % (event, ex)
             message += '\n(did you forget to call .with_arguments() on an Event sent to a ButtonInput?)'
             raise ProgrammerError(message)
+
+    @property
+    def name(self):
+        return 'event.%s%s' % (super(ButtonInput, self).name, self.query_encoded_arguments)
 
     @property
     def validation_constraints(self):
@@ -1952,9 +1981,6 @@ class ButtonInput(PrimitiveInput):
     @property
     def query_encoded_arguments(self):
         return self.bound_field.as_input() or '?'
-
-    def make_name(self, discriminator):
-        return 'event.%s%s%s' % (self.bound_field.name, discriminator, self.query_encoded_arguments)
 
     @property
     def label(self):
@@ -2041,11 +2067,15 @@ class SimpleFileInput(PrimitiveInput):
 
        :param form: (See :class:`~reahl.web.ui.Input`)
        :param bound_field: (See :class:`~reahl.web.ui.Input`, must be of type :class:`reahl.component.modelinterface.FileField`
+       :keyword name: (See :class:`~reahl.web.ui.PrimitiveInput`)
+
+       .. versionchanged:: 4.1
+          Added `name`       
     """
     is_for_file = True
 
-    def __init__(self, form, bound_field):
-        super(SimpleFileInput, self).__init__(form, bound_field)
+    def __init__(self, form, bound_field, name=None):
+        super(SimpleFileInput, self).__init__(form, bound_field, name=name)
 
     def create_html_widget(self):
         file_input = HTMLInputElement(self, 'file')

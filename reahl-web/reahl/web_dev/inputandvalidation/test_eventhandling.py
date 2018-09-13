@@ -209,7 +209,7 @@ def test_basic_field_linkup(web_fixture):
 @with_fixtures(WebFixture)
 def test_distinguishing_identical_field_names(web_fixture):
     """A programmer can add different Inputs on the same Form even if their respective Fields are bound
-       to identically named attributes of different objects."""
+       to identically named attributes of different objects by overriding the name of the second input."""
 
     fixture = web_fixture
 
@@ -232,7 +232,7 @@ def test_distinguishing_identical_field_names(web_fixture):
             self.add_child(ButtonInput(self, self.events.an_event))
 
             self.add_child(TextInput(self, model_object1.fields.field_name))
-            self.add_child(TextInput(self, model_object2.fields.field_name))
+            self.add_child(TextInput(self, model_object2.fields.field_name, name='field_name_2'))
 
     wsgi_app = fixture.new_wsgi_app(child_factory=MyForm.factory('form'))
     fixture.reahl_server.set_app(wsgi_app)

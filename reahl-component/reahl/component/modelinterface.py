@@ -692,7 +692,7 @@ class Field(object):
     def __init__(self, default=None, required=False, required_message=None, label=None,
                  readable=None, writable=None, disallowed_message=None,
                  min_length=None, max_length=None):
-        self.name = None
+        self._name = None
         self.storage_object = None
         self.default = default
         self.label = label or ''
@@ -815,7 +815,7 @@ class Field(object):
                     raise
 
     def bind(self, name, storage_object):
-        self.name = name
+        self._name = name
         if not self.label:
             self.label = name
         self.storage_object = storage_object
@@ -842,18 +842,19 @@ class Field(object):
         return self.validation_constraints.has_constraint_named(RequiredConstraint.name)
      
     @property
-    def variable_name(self):
-        if not self.name:
+    def name(self):
+        if not self._name:
             raise AssertionError('field %s with label "%s" is not yet bound' % (self, self.label))
+        return self._name
+
+    @property
+    def variable_name(self):
         return self.name
 
     @property
     def qualified_name(self):
-        return self.make_qualified_name('')
+        return self.name
 
-    def make_qualified_name(self, discriminator):
-        return '%s%s' % (self.variable_name, discriminator)
-        
     def get_model_value(self):
         return getattr(self.storage_object, self.variable_name, self.default)
         
@@ -1480,8 +1481,9 @@ class MultiChoiceField(ChoiceField):
     """A Field that allows a selection of values from the given :class:`Choice` instances as input."""
     entered_input_type = list
 
-    def make_qualified_name(self, discriminator):
-        return '%s%s[]' % (self.variable_name, discriminator)
+    @property
+    def qualified_name(self):
+        return '%s[]' % super(MultiChoiceField, self).qualified_name
 
     def is_input_empty(self, input_value):
         return input_value is None
