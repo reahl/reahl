@@ -23,7 +23,7 @@ from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
 from reahl.web_dev.fixtures import WebFixture
-from reahl.webdev.tools import XPath
+from reahl.webdev.tools import XPath, Browser
 from reahl.web.fw import Widget
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
     CheckboxInput, ButtonInput, TextInput
@@ -448,9 +448,7 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
             self.add_child(ChangingWidget(view, form, model_object))
 
 
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
+    browser = Browser(wsgi_app)
     
     with expected(ProgrammerError, test='Inputs are not allowed where they can trigger themselves to be refreshed. Some inputs were incorrectly placed:\n\t<SelectInput name=choice> is refreshed by <ChangingWidget div id=dave> via field <ChoiceField name=choice>\n'):
         browser.open('/')
@@ -458,7 +456,7 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
 
 @with_fixtures(WebFixture, BooleanInputTriggerFixture)
 def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_trigger_fixture):
-    """When a user TAB's through inputs on the page, the tab order is adjusted to include the new input in logical order"""
+    """When a user TAB's out of an input that then triggers a change, the tab is ignored and focus stays on the original input so that the tab order can be recalculated."""
 
     fixture = boolean_input_trigger_fixture
     fixture.trigger_input_type = TextInput
@@ -483,16 +481,18 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_tri
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    # When a new input appears in next tab order position, the user should tab to it
+    # Case: a new input appears in next tab order position
     assert browser.get_value(XPath.input_labelled('Subscribe to newsletter')) == 'off'
     browser.press_tab()
     assert browser.is_focus_on(XPath.input_labelled('Subscribe to newsletter'))
     browser.type(XPath.input_labelled('Subscribe to newsletter'), 'on')
     browser.press_tab()
+    browser.press_tab()
     assert browser.is_focus_on(XPath.input_labelled('Email'))
 
-    # When an input disappears from the tab order, the user should tab to the next one
+    # Case: an input disappears from the next tab order position
     browser.type(XPath.input_labelled('Subscribe to newsletter'), 'off')
+    browser.press_tab()
     browser.press_tab()
     assert browser.is_focus_on(XPath.button_labelled('click me'))
 
@@ -502,12 +502,14 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_tri
 # DONE: break if a user sends a ChoiceField to a CheckboxSelectInput
 # TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
 # DONE: test that you cannot trigger one of your parents to refresh.
-# TODO see test_correct_tab_order_for_responsive_widgets: TODO: if you tab out of something, you should tab to the next thing as per the regenerated screen
+# DONE: if you tab out of something, you should tab to the next thing as per the regenerated screen
 # DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
 # TODO: (related to xsrf token implementation maybe?) form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
 # DONE: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
 # DONE: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
-
+# TODO: prevent double-click on a button
+# TODO: deal with onchange that happens in response to a text field that loses focus because you typed in it, and then clicked on a button
+# TODO: do not do the ajax refresh if there are validation errors on the ajax input trigger 
 
 # DONE: see: multi_value_empty_the_list when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 # TODO: found that this test seems to hang regularly(not when run individually, and the xpra chrome window stays open): pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::test_clicking_on_multi_tab, more spcifically: pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::"test_clicking_on_multi_tab[web_fixture1-panel_switch_fixture1-tabbed_panel_ajax_fixture1]"

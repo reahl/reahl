@@ -145,6 +145,7 @@ $.widget('reahl.hashchange', {
                 },
                 complete: function(data){
                     _this.element.unblock();
+                    console.log("DONE...ajaxed 3");
                 },
                 traditional: true
         });
@@ -193,6 +194,7 @@ $.widget('reahl.changenotifier', {
             $(element).on( 'change', function(e) {
                 _this.updateHashWithCurrentInputValue(e.target);
                 $(window).hashchange();
+                this.focus();
                 return true;
             });
     },
