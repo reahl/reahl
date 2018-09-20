@@ -1331,19 +1331,20 @@ class Input(HTMLWidget):
         """If True, the Label of this Input forms part of the input itself."""
         return False
 
-    def enable_notify_change(self, field):
-        self.fields_to_notify.append(field)
+    def enable_notify_change(self, widget, field):
+        self.fields_to_notify.append((widget, field))
 
     def get_js(self, context=None):
         js = super(Input, self).get_js(context)
 
-        for field in self.fields_to_notify:
+        for widget, field in self.fields_to_notify:
             js += ['$(%s).changenotifier(%s)'
-                   % (self.html_representation.jquery_selector, self.changenotifier_js_options(field))]
+                   % (self.html_representation.jquery_selector, self.changenotifier_js_options(widget, field))]
         return js
 
-    def changenotifier_js_options(self, field):
-        options = {'name': field.qualified_name}
+    def changenotifier_js_options(self, widget, field):
+        options = {'name': field.qualified_name,
+                   'widget_id': widget.css_id}
         if isinstance(self.bound_field, BooleanField):
             options['is_boolean'] = True
             options['true_boolean_value'] = self.bound_field.true_value

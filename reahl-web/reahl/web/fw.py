@@ -1149,7 +1149,7 @@ class Widget(object):
     def check_trigger_inputs_dont_refresh_their_ancestors(self, inputs_with_refresh_sets):
         inputs_in_error = []
         for i, i_refresh_set in inputs_with_refresh_sets:
-            for trigger_field in i.fields_to_notify:
+            for widget, trigger_field in i.fields_to_notify:
                 for ancestor in i_refresh_set:
                     if trigger_field.qualified_name in [field.qualified_name for field in ancestor.query_fields.values()]:
                         inputs_in_error.append((i, ancestor, trigger_field))

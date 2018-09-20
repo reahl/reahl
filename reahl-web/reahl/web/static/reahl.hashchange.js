@@ -145,7 +145,6 @@ $.widget('reahl.hashchange', {
                 },
                 complete: function(data){
                     _this.element.unblock();
-                    console.log("DONE...ajaxed 3");
                 },
                 traditional: true
         });
@@ -180,6 +179,7 @@ $.extend($.reahl.hashchange, {
 $.widget('reahl.changenotifier', {
     options: {
         name: undefined,
+        widget_id: undefined,
         is_boolean: false,
         true_boolean_value: undefined,
         false_boolean_value: undefined,
@@ -191,10 +191,13 @@ $.widget('reahl.changenotifier', {
 
             if (!o.name) { throw new Error("No name given in options. This is a required option.")}
 
+            $(element).attr('data-target-widget', o.widget_id);
             $(element).on( 'change', function(e) {
-                _this.updateHashWithCurrentInputValue(e.target);
-                $(window).hashchange();
-                this.focus();
+                if (_this.getIsValid()) {
+                    _this.updateHashWithCurrentInputValue(e.target);
+                    $(window).hashchange();
+                    this.focus();
+                }
                 return true;
             });
     },
@@ -208,13 +211,10 @@ $.widget('reahl.changenotifier', {
     },
 
     getCheckboxListValue: function(checkbox) {
-        var checkboxValues = [];
         var checkedCheckboxes = $('input[name="' + $(checkbox).attr("name") + '"][form="' + $(checkbox).attr("form") + '"]:checked');
-        checkedCheckboxes.map(function() {
-            var checkbox = this;
-            checkboxValues.push($(checkbox).val());
-        });
-        return checkboxValues;
+        return checkedCheckboxes.map(function() {
+            return $(this).val();
+        }).toArray();
     },
 
     getCheckboxBooleanValue: function(checkbox) {
@@ -237,7 +237,6 @@ $.widget('reahl.changenotifier', {
         }
     },
     updateHashWithCurrentInputValue: function(currentInput) {
-
         var _this = this;
         var currentFragment = getTraditionallyNamedFragment();
         var currentInputValue = this.getCurrentInputValue(currentInput);
@@ -247,6 +246,40 @@ $.widget('reahl.changenotifier', {
 
         var newHash = $.param(currentFragment, true);
         window.location.hash = newHash;
+    },
+    getIsSelfValid: function() {
+        var inputs;
+        if (this.element[0].form !== undefined) {
+            inputs = this.element;
+        } else {
+            inputs = this.element.find('input')
+        }
+        var form = inputs[0].form;
+        var validator = $(form).data('validator');
+        return validator.element(inputs);
+    },
+    getIsSiblingArgumentsValid: function() {
+        var _this = this;
+        var valid = true;
+        var siblings = $('[data-target-widget="' + this.options.widget_id + '"]');
+        siblings.each(function() {
+            var sibling = this;
+            if (!$(sibling).is(_this.element)) {
+                var siblingIsValid = $(sibling).data('reahlChangenotifier').getIsSelfValid();
+                valid = valid && siblingIsValid;
+            }
+        });
+        return valid;
+    },
+    getIsParentArgumentsValid: function() {
+        //Pseudocode:
+        // var otherTargets = this.element.parents().find('[data-target-widget!="' + this.options.widget_id + '"]');
+        // var targetsInChildren = this.element.find('[data-target-widget!="' + this.options.widget_id + '"]');
+        // var parentTargets = otherTargets - targetsInChildren
+        return true;
+    },
+    getIsValid: function() {
+        return this.getIsSelfValid() && this.getIsSiblingArgumentsValid() && this.getIsParentArgumentsValid();
     }
 });
 

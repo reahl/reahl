@@ -56,7 +56,7 @@ class ResponsiveDisclosureFixture(Fixture):
                 self.model_object = model_object
                 super(MyChangingWidget, self).__init__(view, css_id='dave')
                 self.enable_refresh()
-                trigger_input.enable_notify_change(self.query_fields.fancy_state)
+                trigger_input.enable_notify_change(self, self.query_fields.fancy_state)
                 self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
 
             @property
@@ -255,9 +255,7 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
-
-    #web_fixture.pdb()
-
+    
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
@@ -279,6 +277,30 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     browser.select(XPath.select_labelled('Choice'), 'Three')
     assert browser.get_fragment() == '#other_var=other_value&choice=3'
 
+
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_invalid_value_does_not_trigger_change(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+
+    class MyForm(Form):
+        def __init__(self, view, an_object):
+            super(MyForm, self).__init__(view, 'myform')
+            self.select_input = TextInput(self, an_object.fields.choice)
+            self.add_child(Label(view, for_input=self.select_input))
+            self.add_child(self.select_input)
+
+    responsive_disclosure_fixture.MyForm = MyForm
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=responsive_disclosure_fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    browser.type(XPath.input_labelled('Choice'), 'not a valid option')
+    browser.press_tab()
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+
+    assert None, 'Not done yet: 2 more scenarios: if my sibling is invalid; or if my parent or one of its siblings is invalid we should also NOT do anything'
 
 @with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture, QueryStringFixture)
 def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, responsive_disclosure_fixture, sql_alchemy_fixture, query_string_fixture):
@@ -352,25 +374,41 @@ def test_inputs_effect_other_parts_of_form(web_fixture):
     # ...but I still think we need to have a test here? because this is a requirement relating to responsive disclosure?
 
 
-class BooleanInputTriggerFixture(Fixture):
+class DisclosedInputFixture(Fixture):
 
     def new_trigger_input_type(self):
         return CheckboxInput
 
+    def new_model_object(self):
+        class ModelObject(object):
+            def __init__(self):
+                self.trigger_field = True
+                self.email = None
+
+            @exposed
+            def events(self, events):
+                events.an_event = Event(label='click me')
+
+            @exposed
+            def fields(self, fields):
+                fields.trigger_field = BooleanField(label='Trigger field')
+                fields.email = EmailField(required=True, label='Email') #has required Validation Constraint
+        return ModelObject()
+
     def new_MyForm(self):
         fixture = self
         class MyForm(Form):
-            def __init__(self, view, model_object):
+            def __init__(self, view):
                 super(MyForm, self).__init__(view, 'myform')
 
-                checkbox_input = fixture.trigger_input_type(self, model_object.fields.subscribe_to_newsletter)
+                checkbox_input = fixture.trigger_input_type(self,fixture.model_object.fields.trigger_field)
                 self.add_child(Label(view, for_input=checkbox_input))
                 self.add_child(checkbox_input)
 
-                self.add_child(fixture.MyChangingWidget(self, checkbox_input, model_object))
+                self.add_child(fixture.MyChangingWidget(self, checkbox_input, fixture.model_object))
 
-                self.define_event_handler(model_object.events.an_event)
-                self.add_child(ButtonInput(self, model_object.events.an_event))
+                self.define_event_handler(fixture.model_object.events.an_event)
+                self.add_child(ButtonInput(self, fixture.model_object.events.an_event))
         return MyForm
 
     def new_MyChangingWidget(self):
@@ -380,52 +418,38 @@ class BooleanInputTriggerFixture(Fixture):
                 self.model_object = model_object
                 super(MyChangingWidget, self).__init__(form.view, css_id='requiredinfoid')
                 self.enable_refresh()
-                trigger_input.enable_notify_change(self.query_fields.subscribe_to_newsletter)
+                trigger_input.enable_notify_change(self, self.query_fields.trigger_field)
 
-                if self.model_object.subscribe_to_newsletter:
+                if self.model_object.trigger_field:
                     text_input = TextInput(form, self.model_object.fields.email)
                     self.add_child(Label(form.view, for_input=text_input))
                     self.add_child(text_input)
 
             @exposed
             def query_fields(self, fields):
-                fields.subscribe_to_newsletter = self.model_object.fields.subscribe_to_newsletter
+                fields.trigger_field = self.model_object.fields.trigger_field
         return MyChangingWidget
 
 
-@with_fixtures(WebFixture, BooleanInputTriggerFixture)
+@with_fixtures(WebFixture, DisclosedInputFixture)
 def test_validation_of_undisclosed_yet_required_input(web_fixture, boolean_input_fixture):
     """If a Field has a required constraint, but its Input is not currently displayed as part of the form (because of the
        state of another Input), and the form is submitted, the constraint should not cause an exception(input was omitted)."""
 
     fixture = boolean_input_fixture
 
-    class ModelObject(object):
-        def __init__(self):
-            self.subscribe_to_newsletter = True
-            self.email = None
-
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me')
-
-        @exposed
-        def fields(self, fields):
-            fields.subscribe_to_newsletter = BooleanField(default=True, label='Subscribe to newsletter')
-            fields.email = EmailField(required=True, label='Email') #has required Validation Constraint
-
-    model_object = ModelObject()
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory(model_object))
+    model_object = fixture.model_object
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
 
     assert browser.is_element_present(XPath.input_labelled('Email'))
-    browser.click(XPath.input_labelled('Subscribe to newsletter'))
+    browser.click(XPath.input_labelled('Trigger field'))
     assert not browser.is_element_present(XPath.input_labelled('Email'))
     browser.click(XPath.button_labelled('click me'))
 
-    assert model_object.subscribe_to_newsletter == False
+    assert model_object.trigger_field == False
     assert not model_object.email
 
 
@@ -448,53 +472,68 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
             self.add_child(ChangingWidget(view, form, model_object))
 
 
-    browser = Browser(wsgi_app)
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
     
     with expected(ProgrammerError, test='Inputs are not allowed where they can trigger themselves to be refreshed. Some inputs were incorrectly placed:\n\t<SelectInput name=choice> is refreshed by <ChangingWidget div id=dave> via field <ChoiceField name=choice>\n'):
         browser.open('/')
 
 
-@with_fixtures(WebFixture, BooleanInputTriggerFixture)
+@with_fixtures(WebFixture, DisclosedInputFixture)
 def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_trigger_fixture):
     """When a user TAB's out of an input that then triggers a change, the tab is ignored and focus stays on the original input so that the tab order can be recalculated."""
 
     fixture = boolean_input_trigger_fixture
     fixture.trigger_input_type = TextInput
-    class ModelObject(object):
-        def __init__(self):
-            self.subscribe_to_newsletter = False
-            self.email = None
 
-        @exposed
-        def events(self, events):
-            events.an_event = Event(label='click me')
-
-        @exposed
-        def fields(self, fields):
-            fields.subscribe_to_newsletter = BooleanField(label='Subscribe to newsletter')
-            fields.email = EmailField(required=True, label='Email') #has required Validation Constraint
-
-    model_object = ModelObject()
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory(model_object))
+    model_object = fixture.model_object
+    model_object.trigger_field = False
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
 
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
 
     # Case: a new input appears in next tab order position
-    assert browser.get_value(XPath.input_labelled('Subscribe to newsletter')) == 'off'
+    assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
     browser.press_tab()
-    assert browser.is_focus_on(XPath.input_labelled('Subscribe to newsletter'))
-    browser.type(XPath.input_labelled('Subscribe to newsletter'), 'on')
+    assert browser.is_focus_on(XPath.input_labelled('Trigger field'))
+    browser.type(XPath.input_labelled('Trigger field'), 'on')
     browser.press_tab()
     browser.press_tab()
     assert browser.is_focus_on(XPath.input_labelled('Email'))
-
+    
     # Case: an input disappears from the next tab order position
-    browser.type(XPath.input_labelled('Subscribe to newsletter'), 'off')
+    browser.type(XPath.input_labelled('Trigger field'), 'off')
     browser.press_tab()
     browser.press_tab()
     assert browser.is_focus_on(XPath.button_labelled('click me'))
+
+
+@with_fixtures(WebFixture, DisclosedInputFixture)
+def test_ignore_button_click_on_change(web_fixture, boolean_input_trigger_fixture):
+    """If a button click triggers a change to the page (due to a modified TextInput losing focus), the click is ignored and the user is warned."""
+
+    fixture = boolean_input_trigger_fixture
+    fixture.trigger_input_type = TextInput
+
+    model_object = fixture.model_object
+    model_object.trigger_field = False
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
+
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
+    assert not browser.is_element_present(XPath.input_labelled('Email'))
+    browser.type(XPath.input_labelled('Trigger field'), 'on')
+    with browser.no_page_load_expected():
+        browser.click(XPath.button_labelled('click me'))
+    assert browser.is_element_present(XPath.input_labelled('Email'))
+
+
 
 # Naming of notifier.
 # Clashing names of things on the hash (larger issue)
@@ -507,9 +546,10 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_tri
 # TODO: (related to xsrf token implementation maybe?) form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
 # DONE: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
 # DONE: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
-# TODO: prevent double-click on a button
 # TODO: deal with onchange that happens in response to a text field that loses focus because you typed in it, and then clicked on a button
 # TODO: do not do the ajax refresh if there are validation errors on the ajax input trigger 
+
+# TODO: prevent double-click on a button (once clisked, it disables itself from further clicks forever)
 
 # DONE: see: multi_value_empty_the_list when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 # TODO: found that this test seems to hang regularly(not when run individually, and the xpra chrome window stays open): pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::test_clicking_on_multi_tab, more spcifically: pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::"test_clicking_on_multi_tab[web_fixture1-panel_switch_fixture1-tabbed_panel_ajax_fixture1]"

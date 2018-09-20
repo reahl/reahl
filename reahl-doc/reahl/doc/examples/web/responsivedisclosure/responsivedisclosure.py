@@ -73,7 +73,7 @@ class IDInputsSection(Div):
         self.document = document
         super(IDInputsSection, self).__init__(form.view, css_id='idinputs')
         self.enable_refresh()
-        trigger_input.enable_notify_change(self.query_fields.document_type)
+        trigger_input.enable_notify_change(self, self.query_fields.document_type)
 
         if self.document.document_type == 'passport':
             self.add_child(PassportInputs(form, self.document))
