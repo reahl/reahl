@@ -279,7 +279,8 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_invalid_value_does_not_trigger_change(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """If the user types an invalid value into an input serving as argument for one or more Widgets, the widgets are blocked out"""
 
     class MyForm(Form):
         def __init__(self, view, an_object):
@@ -295,15 +296,17 @@ def test_invalid_value_does_not_trigger_change(web_fixture, query_string_fixture
     browser = web_fixture.driver_browser
     browser.open('/')
 
+    web_fixture.pdb()
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
     browser.type(XPath.input_labelled('Choice'), 'not a valid option')
     browser.press_tab()
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
 
-    assert None, 'Not done yet: 2 more scenarios: if my sibling is invalid; or if my parent or one of its siblings is invalid we should also NOT do anything'
+    assert None, 'Need to test: an invalid sibling; unblocking when values are valid again'
 
 @with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture, QueryStringFixture)
 def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, responsive_disclosure_fixture, sql_alchemy_fixture, query_string_fixture):
+    """Values submitted via ajax are used only to redraw the screen; they are only changed on the underlying domain once the form is submitted."""
 
     fixture = responsive_disclosure_fixture
 
@@ -513,7 +516,7 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_tri
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
 def test_ignore_button_click_on_change(web_fixture, boolean_input_trigger_fixture):
-    """If a button click triggers a change to the page (due to a modified TextInput losing focus), the click is ignored and the user is warned."""
+    """If a button click triggers a change to the page (due to a modified TextInput losing focus), the click is ignored."""
 
     fixture = boolean_input_trigger_fixture
     fixture.trigger_input_type = TextInput

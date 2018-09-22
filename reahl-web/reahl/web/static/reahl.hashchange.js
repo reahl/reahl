@@ -197,7 +197,8 @@ $.widget('reahl.changenotifier', {
                     _this.updateHashWithCurrentInputValue(e.target);
                     $(window).hashchange();
                     this.focus();
-                }
+                    _this.unblockWidget();
+                } else { _this.blockWidget(); }
                 return true;
             });
     },
@@ -271,15 +272,14 @@ $.widget('reahl.changenotifier', {
         });
         return valid;
     },
-    getIsParentArgumentsValid: function() {
-        //Pseudocode:
-        // var otherTargets = this.element.parents().find('[data-target-widget!="' + this.options.widget_id + '"]');
-        // var targetsInChildren = this.element.find('[data-target-widget!="' + this.options.widget_id + '"]');
-        // var parentTargets = otherTargets - targetsInChildren
-        return true;
-    },
     getIsValid: function() {
-        return this.getIsSelfValid() && this.getIsSiblingArgumentsValid() && this.getIsParentArgumentsValid();
+        return this.getIsSelfValid() && this.getIsSiblingArgumentsValid();
+    },
+    blockWidget: function() {
+        $('#'+this.options.widget_id).block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
+    },
+    unblockWidget: function() {
+        $('#'+this.options.widget_id).unblock();
     }
 });
 
