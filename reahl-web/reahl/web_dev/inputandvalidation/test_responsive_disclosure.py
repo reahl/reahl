@@ -364,7 +364,6 @@ def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fi
 
     # Case: a valid option changes does nothing if its sibling is still invalid
     browser.type(XPath.input_labelled('Another Choice'), '5')
-    browser.press_tab()
     assert browser.wait_for(multiple_trigger_fixture.is_widget_blocked, browser)    
     assert browser.wait_for(query_string_fixture.is_state_now, '1 and 4')
 
@@ -375,6 +374,8 @@ def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fi
     assert browser.wait_for(query_string_fixture.is_state_now, '2 and 5')
 
 
+def while_the_widget_is_being_refreshed_te_form_is_blocked():
+    assert None
 
 @with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture, QueryStringFixture)
 def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, responsive_disclosure_fixture, sql_alchemy_fixture, query_string_fixture):
@@ -624,7 +625,7 @@ def test_ignore_button_click_on_change(web_fixture, boolean_input_trigger_fixtur
 # DONE: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 # TODO: deal with onchange that happens in response to a text field that loses focus because you typed in it, and then clicked on a button
 # DONE: do not do the ajax refresh if there are validation errors on the ajax input trigger 
-
+# TODO: maybe move attribs on js objects from options to this???
 # TODO: prevent double-click on a button (once clisked, it disables itself from further clicks forever)
 
 # DONE: see: multi_value_empty_the_list when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.

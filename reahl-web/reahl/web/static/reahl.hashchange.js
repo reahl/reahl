@@ -97,7 +97,8 @@ $.widget('reahl.hashchange', {
             errorMessage: 'Ajax error',
             timeoutMessage: 'Ajax timeout',
             params: [],
-            arguments: []
+            arguments: [],
+            registered_callbacks: {}
     },
 
     _create: function() {
@@ -124,6 +125,25 @@ $.widget('reahl.hashchange', {
     getArguments: function() {
         return this.options.arguments;
     },
+    addCallback: function(name, callback) {
+        this.options.registered_callbacks[name] = callback;
+    },
+    popCallback: function() {
+        var currentFragment = getTraditionallyNamedFragment();
+        var name = currentFragment['__and_then__'];
+        if (name !== undefined) {
+            delete currentFragment['__and_then__'];
+        }
+        window.location.hash = $.param(currentFragment, true);
+
+        var callback = this.options.registered_callbacks[name];        
+        if (callback !== undefined) {
+            delete this.options.registered_callbacks[name];
+            return callback;
+        } else {
+            return function(){}
+        }
+    },
     calculateQueryStringValues(currentHashValues, hashArguments) {
         var values = $.extend(true, {}, currentHashValues);
         for (var i=0; i<hashArguments.length; i++) {
@@ -135,6 +155,8 @@ $.widget('reahl.hashchange', {
     triggerChange: function(currentHashValues, newArguments) {
         var _this = this;
 
+        var after_handler = _this.popCallback();
+
         _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         $.ajax({url:     _this.options.url,
                 cache:   _this.options.cache,
@@ -145,6 +167,7 @@ $.widget('reahl.hashchange', {
                 },
                 complete: function(data){
                     _this.element.unblock();
+                    after_handler();
                 },
                 traditional: true
         });
@@ -198,9 +221,9 @@ $.widget('reahl.changenotifier', {
                     _this.updateCurrentValue(e.target);
                 }
                 if (_this.getIsValid()) {
-                    _this.getSiblingChangeNotifiers().each(function() {
-                        this.updateHashWithCurrentInputValue();
-                    });
+                    var currentFragment = getTraditionallyNamedFragment();
+                    _this.blockAllSiblingInputs(currentFragment);
+                    _this.updateHashWithAllSiblingValues(currentFragment);
                     this.focus();
                     _this.unblockWidget();
                 } else { _this.blockWidget(); }
@@ -251,31 +274,53 @@ $.widget('reahl.changenotifier', {
         var argument = _this.options.argument;
         argument.changeValue(currentInputValue);
     },
-    updateHashWithCurrentInputValue: function() {
+    blockAllSiblingInputs: function(currentFragment) {
+        var _this = this;
+        var uniqueId = new Date().getTime();
+        uniqueId += (parseInt(Math.random() * 100)).toString();
+        uniqueId = 'cb-' + uniqueId;
+
+        var form = this.getForm();
+        form.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
+        this.addAfterHandler(uniqueId, function() { form.unblock(); } );
+        currentFragment['__and_then__'] = uniqueId;
+    },
+    updateHashWithAllSiblingValues: function(currentFragment) {
+        this.getSiblingChangeNotifiers().each(function() {
+            this.addCurrentInputValueTo(currentFragment);
+            
+        });
+        var newHash = $.param(currentFragment, true);
+        window.location.hash = newHash;
+    },
+    addCurrentInputValueTo: function(fragment) {
         var argument = this.options.argument;
         if (argument !== undefined) {
-            var currentFragment = getTraditionallyNamedFragment();
-            argument.updateHashObject(currentFragment);
-
-            var newHash = $.param(currentFragment, true);
-            window.location.hash = newHash;
+            argument.updateHashObject(fragment);
         }
+    },
+    getInputs: function() {
+        if (this.element[0].form !== undefined) {
+            return this.element;
+        } else {
+            return this.element.find('input');
+        }
+    },
+    getForm: function() {
+        return $(this.getInputs()[0].form);
     },
     getIsSelfValid: function() {
-        var inputs;
-        if (this.element[0].form !== undefined) {
-            inputs = this.element;
-        } else {
-            inputs = this.element.find('input')
-        }
-        var form = inputs[0].form;
-        var validator = $(form).data('validator');
-        return validator.element(inputs);
+        var validator = this.getForm().data('validator');
+        return validator.element(this.getInputs());
+    },
+    addAfterHandler: function(name, handler) {
+        $('#'+this.options.widget_id).data('reahlHashchange').addCallback(name, handler);
+    },
+    getSiblings: function() {
+        return $('[data-target-widget="' + this.options.widget_id + '"]');
     },
     getSiblingChangeNotifiers: function() {
-        var _this = this;
-        var siblings = $('[data-target-widget="' + this.options.widget_id + '"]');
-        return siblings.map(function() {
+        return this.getSiblings().map(function() {
             return $(this).data('reahlChangenotifier')
         });
     },
