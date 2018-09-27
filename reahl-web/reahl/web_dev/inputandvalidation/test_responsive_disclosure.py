@@ -76,7 +76,7 @@ class ResponsiveDisclosureFixture(Fixture):
                 super(MainWidget, self).__init__(view)
                 an_object = fixture.ModelObject()
                 form = self.add_child(fixture.MyForm(view, an_object))
-                self.add_child(fixture.MyChangingWidget(view, form.select_input, an_object))
+                self.add_child(fixture.MyChangingWidget(view, form.change_trigger_input, an_object))
 
         return MainWidget
 
@@ -84,9 +84,9 @@ class ResponsiveDisclosureFixture(Fixture):
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
-                self.select_input = SelectInput(self, an_object.fields.choice)
-                self.add_child(Label(view, for_input=self.select_input))
-                self.add_child(self.select_input)
+                self.change_trigger_input = SelectInput(self, an_object.fields.choice)
+                self.add_child(Label(view, for_input=self.change_trigger_input))
+                self.add_child(self.change_trigger_input)
         return MyForm
 
 
@@ -108,10 +108,10 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
-                self.select_input = RadioButtonSelectInput(self, an_object.fields.choice)
-                self.select_input.set_id('marvin')
-                self.add_child(Label(view, for_input=self.select_input))
-                self.add_child(self.select_input)
+                self.change_trigger_input = RadioButtonSelectInput(self, an_object.fields.choice)
+                self.change_trigger_input.set_id('marvin')
+                self.add_child(Label(view, for_input=self.change_trigger_input))
+                self.add_child(self.change_trigger_input)
         self.MyForm = MyForm
 
         def change_value(browser):
@@ -134,10 +134,10 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
-                self.select_input = CheckboxInput(self, an_object.fields.choice)
-                self.select_input.set_id('marvin')
-                self.add_child(Label(view, for_input=self.select_input))
-                self.add_child(self.select_input)
+                self.change_trigger_input = CheckboxInput(self, an_object.fields.choice)
+                self.change_trigger_input.set_id('marvin')
+                self.add_child(Label(view, for_input=self.change_trigger_input))
+                self.add_child(self.change_trigger_input)
         self.MyForm = MyForm
 
         def change_value(browser):
@@ -163,10 +163,10 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
-                self.select_input = CheckboxSelectInput(self, an_object.fields.choice)
-                self.select_input.set_id('marvin')
-                self.add_child(Label(view, for_input=self.select_input))
-                self.add_child(self.select_input)
+                self.change_trigger_input = CheckboxSelectInput(self, an_object.fields.choice)
+                self.change_trigger_input.set_id('marvin')
+                self.add_child(Label(view, for_input=self.change_trigger_input))
+                self.add_child(self.change_trigger_input)
         self.MyForm = MyForm
 
         def change_value(browser):
@@ -232,10 +232,10 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
-                self.select_input = SelectInput(self, an_object.fields.choice)
-                self.select_input.set_id('marvin')
-                self.add_child(Label(view, for_input=self.select_input))
-                self.add_child(self.select_input)
+                self.change_trigger_input = SelectInput(self, an_object.fields.choice)
+                self.change_trigger_input.set_id('marvin')
+                self.add_child(Label(view, for_input=self.change_trigger_input))
+                self.add_child(self.change_trigger_input)
         self.MyForm = MyForm
 
         def change_value(browser):
@@ -278,31 +278,98 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     assert browser.get_fragment() == '#other_var=other_value&choice=3'
 
 
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+@with_fixtures(WebFixture, QueryStringFixture)
+def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fixture):
     """If the user types an invalid value into an input serving as argument for one or more Widgets, the widgets are blocked out"""
+
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
+                                         Choice(2, IntegerField(label='Two')),
+                                         Choice(3, IntegerField(label='Three'))],
+                                        default=1,
+                                        label='Choice')
+            fields.another_choice = ChoiceField([Choice(4, IntegerField(label='Four')),
+                                         Choice(5, IntegerField(label='Five')),
+                                         Choice(6, IntegerField(label='Six'))],
+                                        default=4,
+                                        label='Another Choice')
 
     class MyForm(Form):
         def __init__(self, view, an_object):
             super(MyForm, self).__init__(view, 'myform')
-            self.select_input = TextInput(self, an_object.fields.choice)
-            self.add_child(Label(view, for_input=self.select_input))
-            self.add_child(self.select_input)
+            self.change_trigger_input = TextInput(self, an_object.fields.choice)
+            self.add_child(Label(view, for_input=self.change_trigger_input))
+            self.add_child(self.change_trigger_input)
 
-    responsive_disclosure_fixture.MyForm = MyForm
+            self.sibling_change_trigger_input = TextInput(self, an_object.fields.another_choice)
+            self.add_child(Label(view, for_input=self.sibling_change_trigger_input))
+            self.add_child(self.sibling_change_trigger_input)
 
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=responsive_disclosure_fixture.MainWidget.factory())
+    class MyChangingWidget(Div):
+        def __init__(self, view, trigger_input, sibling_trigger_input, model_object):
+            self.trigger_input = trigger_input
+            self.sibling_trigger_input = sibling_trigger_input
+            self.model_object = model_object
+            super(MyChangingWidget, self).__init__(view, css_id='changing_widget_id')
+            self.enable_refresh()
+            trigger_input.enable_notify_change(self, self.query_fields.fancy_state)
+            sibling_trigger_input.enable_notify_change(self, self.query_fields.another_fancy_state)
+            self.add_child(P(self.view, text='My state is now %s and %s' % (self.fancy_state, self.another_fancy_state)))
+
+        @property
+        def fancy_state(self):
+            return self.model_object.choice
+
+        @property
+        def another_fancy_state(self):
+            return self.model_object.another_choice
+
+        @exposed
+        def query_fields(self, fields):
+            fields.fancy_state = self.model_object.fields.choice
+            fields.another_fancy_state = self.model_object.fields.another_choice
+
+    class MainWidget(Widget):
+        def __init__(self, view):
+            super(MainWidget, self).__init__(view)
+            an_object = ModelObject()
+            form = self.add_child(MyForm(view, an_object))
+            self.add_child(MyChangingWidget(view, form.change_trigger_input, form.sibling_change_trigger_input, an_object))
+
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    web_fixture.pdb()
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    changing_widget_xpath = XPath('//div[@id="changing_widget_id"]')
+    changing_widget_blocked_xpath = XPath('%s/div[@class="blockUI"]' % changing_widget_xpath)
+
+    assert not browser.is_element_present(changing_widget_blocked_xpath)
+    assert browser.wait_for(query_string_fixture.is_state_now, '1 and 4')
+
     browser.type(XPath.input_labelled('Choice'), 'not a valid option')
     browser.press_tab()
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    assert browser.wait_for(browser.is_element_present, changing_widget_blocked_xpath)
+    assert browser.wait_for(query_string_fixture.is_state_now, '1 and 4')
 
-    assert None, 'Need to test: an invalid sibling; unblocking when values are valid again'
+    browser.type(XPath.input_labelled('Another Choice'), '5') #although valid, the sibling is still invalid
+    browser.press_tab()
+    web_fixture.pdb()
+    #TODO: check that the hashchange has changed, but no widget change
+    assert browser.is_element_present(changing_widget_blocked_xpath)
+    assert browser.wait_for(query_string_fixture.is_state_now, '1 and 5')
+
+    browser.type(XPath.input_labelled('Choice'), '2')
+    browser.press_tab()
+    browser.press_tab()
+    assert not browser.is_element_present(changing_widget_blocked_xpath)
+    assert browser.wait_for(query_string_fixture.is_state_now, '2 and 5')
+
+    #assert None, 'Need to test: an invalid sibling; unblocking when all values are valid again'
+
 
 @with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture, QueryStringFixture)
 def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, responsive_disclosure_fixture, sql_alchemy_fixture, query_string_fixture):
@@ -347,7 +414,7 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
                 super(MainWidget, self).__init__(view)
                 an_object = model_object
                 form = self.add_child(fixture.MyForm(view, an_object))
-                self.add_child(fixture.MyChangingWidget(view, form.select_input, an_object))
+                self.add_child(fixture.MyChangingWidget(view, form.change_trigger_input, an_object))
         fixture.MainWidget = MainWidget
 
         wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
@@ -464,7 +531,7 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
 
     class ChangingWidget(fixture.MyChangingWidget):
         def __init__(self, view, form, model_object):
-            super(ChangingWidget, self).__init__(view, form.select_input, model_object)
+            super(ChangingWidget, self).__init__(view, form.change_trigger_input, model_object)
             self.add_child(form)
 
     class MainWidget(Widget):
