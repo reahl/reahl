@@ -201,7 +201,6 @@ $.widget('reahl.changenotifier', {
                     _this.getSiblingChangeNotifiers().each(function() {
                         this.updateHashWithCurrentInputValue();
                     });
-                    $(window).hashchange();
                     this.focus();
                     _this.unblockWidget();
                 } else { _this.blockWidget(); }
