@@ -183,6 +183,7 @@ $.widget('reahl.changenotifier', {
         is_boolean: false,
         true_boolean_value: undefined,
         false_boolean_value: undefined,
+        argument: undefined
     },
     _create: function() {
             var o = this.options;
@@ -193,8 +194,13 @@ $.widget('reahl.changenotifier', {
 
             $(element).attr('data-target-widget', o.widget_id);
             $(element).on( 'change', function(e) {
+                if (_this.getIsSelfValid()) {
+                    _this.updateCurrentValue(e.target);
+                }
                 if (_this.getIsValid()) {
-                    _this.updateHashWithCurrentInputValue(e.target);
+                    _this.getSiblingChangeNotifiers().each(function() {
+                        this.updateHashWithCurrentInputValue();
+                    });
                     $(window).hashchange();
                     this.focus();
                     _this.unblockWidget();
@@ -237,16 +243,24 @@ $.widget('reahl.changenotifier', {
             return $(currentInput).val();
         }
     },
-    updateHashWithCurrentInputValue: function(currentInput) {
+    updateCurrentValue: function(currentInput) {
         var _this = this;
-        var currentFragment = getTraditionallyNamedFragment();
         var currentInputValue = this.getCurrentInputValue(currentInput);
-        var argument = new HashArgument(this.options.name, currentInputValue);
+        if (_this.options.argument == undefined) {
+            _this.options.argument = new HashArgument(this.options.name, currentInputValue);
+        }
+        var argument = _this.options.argument;
+        argument.changeValue(currentInputValue);
+    },
+    updateHashWithCurrentInputValue: function() {
+        var argument = this.options.argument;
+        if (argument !== undefined) {
+            var currentFragment = getTraditionallyNamedFragment();
+            argument.updateHashObject(currentFragment);
 
-        argument.updateHashObject(currentFragment);
-
-        var newHash = $.param(currentFragment, true);
-        window.location.hash = newHash;
+            var newHash = $.param(currentFragment, true);
+            window.location.hash = newHash;
+        }
     },
     getIsSelfValid: function() {
         var inputs;
@@ -259,15 +273,20 @@ $.widget('reahl.changenotifier', {
         var validator = $(form).data('validator');
         return validator.element(inputs);
     },
+    getSiblingChangeNotifiers: function() {
+        var _this = this;
+        var siblings = $('[data-target-widget="' + this.options.widget_id + '"]');
+        return siblings.map(function() {
+            return $(this).data('reahlChangenotifier')
+        });
+    },
     getIsSiblingArgumentsValid: function() {
         var _this = this;
         var valid = true;
-        var siblings = $('[data-target-widget="' + this.options.widget_id + '"]');
-        siblings.each(function() {
+        this.getSiblingChangeNotifiers().each(function() {
             var sibling = this;
-            if (!$(sibling).is(_this.element)) {
-                var siblingIsValid = $(sibling).data('reahlChangenotifier').getIsSelfValid();
-                valid = valid && siblingIsValid;
+            if (sibling !== _this) {
+                valid = valid && sibling.getIsSelfValid();
             }
         });
         return valid;

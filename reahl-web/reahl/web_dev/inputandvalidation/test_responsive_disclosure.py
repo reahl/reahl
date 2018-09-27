@@ -278,8 +278,16 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     assert browser.get_fragment() == '#other_var=other_value&choice=3'
 
 
-@with_fixtures(WebFixture, QueryStringFixture)
-def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fixture):
+
+class MultipleTriggerFixture(Fixture):
+    def is_widget_blocked(self, browser):
+        changing_widget_xpath = XPath('//div[@id="changing_widget_id"]')
+        changing_widget_blocked_xpath = XPath('%s/div[@class="blockUI"]' % changing_widget_xpath)
+        return browser.is_element_present(changing_widget_blocked_xpath)
+
+
+@with_fixtures(WebFixture, QueryStringFixture, MultipleTriggerFixture)
+def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fixture, multiple_trigger_fixture):
     """If the user types an invalid value into an input serving as argument for one or more Widgets, the widgets are blocked out"""
 
     class ModelObject(object):
@@ -331,6 +339,7 @@ def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fi
             fields.fancy_state = self.model_object.fields.choice
             fields.another_fancy_state = self.model_object.fields.another_choice
 
+
     class MainWidget(Widget):
         def __init__(self, view):
             super(MainWidget, self).__init__(view)
@@ -344,31 +353,27 @@ def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fi
     browser = web_fixture.driver_browser
     browser.open('/')
 
-    changing_widget_xpath = XPath('//div[@id="changing_widget_id"]')
-    changing_widget_blocked_xpath = XPath('%s/div[@class="blockUI"]' % changing_widget_xpath)
-
-    assert not browser.is_element_present(changing_widget_blocked_xpath)
-    assert browser.wait_for(query_string_fixture.is_state_now, '1 and 4')
+    # Case: an invalid option blocks the Widget out, does not refresh
+    assert not multiple_trigger_fixture.is_widget_blocked(browser)    
+    assert query_string_fixture.is_state_now('1 and 4')
 
     browser.type(XPath.input_labelled('Choice'), 'not a valid option')
     browser.press_tab()
-    assert browser.wait_for(browser.is_element_present, changing_widget_blocked_xpath)
+    assert browser.wait_for(multiple_trigger_fixture.is_widget_blocked, browser)    
     assert browser.wait_for(query_string_fixture.is_state_now, '1 and 4')
 
-    browser.type(XPath.input_labelled('Another Choice'), '5') #although valid, the sibling is still invalid
+    # Case: a valid option changes does nothing if its sibling is still invalid
+    browser.type(XPath.input_labelled('Another Choice'), '5')
     browser.press_tab()
-    web_fixture.pdb()
-    #TODO: check that the hashchange has changed, but no widget change
-    assert browser.is_element_present(changing_widget_blocked_xpath)
-    assert browser.wait_for(query_string_fixture.is_state_now, '1 and 5')
+    assert browser.wait_for(multiple_trigger_fixture.is_widget_blocked, browser)    
+    assert browser.wait_for(query_string_fixture.is_state_now, '1 and 4')
 
+    # Case: when all siblings are valid, the widget is refreshed, and it includes all relevant changed values
     browser.type(XPath.input_labelled('Choice'), '2')
     browser.press_tab()
-    browser.press_tab()
-    assert not browser.is_element_present(changing_widget_blocked_xpath)
+    assert browser.wait_for_not(multiple_trigger_fixture.is_widget_blocked, browser)    
     assert browser.wait_for(query_string_fixture.is_state_now, '2 and 5')
 
-    #assert None, 'Need to test: an invalid sibling; unblocking when all values are valid again'
 
 
 @with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture, QueryStringFixture)
@@ -585,6 +590,7 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_tri
 def test_ignore_button_click_on_change(web_fixture, boolean_input_trigger_fixture):
     """If a button click triggers a change to the page (due to a modified TextInput losing focus), the click is ignored."""
 
+    assert None
     fixture = boolean_input_trigger_fixture
     fixture.trigger_input_type = TextInput
 
@@ -617,7 +623,7 @@ def test_ignore_button_click_on_change(web_fixture, boolean_input_trigger_fixtur
 # DONE: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
 # DONE: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 # TODO: deal with onchange that happens in response to a text field that loses focus because you typed in it, and then clicked on a button
-# TODO: do not do the ajax refresh if there are validation errors on the ajax input trigger 
+# DONE: do not do the ajax refresh if there are validation errors on the ajax input trigger 
 
 # TODO: prevent double-click on a button (once clisked, it disables itself from further clicks forever)
 

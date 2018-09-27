@@ -1,8 +1,0 @@
-responsivedisclosure.py
-responsivedisclosure.egg-info/PKG-INFO
-responsivedisclosure.egg-info/SOURCES.txt
-responsivedisclosure.egg-info/dependency_links.txt
-responsivedisclosure.egg-info/entry_points.txt
-responsivedisclosure.egg-info/namespace_packages.txt
-responsivedisclosure.egg-info/requires.txt
-responsivedisclosure.egg-info/top_level.txt
