@@ -17,6 +17,8 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import threading
+
 from sqlalchemy import Column, Integer
 
 from reahl.tofu import Fixture, expected, scenario, uses
@@ -374,8 +376,74 @@ def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fi
     assert browser.wait_for(query_string_fixture.is_state_now, '2 and 5')
 
 
-def while_the_widget_is_being_refreshed_te_form_is_blocked():
-    assert None
+class BlockingRefreshFixture(ResponsiveDisclosureFixture):
+    long_refresh = False
+
+    def new_block_event(self):
+        return threading.Event()
+
+    def is_simulate_long_refresh(self):
+        return self.long_refresh
+
+    def set_simulate_long_refresh(self, flag=True):
+        self.long_refresh = flag
+
+    def simulate_long_refresh_start(self):
+        self.block_event.wait()
+
+    def simulate_long_refresh_done(self):
+        self.block_event.set()
+
+    def new_MyChangingWidget(self):
+        fixture = self
+        class MyChangingWidget(Div):
+            def __init__(self, view, trigger_input, model_object):
+                self.trigger_input = trigger_input
+                self.model_object = model_object
+                super(MyChangingWidget, self).__init__(view, css_id='dave')
+                self.enable_refresh()
+                trigger_input.enable_notify_change(self, self.query_fields.fancy_state)
+                if fixture.is_simulate_long_refresh():
+                    fixture.simulate_long_refresh_start()
+                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
+
+
+            @property
+            def fancy_state(self):
+                return self.model_object.choice
+
+            @exposed
+            def query_fields(self, fields):
+                fields.fancy_state = self.model_object.fields.choice
+        return MyChangingWidget
+
+    def is_form_blocked(self, browser):
+        form_xpath = XPath('//form[@id="myform"]')
+        form_blocked_xpath = XPath('%s/div[@class="blockUI"]' % form_xpath)
+        return browser.is_element_present(form_blocked_xpath)
+
+
+@with_fixtures(WebFixture, BlockingRefreshFixture, QueryStringFixture)
+def test_the_form_is_blocked_while_the_widget_is_being_refreshed(web_fixture, blocking_refresh_fixture, query_string_fixture):
+    """The form is blocked until the responsive widget has refreshed it contents."""
+
+    fixture = blocking_refresh_fixture
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    fixture.set_simulate_long_refresh()
+    with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
+        browser.click(XPath.option_with_text('Three'))
+
+    assert fixture.is_form_blocked(browser)
+
+    fixture.simulate_long_refresh_done()
+    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+    assert not fixture.is_form_blocked(browser)
+
 
 @with_fixtures(WebFixture, ResponsiveDisclosureFixture, SqlAlchemyFixture, QueryStringFixture)
 def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, responsive_disclosure_fixture, sql_alchemy_fixture, query_string_fixture):
@@ -430,12 +498,12 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
 
         assert model_object.choice == 1
         browser.click(XPath.option_with_text('Three'))
-    
+
         assert browser.wait_for(query_string_fixture.is_state_now, 3)  # The screen was updated,
         assert model_object.choice == 1                                # but the database not.
 
         browser.click(XPath.button_labelled('Submit'))
-        assert browser.wait_for(query_string_fixture.is_state_now, 3) 
+        assert browser.wait_for(query_string_fixture.is_state_now, 3)
         assert model_object.choice == 3                                # Now the database is updated too.
 
 
@@ -508,11 +576,11 @@ class DisclosedInputFixture(Fixture):
 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
-def test_validation_of_undisclosed_yet_required_input(web_fixture, boolean_input_fixture):
+def test_validation_of_undisclosed_yet_required_input(web_fixture, disclosed_input_fixture):
     """If a Field has a required constraint, but its Input is not currently displayed as part of the form (because of the
        state of another Input), and the form is submitted, the constraint should not cause an exception(input was omitted)."""
 
-    fixture = boolean_input_fixture
+    fixture = disclosed_input_fixture
 
     model_object = fixture.model_object
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
@@ -557,10 +625,10 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
-def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_trigger_fixture):
+def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_trigger_fixture):
     """When a user TAB's out of an input that then triggers a change, the tab is ignored and focus stays on the original input so that the tab order can be recalculated."""
 
-    fixture = boolean_input_trigger_fixture
+    fixture = disclosed_input_trigger_fixture
     fixture.trigger_input_type = TextInput
 
     model_object = fixture.model_object
@@ -588,11 +656,11 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, boolean_input_tri
 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
-def test_ignore_button_click_on_change(web_fixture, boolean_input_trigger_fixture):
+def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixture):
     """If a button click triggers a change to the page (due to a modified TextInput losing focus), the click is ignored."""
 
     assert None
-    fixture = boolean_input_trigger_fixture
+    fixture = disclosed_input_trigger_fixture
     fixture.trigger_input_type = TextInput
 
     model_object = fixture.model_object
