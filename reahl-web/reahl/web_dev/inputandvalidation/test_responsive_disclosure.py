@@ -377,16 +377,10 @@ def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fi
 
 
 class BlockingRefreshFixture(ResponsiveDisclosureFixture):
-    long_refresh = False
+    should_pause_to_simulate_long_refresh = False
 
     def new_block_event(self):
         return threading.Event()
-
-    def is_simulate_long_refresh(self):
-        return self.long_refresh
-
-    def set_simulate_long_refresh(self, flag=True):
-        self.long_refresh = flag
 
     def simulate_long_refresh_start(self):
         self.block_event.wait()
@@ -396,26 +390,13 @@ class BlockingRefreshFixture(ResponsiveDisclosureFixture):
 
     def new_MyChangingWidget(self):
         fixture = self
-        class MyChangingWidget(Div):
+        class ChangingWidgetThatPauses(super(BlockingRefreshFixture, self).new_MyChangingWidget()):
             def __init__(self, view, trigger_input, model_object):
-                self.trigger_input = trigger_input
-                self.model_object = model_object
-                super(MyChangingWidget, self).__init__(view, css_id='dave')
-                self.enable_refresh()
-                trigger_input.enable_notify_change(self, self.query_fields.fancy_state)
-                if fixture.is_simulate_long_refresh():
+                super(ChangingWidgetThatPauses, self).__init__(view, trigger_input, model_object)
+                if fixture.should_pause_to_simulate_long_refresh:
                     fixture.simulate_long_refresh_start()
-                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
 
-
-            @property
-            def fancy_state(self):
-                return self.model_object.choice
-
-            @exposed
-            def query_fields(self, fields):
-                fields.fancy_state = self.model_object.fields.choice
-        return MyChangingWidget
+        return ChangingWidgetThatPauses
 
     def is_form_blocked(self, browser):
         form_xpath = XPath('//form[@id="myform"]')
@@ -432,9 +413,11 @@ def test_the_form_is_blocked_while_the_widget_is_being_refreshed(web_fixture, bl
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
+
+    fixture.should_pause_to_simulate_long_refresh = False
     browser.open('/')
 
-    fixture.set_simulate_long_refresh()
+    fixture.should_pause_to_simulate_long_refresh = True
     with web_fixture.reahl_server.in_background(wait_till_done_serving=False):
         browser.click(XPath.option_with_text('Three'))
 
