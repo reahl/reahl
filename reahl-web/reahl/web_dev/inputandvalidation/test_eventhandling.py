@@ -115,7 +115,11 @@ def test_button_submits_only_once(web_fixture):
     assert fixture.click_count == 0
     assert browser.is_on_top(button_xpath)
     assert not browser.does_element_have_attribute(button_xpath, 'readonly')
-    browser.click(button_xpath)
+
+    #close the new tab and refocus on current tab - subsequent tests fail if it is not
+    with browser.stay_on_current_tab(), browser.close_new_tab():
+        browser.click(button_xpath)
+
     assert fixture.click_count == 1                   # The Event was submitted
     assert not browser.is_on_top(button_xpath)        # The Button cannot be clicked again
     assert browser.does_element_have_attribute(button_xpath, 'readonly')

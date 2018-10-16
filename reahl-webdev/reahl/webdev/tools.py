@@ -1132,5 +1132,36 @@ class DriverBrowser(BasicBrowser):
             new_element_loaded = not self.web_driver.execute_script('return $("%s").hasClass("load_flag")' % jquery_selector) 
             if new_element_loaded:
                 raise UnexpectedLoadOf(jquery_selector)
-        
+
+    @contextlib.contextmanager
+    def close_new_tab(self):
+        """ Returns a context manager that checks that a new tab/window appeared.
+            :param close_new_tab: Indicate whether the new tab/window must be closed or not
+        """
+        current_tab = self.web_driver.current_window_handle
+        tabs_before = [w for w in self.web_driver.window_handles if w != current_tab]
+
+        try:
+            yield
+
+            tabs_after = [w for w in self.web_driver.window_handles if w != current_tab]
+            new_tabs = [w for w in tabs_after if w not in tabs_before]
+            assert len(new_tabs) == 1
+
+        finally:
+            new_tab = new_tabs[0]
+            self.web_driver.switch_to.window(new_tab)
+            self.web_driver.close()
+        #need to refocus the browser
+        self.web_driver.switch_to.window(current_tab)
+
+    @contextlib.contextmanager
+    def stay_on_current_tab(self):
+        """ Should a new tab open, keep the browser focus on the current tab
+        """
+        current_tab = self.web_driver.current_window_handle
+        try:
+            yield
+        finally:
+            self.web_driver.switch_to.window(current_tab)
 
