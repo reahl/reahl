@@ -72,7 +72,6 @@ def test_file_upload_button(web_fixture, file_input_button_fixture):
 
     fixture = file_input_button_fixture
 
-
     wsgi_app = web_fixture.new_wsgi_app(child_factory=file_input_button_fixture.FileUploadForm.factory(), enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser

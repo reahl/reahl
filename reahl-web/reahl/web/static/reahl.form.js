@@ -23,7 +23,22 @@ $.widget('reahl.form', {
     options: $.extend(true, {meta: 'validate'}, $.validator.defaults),
 
     _create: function() {
-        $(this.element).validate(this.options);
+        var element = this.element;
+        $(element).validate(this.options);
+        
+        element.on('submit', function(e) {
+            if ($(element).valid()) {
+                element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
+                $(element[0].elements)
+                    .block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0})
+                    .attr('readonly', true);
+            }
+            // if ( element.attr('readonly') == undefined ) {
+            //     element.attr('readonly', true);
+            // } else {
+            //     event.preventDefault();
+            // }
+        });        
     }
 });
 

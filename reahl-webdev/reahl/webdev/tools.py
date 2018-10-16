@@ -676,7 +676,7 @@ class DriverBrowser(BasicBrowser):
         xpath = six.text_type(locator)
         el = self.web_driver.find_element_by_xpath(xpath)
         if el and el.get_attribute(attribute) is not None:   # el is present and has attribute
-            if (value is not None or el.get_attribute(attribute) == value):  # attribute has specified value if specified
+            if (value is None) or (el.get_attribute(attribute) == value):  # attribute has specified value if specified
                return el
         return False
     
@@ -816,7 +816,7 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param text: The text to be typed.
            :keyword wait: If False, don't wait_for_page_to_load after having typed into the input.
-           
+ 
         """
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
@@ -847,6 +847,24 @@ class DriverBrowser(BasicBrowser):
         actions = ActionChains(self.web_driver)
         actions.move_to_element(el)
         actions.perform()
+
+    def is_on_top(self, locator):
+        """Answers whether the located element is topmost at its location in terms of z-index.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+
+           ..versionadded:: 4.1
+
+        """
+        xpath = six.text_type(locator)
+        el = self.find_element(xpath)
+        return self.web_driver.execute_script('''
+            var element = arguments[0];
+            var boundingRectangle = element.getBoundingClientRect();
+            var center_x = boundingRectangle.left + (boundingRectangle.width / 2);
+            var center_y = boundingRectangle.top + (boundingRectangle.height / 2);
+            return document.elementFromPoint(center_x, center_y) === element;
+        ''', el)
 
     def focus_on(self, locator):
         """Puts the tab-focus at the element found by the `locator`.

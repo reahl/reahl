@@ -1408,7 +1408,7 @@ class PrimitiveInput(Input):
 
     @property
     def jquery_selector(self):
-        return '''$('input[name=%s][form="%s"]')''' % (self.name, self.form.css_id)
+        return '''$('input[name="%s"][form="%s"]')''' % (self.name, self.form.css_id)
 
     @property
     def validation_constraints(self):

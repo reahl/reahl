@@ -677,6 +677,7 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
 # TODO: deal with onchange that happens in response to a text field that loses focus because you typed in it, and then clicked on a button
 # DONE: do not do the ajax refresh if there are validation errors on the ajax input trigger 
 # TODO: maybe move attribs on js objects from options to this???
+# TODO: add must_be_interactable=True kwarg in tools.py where necessary for consistency with type()
 # TODO: prevent double-click on a button (once clisked, it disables itself from further clicks forever)
 
 # DONE: see: multi_value_empty_the_list when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.

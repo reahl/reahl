@@ -86,6 +86,42 @@ def test_basic_event_linkup(web_fixture):
 
 
 @with_fixtures(WebFixture)
+def test_button_submits_only_once(web_fixture):
+    """ButtonInputs and associated forms are blocked upon successful submit to prevent a user from double-clicking a button."""
+
+    fixture = web_fixture
+    fixture.click_count = 0
+    class MyForm(Form):
+        def __init__(self, view):
+            super(MyForm, self).__init__(view, 'myform')
+            self.set_attribute('target', '_blank')  # We want to make sure the initial page is not refreshed so we can check the button status
+            self.define_event_handler(self.events.an_event)
+            self.add_child(ButtonInput(self, self.events.an_event))
+
+        def clicked(self):
+            fixture.click_count += 1
+
+        @exposed
+        def events(self, events):
+            events.an_event = Event(label='click me', action=Action(self.clicked))
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    button_xpath = "//input[@value='click me']"
+
+    assert fixture.click_count == 0
+    assert browser.is_on_top(button_xpath)
+    assert not browser.does_element_have_attribute(button_xpath, 'readonly')
+    browser.click(button_xpath)
+    assert fixture.click_count == 1                   # The Event was submitted
+    assert not browser.is_on_top(button_xpath)        # The Button cannot be clicked again
+    assert browser.does_element_have_attribute(button_xpath, 'readonly')
+
+
+@with_fixtures(WebFixture)
 def test_arguments_to_actions(web_fixture):
     """If a Button is created for an Event with_arguments, those arguments are passed to the backend
        when the Button is clicked."""
@@ -910,3 +946,5 @@ def test_remote_field_formatting(web_fixture):
 
     browser.open('/_myform_format_method?a_field=invaliddate')
     assert browser.raw_html == ''
+
+
