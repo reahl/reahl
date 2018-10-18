@@ -96,6 +96,7 @@ def test_button_submits_only_once(web_fixture):
             super(MyForm, self).__init__(view, 'myform')
             self.set_attribute('target', '_blank')  # We want to make sure the initial page is not refreshed so we can check the button status
             self.define_event_handler(self.events.an_event)
+            self.add_child(TextInput(self, self.fields.field_name))
             self.add_child(ButtonInput(self, self.events.an_event))
 
         def clicked(self):
@@ -104,6 +105,10 @@ def test_button_submits_only_once(web_fixture):
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', action=Action(self.clicked))
+
+        @exposed
+        def fields(self, fields):
+            fields.field_name = IntegerField()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -116,6 +121,19 @@ def test_button_submits_only_once(web_fixture):
     assert browser.is_on_top(button_xpath)
     assert not browser.does_element_have_attribute(button_xpath, 'readonly')
 
+    # case : the user ignores the validation error and presses submit(which does not action as some input is invalid)
+    fixture.driver_browser.type("//input[@type='text']", 'not a number')
+    browser.press_tab() #trigger validation exception
+    with browser.no_page_load_expected():
+        browser.click(button_xpath)
+
+    assert fixture.click_count == 0
+    assert browser.is_on_top(button_xpath)
+    assert not browser.does_element_have_attribute(button_xpath, 'readonly')
+
+    # case : no validation error and the user presses submit(which does action)
+    fixture.driver_browser.type("//input[@type='text']", '1')
+    browser.press_tab() #trigger validation
     #close the new tab and refocus on current tab - subsequent tests fail if it is not
     with browser.stay_on_current_tab(), browser.close_new_tab():
         browser.click(button_xpath)
