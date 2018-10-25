@@ -676,13 +676,11 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
 # TODO: (related to xsrf token implementation maybe?) form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
 # DONE: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
 # DONE: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
-# TODO: deal with onchange that happens in response to a text field that loses focus because you typed in it, and then clicked on a button (see test_ignore_button_click_on_change)
+# DONE: deal with onchange that happens in response to a text field that loses focus because you typed in it, and then clicked on a button (see test_ignore_button_click_on_change)
 # DONE: do not do the ajax refresh if there are validation errors on the ajax input trigger 
 # TODO: maybe move attribs on js objects from options to this???
-# TODO: add must_be_interactable=True kwarg in tools.py where necessary for consistency with type()   wait_for_element_interactable
-# TODO: prevent double-click on a button (once clicked, it disables itself from further clicks forever, if from was valid)
-# TODO:     -- only if the form is valid. Looks like nothing happens when you click the button and there are validation errors
-# TODO:     -- what if the user manipulates the html and removes the readonly and blockUI?
+# DONE: prevent double-click on a button (once clicked, it disables itself from further clicks forever, if from was valid)
+# TODO: deal with ajax requests that fail.
 
 # TODO: discuss: why need to run back to server? perhaps snippets come with it and js switches to enable snippets already at the client
 

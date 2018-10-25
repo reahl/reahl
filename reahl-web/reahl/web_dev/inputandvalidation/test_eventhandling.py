@@ -121,7 +121,7 @@ def test_button_submits_only_once(web_fixture):
     assert browser.is_on_top(button_xpath)
     assert not browser.does_element_have_attribute(button_xpath, 'readonly')
 
-    # case : the user ignores the validation error and presses submit(which does not action as some input is invalid)
+    # case : if there is a validation error, don't block
     fixture.driver_browser.type("//input[@type='text']", 'not a number')
     browser.press_tab() #trigger validation exception
     with browser.no_page_load_expected():
@@ -131,11 +131,10 @@ def test_button_submits_only_once(web_fixture):
     assert browser.is_on_top(button_xpath)
     assert not browser.does_element_have_attribute(button_xpath, 'readonly')
 
-    # case : no validation error and the user presses submit(which does action)
+    # case : if the form is valid, do block
     fixture.driver_browser.type("//input[@type='text']", '1')
     browser.press_tab() #trigger validation
-    #close the new tab and refocus on current tab - subsequent tests fail if it is not
-    with browser.stay_on_current_tab(), browser.close_new_tab():
+    with browser.new_tab_closed():
         browser.click(button_xpath)
 
     assert fixture.click_count == 1                   # The Event was submitted

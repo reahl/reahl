@@ -1135,9 +1135,8 @@ class DriverBrowser(BasicBrowser):
                 raise UnexpectedLoadOf(jquery_selector)
 
     @contextlib.contextmanager
-    def close_new_tab(self):
-        """ Returns a context manager that checks that a new tab/window appeared.
-            :param close_new_tab: Indicate whether the new tab/window must be closed or not
+    def new_tab_closed(self):
+        """ Returns a context manager that ensures selenium stays on the current tab while another is temporarily opened.
         """
         current_tab = self.web_driver.current_window_handle
         tabs_before = [w for w in self.web_driver.window_handles if w != current_tab]
@@ -1153,16 +1152,6 @@ class DriverBrowser(BasicBrowser):
             new_tab = new_tabs[0]
             self.web_driver.switch_to.window(new_tab)
             self.web_driver.close()
-        #need to refocus the browser
-        self.web_driver.switch_to.window(current_tab)
-
-    @contextlib.contextmanager
-    def stay_on_current_tab(self):
-        """ Should a new tab open, keep the browser focus on the current tab
-        """
-        current_tab = self.web_driver.current_window_handle
-        try:
-            yield
-        finally:
             self.web_driver.switch_to.window(current_tab)
+
 
