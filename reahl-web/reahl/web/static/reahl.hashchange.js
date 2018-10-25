@@ -96,20 +96,17 @@ $.widget('reahl.hashchange', {
             cache: true,
             errorMessage: 'Ajax error',
             timeoutMessage: 'Ajax timeout',
-            params: [],
-            arguments: [],
-            registered_callbacks: {}
+            params: []
     },
 
     _create: function() {
-        var o = this.options;
-        var element = this.element;
+        this.arguments = [];
+        this.registered_callbacks = {};
+
         var _this = this;
 
-        _this.options.previousHashValues = $.extend(true, {}, _this.options.params);
-        _this.options.arguments = [];
         for (name in _this.options.params) {
-            _this.options.arguments.push(new HashArgument(name, _this.options.params[name]))
+            _this.arguments.push(new HashArgument(name, _this.options.params[name]))
         }
         $(window).on( 'hashchange', function(e) {
             var currentFragment = getTraditionallyNamedFragment();
@@ -123,10 +120,10 @@ $.widget('reahl.hashchange', {
         $(window).trigger( 'hashchange' );
     },
     getArguments: function() {
-        return this.options.arguments;
+        return this.arguments;
     },
     addCallback: function(name, callback) {
-        this.options.registered_callbacks[name] = callback;
+        this.registered_callbacks[name] = callback;
     },
     popCallback: function() {
         var currentFragment = getTraditionallyNamedFragment();
@@ -136,9 +133,9 @@ $.widget('reahl.hashchange', {
         }
         window.location.hash = $.param(currentFragment, true);
 
-        var callback = this.options.registered_callbacks[name];        
+        var callback = this.registered_callbacks[name];        
         if (callback !== undefined) {
-            delete this.options.registered_callbacks[name];
+            delete this.registered_callbacks[name];
             return callback;
         } else {
             return function(){}
@@ -163,7 +160,7 @@ $.widget('reahl.hashchange', {
                 data:    _this.calculateQueryStringValues(currentHashValues, newArguments),
                 success: function(data){
                     _this.element.html(data);
-                    _this.options.arguments = newArguments;
+                    _this.arguments = newArguments;
                 },
                 complete: function(data){
                     _this.element.unblock();
