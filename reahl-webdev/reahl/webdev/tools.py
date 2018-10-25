@@ -821,7 +821,7 @@ class DriverBrowser(BasicBrowser):
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         if el.get_attribute('type') != 'file':
-            el.clear()
+            el.send_keys(Keys.CONTROL+'a'+Keys.BACKSPACE) # To clear() the element without triggering extra onchange events
         el.send_keys(text)
         if wait:
             self.wait_for_page_to_load()
@@ -877,6 +877,7 @@ class DriverBrowser(BasicBrowser):
         xpath = six.text_type(locator)
         el = self.find_element(xpath)
         return self.web_driver.execute_script('arguments[0].focus();', el)
+
 
     def is_focus_on(self, locator):
         """Answers whether the tab-focus is on the element found by the `locator`.
