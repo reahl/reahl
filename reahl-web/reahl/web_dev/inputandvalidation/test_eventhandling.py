@@ -511,46 +511,6 @@ def test_duplicate_forms(web_fixture):
 
 
 @with_fixtures(WebFixture)
-def test_check_input_placement(web_fixture):
-    """When a web request is handled, the framework throws an exception if an input might be seperated conceptually from the form they are bound to."""
-
-    fixture = web_fixture
-
-    class ModelObject(object):
-        @exposed
-        def fields(self, fields):
-            fields.name = Field()
-
-    class MainUI(UserInterface):
-        def assemble(self):
-            page = self.define_page(HTML5Page).use_layout(BasicPageLayout())
-            home = self.define_view('/', title='Home page')
-            home.set_slot('main', MyForm.factory())
-
-    class MyForm(Form):
-        def __init__(self, view):
-            super(MyForm, self).__init__(view, 'my_form')
-            self.add_child(RerenderableInputPanel(view, self))
-
-    class RerenderableInputPanel(Div):
-        def __init__(self, view, form):
-            super(RerenderableInputPanel, self).__init__(view, css_id='my_refresh_id')
-            self.enable_refresh()
-            model_object = ModelObject()
-            self.add_child(TextInput(form, model_object.fields.name))
-        
-        @exposed
-        def query_fields(self, fields):
-            fields.some_attribute = Field()
-
-    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-    browser = Browser(wsgi_app)
-
-    with expected(ProgrammerError, test='.*Inputs are not allowed where they can be refreshed separately from their forms\..*'):
-        browser.open('/')
-
-
-@with_fixtures(WebFixture)
 def test_check_missing_form(web_fixture):
     """All forms referred to by inputs on a page have to be present on that page."""
 
