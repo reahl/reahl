@@ -33,11 +33,6 @@ $.widget('reahl.form', {
                     .block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0})
                     .attr('readonly', true);
             }
-            // if ( element.attr('readonly') == undefined ) {
-            //     element.attr('readonly', true);
-            // } else {
-            //     event.preventDefault();
-            // }
         });        
     }
 });
