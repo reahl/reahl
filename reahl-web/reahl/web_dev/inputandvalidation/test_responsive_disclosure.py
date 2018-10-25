@@ -642,7 +642,6 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_t
 def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixture):
     """If a button click triggers a change to the page (due to a modified TextInput losing focus), the click is ignored."""
 
-    assert None, 'the page seems to be clocked at the type we want to click'
     fixture = disclosed_input_trigger_fixture
     fixture.trigger_input_type = TextInput
 
@@ -656,12 +655,14 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
 
     assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
     assert not browser.is_element_present(XPath.input_labelled('Email'))
+
     browser.type(XPath.input_labelled('Trigger field'), 'on')
-    web_fixture.pdb()
     with browser.no_page_load_expected():
         browser.click(XPath.button_labelled('click me'))
-    assert browser.is_element_present(XPath.input_labelled('Email'))
 
+    assert browser.is_focus_on(XPath.input_labelled('Trigger field'))
+    assert browser.is_element_present(XPath.input_labelled('Email'))
+    assert browser.is_on_top(XPath.button_labelled('click me'))
 
 
 # Naming of notifier.
@@ -682,6 +683,8 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
 # TODO: prevent double-click on a button (once clicked, it disables itself from further clicks forever, if from was valid)
 # TODO:     -- only if the form is valid. Looks like nothing happens when you click the button and there are validation errors
 # TODO:     -- what if the user manipulates the html and removes the readonly and blockUI?
+
+# TODO: discuss: why need to run back to server? perhaps snippets come with it and js switches to enable snippets already at the client
 
 # DONE: see: multi_value_empty_the_list when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 # TODO: found that this test seems to hang regularly(not when run individually, and the xpra chrome window stays open): pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::test_clicking_on_multi_tab, more spcifically: pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::"test_clicking_on_multi_tab[web_fixture1-panel_switch_fixture1-tabbed_panel_ajax_fixture1]"
