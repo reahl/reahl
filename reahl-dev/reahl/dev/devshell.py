@@ -167,7 +167,7 @@ class DeleteSelection(WorkspaceCommand):
     """Deletes the saved selection set with the given name."""
     keyword = 'delete'
     usage_args = '<name>'
-    def execute(self, options, args):
+    def execute(self, args):
         self.workspace.delete_selection(args[0])
 
 
