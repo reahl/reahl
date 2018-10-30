@@ -22,12 +22,15 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import time
 from string import Template
-import collections
 import copy
 import re
 import six
 import warnings
 from collections import OrderedDict
+try:
+    from collections.abc import Callable
+except:
+    from collections import Callable
 
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
@@ -371,7 +374,7 @@ class TextNode(Widget):
     def __init__(self, view, value_or_getter, html_escape=True):
         super(TextNode, self).__init__(view)
         self.html_escape = html_escape
-        if isinstance(value_or_getter, collections.Callable):
+        if isinstance(value_or_getter, Callable):
             self.value_getter = value_or_getter
         else:
             def get_value():

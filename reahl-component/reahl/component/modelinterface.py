@@ -36,7 +36,11 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 from reahl.component.i18n import Catalogue
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
-import collections
+try:
+    from collections.abc import Callable
+except:
+    from collections import Callable
+
 
 _ = Catalogue('reahl-component')
 
@@ -1091,7 +1095,7 @@ class SecuredFunction(FunctionWrapper):
     def check_and_setup_check(self, check):
         if isinstance(check, AdaptedMethod):
             check.set_full_arg_names(self.get_declared_argument_names())
-        if not isinstance(check, AdaptedMethod) and isinstance(check, collections.Callable):
+        if not isinstance(check, AdaptedMethod) and isinstance(check, Callable):
             self.check_method_signature(check, self.__wrapped__)
 
     def check_call_wrapped(self, wrapped, instance, args, kwargs):

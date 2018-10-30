@@ -16,7 +16,10 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import inspect
-import collections
+try:
+    from collections.abc import Callable
+except:
+    from collections import Callable
 from functools import reduce
 
 import six
@@ -58,7 +61,7 @@ class StubClass(object):
             orig_attribute = getattr(self.orig, attribute_name)
         except AttributeError:
             if not self.check_attributes_also:
-                if not isinstance(attribute, collections.Callable) and not isinstance(attribute, property): 
+                if not isinstance(attribute, Callable) and not isinstance(attribute, property):
                     return 
 
             message = 'attribute mismatch: %s.%s does not exist on %s' % \
@@ -73,7 +76,7 @@ class StubClass(object):
             self.signatures_match(orig_attribute, attribute)
 
     def types_match(self, stub, orig, stubbed):
-        assert isinstance(orig, collections.Callable) == isinstance(stubbed, collections.Callable), \
+        assert isinstance(orig, Callable) == isinstance(stubbed, Callable), \
             'attribute mismatch: %s.%s is not compatible with the original type %s on %s' % \
             (stub, stubbed, type(orig), self.orig)
 

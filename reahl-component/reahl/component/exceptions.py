@@ -25,7 +25,11 @@ import wrapt
 import inspect
 
 from reahl.component.i18n import Catalogue
-import collections
+try:
+    from collections.abc import Callable
+except:
+    from collections import Callable
+
 
 _ = Catalogue('reahl-component')
 
@@ -179,7 +183,7 @@ class IsCallable(ArgumentCheck):
         return '(%s)' % (','.join(formatted_all))
 
     def is_valid(self, value):
-        return isinstance(value, collections.Callable)
+        return isinstance(value, Callable)
 
     def __str__(self):
         return '%s: %s should be a callable object (got %s)' % (self.func, self.arg_name, self.value)
@@ -204,7 +208,7 @@ class ArgumentCheckedCallable(object):
         elif inspect.isclass(self.target):
             to_check = self.target.__init__
             args = (NotYetAvailable('self'), )+args
-        elif isinstance(self.target, collections.Callable):
+        elif isinstance(self.target, Callable):
             to_check = self.target.__call__
         else:
             raise ProgrammerError('%s was expected to be a callable object' % self.target)
