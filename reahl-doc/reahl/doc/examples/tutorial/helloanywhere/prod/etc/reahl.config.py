@@ -6,7 +6,7 @@ reahlsystem.root_egg = 'helloanywhere'
 reahlsystem.debug = False
 
 # If using SQLite:
-reahlsystem.connection_uri = 'sqlite:///%s/helloanywhere.db' % os.environ['HOME']
+reahlsystem.connection_uri = 'sqlite:///%s/helloanywhere.db' % os.path.expanduser('~')
 
 # If using MySql:
 # reahlsystem.connection_uri = 'mysql://myname:mydatabasepassword@myname.mysql.pythonanywhere-services.com/helloanywhere'
