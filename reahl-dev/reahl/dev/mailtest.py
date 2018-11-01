@@ -74,7 +74,7 @@ class EchoSMTPServer(DebuggingServer):
 class ServeSMTP(WorkspaceCommand):
     """Runs an SMTP server on port 8025 for testing."""
     keyword = 'servesmtp'
-    def execute(self, options, args):
+    def execute(self, args):
         server = EchoSMTPServer()
         print("Running Echo SMTP Server on port 8025, type [ctrl-c] to exit.")
         try:
