@@ -16,13 +16,14 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import inspect
-try:
-    from collections.abc import Callable
-except:
-    from collections import Callable
+import six
 from functools import reduce
 
-import six
+if six.PY2:
+    from collections import Callable
+else:
+    from collections.abc import Callable
+
 
 
 class StubClass(object):

@@ -36,10 +36,11 @@ from wrapt import FunctionWrapper, BoundFunctionWrapper
 
 from reahl.component.i18n import Catalogue
 from reahl.component.exceptions import AccessRestricted, ProgrammerError, arg_checks, IsInstance, IsCallable, NotYetAvailable
-try:
-    from collections.abc import Callable
-except:
+if six.PY2:
     from collections import Callable
+else:
+    from collections.abc import Callable
+
 
 
 _ = Catalogue('reahl-component')
