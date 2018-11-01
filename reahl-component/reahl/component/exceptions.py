@@ -24,10 +24,12 @@ import functools
 import wrapt
 import inspect
 
-if six.PY2:
-    from collections import Callable
-else:
+from reahl.component.i18n import Catalogue
+
+try:
     from collections.abc import Callable
+except:
+    from collections import Callable
 
 
 _ = Catalogue('reahl-component')
