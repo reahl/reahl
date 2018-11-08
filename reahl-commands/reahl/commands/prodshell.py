@@ -18,6 +18,10 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
+import os.path
+import os
+import shutil
+
 import pprint
 import six
 
@@ -28,6 +32,7 @@ from reahl.component.shelltools import Command, ReahlCommandline, AliasFile
 from reahl.component.context import ExecutionContext
 from reahl.component.config import EntryPointClassList, Configuration, StoredConfiguration, MissingValue
 from reahl.component.eggs import ReahlEgg
+from reahl.component.exceptions import DomainException
 
 
 
@@ -309,5 +314,25 @@ class RunJobs(ProductionCommand):
             self.sys_control.do_daily_maintenance()
         return 0
 
+
+class ExportStaticFiles(ProductionCommand):
+    """Exports all static web assets found in web.libraries to a specified directory."""
+    keyword = 'exportstatics'
+    def assemble(self):
+        super(ExportStaticFiles, self).assemble()
+        self.parser.add_argument('destination_directory', type=str,  help='the destination directory to export to')
+
+    def execute(self, args):
+        super(ExportStaticFiles, self).execute(args)
+        if os.path.exists(args.destination_directory):
+            raise DomainException(message='The path %s already exists. Please move it out of the way first.' % args.destination_directory)
+        try:
+            os.mkdir(args.destination_directory)
+        except Exception as ex:
+            raise DomainException(message='Could not create %s: %s' % (args.destination_directory, six.text_type(ex)))
+            
+        for packaged_file in self.config.web.frontend_libraries.packaged_files():
+            print('extracting %s' % packaged_file.full_path)
+            shutil.copy(packaged_file.full_path, args.destination_directory)
 
 
