@@ -39,6 +39,7 @@
   <export entrypoint="reahl.component.commands" name="ListConfig" locator="reahl.commands.prodshell:ListConfig"/>
   <export entrypoint="reahl.component.commands" name="CheckConfig" locator="reahl.commands.prodshell:CheckConfig"/>
   <export entrypoint="reahl.component.commands" name="ListDependencies" locator="reahl.commands.prodshell:ListDependencies"/>
+  <export entrypoint="reahl.component.commands" name="ExportStaticFiles" locator="reahl.commands.prodshell:ExportStaticFiles"/>
 
 
   <distpackage type="wheel">

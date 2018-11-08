@@ -2394,9 +2394,11 @@ class FileFromBlob(ViewableFile):
 
 
 class PackagedFile(FileOnDisk):
-    def __init__(self, egg, directory_name, relative_name):
+    def __init__(self, egg_name, directory_name, relative_name):
+        self.egg_name = egg_name
+        self.directory_name = directory_name
         egg_relative_name = '/'.join([directory_name, relative_name])
-        full_path = pkg_resources.resource_filename(Requirement.parse(egg), egg_relative_name)
+        full_path = pkg_resources.resource_filename(Requirement.parse(egg_name), egg_relative_name)
         super(PackagedFile, self).__init__(full_path, relative_name)
 
 
