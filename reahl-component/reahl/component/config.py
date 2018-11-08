@@ -261,9 +261,11 @@ class ConfigAsDict(dict):
 
 
 class StoredConfiguration(Configuration):
-    def __init__(self, config_directory_name, in_production=False):
+    def __init__(self, config_directory_name, strict_checking=False, in_production=None):
+        if in_production is not None:
+            warnings.warn('DEPRECATED: in_production has been renamed to strict_checking', DeprecationWarning, stacklevel=2)            
         self.config_directory = config_directory_name
-        self.in_production = in_production
+        self.strict_checking = in_production or strict_checking
 
     def configure(self, validate=True):
         self.configure_logging()
@@ -353,7 +355,7 @@ class StoredConfiguration(Configuration):
         if not isinstance(src_config, configuration_class):
             raise ConfigurationException('%s is not a %s in %s' % (composite_key, configuration_class, full_filename))
 
-        src_config.validate_contents(full_filename, composite_key, self.in_production)
+        src_config.validate_contents(full_filename, composite_key, self.strict_checking)
 
     def list_required(self, configuration_class):
         composite_key = configuration_class.config_key

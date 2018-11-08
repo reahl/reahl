@@ -2583,9 +2583,16 @@ class ReahlWSGIApplication(object):
     """
 
     @classmethod
-    def from_directory(cls, directory):
-        """Create a ReahlWSGIApplication given the `directory` where its configuration is stored."""
-        config = StoredConfiguration(directory, in_production=True)
+    def from_directory(cls, directory, strict_checking=False):
+        """Create a ReahlWSGIApplication given the `directory` where its configuration is stored.
+
+        :keyword strict_checking: If True, an exception will be raised when dangerous defaulted config is present.
+
+        .. versionchanged:: 4.1
+           Added strict_checking kwarg.
+
+        """
+        config = StoredConfiguration(directory, strict_checking=True)
         config.configure()
         return cls(config)
 
