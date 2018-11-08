@@ -184,13 +184,13 @@ def test_config_defaults_dangerous(config_with_files):
 
 
 @with_fixtures(ConfigWithFiles)
-def test_config_in_production(config_with_files):
-    """When a Configuration is created as in_production, dangerous defaulted config is not allowed."""
+def test_config_strict_checking(config_with_files):
+    """When a Configuration is created with strict_checking=True, dangerous defaulted config is not allowed."""
 
     fixture = config_with_files
     fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDangerousDefaultedSetting')
 
-    config = StoredConfiguration(fixture.config_dir.name, in_production=True)
+    config = StoredConfiguration(fixture.config_dir.name, strict_checking=True)
     with expected(ConfigurationException):
         config.configure()
 

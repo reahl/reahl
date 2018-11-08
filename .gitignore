@@ -18,6 +18,7 @@ chromedriver.log
 .ngrok
 .eggs
 .pytest_cache
+.vs
 
 debian/python-reahl-doc/
 debian/python-reahl-sqlalchemysupport/

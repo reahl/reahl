@@ -786,6 +786,16 @@ class Field(object):
         new_version.add_validation_constraint(validation_constraint)
         return new_version
 
+    def with_label(self, label):
+        """Returns a new Field which is exactly like this one, except that its label is set to 
+           the given text.
+
+        .. versionadded:: 4.1
+        """
+        new_version = self.copy()
+        new_version.label = label
+        return new_version
+
     def clear_user_input(self):
         self.input_status = 'defaulted'
         self.validation_error = None
