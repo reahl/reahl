@@ -76,6 +76,12 @@ Now change the application:
 - edit the `.reahlproject` file and increase the version of the
   component to 0.1
 
+.. note::
+
+   Your component has version 0.0 by default. In order to trigger a 
+   migration, you need a new, higher version.
+   
+
 To simulate installing the newer version, run:
 
 .. code-block:: bash
@@ -87,7 +93,7 @@ following in order to migrate the old database:
 
 .. code-block:: bash
 
-   reahl migratedb etc
+   reahl -l INFO migratedb etc
 
 
 Migration basics

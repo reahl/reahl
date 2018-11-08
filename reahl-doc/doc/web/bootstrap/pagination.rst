@@ -16,6 +16,8 @@ Package reahl.web.bootstrap.pagination
 
 .. automodule:: reahl.web.bootstrap.pagination
 
+.. uml:: ../../../../reahl-web/reahl/web_dev/bootstrap/pagination2.puml
+.. uml:: ../../../../reahl-web/reahl/web_dev/bootstrap/pagination.puml
 
 PageMenu
 """"""""

@@ -6,6 +6,8 @@
 .. |Bookmark| replace:: :class:`~reahl.web.fw.Bookmark`
 .. |Slot| replace:: :class:`~reahl.web.ui.Slot`
 .. |defineUserInterface| replace:: :meth:`~reahl.web.fw.UserInterface.define_user_interface`
+.. |LoginSession| replace:: :class:`~reahl.domain.systemaccountmodel.LoginSession`
+.. |currentSession| replace:: :meth:`~reahl.domain.systemaccountmodel.LoginSession.for_current_session`
 
 Re-use: Allowing users to log in to your system
 ===============================================
@@ -49,9 +51,7 @@ To be able to use it in your code, list the `reahl-domain` component as a depend
           run ``reahl setup -- develop -N``, as explained in :doc:`persistence`.
 
 
-Use |AccountManagementInterface| in
-your code to find the current
-:class:`~reahl.domain.systemaccountmodel.LoginSession`.
+Use |currentSession| in your code to find the current |LoginSession|.
 
 
 An |AccountManagementInterface| has

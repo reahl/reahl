@@ -52,6 +52,20 @@ Access control rules
 * If user A gives collaborator B "can modify" rights, B can only edit the existing email addresses in A's address book, but cannot edit the names those addresses belong to.
 * If user A gives collaborator B "can add" rights, B can add addresses to A's address book and modify any field of existing addresses.
 
+.. sidebar:: Running the example
+
+   To play with the `tutorial.accessbootstrap` example, create 
+   sample data with: `reahl demosetup`. 
+
+   All users created have the password "topsecret". The one user 
+   (johndoe@some.org) has various levels of access to the address 
+   books of others.
+
+   The details are in 
+   `accessbootstrap_dev/test_accessbootstrap.py::demo_setup` in 
+   the example.
+   
+
 User interface requirements
 ---------------------------
 
@@ -65,6 +79,7 @@ In order to ensure these rules are adhered to, there are lots of things to look 
 * The "Add collaborator" and "Add address" menu items must be grayed out if the user is not allowed to perform the specific function on the current address book.
 
 * If a malicious user figures out what URL to type in order to visit a |UrlBoundView| for something she is not allowed to visit (ie, someone else's address book), that page should not be displayed.
+
 
 
 Protect the fields on Address
@@ -171,4 +186,6 @@ In the case of :class:`~reahl.web.ui.Input`
 :class:`~reahl.web.fw.Widget`\ s, the same inference is made from the
 access rights of the :class:`~reahl.component.modelinterface.Field` to
 which it is linked.
+
+
 

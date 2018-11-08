@@ -16,7 +16,6 @@ Contents:
    :maxdepth: 1
 
    overview
-   tutorial/gettingstarted-develop
    whatchanged
    tutorial/index
    component/index

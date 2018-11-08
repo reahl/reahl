@@ -5,6 +5,7 @@ Module reahl.component.modelinterface
 
 .. automodule:: reahl.component.modelinterface
 
+.. uml:: ../../../reahl-component/reahl/component_dev/fields_and_events_overview.puml
 
 Fields
 ^^^^^^
