@@ -234,6 +234,11 @@ def test_getting_modified_copy(fixture):
     more_strict_field = field.with_validation_constraint(RequiredConstraint())
     assert more_strict_field.required 
 
+    # Getting copy with a new label
+    assert field.label != 'new label'
+    differently_labelled_field = field.with_label('new label')
+    assert differently_labelled_field.label == 'new label'
+    
 
 @with_fixtures(FieldFixture)
 def test_helpers_for_fields(fixture):
