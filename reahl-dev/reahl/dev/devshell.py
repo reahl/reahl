@@ -333,7 +333,9 @@ class Info(ForAllWorkspaceCommand):
             projects = main_project.egg_projects
 
         for project in projects:
-            self.print_heading('\tProject:\t%s' % project.directory)
+            self.print_heading('\tProject directory:\t%s' % project.directory)
+            print('\tVersion:\t\t%s' % project.version)
+            print('\tName:\t\t\t%s' % project.project_name)
             print('\tIs version controlled?:\t%s' % project.is_version_controlled())
             if project.is_version_controlled():
                print('\tLast commit:\t\t%s' % project.source_control.last_commit_time)
@@ -345,6 +347,7 @@ class Info(ForAllWorkspaceCommand):
         self.print_heading('\tPackages to distribute:')
         for package in main_project.packages_to_distribute:
             print('\t%s' % six.text_type(package))
+        print('\n')
         return 0
 
 

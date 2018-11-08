@@ -1,7 +1,17 @@
 .. Copyright 2013-2016 Reahl Software Services (Pty) Ltd. All rights reserved.
+
+.. |Configuration| replace:: :class:`~reahl.component.config.Configuration`
  
 XML reference for .reahlproject
 ===============================
+
+The `.reahlproject` file in the root of your project is an XML file containing all kinds of information about your
+project. It is used to create a `setup.py` on the fly. It contains other information such as how to find the 
+|Configuration| for your project.
+
+.. note::
+
+   Run `reahl info` in the root of your project to see information about your project.
 
 Project basics and dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -10,7 +20,7 @@ Project basics and dependencies
 """"""""""""""""""""
 
   The project element is the top-level element in a .reahlproject file. It requires one attribute: `type`, which 
-  should be the string "egg". An "egg" project is packaged as a Python egg.
+  should be the string "egg". 
 
 <deps>
 """"""
@@ -137,7 +147,21 @@ Development and packaging
   as well.
   
   The following `<info>` elements are required: version, description, long_description, maintainer_name, 
-  maintainer_email.
+  maintainer_email. 
+
+  All of these elements are strings, but version should adhere to a subset of 
+  `PEP0440 <https://www.python.org/dev/peps/pep-0440/>`:  `N(.N)*[{a|b|rc}N]` with only three dotted N's 
+  allowed. For example: '1.2.3' for major.minor.patch versions.
+
+  If this section is not present, the following defaults are used:
+
+  project_name
+    the name of the current directory
+
+  version
+    0.0
+
+  ... with `'No {} provided'.format(name)` for all the others.
 
 <info>
 """"""

@@ -41,7 +41,8 @@ running (from the example's directory):
 
    reahl build
 
-This `builds a wheel <https://pythonwheels.com/>`_ as specified in your `.reahlproject`:
+
+This `builds a wheel <https://pythonwheels.com/>`_ as specified in your :doc:`.reahlproject <../devtools/xmlref>`:
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/helloapache/.reahlproject
    :language: xml
