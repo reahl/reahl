@@ -158,6 +158,8 @@ Img
 Widgets for Input
 ^^^^^^^^^^^^^^^^^
 
+.. uml:: ../../../reahl-web/reahl/web_dev/inputandvalidation/form_inputs_and_fields.puml
+
 Form
 """"
 

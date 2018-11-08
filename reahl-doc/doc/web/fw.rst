@@ -8,6 +8,8 @@ Module reahl.web.fw
 Basics of defining an application
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. uml:: ../../../reahl-web/reahl/web_dev/widgets/widgets_and_layout.puml
+
 ReahlWSGIApplication
 """"""""""""""""""""
 
@@ -90,6 +92,8 @@ RegexPath
 
 SubResources
 ^^^^^^^^^^^^
+
+.. uml:: ../../../reahl-web/reahl/web_dev/advanced/subresources/serverside_methods.puml
 
 SubResource
 """""""""""
