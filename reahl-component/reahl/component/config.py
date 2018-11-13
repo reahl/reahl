@@ -192,10 +192,11 @@ class Configuration(object):
         for name, config_item in self.config_items():
             composite_name = '%s.%s' % (composite_key, name)
             if config_item.is_dangerous(self):
+                message = '%s has been defaulted to a value not suitable for production use: "%s". You can set it in %s' % (composite_name, config_item.default, filename)
                 if strict_validation:
-                    raise ConfigurationException('%s in %s is using a dangerous default setting: %s' % (composite_name, filename, config_item.default))
+                    raise ConfigurationException(message)
                 else:
-                    logging.getLogger(__name__).warning('%s in %s is using a dangerous default setting: %s' % (composite_name, filename, config_item.default))
+                    logging.getLogger(__name__).warning(message)
 
     def list_contents(self, filename, composite_key):
         contents = []
