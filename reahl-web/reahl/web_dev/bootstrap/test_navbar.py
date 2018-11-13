@@ -81,6 +81,7 @@ def test_navbar_basics(web_fixture, navbar_fixture):
 
     # The added contents
     assert isinstance(brand, A)
+    assert brand.href.path == '/'
     assert 'navbar-brand' in brand.get_attribute('class')
 
     assert 'navbar-nav' in ul.get_attribute('class')

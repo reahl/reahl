@@ -129,7 +129,7 @@ class NavbarLayout(Layout):
 
         :param brand_text: Text to use for branding.
         """
-        brand_a = A(self.view, Url('#'), description=brand_text)
+        brand_a = A(self.view, Url('/'), description=brand_text)
         self.set_brand(brand_a)
 
     def insert_brand_widget(self, brand_html_element):
