@@ -252,7 +252,7 @@ class DebianPackage(DistributionPackage):
     @property
     def debian_build_architecture(self):
         running_command = Executable('dpkg-architecture').Popen(['-qDEB_BUILD_ARCH'], stdout=subprocess.PIPE)
-        arch_string = running_command.communicate()[0].strip('\n ')
+        arch_string = (running_command.communicate()[0]).decode('utf-8').strip('\n ')
         if running_command.returncode != 0:
             raise Exception()
         return arch_string
@@ -298,12 +298,14 @@ class DebianPackage(DistributionPackage):
         return self.project.distribution_apt_repository.is_uploaded_after(self, when)
 
     def build(self, sign=True):
-        if sign:
-            print('WARNING: Ignoring request to sign the build. Debs are not individuall signed, we sign the archive indexes. ', file=sys.stderr)
         self.generate_install_files()
-        Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr','-I.git'], cwd=self.project.directory)
+        sign_args = []
+        if not sign:
+            sign_args = ['-us', '-uc']
+        Executable('dpkg-buildpackage').check_call(sign_args+['-sa', '-rfakeroot', '-Istatic','-I.bzr','-I.git'], cwd=self.project.directory)
         self.project.distribution_apt_repository.upload(self, [])
         self.clean_files(self.build_output_files)
+        self.project.workspace.update_apt_repository_index(sign=sign)
         return 0
 
     @property
