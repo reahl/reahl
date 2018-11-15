@@ -27,7 +27,7 @@ from reahl.stubble import CallMonitor, EasterEgg, easter_egg
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.config import Configuration, StoredConfiguration, ConfigSetting, \
-                                   ConfigurationException, EntryPointClassList
+                                   ConfigurationException, EntryPointClassList, DeferredDefault
 
 
 class ConfigWithFiles(Fixture):
@@ -63,6 +63,7 @@ reahlsystem.debug = False
 
         line = 'Egg = reahl.component.eggs:ReahlEgg' 
         egg.add_entry_point_from_line('reahl.eggs', line)
+
 
 
 class ConfigWithSetting(Configuration):
@@ -269,3 +270,26 @@ def test_config_defaults_automatic(config_with_files):
     assert config.some_key.injected_setting == 123 
 
 
+class ConfigWithDependentSetting(Configuration):
+    filename = 'config_file_for_this_egg.py'
+    config_key = 'some_key'
+    some_setting = ConfigSetting(default='default value')
+    some_other_setting = ConfigSetting(default=DeferredDefault(lambda c: 'tra %s lala' % c.some_setting))
+
+
+@with_fixtures(ConfigWithFiles)
+def test_config_dependent_defaults(config_with_files):
+    """The default of one setting can be dependent on another setting if passed a callable"""
+    
+    fixture = config_with_files
+    fixture.set_config_spec(easter_egg, 'reahl.component_dev.test_config:ConfigWithDependentSetting')
+
+    # Usually this happens inside other infrastructure, such as the implementation of reahl serve (see reahl-dev)
+    config = StoredConfiguration(fixture.config_dir.name)
+    config.configure()
+
+    # The setting was read
+    assert config.some_key.some_setting == 'default value' 
+    assert config.some_key.some_other_setting == 'tra default value lala' 
+
+    

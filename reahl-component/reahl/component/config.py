@@ -89,7 +89,10 @@ class ConfigSetting(object):
             return obj.__dict__[setting_name]
 
         if self.defaulted:
-            return self.default
+            if isinstance(self.default, DeferredDefault):
+                return self.default(obj)
+            else:
+                return self.default
 
         raise ConfigurationException('%s was not set' % setting_name)
 
@@ -117,6 +120,20 @@ class ConfigSetting(object):
         return self.dangerous and not self.is_set(obj)
 
 
+class DeferredDefault(object):
+    """Sometimes the default value for a :class:`ConfigSetting` cannot be set when the :class:`Configuration`
+       is declared. An instance of DeferredDefault can be passed as default in such a scenario.
+
+       DeferredDefault wraps a callable, which will be called only once the config value is read. The callable 
+       is passed a single argument: the Configuration on which this ConfigSetting is defined.
+    """
+    def __init__(self, getter):
+        self.getter = getter
+
+    def __call__(self, config):
+        return self.getter(config)
+
+    
 class EntryPointClassList(ConfigSetting):
     """A :class:`ConfigSetting` which is not set by a user at all -- rather, its value (a list of classes
        or other importable Python objects) is read from the entry point named `name`.
