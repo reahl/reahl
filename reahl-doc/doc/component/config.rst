@@ -18,6 +18,12 @@ ConfigSetting
 .. autoclass:: ConfigSetting
    :members:
 
+DeferredDefault
+"""""""""""""""
+
+.. autoclass:: DeferredDefault
+   :members:
+
 EntryPointClassList
 """""""""""""""""""
 
