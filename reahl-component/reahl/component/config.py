@@ -32,10 +32,11 @@ import six
 import os.path
 import logging
 import tempfile
+import inspect
 from logging import config
 from contextlib import contextmanager
 
-from pkg_resources import require, iter_entry_points, DistributionNotFound
+from pkg_resources import require, iter_entry_points, DistributionNotFound, Requirement
 
 from reahl.component.eggs import ReahlEgg
 from reahl.component.context import ExecutionContext
@@ -68,6 +69,12 @@ class ConfigSetting(object):
     def defaulted(self):
         return self.default is not ExplicitSettingRequired
 
+    def default_value_for_configuration(self, config):
+        if isinstance(self.default, DeferredDefault):
+            return self.default(config)
+        else:
+            return self.default
+        
     def is_localised(self, obj):
         name = self.name(type(obj))
         for key in dir(obj):
@@ -89,10 +96,7 @@ class ConfigSetting(object):
             return obj.__dict__[setting_name]
 
         if self.defaulted:
-            if isinstance(self.default, DeferredDefault):
-                return self.default(obj)
-            else:
-                return self.default
+            return self.default_value_for_configuration(obj)
 
         raise ConfigurationException('%s was not set' % setting_name)
 
@@ -132,6 +136,9 @@ class DeferredDefault(object):
 
     def __call__(self, config):
         return self.getter(config)
+
+    def __str__(self):
+        return 'DeferredDefault(%s)' % inspect.getsource(self.getter).strip()
 
     
 class EntryPointClassList(ConfigSetting):
@@ -249,7 +256,8 @@ class ReahlSystemConfig(Configuration):
     filename = 'reahl.config.py'
     config_key = 'reahlsystem'
     root_egg = ConfigSetting(description='The root egg of the project', default=os.path.basename(os.getcwd()), dangerous=True)
-    connection_uri = ConfigSetting(description='The database connection URI', default='sqlite:///%s' % '%s.db' % (os.path.join(os.getcwd(), os.path.basename(os.getcwd()))), dangerous=True)
+    connection_uri = ConfigSetting(description='The database connection URI',
+                                   default=DeferredDefault(lambda c: 'sqlite:///%s.db' % (os.path.join(os.getcwd(), Requirement.parse(c.root_egg).project_name))), dangerous=True)
     orm_control = ConfigSetting(default=NullORMControl(), description='The ORM control object to be used', automatic=True)
     debug = ConfigSetting(default=True, description='Enables more verbose logging', dangerous=True)
     databasecontrols = EntryPointClassList('reahl.component.databasecontrols', description='All available DatabaseControl classes')
