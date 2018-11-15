@@ -294,10 +294,6 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             print('--- END ---\n')
 
         success = set(results.values()) == {0}
-        status_message = '' if success else '(despite failures)'
-        print('Performing post command duties %s' % status_message)
-        self.perform_post_command_duties()
-
         if success:
             return 0
         return 1
@@ -305,8 +301,6 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
     def format_individual_message(self, project, args, template):
         return template % project.relative_directory
     
-    def perform_post_command_duties(self):
-        pass
 
 
 class Debianise(ForAllWorkspaceCommand):
@@ -418,11 +412,6 @@ class Build(ForAllWorkspaceCommand):
         self.sign = not args.nosign
         project.build(sign=self.sign)
         return 0
-
-    def perform_post_command_duties(self):
-        print('Updating the apt repository')
-        self.workspace.update_apt_repository_index(sign=self.sign)
-
 
 
 class ListMissingDependencies(ForAllWorkspaceCommand):
