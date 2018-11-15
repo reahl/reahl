@@ -409,13 +409,19 @@ class Setup(ForAllWorkspaceCommand):
 class Build(ForAllWorkspaceCommand):
     """Builds all distributable packages for each project in the current selection."""
     keyword = 'build'
+    def assemble(self):
+        super(Build, self).assemble()
+        self.parser.add_argument('-ns', '--nosign', action='store_true', dest='nosign', default=False,
+                                 help='don\'t sign build artifacts')
+
     def function(self, project, args):
-        project.build()
+        self.sign = not args.nosign
+        project.build(sign=self.sign)
         return 0
 
     def perform_post_command_duties(self):
-        print('Signing the apt repository')
-        self.workspace.update_apt_repository_index()
+        print('Updating the apt repository')
+        self.workspace.update_apt_repository_index(sign=self.sign)
 
 
 
@@ -461,9 +467,9 @@ class Upload(ForAllWorkspaceCommand):
         
     def function(self, project, args):
         if args.ignore_release_checks:
-            print('WARNING: Ignoring release checks at your request')
+            print('WARNING: Ignoring release checks at your request', file=sys.err)
         if args.ignore_upload_check:
-            print('WARNING: Overwriting possible previous uploads')
+            print('WARNING: Overwriting possible previous uploads', file=sys.err)
         project.upload(knocks=args.knocks, ignore_release_checks=args.ignore_release_checks, ignore_upload_check=args.ignore_upload_check)
         return 0
 

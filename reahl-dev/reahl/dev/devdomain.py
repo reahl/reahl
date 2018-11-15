@@ -147,11 +147,12 @@ class PythonSourcePackage(DistributionPackage):
     def __str__(self):
         return 'Sdist (source egg).'
 
-    def build(self):
+    def build(self, sign=True):
         with self.project.generated_setup_py():
             build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
             self.project.setup(['build', '-b', build_directory, 'sdist', '--dist-dir', self.project.distribution_egg_repository.root_directory])
-            self.project.distribution_egg_repository.sign_files_for(self)
+            if sign:
+                self.project.distribution_egg_repository.sign_files_for(self)
 
     @property
     def is_built(self):
@@ -197,11 +198,12 @@ class PythonWheelPackage(DistributionPackage):
     def __str__(self):
         return 'Wheel (bdist_wheel).'
 
-    def build(self):
+    def build(self, sign=True):
         with self.project.generated_setup_py():
             build_directory = os.path.join(self.project.workspace.build_directory, self.project.project_name)
             self.project.setup(['build', '-b', build_directory, 'bdist_wheel', '--dist-dir', self.project.distribution_egg_repository.root_directory, '--universal'])
-            self.project.distribution_egg_repository.sign_files_for(self)
+            if sign:
+                self.project.distribution_egg_repository.sign_files_for(self)
 
 
     @property
@@ -295,7 +297,9 @@ class DebianPackage(DistributionPackage):
     def last_built_after(self, when):
         return self.project.distribution_apt_repository.is_uploaded_after(self, when)
 
-    def build(self):
+    def build(self, sign=True):
+        if sign:
+            print('WARNING: Ignoring request to sign the build. Debs are not individuall signed, we sign the archive indexes. ', file=sys.stderr)
         self.generate_install_files()
         Executable('dpkg-buildpackage').check_call(['-sa', '-rfakeroot', '-Istatic','-I.bzr','-I.git'], cwd=self.project.directory)
         self.project.distribution_apt_repository.upload(self, [])
@@ -490,6 +494,7 @@ class LocalAptRepository(LocalRepository):
         with io.open( os.path.join(self.root_directory, 'Release'), 'w' ) as release_file:
             Executable('apt-ftparchive').check_call(['release', directory_name], cwd=path_name, stdout=release_file)
 
+    def sign_index_files(self):
         Executable('gpg').check_call(['-abs', '--yes', '-o', 'Release.gpg', 'Release'], cwd=self.root_directory)
 
 
@@ -1462,10 +1467,10 @@ class Project(object):
             is_up_to_date &= i.last_built_after(last_commit_time)
         return is_up_to_date
 
-    def build(self):
+    def build(self, sign=True):
         assert self.packages_to_distribute, 'For %s: No <package>... listed in .reahlproject, nothing to do.' % self.project_name
         for i in self.packages_to_distribute:
-            i.build()
+            i.build(sign=sign)
 
     def is_built(self):
         is_built = True
@@ -2158,8 +2163,10 @@ class Workspace(object):
     def project_in(self, directory):
         return self.projects.project_in(directory)
 
-    def update_apt_repository_index(self):
+    def update_apt_repository_index(self, sign=True):
         self.distribution_apt_repository.build_index_files()
+        if sign:
+            self.distribution_apt_repository.sign_index_files()
 
 
     @property
