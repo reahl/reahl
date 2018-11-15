@@ -3,6 +3,7 @@ python-reahl (4.1.0) unstable; urgency=low
  * Added Field.with_label #185.
  * Renamed Rename and expose in_production kwarg to strict_checking and expose it #174.
  * Added reahl exportstatic #175.
+ * Added DeferredDefault for configs #167.
 
  -- Iwan Vosloo <iwan@reahl.org>  Thu, 31 Jul 2018 15:15:00 +0200
 

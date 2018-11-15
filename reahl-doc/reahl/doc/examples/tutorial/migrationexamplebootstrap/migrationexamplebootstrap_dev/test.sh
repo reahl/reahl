@@ -2,7 +2,7 @@
 
 function version_is() {
   expected=$1
-  output="$(sqlite3 /tmp/reahl.db 'select version from reahl_schema_version where egg_name="migrationexamplebootstrap" ')"
+  output="$(sqlite3 migrationexamplebootstrap.db 'select version from reahl_schema_version where egg_name="migrationexamplebootstrap" ')"
   if [ "$1" = "$output" ]
   then return 0
   else return 1
@@ -10,7 +10,7 @@ function version_is() {
 }
 
 function schema_is_new() {
-    sqlite3 /tmp/reahl.db '.schema migrationbootstrap_address' | grep added_date > /dev/null
+    sqlite3 migrationexamplebootstrap.db '.schema migrationbootstrap_address' | grep added_date > /dev/null
 }
 
 function fail() {

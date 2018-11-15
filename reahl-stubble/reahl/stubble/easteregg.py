@@ -96,6 +96,7 @@ class EasterEgg(pkg_resources.Distribution):
 
     def clear(self):
         self.entry_points = {}
+        self._dep_map.clear()
 
     def get_entry_map(self, group=None):
         """Return the entry point map for `group`, or the full entry map"""
