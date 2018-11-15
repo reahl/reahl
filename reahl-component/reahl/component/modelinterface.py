@@ -275,7 +275,7 @@ class ValidationConstraint(Exception):
        first checks a string sent as user input, but can afterwards also validate the resultant Python object
        which was created based on such string input.
        
-       :param error_message: The error message shat should be shown to a user if input failed this ValidationConstraint.
+       :param error_message: The error message that should be shown to a user if input failed this ValidationConstraint.
                              This error_message is a string containing a `PEP-292 <http://www.python.org/dev/peps/pep-0292/>`_
                              template. Attributes of the ValidationConstraint can be referred to by name in variable 
                              references of this template string.
