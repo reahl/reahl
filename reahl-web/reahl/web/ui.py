@@ -892,6 +892,22 @@ class Img(HTMLElement):
             self.set_attribute('alt', alt)
 
 
+class Hr(HTMLElement):
+    """A horizontal rule.
+
+       .. admonition:: Styling
+
+          Renders as an HTML <hr> element.
+
+
+       :param view: (See :class:`reahl.web.fw.Widget`)
+       :keyword css_id: (See :class:`reahl.web.ui.HTMLElement`)
+
+    """
+    def __init__(self, view, css_id=None):
+        super(__class__, self).__init__(view, 'hr', css_id=css_id)
+
+
 class Span(HTMLElement):
     """A logical grouping of other HTMLElements which fits in with text flow.
 
