@@ -2,7 +2,7 @@
 
 # Installs needed to develop on reahl itself
 
-PYTHON_DEPS="python3 python3-virtualenv virtualenvwrapper python3-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libfreetype6-dev equivs build-essential openssh-client dpkg-dev postgresql libyaml-dev mysql-client mysql-server libmysqlclient-dev"
+PYTHON_DEPS="python3 python3-virtualenv virtualenvwrapper python3-dev gcc cython libxml2-dev libxslt-dev libsqlite3-0 sqlite3 postgresql-server-dev-all zlib1g-dev libfreetype6-dev build-essential openssh-client dpkg-dev postgresql libyaml-dev mysql-client mysql-server libmysqlclient-dev"
 UTILS="screen unzip git"
 
 # For X11 forwarding to work and other misc stuff we need
