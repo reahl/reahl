@@ -64,7 +64,7 @@ class RepositoryUploadFixture(Fixture):
             def files_to_distribute(self):
                 return [fixture.to_upload_file1.name, fixture.to_upload_file2.name]
 
-            def build(self):
+            def build(self, sign=True):
                 self._built = True
 
         return PackageStub()
@@ -205,7 +205,7 @@ class DebianPackageStubWithRealFiles(DebianPackageStub):
     def create_files(self):
         control_file_contents = """Section: misc
 Priority: optional
-Standards-Version: 4.0.0
+Standards-Version: 8.0.0
 
 Package: equivs-dummy
 Version: 1.0
@@ -218,7 +218,9 @@ Description: some wise words
 
 """ % (os.environ['DEBFULLNAME'], os.environ['DEBEMAIL'])
         self.temp_directory.file_with('control', control_file_contents)
-        Executable('equivs-build').check_call(['-a', 'i386', '-f','control'], cwd=self.temp_directory.name)
+        for f in self.build_output_files:
+            with open(f, 'a'):
+                os.utime(f, None)
 
 
 class LocalAptRepositoryFixture(Fixture):
@@ -278,6 +280,7 @@ def test_index_building(local_apt_repository_fixture):
     repository.upload(package, [])
 
     repository.build_index_files()
+    repository.sign_index_files()
     for filename in ['Packages','Release','Release.gpg']:
         assert os.path.isfile( os.path.join(repository.root_directory, filename))
 
