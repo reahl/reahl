@@ -176,7 +176,7 @@ def test_config_defaults_dangerous(config_with_files):
 
     # A warning was issued with warn severity to the log
     logged_message = monitor.calls[0].args[0]
-    message_regex = '^some_key.some_setting in /.*/config_file_for_this_egg.py is using a dangerous default setting.*$'
+    message_regex = '^some_key.some_setting has been defaulted to a value not suitable for production use: "default value". You can set it in /.*/config_file_for_this_egg.py'
     assert re.match(message_regex, logged_message)
 
     # The default value is still used
