@@ -287,6 +287,11 @@ class WidgetScenarios(Fixture):
         self.expected_html = '<ul></ul>'
 
     @scenario
+    def hr(self):
+        self.widget = Hr(self.view)
+        self.expected_html = '<hr></hr>'
+
+    @scenario
     def img1(self):
         self.widget = Img(self.view, 'ss')
         self.expected_html = '<img src="ss">'
