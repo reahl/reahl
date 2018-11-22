@@ -456,9 +456,9 @@ class Upload(ForAllWorkspaceCommand):
         
     def function(self, project, args):
         if args.ignore_release_checks:
-            print('WARNING: Ignoring release checks at your request', file=sys.err)
+            print('WARNING: Ignoring release checks at your request', file=sys.stderr)
         if args.ignore_upload_check:
-            print('WARNING: Overwriting possible previous uploads', file=sys.err)
+            print('WARNING: Overwriting possible previous uploads', file=sys.stderr)
         project.upload(knocks=args.knocks, ignore_release_checks=args.ignore_release_checks, ignore_upload_check=args.ignore_upload_check)
         return 0
 
