@@ -367,7 +367,7 @@ class SlaveProcess(object):
 
 class ServerSupervisor(PatternMatchingEventHandler):
     def __init__(self, slave_process_args, max_seconds_between_restarts, directories_to_monitor=['.']):
-        super(ServerSupervisor, self).__init__(ignore_patterns=['.git', '.floo', '*.pyc', '*.pyo', '*/__pycache__/*', '*.db'], ignore_directories=True)
+        super(ServerSupervisor, self).__init__(ignore_patterns=['.git', '.floo', '*.pyc', '*.pyo', '*/__pycache__/*', '*.db-*', '*.db'], ignore_directories=True)
         self.serving_process = SlaveProcess(sys.argv[0], slave_process_args)
         self.max_seconds_between_restarts = max_seconds_between_restarts
         self.directories_to_monitor = directories_to_monitor
