@@ -96,6 +96,7 @@ def test_button_submits_only_once(web_fixture):
             super(MyForm, self).__init__(view, 'myform')
             self.set_attribute('target', '_blank')  # We want to make sure the initial page is not refreshed so we can check the button status
             self.define_event_handler(self.events.an_event)
+            self.add_child(TextInput(self, self.fields.field_name))
             self.add_child(ButtonInput(self, self.events.an_event))
 
         def clicked(self):
@@ -104,6 +105,10 @@ def test_button_submits_only_once(web_fixture):
         @exposed
         def events(self, events):
             events.an_event = Event(label='click me', action=Action(self.clicked))
+
+        @exposed
+        def fields(self, fields):
+            fields.field_name = IntegerField()
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -116,8 +121,20 @@ def test_button_submits_only_once(web_fixture):
     assert browser.is_on_top(button_xpath)
     assert not browser.does_element_have_attribute(button_xpath, 'readonly')
 
-    #close the new tab and refocus on current tab - subsequent tests fail if it is not
-    with browser.stay_on_current_tab(), browser.close_new_tab():
+    # case : if there is a validation error, don't block
+    fixture.driver_browser.type("//input[@type='text']", 'not a number')
+    browser.press_tab() #trigger validation exception
+    with browser.no_page_load_expected():
+        browser.click(button_xpath)
+
+    assert fixture.click_count == 0
+    assert browser.is_on_top(button_xpath)
+    assert not browser.does_element_have_attribute(button_xpath, 'readonly')
+
+    # case : if the form is valid, do block
+    fixture.driver_browser.type("//input[@type='text']", '1')
+    browser.press_tab() #trigger validation
+    with browser.new_tab_closed():
         browser.click(button_xpath)
 
     assert fixture.click_count == 1                   # The Event was submitted
@@ -490,46 +507,6 @@ def test_duplicate_forms(web_fixture):
     browser = Browser(wsgi_app)
 
     with expected(ProgrammerError, test='More than one form was added using the same unique_name.*'):
-        browser.open('/')
-
-
-@with_fixtures(WebFixture)
-def test_check_input_placement(web_fixture):
-    """When a web request is handled, the framework throws an exception if an input might be seperated conceptually from the form they are bound to."""
-
-    fixture = web_fixture
-
-    class ModelObject(object):
-        @exposed
-        def fields(self, fields):
-            fields.name = Field()
-
-    class MainUI(UserInterface):
-        def assemble(self):
-            page = self.define_page(HTML5Page).use_layout(BasicPageLayout())
-            home = self.define_view('/', title='Home page')
-            home.set_slot('main', MyForm.factory())
-
-    class MyForm(Form):
-        def __init__(self, view):
-            super(MyForm, self).__init__(view, 'my_form')
-            self.add_child(RerenderableInputPanel(view, self))
-
-    class RerenderableInputPanel(Div):
-        def __init__(self, view, form):
-            super(RerenderableInputPanel, self).__init__(view, css_id='my_refresh_id')
-            self.enable_refresh()
-            model_object = ModelObject()
-            self.add_child(TextInput(form, model_object.fields.name))
-        
-        @exposed
-        def query_fields(self, fields):
-            fields.some_attribute = Field()
-
-    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
-    browser = Browser(wsgi_app)
-
-    with expected(ProgrammerError, test='.*Inputs are not allowed where they can be refreshed separately from their forms\..*'):
         browser.open('/')
 
 

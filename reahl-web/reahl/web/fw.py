@@ -1125,19 +1125,18 @@ class Widget(object):
     is_Form = False
     is_Input = False
     def check_form_related_programmer_errors(self):
-        inputs = []
-        forms = {}
+        inputs_with_refresh_sets = []
+        forms = []
 
         for widget, parents_set in self.parent_widget_pairs(set([])):
             if widget.is_Form:
-                forms[widget] = set([parent for parent in parents_set if parent.is_refresh_enabled()])
+                forms.append(widget)
             elif widget.is_Input:
-                inputs.append((widget, set([parent for parent in parents_set if parent.is_refresh_enabled()])))
+                inputs_with_refresh_sets.append((widget, set([parent for parent in parents_set if parent.is_refresh_enabled()])))
 
-        self.check_forms_unique(forms.keys())
-        self.check_all_inputs_forms_exist(forms.keys(), [i for i, refresh_set in inputs])
-        self.check_trigger_inputs_dont_refresh_their_ancestors(inputs)
-        #self.check_input_placement(forms, inputs)
+        self.check_forms_unique(forms)
+        self.check_all_inputs_forms_exist(forms, [i for i, refresh_set in inputs_with_refresh_sets])
+        self.check_trigger_inputs_dont_refresh_their_ancestors(inputs_with_refresh_sets)
 
     def check_all_inputs_forms_exist(self, forms_found_on_page, inputs_on_page):
         for i in inputs_on_page:
@@ -1158,18 +1157,6 @@ class Widget(object):
             message += 'Some inputs were incorrectly placed:\n'
             for i, ancestor, trigger_field in inputs_in_error:
                 message += '\t%s is refreshed by %s via field %s\n' % (six.text_type(i), six.text_type(ancestor), six.text_type(trigger_field))
-            raise ProgrammerError(message)
-
-    def check_input_placement(self, forms_with_refresh_sets, inputs_with_refresh_sets):
-        inputs_in_error = []
-        for i, i_refresh_set in inputs_with_refresh_sets:
-            if not (i_refresh_set.issubset(forms_with_refresh_sets[i.form])):
-                inputs_in_error.append((i, i_refresh_set - forms_with_refresh_sets[i.form]))
-        if inputs_in_error:
-            message = 'Inputs are not allowed where they can be refreshed separately from their forms. '
-            message += 'Some inputs were incorrectly placed:\n'
-            for i, refresh_set in inputs_in_error:
-                message += '\t%s(in %s) is refreshed by %s\n' % (six.text_type(i), six.text_type(i.form), ','.join([six.text_type(r) for r in refresh_set]))
             raise ProgrammerError(message)
 
     def check_forms_unique(self, forms):

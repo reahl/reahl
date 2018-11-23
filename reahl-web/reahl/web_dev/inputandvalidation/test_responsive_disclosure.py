@@ -491,16 +491,6 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
 
 
 
-@with_fixtures(WebFixture)
-def test_inputs_effect_other_parts_of_form(web_fixture):
-    """Inputs can trigger refresh of Widgets that contain other inputs in the same form"""
-    assert None, 'TODO: relax check_input_placement so that it only breaks if the form does NOT have a specific ID set (it should still break if the form ID is auto-generated'
-    # We need to think carefully about this one.
-    # It makes sense to let an input be refreshed anywhere on the page, as long as its form's ID is always going to be unchanged.
-    # Perhaps the test to change first is test_check_input_placement (inputandvalidation/test_eventhandling.py)
-    # ...but I still think we need to have a test here? because this is a requirement relating to responsive disclosure?
-
-
 class DisclosedInputFixture(Fixture):
 
     def new_trigger_input_type(self):
@@ -642,7 +632,6 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_t
 def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixture):
     """If a button click triggers a change to the page (due to a modified TextInput losing focus), the click is ignored."""
 
-    assert None, 'the page seems to be clocked at the type we want to click'
     fixture = disclosed_input_trigger_fixture
     fixture.trigger_input_type = TextInput
 
@@ -656,34 +645,17 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
 
     assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
     assert not browser.is_element_present(XPath.input_labelled('Email'))
+
     browser.type(XPath.input_labelled('Trigger field'), 'on')
-    web_fixture.pdb()
     with browser.no_page_load_expected():
         browser.click(XPath.button_labelled('click me'))
+
+    assert browser.is_focus_on(XPath.input_labelled('Trigger field'))
     assert browser.is_element_present(XPath.input_labelled('Email'))
+    assert browser.is_on_top(XPath.button_labelled('click me'))
 
 
 
-# Naming of notifier.
-# Clashing names of things on the hash (larger issue)
-
-# DONE: break if a user sends a ChoiceField to a CheckboxSelectInput
-# TODO: test that things like TextInput can give input to a MultiChoiceField by doing, eg input.split(',') in the naive case
-# DONE: test that you cannot trigger one of your parents to refresh.
-# DONE: if you tab out of something, you should tab to the next thing as per the regenerated screen
-# DONE: test_refresh_widget_without_query_fields_raises_error that if you call enable_refresh without args, that the widget at least has some query_fields?? (Programming error)
-# TODO: (related to xsrf token implementation maybe?) form id should really be unique amongst all pages in a UserInterface, because invalid input is stored in the DB using the keys: UI.name, form.eventChannel.name
-# DONE: deal better with discriminators on input names. has to be passed through to the field for extract_from OR better do away with it somehow? I think we should remove the discriminator story. Rather change register_with_form to break if names clash. And provide a way to then override the "qualified_name" of a Field, like in: field.as_with_qualified_name("x") or something.
-# DONE: when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
-# TODO: deal with onchange that happens in response to a text field that loses focus because you typed in it, and then clicked on a button (see test_ignore_button_click_on_change)
-# DONE: do not do the ajax refresh if there are validation errors on the ajax input trigger 
-# TODO: maybe move attribs on js objects from options to this???
-# TODO: add must_be_interactable=True kwarg in tools.py where necessary for consistency with type()   wait_for_element_interactable
-# TODO: prevent double-click on a button (once clicked, it disables itself from further clicks forever, if from was valid)
-# TODO:     -- only if the form is valid. Looks like nothing happens when you click the button and there are validation errors
-# TODO:     -- what if the user manipulates the html and removes the readonly and blockUI?
-
-# DONE: see: multi_value_empty_the_list when an input is tied to a multichoicefield with only one choice, should the input be disabled as the only choice is the default, and cannot change. Inconsistent state observed when uncheck'ing such item: unchecked, but responsive dependend is displayed.
 # TODO: found that this test seems to hang regularly(not when run individually, and the xpra chrome window stays open): pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::test_clicking_on_multi_tab, more spcifically: pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::"test_clicking_on_multi_tab[web_fixture1-panel_switch_fixture1-tabbed_panel_ajax_fixture1]"
 
 
