@@ -8,7 +8,27 @@ python-reahl (4.1) unstable; urgency=low
  * Changed nested_transaction to yield a TransactionVeto object.
  * Changed Inputs to NOT automatically fix name clashes.
  
- -- Iwan Vosloo <iwan@reahl.org>  Thu, 1 Aug 2018 15:15:00 +0200
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 1 Dec 2018 15:15:00 +0200
+
+
+python-reahl (4.0.4) unstable; urgency=low
+
+ * Added Field.with_label #185.
+ * Renamed Rename and expose in_production kwarg to strict_checking and expose it #174.
+ * Added reahl exportstatic #175.
+ * Added DeferredDefault for configs #167.
+ * Made reahl-mailutil a runtime dependency of reahl-web #145.
+ * Don't run ftp-archive unnecessarily #143.
+ * Fixed brand-text link of NavBar #205.
+ * Deal with deprecation of collections.abc #169.
+ * Fix reahl-servesmtp incorrect arguments #160.
+ * Use expanduser('~') in some examples #159.
+ * Added --nosign option to reahl build #152.
+ * Changed example database default location and name #167.
+ * Improved wording of DangerousDefault warnings #161.
+ * Various documentation changes.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 22 Nov 2018 14:22:00 +0200
 
 
 python-reahl (4.0.2) unstable; urgency=low

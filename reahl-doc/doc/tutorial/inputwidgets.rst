@@ -2,8 +2,11 @@
 
 .. |Widget| replace:: :class:`~reahl.web.fw.Widget`
 .. |Input| replace:: :class:`~reahl.web.ui.Input`
+.. |Div| replace:: :class:`~reahl.web.bootstrap.ui.Div`
 .. |Form| replace:: :class:`~reahl.web.bootstrap.forms.Form`
 .. |FormLayout| replace:: :class:`~reahl.web.bootstrap.forms.FormLayout`
+.. |InlineFormLayout| replace:: :class:`~reahl.web.bootstrap.forms.InlineFormLayout`
+.. |GridFormLayout| replace:: :class:`~reahl.web.bootstrap.forms.GridFormLayout`
 .. |FieldSet| replace:: :class:`~reahl.web.bootstrap.forms.FieldSet`
 .. |TextInput| replace:: :class:`~reahl.web.bootstrap.forms.TextInput`
 .. |Button| replace:: :class:`~reahl.web.bootstrap.forms.Button`
@@ -34,6 +37,12 @@ Forms and Inputs
 
 |Form|\s get input from users. Build up the |Form| by adding |Input|
 |Widget|\s to it (or one of its children), via an appropriate |FormLayout|.
+
+.. sidebar: Other layouts
+
+   Use |InlineFormLayout| or |GridFormLayout| to arrange form inputs 
+   differently. You can also compose a form of multiple |Div|\s or 
+   |FieldSet|\s and use different layouts on each one.
 
 To group some |TextInput|\s visually, add them to |FieldSet| via a
 |FormLayout|. The |FormLayout| arranges the |TextInput|\s with their

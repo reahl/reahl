@@ -1,0 +1,19 @@
+' Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
+@startuml
+!include ../base.iuml
+
+title UserInterfaces, Widgets and Layouts
+
+
+Layout " 0..1" --right-- "1" Widget
+Widget --> "*" Widget: children
+
+Widget <|.. HTML5Page  
+
+HTML5Page -left- UrlBoundView: main_widget
+UserInterface -right- "*" UrlBoundView
+
+
+
+@enduml

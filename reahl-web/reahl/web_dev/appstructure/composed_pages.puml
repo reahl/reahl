@@ -8,7 +8,7 @@ title How composed pages work
 ComposedPage -up-|> Resource
 
 UrlBoundView .up.|> View
-View -right- Region : < current_view
+View -right- UserInterface : < current_view
 
 ComposedPage -right- UrlBoundView
 ComposedPage -- Widget_ : main_window >

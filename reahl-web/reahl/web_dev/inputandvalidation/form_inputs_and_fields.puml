@@ -1,0 +1,25 @@
+' Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+
+@startuml
+!include ../base.iuml
+
+title Inputs belong to Forms and are linked to a model via Fields
+
+package reahl.component.modelinterface{
+    class Field
+    class Event
+}
+Form .up..|> Widget
+Input .up..|> Widget
+Form -right- "*" Input
+Input -right- Field
+ButtonInput -up-|> Input
+
+Event -up-|> Field
+Form .. "*" EventHandler
+Transition -up-|> EventHandler
+
+
+
+
+@enduml

@@ -29,6 +29,11 @@ import re
 import six
 import warnings
 from collections import OrderedDict
+if six.PY2:
+    from collections import Callable
+else:
+    from collections.abc import Callable
+
 
 from reahl.component.exceptions import IsInstance
 from reahl.component.exceptions import ProgrammerError
@@ -374,7 +379,7 @@ class TextNode(Widget):
     def __init__(self, view, value_or_getter, html_escape=True):
         super(TextNode, self).__init__(view)
         self.html_escape = html_escape
-        if isinstance(value_or_getter, collections.Callable):
+        if isinstance(value_or_getter, Callable):
             self.value_getter = value_or_getter
         else:
             def get_value():

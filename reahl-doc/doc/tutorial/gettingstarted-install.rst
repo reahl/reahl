@@ -81,7 +81,7 @@ installed. Otherwise, follow the instructions below:
 
    .. code-block:: doscon
 
-      reahl_env\Scripts\activate.bat
+      reahl_env\Scripts\activate.ps1
 
    Your prompt should change to reflect the active virtual environment.
 

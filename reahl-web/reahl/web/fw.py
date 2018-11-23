@@ -2435,9 +2435,11 @@ class FileFromBlob(ViewableFile):
 
 
 class PackagedFile(FileOnDisk):
-    def __init__(self, egg, directory_name, relative_name):
+    def __init__(self, egg_name, directory_name, relative_name):
+        self.egg_name = egg_name
+        self.directory_name = directory_name
         egg_relative_name = '/'.join([directory_name, relative_name])
-        full_path = pkg_resources.resource_filename(Requirement.parse(egg), egg_relative_name)
+        full_path = pkg_resources.resource_filename(Requirement.parse(egg_name), egg_relative_name)
         super(PackagedFile, self).__init__(full_path, relative_name)
 
 
@@ -2624,9 +2626,16 @@ class ReahlWSGIApplication(object):
     """
 
     @classmethod
-    def from_directory(cls, directory):
-        """Create a ReahlWSGIApplication given the `directory` where its configuration is stored."""
-        config = StoredConfiguration(directory, in_production=True)
+    def from_directory(cls, directory, strict_checking=False):
+        """Create a ReahlWSGIApplication given the `directory` where its configuration is stored.
+
+        :keyword strict_checking: If True, an exception will be raised when dangerous defaulted config is present.
+
+        .. versionchanged:: 4.1
+           Added strict_checking kwarg.
+
+        """
+        config = StoredConfiguration(directory, strict_checking=True)
         config.configure()
         return cls(config)
 

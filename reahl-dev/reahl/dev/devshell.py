@@ -167,7 +167,7 @@ class DeleteSelection(WorkspaceCommand):
     """Deletes the saved selection set with the given name."""
     keyword = 'delete'
     usage_args = '<name>'
-    def execute(self, options, args):
+    def execute(self, args):
         self.workspace.delete_selection(args[0])
 
 
@@ -294,10 +294,6 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
             print('--- END ---\n')
 
         success = set(results.values()) == {0}
-        status_message = '' if success else '(despite failures)'
-        print('Performing post command duties %s' % status_message)
-        self.perform_post_command_duties()
-
         if success:
             return 0
         return 1
@@ -305,8 +301,6 @@ class ForAllWorkspaceCommand(WorkspaceCommand):
     def format_individual_message(self, project, args, template):
         return template % project.relative_directory
     
-    def perform_post_command_duties(self):
-        pass
 
 
 class Debianise(ForAllWorkspaceCommand):
@@ -333,7 +327,9 @@ class Info(ForAllWorkspaceCommand):
             projects = main_project.egg_projects
 
         for project in projects:
-            self.print_heading('\tProject:\t%s' % project.directory)
+            self.print_heading('\tProject directory:\t%s' % project.directory)
+            print('\tVersion:\t\t%s' % project.version)
+            print('\tName:\t\t\t%s' % project.project_name)
             print('\tIs version controlled?:\t%s' % project.is_version_controlled())
             if project.is_version_controlled():
                print('\tLast commit:\t\t%s' % project.source_control.last_commit_time)
@@ -345,6 +341,7 @@ class Info(ForAllWorkspaceCommand):
         self.print_heading('\tPackages to distribute:')
         for package in main_project.packages_to_distribute:
             print('\t%s' % six.text_type(package))
+        print('\n')
         return 0
 
 
@@ -406,14 +403,15 @@ class Setup(ForAllWorkspaceCommand):
 class Build(ForAllWorkspaceCommand):
     """Builds all distributable packages for each project in the current selection."""
     keyword = 'build'
+    def assemble(self):
+        super(Build, self).assemble()
+        self.parser.add_argument('-ns', '--nosign', action='store_true', dest='nosign', default=False,
+                                 help='don\'t sign build artifacts')
+
     def function(self, project, args):
-        project.build()
+        self.sign = not args.nosign
+        project.build(sign=self.sign)
         return 0
-
-    def perform_post_command_duties(self):
-        print('Signing the apt repository')
-        self.workspace.update_apt_repository_index()
-
 
 
 class ListMissingDependencies(ForAllWorkspaceCommand):
@@ -458,9 +456,9 @@ class Upload(ForAllWorkspaceCommand):
         
     def function(self, project, args):
         if args.ignore_release_checks:
-            print('WARNING: Ignoring release checks at your request')
+            print('WARNING: Ignoring release checks at your request', file=sys.stderr)
         if args.ignore_upload_check:
-            print('WARNING: Overwriting possible previous uploads')
+            print('WARNING: Overwriting possible previous uploads', file=sys.stderr)
         project.upload(knocks=args.knocks, ignore_release_checks=args.ignore_release_checks, ignore_upload_check=args.ignore_upload_check)
         return 0
 

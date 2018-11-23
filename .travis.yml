@@ -21,7 +21,6 @@ addons:
   apt:
     packages:
        # Basic apt dependencies
-        - equivs 
         - openssh-client 
         - dpkg-dev
         - bzr

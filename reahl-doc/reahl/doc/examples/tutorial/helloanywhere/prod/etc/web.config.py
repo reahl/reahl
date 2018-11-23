@@ -11,5 +11,5 @@ web.default_http_port = 80
 web.encrypted_http_port = 443
 
 # Each application has one (and only one) directory where static files can be served from
-web.static_root = '%s/www' % os.environ['HOME']
+web.static_root = '%s/www' % os.path.expanduser('~')
 

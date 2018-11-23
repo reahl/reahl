@@ -15,6 +15,7 @@ Module reahl.web.bootstrap.navs
 
 .. automodule:: reahl.web.bootstrap.navs
 
+.. uml:: ../../../../reahl-web/reahl/web_dev/bootstrap/menus_and_layout.puml
 
 Nav
 """

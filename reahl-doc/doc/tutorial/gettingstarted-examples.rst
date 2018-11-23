@@ -66,11 +66,23 @@ Once that is done, run the example:
    reahl serve etc
 
 
-Cleaning up
------------
+Helpful hints
+-------------
 
-All examples use the same database. Before you run a different
-example, you need to remove the previous database:
+Each examples creates a sqlite database file in the root the example's
+directory with a name derived from its `reahlsystem.root_egg`
+configuration setting. The latter defaults to the name of the
+directory in which the example resides.
+
+To see the current configuration of an example (and which file
+to set it in) run:
+
+.. code-block:: bash
+
+   reahl listconfig -f -v
+
+
+You can drop the database for an example with:
 
 .. code-block:: bash
 
