@@ -282,6 +282,8 @@ class CongratsWidget(TitledWidget):
         super(CongratsWidget, self).__init__(view)
         self.add_child(P(view, text=_('You have successfully registered.')))
         self.add_child(P(view, text=_('Before we can allow you to log in, however, you need to prove to us that you are indeed the owner of %s.') % account_management_interface.email))
+
+        
         self.add_child(P(view, text=_('You can do that by following instructions just emailed to that address.')))
         self.add_child(P(view, text=_('Sometimes these emails arrive immediately, but they may also be delayed.')))
         last_p = P(view, text=_('If you do not receive the email within an hour or so, please follow {trouble}.'))
@@ -371,6 +373,8 @@ class AccountUI(UserInterface):
 
          `/register`
            Here new users can register new user accounts on the system.
+         `/verify`
+           This is where users enter their initial registration verification code that was sent to them via email.
          `/registerHelp`
            Here users can enquire what the status is of their registration. A registration\
                            may be pending because the user has not responded on a verification email, for example.
