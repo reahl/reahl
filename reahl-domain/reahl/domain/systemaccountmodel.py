@@ -54,7 +54,7 @@ class SystemAccountConfig(Configuration):
     All templates in this configuration are PEP292 formatted strings that can use the following substitutions:
 
     $email  
-        The email address so which the message applies
+        The email address to which the message applies
 
     $secret 
         The relevant secret key

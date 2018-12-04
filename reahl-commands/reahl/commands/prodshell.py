@@ -61,9 +61,10 @@ class ComponentInfo(Command):
 
     def print_configuration_info(self, configuration_class):
         print('\nConfiguration (%s):\n' % configuration_class.filename)
-        for line in inspect.getdoc(configuration_class).split('\n'):
-            print('\t%s' % line)
-        print('')
+        if configuration_class.__doc__:
+            for line in inspect.getdoc(configuration_class).split('\n'):
+                print('\t%s' % line)
+            print('')
         for name, value in configuration_class.__dict__.items():
             if isinstance(value, ConfigSetting):
                 print('\t%s.%s:\t\t\t%s' % (configuration_class.config_key, name, value.description))
