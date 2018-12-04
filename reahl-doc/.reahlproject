@@ -1,9 +1,10 @@
 <project type="egg" packagedata="included">
   <namespaces>
     <package name="reahl"/>
+    <package name="reahl.messages"/>
   </namespaces>
 
-  <translations locator="reahl.doc.examples.tutorial.i18nexamplebootstrap.i18nexamplebootstrapmessages"/>
+  <translations locator="reahl.messages"/>
   <configuration locator="reahl.doc.examples.tutorial.componentconfigbootstrap.componentconfigbootstrap:AddressConfig"/>
 
   <deps purpose="build">
@@ -40,6 +41,7 @@
   </deps>
 
     <persisted>
+        <class locator="reahl.doc.examples.features.persistence.persistence:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:Comment"/>
         <class locator="reahl.doc.examples.web.fileupload.fileupload:AttachedFile"/>
         <class locator="reahl.doc.examples.tutorial.addressbook2.addressbook2:Address"/>

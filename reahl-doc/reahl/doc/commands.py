@@ -142,6 +142,12 @@ class Example(object):
             changes.add_file_rename('reahl-doc.po', 'i18nexamplebootstrap.po')
             changes.add_file_rename('reahl-doc', 'i18nexamplebootstrap')
             return changes        
+        elif self.name == 'features.i18nexample':
+            changes = CheckoutChanges(self)
+            changes.add_replace_text('Catalogue(\'reahl-doc\')', 'Catalogue(\'i18nexample\')')
+            changes.add_file_rename('reahl-doc.po', 'i18nexample.po')
+            changes.add_file_rename('reahl-doc', 'i18nexample')
+            return changes        
         else:
             return CheckoutChanges(self)
 

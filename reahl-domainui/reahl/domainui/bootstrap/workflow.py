@@ -19,6 +19,8 @@
 A User interface that allows a user to monitor tasks allocated to the
 user's queues and to complete those tasks.
 
+Run 'reahl componentinfo reahl-domainui' for configuration information.
+
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division

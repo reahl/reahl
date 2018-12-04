@@ -1,0 +1,28 @@
+# Translations template for reahlorg.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the reahlorg project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: reahlorg 4.0.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-03-29 09:29+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.1.1\n"
+
+#: reahlorg/features/i18nexample/i18nexample.py:13
+msgid "Translated example"
+msgstr ""
+
+#: reahlorg/features/i18nexample/i18nexample.py:24
+#, python-format
+msgid "This is a translated message. The current URL is \"%s\"."
+msgstr ""
+

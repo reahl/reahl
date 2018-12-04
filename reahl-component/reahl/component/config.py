@@ -65,6 +65,9 @@ class ConfigSetting(object):
         self.dangerous = dangerous
         self.automatic = automatic
 
+    def __str__(self):
+        return 'for homans'
+
     @property
     def defaulted(self):
         return self.default is not ExplicitSettingRequired

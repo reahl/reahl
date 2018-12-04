@@ -14,7 +14,12 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A collection of classes to deal with accounts for different parties on a system."""
+"""A collection of classes to deal with accounts for different parties on a system.
+
+
+Run 'reahl componentinfo reahl-domain' for information on configuration.
+
+"""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 import six
@@ -44,26 +49,36 @@ from reahl.domain.workflowmodel import DeferredAction, Requirement
 _ = Catalogue('reahl-domain')
 
 class SystemAccountConfig(Configuration):
-    filename = 'systemaccountmodel.config.py'
-    config_key = 'accounts'
+    """Configuration containing general system information
+    
+    All templates in this configuration are PEP292 formatted strings that can use the following substitutions:
 
-    """Configuration containing general system information"""
-    admin_email = ConfigSetting(default='admin@example.com', description='The email address from which automated emails are sent', dangerous=True)
-    request_verification_timeout = ConfigSetting(default=10, description='The time an unvalidated request is kept alive')
-    activation_subject = ConfigSetting(default='''Your registration for $email''', description='Subject used for activation emails')
+    $email  
+        The email address to which the message applies
+
+    $secret 
+        The relevant secret key
+    """
+
+    filename = 'systemaccountmodel.config.py' 
+    config_key = 'accounts'                   
+
+    admin_email = ConfigSetting(default='admin@example.com', description='The email address from which automated emails are sent', dangerous=True) 
+    request_verification_timeout = ConfigSetting(default=10, description='The time an unvalidated request is kept alive') 
+    activation_subject = ConfigSetting(default='''Your registration for $email''', description='A Subject used for activation emails') 
     activation_email = ConfigSetting(default='''You, or someone on your behalf requested to be registered using $email.\n\n'''\
         '''If you have received this message in error, please ignore it.\n\n'''\
-        '''Your secret key is: $secret_key\n\n''', description='Body of an activation email')
-    new_password_subject = ConfigSetting(default='''Your password for $email''', description='Subject used for password reset emails')
+        '''Your secret key is: $secret_key\n\n''', description='Body of an activation email') 
+    new_password_subject = ConfigSetting(default='''Your password for $email''', description='Subject used for password reset emails') 
     new_password_email = ConfigSetting(default='''You, or someone on your behalf requested to pick a new password for $email.\n\n'''\
         '''If you have received this message in error, please ignore it.\n\n'''\
-        '''Your secret key is: $secret_key\n\n''', description='Body of a password reset email')
-    email_change_subject = ConfigSetting(default='''Your new email $email''', description='Subject used for email address change emails')
+        '''Your secret key is: $secret_key\n\n''', description='Body of a password reset email') 
+    email_change_subject = ConfigSetting(default='''Your new email $email''', description='Subject used for email address change emails') 
     email_change_email = ConfigSetting(default='''You, or someone on your behalf requested to change your email to $email.\n\n'''\
         '''If you have received this message in error, please ignore it.\n\n'''\
         '''You need to accept this change before it will take effect.\n\n'''\
-        '''Your secret key is: $secret_key\n\n''', description='Body of an email address changed email')
-    mailer_class = ConfigSetting(default=Mailer, description='The class to instantiate for sending email')
+        '''Your secret key is: $secret_key\n\n''', description='Body of an email address changed email') 
+    mailer_class = ConfigSetting(default=Mailer, description='The class to instantiate for sending email') 
 
 
 class SystemAccount(Base):
