@@ -17,6 +17,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 import gettext
 import threading
+import logging
 
 
 from babel.support import Translations
@@ -43,6 +44,7 @@ class SystemWideCatalogue(object):
             with self.map_lock:
                 for package in ReahlSystemConfig().translation_packages:
                     for locale_dir in package.__path__:
+                        logging.getLogger(__name__).debug('Adding translations from %s' % locale_dir)
                         if not isinstance(translation, Translations):
                             translation = Translations.load(dirname=locale_dir, locales=[locale], domain=domain)
                             # Babel 1.3 bug under Python 3: files is a filter object, not a list like in Python 2

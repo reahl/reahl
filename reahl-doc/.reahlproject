@@ -1,6 +1,7 @@
 <project type="egg" packagedata="included">
   <namespaces>
     <package name="reahl"/>
+    <package name="reahl.messages"/>
   </namespaces>
 
   <translations locator="reahl.messages"/>
