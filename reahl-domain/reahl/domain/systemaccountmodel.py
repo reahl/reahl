@@ -23,6 +23,7 @@ import passlib.context
 import re
 import random
 from string import Template
+import logging
 
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, String, DateTime, Boolean, Unicode
 from sqlalchemy.orm import relationship, reconstructor
@@ -472,7 +473,13 @@ class VerificationRequest(Requirement):
         message_text = Template(config.get_from_string(mail_config_key)).safe_substitute(data)
         message = MailMessage(admin_email, [destination], subject, message_text) 
         mailer = config.accounts.mailer_class.from_context()
-        mailer.send_message(message)
+        try:
+            mailer.send_message(message)
+        except ConnectionError as e:
+            message = _('Could not send registration verification email message to %s: %s.') % (self.email, str(e))
+            user_message = message + _(' Please contact the site administrator and try again later.')
+            logging.getLogger(__name__).error(message)
+            raise DomainException(message=user_message)
 
     def send_notification(self):
         pass
