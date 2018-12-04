@@ -168,9 +168,16 @@ class ReahlEgg(object):
         return [entry.load() for name, entry in entry_point_dict.items()]
 
     @property
-    def translation_pot_filename(self):
+    def translation_package(self):
         entry_point_dict = self.distribution.get_entry_map().get('reahl.translations')
-        translations_package_name = entry_point_dict[self.name].module_name
+        if entry_point_dict:
+            return entry_point_dict[self.name].load()
+        else:
+            return None
+
+    @property
+    def translation_pot_filename(self):
+        translations_package_name = self.translation_package.__name__
         translations_file_path = translations_package_name.replace('.', '/')
         return self.distribution.get_resource_filename(self.distribution, '%s/%s' % (translations_file_path, self.name))
 
@@ -181,10 +188,6 @@ class ReahlEgg(object):
     def do_daily_maintenance(self):
         for job in self.scheduled_jobs:
             job()
-
-    @property
-    def locale_dirname(self):
-        return self.distribution.get_resource_filename(working_set, 'i18n')
 
     @classmethod
     def get_egg_internal_path_for(cls, translations_entry_point):
