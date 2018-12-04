@@ -30,7 +30,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.fw import Widget
 from reahl.web.bootstrap.ui import H, P, A, Alert
 from reahl.web.bootstrap.forms import Button, ButtonLayout, CueInput, TextInput, PasswordInput, \
-    FieldSet, Form, FormLayout, CheckboxInput
+    FieldSet, Form, FormLayout, CheckboxInput, TextNode
 from reahl.web.bootstrap.popups import PopupA, CheckCheckboxScript
 
 from reahl.component.modelinterface import RemoteConstraint, Action, exposed
@@ -221,19 +221,23 @@ class RegistrationDuplicatedWidget(TitledWidget):
 
         
 class RegistrationPendingWidget(TitledWidget):
-    def __init__(self, view, account_management_interface):
+    def __init__(self, view, account_management_interface, verify_bookmark):
         super(RegistrationPendingWidget, self).__init__(view)
         config = ExecutionContext.get_context().config
         self.add_child(P(view, text=_('There is a registration pending for email address "%s".') % account_management_interface.email))
-        self.add_child(P(view, text=_('Before you can log in using it, you need to act on the automated email '
+        self.add_child(P(view, text=_('Before you can log in, you need to verify your email address using the secret key '
                                       'sent to that address. It looks like you did not do that.')))
         self.add_child(P(view, text=_('You should receive the automated email anything between a minute to an hour after '
                                       'registration. Sometimes though, your email software may mistakenly identify our '
                                       'email as junk email. If this happens it will be hidden away in a "junk email" '
-                                      'folder or just not shown to you.')))
+                                      'folder or just not shown to you.')))        
         self.add_child(P(view, text=_('You can have the email re-sent to you by clicking on the button below.')))
         self.add_child(P(view, text=_('Before you do that, however, please make sure that your email system will allow '
                                       'emails from "%s" through to you.') % config.accounts.admin_email))
+        self.add_child(P(view, text=_('Sometimes these emails arrive immediately, but they may also be delayed.')))
+        p = P(view, text=_('Once you located the email, retrieve the code and then enter it on {verify}.'))
+        self.add_child(p.format(verify=A.from_bookmark(view, verify_bookmark.with_description(_('the verification page')))))
+
 
         self.add_child(RegistrationPendingForm(view))
 
@@ -278,13 +282,14 @@ class ThanksWidget(TitledWidget):
 
 
 class CongratsWidget(TitledWidget):
-    def __init__(self, view, account_management_interface, register_help_bookmark):
+    def __init__(self, view, account_management_interface, register_help_bookmark, verify_bookmark):
         super(CongratsWidget, self).__init__(view)
         self.add_child(P(view, text=_('You have successfully registered.')))
         self.add_child(P(view, text=_('Before we can allow you to log in, however, you need to prove to us that you are indeed the owner of %s.') % account_management_interface.email))
-
-        
-        self.add_child(P(view, text=_('You can do that by following instructions just emailed to that address.')))
+        p = P(view, text=_('In order to do this, an email was sent to {email} containing a secret code. '\
+                           'Please check your email, retrieve the code and then enter it on {verify}.'))
+        self.add_child(p.format(verify=A.from_bookmark(view, verify_bookmark.with_description(_('the verification page'))),
+                                email=TextNode(view, account_management_interface.email)))
         self.add_child(P(view, text=_('Sometimes these emails arrive immediately, but they may also be delayed.')))
         last_p = P(view, text=_('If you do not receive the email within an hour or so, please follow {trouble}.'))
         self.add_child(last_p.format(trouble=A.from_bookmark(view, register_help_bookmark.with_description(_('our troubleshooting procedure')))))
@@ -402,7 +407,6 @@ class AccountUI(UserInterface):
         self.account_management_interface = AccountManagementInterface.for_current_session()
         self.assemble_login()
         self.assemble_reset_password()
-        self.assemble_register_help()
         self.assemble_register()
 
     def assemble_login(self):
@@ -410,7 +414,6 @@ class AccountUI(UserInterface):
         login_local.set_slot('main_slot', LoginWidget.factory(self.account_management_interface))
 
         self.define_return_transition(self.account_management_interface.events.login_event, login_local)
-
 
     def assemble_reset_password(self):
         reset_password = self.define_view('/resetPassword', title=_('Reset a password: Step 1'))
@@ -423,12 +426,11 @@ class AccountUI(UserInterface):
         password_changed.set_slot('main_slot', PasswordChangedWidget.factory())
 
         self.define_transition(self.account_management_interface.events.reset_password_event, 
-                            reset_password, choose_password)
+                               reset_password, choose_password)
         self.define_transition(self.account_management_interface.events.choose_password_event, 
-                            choose_password, password_changed )
+                               choose_password, password_changed )
 
-
-    def assemble_register_help(self):
+    def assemble_register_help(self, verify_bookmark):
         register_help = self.define_view('/registerHelp', title=_('Problems registering?'))
         register_help.set_slot('main_slot', RegisterHelpWidget.factory(self.account_management_interface))
         
@@ -436,7 +438,7 @@ class AccountUI(UserInterface):
         help_duplicate.set_slot('main_slot', RegistrationDuplicatedWidget.factory(self.account_management_interface))
         
         help_pending = self.define_view('/registerHelp/pending', title=_('Registration still pending'))
-        help_pending.set_slot('main_slot', RegistrationPendingWidget.factory(self.account_management_interface))
+        help_pending.set_slot('main_slot', RegistrationPendingWidget.factory(self.account_management_interface, verify_bookmark))
         
         help_reregister = self.define_view('/registerHelp/reregister', title=_('Registration not found'))
         help_reregister.set_slot('main_slot', RegistrationNotFoundWidget.factory(self.account_management_interface))
@@ -456,24 +458,26 @@ class AccountUI(UserInterface):
         self.define_transition(investigate_event, 
                             register_help, help_reregister,
                             guard=Action(self.account_management_interface.is_login_available))
-        self.register_help_bookmark = register_help.as_bookmark(self)
 
+        return register_help.as_bookmark(self)
 
     def assemble_register(self):
-        register = self.define_view('/register', title=_('Register with us'))
-        register.set_slot('main_slot', RegisterWidget.factory(self.bookmarks, self.account_management_interface))
-        
-        congrats = self.define_view('/congrats', title=_('Congratulations'))
-        congrats.set_slot('main_slot', CongratsWidget.factory(self.account_management_interface, self.register_help_bookmark))
-        
         verify = self.define_view('/verify', title=_('Verify pending registration'))
         verify.set_slot('main_slot', VerifyEmailWidget.factory(self.account_management_interface))
-        
+
+        verify_bookmark = verify.as_bookmark(self)
+        register_help_bookmark = self.assemble_register_help(verify_bookmark)
+
+        register = self.define_view('/register', title=_('Register with us'))
+        register.set_slot('main_slot', RegisterWidget.factory(self.bookmarks, self.account_management_interface))        
+
+        congrats = self.define_view('/congrats', title=_('Congratulations'))
+        congrats.set_slot('main_slot', CongratsWidget.factory(self.account_management_interface, register_help_bookmark, verify_bookmark))
+                
         thanks = self.define_view('/thanks', title=_('Thanks for all your troubles'))
         thanks.set_slot('main_slot', ThanksWidget.factory())
 
         self.define_transition(self.account_management_interface.events.register_event, register, congrats)
         self.define_transition(self.account_management_interface.events.verify_event, verify, thanks)
 
-
-
+        return verify_bookmark
