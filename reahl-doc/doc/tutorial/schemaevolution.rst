@@ -74,12 +74,13 @@ Now change the application:
 - comment out the 'TODO' version of `added_date`, and uncomment the
   version with the Column
 - edit the `.reahlproject` file and increase the version of the
-  component to 0.1
+  :ref:`component <create-component>` to 0.1
 
 .. note::
 
-   Your component has version 0.0 by default. In order to trigger a 
-   migration, you need a new, higher version.
+   Your :ref:`component <create-component>` has version 0.0 by
+   default. In order to trigger a migration, you need a new, higher
+   version.
    
 
 To simulate installing the newer version, run:
@@ -88,7 +89,11 @@ To simulate installing the newer version, run:
 
    reahl setup -- develop -N
 
-After installing a new version of your component, run the
+This command regenerates setuptools metadata that is derived from your
+`.reahlproject`. Only after running it will the setuptools machinery
+pick up the changed version number.
+
+Now that a new version of your component has been installed, run the
 following in order to migrate the old database:
 
 .. code-block:: bash

@@ -31,8 +31,10 @@ import sys
 import six
 import os.path
 import logging
+import locale
 import tempfile
 import inspect
+import warnings
 from logging import config
 from contextlib import contextmanager
 
@@ -296,7 +298,19 @@ class StoredConfiguration(Configuration):
         self.config_directory = config_directory_name
         self.strict_checking = in_production or strict_checking
 
+    def check_for_python_issue_18378(self):
+        try:
+            locale.getdefaultlocale()
+        except ValueError:
+            if sys.platform == 'darwin':
+                logging.getLogger(__name__).warning('WARNING: It looks like your system is suffering from the MacOS locale bug'
+                                                    ' (https://bugs.python.org/issue18378).'
+                                                    ' Setting your locale to en_US.utf8 to bypass.')
+                os.environ['LC_ALL'] = 'en_US.UTF-8'
+                os.environ['LANG'] = 'en_US.UTF-8'
+                
     def configure(self, validate=True):
+        self.check_for_python_issue_18378()
         self.configure_logging()
         logging.getLogger(__name__).info('Using config in %s' % self.config_directory)
         sys.path.insert(0,self.config_directory)
