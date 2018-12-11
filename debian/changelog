@@ -1,7 +1,6 @@
 python-reahl (4.0.5) unstable; urgency=low
 
  * Fixed forgotten import #230.
- * Added create_engine_kwargs config setting #232.
  * Added a workaround for https://bugs.python.org/issue18378 (#221).
  * Updated migration tutorial #181.
  * Added more documentation and the reahl componentinfo command #226.
