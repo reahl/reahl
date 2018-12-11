@@ -1,3 +1,17 @@
+python-reahl (4.0.5) unstable; urgency=low
+
+ * Fixed forgotten import #230.
+ * Added a workaround for https://bugs.python.org/issue18378 (#221).
+ * Updated migration tutorial #181.
+ * Added more documentation and the reahl componentinfo command #226.
+ * Move feature examples and tests back into reahl-doc #190.
+ * Updated wording on registration pages #208.
+ * Updated docs to explain Fields handling input #192.
+ * Deal better with email connection errors.
+
+ -- Iwan Vosloo <iwan@reahl.org>  Thu, 11 Dec 2018 12:00:00 +0200
+
+
 python-reahl (4.0.4) unstable; urgency=low
 
  * Added Field.with_label #185.
