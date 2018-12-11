@@ -832,10 +832,30 @@ class DriverBrowser(BasicBrowser):
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
            :param label_to_choose: The label of the option that should be selected.
         """
+        self.select_many(locator, [label_to_choose])
+
+    def select_many(self, locator, labels_to_choose):
+        """Finds the select element indicated by `locator` and selects some of its options.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :param labels_to_choose: A list of the labels of the options that should be selected.
+        """
         self.wait_for_element_interactable(locator)
         el = self.find_element(locator)
         select = Select(el)
-        select.select_by_visible_text(label_to_choose)
+        for label_to_choose in labels_to_choose:
+            select.select_by_visible_text(label_to_choose)
+
+    def select_none(self, locator):
+        """Finds the select element indicated by `locator` and deselects all options.
+
+           :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
+           :param label_to_choose: The label of the option that should be selected.
+        """
+        self.wait_for_element_interactable(locator)
+        el = self.find_element(locator)
+        select = Select(el)
+        select.deselect_all()
 
     def mouse_over(self, locator):
         """Moves the mouse pointer over the element found by the `locator`.
