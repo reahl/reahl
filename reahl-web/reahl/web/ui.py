@@ -2380,3 +2380,5 @@ class Table(HTMLElement):
             for column in columns:
                 row_td = row.add_child(Td(self.view))
                 row_td.add_child(column.as_widget(self.view, item))
+
+

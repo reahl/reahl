@@ -655,37 +655,3 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
     assert browser.is_on_top(XPath.button_labelled('click me'))
 
 
-
-# TODO: found that this test seems to hang regularly(not when run individually, and the xpra chrome window stays open): pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::test_clicking_on_multi_tab, more spcifically: pytest  reahl/web_dev/bootstrap/test_tabbedpanel.py::"test_clicking_on_multi_tab[web_fixture1-panel_switch_fixture1-tabbed_panel_ajax_fixture1]"
-
-
-## This is where the test_tabbedpanel tests get stuck
-#   File "/usr/lib/python3.6/socket.py", line 586 in readinto
-#   File "/vagrant/reahl-webdev/reahl/webdev/webserver.py", line 210 in connection_is_pending
-#
-#
-# Thread 0x00007ff477b89700 (most recent call first):
-#   File "/usr/lib/python3.6/socket.py", line 586 in readinto
-#   File "/usr/lib/python3.6/http/client.py", line 258 in _read_status
-#   File "/usr/lib/python3.6/http/client.py", line 297 in begin
-#   File "/usr/lib/python3.6/http/client.py", line 1331 in getresponse
-#   File "/home/vagrant/.virtualenvs/python3.6/lib/python3.6/site-packages/selenium/webdriver/remote/remote_connection.py", line 433 in _request
-#   File "/home/vagrant/.virtualenvs/python3.6/lib/python3.6/site-packages/selenium/webdriver/remote/remote_connection.py", line 401 in execute
-#   File "/vagrant/reahl-webdev/reahl/webdev/webserver.py", line 284 in doit
-#   File "/usr/lib/python3.6/threading.py", line 864 in run
-#   File "/usr/lib/python3.6/threading.py", line 916 in _bootstrap_inner
-#   File "/usr/lib/python3.6/threading.py", line 884 in _bootstrap
-#
-# Thread 0x00007ff483310740 (most recent call first):
-#   File "/vagrant/reahl-webdev/reahl/webdev/webserver.py", line 210 in connection_is_pending
-#   File "/vagrant/reahl-webdev/reahl/webdev/webserver.py", line 198 in serve_async
-#   File "/vagrant/reahl-webdev/reahl/webdev/webserver.py", line 538 in serve_until
-#   File "/vagrant/reahl-webdev/reahl/webdev/webserver.py", line 300 in wrapped_execute
-#   File "/home/vagrant/.virtualenvs/python3.6/lib/python3.6/site-packages/selenium/webdriver/remote/webdriver.py", line 234 in execute
-#   File "/home/vagrant/.virtualenvs/python3.6/lib/python3.6/site-packages/selenium/webdriver/remote/webdriver.py", line 510 in close
-#   File "/vagrant/reahl-webdev/reahl/webdev/fixtures.py", line 147 in restart_chrome_session
-#   File "/vagrant/reahl-web/reahl/web_dev/bootstrap/test_tabbedpanel.py", line 220 in ensure_disabled_js_files_not_cached
-#   File "/vagrant/reahl-web/reahl/web_dev/bootstrap/test_tabbedpanel.py", line 235 in test_clicking_on_different_tabs_switch
-#   File "/vagrant/reahl-tofu/reahl/tofu/pytestsupport.py", line 153 in test_with_fixtures
-#   File "/home/vagrant/.virtualenvs/python3.6/lib/python3.6/site-packages/_pytest/python.py", line 196 in pytest_pyfunc_call
-#   File "/home/vagrant/.virtualenvs/python3.6/lib/python3.6/site-packages/pluggy/callers.py", line 180 in _multicall

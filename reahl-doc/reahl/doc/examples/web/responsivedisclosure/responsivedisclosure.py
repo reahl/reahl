@@ -20,7 +20,8 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField, Choice, ChoiceField
 from reahl.web.fw import UserInterface
 from reahl.web.layout import PageLayout
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P
+from reahl.web.dynamic import DynamicSection
+from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, HTMLWidget
 from reahl.web.bootstrap.files import FileUploadInput
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput, SelectInput
@@ -50,11 +51,9 @@ class IDDocument(object):
                      Choice('Nigeria', Field(label='Nigeria')),
                      Choice('Namibia', Field(label='Namibia')),
                      Choice('Zimbabwe', Field(label='Zimbabwe')),
-                     Choice('Kenya', Field(label='Kenya'))                     
+                     Choice('Kenya', Field(label='Kenya'))
                      ]
         fields.country = ChoiceField(countries, label='Country', required=True)
-
-
 
 
 class IDForm(Form):
@@ -68,21 +67,16 @@ class IDForm(Form):
         grouped_inputs.add_child(IDInputsSection(self, new_document, trigger))
 
 
-class IDInputsSection(Div):
+class IDInputsSection(DynamicSection):
     def __init__(self, form, document, trigger_input):
-        self.document = document
-        super(IDInputsSection, self).__init__(form.view, css_id='idinputs')
-        self.enable_refresh()
-        trigger_input.enable_notify_change(self, self.query_fields.document_type)
+        super(IDInputsSection, self).__init__(form, 'idinputs', [trigger_input])
 
-        if self.document.document_type == 'passport':
-            self.add_child(PassportInputs(form, self.document))
-        elif self.document.document_type == 'rsa_id':
-            self.add_child(IDInputs(form, self.document))
+        document_type = document.document_type
+        if document_type == 'passport':
+            self.add_child(PassportInputs(form, document))
+        elif document_type == 'rsa_id':
+            self.add_child(IDInputs(form, document))
 
-    @exposed
-    def query_fields(self, fields):
-        fields.document_type = self.document.fields.document_type
 
 class PassportInputs(Div):
     def __init__(self, form, document):
@@ -91,14 +85,13 @@ class PassportInputs(Div):
         self.layout.add_input(SelectInput(form, document.fields.country))
         self.layout.add_input(TextInput(form, document.fields.passport_number))
 
+
 class IDInputs(Div):
     def __init__(self, form, document):
         super(IDInputs, self).__init__(form.view)
         self.use_layout(FormLayout())
         self.layout.add_input(TextInput(form, document.fields.id_number))
 
-
-        
 
 
 

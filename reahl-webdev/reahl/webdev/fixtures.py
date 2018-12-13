@@ -172,7 +172,6 @@ class WebServerFixture(Fixture):
     def stop_servers(self):
         if self.is_instantiated('reahl_server'):
             self.reahl_server.set_noop_app() # selenium.stop() hits the application its opened on again.
-            self.reahl_server.restore_handlers()
         if self.is_instantiated('firefox_driver'):
             self.firefox_driver.close()
             self.firefox_driver.quit()
@@ -180,6 +179,7 @@ class WebServerFixture(Fixture):
             self.chrome_driver.close()
             self.chrome_driver.quit()
         if self.is_instantiated('reahl_server'):
+            self.reahl_server.restore_handlers()
             self.reahl_server.stop()
 
     def new_test_dependencies(self):
