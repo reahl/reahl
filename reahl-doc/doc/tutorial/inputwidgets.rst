@@ -80,10 +80,10 @@ address. Invalid input is blocked by the |EmailField| and the
 .. note:: Don't confuse |Field|\s with SQLAlchemy's Columns.
 
    The email_address |Field| sets the email_address attribute of an
-   Address after validating input, etc. A Column on that same
-   email_address takes another step---to persist the attribute to the
-   database. They are independent and do not *have* to be used
-   together.
+   Address when a |Form| is submitted (and after validating the
+   input). A Column on that same email_address takes another
+   step---to persist the attribute to the database. They are
+   independent and do not *have* to be used together.
 
 
    
@@ -97,7 +97,12 @@ an |Event| for `save()` so that it can be tied to a |Button|.
    :pyobject: Address
 	      
 Add a |Button|, linked to the `save` |Event|. When the |Button| is
-clicked, its |Event| occurs and the |Action| is executed.
+clicked, its |Event| occurs, and the |Action| is executed.
+
+.. note:: You don't have to process input data
+
+   Before the |Action| is executed, each |Field| processes its input data
+   and sets it on the object the |Field| is bound to.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/addressbook2/addressbook2.py
    :pyobject: AddressForm

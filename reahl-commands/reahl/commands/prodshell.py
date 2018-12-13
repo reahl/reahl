@@ -24,17 +24,50 @@ import shutil
 
 import pprint
 import six
+import inspect
+import textwrap
 
-from pkg_resources import DistributionNotFound
+from pkg_resources import DistributionNotFound, get_distribution
 
 from reahl.component.dbutils import SystemControl
 from reahl.component.shelltools import Command, ReahlCommandline, AliasFile
 from reahl.component.context import ExecutionContext
-from reahl.component.config import EntryPointClassList, Configuration, StoredConfiguration, MissingValue
+from reahl.component.config import EntryPointClassList, Configuration, ConfigSetting, StoredConfiguration, MissingValue
 from reahl.component.eggs import ReahlEgg
 from reahl.component.exceptions import DomainException
 
 
+
+class ComponentInfo(Command):
+    """Gives information about a given reahl component"""
+    keyword = 'componentinfo'
+    def assemble(self):
+        self.parser.add_argument('component_name', type=str,  help='the name of a component')
+
+    def execute(self, args):
+        egg = ReahlEgg(get_distribution(args.component_name))
+        print('Name: %s' % egg.name)
+        print('Version: %s' % egg.version)
+        configuration_class = egg.configuration_spec
+        if configuration_class:
+            self.print_configuration_info(configuration_class)
+        if egg.translation_package:
+            self.print_locale_info(egg)
+
+    def print_locale_info(self, egg):
+        print('\nLocale info:\n')
+        print('\tTranslation package: %s' % egg.translation_package.__name__)
+        print('\tTranslation POT: %s' % egg.translation_pot_filename)
+
+    def print_configuration_info(self, configuration_class):
+        print('\nConfiguration (%s):\n' % configuration_class.filename)
+        if configuration_class.__doc__:
+            for line in inspect.getdoc(configuration_class).split('\n'):
+                print('\t%s' % line)
+            print('')
+        for name, value in configuration_class.__dict__.items():
+            if isinstance(value, ConfigSetting):
+                print('\t%s.%s:\t\t\t%s' % (configuration_class.config_key, name, value.description))
 
 
 class ProductionCommand(Command):

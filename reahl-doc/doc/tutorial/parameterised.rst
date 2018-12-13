@@ -12,7 +12,7 @@
 .. |Transition| replace:: :class:`~reahl.web.fw.Transition`
 .. |Slot| replace:: :class:`~reahl.web.ui.Slot`
 .. |assemble| replace:: :meth:`~reahl.web.fw.UserInterface.assemble`
-
+.. |define_view| replace:: :meth:`~reahl.web.fw.UserInterface.define_view`
 
 Parameterised  Views
 ====================
@@ -70,15 +70,15 @@ How to define a parameterised view
 ----------------------------------
 
 To define a parameterised |View|, use the `view_class` keyword
-argument to :meth:`~reahl.web.fw.UserInterface.define_view`.
+argument to |define_view|.
 
 The framework parses arguments from the URL of the |UrlBoundView| and
 passes these into the call to |assemble|.
 
 |Field|\s describe how the framework manages arguments sent to the
 |View| via its URL. Each |Field| sent as a keyword argument to
-:meth:`~reahl.web.fw.UserInterface.define_view` is used to compute
-the value of a matching keyword argument in |assemble|.
+|define_view| is used to compute the value of a matching keyword 
+argument in |assemble|.
 
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised1/parameterised1.py
    :pyobject: AddressBookUI
@@ -128,38 +128,5 @@ to an EditView matching that specific Address.
 .. literalinclude:: ../../reahl/doc/examples/tutorial/parameterised2/parameterised2.py
    :pyobject: AddressBox
 
-
-
-Programmatic arguments
-----------------------
-
-Not all the arguments passed to the `.assemble()` method of a |View|
-need to be parsed from the URL of the |View|. Sometimes it is useful to
-pass an object that is available in the `.assemble()` of the
-containing |UserInterface| to the `.assemble()` of one of its  |View|\s .
-
-For example, the `.assemble()` of a particular |View| may need access to a
-:class:`~reahl.web.fw.Bookmark` which is computed inside the `.assemble()` of its |UserInterface|.
-
-A |View| can be parameterised by such arguments as well.  Just pass the
-actual value as keyword argument to `.define_view()`. The framework
-distinguishes between normal programmatic arguments and those that
-have to be parsed from the URL based on the fact that |Field| instances
-are sent for the arguments that need to be parsed from the URL. At the
-end of the day they're all just arguments to the |View| though.
-
-
-Multiple possible destinations
-------------------------------
-
-In cases where there are multiple |Transition|\ s possible, things get
-tricky:
-
-At the time of defining the |Event| or placing the |Button| the exact
-target |View| that will be transitioned to is not known yet. The
-target |View| transitioned to will depend on the |Transition|
-chosen -- something only known when the |Event| occurs. So be sure to
-specify all possible arguments to all possible target  |View|\s  of all
-possible |Transition|\ s from the |View| on which the |Button| is placed!
 
 

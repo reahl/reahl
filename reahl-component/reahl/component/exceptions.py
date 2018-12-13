@@ -34,6 +34,7 @@ else:
 
 _ = Catalogue('reahl-component')
 
+
 class DomainException(Exception):
     """Any exception indicating an application-specific error condition that 
        should be communicated to a user.

@@ -15,6 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """The reahl.fw module implements the core of the Reahl web framework.
+
+Run 'reahl componentinfo reahl-web' for configuration information.
 """
 
 from __future__ import print_function, unicode_literals, absolute_import, division

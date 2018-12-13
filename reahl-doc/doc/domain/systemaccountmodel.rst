@@ -13,7 +13,6 @@ AccountManagementInterface
 .. autoclass:: AccountManagementInterface
 
 
-
 LoginSession
 """"""""""""
 

@@ -17,6 +17,7 @@ Moving between Views
 .. sidebar:: Examples in this section
 
    - tutorial.pageflow1
+   - features.pageflow
 
    Get a copy of an example by running:
 
@@ -84,18 +85,28 @@ is now on the other |UrlBoundView|.
 
 
 Guards
-------
+======
 
-"Page flow" can further be controlled by adding more than one
-|Transition| for the same |Event| with an |Action| guarding each. The
-|Transition| whose guard returns True when evaluated is followed.
+A guard is an |Action| passed to |define_transition|. If there is more than one
+|Transition| for the same |Event|, guards are used to decide on the fly which 
+|Transition| to follow. 
 
+The `features.pageflow` example is a simple application that contains guards 
+to distinguish between two |Transition|\s: 
 
+.. figure:: pageflow.png
+   :align: center
+   :alt: A diagram showing how Guards datermine which transition should be followed.
 
+After input data is set on the model object, the guard of each applicable
+|Transition| is called. The first |Transition| whose guard returns True is 
+followed. 
 
+.. literalinclude:: ../../reahl/doc/examples/features/pageflow/pageflow.py
+   :pyobject: PageFlowExampleUI
 
-
-
+.. literalinclude:: ../../reahl/doc/examples/features/pageflow/pageflow.py
+   :pyobject: Comment
 
 
 

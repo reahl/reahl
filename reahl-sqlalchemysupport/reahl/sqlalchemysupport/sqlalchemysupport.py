@@ -14,7 +14,10 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Various bits of support for SQLAlchemy and declarative."""
+"""Various bits of support for SQLAlchemy and declarative.
+
+Run 'reahl componentinfo reahl-sqlalchemysupport' for configuration information.
+"""
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
