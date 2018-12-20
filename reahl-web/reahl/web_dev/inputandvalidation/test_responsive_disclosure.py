@@ -19,7 +19,7 @@ from __future__ import print_function, unicode_literals, absolute_import, divisi
 
 import threading
 
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, Boolean
 
 from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -111,7 +111,6 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
                 self.change_trigger_input = RadioButtonSelectInput(self, an_object.fields.choice)
-                self.change_trigger_input.set_id('marvin')
                 self.add_child(Label(view, for_input=self.change_trigger_input))
                 self.add_child(self.change_trigger_input)
         self.MyForm = MyForm
@@ -278,7 +277,6 @@ def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_stri
     browser.set_fragment('#choice=2&other_var=other_value')
     browser.select(XPath.select_labelled('Choice'), 'Three')
     assert browser.get_fragment() == '#other_var=other_value&choice=3'
-
 
 
 class MultipleTriggerFixture(Fixture):
@@ -653,5 +651,120 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
     assert browser.is_focus_on(XPath.input_labelled('Trigger field'))
     assert browser.is_element_present(XPath.input_labelled('Email'))
     assert browser.is_on_top(XPath.button_labelled('click me'))
+
+
+
+class NestedResponsiveDisclosureFixture(Fixture):
+
+    def new_ModelObject(self):
+        class ModelObject(object):
+            def __init__(self):
+                self.trigger_field = False
+                self.nested_trigger_field = False
+
+            @exposed
+            def fields(self, fields):
+                fields.trigger_field = BooleanField(label='Trigger field')
+                fields.nested_trigger_field = BooleanField(label='Nested trigger field')
+
+        return ModelObject
+
+    def new_MyForm(self):
+        fixture = self
+        class MyForm(Form):
+            def __init__(self, view):
+                super(MyForm, self).__init__(view, 'myform')
+
+                model_object = fixture.ModelObject()
+                checkbox_input = CheckboxInput(self, model_object.fields.trigger_field)
+                self.add_child(Label(view, for_input=checkbox_input))
+                self.add_child(checkbox_input)
+
+                self.add_child(fixture.MyChangingWidget(self, checkbox_input, model_object))
+        return MyForm
+
+    def new_MyChangingWidget(self):
+        fixture = self
+
+        class MyNestedChangingWidget(Div):
+            def __init__(self, form, trigger_input, model_object):
+                self.model_object = model_object
+                super(MyNestedChangingWidget, self).__init__(form.view, css_id='nested_changing_widget')
+                self.enable_refresh()
+                trigger_input.enable_notify_change(self, self.query_fields.nested_trigger_field)
+
+                if self.model_object.nested_trigger_field:
+                    self.add_child(P(self.view, 'My state is now showing nested responsive content'))
+
+            @exposed
+            def query_fields(self, fields):
+                fields.nested_trigger_field = self.model_object.fields.nested_trigger_field
+
+        class MyChangingWidget(Div):
+            def __init__(self, form, trigger_input, model_object):
+                self.model_object = model_object
+                super(MyChangingWidget, self).__init__(form.view, css_id='requiredinfoid')
+                self.enable_refresh()
+                trigger_input.enable_notify_change(self, self.query_fields.trigger_field)
+
+                if self.model_object.trigger_field:
+                    self.add_child(P(self.view, 'My state is now showing outer responsive content'))
+                    nested_checkbox_input = CheckboxInput(form, model_object.fields.nested_trigger_field)
+                    self.add_child(Label(self.view, for_input=nested_checkbox_input))
+                    self.add_child(nested_checkbox_input)
+
+                    self.add_child(MyNestedChangingWidget(form, nested_checkbox_input, model_object))
+
+            @exposed
+            def query_fields(self, fields):
+                fields.trigger_field = self.model_object.fields.trigger_field
+        return MyChangingWidget
+
+    def are_all_parts_enabled(self, browser):
+        return browser.is_interactable(XPath.input_labelled('Trigger field')) and \
+            browser.is_interactable(XPath.input_labelled('Nested trigger field')) and \
+            browser.is_on_top(XPath.paragraph_containing('showing nested responsive content'))
+
+
+@with_fixtures(WebFixture, SqlAlchemyFixture, QueryStringFixture, NestedResponsiveDisclosureFixture)
+def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, query_string_fixture, nested_responsive_disclosure_fixture):
+    """Refreshable widgets can be nested inside a target widget."""
+    
+    fixture = nested_responsive_disclosure_fixture
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
+
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing outer responsive content')
+    assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing nested responsive content')
+
+    browser.click(XPath.input_labelled('Trigger field'))
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
+    assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing nested responsive content')
+    
+    browser.click(XPath.input_labelled('Nested trigger field'))
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing nested responsive content')
+
+    assert browser.wait_for(fixture.are_all_parts_enabled, browser)
+
+    browser.click(XPath.input_labelled('Trigger field'))
+    assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing outer responsive content')
+    assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing nested responsive content')
+
+    # Case: after having loaded the nested bits via ajax (and their Javascript - a second time)
+    #  the nested case still works (necessary to test because loading JS a second time can cause bugs)
+    browser.click(XPath.input_labelled('Trigger field'))
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
+    assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing nested responsive content')
+
+    browser.click(XPath.input_labelled('Nested trigger field'))
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing nested responsive content')
+
+    assert browser.wait_for(fixture.are_all_parts_enabled, browser)
+
 
 

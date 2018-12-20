@@ -1,4 +1,4 @@
-# Copyright 2013-2018 Reahl Software Services (Pty) Ltd. All rights reserved.
+# Copyright 2018 Reahl Software Services (Pty) Ltd. All rights reserved.
 #
 #    This file is part of Reahl.
 #
@@ -17,14 +17,17 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, division
 
-from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField, Choice, ChoiceField
+from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField, Choice, ChoiceField, IntegerField, BooleanField
 from reahl.web.fw import UserInterface
+from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
 from reahl.web.dynamic import DynamicSection
 from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, HTMLWidget
 from reahl.web.bootstrap.files import FileUploadInput
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
-from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput, SelectInput
+from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput, SelectInput, RadioButtonSelectInput, CheckboxInput
+from reahl.web.bootstrap.tables import Table
+
 
 
 
@@ -34,11 +37,11 @@ class ResponsiveUI(UserInterface):
                                                           contents_layout=ColumnLayout(
                                                               ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots()))
         home = self.define_view('/', title='File upload demo')
-        home.set_slot('main', IDForm.factory())
+        home.set_slot('main', NewInvestmentForm.factory())
 
 
+        
 class IDDocument(object):
-    
     @exposed
     def fields(self, fields):
         types = [Choice('passport', Field(label='Passport')),
@@ -76,6 +79,8 @@ class IDInputsSection(DynamicSection):
             self.add_child(PassportInputs(form, document))
         elif document_type == 'rsa_id':
             self.add_child(IDInputs(form, document))
+        else:
+            raise Exception(document.document_type)
 
 
 class PassportInputs(Div):
@@ -93,5 +98,144 @@ class IDInputs(Div):
         self.layout.add_input(TextInput(form, document.fields.id_number))
 
 
+class Investment(object):
+    @exposed
+    def fields(self, fields):
+        fields.agreed_to_terms = BooleanField(label='I agree to the terms and conditions')
+        fields.new_or_existing = ChoiceField([Choice('new', Field(label='New')),
+                                              Choice('existing', Field(label='Existing'))],
+                                             label='Are you a new or existing investor?')
+        fields.existing_account_number = IntegerField(label='Existing account number', required=True)
+        fields.name         = Field(label='Name', required=True)
+        fields.surname      = Field(label='Surname', required=True)
+        fields.amount       = IntegerField(label='Total amount', required=True)
+        fields.type         = ChoiceField([Choice('amount', Field(label='Amount')),
+                                         Choice('percentage', Field(label='Percentage'))],
+                                           label='Allocate using', required=True)
+
+    def __init__(self):
+        self.id_document = IDDocument()
+        self.allocations = [Allocation(self, 'Fund A'), Allocation(self, 'Fund B')]
+        self.type = 'percentage'
+        self.name = None
+        self.surname = None
+        self.amount = 0
+        self.existing_account_number = None
+        self.new_or_existing = None
+        self.agreed_to_terms = False
+
+    @property
+    def is_in_percentage(self):
+        return self.type == 'percentage'
+
+
+class Allocation(object):
+    @exposed
+    def fields(self, fields):
+        fields.percentage    = Field(label='Percentage', required=True)
+        fields.amount        = Field(label='Amount', required=True)
+
+    def __init__(self, investment, fund_name):
+        self.investment = investment
+        self.fund = fund_name
+        self.amount = 0
+        self.percentage = 0
+
+    @property
+    def fund_code(self):
+        return self.fund.replace(' ', '').upper()
+
+    @property
+    def is_in_percentage(self):
+        return self.investment.is_in_percentage
+
+
+        
+class NewInvestorDetailsSection(FieldSet):
+    def __init__(self, form, investment):
+        super(NewInvestorDetailsSection, self).__init__(form.view, legend_text='New investor information')
+        self.use_layout(FormLayout())
+        self.layout.add_input(TextInput(form, investment.fields.name))
+        self.layout.add_input(TextInput(form, investment.fields.surname))
+
+        trigger = self.layout.add_input(SelectInput(form, investment.id_document.fields.document_type))
+        self.add_child(IDInputsSection(form, investment.id_document, trigger))
+
+        trigger = self.layout.add_input(CheckboxInput(form, investment.fields.agreed_to_terms))
+        self.add_child(InvestmentAllocationSection(form, trigger, investment))
+
+
+class ExistingInvestorDetailsSection(FieldSet):
+    def __init__(self, form, investment):
+        super(ExistingInvestorDetailsSection, self).__init__(form.view, legend_text='Existing investor information')
+        self.use_layout(FormLayout())
+        self.layout.add_input(TextInput(form, investment.fields.existing_account_number))
+        trigger = self.layout.add_input(CheckboxInput(form, investment.fields.agreed_to_terms))
+        self.add_child(InvestmentAllocationSection(form, trigger, investment))
+
+
+
+class InvestmentAllocationSection(DynamicSection):
+    def __init__(self, form, trigger_input, investment):
+        super(InvestmentAllocationSection, self).__init__(form, 'investment_allocation', [trigger_input])
+        if investment.agreed_to_terms:
+            fieldset = self.add_child(FieldSet(form.view, legend_text='Investment allocation'))
+            fieldset.use_layout(FormLayout())
+            amount_input = fieldset.layout.add_input(TextInput(form, investment.fields.amount))
+            type_input = fieldset.layout.add_input(RadioButtonSelectInput(form, investment.fields.type))
+            self.add_child(AllocationDetailSection(form, [amount_input, type_input], investment))
+
+
+class TotalColumn(object):
+    def __init__(self, investment):
+        self.investment = investment
+        self.amount = sum([allocation.amount for allocation in investment.allocations])
+        self.percentage = sum([allocation.percentage for allocation in investment.allocations])
+        self.fund_code = 'total'
+        self.fund_name = 'Total'
+
+    @exposed
+    def fields(self, fields):
+        fields.amount = IntegerField()
+        fields.percentage = IntegerField()
+
+class AllocationDetailSection(DynamicSection):
+    def __init__(self, form, trigger_inputs, investment):
+        super(AllocationDetailSection, self).__init__(form, 'investment_allocation_details', trigger_inputs)
+        def make_amount_input(view, allocation):
+            return TextInput(form, allocation.fields.amount, name='amount.%s' % allocation.fund_code)
+        def make_percentage_input(view, allocation):
+            return TextInput(form, allocation.fields.percentage, name='percentage.%s' % allocation.fund_code)
+
+        columns = [StaticColumn(Field(label='Fund'), 'fund')]
+        if investment.is_in_percentage:
+            columns.append(DynamicColumn('Percentage', make_percentage_input))
+        else:
+            columns.append(DynamicColumn('Amount', make_amount_input))
+        table = Table(form.view).with_data(columns, investment.allocations+[TotalColumn(investment)])
+        self.add_child(table)
+
+
+class NewOrExistingInvestorSection(DynamicSection):
+    def __init__(self, form, trigger_input, investment):
+        super(NewOrExistingInvestorSection, self).__init__(form, 'investor_details', [trigger_input])
+        new_or_existing = investment.new_or_existing
+        if new_or_existing == 'new':
+            self.add_child(NewInvestorDetailsSection(form, investment))
+        elif new_or_existing == 'existing':
+            self.add_child(ExistingInvestorDetailsSection(form, investment))
+        else:
+            self.add_child(P(form.view, text=new_or_existing))
+
+            
+class NewInvestmentForm(Form):
+    def __init__(self, view):
+        super(NewInvestmentForm, self).__init__(view, 'new_investment_form')
+
+        new_investment = Investment()
+        step1 = self.add_child(FieldSet(view, legend_text='Investor information'))
+        step1.use_layout(FormLayout())
+        trigger = step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.new_or_existing))
+        self.add_child(NewOrExistingInvestorSection(self, trigger, new_investment))
 
 

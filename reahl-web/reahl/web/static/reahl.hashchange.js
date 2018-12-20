@@ -20,19 +20,22 @@
 "use strict";
 
 function getTraditionallyNamedFragment() {
-    var untraditionallyNamedFragment = $.deparam.fragment(window.location.hash);
-    var traditionallyNamedFragment = {};
-    for (var cleanName in untraditionallyNamedFragment) {
-        var value = untraditionallyNamedFragment[cleanName];
+    return mapToTraditionalNames($.deparam.fragment(window.location.hash));
+}
+
+function mapToTraditionalNames(untraditionallyNamedArguments) {
+    var traditionallyNamedArguments = {};
+    for (var cleanName in untraditionallyNamedArguments) {
+        var value = untraditionallyNamedArguments[cleanName];
         var traditionalName;
         if (Array.isArray(value)) {
             traditionalName = cleanName+'[]';
         } else {
             traditionalName = cleanName;
         }
-        traditionallyNamedFragment[traditionalName] = value;
+        traditionallyNamedArguments[traditionalName] = value;
     }
-    return traditionallyNamedFragment;
+    return traditionallyNamedArguments;
 }
 
 function HashArgument(name, defaultValue) {
@@ -87,6 +90,11 @@ function HashArgument(name, defaultValue) {
         hashObject[nameInHash] = valueInHash;
     }
 
+    this.clearFromHashObject = function(hashObject) {
+        delete hashObject[this.name];
+        delete hashObject[this.getEmptyListSentinelName()];
+    }
+    
 }
 
 
@@ -108,7 +116,9 @@ $.widget('reahl.hashchange', {
         for (name in _this.options.params) {
             _this.arguments.push(new HashArgument(name, _this.options.params[name]))
         }
-        $(window).on( 'hashchange', function(e) {
+
+        var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
+        $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e) {
             var currentFragment = getTraditionallyNamedFragment();
             var changedArguments = _this.calculateChangedArguments(currentFragment);
             if (_this.hasChanged(changedArguments)) {
@@ -116,11 +126,17 @@ $.widget('reahl.hashchange', {
             };
             return true;
         });
-
         $(window).trigger( 'hashchange' );
     },
     getArguments: function() {
         return this.arguments;
+    },
+    clearArgumentsFromHash: function(hashValues) {
+        var hashArguments = this.getArguments();
+        for (var i=0; i<hashArguments.length; i++) {
+            var argument = hashArguments[i];
+            argument.clearFromHashObject(hashValues);
+        }
     },
     addCallback: function(name, callback) {
         this.registered_callbacks[name] = callback;
@@ -147,17 +163,25 @@ $.widget('reahl.hashchange', {
             var argument = hashArguments[i];
             argument.updateHashObject(values);
         }
+        var urlQueryString = $.deparam.querystring(this.options.url);
+        for (var i in urlQueryString) {
+            if (i in values){
+                delete values[i];
+            }
+        }
         return values;
     },
     triggerChange: function(currentHashValues, newArguments) {
         var _this = this;
 
         var after_handler = _this.popCallback();
+        var data = _this.calculateQueryStringValues(currentHashValues, newArguments);
+        delete data['__and_then__'];
 
         _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         $.ajax({url:     _this.options.url,
                 cache:   _this.options.cache,
-                data:    _this.calculateQueryStringValues(currentHashValues, newArguments),
+                data:    data,
                 success: function(data){
                     _this.element.html(data);
                     _this.arguments = newArguments;
@@ -209,7 +233,7 @@ $.widget('reahl.changenotifier', {
             var o = this.options;
             var element = this.element;
             var _this = this;
-
+        
             if (!o.name) { throw new Error("No name given in options. This is a required option.")}
 
             $(element).attr('data-target-widget', o.widget_id);
@@ -220,6 +244,7 @@ $.widget('reahl.changenotifier', {
                 if (_this.getIsValid()) {
                     var currentFragment = getTraditionallyNamedFragment();
                     _this.blockAllSiblingInputs(currentFragment);
+                    _this.removeNestedWidgetArguments(currentFragment);
                     _this.updateHashWithAllSiblingValues(currentFragment);
                     this.focus();
                     _this.unblockWidget();
@@ -281,6 +306,12 @@ $.widget('reahl.changenotifier', {
         form.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         this.addAfterHandler(uniqueId, function() { form.unblock(); } );
         currentFragment['__and_then__'] = uniqueId;
+    },
+    removeNestedWidgetArguments: function(currentFragment) {
+        var o = this.options;
+        $('#'+this.options.widget_id).find('*').filter(function(){ return $(this).data('reahlHashchange')}).each(function(i){
+            $(this).data('reahlHashchange').clearArgumentsFromHash(currentFragment);
+        });
     },
     updateHashWithAllSiblingValues: function(currentFragment) {
         this.getSiblingChangeNotifiers().each(function() {

@@ -1960,7 +1960,10 @@ class SubResource(Resource):
         sub_path = cls.get_path_template(unique_name) % kwargs
         context = ExecutionContext.get_context()
         url = Url.get_current_url()
-        url.path = cls.get_full_path_for(url.path, sub_path)
+        view_path = url.path
+        if SubResource.is_for_sub_resource(url.path):
+            view_path = SubResource.get_view_path_for(url.path)
+        url.path = cls.get_full_path_for(view_path, sub_path)
         url.make_network_relative()
         return url
 

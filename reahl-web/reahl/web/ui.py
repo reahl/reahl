@@ -229,10 +229,7 @@ class HTMLElement(Widget):
             self.set_id(css_id)
 
     def __str__(self):
-        css_id_part = '(not set)'
-        if self.css_id_is_set:
-            css_id_part = self.css_id
-        return '<%s %s %s>' % (self.__class__.__name__, self.tag_name, 'id=%s' % css_id_part)
+        return '<%s %s %s>' % (self.__class__.__name__, self.tag_name, self.attributes.as_html_snippet())
 
     def enable_refresh(self, *for_fields):
         """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that
@@ -1337,13 +1334,16 @@ class Input(HTMLWidget):
         return False
 
     def enable_notify_change(self, widget, field):
+        if not self.html_representation.css_id_is_set:
+            self.html_representation.generate_random_css_id()
+
         self.fields_to_notify.append((widget, field))
 
     def get_js(self, context=None):
         js = super(Input, self).get_js(context)
 
         for widget, field in self.fields_to_notify:
-            js += ['$(%s).changenotifier(%s)'
+            js += ['$(%s).changenotifier(%s);'
                    % (self.html_representation.jquery_selector, self.changenotifier_js_options(widget, field))]
         return js
 
