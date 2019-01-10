@@ -117,6 +117,11 @@ $.widget('reahl.hashchange', {
             _this.arguments.push(new HashArgument(name, _this.options.params[name]))
         }
 
+        this.element.parents('form:not([data-includehashinquerystring])').on('submit', function(e) {
+            var form = $(this);
+            _this.updateFormActionWithCurrentQueryString(form);
+        }).attr('data-includehashinquerystring','on');
+
         var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
         $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e) {
             var currentFragment = getTraditionallyNamedFragment();
@@ -156,6 +161,18 @@ $.widget('reahl.hashchange', {
         } else {
             return function(){}
         }
+    },
+    updateFormActionWithCurrentQueryString(form) {
+        var currentFragment = getTraditionallyNamedFragment();
+            
+        var newQueryString = $.deparam.querystring(form.prop('action'))
+        delete newQueryString[form.prop('action')]; // https://github.com/cowboy/jquery-bbq/issues/34
+        for (var i in currentFragment) {
+            newQueryString[i] = currentFragment[i];
+        }
+        var url = new URL(form.prop('action'));
+        url.search = '?'+$.param(newQueryString, true);
+        form.attr('action', url.toString());
     },
     calculateQueryStringValues(currentHashValues, hashArguments) {
         var values = $.extend(true, {}, currentHashValues);
