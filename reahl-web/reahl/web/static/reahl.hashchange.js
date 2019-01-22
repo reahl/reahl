@@ -117,10 +117,11 @@ $.widget('reahl.hashchange', {
             _this.arguments.push(new HashArgument(name, _this.options.params[name]))
         }
 
-        this.element.parents('form:not([data-includehashinquerystring])').on('submit', function(e) {
+        var namespaced_submit = 'submit.'+this.element.attr('id');
+        this.element.parents('form').off(namespaced_submit).on(namespaced_submit, function(e) {
             var form = $(this);
             _this.updateFormActionWithCurrentQueryString(form);
-        }).attr('data-includehashinquerystring','on');
+        });
 
         var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
         $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e) {
@@ -163,23 +164,31 @@ $.widget('reahl.hashchange', {
         }
     },
     updateFormActionWithCurrentQueryString(form) {
-        var currentFragment = getTraditionallyNamedFragment();
-            
-        var newQueryString = $.deparam.querystring(form.prop('action'))
-        delete newQueryString[form.prop('action')]; // https://github.com/cowboy/jquery-bbq/issues/34
-        for (var i in currentFragment) {
-            newQueryString[i] = currentFragment[i];
+        var fragmentInput = $('input[form="'+ form.attr('id')+'"][name="reahl-fragment"]');
+        var completeFragment;
+        var partialFragment;
+        if (fragmentInput.length == 0) {
+            fragmentInput = $('<input name="reahl-fragment" form="' + form.attr('id') + '" type="hidden">');
+            fragmentInput.appendTo(form);
+            partialFragment = getTraditionallyNamedFragment();
+        } else {
+            var handledFragmentPart = $.deparam.querystring(fragmentInput.val());
+            partialFragment = $.extend(true, getTraditionallyNamedFragment(), handledFragmentPart);
         }
-        var url = new URL(form.prop('action'));
-        url.search = '?'+$.param(newQueryString, true);
-        form.attr('action', url.toString());
+        
+        completeFragment = this.addArgumentsToHash(partialFragment, this.getArguments());
+        fragmentInput.val($.param(completeFragment, true));
     },
-    calculateQueryStringValues(currentHashValues, hashArguments) {
+    addArgumentsToHash(currentHashValues, hashArguments) {
         var values = $.extend(true, {}, currentHashValues);
         for (var i=0; i<hashArguments.length; i++) {
             var argument = hashArguments[i];
             argument.updateHashObject(values);
         }
+        return values;
+    },
+    calculateQueryStringValues(currentHashValues, hashArguments) {
+        var values = this.addArgumentsToHash(currentHashValues, hashArguments);
         var urlQueryString = $.deparam.querystring(this.options.url);
         for (var i in urlQueryString) {
             if (i in values){

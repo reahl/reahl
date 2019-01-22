@@ -18,6 +18,7 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
 
 from reahl.component.modelinterface import exposed, EmailField, Field, Event, Action, FileField, Choice, ChoiceField, IntegerField, BooleanField
+from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
@@ -139,6 +140,8 @@ class Investment(object):
 
     def submit(self):
         print('Submitting investment')
+        if self.amount == 666:
+            raise DomainException(message='hahaha')
         if self.new_or_existing == 'new':
             print('\tName: %s' % self.name)
             print('\tSurname: %s' % self.surname)
@@ -242,15 +245,12 @@ class NewOrExistingInvestorSection(DynamicSection):
             
 class NewInvestmentForm(Form):
     def __init__(self, view):
-        self.investment = new_investment = Investment()
         super(NewInvestmentForm, self).__init__(view, 'new_investment_form')
 
+        new_investment = Investment()
         step1 = self.add_child(FieldSet(view, legend_text='Investor information'))
         step1.use_layout(FormLayout())
         trigger = step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.new_or_existing))
         self.add_child(NewOrExistingInvestorSection(self, trigger, new_investment))
 
-    # @exposed
-    # def query_fields(self, fields):
-    #     fields.new_or_existing = self.investment.fields.new_or_existing
 

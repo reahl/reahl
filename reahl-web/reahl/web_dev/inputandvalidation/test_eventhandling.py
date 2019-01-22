@@ -532,7 +532,7 @@ def test_check_missing_form(web_fixture):
     browser = Browser(wsgi_app)
 
     expected_message = 'Could not find form for <TextInput name=name>. '\
-                       'Its form, <Form form id=myform> is not present on the current page'
+                       'Its form, <Form form id="myform".*> is not present on the current page'
 
     with expected(ProgrammerError, test=expected_message):
         browser.open('/')
@@ -769,7 +769,7 @@ def test_propagation_of_querystring(web_fixture, query_string_scenarios):
             other_view = self.define_view('/page2', title='Page 2')
             home.set_slot('main', MyForm.factory('myform', other_view))
 
-    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI)
+    wsgi_app = web_fixture.new_wsgi_app(site_root=MainUI, enable_js=True)
     web_fixture.reahl_server.set_app(wsgi_app)
     web_fixture.driver_browser.open('/?%s' % fixture.initial_qs)
 

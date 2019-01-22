@@ -193,7 +193,7 @@ class HashChangeHandler(object):
     def argument_defaults(self):
         i = StandaloneFieldIndex()
         i.update(dict([(field.qualified_name, field) for field in self.for_fields]))
-        field_defaults = i.as_kwargs()
+        field_defaults = i.as_kwargs()  # TODO: translate! ie, True must be 'on' for booleans, etc. Checkboxes are the issue, they do on/off
         argument_defaults = ['"%s": "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
         return '{%s}' % ','.join(argument_defaults)
@@ -229,7 +229,7 @@ class HTMLElement(Widget):
             self.set_id(css_id)
 
     def __str__(self):
-        return '<%s %s %s>' % (self.__class__.__name__, self.tag_name, self.attributes.as_html_snippet())
+        return '<%s %s%s>' % (self.__class__.__name__, self.tag_name, self.attributes.as_html_snippet())
 
     def enable_refresh(self, *for_fields):
         """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that
@@ -941,6 +941,10 @@ class Form(HTMLElement):
         assert unique_name == self.event_channel.name
         super(Form, self).__init__(view, 'form', children_allowed=True, css_id=unique_name)
         self.set_attribute('data-formatter', six.text_type(self.input_formatter.get_url()))
+#        self.fragment = ''
+#        self.fragment_field = Field()
+#        self.fragment_field.bind('fragment', self)
+#        self.add_child(HiddenInput(self, self.fragment_field, name='reahl-fragment'))
 
     def set_up_event_channel(self, event_channel_name):
         self.event_channel = EventChannel(self, self.controller, event_channel_name)
@@ -1047,7 +1051,7 @@ class Form(HTMLElement):
 
     def persist_exception(self, exception):
         self.clear_exception()
-        self.persisted_exception_class.new_for_form(self, exception=exception)
+        self.persisted_exception_class.save_exception_for_form(self, exception=exception)
 
     def clear_exception(self):
         self.persisted_exception_class.clear_for_form(self)
@@ -1456,8 +1460,8 @@ class PrimitiveInput(Input):
 
     def prepare_input(self):
         previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
-
-        if previously_entered_value is not None:
+        request = ExecutionContext.get_context().request
+        if (previously_entered_value is not None) and (not request.is_xhr):
             self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
         else:
             self.bound_field.clear_user_input()
@@ -1836,6 +1840,14 @@ class PasswordInput(PrimitiveInput):
         return HTMLInputElement(self, 'password', render_value_attribute=False)
 
 
+class HiddenInput(PrimitiveInput):
+    def __init__(self, form, bound_field, name=None):
+        super(HiddenInput, self).__init__(form, bound_field, name=name)
+
+    def create_html_widget(self):
+        return HTMLInputElement(self, 'hidden')
+
+
 class CheckboxInput(PrimitiveInput):
     """A single checkbox that represent a true or false value.
 
@@ -2116,7 +2128,7 @@ class SimpleFileInput(PrimitiveInput):
 
     def persist_input(self, input_values):
         if self.get_input_status() == 'invalidly_entered':
-            self.persisted_exception_class.new_for_form(self.form, input_name=self.name, exception=self.bound_field.validation_error)
+            self.persisted_exception_class.save_exception_for_form(self.form, input_name=self.name, exception=self.bound_field.validation_error)
 
 
 class UniqueFilesConstraint(ValidationConstraint):

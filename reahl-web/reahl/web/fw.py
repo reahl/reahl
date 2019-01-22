@@ -983,8 +983,8 @@ class Widget(object):
         """
         
     def set_arguments_from_query_string(self):
-        request = ExecutionContext.get_context().request
-        self.query_fields.accept_input(request.GET.dict_of_lists())
+        widget_arguments = self.view.get_applicable_widget_arguments()
+        self.query_fields.accept_input(widget_arguments)
 
     def add_default_slot(self, slot_name, widget_factory):
         """If this Widget contains a :class:`Slot` named `slot_name`, and no contents are available to be plugged into
@@ -1833,6 +1833,34 @@ class UrlBoundView(View):
         self.out_of_bound_forms.append(out_of_bound_form)
         return out_of_bound_form
 
+    @property
+    def full_path(self):
+        return self.as_bookmark().href.path
+
+    @property
+    def persisted_userinput_class(self):
+        config = ExecutionContext.get_context().config
+        return config.web.persisted_userinput_class
+
+    def get_applicable_widget_arguments(self):
+        request = ExecutionContext.get_context().request
+        if request.is_xhr: # because on an ajax request, the query string contains all relevant widget arguments
+            fragment = ''
+            fragment_arguments = {}
+        elif request.method.upper() == 'POST':
+            fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
+            fragment_arguments = urllib_parse.parse_qs(fragment or '')
+        else:
+            fragment = self.persisted_userinput_class.get_previously_saved_for_view(self, 'reahl-fragment', six.text_type)
+            fragment_arguments = urllib_parse.parse_qs(fragment or '')
+
+
+        widget_arguments = request.GET.dict_of_lists()
+        # TODO: deal with lists and list sentinels and so on
+        widget_arguments.update(fragment_arguments)
+        
+        return widget_arguments
+
 
 class RedirectView(UrlBoundView):
     def __init__(self, user_interface, relative_path, to_bookmark):
@@ -2330,10 +2358,14 @@ class EventChannel(RemoteMethod):
         return {'event': event}
 
     def cleanup_after_exception(self, input_values, ex):
+        self.form.persisted_userinput_class.clear_for_view(self.form.view)
         self.form.cleanup_after_exception(input_values, ex)
-
+        fragment = input_values.get('reahl-fragment', [''])[0]
+        self.form.persisted_userinput_class.save_value_for_view(self.form.view, 'reahl-fragment', fragment, six.text_type)
+        
     def cleanup_after_success(self):
         self.form.cleanup_after_success()
+        self.form.persisted_userinput_class.clear_for_view(self.form.view)
 
 
 class ComposedPage(Resource):

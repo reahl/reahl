@@ -768,3 +768,13 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 
 
 
+# TODO:
+# - dealing with nestedforms that appear inside a DynamicWidget
+# - dealing with lists/sentinels upon submitting a form when merging the querystring
+# - dealing with DomainExceptions that happen when POSTing something with fragment
+# - test migration
+
+# missing tests:
+# - post, get exception, redender
+# - post, get exception, rerender, change parent trigger that results in different stuff, submit (various scenarios depending what different stuff you change)
+
