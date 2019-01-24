@@ -551,17 +551,19 @@ class HTML5Page(HTMLElement):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.append_class('no-js')
         script = self.add_child(HTMLElement(self.view, 'script', children_allowed=True))
+        fragment_to_replace = self.view.fragment        
+        if fragment_to_replace:
+            fragment_to_replace = '#%s' % fragment_to_replace
         script.add_child(TextNode(self.view, '''
           function switchJSStyle(d, fromStyle, toStyle) {
               var r=d.querySelectorAll("html")[0];
               r.className=r.className.replace(new RegExp("\\\\b" + fromStyle + "\\\\b", "g"),toStyle)
           };
-          (function(e){switchJSStyle(e, "no-js", "js")})(document);
-        '''))
+          (function(e){switchJSStyle(e, "no-js", "js"); history.replaceState(null, null, "%s")})(document);
+        ''' % (fragment_to_replace), html_escape=False))
 
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
-
 
     def render(self):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
@@ -1459,9 +1461,13 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
-        request = ExecutionContext.get_context().request
-        if (previously_entered_value is not None) and (not request.is_xhr):
+        previously_entered_value = None
+        try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
+            previously_entered_value = self.get_value_from_input(self.view.get_applicable_widget_arguments())
+        except ProgrammerError:
+            previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
+
+        if (previously_entered_value is not None):
             self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
         else:
             self.bound_field.clear_user_input()

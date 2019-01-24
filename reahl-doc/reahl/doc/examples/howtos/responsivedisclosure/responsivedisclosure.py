@@ -239,8 +239,6 @@ class NewOrExistingInvestorSection(DynamicSection):
             self.add_child(NewInvestorDetailsSection(form, investment))
         elif new_or_existing == 'existing':
             self.add_child(ExistingInvestorDetailsSection(form, investment))
-        else:
-            self.add_child(P(form.view, text=new_or_existing))
 
             
 class NewInvestmentForm(Form):

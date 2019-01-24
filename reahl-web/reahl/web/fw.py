@@ -1842,23 +1842,24 @@ class UrlBoundView(View):
         config = ExecutionContext.get_context().config
         return config.web.persisted_userinput_class
 
-    def get_applicable_widget_arguments(self):
+    @property
+    def fragment(self):
         request = ExecutionContext.get_context().request
         if request.is_xhr: # because on an ajax request, the query string contains all relevant widget arguments
             fragment = ''
-            fragment_arguments = {}
         elif request.method.upper() == 'POST':
             fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
-            fragment_arguments = urllib_parse.parse_qs(fragment or '')
         else:
             fragment = self.persisted_userinput_class.get_previously_saved_for_view(self, 'reahl-fragment', six.text_type)
-            fragment_arguments = urllib_parse.parse_qs(fragment or '')
 
+        return fragment or ''
 
+    def get_applicable_widget_arguments(self):
+        fragment_arguments = urllib_parse.parse_qs(self.fragment)
+        request = ExecutionContext.get_context().request
         widget_arguments = request.GET.dict_of_lists()
         # TODO: deal with lists and list sentinels and so on
         widget_arguments.update(fragment_arguments)
-        
         return widget_arguments
 
 
