@@ -778,4 +778,13 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 # - post, get exception, redender
 # - post, get exception, rerender, change parent trigger that results in different stuff, submit (various scenarios depending what different stuff you change)
 
-
+# Test facts:
+# - widget arguments come from either the QS or the fragment
+# - the fragment is maintained by posting it to the server in a hidden input
+# - the fragment is also saved upon a breakage like use input, but globally for the view
+# - when preparing an input, if it is a widget argument, widget argument input (QS/fragment) takes precedence over possible 
+#   saved values in the database for the relevant input
+# - when redirecting after a POST, the fragmnet is NOT included in the redirected URL (because that would result in more 
+#   ajax fetches); but it is restored on the URL from its saved value using JS
+# - when a parent dynamic widget is changed, all its children widget arguments that happened to be applicable (because they were 
+#   also opened) - are cleared explicitly in the fragment and as such we need to save a sentinel vanue in the DB for them else we would have no way to know that a cleared value should not be read from the saved DB input values.

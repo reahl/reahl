@@ -81,7 +81,7 @@ function HashArgument(name, defaultValue) {
         var valueInHash;
         if (this.getIsEmptyList()) {
             nameInHash = this.getEmptyListSentinelName();
-            valueInHash = "";
+            valueInHash = '';
         } else {
             nameInHash = this.name;
             valueInHash = this.value;
@@ -93,6 +93,7 @@ function HashArgument(name, defaultValue) {
     this.clearFromHashObject = function(hashObject) {
         delete hashObject[this.name];
         delete hashObject[this.getEmptyListSentinelName()];
+        hashObject[this.name+'-'] = ''; // Set the defaulted_sentinel
     }
     
 }

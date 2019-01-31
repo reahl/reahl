@@ -1844,13 +1844,18 @@ class UrlBoundView(View):
 
     @property
     def fragment(self):
-        request = ExecutionContext.get_context().request
-        if request.is_xhr: # because on an ajax request, the query string contains all relevant widget arguments
-            fragment = ''
-        elif request.method.upper() == 'POST':
-            fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
+        if not hasattr(self, '_fragment'):
+            request = ExecutionContext.get_context().request
+            showit = Url.get_current_url().path[:2] in ['/', '/_']
+            if request.is_xhr: # because on an ajax request, the query string contains all relevant widget arguments
+                fragment = ''
+            elif request.method.upper() == 'POST':
+                fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
+            else:
+                fragment = self.persisted_userinput_class.get_previously_saved_for_view(self, 'reahl-fragment', six.text_type)
+            self._fragment = fragment
         else:
-            fragment = self.persisted_userinput_class.get_previously_saved_for_view(self, 'reahl-fragment', six.text_type)
+            fragment = self._fragment
 
         return fragment or ''
 

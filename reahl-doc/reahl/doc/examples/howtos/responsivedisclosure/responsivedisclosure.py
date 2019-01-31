@@ -23,7 +23,7 @@ from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
 from reahl.web.dynamic import DynamicSection
-from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, HTMLWidget
+from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, HTMLWidget, Alert
 from reahl.web.bootstrap.files import FileUploadInput
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput, SelectInput, RadioButtonSelectInput, CheckboxInput, Button
@@ -245,9 +245,12 @@ class NewInvestmentForm(Form):
     def __init__(self, view):
         super(NewInvestmentForm, self).__init__(view, 'new_investment_form')
 
+        if self.exception:
+            self.add_child(Alert(view, str(self.exception), 'warning'))
         new_investment = Investment()
         step1 = self.add_child(FieldSet(view, legend_text='Investor information'))
         step1.use_layout(FormLayout())
+        step1.layout.add_input(TextInput(self, new_investment.fields.simple))
         trigger = step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.new_or_existing))
         self.add_child(NewOrExistingInvestorSection(self, trigger, new_investment))
 

@@ -193,7 +193,7 @@ class HashChangeHandler(object):
     def argument_defaults(self):
         i = StandaloneFieldIndex()
         i.update(dict([(field.qualified_name, field) for field in self.for_fields]))
-        field_defaults = i.as_kwargs()  # TODO: translate! ie, True must be 'on' for booleans, etc. Checkboxes are the issue, they do on/off
+        field_defaults = i.as_input_kwargs() # TODO: should this not sometimes be i.user_input????
         argument_defaults = ['"%s": "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
         return '{%s}' % ','.join(argument_defaults)
@@ -1344,6 +1344,7 @@ class Input(HTMLWidget):
             self.html_representation.generate_random_css_id()
 
         self.fields_to_notify.append((widget, field))
+        self.prepare_input()
 
     def get_js(self, context=None):
         js = super(Input, self).get_js(context)
@@ -1463,7 +1464,10 @@ class PrimitiveInput(Input):
     def prepare_input(self):
         previously_entered_value = None
         try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
-            previously_entered_value = self.get_value_from_input(self.view.get_applicable_widget_arguments())
+            widget_arguments = self.view.get_applicable_widget_arguments()
+            defaulted_sentinel = '%s-' % self.name
+            if defaulted_sentinel not in widget_arguments:
+                previously_entered_value = self.get_value_from_input(widget_arguments)
         except ProgrammerError:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
