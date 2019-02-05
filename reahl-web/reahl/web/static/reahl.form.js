@@ -34,6 +34,8 @@ $.widget('reahl.form', {
                     .attr('readonly', true);
             }
         });        
+
+        element[0]
     }
 });
 

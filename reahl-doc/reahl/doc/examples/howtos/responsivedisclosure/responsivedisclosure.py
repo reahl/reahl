@@ -155,6 +155,7 @@ class Investment(object):
             allocation_size = allocation.percentage if self.is_in_percentage else allocation.amount
             print('\t\tFund %s(%s): %s' % (allocation.fund, allocation.fund_code, allocation_size))
 
+
 class Allocation(object):
     @exposed
     def fields(self, fields):
@@ -250,7 +251,7 @@ class NewInvestmentForm(Form):
         new_investment = Investment()
         step1 = self.add_child(FieldSet(view, legend_text='Investor information'))
         step1.use_layout(FormLayout())
-        step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.type))
+#        step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.type))
         trigger = step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.new_or_existing))
         self.add_child(NewOrExistingInvestorSection(self, trigger, new_investment))
 

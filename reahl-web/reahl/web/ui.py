@@ -1461,15 +1461,16 @@ class PrimitiveInput(Input):
     def persisted_userinput_class(self):
         return self.form.persisted_userinput_class
 
+    @property
+    def defaulted_sentinel(self):
+        return '%s_' % self.name
+
     def prepare_input(self):
         previously_entered_value = None
         try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
             widget_arguments = self.view.get_applicable_widget_arguments()
-            defaulted_sentinel = '%s-' % self.name
-            if defaulted_sentinel not in widget_arguments:
-                previously_entered_value = self.get_value_from_input(widget_arguments)
-                if self.bound_field.is_input_empty(previously_entered_value):
-                    raise ProgrammerError('TODO: we cant do this because some inputs cannot determine whether they have been non-entered or whether they are missing')
+            if self.defaulted_sentinel not in widget_arguments:
+                previously_entered_value = self.bound_field.from_disambiguated_input(widget_arguments, ignore_validation=True, default_if_not_found=False, overridden_name=self.name)
         except ProgrammerError:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
@@ -1721,7 +1722,7 @@ class SingleChoice(ContainedInput):
         return label
 
     def create_button_input(self):
-        button = HTMLInputElement(self, self.containing_input.choice_type, render_value_attribute=False)
+        button = HTMLInputElement(self, self.containing_input.choice_type)
         if self.checked:
             button.set_attribute('checked', 'checked')
         return button

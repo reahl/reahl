@@ -61,6 +61,10 @@ function HashArgument(name, defaultValue) {
         return this.name+'-';
     }
 
+    this.getDefaultedSentinelName = function() {
+        return this.name+'_';
+    }
+
     this.updateFromHashObject = function(hashObject) {
         this.changed = false;
         var currentValue = hashObject[this.name];
@@ -93,7 +97,7 @@ function HashArgument(name, defaultValue) {
     this.clearFromHashObject = function(hashObject) {
         delete hashObject[this.name];
         delete hashObject[this.getEmptyListSentinelName()];
-        hashObject[this.name+'-'] = ''; // Set the defaulted_sentinel
+        hashObject[this.getDefaultedSentinelName()] = '';
     }
     
 }

@@ -106,7 +106,7 @@ class FieldIndex(object):
 
     def accept_input(self, input_dict, ignore_validation=False):
         for name, field in self.items():
-            field.from_input(field.extract_unparsed_input_from_dict_of_lists(input_dict), ignore_validation=ignore_validation)
+            field.from_disambiguated_input(input_dict, ignore_validation=ignore_validation)
             
     def update(self, other):
         for name, value in other.items():
@@ -866,9 +866,12 @@ class Field(object):
     def variable_name(self):
         return self.name
 
+    def qualify_name(self, name):
+        return name
+
     @property
     def qualified_name(self):
-        return self.name
+        return self.qualify_name(self.name)
 
     def get_model_value(self):
         return getattr(self.storage_object, self.variable_name, self.default)
@@ -888,12 +891,22 @@ class Field(object):
     def validate_parsed(self, parsed_value, ignore=None):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
 
-    def extract_unparsed_input_from_dict_of_lists(self, input_dict):
-        list_of_input = input_dict.get(self.qualified_name, [])
+    def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True, overridden_name=None):
+        if overridden_name:
+            qualified_name = self.qualify_name(overridden_name)
+        else:
+            qualified_name = self.qualified_name
+        list_of_input = input_dict.get(qualified_name, [])
         if list_of_input:
             return list_of_input[0]
-        else:
+        elif default_if_not_found:
             return self.as_input()
+        else:
+            raise ProgrammerError('Expected to find %s in %s' % (qualified_name, str(input_dict)))
+
+    def from_disambiguated_input(self, input_dict, ignore_validation=False, default_if_not_found=True, overridden_name=None):
+        input_value = self.extract_unparsed_input_from_dict_of_lists(input_dict, default_if_not_found=default_if_not_found, overridden_name=overridden_name)
+        self.from_input(input_value, ignore_validation=ignore_validation)
 
     def parse_input(self, unparsed_input):
         """Override this method on a subclass to specify how that subclass transforms the `unparsed_input`
@@ -1497,9 +1510,8 @@ class MultiChoiceField(ChoiceField):
     """A Field that allows a selection of values from the given :class:`Choice` instances as input."""
     entered_input_type = list
 
-    @property
-    def qualified_name(self):
-        return '%s[]' % super(MultiChoiceField, self).qualified_name
+    def qualify_name(self, name):
+        return '%s[]' % super(MultiChoiceField, self).qualify_name(name)
 
     def is_input_empty(self, input_value):
         return input_value is None
@@ -1511,17 +1523,23 @@ class MultiChoiceField(ChoiceField):
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
 
-    @property
-    def empty_sentinel_name(self):
-        return '%s-' % self.qualified_name
+    def get_empty_sentinel_name(self, base_name):
+        return '%s-' % base_name
 
-    def extract_unparsed_input_from_dict_of_lists(self, input_dict):
-        submitted_as_empty = len(input_dict.get(self.empty_sentinel_name, [])) > 0
+    def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True, overridden_name=None):
+        if overridden_name:
+            qualified_name = self.qualify_name(overridden_name)
+        else:
+            qualified_name = self.qualified_name
+
+        submitted_as_empty = len(input_dict.get(self.get_empty_sentinel_name(qualified_name), [])) > 0
         if submitted_as_empty:
             return []
         else:
-            list_value = input_dict.get(self.qualified_name, [])
+            list_value = input_dict.get(qualified_name, [])
             if not list_value:
+                if not default_if_not_found:
+                    raise ProgrammerError('Expected to find %s in %s' % (self.qualified_name, str(input_dict)))
                 return None
             else:
                 return list_value
