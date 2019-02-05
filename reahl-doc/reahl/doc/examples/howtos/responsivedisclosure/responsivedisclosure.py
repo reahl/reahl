@@ -129,7 +129,7 @@ class Investment(object):
         self.type = 'percentage'
         self.name = None
         self.surname = None
-        self.amount = 0
+        self.amount = None
         self.existing_account_number = None
         self.new_or_existing = None
         self.agreed_to_terms = False
@@ -250,7 +250,7 @@ class NewInvestmentForm(Form):
         new_investment = Investment()
         step1 = self.add_child(FieldSet(view, legend_text='Investor information'))
         step1.use_layout(FormLayout())
-        step1.layout.add_input(TextInput(self, new_investment.fields.simple))
+        step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.type))
         trigger = step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.new_or_existing))
         self.add_child(NewOrExistingInvestorSection(self, trigger, new_investment))
 

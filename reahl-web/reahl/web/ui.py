@@ -1468,6 +1468,8 @@ class PrimitiveInput(Input):
             defaulted_sentinel = '%s-' % self.name
             if defaulted_sentinel not in widget_arguments:
                 previously_entered_value = self.get_value_from_input(widget_arguments)
+                if self.bound_field.is_input_empty(previously_entered_value):
+                    raise ProgrammerError('TODO: we cant do this because some inputs cannot determine whether they have been non-entered or whether they are missing')
         except ProgrammerError:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
@@ -1719,7 +1721,7 @@ class SingleChoice(ContainedInput):
         return label
 
     def create_button_input(self):
-        button = HTMLInputElement(self, self.containing_input.choice_type)
+        button = HTMLInputElement(self, self.containing_input.choice_type, render_value_attribute=False)
         if self.checked:
             button.set_attribute('checked', 'checked')
         return button

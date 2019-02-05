@@ -984,7 +984,7 @@ class Widget(object):
         
     def set_arguments_from_query_string(self):
         widget_arguments = self.view.get_applicable_widget_arguments()
-        self.query_fields.accept_input(widget_arguments)
+        self.query_fields.accept_input(widget_arguments, ignore_validation=True)
 
     def add_default_slot(self, slot_name, widget_factory):
         """If this Widget contains a :class:`Slot` named `slot_name`, and no contents are available to be plugged into

@@ -788,3 +788,7 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 #   ajax fetches); but it is restored on the URL from its saved value using JS
 # - when a parent dynamic widget is changed, all its children widget arguments that happened to be applicable (because they were 
 #   also opened) - are cleared explicitly in the fragment and as such we need to save a sentinel vanue in the DB for them else we would have no way to know that a cleared value should not be read from the saved DB input values.
+# - when a widget argument is required, but not present on the QS/fragment (or otherwise NOT validly entered), dont break, render the validation error
+
+
+

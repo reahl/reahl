@@ -104,9 +104,9 @@ class FieldIndex(object):
     def as_input_kwargs(self):
         return dict([(name, field.as_input()) for name, field in self.items()])
 
-    def accept_input(self, input_dict):
+    def accept_input(self, input_dict, ignore_validation=False):
         for name, field in self.items():
-            field.from_input(field.extract_unparsed_input_from_dict_of_lists(input_dict))
+            field.from_input(field.extract_unparsed_input_from_dict_of_lists(input_dict), ignore_validation=ignore_validation)
             
     def update(self, other):
         for name, value in other.items():
@@ -905,11 +905,12 @@ class Field(object):
            object (`parsed_value`) to a string that represents it to a user."""
         return six.text_type(parsed_value if parsed_value is not None else '')
 
-    def from_input(self, unparsed_input):
+    def from_input(self, unparsed_input, ignore_validation=False):
         """Sets the value of this Field from the given `unparsed_input`."""
         if self.can_write():
-            self.set_user_input(unparsed_input)
-            self.set_model_value()
+            self.set_user_input(unparsed_input, ignore_validation=ignore_validation)
+            if self.input_status == 'validly_entered':
+                self.set_model_value()
         
     def as_input(self):
         """Returns the value of this Field as a string."""
