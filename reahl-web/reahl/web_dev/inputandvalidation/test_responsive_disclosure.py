@@ -256,7 +256,7 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     browser.open('/')
-    
+
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
@@ -591,7 +591,7 @@ def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_d
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
     
-    with expected(ProgrammerError, test='Inputs are not allowed where they can trigger themselves to be refreshed. Some inputs were incorrectly placed:\n\t<SelectInput name=choice> is refreshed by <ChangingWidget div id=dave> via field <ChoiceField name=choice>\n'):
+    with expected(ProgrammerError, test='Inputs are not allowed where they can trigger themselves to be refreshed. Some inputs were incorrectly placed:\n\t<SelectInput name=choice> is refreshed by <ChangingWidget div id="dave"> via field <ChoiceField name=choice>\n'):
         browser.open('/')
 
 
@@ -791,4 +791,5 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 # - when a widget argument is required, but not present on the QS/fragment (or otherwise NOT validly entered), dont break, render the validation error
 # - when a Field is for a list, and its name is overridden, it should look for input in overridden_name+[]
 # - when a parent trigger changes and a child is regenerated, if that child contains inputs and the user edited them, their edited values should be maintained
+
 

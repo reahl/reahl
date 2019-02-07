@@ -1357,10 +1357,6 @@ class Input(HTMLWidget):
     def changenotifier_js_options(self, widget, field):
         options = {'name': field.qualified_name,
                    'widget_id': widget.css_id}
-        if isinstance(self.bound_field, BooleanField):
-            options['is_boolean'] = True
-            options['true_boolean_value'] = self.bound_field.true_value
-            options['false_boolean_value'] = self.bound_field.false_value
         return json.dumps(options)
 
 
@@ -1384,6 +1380,7 @@ class WrappedInput(Input):
 
 class PrimitiveInput(Input):
     is_for_file = False
+    is_contained = False
 
     def __init__(self, form, bound_field, name=None, registers_with_form=True):
         super(PrimitiveInput, self).__init__(form, bound_field)
@@ -1394,6 +1391,16 @@ class PrimitiveInput(Input):
             self.prepare_input()
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
+        if not self.is_contained:
+            self.add_to_attribute('class', ['reahl-primitiveinput'])
+            self.add_input_data_attributes()
+
+    def add_input_data_attributes(self):
+        if isinstance(self.bound_field, BooleanField):
+            self.set_attribute('data-is-boolean', '')
+            self.set_attribute('data-true-boolean-value', self.bound_field.true_value)
+            self.set_attribute('data-false-boolean-value', self.bound_field.false_value)
+        
     def __str__(self):
         return '<%s name=%s>' % (self.__class__.__name__, self.name)
 
@@ -1421,6 +1428,10 @@ class PrimitiveInput(Input):
     @property
     def jquery_selector(self):
         return '''$('input[name="%s"][form="%s"]')''' % (self.name, self.form.css_id)
+
+    def get_js(self, context=None):
+        js = ['$(%s).primitiveinput();' % self.html_representation.contextualise_selector('".reahl-primitiveinput"', context)]
+        return super(PrimitiveInput, self).get_js(context=context) + js
 
     @property
     def validation_constraints(self):
@@ -1577,6 +1588,7 @@ class TextArea(PrimitiveInput):
 
 
 class ContainedInput(PrimitiveInput):
+    is_contained = True
     def __init__(self, containing_input, choice, name=None):
         self.choice = choice
         self.containing_input = containing_input

@@ -412,7 +412,7 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
     checkbox_classes = browser.get_attribute('//div/input[@type="checkbox"]/..', 'class').split(' ')
     assert 'custom-control' in checkbox_classes
     assert 'custom-checkbox' in checkbox_classes
-    assert browser.get_attribute('//div/input[@type="checkbox"]', 'class') == 'custom-control-input'
+    assert browser.get_attribute('//div/input[@type="checkbox"]', 'class') == 'custom-control-input reahl-primitiveinput'
 
     browser.check(checkbox)
     browser.click(XPath.button_labelled('Submit'))
@@ -451,7 +451,7 @@ def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
 
     assert browser.is_element_present(XPath.label_with_text('Make your choice'))
 
-    assert browser.get_xpath_count('//input[@class="custom-control-input"]/following-sibling::label[@class="custom-control-label"]') == 4
+    assert browser.get_xpath_count('//input[@class="custom-control-input reahl-primitiveinput"]/following-sibling::label[@class="custom-control-label"]') == 4
 
     checkbox_one = XPath.input_labelled('One')
     checkbox_two = XPath.input_labelled('Two')
@@ -632,7 +632,7 @@ def test_button_layouts(web_fixture):
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    assert button.attrib['class'] == 'btn'
+    assert button.attrib['class'] == 'btn reahl-primitiveinput'
 
     # Case: possible effects
     form = Form(web_fixture.view, 'test')
@@ -641,7 +641,7 @@ def test_button_layouts(web_fixture):
 
     tester = WidgetTester(button)
     [button] = tester.xpath(XPath.button_labelled('click me'))
-    assert button.attrib['class'] == 'active btn btn-block btn-secondary btn-sm'
+    assert button.attrib['class'] == 'active btn btn-block btn-secondary btn-sm reahl-primitiveinput'
 
 
 @with_fixtures(WebFixture)

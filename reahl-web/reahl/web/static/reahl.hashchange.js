@@ -255,9 +255,6 @@ $.widget('reahl.changenotifier', {
     options: {
         name: undefined,
         widget_id: undefined,
-        is_boolean: false,
-        true_boolean_value: undefined,
-        false_boolean_value: undefined,
         argument: undefined
     },
     _create: function() {
@@ -283,44 +280,10 @@ $.widget('reahl.changenotifier', {
                 return true;
             });
     },
-
-    isCheckbox: function(input) {
-        return $(input).attr('type') === 'checkbox';
-    },
-
-    isForBooleanValue: function(checkbox) {
-        return this.options.is_boolean;
-    },
-
-    getCheckboxListValue: function(checkbox) {
-        var checkedCheckboxes = $('input[name="' + $(checkbox).attr("name") + '"][form="' + $(checkbox).attr("form") + '"]:checked');
-        return checkedCheckboxes.map(function() {
-            return $(this).val();
-        }).toArray();
-    },
-
-    getCheckboxBooleanValue: function(checkbox) {
-       var _this = this;
-       if($(checkbox).is(":checked"))
-            return _this.options.true_boolean_value;
-       else
-            return _this.options.false_boolean_value;
-    },
-
-    getCurrentInputValue: function(currentInput) {
-        if (this.isCheckbox(currentInput)) {
-            if (this.isForBooleanValue(currentInput)){
-                return this.getCheckboxBooleanValue(currentInput)
-            } else {
-                return this.getCheckboxListValue(currentInput);
-            }
-        } else {
-            return $(currentInput).val();
-        }
-    },
     updateCurrentValue: function(currentInput) {
         var _this = this;
-        var currentInputValue = this.getCurrentInputValue(currentInput);
+        var primitiveInput = $(currentInput).data('reahlPrimitiveinput');
+        var currentInputValue = primitiveInput.getCurrentInputValue();
         if (_this.options.argument == undefined) {
             _this.options.argument = new HashArgument(this.options.name, currentInputValue);
         }

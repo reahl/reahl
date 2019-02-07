@@ -67,7 +67,10 @@ class WrappedApp(object):
         try:
             to_return = b''
             for i in app(environ, start_response):
-                to_return += i 
+                try:
+                  to_return += i 
+                except:
+                    import pdb; pdb.set_trace()
         except:
             to_return = b''
             (_, self.exception, self.traceback) = sys.exc_info()
@@ -100,9 +103,9 @@ class NoopApp(object):
     def stop(self): pass
     def __call__(self, environ, start_response):
         status = '200 OK'
-        response_headers = [('Content-type','text/plain')]
+        response_headers = [('Content-type', 'text/plain')]
         start_response(status, response_headers)
-        return ['']
+        return [''.encode('utf-8')]
     def report_exception(self, *args, **kwargs):
         pass
     def clear_exception(self):

@@ -251,7 +251,8 @@ class NewInvestmentForm(Form):
         new_investment = Investment()
         step1 = self.add_child(FieldSet(view, legend_text='Investor information'))
         step1.use_layout(FormLayout())
-#        step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.type))
+        step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.type, name='testing1'))
+        step1.layout.add_input(TextInput(self, new_investment.fields.amount, name='testing2'))
         trigger = step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.new_or_existing))
         self.add_child(NewOrExistingInvestorSection(self, trigger, new_investment))
 

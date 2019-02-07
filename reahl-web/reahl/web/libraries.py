@@ -253,6 +253,7 @@ class Reahl(Library):
         self.shipped_in_directory = '/reahl/web/static'
         self.files = ['reahl.hashchange.js',
                       'reahl.ajaxlink.js',
+                      'reahl.primitiveinput.js',
                       'reahl.textinput.js',
                       'reahl.validate.js',
                       'reahl.form.js',
