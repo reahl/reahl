@@ -91,7 +91,7 @@
         },
 
         getName: function() {
-            return this.getFormInput().attr('name');
+            return this.getAllRelatedFormInputs().attr('name');
         },
 
         getCurrentInputValue: function() {

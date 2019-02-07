@@ -80,7 +80,8 @@ function HashArgument(name, defaultValue) {
     this.updateHashObject = function(hashObject) {
         delete hashObject[this.name];
         delete hashObject[this.getEmptyListSentinelName()];
-
+        delete hashObject[this.getDefaultedSentinelName()];
+        
         var nameInHash;
         var valueInHash;
         if (this.getIsEmptyList()) {
@@ -194,6 +195,8 @@ $.widget('reahl.hashchange', {
     },
     calculateQueryStringValues(currentHashValues, hashArguments) {
         var values = this.addArgumentsToHash(currentHashValues, hashArguments);
+        var relevantFormInputs = this.getFormInputsAsArguments().filter(function(i, v){ return ! (v.getDefaultedSentinelName() in values) });
+        values = this.addArgumentsToHash(values, relevantFormInputs);
         var urlQueryString = $.deparam.querystring(this.options.url);
         for (var i in urlQueryString) {
             if (i in values){
@@ -202,6 +205,13 @@ $.widget('reahl.hashchange', {
         }
         return values;
     },
+    getFormInputsAsArguments: function(){
+        return $('.reahl-primitiveinput').map(function(i, v) { 
+            var primitiveInput = $(v).data('reahlPrimitiveinput');
+            return new HashArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
+        });
+    },
+
     triggerChange: function(currentHashValues, newArguments) {
         var _this = this;
 
