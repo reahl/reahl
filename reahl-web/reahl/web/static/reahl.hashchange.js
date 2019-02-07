@@ -100,7 +100,6 @@ function HashArgument(name, defaultValue) {
         delete hashObject[this.getEmptyListSentinelName()];
         hashObject[this.getDefaultedSentinelName()] = '';
     }
-    
 }
 
 
@@ -202,7 +201,8 @@ $.widget('reahl.hashchange', {
             if (i in values){
                 delete values[i];
             }
-        }
+        };
+
         return values;
     },
     getFormInputsAsArguments: function(){
@@ -211,7 +211,21 @@ $.widget('reahl.hashchange', {
             return new HashArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
         });
     },
-
+    getUrlWithDefaultedSentinelsCleared: function(){
+        var queryStringIndex = this.options.url.indexOf('?');
+        var urlQueryString = {};
+        var url = this.options.url;
+        if (queryStringIndex >= 0) {
+            url = this.options.url.substr(0, queryStringIndex)+'?';
+            urlQueryString = $.deparam.querystring(this.options.url);
+            for (var i in urlQueryString) {
+                if (i.endsWith('_')){
+                    delete urlQueryString[i];
+                }
+            };
+        }
+        return url+$.param(urlQueryString, true);
+    },
     triggerChange: function(currentHashValues, newArguments) {
         var _this = this;
 
@@ -220,7 +234,7 @@ $.widget('reahl.hashchange', {
         delete data['__and_then__'];
 
         _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
-        $.ajax({url:     _this.options.url,
+        $.ajax({url:     _this.getUrlWithDefaultedSentinelsCleared(),
                 cache:   _this.options.cache,
                 data:    data,
                 success: function(data){
