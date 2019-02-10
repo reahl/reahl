@@ -96,9 +96,14 @@ function HashArgument(name, defaultValue) {
     }
 
     this.clearFromHashObject = function(hashObject) {
+        this.deleteFromHashObject(hashObject);
+        hashObject[this.getDefaultedSentinelName()] = '';
+    }
+
+    this.deleteFromHashObject = function(hashObject) {
         delete hashObject[this.name];
         delete hashObject[this.getEmptyListSentinelName()];
-        hashObject[this.getDefaultedSentinelName()] = '';
+        delete hashObject[this.getDefaultedSentinelName()];
     }
 }
 
@@ -288,6 +293,8 @@ $.widget('reahl.changenotifier', {
         
             if (!o.name) { throw new Error("No name given in options. This is a required option.")}
 
+            this.clearFromCurrentFragment();
+
             $(element).attr('data-target-widget', o.widget_id);
             $(element).on( 'change', function(e) {
                 if (_this.getIsSelfValid()) {
@@ -304,15 +311,25 @@ $.widget('reahl.changenotifier', {
                 return true;
             });
     },
-    updateCurrentValue: function(currentInput) {
-        var _this = this;
+    clearFromCurrentFragment: function() {
+        // TODO: this needs cleaning up....
+        var currentFragment = getTraditionallyNamedFragment();
+        (new HashArgument(this.options.name, '')).deleteFromHashObject(currentFragment);
+        var newHash = $.param(currentFragment, true);
+        window.location.hash = newHash;
+    },
+    getCurrentInputValue: function(currentInput) {
         var primitiveInput = $(currentInput).data('reahlPrimitiveinput');
-        var currentInputValue = primitiveInput.getCurrentInputValue();
-        if (_this.options.argument == undefined) {
-            _this.options.argument = new HashArgument(this.options.name, currentInputValue);
+        return primitiveInput.getCurrentInputValue();
+    },
+    getArgument: function(currentInput) {
+        if (this.options.argument == undefined) {
+            this.options.argument = new HashArgument(this.options.name, this.getCurrentInputValue(currentInput));
         }
-        var argument = _this.options.argument;
-        argument.changeValue(currentInputValue);
+        return this.options.argument;
+    },
+    updateCurrentValue: function(currentInput) {
+        this.getArgument(currentInput).changeValue(this.getCurrentInputValue(currentInput));
     },
     blockAllSiblingInputs: function(currentFragment) {
         var _this = this;
