@@ -1846,7 +1846,6 @@ class UrlBoundView(View):
     def fragment(self):
         if not hasattr(self, '_fragment'):
             request = ExecutionContext.get_context().request
-            showit = Url.get_current_url().path[:2] in ['/', '/_']
             if request.is_xhr: # because on an ajax request, the query string contains all relevant widget arguments
                 fragment = ''
             elif request.method.upper() == 'POST':

@@ -93,6 +93,8 @@ def test_i18n(web_fixture):
     """User-visible labels are internationalised."""
 
     context = LocaleContextStub(locale='af').install()
+    context.config = web_fixture.config
+    context.session = web_fixture.context.session
     context.request = webob.Request.blank('/', charset='utf8')
     
     widget = Carousel(web_fixture.view, 'my_carousel_id')

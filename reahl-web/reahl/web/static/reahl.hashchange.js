@@ -217,6 +217,7 @@ $.widget('reahl.hashchange', {
         });
     },
     getUrlWithDefaultedSentinelsCleared: function(){
+        return this.options.url;
         var queryStringIndex = this.options.url.indexOf('?');
         var urlQueryString = {};
         var url = this.options.url;
@@ -293,8 +294,6 @@ $.widget('reahl.changenotifier', {
         
             if (!o.name) { throw new Error("No name given in options. This is a required option.")}
 
-            this.clearFromCurrentFragment();
-
             $(element).attr('data-target-widget', o.widget_id);
             $(element).on( 'change', function(e) {
                 if (_this.getIsSelfValid()) {
@@ -310,13 +309,6 @@ $.widget('reahl.changenotifier', {
                 } else { _this.blockWidget(); }
                 return true;
             });
-    },
-    clearFromCurrentFragment: function() {
-        // TODO: this needs cleaning up....
-        var currentFragment = getTraditionallyNamedFragment();
-        (new HashArgument(this.options.name, '')).deleteFromHashObject(currentFragment);
-        var newHash = $.param(currentFragment, true);
-        window.location.hash = newHash;
     },
     getCurrentInputValue: function(currentInput) {
         var primitiveInput = $(currentInput).data('reahlPrimitiveinput');

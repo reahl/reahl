@@ -1056,7 +1056,7 @@ class Form(HTMLElement):
         self.persisted_exception_class.save_exception_for_form(self, exception=exception)
 
     def clear_exception(self):
-        self.persisted_exception_class.clear_for_form(self)
+        self.persisted_exception_class.clear_for_form_except_inputs(self)
 
     def persist_input(self, input_values):
         self.clear_saved_inputs()

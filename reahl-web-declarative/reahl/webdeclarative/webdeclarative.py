@@ -314,6 +314,11 @@ class PersistedException(SessionData, PersistedExceptionProtocol):
         return super(PersistedException, cls).find_for(form.view, form=form).filter_by(input_name=input_name)
 
     @classmethod
+    def clear_for_form_except_inputs(cls, form):
+        for stale in cls.for_input(form, None).all():
+            Session.delete(stale)
+
+    @classmethod
     def clear_for_all_inputs(cls, form):
         for e in super(PersistedException, cls).find_for(form.view, form=form).filter(cls.input_name != None):
             Session.delete(e)

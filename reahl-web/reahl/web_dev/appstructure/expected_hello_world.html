@@ -3,7 +3,7 @@
               var r=d.querySelectorAll("html")[0];
               r.className=r.className.replace(new RegExp("\\b" + fromStyle + "\\b", "g"),toStyle)
           };
-          (function(e){switchJSStyle(e, "no-js", "js")})(document);
+          (function(e){switchJSStyle(e, "no-js", "js"); history.replaceState(null, null, "")})(document);
         </script><head><title>Hello</title>
 <link rel="stylesheet" href="/static/reahl.css" type="text/css">
 <link rel="stylesheet" href="/static/reahl.runningonbadge.css" type="text/css"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -37,6 +37,7 @@ $('body').addClass('enhanced');
 <script type="text/javascript" src="/static/IE9.js"></script><![endif]-->
 <script type="text/javascript" src="/static/reahl.hashchange.js"></script>
 <script type="text/javascript" src="/static/reahl.ajaxlink.js"></script>
+<script type="text/javascript" src="/static/reahl.primitiveinput.js"></script>
 <script type="text/javascript" src="/static/reahl.textinput.js"></script>
 <script type="text/javascript" src="/static/reahl.validate.js"></script>
 <script type="text/javascript" src="/static/reahl.form.js"></script>

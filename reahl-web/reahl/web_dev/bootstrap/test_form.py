@@ -407,12 +407,12 @@ def test_checkbox_basics_with_boolean_field(web_fixture, checkbox_fixture):
     checkbox = XPath.input_labelled('Subscribe to newsletter?')
     assert not browser.is_checked(checkbox)
     assert browser.is_element_present(XPath.label_with_text('Subscribe to newsletter?'))
-    assert browser.is_element_present('//div/input/following-sibling::label')
+    assert browser.is_element_present('//div[@class="reahl-checkbox-input reahl-primitiveinput"]/div/input/following-sibling::label')
     assert browser.get_attribute('//label', 'class') == 'custom-control-label'
     checkbox_classes = browser.get_attribute('//div/input[@type="checkbox"]/..', 'class').split(' ')
     assert 'custom-control' in checkbox_classes
     assert 'custom-checkbox' in checkbox_classes
-    assert browser.get_attribute('//div/input[@type="checkbox"]', 'class') == 'custom-control-input reahl-primitiveinput'
+    assert browser.get_attribute('//div/input[@type="checkbox"]', 'class') == 'custom-control-input'
 
     browser.check(checkbox)
     browser.click(XPath.button_labelled('Submit'))
@@ -451,7 +451,7 @@ def test_checkbox_basics_with_multichoice_field(web_fixture, checkbox_fixture):
 
     assert browser.is_element_present(XPath.label_with_text('Make your choice'))
 
-    assert browser.get_xpath_count('//input[@class="custom-control-input reahl-primitiveinput"]/following-sibling::label[@class="custom-control-label"]') == 4
+    assert browser.get_xpath_count('//div[@class="reahl-checkbox-input reahl-primitiveinput"]/div/input[@class="custom-control-input"]/following-sibling::label[@class="custom-control-label"]') == 4
 
     checkbox_one = XPath.input_labelled('One')
     checkbox_two = XPath.input_labelled('Two')

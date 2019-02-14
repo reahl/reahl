@@ -146,6 +146,11 @@ class PersistedExceptionProtocol(SessionDataProtocol):
     """
     @classmethod
     @abstractmethod
+    def clear_for_form_except_inputs(cls, form):
+        """Clears the exception associated with this form, while leaving exeptions for invididual inputs intact."""
+
+    @classmethod
+    @abstractmethod
     def save_exception_for_form(cls, form, **kwargs):
         """Saves a an exception for the given :class:`reahl.web.ui.Form`."""
 
