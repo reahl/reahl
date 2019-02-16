@@ -1964,6 +1964,8 @@ class CheckboxSelectInput(PrimitiveInput):
         return main_element
 
     def is_choice_selected(self, value):
+        if self.value is None:
+            return False
         return value in self.value
 
     def get_value_from_input(self, input_values):

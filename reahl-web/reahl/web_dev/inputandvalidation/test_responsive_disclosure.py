@@ -768,10 +768,9 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 
 
 
-# TODO:
+# TODO: 
 # - dealing with nestedforms that appear inside a DynamicWidget
 # - dealing with lists/sentinels upon submitting a form when merging the querystring
-# - dealing with DomainExceptions that happen when POSTing something with fragment
 # - test migration
 
 # missing tests:
@@ -779,17 +778,25 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 # - post, get exception, rerender, change parent trigger that results in different stuff, submit (various scenarios depending what different stuff you change)
 
 # Test facts:
-# - widget arguments come from either the QS or the fragment
-# - the fragment is maintained by posting it to the server in a hidden input
-# - the fragment is also saved upon a breakage like use input, but globally for the view
-# - when preparing an input, if it is a widget argument, widget argument input (QS/fragment) takes precedence over possible 
-#   saved values in the database for the relevant input
-# - when redirecting after a POST, the fragmnet is NOT included in the redirected URL (because that would result in more 
-#   ajax fetches); but it is restored on the URL from its saved value using JS
-# - when a parent dynamic widget is changed, all its children widget arguments that happened to be applicable (because they were 
-#   also opened) - are cleared explicitly in the fragment and as such we need to save a sentinel vanue in the DB for them else we would have no way to know that a cleared value should not be read from the saved DB input values.
-# - when a widget argument is required, but not present on the QS/fragment (or otherwise NOT validly entered), dont break, render the validation error
-# - when a Field is for a list, and its name is overridden, it should look for input in overridden_name+[]
+# - when changing a parent trigger, the triggers that were nested in it, are cleared.
+#   [- when a parent dynamic widget is changed, all its children widget arguments that happened to be applicable (because they were 
+#    also opened) - are cleared explicitly in the fragment and as such we need to save a sentinel vanue in the DB for them else we would have no way to know that a cleared value should not be read from the saved DB input values.]
+# - when a nested widget argument is required, but not present on the QS/fragment (or otherwise NOT validly entered), dont break, render the validation (non-js) error
+#   [- when a widget argument on a nested dynamicwidget appears, it should be rendered empty if it is required and does not have a value or default]
+# - when a domain exception occurs, the normal inputs on nested dynamicwidgets should still display whatever value was typed, and the trigger inputs as well and the fragment as it was before you submitted
+#   [- the fragment is maintained by posting it to the server in a hidden input]
+#   [- the fragment is also saved upon a breakage like use input, but globally for the view]
+#   To ensure that, eg new/existing radio button is rendered correctly as well as that its widget is rendered according to its value as argument:
+#     [- widget arguments come from either the QS or the fragment ]
+#     [- when preparing an input, if it is a widget argument, widget argument input (QS/fragment) takes precedence over possible 
+#        saved values in the database for the relevant input ]
+# - when submitting with correct data after a domain exception, and you stay on the same page, all values and the hash are cleared as if you are looking at the page for the first time. 
+#   [- when redirecting after a POST, the fragmnet is NOT included in the redirected URL (because that would result in more ajax fetches); but it is restored on the URL from its saved value using JS]
 # - when a parent trigger changes and a child is regenerated, if that child contains inputs and the user edited them, their edited values should be maintained
+
+
+# - when a Field is for a list, and its name is overridden, it should look for input in overridden_name+[]
+
+# - changing a trigger input changes tha hash, but it does not add an entry in browser history (NOT DONE history.replaceState does not work?)
 
 

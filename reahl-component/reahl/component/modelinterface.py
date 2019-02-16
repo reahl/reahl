@@ -106,7 +106,7 @@ class FieldIndex(object):
 
     def accept_input(self, input_dict, ignore_validation=False):
         for name, field in self.items():
-            field.from_disambiguated_input(input_dict, ignore_validation=ignore_validation)
+            field.from_disambiguated_input(input_dict, ignore_validation=True)
             
     def update(self, other):
         for name, value in other.items():
@@ -1559,10 +1559,11 @@ class MultiChoiceField(ChoiceField):
 
     def unparse_input(self, parsed_values):
         inputs = []
-        for choice in self.flattened_choices:
-            for value in parsed_values:
-                if choice.value == value:
-                    inputs.append(choice.as_input())
+        if parsed_values:
+            for choice in self.flattened_choices:
+                for value in parsed_values:
+                    if choice.value == value:
+                        inputs.append(choice.as_input())
         return inputs
 
 
