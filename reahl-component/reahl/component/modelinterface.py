@@ -106,7 +106,7 @@ class FieldIndex(object):
 
     def accept_input(self, input_dict, ignore_validation=False):
         for name, field in self.items():
-            field.from_disambiguated_input(input_dict, ignore_validation=True)
+            field.from_disambiguated_input(input_dict, ignore_validation=ignore_validation)
             
     def update(self, other):
         for name, value in other.items():

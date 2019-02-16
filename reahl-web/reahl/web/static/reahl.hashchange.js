@@ -197,7 +197,7 @@ $.widget('reahl.hashchange', {
         }
         return values;
     },
-    calculateQueryStringValues(currentHashValues, hashArguments) {
+    calculatePOSTFragment(currentHashValues, hashArguments) {
         var values = this.addArgumentsToHash(currentHashValues, hashArguments);
         var relevantFormInputs = this.getFormInputsAsArguments().filter(function(i, v){ return ! (v.getDefaultedSentinelName() in values) });
         values = this.addArgumentsToHash(values, relevantFormInputs);
@@ -207,7 +207,8 @@ $.widget('reahl.hashchange', {
                 delete values[i];
             }
         };
-
+        delete values['__and_then__'];
+        
         return values;
     },
     getFormInputsAsArguments: function(){
@@ -236,11 +237,12 @@ $.widget('reahl.hashchange', {
         var _this = this;
 
         var after_handler = _this.popCallback();
-        var data = _this.calculateQueryStringValues(currentHashValues, newArguments);
-        delete data['__and_then__'];
+        var data = {};
+        data['reahl-fragment'] = $.param(_this.calculatePOSTFragment(currentHashValues, newArguments), true);  
 
         _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         $.ajax({url:     _this.getUrlWithDefaultedSentinelsCleared(),
+                method:  'POST',
                 cache:   _this.options.cache,
                 data:    data,
                 success: function(data){

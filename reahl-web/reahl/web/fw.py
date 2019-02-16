@@ -1846,9 +1846,7 @@ class UrlBoundView(View):
     def fragment(self):
         if not hasattr(self, '_fragment'):
             request = ExecutionContext.get_context().request
-            if request.is_xhr: # because on an ajax request, the query string contains all relevant widget arguments
-                fragment = ''
-            elif request.method.upper() == 'POST':
+            if request.method.upper() == 'POST':
                 fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
             else:
                 fragment = self.persisted_userinput_class.get_previously_saved_for_view(self, 'reahl-fragment', six.text_type)
@@ -1858,8 +1856,11 @@ class UrlBoundView(View):
 
         return fragment or ''
 
+    def save_fragment(self):
+        self.persisted_userinput_class.save_value_for_view(self.view, 'reahl-fragment', self.fragment, six.text_type)
+        
     def get_applicable_widget_arguments(self):
-        fragment_arguments = urllib_parse.parse_qs(self.fragment)
+        fragment_arguments = urllib_parse.parse_qs(self.fragment, keep_blank_values=True)
         request = ExecutionContext.get_context().request
         widget_arguments = request.GET.dict_of_lists()
         # TODO: deal with lists and list sentinels and so on
@@ -2221,7 +2222,7 @@ class RemoteMethod(SubResource):
     sub_regex = 'method'
     sub_path_template = 'method'
 
-    def __init__(self, name, callable_object, default_result, idempotent=False, immutable=False):
+    def __init__(self, name, callable_object, default_result, idempotent=False, immutable=False, method=None):
         super(RemoteMethod, self).__init__(name)
         self.idempotent = idempotent or immutable
         self.immutable = immutable
@@ -2229,6 +2230,7 @@ class RemoteMethod(SubResource):
         self.default_result = default_result
         self.caught_exception = None
         self.input_values = None
+        self.method = method
 
     @property
     def should_commit(self):
@@ -2240,6 +2242,8 @@ class RemoteMethod(SubResource):
     
     @property
     def http_methods(self):
+        if self.method:
+            return [self.method]
         if self.immutable or self.idempotent:
             return ['get']
         return ['post']
@@ -2371,6 +2375,8 @@ class EventChannel(RemoteMethod):
     def cleanup_after_success(self):
         self.form.cleanup_after_success()
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
+        self.form.persisted_userinput_class.save_value_for_view(self.form.view, 'reahl-fragment', '', six.text_type)
+        
 
 
 class ComposedPage(Resource):

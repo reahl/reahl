@@ -176,6 +176,20 @@ class HTMLAttributeDict(dict):
         del self[name]
 
 
+class AjaxMethod(RemoteMethod):
+    def __init__(self, widget):
+        method_name = 'refresh_%s' % widget.css_id
+        callable_object = lambda *args, **kwargs: None
+        super(AjaxMethod, self).__init__(method_name, callable_object, WidgetResult(widget), immutable=True, method='post')
+        self.view = widget.view
+        
+    def cleanup_after_exception(self, input_values, ex):
+        self.view.save_fragment()
+        
+    def cleanup_after_success(self):
+        self.view.save_fragment()
+    
+
 # Uses: reahl/web/reahl.hashchange.js
 class HashChangeHandler(object):
     def __init__(self, widget, for_fields):
@@ -183,10 +197,7 @@ class HashChangeHandler(object):
         self.timeout_message = _('The server took too long to respond. Please try again later.')
         self.widget = widget
         self.for_fields = for_fields
-        result = WidgetResult(widget)
-        method_name = 'refresh_%s' % widget.css_id
-        callable_object = lambda *args, **kwargs: None
-        self.remote_method = RemoteMethod(method_name, callable_object, result, immutable=True)
+        self.remote_method = AjaxMethod(widget)
         widget.view.add_resource(self.remote_method)
 
     @property
