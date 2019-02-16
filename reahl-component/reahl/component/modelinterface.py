@@ -659,6 +659,10 @@ class MaxValueConstraint(ValidationConstraint):
 class InputParseException(Exception):
     pass
 
+class ExpectedInputNotFound(Exception):
+    def __init__(self, input_name, searched_inputs):
+        super(ExpectedInputNotFound, self).__init__('Expected to find %s in %s' % (input_name, str(searched_inputs)))
+    
        
 class Field(object):
     """A Field represents something which can be input by a User.
@@ -902,7 +906,7 @@ class Field(object):
         elif default_if_not_found:
             return self.as_input()
         else:
-            raise ProgrammerError('Expected to find %s in %s' % (qualified_name, str(input_dict)))
+            raise ExpectedInputNotFound(qualified_name, input_dict)
 
     def from_disambiguated_input(self, input_dict, ignore_validation=False, default_if_not_found=True, overridden_name=None):
         input_value = self.extract_unparsed_input_from_dict_of_lists(input_dict, default_if_not_found=default_if_not_found, overridden_name=overridden_name)
@@ -1541,7 +1545,7 @@ class MultiChoiceField(ChoiceField):
             list_value = input_dict.get(qualified_name, [])
             if not list_value:
                 if not default_if_not_found:
-                    raise ProgrammerError('Expected to find %s in %s' % (self.qualified_name, str(input_dict)))
+                    raise ExpectedInputNotFound(qualified_name, input_dict)
                 return None
             else:
                 return list_value

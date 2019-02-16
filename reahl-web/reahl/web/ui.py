@@ -40,7 +40,7 @@ from reahl.component.exceptions import ProgrammerError
 from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
-from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, \
+from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
     Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
@@ -1483,17 +1483,12 @@ class PrimitiveInput(Input):
     def persisted_userinput_class(self):
         return self.form.persisted_userinput_class
 
-    @property
-    def defaulted_sentinel(self):
-        return '%s_' % self.name
-
     def prepare_input(self):
         previously_entered_value = None
         try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
             widget_arguments = self.view.get_applicable_widget_arguments()
-            if self.defaulted_sentinel not in widget_arguments:
-                previously_entered_value = self.bound_field.from_disambiguated_input(widget_arguments, ignore_validation=True, default_if_not_found=False, overridden_name=self.name)
-        except ProgrammerError:
+            previously_entered_value = self.bound_field.from_disambiguated_input(widget_arguments, ignore_validation=True, default_if_not_found=False, overridden_name=self.name)
+        except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
         if (previously_entered_value is not None):

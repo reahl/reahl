@@ -61,10 +61,6 @@ function HashArgument(name, defaultValue) {
         return this.name+'-';
     }
 
-    this.getDefaultedSentinelName = function() {
-        return this.name+'_';
-    }
-
     this.updateFromHashObject = function(hashObject) {
         this.changed = false;
         var currentValue = hashObject[this.name];
@@ -80,7 +76,6 @@ function HashArgument(name, defaultValue) {
     this.updateHashObject = function(hashObject) {
         delete hashObject[this.name];
         delete hashObject[this.getEmptyListSentinelName()];
-        delete hashObject[this.getDefaultedSentinelName()];
         
         var nameInHash;
         var valueInHash;
@@ -95,15 +90,9 @@ function HashArgument(name, defaultValue) {
         hashObject[nameInHash] = valueInHash;
     }
 
-    this.clearFromHashObject = function(hashObject) {
-        this.deleteFromHashObject(hashObject);
-        hashObject[this.getDefaultedSentinelName()] = '';
-    }
-
     this.deleteFromHashObject = function(hashObject) {
         delete hashObject[this.name];
         delete hashObject[this.getEmptyListSentinelName()];
-        delete hashObject[this.getDefaultedSentinelName()];
     }
 }
 
@@ -146,13 +135,6 @@ $.widget('reahl.hashchange', {
     },
     getArguments: function() {
         return this.arguments;
-    },
-    clearArgumentsFromHash: function(hashValues) {
-        var hashArguments = this.getArguments();
-        for (var i=0; i<hashArguments.length; i++) {
-            var argument = hashArguments[i];
-            argument.clearFromHashObject(hashValues);
-        }
     },
     addCallback: function(name, callback) {
         this.registered_callbacks[name] = callback;
@@ -199,7 +181,7 @@ $.widget('reahl.hashchange', {
     },
     calculatePOSTFragment(currentHashValues, hashArguments) {
         var values = this.addArgumentsToHash(currentHashValues, hashArguments);
-        var relevantFormInputs = this.getFormInputsAsArguments().filter(function(i, v){ return ! (v.getDefaultedSentinelName() in values) });
+        var relevantFormInputs = this.getFormInputsAsArguments();
         values = this.addArgumentsToHash(values, relevantFormInputs);
         var urlQueryString = $.deparam.querystring(this.options.url);
         for (var i in urlQueryString) {
@@ -217,22 +199,6 @@ $.widget('reahl.hashchange', {
             return new HashArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
         });
     },
-    getUrlWithDefaultedSentinelsCleared: function(){
-        return this.options.url;
-        var queryStringIndex = this.options.url.indexOf('?');
-        var urlQueryString = {};
-        var url = this.options.url;
-        if (queryStringIndex >= 0) {
-            url = this.options.url.substr(0, queryStringIndex)+'?';
-            urlQueryString = $.deparam.querystring(this.options.url);
-            for (var i in urlQueryString) {
-                if (i.endsWith('_')){
-                    delete urlQueryString[i];
-                }
-            };
-        }
-        return url+$.param(urlQueryString, true);
-    },
     triggerChange: function(currentHashValues, newArguments) {
         var _this = this;
 
@@ -241,7 +207,7 @@ $.widget('reahl.hashchange', {
         data['reahl-fragment'] = $.param(_this.calculatePOSTFragment(currentHashValues, newArguments), true);  
 
         _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
-        $.ajax({url:     _this.getUrlWithDefaultedSentinelsCleared(),
+        $.ajax({url:     this.options.url,
                 method:  'POST',
                 cache:   _this.options.cache,
                 data:    data,
@@ -304,7 +270,6 @@ $.widget('reahl.changenotifier', {
                 if (_this.getIsValid()) {
                     var currentFragment = getTraditionallyNamedFragment();
                     _this.blockAllSiblingInputs(currentFragment);
-                    _this.removeNestedWidgetArguments(currentFragment);
                     _this.updateHashWithAllSiblingValues(currentFragment);
                     this.focus();
                     _this.unblockWidget();
@@ -335,12 +300,6 @@ $.widget('reahl.changenotifier', {
         form.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
         this.addAfterHandler(uniqueId, function() { form.unblock(); } );
         currentFragment['__and_then__'] = uniqueId;
-    },
-    removeNestedWidgetArguments: function(currentFragment) {
-        var o = this.options;
-        $('#'+this.options.widget_id).find('*').filter(function(){ return $(this).data('reahlHashchange')}).each(function(i){
-            $(this).data('reahlHashchange').clearArgumentsFromHash(currentFragment);
-        });
     },
     updateHashWithAllSiblingValues: function(currentFragment) {
         this.getSiblingChangeNotifiers().each(function() {
