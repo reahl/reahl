@@ -83,27 +83,21 @@ class FieldIndex(object):
         super(FieldIndex, self).__setattr__(name, value)
 
     def set(self, name, value):
-        # import pdb;pdb.set_trace() # use input_name
         return setattr(self, name, value)
 
     def keys(self):
-        # import pdb;pdb.set_trace() # expect input_name
         return self.fields.keys()
 
     def values(self):
-        # import pdb;pdb.set_trace()
         return self.fields.values()
 
     def items(self):
-        # import pdb;pdb.set_trace() # expect input_names
         return self.fields.items()
 
     def as_kwargs(self):
-        # import pdb;pdb.set_trace() # expect input_names
         return dict([(name, field.get_model_value()) for name, field in self.items()])
 
     def as_input_kwargs(self):
-        # import pdb;pdb.set_trace() # expect input_names
         return dict([(name, field.as_input()) for name, field in self.items()])
 
     def accept_input(self, input_dict, ignore_validation=False):
@@ -704,7 +698,7 @@ class Field(object):
                  readable=None, writable=None, disallowed_message=None,
                  min_length=None, max_length=None):
         self._name = None
-        self.input_name = None
+        self._overridden_unqualified_name_in_input = None
         self.storage_object = None
         self.default = default
         self.label = label or ''
@@ -720,8 +714,8 @@ class Field(object):
 
         self.clear_user_input()
 
-    def set_input_name(self, name):
-        self.input_name = name
+    def override_unqualified_name_in_input(self, name):
+        self._overridden_unqualified_name_in_input = name
 
     def validate_default(self):
         unparsed_input = self.as_input()
@@ -880,8 +874,8 @@ class Field(object):
         return name
 
     @property
-    def qualified_name(self):
-        return self.qualify_name(self.input_name if self.input_name else self.name)
+    def name_in_input(self):
+        return self.qualify_name(self._overridden_unqualified_name_in_input if self._overridden_unqualified_name_in_input else self.name)
 
     def get_model_value(self):
         return getattr(self.storage_object, self.variable_name, self.default)
@@ -902,13 +896,13 @@ class Field(object):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
 
     def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
-        list_of_input = input_dict.get(self.qualified_name, [])
+        list_of_input = input_dict.get(self.name_in_input, [])
         if list_of_input:
             return list_of_input[0]
         elif default_if_not_found:
             return self.as_input()
         else:
-            raise ExpectedInputNotFound(self.qualified_name, input_dict)
+            raise ExpectedInputNotFound(self.name_in_input, input_dict)
 
     def from_disambiguated_input(self, input_dict, ignore_validation=False, default_if_not_found=True):
         input_value = self.extract_unparsed_input_from_dict_of_lists(input_dict, default_if_not_found=default_if_not_found)
@@ -1531,14 +1525,21 @@ class MultiChoiceField(ChoiceField):
     def init_validation_constraints(self):
         self.add_validation_constraint(MultiChoiceConstraint(self.flattened_choices))
 
+    def get_empty_sentinel_name(self, base_name):
+        return '%s-' % base_name
+
     def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
-        list_value = input_dict.get(self.qualified_name, [])
-        if not list_value:
-            if not default_if_not_found:
-                raise ExpectedInputNotFound(self.qualified_name, input_dict)
-            return None
+        submitted_as_empty = len(input_dict.get(self.get_empty_sentinel_name(self.name_in_input), [])) > 0
+        if submitted_as_empty:
+            return []
         else:
-            return list_value
+            list_value = input_dict.get(self.name_in_input, [])
+            if not list_value:
+                if not default_if_not_found:
+                    raise ExpectedInputNotFound(self.name_in_input, input_dict)
+                return None
+            else:
+                return list_value
 
     def input_as_string(self, unparsed_input):
         return ','.join(unparsed_input)

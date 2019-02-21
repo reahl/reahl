@@ -1152,7 +1152,7 @@ class Widget(object):
         for i, i_refresh_set in inputs_with_refresh_sets:
             for widget, trigger_field in i.fields_to_notify:
                 for ancestor in i_refresh_set:
-                    if trigger_field.qualified_name in [field.qualified_name for field in ancestor.query_fields.values()]:
+                    if trigger_field.name_in_input in [field.name_in_input for field in ancestor.query_fields.values()]:
                         inputs_in_error.append((i, ancestor, trigger_field))
         if inputs_in_error:
             message = 'Inputs are not allowed where they can trigger themselves to be refreshed. '

@@ -203,7 +203,7 @@ class HashChangeHandler(object):
     @property
     def argument_defaults(self):
         i = StandaloneFieldIndex()
-        i.update(dict([(field.qualified_name, field) for field in self.for_fields]))
+        i.update(dict([(field.name_in_input, field) for field in self.for_fields]))
         field_defaults = i.as_input_kwargs() # TODO: should this not sometimes be i.user_input????
         argument_defaults = ['"%s": "%s"' % (name, default_value or '') \
                              for name, default_value in field_defaults.items()]
@@ -1314,7 +1314,6 @@ class Input(HTMLWidget):
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field):
         self.form = form
-        bound_field.set_input_name(bound_field.name)
         self.bound_field = bound_field
         self.fields_to_notify = []
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
@@ -1367,7 +1366,7 @@ class Input(HTMLWidget):
         return js
 
     def changenotifier_js_options(self, widget, field):
-        options = {'name': field.qualified_name,
+        options = {'name': field.name_in_input,
                    'widget_id': widget.css_id}
         return json.dumps(options)
 
@@ -1396,11 +1395,14 @@ class PrimitiveInput(Input):
 
     def __init__(self, form, bound_field, name=None, registers_with_form=True):
         super(PrimitiveInput, self).__init__(form, bound_field)
-        bound_field.set_input_name(name if name else bound_field.name)
+        if name:
+            bound_field.override_unqualified_name_in_input(name)
+
         self.registers_with_form = registers_with_form
         if self.registers_with_form:
             form.register_input(self) # bound_field must be set for this registration to work
             self.prepare_input()
+
         self.set_html_representation(self.add_child(self.create_html_widget()))
 
         if not self.is_contained:
@@ -1418,7 +1420,7 @@ class PrimitiveInput(Input):
 
     @property
     def name(self):
-        return self.bound_field.qualified_name
+        return self.bound_field.name_in_input
 
     @property
     def html_control(self):
