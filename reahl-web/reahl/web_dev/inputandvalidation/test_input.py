@@ -593,3 +593,54 @@ def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
     browser.press_tab()
     browser.wait_for(browser.is_element_value, XPath.input_named('an_attribute'), '20 Nov 2012')
 
+
+@with_fixtures(WebFixture)
+def test_multiple_input_to_common_field(web_fixture):
+    """ xxx
+    """
+
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.an_attribute = Field()
+    class AnotherModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.an_attribute = Field()
+
+    model_object = ModelObject()
+    another_model_object_with_similar_field_names = AnotherModelObject()
+    assert hasattr(model_object.fields, 'an_attribute')
+    assert hasattr(another_model_object_with_similar_field_names.fields, 'an_attribute')
+
+    class MyForm(Form):
+        def __init__(self, view, name):
+            super(MyForm, self).__init__(view, name)
+            self.add_child(TextInput(self, model_object.fields.an_attribute))
+            self.add_child(TextInput(self, another_model_object_with_similar_field_names.fields.an_attribute,
+                                     name='another_an_attribute'))
+            self.define_event_handler(self.events.an_event)
+            self.add_child(ButtonInput(self, self.events.an_event))
+
+        def handle_event(self):
+            pass
+
+        @exposed('an_event')
+        def events(self, events):
+            events.an_event = Event(label='click me', action=Action(self.handle_event))
+
+    wsgi_app = web_fixture.new_wsgi_app(child_factory=MyForm.factory('myform'), enable_js=True)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    browser.type(XPath.input_named('an_attribute'), 'a')
+    browser.type(XPath.input_named('another_an_attribute'), 'b')
+    web_fixture.driver_browser.click(XPath.button_labelled('click me'))
+
+    browser.wait_for(browser.is_element_value, XPath.input_named('an_attribute'), 'a')
+    browser.wait_for(browser.is_element_value, XPath.input_named('another_an_attribute'), 'b')
+    assert model_object.an_attribute == 'a'
+    assert another_model_object_with_similar_field_names.an_attribute == 'b'
+
+

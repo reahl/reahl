@@ -1314,6 +1314,7 @@ class Input(HTMLWidget):
     @arg_checks(form=IsInstance(Form), bound_field=IsInstance(Field))
     def __init__(self, form, bound_field):
         self.form = form
+        bound_field.set_input_name(bound_field.name)
         self.bound_field = bound_field
         self.fields_to_notify = []
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
@@ -1395,7 +1396,7 @@ class PrimitiveInput(Input):
 
     def __init__(self, form, bound_field, name=None, registers_with_form=True):
         super(PrimitiveInput, self).__init__(form, bound_field)
-        self.overridden_name = name
+        bound_field.set_input_name(name if name else bound_field.name)
         self.registers_with_form = registers_with_form
         if self.registers_with_form:
             form.register_input(self) # bound_field must be set for this registration to work
@@ -1417,10 +1418,7 @@ class PrimitiveInput(Input):
 
     @property
     def name(self):
-        if self.overridden_name:
-            return self.overridden_name
-        else:
-            return self.bound_field.qualified_name
+        return self.bound_field.qualified_name
 
     @property
     def html_control(self):
@@ -1487,7 +1485,7 @@ class PrimitiveInput(Input):
         previously_entered_value = None
         try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
             widget_arguments = self.view.get_applicable_widget_arguments()
-            previously_entered_value = self.bound_field.from_disambiguated_input(widget_arguments, ignore_validation=True, default_if_not_found=False, overridden_name=self.name)
+            previously_entered_value = self.bound_field.from_disambiguated_input(widget_arguments, ignore_validation=True, default_if_not_found=False)
         except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
