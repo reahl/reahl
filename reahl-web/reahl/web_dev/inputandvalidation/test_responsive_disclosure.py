@@ -31,7 +31,8 @@ from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInpu
     CheckboxInput, ButtonInput, TextInput
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, IntegerField, \
     EmailField, Event
-from reahl.component.exceptions import ProgrammerError
+from reahl.component.exceptions import ProgrammerError, DomainException
+from reahl.web.dynamic import DynamicSection
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
 from reahl.sqlalchemysupport import Base, Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
@@ -488,7 +489,6 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
         assert model_object.choice == 3                                # Now the database is updated too.
 
 
-
 class DisclosedInputFixture(Fixture):
 
     def new_trigger_input_type(self):
@@ -516,7 +516,7 @@ class DisclosedInputFixture(Fixture):
             def __init__(self, view):
                 super(MyForm, self).__init__(view, 'myform')
 
-                checkbox_input = fixture.trigger_input_type(self,fixture.model_object.fields.trigger_field)
+                checkbox_input = fixture.trigger_input_type(self, fixture.model_object.fields.trigger_field)
                 self.add_child(Label(view, for_input=checkbox_input))
                 self.add_child(checkbox_input)
 
@@ -564,7 +564,7 @@ def test_validation_of_undisclosed_yet_required_input(web_fixture, disclosed_inp
     assert not browser.is_element_present(XPath.input_labelled('Email'))
     browser.click(XPath.button_labelled('click me'))
 
-    assert model_object.trigger_field == False
+    assert model_object.trigger_field is False
     assert not model_object.email
 
 
@@ -651,7 +651,6 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
     assert browser.is_focus_on(XPath.input_labelled('Trigger field'))
     assert browser.is_element_present(XPath.input_labelled('Email'))
     assert browser.is_on_top(XPath.button_labelled('click me'))
-
 
 
 class NestedResponsiveDisclosureFixture(Fixture):
@@ -767,6 +766,157 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
     assert browser.wait_for(fixture.are_all_parts_enabled, browser)
 
 
+@with_fixtures(WebFixture)
+def test_retain_user_input_on_trigger_change(web_fixture):
+    """"""
+
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
+                                         Choice(2, IntegerField(label='Two'))],
+                                        default=1,
+                                        label='Choice')
+            fields.alpha = Field(label="Alpha")
+            fields.bravo1 = Field(label="Bravo1")
+            fields.bravo2 = Field(label="Bravo2")
+
+    an_object = ModelObject()
+
+    class MyForm(Form):
+        def __init__(self, view):
+            super(MyForm, self).__init__(view, 'myform')
+            self.change_trigger_input = RadioButtonSelectInput(self, an_object.fields.choice)
+            self.add_child(Label(view, for_input=self.change_trigger_input))
+            self.add_child(self.change_trigger_input)
+            self.add_child(MoreInputsSection(self, an_object, self.change_trigger_input))
+
+    class MoreInputsSection(DynamicSection):
+        def __init__(self, form, an_object, trigger_input):
+            super(MoreInputsSection, self).__init__(form, 'moreinputs', [trigger_input])
+
+            choice_selected = an_object.choice
+            if choice_selected == 1:
+                input_alpha = TextInput(form, an_object.fields.alpha)
+                self.add_child(Label(form.view, for_input=input_alpha))
+                self.add_child(input_alpha)
+
+                input_bravo1 = TextInput(form, an_object.fields.bravo1)
+                self.add_child(Label(form.view, for_input=input_bravo1))
+                self.add_child(input_bravo1)
+
+            elif choice_selected == 2:
+                input_bravo1 = TextInput(form, an_object.fields.bravo1)
+                self.add_child(Label(form.view, for_input=input_bravo1))
+                self.add_child(input_bravo1)
+
+                input_bravo2 = TextInput(form, an_object.fields.bravo2)
+                self.add_child(Label(form.view, for_input=input_bravo2))
+                self.add_child(input_bravo2)
+
+    class MainWidget(Widget):
+        def __init__(self, view):
+            super(MainWidget, self).__init__(view)
+            self.add_child(MyForm(view))
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
+
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    #populate the inputs
+    browser.type(XPath.input_labelled('Alpha'), 'a')
+    browser.type(XPath.input_labelled('Bravo1'), 'b1')
+
+    browser.click(XPath.input_labelled('Two'))
+    retained_value = browser.get_value(XPath.input_labelled('Bravo1'))
+    assert retained_value == 'b1'
+
+
+@with_fixtures(WebFixture)
+def test_retain_nested_trigger_input_values_when_rerendered(web_fixture):
+    """"""
+
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
+                                         Choice(2, IntegerField(label='Two'))],
+                                        default=1,
+                                        label='Choice')
+            fields.alpha = Field(label="Alpha")
+            fields.bravo = Field(label="Bravo")
+            fields.agree = BooleanField(label='I agree')
+            fields.charlie = Field(label="Charlie")
+
+    an_object = ModelObject()
+
+    class MyForm(Form):
+        def __init__(self, view):
+            super(MyForm, self).__init__(view, 'myform')
+            self.change_trigger_input = RadioButtonSelectInput(self, an_object.fields.choice)
+            self.add_child(Label(view, for_input=self.change_trigger_input))
+            self.add_child(self.change_trigger_input)
+            self.add_child(MoreInputsSection(self, self.change_trigger_input))
+
+    class MoreInputsSection(DynamicSection):
+        def __init__(self, form, trigger_input):
+            super(MoreInputsSection, self).__init__(form, 'moreinputs', [trigger_input])
+
+            choice_selected = an_object.choice
+            if choice_selected == 1:
+                input_alpha = TextInput(form, an_object.fields.alpha)
+                self.add_child(Label(form.view, for_input=input_alpha))
+                self.add_child(input_alpha)
+            if choice_selected == 2:
+                input_bravo = TextInput(form, an_object.fields.bravo)
+                self.add_child(Label(form.view, for_input=input_bravo))
+                self.add_child(input_bravo)
+                trigger = CheckboxInput(form, an_object.fields.agree)
+                self.add_child(Label(form.view, for_input=trigger))
+                self.add_child(trigger)
+                self.add_child(NestedMoreInputsSection(form, trigger))
+
+    class NestedMoreInputsSection(DynamicSection):
+        def __init__(self, form, trigger_input):
+            super(NestedMoreInputsSection, self).__init__(form, 'nestedmoreinputs', [trigger_input])
+            if an_object.agree:
+                input_charlie = TextInput(form, an_object.fields.charlie)
+                self.add_child(Label(form.view, for_input=input_charlie))
+                self.add_child(input_charlie)
+
+    class MainWidget(Widget):
+        def __init__(self, view):
+            super(MainWidget, self).__init__(view)
+            self.add_child(MyForm(view))
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MyForm.factory())
+
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    #case: select a nested trigger
+    browser.click(XPath.input_labelled('Two'))
+    assert not browser.is_checked(XPath.input_labelled('I agree'))
+    browser.click(XPath.input_labelled('I agree'))
+    assert browser.is_checked(XPath.input_labelled('I agree'))
+    browser.wait_for(XPath.input_labelled, 'Charlie')
+
+    #make charlie and its parent disappear by clicking another trigger
+    browser.click(XPath.input_labelled('One'))
+    browser.wait_for_not(browser.is_visible, XPath.input_labelled('I agree'))
+    browser.wait_for_not(browser.is_visible, XPath.input_labelled('Charlie'))
+
+    #make charlie and its parent reappear and expect them to still have
+    browser.click(XPath.input_labelled('Two'))
+    assert browser.is_checked(XPath.input_labelled('I agree'))
+    browser.wait_for(XPath.input_labelled, 'Charlie')
+
+    #TODO: should we perhaps type in the Alpha,Bravo,Charlie inputs, or just remove them
+
+
 
 # TODO: 
 # - dealing with nestedforms that appear inside a DynamicWidget
@@ -774,14 +924,14 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 # - test migration
 
 # missing tests:
-# - post, get exception, redender
+# - post, get exception, rerender
 # - post, get exception, rerender, change parent trigger that results in different stuff, submit (various scenarios depending what different stuff you change)
 
 # Test facts:
-# - when changing a parent trigger, the triggers that were nested in it, are cleared.
+# - <CStest_retain_nested_trigger_input_values_when_rerendered> CS(Not true, their state is retained) when changing a parent trigger, the triggers that were nested in it, are cleared.
 #   [- when a parent dynamic widget is changed, all its children widget arguments that happened to be applicable (because they were 
 #    also opened) - are cleared explicitly in the fragment and as such we need to save a sentinel vanue in the DB for them else we would have no way to know that a cleared value should not be read from the saved DB input values.]
-# - when a nested widget argument is required, but not present on the QS/fragment (or otherwise NOT validly entered), dont break, render the validation (non-js) error
+# - <  -- see aslo test_validation_of_undisclosed_yet_required_input>when a nested widget argument is required, but not present on the QS/fragment (or otherwise NOT validly entered), dont break, render the validation (non-js) error
 #   [- when a widget argument on a nested dynamicwidget appears, it should be rendered empty if it is required and does not have a value or default]
 # - when a domain exception occurs, the normal inputs on nested dynamicwidgets should still display whatever value was typed, and the trigger inputs as well and the fragment as it was before you submitted
 #   [- the fragment is maintained by posting it to the server in a hidden input]
@@ -792,7 +942,10 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 #        saved values in the database for the relevant input ]
 # - when submitting with correct data after a domain exception, and you stay on the same page, all values and the hash are cleared as if you are looking at the page for the first time. 
 #   [- when redirecting after a POST, the fragmnet is NOT included in the redirected URL (because that would result in more ajax fetches); but it is restored on the URL from its saved value using JS]
-# - when a parent trigger changes and a child is regenerated, if that child contains inputs and the user edited them, their edited values should be maintained
+# -<CStest_retain_user_input_on_trigger_change>- when a parent trigger changes and a child is regenerated, if that child contains inputs and the user edited them, their edited values should be maintained
+
+#? CStest whether a field can be required, but is not defaulted, and is refreshed - it won't have any input upon first ajax call - it broke at some stage.
+       #its like <test_validation_of_undisclosed_yet_required_input>, but the input is visible, while it is being refreshed beause it appears in a section
 
 
 # - when a Field is for a list, and its name is overridden, it should look for input in overridden_name+[]
@@ -800,3 +953,4 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
 # - changing a trigger input changes tha hash, but it does not add an entry in browser history (NOT DONE history.replaceState does not work?)
 
 
+# - a test for dynamicsection

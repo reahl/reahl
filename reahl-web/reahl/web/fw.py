@@ -1849,7 +1849,7 @@ class UrlBoundView(View):
             if request.method.upper() == 'POST':
                 fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
             else:
-                fragment = self.persisted_userinput_class.get_previously_saved_for_view(self, 'reahl-fragment', six.text_type)
+                fragment = self.persisted_userinput_class.get_persisted_for_view(self, 'reahl-fragment', six.text_type)
             self._fragment = fragment
         else:
             fragment = self._fragment
@@ -1857,8 +1857,9 @@ class UrlBoundView(View):
         return fragment or ''
 
     def save_fragment(self):
-        self.persisted_userinput_class.save_value_for_view(self.view, 'reahl-fragment', self.fragment, six.text_type)
-        
+        self.persisted_userinput_class.remove_persisted_for_view(self.view, 'reahl-fragment')
+        self.persisted_userinput_class.add_persisted_for_view(self.view, 'reahl-fragment', self.fragment, six.text_type)
+
     def get_applicable_widget_arguments(self):
         fragment_arguments = urllib_parse.parse_qs(self.fragment, keep_blank_values=True)
         request = ExecutionContext.get_context().request
@@ -2370,12 +2371,12 @@ class EventChannel(RemoteMethod):
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
         self.form.cleanup_after_exception(input_values, ex)
         fragment = input_values.get('reahl-fragment', [''])[0]
-        self.form.persisted_userinput_class.save_value_for_view(self.form.view, 'reahl-fragment', fragment, six.text_type)
+        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, 'reahl-fragment', fragment, six.text_type)
         
     def cleanup_after_success(self):
         self.form.cleanup_after_success()
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
-        self.form.persisted_userinput_class.save_value_for_view(self.form.view, 'reahl-fragment', '', six.text_type)
+        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, 'reahl-fragment', '', six.text_type)
         
 
 

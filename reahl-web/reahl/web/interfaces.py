@@ -123,7 +123,7 @@ class UserInputProtocol(SessionDataProtocol):
 
     @classmethod
     @abstractmethod
-    def get_previously_saved_for_view(cls, view, key, value_type):
+    def get_persisted_for_view(cls, view, key, value_type):
         """Returns the value associated with the given :class:`reahl.web.ui.UrlBoundView`, as previously saved using
            `key`.
 
@@ -132,12 +132,22 @@ class UserInputProtocol(SessionDataProtocol):
 
     @classmethod
     @abstractmethod
-    def save_value_for_view(cls, view, key, value, value_type):
+    def add_persisted_for_view(cls, view, key, value, value_type):
         """Persists `value` associated with the given :class:`reahl.web.ui.UrlBoundView`,
            to be retrieved using `key`.
 
            .. versionadded:: 4.1
         """
+
+    @classmethod
+    @abstractmethod
+    def remove_persisted_for_view(cls, view, key):
+        """Removes previously persisted value with the given :class:`reahl.web.ui.UrlBoundView`, as previously saved using
+           `key`
+
+           .. versionadded:: 4.1
+    """
+
 
 class PersistedExceptionProtocol(SessionDataProtocol):
     """When a :class:`reahl.component.exceptions.DomainException` happens during Form submission, the 

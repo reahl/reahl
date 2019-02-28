@@ -177,7 +177,6 @@ class Allocation(object):
         return self.investment.is_in_percentage
 
 
-        
 class NewInvestorDetailsSection(FieldSet):
     def __init__(self, form, investment):
         super(NewInvestorDetailsSection, self).__init__(form.view, legend_text='New investor information')

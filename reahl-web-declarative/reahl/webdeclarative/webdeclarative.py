@@ -227,7 +227,7 @@ class SessionData(Base):
 
 class UserInput(SessionData, UserInputProtocol):
     """An implementation of :class:`reahl.web.interfaces.UserInputProtocol`. It represents
-       an value that was input by a user."""
+       a value that was input by a user."""
     __tablename__ = 'userinput'
     __mapper_args__ = {'polymorphic_identity': 'userinput'}
     id = Column(Integer, ForeignKey('sessiondata.id', ondelete='CASCADE'), primary_key=True)
@@ -283,12 +283,17 @@ class UserInput(SessionData, UserInputProtocol):
             assert None, 'Cannot persist values of type: %s' % value_type
 
     @classmethod
-    def get_previously_saved_for_view(cls, view, key, value_type):
+    def get_persisted_for_view(cls, view, key, value_type):
         return cls.get_previously_saved_for(view, None, key, value_type)
 
     @classmethod
-    def save_value_for_view(cls, view, key, value, value_type):
+    def add_persisted_for_view(cls, view, key, value, value_type):
         cls.save_value_for(view, None, key, value, value_type)
+
+    @classmethod
+    def remove_persisted_for_view(cls, view, key):
+        for previous in cls.find_for(view, form=None).filter_by(key=key):
+            Session.delete(previous)
 
 
 class PersistedException(SessionData, PersistedExceptionProtocol):
