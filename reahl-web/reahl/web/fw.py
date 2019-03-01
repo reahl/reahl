@@ -1847,14 +1847,25 @@ class UrlBoundView(View):
         if not hasattr(self, '_fragment'):
             request = ExecutionContext.get_context().request
             if request.method.upper() == 'POST':
-                fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
+                posted_fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
+                posted_serial = urllib_parse.parse_qs(posted_fragment)['koos']
+                old_fragment = self.persisted_userinput_class.get_persisted_for_view(self, 'reahl-fragment', six.text_type)
+                if old_fragment:
+                    old_serial = urllib_parse.parse_qs(old_fragment)['koos']
+                    if posted_serial != old_serial:
+                        fragment = old_fragment
+                    else:
+                        fragment = posted_fragment
+                else:
+                        fragment = posted_fragment
             else:
                 fragment = self.persisted_userinput_class.get_persisted_for_view(self, 'reahl-fragment', six.text_type)
             self._fragment = fragment
         else:
             fragment = self._fragment
 
-        return fragment or ''
+        import time
+        return fragment or 'koos=%s' % time.time()
 
     def save_fragment(self):
         self.persisted_userinput_class.remove_persisted_for_view(self.view, 'reahl-fragment')

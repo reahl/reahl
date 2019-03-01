@@ -946,6 +946,8 @@ def test_retain_nested_trigger_input_values_when_rerendered(web_fixture):
 
 #? CStest whether a field can be required, but is not defaulted, and is refreshed - it won't have any input upon first ajax call - it broke at some stage.
        #its like <test_validation_of_undisclosed_yet_required_input>, but the input is visible, while it is being refreshed beause it appears in a section
+# - when a parent trigger changes and a child is regenerated, if that child contains inputs and the user edited them, their edited values should be maintained
+#     - case: even if they edited values are invalid
 
 
 # - when a Field is for a list, and its name is overridden, it should look for input in overridden_name+[]

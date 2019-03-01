@@ -159,8 +159,8 @@ class Investment(object):
 class Allocation(object):
     @exposed
     def fields(self, fields):
-        fields.percentage    = Field(label='Percentage', required=True)
-        fields.amount        = Field(label='Amount', required=True)
+        fields.percentage    = IntegerField(label='Percentage', required=True)
+        fields.amount        = IntegerField(label='Amount', required=True)
 
     def __init__(self, investment, fund_name):
         self.investment = investment

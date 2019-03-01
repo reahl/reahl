@@ -570,7 +570,10 @@ class HTML5Page(HTMLElement):
               var r=d.querySelectorAll("html")[0];
               r.className=r.className.replace(new RegExp("\\\\b" + fromStyle + "\\\\b", "g"),toStyle)
           };
-          (function(e){switchJSStyle(e, "no-js", "js"); history.replaceState(null, null, "%s")})(document);
+          (function(e){
+              switchJSStyle(e, "no-js", "js"); 
+              history.replaceState(null, null, "%s");
+          })(document);
         ''' % (fragment_to_replace), html_escape=False))
 
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
@@ -954,10 +957,6 @@ class Form(HTMLElement):
         assert unique_name == self.event_channel.name
         super(Form, self).__init__(view, 'form', children_allowed=True, css_id=unique_name)
         self.set_attribute('data-formatter', six.text_type(self.input_formatter.get_url()))
-#        self.fragment = ''
-#        self.fragment_field = Field()
-#        self.fragment_field.bind('fragment', self)
-#        self.add_child(HiddenInput(self, self.fragment_field, name='reahl-fragment'))
 
     def set_up_event_channel(self, event_channel_name):
         self.event_channel = EventChannel(self, self.controller, event_channel_name)
@@ -1483,11 +1482,16 @@ class PrimitiveInput(Input):
     def persisted_userinput_class(self):
         return self.form.persisted_userinput_class
 
+    @property
+    def defaulted_sentinel(self):
+        return '%s_' % self.name
+
     def prepare_input(self):
         previously_entered_value = None
         try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
             widget_arguments = self.view.get_applicable_widget_arguments()
-            previously_entered_value = self.bound_field.from_disambiguated_input(widget_arguments, ignore_validation=True, default_if_not_found=False)
+            if self.defaulted_sentinel not in widget_arguments:
+                previously_entered_value = self.bound_field.from_disambiguated_input(widget_arguments, ignore_validation=True, default_if_not_found=False)
         except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
