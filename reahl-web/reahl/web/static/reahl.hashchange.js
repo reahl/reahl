@@ -121,6 +121,10 @@ $.widget('reahl.hashchange', {
         this.arguments = [];
         var _this = this;
 
+        if (this.navigatedHereViaHistoryButtons()) {
+            _this.reloadPage();
+        }
+        
         for (name in _this.options.params) {
             _this.arguments.push(new HashArgument(name, _this.options.params[name]))
         }
@@ -135,8 +139,6 @@ $.widget('reahl.hashchange', {
         var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
         $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e, isInitialPageLoad) {
             _this.handleHashChanged(function(){});
-            if (isInitialPageLoad && _this.isPageOutOfSync()) { _this.reloadPage(); };
-//            return true;
         });
         setTimeout(function() { $(window).trigger('hashchange', true); }, 0);
     },
@@ -147,18 +149,13 @@ $.widget('reahl.hashchange', {
             this.triggerChange(currentFragment, changedArguments, afterHandler);
         };
     },
-    isPageOutOfSync: function() {
-        var formInputs = this.getFormInputsAsArguments({});
-        var hashArguments = this.getArgumentsAsObject();
-        for (var i=0; i<formInputs.length; i++) {
-            var formInput = formInputs[i];
-            if (formInput.name in hashArguments) {
-                if (formInput.value != hashArguments[formInput.name].value) {
-                    return true;
-                }
-            }
-        };
-        return false;
+    navigatedHereViaHistoryButtons: function() {
+        var performanceEntries = performance.getEntriesByType('navigation');
+        if (performanceEntries.length == 1) {
+            return (performanceEntries[0].type == 'back_forward');
+        } else {
+            return (performance.navigation.type == 2);
+        }
     },
     reloadPage: function() {
         $('body').block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
