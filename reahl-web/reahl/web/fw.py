@@ -27,6 +27,7 @@ import json
 import logging
 import mimetypes
 import string
+import time
 import sys
 import threading
 from contextlib import contextmanager
@@ -1864,7 +1865,6 @@ class UrlBoundView(View):
         else:
             fragment = self._fragment
 
-        import time
         return fragment or '__reahl_state=%s' % time.time()
 
     def save_fragment(self):

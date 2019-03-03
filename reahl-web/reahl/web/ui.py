@@ -564,18 +564,16 @@ class HTML5Page(HTMLElement):
         script = self.add_child(HTMLElement(self.view, 'script', children_allowed=True))
         fragment_to_replace = self.view.fragment        
         if fragment_to_replace:
-            fragment_to_replace = '#%s' % fragment_to_replace
+            fragment_to_replace = '%s' % fragment_to_replace
         script.add_child(TextNode(self.view, '''
           function switchJSStyle(d, fromStyle, toStyle) {
               var r=d.querySelectorAll("html")[0];
               r.className=r.className.replace(new RegExp("\\\\b" + fromStyle + "\\\\b", "g"),toStyle)
           };
-          (function(e){
-              switchJSStyle(e, "no-js", "js"); 
-              history.replaceState(null, null, "%s");
-          })(document);
-        ''' % (fragment_to_replace), html_escape=False))
+          (function(d) { switchJSStyle(d, "no-js", "js"); })(document);
+        ''', html_escape=False))
 
+        self.set_attribute('data-reahl-rendered-state', self.view.fragment)
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 
@@ -583,6 +581,7 @@ class HTML5Page(HTMLElement):
         return '<!DOCTYPE html>' + super(HTML5Page, self).render()
 
 
+    
 # Uses: reahl/web/reahl.ajaxlink.js
 class A(HTMLElement):
     """A hyper link.
