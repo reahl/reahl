@@ -158,6 +158,8 @@ $.widget('reahl.hashchange', {
         setTimeout(function() { $(window).trigger('hashchange'); }, 0);
     },
     handleHashChanged: function(currentFragment, afterHandler) {
+        var relevantFormInputs = this.getFormInputsAsArguments({});
+        currentFragment = this.addArgumentsToHash(currentFragment, relevantFormInputs);
         history.replaceState(currentFragment, null, null);
         var changedArguments = this.calculateChangedArguments(currentFragment);
         if (this.hasChanged(changedArguments)) {
@@ -214,8 +216,6 @@ $.widget('reahl.hashchange', {
     },
     calculatePOSTFragment(currentHashValues, hashArguments) {
         var values = this.addArgumentsToHash(currentHashValues, hashArguments);
-        var relevantFormInputs = this.getFormInputsAsArguments(values);
-        values = this.addArgumentsToHash(values, relevantFormInputs);
         var urlQueryString = $.deparam.querystring(this.options.url);
         for (var i in urlQueryString) {
             if (i in values){
@@ -322,8 +322,7 @@ $.widget('reahl.changenotifier', {
     },
     updateHashWithAllSiblingValues: function(currentFragment) {
         this.getSiblingChangeNotifiers().each(function() {
-            this.addCurrentInputValueTo(currentFragment);
-            
+            this.addCurrentInputValueTo(currentFragment);            
         });
 
         var form = this.getForm();
