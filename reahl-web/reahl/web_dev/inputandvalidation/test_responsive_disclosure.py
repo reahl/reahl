@@ -263,23 +263,6 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
 
 
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_changing_values_do_not_disturb_other_hash_state(web_fixture, query_string_fixture, responsive_disclosure_fixture):
-    """When an Input updates a linked Widget, other values in the hash are preserved."""
-
-    fixture = responsive_disclosure_fixture
-
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-    browser.open('/')
-
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
-    browser.set_fragment('#choice=2&other_var=other_value')
-    browser.select(XPath.select_labelled('Choice'), 'Three')
-    assert browser.get_fragment() == '#other_var=other_value&choice=3'
-
-
 class MultipleTriggerFixture(Fixture):
     def is_widget_blocked(self, browser):
         changing_widget_xpath = XPath('//div[@id="changing_widget_id"]')
@@ -757,12 +740,13 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, q
     #  the nested case still works (necessary to test because loading JS a second time can cause bugs)
     browser.click(XPath.input_labelled('Trigger field'))
     assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
-    assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing nested responsive content')
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing nested responsive content')
 
     browser.click(XPath.input_labelled('Nested trigger field'))
     assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
-    assert browser.wait_for(query_string_fixture.is_state_now, 'showing nested responsive content')
+    assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing nested responsive content')
 
+    browser.click(XPath.input_labelled('Nested trigger field'))
     assert browser.wait_for(fixture.are_all_parts_enabled, browser)
 
 

@@ -1865,7 +1865,10 @@ class UrlBoundView(View):
         else:
             fragment = self._fragment
 
-        return fragment or '__reahl_state=%s' % time.time()
+        return fragment or '__reahl_state=%s' % self.generate_unique_state_identifier()
+
+    def generate_unique_state_identifier(self):
+        return time.time()
 
     def save_fragment(self):
         self.persisted_userinput_class.remove_persisted_for_view(self.view, 'reahl-fragment')

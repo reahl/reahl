@@ -519,7 +519,7 @@ def test_html5_page(web_fixture):
 
     rendered_html = tester.render_html()
     head = '<head><title>It: %s</title></head>' % fixture.view.title
-    expected_regex = '^<!DOCTYPE html><html class="no-js"><script>.*</script>%s<body></body></html>$' % head
+    expected_regex = '^<!DOCTYPE html><html.*class="no-js"><script>.*</script>%s<body></body></html>$' % head
     assert re.match(expected_regex, rendered_html.replace('\n', ''))
 
     assert list(widget.default_slot_definitions.keys()) == ['slot1']

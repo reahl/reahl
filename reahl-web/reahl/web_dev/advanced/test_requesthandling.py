@@ -39,7 +39,7 @@ class WSGIFixture(Fixture):
     status = None
     headers = None
     def result_is_valid(self, result):
-        return result.startswith('<!DOCTYPE html><html class="no-js">') and result.endswith('</html>')
+        return result.startswith('<!DOCTYPE html><html ') and result.endswith('</html>')
     def some_headers_are_set(self, headers):
         return dict(headers)['Content-Type'] == 'text/html; charset=utf-8'
 

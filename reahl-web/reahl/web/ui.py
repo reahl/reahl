@@ -573,7 +573,7 @@ class HTML5Page(HTMLElement):
           (function(d) { switchJSStyle(d, "no-js", "js"); })(document);
         ''', html_escape=False))
 
-        self.set_attribute('data-reahl-rendered-state', self.view.fragment)
+        self.set_attribute('data-reahl-rendered-state', self.view.fragment) # needed by reahl.hashchange.js
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 
@@ -1490,7 +1490,7 @@ class PrimitiveInput(Input):
         try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
             widget_arguments = self.view.get_applicable_widget_arguments()
             if self.defaulted_sentinel not in widget_arguments:
-                previously_entered_value = self.bound_field.from_disambiguated_input(widget_arguments, ignore_validation=True, default_if_not_found=False)
+                previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(widget_arguments, default_if_not_found=False)
         except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
