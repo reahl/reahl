@@ -216,9 +216,13 @@ class AllocationDetailSection(DynamicSection):
     def __init__(self, form, trigger_inputs, investment):
         super(AllocationDetailSection, self).__init__(form, 'investment_allocation_details', trigger_inputs)
         def make_amount_input(view, allocation):
-            return TextInput(form, allocation.fields.amount, name='amount.%s' % allocation.fund_code)
+            div = Div(view).use_layout(FormLayout())
+            div.layout.add_input(TextInput(form, allocation.fields.amount, name='amount.%s' % allocation.fund_code), hide_label=True)
+            return div
         def make_percentage_input(view, allocation):
-            return TextInput(form, allocation.fields.percentage, name='percentage.%s' % allocation.fund_code)
+            div = Div(view).use_layout(FormLayout())
+            div.layout.add_input(TextInput(form, allocation.fields.percentage, name='percentage.%s' % allocation.fund_code), hide_label=True)
+            return div
 
         columns = [StaticColumn(Field(label='Fund'), 'fund')]
         if investment.is_in_percentage:
