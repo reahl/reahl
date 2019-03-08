@@ -31,7 +31,6 @@ from reahl.web.bootstrap.tables import Table
 
 
 
-
 class ResponsiveUI(UserInterface):
     def assemble(self):
         self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
@@ -41,7 +40,6 @@ class ResponsiveUI(UserInterface):
         home.set_slot('main', NewInvestmentForm.factory())
 
 
-        
 class IDDocument(object):
     @exposed
     def fields(self, fields):
@@ -64,6 +62,7 @@ class IDDocument(object):
             return 'RSA ID: %s' % self.id_number
         else:
             return 'Passport (%s): %s' % (self.country, self.passport_number)
+
 
 class IDForm(Form):
     def __init__(self, view):
@@ -198,7 +197,6 @@ class ExistingInvestorDetailsSection(FieldSet):
         self.layout.add_input(TextInput(form, investment.fields.existing_account_number))
         trigger = self.layout.add_input(CheckboxInput(form, investment.fields.agreed_to_terms))
         self.add_child(InvestmentAllocationSection(form, trigger, investment))
-
 
 
 class InvestmentAllocationSection(DynamicSection):
