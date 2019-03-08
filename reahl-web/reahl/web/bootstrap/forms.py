@@ -396,7 +396,7 @@ class FormLayout(reahl.web.fw.Layout):
     def add_validation_error_to(self, form_group, html_input):
         error_text = form_group.add_child(Span(self.view, text=html_input.validation_error.message))
         error_text.append_class('invalid-feedback')
-        error_text.set_attribute('for', html_input.name) #need for our custom fileupload js
+        error_text.set_attribute('data-generated-for', html_input.name) # need for our custom bootstrapfileuploadpanel.js
         error_text.set_attribute('generated', 'true')
         return error_text
 
