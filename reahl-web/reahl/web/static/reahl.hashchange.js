@@ -19,6 +19,11 @@
 (function($) {
 "use strict";
 
+function blockOptions(extraCSS) {
+    var defaultOverlayCSS =  { backgroundColor: '#fff', opacity: 0.3 };
+    return {overlayCSS: $.extend(defaultOverlayCSS, extraCSS), message: '', fadeIn: 0, fadeout: 0};
+}
+
 function getTraditionallyNamedFragment() {
     return mapToTraditionalNames($.deparam.fragment(window.location.hash));
 }
@@ -46,7 +51,7 @@ function mapToTraditionalNames(untraditionallyNamedArguments) {
     return traditionallyNamedArguments;
 }
 
-function HashArgument(name, defaultValue) {
+function WidgetArgument(name, defaultValue) {
     this.name = name;
     this.value = defaultValue;
     this.changed = false;
@@ -73,22 +78,22 @@ function HashArgument(name, defaultValue) {
         return this.name+'_';
     }
         
-    this.updateFromHashObject = function(hashObject) {
+    this.updateFromStateObject = function(stateObject) {
         this.changed = false;
-        var currentValue = hashObject[this.name];
+        var currentValue = stateObject[this.name];
         if (currentValue) {
             this.changeValue(currentValue);
         } else if (this.getIsList()) {
-            if (hashObject[this.getEmptyListSentinelName()] != undefined) {
+            if (stateObject[this.getEmptyListSentinelName()] != undefined) {
                 this.changeValue([]);
             }
         } 
     }
 
-    this.updateHashObject = function(hashObject) {
-        delete hashObject[this.name];
-        delete hashObject[this.getEmptyListSentinelName()];
-        delete hashObject[this.getDefaultedSentinelName()];
+    this.updateStateObject = function(stateObject) {
+        delete stateObject[this.name];
+        delete stateObject[this.getEmptyListSentinelName()];
+        delete stateObject[this.getDefaultedSentinelName()];
         
         var nameInHash;
         var valueInHash;
@@ -100,18 +105,18 @@ function HashArgument(name, defaultValue) {
             valueInHash = this.value;
         }
 
-        hashObject[nameInHash] = valueInHash;
+        stateObject[nameInHash] = valueInHash;
     }
 
-    this.clearFromHashObject = function(hashObject) {
-        this.deleteFromHashObject(hashObject);
-        hashObject[this.getDefaultedSentinelName()] = '';
+    this.clearFromStateObject = function(stateObject) {
+        this.deleteFromStateObject(stateObject);
+        stateObject[this.getDefaultedSentinelName()] = '';
     }
         
-    this.deleteFromHashObject = function(hashObject) {
-        delete hashObject[this.name];
-        delete hashObject[this.getEmptyListSentinelName()];
-        delete hashObject[this.getDefaultedSentinelName()];
+    this.deleteFromStateObject = function(stateObject) {
+        delete stateObject[this.name];
+        delete stateObject[this.getEmptyListSentinelName()];
+        delete stateObject[this.getDefaultedSentinelName()];
     }
 }
 
@@ -134,7 +139,7 @@ $.widget('reahl.hashchange', {
         }
         
         for (name in _this.options.params) {
-            _this.arguments.push(new HashArgument(name, _this.options.params[name]))
+            _this.arguments.push(new WidgetArgument(name, _this.options.params[name]))
         }
 
         $('html').filter('[data-reahl-rendered-state]').each(function() {
@@ -147,23 +152,23 @@ $.widget('reahl.hashchange', {
         var namespaced_submit = 'submit.'+this.element.attr('id');
         this.element.parents('form').off(namespaced_submit).on(namespaced_submit, function(e) {
             var form = $(this);
-            _this.updateFormActionWithCurrentQueryString(form);
+            _this.updateFormActionWithCurrentState(form);
         });
 
         var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
         $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e) {
             var newState = $.extend(true, getCurrentState(), getTraditionallyNamedFragment());
-            _this.handleHashChanged(newState, function(){});
+            _this.handleStateChanged(newState, function(){});
         });
         setTimeout(function() { $(window).trigger('hashchange'); }, 0);
     },
-    handleHashChanged: function(currentFragment, afterHandler) {
+    handleStateChanged: function(newState, afterHandler) {
         var relevantFormInputs = this.getFormInputsAsArguments({});
-        currentFragment = this.addArgumentsToHash(currentFragment, relevantFormInputs);
-        history.replaceState(currentFragment, null, null);
-        var changedArguments = this.calculateChangedArguments(currentFragment);
+        newState = this.addArgumentsToState(newState, relevantFormInputs);
+        history.replaceState(newState, null, null);
+        var changedArguments = this.calculateChangedArguments(newState);
         if (this.hasChanged(changedArguments)) {
-            this.triggerChange(currentFragment, changedArguments, afterHandler);
+            this.triggerChange(newState, changedArguments, afterHandler);
         };
     },
     navigatedHereViaHistoryButtons: function() {
@@ -175,22 +180,13 @@ $.widget('reahl.hashchange', {
         }
     },
     reloadPage: function() {
-        $('body').block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
+        $('body').block(blockOptions({cursor: 'wait'}));
         location.reload(true);
-    },
-    getArgumentsAsObject: function() {
-        var argumentObject = {};
-        var argumentsArray = this.getArguments();
-        for (var i=0; i<argumentsArray.length; i++) {
-            var argument = argumentsArray[i];
-            argumentObject[argument.name] = argument;
-        };
-        return argumentObject;
     },
     getArguments: function() {
         return this.arguments;
     },
-    updateFormActionWithCurrentQueryString(form) {
+    updateFormActionWithCurrentState(form) {
         var fragmentInput = $('input[form="'+ form.attr('id')+'"][name="reahl-fragment"]');
         var completeFragment;
         var partialFragment;
@@ -203,19 +199,19 @@ $.widget('reahl.hashchange', {
             partialFragment = $.extend(true, getCurrentState(), handledFragmentPart);
         }
         
-        completeFragment = this.addArgumentsToHash(partialFragment, this.getArguments());
+        completeFragment = this.addArgumentsToState(partialFragment, this.getArguments());
         fragmentInput.val($.param(completeFragment, true));
     },
-    addArgumentsToHash(currentHashValues, hashArguments) {
-        var values = $.extend(true, {}, currentHashValues);
-        for (var i=0; i<hashArguments.length; i++) {
-            var argument = hashArguments[i];
-            argument.updateHashObject(values);
+    addArgumentsToState(currentState, widgetArguments) {
+        var values = $.extend(true, {}, currentState);
+        for (var i=0; i<widgetArguments.length; i++) {
+            var argument = widgetArguments[i];
+            argument.updateStateObject(values);
         }
         return values;
     },
-    calculatePOSTFragment(currentHashValues, hashArguments) {
-        var values = this.addArgumentsToHash(currentHashValues, hashArguments);
+    calculatePOSTFragment(currentState, widgetArguments) {
+        var values = this.addArgumentsToState(currentState, widgetArguments);
         var urlQueryString = $.deparam.querystring(this.options.url);
         for (var i in urlQueryString) {
             if (i in values){
@@ -228,21 +224,24 @@ $.widget('reahl.hashchange', {
     getFormInputsAsArguments: function(values){
         return $('.reahl-primitiveinput').map(function(i, v) { 
             var primitiveInput = $(v).data('reahlPrimitiveinput');
-            return new HashArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
+            return new WidgetArgument(primitiveInput.getName(), primitiveInput.getCurrentInputValue()); 
         }).filter(function(i,v){ return ! (v.name in values) });
     },
-    triggerChange: function(currentHashValues, newArguments, afterHandler) {
+    triggerChange: function(newState, newArguments, afterHandler) {
         var _this = this;
 
         var data = {};
-        data['reahl-fragment'] = $.param(_this.calculatePOSTFragment(currentHashValues, newArguments), true);  
+        data['reahl-fragment'] = $.param(_this.calculatePOSTFragment(newState, newArguments), true);  
 
-        _this.element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
+        _this.element.block(blockOptions({cursor: 'wait'}));
         $.ajax({url:     this.options.url,
                 method:  'POST',
                 cache:   _this.options.cache,
                 data:    data,
                 success: function(data){
+                    _this.element.find('form').each(function(i, form) {
+                        $(form).validate().destroy();
+                    });
                     _this.element.html(data);
                     _this.arguments = newArguments;
                 },
@@ -264,14 +263,14 @@ $.widget('reahl.hashchange', {
         }
         return changed;
     },
-    calculateChangedArguments: function(currentHashValues) {
+    calculateChangedArguments: function(currentState) {
         var _this = this;
-        var hashArguments = $.extend(true, [], _this.getArguments());
-        for (var i=0; i<hashArguments.length; i++) {
-            var argument = hashArguments[i];
-            argument.updateFromHashObject(currentHashValues);
+        var widgetArguments = $.extend(true, [], _this.getArguments());
+        for (var i=0; i<widgetArguments.length; i++) {
+            var argument = widgetArguments[i];
+            argument.updateFromStateObject(currentState);
         };
-        return hashArguments;
+        return widgetArguments;
     },
 });
 
@@ -299,9 +298,9 @@ $.widget('reahl.changenotifier', {
                     _this.updateCurrentValue(e.target);
                 }
                 if (_this.getIsValid()) {
-                    var currentFragment = getCurrentState();
-                    _this.updateHashWithAllSiblingValues(currentFragment);
-                    this.focus();
+                    var state = getCurrentState();
+                    _this.updateStateWithAllSiblingValues(state);
+                    _this.updatePage(state, $(e.target));
                     _this.unblockWidget();
                 } else { _this.blockWidget(); }
                 return true;
@@ -313,27 +312,34 @@ $.widget('reahl.changenotifier', {
     },
     getArgument: function(currentInput) {
         if (this.options.argument == undefined) {
-            this.options.argument = new HashArgument(this.options.name, this.getCurrentInputValue(currentInput));
+            this.options.argument = new WidgetArgument(this.options.name, this.getCurrentInputValue(currentInput));
         }
         return this.options.argument;
     },
     updateCurrentValue: function(currentInput) {
         this.getArgument(currentInput).changeValue(this.getCurrentInputValue(currentInput));
     },
-    updateHashWithAllSiblingValues: function(currentFragment) {
+    updateStateWithAllSiblingValues: function(state) {
         this.getSiblingChangeNotifiers().each(function() {
-            this.addCurrentInputValueTo(currentFragment);            
+            this.addCurrentInputValueTo(state);
         });
-
-        var form = this.getForm();
-        form.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
-
-        this.getCorrespondingHashChangeHandler().handleHashChanged(currentFragment, function(){ form.unblock(); });
     },
-    addCurrentInputValueTo: function(fragment) {
+    updatePage: function(newState, changedInput){
+        var form = this.getForm();
+        form.block(blockOptions({cursor: 'not-allowed'}));
+        var inputName = changedInput.attr('name');
+        var formId = form.attr('id');
+        var selectorForFocus = '#'+formId+' [name="'+inputName+'"]';
+
+        this.getCorrespondingHashChangeHandler().handleStateChanged(newState, function(){ 
+            $(selectorForFocus).focus();
+            form.unblock(); 
+        });
+    },
+    addCurrentInputValueTo: function(state) {
         var argument = this.options.argument;
         if (argument !== undefined) {
-            argument.updateHashObject(fragment);
+            argument.updateStateObject(state);
         }
     },
     getInputs: function() {
@@ -376,7 +382,7 @@ $.widget('reahl.changenotifier', {
         return this.getIsSelfValid() && this.getIsSiblingArgumentsValid();
     },
     blockWidget: function() {
-        $('#'+this.options.widget_id).block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
+        $('#'+this.options.widget_id).block(blockOptions({cursor: 'not-allowed'}));
     },
     unblockWidget: function() {
         $('#'+this.options.widget_id).unblock();
