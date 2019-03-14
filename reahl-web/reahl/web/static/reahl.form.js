@@ -26,7 +26,8 @@ $.widget('reahl.form', {
         var element = this.element;
         $(element).validate(this.options);
         
-        element.on('submit', function(e) {
+        var namespaced_submit = 'submit.'+element.attr('id');
+        element.off(namespaced_submit).on(namespaced_submit, function(e) {
             if ($(element).valid()) {
                 element.block({overlayCSS: {backgroundColor: '#fff', opacity: 0.3}, message: '', fadeIn: 0, fadeout: 0});
                 $(element[0].elements)
@@ -37,6 +38,7 @@ $.widget('reahl.form', {
 
         element[0]
     }
+
 });
 
 $.extend($.reahl.form, {
