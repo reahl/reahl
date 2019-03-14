@@ -77,7 +77,7 @@ class IDForm(Form):
 
 class IDInputsSection(DynamicSection):
     def __init__(self, form, document, trigger_input):
-        super(IDInputsSection, self).__init__(form, 'idinputs', [trigger_input])
+        super(IDInputsSection, self).__init__(form.view, 'idinputs', [trigger_input])
 
         document_type = document.document_type
         if document_type == 'passport':
@@ -201,7 +201,7 @@ class ExistingInvestorDetailsSection(FieldSet):
 
 class InvestmentAllocationSection(DynamicSection):
     def __init__(self, form, trigger_input, investment):
-        super(InvestmentAllocationSection, self).__init__(form, 'investment_allocation', [trigger_input])
+        super(InvestmentAllocationSection, self).__init__(form.view, 'investment_allocation', [trigger_input])
         if investment.agreed_to_terms:
             fieldset = self.add_child(FieldSet(form.view, legend_text='Investment allocation'))
             fieldset.use_layout(FormLayout())
@@ -212,7 +212,7 @@ class InvestmentAllocationSection(DynamicSection):
 
 class AllocationDetailSection(DynamicSection):
     def __init__(self, form, trigger_inputs, investment):
-        super(AllocationDetailSection, self).__init__(form, 'investment_allocation_details', trigger_inputs)
+        super(AllocationDetailSection, self).__init__(form.view, 'investment_allocation_details', trigger_inputs)
         def make_amount_input(view, allocation):
             div = Div(view).use_layout(FormLayout())
             div.layout.add_input(TextInput(form, allocation.fields.amount, name='amount.%s' % allocation.fund_code), hide_label=True)
@@ -235,7 +235,7 @@ class AllocationDetailSection(DynamicSection):
 
 class NewOrExistingInvestorSection(DynamicSection):
     def __init__(self, form, trigger_input, investment):
-        super(NewOrExistingInvestorSection, self).__init__(form, 'investor_details', [trigger_input])
+        super(NewOrExistingInvestorSection, self).__init__(form.view, 'investor_details', [trigger_input])
         new_or_existing = investment.new_or_existing
         if new_or_existing == 'new':
             self.add_child(NewInvestorDetailsSection(form, investment))
