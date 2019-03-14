@@ -155,7 +155,7 @@ class Browser(BasicBrowser):
     
            :param url_string: A string containing the URL to be opened.
            :keyword follow_redirects: If False, this method acts as a simple GET request. If True (the default),
-                                      the method hebaves like a browser would, by opening redirect responses.
+                                      the method behaves like a browser would, by opening redirect responses.
            :keyword relative: Set to True to indicate that `url_string` contains a path relative to the current location.
        
            Other keyword arguments are passed directly on to 
@@ -956,6 +956,7 @@ class DriverBrowser(BasicBrowser):
 
            :param locator: An instance of :class:`XPath` or a string containing an XPath expression.
         """
+        assert not self.is_checkbox(locator), 'You should rather use is_checked method for checkbox input types'
         return self.get_attribute(locator, 'value')
 
     def execute_script(self, script, *arguments):
@@ -1044,6 +1045,13 @@ class DriverBrowser(BasicBrowser):
             label_for_input = XPath('(%s)/following-sibling::label' % locator.xpath)
             return label_for_input
         return locator
+
+    def is_checkbox(self, locator):
+        element = self.find_element(locator)
+        try:
+            return element.get_attribute('type') == 'checkbox'
+        except:
+            return False
 
     def create_cookie(self, cookie_dict):
         """Creates a cookie from the given `cookie_dict`.

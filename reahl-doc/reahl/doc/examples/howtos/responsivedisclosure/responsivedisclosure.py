@@ -36,7 +36,7 @@ class ResponsiveUI(UserInterface):
         self.define_page(HTML5Page).use_layout(PageLayout(document_layout=Container(),
                                                           contents_layout=ColumnLayout(
                                                               ColumnOptions('main', size=ResponsiveSize(lg=6))).with_slots()))
-        home = self.define_view('/', title='File upload demo')
+        home = self.define_view('/', title='Responsive disclosure demo')
         home.set_slot('main', NewInvestmentForm.factory())
 
 

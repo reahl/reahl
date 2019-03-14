@@ -24,11 +24,11 @@ from sqlalchemy import Column, Integer, Boolean
 from reahl.tofu import Fixture, expected, scenario, uses
 from reahl.tofu.pytestsupport import with_fixtures
 
-from reahl.web_dev.fixtures import WebFixture
+from reahl.web_dev.fixtures import WebFixture, BasicPageLayout
 from reahl.webdev.tools import XPath, Browser
-from reahl.web.fw import Widget
+from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
-    CheckboxInput, ButtonInput, TextInput
+    CheckboxInput, ButtonInput, TextInput, HTML5Page
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
     IntegerField, \
     EmailField, Event, Action
@@ -475,6 +475,9 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
 
 class DisclosedInputFixture(Fixture):
 
+    def new_saved_model_objects(self):
+        return []
+
     def new_trigger_input_type(self):
         return CheckboxInput
 
@@ -488,7 +491,7 @@ class DisclosedInputFixture(Fixture):
         fixture = self
         class ModelObject(object):
             def __init__(self):
-                #self.trigger_field = True
+                # self.trigger_field = fixture.get_default_trigger_field_value() #TODO: rather default on the field?
                 self.email = None
 
             @exposed
@@ -498,6 +501,7 @@ class DisclosedInputFixture(Fixture):
             def submit(self):
                 if fixture.raise_domain_exception_on_submit():
                     raise DomainException()
+                fixture.saved_model_objects.append(self)
 
             @exposed
             def fields(self, fields):
@@ -513,14 +517,15 @@ class DisclosedInputFixture(Fixture):
                 if self.exception:
                     self.add_child(P(view, text='Exception raised'))
 
-                checkbox_input = fixture.trigger_input_type(self, fixture.model_object.fields.trigger_field)
+                model_object = fixture.new_model_object()
+                checkbox_input = fixture.trigger_input_type(self, model_object.fields.trigger_field)
                 self.add_child(Label(view, for_input=checkbox_input))
                 self.add_child(checkbox_input)
 
-                self.add_child(fixture.MyChangingWidget(self, checkbox_input, fixture.model_object))
+                self.add_child(fixture.MyChangingWidget(self, checkbox_input, model_object))
 
-                self.define_event_handler(fixture.model_object.events.an_event)
-                self.add_child(ButtonInput(self, fixture.model_object.events.an_event))
+                self.define_event_handler(model_object.events.an_event)
+                self.add_child(ButtonInput(self, model_object.events.an_event))
         return MyForm
 
     def new_MyChangingWidget(self):
@@ -561,7 +566,8 @@ def test_validation_of_undisclosed_yet_required_input(web_fixture, disclosed_inp
     assert not browser.is_element_present(XPath.input_labelled('Email'))
     browser.click(XPath.button_labelled('click me'))
 
-    assert model_object.trigger_field is False
+    last_saved_model_object = fixture.saved_model_objects[-1]
+    assert last_saved_model_object.trigger_field is False
     assert not model_object.email
 
 
@@ -585,7 +591,7 @@ def test_input_and_trigger_values_retained_upon_domain_exception(web_fixture, di
     browser.click(XPath.button_labelled('click me'))
 
     assert browser.is_element_present(XPath.paragraph_containing('Exception raised'))
-    assert browser.get_value(XPath.input_labelled('Trigger field')) == 'on'
+    assert browser.is_checked(XPath.input_labelled('Trigger field'))
     assert browser.get_value(XPath.input_labelled('Email')) == 'expectme@example.org'
 
 
@@ -610,39 +616,85 @@ def test_input_and_triggers_cleared_after_domain_exception_resubmit(web_fixture,
 
     # avoid the domain exception, expect the inputs to clear after a successful submit
     fixture.raise_domain_exception_on_submit = lambda: False
+
     browser.click(XPath.button_labelled('click me'))
 
+    last_saved_model_object = fixture.saved_model_objects[-1]
+    assert last_saved_model_object.trigger_field is True
+    assert last_saved_model_object.email == 'expectme@example.org'
+
     assert not browser.is_element_present(XPath.paragraph_containing('Exception raised'))
-    assert browser.get_value(XPath.input_labelled('Trigger field')) == 'off'
+    assert not browser.is_checked(XPath.input_labelled('Trigger field'))
     assert not browser.is_element_present(XPath.paragraph_containing('Email'))
     browser.click(XPath.input_labelled('Trigger field'))
     assert browser.get_value(XPath.input_labelled('Email')) == ''
 
 
-@with_fixtures(WebFixture, ResponsiveDisclosureFixture)
-def test_trigger_input_may_not_be_on_refreshing_widget(web_fixture, responsive_disclosure_fixture):
-    """You may not trigger one of your parents to refresh"""
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_trigger_input_may_be_on_refreshing_widget(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """You may trigger one of your parents to refresh"""
 
     fixture = responsive_disclosure_fixture
 
     class ChangingWidget(fixture.MyChangingWidget):
-        def __init__(self, view, form, model_object):
+        def __init__(self, view, model_object):
+            form = fixture.MyForm(view, model_object)
             super(ChangingWidget, self).__init__(view, form.change_trigger_input, model_object)
-            self.add_child(form)
+            self.insert_child(0, form)
 
     class MainWidget(Widget):
         def __init__(self, view):
             super(MainWidget, self).__init__(view)
             model_object = fixture.ModelObject()
-            form = fixture.MyForm(view, model_object)
+            self.add_child(ChangingWidget(view, model_object))
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    browser.open('/')
+    import pdb;pdb.set_trace()
+    #web_fixture.reahl_server.serve_until(lambda: False)
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    browser.click(XPath.option_with_text('Three'))
+    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+
+
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_trigger_input_on_refreshing_widget_causes_infinite_loop(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """TODO"""
+
+    fixture = responsive_disclosure_fixture
+
+    class NestedSection(DynamicSection):
+        def __init__(self, form, trigger_input, model_object):
+            super(NestedSection, self).__init__(form, 'nested_section', [trigger_input])
+            self.add_child(TextInput(form, model_object.fields.choice, name='my_nested_input'))
+
+
+    class ChangingWidget(fixture.MyChangingWidget):
+        def __init__(self, view, form, model_object):
+            super(ChangingWidget, self).__init__(view, form.change_trigger_input, model_object)
+            self.add_child(form) #the form is placed here so it is refreshed upon trigger change
+            self.add_child(NestedSection(form, form.change_trigger_input, model_object))
+
+    class MainWidget(Widget): #TODO: this is the same as test_trigger_input_may_be_on_refreshing_widget
+        def __init__(self, view):
+            super(MainWidget, self).__init__(view)
+            model_object = fixture.ModelObject()
+            form = fixture.MyForm(view, model_object) #note that form is not added as child here
             self.add_child(ChangingWidget(view, form, model_object))
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
-    
-    with expected(ProgrammerError, test='Inputs are not allowed where they can trigger themselves to be refreshed. Some inputs were incorrectly placed:\n\t<SelectInput name=choice> is refreshed by <ChangingWidget div id="dave"> via field <ChoiceField name=choice>\n'):
-        browser.open('/')
+
+    browser.open('/')
+    import pdb;pdb.set_trace()
+    #web_fixture.reahl_server.serve_until(lambda: False)
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    browser.click(XPath.option_with_text('Three'))
+    assert browser.wait_for(query_string_fixture.is_state_now, 3)
 
 
 @with_fixtures(WebFixture, DisclosedInputFixture)
@@ -651,9 +703,8 @@ def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_t
 
     fixture = disclosed_input_trigger_fixture
     fixture.trigger_input_type = TextInput
+    fixture.get_default_trigger_field_value = lambda: False
 
-    model_object = fixture.model_object
-    model_object.trigger_field = False
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
 
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -682,9 +733,8 @@ def test_ignore_button_click_on_change(web_fixture, disclosed_input_trigger_fixt
 
     fixture = disclosed_input_trigger_fixture
     fixture.trigger_input_type = TextInput
+    fixture.get_default_trigger_field_value = lambda: False
 
-    model_object = fixture.model_object
-    model_object.trigger_field = False
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
 
     web_fixture.reahl_server.set_app(wsgi_app)
@@ -775,8 +825,8 @@ class NestedResponsiveDisclosureFixture(Fixture):
             browser.is_on_top(XPath.paragraph_containing('showing nested responsive content'))
 
 
-@with_fixtures(WebFixture, SqlAlchemyFixture, QueryStringFixture, NestedResponsiveDisclosureFixture)
-def test_inputs_and_widgets_work_when_nested(web_fixture, sql_alchemy_fixture, query_string_fixture, nested_responsive_disclosure_fixture):
+@with_fixtures(WebFixture, QueryStringFixture, NestedResponsiveDisclosureFixture)
+def test_inputs_and_widgets_work_when_nested(web_fixture, query_string_fixture, nested_responsive_disclosure_fixture):
     """Refreshable widgets can be nested inside a target widget."""
     
     fixture = nested_responsive_disclosure_fixture
@@ -829,15 +879,16 @@ class ReusedRefreshedInputFixture(DisclosedInputFixture):
                 self.enable_refresh()
                 trigger_input.enable_notify_change(self, self.query_fields.trigger_field)
 
+                def create_input_for_email():
+                    text_input = TextInput(form, self.model_object.fields.email)
+                    self.add_child(Label(form.view, for_input=text_input))
+                    return self.add_child(text_input)
+
                 if self.model_object.trigger_field:
-                    text_input = TextInput(form, self.model_object.fields.email)
-                    self.add_child(Label(form.view, for_input=text_input))
-                    self.add_child(text_input)
+                    create_input_for_email()
                 else:
-                    #a different, but similar input, refreshed
-                    text_input = TextInput(form, self.model_object.fields.email)
-                    self.add_child(Label(form.view, for_input=text_input))
-                    self.add_child(text_input)
+                    #a different, but similar input, also refreshed
+                    create_input_for_email()
 
             @exposed
             def query_fields(self, fields):
@@ -924,6 +975,55 @@ def test_dynamic_section_basics(web_fixture, query_string_fixture, responsive_di
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
 
 
+@uses(responsive_disclosure_fixture=ResponsiveDisclosureFixture)
+class SiteWithMultipleUrlsFixture(Fixture):
+
+    def new_MainUI(self):
+        fixture = self
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page).use_layout(BasicPageLayout(slots=['main']))
+                home_page = self.define_view('/', title='Home page')
+                refreshing_widgets_page = self.define_view('/page2', title='Refreshing Widgets Page')
+                refreshing_widgets_page .set_slot('main', fixture.responsive_disclosure_fixture.MainWidget.factory())
+        return MainUI
+
+
+@with_fixtures(WebFixture, QueryStringFixture, SiteWithMultipleUrlsFixture)
+def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, query_string_fixture, site_with_multiple_urls_fixture):
+    """TODO"""
+
+    fixture = site_with_multiple_urls_fixture
+
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, site_root=fixture.MainUI)
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+
+    #create some browser history
+    browser.open('/')
+    assert browser.current_url.path == '/'
+    browser.open('/page2')
+    assert browser.current_url.path == '/page2'
+
+    #cause some refreshes to happen, changing the page contents
+    assert browser.wait_for(query_string_fixture.is_state_now, 1)
+    browser.select(XPath.select_labelled('Choice'), 'Two')
+    assert browser.wait_for(query_string_fixture.is_state_now, 2)
+    browser.select(XPath.select_labelled('Choice'), 'Three')
+    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+
+    #case: when the the back button is pressed, the url changes,
+    #      i.e. the user does not experience the state changes, one by one
+    assert browser.current_url.path == '/page2'
+    # browser.go_back() # this uses our internal kept history
+    browser.web_driver.back() #this uses the selenium driver_browser
+    assert browser.current_url.path == '/'
+
+    browser.open('/page2')
+    #TODO: check for reload_expected?
+    assert browser.wait_for(query_string_fixture.is_state_now, 3)
+
+
 # TODO: 
 # - dealing with nestedforms that appear inside a DynamicWidget
 # - dealing with lists/sentinels upon submitting a form when merging the querystring
@@ -962,3 +1062,12 @@ def test_dynamic_section_basics(web_fixture, query_string_fixture, responsive_di
 
 
 # - <CS: test_dynamic_section_basics> a test for dynamicsection
+
+# Van my papier...:
+# Back/forward: screen is rendered correctly after a back to a previously submitted page which happens to be on the same url. (Correctly=according to current state)
+# <CS:test_retain_reused_refreshed_user_input>Inputs values are retained when a parent argument changes: even if the input is not rendered...when it is rendered again it would keep the original value.
+#     This is true for inputs and argument inputs.
+#     Invalid inputs also retain their value when an argument of their widget changes
+
+#Why does validation of an inuput done on keyup, yet refresh trigger is only on tab-out?
+# CS is is still neceessary for this test? test_trigger_input_may_be_on_refreshing_widget was test_trigger_input_may_not_be_on_refreshing_widget
