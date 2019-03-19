@@ -74,10 +74,6 @@ function WidgetArgument(name, defaultValue) {
         return this.name+'-';
     }
 
-    this.getDefaultedSentinelName = function() {
-        return this.name+'_';
-    }
-        
     this.updateFromStateObject = function(stateObject) {
         this.changed = false;
         var currentValue = stateObject[this.name];
@@ -93,7 +89,6 @@ function WidgetArgument(name, defaultValue) {
     this.updateStateObject = function(stateObject) {
         delete stateObject[this.name];
         delete stateObject[this.getEmptyListSentinelName()];
-        delete stateObject[this.getDefaultedSentinelName()];
         
         var nameInHash;
         var valueInHash;
@@ -110,13 +105,11 @@ function WidgetArgument(name, defaultValue) {
 
     this.clearFromStateObject = function(stateObject) {
         this.deleteFromStateObject(stateObject);
-        stateObject[this.getDefaultedSentinelName()] = '';
     }
         
     this.deleteFromStateObject = function(stateObject) {
         delete stateObject[this.name];
         delete stateObject[this.getEmptyListSentinelName()];
-        delete stateObject[this.getDefaultedSentinelName()];
     }
 }
 

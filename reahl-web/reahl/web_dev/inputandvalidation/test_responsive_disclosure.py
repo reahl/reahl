@@ -605,12 +605,12 @@ def test_inputs_cleared_after_domain_exception_resubmit(web_fixture, disclosed_i
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
-    browser.open('/')
 
     # First get a domain exception
     fixture.raise_domain_exception_on_submit = True
     fixture.default_trigger_field_value = False
-
+    browser.open('/')
+ 
     browser.click(XPath.input_labelled('Trigger field'))
     browser.type(XPath.input_labelled('Email'), 'expectme@example.org')
     browser.click(XPath.button_labelled('click me'))
@@ -962,9 +962,9 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 
 # Test facts:
 # - when a Field is for a list, and its name is overridden, it should look for input in overridden_name+[]
+# dat die naam van die widget argument in ons state object die naam moet wees van die INPUT, nie net van die Field nie. Bv: as jy Input maak met name="x", moet ons die x gebruik.
 
 # TODO:
 # - change responsive disclosure example to include updating AllocationDetailSection
 #   eg, percentage and amount columns always displayed; wen tabbing out of a percentage, recalculate corresponding amount
-# dat die naam van die widget argument in ons state object die naam moet wees van die INPUT, nie net van die Field nie. Bv: as jy Input maak met name="x", moet ons die x gebruik.
 

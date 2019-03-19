@@ -1481,16 +1481,11 @@ class PrimitiveInput(Input):
     def persisted_userinput_class(self):
         return self.form.persisted_userinput_class
 
-    @property
-    def defaulted_sentinel(self):
-        return '%s_' % self.name
-
     def prepare_input(self):
         previously_entered_value = None
         try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
             widget_arguments = self.view.get_applicable_widget_arguments()
-            if self.defaulted_sentinel not in widget_arguments:
-                previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(widget_arguments, default_if_not_found=False)
+            previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(widget_arguments, default_if_not_found=False)
         except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 
