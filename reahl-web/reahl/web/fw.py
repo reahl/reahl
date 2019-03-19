@@ -1833,27 +1833,14 @@ class UrlBoundView(View):
         if not hasattr(self, '_client_side_state'):
             request = ExecutionContext.get_context().request
             if request.method.upper() == 'POST':
-                posted_state = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
-                posted_serial = urllib_parse.parse_qs(posted_state).get('__reahl_state_serial__', None)
-                old_state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_client_side_state__', six.text_type)
-                if old_state:
-                    old_serial = urllib_parse.parse_qs(old_state).get('__reahl_state_serial__', None)
-                    if posted_serial != old_serial:
-                        state = old_state
-                    else:
-                        state = posted_state
-                else:
-                        state = posted_state
+                state = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
             else:
                 state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_client_side_state__', six.text_type)
             self._state = state
         else:
             state = self._client_side_state
 
-        return state or '__reahl_state_serial__=%s' % self.generate_unique_state_identifier()
-
-    def generate_unique_state_identifier(self):
-        return time.time()
+        return state or ''
 
     def save_client_side_state(self):
         self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_client_side_state__')

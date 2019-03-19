@@ -916,7 +916,7 @@ def test_dynamic_section_basics(web_fixture, query_string_fixture, responsive_di
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
 def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, query_string_fixture, responsive_disclosure_fixture):
     """If a browser stores an URL in its history, which is the same as the one a user is currently on, 
-       when you navigate history to get back to that URL, the page is rendered with newer state"""
+       when you navigate history to get back to that URL, the page is rendered with newer state."""
 
     fixture = responsive_disclosure_fixture
 
