@@ -180,11 +180,11 @@ $.widget('reahl.hashchange', {
         return this.arguments;
     },
     updateFormActionWithCurrentState(form) {
-        var fragmentInput = $('input[form="'+ form.attr('id')+'"][name="reahl-fragment"]');
+        var fragmentInput = $('input[form="'+ form.attr('id')+'"][name="__reahl_client_side_state__"]');
         var completeFragment;
         var partialFragment;
         if (fragmentInput.length == 0) {
-            fragmentInput = $('<input name="reahl-fragment" form="' + form.attr('id') + '" type="hidden">');
+            fragmentInput = $('<input name="__reahl_client_side_state__" form="' + form.attr('id') + '" type="hidden">');
             fragmentInput.appendTo(form);
             partialFragment = getCurrentState();
         } else {
@@ -224,7 +224,7 @@ $.widget('reahl.hashchange', {
         var _this = this;
 
         var data = {};
-        data['reahl-fragment'] = $.param(_this.calculatePOSTFragment(newState, newArguments), true);  
+        data['__reahl_client_side_state__'] = $.param(_this.calculatePOSTFragment(newState, newArguments), true);  
 
         _this.element.block(blockOptions({cursor: 'wait'}));
         $.ajax({url:     this.options.url,

@@ -184,10 +184,10 @@ class AjaxMethod(RemoteMethod):
         self.view = widget.view
         
     def cleanup_after_exception(self, input_values, ex):
-        self.view.save_fragment()
+        self.view.save_client_side_state()
         
     def cleanup_after_success(self):
-        self.view.save_fragment()
+        self.view.save_client_side_state()
     
 
 # Uses: reahl/web/reahl.hashchange.js
@@ -562,9 +562,6 @@ class HTML5Page(HTMLElement):
         super(HTML5Page, self).__init__(view, 'html', children_allowed=True, css_id=css_id)
         self.append_class('no-js')
         script = self.add_child(HTMLElement(self.view, 'script', children_allowed=True))
-        fragment_to_replace = self.view.fragment        
-        if fragment_to_replace:
-            fragment_to_replace = '%s' % fragment_to_replace
         script.add_child(TextNode(self.view, '''
           function switchJSStyle(d, fromStyle, toStyle) {
               var r=d.querySelectorAll("html")[0];
@@ -573,7 +570,7 @@ class HTML5Page(HTMLElement):
           (function(d) { switchJSStyle(d, "no-js", "js"); })(document);
         ''', html_escape=False))
 
-        self.set_attribute('data-reahl-rendered-state', self.view.fragment) # needed by reahl.hashchange.js
+        self.set_attribute('data-reahl-rendered-state', self.view.client_side_state) # needed by reahl.hashchange.js
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 
@@ -1484,7 +1481,7 @@ class PrimitiveInput(Input):
     def prepare_input(self):
         previously_entered_value = None
         try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
-            widget_arguments = self.view.get_applicable_widget_arguments()
+            widget_arguments = self.view.get_construction_state()
             previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(widget_arguments, default_if_not_found=False)
         except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)

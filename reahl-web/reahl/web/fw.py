@@ -946,7 +946,7 @@ class Widget(object):
         self.default_slot_definitions = {}
         self.slot_contents = {}
         self.marked_as_security_sensitive = False
-        self.set_arguments_from_query_string()
+        self.set_arguments()
         self.read_check = read_check         #:
         self.write_check = write_check       #:
         self.created_by = None               #: The factory that was used to create this Widget
@@ -983,8 +983,8 @@ class Widget(object):
            The `@exposed query_fields` of a Widget is exactly like the `@exposed fields` used for input to a model object.
         """
         
-    def set_arguments_from_query_string(self):
-        widget_arguments = self.view.get_applicable_widget_arguments()
+    def set_arguments(self):
+        widget_arguments = self.view.get_construction_state()
         self.query_fields.accept_input(widget_arguments, ignore_validation=True)
 
     def add_default_slot(self, slot_name, widget_factory):
@@ -1829,38 +1829,39 @@ class UrlBoundView(View):
         return config.web.persisted_userinput_class
 
     @property
-    def fragment(self):
-        if not hasattr(self, '_fragment'):
+    def client_side_state(self):
+        if not hasattr(self, '_client_side_state'):
             request = ExecutionContext.get_context().request
             if request.method.upper() == 'POST':
-                posted_fragment = request.POST.dict_of_lists().get('reahl-fragment', [''])[0]
-                posted_serial = urllib_parse.parse_qs(posted_fragment).get('__reahl_state', None)
-                old_fragment = self.persisted_userinput_class.get_persisted_for_view(self, 'reahl-fragment', six.text_type)
-                if old_fragment:
-                    old_serial = urllib_parse.parse_qs(old_fragment).get('__reahl_state', None)
+                posted_state = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
+                posted_serial = urllib_parse.parse_qs(posted_state).get('__reahl_state_serial__', None)
+                old_state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_client_side_state__', six.text_type)
+                if old_state:
+                    old_serial = urllib_parse.parse_qs(old_state).get('__reahl_state_serial__', None)
                     if posted_serial != old_serial:
-                        fragment = old_fragment
+                        state = old_state
                     else:
-                        fragment = posted_fragment
+                        state = posted_state
                 else:
-                        fragment = posted_fragment
+                        state = posted_state
             else:
-                fragment = self.persisted_userinput_class.get_persisted_for_view(self, 'reahl-fragment', six.text_type)
-            self._fragment = fragment
+                state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_client_side_state__', six.text_type)
+            self._state = state
         else:
-            fragment = self._fragment
+            state = self._client_side_state
 
-        return fragment or '__reahl_state=%s' % self.generate_unique_state_identifier()
+        return state or '__reahl_state_serial__=%s' % self.generate_unique_state_identifier()
 
     def generate_unique_state_identifier(self):
         return time.time()
 
-    def save_fragment(self):
-        self.persisted_userinput_class.remove_persisted_for_view(self.view, 'reahl-fragment')
-        self.persisted_userinput_class.add_persisted_for_view(self.view, 'reahl-fragment', self.fragment, six.text_type)
+    def save_client_side_state(self):
+        self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_client_side_state__')
+        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_client_side_state__', self.client_side_state, six.text_type)
 
-    def get_applicable_widget_arguments(self):
-        fragment_arguments = urllib_parse.parse_qs(self.fragment, keep_blank_values=True)
+    def get_construction_state(self):
+        # This is the stuff a View needs to know before we can construct it properly (arguments and input values applicable for this view)
+        fragment_arguments = urllib_parse.parse_qs(self.client_side_state, keep_blank_values=True)
         request = ExecutionContext.get_context().request
         widget_arguments = request.GET.dict_of_lists()
         # TODO: deal with lists and list sentinels and so on
@@ -2369,13 +2370,13 @@ class EventChannel(RemoteMethod):
     def cleanup_after_exception(self, input_values, ex):
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
         self.form.cleanup_after_exception(input_values, ex)
-        fragment = input_values.get('reahl-fragment', [''])[0]
-        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, 'reahl-fragment', fragment, six.text_type)
+        fragment = input_values.get('__reahl_client_side_state__', [''])[0]
+        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_client_side_state__', fragment, six.text_type)
         
     def cleanup_after_success(self):
         self.form.cleanup_after_success()
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
-        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, 'reahl-fragment', '', six.text_type)
+        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_client_side_state__', '', six.text_type)
         
 
 
