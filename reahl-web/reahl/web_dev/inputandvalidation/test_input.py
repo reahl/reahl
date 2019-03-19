@@ -594,4 +594,3 @@ def test_fuzzy(web_fixture, fuzzy_text_input_fixture):
     browser.wait_for(browser.is_element_value, XPath.input_named('an_attribute'), '20 Nov 2012')
 
 
-

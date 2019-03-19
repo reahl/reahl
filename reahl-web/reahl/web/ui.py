@@ -1480,9 +1480,9 @@ class PrimitiveInput(Input):
 
     def prepare_input(self):
         previously_entered_value = None
-        try: # If input came in as widget argument, that value has preference above possibly saved values in the DB
-            widget_arguments = self.view.get_construction_state()
-            previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(widget_arguments, default_if_not_found=False)
+        try: # If input came in as part of current client state, that value has preference above possibly saved values in the DB
+            state = self.view.get_construction_state()
+            previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(state, default_if_not_found=False)
         except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
 

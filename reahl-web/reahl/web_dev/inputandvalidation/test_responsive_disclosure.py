@@ -30,8 +30,7 @@ from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
     CheckboxInput, ButtonInput, TextInput, HTML5Page
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
-    IntegerField, \
-    EmailField, Event, Action
+    IntegerField, EmailField, Event, Action
 from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.web.dynamic import DynamicSection
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
@@ -262,6 +261,46 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
+
+
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """The overridden names of inputs correctly ensures that that input's state is distinguished from another with the same name."""
+    fixture = responsive_disclosure_fixture
+
+    class ModelObject(object):
+        @exposed
+        def fields(self, fields):
+            fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
+                                                Choice(2, IntegerField(label='Two')),
+                                                Choice(3, IntegerField(label='Three'))],
+                                                default=[1],
+                                                label='Choice')
+    fixture.ModelObject = ModelObject
+
+    class MyForm(Form):
+        def __init__(self, view, an_object):
+            super(MyForm, self).__init__(view, 'myform')
+            self.change_trigger_input = CheckboxSelectInput(self, an_object.fields.choice, name='first_choice')
+            self.change_trigger_input.set_id('marvin')
+            self.add_child(Label(view, for_input=self.change_trigger_input))
+            self.add_child(self.change_trigger_input)
+            
+            another_model_object = fixture.ModelObject()
+            another_input = CheckboxSelectInput(self, another_model_object.fields.choice)
+            self.add_child(Label(view, for_input=another_input))
+            self.add_child(another_input)
+            
+    fixture.MyForm = MyForm
+    
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
+    web_fixture.reahl_server.set_app(wsgi_app)
+    browser = web_fixture.driver_browser
+    browser.open('/')
+
+    browser.click('//input[@name="first_choice[]" and @value="3"]')
+    assert browser.wait_for(query_string_fixture.is_state_now, [1,3])
+
 
 
 class MultipleTriggerFixture(Fixture):
@@ -960,10 +999,6 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 # TODO: 
 # - dealing with nestedforms that appear inside a DynamicWidget
 # - test migration
-
-# Test facts:
-# - when a Field is for a list, and its name is overridden, it should look for input in overridden_name+[]
-# dat die naam van die widget argument in ons state object die naam moet wees van die INPUT, nie net van die Field nie. Bv: as jy Input maak met name="x", moet ons die x gebruik.
 
 # TODO:
 # - change responsive disclosure example to include updating AllocationDetailSection
