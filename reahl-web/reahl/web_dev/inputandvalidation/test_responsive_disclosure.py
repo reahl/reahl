@@ -912,60 +912,49 @@ def test_dynamic_section_basics(web_fixture, query_string_fixture, responsive_di
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
 
 
-@uses(responsive_disclosure_fixture=ResponsiveDisclosureFixture)
-class SiteWithMultipleUrlsFixture(Fixture):
 
-    def new_MainUI(self):
-        fixture = self
-        class MainUI(UserInterface):
-            def assemble(self):
-                self.define_page(HTML5Page).use_layout(BasicPageLayout(slots=['main']))
-                home_page = self.define_view('/', title='Home page')
-                refreshing_widgets_page = self.define_view('/page2', title='Refreshing Widgets Page')
-                refreshing_widgets_page .set_slot('main', fixture.responsive_disclosure_fixture.MainWidget.factory())
-        return MainUI
+@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
+def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, query_string_fixture, responsive_disclosure_fixture):
+    """If a browser stores an URL in its history, which is the same as the one a user is currently on, 
+       when you navigate history to get back to that URL, the page is rendered with newer state"""
 
+    fixture = responsive_disclosure_fixture
 
-@with_fixtures(WebFixture, QueryStringFixture, SiteWithMultipleUrlsFixture)
-def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, query_string_fixture, site_with_multiple_urls_fixture):
-    """TODO"""
-
-    fixture = site_with_multiple_urls_fixture
-
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, site_root=fixture.MainUI)
+    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
 
-    #create some browser history
-    browser.open('/')
-    assert browser.current_url.path == '/'
-    browser.open('/page2')
-    assert browser.current_url.path == '/page2'
+    class FormWithButton(fixture.MyForm):
+        def __init__(self, view, an_object):
+            super(FormWithButton, self).__init__(view, an_object)
 
-    #cause some refreshes to happen, changing the page contents
+            self.define_event_handler(self.events.submit)
+            self.add_child(ButtonInput(self, self.events.submit))
+
+        @exposed
+        def events(self, events):
+            events.submit = Event(label='Submit')
+
+    fixture.MyForm = FormWithButton
+
+    # create some state on the server side for this URL
+    browser.open('/')
     assert browser.wait_for(query_string_fixture.is_state_now, 1)
     browser.select(XPath.select_labelled('Choice'), 'Two')
     assert browser.wait_for(query_string_fixture.is_state_now, 2)
-    browser.select(XPath.select_labelled('Choice'), 'Three')
-    assert browser.wait_for(query_string_fixture.is_state_now, 3)
 
-    #case: when the the back button is pressed, the url changes,
-    #      i.e. the user does NOT experience the state changes, one by one
-    assert browser.current_url.path == '/page2'
-    browser.go_back() 
+    # submit the page, so we get redirected to the same URL, leaving itself in browser history (webkit only)
+    browser.click(XPath.button_labelled('Submit'))
     assert browser.current_url.path == '/'
 
-    browser.open('/page2')
-    #TODO: check for reload_expected?
+    # create different state on the same URL we were redirected to 
+    browser.select(XPath.select_labelled('Choice'), 'Three')
+
+    # when the user navigates back to the same url in history, the page retains the youngest state
+    browser.go_back() 
+    assert browser.current_url.path == '/'
     assert browser.wait_for(query_string_fixture.is_state_now, 3)
 
-    # Back/forward: screen is rendered correctly after a back to a previously submitted page which happens to be on the same url. (Correctly=according to current state)
-    # go to url /
-    # choose responsive things (creates client side state)
-    # submit, successfully, but be redirected back to the same page
-    # now you have two / / entries in history
-    # click on responsive things differently to before (now you have different state on the same url)
-    # back ---> you must now see the page as it would be on the lastest state
 
 # TODO: 
 # - dealing with nestedforms that appear inside a DynamicWidget
@@ -977,4 +966,5 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 # TODO:
 # - change responsive disclosure example to include updating AllocationDetailSection
 #   eg, percentage and amount columns always displayed; wen tabbing out of a percentage, recalculate corresponding amount
+# dat die naam van die widget argument in ons state object die naam moet wees van die INPUT, nie net van die Field nie. Bv: as jy Input maak met name="x", moet ons die x gebruik.
 
