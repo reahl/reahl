@@ -972,7 +972,10 @@ class Widget(object):
 
     def is_refresh_enabled(self):
         return False
-    
+
+    def fire_on_refresh(self):
+        pass
+
     @exposed
     def query_fields(self, fields):
         """query_fields(self, fields)
@@ -1128,17 +1131,17 @@ class Widget(object):
     is_Form = False
     is_Input = False
     def check_form_related_programmer_errors(self):
-        inputs_with_refresh_sets = []
+        inputs = []
         forms = []
 
         for widget, parents_set in self.parent_widget_pairs(set([])):
             if widget.is_Form:
                 forms.append(widget)
             elif widget.is_Input:
-                inputs_with_refresh_sets.append((widget, set([parent for parent in parents_set if parent.is_refresh_enabled()])))
+                inputs.append(widget)
 
         self.check_forms_unique(forms)
-        self.check_all_inputs_forms_exist(forms, [i for i, refresh_set in inputs_with_refresh_sets])
+        self.check_all_inputs_forms_exist(forms, inputs)
 
     def check_all_inputs_forms_exist(self, forms_found_on_page, inputs_on_page):
         for i in inputs_on_page:
@@ -1667,9 +1670,6 @@ class View(object):
     def check_rights(self, request_method):
         pass
 
-    def plug_into(self, page):
-        pass
-    
     def as_resource(self, page):
         raise HTTPNotFound()
 
@@ -1732,6 +1732,7 @@ class UrlBoundView(View):
         self.write_check = write_check or self.allowed  #: The UrlBoundView will only be allowed to receive user input if this no-arg callable returns True.
         self.cacheable = cacheable
         self.page_factory = page_factory
+        self.page = None
         self.assemble(**view_arguments)
 
     def allowed(self):
@@ -1756,8 +1757,13 @@ class UrlBoundView(View):
     def __str__(self):
         return '<UrlBoundView "%s" on "%s">' % (self.title, self.relative_path)
 
-    def plug_into(self, page):
-        page.plug_in(self)  # Will create all Widgets specified by the View, and thus their SubResources if any
+    def create_page(self, for_path, default_page_factory):
+        page_factory = self.page_factory or default_page_factory
+        if not page_factory:
+            raise ProgrammerError('there is no page defined for %s' % for_path)
+        self.page = page_factory.create(self)
+        self.page.plug_in(self)
+        return self.page
 
     def set_slot(self, name, contents):
         """Supplies a Factory (`contents`) for the framework to use to create the contents of the Slot named `name`."""
@@ -1828,31 +1834,48 @@ class UrlBoundView(View):
         config = ExecutionContext.get_context().config
         return config.web.persisted_userinput_class
 
+    def get_POSTed_client_side_state(self):
+        request = ExecutionContext.get_context().request
+        return request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
+
     @property
     def client_side_state(self):
         if not hasattr(self, '_client_side_state'):
             request = ExecutionContext.get_context().request
-            if request.method.upper() == 'POST':
-                state = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
+            if request.method.upper() == 'POST' and not hasattr(request, 'internal_redirect'):
+                state = self.get_POSTed_client_side_state()
             else:
                 state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_client_side_state__', six.text_type)
-            self._state = state
+            self._client_side_state = state
         else:
             state = self._client_side_state
 
         return state or ''
 
+    def set_client_side_state_from_dict_of_lists(self, state_dict):
+        self._client_side_state = urllib_parse.urlencode(state_dict, doseq=True)
+
+    @property
+    def client_side_state_as_dict_of_lists(self):
+        return urllib_parse.parse_qs(self.client_side_state, keep_blank_values=True)
+
     def save_client_side_state(self):
-        self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_client_side_state__')
+        self.clear_client_side_state()
         self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_client_side_state__', self.client_side_state, six.text_type)
+
+    def save_POSTed_client_side_state(self):
+        self.clear_client_side_state()
+        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_client_side_state__', self.get_POSTed_client_side_state(), six.text_type)
+
+    def clear_client_side_state(self):
+        self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_client_side_state__')
 
     def get_construction_state(self):
         # This is the stuff a View needs to know before we can construct it properly (arguments and input values applicable for this view)
-        fragment_arguments = urllib_parse.parse_qs(self.client_side_state, keep_blank_values=True)
         request = ExecutionContext.get_context().request
         widget_arguments = request.GET.dict_of_lists()
         # TODO: deal with lists and list sentinels and so on
-        widget_arguments.update(fragment_arguments)
+        widget_arguments.update(self.client_side_state_as_dict_of_lists)
         return widget_arguments
 
 
@@ -2723,11 +2746,7 @@ class ReahlWSGIApplication(object):
         current_view.check_precondition()
         current_view.check_rights(request.method)
         if current_view.is_dynamic:
-            page_factory = current_view.page_factory or page_factory
-            if not page_factory:
-                raise ProgrammerError('there is no page defined for %s' % url.path)
-            page = page_factory.create(current_view)
-            current_view.plug_into(page)
+            page = current_view.create_page(url.path, page_factory)
             self.check_scheme(page.is_security_sensitive)
         else:
             page = None

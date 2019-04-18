@@ -17,4 +17,9 @@
     <egg name="reahl-webdev"/>
   </deps>
 
+  <persisted>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Investment"/>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Allocation"/>
+  </persisted>
+
 </project>

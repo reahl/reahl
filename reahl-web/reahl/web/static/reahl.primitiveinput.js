@@ -25,9 +25,24 @@
         
         _create: function() {
             var o = this.options;
+            var _this = this;
             this.element.addClass("reahl-primitiveinput");
     
             this.getAllRelatedFormInputs().data('reahlPrimitiveinput', this);
+
+            if (this.getRefreshWidgetId()) {
+                this.element.on('change', function(e) {
+                    var currentInput = $(_this.getAllRelatedFormInputs()[0]);
+                    var inputName = currentInput.attr('name');
+                    var formId = $(currentInput[0].form).attr('id');
+                    var selectorForFocus = '#'+formId+' [name="'+inputName+'"]';
+
+                    $(currentInput).focus();
+                    $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(function(){ 
+                        $(selectorForFocus).focus();
+                    });
+                })
+            };
         },
         
         isCheckbox: function() {
@@ -38,6 +53,10 @@
             return this.getAllRelatedFormInputs().is('input[type="radio"]');
         },
 
+        getRefreshWidgetId: function() {
+            return this.element.attr('data-refresh-widget-id');
+        },
+                    
         isForBooleanValue: function() {
             return this.element.attr('data-is-boolean') !== undefined;
         },

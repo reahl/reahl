@@ -29,10 +29,10 @@ class DynamicSection(Div):
     A DynamicSection is a Div that is refreshed when the value of certain 
     inputs (its trigger Inputs) change.
     """
-    def __init__(self, view, css_id, trigger_inputs):
+    def __init__(self, view, css_id, trigger_inputs, on_refresh=None):
         self.trigger_inputs = trigger_inputs
         super(DynamicSection, self).__init__(view, css_id=css_id)
-        self.enable_refresh()
+        self.enable_refresh(on_refresh=on_refresh)
         for trigger_input in trigger_inputs:
             trigger_input.enable_notify_change(self, trigger_input.bound_field)
 

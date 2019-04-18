@@ -895,6 +895,10 @@ class Field(object):
     def validate_parsed(self, parsed_value, ignore=None):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
 
+    def update_model_value_in_disambiguated_input(self, input_dict):
+        if self.name_in_input in input_dict:
+            input_dict[self.name_in_input] = self.as_input()
+
     def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
         list_of_input = input_dict.get(self.name_in_input, [])
         if list_of_input:
@@ -1072,8 +1076,8 @@ class Event(Field):
     def can_write(self):
         return self.can_read() and super(Event, self).can_write()
 
-    def fire(self):
-        if not self.occurred:
+    def fire(self, force=False):
+        if not force and not self.occurred:
             raise ProgrammerError('attempted to fire Event that has not occurred: %s' % self)
         return self.action(self)
 
@@ -1527,6 +1531,14 @@ class MultiChoiceField(ChoiceField):
 
     def get_empty_sentinel_name(self, base_name):
         return '%s-' % base_name
+
+    def update_model_value_in_disambiguated_input(self, input_dict):
+        assert None, 'TODO'
+        # remove the list sentinel in the input dict 
+        # remove any items with the list name in the input dict
+        # if the current domain value is empty, add empty list sentinel
+        # else, add an entry with my input_name, mapping to the list of stringified values
+
 
     def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
         submitted_as_empty = len(input_dict.get(self.get_empty_sentinel_name(self.name_in_input), [])) > 0

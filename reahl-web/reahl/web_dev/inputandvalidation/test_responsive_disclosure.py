@@ -998,9 +998,27 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 
 # TODO: 
 # - dealing with nestedforms that appear inside a DynamicWidget
-# - test migration
 
 # TODO:
 # - change responsive disclosure example to include updating AllocationDetailSection
 #   eg, percentage and amount columns always displayed; wen tabbing out of a percentage, recalculate corresponding amount
+#   
+
+# TODO:
+# - You can make an input refresh a refreshable widget by adding an argument to its constructor
+# - You can make the widget do stuff upon refresh by adding an Event to its constructor
+# - check that read-only inputs in state are not inputted / become validation errors?
+# - check that input values are updated with values recalculated on the model
+#    - also for read-only ones
+# - check that other stuff, such as P with content based on recalculated model values are updated
+# - check that the model is NOT updated during an ajax call... only once you submit the form.
+# - something to say here about working with a persisted vs transient object and what will work/not
+
+# - update_model_value_in_disambiguated_input for MultiChoiceField still needs to be implemented
+# Unrelated: get_value_from_input of CheckboxSelectInput | a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
+    # def get_value_from_input(self, input_values):
+    #     if self.bound_field.allows_multiple_selections:
+    #         return input_values.getall(self.name)
+    #     else:
+    #         return input_values.get(self.name, self.bound_field.false_value) #TODO: this fixes a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
 

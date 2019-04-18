@@ -41,7 +41,7 @@ from reahl.component.exceptions import arg_checks
 from reahl.component.i18n import Catalogue
 from reahl.component.context import ExecutionContext
 from reahl.component.modelinterface import ValidationConstraintList, ValidationConstraint, ExpectedInputNotFound,\
-    Field, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
+    Field, Event, BooleanField, Choice, UploadedFile, InputParseException, StandaloneFieldIndex, MultiChoiceField, ChoiceField
 from reahl.component.py3compat import html_escape
 from reahl.web.fw import EventChannel, RemoteMethod, JsonResult, Widget, \
     ValidationException, WidgetResult, WidgetFactory, Url
@@ -179,16 +179,32 @@ class HTMLAttributeDict(dict):
 class AjaxMethod(RemoteMethod):
     def __init__(self, widget):
         method_name = 'refresh_%s' % widget.css_id
-        callable_object = lambda *args, **kwargs: None
-        super(AjaxMethod, self).__init__(method_name, callable_object, WidgetResult(widget), immutable=True, method='post')
+        super(AjaxMethod, self).__init__(method_name, self.fire_ajax_event, WidgetResult(widget), immutable=True, method='post')
         self.view = widget.view
+        self.widget = widget
         
     def cleanup_after_exception(self, input_values, ex):
         self.view.save_client_side_state()
         
     def cleanup_after_success(self):
         self.view.save_client_side_state()
+
+    def fire_ajax_event(self, *args, **kwargs):
+        for widget in self.view.page.contained_widgets():
+            if widget.is_Input and widget.registers_with_form:
+                if widget.bound_field.input_status == 'validly_entered' and widget.bound_field.can_write():
+                    widget.bound_field.set_model_value()
+        
+        self.widget.fire_on_refresh()
+
+        for widget in self.view.page.contained_widgets():
+            if widget.is_Input and widget.registers_with_form and not widget.fields_to_notify: # is_not_a_trigger_input
+                self.update_client_side_state(widget.bound_field)
     
+    def update_client_side_state(self, field):
+        state = self.view.client_side_state_as_dict_of_lists
+        field.update_model_value_in_disambiguated_input(state)
+        self.view.set_client_side_state_from_dict_of_lists(state)
 
 # Uses: reahl/web/reahl.hashchange.js
 class HashChangeHandler(object):
@@ -236,13 +252,14 @@ class HTMLElement(Widget):
         self.tag_name = tag_name
         self.constant_attributes = HTMLAttributeDict()
         self.ajax_handler = None
+        self.on_refresh = Event()
         if css_id:
             self.set_id(css_id)
 
     def __str__(self):
         return '<%s %s%s>' % (self.__class__.__name__, self.tag_name, self.attributes.as_html_snippet())
 
-    def enable_refresh(self, *for_fields):
+    def enable_refresh(self, *for_fields, on_refresh=None):
         """Sets this HTMLElement up so that it will refresh itself without reloading its page when it senses that
            one of the given `query_fields` have changed. If no Fields are specified here, the HTMLElement
            is refreshed when any of its `query_fields` change.
@@ -260,9 +277,14 @@ class HTMLElement(Widget):
         assert all([(field in self.query_fields.values()) for field in for_fields])
 
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
+        if on_refresh:
+            self.on_refresh = on_refresh
 
     def is_refresh_enabled(self):
         return self.ajax_handler is not None
+
+    def fire_on_refresh(self):
+        self.on_refresh.fire(force=True)
 
     def add_child(self, child):
         assert self.children_allowed, 'You cannot add children to a %s' % type(self)
@@ -1388,10 +1410,15 @@ class PrimitiveInput(Input):
     is_for_file = False
     is_contained = False
 
-    def __init__(self, form, bound_field, name=None, registers_with_form=True):
+    def __init__(self, form, bound_field, name=None, registers_with_form=True, refresh_widget=None):
         super(PrimitiveInput, self).__init__(form, bound_field)
         if name:
             bound_field.override_unqualified_name_in_input(name)
+        if refresh_widget:
+            if not refresh_widget.is_refresh_enabled:
+                raise ProgrammerError('%s is not set to refresh. You can only refresh widgets on which enable_refresh() was called.' % refresh_widget)
+        self.refresh_widget = refresh_widget
+
 
         self.registers_with_form = registers_with_form
         if self.registers_with_form:
@@ -1403,6 +1430,10 @@ class PrimitiveInput(Input):
         if not self.is_contained:
             self.add_to_attribute('class', ['reahl-primitiveinput'])
             self.add_input_data_attributes()
+        if self.refresh_widget:
+            self.set_attribute('data-refresh-widget-id', self.refresh_widget.css_id)
+
+
 
     def add_input_data_attributes(self):
         if isinstance(self.bound_field, BooleanField):
@@ -1485,8 +1516,7 @@ class PrimitiveInput(Input):
             previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(state, default_if_not_found=False)
         except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
-
-        if (previously_entered_value is not None):
+        if (previously_entered_value is not None) and self.bound_field.can_write():
             self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
         else:
             self.bound_field.clear_user_input()
@@ -1494,6 +1524,10 @@ class PrimitiveInput(Input):
     def persist_input(self, input_values):
         input_value = self.get_value_from_input(input_values)
         self.enter_value(input_value)
+
+    def clear_entered_value(self):
+        if self.registers_with_form:
+            self.persisted_userinput_class.clear_saved_input_value_for_form(self.form, self.name)
 
     def enter_value(self, input_value):
         if self.registers_with_form:
@@ -1563,10 +1597,10 @@ class TextArea(PrimitiveInput):
        .. versionchanged:: 4.1
           Added `name`       
     """
-    def __init__(self, form, bound_field, name=None, rows=None, columns=None):
+    def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
         self.rows = rows
         self.columns = columns
-        super(TextArea, self).__init__(form, bound_field, name=name)
+        super(TextArea, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         html_text_area = HTMLElement(self.view, 'textarea', children_allowed=True)
@@ -1590,12 +1624,12 @@ class TextArea(PrimitiveInput):
 
 class ContainedInput(PrimitiveInput):
     is_contained = True
-    def __init__(self, containing_input, choice, name=None):
+    def __init__(self, containing_input, choice, name=None, refresh_widget=None):
         self.choice = choice
         self.containing_input = containing_input
         super(ContainedInput, self).__init__(containing_input.form, choice.field,
                                              name=name,
-                                             registers_with_form=False)
+                                             registers_with_form=False, refresh_widget=refresh_widget)
 
     def get_input_status(self):
         return 'defaulted'
@@ -1769,8 +1803,8 @@ class RadioButtonSelectInput(PrimitiveInput):
     choice_type = 'radio'
 
     @arg_checks(bound_field=IsInstance(ChoiceField))
-    def __init__(self, form, bound_field, name=None):
-        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def is_choice_selected(self, value):
         if self.bound_field.allows_multiple_selections:
@@ -1826,8 +1860,8 @@ class TextInput(PrimitiveInput):
        .. versionchanged:: 4.1
           Added `name`
     """
-    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False):
-        super(TextInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
+        super(TextInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
         self.append_class('reahl-textinput')
         if placeholder:
             placeholder_text = self.label if placeholder is True else placeholder
@@ -1859,8 +1893,8 @@ class PasswordInput(PrimitiveInput):
        .. versionchanged:: 4.1
           Added `name`       
     """
-    def __init__(self, form, bound_field, name=None):
-        super(PasswordInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(PasswordInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         return HTMLInputElement(self, 'password', render_value_attribute=False)
@@ -1891,8 +1925,8 @@ class CheckboxInput(PrimitiveInput):
     choice_type = 'checkbox'
 
     @arg_checks(bound_field=IsInstance(BooleanField))
-    def __init__(self, form, bound_field, name=None):
-        super(CheckboxInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(CheckboxInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     @property
     def checked(self):
@@ -1934,11 +1968,11 @@ class CheckboxSelectInput(PrimitiveInput):
     """
     choice_type = 'checkbox'
     allowed_field_types = [MultiChoiceField]
-    def __init__(self, form, bound_field, name=None):
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
         if not isinstance(bound_field, *self.allowed_field_types):
             raise ProgrammerError('%s is not allowed to be used with %s' % (bound_field.__class__, self.__class__))
         self.added_choices = []
-        super(CheckboxSelectInput, self).__init__(form, bound_field, name=name)
+        super(CheckboxSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
 
     @property
@@ -2120,8 +2154,8 @@ class SimpleFileInput(PrimitiveInput):
     """
     is_for_file = True
 
-    def __init__(self, form, bound_field, name=None):
-        super(SimpleFileInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(SimpleFileInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         file_input = HTMLInputElement(self, 'file')

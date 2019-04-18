@@ -85,8 +85,8 @@ class TextInput(reahl.web.ui.TextInput):
        .. versionchanged:: 4.1
           Added `name`                     
     """
-    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False):
-        super(TextInput, self).__init__(form, bound_field, name=name, fuzzy=fuzzy, placeholder=placeholder)
+    def __init__(self, form, bound_field, name=None, fuzzy=False, placeholder=False, refresh_widget=None):
+        super(TextInput, self).__init__(form, bound_field, name=name, fuzzy=fuzzy, placeholder=placeholder, refresh_widget=refresh_widget)
         self.append_class('form-control')
 
 
@@ -100,8 +100,8 @@ class PasswordInput(reahl.web.ui.PasswordInput):
        .. versionchanged:: 4.1
           Added `name`       
     """
-    def __init__(self, form, bound_field, name=None):
-        super(PasswordInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(PasswordInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
         self.append_class('form-control')
 
 
@@ -117,8 +117,8 @@ class TextArea(reahl.web.ui.TextArea):
        .. versionchanged:: 4.1
           Added `name`       
     """
-    def __init__(self, form, bound_field, name=None, rows=None, columns=None):
-        super(TextArea, self).__init__(form, bound_field, name=name, rows=rows, columns=columns)
+    def __init__(self, form, bound_field, name=None, rows=None, columns=None, refresh_widget=None):
+        super(TextArea, self).__init__(form, bound_field, name=name, rows=rows, columns=columns, refresh_widget=refresh_widget)
         self.append_class('form-control')
 
 
@@ -133,8 +133,8 @@ class SelectInput(reahl.web.ui.SelectInput):
        .. versionchanged:: 4.1
           Added `name`       
     """
-    def __init__(self, form, bound_field, name=None):
-        super(SelectInput, self).__init__(form, bound_field, name=name)
+    def __init__(self, form, bound_field, name=None, refresh_widget=None):
+        super(SelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
         self.append_class('custom-select')
 
 
@@ -166,10 +166,10 @@ class CheckboxInput(reahl.web.ui.CheckboxSelectInput):
           Added `name`       
     """
     allowed_field_types = [ChoiceField]
-    def __init__(self, form, bound_field, name=None, contents_layout=None):
+    def __init__(self, form, bound_field, name=None, contents_layout=None, refresh_widget=None):
         self.contents_layout = contents_layout
         self.checkbox_input = None
-        super(CheckboxInput, self).__init__(form, bound_field, name=name)
+        super(CheckboxInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def create_html_widget(self):
         if isinstance(self.bound_field, BooleanField):
@@ -208,10 +208,10 @@ class RadioButtonSelectInput(reahl.web.ui.RadioButtonSelectInput):
        .. versionchanged:: 4.1
           Added `name`       
     """
-    def __init__(self, form, bound_field, name=None, contents_layout=None):
+    def __init__(self, form, bound_field, name=None, contents_layout=None, refresh_widget=None):
         assert contents_layout is None or isinstance(contents_layout, ChoicesLayout), 'contents_layout should be an instance of ChoicesLayout but isn\'t' #TODO: this should be in @argchecks(...)
         self.contents_layout = contents_layout or ChoicesLayout(inline=False)
-        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name)
+        super(RadioButtonSelectInput, self).__init__(form, bound_field, name=name, refresh_widget=refresh_widget)
 
     def create_main_element(self):
         main_element = super(RadioButtonSelectInput, self).create_main_element().use_layout(self.contents_layout)

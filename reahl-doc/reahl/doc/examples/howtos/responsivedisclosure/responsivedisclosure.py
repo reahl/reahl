@@ -29,6 +29,10 @@ from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, Res
 from reahl.web.bootstrap.forms import Form, FormLayout, ButtonInput, ButtonLayout, TextInput, SelectInput, RadioButtonSelectInput, CheckboxInput, Button
 from reahl.web.bootstrap.tables import Table
 
+from sqlalchemy import Column, Integer, UnicodeText, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
+from reahl.sqlalchemysupport import Base, Session, session_scoped
+
 
 
 class ResponsiveUI(UserInterface):
@@ -103,7 +107,20 @@ class IDInputs(Div):
         self.layout.add_input(TextInput(form, document.fields.id_number))
 
 
-class Investment(object):
+@session_scoped
+class Investment(Base):
+    __tablename__ = 'responsive_disclosure_investment'
+
+    id              = Column(Integer, primary_key=True)
+    agreed_to_terms = Column(Boolean)
+    new_or_existing = Column(UnicodeText)
+    existing_account_number = Column(Integer)
+    name            = Column(UnicodeText)
+    surname         = Column(UnicodeText)
+    amount          = Column(Integer)
+    amount_or_percentage = Column(UnicodeText)
+    allocations     = relationship('Allocation', back_populates='investment')
+
     @exposed
     def fields(self, fields):
         fields.agreed_to_terms = BooleanField(label='I agree to the terms and conditions')
@@ -114,28 +131,36 @@ class Investment(object):
         fields.name         = Field(label='Name', required=True)
         fields.surname      = Field(label='Surname', required=True)
         fields.amount       = IntegerField(label='Total amount', required=True)
-        fields.type         = ChoiceField([Choice('amount', Field(label='Amount')),
-                                         Choice('percentage', Field(label='Percentage'))],
-                                           label='Allocate using', required=True)
+        fields.amount_or_percentage  = ChoiceField([Choice('amount', Field(label='Amount')),
+                                                    Choice('percentage', Field(label='Percentage'))],
+                                            label='Allocate using', required=True)
 
     @exposed('submit')
     def events(self, events):
         events.submit = Event(label='Submit', action=Action(self.submit))
+        events.allocation_changed = Event(action=Action(self.recalculate))
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super(Investment, self).__init__(**kwargs)
         self.id_document = IDDocument()
-        self.allocations = [Allocation(self, 'Fund A'), Allocation(self, 'Fund B')]
-        self.type = 'percentage'
+        self.amount_or_percentage = 'percentage'
         self.name = None
         self.surname = None
-        self.amount = None
+        self.amount = 0
         self.existing_account_number = None
         self.new_or_existing = None
         self.agreed_to_terms = False
+        if not self.allocations:
+            self.allocations.append(Allocation(self, 'Fund A'))
+            self.allocations.append(Allocation(self, 'Fund B'))
 
     @property
     def is_in_percentage(self):
-        return self.type == 'percentage'
+        return self.amount_or_percentage == 'percentage'
+
+    def recalculate(self):
+        for allocation in self.allocations:
+            allocation.recalculate(self.amount)
 
     def submit(self):
         print('Submitting investment')
@@ -149,20 +174,29 @@ class Investment(object):
             print('\tExisting account number: %s' % self.existing_account_number)
         print('\tAgreed to terms: %s' % self.agreed_to_terms)
         print('\tAmount: %s' % self.amount)
-        print('\tAllocations (%s)' % self.type)
+        print('\tAllocations (%s)' % self.amount_or_percentage)
         for allocation in self.allocations:
             allocation_size = allocation.percentage if self.is_in_percentage else allocation.amount
             print('\t\tFund %s(%s): %s' % (allocation.fund, allocation.fund_code, allocation_size))
 
 
-class Allocation(object):
+class Allocation(Base):
+    __tablename__ = 'responsive_disclosure_allocation'
+
+    id         = Column(Integer, primary_key=True)
+    percentage = Column(Integer)
+    amount     = Column(Integer)
+    fund       = Column(UnicodeText)
+    investment_id = Column(Integer, ForeignKey(Investment.id))
+    investment  = relationship('Investment', back_populates='allocations')
+
     @exposed
     def fields(self, fields):
-        fields.percentage    = IntegerField(label='Percentage', required=True)
-        fields.amount        = IntegerField(label='Amount', required=True)
+        fields.percentage    = IntegerField(label='Percentage', required=True, writable=lambda field: self.is_in_percentage)
+        fields.amount        = IntegerField(label='Amount', required=True, writable=lambda field: self.is_in_amount)
 
     def __init__(self, investment, fund_name):
-        self.investment = investment
+        super(Allocation, self).__init__(investment=investment)
         self.fund = fund_name
         self.amount = 0
         self.percentage = 0
@@ -174,6 +208,20 @@ class Allocation(object):
     @property
     def is_in_percentage(self):
         return self.investment.is_in_percentage
+
+    @property
+    def is_in_amount(self):
+        return not self.is_in_percentage
+
+    def recalculate(self, total):
+        if self.is_in_amount:
+            if total == 0:
+                self.percentage = 0
+            else:
+                self.percentage = int(round(self.amount / total * 100))
+        else:
+            self.amount = int(round(self.percentage / 100 * total))
+        print('Updated %s: amount(%s) percentage(%s)' % (self.fund, self.amount, self.percentage))
 
 
 class NewInvestorDetailsSection(FieldSet):
@@ -206,28 +254,39 @@ class InvestmentAllocationSection(DynamicSection):
             fieldset = self.add_child(FieldSet(form.view, legend_text='Investment allocation'))
             fieldset.use_layout(FormLayout())
             amount_input = fieldset.layout.add_input(TextInput(form, investment.fields.amount))
-            type_input = fieldset.layout.add_input(RadioButtonSelectInput(form, investment.fields.type))
-            self.add_child(AllocationDetailSection(form, [amount_input, type_input], investment))
+            amount_or_percentage_input = fieldset.layout.add_input(RadioButtonSelectInput(form, investment.fields.amount_or_percentage))
+            self.add_child(AllocationDetailSection(form, [amount_input, amount_or_percentage_input], investment))
 
 
 class AllocationDetailSection(DynamicSection):
     def __init__(self, form, trigger_inputs, investment):
-        super(AllocationDetailSection, self).__init__(form.view, 'investment_allocation_details', trigger_inputs)
+        super(AllocationDetailSection, self).__init__(form.view, 'investment_allocation_details', trigger_inputs, on_refresh=investment.events.allocation_changed)
         def make_amount_input(view, allocation):
-            div = Div(view).use_layout(FormLayout())
-            div.layout.add_input(TextInput(form, allocation.fields.amount, name='amount.%s' % allocation.fund_code), hide_label=True)
-            return div
+            if isinstance(allocation, Allocation):
+                div = Div(view).use_layout(FormLayout())
+                div.layout.add_input(TextInput(form, allocation.fields.amount, name='amount.%s' % allocation.fund_code, refresh_widget=self), hide_label=True)
+                return div
+            else:
+                return P(view, text=str(allocation.amount))
         def make_percentage_input(view, allocation):
-            div = Div(view).use_layout(FormLayout())
-            div.layout.add_input(TextInput(form, allocation.fields.percentage, name='percentage.%s' % allocation.fund_code), hide_label=True)
-            return div
+            if isinstance(allocation, Allocation):
+                div = Div(view).use_layout(FormLayout())
+                div.layout.add_input(TextInput(form, allocation.fields.percentage, name='percentage.%s' % allocation.fund_code, refresh_widget=self), hide_label=True)
+                return div
+            else:
+                return P(view, text=str(allocation.percentage))
+
+        class TotalsRow(object):
+            def __init__(self, investment):
+                self.investment = investment
+                self.fund = 'Totals'
+                self.amount = sum([i.amount for i in investment.allocations])
+                self.percentage = sum([i.percentage for i in investment.allocations])
 
         columns = [StaticColumn(Field(label='Fund'), 'fund')]
-        if investment.is_in_percentage:
-            columns.append(DynamicColumn('Percentage', make_percentage_input))
-        else:
-            columns.append(DynamicColumn('Amount', make_amount_input))
-        table = Table(form.view).with_data(columns, investment.allocations)
+        columns.append(DynamicColumn('Percentage', make_percentage_input))
+        columns.append(DynamicColumn('Amount', make_amount_input))
+        table = Table(form.view).with_data(columns, investment.allocations+[TotalsRow(investment)])
         self.add_child(table)
         self.define_event_handler(investment.events.submit)
         self.add_child(Button(form, investment.events.submit))
@@ -249,11 +308,9 @@ class NewInvestmentForm(Form):
 
         if self.exception:
             self.add_child(Alert(view, str(self.exception), 'warning'))
-        new_investment = Investment()
+        new_investment = Investment.for_current_session()
         step1 = self.add_child(FieldSet(view, legend_text='Investor information'))
         step1.use_layout(FormLayout())
-#        step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.type, name='testing1'))
-#        step1.layout.add_input(TextInput(self, new_investment.fields.amount, name='testing2'))
         trigger = step1.layout.add_input(RadioButtonSelectInput(self, new_investment.fields.new_or_existing))
         self.add_child(NewOrExistingInvestorSection(self, trigger, new_investment))
 

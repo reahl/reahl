@@ -254,7 +254,7 @@ class UserInput(SessionData, UserInputProtocol):
         values = [i.value for i in query.all()]
 
         if value_type is six.text_type:
-            assert len(values) == 1
+            assert len(values) == 1, 'There are %s saved values for "%s", but there should only be one' % (len(values), key)
             return values[0]
         elif value_type is list:
             if len(values) == 1 and values[0] is None:
@@ -269,6 +269,9 @@ class UserInput(SessionData, UserInputProtocol):
 
     @classmethod
     def save_value_for(cls, view, form, key, value, value_type):
+        for i in cls.find_for(view, form=form).filter_by(key=key):
+            Session.delete(i)
+
         if value_type is six.text_type:
             assert isinstance(value, six.text_type), 'Cannot handle the value: ' + six.text_type(value)
             cls.save_for(view, form=form, key=key, value=value)

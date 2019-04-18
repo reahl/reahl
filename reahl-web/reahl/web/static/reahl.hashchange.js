@@ -151,16 +151,19 @@ $.widget('reahl.hashchange', {
         var namespaced_hashchange = 'hashchange.'+this.element.attr('id');
         $(window).off(namespaced_hashchange).on(namespaced_hashchange, function(e) {
             var newState = $.extend(true, getCurrentState(), getTraditionallyNamedFragment());
-            _this.handleStateChanged(newState, function(){});
+            _this.handleStateChanged(newState, function(){}, false);
         });
         setTimeout(function() { $(window).trigger('hashchange'); }, 0);
     },
-    handleStateChanged: function(newState, afterHandler) {
+    forceReload: function(afterHandler) { 
+        this.handleStateChanged(getCurrentState(), afterHandler, true);
+    },
+    handleStateChanged: function(newState, afterHandler, forceChanged) {
         var relevantFormInputs = this.getFormInputsAsArguments({});
         newState = this.addArgumentsToState(newState, relevantFormInputs);
         history.replaceState(newState, null, null);
         var changedArguments = this.calculateChangedArguments(newState);
-        if (this.hasChanged(changedArguments)) {
+        if (forceChanged || this.hasChanged(changedArguments)) {
             this.triggerChange(newState, changedArguments, afterHandler);
         };
     },
@@ -294,6 +297,7 @@ $.widget('reahl.changenotifier', {
                     var state = getCurrentState();
                     _this.updateStateWithAllSiblingValues(state);
                     _this.updatePage(state, $(e.target));
+//                    this.focus();
                     _this.unblockWidget();
                 } else { _this.blockWidget(); }
                 return true;
@@ -323,11 +327,10 @@ $.widget('reahl.changenotifier', {
         var inputName = changedInput.attr('name');
         var formId = form.attr('id');
         var selectorForFocus = '#'+formId+' [name="'+inputName+'"]';
-
         this.getCorrespondingHashChangeHandler().handleStateChanged(newState, function(){ 
             $(selectorForFocus).focus();
             form.unblock(); 
-        });
+        }, false);
     },
     addCurrentInputValueTo: function(state) {
         var argument = this.options.argument;
