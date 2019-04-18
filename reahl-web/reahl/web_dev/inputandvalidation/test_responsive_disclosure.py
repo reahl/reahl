@@ -1014,7 +1014,7 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 # - check that the model is NOT updated during an ajax call... only once you submit the form.
 # - something to say here about working with a persisted vs transient object and what will work/not
 
-# - update_model_value_in_disambiguated_input for MultiChoiceField still needs to be implemented
+# - update_value_in_disambiguated_input for MultiChoiceField still needs to be implemented
 # Unrelated: get_value_from_input of CheckboxSelectInput | a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
     # def get_value_from_input(self, input_values):
     #     if self.bound_field.allows_multiple_selections:

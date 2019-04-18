@@ -190,21 +190,12 @@ class AjaxMethod(RemoteMethod):
         self.view.save_client_side_state()
 
     def fire_ajax_event(self, *args, **kwargs):
-        for widget in self.view.page.contained_widgets():
-            if widget.is_Input and widget.registers_with_form:
-                if widget.bound_field.input_status == 'validly_entered' and widget.bound_field.can_write():
-                    widget.bound_field.set_model_value()
-        
         self.widget.fire_on_refresh()
 
         for widget in self.view.page.contained_widgets():
             if widget.is_Input and widget.registers_with_form and not widget.fields_to_notify: # is_not_a_trigger_input
-                self.update_client_side_state(widget.bound_field)
+                self.view.update_client_side_state(widget.bound_field)
     
-    def update_client_side_state(self, field):
-        state = self.view.client_side_state_as_dict_of_lists
-        field.update_model_value_in_disambiguated_input(state)
-        self.view.set_client_side_state_from_dict_of_lists(state)
 
 # Uses: reahl/web/reahl.hashchange.js
 class HashChangeHandler(object):
@@ -272,8 +263,8 @@ class HTMLElement(Widget):
         """
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
-        if self.query_fields.is_empty:
-            raise ProgrammerError('You must have some query fields to enable_refresh')
+#        if self.query_fields.is_empty:
+#            raise ProgrammerError('You must have some query fields to enable_refresh')
         assert all([(field in self.query_fields.values()) for field in for_fields])
 
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
@@ -1348,11 +1339,7 @@ class Input(HTMLWidget):
 
     @property
     def value(self):
-        if self.get_input_status() == 'defaulted' or self.disabled:
-            raw_value = self.bound_field.as_input()
-        else:
-            raw_value = self.bound_field.user_input
-        return self.bound_field.input_as_string(raw_value)
+        return self.bound_field.as_user_input_value(self.get_input_status())
 
     def get_input_status(self):
         return self.bound_field.input_status
@@ -1518,8 +1505,12 @@ class PrimitiveInput(Input):
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
         if (previously_entered_value is not None) and self.bound_field.can_write():
             self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
+            if self.bound_field.input_status == 'validly_entered' and self.bound_field.can_write():
+                    self.bound_field.set_model_value()
+            self.view.update_client_side_state(self.bound_field)
         else:
             self.bound_field.clear_user_input()
+
 
     def persist_input(self, input_values):
         input_value = self.get_value_from_input(input_values)

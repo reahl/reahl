@@ -1838,6 +1838,11 @@ class UrlBoundView(View):
         request = ExecutionContext.get_context().request
         return request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
 
+    def update_client_side_state(self, field):
+        state = self.client_side_state_as_dict_of_lists
+        field.update_value_in_disambiguated_input(state)
+        self.set_client_side_state_from_dict_of_lists(state)
+
     @property
     def client_side_state(self):
         if not hasattr(self, '_client_side_state'):

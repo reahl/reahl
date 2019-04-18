@@ -20,6 +20,7 @@
   <persisted>
     <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Investment"/>
     <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:Allocation"/>
+    <class locator="reahl.doc.examples.howtos.responsivedisclosure.responsivedisclosure:IDDocument"/>
   </persisted>
 
 </project>

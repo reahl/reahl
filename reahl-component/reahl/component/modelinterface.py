@@ -895,9 +895,9 @@ class Field(object):
     def validate_parsed(self, parsed_value, ignore=None):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
 
-    def update_model_value_in_disambiguated_input(self, input_dict):
+    def update_value_in_disambiguated_input(self, input_dict):
         if self.name_in_input in input_dict:
-            input_dict[self.name_in_input] = self.as_input()
+            input_dict[self.name_in_input] = self.as_user_input_value()
 
     def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
         list_of_input = input_dict.get(self.name_in_input, [])
@@ -931,7 +931,14 @@ class Field(object):
             self.set_user_input(unparsed_input, ignore_validation=ignore_validation)
             if self.input_status == 'validly_entered':
                 self.set_model_value()
-        
+
+    def as_user_input_value(self, for_input_status=None):
+        if (for_input_status or self.input_status) == 'defaulted' or (not self.can_read()):
+            raw_value = self.as_input()
+        else:
+            raw_value = self.user_input
+        return self.input_as_string(raw_value)
+
     def as_input(self):
         """Returns the value of this Field as a string."""
         if self.can_read():
@@ -1532,7 +1539,7 @@ class MultiChoiceField(ChoiceField):
     def get_empty_sentinel_name(self, base_name):
         return '%s-' % base_name
 
-    def update_model_value_in_disambiguated_input(self, input_dict):
+    def update_value_in_disambiguated_input(self, input_dict):
         assert None, 'TODO'
         # remove the list sentinel in the input dict 
         # remove any items with the list name in the input dict
