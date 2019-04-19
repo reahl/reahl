@@ -87,7 +87,7 @@ class AddressBookPanel(Div):
             return A.from_bookmark(view, address_book_ui.get_edit_bookmark(row.address, description='Edit'))
 
         def make_checkbox_widget(view, row):
-            return PrimitiveCheckboxInput(form, row.fields.selected_by_user)
+            return PrimitiveCheckboxInput(form, row.fields.selected_by_user, name='select.%s' % str(row.address.id))
 
         def make_delete_selected_button(view):
             return Button(form, self.events.delete_selected)
