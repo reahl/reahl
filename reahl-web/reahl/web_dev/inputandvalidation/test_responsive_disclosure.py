@@ -1022,3 +1022,6 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
     #     else:
     #         return input_values.get(self.name, self.bound_field.false_value) #TODO: this fixes a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
 
+
+# Nuke core related to using inputs as trigger inputs aka widget arguments
+# nuke javascript code that used to block and unblock stuff

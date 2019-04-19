@@ -25,7 +25,7 @@ import io
 from six.moves import zip_longest
 from reahl.tofu import expected, scenario, Fixture, uses
 from reahl.tofu.pytestsupport import with_fixtures
-from reahl.stubble import EmptyStub, replaced
+from reahl.stubble import EmptyStub
 
 from reahl.webdev.tools import Browser
 
@@ -108,8 +108,7 @@ def test_basic_assembly(web_fixture, basic_scenarios):
     # GETting the URL results in the HTML for that View
     with warnings.catch_warnings(record=True) as caught_warnings:
         warnings.simplefilter('always')
-        with replaced(UrlBoundView.generate_unique_state_identifier, lambda self: '123.456', on=UrlBoundView):
-            browser.open('/')
+        browser.open('/')
         assert browser.title == 'Hello'
 
     warning_messages = [six.text_type(i.message) for i in caught_warnings]
@@ -123,7 +122,7 @@ def test_basic_assembly(web_fixture, basic_scenarios):
 
     # The headers are set correctly
     response = browser.last_response
-    assert response.content_length == len(fixture.expected_content + '\n')
+    assert response.content_length == len(fixture.expected_content)
     assert response.content_type == 'text/html'
     assert response.charset == 'utf-8'
 

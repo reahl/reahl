@@ -2069,6 +2069,9 @@ class ButtonInput(PrimitiveInput):
     def create_html_widget(self):
         return HTMLInputElement(self, 'submit')
 
+    def prepare_input(self):
+        pass # We don't save what is submitted via buttons and don't have to fill in saved details
+    
 
 class Label(HTMLElement):
     """A label for an Input.
