@@ -263,8 +263,6 @@ class HTMLElement(Widget):
         """
         if not self.css_id_is_set:
             raise ProgrammerError('%s does not have a css_id set. A fixed css_id is mandatory when a Widget self-refreshes' % self)
-#        if self.query_fields.is_empty:
-#            raise ProgrammerError('You must have some query fields to enable_refresh')
         assert all([(field in self.query_fields.values()) for field in for_fields])
 
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
@@ -1038,6 +1036,8 @@ class Form(HTMLElement):
         return six.text_type(action)
 
     def register_input(self, input_widget):
+        if input_widget.name == 'email':
+            import pdb; pdb.set_trace()
         assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' #xxx
         assert input_widget.name not in self.inputs, 'Cannot add an input with same name as another'
         self.inputs[input_widget.name] = input_widget
@@ -1497,20 +1497,34 @@ class PrimitiveInput(Input):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
+        if self.name == 'trigger_field':
+            import pdb; pdb.set_trace()
         previously_entered_value = None
         try: # If input came in as part of current client state, that value has preference above possibly saved values in the DB
             state = self.view.get_construction_state()
-            previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(state, default_if_not_found=False)
+
+            if state:
+                previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(state, default_if_not_found=False)
+                if self.bound_field.can_write():
+                    self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
+                    if self.bound_field.input_status == 'validly_entered' and self.bound_field.can_write():
+                            self.bound_field.set_model_value()
+                    self.view.update_client_side_state(self.bound_field)
+                self.bound_field.clear_user_input()
+            else:
+                request = ExecutionContext.get_context().request
+                if self.refresh_widget and request.POST:
+                    self.accept_input(request.POST)
+                else:
+                    raise ExpectedInputNotFound(self.name, {})
+
         except ExpectedInputNotFound:
             previously_entered_value = self.persisted_userinput_class.get_previously_entered_for_form(self.form, self.name, self.bound_field.entered_input_type)
-        if (previously_entered_value is not None) and self.bound_field.can_write():
-            self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
-            if self.bound_field.input_status == 'validly_entered' and self.bound_field.can_write():
-                    self.bound_field.set_model_value()
-            self.view.update_client_side_state(self.bound_field)
-        else:
-            self.bound_field.clear_user_input()
 
+            if previously_entered_value is not None:
+                self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
+            else:
+                self.bound_field.clear_user_input()
 
     def persist_input(self, input_values):
         input_value = self.get_value_from_input(input_values)

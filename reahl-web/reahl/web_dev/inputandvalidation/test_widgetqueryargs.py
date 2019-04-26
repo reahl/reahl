@@ -226,22 +226,6 @@ def test_refreshing_only_for_specific_args(web_fixture, query_string_fixture):
 
 
 @with_fixtures(WebFixture)
-def test_refresh_widget_without_query_fields_raises_error(web_fixture):
-    """If you enable a widget to refresh, the widget should at least have some query_fields.
-    """
-
-    fixture = web_fixture
-
-    class MyFancyWidget(Div):
-        def __init__(self, view):
-            super(MyFancyWidget, self).__init__(view, css_id='fancy')
-            self.enable_refresh()
-
-    with expected(ProgrammerError, test='You must have some query fields to enable_refresh'):
-        MyFancyWidget(fixture.view)
-
-
-@with_fixtures(WebFixture)
 def test_bookmarks_support_such_fragments(web_fixture):
     """Page-internal bookmarks support such bookmarkable widgets.
 

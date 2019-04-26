@@ -933,11 +933,13 @@ class Field(object):
                 self.set_model_value()
 
     def as_user_input_value(self, for_input_status=None):
+        return self.input_as_string(self.as_list_unaware_user_input_value(for_input_status=for_input_status))
+
+    def as_list_unaware_user_input_value(self, for_input_status=None):
         if (for_input_status or self.input_status) == 'defaulted' or (not self.can_read()):
-            raw_value = self.as_input()
+            return self.as_input()
         else:
-            raw_value = self.user_input
-        return self.input_as_string(raw_value)
+            return self.user_input
 
     def as_input(self):
         """Returns the value of this Field as a string."""
@@ -1540,12 +1542,21 @@ class MultiChoiceField(ChoiceField):
         return '%s-' % base_name
 
     def update_value_in_disambiguated_input(self, input_dict):
-        assert None, 'TODO'
-        # remove the list sentinel in the input dict 
-        # remove any items with the list name in the input dict
-        # if the current domain value is empty, add empty list sentinel
-        # else, add an entry with my input_name, mapping to the list of stringified values
+        try:
+            del input_dict[self.get_empty_sentinel_name(self.name_in_input)]
+        except KeyError:
+            pass
 
+        try:
+            del input_dict[self.name_in_input]
+        except KeyError:
+            pass
+
+        list_value = self.as_list_unaware_user_input_value()
+        if list_value == []:
+            input_dict[self.get_empty_sentinel_name(self.name_in_input)] = ''
+        elif list_value:
+            input_dict[self.name_in_input] = list_value
 
     def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
         submitted_as_empty = len(input_dict.get(self.get_empty_sentinel_name(self.name_in_input), [])) > 0

@@ -43,32 +43,23 @@ class ResponsiveDisclosureFixture(Fixture):
 
     def new_ModelObject(self):
         class ModelObject(object):
+            def __init__(self):
+                self.choice = 1
+
             @exposed
             def fields(self, fields):
                 fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
                                              Choice(2, IntegerField(label='Two')),
                                              Choice(3, IntegerField(label='Three'))],
-                                            default=1,
                                             label='Choice')
         return ModelObject
 
     def new_MyChangingWidget(self):
         class MyChangingWidget(Div):
-            def __init__(self, view, trigger_input, model_object):
-                self.trigger_input = trigger_input
-                self.model_object = model_object
+            def __init__(self, view, model_object):
                 super(MyChangingWidget, self).__init__(view, css_id='dave')
-                self.enable_refresh()
-                trigger_input.enable_notify_change(self, self.query_fields.fancy_state)
-                self.add_child(P(self.view, text='My state is now %s' % self.fancy_state))
-
-            @property
-            def fancy_state(self):
-                return self.model_object.choice
-
-            @exposed
-            def query_fields(self, fields):
-                fields.fancy_state = self.model_object.fields.choice
+                self.model_object = model_object
+                self.add_child(P(self.view, text='My state is now %s' % self.model_object.choice))
 
         return MyChangingWidget
 
@@ -78,19 +69,26 @@ class ResponsiveDisclosureFixture(Fixture):
             def __init__(self, view):
                 super(MainWidget, self).__init__(view)
                 an_object = fixture.ModelObject()
-                form = self.add_child(fixture.MyForm(view, an_object))
-                self.add_child(fixture.MyChangingWidget(view, form.change_trigger_input, an_object))
+                self.add_child(fixture.MyForm(view, an_object))
 
         return MainWidget
 
     def new_MyForm(self):
+        fixture = self
         class MyForm(Form):
             def __init__(self, view, an_object):
                 super(MyForm, self).__init__(view, 'myform')
-                self.change_trigger_input = SelectInput(self, an_object.fields.choice)
+                self.enable_refresh()
+                self.change_trigger_input = fixture.create_trigger_input(self, an_object)
                 self.add_child(Label(view, for_input=self.change_trigger_input))
                 self.add_child(self.change_trigger_input)
+                self.add_child(fixture.MyChangingWidget(view, an_object))
+
         return MyForm
+
+    def create_trigger_input(self, form, an_object):
+        return SelectInput(form, an_object.fields.choice, refresh_widget=form)
+
 
 
 class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
@@ -108,13 +106,9 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
     def radio_buttons(self):
         fixture = self
 
-        class MyForm(Form):
-            def __init__(self, view, an_object):
-                super(MyForm, self).__init__(view, 'myform')
-                self.change_trigger_input = RadioButtonSelectInput(self, an_object.fields.choice)
-                self.add_child(Label(view, for_input=self.change_trigger_input))
-                self.add_child(self.change_trigger_input)
-        self.MyForm = MyForm
+        def create_trigger_input(form, an_object):
+            return RadioButtonSelectInput(form, an_object.fields.choice, refresh_widget=form)
+        self.create_trigger_input = create_trigger_input
 
         def change_value(browser):
             browser.click(XPath.input_labelled('Three'))
@@ -127,20 +121,19 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         fixture = self
 
         class ModelObject(object):
+            def __init__(self):
+                self.choice = False
             @exposed
             def fields(self, fields):
-                fields.choice = BooleanField(default=False, label='Choice',
+                fields.choice = BooleanField(label='Choice',
                                              true_value='✓', false_value='⍻')
         self.ModelObject = ModelObject
 
-        class MyForm(Form):
-            def __init__(self, view, an_object):
-                super(MyForm, self).__init__(view, 'myform')
-                self.change_trigger_input = CheckboxInput(self, an_object.fields.choice)
-                self.change_trigger_input.set_id('marvin')
-                self.add_child(Label(view, for_input=self.change_trigger_input))
-                self.add_child(self.change_trigger_input)
-        self.MyForm = MyForm
+        def create_trigger_input(form, an_object):
+            the_input = CheckboxInput(form, an_object.fields.choice, refresh_widget=form)
+            the_input.set_id('marvin')
+            return the_input
+        self.create_trigger_input = create_trigger_input
 
         def change_value(browser):
             browser.click(XPath.input_labelled('Choice'))
@@ -153,23 +146,22 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         fixture = self
 
         class ModelObject(object):
+            def __init__(self):
+                self.choice = [1]
+
             @exposed
             def fields(self, fields):
                 fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                                   Choice(2, IntegerField(label='Two')),
                                                   Choice(3, IntegerField(label='Three'))],
-                                                 default=[1],
                                                  label='Choice')
         self.ModelObject = ModelObject
 
-        class MyForm(Form):
-            def __init__(self, view, an_object):
-                super(MyForm, self).__init__(view, 'myform')
-                self.change_trigger_input = CheckboxSelectInput(self, an_object.fields.choice)
-                self.change_trigger_input.set_id('marvin')
-                self.add_child(Label(view, for_input=self.change_trigger_input))
-                self.add_child(self.change_trigger_input)
-        self.MyForm = MyForm
+        def create_trigger_input(form, an_object):
+            the_input = CheckboxSelectInput(form, an_object.fields.choice, refresh_widget=form)
+            the_input.set_id('marvin')
+            return the_input
+        self.create_trigger_input = create_trigger_input
 
         def change_value(browser):
             browser.click(XPath.input_labelled('Three'))
@@ -183,13 +175,14 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         fixture = self
 
         class ModelObject(object):
+            def __init__(self):
+                self.choice = [1]
+                
             @exposed
             def fields(self, fields):
                 fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One'))],
-                                                 default=[1],
                                                  label='Choice')
         self.ModelObject = ModelObject
-        #self.MyForm from multi_valued_checkbox_select
 
         def change_value(browser):
             browser.click(XPath.input_labelled('One'))
@@ -203,10 +196,12 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         fixture = self
 
         class ModelObject(object):
+            def __init__(self):
+                self.choice = []
+
             @exposed
             def fields(self, fields):
                 fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One'))],
-                                                 default=[],
                                                  label='Choice')
         self.ModelObject = ModelObject
         #self.MyForm from multi_valued_checkbox_select
@@ -222,23 +217,22 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
         fixture = self
 
         class ModelObject(object):
+            def __init__(self):
+                self.choice = [1]
+
             @exposed
             def fields(self, fields):
                 fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                                   Choice(2, IntegerField(label='Two')),
                                                   Choice(3, IntegerField(label='Three'))],
-                                                 default=[1],
                                                  label='Choice')
         self.ModelObject = ModelObject
 
-        class MyForm(Form):
-            def __init__(self, view, an_object):
-                super(MyForm, self).__init__(view, 'myform')
-                self.change_trigger_input = SelectInput(self, an_object.fields.choice)
-                self.change_trigger_input.set_id('marvin')
-                self.add_child(Label(view, for_input=self.change_trigger_input))
-                self.add_child(self.change_trigger_input)
-        self.MyForm = MyForm
+        def create_trigger_input(form, an_object):
+            the_input = SelectInput(form, an_object.fields.choice, refresh_widget=form)
+            the_input.set_id('marvin')
+            return the_input
+        self.create_trigger_input = create_trigger_input
 
         def change_value(browser):
             browser.select(XPath.select_labelled('Choice'), 'Three')
@@ -248,8 +242,8 @@ class ResponsiveWidgetScenarios(ResponsiveDisclosureFixture):
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveWidgetScenarios)
-def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture, responsive_widget_scenarios):
-    """Widget query arguments can be linked to the value of an input, which means the Widget will be re-rendered if the input value changes."""
+def test_inputs_can_refresh_parent_widgets(web_fixture, query_string_fixture, responsive_widget_scenarios):
+    """An Input can cause another Widget to be re-rendered if the input value changes."""
 
     fixture = responsive_widget_scenarios
 
@@ -258,6 +252,7 @@ def test_input_values_can_be_widget_arguments(web_fixture, query_string_fixture,
     browser = web_fixture.driver_browser
     browser.open('/')
 
+#    web_fixture.pdb()
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
@@ -269,23 +264,26 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
     fixture = responsive_disclosure_fixture
 
     class ModelObject(object):
+        def __init__(self):
+            self.choice = [1]
+
         @exposed
         def fields(self, fields):
             fields.choice = MultiChoiceField([Choice(1, IntegerField(label='One')),
                                                 Choice(2, IntegerField(label='Two')),
                                                 Choice(3, IntegerField(label='Three'))],
-                                                default=[1],
                                                 label='Choice')
     fixture.ModelObject = ModelObject
 
-    class MyForm(Form):
+    def create_trigger_input(form, an_object):
+        the_input = CheckboxSelectInput(form, an_object.fields.choice, name='first_choice', refresh_widget=form)
+        the_input.set_id('marvin')
+        return the_input
+    fixture.create_trigger_input = create_trigger_input
+
+    class MyForm(fixture.MyForm):
         def __init__(self, view, an_object):
-            super(MyForm, self).__init__(view, 'myform')
-            self.change_trigger_input = CheckboxSelectInput(self, an_object.fields.choice, name='first_choice')
-            self.change_trigger_input.set_id('marvin')
-            self.add_child(Label(view, for_input=self.change_trigger_input))
-            self.add_child(self.change_trigger_input)
-            
+            super(MyForm, self).__init__(view, an_object)
             another_model_object = fixture.ModelObject()
             another_input = CheckboxSelectInput(self, another_model_object.fields.choice)
             self.add_child(Label(view, for_input=another_input))
@@ -300,102 +298,6 @@ def test_overridden_names(web_fixture, query_string_fixture, responsive_disclosu
 
     browser.click('//input[@name="first_choice[]" and @value="3"]')
     assert browser.wait_for(query_string_fixture.is_state_now, [1,3])
-
-
-
-class MultipleTriggerFixture(Fixture):
-    def is_widget_blocked(self, browser):
-        changing_widget_xpath = XPath('//div[@id="changing_widget_id"]')
-        changing_widget_blocked_xpath = XPath('%s/div[@class="blockUI"]' % changing_widget_xpath)
-        return browser.is_element_present(changing_widget_blocked_xpath)
-
-
-@with_fixtures(WebFixture, QueryStringFixture, MultipleTriggerFixture)
-def test_invalid_values_block_out_dependent_widgets(web_fixture, query_string_fixture, multiple_trigger_fixture):
-    """If the user types an invalid value into an input serving as argument for one or more Widgets, the widgets are blocked out"""
-
-    class ModelObject(object):
-        @exposed
-        def fields(self, fields):
-            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
-                                         Choice(2, IntegerField(label='Two')),
-                                         Choice(3, IntegerField(label='Three'))],
-                                        default=1,
-                                        label='Choice')
-            fields.another_choice = ChoiceField([Choice(4, IntegerField(label='Four')),
-                                         Choice(5, IntegerField(label='Five')),
-                                         Choice(6, IntegerField(label='Six'))],
-                                        default=4,
-                                        label='Another Choice')
-
-    class MyForm(Form):
-        def __init__(self, view, an_object):
-            super(MyForm, self).__init__(view, 'myform')
-            self.change_trigger_input = TextInput(self, an_object.fields.choice)
-            self.add_child(Label(view, for_input=self.change_trigger_input))
-            self.add_child(self.change_trigger_input)
-
-            self.sibling_change_trigger_input = TextInput(self, an_object.fields.another_choice)
-            self.add_child(Label(view, for_input=self.sibling_change_trigger_input))
-            self.add_child(self.sibling_change_trigger_input)
-
-    class MyChangingWidget(Div):
-        def __init__(self, view, trigger_input, sibling_trigger_input, model_object):
-            self.trigger_input = trigger_input
-            self.sibling_trigger_input = sibling_trigger_input
-            self.model_object = model_object
-            super(MyChangingWidget, self).__init__(view, css_id='changing_widget_id')
-            self.enable_refresh()
-            trigger_input.enable_notify_change(self, self.query_fields.fancy_state)
-            sibling_trigger_input.enable_notify_change(self, self.query_fields.another_fancy_state)
-            self.add_child(P(self.view, text='My state is now %s and %s' % (self.fancy_state, self.another_fancy_state)))
-
-        @property
-        def fancy_state(self):
-            return self.model_object.choice
-
-        @property
-        def another_fancy_state(self):
-            return self.model_object.another_choice
-
-        @exposed
-        def query_fields(self, fields):
-            fields.fancy_state = self.model_object.fields.choice
-            fields.another_fancy_state = self.model_object.fields.another_choice
-
-
-    class MainWidget(Widget):
-        def __init__(self, view):
-            super(MainWidget, self).__init__(view)
-            an_object = ModelObject()
-            form = self.add_child(MyForm(view, an_object))
-            self.add_child(MyChangingWidget(view, form.change_trigger_input, form.sibling_change_trigger_input, an_object))
-
-
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-    browser.open('/')
-
-    # Case: an invalid option blocks the Widget out, does not refresh
-    assert not multiple_trigger_fixture.is_widget_blocked(browser)    
-    assert query_string_fixture.is_state_now('1 and 4')
-
-    browser.type(XPath.input_labelled('Choice'), 'not a valid option')
-    browser.press_tab()
-    assert browser.wait_for(multiple_trigger_fixture.is_widget_blocked, browser)    
-    assert browser.wait_for(query_string_fixture.is_state_now, '1 and 4')
-
-    # Case: a valid option changes does nothing if its sibling is still invalid
-    browser.type(XPath.input_labelled('Another Choice'), '5')
-    assert browser.wait_for(multiple_trigger_fixture.is_widget_blocked, browser)    
-    assert browser.wait_for(query_string_fixture.is_state_now, '1 and 4')
-
-    # Case: when all siblings are valid, the widget is refreshed, and it includes all relevant changed values
-    browser.type(XPath.input_labelled('Choice'), '2')
-    browser.press_tab()
-    assert browser.wait_for_not(multiple_trigger_fixture.is_widget_blocked, browser)    
-    assert browser.wait_for(query_string_fixture.is_state_now, '2 and 5')
 
 
 class BlockingRefreshFixture(ResponsiveDisclosureFixture):
@@ -413,8 +315,8 @@ class BlockingRefreshFixture(ResponsiveDisclosureFixture):
     def new_MyChangingWidget(self):
         fixture = self
         class ChangingWidgetThatPauses(super(BlockingRefreshFixture, self).new_MyChangingWidget()):
-            def __init__(self, view, trigger_input, model_object):
-                super(ChangingWidgetThatPauses, self).__init__(view, trigger_input, model_object)
+            def __init__(self, view, model_object):
+                super(ChangingWidgetThatPauses, self).__init__(view, model_object)
                 if fixture.should_pause_to_simulate_long_refresh:
                     fixture.simulate_long_refresh_start()
 
@@ -492,8 +394,7 @@ def test_form_values_are_not_persisted_until_form_is_submitted(web_fixture, resp
             def __init__(self, view):
                 super(MainWidget, self).__init__(view)
                 an_object = model_object
-                form = self.add_child(fixture.MyForm(view, an_object))
-                self.add_child(fixture.MyChangingWidget(view, form.change_trigger_input, an_object))
+                self.add_child(fixture.MyForm(view, an_object))
         fixture.MainWidget = MainWidget
 
         wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
@@ -527,7 +428,7 @@ class DisclosedInputFixture(Fixture):
         fixture = self
         class ModelObject(object):
             def __init__(self):
-                # self.trigger_field = fixture.default_trigger_field_value #TODO: rather default on the field?
+                self.trigger_field = fixture.default_trigger_field_value
                 self.email = None
 
             @exposed
@@ -541,21 +442,22 @@ class DisclosedInputFixture(Fixture):
 
             @exposed
             def fields(self, fields):
-                fields.trigger_field = BooleanField(label='Trigger field', default=fixture.default_trigger_field_value)
-                fields.email = EmailField(required=True, label='Email') #has required Validation Constraint
+                fields.trigger_field = BooleanField(label='Trigger field')
+                fields.email = EmailField(required=True, label='Email')
 
         class MyForm(Form):
             def __init__(self, view):
                 super(MyForm, self).__init__(view, 'myform')
+                self.enable_refresh()
                 if self.exception:
                     self.add_child(P(view, text='Exception raised'))
 
                 model_object = ModelObject()
-                checkbox_input = fixture.trigger_input_type(self, model_object.fields.trigger_field)
+                checkbox_input = fixture.trigger_input_type(self, model_object.fields.trigger_field, refresh_widget=self)
                 self.add_child(Label(view, for_input=checkbox_input))
                 self.add_child(checkbox_input)
 
-                self.add_child(fixture.MyChangingWidget(self, checkbox_input, model_object))
+                self.add_child(fixture.MyChangingWidget(self, model_object))
 
                 self.define_event_handler(model_object.events.an_event)
                 self.add_child(ButtonInput(self, model_object.events.an_event))
@@ -564,20 +466,15 @@ class DisclosedInputFixture(Fixture):
     def new_MyChangingWidget(self):
         fixture = self
         class MyChangingWidget(Div):
-            def __init__(self, form, trigger_input, model_object):
+            def __init__(self, form, model_object):
                 self.model_object = model_object
                 super(MyChangingWidget, self).__init__(form.view, css_id='requiredinfoid')
-                self.enable_refresh()
-                trigger_input.enable_notify_change(self, self.query_fields.trigger_field)
 
                 if self.model_object.trigger_field:
                     email_input = TextInput(form, self.model_object.fields.email)
                     self.add_child(Label(form.view, for_input=email_input))
                     self.add_child(email_input)
 
-            @exposed
-            def query_fields(self, fields):
-                fields.trigger_field = self.model_object.fields.trigger_field
         return MyChangingWidget
 
 
@@ -1025,3 +922,7 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 
 # Nuke core related to using inputs as trigger inputs aka widget arguments
 # nuke javascript code that used to block and unblock stuff
+
+# Nuke enable_refresh(on_refresh=on_refresh) and DynamicSection
+#- reahl/web_dev/inputandvalidation/test_widgetqueryargs.py:228 test_refresh_widget_without_query_fields_raises_error[web_fixture0]
+#--> no need to check this anymore..see  enable_refresh(code commented out)

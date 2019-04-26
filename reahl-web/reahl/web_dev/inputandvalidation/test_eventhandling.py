@@ -20,6 +20,7 @@ import six
 import json
 
 from webob import Request
+from sqlalchemy import Column, Integer
 
 from reahl.tofu import Fixture, scenario, NoException, expected, uses
 from reahl.tofu.pytestsupport import with_fixtures
@@ -32,7 +33,8 @@ from reahl.component.modelinterface import IntegerField, EmailField, DateField, 
     exposed, Field, Event, Action, MultiChoiceField, Choice, AllowedValuesConstraint
 from reahl.webdeclarative.webdeclarative import PersistedException, UserInput
 
-from reahl.sqlalchemysupport import Session
+from reahl.sqlalchemysupport import Base, Session
+from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
 from reahl.web.fw import Url, UserInterface, ValidationException
 from reahl.web.ui import HTML5Page, Div, Form, TextInput, ButtonInput, NestedForm, SelectInput
 
@@ -345,8 +347,8 @@ def test_define_event_handler_not_called(web_fixture):
         browser.open('/')
 
 
-@with_fixtures(ReahlSystemFixture, WebFixture)
-def test_exception_handling(reahl_system_fixture, web_fixture):
+@with_fixtures(ReahlSystemFixture, WebFixture, SqlAlchemyFixture)
+def test_exception_handling(reahl_system_fixture, web_fixture, sql_alchemy_fixture):
     """When a DomainException happens during the handling of an Event:
 
        The database is rolled back.
@@ -356,7 +358,10 @@ def test_exception_handling(reahl_system_fixture, web_fixture):
 
     fixture = web_fixture
 
-    class ModelObject(object):
+    class ModelObject(Base):
+        __tablename__ = 'test_event_handling_exception_handling'
+        id = Column(Integer, primary_key=True)
+        field_name = Column(Integer)
         def handle_event(self):
             self.field_name = 1
             raise DomainException()
@@ -367,42 +372,45 @@ def test_exception_handling(reahl_system_fixture, web_fixture):
         def fields(self, fields):
             fields.field_name = IntegerField(default=3)
 
-    model_object = ModelObject()
+    with sql_alchemy_fixture.persistent_test_classes(ModelObject):
+        model_object = ModelObject()
+        Session.add(model_object)
 
-    class MyForm(Form):
-        def __init__(self, view, name, other_view):
-            super(MyForm, self).__init__(view, name)
-            self.define_event_handler(model_object.events.an_event, target=other_view)
-            self.add_child(ButtonInput(self, model_object.events.an_event))
-            self.add_child(TextInput(self, model_object.fields.field_name))
+        class MyForm(Form):
+            def __init__(self, view, name, other_view):
+                super(MyForm, self).__init__(view, name)
+                self.define_event_handler(model_object.events.an_event, target=other_view)
+                self.add_child(ButtonInput(self, model_object.events.an_event))
+                self.add_child(TextInput(self, model_object.fields.field_name))
 
-    class MainUI(UserInterface):
-        def assemble(self):
-            self.define_page(HTML5Page).use_layout(BasicPageLayout())
-            home = self.define_view('/', title='Home page')
-            other_view = self.define_view('/page2', title='Page 2')
-            home.set_slot('main', MyForm.factory('myform', other_view))
+        class MainUI(UserInterface):
+            def assemble(self):
+                self.define_page(HTML5Page).use_layout(BasicPageLayout())
+                home = self.define_view('/', title='Home page')
+                other_view = self.define_view('/page2', title='Page 2')
+                home.set_slot('main', MyForm.factory('myform', other_view))
 
-    wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
+        wsgi_app = fixture.new_wsgi_app(site_root=MainUI)
 
-    browser = Browser(wsgi_app)  # Dont use a real browser, because it will also hit many other URLs for js and css which confuse the issue
-    browser.open('/')
+        browser = Browser(wsgi_app)  # Dont use a real browser, because it will also hit many other URLs for js and css which confuse the issue
+        browser.open('/')
 
-    assert not hasattr(model_object, 'field_name')
-    browser.type("//input[@type='text']", '5')
+        assert not model_object.field_name
+        browser.type("//input[@type='text']", '5')
 
-    # any database stuff that happened when the form was submitted was rolled back
-    with CallMonitor(reahl_system_fixture.system_control.orm_control.rollback) as monitor:
+        # any database stuff that happened when the form was submitted was rolled back
+#        with CallMonitor(reahl_system_fixture.system_control.orm_control.rollback) as monitor:
+#            browser.click(XPath.button_labelled('click me'))
+#        assert monitor.times_called == 1
         browser.click(XPath.button_labelled('click me'))
-    assert monitor.times_called == 1
 
-    # the value input by the user is still displayed on the form, NOT the actual value on the model object
-    assert model_object.field_name == 1
-    retained_value = browser.get_value("//input[@type='text']")
-    assert retained_value == '5'
+        # the value input by the user is still displayed on the form, NOT the actual value on the model object
+        assert not model_object.field_name
+        retained_value = browser.get_value("//input[@type='text']")
+        assert retained_value == '5'
 
-    # the browser is still on the page with the form which triggered the exception
-    assert browser.current_url.path == '/'
+        # the browser is still on the page with the form which triggered the exception
+        assert browser.current_url.path == '/'
 
 
 @with_fixtures(WebFixture)
