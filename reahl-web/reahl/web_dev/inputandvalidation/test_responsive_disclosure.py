@@ -565,35 +565,6 @@ def test_inputs_cleared_after_domain_exception_resubmit(web_fixture, disclosed_i
     assert browser.get_value(XPath.input_labelled('Email')) == ''
 
 
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_trigger_input_may_trigger_its_parent_widget(web_fixture, query_string_fixture, responsive_disclosure_fixture):
-    """An input may trigger one of its parent widgets to refresh"""
-
-    fixture = responsive_disclosure_fixture
-
-    class ChangingWidget(fixture.MyChangingWidget):
-        def __init__(self, view, model_object):
-            form = fixture.MyForm(view, model_object)
-            super(ChangingWidget, self).__init__(view, form.change_trigger_input, model_object)
-            self.insert_child(0, form)
-
-    class MainWidget(Widget):
-        def __init__(self, view):
-            super(MainWidget, self).__init__(view)
-            model_object = fixture.ModelObject()
-            self.add_child(ChangingWidget(view, model_object))
-
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidget.factory())
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-
-    browser.open('/')
-
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
-    browser.click(XPath.option_with_text('Three'))
-    assert browser.wait_for(query_string_fixture.is_state_now, 3)
-
-
 @with_fixtures(WebFixture, DisclosedInputFixture)
 def test_correct_tab_order_for_responsive_widgets(web_fixture, disclosed_input_trigger_fixture):
     """When a user TAB's out of an input that then triggers a change, the tab is ignored and focus stays on the original input so that the tab order can be recalculated."""
@@ -670,50 +641,41 @@ class NestedResponsiveDisclosureFixture(Fixture):
         class MyForm(Form):
             def __init__(self, view):
                 super(MyForm, self).__init__(view, 'myform')
-
                 model_object = fixture.ModelObject()
-                checkbox_input = CheckboxInput(self, model_object.fields.trigger_field)
-                self.add_child(Label(view, for_input=checkbox_input))
-                self.add_child(checkbox_input)
-
-                self.add_child(fixture.MyChangingWidget(self, checkbox_input, model_object))
+                self.add_child(fixture.MyChangingWidget(self, model_object))
         return MyForm
 
     def new_MyChangingWidget(self):
         fixture = self
 
         class MyNestedChangingWidget(Div):
-            def __init__(self, form, trigger_input, model_object):
+            def __init__(self, form, model_object):
                 self.model_object = model_object
                 super(MyNestedChangingWidget, self).__init__(form.view, css_id='nested_changing_widget')
                 self.enable_refresh()
-                trigger_input.enable_notify_change(self, self.query_fields.nested_trigger_field)
+
+                nested_checkbox_input = CheckboxInput(form, model_object.fields.nested_trigger_field, refresh_widget=self)
+                self.add_child(Label(self.view, for_input=nested_checkbox_input))
+                self.add_child(nested_checkbox_input)
 
                 if self.model_object.nested_trigger_field:
                     self.add_child(P(self.view, 'My state is now showing nested responsive content'))
 
-            @exposed
-            def query_fields(self, fields):
-                fields.nested_trigger_field = self.model_object.fields.nested_trigger_field
 
         class MyChangingWidget(Div):
-            def __init__(self, form, trigger_input, model_object):
+            def __init__(self, form, model_object):
                 self.model_object = model_object
                 super(MyChangingWidget, self).__init__(form.view, css_id='requiredinfoid')
                 self.enable_refresh()
-                trigger_input.enable_notify_change(self, self.query_fields.trigger_field)
+
+                checkbox_input = CheckboxInput(form, model_object.fields.trigger_field, refresh_widget=self)
+                self.add_child(Label(self.view, for_input=checkbox_input))
+                self.add_child(checkbox_input)
 
                 if self.model_object.trigger_field:
                     self.add_child(P(self.view, 'My state is now showing outer responsive content'))
-                    nested_checkbox_input = CheckboxInput(form, model_object.fields.nested_trigger_field)
-                    self.add_child(Label(self.view, for_input=nested_checkbox_input))
-                    self.add_child(nested_checkbox_input)
+                    self.add_child(MyNestedChangingWidget(form, model_object))
 
-                    self.add_child(MyNestedChangingWidget(form, nested_checkbox_input, model_object))
-
-            @exposed
-            def query_fields(self, fields):
-                fields.trigger_field = self.model_object.fields.trigger_field
         return MyChangingWidget
 
     def are_all_parts_enabled(self, browser):
@@ -754,99 +716,37 @@ def test_inputs_and_widgets_work_when_nested(web_fixture, query_string_fixture, 
     #  the nested case still works (necessary to test because loading JS a second time can cause bugs)
     browser.click(XPath.input_labelled('Trigger field'))
     assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
-    assert browser.wait_for(query_string_fixture.is_state_now, 'showing nested responsive content')
-
-    browser.click(XPath.input_labelled('Nested trigger field'))
-    assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
     assert browser.wait_for_not(query_string_fixture.is_state_now, 'showing nested responsive content')
 
     browser.click(XPath.input_labelled('Nested trigger field'))
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing outer responsive content')
+    assert browser.wait_for(query_string_fixture.is_state_now, 'showing nested responsive content')
+
     assert browser.wait_for(fixture.are_all_parts_enabled, browser)
 
 
-class ValidationScenarios(Fixture):
-    @scenario
-    def valid_input(self):
-        self.user_input = 'valid.email@examle.org'
 
-    @scenario
-    def invalid_input(self):
-        self.user_input = 'not valid email'
-
-
-@with_fixtures(WebFixture, DisclosedInputFixture, ValidationScenarios)
-def test_retain_reused_refreshed_user_input(web_fixture, disclosed_input_fixture, validation_scenarios):
-    """If a an input is refreshed as part of a Widget, and reappears after the refresh, it retains the input (valid or not) that was typed into it before being refreshed."""
+@with_fixtures(WebFixture, DisclosedInputFixture)
+def test_clear_previously_given_user_input(web_fixture, disclosed_input_fixture):
+    """If a an input is refreshed as part of a Widget, and disappears, then reappears after a second refresh, its input is defaulted to the model value."""
 
     fixture = disclosed_input_fixture
-    scenario = validation_scenarios
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
 
     web_fixture.reahl_server.set_app(wsgi_app)
     browser = web_fixture.driver_browser
 
-    fixture.user_input = scenario.user_input
+    user_input = 'valid.email@example.org'
     browser.open('/')
 
-    browser.type(XPath.input_labelled('Email'), fixture.user_input)
+    browser.type(XPath.input_labelled('Email'), user_input)
 
     browser.click(XPath.input_labelled('Trigger field'))
     browser.wait_for_not(browser.is_visible, XPath.input_labelled('Email'))
     browser.click(XPath.input_labelled('Trigger field'))
     retained_value = browser.get_value(XPath.input_labelled('Email'))
-    assert retained_value == fixture.user_input
-
-
-@with_fixtures(WebFixture, NestedResponsiveDisclosureFixture)
-def test_retain_nested_trigger_input_values_when_rerendered(web_fixture, nested_trigger_fixture):
-    """Refreshed triggers that are nested, maintain their state between refreshes"""
-
-    fixture = nested_trigger_fixture
-
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MyForm.factory())
-
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-    browser.open('/')
-
-    #case: change a nested trigger, and see it retain its state
-    browser.click(XPath.input_labelled('Trigger field'))
-    assert not browser.is_checked(XPath.input_labelled('Nested trigger field'))
-    browser.click(XPath.input_labelled('Nested trigger field'))
-    assert browser.is_checked(XPath.input_labelled('Nested trigger field'))
-
-    #cause the nested trigger to dissappear from view
-    browser.click(XPath.input_labelled('Trigger field'))
-    browser.wait_for_not(browser.is_visible, XPath.input_labelled('Nested trigger field'))
-
-    #cause the nested trigger to reappear, with its state preserved
-    browser.click(XPath.input_labelled('Trigger field'))
-    assert browser.is_checked(XPath.input_labelled('Nested trigger field'))
-
-
-@with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)
-def test_dynamic_section_basics(web_fixture, query_string_fixture, responsive_disclosure_fixture):
-    """Extending a dynamic section makes it easier to implement Widgets that have inputs as arguments."""
-
-    fixture = responsive_disclosure_fixture
-
-    class MyDynamicWidget(DynamicSection):
-        def __init__(self, view, trigger_input, model_object):
-            super(MyDynamicWidget, self).__init__(view, 'dave', [trigger_input])
-            self.add_child(P(self.view, text='My state is now %s' % model_object.choice))
-
-    fixture.MyChangingWidget = MyDynamicWidget
-
-    wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=fixture.MainWidget.factory())
-    web_fixture.reahl_server.set_app(wsgi_app)
-    browser = web_fixture.driver_browser
-    browser.open('/')
-
-    browser.click(XPath.option_with_text('Two'))
-    assert browser.wait_for(query_string_fixture.is_state_now, 2)  # The screen was updated
-    browser.click(XPath.option_with_text('One'))
-    assert browser.wait_for(query_string_fixture.is_state_now, 1)
-
+    assert retained_value == ''
+    assert retained_value != user_input
 
 
 @with_fixtures(WebFixture, QueryStringFixture, ResponsiveDisclosureFixture)

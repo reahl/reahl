@@ -190,11 +190,24 @@ class AjaxMethod(RemoteMethod):
         self.view.save_client_side_state()
 
     def fire_ajax_event(self, *args, **kwargs):
-        self.widget.fire_on_refresh()
+        state = self.view.current_POSTed_state_as_dict_of_lists
 
         for widget in self.view.page.contained_widgets():
-            if widget.is_Input and widget.registers_with_form and not widget.fields_to_notify: # is_not_a_trigger_input
+            widget.query_fields.accept_input(state, ignore_validation=True)
+
+            if widget.is_Input and widget.registers_with_form and not widget.fields_to_notify and not isinstance(widget.bound_field, Event): # is_not_a_trigger_input
+                widget.bound_field.from_disambiguated_input(state, ignore_validation=True, default_if_not_found=False)
+                if widget.bound_field.input_status == 'validly_entered':
+                   widget.bound_field.clear_user_input()
+
+        self.widget.fire_on_refresh()
+
+        self.view.empty_client_side_state()
+        for widget in self.view.page.contained_widgets():
+            if widget.is_Input and widget.registers_with_form and not widget.fields_to_notify and not isinstance(widget.bound_field, Event): # is_not_a_trigger_input
                 self.view.update_client_side_state(widget.bound_field)
+            for field in widget.query_fields.values():
+                self.view.update_client_side_state(field)
     
 
 # Uses: reahl/web/reahl.hashchange.js
@@ -552,7 +565,6 @@ class Body(HTMLElement):
     def attach_out_of_bound_forms(self, forms):
         self.add_children(forms)
 
-
 class HTML5Page(HTMLElement):
     """A web page that may be used as the page of a web application. It ensures that everything needed by
        the framework (linked CSS and JavaScript, etc) is available on such a page.
@@ -581,7 +593,7 @@ class HTML5Page(HTMLElement):
           (function(d) { switchJSStyle(d, "no-js", "js"); })(document);
         ''', html_escape=False))
 
-        self.set_attribute('data-reahl-rendered-state', self.view.client_side_state) # needed by reahl.hashchange.js
+        self.set_attribute('data-reahl-rendered-state', self.view.current_POSTed_client_side_state) # needed by reahl.hashchange.js
         self.head = self.add_child(Head(view, title))  #: The Head HTMLElement of this page
         self.body = self.add_child(Body(view))         #: The Body HTMLElement of this page
 
@@ -1036,8 +1048,6 @@ class Form(HTMLElement):
         return six.text_type(action)
 
     def register_input(self, input_widget):
-        if input_widget.name == 'email':
-            import pdb; pdb.set_trace()
         assert input_widget not in self.inputs.values(), 'Cannot register the same input twice to this form' #xxx
         assert input_widget.name not in self.inputs, 'Cannot add an input with same name as another'
         self.inputs[input_widget.name] = input_widget
@@ -1489,28 +1499,33 @@ class PrimitiveInput(Input):
         except KeyError:
             if self.disabled:
                 return ''
-            raise ProgrammerError('Could not find a value for expected input %s (named %s) on form %s' % \
-                                  (self, self.name, self.form))
+            raise ExpectedInputNotFound(self.name, input_values)
 
     @property
     def persisted_userinput_class(self):
         return self.form.persisted_userinput_class
 
     def prepare_input(self):
-        if self.name == 'trigger_field':
-            import pdb; pdb.set_trace()
         previously_entered_value = None
         try: # If input came in as part of current client state, that value has preference above possibly saved values in the DB
-            state = self.view.get_construction_state()
+            construction_state = self.view.get_construction_state()
 
-            if state:
-                previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(state, default_if_not_found=False)
+            if construction_state:
+                previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(construction_state, default_if_not_found=False)
                 if self.bound_field.can_write():
                     self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
                     if self.bound_field.input_status == 'validly_entered' and self.bound_field.can_write():
                             self.bound_field.set_model_value()
-                    self.view.update_client_side_state(self.bound_field)
                 self.bound_field.clear_user_input()
+
+                last_POSTed_state = self.view.last_POSTed_state_as_dict_of_lists
+                try:
+                    previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(last_POSTed_state, default_if_not_found=False)
+                except ExpectedInputNotFound:
+                    pass
+                else:
+                    if self.bound_field.can_write():
+                        self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
             else:
                 request = ExecutionContext.get_context().request
                 if self.refresh_widget and request.POST:

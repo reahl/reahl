@@ -1834,53 +1834,68 @@ class UrlBoundView(View):
         config = ExecutionContext.get_context().config
         return config.web.persisted_userinput_class
 
-    def get_POSTed_client_side_state(self):
-        request = ExecutionContext.get_context().request
-        return request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
+    def empty_client_side_state(self):
+        self._construction_client_side_state = {}
 
     def update_client_side_state(self, field):
-        state = self.client_side_state_as_dict_of_lists
-        field.update_value_in_disambiguated_input(state)
-        self.set_client_side_state_from_dict_of_lists(state)
+        construction_state = self.construction_client_side_state_as_dict_of_lists
+        if field.input_status != 'invalidly_entered':
+            field.update_value_in_disambiguated_input(construction_state)
+        self._construction_client_side_state = urllib_parse.urlencode(construction_state, doseq=True)
 
     @property
-    def client_side_state(self):
-        if not hasattr(self, '_client_side_state'):
-            request = ExecutionContext.get_context().request
-            if request.method.upper() == 'POST' and not hasattr(request, 'internal_redirect'):
-                state = self.get_POSTed_client_side_state()
-            else:
-                state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_client_side_state__', six.text_type)
-            self._client_side_state = state
+    def construction_client_side_state(self):
+        if not hasattr(self, '_construction_client_side_state'):
+            state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_last_construction_client_side_state__', six.text_type)
+            self._construction_client_side_state = state
         else:
-            state = self._client_side_state
+            state = self._construction_client_side_state
 
         return state or ''
 
-    def set_client_side_state_from_dict_of_lists(self, state_dict):
-        self._client_side_state = urllib_parse.urlencode(state_dict, doseq=True)
+    @property
+    def last_POSTed_state(self):
+        if not hasattr(self, '_last_POSTed_state'):
+            state = self.persisted_userinput_class.get_persisted_for_view(self, '__reahl_last_POSTed_state__', six.text_type)
+            self._last_POSTed_state = state
+        else:
+            state = self._last_POSTed_state
+
+        return state or ''
 
     @property
-    def client_side_state_as_dict_of_lists(self):
-        return urllib_parse.parse_qs(self.client_side_state, keep_blank_values=True)
+    def current_POSTed_client_side_state(self):
+        request = ExecutionContext.get_context().request
+        return request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
+
+    @property
+    def construction_client_side_state_as_dict_of_lists(self):
+        return urllib_parse.parse_qs(self.construction_client_side_state, keep_blank_values=True)
+
+    @property
+    def last_POSTed_state_as_dict_of_lists(self):
+        return urllib_parse.parse_qs(self.last_POSTed_state, keep_blank_values=True)
+
+    @property
+    def current_POSTed_state_as_dict_of_lists(self):
+        return urllib_parse.parse_qs(self.current_POSTed_client_side_state, keep_blank_values=True)
+
 
     def save_client_side_state(self):
         self.clear_client_side_state()
-        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_client_side_state__', self.client_side_state, six.text_type)
-
-    def save_POSTed_client_side_state(self):
-        self.clear_client_side_state()
-        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_client_side_state__', self.get_POSTed_client_side_state(), six.text_type)
+        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__', self.construction_client_side_state, six.text_type)
+        self.persisted_userinput_class.add_persisted_for_view(self.view, '__reahl_last_POSTed_state__', self.current_POSTed_client_side_state, six.text_type)
 
     def clear_client_side_state(self):
-        self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_client_side_state__')
+        self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_last_construction_client_side_state__')
+        self.persisted_userinput_class.remove_persisted_for_view(self.view, '__reahl_last_POSTed_state__')
 
     def get_construction_state(self):
         # This is the stuff a View needs to know before we can construct it properly (arguments and input values applicable for this view)
         request = ExecutionContext.get_context().request
         widget_arguments = request.GET.dict_of_lists()
         # TODO: deal with lists and list sentinels and so on
-        widget_arguments.update(self.client_side_state_as_dict_of_lists)
+        widget_arguments.update(self.construction_client_side_state_as_dict_of_lists)
         return widget_arguments
 
 
@@ -2385,14 +2400,16 @@ class EventChannel(RemoteMethod):
     def cleanup_after_exception(self, input_values, ex):
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
         self.form.cleanup_after_exception(input_values, ex)
-        fragment = input_values.get('__reahl_client_side_state__', [''])[0]
-        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_client_side_state__', fragment, six.text_type)
+#        import pdb; pdb.set_trace()
+#        fragment = input_values.get('__reahl_client_side_state__', [''])[0]
+#        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_client_side_state__', fragment, six.text_type)
+        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_last_POSTed_state__', self.form.view.current_POSTed_client_side_state, six.text_type)
+        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_last_construction_client_side_state__', self.form.view.construction_client_side_state, six.text_type)
         
     def cleanup_after_success(self):
         self.form.cleanup_after_success()
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
-        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_client_side_state__', '', six.text_type)
-        
+        self.form.view.clear_client_side_state()
 
 
 class ComposedPage(Resource):

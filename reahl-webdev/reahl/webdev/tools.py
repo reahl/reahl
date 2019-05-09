@@ -32,6 +32,7 @@ from lxml import html
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import StaleElementReferenceException
 
 from reahl.component.py3compat import ascii_as_bytes_or_str
 from reahl.component.decorators import deprecated
@@ -1123,8 +1124,11 @@ class DriverBrowser(BasicBrowser):
         """
         el = self.web_driver.switch_to.active_element
         el.send_keys(Keys.TAB)
-        # To ensure the element gets blur event which for some reason does not always happen when pressing TAB:
-        self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) {jQuery(arguments[0]).blur();};', el)
+        try:
+            # To ensure the element gets blur event which for some reason does not always happen when pressing TAB:
+            self.web_driver.execute_script('if ( "undefined" !== typeof jQuery) {jQuery(arguments[0]).blur();};', el)
+        except StaleElementReferenceException:
+            pass
 
     def press_backspace(self, locator):
         """Simulates the user pressing the backspace key while the element at `locator` has focus.

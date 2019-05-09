@@ -64,7 +64,7 @@ class NewInvestmentForm(Form):
 class InvestorDetailsSection(Div):
     def __init__(self, form, investment):
         super(InvestorDetailsSection, self).__init__(form.view, css_id='investor_details_section')
-        self.enable_refresh()
+        self.enable_refresh(on_refresh=investment.events.allocation_changed)
         self.use_layout(FormLayout())
 
         investor_info = self.add_child(FieldSet(self.view, legend_text='Investor information'))
@@ -103,7 +103,7 @@ class IDDocumentSection(FieldSet):
 class AllocationDetailSection(Div):
     def __init__(self, form, investment):
         super(AllocationDetailSection, self).__init__(form.view, css_id='investment_allocation_details')
-        self.enable_refresh()
+        self.enable_refresh(on_refresh=investment.events.allocation_changed)
         investment.recalculate()
         self.use_layout(FormLayout())
 
@@ -201,6 +201,7 @@ class Investment(Base):
         return self.amount_or_percentage == 'percentage'
 
     def recalculate(self):
+#        import pdb; pdb.set_trace()
         for allocation in self.allocations:
             allocation.recalculate(self.amount)
 

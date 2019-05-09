@@ -896,8 +896,7 @@ class Field(object):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
 
     def update_value_in_disambiguated_input(self, input_dict):
-        if self.name_in_input in input_dict:
-            input_dict[self.name_in_input] = self.as_user_input_value()
+        input_dict[self.name_in_input] = self.as_user_input_value()
 
     def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
         list_of_input = input_dict.get(self.name_in_input, [])
