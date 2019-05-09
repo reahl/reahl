@@ -195,7 +195,7 @@ class AjaxMethod(RemoteMethod):
         for widget in self.view.page.contained_widgets():
             widget.query_fields.accept_input(state, ignore_validation=True)
 
-            if widget.is_Input and widget.registers_with_form and not widget.fields_to_notify and not isinstance(widget.bound_field, Event): # is_not_a_trigger_input
+            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event): 
                 widget.bound_field.from_disambiguated_input(state, ignore_validation=True, default_if_not_found=False)
                 if widget.bound_field.input_status == 'validly_entered':
                    widget.bound_field.clear_user_input()
@@ -204,7 +204,7 @@ class AjaxMethod(RemoteMethod):
 
         self.view.empty_client_side_state()
         for widget in self.view.page.contained_widgets():
-            if widget.is_Input and widget.registers_with_form and not widget.fields_to_notify and not isinstance(widget.bound_field, Event): # is_not_a_trigger_input
+            if widget.is_Input and widget.registers_with_form and not isinstance(widget.bound_field, Event):
                 self.view.update_client_side_state(widget.bound_field)
             for field in widget.query_fields.values():
                 self.view.update_client_side_state(field)
@@ -281,6 +281,7 @@ class HTMLElement(Widget):
         self.add_hash_change_handler(for_fields if for_fields else self.query_fields.values())
         if on_refresh:
             self.on_refresh = on_refresh
+            on_refresh.fire(force=True)
 
     def is_refresh_enabled(self):
         return self.ajax_handler is not None
@@ -1333,7 +1334,6 @@ class Input(HTMLWidget):
     def __init__(self, form, bound_field):
         self.form = form
         self.bound_field = bound_field
-        self.fields_to_notify = []
         super(Input, self).__init__(form.view, read_check=bound_field.can_read, write_check=bound_field.can_write)
 
     def can_write(self):
@@ -1363,26 +1363,6 @@ class Input(HTMLWidget):
     def includes_label(self):
         """If True, the Label of this Input forms part of the input itself."""
         return False
-
-    def enable_notify_change(self, widget, field):
-        if not self.html_representation.css_id_is_set:
-            self.html_representation.generate_random_css_id()
-
-        self.fields_to_notify.append((widget, field))
-        self.prepare_input()
-
-    def get_js(self, context=None):
-        js = super(Input, self).get_js(context)
-
-        for widget, field in self.fields_to_notify:
-            js += ['$(%s).changenotifier(%s);'
-                   % (self.html_representation.jquery_selector, self.changenotifier_js_options(widget, field))]
-        return js
-
-    def changenotifier_js_options(self, widget, field):
-        options = {'name': field.name_in_input,
-                   'widget_id': widget.css_id}
-        return json.dumps(options)
 
 
 class WrappedInput(Input):

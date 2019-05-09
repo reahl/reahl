@@ -2848,6 +2848,3 @@ class ReahlWSGIApplication(object):
             finally:
                 self.system_control.finalise_session()
 
-
-
-        

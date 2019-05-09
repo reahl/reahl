@@ -32,7 +32,6 @@ from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInpu
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
     IntegerField, EmailField, Event, Action
 from reahl.component.exceptions import ProgrammerError, DomainException
-from reahl.web.dynamic import DynamicSection
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
 from reahl.sqlalchemysupport import Base, Session
 from reahl.sqlalchemysupport_dev.fixtures import SqlAlchemyFixture
@@ -252,7 +251,6 @@ def test_inputs_can_refresh_parent_widgets(web_fixture, query_string_fixture, re
     browser = web_fixture.driver_browser
     browser.open('/')
 
-#    web_fixture.pdb()
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.initial_state)
     fixture.change_value(browser)
     assert browser.wait_for(query_string_fixture.is_state_now, fixture.changed_state)
@@ -797,21 +795,19 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 # - dealing with nestedforms that appear inside a DynamicWidget
 
 # TODO:
-# - change responsive disclosure example to include updating AllocationDetailSection
-#   eg, percentage and amount columns always displayed; wen tabbing out of a percentage, recalculate corresponding amount
-#   
+# - DONE change responsive disclosure example to include updating AllocationDetailSection
+#   DONE eg, percentage and amount columns always displayed; wen tabbing out of a percentage, recalculate corresponding amount
 
 # TODO:
-# - You can make an input refresh a refreshable widget by adding an argument to its constructor
 # - You can make the widget do stuff upon refresh by adding an Event to its constructor
-# - check that read-only inputs in state are not inputted / become validation errors?
-# - check that input values are updated with values recalculated on the model
-#    - also for read-only ones
-# - check that other stuff, such as P with content based on recalculated model values are updated
-# - check that the model is NOT updated during an ajax call... only once you submit the form.
+#    - check that input values are updated with values recalculated on the model
+#       - also for read-only ones
+#    - check that other stuff, such as P with content based on recalculated model values are updated
+# - on the G of a PRG, the you should see recalculated stuff if there was an exception
 # - something to say here about working with a persisted vs transient object and what will work/not
+# - check that read-only inputs in state are not inputted / become validation errors?
+# - if the input of a trigger input is invalid, retain the invalid input
 
-# - update_value_in_disambiguated_input for MultiChoiceField still needs to be implemented
 # Unrelated: get_value_from_input of CheckboxSelectInput | a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
     # def get_value_from_input(self, input_values):
     #     if self.bound_field.allows_multiple_selections:
@@ -823,6 +819,6 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 # Nuke core related to using inputs as trigger inputs aka widget arguments
 # nuke javascript code that used to block and unblock stuff
 
-# Nuke enable_refresh(on_refresh=on_refresh) and DynamicSection
+# Nuke enable_refresh(on_refresh=on_refresh) 
 #- reahl/web_dev/inputandvalidation/test_widgetqueryargs.py:228 test_refresh_widget_without_query_fields_raises_error[web_fixture0]
 #--> no need to check this anymore..see  enable_refresh(code commented out)

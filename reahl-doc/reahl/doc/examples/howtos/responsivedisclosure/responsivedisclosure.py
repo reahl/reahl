@@ -22,7 +22,6 @@ from reahl.component.exceptions import DomainException
 from reahl.web.fw import UserInterface
 from reahl.web.ui import StaticColumn, DynamicColumn
 from reahl.web.layout import PageLayout
-from reahl.web.dynamic import DynamicSection
 from reahl.web.bootstrap.ui import FieldSet, HTML5Page, Div, P, HTMLWidget, Alert
 from reahl.web.bootstrap.files import FileUploadInput
 from reahl.web.bootstrap.grid import Container, ColumnLayout, ColumnOptions, ResponsiveSize
@@ -64,7 +63,7 @@ class NewInvestmentForm(Form):
 class InvestorDetailsSection(Div):
     def __init__(self, form, investment):
         super(InvestorDetailsSection, self).__init__(form.view, css_id='investor_details_section')
-        self.enable_refresh(on_refresh=investment.events.allocation_changed)
+        self.enable_refresh()
         self.use_layout(FormLayout())
 
         investor_info = self.add_child(FieldSet(self.view, legend_text='Investor information'))
@@ -104,7 +103,6 @@ class AllocationDetailSection(Div):
     def __init__(self, form, investment):
         super(AllocationDetailSection, self).__init__(form.view, css_id='investment_allocation_details')
         self.enable_refresh(on_refresh=investment.events.allocation_changed)
-        investment.recalculate()
         self.use_layout(FormLayout())
 
         allocation_controls = self.add_child(FieldSet(self.view, legend_text='Investment allocation'))
