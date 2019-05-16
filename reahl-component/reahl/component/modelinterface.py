@@ -927,9 +927,9 @@ class Field(object):
             self.from_input_regardless_access(unparsed_input, ignore_validation=ignore_validation)
 
     def from_input_regardless_access(self, unparsed_input, ignore_validation=False):
-            self.set_user_input(unparsed_input, ignore_validation=ignore_validation)
-            if self.input_status == 'validly_entered':
-                self.set_model_value()
+        self.set_user_input(unparsed_input, ignore_validation=ignore_validation)
+        if self.input_status == 'validly_entered':
+            self.set_model_value()
 
     def as_user_input_value(self, for_input_status=None):
         return self.input_as_string(self.as_list_unaware_user_input_value(for_input_status=for_input_status))

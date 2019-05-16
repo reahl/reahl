@@ -1491,11 +1491,7 @@ class PrimitiveInput(Input):
             construction_state = self.view.get_construction_state()
 
             if construction_state:
-                previously_entered_value = self.bound_field.extract_unparsed_input_from_dict_of_lists(construction_state, default_if_not_found=False)
-                if self.bound_field.can_write():
-                    self.bound_field.set_user_input(previously_entered_value, ignore_validation=True)
-                    if self.bound_field.input_status == 'validly_entered' and self.bound_field.can_write():
-                            self.bound_field.set_model_value()
+                self.bound_field.from_disambiguated_input(construction_state, ignore_validation=True, default_if_not_found=False)
                 self.bound_field.clear_user_input()
 
                 last_POSTed_state = self.view.last_POSTed_state_as_dict_of_lists
