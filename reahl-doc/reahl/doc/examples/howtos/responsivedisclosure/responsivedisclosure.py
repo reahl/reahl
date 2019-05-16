@@ -157,7 +157,7 @@ class Investment(Base):
     surname         = Column(UnicodeText)
     amount          = Column(Integer)
     amount_or_percentage = Column(UnicodeText)
-    allocations     = relationship('Allocation', back_populates='investment')
+    allocations     = relationship('Allocation', back_populates='investment', lazy='immediate')
     id_document     = relationship('IDDocument', uselist=False, back_populates='investment')
 
     @exposed
@@ -189,8 +189,8 @@ class Investment(Base):
         self.new_or_existing = None
         self.agreed_to_terms = False
         if not self.allocations:
-            self.allocations.append(Allocation(self, 'Fund A'))
-            self.allocations.append(Allocation(self, 'Fund B'))
+            Allocation(self, 'Fund A')
+            Allocation(self, 'Fund B')
         if not self.id_document:
             self.id_document = IDDocument(investment=self)
 
@@ -199,14 +199,24 @@ class Investment(Base):
         return self.amount_or_percentage == 'percentage'
 
     def recalculate(self):
-#        import pdb; pdb.set_trace()
         for allocation in self.allocations:
             allocation.recalculate(self.amount)
 
+    def validate_allocations(self):
+        if self.is_in_percentage:
+            total_percentage = sum([a.percentage for a in self.allocations])
+            if total_percentage != 100:
+                raise DomainException(message='Please ensure allocation percentages add up to 100')
+        else:
+            total_amount = sum([a.amount for a in self.allocations])
+            if total_amount != self.amount:
+                raise DomainException(message='Please ensure allocation amounts add up to your total amount (%s)' % self.amount)
+
     def submit(self):
         print('Submitting investment')
-        if self.amount == 666:
-            raise DomainException(message='hahaha')
+        self.recalculate()
+        self.validate_allocations()
+
         if self.new_or_existing == 'new':
             print('\tName: %s' % self.name)
             print('\tSurname: %s' % self.surname)
@@ -218,7 +228,7 @@ class Investment(Base):
         print('\tAllocations (%s)' % self.amount_or_percentage)
         for allocation in self.allocations:
             allocation_size = allocation.percentage if self.is_in_percentage else allocation.amount
-            print('\t\tFund %s(%s): %s' % (allocation.fund, allocation.fund_code, allocation_size))
+            print('\t\tFund %s(%s): %s (%s)' % (allocation.fund, allocation.fund_code, allocation_size, allocation.amount))
 
         Session.delete(self)
 
@@ -263,7 +273,6 @@ class Allocation(Base):
                 self.percentage = int(round(self.amount / total * 100))
         else:
             self.amount = int(round(self.percentage / 100 * total))
-        print('Updated %s: amount(%s) percentage(%s)' % (self.fund, self.amount, self.percentage))
 
 
 class IDDocument(Base):

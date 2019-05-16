@@ -807,6 +807,7 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 # - something to say here about working with a persisted vs transient object and what will work/not
 # - check that read-only inputs in state are not inputted / become validation errors?
 # - if the input of a trigger input is invalid, retain the invalid input
+# - do some ajax, with invalid value present (like existing account number); then supply valid value for it, then submit (but the submit throws an exception); then check that the valid value was retained in the input
 
 # Unrelated: get_value_from_input of CheckboxSelectInput | a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
     # def get_value_from_input(self, input_values):

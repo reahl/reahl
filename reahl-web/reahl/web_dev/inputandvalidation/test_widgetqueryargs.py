@@ -85,7 +85,7 @@ def test_query_string_widget_arguments(web_fixture, value_scenarios):
 
         @exposed
         def query_fields(self, fields):
-            fields.arg_directly_on_widget = fixture.field
+            fields.arg_directly_on_widget = fixture.field.unbound_copy() # We use a copy, because the Field on the fixture is only constructed once, but we get here more than once during a GET
 
     wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=WidgetWithQueryArguments.factory())
     browser = Browser(wsgi_app)

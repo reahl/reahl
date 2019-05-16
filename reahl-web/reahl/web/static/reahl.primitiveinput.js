@@ -34,15 +34,27 @@
                 this.element.on('change', function(e) {
                     var currentInput = $(_this.getAllRelatedFormInputs()[0]);
                     var inputName = currentInput.attr('name');
-                    var formId = $(currentInput[0].form).attr('id');
+                    var formId = _this.getForm().attr('id');
                     var selectorForFocus = '#'+formId+' [name="'+inputName+'"]';
 
-                    $(currentInput).focus();
-                    $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(function(){ 
-                        $(selectorForFocus).focus();
-                    });
+                    if (_this.isValid()) { 
+                        $(currentInput).focus();
+                        $('#'+_this.getRefreshWidgetId()).data('reahlHashchange').forceReload(function(){ 
+                            $(selectorForFocus).focus();
+                        });
+                    }
                 })
             };
+        },
+
+        getForm: function() {
+            var inputs = this.getAllRelatedFormInputs();
+            if (inputs.length < 1) { throw new Error('Expected at least one form input'); };
+            return $(inputs[0].form);
+        },
+
+        isValid: function() {
+            return this.getForm().validate().element(this.getAllRelatedFormInputs());
         },
         
         isCheckbox: function() {

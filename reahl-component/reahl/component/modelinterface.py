@@ -895,8 +895,8 @@ class Field(object):
     def validate_parsed(self, parsed_value, ignore=None):
         self.validation_constraints.validate_parsed(parsed_value, ignore=ignore)
 
-    def update_value_in_disambiguated_input(self, input_dict):
-        input_dict[self.name_in_input] = self.as_user_input_value()
+    def update_valid_value_in_disambiguated_input(self, input_dict):
+        input_dict[self.name_in_input] = self.as_user_input_value(for_input_status='defaulted')
 
     def extract_unparsed_input_from_dict_of_lists(self, input_dict, default_if_not_found=True):
         list_of_input = input_dict.get(self.name_in_input, [])
@@ -1540,7 +1540,7 @@ class MultiChoiceField(ChoiceField):
     def get_empty_sentinel_name(self, base_name):
         return '%s-' % base_name
 
-    def update_value_in_disambiguated_input(self, input_dict):
+    def update_valid_value_in_disambiguated_input(self, input_dict):
         try:
             del input_dict[self.get_empty_sentinel_name(self.name_in_input)]
         except KeyError:
@@ -1551,7 +1551,7 @@ class MultiChoiceField(ChoiceField):
         except KeyError:
             pass
 
-        list_value = self.as_list_unaware_user_input_value()
+        list_value = self.as_list_unaware_user_input_value(for_input_status='defaulted')
         if list_value == []:
             input_dict[self.get_empty_sentinel_name(self.name_in_input)] = ''
         elif list_value:

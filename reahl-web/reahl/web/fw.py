@@ -1839,8 +1839,7 @@ class UrlBoundView(View):
 
     def update_client_side_state(self, field):
         construction_state = self.construction_client_side_state_as_dict_of_lists
-        if field.input_status != 'invalidly_entered':
-            field.update_value_in_disambiguated_input(construction_state)
+        field.update_valid_value_in_disambiguated_input(construction_state)
         self._construction_client_side_state = urllib_parse.urlencode(construction_state, doseq=True)
 
     @property
@@ -1865,8 +1864,16 @@ class UrlBoundView(View):
 
     @property
     def current_POSTed_client_side_state(self):
-        request = ExecutionContext.get_context().request
-        return request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
+        if not hasattr(self, '_current_POSTed_client_side_state'):
+            request = ExecutionContext.get_context().request
+            client_state_string = request.POST.dict_of_lists().get('__reahl_client_side_state__', [''])[0]
+            client_state = urllib_parse.parse_qs(client_state_string, keep_blank_values=True)
+            client_state.update(request.POST)
+            client_state_string = urllib_parse.urlencode(client_state, doseq=True)
+            self._current_POSTed_client_side_state = client_state_string
+        else:
+            client_state_string = self._current_POSTed_client_side_state
+        return client_state_string
 
     @property
     def construction_client_side_state_as_dict_of_lists(self):
@@ -2400,11 +2407,7 @@ class EventChannel(RemoteMethod):
     def cleanup_after_exception(self, input_values, ex):
         self.form.persisted_userinput_class.clear_for_view(self.form.view)
         self.form.cleanup_after_exception(input_values, ex)
-#        import pdb; pdb.set_trace()
-#        fragment = input_values.get('__reahl_client_side_state__', [''])[0]
-#        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_client_side_state__', fragment, six.text_type)
-        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_last_POSTed_state__', self.form.view.current_POSTed_client_side_state, six.text_type)
-        self.form.persisted_userinput_class.add_persisted_for_view(self.form.view, '__reahl_last_construction_client_side_state__', self.form.view.construction_client_side_state, six.text_type)
+        self.form.view.save_client_side_state()
         
     def cleanup_after_success(self):
         self.form.cleanup_after_success()
@@ -2417,9 +2420,18 @@ class ComposedPage(Resource):
         super(ComposedPage, self).__init__()
         self.view = view
         self.page = page
+
+    @property
+    def should_commit(self):
+        return False
         
     def handle_get(self, request):
-        return self.render()
+        internal_redirect = getattr(request, 'internal_redirect', None)
+        if internal_redirect:
+            return self.render()
+        else:
+            # so that we can re-render on values that were updated in the domain
+            raise InternalRedirect()
 
     def render(self):
         return Response(
