@@ -30,7 +30,7 @@ from reahl.web.fw import Widget, UserInterface
 from reahl.web.ui import Form, Div, SelectInput, Label, P, RadioButtonSelectInput, CheckboxSelectInput, \
     CheckboxInput, ButtonInput, TextInput, HTML5Page
 from reahl.component.modelinterface import Field, BooleanField, MultiChoiceField, ChoiceField, Choice, exposed, \
-    IntegerField, EmailField, Event, Action
+    IntegerField, EmailField, Event, Action, Allowed
 from reahl.component.exceptions import ProgrammerError, DomainException
 from reahl.web_dev.inputandvalidation.test_widgetqueryargs import QueryStringFixture
 from reahl.sqlalchemysupport import Base, Session
@@ -760,43 +760,189 @@ def test_browser_back_after_state_changes_goes_to_previous_url(web_fixture, quer
 
 
 
-@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture, ResponsiveDisclosureFixture)
-def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_fixture, responsive_disclosure_fixture):
+@uses(query_string_fixture=QueryStringFixture)
+class RecalculatedWidgetScenarios(Fixture):
+    def new_ModelObject(self):
+        fixture = self
+        class ModelObject(Base):
+            __tablename__ = 'test_responsive_disclosure_recalculate'
+            id = Column(Integer, primary_key=True)
+            choice = Column(Integer, default=1)
+            calculated_state = Column(Integer, default=0)
+
+            def recalculate(self):
+                self.calculated_state = self.choice * 10
+
+            def submit(self):
+                raise DomainException(message='An exception happened on submit')
+
+            @exposed
+            def events(self, events):
+                events.choice_changed = Event(action=Action(self.recalculate))
+                events.submit = Event(action=Action(self.submit))
+
+            @exposed
+            def fields(self, fields):
+                fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
+                                            Choice(2, IntegerField(label='Two')),
+                                            Choice(3, IntegerField(label='Three'))],
+                                            label='Choice')
+                fields.calculated_state = IntegerField(label='Calculated', writable=Allowed(not fixture.read_only))
+        return ModelObject
+
+    def new_model_object(self):
+        return self.ModelObject()
+
+    def new_MainWidgetWithPersistentModelObject(self):
+        fixture = self
+        class MyForm(Form):
+            def __init__(self, view, an_object):
+                super(MyForm, self).__init__(view, 'myform')
+                self.an_object = an_object
+                self.enable_refresh(on_refresh=an_object.events.choice_changed)
+                if self.exception:
+                    self.add_child(P(self.view, text=str(self.exception)))
+                self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
+                self.add_child(Label(view, for_input=self.change_trigger_input))
+                self.add_child(self.change_trigger_input)
+                self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
+                fixture.add_to_form(self, an_object)
+                self.define_event_handler(an_object.events.submit)
+                self.add_child(ButtonInput(self, an_object.events.submit))
+
+        class MainWidgetWithPersistentModelObject(Widget):
+            def __init__(self, view):
+                super(MainWidgetWithPersistentModelObject, self).__init__(view)
+                an_object = fixture.model_object
+                self.add_child(MyForm(view, an_object))
+                
+        return MainWidgetWithPersistentModelObject
+
+    @scenario
+    def plain_widget(self):
+        def add_to_form(form, model_object):
+            form.add_child(P(form.view, text='My calculated state is now %s' % model_object.calculated_state))
+
+        def check_widget_value(browser, value):
+            browser.wait_for(self.query_string_fixture.is_state_labelled_now, 'My calculated state', value)
+
+        self.add_to_form = add_to_form
+        self.check_widget_value = check_widget_value
+        self.read_only = True
+
+    @scenario
+    def writable_input(self):
+        def add_to_form(form, model_object):
+            text_input = TextInput(form, model_object.fields.calculated_state)
+            form.add_child(Label(form.view, for_input=text_input))
+            form.add_child(text_input)
+            form.add_child(P(form.view, text='Status: %s' % text_input.get_input_status()))
+
+        def check_widget_value(browser, value):
+            browser.wait_for(browser.is_element_value, XPath.input_labelled('Calculated'), str(value))
+            assert browser.is_element_present(XPath.paragraph_containing('Status: defaulted'))
+
+        self.add_to_form = add_to_form
+        self.check_widget_value = check_widget_value
+        self.read_only = False
+
+    @scenario
+    def read_only_input(self):
+        self.writable_input()
+        self.read_only = True
+
+
+@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture, RecalculatedWidgetScenarios)
+def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_fixture, scenario):
     """You can make a widget recalculate domain values upon refresh by adding an Event to enable_refresh()."""
 
-    fixture = responsive_disclosure_fixture
+    fixture = scenario
+
+    with sql_alchemy_fixture.persistent_test_classes(fixture.ModelObject):
+
+        Session.add(fixture.model_object)
+
+        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=scenario.MainWidgetWithPersistentModelObject.factory())
+        web_fixture.reahl_server.set_app(wsgi_app)
+        browser = web_fixture.driver_browser
+
+        browser.open('/')
+        assert browser.wait_for(query_string_fixture.is_state_now, 1)
+        scenario.check_widget_value(browser, 10)
+        browser.type(XPath.input_labelled('Choice'), '2')
+        browser.press_tab()
+
+        # Case: values are recalculated after ajax
+        assert browser.wait_for(query_string_fixture.is_state_now, 2)
+        scenario.check_widget_value(browser, 20)
+
+        # Case: values stay recalculated after submit with exception
+        browser.click(XPath.button_labelled('submit'))
+        assert browser.is_element_present(XPath.paragraph_containing('An exception happened on submit'))
+        scenario.check_widget_value(browser, 20)
+
+
+@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture)
+def test_invalid_trigger_inputs(web_fixture, query_string_fixture, sql_alchemy_fixture):
+    """Invalid values of trigger inputs are retained, while the calculated values are based on the last valid values in the domain."""
+
+    fixture = scenario
 
     class ModelObject(Base):
-        __tablename__ = 'test_responsive_disclosure_recalculate'
+        __tablename__ = 'test_responsive_disclosure_recalculate_invalids'
         id = Column(Integer, primary_key=True)
         choice = Column(Integer, default=1)
+        choice2 = Column(Integer, default=4)
+        choice3 = Column(Integer, default=9)
         calculated_state = Column(Integer, default=0)
 
         def recalculate(self):
-            self.calculated_state = self.choice * 10
+            self.calculated_state = self.choice + self.choice2
+
+        def submit(self):
+            raise DomainException(message='An exception happened on submit')
 
         @exposed
         def events(self, events):
             events.choice_changed = Event(action=Action(self.recalculate))
+            events.submit = Event(action=Action(self.submit))
 
         @exposed
         def fields(self, fields):
             fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
-                                         Choice(2, IntegerField(label='Two')),
-                                         Choice(3, IntegerField(label='Three'))],
-                                         label='Choice')
-
+                                        Choice(2, IntegerField(label='Two')),
+                                        Choice(3, IntegerField(label='Three'))],
+                                        label='Choice')
+            fields.choice2 = ChoiceField([Choice(4, IntegerField(label='Four')),
+                                        Choice(5, IntegerField(label='Five')),
+                                        Choice(6, IntegerField(label='Six'))],
+                                        label='Choice2')
+            fields.calculated_state = IntegerField(label='Calculated', writable=Allowed(False))
 
     class MyForm(Form):
         def __init__(self, view, an_object):
             super(MyForm, self).__init__(view, 'myform')
             self.an_object = an_object
             self.enable_refresh(on_refresh=an_object.events.choice_changed)
-            self.change_trigger_input = fixture.create_trigger_input(self, an_object)
+            if self.exception:
+                self.add_child(P(self.view, text=str(self.exception)))
+            self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
             self.add_child(Label(view, for_input=self.change_trigger_input))
             self.add_child(self.change_trigger_input)
-            self.add_child(P(self.view, text='My state is now %s' % an_object.choice))
+            self.add_child(P(self.view, text='My choice state is now %s' % an_object.choice))
+            self.change2_trigger_input = TextInput(self, an_object.fields.choice2, refresh_widget=self)
+            self.add_child(Label(view, for_input=self.change2_trigger_input))
+            self.add_child(self.change2_trigger_input)
+            self.add_child(P(self.view, text='My choice2 state is now %s' % an_object.choice2))
             self.add_child(P(self.view, text='My calculated state is now %s' % an_object.calculated_state))
+            self.define_event_handler(an_object.events.submit)
+            self.add_child(ButtonInput(self, an_object.events.submit))
+
+    class MainWidgetWithPersistentModelObject(Widget):
+        def __init__(self, view):
+            super(MainWidgetWithPersistentModelObject, self).__init__(view)
+            an_object = fixture.model_object
+            self.add_child(MyForm(view, an_object))
 
 
     with sql_alchemy_fixture.persistent_test_classes(ModelObject):
@@ -804,22 +950,125 @@ def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_f
         fixture.model_object = ModelObject()
         Session.add(fixture.model_object)
 
-        class MainWidgetWithPersistentModelObject(Widget):
-            def __init__(self, view):
-                super(MainWidgetWithPersistentModelObject, self).__init__(view)
-                an_object = fixture.model_object
-                self.add_child(MyForm(view, an_object))
+        wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidgetWithPersistentModelObject.factory())
+        web_fixture.reahl_server.set_app(wsgi_app)
+        browser = web_fixture.driver_browser
+
+        browser.open('/')
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My choice state', 1)
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My choice2 state', 4)
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '5')
+
+        # Case: Entering an invalid value does not trigger a refresh of the input doing the triggering
+        browser.type(XPath.input_labelled('Choice'), 'invalid value')
+        with web_fixture.driver_browser.no_load_expected_for('input[name=choice]'):
+            browser.press_tab()
+
+        # Case: Entering an valid value in a different trigger, triggers a refresh, but last valid value of choice is used
+        browser.type(XPath.input_labelled('Choice2'), '5')
+        browser.press_tab()
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '6')
+
+        #       But, the invalid input is retained
+        assert browser.is_element_value(XPath.input_labelled('Choice'), 'invalid value')
+
+
+@with_fixtures(WebFixture, QueryStringFixture, SqlAlchemyFixture)
+def test_invalid_non_trigger_input_corner_case(web_fixture, query_string_fixture, sql_alchemy_fixture):
+    """."""
+
+    fixture = scenario
+
+    class ModelObject(Base):
+        __tablename__ = 'test_responsive_disclosure_recalculate_invalids'
+        id = Column(Integer, primary_key=True)
+        choice = Column(Integer, default=1)
+        choice2 = Column(Integer, default=4)
+        choice3 = Column(Integer, default=9)
+        calculated_state = Column(Integer, default=0)
+
+        def recalculate(self):
+            self.calculated_state = self.choice + self.choice2
+
+        def submit(self):
+            raise DomainException(message='An exception happened on submit')
+
+        @exposed
+        def events(self, events):
+            events.choice_changed = Event(action=Action(self.recalculate))
+            events.submit = Event(action=Action(self.submit))
+
+        @exposed
+        def fields(self, fields):
+            fields.choice = ChoiceField([Choice(1, IntegerField(label='One')),
+                                        Choice(2, IntegerField(label='Two')),
+                                        Choice(3, IntegerField(label='Three'))],
+                                        label='Choice')
+            fields.choice2 = ChoiceField([Choice(4, IntegerField(label='Four')),
+                                        Choice(5, IntegerField(label='Five')),
+                                        Choice(6, IntegerField(label='Six'))],
+                                        label='Choice2')
+            fields.choice3 = ChoiceField([Choice(7, IntegerField(label='Seven')),
+                                        Choice(8, IntegerField(label='Eight')),
+                                        Choice(9, IntegerField(label='Nine'))],
+                                        label='Choice3')
+            fields.calculated_state = IntegerField(label='Calculated', writable=Allowed(False))
+
+    class MyForm(Form):
+        def __init__(self, view, an_object):
+            super(MyForm, self).__init__(view, 'myform')
+            self.an_object = an_object
+            self.enable_refresh(on_refresh=an_object.events.choice_changed)
+            if self.exception:
+                self.add_child(P(self.view, text=str(self.exception)))
+            self.change_trigger_input = TextInput(self, an_object.fields.choice, refresh_widget=self)
+            self.add_child(Label(view, for_input=self.change_trigger_input))
+            self.add_child(self.change_trigger_input)
+            self.add_child(P(self.view, text='My choice state is now %s' % an_object.choice))
+            self.change2_trigger_input = TextInput(self, an_object.fields.choice2, refresh_widget=self)
+            self.add_child(Label(view, for_input=self.change2_trigger_input))
+            self.add_child(self.change2_trigger_input)
+            self.add_child(P(self.view, text='My choice2 state is now %s' % an_object.choice2))
+            self.change3_trigger_input = TextInput(self, an_object.fields.choice3)
+            self.add_child(Label(view, for_input=self.change3_trigger_input))
+            self.add_child(self.change3_trigger_input)
+            self.add_child(P(self.view, text='My calculated state is now %s' % an_object.calculated_state))
+            self.define_event_handler(an_object.events.submit)
+            self.add_child(ButtonInput(self, an_object.events.submit))
+
+    class MainWidgetWithPersistentModelObject(Widget):
+        def __init__(self, view):
+            super(MainWidgetWithPersistentModelObject, self).__init__(view)
+            an_object = fixture.model_object
+            self.add_child(MyForm(view, an_object))
+
+
+    with sql_alchemy_fixture.persistent_test_classes(ModelObject):
+
+        fixture.model_object = ModelObject()
+        Session.add(fixture.model_object)
 
         wsgi_app = web_fixture.new_wsgi_app(enable_js=True, child_factory=MainWidgetWithPersistentModelObject.factory())
         web_fixture.reahl_server.set_app(wsgi_app)
         browser = web_fixture.driver_browser
-        
+
         browser.open('/')
-        assert browser.wait_for(query_string_fixture.is_state_now, 1)
-        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', 10)
-        browser.select(XPath.select_labelled('Choice'), 'Two')
-        assert browser.wait_for(query_string_fixture.is_state_now, 2)
-        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', 20)
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My choice state', 1)
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My choice2 state', 4)
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '5')
+
+        browser.type(XPath.input_labelled('Choice3'), 'other invalid input')
+        browser.type(XPath.input_labelled('Choice'), '2')
+        browser.press_tab()
+        assert browser.wait_for(query_string_fixture.is_state_labelled_now, 'My calculated state', '6')
+
+        assert browser.is_element_value(XPath.input_labelled('Choice3'), 'other invalid input')
+        browser.type(XPath.input_labelled('Choice3'), '8')
+        browser.click(XPath.button_labelled('submit'))
+        assert browser.is_element_present(XPath.paragraph_containing('An exception happened on submit'))
+        assert browser.is_element_value(XPath.input_labelled('Choice3'), '8')
+        # --- see line 1515 in ui.py...for what makes this break
+
 
 # TODO: 
 # - dealing with nestedforms that appear inside a DynamicWidget
@@ -829,15 +1078,16 @@ def test_recalculate_on_refresh(web_fixture, query_string_fixture, sql_alchemy_f
 #   DONE eg, percentage and amount columns always displayed; wen tabbing out of a percentage, recalculate corresponding amount
 
 # TODO:
-# - You can make the widget do stuff upon refresh by adding an Event to its constructor
-#    - check that input values are updated with values recalculated on the model
-#       - also for read-only ones
-#    - check that other stuff, such as P with content based on recalculated model values are updated
-# - on the G of a PRG, the you should see recalculated stuff if there was an exception
+# - DONE You can make the widget do stuff upon refresh by adding an Event to its constructor
+#   DONE - check that input values are updated with values recalculated on the model
+#   DONE    - also for read-only ones
+#   DONE - check that other stuff, such as P with content based on recalculated model values are updated
+#   DONE - check that read-only inputs in state are not inputted / become validation errors?
+#   DONE - on the G of a PRG, the you should see recalculated stuff if there was an exception
+# DONE - if the input of a trigger input is invalid, retain the invalid input, but render values calculated on its last valid value
+# DONE - do some ajax, with invalid value present (like existing account number); then supply valid value for it, then submit (but the submit throws an exception); then check that the valid value was retained in the input
+# - put some input in amounts; uncheck I agree; check it again - the values should default again... currently they get last POSTed and the read=only ones are marked as invalid
 # - something to say here about working with a persisted vs transient object and what will work/not
-# - check that read-only inputs in state are not inputted / become validation errors?
-# - if the input of a trigger input is invalid, retain the invalid input
-# - do some ajax, with invalid value present (like existing account number); then supply valid value for it, then submit (but the submit throws an exception); then check that the valid value was retained in the input
 
 # Unrelated: get_value_from_input of CheckboxSelectInput | a bug - see test_marshalling_of_checkbox_select_input, and add a similar test using a BooleanField
     # def get_value_from_input(self, input_values):
